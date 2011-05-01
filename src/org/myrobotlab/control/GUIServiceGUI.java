@@ -181,14 +181,18 @@ public class GUIServiceGUI extends ServiceGUI {
 				{
 					mxCell m = (mxCell)cell;
 					System.out.println("cell="+graph.getLabel(cell) + ", " + m.getId() + ", " + graph.getLabel(m.getParent()));
-					GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();// zod zod zod
-					if (v.type == Type.OUTPORT)
+					if (m.isVertex())
 					{
-						new GUIServiceOutMethodDialog(myService, "out method", v); 
-					} else if (v.type == Type.INPORT)
-					{
-						new GUIServiceInMethodDialog(myService, "in method", v); 
-					}
+						// TODO - edges get filtered through here too - need to process - (String) type
+						GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();// zod zod zod
+						if (v.type == Type.OUTPORT)
+						{
+							new GUIServiceOutMethodDialog(myService, "out method", v); 
+						} else if (v.type == Type.INPORT)
+						{
+							new GUIServiceInMethodDialog(myService, "in method", v); 
+						}
+					} // else isEdge
 					
 				}
 			}
