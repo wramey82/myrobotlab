@@ -118,7 +118,7 @@ public class Clock extends Service {
 		//invoker.startService();
 		//invoker.notify("pulse", "log", "invoker", Integer.class);
 
-		GUIService gui = new GUIService("agui");
+		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 	}

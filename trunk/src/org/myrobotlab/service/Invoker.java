@@ -113,16 +113,17 @@ public class Invoker extends Service {
 	static public String[] getServiceShortClassNames() {
 		// return getShortClassNames("org.myrobotlab.service",false);
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
-				"Calibrator", "Clock", "ColoredThingyFinder", "ComediDriver",
-				"FrogLeg", "GeneticProgramming", "Graphics", "GUIService",
+				"Calibrator", "Clock", "ComediDriver", "DifferentialDrive",
+				"FaceTracker", "GeneticProgramming",
+				"Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
 				"Logging",
-				"MediaSource", "MoMo", "Motor", "OAuth", "OpenCV",
-				"ParallelPort", "PICAXE", "Player", "RecorderPlayer",
-				"RemoteAdapter", "Rose", "Rusty", "SensorMonitor", "Serial",
+				"MediaSource", "MoMo", "Motor", "OpenCV",
+				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage", "RecorderPlayer",
+				"RemoteAdapter", "Rose",  "SensorMonitor", "Serial",
 				"Servo", "SLAM", "SoccerGame", "SOHDARService", "Speech",
 				"SpeechRecognition", "StepperMotor", "SystemInformation",
-				"TestCatcher", "TestClock", "TestThrower", "TrackingService",
+				"TrackingService",
 				"WiiDAR", "Wii" };
 	}
 
