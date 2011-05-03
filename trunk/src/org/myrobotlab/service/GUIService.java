@@ -29,6 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -63,7 +64,6 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
@@ -134,29 +134,34 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		cfg.set("servicePort", "3389");
 		cfg.set("remoteColorTab", "0x99CC66");
 
+		cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel",false);
 		// default view
-		cfg.set("org.myrobotlab.service.SpeechRecognition/displayAsTabbed",true);
-		cfg.set("org.myrobotlab.service.SensorMonitor/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.GeneticProgramming/displayAsTabbed",true);
-		cfg.set("org.myrobotlab.service.Servo/displayAsTabbed",true);
-		cfg.set("org.myrobotlab.service.OpenCV/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Graphics/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.AudioFile/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Arduino/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Motor/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.GUIService/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Player/displayAsTabbed", true);
-		// cfg.set("org.myrobotlab.service.WiiDAR/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Wii/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Invoker/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.Speech/displayAsTabbed", true);
-		// cfg.set("org.myrobotlab.service.Servo/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.SoccerGame/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.RemoteAdapter/displayAsTabbed", true);
-		cfg.set("org.myrobotlab.service.DifferentialDrive/displayAsTabbed", true);
+		/*
+		cfg.set("org.myrobotlab.service.SpeechRecognition/displayOnCustomPanel",false);
+		cfg.set("org.myrobotlab.service.SensorMonitor/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.GeneticProgramming/displayOnCustomPanel",false);
+		cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel",false);
+		cfg.set("org.myrobotlab.service.OpenCV/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Graphics/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.AudioFile/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Arduino/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Motor/displayOnCustomPanel", false);
+		//cfg.set("org.myrobotlab.service.GUIService/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Player/displayOnCustomPanel", false);
+		// cfg.set("org.myrobotlab.service.WiiDAR/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Wii/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Invoker/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.Speech/displayOnCustomPanel", false);
+		// cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.SoccerGame/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.RemoteAdapter/displayOnCustomPanel", false);
+		cfg.set("org.myrobotlab.service.DifferentialDrive/displayOnCustomPanel", false);
+		*/
 
 	}
 
+	public HashMap<String, Boolean> customWidgetPrefs = new HashMap<String, Boolean>(); 
+	
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
 	}
@@ -220,8 +225,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		// TODO - throw error on name collision from client list
 		tabs.addTab("communication", (JComponent) network); 
 
-		JPanel customPanel = new JPanel(new GridBagLayout());
-		gc.anchor = GridBagConstraints.FIRST_LINE_START;
+		//JPanel customPanel = new JPanel(new GridBagLayout());
+		JPanel customPanel = new JPanel(new FlowLayout());
+		customPanel.setPreferredSize(new Dimension(800, 600));
+		//gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 		// iterate through services list begin ------------
 		HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
@@ -282,15 +289,16 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			serviceGUIMap.put(serviceName, gui);
 			gui.attachGUI();
 
-			if (cfg.get(se.serviceClass + "/displayAsTabbed", false)) {
-				tpanel.add(gui.widgetFrame); // TODO - do not grap
-												// widgetFrame directly -
-												// ask for widgetDisplay()
+			//cfg.get(se.serviceClass + "/displayOnCustomPanel", false) ||
+			 // && customWidgetPrefs.get(se.name) == true
+			if (!customWidgetPrefs.containsKey(se.name) || (customWidgetPrefs.containsKey(se.name) && customWidgetPrefs.get(se.name) == false)) {
+				tpanel.add(gui.widgetFrame); 
 				++index;
 				tabs.addTab(serviceName, tpanel);
 			} else {
-				gc.gridx = 0;
-				++gc.gridy;
+				//gc.gridx = 0;
+				//++gc.gridy; // holey crap - there's why the flowmanager did not work
+				//customPanel.add(gui.widgetFrame, gc);
 				customPanel.add(gui.widgetFrame, gc);
 			}
 
@@ -321,7 +329,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		// grap my panel
 		// GUIServiceGUI myGUI = (GUIServiceGUI)serviceGUIMap.get(name);
 		// myGUI.
-		tabs.setSelectedIndex(2);
+//		tabs.setSelectedIndex(2);
 
 		try {
 			Thread.sleep(160); // delay display - ecllipse bug? XDnD property

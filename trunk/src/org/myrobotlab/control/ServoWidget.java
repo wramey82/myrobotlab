@@ -116,13 +116,6 @@ public class ServoWidget extends ServiceGUI {
 		return slider;
 	}
 
-	public Service getOperator() {
-		return myService;
-	}
-
-	public void setService(GUIService myService) {
-		this.myService = myService;
-	}
 
 	private class DigitalButton extends JButton implements ActionListener {
 		private static final long serialVersionUID = 1L;
@@ -143,12 +136,12 @@ public class ServoWidget extends ServiceGUI {
 				IOData io = new IOData();
 				// io.address.set(pin.getPinNumber()); io.value.set(0); TODO -
 				// fix
-				pin.getOperator().send(boundServiceName, "attach", io);
+				myService.send(boundServiceName, "attach", io);
 			} else {
 				setText("attach");
 				IOData io = new IOData();
 				// io.address.set(pin.getPinNumber()); io.value.set(1);
-				pin.getOperator().send(boundServiceName, "detach", io);
+				myService.send(boundServiceName, "detach", io);
 			}
 		}
 	}

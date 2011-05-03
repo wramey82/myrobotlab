@@ -41,7 +41,9 @@ public class FaceTracker extends Service {
 	Servo tilt = new Servo("tilt");
 	Servo pan = new Servo("pan");
 	OpenCV camera = new OpenCV("camera");
-	 
+	
+	Arduino arduino = new Arduino("arduino");
+	
 	Logging logger = new Logging("logger");
 	
 	public FaceTracker(String n) {
@@ -51,10 +53,14 @@ public class FaceTracker extends Service {
 		pan.startService();
 		camera.startService();
 		logger.startService();
+		arduino.startService();
+		//pan.attach(arduino.name, 13);
 
 		camera.notify("publish", name, "input");
-		notify("pan", "logger", "log");
-		notify("tilt", "logger", "log");
+		//notify("pan", "logger", "log");
+		//notify("tilt", "logger", "log");
+		notify("pan", "pan", "move");
+		notify("tilt", "tilt", "move");
 	}
 	
 	@Override
@@ -68,12 +74,49 @@ public class FaceTracker extends Service {
 	public void stopTracking()
 	{
 	}
+
+	// TODO - put cfg
+	int width = 160;
+	int height = 120;
+	int centerX = width/2;
+	int centerY = height/2;
+	int errorX = 0;
+	int errorY = 0;
 	
 	public void input (CvPoint point)
 	{
+		// TODO - handle multiple resolutions
+		// currently I am only going to do 160 x 120
+		errorX = (point.x - centerX)/2 * -1;
+		errorY = (point.y - centerY)/2 * -1;
+		
+		if (point.x > centerX)
+		{
+			errorX = -1;
+		} else {
+			errorX = 1;			
+		}
+
+		if (point.y > centerY)
+		{
+			errorY = -1;
+		} else {
+			errorY = 1;			
+		}
+		
+		
 		LOG.info(point);
-		invoke("pan", point.x);
-		invoke("tilt", point.y);
+		
+		invoke("pan", errorX);
+		invoke("tilt", errorY);
+		/*
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 	}
 	
 	public Integer tilt (Integer position)
@@ -90,7 +133,7 @@ public class FaceTracker extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 		
-		FaceTracker ft = new FaceTracker("clock");
+		FaceTracker ft = new FaceTracker("face tracker");
 		ft.startService();
 
 		/*

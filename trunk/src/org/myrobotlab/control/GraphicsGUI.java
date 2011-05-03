@@ -28,15 +28,17 @@ package org.myrobotlab.control;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JButton;
 import javax.swing.JList;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
@@ -49,11 +51,21 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	VideoWidget video = null;
 	BufferedImage graph = null;
 	Graphics g = null;
-
-	public GraphicsGUI(String name, GUIService myService) {
+	
+	public GraphicsGUI(final String name, final GUIService myService) {
 		super(name, myService);
 
-		video = new VideoWidget(name, myService);
+		JButton cg = new JButton("create graph");
+		cg.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				myService.send(boundServiceName, "createGraph");
+			}
+		});
+		
+		video = new VideoWidget(name, myService);	
+		display.add(cg);
 		display.add(video.display, gc);
 
 	}
@@ -66,14 +78,16 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
+		//sendNotifyRequest(outMethod, inMethod, parameterType)
+		myService.send(boundServiceName,"attach", (Object)myService.name);
 	}
 
 	@Override
 	public void detachGUI() {
 		video.detachGUI();
+		myService.send(boundServiceName,"detach");
 	}
 
-	// TODO - rename "createGraph !!!"
 	public void createGraph (Dimension d)
 	{
 		graph = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
@@ -85,6 +99,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	public void drawLine(Integer x1, Integer y1, Integer x2, Integer y2)
 	{
 		g.drawLine(x1, y1, x2, y2);
+		refreshDisplay();
 		//video.webCamDisplay(graph);
 	}
 	

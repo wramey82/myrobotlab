@@ -27,11 +27,14 @@ package org.myrobotlab.service;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.NameValuePair;
 
 public class Graphics extends Service {
 
@@ -48,6 +51,11 @@ public class Graphics extends Service {
 	public void attach(String guiServiceName)
 	{
 		this.guiServiceName = guiServiceName;
+	}
+
+	public void detach()
+	{
+		this.guiServiceName = null;
 	}
 	
 	@Override
@@ -125,6 +133,47 @@ public class Graphics extends Service {
 	/*
 	 *    publishing points end --------------------------------------------
 	 */
+	
+	HashMap<String, Color> plotColorMap = new HashMap<String, Color>(); 
+	HashMap<String, Integer> plotXValueMap = new HashMap<String, Integer>(); 
+	
+	public Random rand = new Random();
+	int plotTextStart = 10;
+
+	public void plot (NameValuePair nvp)
+	{
+		if (!plotColorMap.containsKey(nvp.name))
+		{
+			Color color = new Color(rand.nextInt(16777215));
+			plotColorMap.put(nvp.name, color);
+			setColor(plotColorMap.get(nvp.name));
+			drawString(nvp.name, 10, plotTextStart);
+			plotTextStart+=10;
+		}
+
+		if (!plotXValueMap.containsKey(nvp.name))
+		{
+			Integer x = new Integer(0);
+			plotXValueMap.put(nvp.name, x);
+		}
+		
+		int x = plotXValueMap.get(nvp.name);
+		int y = cfg.getInt("height") - Integer.parseInt(nvp.value)%cfg.getInt("height");
+		setColor(plotColorMap.get(nvp.name));
+		drawLine(x, y, x, y);
+		if (x%cfg.getInt("width") == 0 || y%cfg.getInt("height") == 0)
+		{
+			int textPos = 10;
+			Iterator<String> it = plotColorMap.keySet().iterator();
+			while (it.hasNext()) {
+				String name = it.next();
+				setColor(plotColorMap.get(name));
+				drawString(name, 10, textPos);
+				textPos+=10;
+			}
+		}
+		plotXValueMap.put(nvp.name, ++x%cfg.getInt("width"));
+	}
 	
 	
 	public static void main(String[] args) {

@@ -28,6 +28,8 @@ package org.myrobotlab.control;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -41,6 +43,13 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.myrobotlab.control.GUIServiceGraphVertex.Type;
+import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.service.GUIService;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
@@ -49,14 +58,8 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
-import org.myrobotlab.control.GUIServiceGraphVertex.Type;
-import org.myrobotlab.framework.ConfigurationManager;
-import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
-import org.myrobotlab.service.GUIService;
 
-public class GUIServiceGUI extends ServiceGUI {
+public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 	static final long serialVersionUID = 1L;
 	
@@ -120,6 +123,7 @@ public class GUIServiceGUI extends ServiceGUI {
 		}
 	};
 	
+	mxCell currentlySelectedCell = null;
 	
 	public GUIServiceGUI(String name, final GUIService myService) {
 		super(name, myService);
@@ -150,6 +154,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		// -------------------------BEGIN PURE JGRAPH ----------------------------
 		graph.setMinimumGraphSize(new mxRectangle(0, 0, 800, 600)); // TODO - get # of services to set size?
+
 		
 		// Sets the default edge style
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
@@ -166,16 +171,21 @@ public class GUIServiceGUI extends ServiceGUI {
 			graph.getModel().endUpdate();
 		}
 
+		//graphPanel.addKeyListener(this);
 		
 		final mxGraphComponent graphComponent = new mxGraphComponent(graph);
 		graphPanel.add(graphComponent);
 		
+		graphComponent.addKeyListener(this);
+		//graphComponent.getGraphControl().addKeyListener(this);
 		graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
 		{
 		
 			public void mouseReleased(MouseEvent e)
 			{
 				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+				
+				currentlySelectedCell = (mxCell)cell;
 				
 				if (cell != null)
 				{
@@ -192,7 +202,9 @@ public class GUIServiceGUI extends ServiceGUI {
 						{
 							new GUIServiceInMethodDialog(myService, "in method", v); 
 						}
-					} // else isEdge
+					} else if (m.isEdge()) {
+						LOG.error("isEdge");
+					}
 					
 				}
 			}
@@ -395,6 +407,22 @@ public class GUIServiceGUI extends ServiceGUI {
 	public void detachGUI() {
 		// TODO Auto-generated method stub
 
+	}
+
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		LOG.error("here");
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		LOG.error("here");
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		LOG.error("here");
 	}
 	
 	// about begin

@@ -74,9 +74,7 @@ public class CFGSlider extends JPanel {
 			slider.addChangeListener(new javax.swing.event.ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
 					outputLabel.setText("" + slider.getValue());
-					NameValuePair nvp = new NameValuePair();
-					nvp.name = CFGName;
-					nvp.value = Integer.toString(slider.getValue());
+					NameValuePair nvp = new NameValuePair(CFGName,Integer.toString(slider.getValue()));
 					if (myService != null) {
 						// myService.send(boundService, "setCFG", nvp);
 						myService.send(boundService, "setCFG", nvp);

@@ -182,10 +182,15 @@ public abstract class Service implements Runnable {
 		cfg.set(mvp.name.toString(), mvp.value.toString());
 	}
 
+	// TODO - should be Object value? - would that mean all clients need to cast?
 	public void setCFG(String name, String value) {
 		cfg.set(name, value);
 	}
 
+	public void setCFG(String name, Integer value) {
+		cfg.set(name, value);
+	}
+	
 	public void loadGlobalMachineDefaults() {
 		// create root configuration
 		ConfigurationManager hostCFG = new ConfigurationManager(host);
