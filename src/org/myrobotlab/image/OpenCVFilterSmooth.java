@@ -26,25 +26,16 @@
 package org.myrobotlab.image;
 
 import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.cvDrawRect;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
-import javax.swing.JTextField;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.jna.cv;
+import com.googlecode.javacv.jna.cxcore.IplImage;
 
 public class OpenCVFilterSmooth extends OpenCVFilter {
 

@@ -74,7 +74,6 @@ public class RadarWidget extends JPanel implements Runnable {
 		PolarPoint curDot;
 		double curAngle;
 		double curDist;
-		int isDead = 0;
 		double rad = 0;
 		int width = 160;
 		int height = 160;

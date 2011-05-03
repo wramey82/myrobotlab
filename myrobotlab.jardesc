@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="myrobotlab/myrobotlab.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/myrobotlab/myrobotlab.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service{Invoker.java[Invoker" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.image"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.arduinoSerial.rf.recv_1"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.cmdline"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.picaxeSerial"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.arduinoSerial.rf.serial_2"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.arduinoSerial.ir"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.arduinoSerial"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.dbms"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.test.junit"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.serial"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.util"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.comm"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.interfaces"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.framework"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.test"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.speech"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.control"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.gp"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.arduinoSerial.rf"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.service.data"/>
+        <javaElement handleIdentifier="=myrobotlab/src&lt;org.myrobotlab.fileLib"/>
+    </selectedElements>
+</jardesc>

@@ -2,10 +2,7 @@ package org.myrobotlab.test.junit;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
-
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.AudioFile;
 import org.myrobotlab.service.ColoredThingyFinder;

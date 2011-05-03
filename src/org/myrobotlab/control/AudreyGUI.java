@@ -166,12 +166,6 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 			// LOG.error("Typed" + keyEvent);
 		}
 
-		private void printIt(String title, KeyEvent keyEvent) {
-			int keyCode = keyEvent.getKeyCode();
-			String keyText = KeyEvent.getKeyText(keyCode);
-			// LOG.error(title + " : " + keyText + " / " +
-			// keyEvent.getKeyChar());
-		}
 	};
 
 	public void setLogin(String login) {

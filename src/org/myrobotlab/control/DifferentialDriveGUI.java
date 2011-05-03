@@ -25,7 +25,6 @@
 
 package org.myrobotlab.control;
 
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
@@ -87,7 +86,6 @@ public class DifferentialDriveGUI extends ServiceGUI {
 
 		JPanel p = new JPanel(new GridBagLayout());
 		p.setBorder(title);
-		Dimension d = positionX.getPreferredSize();
 
 		gc.gridx = 0;
 		gc.gridy = 0;
