@@ -119,20 +119,14 @@ public abstract class Service implements Runnable {
 			// load root level configuration
 			ConfigurationManager rootcfg = new ConfigurationManager();
 			rootcfg.load(host + ".properties");
-			rootcfg.save("root.txt");
 			hostInitialized = true;
 		}
-		
-//		hostcfg.save(host + ".out.txt");
-//		cfg.save(host + ".2.out.txt");		
 		
 		// service instance level defaults
 		loadDefaultConfiguration();		
 		
 		// over-ride service level with service file
 		cfg.load(host + "." + name + ".properties");
-//		cfg.save(host + "." + name + ".out.txt");
-
 
 		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);

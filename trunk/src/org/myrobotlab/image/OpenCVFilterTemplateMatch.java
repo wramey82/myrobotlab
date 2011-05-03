@@ -25,17 +25,14 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.jna.highgui.cvLoadImage;
+
 import java.awt.image.BufferedImage;
 
-import static com.googlecode.javacv.jna.cxcore.*;
-import static com.googlecode.javacv.jna.cv.*;
-import static com.googlecode.javacv.jna.highgui.*;
-import static com.googlecode.javacv.jna.cvaux.*;
-
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.jna.cxcore.IplImage;
 
 public class OpenCVFilterTemplateMatch extends OpenCVFilter {
 

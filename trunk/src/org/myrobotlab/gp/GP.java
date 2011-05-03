@@ -619,7 +619,6 @@ public class GP extends Observable implements Runnable {
 		double fraction;
 		int index;
 		Individual individual1, individual2;
-		int i;
 		double sumOfFractions = this.crossoverFraction.doubleValue()
 				+ this.fitnessProportionateReproFraction.doubleValue()
 				+ this.mutationFraction.doubleValue();
@@ -1076,7 +1075,7 @@ public class GP extends Observable implements Runnable {
 		LOG.info("makeDefaultFitnessCases " + currentGeneration);
 
 		// int NrOfFitnessCases = 20;
-		int NrOfFitnessCases = 4;
+		//int NrOfFitnessCases = 4;
 		String s = "// the data \n";
 		s += "123 164\n";
 		s += "249 164\n";

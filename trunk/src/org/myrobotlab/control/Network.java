@@ -130,7 +130,6 @@ public class Network extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int port = Integer.parseInt(servicePortValue.getText());
-			String t = loginValue.getText();
 			myService.sendServiceDirectoryUpdate(loginValue.getText(),
 					loginPasswordValue.getText(), "frogleg", hostnameValue
 							.getText(), port); // TODO FIX THIS !!!

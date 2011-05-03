@@ -189,6 +189,7 @@ public class SoccerGameGUI extends ServiceGUI {
 	public void attachGUI() {
 	}
 
+	/*
 	private JSlider getAnalogValue() {
 		if (slider == null) {
 			slider = new JSlider(0, 180, 90);
@@ -208,15 +209,10 @@ public class SoccerGameGUI extends ServiceGUI {
 		}
 		return slider;
 	}
-
+	*/
+	
 	private class DigitalButton extends JButton implements ActionListener {
 		private static final long serialVersionUID = 1L;
-
-		public DigitalButton() {
-			super();
-			setText("Off");
-			addActionListener(this);
-		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {

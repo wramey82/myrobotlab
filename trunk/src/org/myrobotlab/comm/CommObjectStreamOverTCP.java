@@ -25,16 +25,10 @@
 
 package org.myrobotlab.comm;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StreamCorruptedException;
 import java.net.ConnectException;
 import java.net.DatagramSocket;
@@ -46,7 +40,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
@@ -135,8 +128,6 @@ public class CommObjectStreamOverTCP extends Communicator {
 		public void run() {
 			try {
 				isRunning = true; // this is GLOBAL !
-
-				char end = 0;
 
 				while (socket != null && isRunning) {
 
