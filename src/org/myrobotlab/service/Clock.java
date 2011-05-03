@@ -29,11 +29,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.NameValuePair;
 
 public class Clock extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
-	public int cnt = 0;
+	//public int cnt = 0;
 	private int interval = 1000;
 	Thread myClock = null;
 	
@@ -53,13 +54,15 @@ public class Clock extends Service {
 			try {
 				while (isRunning == true)
 				{
-						Thread.sleep(interval);
-					invoke("pulse", cnt);
+					Thread.sleep(interval);
+					//invoke("pulse", cnt);
+					invoke("pulseNVP", cnt);
 					++cnt;
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				isRunning = false;
 			}
 		}
 	}
@@ -74,7 +77,7 @@ public class Clock extends Service {
 	
 	public void startClock()
 	{
-		myClock = new Thread(new ClockThread(interval), "clock_ticking_thread");
+		myClock = new Thread(new ClockThread(interval), name + "_ticking_thread");
 		myClock.start();
 	}
 	
@@ -93,6 +96,10 @@ public class Clock extends Service {
 		return count;
 	}
 
+	public NameValuePair pulseNVP(Integer count) {
+		return (new NameValuePair(name, count.toString()));
+	}
+	
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
 	}

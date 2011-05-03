@@ -34,30 +34,22 @@ public class NameValuePair implements Serializable {
 	public final static Logger LOG = Logger.getLogger(NameValuePair.class);
 
 	public int ID;
-	public String name; // name
-	public String value; // value
+	final public String name; // name
+	final public String value; // value
 
 	// option constants
 
 	// ctors begin ----
-	public NameValuePair() {
-		name = new String();
-		value = new String();
+	public NameValuePair(String name, String value) {
+		this.name = name;
+		this.value = value;
 	}
 
 	public NameValuePair(final NameValuePair other) {
-		this();
-		set(other);
+		this.name = other.name;
+		this.value = other.value;
 	}
 
-	// ctors end ----
-	// assignment begin --- todo - look @ clone copy
-	public void set(final NameValuePair other) {
-		ID = other.ID;
-		name = other.name;
-		value = other.value;
-
-	}
 
 	/*
 	 * Default format was xml is now JSON TODO - make toStringStyler like spring

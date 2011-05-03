@@ -49,7 +49,7 @@ public class LoggingGUI extends ServiceGUI {
 	
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("log", "log", Integer.class);		
+		sendNotifyRequest("log", "log", Message.class);		
 	}
 
 	@Override

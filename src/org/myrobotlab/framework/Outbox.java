@@ -104,7 +104,7 @@ public class Outbox extends Thread {
 			}
 
 			if (notifyList.size() != 0) {
-				LOG.error(myService.name + " notify list size " + notifyList.size());
+				//LOG.error(myService.name + " notify list size " + notifyList.size());
 				LOG.info("notifying");
 				ArrayList<NotifyEntry> subList = notifyList.get(msg.sendingMethod.toString()); // Get the value for
 															// the sourceMethod

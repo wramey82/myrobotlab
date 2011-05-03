@@ -28,6 +28,9 @@ package org.myrobotlab.control;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -37,7 +40,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.service.GUIService;
 
@@ -48,7 +50,7 @@ public abstract class ServiceGUI {
 			.getCanonicalName());
 
 	public final String boundServiceName;
-	GUIService myService = null;
+	final GUIService myService;
 
 	GridBagConstraints gc = new GridBagConstraints();
 
@@ -61,11 +63,30 @@ public abstract class ServiceGUI {
 	public JPanel display = new JPanel();
 
 	JButton detachButton = null;
-
+	
 	public ServiceGUI() {
 		this("unknown", null);
 	}
 
+	public class DetachListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			LOG.error("detach " + boundServiceName);
+			HashMap<String, Boolean> cwp = myService.customWidgetPrefs;
+			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false))
+			{
+				cwp.put(boundServiceName, true);
+			} else {
+				cwp.put(boundServiceName, false);
+			}
+			
+			myService.loadTabPanels();
+		}
+		
+	}
+	
 	public ServiceGUI(String boundServiceName, GUIService myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
@@ -74,6 +95,9 @@ public abstract class ServiceGUI {
 		detachButton = new JButton(getImageIcon("service_close.png"));
 		detachButton.setMargin(new Insets(0, 0, 0, 0));
 		menu.add(detachButton);
+		
+		
+		detachButton.addActionListener(new DetachListener());
 		/*
 		 * JButton test = new JButton(getImageIcon("service_close.png"));
 		 * test.setMargin(new Insets(0, 0, 0, 0)); menu.add(test);

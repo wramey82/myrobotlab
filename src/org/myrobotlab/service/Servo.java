@@ -60,9 +60,8 @@ public class Servo extends Service implements
 
 	@Override
 	public void loadDefaultConfiguration() {
-		/*
-		 * cfg.set("pin",0); cf.set("pos",0);
-		 */
+		cfg.set("posMin", 40);
+		cfg.set("posMax", 110);
 	}
 
 	/*
@@ -259,7 +258,7 @@ public class Servo extends Service implements
 										// details internally?
 	{
 		int p = cfg.getInt("pos") + amount;
-		if (p < 180 && p > 0) {
+		if (p < cfg.getInt("posMax") && p > cfg.getInt("posMin")) {
 			cfg.set("pos", p + amount);
 			LOG.info("move" + cfg.getInt("pos"));
 			invoke("servoWrite", p);

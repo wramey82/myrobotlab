@@ -35,6 +35,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -59,7 +60,11 @@ public class ServoGUI extends ServiceGUI {
 
 	JComboBox controller = null;
 	JComboBox pin = null;
-
+	
+	// TODO - sync initially by requesting entire Servo service object - can you get cfg? that way?
+	JTextField posMin = new JTextField("40");
+	JTextField posMax = new JTextField("80");
+		
 	public ServoGUI(String name, GUIService myService) {
 		super(name, myService);
 
@@ -146,9 +151,21 @@ public class ServoGUI extends ServiceGUI {
 
 		display.add(control);
 		display.add(input);
+		
+		gc.gridx = 0;
+		++gc.gridy;
 
+		JPanel limits = new JPanel();
+		limits.add(new UpdateLimits());
+		limits.add(new JLabel("min "));
+		limits.add(posMin);
+		limits.add(new JLabel(" max "));
+		limits.add(posMax);
+
+		display.add(limits, gc);
+		
 	}
-
+	
 	public void attachGUI() {
 		/*
 		 * ARRGH!! - BUG sendBLocking dangerous for GUI
@@ -217,6 +234,23 @@ public class ServoGUI extends ServiceGUI {
 		}
 	}
 
+	private class UpdateLimits extends JButton implements ActionListener {
+		private static final long serialVersionUID = 1L;
+
+		public UpdateLimits() {
+			super();
+			setText("update limits");
+			addActionListener(this);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			myService.send(boundServiceName, "setCFG", "posMin", Integer.parseInt(posMin.getText()));
+			myService.send(boundServiceName, "setCFG", "posMax", Integer.parseInt(posMax.getText()));
+		}
+	}
+	
+	
 	@Override
 	public void detachGUI() {
 		// TODO Auto-generated method stub

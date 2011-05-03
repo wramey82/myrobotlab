@@ -124,9 +124,9 @@ public class MotorWidget extends ServiceGUI {
 		return myService;
 	}
 
-	public void setService(GUIService myService) {
-		this.myService = myService;
-	}
+//	public void setService(GUIService myService) {
+//		this.myService = myService;
+//	}
 
 	private class DigitalButton extends JButton implements ActionListener {
 		private static final long serialVersionUID = 1L;

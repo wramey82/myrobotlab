@@ -169,16 +169,14 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				pt2.y = (r.y + r.height) * scale;
 
 				// Draw the rectangle in the input image
-				cvRectangle(img, pt1.byValue(), pt2.byValue(),
-						CV_RGB(255, 0, 0), 3, 8, 0);
+				cvRectangle(img, pt1.byValue(), pt2.byValue(), CV_RGB(255, 0, 0), 3, 8, 0);
 				centeroid.x = r.x + r.width * scale / 2;
 				centeroid.y = r.y + r.height * scale / 2;
-				ch1.x = centeroid.x + 1;
+/*				ch1.x = centeroid.x + 1;
 				ch1.y = centeroid.y;
 				ch2.x = centeroid.x - 1;
-				ch2.y = centeroid.y;
-				cvDrawLine(img, ch1.byValue(), centeroid.byValue(), CV_RGB(255,
-						0, 0), 3, 8, 0);
+				ch2.y = centeroid.y;*/
+				cvDrawLine(img, centeroid.byValue(), centeroid.byValue(), CV_RGB(255, 0, 0), 3, 8, 0);
 				myService.invoke("publish", centeroid);
 			}
 		}
