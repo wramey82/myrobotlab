@@ -57,6 +57,10 @@ public class Invoker extends Service {
 		System.out.println("-service GUIService gui");
 	}
 	
+	static void version() {
+		System.out.println("@@@svnversion@@@ @@@tstamp@@@");		
+	}
+	
 	static String helpString = "java -Djava.library.path=./bin  -cp \"myrobotlab.jar;lib/*\" org.myrobotlab.service.Invoker -service Invoker";
 
 	@Override
