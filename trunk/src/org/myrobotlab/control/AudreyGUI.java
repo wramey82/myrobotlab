@@ -205,7 +205,7 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 	/** Returns an ImageIcon, or null if the path was invalid. */
 	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
+		java.net.URL imgURL = getClass().getResource("/resource/" + path);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL, description);
 		} else {

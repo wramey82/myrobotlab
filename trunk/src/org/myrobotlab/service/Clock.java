@@ -36,10 +36,12 @@ public class Clock extends Service {
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
 	//public int cnt = 0;
 	private int interval = 1000;
-	Thread myClock = null;
+	
+	ClockThread myClock = null;
 	
 	public class ClockThread implements Runnable
 	{
+		public Thread thread = null;
 		public int interval;
 		public int cnt;
 		public boolean isRunning = true;
@@ -61,7 +63,7 @@ public class Clock extends Service {
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.info("ClockThread interrupt");
 				isRunning = false;
 			}
 		}
@@ -77,16 +79,25 @@ public class Clock extends Service {
 	
 	public void startClock()
 	{
-		myClock = new Thread(new ClockThread(interval), name + "_ticking_thread");
-		myClock.start();
+		if (myClock == null)
+		{
+			myClock = new ClockThread(interval);
+		}
+		if (myClock.thread == null)
+		{
+			Thread t = new Thread(myClock, name + "_ticking_thread");
+			t.start();
+		}
 	}
 	
 	public void stopClock()
 	{
-		if (myClock != null)
+		if (myClock != null && myClock.thread != null) // TODO - clean up mess !
 		{
-			myClock.interrupt();
-			myClock = null;
+			LOG.info("stopping " + name + " myClock");
+			myClock.isRunning = false;
+			myClock.thread.interrupt();
+			myClock.thread = null;
 		}
 	}
 
@@ -128,6 +139,12 @@ public class Clock extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+	}
+
+	@Override
+	public void stopService() {
+		stopClock();
+		super.stopService();
 	}
 	
 	@Override

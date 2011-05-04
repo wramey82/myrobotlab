@@ -132,7 +132,7 @@ public abstract class ServiceGUI {
 
 	protected ImageIcon getImageIcon(String path) {
 		ImageIcon icon = null;
-		java.net.URL imgURL = getClass().getResource(path);
+		java.net.URL imgURL = getClass().getResource("/resource/" + path);
 		if (imgURL != null) {
 			icon = new ImageIcon(imgURL);
 			return icon;

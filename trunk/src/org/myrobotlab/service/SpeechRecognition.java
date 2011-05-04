@@ -127,7 +127,7 @@ public class SpeechRecognition extends Service {
 			isRunning = true;
 			// cm = new
 			// ConfigurationManager(HelloWorld.class.getResource("helloworld.config.xml"));
-			URL url = this.getClass().getResource(cfg.get("grammarConfigXML"));
+			URL url = this.getClass().getResource("/resource/" + cfg.get("grammarConfigXML"));
 			cm = new ConfigurationManager(url);
 
 			// PropertySheet ps = cm.getPropertySheet("jsgfGrammar");

@@ -96,8 +96,10 @@
         <property name="dictionary" value="dictionary"/>
 <!--        <property name="grammarLocation"
              value="resource:/edu/cmu/sphinx/demo/helloworld/"/> -->
-           <property name="grammarLocation"
-             value="resource:/com/myrobotlab/service/"/> 
+<!--           <property name="grammarLocation"
+             value="resource:/com/myrobotlab/service/"/>  -->
+          <property name="grammarLocation"
+             value="resource:/resource/"/>
         <property name="grammarName" value="simple"/>
 	<property name="logMath" value="logMath"/> 
     </component>

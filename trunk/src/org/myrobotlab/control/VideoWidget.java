@@ -43,6 +43,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.GUIService;
@@ -150,7 +151,11 @@ public class VideoWidget extends ServiceGUI {
 	public VideoWidget(String boundServiceName, GUIService myService) {
 		super(boundServiceName, myService);
 
-		setScreenIcon("mrl_logo.jpg");
+		ImageIcon icon = FileIO.getResourceIcon("mrl_logo.jpg");
+		if (icon != null)
+		{
+			screen.setIcon(icon);	
+		}
 
 		screen.addMouseListener(vml);
 		myIcon.setImageObserver(screen); // WWOOAH - THIS MAY BE A BIG
@@ -259,19 +264,6 @@ public class VideoWidget extends ServiceGUI {
 			webCamDisplay(img.source, img);
 		} else {
 			webCamDisplay("unknown", img);
-		}
-	}
-
-	protected ImageIcon setScreenIcon(String path) {
-		ImageIcon icon = null;
-		java.net.URL imgURL = getClass().getResource(path);
-		if (imgURL != null) {
-			icon = new ImageIcon(imgURL);
-			screen.setIcon(icon);
-			return icon;
-		} else {
-			LOG.error("Couldn't find file: " + path);
-			return null;
 		}
 	}
 

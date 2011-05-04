@@ -29,6 +29,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.myrobotlab.cmdline.CMDLine;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 
 /*
@@ -51,14 +52,17 @@ public class Invoker extends Service {
 
 
 	static void help() {
+		System.out.println("Invoker " + version());
 		System.out.println("-h       # help ");
 		System.out.println("-list        # list services");
 		System.out.println("-service [Service] [Service Name]");
 		System.out.println("-service GUIService gui");
 	}
 	
-	static void version() {
-		System.out.println("@@@svnversion@@@ @@@tstamp@@@");		
+	static String version() {
+		String v = FileIO.getResourceFile("version.txt");
+		System.out.println(v);
+		return v;
 	}
 	
 	static String helpString = "java -Djava.library.path=./bin  -cp \"myrobotlab.jar;lib/*\" org.myrobotlab.service.Invoker -service Invoker";
@@ -73,11 +77,16 @@ public class Invoker extends Service {
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
-		if (cmdline.containsKey("-h")) {
+		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
 			help();
 			return;
 		}
 
+		if (cmdline.containsKey("-v") || cmdline.containsKey("--version")) {
+			version();
+			return;
+		}
+		
 		System.out.println("service count "
 				+ cmdline.getArgumentCount("-service") / 2);
 
@@ -148,9 +157,24 @@ public class Invoker extends Service {
 
 	public static void main(String[] args) {
 
+		try{
+			
+		
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+				
 		invokeCMDLine(args);
+		} catch (Exception e)
+		{
+			System.out.print("ouch !");
+			e.getStackTrace();
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	public int test()

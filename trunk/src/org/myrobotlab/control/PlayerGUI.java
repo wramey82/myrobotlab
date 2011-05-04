@@ -137,8 +137,7 @@ public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
 		++gc.gridy;
 		gc.gridx = 0;
 		// ImageIcon pic = new ImageIcon("soccerball.jpg");
-		ImageIcon pic = createImageIcon("soccerball.jpg",
-				"its a soccer ball, duh");
+		ImageIcon pic = createImageIcon("soccerball.jpg","its a soccer ball, duh");
 		display.add(new JLabel(pic), gc);
 
 		gc.gridx = 1;
@@ -286,7 +285,7 @@ public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
 
 	/** Returns an ImageIcon, or null if the path was invalid. */
 	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
+		java.net.URL imgURL = getClass().getResource("/resource/" + path);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL, description);
 		} else {
