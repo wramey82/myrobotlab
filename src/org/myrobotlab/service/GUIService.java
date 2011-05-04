@@ -475,7 +475,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		AboutDialog about = new AboutDialog(frame, "about", "<html><p align=center><h1>MyRobotLab</h1>"+
-		"<a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version @@@svn@@@<br>@@@tstamp@@@</p><html>");
+		"<a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version @@@svnversion@@@<br>@@@tstamp@@@</p><html>");
 	}
 	
 	
