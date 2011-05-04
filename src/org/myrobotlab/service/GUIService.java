@@ -31,7 +31,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -475,7 +474,8 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		AboutDialog about = new AboutDialog(frame, "about", "<html><p align=center><h1>MyRobotLab</h1><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version 0001.0455</p><html>");
+		AboutDialog about = new AboutDialog(frame, "about", "<html><p align=center><h1>MyRobotLab</h1>"+
+		"<a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version @@@svn@@@<br>@@@tstamp@@@</p><html>");
 	}
 	
 	
