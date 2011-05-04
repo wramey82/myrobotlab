@@ -195,8 +195,11 @@ public class OpenCV extends Service {
 
 	@Override
 	public void stopService() {
-		videoThread.interrupt();
-		videoThread = null;
+		if (videoThread != null)
+		{
+			videoThread.interrupt();
+			videoThread = null;
+		}
 		super.stopService();
 	}
 

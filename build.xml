@@ -1,0 +1,111 @@
+<project name="myrobotlab" default="dist" basedir=".">
+	<description>
+		http://myrobotlab.org myrobotlab build file
+    </description>
+
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build" location="build"/>
+	<property name="dist"  location="dist" />
+
+	<path id="compile.classpath">
+		<fileset dir="./thirdParty/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+
+		<exec executable="svnversion" outputproperty="repository.revision" />
+		<echo message="Repository revision is ${repository.revision}" />
+
+		<!-- replace file="${src}/org/myrobotlab/service/GUIService.java" token="@@@svnversion@@@" value="${repository.revision}"/>
+		<replace file="${src}/org/myrobotlab/service/GUIService.java" token="@@@tstamp@@@" value="${DSTAMP}"/>
+		<replace file="${src}/org/myrobotlab/service/Invoker.java" token="@@@svnversion@@@" value="${repository.revision}"/>
+		<replace file="${src}/org/myrobotlab/service/Invoker.java" token="@@@tstamp@@@" value="${DSTAMP}"/ -->
+
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<!-- svn javahl="${javahl}">
+	<checkout url="${urlRepos}" destPath="workingcopy" />
+	</svn -->
+
+	<target name="compile" depends="init"
+        description="compile the source " >
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath refid="compile.classpath"/>
+		</javac>
+		<!-- copy resources -->
+		<mkdir dir="${build}/resource"/> 
+		<mkdir dir="${build}/haarcascades"/> 
+		
+		<copy todir="${build}/resource">
+		    <fileset dir="${src}/resource"/>
+		</copy>
+		
+		<echo file="${build}/resource/version.txt">${repository.revision} ${DSTAMP} ${TSTAMP}</echo>
+
+		<copy todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/bin">
+		    <fileset dir="./thirdParty/bin"/>
+		</copy>
+
+		<copy todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/haarcascades">
+		    <fileset dir="./haarcascades"/>
+		</copy>
+		
+		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/jna.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+
+		<copy file="myrobotlab.bat" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
+		<!-- permissions are not preserved -->
+		<!-- copy file="myrobotlab.sh" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/ -->
+		<exec executable="cp" >
+			<arg value="myrobotlab.sh" />
+		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
+		</exec>
+		<exec executable="cp" >
+			<arg value="b.sh" />
+		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
+		</exec>
+		<copy file="LICENSE.txt" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
+		
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution" >
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
+		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/bin"/>
+		
+		<!-- Put everything in ${build} into the myrobotlab-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<!-- section name="myrobotlab" -->
+				<section name="compile">
+					<attribute name="Specification-Title" value="myrobotlab"/>
+					<attribute name="Specification-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
+					<attribute name="Specification-Vendor" value="myrobotlab"/>
+					<attribute name="Implementation-Title" value="myrobotlab"/>
+					<attribute name="Implementation-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
+					<attribute name="Implementation-Vendor" value="myrobotlab.org"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up" >
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>

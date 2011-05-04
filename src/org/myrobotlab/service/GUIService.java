@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -67,6 +68,7 @@ import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
@@ -215,9 +217,18 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			sg.detachGUI();
 		}
 
-		// remove all panels
-		tabs.removeAll();		
-
+		// TODO - 2 x bugs 
+		// 1. not synchronized - put in synchronized block?
+		// 2. called too many times
+		// tabs.removeAll(); - will explode too
+		// http://code.google.com/p/myrobotlab/issues/detail?id=1
+		
+		LOG.info("tab count" + tabs.getTabCount());
+		while (tabs.getTabCount() > 0)
+		{
+		    tabs.remove(0);
+		}
+		
 		// begin building panels
 		network = new Network(this); // TODO - clean this up - add
 										
@@ -274,7 +285,12 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		
 		frame.pack();
 		
-		tabs.setSelectedIndex(currentTab);
+		if (currentTab != -1)
+		{
+			tabs.setSelectedIndex(currentTab);
+		} else {
+			tabs.setSelectedIndex(0);
+		}
 		return tabs;
 
 	}
@@ -314,34 +330,34 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	}
 
 	public void display() {
-		frame = new JFrame();
+		if (frame == null)
+		{
+			frame = new JFrame();
+		}
 
 		frame.addWindowListener(this);
-
 		frame.setTitle("myrobotlab - " + name);
 		frame.setSize(150, 300);
 		// Image logo = new ImageIcon("mrl_logo_small.jpg").getImage();
 		// frame.setIconImage(logo);
 
-		panel.add(loadTabPanels(), gc);
+		ServiceTabPane stp = loadTabPanels(); 
+		panel.add(stp, gc);
 
-		// grap my panel
-		// GUIServiceGUI myGUI = (GUIServiceGUI)serviceGUIMap.get(name);
-		// myGUI.
-//		tabs.setSelectedIndex(2);
-
+/*
 		try {
 			Thread.sleep(160); // delay display - ecllipse bug? XDnD property
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-
-		URL url = getClass().getResource("mrl_logo_36_36.png");
+*/
+		// TODO - catch appropriate missing resource
+		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
 		frame.setIconImage(img);
+		
 		
 		JMenuBar menuBar = new JMenuBar();
 
@@ -427,8 +443,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			String serviceName = it.next();
 			ServiceEntry se = services.get(serviceName);
 
-			Service local = (Service) hostcfg
-					.getLocalServiceHandle(serviceName);
+			Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
 
 			if (serviceName.compareTo(this.name) == 0) {
 				LOG.info("momentarily skipping " + this.name + "....");
@@ -447,8 +462,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 		// shut self down
 		LOG.info("shutting down GUIService");
+		frame.dispose();		
 		this.stopService();
-		frame.dispose();
+		// the big hammer - TODO - close gui - allow all other services to continue
+		System.exit(1); // is this correct? - or should the gui load off a different thread?
 	}
 
 	// @Override - only in Java 1.6
@@ -474,8 +491,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		AboutDialog about = new AboutDialog(frame, "about", "<html><p align=center><h1>MyRobotLab</h1>"+
-		"<a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version @@@svnversion@@@<br>@@@tstamp@@@</p><html>");
+		String v = FileIO.getResourceFile("version.txt");
+		
+		new AboutDialog(frame, "about", 
+		"<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+v+"</p><html>");
 	}
 	
 	
@@ -490,15 +509,29 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		      Point p = parent.getLocation(); 
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		    }
+		    //GridBagConstraints gc = new GridBagConstraints();
+		    //JPanel messagePane = new JPanel(new GridBagLayout());
 		    JPanel messagePane = new JPanel();
+		    
+		    JLabel pic = new JLabel();
+			ImageIcon icon = FileIO.getResourceIcon("mrl_logo_about_128.png");
+			if (icon != null)
+			{
+				pic.setIcon(icon);	
+			}
+		    
+			messagePane.add(pic);
+		    
 		    JLabel link = new JLabel(message);
 		    link.addMouseListener(this);
-		    messagePane.add(link);
+		    ++gc.gridy; 
+		    messagePane.add(link,gc);
 		    getContentPane().add(messagePane);
 		    JPanel buttonPane = new JPanel();
 		    JButton button = new JButton("OK"); 
 		    buttonPane.add(button); 
 		    button.addActionListener(this);
+		    
 		    getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		    pack(); 
