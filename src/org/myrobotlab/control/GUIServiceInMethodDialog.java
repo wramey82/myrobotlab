@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -38,10 +39,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.service.GUIService;
+
+import com.mxgraph.model.mxCell;
+import com.mxgraph.view.mxGraph;
 
 public class GUIServiceInMethodDialog extends JDialog  implements ActionListener  {
 	
@@ -129,18 +132,26 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
         if (method != null && method.length() > 0)
         {
 	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
-			NotifyEntry notifyEntry = new NotifyEntry();
-			notifyEntry.name = myService.guiServiceGUI.dstServiceName.getText();
-			notifyEntry.outMethod_ = myService.guiServiceGUI.srcMethodName.getText().split(" ")[0];
-			notifyEntry.inMethod_ = myService.guiServiceGUI.dstMethodName.getText().split(" ")[0];
+			NotifyEntry ne = new NotifyEntry();
+			ne.name = myService.guiServiceGUI.dstServiceName.getText();
+			ne.outMethod_ = myService.guiServiceGUI.srcMethodName.getText().split(" ")[0];
+			ne.inMethod_ = myService.guiServiceGUI.dstMethodName.getText().split(" ")[0];
 			
-			LOG.error(notifyEntry);
+			LOG.error(ne);
 /*			
 			if (parameterType != null) {
-				notifyEntry.paramTypes = new Class[]{parameterType};
+				ne.paramTypes = new Class[]{parameterType};
 			}
 */			
-			myService.send(myService.guiServiceGUI.srcServiceName.getText(), "notify", notifyEntry);
+			// send the notification of new route to the target system
+			String srcService = myService.guiServiceGUI.srcServiceName.getText();
+			myService.send(srcService, "notify", ne);
+			
+			mxGraph graph = myService.guiServiceGUI.graph;
+			Object parent = graph.getDefaultParent();
+			HashMap<String, mxCell> serviceCells = myService.guiServiceGUI.serviceCells;
+			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(srcService), serviceCells.get(ne.name));
+			
 	        this.dispose();
         }
 	}	

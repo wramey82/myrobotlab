@@ -55,8 +55,9 @@ public class Invoker extends Service {
 		System.out.println("Invoker " + version());
 		System.out.println("-h       # help ");
 		System.out.println("-list        # list services");
-		System.out.println("-service [Service] [Service Name]");
-		System.out.println("-service GUIService gui");
+		System.out.println("-service [Service] [Service Name] ...");
+		System.out.println("example:");
+		System.out.println(helpString);
 	}
 	
 	static String version() {
@@ -65,7 +66,7 @@ public class Invoker extends Service {
 		return v;
 	}
 	
-	static String helpString = "java -Djava.library.path=./bin  -cp \"myrobotlab.jar;lib/*\" org.myrobotlab.service.Invoker -service Invoker";
+	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui";
 
 	@Override
 	public void loadDefaultConfiguration() {
@@ -147,16 +148,10 @@ public class Invoker extends Service {
 	public void addService(String className, String newName) {
 		LOG.info("adding service " + newName);
 		Service s = (Service) Service.getNewInstance("org.myrobotlab.service." + className, newName);
-		/*
-		if (gui != null)
-		{
-			// TODO - this "could" be messaged vs direct reference to support remote
-			gui.loadTabPanels();
-		}
-		*/
 		s.startService();
 	}
 
+	
 	public static void main(String[] args) {
 
 		try{
@@ -199,9 +194,12 @@ public class Invoker extends Service {
 
 	@Override
 	public String getToolTip() {
-		return "<html>Service used to create other services, does not need a GUI.<br>" +
-		"Services can be created with this service on the command line<br> <b><i>" +
-		helpString + "</i></b></html>";
+		return "<html>Service used to create other services. This service, like other services,<br>" +
+		"does not need a GUI.<br>" +
+		"Services can be created on the command line by using the Invoker in the following way.<br> " +
+		"-service [Service] [Service Name] ...<br>" +
+		"The following example will create an Invoker service named<br> \"services\" and a GUIService named \"gui\"<br>" +
+		"<b><i>" + helpString + "</i></b></html>";
 	}
 	
 }

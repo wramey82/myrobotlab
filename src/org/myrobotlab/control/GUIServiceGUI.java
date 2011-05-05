@@ -234,7 +234,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(boundServiceName, "loadTabPanels", null);
+				myService.loadTabPanels();
 			}
 
 		});
@@ -260,7 +260,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	}
 
 
-	HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
+	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	
 	public void buildLocalServiceGraph() {
 
@@ -348,46 +348,11 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 					for (int i = 0; i < nl.size(); ++i) {
 						NotifyEntry ne = nl.get(i);
 
-						// test if outmethod = in
-						String methodString = ne.outMethod_;
-						if (methodString != ne.inMethod_) {
-							methodString += "->" + ne.inMethod_;
-						}
-
-						// TODO FYI - depricate NotifyEntry use MethodEntry
-						// These parameter types could always be considered "inbound" ? or returnType
-						// TODO - view either full named paths or shortnames
-						
-						methodString += "(";
-
-						if (ne.paramTypes != null)
-						{
-							for (int j = 0; j < ne.paramTypes.length; ++j)
-							{								
-								//methodString += ne.paramTypes[j].getCanonicalName();
-								Class c = ne.paramTypes[j];
-								String t[] = c.getCanonicalName().split("\\.");
-								methodString += t[t.length -1];
-									
-								if (j < ne.paramTypes.length - 1) {
-									methodString += ",";
-								}
-							}
-						}
-							
-						/*
-						if (ne.paramType != null) {
-							methodString += ne.paramType.substring(ne.paramType
-									.lastIndexOf(".") + 1);
-						}
-						*/
-
-						methodString += ")";
 
 						//createArrow(se.name, ne.name, methodString);
 						//graph.getChildVertices(arg0)parent.
 						//graph.getChildVertices(graph.getDefaultParent());
-						graph.insertEdge(parent, null, methodString, serviceCells.get(se.name), serviceCells.get(ne.name));
+						graph.insertEdge(parent, null, formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(se.name), serviceCells.get(ne.name));
 
 					}
 				}
@@ -397,6 +362,47 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 	}
 
+	public static String formatMethodString (String out, Class[] paramTypes, String in)
+	{
+		// test if outmethod = in
+		String methodString = out;
+		//if (methodString != in) {
+			methodString += "->" + in;
+		//}
+
+		// TODO FYI - depricate NotifyEntry use MethodEntry
+		// These parameter types could always be considered "inbound" ? or returnType
+		// TODO - view either full named paths or shortnames
+		
+		methodString += "(";
+
+		if (paramTypes != null)
+		{
+			for (int j = 0; j < paramTypes.length; ++j)
+			{								
+				//methodString += paramTypes[j].getCanonicalName();
+				Class c = paramTypes[j];
+				String t[] = c.getCanonicalName().split("\\.");
+				methodString += t[t.length -1];
+					
+				if (j < paramTypes.length - 1) {
+					methodString += ",";
+				}
+			}
+		}
+			
+		/*
+		if (ne.paramType != null) {
+			methodString += ne.paramType.substring(ne.paramType
+					.lastIndexOf(".") + 1);
+		}
+		*/
+
+		methodString += ")";
+		
+		return methodString;
+	}
+	
 	@Override
 	public void attachGUI() {
 		// TODO Auto-generated method stub

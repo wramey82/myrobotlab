@@ -46,8 +46,7 @@ import org.myrobotlab.service.GUIService;
 public abstract class ServiceGUI {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(ServiceGUI.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
 	public final String boundServiceName;
 	final GUIService myService;
@@ -64,10 +63,14 @@ public abstract class ServiceGUI {
 
 	JButton detachButton = null;
 	
+	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
+	public int myIndex = -1; 
+	
 	public ServiceGUI() {
 		this("unknown", null);
 	}
 
+	// TODO - refactor better name vs detach
 	public class DetachListener implements ActionListener
 	{
 
@@ -85,6 +88,12 @@ public abstract class ServiceGUI {
 			myService.loadTabPanels();
 		}
 		
+	}
+	
+	public boolean isPanelTabbed()
+	{
+		HashMap<String, Boolean> cwp = myService.customWidgetPrefs;
+		return (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false));
 	}
 	
 	public ServiceGUI(String boundServiceName, GUIService myService) {
@@ -130,6 +139,7 @@ public abstract class ServiceGUI {
 
 	}
 
+	
 	protected ImageIcon getImageIcon(String path) {
 		ImageIcon icon = null;
 		java.net.URL imgURL = getClass().getResource("/resource/" + path);
