@@ -49,8 +49,10 @@ public class Clock extends Service {
 		ClockThread(int interval)
 		{
 			this.interval = interval;
+			thread = new Thread(this,name + "_ticking_thread");
+			thread.start();
 		}
-		
+				
 		public void run()
 		{			
 			try {
@@ -83,21 +85,17 @@ public class Clock extends Service {
 		{
 			myClock = new ClockThread(interval);
 		}
-		if (myClock.thread == null)
-		{
-			Thread t = new Thread(myClock, name + "_ticking_thread");
-			t.start();
-		}
 	}
 	
 	public void stopClock()
 	{
-		if (myClock != null && myClock.thread != null) // TODO - clean up mess !
+		if (myClock != null) 
 		{
 			LOG.info("stopping " + name + " myClock");
 			myClock.isRunning = false;
 			myClock.thread.interrupt();
 			myClock.thread = null;
+			myClock = null;
 		}
 	}
 

@@ -147,11 +147,13 @@ public class Invoker extends Service {
 	public void addService(String className, String newName) {
 		LOG.info("adding service " + newName);
 		Service s = (Service) Service.getNewInstance("org.myrobotlab.service." + className, newName);
+		/*
 		if (gui != null)
 		{
 			// TODO - this "could" be messaged vs direct reference to support remote
 			gui.loadTabPanels();
 		}
+		*/
 		s.startService();
 	}
 
