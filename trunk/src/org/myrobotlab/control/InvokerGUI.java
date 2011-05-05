@@ -159,7 +159,7 @@ public class InvokerGUI extends ServiceGUI {
 					String newService = (String) possibleServices.getSelectedValue();
 					myService.send(boundServiceName, "addService", newService,name);
 					// this is asynchronous - the service will be created later
-					// - expecially on a remote process
+					// - Especially on a remote process
 					// it would be nice to momentarily block on this call !!!
 					myService.loadTabPanels();
 				}

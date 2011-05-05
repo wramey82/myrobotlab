@@ -34,7 +34,6 @@ import org.myrobotlab.service.data.NameValuePair;
 public class Clock extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
-	//public int cnt = 0;
 	private int interval = 1000;
 	
 	ClockThread myClock = null;
@@ -59,8 +58,7 @@ public class Clock extends Service {
 				while (isRunning == true)
 				{
 					Thread.sleep(interval);
-					//invoke("pulse", cnt);
-					invoke("pulseNVP", cnt);
+					invoke("pulse", cnt);
 					++cnt;
 				}
 			} catch (InterruptedException e) {
@@ -105,9 +103,6 @@ public class Clock extends Service {
 		return count;
 	}
 
-	public NameValuePair pulseNVP(Integer count) {
-		return (new NameValuePair(name, count.toString()));
-	}
 	
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;

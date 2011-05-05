@@ -33,8 +33,8 @@ import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.NameValuePair;
 
 public class Graphics extends Service {
 
@@ -140,26 +140,35 @@ public class Graphics extends Service {
 	public Random rand = new Random();
 	int plotTextStart = 10;
 
-	public void plot (NameValuePair nvp)
+	public void plot (Message msg)
 	{
-		if (!plotColorMap.containsKey(nvp.name))
+		if (msg.data == null)
+		
+		if (!plotColorMap.containsKey(msg.sender))
 		{
 			Color color = new Color(rand.nextInt(16777215));
-			plotColorMap.put(nvp.name, color);
-			setColor(plotColorMap.get(nvp.name));
-			drawString(nvp.name, 10, plotTextStart);
+			plotColorMap.put(msg.sender, color);
+			setColor(plotColorMap.get(msg.sender));
+			drawString(msg.sender, 10, plotTextStart);
 			plotTextStart+=10;
 		}
 
-		if (!plotXValueMap.containsKey(nvp.name))
+		if (!plotXValueMap.containsKey(msg.sender))
 		{
 			Integer x = new Integer(0);
-			plotXValueMap.put(nvp.name, x);
+			plotXValueMap.put(msg.sender, x);
 		}
 		
-		int x = plotXValueMap.get(nvp.name);
-		int y = cfg.getInt("height") - Integer.parseInt(nvp.value)%cfg.getInt("height");
-		setColor(plotColorMap.get(nvp.name));
+		Integer value = cfg.getInt("height");
+		if (msg.data != null && msg.data.length > 0)
+		{
+			value = (Integer)msg.data[0];
+		}
+			
+		
+		int x = plotXValueMap.get(msg.sender);
+		int y = cfg.getInt("height") - value%cfg.getInt("height");
+		setColor(plotColorMap.get(msg.sender));
 		drawLine(x, y, x, y);
 		if (x%cfg.getInt("width") == 0 || y%cfg.getInt("height") == 0)
 		{
@@ -172,7 +181,7 @@ public class Graphics extends Service {
 				textPos+=10;
 			}
 		}
-		plotXValueMap.put(nvp.name, ++x%cfg.getInt("width"));
+		plotXValueMap.put(msg.name, ++x%cfg.getInt("width"));
 	}
 	
 	

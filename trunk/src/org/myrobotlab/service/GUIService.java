@@ -120,44 +120,21 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("commandMap/registerServices", ""); // list of commands to
-													// process directly
-		cfg.set("commandMap/loadTabPanels", ""); // vs send to GUI panels
-		cfg.set("commandMap/registerServicesNotify", ""); // vs send to GUI
-															// panels
-		cfg.set("commandMap/notify", ""); // vs send to GUI panels
-		cfg.set("commandMap/removeNotify", ""); // vs send to GUI panels
-		cfg.set("commandMap/guiUpdated", ""); // vs send to GUI panels
-		cfg.set("commandMap/setRemoteConnectionStatus", ""); // vs send to GUI
-																// panels
+		/*
+		 * The commandMap is a list of GUIService functions which should
+		 * be processed by GUIService rather than routed to control Panels
+		 */
+		cfg.set("commandMap/registerServices", "");
+		cfg.set("commandMap/loadTabPanels", ""); 
+		cfg.set("commandMap/registerServicesNotify", ""); 
+		cfg.set("commandMap/notify", ""); 
+		cfg.set("commandMap/removeNotify", ""); 
+		cfg.set("commandMap/guiUpdated", ""); 
+		cfg.set("commandMap/setRemoteConnectionStatus", ""); 
 
 		cfg.set("hostname", "match01");
 		cfg.set("servicePort", "3389");
 		cfg.set("remoteColorTab", "0x99CC66");
-
-		cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel",false);
-		// default view
-		/*
-		cfg.set("org.myrobotlab.service.SpeechRecognition/displayOnCustomPanel",false);
-		cfg.set("org.myrobotlab.service.SensorMonitor/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.GeneticProgramming/displayOnCustomPanel",false);
-		cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel",false);
-		cfg.set("org.myrobotlab.service.OpenCV/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Graphics/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.AudioFile/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Arduino/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Motor/displayOnCustomPanel", false);
-		//cfg.set("org.myrobotlab.service.GUIService/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Player/displayOnCustomPanel", false);
-		// cfg.set("org.myrobotlab.service.WiiDAR/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Wii/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Invoker/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.Speech/displayOnCustomPanel", false);
-		// cfg.set("org.myrobotlab.service.Servo/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.SoccerGame/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.RemoteAdapter/displayOnCustomPanel", false);
-		cfg.set("org.myrobotlab.service.DifferentialDrive/displayOnCustomPanel", false);
-		*/
 
 	}
 
@@ -205,9 +182,16 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	}
 
 	int currentTab = 0;
+	String selectedTabTitle = null;
+	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
+	
 	
 	public ServiceTabPane loadTabPanels() {
 		currentTab = tabs.getSelectedIndex();
+		if (currentTab > 0)
+		{
+			selectedTabTitle = tabs.getTitleAt(currentTab);
+		}
 		
 		// detach if panels are currently attached
 		Iterator<String> sgi = serviceGUIMap.keySet().iterator();
@@ -237,16 +221,14 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		// TODO - throw error on name collision from client list
 		tabs.addTab("communication", (JComponent) network); 
 
-		//JPanel customPanel = new JPanel(new GridBagLayout());
 		JPanel customPanel = new JPanel(new FlowLayout());
 		customPanel.setPreferredSize(new Dimension(800, 600));
-		//gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 		// iterate through services list begin ------------
 		HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
 		sortedMap = new TreeMap<String, ServiceEntry>(services);
 
-		int index = tabs.getTabCount() - 1;
+		Integer index = tabs.getTabCount() - 1;
 		
 		boolean createGUIServiceGUI = false;
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -266,7 +248,19 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				continue;
 			}
 			
-			createTabbedPanel(serviceName, guiClass, index, customPanel, se);
+			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, customPanel, se);
+			if (newGUI != null)
+			{
+				if (newGUI.isPanelTabbed())
+				{
+					++index;
+					titleToTabIndexMap.put(serviceName, index);
+					if (se.localServiceHandle == null) {
+						tabs.setBackgroundAt(index, Color.decode(cfg.get("remoteColorTab")));
+					}
+
+				}
+			}
 
 		}
 
@@ -280,19 +274,34 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
-			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, index, customPanel, se);
+			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, customPanel, se);
+			++index;
+			titleToTabIndexMap.put("custom", index);
+
 		}
 		
 		tabs.addTab("custom", customPanel);		
+		++index;
+		titleToTabIndexMap.put("custom", index);
 		
 		frame.pack();
 		
+		// attempt to select the previously selected tab
+		
+		if (selectedTabTitle != null && titleToTabIndexMap.containsKey(selectedTabTitle))
+		{
+			int newPos = titleToTabIndexMap.get(selectedTabTitle);
+			tabs.setSelectedIndex(newPos);
+		}
+		/*
 		if (currentTab != -1)
 		{
 			tabs.setSelectedIndex(currentTab);
 		} else {
 			tabs.setSelectedIndex(0);
 		}
+		*/
+		
 		return tabs;
 
 	}
@@ -308,7 +317,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	}
 	
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, int index, JPanel customPanel, ServiceEntry se)
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, JPanel customPanel, ServiceEntry se)
 	{
 		ServiceGUI gui = null;
 		JPanel tpanel = new JPanel();
@@ -317,27 +326,17 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			serviceGUIMap.put(serviceName, gui);
 			gui.attachGUI();
 
-			//cfg.get(se.serviceClass + "/displayOnCustomPanel", false) ||
-			 // && customWidgetPrefs.get(se.name) == true
 			if (!customWidgetPrefs.containsKey(se.name) || (customWidgetPrefs.containsKey(se.name) && customWidgetPrefs.get(se.name) == false)) {
 				tpanel.add(gui.widgetFrame); 
-				++index;
 				tabs.addTab(serviceName, tpanel);
 			} else {
-				//gc.gridx = 0;
-				//++gc.gridy; // holey crap - there's why the flowmanager did not work
-				//customPanel.add(gui.widgetFrame, gc);
-				customPanel.add(gui.widgetFrame, gc);
+				customPanel.add(gui.widgetFrame);
 			}
 
 		} else {
 			LOG.warn("could not construct a " + guiClass + " object");
 		}
 
-		if (se.localServiceHandle == null) {
-			tabs.setBackgroundAt(index, Color.decode(cfg.get("remoteColorTab")));
-		}
-		
 		return gui;
 		
 	}
@@ -402,13 +401,11 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	
 	public void registerServicesNotify() {
 		loadTabPanels();
-		invoke("guiUpdated", 5);
+		invoke("guiUpdated");
 	}
 
-	// TODO ! - MAKE NULL CAPABLE BUG !
-	public void guiUpdated(Integer i) {
+	public void guiUpdated() {
 		LOG.info("guiUpdated");
-		// notification that GUI Update has occured
 	}
 
 	public String setRemoteConnectionStatus(String state) {
