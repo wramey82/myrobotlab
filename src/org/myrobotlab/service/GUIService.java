@@ -222,12 +222,14 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		// 2. called too many times
 		// tabs.removeAll(); - will explode too
 		// http://code.google.com/p/myrobotlab/issues/detail?id=1
-		
+		/*
 		LOG.info("tab count" + tabs.getTabCount());
 		while (tabs.getTabCount() > 0)
 		{
 		    tabs.remove(0);
 		}
+		*/
+		removeAllTabPanels();
 		
 		// begin building panels
 		network = new Network(this); // TODO - clean this up - add
@@ -292,6 +294,17 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			tabs.setSelectedIndex(0);
 		}
 		return tabs;
+
+	}
+	
+	public synchronized void removeAllTabPanels()
+	{
+		//tabs.removeAll();
+		LOG.info("tab count" + tabs.getTabCount());
+		while (tabs.getTabCount() > 0)
+		{
+		    tabs.remove(0);
+		}
 
 	}
 	
