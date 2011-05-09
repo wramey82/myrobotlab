@@ -127,7 +127,7 @@ public class Invoker extends Service {
 	static public String[] getServiceShortClassNames() {
 		// return getShortClassNames("org.myrobotlab.service",false);
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
-				"Calibrator", "Clock", "ComediDriver", "DifferentialDrive",
+				"ChessGame", "Clock", "ComediDriver", "DifferentialDrive",
 				"FaceTracker", "GeneticProgramming",
 				"Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
@@ -174,23 +174,6 @@ public class Invoker extends Service {
 		}
 	}
 
-	public int test()
-	{
-		int x = 0;
-		return x;
-	}
-
-	public int test(int a, float b, boolean c, boolean[]d)
-	{
-		int x = 0;
-		return x;
-	}
-
-	public Integer test(Integer i)
-	{
-		int x = 0;
-		return x;
-	}
 
 	@Override
 	public String getToolTip() {

@@ -27,27 +27,30 @@ package org.myrobotlab.service;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.NameValuePair;
 
 public class Clock extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
-	private int interval = 1000;
-	
-	ClockThread myClock = null;
+
+	// fields
+	public int interval = 1000;
+	public PulseDataType pulseDataType = PulseDataType.none;
+	public String pulseDataString = null;
+	public int pulseDataInteger;	
+	public ClockThread myClock = null;
+
+	// types
+	public enum PulseDataType {none, integer, increment, string};
+
 	
 	public class ClockThread implements Runnable
 	{
 		public Thread thread = null;
-		public int interval;
-		public int cnt;
 		public boolean isRunning = true;
 		
-		ClockThread(int interval)
+		ClockThread()
 		{
-			this.interval = interval;
 			thread = new Thread(this,name + "_ticking_thread");
 			thread.start();
 		}
@@ -58,11 +61,19 @@ public class Clock extends Service {
 				while (isRunning == true)
 				{
 					Thread.sleep(interval);
-					invoke("pulse", cnt);
-					++cnt;
+					if (pulseDataType == PulseDataType.increment)
+					{
+						invoke("pulse", pulseDataInteger);
+						++pulseDataInteger;
+					} else if (pulseDataType == PulseDataType.integer) {
+						invoke("pulse", pulseDataInteger);
+					} else if (pulseDataType == PulseDataType.none) {
+						invoke("pulse");						
+					} else if (pulseDataType == PulseDataType.string) {
+						invoke("pulse", pulseDataString);												
+					}
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				LOG.info("ClockThread interrupt");
 				isRunning = false;
 			}
@@ -75,13 +86,20 @@ public class Clock extends Service {
 	
 	@Override
 	public void loadDefaultConfiguration() {
+		
+	}
+	
+	// TODO - how 
+	public void setPulseDataType (PulseDataType t)
+	{
+		pulseDataType = t;		
 	}
 	
 	public void startClock()
 	{
 		if (myClock == null)
 		{
-			myClock = new ClockThread(interval);
+			myClock = new ClockThread();
 		}
 	}
 	
@@ -97,12 +115,65 @@ public class Clock extends Service {
 		}
 	}
 
+	// TODO - enum pretty unsuccessful as
+	// type does not make it through Action
+	public void setType (String t)
+	{
+		if (t.compareTo("none") == 0)
+		{
+			pulseDataType = PulseDataType.none;
+		} else if (t.compareTo("increment") == 0)
+		{
+			pulseDataType = PulseDataType.increment;
+			
+		} else if (t.compareTo("string") == 0)
+		{
+			pulseDataType = PulseDataType.string;
+			
+		} else if (t.compareTo("integer") == 0)
+		{
+			pulseDataType = PulseDataType.integer;
+			
+		} else {
+			LOG.error("unknown type " + t);
+		}
+	}
+	
+	public void setType (PulseDataType t)
+	{
+		pulseDataType = t;
+	}
 
+	public void pulse() {
+	}
+	
 	public Integer pulse(Integer count) {
 		LOG.info("pulse " + count);
 		return count;
 	}
 
+	public String pulse(String d) {
+		return d;
+	}
+	
+	// new state functions begin --------------------------
+	public Clock publishState()
+	{
+		return this;
+	}
+
+	// TODO - reflectively do it in Service? !?
+	public Clock setState(Clock o)
+	{
+		this.interval = o.interval;
+		this.pulseDataInteger = o.pulseDataInteger;
+		this.pulseDataString = o.pulseDataString;
+		this.myClock = o.myClock;
+		
+		return o;
+	}
+	
+	// new state functions end ----------------------------
 	
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
@@ -122,12 +193,6 @@ public class Clock extends Service {
 		log.startService();
 		
 		clock.notify("pulse", "log", "log", Integer.class);
-		//log.notify("ditty", "gui", "dood", Integer.class);
-		//log.notify("shmooker", "gui", "pooker", Integer.class);
-		
-		//Invoker invoker = new Invoker("invoker");
-		//invoker.startService();
-		//invoker.notify("pulse", "log", "invoker", Integer.class);
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();

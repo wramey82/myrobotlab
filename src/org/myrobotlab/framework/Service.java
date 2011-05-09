@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
@@ -196,29 +197,12 @@ public abstract class Service implements Runnable {
 	}
 
 	public void loadServiceDefaultConfiguration() {
-		// TODO - how to handle enums ?!?!
-		// enum MsgHandling {PROCESS, RELAY, IGNORE, BROADCAST,
-		// PROCESSANDBROADCAST};
-		// also - 3 different level contexts - allow overrides
-		// Global->Service->XMLAdapter
-		// TODO - config precedence host:port/serviceName is redundant -
-		// serviceName must be unique - a remote service will need host:port/
-		// everything is context sensitive - preferably NOT - if NOT then full
-		// path is needed however host:port depends on context
-		// with local config root = .
-		// serviceName = .name
-		// without an adapter there is no listening port - what difference would
-		// it be if you set host = hostname
-		// currently hostkey = ":0" for local - SHOULD IT BE 127.0.0.1:6666 ? or
-		// hyperparasite/127.0.0.1:666 ????
-		// config would be
-		// ":0/xml01.anonymousMsgRequest=RELAY"
-		// "127.0.0.1:6666/xml01.anonymousMsgRequest=RELAY"
-		// "xml01.anonymousMsgRequest=RELAY" is probably th best
-		// cfg.setProperty("outboxMsgHandling", MsgHandling.RELAY);
-		// cfg.setProperty("anonymousMsgRequest", MsgHandling.PROCESS);
 		cfg.set("outboxMsgHandling", RELAY);
 		cfg.set("anonymousMsgRequest", PROCESS);
+
+		cfg.set("hideMethods/main", "");
+		cfg.set("hideMethods/loadDefaultConfiguration", "");
+		cfg.set("hideMethods/getToolTip", "");
 
 		outboxMsgHandling = cfg.get("outboxMsgHandling");
 		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
@@ -768,7 +752,20 @@ public abstract class Service implements Runnable {
 				LOG.debug("****invoking " + host + "/" + c.getCanonicalName()
 						+ "." + method + "(" + paramTypeString + ")****");
 			}
-
+/*
+			Method[] mm = c.getDeclaredMethods();
+			for (int z=0; z < mm.length; ++z)
+			{
+				Method zz = mm[z];
+				LOG.info(mm[z].getName());
+				Class[] t = mm[z].getParameterTypes();
+				for (int k = 0; k < t.length; ++k)
+				{
+					LOG.info(t[k].getCanonicalName());
+				}
+				//for (int zzz = 0; zzz < t.length)
+			}
+*/			
 			Method meth = c.getMethod(method, paramTypes);
 
 			retobj = meth.invoke(object, params);
@@ -816,6 +813,9 @@ public abstract class Service implements Runnable {
 			Class c;
 			c = Class.forName(serviceClass);
 
+			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
+
+			
 			// try to get method which has the correct parameter types
 			// http://java.sun.com/developer/technicalArticles/ALT/Reflection/
 			Method[] methods = c.getDeclaredMethods();
@@ -843,9 +843,13 @@ public abstract class Service implements Runnable {
 				// namedInstance will specify a class
 				// http(s)://host:port/namedInstance/method/(container-
 				// metaclass utf-8 encoded string + meta-container)parameter
-
 				// register this services functions
-				hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
+				
+				if (!hideMethods.containsKey(m.getName()))
+				{
+					// service level
+					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
+				}
 			}
 			
 			Class[] interfaces = c.getInterfaces();

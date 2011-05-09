@@ -184,18 +184,19 @@ public class DifferentialDriveGUI extends ServiceGUI {
 		
 	}
 
-
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "publishState", DifferentialDrive.class);
+		sendNotifyRequest("publishState", "getState", DifferentialDrive.class);
 	}
 
 	@Override
 	public void detachGUI() {
+		removeNotifyRequest("publishState", "getState", DifferentialDrive.class);
 	}
 	
-	// new state function begin ---------------
-	public void publishState(DifferentialDrive t)
+	// new state function begin ---------------	
+	// binding function TODO - do reflectively with default components?
+	public void getState(DifferentialDrive t)
 	{
 		//dimensionX.setText(t.dimensionX.toString());
 		//dimensionY.setText(t.dimensionY.toString());

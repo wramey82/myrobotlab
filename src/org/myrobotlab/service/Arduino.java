@@ -236,6 +236,23 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
+	public void serialSend(String data)
+	{
+		serialSend(data.getBytes());
+	}
+	
+	public synchronized void serialSend(byte[] data)
+	{
+		try {
+			for (int i = 0; i < data.length; ++i)
+			{
+				outputStream.write(data[i]);
+			}
+		} catch (IOException e) {
+			LOG.error("serialSend " + e.getMessage());
+		}
+	}
+
 	/*
 	 * DEPRECATED ---------------------------------- public synchronized void
 	 * serialSend (int function, int pin, byte data[]) {
