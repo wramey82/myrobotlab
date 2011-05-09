@@ -153,7 +153,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		graphPanel.setBorder(BorderFactory.createTitledBorder("graph"));
 
 		// -------------------------BEGIN PURE JGRAPH ----------------------------
-		graph.setMinimumGraphSize(new mxRectangle(0, 0, 800, 600)); // TODO - get # of services to set size?
+		graph.setMinimumGraphSize(new mxRectangle(0, 0, 620, 480)); // TODO - get # of services to set size?
 
 		
 		// Sets the default edge style

@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="thirdParty/lib/jsapi.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/wiiusej.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/Joystick.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/ChessBoard.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
