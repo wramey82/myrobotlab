@@ -159,6 +159,11 @@ public class Invoker extends Service {
 		
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		Class[] p = new Class[1];
+		p[0] = String.class;
+		
+		String tt = getMethodToolTip(Arduino.class.getCanonicalName(), "serialSend", p);
 				
 		invokeCMDLine(args);
 		} catch (Exception e)

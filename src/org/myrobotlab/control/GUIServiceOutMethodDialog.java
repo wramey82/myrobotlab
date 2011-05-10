@@ -26,6 +26,7 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -36,9 +37,10 @@ import java.util.TreeMap;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.service.GUIService;
 
@@ -64,7 +66,6 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		}
 
 		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
-		//HashMap<String, MethodEntry> m = myService.getHostCFG().getMethodMap(serviceName);
 		
 		JComboBox combo = new JComboBox();
 		combo.addActionListener(this);
@@ -76,6 +77,8 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 			
 			combo.addItem(formatOutMethod(me));
 		}			
+		
+		combo.setRenderer(new AnnotationComboBoxToolTipRenderer());
 		
 		getContentPane().add(combo, BorderLayout.SOUTH);
 		
@@ -116,5 +119,32 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
         //myService.parameterList =
         this.dispose();
 	}	
+	
+	 String[] tooltips = { "Javanese ", "Japanese ", "Latin " };
+	
+	class AnnotationComboBoxToolTipRenderer extends BasicComboBoxRenderer {
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getListCellRendererComponent(JList list, Object value,
+	        int index, boolean isSelected, boolean cellHasFocus) {
+	      if (isSelected) {
+	        setBackground(list.getSelectionBackground());
+	        setForeground(list.getSelectionForeground());
+	        if (-1 < index) {	        	
+	          //list.setToolTipText(tooltips[index]);
+	        	list.setToolTipText(value.toString());
+	        }
+	      } else {
+	        setBackground(list.getBackground());
+	        setForeground(list.getForeground());
+	      }
+	      setFont(list.getFont());
+	      setText((value == null) ? "" : value.toString());
+	      return this;
+	    }
+	  }
 
 }

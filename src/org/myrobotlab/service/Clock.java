@@ -173,6 +173,12 @@ public class Clock extends Service {
 		return o;
 	}
 	
+	public String setString(String s)
+	{
+		pulseDataString = s;
+		return s;
+	}
+	
 	// new state functions end ----------------------------
 	
 	public void setInterval(Integer milliseconds) {
@@ -181,7 +187,7 @@ public class Clock extends Service {
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		Clock clock = new Clock("clock");
 		clock.startService();

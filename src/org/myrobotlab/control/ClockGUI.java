@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +54,14 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	JRadioButton increment = new JRadioButton("increment");
 	JRadioButton integer = new JRadioButton("integer");
 	JRadioButton string = new JRadioButton("string");
+	
+	ActionListener setType = new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			myService.send(boundServiceName, "setType", ((JRadioButton) e.getSource()).getText());
+		}
+	};
 
 
 	// TODO - Object? can this be buried and managed reflectively?
@@ -85,12 +92,16 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		
 		none.setActionCommand("none");
 		none.setSelected(true);
+		none.addActionListener(setType);
 
 		increment.setActionCommand("increment");
+		increment.addActionListener(setType);
 
 		integer.setActionCommand("integer");
+		integer.addActionListener(setType);
 
 		string.setActionCommand("string");
+		string.addActionListener(setType);
 		
 	     //Group the radio buttons.
         group.add(none);
@@ -141,9 +152,13 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 						// setMethods can be bogus - and set removed then field actually set
 						// getMethods could block ?
 						
-						myService.send(boundServiceName, "set", Integer.parseInt(interval.getText()));
+						//myService.send(boundServiceName, "setType", );
+						
+						//myService.send(boundServiceName, "set", Integer.parseInt(interval.getText()));
 						myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
 						myService.send(boundServiceName, "startClock");
+						myService.send(boundServiceName, "setString", stringData.getText());
+						
 					} else {
 						startClock.setText("start clock");
 						myService.send(boundServiceName, "stopClock");

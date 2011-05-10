@@ -22,5 +22,5 @@ export LD_LIBRARY_PATH
 
 export PATH="${APPDIR}/java/bin:${PATH}"
 
-java -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
+java -d32 -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
 

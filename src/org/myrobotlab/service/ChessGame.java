@@ -53,7 +53,8 @@ public class ChessGame extends Service {
 		//t = Util.removeChar(t, '-');
 		t = (t.substring(0,2) + t.substring(3));
 		LOG.info(t);
-		t = t.toUpperCase();
+		//t = t.toUpperCase();
+		t = t.toLowerCase(); 
 		t = t + "Z";
 		LOG.info(t);
 		

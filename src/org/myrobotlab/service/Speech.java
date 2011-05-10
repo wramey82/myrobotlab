@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.myrobotlab.framework.Service;
@@ -174,8 +175,15 @@ public class Speech extends Service {
 	}
 
 	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
 		Speech speech = new Speech("speech");
+		speech.startService();
+		speech.speak("hello");
+		speech.startService();
 		speech.cfg.set("isATT", true);
+		speech.speak("hello");
 	
 	}
 
