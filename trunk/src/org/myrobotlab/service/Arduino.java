@@ -568,6 +568,16 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// TODO - blocking call which waits for serial return
 	// not thread safe - use mutex? - block on expected byte count?
 	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	
+	public String readSerialMessage(String s)
+	{
+		return s;
+	}
+	
+	boolean rawReadMsg = false;
+	int rawReadMsgLength = 4;
+	//char rawMsgBuffer
+	
 	public void serialEvent(SerialPortEvent event) {
 		switch (event.getEventType()) {
 		case SerialPortEvent.BI:
@@ -592,37 +602,51 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 				int numBytes = 0;
 				int totalBytes = 0;
-				while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
-					msg[totalBytes] = readBuffer[0];
-					totalBytes += numBytes;
-					if (totalBytes == 4) {
-						LOG.error("Read: " + msg[0] + " " + msg[1] + " "
-								+ msg[2] + " " + msg[3]);
-						PinData p = new PinData();
-						p.time = System.currentTimeMillis();
-						p.function = msg[0];
-						p.pin = msg[1];
-						// java assumes signed
-						// http://www.rgagnon.com/javadetails/java-0026.html
-						p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is
-														// 2 bytes)
-						p.value += (msg[3] & 0xFF); // LSB
-
-						if (p.function == SERVO_READ) {
-							invoke("readServo", p);
-						} else {
-							if (p.function == ANALOG_VALUE) {
-								p.type = 1;
+				
+				if (!rawReadMsg)
+				{
+					while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
+						msg[totalBytes] = readBuffer[0];
+						totalBytes += numBytes;
+						if (totalBytes == 4) {
+							LOG.error("Read: " + msg[0] + " " + msg[1] + " "
+									+ msg[2] + " " + msg[3]);
+							PinData p = new PinData();
+							p.time = System.currentTimeMillis();
+							p.function = msg[0];
+							p.pin = msg[1];
+							// java assumes signed
+							// http://www.rgagnon.com/javadetails/java-0026.html
+							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is
+															// 2 bytes)
+							p.value += (msg[3] & 0xFF); // LSB
+	
+							if (p.function == SERVO_READ) {
+								invoke("readServo", p);
+							} else {
+								if (p.function == ANALOG_VALUE) {
+									p.type = 1;
+								}
+								invoke(SensorData.publishPin, p);
 							}
-							invoke(SensorData.publishPin, p);
+	
+							totalBytes = 0;
+							msg[0] = -1;
+							msg[1] = -1;
+							msg[2] = -1;
+							msg[3] = -1;
+	
 						}
-
-						totalBytes = 0;
-						msg[0] = -1;
-						msg[1] = -1;
-						msg[2] = -1;
-						msg[3] = -1;
-
+					}
+				} else {
+					while ((numBytes = inputStream.read(readBuffer, 0, rawReadMsgLength)) >= 0) {
+						totalBytes += numBytes;
+						if (totalBytes == rawReadMsgLength)
+						{
+							String s = new String(readBuffer);							
+							invoke("readSerialMessage", s);
+							totalBytes = 0;
+						}
 					}
 				}
 				// LOG.info("msg: " + readBuffer[0] + readBuffer[1] +

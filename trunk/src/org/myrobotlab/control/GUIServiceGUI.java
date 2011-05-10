@@ -245,6 +245,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 	public JButton getDumpCFGButton() {
 		JButton button = new JButton("dump cfg");
+		button.setEnabled(false);
 		button.addActionListener(new ActionListener() {
 
 			@Override
