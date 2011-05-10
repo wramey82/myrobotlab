@@ -183,13 +183,25 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
         
     public void vetoableChange(PropertyChangeEvent pce) throws PropertyVetoException {
-        org.op.chess.Move move = (org.op.chess.Move) pce.getNewValue();
-                
+    	youGotToMoveItMoveIt(pce, null, true);
+    }
+    
+    private void youGotToMoveItMoveIt(PropertyChangeEvent pce, org.op.chess.Move m2, boolean publishEvent) throws PropertyVetoException
+    {
+    	org.op.chess.Move move = null;
+    	if (pce != null)
+    	{
+    		move = (org.op.chess.Move) pce.getNewValue();
+    	} else {
+    		move = m2;
+    	}
+        
         if (move == null) return;
+        
+        //HMove h1 = new HMove(5,3,2,4,5);
         
         Move m1 = new Move(5,8);
         LOG.info(m1);
-        
     	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
     	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());
 
@@ -213,10 +225,15 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         }
         if (!found || !board.makeMove(m)) {
             showStatus("Illegal move");
-            throw new PropertyVetoException("Illegal move", pce);
+            if (pce != null)
+            {
+            	throw new PropertyVetoException("Illegal move", pce);
+            } else {
+            	LOG.error("ILLEGAL MOVE");
+            }
         }
         else {
-            makeMove(m);
+            makeMove(m, publishEvent);
             chessView.switchMoveMarkers(board.side == LIGHT);
             
             if (isResult()) return;
@@ -246,11 +263,28 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
                 showStatus("Thinking...");
             }
         }
+    	
     }
     
-    private void makeMove(HMove m) {
+    private int getPos(String s)
+    {
+        String temp1 = "";
+        temp1 += s.charAt(1);
+        int num = Integer.parseInt(temp1); 
+        int pos = s.charAt(0) - 97 + ((8-num) * 8);
+        return pos;
+    }
+    
+    private void makeMove(HMove m, boolean publishEvent) {
         int from = m.getFrom();
         int to = m.getTo();
+        String s = cleanMove(m.toString());
+        LOG.info(m + "  from " + from + "  to " + to);
+        LOG.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
+        
+        //LOG.info((int)s.charAt(0));
+        //LOG.info(testFrom);        
+        //LOG.info(m + " from " + testFrom + " to " + to);
         
         myService.send(boundServiceName, "makeMove", m);
         
@@ -354,7 +388,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
             board.makeMove(best);
             searcher.board.makeMove(best);
             //showStatus("Computer move: " + best.toString());
-            makeMove(best);
+            makeMove(best, true);
             chessView.switchMoveMarkers(board.side == LIGHT);
             isResult();
             chessView.setMoving(false);
@@ -368,17 +402,56 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
             }
         }
     }
+    
+    public String inputMove(String m)
+    {
+    	LOG.info(m);
+        String s = cleanMove(m);
+    	LOG.info(s);
 
+        LOG.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
+    	
+    	org.op.chess.Move m2 = new org.op.chess.Move(getPos(s), getPos(s.substring(2))); 
+    	try {
+			youGotToMoveItMoveIt(null, m2, false);
+		} catch (PropertyVetoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	return s;
+    }
+
+	private String cleanMove(String t)
+	{
+		LOG.info(t);
+
+		// remove piece descriptor
+		if (t.length() == 6)
+		{
+			t = t.substring(1);
+		}
+
+		// remove -
+		if (t.contains("-"))
+		{
+			t = (t.substring(0,2) + t.substring(3));
+		}
+
+		t = t.toLowerCase(); 
+				
+		return t;
+	}
+    
+    
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
+		sendNotifyRequest("inputMove", "inputMove", String.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
+		removeNotifyRequest("inputMove", "inputMove", String.class);		
 	}
 	
 	

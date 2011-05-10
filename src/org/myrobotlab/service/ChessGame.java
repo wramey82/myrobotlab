@@ -42,24 +42,28 @@ public class ChessGame extends Service {
 	public String makeMove(HMove m)
 	{
 		String t = m.toString();
-		// if Ne6-F7 - remove
 		LOG.info(t);
+
 		if (t.length() == 6)
 		{
 			t = t.substring(1);
 		}
-		LOG.info(t);
 
-		//t = Util.removeChar(t, '-');
 		t = (t.substring(0,2) + t.substring(3));
-		LOG.info(t);
-		//t = t.toUpperCase();
+
+		t = "x" + t + "z";
 		t = t.toLowerCase(); 
-		t = t + "Z";
+		
 		LOG.info(t);
 		
 		return t;
 	}
+	
+	public String inputMove (String s)
+	{
+		return s;
+	}
+	
 	
 	@Override
 	public void loadDefaultConfiguration() {

@@ -36,14 +36,23 @@
 
 // TODO - determine details of Arduino conflicts between NewSoftSerial, VirtualWire, Servo, & SoftwareServo
 
-// #include <avr/interrupt.h>
+unsigned char ide_workaround = 0; // workaround fix for Arduino's buggy preprocessor - to process #ifdef includes
 
-//#include <Servo.h> completely invasive to NewSoftSerial
-#include <SoftwareServo.h> // does not remove pwm from pin 9 & 10, but does conflict with NewSoftSerial
+#define SERVO_ENABLED = 1
+
+
+#ifdef SERVO_ENABLED
+#include <Servo.h> //conflicts with NewSoftSerial
+#endif
+
+//#include <SoftwareServo.h> // does not remove pwm from pin 9 & 10, but does conflict with NewSoftSerial
 //#include <ServoTimer2.h>  // the servo timer library
 //#include <Servo2.h>  // still another servo library
 
-#include <VirtualWire.h> 
+#ifdef VIRTUAL_WIRE_ENABLED
+//#include <VirtualWire.h> 
+#endif
+
 //#include <NewSoftSerial.h>
 
 #define DIGITAL_WRITE        0 
@@ -67,8 +76,8 @@
 
 //ServoTimer2 servos[2];
 //Servo servos[2]; 
-SoftwareServo servos[2];// - conflicts with NewSoftSerial.h
-//Servo servos[MAX_SERVOS]; TODO - difference between Servo.h SoftwareServo.h MegaServo.h ????
+//SoftwareServo servos[2];// - conflicts with NewSoftSerial.h
+Servo servos[MAX_SERVOS]; //TODO - difference between Servo.h SoftwareServo.h MegaServo.h ????
 
 unsigned long loopCount = 0;
 int byteCount 		= 0;
@@ -94,7 +103,7 @@ int prescalerVal = 0;
 #define VIRTUAL_WIRE 2
 #define NEW_SOFT_SERIAL 3
 
-int serialCommType = VIRTUAL_WIRE;
+int serialCommType = HARDWARE_SERIAL;
 
 // for wiicom
 int strobeState = 0;
@@ -105,27 +114,16 @@ boolean readySteady = false;
 #define LED3 7
 #define LED4 8
 
-// for virtual wire
+
+#ifdef   VIRTUAL_WIRE_ENABLED
 uint8_t buf[VW_MAX_MESSAGE_LEN];
 uint8_t buflen = 6;
-//uint8_t buflen = VW_MAX_MESSAGE_LEN;
+#endif
+
 
 // for new soft serial
 //NewSoftSerial irSerial(2, 3);
 
-/*  TODO ISR 
-// We need to declare the data exchange
-// variable to be volatile - the value is
-// read from memory.
-volatile int value = 0;
-
-// Install the interrupt routine.
-ISR(INT0_vect) {
-  // check the value again - since it takes some time to
-  // activate the interrupt routine, we get a clear signal.
-  value = digitalRead(sensePin);
-}
-*/
 
 void setup() {
   // First clear all three prescaler bits:
@@ -153,20 +151,22 @@ void setup() {
     pinMode(LED4, INPUT); 
   } else if (serialCommType == VIRTUAL_WIRE)  
   {
-    // for virtual wire
-    vw_set_ptt_inverted(true);    // Required for RX Link Module
-    vw_setup(2000);                   // Bits per sec
-    vw_set_rx_pin(8);           // We will be receiving on pin 23 (Mega) ie the RX pin from the module connects to this pin. 
-    vw_rx_start();                      // Start the receiver 
 
+#ifdef   VIRTUAL_WIRE_ENABLED
+    vw_set_ptt_inverted(true); // Required for RX Link Module
+    vw_setup(2000);            // Bits per sec
+    vw_set_rx_pin(8);          //TODO configurable
+    vw_rx_start();             // Start the receiver 
+#endif
 
   // TODO - what a mess - have to set these low cause the 754410 seems to want to go full speed when enable is high impedence
-    pinMode(3, OUTPUT);
-    digitalWrite(3, 0);
+//    pinMode(3, OUTPUT);
+//    digitalWrite(3, 0);
 
-    pinMode(6, OUTPUT);
-    digitalWrite(6, 0);
-    
+//    pinMode(6, OUTPUT);
+//    digitalWrite(6, 0);
+
+/* What a mess! - reconcile setup of all servo libraries
   servos[0].attach(13);
   servos[0].setMinimumPulse(MIN_PULSE_WIDTH);
   servos[0].setMaximumPulse(MAX_PULSE_WIDTH);
@@ -176,6 +176,7 @@ void setup() {
   servos[1].setMinimumPulse(MIN_PULSE_WIDTH);
   servos[1].setMaximumPulse(MAX_PULSE_WIDTH);
   servos[1].write(90);    
+*/  
     
   } else if (serialCommType == NEW_SOFT_SERIAL)  
   {
@@ -349,6 +350,7 @@ Serial.print("first nibble\n");
     // first byte is bot id - if your too dumb to get different frequencies (like i was)
 // ---- uncomment for vw support
 
+#ifdef VIRTUAL_WIRE_ENABLED
     if (vw_get_message(buf, &buflen)) // check to see if anything has been received
     {
             
@@ -376,6 +378,7 @@ Serial.print("]\n");
         
         return true;
       }    
+#endif      
       
   } else if (serialCommType == NEW_SOFT_SERIAL)
   {
@@ -470,6 +473,8 @@ Serial.print("]\n");
              retULValue = pulseIn(ioCommand[1], ioCommand[2]);
            break;
            case SERVO_ATTACH:
+             servos[ioCommand[1]].attach(ioCommand[2]);
+             // what a mess - reconcile all servo libraries
 /*           
                servos[ioCommand[1]].attach(ioCommand[2]);
                servos[ioCommand[1]].setMinimumPulse(MIN_PULSE_WIDTH);
@@ -484,8 +489,6 @@ Serial.print("]\n");
 //              servos[ioCommand[1]].writeMicroseconds(ioCommand[2] * 10 + 544);
            break;
            case SERVO_READ:
-             Serial.write(SERVO_READ);
-             Serial.write(ioCommand[1]);
 //             Serial.write(servos[ioCommand[1]].read() >> 8);   // MSB
 //             Serial.write(servos[ioCommand[1]].read()); // LSB
              //Serial.write(servos[ioCommand[1]].read());          
@@ -494,7 +497,7 @@ Serial.print("]\n");
              //servos[ioCommand[1]].setMaximumPulse(ioCommand[2]);    TODO - lame fix hardware
            break;
            case SERVO_DETACH:
-//             servos[ioCommand[1]].detach();
+             servos[ioCommand[1]].detach();
            break;
            case SET_PWM_FREQUENCY:
              setPWMFrequency (ioCommand[1], ioCommand[2]);
@@ -572,7 +575,7 @@ Serial.print("]\n");
     lastAnalogInputValue[analogReadPin[i]] = readValue;
   }
 
-  SoftwareServo::refresh();// - conflicts with NewSoftSerial
+  //SoftwareServo::refresh();// - conflicts with NewSoftSerial
   //delay(20);
  
 } // loop
