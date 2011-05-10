@@ -34,8 +34,8 @@ import java.util.HashMap;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
+
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 
@@ -74,6 +74,7 @@ public class Speech extends Service {
 		// cfg.set("voiceName", "us1");
 		cfg.set("volume", 100);
 		// cfg.set("voiceName", "alan", "great scotch voice only numbers");
+		cfg.set("isATT", true);
 	}
 
 	public void lostTrack() {
@@ -96,16 +97,20 @@ public class Speech extends Service {
 
 	@Override
 	public void startService() {
-		/*
-		 * Allocates the resources for the voice.
-		 */
+		super.startService();
+		try {
 		myVoice.allocate();
+		LOG.info("voice allocated");
+		} catch (Exception e)
+		{
+			LOG.error(e);
+		}
 	}
 
 	@Override
-	public void stopService() {
-		/* Clean up and leave. */
+	public void stopService() {		
 		myVoice.deallocate();
+		super.stopService();
 	}
 
 	public void speak(Float toSpeak) {
@@ -116,6 +121,8 @@ public class Speech extends Service {
 		}
 	}
 
+	boolean fileCacheInitialized = false;
+	
 	public void speak(String toSpeak) {
 		if (cfg.get("isATT", false)) {
 			if (speechAudioFile == null) {
@@ -123,11 +130,20 @@ public class Speech extends Service {
 			}
 
 			String voiceName = cfg.get("ATTVoiceName", "audrey");
-			String audioFile = "audioFile/att/" + voiceName + "/" + toSpeak
-					+ ".wav";
+			
+			if (!fileCacheInitialized)
+			{
+				boolean success = (new File("audioFile/att/" + voiceName)).mkdirs();
+			    if (!success) {
+			      LOG.error("could not create directory: audioFile/att/" + voiceName);
+			    } else {
+			    	fileCacheInitialized = true;
+			    }
+			}
+			
+			String audioFile = "audioFile/att/" + voiceName + "/" + toSpeak + ".wav";
 			File f = new File(audioFile);
-			LOG.info(audioFile
-					+ (f + (f.exists() ? " is found " : " is missing ")));
+			LOG.info(audioFile + (f + (f.exists() ? " is found " : " is missing ")));
 
 			if (!f.exists()) {
 				// if the wav file does not exist fetch it from att site

@@ -40,8 +40,7 @@ import org.myrobotlab.service.Arduino;
 
 public class FileIO {
 
-	public final static Logger LOG = Logger.getLogger(Arduino.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(FileIO.class.getCanonicalName());
 
 	public final static String fileToString(String filename) {
 		String result = null;

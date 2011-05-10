@@ -25,6 +25,7 @@
 
 package org.myrobotlab.service;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfugue.Player;
 import org.jfugue.Rhythm;
@@ -70,8 +71,11 @@ public class JFugue extends Service {
 	}
 
 	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
 		JFugue jfugue = new JFugue("jfugue");
-	jfugue.play("C D E F G A B");
+		jfugue.play("C D E F G A B");
 		jfugue.play("A A A B B B");
 		jfugue.playRythm();
 		jfugue.play(30);
