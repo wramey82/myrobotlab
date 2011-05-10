@@ -199,8 +199,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	@Override
 	public void loadDefaultConfiguration() {
-
-		cfg.save("out.txt");
 		lastSerialPortName = cfg.get("lastSerialPortName","");
 	}
 

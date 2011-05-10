@@ -30,6 +30,8 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
+import java.awt.Toolkit;
+
 public class SystemWrapper extends Service {
 
 	public final static Logger LOG = Logger.getLogger(SystemWrapper.class.getCanonicalName());
@@ -55,6 +57,11 @@ public class SystemWrapper extends Service {
 		}
 		
 		return 0;
+	}
+	
+	public void beep()
+	{
+		Toolkit.getDefaultToolkit().beep();
 	}
 	
 	@Override

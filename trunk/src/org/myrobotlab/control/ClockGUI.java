@@ -46,14 +46,17 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 
 	static final long serialVersionUID = 1L;
 	JButton startClock = null;
-	JTextField interval = new JTextField("1000");
-	JTextField stringData = new JTextField(10);
     ButtonGroup group = new ButtonGroup();
     
 	JRadioButton none = new JRadioButton("none");
 	JRadioButton increment = new JRadioButton("increment");
 	JRadioButton integer = new JRadioButton("integer");
 	JRadioButton string = new JRadioButton("string");
+
+	JTextField interval = new JTextField("1000");
+	JTextField pulseDataString = new JTextField(10);
+	JIntegerField pulseDataInteger = new JIntegerField(10);
+	
 	
 	ActionListener setType = new ActionListener() {
 		
@@ -117,10 +120,13 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
         pulseData.add(increment, gc);
         ++gc.gridy;        
         pulseData.add(integer, gc);
+        ++gc.gridx;
+        pulseData.add(pulseDataInteger, gc);
+        gc.gridx = 0;        
         ++gc.gridy;
         pulseData.add(string, gc);
         ++gc.gridx;        
-        pulseData.add(stringData, gc);
+        pulseData.add(pulseDataString, gc);
 
         // reuse gc
 		gc.gridx = 0;
@@ -144,7 +150,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 //						if (myBoundService != null)
 						{
 							// TODO - proxy data class like GWT?? - directly setting field wont work remotely
-//							myBoundService.pulseDataString = stringData.getText();
+//							myBoundService.pulseDataString = pulseDataString.getText();
 						}
 						// TODO - setting fields on a proxy class - vs accessors like these
 						// what about a helper funcion - hides boundServiceName - and the setting of fields on 
@@ -157,7 +163,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 						//myService.send(boundServiceName, "set", Integer.parseInt(interval.getText()));
 						myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
 						myService.send(boundServiceName, "startClock");
-						myService.send(boundServiceName, "setString", stringData.getText());
+						myService.send(boundServiceName, "setPulseDataString", pulseDataString.getText());
+						myService.send(boundServiceName, "setPulseDataInteger", Integer.parseInt(pulseDataInteger.getText()));
 						
 					} else {
 						startClock.setText("start clock");
@@ -189,6 +196,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		myService.send(boundServiceName, "setType", e.getActionCommand());
 	}
 	
+	// TODO - instead of actual Clock - send data Proxy ClockData to set/get state ! 
 	public void getState(Clock c)
 	{
 		if (c != null)
@@ -208,6 +216,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 			{
 				none.setSelected(true);			
 			}
+			
+			pulseDataString.setText(c.pulseDataString);
+
+			pulseDataInteger.setInt(c.pulseDataInteger);
 			
 			//myBoundService = c;
 			if (c.myClock != null)

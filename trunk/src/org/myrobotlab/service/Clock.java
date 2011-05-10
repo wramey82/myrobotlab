@@ -163,19 +163,28 @@ public class Clock extends Service {
 	}
 
 	// TODO - reflectively do it in Service? !?
+	// No - the overhead of a Service warrants a data only proxy - so to
+	// a single container class "ClockData data = new ClockData()" could allow
+	// easy maintenance and extensibility - possibly even reflective sync if names are maintained   
 	public Clock setState(Clock o)
 	{
 		this.interval = o.interval;
 		this.pulseDataInteger = o.pulseDataInteger;
 		this.pulseDataString = o.pulseDataString;
-		this.myClock = o.myClock;
-		
+		//this.myClock = o.myClock;  
+		this.pulseDataType = o.pulseDataType;
 		return o;
 	}
 	
-	public String setString(String s)
+	public String setPulseDataString(String s)
 	{
 		pulseDataString = s;
+		return s;
+	}
+
+	public Integer setPulseDataInteger (Integer s)
+	{
+		pulseDataInteger = s;
 		return s;
 	}
 	
