@@ -91,8 +91,7 @@ import org.myrobotlab.service.data.ColoredPoint;
 
 public class OpenCV extends Service {
 
-	public final static Logger LOG = Logger.getLogger(OpenCV.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 	Thread videoThread = null;
 	int frameIndex = 0;

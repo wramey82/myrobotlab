@@ -50,6 +50,7 @@ import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
 import org.myrobotlab.service.GUIService;
 import org.op.chess.ChessBoard;
+import org.op.chess.Move;
 
 public class ChessGameGUI extends ServiceGUI
 implements Constants, VetoableChangeListener, PropertyChangeListener
@@ -180,10 +181,14 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     public void propertyChange(PropertyChangeEvent pce) {
     }
     
+        
     public void vetoableChange(PropertyChangeEvent pce) throws PropertyVetoException {
         org.op.chess.Move move = (org.op.chess.Move) pce.getNewValue();
-        
+                
         if (move == null) return;
+        
+        Move m1 = new Move(5,8);
+        LOG.info(m1);
         
     	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
     	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());

@@ -33,6 +33,7 @@ public class GUIServiceGraphVertex implements Serializable {
 	
 	final public String name;
 	final public String toolTip;
+	final public String canonicalName;
 	public String displayName;
 	public String status;
 	public Type type;
@@ -41,9 +42,10 @@ public class GUIServiceGraphVertex implements Serializable {
 		SERVICE, INPORT, OUTPORT
 	}
 	
-	public GUIServiceGraphVertex(String name, String displayName, String toolTip, Type t)
+	public GUIServiceGraphVertex(String name, String canonicalName, String displayName, String toolTip, Type t)
 	{
 		this.name = name;
+		this.canonicalName = canonicalName;
 		this.displayName = displayName;
 		this.toolTip = toolTip;
 		this.type = t;

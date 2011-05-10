@@ -42,7 +42,6 @@ import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.comm.CommunicationManager;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.IPAndPort;
@@ -203,6 +202,8 @@ public abstract class Service implements Runnable {
 		cfg.set("hideMethods/main", "");
 		cfg.set("hideMethods/loadDefaultConfiguration", "");
 		cfg.set("hideMethods/getToolTip", "");
+		cfg.set("hideMethods/run", "");
+		cfg.set("hideMethods/access$0", ""); // TODO - Lame inner class slop - this should be fixed at the source
 
 		outboxMsgHandling = cfg.get("outboxMsgHandling");
 		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
@@ -1191,6 +1192,38 @@ public abstract class Service implements Runnable {
 	}
 	// connection publish points - end ---------------
 
+	@SuppressWarnings("unchecked")
+	public static String getMethodToolTip (String className, String methodName, Class[] params)
+	{
+		
+		try {
+		
+			Class c = Class.forName(className);
+	
+			Method m;
+			m = c.getMethod(methodName, params);
+	
+			ToolTip tip = m.getAnnotation(ToolTip.class);
+		
+		if (tip != null)
+		{
+			return tip.value();
+		}
+		
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+		
+	}
+	
+	
 	// TODO - move to string or error util
 	 public static String stack2String(Exception e) {
 		  try {

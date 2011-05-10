@@ -285,7 +285,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			String ret = shortName[shortName.length - 1] + "\n" + serviceName;
 
 			
-			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, ret, se.toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 100, "");
+			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, se.serviceClass, ret, se.toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 100, "");
 			serviceCells.put(serviceName, v1);
 
 			v1.setConnectable(false);
@@ -299,14 +299,14 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo1.setRelative(true);
 			
-			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, "in", se.toolTip, GUIServiceGraphVertex.Type.INPORT), geo1, "shape=ellipse;perimter=ellipsePerimeter");
+			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, se.serviceClass, "in", se.toolTip, GUIServiceGraphVertex.Type.INPORT), geo1, "shape=ellipse;perimter=ellipsePerimeter");
 			inport.setVertex(true);
 
 			mxGeometry geo2 = new mxGeometry(1.0, 0.5, PORT_DIAMETER,PORT_DIAMETER);
 			geo2.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo2.setRelative(true);
 
-			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, "out", se.toolTip, GUIServiceGraphVertex.Type.OUTPORT), geo2, "shape=ellipse;perimter=ellipsePerimeter");
+			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, se.serviceClass, "out", se.toolTip, GUIServiceGraphVertex.Type.OUTPORT), geo2, "shape=ellipse;perimter=ellipsePerimeter");
 			outport.setVertex(true);
 
 			graph.addCell(inport, v1);
