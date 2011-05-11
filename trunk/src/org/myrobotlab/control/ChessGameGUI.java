@@ -285,8 +285,10 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         //LOG.info((int)s.charAt(0));
         //LOG.info(testFrom);        
         //LOG.info(m + " from " + testFrom + " to " + to);
-        
-        myService.send(boundServiceName, "makeMove", m);
+        if (publishEvent)
+        {
+        	myService.send(boundServiceName, "makeMove", m);
+        }
         
         if (m.promote != 0) {
             chessView.makeMoveWithPromote(m, m.promote, board.side != LIGHT);
