@@ -31,6 +31,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,35 +49,13 @@ public class ArduinoGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 	final String type = "Diecimila";
-	// ArrayList <String> ports = new ArrayList<String>();
-	ArrayList<Pin> pinList = null; // @jve:decl-index=0:
-	JComboBox types = new JComboBox(new String[] { "Duemilanove" }); // TODO -
-																		// retrieve
-																		// info
-																		// from
-																		// service
-																		// -
-																		// service
-																		// config
-																		// request
-	// JComboBox ttyPort = new JComboBox(new String[]{"ttyUSB0", "ttyUSB1",
-	// "ttyUSB2"}); // TODO - retrieve info from service - service config
-	// request
-	JComboBox ttyPort = new JComboBox(new String[] { "" }); // TODO - retrieve
-															// info from service
-															// - service config
-															// request
+	JIntegerField rawReadMsgLength = new JIntegerField(4);
+
+	ArrayList<Pin> pinList = null; 
+	JComboBox types = new JComboBox(new String[] { "Duemilanove" }); 
+	JComboBox ttyPort = new JComboBox(new String[] { "" }); 
 	JComboBox serialRate = new JComboBox(new String[] { "300", "1200", "2400",
-			"4800", "9600", "14400", "19200", "28800", "57600", "115200" }); // TODO
-																				// -
-																				// retrieve
-																				// info
-																				// from
-																				// service
-																				// -
-																				// service
-																				// config
-																				// request
+			"4800", "9600", "14400", "19200", "28800", "57600", "115200" }); 
 	JComboBox PWMRate1 = new JComboBox(new String[] { "62", "250", "1000",
 			"8000", "64000" }); // For pins 6 and 5 1kHz default
 	JComboBox PWMRate2 = new JComboBox(new String[] { "31", "125", "500",
@@ -190,9 +171,52 @@ public class ArduinoGUI extends ServiceGUI {
 			input.add(pinList.get(i), gc);
 		}
 
-		display.add(input);
+		
+		
+		Action rawReadMsgAction = new AbstractAction("CheckBox Label") {
+		      /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
-		// set up routing of messages from service - to catch events TODO
+			// called when the button is pressed
+		      public void actionPerformed(ActionEvent evt) {
+		        JCheckBox cb = (JCheckBox) evt.getSource();
+		        // Determine status
+		        boolean isSel = cb.isSelected();
+		        if (isSel) {
+			          myService.send(boundServiceName, "setRawReadMsg", true);
+			          myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+		        } else {
+				      myService.send(boundServiceName, "setRawReadMsg", false);
+				      myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+		        }
+		      }
+		    };
+		    
+
+		  JCheckBox rawReadMessage = new JCheckBox(rawReadMsgAction);
+		  rawReadMsgLength = new JIntegerField();
+		  rawReadMsgLength.setInt(4);
+		  rawReadMsgLength.setEnabled(false);
+
+		  gc.gridx = 0;
+		  gc.gridy = 0;
+
+		  display.add(input, gc);
+		  
+		  JPanel msgPanel = new JPanel();
+		  rawReadMessage.setText(" read raw ");
+		  msgPanel.add(rawReadMessage);
+		  msgPanel.add(new JLabel(" msg length "));
+		  msgPanel.add(rawReadMsgLength);
+		  
+		  
+		  ++gc.gridy;
+		  display.add(msgPanel, gc);
+
+		  
+		// TODO - set up routing of messages from service - to catch events TODO
 		// attachGUI
 		sendNotifyRequest("publishPin", "setDataLabel", PinData.class);
 
