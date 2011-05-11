@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ToolTip;
 
 /*
  *   I would have liked to dynamically extract the possible Services from the code itself - unfortunately this is near impossible
@@ -145,6 +146,8 @@ public class Invoker extends Service {
 		LOG.info("removing service " + name);
 	}
 
+	// TODO - 3 values - description/example input & output
+	@ToolTip("Add a new Services to the system")
 	public void addService(String className, String newName) {
 		LOG.info("adding service " + newName);
 		Service s = (Service) Service.getNewInstance("org.myrobotlab.service." + className, newName);

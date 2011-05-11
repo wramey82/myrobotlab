@@ -31,6 +31,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -42,6 +44,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
+import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.GUIService;
 
 public class GUIServiceOutMethodDialog extends JDialog  implements ActionListener  {
@@ -52,6 +55,25 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 
 	GUIService myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
+	
+	public class MethodData
+	{		
+		String canonicalName = null;
+		MethodEntry methodEntry = null;
+		
+		public MethodData (MethodEntry me, String cn)
+		{
+			this.methodEntry = me;
+			this.canonicalName = cn;
+		}
+		
+		public String toString()
+		{
+			return canonicalName + "." + methodEntry;
+		}
+	}
+	
+	ArrayList<MethodData> data = new ArrayList<MethodData>(); 
 	
 	GUIServiceOutMethodDialog(GUIService myService, String title, GUIServiceGraphVertex v)
 	{	super(myService.frame, title, true);
@@ -70,11 +92,11 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		JComboBox combo = new JComboBox();
 		combo.addActionListener(this);
 		Iterator<String> sgi = m.keySet().iterator();
-		combo.addItem(""); // add empty
+		//combo.addItem(""); // add empty
 		while (sgi.hasNext()) {
 			String methodName = sgi.next();
 			MethodEntry me = m.get(methodName);
-			
+			data.add(new MethodData(me, v.canonicalName));
 			combo.addItem(formatOutMethod(me));
 		}			
 		
@@ -119,15 +141,14 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
         //myService.parameterList =
         this.dispose();
 	}	
-	
-	 String[] tooltips = { "Javanese ", "Japanese ", "Latin " };
-	
+		
 	class AnnotationComboBoxToolTipRenderer extends BasicComboBoxRenderer {
 	    /**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
+		@SuppressWarnings("unchecked")
 		public Component getListCellRendererComponent(JList list, Object value,
 	        int index, boolean isSelected, boolean cellHasFocus) {
 	      if (isSelected) {
@@ -135,7 +156,35 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 	        setForeground(list.getSelectionForeground());
 	        if (-1 < index) {	        	
 	          //list.setToolTipText(tooltips[index]);
-	        	list.setToolTipText(value.toString());
+
+	        	try {
+		        	MethodData md = data.get(index);
+		        	Class c = Class.forName(md.canonicalName);
+		        	Method m = null; 
+		        	if (md.methodEntry.parameterTypes == null)
+		        	{
+		        		LOG.info("paramterType is null");
+		        		m = c.getMethod(md.methodEntry.name);
+		        	} else {
+		        		m = c.getMethod(md.methodEntry.name, md.methodEntry.parameterTypes);
+		        	}
+		        	ToolTip anno = m.getAnnotation(ToolTip.class);
+		        	if (anno != null)
+		        	{
+		        		list.setToolTipText(anno.value());
+		        	} else {
+		        		list.setToolTipText("annotation not available");
+		        	}
+		        	//System.out.println(anno.stringValue() + " " + anno.intValue());
+	        	} catch (Exception e){
+	        		list.setToolTipText("method or class not available");
+	        		LOG.error(e);
+	        	} 
+  	        	
+  	        	
+	        	//list.setToolTipText(data.get(index).toString());
+	        	//list.setToolTipText(index + "");	        	
+	        	//list.setToolTipText(value.toString());
 	        }
 	      } else {
 	        setBackground(list.getBackground());

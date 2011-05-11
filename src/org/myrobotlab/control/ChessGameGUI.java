@@ -268,6 +268,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
     private int getPos(String s)
     {
+    	LOG.info("getPos " + s);
         String temp1 = "";
         temp1 += s.charAt(1);
         int num = Integer.parseInt(temp1); 
@@ -426,12 +427,18 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 
 	private String cleanMove(String t)
 	{
-		LOG.info(t);
+		LOG.info("cleanMove " + t);
 
 		// remove piece descriptor
-		if (t.length() == 6)
+		if (t.length() > 5)
 		{
-			t = t.substring(1);
+			char check = t.charAt(t.length()-1);
+			if (Character.isDigit(check))
+			{
+				t = t.substring(1);
+			} else {
+				t = t.substring(0, t.length()-2);
+			}
 		}
 
 		// remove -
@@ -439,9 +446,10 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 		{
 			t = (t.substring(0,2) + t.substring(3));
 		}
-
+		
 		t = t.toLowerCase(); 
 				
+		LOG.info("cleanedMove " + t);
 		return t;
 	}
     
