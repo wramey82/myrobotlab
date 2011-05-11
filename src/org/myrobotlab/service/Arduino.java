@@ -460,17 +460,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc) The Arduino Duemilanove supports
-	 * 
-	 * @see
-	 * org.myrobotlab.generatedCode.hardware.DigitalIO#digitalRead(java.lang
-	 * .Integer)
-	 * 
-	 * digitalReadPollStart - a signal to Arduino to begin polling a particular
-	 * ping with digital reads the output will be put on the serial line.
-	 */
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
 	public void digitalReadPollStart(Integer address) {
 
 		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
@@ -486,23 +475,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	/*
-	 * The Arduino Duemilanove supports 14 digital output pins access is
-	 * straight forward - possible address are 0 - 13 (like good c programmers
-	 * :)) value is a single bit errors are reported if these values are out of
-	 * bounds
-	 * 
-	 * the serial communication mechanism is compressed into a single byte -
-	 * where 0 = pin 0 low 1 = pin 0 high 2 = pin 1 low 3 = pin 1 high ... the
-	 * needed Arduino code is here << TODO - create it >>
-	 * 
-	 * @see
-	 * org.myrobotlab.generatedCode.hardware.DigitalIO#digitalWrite(java.lang
-	 * .Integer, java.lang.Integer)
-	 */
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void digitalWrite(IOData io) // TODO - deprecate since multiple
-										// parameters are now supported
+	public void digitalWrite(IOData io)
 	{
 		digitalWrite(io.address, io.value);
 	}
@@ -513,7 +486,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(DIGITAL_WRITE, address, value);
 	}
 
-	// TODO - depricate
 	public void pinMode(IOData io) {
 		pinMode(io.address, io.value);
 	}
@@ -524,9 +496,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(PINMODE, address, value);
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void analogWrite(IOData io) // TODO - change interface so IOData is
-										// no longer needed
+	public void analogWrite(IOData io)
 	{
 		analogWrite(io.address, io.value);
 	}
@@ -578,6 +548,16 @@ public class Arduino extends Service implements SerialPortEventListener,
 	int rawReadMsgLength = 4;
 	//char rawMsgBuffer
 	
+	public void setRawReadMsg (Boolean b)
+	{
+		rawReadMsg = b;
+	}
+	
+	public void setReadMsgLength (Integer length)
+	{
+		rawReadMsgLength = length;
+	}
+	
 	public void serialEvent(SerialPortEvent event) {
 		switch (event.getEventType()) {
 		case SerialPortEvent.BI:
@@ -603,22 +583,26 @@ public class Arduino extends Service implements SerialPortEventListener,
 				int numBytes = 0;
 				int totalBytes = 0;
 				
-				if (!rawReadMsg)
-				{
-					while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
-						msg[totalBytes] = readBuffer[0];
-						totalBytes += numBytes;
-						if (totalBytes == 4) {
-							LOG.error("Read: " + msg[0] + " " + msg[1] + " "
-									+ msg[2] + " " + msg[3]);
+				while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
+					msg[totalBytes] = readBuffer[0];
+					totalBytes += numBytes;
+					if (totalBytes == 4) {
+						LOG.error("Read: " + msg[0] + " " + msg[1] + " " + msg[2] + " " + msg[3]);
+						
+						if (rawReadMsg)
+						{
+							String s = new String(msg);		
+							LOG.info(s);
+							invoke("readSerialMessage", s);
+						} else {
+						
 							PinData p = new PinData();
 							p.time = System.currentTimeMillis();
 							p.function = msg[0];
 							p.pin = msg[1];
 							// java assumes signed
 							// http://www.rgagnon.com/javadetails/java-0026.html
-							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is
-															// 2 bytes)
+							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is 2 bytes)
 							p.value += (msg[3] & 0xFF); // LSB
 	
 							if (p.function == SERVO_READ) {
@@ -629,28 +613,16 @@ public class Arduino extends Service implements SerialPortEventListener,
 								}
 								invoke(SensorData.publishPin, p);
 							}
-	
-							totalBytes = 0;
-							msg[0] = -1;
-							msg[1] = -1;
-							msg[2] = -1;
-							msg[3] = -1;
-	
 						}
-					}
-				} else {
-					while ((numBytes = inputStream.read(readBuffer, 0, rawReadMsgLength)) >= 0) {
-						totalBytes += numBytes;
-						if (totalBytes == rawReadMsgLength)
-						{
-							String s = new String(readBuffer);							
-							invoke("readSerialMessage", s);
-							totalBytes = 0;
-						}
+
+						totalBytes = 0;
+						msg[0] = -1;
+						msg[1] = -1;
+						msg[2] = -1;
+						msg[3] = -1;
+
 					}
 				}
-				// LOG.info("msg: " + readBuffer[0] + readBuffer[1] +
-				// readBuffer[2] + readBuffer[3]);
 
 			} catch (IOException e) {
 			}
@@ -724,11 +696,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		// Servo hand = new Servo("hand");
 		// hand.start();
 
-		Servo wrist = new Servo("wrist");
-		wrist.startService();
-
-		Servo hand = new Servo("hand");
-		hand.startService();
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
