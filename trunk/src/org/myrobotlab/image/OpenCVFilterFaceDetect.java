@@ -124,15 +124,11 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage img) {
 
-		// Create two points to represent the face locations
 
-		// Load the HaarClassifierCascade
 		if (cascade == null) {
-			// TODO - problem with loading files "into" cv
-			cascade = new CvHaarClassifierCascade(
-					cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
-			// Check whether the cascade has loaded successfully. Else report
-			// and error and quit
+			cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
+			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
+			
 			if (cascade == null) {
 				LOG.error("Could not load classifier cascade");
 				return img;
