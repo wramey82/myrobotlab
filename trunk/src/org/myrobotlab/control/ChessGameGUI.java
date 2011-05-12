@@ -437,7 +437,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 			{
 				t = t.substring(1);
 			} else {
-				t = t.substring(0, t.length()-2);
+				t = t.substring(0, t.length()-1);
 			}
 		}
 
