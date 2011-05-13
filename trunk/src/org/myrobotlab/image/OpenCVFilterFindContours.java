@@ -25,38 +25,40 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2GRAY;
-import static com.googlecode.javacv.jna.cv.CV_CHAIN_APPROX_SIMPLE;
-import static com.googlecode.javacv.jna.cv.CV_POLY_APPROX_DP;
-import static com.googlecode.javacv.jna.cv.cvApproxPoly;
-import static com.googlecode.javacv.jna.cv.cvContourPerimeter;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cv.cvFindContours;
-import static com.googlecode.javacv.jna.cxcore.CV_FONT_HERSHEY_PLAIN;
-import static com.googlecode.javacv.jna.cxcore.cvClearMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
-import static com.googlecode.javacv.jna.cxcore.cvPoint;
-import static com.googlecode.javacv.jna.cxcore.cvPutText;
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
+import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_CHAIN_APPROX_SIMPLE;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_POLY_APPROX_DP;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvApproxPoly;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvBoundingRect;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCheckContourConvexity;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvContourPerimeter;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvFindContours;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cv.CvContour;
-import com.googlecode.javacv.jna.cxcore.CvFont;
-import com.googlecode.javacv.jna.cxcore.CvMemStorage;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.CvSeq;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacpp.Loader;
+import com.googlecode.javacv.cpp.opencv_core.CvContour;
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterFindContours extends OpenCVFilter {
 
@@ -112,8 +114,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	public ArrayList<OpenCV.Polygon> polygons = new ArrayList<OpenCV.Polygon>();
 
-	CvSeq.PointerByReference contourPointer = new CvSeq.PointerByReference();
-	int sizeofCvContour = com.sun.jna.Native.getNativeSize(CvContour.ByValue.class);
+	CvSeq contourPointer = new CvSeq();
+	//int sizeofCvContour = com.sun.jna.Native.getNativeSize(CvContour.ByValue.class);
 
 	CvPoint drawPoint0 = new CvPoint(0, 0);
 	CvPoint drawPoint1 = new CvPoint(0, 0);
@@ -143,22 +145,24 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		display = image.clone();
 
-		if (image.nChannels == 3) {
+		if (image.nChannels()== 3) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
 		}
 
-		cvFindContours(gray, storage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
+		cvFindContours(gray, storage, contourPointer, Loader.sizeof(CvContour.class), 0 ,CV_CHAIN_APPROX_SIMPLE);
+		// new cvFindContours(gray, storage, contourPointer, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+		// old cvFindContours(gray, storage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
 
 		// LOG.error("getStructure");
-		CvSeq contour = contourPointer.getStructure();
+		CvSeq contour = contourPointer;
 		int cnt = 0;
 
 		polygons.clear();
 
 		while (contour != null) {
-			if (contour.elem_size > 0) { // TODO - limit here for "TOOOO MANY !!!!"
+			if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
 
 				// LOG.error("cvApproxPoly");
 
@@ -171,12 +175,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// draw the polygon
 
 				// mark centeroid
-				CvRect rect = cv.cvBoundingRect(contour, 0);
-				drawPoint0.x = rect.x - 1 + rect.width / 2;
-				drawPoint0.y = rect.y + rect.height / 2;
+				CvRect rect = cvBoundingRect(contour, 0);
+				drawPoint0.x(rect.x() - 1 + rect.width() / 2);
+				drawPoint0.y(rect.y() + rect.height() / 2);
 
-				drawPoint1.x = rect.x + 1 + rect.width / 2;
-				drawPoint1.y = rect.y + rect.height / 2;
+				drawPoint1.x(rect.x() + 1 + rect.width() / 2);
+				drawPoint1.y(rect.y() + rect.height() / 2);
 
 				// find all the avg color of each polygon
 				// cxcore.cvZero(polyMask);
@@ -189,73 +193,73 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// size filter
 				if (cfg.getBoolean("useMinArea"))
 				{
-					minArea = (rect.width * rect.height > cfg.getInt("minArea"))?true:false;
+					minArea = (rect.width() * rect.height() > cfg.getInt("minArea"))?true:false;
 				}
 
 				if (cfg.getBoolean("useMaxArea"))
 				{
-					maxArea = (rect.width * rect.height < cfg.getInt("maxArea"))?true:false;
+					maxArea = (rect.width() * rect.height() < cfg.getInt("maxArea"))?true:false;
 				} 
 				
 				
 				if (minArea && maxArea)
 				{
-					CvSeq points = cvApproxPoly(contour.getPointer(),
-							sizeofCvContour, storage, CV_POLY_APPROX_DP,
-							cvContourPerimeter(contour.getPointer()) * 0.02, 1);
+					CvSeq points = cvApproxPoly(contour,
+							Loader.sizeof(CvContour.class), storage, CV_POLY_APPROX_DP,
+							cvContourPerimeter(contour) * 0.02, 1);
 					
 					polygons.add(new OpenCV.Polygon(rect, null, 
-							(cv.cvCheckContourConvexity(points) == 1) ? true:false, 
-							cvPoint(rect.x + rect.width / 2, rect.y
-							+ rect.height / 2), points.total));
+							(cvCheckContourConvexity(points) == 1) ? true:false, 
+							cvPoint(rect.x() + rect.width() / 2, rect.y()
+							+ rect.height() / 2), points.total()));
 
-					cvPutText(display, " " + points.total + " "
-							+ (rect.x + rect.width / 2) + ","
-							+ (rect.y + rect.height / 2) + " " + rect.width + "x" + rect.height + "="
-							+ (rect.width * rect.height) + " " + " "
-							+ cv.cvCheckContourConvexity(points), cvPoint(
-							rect.x + rect.width / 2, rect.y).byValue(), font,
+					cvPutText(display, " " + points.total() + " "
+							+ (rect.x() + rect.width() / 2) + ","
+							+ (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height() + "="
+							+ (rect.width() * rect.height()) + " " + " "
+							+ cvCheckContourConvexity(points), cvPoint(
+							rect.x() + rect.width() / 2, rect.y()), font,
 							CvScalar.WHITE);
 				}
 
 				minArea = true;
 				maxArea = true;
 
-				// cvPutText(display, " " + points.total + " " + (rect.x *
-				// rect.height) + "c" + (int)avg.getRed() + "," +
+				// cvPutText(display, " " + points.total() + " " + (rect.x() *
+				// rect.height()) + "c" + (int)avg.getRed() + "," +
 				// (int)avg.getGreen() + "," + (int)avg.getBlue(),
-				// cvPoint(rect.x + rect.width/2,rect.y).byValue(), font,
+				// cvPoint(rect.x() + rect.width()/2,rect.y()), font,
 				// CV_RGB(255, 0, 0));
-				// cvPutText(display, " " + points.total + " " + rect.x + "," +
-				// rect.y + " "+ (rect.x * rect.height/1000) + " " +
+				// cvPutText(display, " " + points.total() + " " + rect.x() + "," +
+				// rect.y() + " "+ (rect.x() * rect.height()/1000) + " " +
 				// OpenCVFilterAverageColor.getColorName2(avg) + " " +
-				// cv.cvCheckContourConvexity(points), cvPoint(rect.x +
-				// rect.width/2,rect.y).byValue(), font, CvScalar.WHITE);
+				// cv.cvCheckContourConvexity(points), cvPoint(rect.x() +
+				// rect.width()/2,rect.y()), font, CvScalar.WHITE);
 				
-				drawPoint0.x = rect.x;
-				drawPoint0.y = rect.y;
+				drawPoint0.x(rect.x());
+				drawPoint0.y(rect.y());
 
-				drawPoint1.x = rect.x + rect.width;
-				drawPoint1.y = rect.y + rect.height;
+				drawPoint1.x(rect.x() + rect.width());
+				drawPoint1.y(rect.y() + rect.height());
 
-				cxcore.cvDrawRect(display, drawPoint0.byValue(), drawPoint1.byValue(), CvScalar.RED, 1, 8, 0);
+				cvDrawRect(display, drawPoint0, drawPoint1, CvScalar.RED, 1, 8, 0);
 				
 				++cnt;
 
 				// TODO - if publish rect
-				rectangle.x = rect.x;
-				rectangle.y = rect.y;
-				rectangle.width = rect.width;
-				rectangle.height = rect.height;
+				rectangle.x = rect.x();
+				rectangle.y = rect.y();
+				rectangle.width = rect.width();
+				rectangle.height = rect.height();
 				// myService.invoke("publish", (Object)rectangle);
 
 			}
-			contour = contour.h_next;
+			contour = contour.h_next();
 		}
 
 		myService.invoke("publish", (Object) polygons);
 
-		cvPutText(display, " " + cnt, cvPoint(10, 14).byValue(), font, CvScalar.RED);
+		cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
 		// LOG.error("x");
 		cvClearMemStorage(storage);
 		return display;

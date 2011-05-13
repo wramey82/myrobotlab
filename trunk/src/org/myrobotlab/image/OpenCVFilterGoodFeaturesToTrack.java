@@ -25,28 +25,30 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2GRAY;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cv.cvGoodFeaturesToTrack;
-import static com.googlecode.javacv.jna.cxcore.CV_TERMCRIT_EPS;
-import static com.googlecode.javacv.jna.cxcore.CV_TERMCRIT_ITER;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
+import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
-import com.googlecode.javacv.jna.cxcore.CvSize;
-import com.googlecode.javacv.jna.cxcore.CvTermCriteria;
-import com.googlecode.javacv.jna.cxcore.IplImage;
-
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
+import com.googlecode.javacv.cpp.opencv_core.CvTermCriteria;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.sun.jna.ptr.IntByReference;
+
 
 public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
@@ -61,7 +63,8 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	int win_size = 20;
 	int maxPointCount = 30;
 
-	CvPoint2D32f corners[] = null;
+	//CvPoint2D32f corners[] = null; old way
+	CvPoint2D32f corners = null; // new way?
 	HashMap<String, Integer> stableIterations = null;
 	int totalIterations = 0;
 
@@ -118,14 +121,16 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	public IplImage process(IplImage frame) {
 		if (grey == null) {
 
-			cvWinSize = new CvSize(win_size, win_size);
-			termCrit = new CvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS,
-					20, 0.03);
+			cvWinSize = cvSize(win_size, win_size);
+			termCrit = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
 
 			/* allocate all the buffers */
 			grey = cvCreateImage(cvGetSize(frame), 8, 1);
 			mask = null;
-			corners = CvPoint2D32f.createArray(maxPointCount);
+			
+			//corners = new CvPoint2D32f[maxPointCount]; // old way
+			corners = new CvPoint2D32f(maxPointCount);
+			
 			// stableIterations = new int[maxPointCount];
 			stableIterations = new HashMap<String, Integer>();
 			eig = cvCreateImage(cvGetSize(grey), 32, 1);
@@ -148,28 +153,46 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 			++totalIterations;
 			minDistance = 10;
 			cornerCount.setValue(maxPointCount);
-			cvGoodFeaturesToTrack(grey, eig, temp, corners, cornerCount,
-					quality, minDistance, mask, blockSize, useHarris, k);
+			
+			//CvPoint2D32f cornersA = new CvPoint2D32f(maxPointCount);
+	        int[] corner_count = { 0,0,0,0,0,0,0,0,0,0 };
+
+
+	        cvGoodFeaturesToTrack(grey, eig, temp, corners,
+	                corner_count, 0.05, 5.0, mask, 3, 0, 0.04);
+	        
+	        // old
+	        // cvGoodFeaturesToTrack(grey, eig, temp, cornersA, cornerCount, quality, minDistance, mask, blockSize, useHarris, k);
+			
+	        /*
+	        cvFindCornerSubPix(imgA, cornersA, corner_count[0],
+	                cvSize(win_size, win_size), cvSize(-1, -1),
+	                cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03));
+	         */	                
+			
 
 			// Log.error(corners[0]..size());
 
+	        boolean x = corners.asBuffer(maxPointCount).hasArray();
+	        ByteBuffer a = corners.asByteBuffer(30);
 			// cxcore.cvScale(eig, eig, 100, 0.00);
 			String d = "";
-			for (int i = 0; i < corners.length; ++i) {
-				// d += (int)corners[i].x + "," + (int)corners[i].y + " ";
-				if (stableIterations.containsKey((int) corners[i].x + ","
-						+ (int) corners[i].y)) {
-					Integer it = stableIterations.get((int) corners[i].x + ","
-							+ (int) corners[i].y);
-					stableIterations.put((int) corners[i].x + ","
-							+ (int) corners[i].y, ++it);
+/*			
+			for (int i = 0; i < corners.asBuffer(maxPointCount).hasArray()corners..length(); ++i) {
+				// d += (int)corners[i].x() + "," + (int)corners[i].y + " ";
+				if (stableIterations.containsKey((int) corners[i].x() + ","
+						+ (int) corners[i].y())) {
+					Integer it = stableIterations.get((int) corners[i].x() + ","
+							+ (int) corners[i].y());
+					stableIterations.put((int) corners[i].x() + ","
+							+ (int) corners[i].y(), ++it);
 				} else {
-					stableIterations.put((int) corners[i].x + ","
-							+ (int) corners[i].y, 1);
+					stableIterations.put((int) corners[i].x() + ","
+							+ (int) corners[i].y(), 1);
 				}
 
 			}
-
+*/
 			// LOG.error(d);
 
 			// needTrackingPoints = false;
@@ -192,8 +215,8 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		int y = 0;
 		for (int i = 0; i < cornerCount.getValue(); ++i) {
 
-			x = (int) corners[i].x;
-			y = (int) corners[i].y;
+//			x = (int) corners[i].x();
+//			y = (int) corners[i].y();
 			++validPoints;
 			if (graphics != null) {
 				Integer z = stableIterations.get(x + "," + y);

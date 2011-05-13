@@ -28,6 +28,7 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.chess.HMove;
+import org.myrobotlab.control.ChessGameGUI;
 import org.myrobotlab.framework.Service;
 
 public class ChessGame extends Service {
@@ -37,6 +38,12 @@ public class ChessGame extends Service {
 
 	public ChessGame(String n) {
 		super(n, ChessGame.class.getCanonicalName());
+	}
+
+	public HMove makeHMove(HMove m)
+	{
+		
+		return m;
 	}
 	
 	public String makeMove(HMove m)
@@ -59,6 +66,12 @@ public class ChessGame extends Service {
 		return t;
 	}
 	
+	public HMove inputHMove (HMove s)
+	{
+		return s;
+	}
+
+	
 	public String inputMove (String s)
 	{
 		return s;
@@ -73,13 +86,18 @@ public class ChessGame extends Service {
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		
-		ChessGame chessBoardService = new ChessGame("chessBoardService");
-		chessBoardService.startService();
 
+		LOG.info(ChessGameGUI.cleanMove("a2-a3q"));		
+		
+		ChessGame chess1 = new ChessGame("chess1");
+		chess1.startService();
+
+		ChessGame chess2 = new ChessGame("chess2");
+		chess2.startService();
+		
 		//OpenCV camera = new OpenCV("camera");
 		//camera.startService();
+		
 		
 		Logging log = new Logging("log");
 		log.startService();

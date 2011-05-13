@@ -25,10 +25,11 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.cvDrawRect;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvFloodFill;
 
 import java.awt.image.BufferedImage;
 
@@ -36,12 +37,11 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterFloodFill extends OpenCVFilter {
 
@@ -68,8 +68,8 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 		// CvScalar avg = cxcore.cvAvg(image, null);
-		// cv.cvFloodFill(image, startPoint.byValue(), fillColor.byValue(),
-		// lo_diff.byValue(), up_diff.byValue(), null, 4, null);
+		// cv.cvFloodFill(image, startPoint, fillColor,
+		// lo_diff, up_diff, null, 4, null);
 		return image.getBufferedImage();
 	}
 
@@ -86,7 +86,7 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 		// if (startPoint == null)
 		{
-			startPoint = new CvPoint(image.width / 2, image.height - 4);
+			startPoint = new CvPoint(image.width() / 2, image.height() - 4);
 		}
 
 		fillColor = cvScalar(255.0, 255.0, 255.0, 1.0);
@@ -94,12 +94,11 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 		lo_diff = CV_RGB(1, 12, 13);// cvScalar(20, 0.0, 0.5, 1.0);
 		up_diff = CV_RGB(1, 12, 13);
 
-		cv.cvFloodFill(image, startPoint.byValue(), fillColor.byValue(),
-				lo_diff.byValue(), up_diff.byValue(), null, 4, null);
+		cvFloodFill(image, startPoint, fillColor,
+				lo_diff, up_diff, null, 4, null);
 
 		fillColor = cvScalar(0.0, 255.0, 0.0, 1.0);
-		cvDrawRect(image, startPoint.byValue(), startPoint.byValue(), fillColor
-				.byValue(), 2, 1, 0);
+		cvDrawRect(image, startPoint, startPoint, fillColor, 2, 1, 0);
 
 		return image;
 

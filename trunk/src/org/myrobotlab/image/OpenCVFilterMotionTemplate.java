@@ -25,42 +25,48 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.CV_AA;
-import static com.googlecode.javacv.jna.cxcore.CV_L1;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.IPL_DEPTH_32F;
-import static com.googlecode.javacv.jna.cxcore.IPL_DEPTH_8U;
-import static com.googlecode.javacv.jna.cxcore.cvAbsDiff;
-import static com.googlecode.javacv.jna.cxcore.cvCircle;
-import static com.googlecode.javacv.jna.cxcore.cvClearMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvCvtScale;
-import static com.googlecode.javacv.jna.cxcore.cvLine;
-import static com.googlecode.javacv.jna.cxcore.cvMerge;
-import static com.googlecode.javacv.jna.cxcore.cvNorm;
-import static com.googlecode.javacv.jna.cxcore.cvPoint;
-import static com.googlecode.javacv.jna.cxcore.cvRect;
-import static com.googlecode.javacv.jna.cxcore.cvReleaseImage;
-import static com.googlecode.javacv.jna.cxcore.cvResetImageROI;
-import static com.googlecode.javacv.jna.cxcore.cvSetImageROI;
-import static com.googlecode.javacv.jna.cxcore.cvSize;
-import static com.googlecode.javacv.jna.cxcore.cvZero;
+import static com.googlecode.javacv.cpp.opencv_core.CV_AA;
+import static com.googlecode.javacv.cpp.opencv_core.CV_L1;
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
+import static com.googlecode.javacv.cpp.opencv_core.cvAbsDiff;
+import static com.googlecode.javacv.cpp.opencv_core.cvCircle;
+import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCvtScale;
+import static com.googlecode.javacv.cpp.opencv_core.cvLine;
+import static com.googlecode.javacv.cpp.opencv_core.cvMerge;
+import static com.googlecode.javacv.cpp.opencv_core.cvNorm;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvZero;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
+import static com.googlecode.javacv.cpp.opencv_video.cvCalcGlobalOrientation;
+import static com.googlecode.javacv.cpp.opencv_video.cvCalcMotionGradient;
+import static com.googlecode.javacv.cpp.opencv_video.cvSegmentMotion;
+import static com.googlecode.javacv.cpp.opencv_video.cvUpdateMotionHistory;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore.CvMemStorage;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.CvSeq;
-import com.googlecode.javacv.jna.cxcore.CvSize;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
@@ -96,7 +102,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		double timestamp = 0.0;
 		// TODO FIX double timestamp = (double)clock()/CLOCKS_PER_SEC; // get
 		// current time in seconds
-		CvSize size = cvSize(img.width, img.height); // get current frame size
+		CvSize size = cvSize(img.width(), img.height()); // get current frame size
 		int i, idx1 = last, idx2;
 		IplImage silh;
 		CvSeq seq;
@@ -109,7 +115,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 		// allocate images at the beginning or
 		// reallocate them if the frame size is changed
-		if (mhi == null || mhi.width != size.width || mhi.height != size.height) {
+		if (mhi == null || mhi.width() != size.width() || mhi.height() != size.height()) {
 			if (buf == null) {
 				buf = new IplImage[10];// IplImage.create(arg0, arg1, arg2,
 										// arg3);
@@ -117,32 +123,32 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 			for (i = 0; i < N; i++) {
 				if (buf[i] != null) {
-					cvReleaseImage(buf[i].pointerByReference());
+					cvReleaseImage(buf[i]);
 				}
-				buf[i] = cvCreateImage(size.byValue(), IPL_DEPTH_8U, 1);
+				buf[i] = cvCreateImage(size, IPL_DEPTH_8U, 1);
 				cvZero(buf[i]);
 			}
 			if (mhi != null) {
-				cvReleaseImage(mhi.pointerByReference());
+				cvReleaseImage(mhi);
 			}
 			if (orient != null) {
-				cvReleaseImage(orient.pointerByReference());
+				cvReleaseImage(orient);
 			}
 			if (segmask != null) {
-				cvReleaseImage(segmask.pointerByReference());
+				cvReleaseImage(segmask);
 			}
 			if (mask != null) {
-				cvReleaseImage(mask.pointerByReference());
+				cvReleaseImage(mask);
 			}
 
-			mhi = cvCreateImage(size.byValue(), IPL_DEPTH_32F, 1);
+			mhi = cvCreateImage(size, IPL_DEPTH_32F, 1);
 			cvZero(mhi); // clear MHI at the beginning
-			orient = cvCreateImage(size.byValue(), IPL_DEPTH_32F, 1);
-			segmask = cvCreateImage(size.byValue(), IPL_DEPTH_32F, 1);
-			mask = cvCreateImage(size.byValue(), IPL_DEPTH_8U, 1);
+			orient = cvCreateImage(size, IPL_DEPTH_32F, 1);
+			segmask = cvCreateImage(size, IPL_DEPTH_32F, 1);
+			mask = cvCreateImage(size, IPL_DEPTH_8U, 1);
 		}
 
-		cvCvtColor(img, buf[last], cv.CV_BGR2GRAY); // convert frame to
+		cvCvtColor(img, buf[last], CV_BGR2GRAY); // convert frame to
 													// grayscale
 
 		idx2 = (last + 1) % N; // index of (last - (N-1))th frame
@@ -151,10 +157,10 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		silh = buf[idx2];
 		cvAbsDiff(buf[idx1], buf[idx2], silh); // get difference between frames
 
-		cv.cvThreshold(silh, silh, diff_threshold, 1, cv.CV_THRESH_BINARY); // and
+		cvThreshold(silh, silh, diff_threshold, 1, CV_THRESH_BINARY); // and
 																			// threshold
 																			// it
-		cv.cvUpdateMotionHistory(silh, mhi, timestamp, MHI_DURATION); // update
+		cvUpdateMotionHistory(silh, mhi, timestamp, MHI_DURATION); // update
 																		// MHI
 
 		// convert MHI to blue 8u image
@@ -164,7 +170,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		cvMerge(mask, null, null, null, dst);
 
 		// calculate motion gradient orientation and valid orientation mask
-		cv.cvCalcMotionGradient(mhi, mask, orient, MAX_TIME_DELTA,
+		cvCalcMotionGradient(mhi, mask, orient, MAX_TIME_DELTA,
 				MIN_TIME_DELTA, 3);
 
 		if (storage == null)
@@ -174,23 +180,23 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 		// segment motion: get sequence of motion components
 		// segmask is marked motion components map. It is not used further
-		seq = cv.cvSegmentMotion(mhi, segmask, storage, timestamp,
+		seq = cvSegmentMotion(mhi, segmask, storage, timestamp,
 				MAX_TIME_DELTA);
 
 		// iterate through the motion components,
 		// One more iteration (i == -1) corresponds to the whole image (global
 		// motion)
-		for (i = -1; i < seq.total; i++) {
+		for (i = -1; i < seq.total(); i++) {
 			comp_rect = null;
 			if (i < 0) { // case of the whole image
-				comp_rect = cvRect(0, 0, size.width, size.height);
+				comp_rect = cvRect(0, 0, size.width(), size.height());
 				color = CV_RGB(255, 255, 255);
 				magnitude = 100;
 			} else { // i-th motion component
-			// TODO - fix cv.CvConnectedComp connected_comp = new
-			// cv.CvConnectedComp(cvGetSeqElem( seq, i ));
+			// TODO - fix CvConnectedComp connected_comp = new
+			// CvConnectedComp(cvGetSeqElem( seq, i ));
 			// TODO -fix comp_rect = connected_comp.rect;
-				if (comp_rect.width + comp_rect.height < 100) // reject very
+				if (comp_rect.width() + comp_rect.height() < 100) // reject very
 																// small
 																// components
 					continue;
@@ -199,13 +205,13 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 			}
 
 			// select component ROI
-			cvSetImageROI(silh, comp_rect.byValue());
-			cvSetImageROI(mhi, comp_rect.byValue());
-			cvSetImageROI(orient, comp_rect.byValue());
-			cvSetImageROI(mask, comp_rect.byValue());
+			cvSetImageROI(silh, comp_rect);
+			cvSetImageROI(mhi, comp_rect);
+			cvSetImageROI(orient, comp_rect);
+			cvSetImageROI(mask, comp_rect);
 
 			// calculate orientation
-			angle = cv.cvCalcGlobalOrientation(orient, mask, mhi, timestamp,
+			angle = cvCalcGlobalOrientation(orient, mask, mhi, timestamp,
 					MHI_DURATION);
 			angle = 360.0 - angle; // adjust for images with top-left origin
 
@@ -219,22 +225,22 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 			cvResetImageROI(silh);
 
 			// check for the case of little motion
-			if (count < comp_rect.width * comp_rect.height * 0.05)
+			if (count < comp_rect.width() * comp_rect.height() * 0.05)
 				continue;
 
 			// draw a clock with arrow indicating the direction
-			center = cvPoint((comp_rect.x + comp_rect.width / 2),
-					(comp_rect.y + comp_rect.height / 2));
+			center = cvPoint((comp_rect.x() + comp_rect.width() / 2),
+					(comp_rect.y() + comp_rect.height() / 2));
 
 			// cvCircle( dst, center, cvRound(magnitude*1.2), color, 3, CV_AA, 0
 			// );
-			cvCircle(dst, center.byValue(), (int) (magnitude * 1.2), color
-					.byValue(), 3, CV_AA, 0);
-			cvLine(dst, center.byValue(), cvPoint((int) (center.x + magnitude
+			cvCircle(dst, center, (int) (magnitude * 1.2), color
+					, 3, CV_AA, 0);
+			cvLine(dst, center, cvPoint((int) (center.x() + magnitude
 					* Math.cos(angle * Math.PI / 180)),
-					(int) (center.y - magnitude
+					(int) (center.y() - magnitude
 							* Math.sin(angle * Math.PI / 180))), color
-					.byValue(), 3, CV_AA, 0);
+					, 3, CV_AA, 0);
 		}
 	}
 
@@ -265,9 +271,9 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 		// what can you expect? nothing? - if data != null then error?
 		if (motion == null) {
-			motion = cvCreateImage(cvSize(image.width, image.height), 8, 3);
+			motion = cvCreateImage(cvSize(image.width(), image.height()), 8, 3);
 			cvZero(motion);
-			motion.origin = image.origin;
+			motion.origin(image.origin());
 		}
 
 		update_mhi(image, motion, 30);

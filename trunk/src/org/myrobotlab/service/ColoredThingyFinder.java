@@ -32,15 +32,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
-import com.googlecode.javacv.jna.cxcore.IplImage;
-
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.OpenCV.Polygon;
+
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ColoredThingyFinder extends Service {
 
@@ -66,7 +64,7 @@ public class ColoredThingyFinder extends Service {
 	public CvPoint2D32f[] copyArray(CvPoint2D32f[] in) {
 		CvPoint2D32f[] ret = new CvPoint2D32f[in.length];
 		for (int i = 0; i < in.length; ++i) {
-			ret[i] = new CvPoint2D32f(in[i].x, in[i].y);
+			ret[i] = new CvPoint2D32f(in[i].x(), in[i].y());
 		}
 
 		return ret;
@@ -260,9 +258,9 @@ public class ColoredThingyFinder extends Service {
 		for (int i = 0; i < current_features.length; ++i) {
 			CvPoint2D32f p0 = current_features[i];
 			CvPoint2D32f p1 = saved_features[i];
-			LOG.error((int) p0.x + "," + (int) p0.y + " " + (int) p1.x + ","
-					+ (int) p1.y + " " + (int) (p0.x - p1.x) + " "
-					+ (int) (p0.y - p1.y));
+			LOG.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
+					+ (int) p1.y() + " " + (int) (p0.x() - p1.x()) + " "
+					+ (int) (p0.y() - p1.y()));
 		}
 		LOG.info("done");
 		displayResults();
@@ -289,11 +287,11 @@ public class ColoredThingyFinder extends Service {
 			CvPoint2D32f p1 = saved_features[i];
 
 			graphics.setColor(Color.green);
-			graphics.drawLine((int) p1.x, (int) p1.y + 1, (int) p1.x,
-					(int) p1.y - 1);
+			graphics.drawLine((int) p1.x(), (int) p1.y() + 1, (int) p1.x(),
+					(int) p1.y() - 1);
 			graphics.setColor(Color.red);
-			graphics.drawLine((int) p0.x - 1, (int) p0.y, (int) p0.x + 1,
-					(int) p0.y);
+			graphics.drawLine((int) p0.x() - 1, (int) p0.y(), (int) p0.x() + 1,
+					(int) p0.y());
 
 			// LOG.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));

@@ -28,7 +28,14 @@ package org.myrobotlab.image;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.*;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+
 
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.OpenCV;

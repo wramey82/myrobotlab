@@ -25,10 +25,12 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cvaux.cvCreateBGCodeBookModel;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_video.cvCreateBGCodeBookModel;
+import static com.googlecode.javacv.cpp.opencv_video.cvCreateGaussianBGModel;
+import static com.googlecode.javacv.cpp.opencv_video.cvUpdateBGStatModel;
 
 import java.awt.image.BufferedImage;
 
@@ -36,13 +38,14 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cvaux.CvBGCodeBookModel;
-import com.googlecode.javacv.jna.cvaux.CvBGStatModel;
-import com.googlecode.javacv.jna.cvaux.v21;
-import com.googlecode.javacv.jna.cxcore.CvMemStorage;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_video.CvBGCodeBookModel;
+import com.googlecode.javacv.cpp.opencv_video.CvBGStatModel;
+
+
 
 public class OpenCVFilterFGBG extends OpenCVFilter {
 
@@ -65,7 +68,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 
-		return bg_model.foreground.getBufferedImage();
+		return bg_model.foreground().getBufferedImage();
 	}
 
 	@Override
@@ -84,7 +87,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.jna.cxcore
+	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
 	 * .IplImage, java.util.HashMap)
 	 * 
 	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
@@ -132,11 +135,11 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 			 * params.weight_init=0.05; params.variance_init=30;
 			 */
 
-			bg_model = v21.cvCreateGaussianBGModel(image, null);
+			bg_model = cvCreateGaussianBGModel(image, null);
 			// bg_model = cvCreateFGDStatModel( temp );
 		}
 
-		v21.cvUpdateBGStatModel(image, bg_model, update_bg_model ? -1 : 0);
+		cvUpdateBGStatModel(image, bg_model, update_bg_model ? -1 : 0);
 		// cvUpdateBGStatModel( image, bg_model, update_bg_model ? -1 : 0);
 		// v21.cvCreateBGCodeBookModel();
 
@@ -148,7 +151,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 
 		// CvSeq.ByReference seq = bg_model.foreground_regions;
 
-		return bg_model.foreground;
+		return bg_model.foreground();
 	}
 
 }

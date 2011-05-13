@@ -25,13 +25,17 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvAnd;
+import static com.googlecode.javacv.cpp.opencv_core.cvNot;
+
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+
 
 public class OpenCVFilterAnd extends OpenCVFilter {
 
@@ -72,7 +76,7 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 
 		if ((negativeImage == null) && (frameCount % 100 == 0)) {
 			negativeImage = image.clone();
-			cxcore.cvNot(image, negativeImage);
+			cvNot(image, negativeImage);
 		}
 
 		if (buffer == null) {
@@ -82,7 +86,7 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 		// cvAnd (src1, src2, dst, mask)
 
 		if (negativeImage != null) {
-			cxcore.cvAnd(image, negativeImage, buffer, null);
+			cvAnd(image, negativeImage, buffer, null);
 		}
 
 		return buffer;

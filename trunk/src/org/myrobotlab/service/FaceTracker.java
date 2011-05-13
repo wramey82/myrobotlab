@@ -28,7 +28,7 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import org.myrobotlab.framework.Service;
 
 public class FaceTracker extends Service {
@@ -87,17 +87,17 @@ public class FaceTracker extends Service {
 	{
 		// TODO - handle multiple resolutions
 		// currently I am only going to do 160 x 120
-		errorX = (point.x - centerX)/2 * -1;
-		errorY = (point.y - centerY)/2 * -1;
+		errorX = (point.x() - centerX)/2 * -1;
+		errorY = (point.y() - centerY)/2 * -1;
 		
-		if (point.x > centerX)
+		if (point.x() > centerX)
 		{
 			errorX = -1;
 		} else {
 			errorX = 1;			
 		}
 
-		if (point.y > centerY)
+		if (point.y() > centerY)
 		{
 			errorY = -1;
 		} else {

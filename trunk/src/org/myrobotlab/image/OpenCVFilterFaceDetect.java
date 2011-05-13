@@ -25,17 +25,26 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cv.CV_HAAR_DO_CANNY_PRUNING;
-import static com.googlecode.javacv.jna.cv.cvHaarDetectObjects;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.cvClearMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvDrawLine;
-import static com.googlecode.javacv.jna.cxcore.cvGetSeqElem;
-import static com.googlecode.javacv.jna.cxcore.cvLoad;
-import static com.googlecode.javacv.jna.cxcore.cvRectangle;
-import static com.googlecode.javacv.jna.cxcore.cvSize;
+
+/*
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_HAAR_DO_CANNY_PRUNING;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvHaarDetectObjects;
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
+import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
+import static com.googlecode.javacv.cpp.opencv_core.cvRectangle;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import com.googlecode.javacv.cpp.opencv_imgproc.CvHaarClassifierCascade;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+*/
 
 import java.awt.image.BufferedImage;
 
@@ -44,13 +53,16 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cv.CvHaarClassifierCascade;
-import com.googlecode.javacv.jna.cxcore.CvMemStorage;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.CvSeq;
-import com.googlecode.javacv.jna.cxcore.IplImage;
+
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.*;
+import com.googlecode.javacv.cpp.opencv_objdetect.CvHaarClassifierCascade;
+
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+
 
 public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
@@ -91,7 +103,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.jna.cxcore
+	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
 	 * .IplImage, java.util.HashMap)
 	 * 
 	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
@@ -149,30 +161,34 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// There can be more than one face in an image. So create a growable
 			// sequence of faces.
 			// Detect the objects and store them in the sequence
-			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
-					CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
 
+//			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
+//					CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
+
+			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
+					CV_HAAR_DO_CANNY_PRUNING);
+			
 			// Loop the number of faces found.
-			for (i = 0; i < (faces != null ? faces.total : 0); i++) {
+			for (i = 0; i < (faces != null ? faces.total() : 0); i++) {
 				// Create a new rectangle for drawing the face
 				// CvRect r = (CvRect)cvGetSeqElem( faces, i );
 				CvRect r = new CvRect(cvGetSeqElem(faces, i));
 
 				// Find the dimensions of the face,and scale it if necessary
-				pt1.x = r.x * scale;
-				pt2.x = (r.x + r.width) * scale;
-				pt1.y = r.y * scale;
-				pt2.y = (r.y + r.height) * scale;
+				pt1.x(r.x() * scale);
+				pt2.x((r.x() + r.width()) * scale);
+				pt1.y(r.y() * scale);
+				pt2.y((r.y() + r.height()) * scale);
 
 				// Draw the rectangle in the input image
-				cvRectangle(img, pt1.byValue(), pt2.byValue(), CV_RGB(255, 0, 0), 3, 8, 0);
-				centeroid.x = r.x + r.width * scale / 2;
-				centeroid.y = r.y + r.height * scale / 2;
+				cvRectangle(img, pt1, pt2, CV_RGB(255, 0, 0), 3, 8, 0);
+				centeroid.x(r.x() + r.width() * scale / 2);
+				centeroid.y(r.y() + r.height() * scale / 2);
 /*				ch1.x = centeroid.x + 1;
 				ch1.y = centeroid.y;
 				ch2.x = centeroid.x - 1;
 				ch2.y = centeroid.y;*/
-				cvDrawLine(img, centeroid.byValue(), centeroid.byValue(), CV_RGB(255, 0, 0), 3, 8, 0);
+				cvDrawLine(img, centeroid, centeroid, CV_RGB(255, 0, 0), 3, 8, 0);
 				myService.invoke("publish", centeroid);
 			}
 		}

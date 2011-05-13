@@ -25,7 +25,9 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_GAUSSIAN;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvSmooth;
 
 import java.awt.image.BufferedImage;
 
@@ -34,8 +36,7 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterSmooth extends OpenCVFilter {
 
@@ -68,9 +69,9 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image) {
 
-		// cvDrawRect(image, startPoint.byValue(), startPoint.byValue(),
-		// fillColor.byValue(), 2, 1, 0);
-		cv.cvSmooth(image, image, cv.CV_GAUSSIAN, 9, 7, 7, 1);
+		// cvDrawRect(image, startPoint, startPoint,
+		// fillColor, 2, 1, 0);
+		cvSmooth(image, image, CV_GAUSSIAN, 9, 7, 7, 1);
 
 		return image;
 

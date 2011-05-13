@@ -25,16 +25,20 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_ADAPTIVE_THRESH_MEAN_C;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvAdaptiveThreshold;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 
@@ -99,7 +103,7 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (gray == null) {
-			gray = cxcore.cvCreateImage(cxcore.cvGetSize(image), 8,
+			gray = cvCreateImage(cvGetSize(image), 8,
 					CV_THRESH_BINARY);
 		}
 
@@ -116,8 +120,8 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 
 		// must be gray for adaptive
 		
-		cv.cvCvtColor( image, gray, cv.CV_BGR2GRAY );
-		cv.cvAdaptiveThreshold(gray, gray, 255, cv.CV_ADAPTIVE_THRESH_MEAN_C,
+		cvCvtColor( image, gray, CV_BGR2GRAY );
+		cvAdaptiveThreshold(gray, gray, 255, CV_ADAPTIVE_THRESH_MEAN_C,
 		CV_THRESH_BINARY, 7,30);
 		
 		return image;

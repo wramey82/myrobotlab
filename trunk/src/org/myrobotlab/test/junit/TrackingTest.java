@@ -1,6 +1,6 @@
 package org.myrobotlab.test.junit;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

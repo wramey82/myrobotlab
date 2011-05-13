@@ -38,8 +38,8 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
@@ -259,7 +259,7 @@ public class FrogLeg extends Service {
 			beginSampled = true;
 			x0 = new Point[points.length];
 			for (int i = 0; i < points.length; ++i) {
-				Point p = new Point((int) points[i].x, (int) points[i].y);
+				Point p = new Point((int) points[i].x(), (int) points[i].y());
 				x0[i] = p;
 			}
 		}
@@ -270,7 +270,7 @@ public class FrogLeg extends Service {
 			endSampled = true;
 			x1 = new Point[points.length];
 			for (int i = 0; i < points.length; ++i) {
-				Point p = new Point((int) points[i].x, (int) points[i].y);
+				Point p = new Point((int) points[i].x(), (int) points[i].y());
 				x1[i] = p;
 			}
 		}
@@ -303,10 +303,10 @@ public class FrogLeg extends Service {
 		LOG.error(points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
-			if (p.x != 0 && p.x != 319 && p.y != 0 && p.y != 239) {
-				Y = Math.tan(0.01745 * (54.7 + (240 - p.y) / 5.6)) * 17;
+			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {
+				Y = Math.tan(0.01745 * (54.7 + (240 - p.y()) / 5.6)) * 17;
 				X = Math.sqrt(Y * Y + 17 * 17)
-						* Math.sin(0.01745 * -1 * (160 - p.x) / 5.6);
+						* Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
 				if (!unique.containsKey((int) X + "," + (int) Y)) {
 					unique.put((int) X + "," + (int) Y, p);
 					ret += "Sketchup.active_model.entities.add_line ["

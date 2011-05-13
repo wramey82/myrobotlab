@@ -25,17 +25,6 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cxcore.CV_FONT_HERSHEY_PLAIN;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.cvDrawRect;
-import static com.googlecode.javacv.jna.cxcore.cvPoint;
-import static com.googlecode.javacv.jna.cxcore.cvPutText;
-import static com.googlecode.javacv.jna.cxcore.cvRect;
-import static com.googlecode.javacv.jna.cxcore.cvResetImageROI;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
-import static com.googlecode.javacv.jna.cxcore.cvSetImageROI;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -44,13 +33,16 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.CvFont;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.*;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+
 
 public class OpenCVFilterAverageColor extends OpenCVFilter {
 
@@ -107,9 +99,9 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	public static String getRGBColorName(CvScalar c) {
 		String ret = "";
-		int red = (int) c.getRed();
-		int green = (int) c.getGreen();
-		int blue = (int) c.getBlue();
+		int red = (int) c.red();
+		int green = (int) c.green();
+		int blue = (int) c.blue();
 
 		// 63 < divisor < 85
 		red = red / 64 - 1;
@@ -142,18 +134,18 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		makeGrid = true;
 		if (makeGrid && colorGrid != null) {
 			CvScalar coi = null;
-			for (int x = 0; x < (image.width / roiWidth); ++x) {
-				for (int y = 0; y < (image.height / roiHeight); ++y) {
+			for (int x = 0; x < (image.width() / roiWidth); ++x) {
+				for (int y = 0; y < (image.height() / roiHeight); ++y) {
 					coi = colorGrid[x][y];
-					poi.x = x * roiWidth;
-					poi.y = y * roiHeight;
+					poi.x(x * roiWidth);
+					poi.y(y * roiHeight);
 					cvDrawRect(image, cvPoint(x * roiWidth, y * roiHeight)
-							.byValue(), cvPoint(x * roiWidth + roiWidth,
-							y * roiHeight + roiHeight).byValue(),
-							coi.byValue(), 1, 1, 0);
+							, cvPoint(x * roiWidth + roiWidth,
+							y * roiHeight + roiHeight),
+							coi, 1, 1, 0);
 					if (lastColorName != getColorName(coi)) {
 						cvPutText(image, getColorName(coi).substring(0, 2), poi
-								.byValue(), font, CV_RGB(255, 255, 255));
+								, font, CV_RGB(255, 255, 255));
 					}
 					lastColorName = getColorName(coi);
 
@@ -161,24 +153,24 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 			}
 		}
 
-		cvPutText(image, colorName, cvPoint(10, 14).byValue(), font, CV_RGB(
+		cvPutText(image, colorName, cvPoint(10, 14), font, CV_RGB(
 				255, 0, 0));
-		cvPutText(image, filterFrameCnt + " " + (int) avg.getRed() + " "
-				+ (int) avg.getGreen() + " " + (int) avg.getBlue(), cvPoint(10,
-				28).byValue(), font, CV_RGB(255, 0, 0));
+		cvPutText(image, filterFrameCnt + " " + (int) avg.red() + " "
+				+ (int) avg.green() + " " + (int) avg.blue(), cvPoint(10,
+				28), font, CV_RGB(255, 0, 0));
 		// cvPutText(image, red + " " + green + " "
-		// + blue, cvPoint(10, 42).byValue(), font, CV_RGB(255, 0, 0));
+		// + blue, cvPoint(10, 42), font, CV_RGB(255, 0, 0));
 		/*
 		 * CvPoint[] pts = new CvPoint[4]; pts[0] = cvPoint(0, 0); pts[1] =
 		 * cvPoint(0, 10); pts[2] = cvPoint(10, 10); pts[3] = cvPoint(1, 0);
 		 */
 		fillColor = cvScalar(30.0, 120.0, 70.0, 1.0);
-		// cvFillConvexPoly( image, pts, 4, fillColor.byValue(), CV_AA, 0 );
+		// cvFillConvexPoly( image, pts, 4, fillColor, CV_AA, 0 );
 		// cvFillPoly(image, pts, 4, contours, cvScalar(255.0, 255.0, 255.0,
 		// 0.0), 8, 0)
-		cvDrawRect(image, cvPoint(roiX, roiY).byValue(), cvPoint(
-				roiX + roiWidth, roiY + roiHeight).byValue(), fillColor
-				.byValue(), 1, 1, 0);
+		cvDrawRect(image, cvPoint(roiX, roiY), cvPoint(
+				roiX + roiWidth, roiY + roiHeight), fillColor
+				, 1, 1, 0);
 
 		return image.getBufferedImage();
 	}
@@ -221,16 +213,16 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		} else {
 			if (makeGrid) {
 				if (colorGrid == null) {
-					colorGrid = new CvScalar[image.width / roiWidth + 1][image.height
+					colorGrid = new CvScalar[image.width() / roiWidth + 1][image.height()
 							/ roiHeight + 1];
 				}
-				for (int x = 0; x < (image.width / roiWidth); ++x) {
-					for (int y = 0; y < (image.height / roiHeight); ++y) {
+				for (int x = 0; x < (image.width() / roiWidth); ++x) {
+					for (int y = 0; y < (image.height() / roiHeight); ++y) {
 
-						troi.x = x * roiWidth;
-						troi.y = y * roiHeight;
-						cvSetImageROI(image, troi.byValue());
-						avg = cxcore.cvAvg(image, null);
+						troi.x(x * roiWidth);
+						troi.y(y * roiHeight);
+						cvSetImageROI(image, troi);
+						avg = cvAvg(image, null);
 						cvResetImageROI(image);
 						colorGrid[x][y] = avg;
 						/*
@@ -246,8 +238,8 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 			}
 
-			cvSetImageROI(image, roi.byValue());
-			avg = cxcore.cvAvg(image, null);
+			cvSetImageROI(image, roi);
+			avg = cvAvg(image, null);
 			cvResetImageROI(image);
 			colorName = getColorName(avg);
 			if (publishColorName && colorName.compareTo(lastColorName) != 0) {
@@ -260,9 +252,9 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	}
 
 	static public String getColorName2(CvScalar color) {
-		int red = (int) color.getRed();
-		int green = (int) color.getGreen();
-		int blue = (int) color.getBlue();
+		int red = (int) color.red();
+		int green = (int) color.green();
+		int blue = (int) color.blue();
 
 		// 63 < divisor < 85
 		red = red / 64 - 1;
@@ -281,9 +273,9 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	}
 
 	public String getColorName(CvScalar color) {
-		red = (int) color.getRed();
-		green = (int) color.getGreen();
-		blue = (int) color.getBlue();
+		red = (int) color.red();
+		green = (int) color.green();
+		blue = (int) color.blue();
 
 		// 63 < divisor < 85
 		red = red / 64 - 1;

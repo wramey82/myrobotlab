@@ -25,7 +25,9 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -33,11 +35,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
@@ -112,12 +112,11 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 		}
 
 		if (dst == null) {
-			dst = cvCreateImage(cxcore
-					.cvSize(image.width / 2, image.height / 2), 8,
-					image.nChannels);
+			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), 8,
+					image.nChannels());
 		}
 
-		cv.cvPyrDown(image, dst, filter);
+		cvPyrDown(image, dst, filter);
 
 		return dst;
 	}
