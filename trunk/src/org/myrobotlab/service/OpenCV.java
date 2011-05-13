@@ -25,11 +25,23 @@
 
 package org.myrobotlab.service;
 
+/*
+
+static wild card imports for quickly finding static functions in eclipse
+
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_legacy.*;
+import static com.googlecode.javacv.cpp.opencv_video.*;
+import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+
+ */
+
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateCameraCapture;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateFileCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
 import java.awt.Graphics2D;
@@ -54,43 +66,17 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
 
 import com.googlecode.javacv.CanvasFrame;
-import com.googlecode.javacv.cpp.opencv_highgui;
+import com.googlecode.javacv.OpenCVFrameGrabber;
+import com.googlecode.javacv.VideoInputFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
-/*
- *	(SOHDAR) Sparse Optical Horizontal Disparity And Ranging Service
- *  The point of this module the same as using stereopsis to get range.  
- *   
- *  This stereopsis program:
- *     This modules requires only 1 camera.
- *     The camera needs to move a known distance in a horizontal vector.
- *     Instead of every pixel being tracked cvGoodFeaturesToTrack is run to get & track a small set of features.
- *     
- *  The basic algorithm is as follows :
- *      1. Get good features set (set of good features to track with default values)
- *      2. call cvCalcOpticalFlowPyrLK on the array from good features
- *      3. verify that image is still - by validating 0 (or near 0) horizontal disparity
- *      4. move camera horizontally (tracking with cvCalcOpticalFlowPyrLK)
- *      5. stop camera
- *      6. verify image is still - use saved_features.x - current_features.x = disparity
- *      7. disparity * constant = range 
- * webcam References:
- * http://forums.sun.com/thread.jspa?threadID=247253&forumID=28 - webCam + famegrabber
- * http://forums.sun.com/thread.jspa?threadID=5258497
- * http://forums.sun.com/thread.jspa?threadID=570463&start=30 - webCam !!! 
- * http://coding.derkeiler.com/Archive/Java/comp.lang.java.programmer/2007-03/msg03186.html
- * 
- * 
- * 		SIMPLIFIED 3 D Model
- * 
- */
+
 
 public class OpenCV extends Service {
 
@@ -99,7 +85,8 @@ public class OpenCV extends Service {
 	Thread videoThread = null;
 	int frameIndex = 0;
 
-	CvCapture capture = null;
+	//CvCapture capture = null;
+	OpenCVFrameGrabber capture = null;
 	boolean isCaptureRunning = false;
 	boolean isCaptureStopped = true;
 
@@ -315,7 +302,11 @@ public class OpenCV extends Service {
 					//double x = highgui.cvGetCaptureProperty(capture, highgui.CV_CAP_PROP_FRAME_WIDTH);
 					//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
 					//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
-					frame = cvQueryFrame(capture);
+					try {
+						frame = capture.grab();
+					} catch (Exception e) {
+						LOG.error(stack2String(e));
+					}
 				}
 				/*
 				 * FOR PROCESSING IMAGES FROM OTHER SERVICES !! BREAKS CAMERA
@@ -392,8 +383,8 @@ public class OpenCV extends Service {
 				} else {
 					if (cfg.get("useInput") == "file") {
 						// re-open avi file -
-						capture = cvCreateFileCapture(cfg
-								.get("inputMovieFileName"));
+						//capture = cvCreateFileCapture(cfg.get("inputMovieFileName"));
+						// not supported at the moment
 					}
 
 				}
@@ -482,18 +473,30 @@ public class OpenCV extends Service {
 			videoThread = null; // terminate the thread
 
 			if (capture != null) {
-				opencv_highgui.cvReleaseCapture(capture);
+				//opencv_highgui.cvReleaseCapture(capture);
+				try {
+					capture.release();
+				} catch (Exception e) {
+					LOG.error(stack2String(e));
+				}
 			}
 			capture = null;
 		}
 
 		// start a new capture
 		if (cfg.get("useInput") == "file") {
-			capture = cvCreateFileCapture(cfg.get("inputMovieFileName"));
+			//capture = cvCreateFileCapture(cfg.get("inputMovieFileName"));
+			// not supported at the moment
 		} else if (cfg.get("useInput") == "camera") {
 			invoke("setCameraIndex", cfg.getInt("cameraIndex"));
 			int index = cfg.getInt("cameraIndex");
-			capture = cvCreateCameraCapture(index);
+			capture = new OpenCVFrameGrabber(index);
+			try {
+				capture.start();
+			} catch (Exception e) {
+				LOG.error(stack2String(e));
+			}
+			// capture = cvCreateCameraCapture(index);  ancient way 
 			//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
 			//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
 
