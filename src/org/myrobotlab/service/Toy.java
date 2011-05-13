@@ -34,7 +34,8 @@ import java.util.Iterator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV.Polygon;
 
@@ -281,81 +282,81 @@ public class Toy extends Service {
 		{			
 			// erase graphics
 //			graphics.setColor(Color.gray);
-//			graphics.drawString((int)toyCenteroid.x + "," + (int)toyCenteroid.y + "h " + (int)newHeading, (int)toyCenteroid.x + 10, (int)toyCenteroid.y);
+//			graphics.drawString((int)toyCenteroid.x + "," + (int)toyCenteroid.y() + "h " + (int)newHeading, (int)toyCenteroid.x + 10, (int)toyCenteroid.y());
 
 
 			if (bottomSegment == 0)
 			{
-				graphics.drawLine((int)lastToyPosition[0].x, (int)lastToyPosition[0].y, (int)lastToyPosition[1].x, (int)lastToyPosition[1].y);	
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)lastToyPosition[2].x, (int)lastToyPosition[2].y);	
+				graphics.drawLine((int)lastToyPosition[0].x(), (int)lastToyPosition[0].y(), (int)lastToyPosition[1].x(), (int)lastToyPosition[1].y());	
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[2].x(), (int)lastToyPosition[2].y());	
 			} else if (bottomSegment == 1)
 			{
-				graphics.drawLine((int)lastToyPosition[1].x, (int)lastToyPosition[1].y, (int)lastToyPosition[2].x, (int)lastToyPosition[2].y);				
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)lastToyPosition[0].x, (int)lastToyPosition[0].y);	
+				graphics.drawLine((int)lastToyPosition[1].x(), (int)lastToyPosition[1].y(), (int)lastToyPosition[2].x(), (int)lastToyPosition[2].y());				
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[0].x(), (int)lastToyPosition[0].y());	
 			} else {
-				graphics.drawLine((int)lastToyPosition[2].x, (int)lastToyPosition[2].y, (int)lastToyPosition[0].x, (int)lastToyPosition[0].y);				
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)lastToyPosition[1].x, (int)lastToyPosition[1].y);					
+				graphics.drawLine((int)lastToyPosition[2].x(), (int)lastToyPosition[2].y(), (int)lastToyPosition[0].x(), (int)lastToyPosition[0].y());				
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[1].x(), (int)lastToyPosition[1].y());					
 			}
 							
 			// TODO persist configuration - so appropriate segment is always subsequently chosen & 
 			// get segment lengths
 			int seg0 = (int) (Math
-					.sqrt((trackingPoints[0].x - trackingPoints[1].x)
-							* (trackingPoints[0].x - trackingPoints[1].x)
-							+ (trackingPoints[0].y - trackingPoints[1].y)
-							* (trackingPoints[0].y - trackingPoints[1].y)));
+					.sqrt((trackingPoints[0].x() - trackingPoints[1].x())
+							* (trackingPoints[0].x() - trackingPoints[1].x())
+							+ (trackingPoints[0].y() - trackingPoints[1].y())
+							* (trackingPoints[0].y() - trackingPoints[1].y())));
 
 			int seg1 = (int) (Math
-					.sqrt((trackingPoints[1].x - trackingPoints[2].x)
-							* (trackingPoints[1].x - trackingPoints[2].x)
-							+ (trackingPoints[1].y - trackingPoints[2].y)
-							* (trackingPoints[1].y - trackingPoints[2].y)));
+					.sqrt((trackingPoints[1].x() - trackingPoints[2].x())
+							* (trackingPoints[1].x() - trackingPoints[2].x())
+							+ (trackingPoints[1].y() - trackingPoints[2].y())
+							* (trackingPoints[1].y() - trackingPoints[2].y())));
 
 			int seg2 = (int) (Math
-					.sqrt((trackingPoints[2].x - trackingPoints[0].x)
-							* (trackingPoints[2].x - trackingPoints[0].x)
-							+ (trackingPoints[2].y - trackingPoints[0].y)
-							* (trackingPoints[2].y - trackingPoints[0].y)));
+					.sqrt((trackingPoints[2].x() - trackingPoints[0].x())
+							* (trackingPoints[2].x() - trackingPoints[0].x())
+							+ (trackingPoints[2].y() - trackingPoints[0].y())
+							* (trackingPoints[2].y() - trackingPoints[0].y())));
 
 
 			// find shortest seg
 			graphics.setColor(Color.white);			
 			if (seg0 < seg1 && seg0 < seg2)
 			{
-				toyPoint.x = (trackingPoints[0].x + trackingPoints[1].x)/2;
-				toyPoint.y = (int)(trackingPoints[0].y + trackingPoints[1].y)/2;
-				graphics.drawLine((int)trackingPoints[0].x, (int)trackingPoints[0].y, (int)trackingPoints[1].x, (int)trackingPoints[1].y);	
-				toyCenteroid.x = (toyPoint.x + trackingPoints[2].x)/2;
-				toyCenteroid.y = (toyPoint.y + trackingPoints[2].y)/2;
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)trackingPoints[2].x, (int)trackingPoints[2].y);	
-				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[2].x - toyPoint.x, trackingPoints[2].y - toyPoint.y));
+				toyPoint.x((trackingPoints[0].x() + trackingPoints[1].x())/2);
+				toyPoint.y((int)(trackingPoints[0].y() + trackingPoints[1].y())/2);
+				graphics.drawLine((int)trackingPoints[0].x(), (int)trackingPoints[0].y(), (int)trackingPoints[1].x(), (int)trackingPoints[1].y());	
+				toyCenteroid.x((toyPoint.x() + trackingPoints[2].x())/2);
+				toyCenteroid.y((toyPoint.y() + trackingPoints[2].y())/2);
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)trackingPoints[2].x(), (int)trackingPoints[2].y());	
+				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[2].x() - toyPoint.x(), trackingPoints[2].y() - toyPoint.y()));
 				bottomSegment = 0;
 			} else if (seg1 < seg0 && seg1 < seg2)
 			{
-				toyPoint.x = (trackingPoints[1].x + trackingPoints[2].x)/2;
-				toyPoint.y = (int)(trackingPoints[1].y + trackingPoints[2].y)/2;
-				graphics.drawLine((int)trackingPoints[1].x, (int)trackingPoints[1].y, (int)trackingPoints[2].x, (int)trackingPoints[2].y);				
-				toyCenteroid.x = (toyPoint.x + trackingPoints[0].x)/2;
-				toyCenteroid.y = (toyPoint.y + trackingPoints[0].y)/2;
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)trackingPoints[0].x, (int)trackingPoints[0].y);	
-				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[0].x - toyPoint.x, trackingPoints[0].y - toyPoint.y));
+				toyPoint.x((trackingPoints[1].x() + trackingPoints[2].x())/2);
+				toyPoint.y((int)(trackingPoints[1].y() + trackingPoints[2].y())/2);
+				graphics.drawLine((int)trackingPoints[1].x(), (int)trackingPoints[1].y(), (int)trackingPoints[2].x(), (int)trackingPoints[2].y());				
+				toyCenteroid.x((toyPoint.x() + trackingPoints[0].x())/2);
+				toyCenteroid.y((toyPoint.y() + trackingPoints[0].y())/2);
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)trackingPoints[0].x(), (int)trackingPoints[0].y());	
+				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[0].x() - toyPoint.x(), trackingPoints[0].y() - toyPoint.y()));
 				bottomSegment = 1;
 			} else{
-				toyPoint.x = (trackingPoints[2].x + trackingPoints[0].x)/2;
-				toyPoint.y = (int)(trackingPoints[2].y + trackingPoints[0].y)/2;
-				graphics.drawLine((int)trackingPoints[2].x, (int)trackingPoints[2].y, (int)trackingPoints[0].x, (int)trackingPoints[0].y);				
-				toyCenteroid.x = (toyPoint.x + trackingPoints[1].x)/2;
-				toyCenteroid.y = (toyPoint.y + trackingPoints[1].y)/2;
-				graphics.drawLine((int)toyPoint.x, (int)toyPoint.y, (int)trackingPoints[1].x, (int)trackingPoints[1].y);	
-				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[1].x - toyPoint.x, trackingPoints[1].y - toyPoint.y));
+				toyPoint.x((trackingPoints[2].x() + trackingPoints[0].x())/2);
+				toyPoint.y((int)(trackingPoints[2].y() + trackingPoints[0].y())/2);
+				graphics.drawLine((int)trackingPoints[2].x(), (int)trackingPoints[2].y(), (int)trackingPoints[0].x(), (int)trackingPoints[0].y());				
+				toyCenteroid.x((toyPoint.x() + trackingPoints[1].x())/2);
+				toyCenteroid.y( (toyPoint.y() + trackingPoints[1].y())/2);
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)trackingPoints[1].x(), (int)trackingPoints[1].y());	
+				newHeading = (float)Math.toDegrees(Math.atan2(trackingPoints[1].x() - toyPoint.x(), trackingPoints[1].y() - toyPoint.y()));
 				bottomSegment = 2;
 			}
 			
 //			graphics.setColor(Color.white);
-//			graphics.drawString((int)toyCenteroid.x + "," + (int)toyCenteroid.y + "h " + (int)newHeading, (int)toyCenteroid.x + 10, (int)toyCenteroid.y);
+//			graphics.drawString((int)toyCenteroid.x() + "," + (int)toyCenteroid.y() + "h " + (int)newHeading, (int)toyCenteroid.x() + 10, (int)toyCenteroid.y());
 
 			graphics.setColor(Color.red);
-			graphics.drawLine((int)toyCenteroid.x, (int)toyCenteroid.y, (int)toyCenteroid.x, (int)toyCenteroid.y);
+			graphics.drawLine((int)toyCenteroid.x(), (int)toyCenteroid.y(), (int)toyCenteroid.x(), (int)toyCenteroid.y());
 
 			if ((int)lastHeading != (int)newHeading)
 			{
@@ -363,16 +364,16 @@ public class Toy extends Service {
 				// FEEDBACK here
 				platform.setHeading((int)newHeading);
 				// not quite right - if staying on the same heading you could fail to update position
-				platform.setPosition((int)toyCenteroid.x, (int)toyCenteroid.y);
+				platform.setPosition((int)toyCenteroid.x(), (int)toyCenteroid.y());
 				
 			}				
 			
-			lastToyPosition[0].x = trackingPoints[0].x;
-			lastToyPosition[0].y = trackingPoints[0].y;
-			lastToyPosition[1].x = trackingPoints[1].x;
-			lastToyPosition[1].y = trackingPoints[1].y;
-			lastToyPosition[2].x = trackingPoints[2].x;
-			lastToyPosition[2].y = trackingPoints[2].y;
+			lastToyPosition[0].x(trackingPoints[0].x());
+			lastToyPosition[0].y(trackingPoints[0].y());
+			lastToyPosition[1].x(trackingPoints[1].x());
+			lastToyPosition[1].y(trackingPoints[1].y());
+			lastToyPosition[2].x(trackingPoints[2].x());
+			lastToyPosition[2].y(trackingPoints[2].y());
 			
 			// TODO verify dimensions angle and lengths
 			
@@ -453,21 +454,21 @@ public class Toy extends Service {
 		{
 			Polygon p = polygons.get(i);
 
-			int x = p.centeroid.x;
-			int y = p.centeroid.y;
-			int width = p.boundingRectangle.width;
-			int height = p.boundingRectangle.height;
+			int x = p.centeroid.x();
+			int y = p.centeroid.y();
+			int width = p.boundingRectangle.width();
+			int height = p.boundingRectangle.height();
 			
-			//graphics.drawRect(p.boundingRectangle.x, p.boundingRectangle.y,  p.boundingRectangle.width, p.boundingRectangle.height);
+			//graphics.drawRect(p.boundingRectangle.x(), p.boundingRectangle.y(),  p.boundingRectangle.width, p.boundingRectangle.height);
 			if (p.vertices < 8)
 			{
-				graphics.fillRect(p.boundingRectangle.x, p.boundingRectangle.y,  p.boundingRectangle.width, p.boundingRectangle.height);
+				graphics.fillRect(p.boundingRectangle.x(), p.boundingRectangle.y(),  p.boundingRectangle.width(), p.boundingRectangle.height());
 			} else {
-				graphics.fillOval(p.boundingRectangle.x, p.boundingRectangle.y,  p.boundingRectangle.width, p.boundingRectangle.height);
+				graphics.fillOval(p.boundingRectangle.x(), p.boundingRectangle.y(),  p.boundingRectangle.width(), p.boundingRectangle.height());
 			}
 			
-			int h = (int)Math.toDegrees(Math.atan2(x - toyPoint.x, y - toyPoint.y));
-			int d = (int)(Math.sqrt((x-toyPoint.x)*(x-toyPoint.x) + (y-toyPoint.y)*(y-toyPoint.y))/pixelsPerInch); 
+			int h = (int)Math.toDegrees(Math.atan2(x - toyPoint.x(), y - toyPoint.y()));
+			int d = (int)(Math.sqrt((x-toyPoint.x())*(x-toyPoint.x()) + (y-toyPoint.y())*(y-toyPoint.y()))/pixelsPerInch); 
 			
 			targets.put(currentlyLookingForName + i, new Target(currentlyLookingForName + " " + i, currentlyLookingForName, x, y, width * height, h, d, p.vertices, p.isConvex, currentlyLookingForColorAvg));
 		}
@@ -558,7 +559,7 @@ public class Toy extends Service {
 			String key = (String) it.next();
 			Target t = targets.get(key);
 			currentTarget = t;
-			graphics.drawLine(t.centeroid.x, t.centeroid.y, (int)toyPoint.x, (int)toyPoint.y);
+			graphics.drawLine(t.centeroid.x, t.centeroid.y, (int)toyPoint.x(), (int)toyPoint.y());
 			graphics.drawString(t.name, t.centeroid.x + 10, t.centeroid.y);
 			graphics.drawString("position " + t.centeroid.x + "," + t.centeroid.y + " size " + t.size, t.centeroid.x + 10, t.centeroid.y + 10);
 			graphics.drawString("bearing " + t.bearing + " distance " + t.distance, t.centeroid.x + 10, t.centeroid.y + 20);

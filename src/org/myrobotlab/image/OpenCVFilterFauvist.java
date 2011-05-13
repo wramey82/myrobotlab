@@ -26,19 +26,17 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2GRAY;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.*;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class OpenCVFilterFauvist extends OpenCVFilter {
 
@@ -93,7 +91,7 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 			inlines = cvCreateImage(cvGetSize(image), 8, 1);
 		}
 
-		if (image.nChannels == 3) {
+		if (image.nChannels() == 3) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
@@ -104,7 +102,7 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 		lowThreshold = 40.0;
 		highThreshold = 110.0;
 		apertureSize = 3;
-		cv.cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
+		cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
 
 		return inlines;
 	}

@@ -289,6 +289,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         if (publishEvent)
         {
         	myService.send(boundServiceName, "makeMove", m);
+        	myService.send(boundServiceName, "makeHMove", m);
         }
         
         if (m.promote != 0) {
@@ -405,6 +406,18 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
             }
         }
     }
+
+    public HMove inputHMove(HMove m2)
+    {
+    	try {
+			youGotToMoveItMoveIt(null, m2, false);
+		} catch (PropertyVetoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return m2;
+    }
     
     public String inputMove(String m)
     {
@@ -425,7 +438,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     	return s;
     }
 
-	private String cleanMove(String t)
+	public static String cleanMove(String t)
 	{
 		LOG.info("cleanMove " + t);
 
@@ -457,11 +470,13 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 	@Override
 	public void attachGUI() {
 		sendNotifyRequest("inputMove", "inputMove", String.class);
+		sendNotifyRequest("inputHMove", "inputHMove", HMove.class);
 	}
 
 	@Override
 	public void detachGUI() {
 		removeNotifyRequest("inputMove", "inputMove", String.class);		
+		removeNotifyRequest("inputHMove", "inputHMove", HMove.class);		
 	}
 	
 	

@@ -25,26 +25,31 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2GRAY;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.CV_FONT_HERSHEY_PLAIN;
-import static com.googlecode.javacv.jna.cxcore.CV_RGB;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvCreateMemStorage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
 import java.awt.image.BufferedImage;
+import java.nio.IntBuffer;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.CvFont;
-import com.googlecode.javacv.jna.cxcore.CvMemStorage;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvSeq;
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_imgproc;
+import com.googlecode.javacv.cpp.opencv_core;
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+
 
 public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
@@ -104,7 +109,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 			inlines = cvCreateImage(cvGetSize(image), 8, 1);
 		}
 
-		if (image.nChannels > 1) {
+		if (image.nChannels()> 1) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
@@ -114,27 +119,27 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		lowThreshold = 5.0;
 		highThreshold = 400.0;
 		apertureSize = 3;
-		cv.cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
+		cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
 
 		// http://www.aishack.in/2010/04/hough-transform-in-opencv/ -
 		// explanation of hough transform parameters
 		// 	
 		// CvSeq lines = cv.cvHoughLines2( inlines, storage.getPointer(),
 		// cv.CV_HOUGH_PROBABILISTIC, 1, Math.PI/180, 10, 40, 10);
-		CvSeq lines = cv.cvHoughLines2(inlines, storage.getPointer(),
-				cv.CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
+		CvSeq lines = cvHoughLines2(inlines, storage,
+				CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
 
-		for (int i = 0; i < lines.total; i++) {
-			int line[] = cxcore.cvGetSeqElem(lines, i).getIntArray(0, 4);
-			p0.x = line[0];
-			p0.y = line[1];
-			p1.x = line[2];
-			p1.y = line[3];
-			cxcore.cvDrawLine(image, p0.byValue(), p1.byValue(), CV_RGB(255,
-					255, 255), 2, 8, 0);
+		for (int i = 0; i < lines.total(); i++) {
+			//int line[] = cvGetSeqElem(lines, i).getIntArray(0, 4);
+			IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer(4).asIntBuffer();
+			p0.x(line.get(0));
+			p0.y(line.get(1));
+			p1.x(line.get(2));
+			p1.y(line.get(3));
+			cvDrawLine(image, p0, p1, CV_RGB(255, 255, 255), 2, 8, 0);
 		}
 		
-		//cxcore.cvPutText(image, "x", cvPoint(10, 14).byValue(), font, CvScalar.WHITE);
+		//cxcore.cvPutText(image, "x", cvPoint(10, 14), font, CvScalar.WHITE);
 		
 		return image;
 	}

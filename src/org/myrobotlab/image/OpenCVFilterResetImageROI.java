@@ -25,14 +25,15 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+
 import java.awt.image.BufferedImage;
 
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
-
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 
 public class OpenCVFilterResetImageROI extends OpenCVFilter {
 
@@ -96,7 +97,7 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 
 		// if (cfg.getBoolean(USE_ROI))
 		// {
-		cxcore.cvResetImageROI(dst);
+		cvResetImageROI(dst);
 		// }
 
 		return image; // TODO - src dst or image? consistency?

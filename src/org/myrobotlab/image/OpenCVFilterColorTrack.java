@@ -26,11 +26,12 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -39,11 +40,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 
 public class OpenCVFilterColorTrack extends OpenCVFilter {
 
@@ -150,9 +151,9 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 		// convert BGR to HSV
 		cvCvtColor(image, hsv, CV_BGR2HSV);
-		cxcore.cvInRangeS(hsv, hsv_min.byValue(), hsv_max.byValue(),
+		cvInRangeS(hsv, hsv_min, hsv_max,
 				thresholded);
-		// cxcore.cvInRangeS(hsv, hsv_min2.byValue(), hsv_max2.byValue(),
+		// cxcore.cvInRangeS(hsv, hsv_min2, hsv_max2,
 		// thresholded2);
 		// cxcore.cvOr(thresholded, thresholded2, thresholded, null);
 

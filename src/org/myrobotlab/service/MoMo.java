@@ -33,14 +33,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.SensorMonitor.Alert;
 import org.myrobotlab.service.data.ColoredPoint;
+
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class MoMo extends Service {
 
@@ -292,8 +292,8 @@ public class MoMo extends Service {
 		// oldXAverage
 		// centerX = (int)oldPoints[0].x;
 		// centerY = (int)oldPoints[0].y;
-		currentX = (int) points[0].x;
-		currentY = (int) points[0].y;
+		currentX = (int) points[0].x();
+		currentY = (int) points[0].y();
 
 		left.setMaxPower(maxPower);
 		right.setMaxPower(maxPower);
@@ -412,7 +412,7 @@ public class MoMo extends Service {
 			beginSampled = true;
 			x0 = new Point[points.length];
 			for (int i = 0; i < points.length; ++i) {
-				Point p = new Point((int) points[i].x, (int) points[i].y);
+				Point p = new Point((int) points[i].x(), (int) points[i].y());
 				x0[i] = p;
 			}
 		}
@@ -423,7 +423,7 @@ public class MoMo extends Service {
 			endSampled = true;
 			x1 = new Point[points.length];
 			for (int i = 0; i < points.length; ++i) {
-				Point p = new Point((int) points[i].x, (int) points[i].y);
+				Point p = new Point((int) points[i].x(), (int) points[i].y());
 				x1[i] = p;
 			}
 		}
@@ -507,10 +507,10 @@ public class MoMo extends Service {
 		LOG.error(points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
-			if (p.x != 0 && p.x != 319 && p.y != 0 && p.y != 239) {
-				Y = Math.tan(0.01745 * (54.7 + (240 - p.y) / 5.6)) * 17;
+			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {
+				Y = Math.tan(0.01745 * (54.7 + (240 - p.y()) / 5.6)) * 17;
 				X = Math.sqrt(Y * Y + 17 * 17)
-						* Math.sin(0.01745 * -1 * (160 - p.x) / 5.6);
+						* Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
 				if (!unique.containsKey((int) X + "," + (int) Y)) {
 					unique.put((int) X + "," + (int) Y, p);
 					ret += "Sketchup.active_model.entities.add_line ["

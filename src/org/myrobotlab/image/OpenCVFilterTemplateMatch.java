@@ -25,14 +25,14 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.highgui.cvLoadImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterTemplateMatch extends OpenCVFilter {
 
@@ -73,8 +73,8 @@ public class OpenCVFilterTemplateMatch extends OpenCVFilter {
 		IplImage src = image;
 
 		// Allocate Output Images:
-		int iwidth = src.width - templ.width + 1;
-		int iheight = src.height - templ.height + 1;
+		int iwidth = src.width() - templ.width() + 1;
+		int iheight = src.height() - templ.height() + 1;
 		for (i = 0; i < 6; ++i) {
 			// ftmp[i]= cvCreateImage( cvSize( iwidth, iheight ), 32, 1 );
 		}

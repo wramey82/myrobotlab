@@ -27,12 +27,12 @@ package org.myrobotlab.image;
 
 import java.awt.image.BufferedImage;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
-
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.ColoredPoint;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 
 public class OpenCVFilterSampleArray extends OpenCVFilter {
 
@@ -69,8 +69,8 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 
 		frameBuffer = image.getBufferedImage();
 
-		points[0].x = image.width / 2;
-		points[0].y = image.height - 20;
+		points[0].x = image.width() / 2;
+		points[0].y = image.height() - 20;
 
 		for (int i = 0; i < points.length; ++i) {
 			points[i].color = frameBuffer.getRGB(points[i].x, points[i].y);

@@ -58,11 +58,19 @@
 		    <fileset dir="./haarcascades"/>
 		</copy>
 		
-		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
 		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
 		<copy file="./thirdParty/lib/jna.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
 		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
 		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/javacpp.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/javacv-linux-x86.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/javacv-windows-x86.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+		<copy file="./thirdParty/lib/javacv-macosx-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
+
+		<!-- copy file="./thirdParty/lib/javacv-windows-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/ -->
+		<!-- copy file="./thirdParty/lib/javacv-linux-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/ -->
+		
 
 		<copy file="myrobotlab.bat" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
 		<!-- permissions are not preserved -->

@@ -25,12 +25,12 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_RGB2HSV;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.IPL_DEPTH_8U;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -40,10 +40,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterHSV extends OpenCVFilter {
 
@@ -167,7 +167,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		// hueMin = cvScalar(0.0, 0.0, 0.0, 0.0);
 		// hueMax = cvScalar(5.0, 0.0, 0.0, 0.0);
 
-		// cvInRangeS(hue, hueMin.byValue(), hueMax.byValue(), mask);
+		// cvInRangeS(hue, hueMin, hueMax, mask);
 
 		// return mask;
 

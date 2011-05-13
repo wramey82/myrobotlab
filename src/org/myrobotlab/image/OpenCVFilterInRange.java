@@ -25,22 +25,26 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvAnd;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageCOI;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterInRange extends OpenCVFilter {
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterInRange.class.getCanonicalName());
@@ -158,57 +162,59 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 		// convert to more stable HSV
 		//cvCvtColor(image, hsv, CV_RGB2HSV); // # 41
 		// #define  CV_BGR2HSV     40 - not defined in javacv
+		//cvResetImageCOI(image);// added reset - still get Input COI is not supported
+		cvSetImageCOI( hsv, 0 ); // added reset - still get Input COI is not supported
 		cvCvtColor(image, hsv, CV_BGR2HSV);   
 
 		if ((useMask & HUE_MASK) == 1)
 		{
 			// copy out hue
-			cxcore.cvSetImageCOI(hsv, 1);
-			cxcore.cvCopy(hsv, hue);
+			cvSetImageCOI(hsv, 1);
+			cvCopy(hsv, hue);
 
 			// cfg values if changed
-			if (hueMin.getMagnitude() != cfg.getFloat("hueMin")
-					|| hueMax.getMagnitude() != cfg.getFloat("hueMax")) {
+			if (hueMin.magnitude() != cfg.getFloat("hueMin")
+					|| hueMax.magnitude() != cfg.getFloat("hueMax")) {
 				hueMin = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
 				hueMax = cvScalar(cfg.getFloat("hueMax"), 0.0, 0.0, 0.0);
 			}
 
 			// create hue mask
-			cxcore.cvInRangeS(hue, hueMin.byValue(), hueMax.byValue(), hueMask);
+			cvInRangeS(hue, hueMin, hueMax, hueMask);
 		}
 
 		if ((useMask & VALUE_MASK) == 2)
 		{
 			// copy out value
-			cxcore.cvSetImageCOI(hsv, 3);
-			cxcore.cvCopy(hsv, value);
+			cvSetImageCOI(hsv, 3);
+			cvCopy(hsv, value);
 
 			// look for changed config - update if changed
-			if (valueMin.getMagnitude() != cfg.getFloat("valueMin")
-					|| valueMax.getMagnitude() != cfg.getFloat("valueMax")) {
+			if (valueMin.magnitude() != cfg.getFloat("valueMin")
+					|| valueMax.magnitude() != cfg.getFloat("valueMax")) {
 				valueMin = cvScalar(cfg.getFloat("valueMin"), 0.0, 0.0, 0.0);
 				valueMax = cvScalar(cfg.getFloat("valueMax"), 0.0, 0.0, 0.0);
 			}
 	
 			// create value mask
-			cxcore.cvInRangeS(value, valueMin.byValue(), valueMax.byValue(), valueMask);
+			cvInRangeS(value, valueMin, valueMax, valueMask);
 		}			
 			
 		if ((useMask & SATURATION_MASK) == 4)
 		{
 			// copy out saturation
-			cxcore.cvSetImageCOI(hsv, 2);
-			cxcore.cvCopy(hsv, saturation);
+			cvSetImageCOI(hsv, 2);
+			cvCopy(hsv, saturation);
 
 			// look for changed config - update if changed
-			if (saturationMin.getMagnitude() != cfg.getFloat("saturationMin")
-					|| saturationMax.getMagnitude() != cfg.getFloat("saturationMax")) {
+			if (saturationMin.magnitude() != cfg.getFloat("saturationMin")
+					|| saturationMax.magnitude() != cfg.getFloat("saturationMax")) {
 				saturationMin = cvScalar(cfg.getFloat("saturationMin"), 0.0, 0.0, 0.0);
 				saturationMax = cvScalar(cfg.getFloat("saturationMax"), 0.0, 0.0, 0.0);
 			}
 
 			// create saturation mask
-			cxcore.cvInRangeS(saturation, saturationMin.byValue(), saturationMax.byValue(), saturationMask);
+			cvInRangeS(saturation, saturationMin, saturationMax, saturationMask);
 		}
 				
 		switch (useMask)
@@ -226,7 +232,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 				break;				
 			
 			case 3: // hue value !sat
-				cxcore.cvAnd(hueMask, valueMask, mask, null);
+				cvAnd(hueMask, valueMask, mask, null);
 				ret = mask;
 				break;
 
@@ -235,19 +241,19 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 				break;
 
 			case 5: // hue !value sat
-				cxcore.cvAnd(hueMask, saturationMask, mask, null);
-				//cxcore.cvAnd(saturationMask, hueMask, mask, null);
+				cvAnd(hueMask, saturationMask, mask, null);
+				//cvAnd(saturationMask, hueMask, mask, null);
 				ret = mask;
 				break;
 
 			case 6: // !hue value sat
-				cxcore.cvAnd(valueMask, saturationMask, mask, null);
+				cvAnd(valueMask, saturationMask, mask, null);
 				ret = mask;
 				break;
 				
 			case 7: // hue value sat
-				cxcore.cvAnd(hueMask, valueMask, temp, null);
-				cxcore.cvAnd(temp, saturationMask, mask, null); // ??
+				cvAnd(hueMask, valueMask, temp, null);
+				cvAnd(temp, saturationMask, mask, null); // ??
 				ret = mask;
 				break;
 				

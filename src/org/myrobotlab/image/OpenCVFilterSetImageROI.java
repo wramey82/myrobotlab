@@ -25,14 +25,14 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cxcore.cvSetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterSetImageROI extends OpenCVFilter {
@@ -97,7 +97,7 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
 		// if (cfg.getBoolean(USE_ROI)) TODO - not needed
 		// {
-		cvSetImageROI(dst, ((CvRect) globalData.get(ROI_NAME)).byValue());
+		cvSetImageROI(dst, ((CvRect) globalData.get(ROI_NAME)));
 		// }
 
 		return image; // TODO - src dst or image? consistency?

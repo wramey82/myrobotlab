@@ -25,13 +25,14 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvNot;
+
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterNot extends OpenCVFilter {
 
@@ -71,7 +72,7 @@ public class OpenCVFilterNot extends OpenCVFilter {
 			LOG.error("image is null");
 		}
 
-		cxcore.cvNot(image, buffer);
+		cvNot(image, buffer);
 		return buffer;
 	}
 

@@ -25,13 +25,14 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvOr;
+
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 
@@ -69,7 +70,7 @@ public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 
 		// what can you expect? nothing? - if data != null then error?
 		/*
-		 * if (buffer == null) { if (image.nChannels == 3) { buffer =
+		 * if (buffer == null) { if (image.nChannels()== 3) { buffer =
 		 * cvCreateImage( cvGetSize(image), 8, 3 ); }
 		 */
 
@@ -77,7 +78,7 @@ public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 			buffer = image.clone();
 		}
 
-		cxcore.cvOr(image, buffer, buffer, null);
+		cvOr(image, buffer, buffer, null);
 
 		return buffer;
 	}

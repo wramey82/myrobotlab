@@ -25,8 +25,8 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
-import static com.googlecode.javacv.jna.cv.cvErode;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvErode;
 
 import java.awt.image.BufferedImage;
 
@@ -35,7 +35,7 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterErode extends OpenCVFilter {
@@ -77,7 +77,7 @@ public class OpenCVFilterErode extends OpenCVFilter {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.jna.cxcore
+	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
 	 * .IplImage, java.util.HashMap)
 	 * 
 	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int

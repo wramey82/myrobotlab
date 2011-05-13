@@ -26,16 +26,17 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterThreshold extends OpenCVFilter {
 
@@ -100,7 +101,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (gray == null) {
-			gray = cxcore.cvCreateImage(cxcore.cvGetSize(image), 8,
+			gray = cvCreateImage(cvGetSize(image), 8,
 					CV_THRESH_BINARY);
 		}
 
@@ -113,7 +114,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 		//cxcore.cvSetImageCOI(image, 1);
 		
 		// http://www710.univ-lyon1.fr/~bouakaz/OpenCV-0.9.5/docs/ref/OpenCVRef_ImageProcessing.htm
-		cv.cvThreshold(image, image, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
+		cvThreshold(image, image, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
 
 		// must be gray for adaptive
 		/*

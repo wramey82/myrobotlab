@@ -27,8 +27,8 @@ package org.myrobotlab.service;
 
 import java.awt.Rectangle;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 import org.apache.log4j.Logger;
 
@@ -125,8 +125,8 @@ public class TrackingService extends Service {
 	}
 
 	final public void center(CvPoint2D32f pt) {
-		trackX((int) pt.x);
-		trackY((int) pt.y);
+		trackX((int) pt.x());
+		trackY((int) pt.y());
 	}
 
 	final public void center(CvPoint pt) {
@@ -135,8 +135,8 @@ public class TrackingService extends Service {
 		deadzone.y = 115;
 		deadzone.height = 10;
 
-		trackX((int) pt.x);
-		trackY((int) pt.y);
+		trackX((int) pt.x());
+		trackY((int) pt.y());
 	}
 
 	float XCorrection = 0;
@@ -146,7 +146,7 @@ public class TrackingService extends Service {
 		XMultiplier = (float) -0.12;
 
 		LOG.info("trackPointX " + x);
-		XCorrection = (x - targetPoint.x) * XMultiplier;
+		XCorrection = (x - targetPoint.x()) * XMultiplier;
 		if (tracking && (x < deadzone.x || x > deadzone.x + deadzone.width)) {
 			invoke("correctX", (int) XCorrection);
 		}
@@ -156,7 +156,7 @@ public class TrackingService extends Service {
 	final public void trackY(Integer y) {
 		YMultiplier = (float) -0.12;
 		LOG.info("trackPointY " + y);
-		YCorrection = (y - targetPoint.y) * YMultiplier;
+		YCorrection = (y - targetPoint.y()) * YMultiplier;
 		if (tracking && (y < deadzone.y || y > deadzone.y + deadzone.width)) {
 			invoke("correctY", (int) YCorrection);
 		}

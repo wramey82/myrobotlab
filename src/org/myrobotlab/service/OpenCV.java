@@ -25,9 +25,12 @@
 
 package org.myrobotlab.service;
 
-import static com.googlecode.javacv.jna.highgui.cvCreateCameraCapture;
-import static com.googlecode.javacv.jna.highgui.cvCreateFileCapture;
-import static com.googlecode.javacv.jna.highgui.cvQueryFrame;
+import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateCameraCapture;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateFileCapture;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -44,22 +47,22 @@ import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.CanvasFrame;
-import com.googlecode.javacv.jna.highgui;
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvPoint2D32f;
-import com.googlecode.javacv.jna.cxcore.CvRect;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.CvSize;
-import com.googlecode.javacv.jna.cxcore.IplImage;
-import com.googlecode.javacv.jna.highgui.CvCapture;
-import com.googlecode.javacv.jna.highgui.CvVideoWriter;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
+
+import com.googlecode.javacv.CanvasFrame;
+import com.googlecode.javacv.cpp.opencv_highgui;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
+import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
 /*
  *	(SOHDAR) Sparse Optical Horizontal Disparity And Ranging Service
@@ -141,8 +144,8 @@ public class OpenCV extends Service {
 			}
 		}
 
-		public String getSizeWord() {
-			int area = boundingRectangle.width * boundingRectangle.height;
+		public String getSizeWord() {			
+			int area = boundingRectangle.width() * boundingRectangle.height();
 			if (area > 1500) {
 				return "big";
 			} else if (area < 1500 && area > 500) {
@@ -479,9 +482,7 @@ public class OpenCV extends Service {
 			videoThread = null; // terminate the thread
 
 			if (capture != null) {
-				highgui.cvReleaseCapture(capture.pointerByReference()); // release
-																		// the
-																		// resources
+				opencv_highgui.cvReleaseCapture(capture);
 			}
 			capture = null;
 		}
@@ -518,8 +519,8 @@ public class OpenCV extends Service {
 	public void captureOutput(String filename, IplImage frame) {
 		// TODO - configurable to capture input and filtered output
 		CvSize imgSize = new CvSize();
-		imgSize.width = frame.width;
-		imgSize.height = frame.height;
+		imgSize.width(frame.width());
+		imgSize.height(frame.height());
 		double fps = 16;
 		int isColor = 1;
 
@@ -527,16 +528,15 @@ public class OpenCV extends Service {
 		// has been miscompiled
 
 		if (!outputFileStreams.containsKey(filename)) {
-			CvVideoWriter writer = highgui.cvCreateVideoWriter(cfg
-					.get("outputMovieFileName"), highgui.CV_FOURCC('M', 'J',
-					'P', 'G'),
+			CvVideoWriter writer = cvCreateVideoWriter(cfg
+					.get("outputMovieFileName"), CV_FOURCC('M', 'J','P', 'G'),
 			// CV_FOURCC('F', 'L', 'V', '1'),
-					fps, imgSize.byValue(), isColor);
+					fps, imgSize, isColor);
 
 			outputFileStreams.put(filename, writer);
 		}
 
-		highgui.cvWriteFrame(outputFileStreams.get(filename), frame);
+		cvWriteFrame(outputFileStreams.get(filename), frame);
 
 		// cvReleaseVideoWriter(&writer);
 		// cvReleaseCapture(&input);

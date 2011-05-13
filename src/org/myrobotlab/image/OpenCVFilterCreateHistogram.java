@@ -26,31 +26,26 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 
-	public final static Logger LOG = Logger
-			.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
-	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
-														// from SOHDARService
-														// configuration
-
+	
 	public OpenCVFilterCreateHistogram(OpenCV service, String name) {
 		super(service, name);
 	}
@@ -58,7 +53,7 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 
-		return null;
+		return image.getBufferedImage();
 	}
 
 	@Override
@@ -78,7 +73,7 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 
 		// what can you expect? nothing? - if data != null then error?
 
-		return null;
+		return image;
 	}
 
 }

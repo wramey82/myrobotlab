@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterOutput extends OpenCVFilter {

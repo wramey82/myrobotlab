@@ -25,8 +25,8 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cxcore.cvDrawRect;
-import static com.googlecode.javacv.jna.cxcore.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -40,9 +40,9 @@ import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.jna.cxcore.CvPoint;
-import com.googlecode.javacv.jna.cxcore.CvScalar;
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterSampleImage extends OpenCVFilter {
 
@@ -107,27 +107,27 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 
 		// black background
 		CvPoint p0 = new CvPoint(0, 0);
-		CvPoint p1 = new CvPoint(image.width, image.height);
+		CvPoint p1 = new CvPoint(image.width(), image.height());
 
 		CvScalar fillColor = cvScalar(0.0, 0.0, 0.0, 1.0);
-		cvDrawRect(image, p0.byValue(), p1.byValue(), fillColor.byValue(), 240,
+		cvDrawRect(image, p0, p1, fillColor, 240,
 				1, 0);
 
 		p0 = new CvPoint(110, 80);
 		p1 = new CvPoint(150, 130);
 
 		fillColor = cvScalar(0.0, 256.0, 0.0, 0.0);
-		cvDrawRect(image, new CvPoint(160, 120).byValue(),
-				new CvPoint(164, 124).byValue(), fillColor.byValue(), 2, 1, 0);
+		cvDrawRect(image, new CvPoint(160, 120),
+				new CvPoint(164, 124), fillColor, 2, 1, 0);
 
 		/*
-		 * cvDrawRect(image, p0.byValue(), p1.byValue(), fillColor.byValue(), 2,
+		 * cvDrawRect(image, p0, p1, fillColor, 2,
 		 * 1, 0); fillColor = cvScalar(130.0, 40.0, 120.0, 1.0);
-		 * cvDrawRect(image, new CvPoint(158,140).byValue(), new
-		 * CvPoint(220,160).byValue(), fillColor.byValue(), 2, 1, 0); fillColor
+		 * cvDrawRect(image, new CvPoint(158,140), new
+		 * CvPoint(220,160), fillColor, 2, 1, 0); fillColor
 		 * = cvScalar(160.0, 140.0, 20.0, 1.0); cvDrawRect(image, new
-		 * CvPoint(20,200).byValue(), new CvPoint(40,230).byValue(),
-		 * fillColor.byValue(), 2, 1, 0);
+		 * CvPoint(20,200), new CvPoint(40,230),
+		 * fillColor, 2, 1, 0);
 		 */
 		return image;
 	}

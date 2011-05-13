@@ -25,13 +25,14 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvAnd;
+
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterRepetitiveAnd extends OpenCVFilter {
 
@@ -71,7 +72,7 @@ public class OpenCVFilterRepetitiveAnd extends OpenCVFilter {
 			buffer = image.clone();
 		}
 
-		cxcore.cvAnd(image, buffer, buffer, null);
+		cvAnd(image, buffer, buffer, null);
 
 		return buffer;
 	}

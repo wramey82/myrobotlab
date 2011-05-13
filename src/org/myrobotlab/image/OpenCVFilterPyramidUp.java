@@ -25,16 +25,17 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrUp;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.jna.cv;
-import com.googlecode.javacv.jna.cxcore;
-import com.googlecode.javacv.jna.cxcore.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 
 public class OpenCVFilterPyramidUp extends OpenCVFilter {
 
@@ -76,12 +77,12 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 		}
 
 		if (dst == null) {
-			dst = cvCreateImage(cxcore
-					.cvSize(2 * image.width, 2 * image.height), 8,
-					image.nChannels);
+			dst = cvCreateImage(
+					cvSize(2 * image.width(), 2 * image.height()), 8,
+					image.nChannels());
 		}
 
-		cv.cvPyrUp(image, dst, filter);
+		cvPyrUp(image, dst, filter);
 
 		return dst;
 	}

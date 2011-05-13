@@ -26,16 +26,16 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.jna.cv.CV_BGR2GRAY;
-import static com.googlecode.javacv.jna.cv.cvCvtColor;
-import static com.googlecode.javacv.jna.cxcore.cvCreateImage;
-import static com.googlecode.javacv.jna.cxcore.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.javacv.jna.cxcore.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterGray extends OpenCVFilter {
@@ -75,7 +75,7 @@ public class OpenCVFilterGray extends OpenCVFilter {
 		}
 
 		// what can you expect? nothing? - if data != null then error?
-		if (image.nChannels == 3) {
+		if (image.nChannels()== 3) {
 			cvCvtColor(image, buffer, CV_BGR2GRAY);
 		}
 
