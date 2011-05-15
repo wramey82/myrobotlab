@@ -40,6 +40,8 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
 
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
@@ -47,7 +49,6 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
@@ -67,7 +68,6 @@ import org.myrobotlab.service.data.ColoredPoint;
 
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.OpenCVFrameGrabber;
-import com.googlecode.javacv.VideoInputFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -82,14 +82,11 @@ public class OpenCV extends Service {
 
 	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
 
-	Thread videoThread = null;
 	int frameIndex = 0;
 
-	//CvCapture capture = null;
-	OpenCVFrameGrabber capture = null;
-	boolean isCaptureRunning = false;
-	boolean isCaptureStopped = true;
-
+	//CvCapture grabber = null;
+	VideoProcess videoProcess = null;
+	
 	// display
 	CanvasFrame cf = null;
 	IplImage frame = null;
@@ -179,15 +176,14 @@ public class OpenCV extends Service {
 	@Override
 	public void startService() {
 		super.startService();
-		capture();
+		//grabber();
 	}
 
 	@Override
 	public void stopService() {
-		if (videoThread != null)
+		if (videoProcess != null)
 		{
-			videoThread.interrupt();
-			videoThread = null;
+			videoProcess.stop();
 		}
 		super.stopService();
 	}
@@ -261,60 +257,104 @@ public class OpenCV extends Service {
 		return bi;
 	}
 
-	class VideoProcessor implements Runnable {
+	class VideoProcess implements Runnable {
+
+		//OpenCVFrameGrabber grabber = null;
+		//FFmpegFrameGrabber grabber = null;
+		boolean isCaptureRunning = false;
+		//boolean isCaptureStopped = true;
+		boolean published = false;
+		Thread videoThread = null;
+
+		public void start()
+		{
+			videoThread = new Thread(this, "OpenCV_videoProcessor");
+			videoThread.start();
+		}
+		
+		public void stop ()
+		{
+			isCaptureRunning = false;
+			videoThread = null;
+		}
+		
+	    //CameraDevice.Settings 	cameraSettings;   
+	    //CameraDevice cameraDevice = null;
+	    //FrameGrabber frameGrabber = null;
+	    //CvCapture frameGrabber =
+		//cvCreateCameraCapture(0);
+		CvCapture grabber = cvCreateCameraCapture(0); // TODO - choose index
+
 		public void run() {
-
-			String pattern = "MM/dd/yyyy";
-			SimpleDateFormat format = new SimpleDateFormat(pattern);
+			
 			StringBuffer screenText = new StringBuffer();
-
+			
 			if (cfg.getBoolean("useCanvasFrame")) {
 				// cf = new CanvasFrame(false);
 			}
+			
+			// use VideoInputFrameGrabber if Loader.getPlatformName().startsWith("windows");
+			// how to use? Class<? extends FrameGrabber> fg = FrameGrabber.getDefault();
+						
+			//grabber = new OpenCVFrameGrabber(index); //works windows xp (fast) - linux (slow) V4L2 errors
+			//FrameGrabber grabber = new FFmpegFrameGrabber("/dev/video0","video4linux2"); 
+			//grabber = new FFmpegFrameGrabber("/dev/video0");
+			//grabber = new OpenCVFrameGrabber(0);
+			//cameraSettings.setQuantity(1);
+			//CameraDevice cameraDevice;
+			try {
+				int index = cfg.getInt("cameraIndex");
+				//VideoInputFrameGrabber fg = new VideoInputFrameGrabber(0);
+				//CvCapture c = cvCreateCameraCapture(index); old way
+				//FrameGrabber.init();
+				//cameraSettings = new CameraDevice.Settings();
+				//cameraDevice = new CameraDevice(cameraSettings);
+				//cameraSettings.setFrameGrabber(FrameGrabber.getDefault());
+				//cameraDevice = new CameraDevice("/dev/video0");
+				//frameGrabber = cameraDevice.createFrameGrabber();
+				//frameGrabber.start();
+				//IplImage img = frameGrabber.grab();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			
+			try {
+				//grabber.start();
+				//frame = cvQueryFrame(grabber);
+			} catch (Exception e) {
+				LOG.error(stack2String(e));
+				isCaptureRunning = false;
+			}				
 
-			/*
-			 * 
-			 * TODO - simple filters (atomic) getGoodFeaturesToTrack single
-			 * filter - array of 2dpts for first slot - roi for second slot
-			 */
-			// BufferedImage bi = null;
-			boolean published = false;
-
-			// storage = cvCreateMemStorage(0);
-
-			IplImage roi = null;
+			isCaptureRunning = true;
 
 			while (isCaptureRunning) {
-
+				
 				published = false;
-				isCaptureStopped = false;
+				//isCaptureStopped = false;
 				++frameIndex;
 				logTime("start");
 
-				if (capture == null) {
-					LOG.error("capture is null");
+				if (grabber == null) {
+					LOG.error("grabber is null");
 					isCaptureRunning = false;
 					videoThread = null;
 					break;
 				}
 
-				if (capture != null) {
-					//double x = highgui.cvGetCaptureProperty(capture, highgui.CV_CAP_PROP_FRAME_WIDTH);
-					//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
-					//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
+				if (grabber != null) {
+					//double x = highgui.cvGetCaptureProperty(grabber, highgui.CV_CAP_PROP_FRAME_WIDTH);
+					//highgui.cvSetCaptureProperty( grabber, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
+					//highgui.cvSetCaptureProperty( grabber, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
 					try {
-						frame = capture.grab();
+						//frame = grabber.grab();
+						frame = cvQueryFrame(grabber);
 					} catch (Exception e) {
 						LOG.error(stack2String(e));
 					}
 				}
-				/*
-				 * FOR PROCESSING IMAGES FROM OTHER SERVICES !! BREAKS CAMERA
-				 * FEED else { try { frame = IplImage.createFrom(images.take());
-				 * } catch (InterruptedException e) { // TODO Auto-generated
-				 * catch block e.printStackTrace(); } }
-				 */
-				// block on published BufferedImage
 
 				logTime("read");
 
@@ -347,12 +387,7 @@ public class OpenCV extends Service {
 						}
 
 					}
-					/*
-					 * if (cfg.get("timeDateStamp", true)) { BufferedImage bi =
-					 * frame.getBufferedImage(); Graphics2D graphics =
-					 * bi.createGraphics(); graphics.setColor(Color.green);
-					 * graphics.drawString("hello", 100, 100); bi.flush(); }
-					 */
+
 					// if the display was not published by one of the filters
 					// convert the frame now and publish it
 					if (!published) {
@@ -383,7 +418,7 @@ public class OpenCV extends Service {
 				} else {
 					if (cfg.get("useInput") == "file") {
 						// re-open avi file -
-						//capture = cvCreateFileCapture(cfg.get("inputMovieFileName"));
+						//grabber = cvCreateFileCapture(cfg.get("inputMovieFileName"));
 						// not supported at the moment
 					}
 
@@ -395,7 +430,12 @@ public class OpenCV extends Service {
 
 			} // while (isRunning)
 
-			isCaptureStopped = true;
+			try {
+				//grabber.release();
+				cvReleaseCapture(grabber);
+			} catch (Exception e) {
+				LOG.error(stack2String(e));
+			}
 		}
 	}
 
@@ -450,77 +490,26 @@ public class OpenCV extends Service {
 		return points;
 	}
 
-	/*
-	 * publish - end
-	 */
+	// publish functions end ---------------------------
 
+	public void stopCapture() {
+		videoProcess.stop();
+		videoProcess = null;
+	}
+	
 	public void capture() {
 
-		if (!isCaptureStopped) // capture is not done need to shutdown
-								// gracefully
+		if (videoProcess == null)
 		{
-			isCaptureRunning = false; // signal the capture to stop
-			while (!isCaptureStopped) // wait till the capture is done
-			{
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-			}
-
-			videoThread.interrupt(); // should not have been blocked but do this
-										// anyway
-			videoThread = null; // terminate the thread
-
-			if (capture != null) {
-				//opencv_highgui.cvReleaseCapture(capture);
-				try {
-					capture.release();
-				} catch (Exception e) {
-					LOG.error(stack2String(e));
-				}
-			}
-			capture = null;
+			// get type
+			videoProcess = new VideoProcess();
 		}
 
-		// start a new capture
-		if (cfg.get("useInput") == "file") {
-			//capture = cvCreateFileCapture(cfg.get("inputMovieFileName"));
-			// not supported at the moment
-		} else if (cfg.get("useInput") == "camera") {
-			invoke("setCameraIndex", cfg.getInt("cameraIndex"));
-			int index = cfg.getInt("cameraIndex");
-			capture = new OpenCVFrameGrabber(index);
-			try {
-				capture.start();
-			} catch (Exception e) {
-				LOG.error(stack2String(e));
-			}
-			// capture = cvCreateCameraCapture(index);  ancient way 
-			//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
-			//highgui.cvSetCaptureProperty( capture, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
-
-		} else {
-			LOG.error(cfg.get("useInput") + " unsupported input");
-			capture = null;
-		}
-
-		isCaptureStopped = false;
-		isCaptureRunning = true;
-
-		// start capture thread
-		VideoProcessor v1 = new VideoProcessor();
-		videoThread = new Thread(v1, "OpenCV_videoProcessor");
-		videoThread.start();
-
-		if (capture == null) {
-			LOG.error("capture is null - no video input");
-		}
-
+		videoProcess.start();
 	}
 
 	public void captureOutput(String filename, IplImage frame) {
-		// TODO - configurable to capture input and filtered output
+		// TODO - configurable to grabber input and filtered output
 		CvSize imgSize = new CvSize();
 		imgSize.width(frame.width());
 		imgSize.height(frame.height());

@@ -17,10 +17,16 @@ do
 done
 export CLASSPATH
 
-LD_LIBRARY_PATH=`pwd`/lib:${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=`pwd`/bin:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
-export PATH="${APPDIR}/java/bin:${PATH}"
+# export PATH="${APPDIR}/java/bin:${PATH}"
 
-java -d32 -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
+# java -d32  force 32 bit 
+# -classpath ":myrobotlab.jar:./lib/*"  - make note : on Linux ; on Windows ! 
+# -Djava.library.path="./bin" - can not change or modify LD_LIBRARY_PATH after jvm starts 
+# The shell itself need 
+# org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
+
+java -classpath ":myrobotlab.jar:./lib/*" org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
 
