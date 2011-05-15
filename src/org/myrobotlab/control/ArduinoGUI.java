@@ -125,7 +125,7 @@ public class ArduinoGUI extends ServiceGUI {
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-
+		
 		input.add(new JLabel("type : "), gc);
 		++gc.gridx;
 		input.add(types, gc);
@@ -203,7 +203,6 @@ public class ArduinoGUI extends ServiceGUI {
 		  gc.gridx = 0;
 		  gc.gridy = 0;
 
-		  display.add(input, gc);
 		  
 		  JPanel msgPanel = new JPanel();
 		  rawReadMessage.setText(" read raw ");
@@ -212,9 +211,10 @@ public class ArduinoGUI extends ServiceGUI {
 		  msgPanel.add(rawReadMsgLength);
 		  
 		  
-		  ++gc.gridy;
+		  
 		  display.add(msgPanel, gc);
-
+		  ++gc.gridy;
+		  display.add(input, gc);
 		  
 		// TODO - set up routing of messages from service - to catch events TODO
 		// attachGUI
