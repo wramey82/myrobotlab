@@ -79,10 +79,6 @@
 			<arg value="myrobotlab.sh" />
 		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
 		</exec>
-		<exec executable="cp" >
-			<arg value="b.sh" />
-		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
-		</exec>
 		<copy file="LICENSE.txt" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
 		
 	</target>
