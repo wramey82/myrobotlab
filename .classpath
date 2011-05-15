@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="thirdParty/lib/freetts-jsapi10.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javaclient3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javacpp.jar"/>
-	<classpathentry kind="lib" path="thirdParty/lib/javacv.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/javacv.jar" sourcepath="/home/gperry/Downloads/javacv2/javacv/src"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javacv-android-arm.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javacv-linux-x86.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javacv-linux-x86_64.jar"/>
