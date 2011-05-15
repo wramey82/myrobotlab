@@ -25,9 +25,10 @@
 
 package org.myrobotlab.service;
 
+import java.lang.reflect.Field;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
@@ -167,7 +168,36 @@ public class Invoker extends Service {
 		p[0] = String.class;
 		
 		String tt = getMethodToolTip(Arduino.class.getCanonicalName(), "serialSend", p);
-				
+
+		
+		String libararyPath = System.getProperty("java.library.path");
+		String userDir = System.getProperty("user.dir");
+		
+		LOG.debug("os.name [" + System.getProperty("os.name")+ "]");	
+		LOG.debug("os.version [" + System.getProperty("os.version")+ "]");	
+		LOG.debug("os.arch [" + System.getProperty("os.arch")+ "]");	
+		LOG.debug("java.library.path [" + libararyPath + "]");	
+		LOG.debug("user.dir [" + userDir + "]");
+		
+		// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
+		
+		//libararyPath += ":" + userDir + "/bin";
+		//System.setProperty("java.library.path", libararyPath);
+		//LOG.debug("new java.library.path [" + libararyPath + "]");	
+		
+		// hack to reconcile the different ways os handle and expect
+		// "PATH & LD_LIBRARY_PATH" to be handled
+		// found here - http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
+		// but does not work
+		
+		/*
+		System.setProperty( "java.library.path", libararyPath );
+
+		Field fieldSysPath = ClassLoader.class.getDeclaredField( "sys_paths" );
+		fieldSysPath.setAccessible( true );
+		fieldSysPath.set( null, null );		
+		*/
+		
 		invokeCMDLine(args);
 		} catch (Exception e)
 		{

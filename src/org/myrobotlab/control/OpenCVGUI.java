@@ -283,9 +283,15 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	private ActionListener al = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			myService.send(boundServiceName, "setUseInput", ((JRadioButton) e
-					.getSource()).getText());
-			myService.send(boundServiceName, "capture", null);
+			String useInput = ((JRadioButton) e.getSource()).getText();
+			myService.send(boundServiceName, "setUseInput", useInput);
+			
+			if (useInput.compareTo("null") == 0)
+			{
+				myService.send(boundServiceName, "stopCapture");
+			} else {
+				myService.send(boundServiceName, "capture");
+			}
 		}
 	};
 	
