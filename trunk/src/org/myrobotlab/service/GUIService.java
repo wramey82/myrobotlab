@@ -64,6 +64,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
@@ -187,6 +188,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	
 	
 	public ServiceTabPane loadTabPanels() {
+		LOG.debug("loadTabPanels");
 		currentTab = tabs.getSelectedIndex();
 		if (currentTab > 0)
 		{

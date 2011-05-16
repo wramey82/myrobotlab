@@ -29,7 +29,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,18 +47,14 @@ import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Invoker;
 
 public class InvokerGUI extends ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(InvokerGUI.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(InvokerGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JList possibleServices;
@@ -65,31 +62,22 @@ public class InvokerGUI extends ServiceGUI {
 	BasicArrowButton addServiceButton = null;
 	BasicArrowButton removeServiceButton = null;
 	String level[] = { "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
-	JComboBox debugLevel = new JComboBox(level);
-	//JFileChooser fileChooser = new JFileChooser();
-	JButton startLogFile = new JButton("start logging");
-	boolean currentlyLogging = false;
-
-	FileAppender fileAppender = null;
+	JComboBox logLevel = new JComboBox(level);
 	
 	// TODO - widgetize the "possible services" list
 
 	public InvokerGUI(String name, GUIService myService) {
 		super(name, myService);
-		// build input begin ------------------
+
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
 
-		// row 1
 		gc.gridx = 0;
 		gc.gridy = 0;
 
 		possibleServices = new JList(Invoker.getServiceShortClassNames());
-		// String slist[] = {"invoker - Invoker","gui - GIUService"};
-		// TODO put in GUIService - have number of formats (eg. name/classes &
-		// filters eg. video)
-		HashMap<String, ServiceEntry> services = myService.getHostCFG()
-				.getServiceMap();
+
+		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
 		Map<String, ServiceEntry> sortedMap = null;
 		sortedMap = new TreeMap<String, ServiceEntry>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -132,17 +120,22 @@ public class InvokerGUI extends ServiceGUI {
 		JPanel debug = new JPanel();
 		title = BorderFactory.createTitledBorder("logging");
 		debug.setBorder(title);
-		debug.add(debugLevel);
-	    //fileChooser.setDialogTitle("Choose a log file");
-	    //debug.add(fileChooser, gc);
-	    //fileChooser.showOpenDialog(startLogFile);
-		startLogFile.addActionListener(new LogConfigListener());
-	    debug.add(startLogFile);
-	    
-	    display.add(debug, gc);
 		
-
+		debug.add(logLevel);
+		logLevel.addItemListener(new LogLevel());
+	    display.add(debug, gc);
 	}
+	
+	public class LogLevel implements ItemListener {
+
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+	        String str = (String)logLevel.getSelectedItem();
+	        myService.send(boundServiceName, "setLogLevel", str);			
+		}
+		
+	}
+	
 
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
@@ -179,6 +172,7 @@ public class InvokerGUI extends ServiceGUI {
 			public void actionPerformed(ActionEvent e) {
 				String oldService = (String) currentServices.getSelectedValue();
 				myService.send(boundServiceName, "removeService", oldService);
+				myService.loadTabPanels();
 			}
 
 		});
@@ -198,40 +192,4 @@ public class InvokerGUI extends ServiceGUI {
 
 	}
 	
-	class LogConfigListener implements ActionListener {
-
-		  public void actionPerformed(ActionEvent e) {
-			  if (!currentlyLogging)
-			  {
-				startLogFile.setText("stop logging");
-				currentlyLogging = true;
-				try {
-					if (fileAppender == null)
-					{
-						fileAppender = new FileAppender(new PatternLayout(), "myrobotlab.log");
-					}
-					Logger.getRootLogger().addAppender(fileAppender);
-				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(startLogFile, "could not open log file");
-				}
-
-			  } else {
-				if (fileAppender == null)
-				{
-					Logger.getRootLogger().removeAppender(fileAppender);
-					fileAppender.close();
-				}
-				  startLogFile.setText("start logging");
-				  currentlyLogging = false;
-			  }
-			  
-/*			  
-		    if (e.getActionCommand().equals("Button1")) {
-		      System.out.println("Button1 has been clicked");
-		    }
-*/		    
-		  }
-		}
-		           	
-
 }

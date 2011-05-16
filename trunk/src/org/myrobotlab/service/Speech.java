@@ -99,6 +99,7 @@ public class Speech extends Service {
 	public void startService() {
 		super.startService();
 		try {
+		// TODO - do pre-speak not here	if (!myVoice.isLoaded())
 		myVoice.allocate();
 		LOG.info("voice allocated");
 		} catch (Exception e)

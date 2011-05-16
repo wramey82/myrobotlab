@@ -25,10 +25,10 @@
 
 package org.myrobotlab.service;
 
-import java.lang.reflect.Field;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
@@ -52,7 +52,6 @@ public class Invoker extends Service {
 	public final static Logger LOG = Logger.getRootLogger();
 	static GUIService gui = null;
 
-
 	static void help() {
 		System.out.println("Invoker " + version());
 		System.out.println("-h       # help ");
@@ -61,13 +60,13 @@ public class Invoker extends Service {
 		System.out.println("example:");
 		System.out.println(helpString);
 	}
-	
+
 	static String version() {
 		String v = FileIO.getResourceFile("version.txt");
 		System.out.println(v);
 		return v;
 	}
-	
+
 	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui";
 
 	@Override
@@ -75,10 +74,7 @@ public class Invoker extends Service {
 
 	}
 
-
-	public final static void invokeCMDLine(String[] args) {
-		CMDLine cmdline = new CMDLine();
-		cmdline.splitLine(args);
+	public final static void invokeCMDLine(CMDLine cmdline) {
 
 		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
 			help();
@@ -89,7 +85,7 @@ public class Invoker extends Service {
 			version();
 			return;
 		}
-		
+
 		System.out.println("service count "
 				+ cmdline.getArgumentCount("-service") / 2);
 
@@ -99,10 +95,8 @@ public class Invoker extends Service {
 			for (int i = 0; i < cmdline.getArgumentCount("-service"); i += 2) {
 				// TODO -remove GUIService
 				LOG.info("attempting to invoke : org.myrobotlab.service."
-								+ cmdline.getSafeArgument("-service", i, "")
-								+ " "
-								+ cmdline
-										.getSafeArgument("-service", i + 1, ""));
+						+ cmdline.getSafeArgument("-service", i, "") + " "
+						+ cmdline.getSafeArgument("-service", i + 1, ""));
 				Service s = (Service) Service.getNewInstance(
 						"org.myrobotlab.service."
 								+ cmdline.getSafeArgument("-service", i, ""),
@@ -130,77 +124,138 @@ public class Invoker extends Service {
 		// return getShortClassNames("org.myrobotlab.service",false);
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
 				"ChessGame", "Clock", "ComediDriver", "DifferentialDrive",
-				"FaceTracker", "GeneticProgramming",
-				"Graphics", "GUIService",
+				"FaceTracker", "GeneticProgramming", "Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
-				"Logging",
-				"MediaSource", "MoMo", "Motor", "OpenCV",
-				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage", "RecorderPlayer",
-				"RemoteAdapter", "Rose",  "SensorMonitor", "Serial",
-				"Servo", "SLAM", "SoccerGame", "SOHDARService", "Speech",
-				"SpeechRecognition", "StepperMotor", "SystemInformation",
-				"TrackingService",
-				"WiiDAR", "Wii" };
+				"Logging", "MediaSource", "MoMo", "Motor", "OpenCV",
+				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
+				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
+				"Serial", "Servo", "SLAM", "SoccerGame", "SOHDARService",
+				"Speech", "SpeechRecognition", "StepperMotor",
+				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
 	}
 
 	public void removeService(String name) {
 		LOG.info("removing service " + name);
+		//super.removeServices(sdu) TODO
 	}
 
 	// TODO - 3 values - description/example input & output
 	@ToolTip("Add a new Services to the system")
 	public void addService(String className, String newName) {
 		LOG.info("adding service " + newName);
-		Service s = (Service) Service.getNewInstance("org.myrobotlab.service." + className, newName);
+		Service s = (Service) Service.getNewInstance("org.myrobotlab.service."
+				+ className, newName);
 		s.startService();
 	}
 
-	
+	public void setLogLevel(String level) {
+		if (level == null) {
+			LOG.setLevel(Level.DEBUG);
+			return;
+		}
+
+		if (level.compareTo("INFO") == 0) {
+			LOG.setLevel(Level.INFO);
+		}
+		if (level.compareTo("WARN") == 0) {
+			LOG.setLevel(Level.WARN);
+		}
+		if (level.compareTo("ERROR") == 0) {
+			LOG.setLevel(Level.ERROR);
+		}
+		if (level.compareTo("FATAL") == 0) {
+			LOG.setLevel(Level.FATAL);
+		} else {
+			LOG.setLevel(Level.DEBUG);
+		}
+	}
+
 	public static void main(String[] args) {
 
-		try{
+		CMDLine cmdline = new CMDLine();
+		cmdline.splitLine(args);
+
+		try {
+
+			// org.apache.log4j.BasicConfigurator.configure();
+			// Logger.getRootLogger().setLevel(Level.DEBUG);
+
+			// Logger logger = Logger.getLogger("log.out");
+			// #define the appender named
+			// FILE log4j.appender.FILE=org.apache.log4j.FileAppender
+			// log4j.appender.FILE.File=${user.home}/log.out
+
+			/*
+			 * # Set root logger level to DEBUG and its only appender to A1.
+			 * log4j.rootLogger=DEBUG, A1
+			 * 
+			 * # A1 is set to be a ConsoleAppender.
+			 * log4j.appender.A1=org.apache.log4j.ConsoleAppender
+			 * 
+			 * # A1 uses PatternLayout.
+			 * log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+			 * log4j.appender.A1.layout.ConversionPattern=%-4r [%t] %-5p %c %x -
+			 * %m%n
+			 */
+
+			// excellent documentation
+			// http://logging.apache.org/log4j/1.2/manual.html
+			// SimpleLayout layout = new SimpleLayout();
 			
-		
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		Class[] p = new Class[1];
-		p[0] = String.class;
-		
-		String tt = getMethodToolTip(Arduino.class.getCanonicalName(), "serialSend", p);
+			if (cmdline.containsKey("-logToConsole"))
+			{
+				org.apache.log4j.BasicConfigurator.configure();
+				Logger.getRootLogger().setLevel(Level.DEBUG);
+			} else {			
+				PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
+	
+				RollingFileAppender appender = null;
+				try {
+					appender = new RollingFileAppender(layout, "log.txt", false);
+				} catch (Exception e) {
+				}
+	
+				LOG.addAppender(appender);
+				LOG.setLevel(Level.DEBUG);
+			}
+			/*
+			 * Annotation check Class[] p = new Class[1]; p[0] = String.class;
+			 * 
+			 * String tt = getMethodToolTip(Arduino.class.getCanonicalName(),
+			 * "serialSend", p);
+			 */
 
-		
-		String libararyPath = System.getProperty("java.library.path");
-		String userDir = System.getProperty("user.dir");
-		
-		LOG.debug("os.name [" + System.getProperty("os.name")+ "]");	
-		LOG.debug("os.version [" + System.getProperty("os.version")+ "]");	
-		LOG.debug("os.arch [" + System.getProperty("os.arch")+ "]");	
-		LOG.debug("java.library.path [" + libararyPath + "]");	
-		LOG.debug("user.dir [" + userDir + "]");
-		
-		// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
-		
-		//libararyPath += ":" + userDir + "/bin";
-		//System.setProperty("java.library.path", libararyPath);
-		//LOG.debug("new java.library.path [" + libararyPath + "]");	
-		
-		// hack to reconcile the different ways os handle and expect
-		// "PATH & LD_LIBRARY_PATH" to be handled
-		// found here - http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
-		// but does not work
-		
-		/*
-		System.setProperty( "java.library.path", libararyPath );
+			String libararyPath = System.getProperty("java.library.path");
+			String userDir = System.getProperty("user.dir");
 
-		Field fieldSysPath = ClassLoader.class.getDeclaredField( "sys_paths" );
-		fieldSysPath.setAccessible( true );
-		fieldSysPath.set( null, null );		
-		*/
-		
-		invokeCMDLine(args);
-		} catch (Exception e)
-		{
+			LOG.debug("os.name [" + System.getProperty("os.name") + "]");
+			LOG.debug("os.version [" + System.getProperty("os.version") + "]");
+			LOG.debug("os.arch [" + System.getProperty("os.arch") + "]");
+			LOG.debug("java.library.path [" + libararyPath + "]");
+			LOG.debug("user.dir [" + userDir + "]");
+
+			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
+
+			// libararyPath += ":" + userDir + "/bin";
+			// System.setProperty("java.library.path", libararyPath);
+			// LOG.debug("new java.library.path [" + libararyPath + "]");
+
+			// hack to reconcile the different ways os handle and expect
+			// "PATH & LD_LIBRARY_PATH" to be handled
+			// found here -
+			// http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
+			// but does not work
+
+			/*
+			 * System.setProperty( "java.library.path", libararyPath );
+			 * 
+			 * Field fieldSysPath = ClassLoader.class.getDeclaredField(
+			 * "sys_paths" ); fieldSysPath.setAccessible( true );
+			 * fieldSysPath.set( null, null );
+			 */
+
+			invokeCMDLine(cmdline);
+		} catch (Exception e) {
 			System.out.print("ouch !");
 			e.getStackTrace();
 			try {
@@ -212,15 +267,14 @@ public class Invoker extends Service {
 		}
 	}
 
-
 	@Override
 	public String getToolTip() {
-		return "<html>Service used to create other services. This service, like other services,<br>" +
-		"does not need a GUI.<br>" +
-		"Services can be created on the command line by using the Invoker in the following way.<br> " +
-		"-service [Service] [Service Name] ...<br>" +
-		"The following example will create an Invoker service named<br> \"services\" and a GUIService named \"gui\"<br>" +
-		"<b><i>" + helpString + "</i></b></html>";
+		return "<html>Service used to create other services. This service, like other services,<br>"
+				+ "does not need a GUI.<br>"
+				+ "Services can be created on the command line by using the Invoker in the following way.<br> "
+				+ "-service [Service] [Service Name] ...<br>"
+				+ "The following example will create an Invoker service named<br> \"services\" and a GUIService named \"gui\"<br>"
+				+ "<b><i>" + helpString + "</i></b></html>";
 	}
-	
+
 }

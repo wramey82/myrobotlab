@@ -31,5 +31,5 @@ export LD_LIBRARY_PATH
 # org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
  
 
-java -classpath ":myrobotlab.jar:./lib/*" org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
+java -classpath ":myrobotlab.jar:./lib/*" org.myrobotlab.service.Invoker -service Invoker services GUIService gui
 

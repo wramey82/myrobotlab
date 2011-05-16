@@ -224,9 +224,9 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 			//myBoundService = c;
 			if (c.myClock != null)
 			{
-				startClock.setText("q stop clock");
+				startClock.setText("stop clock");
 			} else {
-				startClock.setText("q start clock");
+				startClock.setText("start clock");
 			}
 		}
 		
