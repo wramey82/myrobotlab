@@ -345,7 +345,7 @@ public class OpenCV extends Service {
 				//IplImage img = frameGrabber.grab();
 				
 			} catch (Exception e) {
-				LOG.error(stack2String(e));
+				LOG.error(stackToString(e));
 				stop ();
 			}
 			
@@ -368,7 +368,7 @@ public class OpenCV extends Service {
 						try {
 							frame = grabber.grab();						
 						} catch (Exception e) {
-							LOG.error(stack2String(e));
+							LOG.error(stackToString(e));
 						}
 					}
 
@@ -455,7 +455,7 @@ public class OpenCV extends Service {
 					cvReleaseCapture(oldGrabber);
 				}
 			} catch (Exception e) {
-				LOG.error(stack2String(e));
+				LOG.error(stackToString(e));
 			}
 		}
 	}

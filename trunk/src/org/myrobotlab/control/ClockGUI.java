@@ -199,6 +199,9 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	// TODO - instead of actual Clock - send data Proxy ClockData to set/get state ! 
 	public void getState(Clock c)
 	{
+		//Clock s = (Clock)myService.sendBlocking(boundServiceName, "getState", null);
+		//LOG.info(s);
+		
 		if (c != null)
 		{
 			if (c.pulseDataType == PulseDataType.increment)
