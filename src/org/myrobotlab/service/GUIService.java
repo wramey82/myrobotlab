@@ -61,10 +61,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
@@ -351,21 +351,18 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + name);
-		frame.setSize(150, 300);
-		// Image logo = new ImageIcon("mrl_logo_small.jpg").getImage();
-		// frame.setIconImage(logo);
+//		frame.setSize(150, 300);
 
-		ServiceTabPane stp = loadTabPanels(); 
+		ServiceTabPane stp = loadTabPanels();
+
+/*		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.getViewport().add( panel );
+		scrollPane.setPreferredSize(new Dimension(200,200));
+		frame.add( scrollPane, BorderLayout.CENTER );
+*/		
 		panel.add(stp, gc);
 
-/*
-		try {
-			Thread.sleep(160); // delay display - ecllipse bug? XDnD property
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-*/
 		// TODO - catch appropriate missing resource
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();

@@ -48,6 +48,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Invoker;
@@ -151,9 +152,16 @@ public class InvokerGUI extends ServiceGUI {
 				if (name != null) {
 					String newService = (String) possibleServices.getSelectedValue();
 					myService.send(boundServiceName, "addService", newService,name);
-					// this is asynchronous - the service will be created later
+					// TODO - this is asynchronous - the service will be created later
 					// - Especially on a remote process
 					// it would be nice to momentarily block on this call !!!
+					// in the interim - do a pause to allow the Service to start & register
+					// before updating the  GUI
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						Service.stackToString(e1);
+					}
 					myService.loadTabPanels();
 				}
 

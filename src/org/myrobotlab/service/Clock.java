@@ -176,6 +176,12 @@ public class Clock extends Service {
 		return o;
 	}
 	
+	public Clock getState()
+	{
+		return this;
+	}
+	
+	
 	public String setPulseDataString(String s)
 	{
 		pulseDataString = s;

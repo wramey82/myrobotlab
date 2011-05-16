@@ -775,19 +775,19 @@ public abstract class Service implements Runnable {
 
 		} catch (SecurityException e) {
 			LOG.error("SecurityException");
-			LOG.error(stack2String(e));
+			LOG.error(stackToString(e));
 		} catch (NoSuchMethodException e) {
 			LOG.error("NoSuchMethodException");
-			LOG.error(stack2String(e));
+			LOG.error(stackToString(e));
 		} catch (IllegalArgumentException e) {
 			LOG.error("IllegalArgumentException");
-			LOG.error(stack2String(e));
+			LOG.error(stackToString(e));
 		} catch (IllegalAccessException e) {
 			LOG.error("IllegalArgumentException");
-			LOG.error(stack2String(e));
+			LOG.error(stackToString(e));
 		} catch (InvocationTargetException e) {
 			LOG.error("InvocationTargetException");
-			LOG.error(stack2String(e));
+			LOG.error(stackToString(e));
 		}
 
 		return retobj;
@@ -1224,8 +1224,7 @@ public abstract class Service implements Runnable {
 	}
 	
 	
-	// TODO - move to string or error util
-	 public static String stack2String(Exception e) {
+	 public final static String stackToString(final Exception e) {
 		  try {
 		    StringWriter sw = new StringWriter();
 		    PrintWriter pw = new PrintWriter(sw);
@@ -1233,7 +1232,7 @@ public abstract class Service implements Runnable {
 		    return "------\r\n" + sw.toString() + "------\r\n";
 		  }
 		  catch(Exception e2) {
-		    return "bad stack2string";
+		    return "bad stackToString";
 		  }
 		 }	
 }
