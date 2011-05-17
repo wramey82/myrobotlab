@@ -25,6 +25,8 @@
 
 package org.myrobotlab.service;
 
+import java.io.File;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -211,8 +213,10 @@ public class Invoker extends Service {
 	
 				RollingFileAppender appender = null;
 				try {
-					appender = new RollingFileAppender(layout, "log.txt", false);
+					String userDir = System.getProperty("user.dir");
+					appender = new RollingFileAppender(layout, userDir +  File.separator + "log.txt", false);
 				} catch (Exception e) {
+					System.out.println(Service.stackToString(e));
 				}
 	
 				LOG.addAppender(appender);
