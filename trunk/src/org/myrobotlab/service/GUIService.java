@@ -355,23 +355,30 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 		ServiceTabPane stp = loadTabPanels();
 
-/*		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.getViewport().add( panel );
-		scrollPane.setPreferredSize(new Dimension(200,200));
-		frame.add( scrollPane, BorderLayout.CENTER );
-*/		
+		
+		//JScrollPane scrollPane = new JScrollPane(stp);
+		//JScrollPane scrollPane = new JScrollPane(box);
+		//scrollPane.getViewport().add( panel );
+		//scrollPane.setPreferredSize(new Dimension(200,200));
+		//panel.add( scrollPane, BorderLayout.CENTER );
+		//scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		//JScrollBar vbar = new JScrollBar(JScrollBar.VERTICAL, 30, 40, 0, 300);
+		//panel.add(vbar);
+		//panel.setLayout();
+		
+		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
 		panel.add(stp, gc);
 
 		// TODO - catch appropriate missing resource
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
-		frame.setIconImage(img);
-		
+		frame.setIconImage(img);		
 		
 		JMenuBar menuBar = new JMenuBar();
-
 	    JMenu help = new JMenu("help");
 	    JMenuItem about = new JMenuItem("about");
 	    about.addActionListener(this);
@@ -379,7 +386,9 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	    menuBar.add(help);
 		
 	    frame.setJMenuBar(menuBar);
-		frame.add(this.panel);
+	    frame.add(sp);
+		//frame.add(panel);
+	    //frame.setContentPane(panel);
 		frame.setVisible(true);
 		frame.pack();
 
