@@ -351,21 +351,8 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + name);
-//		frame.setSize(150, 300);
 
 		ServiceTabPane stp = loadTabPanels();
-
-		
-		//JScrollPane scrollPane = new JScrollPane(stp);
-		//JScrollPane scrollPane = new JScrollPane(box);
-		//scrollPane.getViewport().add( panel );
-		//scrollPane.setPreferredSize(new Dimension(200,200));
-		//panel.add( scrollPane, BorderLayout.CENTER );
-		//scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		//JScrollBar vbar = new JScrollBar(JScrollBar.VERTICAL, 30, 40, 0, 300);
-		//panel.add(vbar);
-		//panel.setLayout();
 		
 		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -388,7 +375,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	    frame.setJMenuBar(menuBar);
 	    frame.add(sp);
 		//frame.add(panel);
-	    //frame.setContentPane(panel);
 		frame.setVisible(true);
 		frame.pack();
 
