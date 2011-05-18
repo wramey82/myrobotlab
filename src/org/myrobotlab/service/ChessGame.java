@@ -46,7 +46,7 @@ public class ChessGame extends Service {
 		return m;
 	}
 	
-	public String makeMove(HMove m)
+	public String makeMove(HMove m, String code)
 	{
 		String t = m.toString();
 		LOG.info(t);
@@ -58,7 +58,7 @@ public class ChessGame extends Service {
 
 		t = (t.substring(0,2) + t.substring(3));
 
-		t = "x" + t + "z";
+		t = "x" + t + code + "z";
 		t = t.toLowerCase(); 
 		
 		LOG.info(t);

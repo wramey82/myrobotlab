@@ -545,7 +545,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	}
 	
 	boolean rawReadMsg = false;
-	int rawReadMsgLength = 4;
+	int rawReadMsgLength = 5;
 	//char rawMsgBuffer
 	
 	public void setRawReadMsg (Boolean b)
@@ -571,23 +571,32 @@ public class Arduino extends Service implements SerialPortEventListener,
 		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
 			break;
 		case SerialPortEvent.DATA_AVAILABLE:
-			// we get here if data has been received
-			byte[] readBuffer = new byte[1];
-			byte[] msg = new byte[4];
-			readBuffer[0] = -1;
-			// readBuffer[1] = -1;
-			// readBuffer[2] = -1;
+			
 			try {
 				// read data
 
+				byte[] msg = new byte[rawReadMsgLength];
+				int newByte;
 				int numBytes = 0;
 				int totalBytes = 0;
 				
-				while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
-					msg[totalBytes] = readBuffer[0];
+				// TODO - refactor big time !
+				//while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
+				while ((newByte = inputStream.read()) >= 0) {
+					++numBytes;
+					msg[numBytes] = (byte)newByte;
 					totalBytes += numBytes;
-					if (totalBytes == 4) {
-						LOG.error("Read: " + msg[0] + " " + msg[1] + " " + msg[2] + " " + msg[3]);
+					
+					LOG.error("read " + numBytes + " target msg length " + rawReadMsgLength);
+					
+					if (totalBytes == rawReadMsgLength) {
+						StringBuffer b = new StringBuffer();
+						for (int i = 0; i < rawReadMsgLength; ++i)
+						{
+							b.append("msg[" + i + "] " + msg[i]);
+						}
+						
+						LOG.error(b.toString());
 						
 						if (rawReadMsg)
 						{
@@ -616,10 +625,12 @@ public class Arduino extends Service implements SerialPortEventListener,
 						}
 
 						totalBytes = 0;
-						msg[0] = -1;
-						msg[1] = -1;
-						msg[2] = -1;
-						msg[3] = -1;
+						
+						// reset buffer 
+						for (int i = 0; i < rawReadMsgLength; ++i)
+						{
+							msg[0] = -1;
+						}
 
 					}
 				}

@@ -157,18 +157,23 @@ public class Invoker extends Service {
 		}
 
 		if (level.compareTo("INFO") == 0) {
-			LOG.setLevel(Level.INFO);
+			//LOG.setLevel(Level.INFO);
+			Logger.getRootLogger().setLevel(Level.INFO);
 		}
 		if (level.compareTo("WARN") == 0) {
-			LOG.setLevel(Level.WARN);
+			//LOG.setLevel(Level.WARN);
+			Logger.getRootLogger().setLevel(Level.WARN);
 		}
 		if (level.compareTo("ERROR") == 0) {
-			LOG.setLevel(Level.ERROR);
+			//LOG.setLevel(Level.ERROR);
+			Logger.getRootLogger().setLevel(Level.ERROR);
 		}
 		if (level.compareTo("FATAL") == 0) {
-			LOG.setLevel(Level.FATAL);
+			//LOG.setLevel(Level.FATAL);
+			Logger.getRootLogger().setLevel(Level.FATAL);
 		} else {
-			LOG.setLevel(Level.DEBUG);
+			//LOG.setLevel(Level.DEBUG);
+			Logger.getRootLogger().setLevel(Level.DEBUG);
 		}
 	}
 

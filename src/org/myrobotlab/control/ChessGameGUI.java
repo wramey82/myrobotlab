@@ -225,6 +225,10 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         }
         if (!found || !board.makeMove(m)) {
             showStatus("Illegal move");
+
+            myService.send(boundServiceName, "makeMove", m, "i");
+        	myService.send(boundServiceName, "makeHMove", m);
+
             if (pce != null)
             {
             	throw new PropertyVetoException("Illegal move", pce);
@@ -288,7 +292,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         //LOG.info(m + " from " + testFrom + " to " + to);
         if (publishEvent)
         {
-        	myService.send(boundServiceName, "makeMove", m);
+        	myService.send(boundServiceName, "makeMove", m, "n");
         	myService.send(boundServiceName, "makeHMove", m);
         }
         
