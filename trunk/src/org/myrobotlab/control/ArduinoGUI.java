@@ -187,9 +187,11 @@ public class ArduinoGUI extends ServiceGUI {
 		        if (isSel) {
 			          myService.send(boundServiceName, "setRawReadMsg", true);
 			          myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+			          rawReadMsgLength.setEnabled(false);
 		        } else {
 				      myService.send(boundServiceName, "setRawReadMsg", false);
 				      myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+			          rawReadMsgLength.setEnabled(true);
 		        }
 		      }
 		    };
@@ -197,8 +199,8 @@ public class ArduinoGUI extends ServiceGUI {
 
 		  JCheckBox rawReadMessage = new JCheckBox(rawReadMsgAction);
 		  rawReadMsgLength = new JIntegerField();
-		  rawReadMsgLength.setInt(4);
-		  rawReadMsgLength.setEnabled(false);
+		  rawReadMsgLength.setInt(5);
+		  rawReadMsgLength.setEnabled(true);
 
 		  gc.gridx = 0;
 		  gc.gridy = 0;
