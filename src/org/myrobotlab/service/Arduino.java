@@ -583,13 +583,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 				// TODO - refactor big time !
 				//while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
 				while ((newByte = inputStream.read()) >= 0) {
-					++numBytes;
 					msg[numBytes] = (byte)newByte;
-					totalBytes += numBytes;
+					++numBytes;
+					//totalBytes += numBytes;
 					
 					LOG.error("read " + numBytes + " target msg length " + rawReadMsgLength);
 					
-					if (totalBytes == rawReadMsgLength) {
+					if (numBytes == rawReadMsgLength) {
 						StringBuffer b = new StringBuffer();
 						for (int i = 0; i < rawReadMsgLength; ++i)
 						{
@@ -597,6 +597,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 						}
 						
 						LOG.error(b.toString());
+						
+						totalBytes += numBytes;
 						
 						if (rawReadMsg)
 						{
@@ -624,12 +626,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 							}
 						}
 
-						totalBytes = 0;
+						//totalBytes = 0;
+						numBytes = 0;
 						
 						// reset buffer 
 						for (int i = 0; i < rawReadMsgLength; ++i)
 						{
-							msg[0] = -1;
+							msg[i] = -1;
 						}
 
 					}
