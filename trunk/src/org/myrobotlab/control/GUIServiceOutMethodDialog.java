@@ -45,7 +45,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.ToolTip;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class GUIServiceOutMethodDialog extends JDialog  implements ActionListener  {
 	
@@ -53,7 +53,7 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 	
 	private static final long serialVersionUID = 1L;
 
-	GUIService myService = null;
+	GUI myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
 	
 	public class MethodData
@@ -75,11 +75,11 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 	
 	ArrayList<MethodData> data = new ArrayList<MethodData>(); 
 	
-	GUIServiceOutMethodDialog(GUIService myService, String title, GUIServiceGraphVertex v)
-	{	super(myService.frame, title, true);
+	GUIServiceOutMethodDialog(GUI myService, String title, GUIServiceGraphVertex v)
+	{	super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;
-	    JFrame parent = myService.frame;
+	    JFrame parent = myService.getFrame();
 	    if (parent != null) 
 	    {
 		      Dimension parentSize = parent.getSize(); 
@@ -128,14 +128,14 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		JComboBox cb = (JComboBox)e.getSource();
         String method = (String)cb.getSelectedItem();
         LOG.error(method);
-        myService.guiServiceGUI.srcServiceName.setText(v.name);
-        myService.guiServiceGUI.period0.setText(".");
-        myService.guiServiceGUI.srcMethodName.setText(method);
-        myService.guiServiceGUI.arrow0.setText(" -> ");
+        myService.setSrcServiceName(v.name);
+        myService.setPeriod0(".");
+        myService.setSrcMethodName(method);
+        myService.setArrow(" -> ");
         
-        myService.guiServiceGUI.dstServiceName.setText("");
-        myService.guiServiceGUI.period1.setText("");
-        myService.guiServiceGUI.dstMethodName.setText("");
+        myService.setDstServiceName("");
+        myService.setPeriod1("");
+        myService.setDstMethodName("");
         
         //myService.srcMethodName = method.split(regex)
         //myService.parameterList =

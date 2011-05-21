@@ -12,7 +12,7 @@ public final class HMove extends org.op.chess.Move implements Comparable, Consta
     final char pieceLetter;
     int score = 0;
     
-    HMove(int from, int to, int promote, int bits, char pieceLetter) {
+    public HMove(int from, int to, int promote, int bits, char pieceLetter) {
         super(from, to);
         this.promote = promote;
         this.bits = bits;

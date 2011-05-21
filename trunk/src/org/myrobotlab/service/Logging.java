@@ -33,6 +33,7 @@ import org.myrobotlab.framework.Service;
 
 public class Logging extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Logging.class.getCanonicalName());
 	
 	/*

@@ -45,14 +45,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(AudreyGUI.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(AudreyGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
@@ -77,11 +75,17 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public AudreyGUI(String name, GUIService myService) {
-		super(name, myService);
-
-		video0 = new VideoWidget(name, myService);
-		video1 = new VideoWidget(name, myService);
+	
+	public AudreyGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
+		
+		video0 = new VideoWidget(boundServiceName, myService);
+		video0.init();
+		video1 = new VideoWidget(boundServiceName, myService);
+		video0.init();
 		keyboard = new Keyboard();
 		// build input begin ------------------
 

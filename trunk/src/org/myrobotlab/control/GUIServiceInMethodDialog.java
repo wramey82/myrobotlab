@@ -41,7 +41,7 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -52,14 +52,14 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 	
 	private static final long serialVersionUID = 1L;
 
-	GUIService myService = null;
+	GUI myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
 	
-	GUIServiceInMethodDialog (GUIService myService, String title, GUIServiceGraphVertex v)
-	{	super(myService.frame, title, true);
+	GUIServiceInMethodDialog (GUI myService, String title, GUIServiceGraphVertex v)
+	{	super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;
-	    JFrame parent = myService.frame;
+	    JFrame parent = myService.getFrame();
 	    if (parent != null) 
 	    {
 		      Dimension parentSize = parent.getSize(); 
@@ -118,9 +118,9 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 		JComboBox cb = (JComboBox)e.getSource();
         String method = (String)cb.getSelectedItem();
         LOG.error(method);
-        myService.guiServiceGUI.dstServiceName.setText(v.name);
-        myService.guiServiceGUI.period1.setText(".");
-        myService.guiServiceGUI.dstMethodName.setText(method);
+        myService.setDstServiceName(v.name);
+        myService.setPeriod0(".");
+        myService.setDstMethodName(method);
         
         LOG.info(e);
         
@@ -133,23 +133,23 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
         {
 	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
 			NotifyEntry ne = new NotifyEntry();
-			ne.name = myService.guiServiceGUI.dstServiceName.getText();
-			ne.outMethod_ = myService.guiServiceGUI.srcMethodName.getText().split(" ")[0];
-			ne.inMethod_ = myService.guiServiceGUI.dstMethodName.getText().split(" ")[0];
+			ne.name = myService.getDstServiceName();
+			ne.outMethod_ = myService.getSrcMethodName().split(" ")[0];
+			ne.inMethod_ = myService.getDstMethodName().split(" ")[0];
 			
-			LOG.error(ne);
+			LOG.error("NotifyEntry !!! " + ne);
 /*			
 			if (parameterType != null) {
 				ne.paramTypes = new Class[]{parameterType};
 			}
 */			
 			// send the notification of new route to the target system
-			String srcService = myService.guiServiceGUI.srcServiceName.getText();
+			String srcService = myService.getSrcServiceName();
 			myService.send(srcService, "notify", ne);
 			
-			mxGraph graph = myService.guiServiceGUI.graph;
+			mxGraph graph = myService.getGraph();
 			Object parent = graph.getDefaultParent();
-			HashMap<String, mxCell> serviceCells = myService.guiServiceGUI.serviceCells;
+			HashMap<String, mxCell> serviceCells = myService.getCells();
 			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(srcService), serviceCells.get(ne.name));
 			
 	        this.dispose();

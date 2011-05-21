@@ -38,12 +38,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.wiiusejevents.physicalevents.IREvent;
-
-import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
@@ -60,15 +59,20 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 
 	public Random rand = new Random();
 
-	public SLAMGUI(String name, GUIService myService) {
-		super(name, myService);
-		video = new VideoWidget(name, myService);
+	public SLAMGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
+
 		img = new BufferedImage(width / 2, height / 2,
 				BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
 		video.webCamDisplay(img);
 
-		video = new VideoWidget(name, myService);
+		video = new VideoWidget(boundServiceName, myService);
+		video.init();
 		gc.gridx = 0;
 		gc.gridy = 0;
 		gc.gridheight = 4;

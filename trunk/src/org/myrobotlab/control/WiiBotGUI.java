@@ -37,8 +37,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class WiiBotGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -48,8 +47,11 @@ public class WiiBotGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = new Keyboard();
 
-	public WiiBotGUI(String name, GUIService myService) {
-		super(name, myService);
+	public WiiBotGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init(){
 
 		JButton keyboardButton = new JButton(
 				"<html><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control</td></tr></table></html>");

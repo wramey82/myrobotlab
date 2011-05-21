@@ -38,9 +38,9 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class PICAXEGUI extends ServiceGUI {
 
@@ -59,29 +59,10 @@ public class PICAXEGUI extends ServiceGUI {
 	JComboBox PWMRate3 = new JComboBox(new String[] { "31", "125", "500",
 			"4000", "32000" }); // For pins 3, 11 500 hz default
 
-	/*
-	 * PICAXE Diecimila http://www.arduino.cc/en/Main/ArduinoBoardDiecimila
-	 * Serial: 0 (RX) and 1 (TX). Used to receive (RX) and transmit (TX) TTL
-	 * serial data. These pins are connected to the corresponding pins of the
-	 * FTDI USB-to-TTL Serial chip. External Interrupts: 2 and 3. These pins can
-	 * be configured to trigger an interrupt on a low value, a rising or falling
-	 * edge, or a change in value. See the attachInterrupt() function for
-	 * details. PWM: 3, 5, 6, 9, 10, and 11. Provide 8-bit PWM output with the
-	 * analogWrite() function. SPI: 10 (SS), 11 (MOSI), 12 (MISO), 13 (SCK).
-	 * These pins support SPI communication, which, although provided by the
-	 * underlying hardware, is not currently included in the PICAXE language.
-	 * LED: 13. There is a built-in LED connected to digital pin 13. When the
-	 * pin is HIGH value, the LED is on, when the pin is LOW, it's off.
-	 * 
-	 * 
-	 * TODO - log serial data window
-	 */
-
-	public PICAXEGUI(String name, GUIService myService) {
-		super(name, myService);
-
-		initialize();
+	public PICAXEGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
+
 
 	public ArrayList<Pin> makePins() {
 		ArrayList<Pin> pins = new ArrayList<Pin>();
@@ -110,7 +91,7 @@ public class PICAXEGUI extends ServiceGUI {
 
 	}
 
-	private void initialize() {
+	public void init() {
 
 		// build input begin ------------------
 		JPanel input = new JPanel();

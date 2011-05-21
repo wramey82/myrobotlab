@@ -33,10 +33,10 @@ import org.myrobotlab.framework.Service;
 
 public class TestThrower extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(TestThrower.class
 			.getCanonicalName());
 	public int cnt = 0;
-	private int interval = 1000;
 	public int pulseLimit = 20;
 	public int pitchCnt = 0;
 	public ArrayList<Integer> catcher = new ArrayList<Integer>();

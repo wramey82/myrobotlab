@@ -27,22 +27,17 @@ package org.myrobotlab.control;
 
 import javax.swing.JLabel;
 
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class RemoteAdapterGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public RemoteAdapterGUI() {
-		this("unknown", null);
+	public RemoteAdapterGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public RemoteAdapterGUI(String name, GUIService myService) {
-		super(name, myService);
-		initialize();
-	}
-
-	private void initialize() {
+	
+	public void init() {
 		gc.gridx = 0;
 		gc.gridy = 0;
 		display.add(new JLabel("number of connections : 5"), gc);

@@ -33,13 +33,14 @@ import java.util.Iterator;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV.Polygon;
 
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+
 public class Toy extends Service {
+
+	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(Toy.class.getCanonicalName());
 

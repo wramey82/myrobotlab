@@ -25,13 +25,14 @@
 
 package org.myrobotlab.framework;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.comm.CommunicationManager;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 
 /*
  * Outbox is a message based thread which sends messages based on notify lists and current
@@ -42,7 +43,8 @@ import org.myrobotlab.comm.CommunicationManager;
  * It knows nothing about protocols, serialization methods, or communication methods.
  */
 
-public class Outbox extends Thread {
+public class Outbox implements Runnable, Serializable //extends Thread 
+{
 	public final static Logger LOG = Logger.getLogger(Outbox.class.getCanonicalName());
 
 	Service myService = null;
@@ -52,21 +54,43 @@ public class Outbox extends Thread {
 	boolean bufferOverrun = false;
 	boolean blocking = false;
 	int maxQueue = 10;
+	transient Thread outboxThread = null;
 
 	public HashMap<String, ArrayList<NotifyEntry>> notifyList = new HashMap<String, ArrayList<NotifyEntry>>();
-	CommunicationManager comm = null;
+	CommunicationInterface comm = null;
 
 	public Outbox(Service myService) {
-		super(myService.name + "_outbox");
+		//super(myService.name + "_outbox");
+		outboxThread = new Thread(this, myService.name + "_outbox");
 		this.myService = myService;
 	}
 
-	public CommunicationManager getCommunicationManager() {
+	public CommunicationInterface getCommunicationManager() {
 		return comm;
 	}
 
-	public void setCommunicationManager(CommunicationManager c) {
+	public void setCommunicationManager(CommunicationInterface c) {
 		this.comm = c;
+	}
+	
+	public void start()
+	{
+		if (outboxThread == null)
+		{
+			outboxThread = new Thread(myService.name + "_outbox");
+		}
+		
+		outboxThread.start();
+	}
+	
+	public void stop()
+	{
+		isRunning = false;
+		if (outboxThread != null)
+		{
+			outboxThread.interrupt();
+		}
+		outboxThread = null;
 	}
 
 	@Override
@@ -77,11 +101,11 @@ public class Outbox extends Thread {
 			synchronized (msgBox) {
 				try {
 					while (msgBox.size() == 0) {
-						LOG.debug("outbox run WAITING " + this.getName());
+						LOG.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
 					}
 				} catch (InterruptedException ex) {
-					LOG.debug("outbox run INTERRUPTED " + this.getName());
+					LOG.debug("outbox run INTERRUPTED ");
 					// msgBox.notifyAll();
 					isRunning = false;
 					continue;
@@ -145,21 +169,20 @@ public class Outbox extends Thread {
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
 				try {
-					LOG.debug("outbox enque msg WAITING " + this.getName());
+					LOG.debug("outbox enque msg WAITING ");
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
-					LOG.debug("outbox add enque msg INTERRUPTED "
-							+ this.getName());
+					LOG.debug("outbox add enque msg INTERRUPTED ");
 				}
 
 			// we warn if over 10 messages are in the queue - but we will still process them
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				LOG.warn(getName() + " outbox BUFFER OVERRUN size "
+				LOG.warn(" outbox BUFFER OVERRUN size "
 						+ msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			LOG.debug(this.getName() + " msgBox size " + msgBox.size()
+			LOG.debug(" msgBox size " + msgBox.size()
 					+ " msg [" + msg.method + "(" + msg.getParameterSignature()
 					+ ")]");
 			msgBox.notifyAll(); // must own the lock

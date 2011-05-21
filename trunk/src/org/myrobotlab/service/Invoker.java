@@ -26,6 +26,8 @@
 package org.myrobotlab.service;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -35,6 +37,7 @@ import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
+import org.myrobotlab.service.interfaces.GUI;
 
 /*
  *   I would have liked to dynamically extract the possible Services from the code itself - unfortunately this is near impossible
@@ -47,12 +50,14 @@ import org.myrobotlab.framework.ToolTip;
 
 public class Invoker extends Service {
 
+	private static final long serialVersionUID = 1L;
+
 	public Invoker(String instanceName) {
 		super(instanceName, Invoker.class.getCanonicalName());
 	}
 
 	public final static Logger LOG = Logger.getRootLogger();
-	static GUIService gui = null;
+	static GUI gui = null;
 
 	static void help() {
 		System.out.println("Invoker " + version());
@@ -95,7 +100,7 @@ public class Invoker extends Service {
 				&& cmdline.getArgumentCount("-service") % 2 == 0) {
 
 			for (int i = 0; i < cmdline.getArgumentCount("-service"); i += 2) {
-				// TODO -remove GUIService
+				// TODO -remove GUIService2
 				LOG.info("attempting to invoke : org.myrobotlab.service."
 						+ cmdline.getSafeArgument("-service", i, "") + " "
 						+ cmdline.getSafeArgument("-service", i + 1, ""));
@@ -104,9 +109,10 @@ public class Invoker extends Service {
 								+ cmdline.getSafeArgument("-service", i, ""),
 						cmdline.getSafeArgument("-service", i + 1, ""));
 				s.startService();
-				if (s.serviceClass.compareTo(GUIService.class
-						.getCanonicalName()) == 0) {
-					gui = (GUIService) s;
+				
+				Class<?> c = s.getClass().getSuperclass();				
+				if (c.equals(GUI.class)) {
+					gui = (GUI) s;
 				}
 			}
 			if (gui != null) {
@@ -178,7 +184,16 @@ public class Invoker extends Service {
 	}
 
 	public static void main(String[] args) {
-
+		URL url = null;
+			try {
+				 url = new URL ("http://0.0.0.0:0");
+			} catch (MalformedURLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			System.out.println(url.getHost());
+			System.out.println(url.getPort());
+		
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
@@ -234,15 +249,6 @@ public class Invoker extends Service {
 			 * "serialSend", p);
 			 */
 
-			String libararyPath = System.getProperty("java.library.path");
-			String userDir = System.getProperty("user.dir");
-
-			LOG.debug("os.name [" + System.getProperty("os.name") + "]");
-			LOG.debug("os.version [" + System.getProperty("os.version") + "]");
-			LOG.debug("os.arch [" + System.getProperty("os.arch") + "]");
-			LOG.debug("java.library.path [" + libararyPath + "]");
-			LOG.debug("user.dir [" + userDir + "]");
-
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
 
 			// libararyPath += ":" + userDir + "/bin";
@@ -265,8 +271,7 @@ public class Invoker extends Service {
 
 			invokeCMDLine(cmdline);
 		} catch (Exception e) {
-			System.out.print("ouch !");
-			e.getStackTrace();
+			LOG.error(Service.stackToString(e));
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e1) {

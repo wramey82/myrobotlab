@@ -46,6 +46,7 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -85,10 +86,14 @@ import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
 public class OpenCV extends Service {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 	int frameIndex = 0;
 
+	int lastImageWidth = 0;
+	
 	//CvCapture grabber = null;
 	VideoProcess videoProcess = null;
 	
@@ -168,7 +173,9 @@ public class OpenCV extends Service {
 		cfg.set("displayFilter", "output");
 	}
 
-	// TODO - put in Service ! - load into Service Directory !!
+	
+	
+	/* TODO - remove
 	final public void pause(Integer length) {
 		try {
 			// videoThread.sleep(length);
@@ -177,6 +184,7 @@ public class OpenCV extends Service {
 			return;
 		}
 	}
+	*/
 
 	@Override
 	public void startService() {
@@ -372,6 +380,7 @@ public class OpenCV extends Service {
 						}
 					}
 
+
 				logTime("read");
 
 				if (frame != null) {
@@ -404,6 +413,12 @@ public class OpenCV extends Service {
 
 					}
 
+					if (frame.width() != lastImageWidth)
+					{
+						invoke("sizeChange", new Dimension(frame.width(), frame.height()));
+						lastImageWidth = frame.width();
+					}
+					
 					// if the display was not published by one of the filters
 					// convert the frame now and publish it
 					if (!published) {
@@ -485,6 +500,11 @@ public class OpenCV extends Service {
 	 * collected from the sources.
 	 */
 
+	public Dimension sizeChange (Dimension d)
+	{
+		return d;
+	}
+	
 	public String publish(String value) {
 		return value;
 	}
@@ -599,7 +619,7 @@ public class OpenCV extends Service {
 		Logger.getRootLogger().setLevel(Level.WARN);
 
 		OpenCV opencv = new OpenCV("opencv");
-		GUIService gui = new GUIService("gui");
+		GUIService2 gui = new GUIService2("gui");
 		gui.startService();
 		opencv.startService();
 

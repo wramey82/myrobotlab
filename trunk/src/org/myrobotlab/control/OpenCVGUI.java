@@ -54,10 +54,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
@@ -96,10 +95,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	JPanel filterParameters = new JPanel();
 
-	public OpenCVGUI(String name, GUIService myService) {
-		super(name, myService);
+	public OpenCVGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 
-		video = new VideoWidget(name, myService);
+		video = new VideoWidget(boundServiceName, myService);
+		video.init();
 
 		camera.addActionListener(al);
 		file.addActionListener(al);

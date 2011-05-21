@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class MotorGUI extends ServiceGUI {
 
@@ -45,8 +45,12 @@ public class MotorGUI extends ServiceGUI {
 	private JLabel posValue = new JLabel("0");
 	private JLabel speedValue = new JLabel("0");
 
-	public MotorGUI(String boundServiceName, GUIService myService) {
+	public MotorGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
 
 		// build input begin ------------------
 		JPanel input = new JPanel();

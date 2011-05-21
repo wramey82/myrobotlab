@@ -25,69 +25,72 @@
 
 package org.myrobotlab.control;
 
-import java.io.ByteArrayOutputStream;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.TargetDataLine;
-import javax.swing.JLabel;
+import javax.swing.JButton;
 
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class AudioCaptureGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
-	// JList files;
+	
+	
+	final JButton captureBtn = new JButton("Capture");
+	final JButton stopBtn = new JButton("Stop");
+	final JButton playBtn = new JButton("Playback");
 
-	boolean stopCapture = false;
-	ByteArrayOutputStream byteArrayOutputStream;
-	AudioFormat audioFormat;
-	TargetDataLine targetDataLine;
-	AudioInputStream audioInputStream;
-	SourceDataLine sourceDataLine;
-
-	// TODO - consider normalizing against static functions of the AudioCapture
-	// service !
-	public class PlayThread extends Thread {
-		byte tempBuffer[] = new byte[10000];
-
-		public void run() {
-			try {
-				int cnt;
-				// Keep looping until the input
-				// read method returns -1 for
-				// empty stream.
-				while ((cnt = audioInputStream.read(tempBuffer, 0,
-						tempBuffer.length)) != -1) {
-					if (cnt > 0) {
-						// Write data to the internal
-						// buffer of the data line
-						// where it will be delivered
-						// to the speaker.
-						sourceDataLine.write(tempBuffer, 0, cnt);
-					}// end if
-				}// end while
-				// Block and wait for internal
-				// buffer of the data line to
-				// empty.
-				sourceDataLine.drain();
-				sourceDataLine.close();
-			} catch (Exception e) {
-				System.out.println(e);
-				System.exit(0);
-			}// end catch
-		}// end run
-	}// end inner class PlayThread
-
-	public AudioCaptureGUI() {
-		this("unknown", null);
+	public AudioCaptureGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
+	
+	public void init(){		
+		// Register anonymous listeners
+		captureBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				captureBtn.setEnabled(false);
+				stopBtn.setEnabled(true);
+				playBtn.setEnabled(false);
+				// Capture input data from the
+				// microphone until the Stop
+				// button is clicked.
+				myService.send(boundServiceName, "captureAudio");
+			}// end actionPerformed
+		}// end ActionListener
+				);// end addActionListener()
+		display.add(captureBtn);
 
-	public AudioCaptureGUI(String name, GUIService myService) {
-		super(name, myService);
-		display.add(new JLabel("no gui"));
+		stopBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				captureBtn.setEnabled(true);
+				stopBtn.setEnabled(false);
+				playBtn.setEnabled(true);
+				// Terminate the capturing of
+				// input data from the
+				// microphone.
+				myService.send(boundServiceName, "stopAudioCapture");
+			}// end actionPerformed
+		}// end ActionListener
+				);// end addActionListener()
+		display.add(stopBtn);
+
+		playBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Play back all of the data
+				// that was saved during
+				// capture.
+				myService.send(boundServiceName, "playAudio");
+			}// end actionPerformed
+		}// end ActionListener
+				);// end addActionListener()
+		display.add(playBtn);
+
+		display.setLayout(new FlowLayout());
+		
 	}
+	
 
 	@Override
 	public void attachGUI() {

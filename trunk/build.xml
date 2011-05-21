@@ -106,10 +106,48 @@
 			</manifest>
 		</jar>
 	</target>
-
+	
 	<target name="clean" description="clean up" >
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
 	</target>
+
+	<property name="report"  value="${build}/junitreport"/>
+	<property name="application"  value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/>
+	
+	<!-- target name="junit" depends="dist">
+	        <mkdir dir="${report}"/>
+	        <junit printsummary="yes">
+	            <classpath>
+	                <path refid="compile.classpath"/>
+	                <path refid="application"/>
+	            	</classpath>
+	            
+	            <formatter type="xml"/>
+	            
+	            <batchtest fork="yes" todir="${report}">
+	                <fileset dir="${src}" includes="*Test.java"/>
+	            </batchtest>
+	        </junit>
+	    </target -->
+	
+	<target name="junit" depends="dist">
+	<property name="testclass" value="junitTest.HelloWorldTest"/>
+	<java classname="junit.textui.TestRunner">
+	<arg value="${testclass}"/>
+	<classpath>
+		<fileset dir="C:/JDeveloper"/>
+		<includes path="**/*.jar" />
+	</classpath>
+	</java>
+	</target>
+
+	 <target name="junitreport" depends="junit">
+	        <junitreport todir="${report}">
+	            <fileset dir="${report}" includes="TEST-*.xml"/>
+	            <report todir="${report}"/>
+	        </junitreport>
+	 </target>
+
 </project>

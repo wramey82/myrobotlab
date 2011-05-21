@@ -25,11 +25,13 @@
 
 package org.myrobotlab.service;
 
+import java.awt.Dimension;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import org.myrobotlab.framework.Service;
 
 public class FaceTracker extends Service {
 
@@ -57,6 +59,7 @@ public class FaceTracker extends Service {
 		//pan.attach(arduino.name, 13);
 
 		camera.notify("publish", name, "input");
+		camera.notify("sizeChange", name, "sizeChange", Dimension.class);
 		//notify("pan", "logger", "log");
 		//notify("tilt", "logger", "log");
 		notify("pan", "pan", "move");
@@ -82,6 +85,47 @@ public class FaceTracker extends Service {
 	int centerY = height/2;
 	int errorX = 0;
 	int errorY = 0;
+	
+	public void sizeChange(Dimension d)
+	{
+		width = d.width;
+		height = d.height;
+	}
+	
+	public class PID {
+		
+		/*working variables*/
+		long lastTime;
+		float Input, Output, Setpoint;
+		float errSum, lastErr;
+		float kp, ki, kd;
+		
+		void Compute()
+		{
+		   /*How long since we last calculated*/
+		   long now = System.currentTimeMillis();
+		   float timeChange = (float)(now - lastTime);
+		 
+		   /*Compute all the working error variables*/
+		   float error = Setpoint - Input;
+		   errSum += (error * timeChange);
+		   float dErr = (error - lastErr) / timeChange;
+		 
+		   /*Compute PID Output*/
+		   Output = kp * error + ki * errSum + kd * dErr;
+		 
+		   /*Remember some variables for next time*/
+		   lastErr = error;
+		   lastTime = now;
+		}
+		 
+		void SetTunings(float Kp, float Ki, float Kd)
+		{
+		   kp = Kp;
+		   ki = Ki;
+		   kd = Kd;
+		}	
+	}
 	
 	public void input (CvPoint point)
 	{

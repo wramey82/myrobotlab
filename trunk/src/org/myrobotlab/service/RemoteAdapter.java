@@ -39,10 +39,10 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import org.myrobotlab.comm.Communicator;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.service.interfaces.Communicator;
 
 /***
  * 
@@ -58,8 +58,8 @@ import org.myrobotlab.framework.ServiceDirectoryUpdate;
 
 public class RemoteAdapter extends Service {
 
-	public final static Logger LOG = Logger.getLogger(RemoteAdapter.class
-			.getCanonicalName());
+	private static final long serialVersionUID = 1L;
+	public final static Logger LOG = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
 	static HashMap<String, ServerSocket> serverSockets = new HashMap<String, ServerSocket>();
 	Thread tcpListener = null;
 	Thread udpListener = null;

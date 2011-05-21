@@ -27,20 +27,17 @@ package org.myrobotlab.control;
 
 import javax.swing.JLabel;
 
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class AudioFileGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	// JList files;
-
-	public AudioFileGUI() {
-		this("unknown", null);
+	public AudioFileGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public AudioFileGUI(String name, GUIService myService) {
-		super(name, myService);
+	
+	public void init() {
 		display.add(new JLabel("no gui"));
 	}
 

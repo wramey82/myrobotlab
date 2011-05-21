@@ -40,7 +40,7 @@ import javax.swing.JList;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
@@ -52,8 +52,11 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	BufferedImage graph = null;
 	Graphics g = null;
 	
-	public GraphicsGUI(final String name, final GUIService myService) {
-		super(name, myService);
+	public GraphicsGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 
 		JButton cg = new JButton("create graph");
 		cg.addActionListener(new ActionListener() {
@@ -64,7 +67,8 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 			}
 		});
 		
-		video = new VideoWidget(name, myService);	
+		video = new VideoWidget(boundServiceName, myService);	
+		video.init();
 		display.add(cg);
 		display.add(video.display, gc);
 

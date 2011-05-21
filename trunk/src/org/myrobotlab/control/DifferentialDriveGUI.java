@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.DifferentialDrive;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class DifferentialDriveGUI extends ServiceGUI {
 	
@@ -74,11 +74,13 @@ public class DifferentialDriveGUI extends ServiceGUI {
 
 	JLabel inMotion = new JLabel("false");
 	
-	// bindings end ------------------
 
-	
-	public DifferentialDriveGUI(String boundServiceName, GUIService myService) {
+	public DifferentialDriveGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
 
 		// position
 		TitledBorder title;

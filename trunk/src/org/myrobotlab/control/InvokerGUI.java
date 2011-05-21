@@ -50,8 +50,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Invoker;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class InvokerGUI extends ServiceGUI {
 
@@ -66,9 +66,11 @@ public class InvokerGUI extends ServiceGUI {
 	JComboBox logLevel = new JComboBox(level);
 	
 	// TODO - widgetize the "possible services" list
+	public InvokerGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
 
-	public InvokerGUI(String name, GUIService myService) {
-		super(name, myService);
+	public void init() {
 
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());

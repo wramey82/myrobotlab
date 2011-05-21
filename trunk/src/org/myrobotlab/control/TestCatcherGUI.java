@@ -33,7 +33,7 @@ import javax.swing.JLabel;
 
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class TestCatcherGUI extends ServiceGUI {
 
@@ -41,16 +41,17 @@ public class TestCatcherGUI extends ServiceGUI {
 	JLabel catchInteger = new JLabel("0");
 	JButton bindCatchIntegerButton = null;
 
-	public TestCatcherGUI(String boundServiceName, GUIService myService) {
+	public TestCatcherGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 
 		display.add(new JLabel("catchInteger : "), gc);
 		++gc.gridx;
 		display.add(catchInteger, gc);
 		++gc.gridx;
 		display.add(getBindCatchIntegerButton(), gc);
-		// display.add(new VideoWidget(boundServiceName,
-		// myService).getDisplay());
 	}
 
 	public void catchInteger(Integer i) {

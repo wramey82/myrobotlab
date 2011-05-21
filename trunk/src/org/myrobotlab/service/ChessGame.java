@@ -92,8 +92,8 @@ public class ChessGame extends Service {
 		ChessGame chess1 = new ChessGame("chess1");
 		chess1.startService();
 
-		ChessGame chess2 = new ChessGame("chess2");
-		chess2.startService();
+		//ChessGame chess2 = new ChessGame("chess2");
+		//chess2.startService();
 		
 		//OpenCV camera = new OpenCV("camera");
 		//camera.startService();

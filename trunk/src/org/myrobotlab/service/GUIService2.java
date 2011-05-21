@@ -65,6 +65,7 @@ import javax.swing.JScrollPane;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.GUIService2GUI;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
@@ -97,11 +98,11 @@ import com.mxgraph.view.mxGraph;
  * 
  */
 
-public class GUIService extends GUI implements  WindowListener, ActionListener, Serializable {
+public class GUIService2 extends GUI implements WindowListener, ActionListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(GUIService.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(GUIService2.class.getCanonicalName());
 
 	public transient JFrame frame = null;
 
@@ -110,7 +111,7 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 	//public transient JPanel panel = new JPanel();
 	public transient JPanel panel = null;
 
-	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
+	public transient GUIService2GUI guiServiceGUI = null; // the tabbed panel gui of the gui service
 	
 	transient Network network = null;
 
@@ -124,8 +125,8 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
-	public GUIService(String n) {
-		super(n, GUIService.class.getCanonicalName());
+	public GUIService2(String n) {
+		super(n, GUIService2.class.getCanonicalName());
 	}
 
 	@Override
@@ -252,7 +253,7 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-			if (guiClass.compareTo("org.myrobotlab.control.GUIServiceGUI") == 0) {
+			if (guiClass.compareTo("org.myrobotlab.control.GUIService2GUI") == 0) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
 				LOG.debug("delaying construction of GUIServiceGUI ");
 				createGUIServiceGUI = true;
@@ -285,7 +286,7 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
-			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, customPanel, se);
+			guiServiceGUI = (GUIService2GUI)createTabbedPanel(this.name, guiClass, customPanel, se);
 			++index;
 			titleToTabIndexMap.put("custom", index);
 
@@ -350,7 +351,6 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		}
 
 		return gui;
-		
 	}
 
 	public void display() {
@@ -607,7 +607,7 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		Invoker invoker = new Invoker("invoker");
 		invoker.startService();
 
-		GUIService gui = new GUIService("gui");
+		GUIService2 gui = new GUIService2("gui");
 		gui.startService();
 		gui.display();
 	}
@@ -696,5 +696,6 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 	public HashMap<String, Boolean> getCustomWidgetPrefs() {
 		return customWidgetPrefs;
 	}
+	
 	
 }

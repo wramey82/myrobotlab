@@ -36,15 +36,16 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.myrobotlab.comm.CommunicationManager;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class Network extends JPanel {
 
 	static final long serialVersionUID = 1L;
 
 	protected GUIService myService;
-	CommunicationManager comm = null;
+	CommunicationInterface comm = null;
 
 	JTextField loginValue = new JTextField("");
 
@@ -54,13 +55,12 @@ public class Network extends JPanel {
 
 	JTextField servicePortValue = new JTextField("");
 
-	public Network(GUIService s) {
+	public Network(GUI s) {
 		super();
-		this.myService = s;
-		initialize();
+		init();
 	}
 
-	void initialize() {
+	void init() {
 
 		GridBagConstraints gc = new GridBagConstraints();
 		gc.anchor = GridBagConstraints.WEST;
@@ -68,15 +68,15 @@ public class Network extends JPanel {
 		gc.ipadx = 5;
 		// gc.gridwidth = 6;
 
-		hostnameValue.setText(myService.getCFG("hostname"));
-		servicePortValue.setText(myService.getCFG("servicePort"));
+//		hostnameValue.setText(myService.getCFG("hostname"));
+//		servicePortValue.setText(myService.getCFG("servicePort"));
 
 		this.setSize(300, 200);
 		this.setLayout(new GridBagLayout());
 
 		// TODO - make a way of listing connections - Connection manager et al
 
-		comm = myService.getOutbox().getCommunicationManager(); // TODO RENAME
+		//comm = myService.getOutbox().getCommunicationManager(); // TODO RENAME
 																// THIS WRONG
 																// NAME
 
@@ -114,7 +114,7 @@ public class Network extends JPanel {
 
 		gc.gridx = 0;
 		++gc.gridy;
-		this.add(myService.remoteStatus, gc);
+		//this.add(myService.remoteStatus, gc);
 
 	}
 

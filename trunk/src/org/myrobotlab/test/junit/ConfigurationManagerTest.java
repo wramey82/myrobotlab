@@ -93,6 +93,7 @@ public class ConfigurationManagerTest {
 	 * Test method for
 	 * {@link org.myrobotlab.framework.ConfigurationManager#setServiceEntry()}.
 	 */
+	/*
 	@Test
 	public final void setServiceEntry() {
 
@@ -149,12 +150,13 @@ public class ConfigurationManagerTest {
 		sem = hostcfg.getServiceMap();
 		assertEquals(0, sem.size());
 	}
-
+	*/
 	/**
 	 * Test method for
 	 * {@link org.myrobotlab.framework.ConfigurationManager#getLocalServiceEntries()}
 	 * .
 	 */
+	/*
 	@Test
 	public final void getLocalServiceEntries() {
 		ConfigurationManager hostcfg = new ConfigurationManager("app0");
@@ -173,7 +175,8 @@ public class ConfigurationManagerTest {
 		assertEquals(2, sel.size());
 
 	}
-
+	*/
+	
 	@Test
 	public void Simple() throws Exception {
 		String processID = "hyperparasite:6666";

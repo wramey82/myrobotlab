@@ -25,6 +25,11 @@
 
 package org.myrobotlab.service;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
@@ -38,7 +43,7 @@ public class Clock extends Service {
 	public PulseDataType pulseDataType = PulseDataType.none;
 	public String pulseDataString = null;
 	public int pulseDataInteger;	
-	public ClockThread myClock = null;
+	public transient ClockThread myClock = null;
 
 	// types
 	public enum PulseDataType {none, integer, increment, string};
@@ -60,7 +65,6 @@ public class Clock extends Service {
 			try {
 				while (isRunning == true)
 				{
-					Thread.sleep(interval);
 					if (pulseDataType == PulseDataType.increment)
 					{
 						invoke("pulse", pulseDataInteger);
@@ -72,6 +76,8 @@ public class Clock extends Service {
 					} else if (pulseDataType == PulseDataType.string) {
 						invoke("pulse", pulseDataString);												
 					}
+
+					Thread.sleep(interval);
 				}
 			} catch (InterruptedException e) {
 				LOG.info("ClockThread interrupt");
@@ -204,20 +210,57 @@ public class Clock extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
+				
+		
+		FileOutputStream fos = null;
+		ObjectOutputStream out = null;
+		try
+		{
+			/*
+		       fos = new FileOutputStream("test.backup");
+		       out = new ObjectOutputStream(fos);
+		       out.writeObject(log);
+		       out.writeObject(clock);
+		       out.writeObject(gui);
+		       out.close();
+		    */
+			
+		       FileInputStream fis = new FileInputStream("test.backup");
+		       ObjectInputStream in = new ObjectInputStream(fis);
+		       Logging log = (Logging)in.readObject();
+		       Clock clock = (Clock)in.readObject();
+		       GUIService gui = (GUIService)in.readObject();
+		       in.close();
+		       
+		       log.startService();
+
+		       clock.startService();
+		       clock.startClock();
+		       
+		       gui.startService();
+		       gui.display();
+		       
+		       
+		} catch (Exception e)
+		{
+			LOG.error(stackToString(e));
+		}
+
+		/*
 		Clock clock = new Clock("clock");
 		clock.startService();
-
-		//OpenCV camera = new OpenCV("camera");
-		//camera.startService();
-		
+						
 		Logging log = new Logging("log");
 		log.startService();
 		
 		clock.notify("pulse", "log", "log", Integer.class);
 
 		GUIService gui = new GUIService("gui");
-		gui.startService();
+		gui.startService();	
 		gui.display();
+		*/
+		
+		
 	}
 
 	@Override

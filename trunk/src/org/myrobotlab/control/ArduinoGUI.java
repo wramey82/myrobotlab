@@ -41,11 +41,15 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ArduinoGUI extends ServiceGUI {
+
+	public ArduinoGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
 
 	static final long serialVersionUID = 1L;
 	final String type = "Diecimila";
@@ -81,11 +85,6 @@ public class ArduinoGUI extends ServiceGUI {
 	 * TODO - log serial data window
 	 */
 
-	public ArduinoGUI(String name, GUIService myService) {
-		super(name, myService);
-
-		initialize();
-	}
 
 	public ArrayList<Pin> makePins() {
 		ArrayList<Pin> pins = new ArrayList<Pin>();
@@ -114,7 +113,7 @@ public class ArduinoGUI extends ServiceGUI {
 
 	}
 
-	private void initialize() {
+	public void init() {
 
 		// build input begin ------------------
 		JPanel input = new JPanel();
@@ -199,7 +198,7 @@ public class ArduinoGUI extends ServiceGUI {
 
 		  JCheckBox rawReadMessage = new JCheckBox(rawReadMsgAction);
 		  rawReadMsgLength = new JIntegerField();
-		  rawReadMsgLength.setInt(5);
+		  rawReadMsgLength.setInt(4);
 		  rawReadMsgLength.setEnabled(true);
 
 		  gc.gridx = 0;

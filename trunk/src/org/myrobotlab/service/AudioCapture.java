@@ -21,11 +21,19 @@
  * 
  * Enjoy !
  * 
+ * The working part of this was eventually traced back to:
+ * http://www.developer.com/java/other/article.php/1565671/Java-Sound-An-Introduction.htm
+ * And I would like to give all well deserved credit to
+ * Richard G. Baldwin's excellent and comprehensive tutorial regarding the many
+ * details of sound and Java
+ * 
  * */
 
 package org.myrobotlab.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -40,8 +48,7 @@ import org.myrobotlab.framework.Service;
 
 public class AudioCapture extends Service {
 
-	public final static Logger LOG = Logger.getLogger(AudioCapture.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(AudioCapture.class.getCanonicalName());
 
 	private static final long serialVersionUID = 1L;
 	boolean stopCapture = false;
@@ -84,7 +91,7 @@ public class AudioCapture extends Service {
 
 	// ===================================//
 
-	private void captureAudio() {
+	public void captureAudio() {
 		try {
 			// Get everything set up for
 			// capture
@@ -102,11 +109,20 @@ public class AudioCapture extends Service {
 			Thread captureThread = new Thread(new CaptureThread());
 			captureThread.start();
 		} catch (Exception e) {
-			System.out.println(e);
-			System.exit(0);
+			LOG.error(Service.stackToString(e));
 		}// end catch
 	}// end captureAudio method
 
+	public void stopAudioCapture()
+	{
+		stopCapture = true;
+	}
+	
+	public ByteArrayOutputStream publishCapture()
+	{
+		return byteArrayOutputStream;
+	}
+	
 	class CaptureThread extends Thread {
 		// An arbitrary-size temporary holding
 		// buffer
@@ -131,8 +147,7 @@ public class AudioCapture extends Service {
 				}// end while
 				byteArrayOutputStream.close();
 			} catch (Exception e) {
-				System.out.println(e);
-				System.exit(0);
+				LOG.error(Service.stackToString(e));
 			}// end catch
 		}// end run
 	}// end inner class CaptureThread
@@ -162,12 +177,48 @@ public class AudioCapture extends Service {
 				sourceDataLine.drain();
 				sourceDataLine.close();
 			} catch (Exception e) {
-				System.out.println(e);
-				System.exit(0);
+				LOG.error(Service.stackToString(e));
 			}// end catch
 		}// end run
 	}// end inner class PlayThread
 
+	
+	// This method plays back the audio
+	// data that has been saved in the
+	// ByteArrayOutputStream
+	public void playAudio() {
+		try {
+			// Get everything set up for
+			// playback.
+			// Get the previously-saved data
+			// into a byte array object.
+			byte audioData[] = byteArrayOutputStream.toByteArray();
+			// Get an input stream on the
+			// byte array containing the data
+			InputStream byteArrayInputStream = new ByteArrayInputStream(
+					audioData);
+			AudioFormat audioFormat = getAudioFormat();
+			audioInputStream = new AudioInputStream(byteArrayInputStream,
+					audioFormat, audioData.length / audioFormat.getFrameSize());
+			DataLine.Info dataLineInfo = new DataLine.Info(
+					SourceDataLine.class, audioFormat);
+			sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+			sourceDataLine.open(audioFormat);
+			sourceDataLine.start();
+
+			// Create a thread to play back
+			// the data and start it
+			// running. It will run until
+			// all the data has been played
+			// back.
+			Thread playThread = new Thread(new PlayThread());
+			playThread.start();
+		} catch (Exception e) {
+			LOG.error(Service.stackToString(e));
+		}// end catch
+	}// end playAudio
+	
+	
 	@Override
 	public String getToolTip() {		
 		return "captures and stores audio from microphone";

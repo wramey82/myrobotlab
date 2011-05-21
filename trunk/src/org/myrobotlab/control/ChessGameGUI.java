@@ -50,7 +50,6 @@ import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
 import org.myrobotlab.service.GUIService;
 import org.op.chess.ChessBoard;
-import org.op.chess.Move;
 
 public class ChessGameGUI extends ServiceGUI
 implements Constants, VetoableChangeListener, PropertyChangeListener
@@ -70,7 +69,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     private int computerSide = DARK;
     private final int[] playTime = {3000, 5000, 10000, 20000, 30000, 60000};
     private JLabel principalVariation;
-    private int moves = 0;
+    //private int moves = 0;
     private int maxTime = 10000;
     private Thread thinkThread = null;
     private HMove guessedMove = null;
@@ -199,12 +198,12 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         if (move == null) return;
         
         //HMove h1 = new HMove(5,3,2,4,5);
-        
+        /*
         Move m1 = new Move(5,8);
         LOG.info(m1);
     	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
     	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());
-
+		*/
         
         int promote = 0;
         int to = move.getTo(); int from = move.getFrom();
@@ -213,8 +212,8 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
             promote = chessView.promotionDialog(board.side == LIGHT);
         }
         boolean found = false;
-        Collection validMoves = board.gen();
-        Iterator i = validMoves.iterator();
+        Collection<?> validMoves = board.gen();
+        Iterator<?> i = validMoves.iterator();
         HMove m = null;
         while (i.hasNext()) {
             m = (HMove) i.next();
@@ -225,9 +224,10 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         }
         if (!found || !board.makeMove(m)) {
             showStatus("Illegal move");
-
-            myService.send(boundServiceName, "makeMove", m, "i");
-        	myService.send(boundServiceName, "makeHMove", m);
+            
+            HMove illegal = new HMove(move.getFrom(), move.getTo(), 0, 0, 'p');
+            myService.send(boundServiceName, "makeMove", illegal, "i");
+        	myService.send(boundServiceName, "makeHMove", illegal);
 
             if (pce != null)
             {
@@ -336,9 +336,9 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     }
     
     private boolean isResult() {
-        Collection validMoves = board.gen();
+        Collection<?> validMoves = board.gen();
         
-        Iterator i = validMoves.iterator();
+        Iterator<?> i = validMoves.iterator();
         boolean found = false;
         while (i.hasNext()) {
             if (board.makeMove((HMove) i.next())) {

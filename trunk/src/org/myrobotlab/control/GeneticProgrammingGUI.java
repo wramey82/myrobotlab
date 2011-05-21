@@ -27,27 +27,22 @@ package org.myrobotlab.control;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.gp.GPMessageBestFound;
 import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 import org.myrobotlab.gp.RealPoint;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class GeneticProgrammingGUI extends ServiceGUI implements
@@ -80,9 +75,12 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 
 	GPMessageBestFound lastBest = null;
 
-	public GeneticProgrammingGUI(String name, GUIService myService) {
-		super(name, myService);
-		video = new VideoWidget(name, myService);
+	public GeneticProgrammingGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
 		video.webCamDisplay(img);
@@ -101,7 +99,8 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		bestProgram = new JTextArea("new program", 8, 20);
 
 		fitnessCasesTextArea = new JTextArea(s, 8, 20);
-		video = new VideoWidget(name, myService);
+		video = new VideoWidget(boundServiceName, myService);
+		video.init();
 		gc.gridx = 0;
 		gc.gridy = 0;
 		gc.gridheight = 4;
@@ -276,19 +275,6 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 	// TODO - encapsulate this
 	// MouseListener mouseListener = new MouseAdapter() {
 	public void setCurrentFilterMouseListener() {
-		MouseListener mouseListener = new MouseAdapter() {
-			public void mouseClicked(MouseEvent mouseEvent) {
-				JList theList = (JList) mouseEvent.getSource();
-				if (mouseEvent.getClickCount() == 2) {
-					int index = theList.locationToIndex(mouseEvent.getPoint());
-					if (index >= 0) {
-						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
-					}
-				}
-			}
-		};
 
 		// traces.addMouseListener(mouseListener);
 	}
