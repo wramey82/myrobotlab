@@ -37,10 +37,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.service.interfaces.GUI;
 
 // http://www.superrobotica.com/VisualSC2e.htm
 //public class ServoWidget extends JPanel {
@@ -58,12 +57,11 @@ public class MotorWidget extends ServiceGUI {
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 
-	public MotorWidget(String name, GUIService myService) {
-		super(name, myService);
-		initialize();
+	public MotorWidget(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
 
-	private void initialize() {
+	public void init() {
 		// this.setSize(453, 62);
 		display.setLayout(new GridBagLayout());
 

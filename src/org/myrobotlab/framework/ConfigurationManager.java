@@ -1003,7 +1003,10 @@ public class ConfigurationManager implements Serializable {
 		set("service/" + name + "/serviceClass", serviceClass);
 		set("service/" + name + "/servicePort", servicePort);
 		set("service/" + name + "/lastModified", lastModified);
-		set("service/" + name + "/toolTip", toolTip);
+		if (toolTip != null)
+		{
+			set("service/" + name + "/toolTip", toolTip);
+		}
 		if (localServiceHandle != null) {
 			set("service/" + name + "/localServiceHandle",
 					(Object) localServiceHandle);

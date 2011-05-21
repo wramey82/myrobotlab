@@ -39,8 +39,8 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.Clock;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Clock.PulseDataType;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ClockGUI extends ServiceGUI implements ActionListener{
 
@@ -57,6 +57,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	JTextField pulseDataString = new JTextField(10);
 	JIntegerField pulseDataInteger = new JIntegerField(10);
 	
+	public ClockGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
 	
 	ActionListener setType = new ActionListener() {
 		
@@ -70,8 +74,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	// TODO - Object? can this be buried and managed reflectively?
 //	Clock myBoundService = null;
 
-	public ClockGUI(String name, GUIService myService) {
-		super(name, myService);
+	public void init() {
 		
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -181,17 +184,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	}
 
 	@Override
-	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Clock.class);
-		myService.send(boundServiceName, "publishState");
-	}
-
-	@Override
-	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Clock.class);
-	}
-
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		myService.send(boundServiceName, "setType", e.getActionCommand());
 	}
@@ -247,4 +239,16 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		
 	}
 */	
+
+	@Override
+	public void attachGUI() {
+		sendNotifyRequest("publishState", "getState", Clock.class);
+		myService.send(boundServiceName, "publishState");
+	}
+
+	@Override
+	public void detachGUI() {
+		removeNotifyRequest("publishState", "getState", Clock.class);
+	}
+
 }

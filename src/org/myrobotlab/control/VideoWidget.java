@@ -46,14 +46,15 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class VideoWidget extends ServiceGUI {
 
 	private static final long serialVersionUID = 1L;
 	JLabel screen = new JLabel();
-	JLabel info = new JLabel("mouse x y");
+	JLabel mouseInfo = new JLabel("mouse x y");
+	JLabel resolutionInfo = new JLabel("width x height");
 	JLabel deltaTime = new JLabel("0");
 
 	HashMap<String, JLabel> screens = new HashMap<String, JLabel>();
@@ -69,12 +70,18 @@ public class VideoWidget extends ServiceGUI {
 	public String boundFilterName = "";
 	
 	public int lastImageWidth = 0;
+	
 
+	public VideoWidget(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
 	public class VideoMouseListener implements MouseListener {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			info.setText("clicked " + e.getX() + "," + e.getY());
+			mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
 			// myService.send(boundServiceName, "invokeFilterMethod",
 			// "samplePoint", boundFilterName, e);
 			Object[] d = new Object[1];
@@ -88,23 +95,23 @@ public class VideoWidget extends ServiceGUI {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// info.setText("entered");
+			// mouseInfo.setText("entered");
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// info.setText("exit");
+			// mouseInfo.setText("exit");
 
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// info.setText("pressed");
+			// mouseInfo.setText("pressed");
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// info.setText("release");
+			// mouseInfo.setText("release");
 		}
 
 	}
@@ -148,8 +155,8 @@ public class VideoWidget extends ServiceGUI {
 		}
 	}
 
-	public VideoWidget(String boundServiceName, GUIService myService) {
-		super(boundServiceName, myService);
+	public void init() 
+	{
 
 		ImageIcon icon = FileIO.getResourceIcon("mrl_logo.jpg");
 		if (icon != null)
@@ -185,12 +192,15 @@ public class VideoWidget extends ServiceGUI {
 		++gc.gridy;
 		// display.add(getConnectButton(), gc);
 		// ++gc.gridy;
-		display.add(info, gc);
+		display.add(mouseInfo, gc);
+		++gc.gridx;
+		display.add(resolutionInfo, gc);
 		++gc.gridy;
 		display.add(deltaTime, gc);
 	}
 
-
+	// TODO - need an explanation of why there are two and why one does
+	// not call the other
 	public void webCamDisplay(String filterName, SerializableImage img) {
 		if (!screens.containsKey(filterName)) {
 			screens.put(filterName, new JLabel());
@@ -220,7 +230,9 @@ public class VideoWidget extends ServiceGUI {
 		if (lastImageWidth != img.getImage().getWidth())
 		{
 			screen.invalidate();
-			myService.frame.pack();
+			myService.pack();
+			lastImageWidth = img.getImage().getWidth();
+			resolutionInfo.setText(lastImageWidth + " x " + img.getImage().getHeight());
 		}
 
 		img = null;
@@ -252,7 +264,7 @@ public class VideoWidget extends ServiceGUI {
 		if (lastImageWidth != img.getWidth())
 		{
 			screen.invalidate();
-			myService.frame.pack();
+			myService.pack();
 		}
 		
 		img = null;

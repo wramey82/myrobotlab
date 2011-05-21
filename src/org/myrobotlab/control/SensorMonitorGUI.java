@@ -53,12 +53,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.SensorData;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
@@ -114,29 +113,9 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		int mean = 0;
 	}
 
-	/*
-	 * class SensorTraceThread implements Runnable { public boolean isRunning =
-	 * true; public Random rand = new Random(); int y = 0; int lastX = 0; int
-	 * lastY = 239;
-	 * 
-	 * @Override public void run() { // TODO Auto-generated method stub while
-	 * (isRunning == true) {
-	 * 
-	 * for (int i = 1; i < DATA_WIDTH; ++i) { g.setColor(Color.RED); y =
-	 * rand.nextInt(20) + 210; g.drawLine(i, lastY, i, y);
-	 * video.webCamDisplay(sensorImage); //lastX = i; lastY = y; if (i ==
-	 * DATA_WIDTH - 1) { lastX = 0; g.setColor(Color.BLACK); g.fillRect(0, 0,
-	 * DATA_WIDTH-1, DATA_HEIGHT); } try { Thread.sleep(30); } catch
-	 * (InterruptedException e) { // TODO Auto-generated catch block
-	 * e.printStackTrace(); } }
-	 * 
-	 * 
-	 * }
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
+	public SensorMonitorGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
 
 	class SensorAlertThread implements Runnable {
 
@@ -148,10 +127,10 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	}
 
-	public SensorMonitorGUI(String name, GUIService myService) {
-		super(name, myService);
-
-		video = new VideoWidget(name, myService);
+	public void init() {
+		
+		video = new VideoWidget(boundServiceName, myService);
+		video.init();
 		addTrace.addActionListener(new AddTraceListener());
 		removeTrace.addActionListener(new RemoveTraceListener());
 		addAlert.addActionListener(new AddAlertListener());

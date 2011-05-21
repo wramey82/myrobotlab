@@ -34,14 +34,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class TestThrowerGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
-	String name = ""; // TODO - and to GUIInterface
-	Service myService = null; // TODO - and to GUIInterface
 	static final String type = "TestThrowerGUI";
 	Integer integer = new Integer(33);
 	JTextField lowPitchInteger = new JTextField("353");
@@ -52,18 +49,12 @@ public class TestThrowerGUI extends ServiceGUI {
 	JLabel throwVideoLabel = new JLabel("");
 	JLabel throwSerialLabel = new JLabel("");
 
-	public TestThrowerGUI() {
-		this("unknown", null);
+	public TestThrowerGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
+	
 
-	public TestThrowerGUI(String name, GUIService myService) {
-		super(name, myService);
-		this.name = name;
-		this.myService = myService;
-		initialize();
-	}
-
-	private void initialize() {
+	public void init() {
 		display.setSize(400, 200);
 		display.setLayout(new GridBagLayout());
 		GridBagConstraints gc = new GridBagConstraints();
@@ -75,7 +66,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(name, "throwInteger", Integer
+				myService.send(boundServiceName, "throwInteger", Integer
 						.parseInt(throwInteger.getText()));
 			}
 
@@ -92,7 +83,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(name, "lowPitchInteger", Integer
+				myService.send(boundServiceName, "lowPitchInteger", Integer
 						.parseInt(lowPitchInteger.getText()));
 			}
 
@@ -109,7 +100,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t3.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(name, "setNumberOfPitchers", Integer
+				myService.send(boundServiceName, "setNumberOfPitchers", Integer
 						.parseInt(setNumberOfPitchers.getText()));
 			}
 

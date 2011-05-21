@@ -26,12 +26,15 @@
 package org.myrobotlab.framework;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,12 +45,12 @@ import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.comm.CommunicationManager;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.comm.CommunicationManager2;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
+import org.myrobotlab.service.interfaces.GUI;
 
-public abstract class Service implements Runnable {
+public abstract class Service implements Runnable, Serializable {
 
 	// TODO - UNDERSTAND THAT host:port IS THE KEY !! - IT IS A COMBONATIONAL
 	// KEY :0 WORKS IN PROCESS OUT OF
@@ -55,24 +58,25 @@ public abstract class Service implements Runnable {
 	// host + ":" + servicePort + serviceClass + "/" +
 	// this.getClass().getCanonicalName() + "/" + name;
 	
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Service.class.toString());
 	protected String host = null; // TODO - should be final???
 	public final String name;
-	public final String serviceClass;
+	public final String serviceClass; // TODO - remove
 	protected boolean isRunning = false;
-	protected Thread thisThread = null;
+	protected transient Thread thisThread = null;
 	Outbox outbox = null;
 	Inbox inbox = null;
-	protected CommunicationManager cm = null;
+	public URL url = null;
+	
+	protected CommunicationManager2 cm = null;
 	protected ConfigurationManager cfg = null;
 	protected ConfigurationManager hostcfg = null;
 
 	// performance timing
 	public long startTimeMilliseconds = 0;
 
-	// public enum MsgHandling {PROCESS, RELAY, IGNORE, BROADCAST,
-	// PROCESSANDBROADCAST};
-
+	// TODO - use enumeration
 	static public final String PROCESS = "PROCESS";
 	static public final String RELAY = "RELAY";
 	static public final String IGNORE = "IGNORE";
@@ -91,8 +95,12 @@ public abstract class Service implements Runnable {
 	}
 
 	public Service(String instanceName, String serviceClass, String inHost) {
-		thisThread = new Thread(this, instanceName);
-
+		
+		try {
+			url = new URL(inHost);
+		} catch (MalformedURLException e) {
+			LOG.error(inHost + " not a valid URL");
+		}
 		// determine host name
 		host = getHostName(inHost);
 
@@ -116,6 +124,17 @@ public abstract class Service implements Runnable {
 		// over-ride process level with host file
 		if (!hostInitialized)
 		{
+			
+			String libararyPath = System.getProperty("java.library.path");
+			String userDir = System.getProperty("user.dir");
+
+			LOG.info("os.name [" + System.getProperty("os.name") + "]");
+			LOG.info("os.version [" + System.getProperty("os.version") + "]");
+			LOG.info("os.arch [" + System.getProperty("os.arch") + "]");
+			LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
+			LOG.info("java.library.path [" + libararyPath + "]");
+			LOG.info("user.dir [" + userDir + "]");
+			
 			// load root level configuration
 			ConfigurationManager rootcfg = new ConfigurationManager();
 			rootcfg.load(host + ".properties");
@@ -129,9 +148,10 @@ public abstract class Service implements Runnable {
 		cfg.load(host + "." + name + ".properties");
 
 		// now that cfg is ready make a communication manager
-		cm = new CommunicationManager(this);
+		cm = new CommunicationManager2(this);
 
 		registerServices();
+		registerServices2(url);
 
 	}
 
@@ -221,24 +241,36 @@ public abstract class Service implements Runnable {
 
 	public void stopService() {
 		isRunning = false;
-		outbox.interrupt();
+		outbox.stop();
 		if (thisThread != null) {
 			thisThread.interrupt();
 		}
 		thisThread = null;
+	}
+	
+	public void releaseService()
+	{
+		// note - if stopService is overwritten with extra 
+		// threads - releaseService will need to be overwritten too
+		stopService(); 
+		RuntimeEnvironment.unregister(url, name);
 	}
 
 	public void startService() // TODO - startService pauseService stopService - also
 						// HIDE THIS ! - make runnable
 	{
 		outbox.start();
+		if (thisThread == null)
+		{
+			thisThread = new Thread(this, name); 
+		}
 		thisThread.start();
 		isRunning = true;
 	}
 
 	@Override
 	public void run() {
-		thisThread = Thread.currentThread();
+		//thisThread = Thread.currentThread();// TODO refactor - this is done in the constructor
 		isRunning = true;
 
 		try {
@@ -330,33 +362,27 @@ public abstract class Service implements Runnable {
 	// TODO - without class specific parameters it will get "the real class"
 	// regardless of casting
 
-	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname) {
-		Class c;
+		Class<?> c;
 		try {
 			c = Class.forName(classname);
 			return c.newInstance(); // Dynamically instantiate it
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // Dynamically load the class
-		catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(stackToString(e));
+		} catch (InstantiationException e) {
+			LOG.error(stackToString(e));
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(stackToString(e));
 		}
 		return null;
 	}
 
 	// Used by CommunicationManager to get new instances of Communicators
-	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname, Service service) {
-		Class c;
+		Class<?> c;
 		try {
 			c = Class.forName(classname);
-			Constructor mc = c.getConstructor(new Class[] { Service.class });
+			Constructor<?> mc = c.getConstructor(new Class[] { Service.class });
 			return mc.newInstance(new Object[] { service });
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -378,7 +404,7 @@ public abstract class Service implements Runnable {
 
 	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname,
-			String boundServiceName, GUIService service) {
+			String boundServiceName, GUI service) {
 		try {
 			Object[] params = new Object[2];
 			params[0] = boundServiceName;
@@ -386,7 +412,7 @@ public abstract class Service implements Runnable {
 			Class c;
 			c = Class.forName(classname);
 			Constructor mc = c.getConstructor(new Class[] { String.class,
-					GUIService.class });
+					GUI.class });
 			return mc.newInstance(params);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -507,7 +533,7 @@ public abstract class Service implements Runnable {
 	}
 	
 	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class[] paramTypes)	 
+			Class<?>[] paramTypes)	 
 	{
 		NotifyEntry ne = new NotifyEntry();
 		ne.outMethod_ = outMethod;
@@ -519,14 +545,14 @@ public abstract class Service implements Runnable {
 	}
 
 	public void notify(String name, String outAndInMethod) {
-		notify(outAndInMethod, name, outAndInMethod, (Class[])null);
+		notify(outAndInMethod, name, outAndInMethod, (Class<?>[])null);
 	}
 
-	public void notify(String name, String outAndInMethod, Class parameterType) {
+	public void notify(String name, String outAndInMethod, Class<?> parameterType) {
 		notify(outAndInMethod, name, outAndInMethod, new Class[]{parameterType});
 	}
 	
-	public void notify(String name, String outAndInMethod, Class[] parameterTypes) {
+	public void notify(String name, String outAndInMethod, Class<?>[] parameterTypes) {
 		notify(outAndInMethod, name, outAndInMethod, parameterTypes);
 	}
 
@@ -538,25 +564,25 @@ public abstract class Service implements Runnable {
 	}
 
 	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class parameterType1) {
+			Class<?> parameterType1) {
 		
 		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1} );
 	}
 
 	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class parameterType1, Class parameterType2) {
+			Class<?> parameterType1, Class<?> parameterType2) {
 		
 		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2} );
 	}
 
 	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class parameterType1, Class parameterType2, Class parameterType3) {
+			Class<?> parameterType1, Class<?> parameterType2, Class<?> parameterType3) {
 		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3} );
 	}
 
 	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class parameterType1, Class parameterType2,
-			Class parameterType3, Class parameterType4) {
+			Class<?> parameterType1, Class<?> parameterType2,
+			Class<?> parameterType3, Class<?> parameterType4) {
 			notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3, parameterType4} );
 	}
 
@@ -567,7 +593,7 @@ public abstract class Service implements Runnable {
 		removeNotify(inOutMethod, serviceName, inOutMethod, (Class[])null);
 	}
 	public void removeNotify(String outMethod, String serviceName,
-			String inMethod, Class[] paramTypes) 
+			String inMethod, Class<?>[] paramTypes) 
 	{
 		
 		if (outbox.notifyList.containsKey(outMethod)) {
@@ -586,7 +612,7 @@ public abstract class Service implements Runnable {
 	}
 	
 	public void removeNotify(String outMethod, String serviceName,
-			String inMethod, Class paramTypes)
+			String inMethod, Class<?> paramTypes)
 	{
 		
 	}
@@ -703,19 +729,11 @@ public abstract class Service implements Runnable {
 		return invoke(this, method, params);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Object invoke(Object object, String method, Object params[]) // TODO
-																		// -
-																		// Message
-																		// carry
-																		// an
-																		// array
-																		// of
-																		// Params?
+	public Object invoke(Object object, String method, Object params[]) 
 	{
 
 		Object retobj = null;
-		Class c;
+		Class<?> c;
 
 		try {
 			// c = Class.forName(classname); // TODO - test if cached references
@@ -724,7 +742,7 @@ public abstract class Service implements Runnable {
 			// if necessary make another static invoke
 			c = object.getClass();
 
-			Class[] paramTypes = null;
+			Class<?>[] paramTypes = null;
 			if (params != null) {
 				paramTypes = new Class[params.length]; // this part is weak
 				for (int i = 0; i < params.length; ++i) {
@@ -798,20 +816,16 @@ public abstract class Service implements Runnable {
 		return inbox.getMsg();
 	}
 
-	/*
-	 * TODO - start javadoc'ing registerService - for every named instance the
-	 * service will need to register its capabilities and generate a event for
-	 * an Operator - if it exists - so the capabilities are distributed to all
-	 * the systems
-	 */
-
-	@SuppressWarnings("unchecked")
+	public synchronized void registerServices2(URL host) {
+		RuntimeEnvironment.register(host, this);
+	}
+	
 	public synchronized void registerServices() {
 		LOG.debug(name + " registerServices");
 
 		try {
 
-			Class c;
+			Class<?> c;
 			c = Class.forName(serviceClass);
 
 			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
@@ -826,8 +840,8 @@ public abstract class Service implements Runnable {
 
 			for (int i = 0; i < methods.length; ++i) {
 				Method m = methods[i];
-				Class[] paramTypes = m.getParameterTypes();
-				Class returnType = m.getReturnType();
+				Class<?>[] paramTypes = m.getParameterTypes();
+				Class<?> returnType = m.getReturnType();
 
 				/*
 				LOG
@@ -853,10 +867,10 @@ public abstract class Service implements Runnable {
 				}
 			}
 			
-			Class[] interfaces = c.getInterfaces();
+			Class<?>[] interfaces = c.getInterfaces();
 
 			for (int i = 0; i < interfaces.length; ++i) {
-				Class interfc = interfaces[i];
+				Class<?> interfc = interfaces[i];
 
 				LOG.info("adding interface "
 						+ interfc.getClass().getCanonicalName());

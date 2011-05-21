@@ -23,11 +23,12 @@
  * 
  * */
 
-package org.myrobotlab.comm;
+package org.myrobotlab.service.interfaces;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
 
 import org.myrobotlab.framework.Message;
 
@@ -35,7 +36,7 @@ public abstract class Communicator {
 
 	// TODO static public Communicator getCommunicator (String name, String
 	// classType);??
-	public abstract void send(final Message msg); // TODO - manage throws
+	public abstract void send(final URL url, final Message msg); // TODO - manage throws
 
 	public abstract void stopService();
 

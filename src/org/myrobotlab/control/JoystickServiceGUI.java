@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class JoystickServiceGUI extends ServiceGUI {
 
@@ -46,16 +47,11 @@ public class JoystickServiceGUI extends ServiceGUI {
 	private JTextField rOffset = null;
 	private JTextField zOffset = null;
 
-	public JoystickServiceGUI() {
-		this("unknown", null);
+	public JoystickServiceGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
 
-	public JoystickServiceGUI(String name, GUIService myService) {
-		super(name, myService);
-		initialize();
-	}
-
-	private void initialize() {
+	public void init() {
 
 		/* TODO - getCFG(boundService, name) */
 

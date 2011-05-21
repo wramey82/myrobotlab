@@ -32,13 +32,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.Wii.IRData;
+import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.values.IRSource;
-
-import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Wii.IRData;
-import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
@@ -68,9 +67,14 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	public Random rand = new Random();
 	public IRData lastIRData = null;
 
-	public WiiGUI(String name, GUIService myService) {
-		super(name, myService);
-		video0 = new VideoWidget(name, myService);
+	public WiiGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+
+	@Override
+	public void init() {
+		video0 = new VideoWidget(boundServiceName, myService);
+		video0.init();
 
 		camImage = new BufferedImage(width / divisor, height / divisor,
 				BufferedImage.TYPE_INT_RGB);
@@ -205,5 +209,6 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 	}
+
 
 }

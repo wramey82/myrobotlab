@@ -39,13 +39,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.ConfigurationManager;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class SoccerGameGUI extends ServiceGUI {
 
@@ -71,8 +69,12 @@ public class SoccerGameGUI extends ServiceGUI {
 
 	JComboBox controller = null;
 
-	public SoccerGameGUI(String name, GUIService myService) {
-		super(name, myService);
+	public SoccerGameGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

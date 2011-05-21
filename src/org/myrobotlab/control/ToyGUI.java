@@ -45,9 +45,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ToyGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -76,11 +75,18 @@ public class ToyGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public ToyGUI(String name, GUIService myService) {
-		super(name, myService);
+	public ToyGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() 
+	{
 
-		video0 = new VideoWidget(name, myService);
-		video1 = new VideoWidget(name, myService);
+		video0 = new VideoWidget(boundServiceName, myService);
+		video0.init();
+		video1 = new VideoWidget(boundServiceName, myService);
+		video1.init();
 		keyboard = new Keyboard();
 		// build input begin ------------------
 

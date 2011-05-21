@@ -26,83 +26,71 @@
 package org.myrobotlab.comm;
 
 import java.io.Serializable;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 
-public class CommunicationManager implements Serializable, CommunicationInterface{
+public class CommunicationManager2  implements Serializable, CommunicationInterface{
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(CommunicationManager.class.toString());
+	public final static Logger LOG = Logger.getLogger(CommunicationManager2.class.toString());
 	Service myService = null;
 	Outbox outbox = null;
-	ConfigurationManager hostcfg = null;
 
 	private Communicator comm = null;
 
-	public CommunicationManager(Service myService) {
+	public CommunicationManager2(Service myService) {
 		// set local private references
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
-		this.hostcfg = myService.getHostCFG(); // Communication is at a host
-												// level
 
-		// get hostcfg - get a communicator
-		String communicatorClass = hostcfg.get("Communicator");
+		String communicatorClass ="org.myrobotlab.comm.CommObjectStreamOverTCPUDP2";
 		LOG.info("instanciating a " + communicatorClass);
-		Communicator c = (Communicator) Service.getNewInstance(
-				communicatorClass, myService);
+		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 
-		// setting the outbox's communcation manager
 		outbox.setCommunicationManager(this);
 
 		setComm(c);
 
 	}
 
-	final public void send(final Message msg) {
-		Service local = (Service) hostcfg.getLocalServiceHandle(msg.name);
-
-		if (local != null) {
+	public void send(final Message msg) {
+		
+		ServiceWrapper sw = RuntimeEnvironment.getService(myService.url, msg.name);
+		if (sw.host.accessURL != null && !sw.host.accessURL.equals(myService.url))
+		{
+			LOG.info("sending " + msg.method + " remote");
+			getComm().send(sw.host.accessURL, msg);			
+		} else {
 			LOG.info("sending local");
-			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO
-											// REMOVE !!!!
-			local.in(m);
+			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
+			sw.get().in(m);			
+		}
+
+		/*
+		if (!sw.isRemote()) {
+			LOG.info("sending local");
+			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
+			sw.get().in(m);
 		} else {
 			LOG.info("sending " + msg.method + " remote");
-			getComm().send(null, msg);
+			getComm().send(msg);
 		}
+		*/
 	}
 
-	/* GARBAGE
-	final void sendLocal(final Message msg) {
-		Object s = hostcfg.getLocalServiceHandle(msg.name);
-		if (s != null) {
-			// TODO - OPTIMIZATON - copy only on recieving !!!!
-			Message m = new Message(msg);
-			// address msg appropriately relative to this notify entry
-
-			LOG.info("sending local [" + msg.sender + "." + msg.sendingMethod
-					+ "->" + msg.name + "." + msg.method + "#"
-					+ msg.getParameterSignature() + "]");
-			((Service) s).in(m);
-
-		} else {
-			LOG.error("did not find valid recipient " + msg.name);
-		}
-	}
-	*/
-
-	final public void setComm(final Communicator comm) {
+	public void setComm(Communicator comm) {
 		this.comm = comm;
 	}
 
-	final public Communicator getComm() {
+	public Communicator getComm() {
 		return comm;
 	}
 

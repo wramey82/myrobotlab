@@ -24,18 +24,21 @@
  * */
 package org.myrobotlab.control;
 
-import org.myrobotlab.service.GUIService;
+import javax.swing.JLabel;
+
+import org.myrobotlab.service.interfaces.GUI;
+
 
 public class SpeechGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public SpeechGUI() {
-		this("unknown", null);
+	public SpeechGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public SpeechGUI(String name, GUIService myService) {
-		super(name, myService);
+	
+	public void init() {
+		display.add(new JLabel("no gui"));
 	}
 
 	@Override

@@ -49,6 +49,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -82,8 +83,12 @@ public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public PlayerGUI(String name, GUIService myService) {
-		super(name, myService);
+	public PlayerGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	
+	public void init() {
 
 		keyboard = new Keyboard();
 		// build input begin ------------------

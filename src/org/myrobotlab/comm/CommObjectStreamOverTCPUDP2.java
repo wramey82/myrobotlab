@@ -37,6 +37,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.Communicator;
 
-public class CommObjectStreamOverTCPUDP extends Communicator implements Serializable {
+public class CommObjectStreamOverTCPUDP2 extends Communicator implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -75,11 +76,11 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 	 */
 
 	public final static Logger LOG = Logger
-			.getLogger(CommObjectStreamOverTCPUDP.class.getCanonicalName());
+			.getLogger(CommObjectStreamOverTCPUDP2.class.getCanonicalName());
 
 	boolean isRunning = false;
 
-	public static HashMap<String, Remote> clientList = new HashMap<String, Remote>();
+	public static HashMap<URL, Remote> clientList = new HashMap<URL, Remote>();
 
 	ConfigurationManager cfg = null;
 	Service myService = null;
@@ -115,17 +116,12 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 			this.port = port;
 		}
 
-		synchronized public void send(Message msg) throws IOException {
+		synchronized public void send(final URL url, final Message msg) throws IOException {
 
-			LOG.info("sending udp msg to " + msg.name);
-
-			ServiceEntry se = null;
-			se = cfg.getServiceEntry(msg.name);
-			if (se == null) {
-				LOG.error("BAD se null " + msg.name);
-				return;
-			}
-			LOG.info("connecting to " + se.host + ":" + se.servicePort);
+			String host = url.getHost();
+			int port = url.getPort();
+			
+			LOG.info("sending udp msg to " + host + ":" +port + "/" + msg.name);
 
 			if (socket == null) {
 				socket = new DatagramSocket();
@@ -135,8 +131,7 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 			}
 
 			if (address == null) {
-				address = InetAddress.getByName(se.host);
-				port = se.servicePort;
+				address = InetAddress.getByName(host);
 			}
 
 			try {
@@ -448,7 +443,7 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 
 	} // TCP Thread
 
-	public CommObjectStreamOverTCPUDP(Service service) {
+	public CommObjectStreamOverTCPUDP2(Service service) {
 		this.myService = service;
 		cfg = new ConfigurationManager(service.getHost());
 	}
@@ -479,20 +474,20 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 
 		Remote phone = null;
 
-		String key;
+		//String key;
 
 		// Look up Service Entery info begin ----------
 		try {
 
-			key = getKey(msg);
+			//key = getKey(msg);
 
-			if (clientList.containsKey(key)) {
-				phone = clientList.get(key);
+			if (clientList.containsKey(url)) {
+				phone = clientList.get(url);
 			} else {
 				phone = new Remote();
 				phone.tcp = new TCPThread();
 				phone.udp = new UDPThread();
-				clientList.put(key, phone);
+				clientList.put(url, phone);
 			}
 
 			if (phone.udp == null) {
@@ -503,7 +498,7 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 			// msg.data.getClass().getCanonicalName().compareTo("org.myrobotlab.image.SerializableImage")
 			// == 0)
 			// {
-			phone.udp.send(msg);
+			phone.udp.send(url, msg);
 			// } else {
 			// phone.tcp.send(msg); // TODO - store se.host in CFG as a
 			// InetAddress
@@ -540,22 +535,35 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 
 		InetSocketAddress remoteAddr = (InetSocketAddress) socket
 				.getRemoteSocketAddress();
-		String key = remoteAddr.getAddress().getHostAddress() + ":"
-				+ remoteAddr.getPort();
+		URL url;
+		try {
+			url = new URL("http://" + remoteAddr.getAddress().getHostAddress() + ":"
+					+ remoteAddr.getPort());
+		} catch (MalformedURLException e) {
+			Service.stackToString(e);
+			return;
+		}
 		Remote phone = new Remote();
 		phone.tcp = new TCPThread(socket);
-		clientList.put(key, phone);
+		clientList.put(url, phone);
 	}
 
 	public void addClient(DatagramSocket s, InetAddress address, int port) {
 		LOG.info("adding udp client ");
 
-		String key = address.getHostAddress() + ":" + port;
+		//String key = address.getHostAddress() + ":" + port;
+		URL url;
+		try {
+			url = new URL("http://" + address.getHostAddress() + ":" + port);
+		} catch (MalformedURLException e) {
+			Service.stackToString(e);
+			return;
+		}
 		Remote phone = new Remote();
 		phone.udp = new UDPThread(s, address, port);
 		// phone.udp.start(); REMOTE ADAPTER ONLY ADDS THESE - if we already
 		// have a UDP listener we dont want another
-		clientList.put(key, phone);
+		clientList.put(url, phone);
 
 	}
 
@@ -574,16 +582,16 @@ public class CommObjectStreamOverTCPUDP extends Communicator implements Serializ
 
 		}
 		clientList.clear();
-		clientList = new HashMap<String, Remote>();
+		clientList = new HashMap<URL, Remote>();
 		isRunning = false;
 	}
 
 	@Override
 	public void disconnectAll() {
-		Iterator<String> sgi = clientList.keySet().iterator();
+		Iterator<URL> sgi = clientList.keySet().iterator();
 		while (sgi.hasNext()) {
-			String serviceName = sgi.next();
-			Remote r = clientList.get(serviceName);
+			URL accessURL = sgi.next();
+			Remote r = clientList.get(accessURL);
 			try {
 				if (r.tcp.socket != null)
 					r.tcp.socket.close();

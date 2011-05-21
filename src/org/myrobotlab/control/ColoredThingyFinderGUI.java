@@ -27,18 +27,17 @@ package org.myrobotlab.control;
 
 import javax.swing.JLabel;
 
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ColoredThingyFinderGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public ColoredThingyFinderGUI() {
-		this("unknown", null);
+	public ColoredThingyFinderGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public ColoredThingyFinderGUI(String name, GUIService myService) {
-		super(name, myService);
+	
+	public void init() {
 		display.add(new JLabel("no gui"));
 	}
 

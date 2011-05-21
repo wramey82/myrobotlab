@@ -41,7 +41,7 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
 
@@ -49,26 +49,24 @@ public abstract class ServiceGUI {
 	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
 	public final String boundServiceName;
-	final GUIService myService;
+	final GUI myService;
 
 	GridBagConstraints gc = new GridBagConstraints();
 
-	// TODO - do not grap widgetFrame directly - ask for widgetDisplay()
+	// TODO - do not grab widgetFrame directly - ask for widgetDisplay()
 
 	public JPanel widgetFrame = new JPanel(); // outside panel which looks like
 												// a closeble widget - contains
 												// close/detach button & title
 	public JPanel menu = new JPanel();
 	public JPanel display = new JPanel();
-
 	JButton detachButton = null;
+	
+	public abstract void init();
 	
 	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
 	public int myIndex = -1; 
 	
-	public ServiceGUI() {
-		this("unknown", null);
-	}
 
 	// TODO - refactor better name vs detach
 	public class DetachListener implements ActionListener
@@ -77,7 +75,7 @@ public abstract class ServiceGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			LOG.error("detach " + boundServiceName);
-			HashMap<String, Boolean> cwp = myService.customWidgetPrefs;
+			HashMap<String, Boolean> cwp = myService.getCustomWidgetPrefs();
 			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false))
 			{
 				cwp.put(boundServiceName, true);
@@ -92,11 +90,11 @@ public abstract class ServiceGUI {
 	
 	public boolean isPanelTabbed()
 	{
-		HashMap<String, Boolean> cwp = myService.customWidgetPrefs;
+		HashMap<String, Boolean> cwp = myService.getCustomWidgetPrefs();
 		return (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false));
 	}
 	
-	public ServiceGUI(String boundServiceName, GUIService myService) {
+	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
 
@@ -155,7 +153,7 @@ public abstract class ServiceGUI {
 	/*
 	 * Service functions
 	 */
-	public void sendNotifyRequest(String outMethod, String inMethod, Class parameterType) 
+	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
 		NotifyEntry notifyEntry = new NotifyEntry();
 		notifyEntry.name = myService.name;
@@ -172,7 +170,7 @@ public abstract class ServiceGUI {
 	// TODO - more closely model java event system with addNotification or
 	// addListener
 	public void removeNotifyRequest(String outMethod, String inMethod,
-			Class parameterType) {
+			Class<?> parameterType) {
 		NotifyEntry notifyEntry = new NotifyEntry();
 		notifyEntry.name = myService.name;
 		notifyEntry.outMethod_ = outMethod;

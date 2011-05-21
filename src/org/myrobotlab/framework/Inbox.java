@@ -25,13 +25,17 @@
 
 package org.myrobotlab.framework;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-public class Inbox {
+public class Inbox implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(Inbox.class
 			.getCanonicalName());
 

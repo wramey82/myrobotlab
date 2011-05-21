@@ -38,6 +38,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.data.IPAndPort;
+import org.myrobotlab.service.interfaces.Communicator;
 
 public class CommAsciiOverTCP extends Communicator {
 
@@ -236,7 +238,7 @@ public class CommAsciiOverTCP extends Communicator {
 	}
 
 	@Override
-	public void send(final Message msg) {
+	public void send(final URL url, final Message msg) {
 		Socket socket = null;
 		CommunicatorTCPRequestThread phone = null;
 

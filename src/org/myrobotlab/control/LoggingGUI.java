@@ -4,7 +4,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class LoggingGUI extends ServiceGUI {
 
@@ -12,8 +12,11 @@ public class LoggingGUI extends ServiceGUI {
 
 	JTextArea log = new JTextArea(20, 40);
 	
-	public LoggingGUI(String name, GUIService myService) {
-		super(name, myService);
+	public LoggingGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 		
 		gc.gridx = 0;
 		gc.gridy = 0;

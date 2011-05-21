@@ -7,7 +7,8 @@
 APPDIR="$(dirname -- "${0}")"
 
 cd $APPDIR
- 
+
+# for pre-Java wildcard jar loading  
 for LIB in \
     myrobotlab.jar \
     lib/*.jar \
@@ -17,6 +18,8 @@ do
 done
 export CLASSPATH
 
+# Mac's don't use LD_LIBRARY_PATH yet its 
+# required to load shared objects on Linux systems
 LD_LIBRARY_PATH=`pwd`/bin:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 

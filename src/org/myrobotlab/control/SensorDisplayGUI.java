@@ -31,27 +31,17 @@ import java.awt.GridBagLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class SensorDisplayGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
-	String name = "";
-	Service myService = null;
 
-	public SensorDisplayGUI() {
-		this("unknown", null);
+	public SensorDisplayGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public SensorDisplayGUI(String name, GUIService myService) {
-		super(name, myService);
-		this.name = name;
-		this.myService = myService;
-		initialize();
-	}
-
-	private void initialize() {
+	
+	public void init() {
 
 		RadarWidget radar = new RadarWidget();
 		// radar.show();
@@ -64,19 +54,7 @@ public class SensorDisplayGUI extends ServiceGUI {
 		gc.ipady = 160;
 		gc.ipadx = 160;
 
-		/*
-		 * ImageIcon icon = createImageIcon("screen.jpg","background"); screen =
-		 * new JLabel(icon); screen.setSize(320, 240); ++gc.gridy; gc.gridwidth
-		 * = 3;
-		 * 
-		 * display.add(screen, gc);
-		 */
-		// radar.setSize(160, 160);
 		display.add(radar, gc);
-
-		// ---------------------------------------------------
-
-		// ---------------------------------------------------
 
 	}
 

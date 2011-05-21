@@ -40,9 +40,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.ConfigurationManager;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ServoGUI extends ServiceGUI {
 
@@ -64,9 +63,12 @@ public class ServoGUI extends ServiceGUI {
 	// TODO - sync initially by requesting entire Servo service object - can you get cfg? that way?
 	JTextField posMin = new JTextField("40");
 	JTextField posMax = new JTextField("80");
-		
-	public ServoGUI(String name, GUIService myService) {
-		super(name, myService);
+
+	public ServoGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

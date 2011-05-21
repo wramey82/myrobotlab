@@ -59,7 +59,7 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 
-public class GUIServiceGUI extends ServiceGUI implements KeyListener {
+public class GUIService2GUI extends ServiceGUI implements KeyListener {
 
 	static final long serialVersionUID = 1L;
 	
@@ -80,7 +80,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	// notify structure end -------------
 
 	
-	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
+	public GUIService2GUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	

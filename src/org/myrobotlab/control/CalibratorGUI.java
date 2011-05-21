@@ -26,7 +26,7 @@
 package org.myrobotlab.control;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class CalibratorGUI extends ServiceGUI {
 
@@ -34,13 +34,13 @@ public class CalibratorGUI extends ServiceGUI {
 	// JList files;
 	VideoWidget video = null;
 
-	public CalibratorGUI() {
-		this("unknown", null);
+	public CalibratorGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
-
-	public CalibratorGUI(String name, GUIService myService) {
-		super(name, myService);
-		video = new VideoWidget(name, myService);
+	
+	public void init() {
+		video = new VideoWidget(boundServiceName, myService);
+		video.init();
 		gc.gridx = 0;
 		gc.gridy = 0;
 		display.add(video.display, gc);

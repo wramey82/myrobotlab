@@ -33,8 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class OpenCVFilterGUI {
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterGUI.class
@@ -43,7 +43,7 @@ public abstract class OpenCVFilterGUI {
 	final String name;
 	public JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;
-	final GUIService myService;
+	final GUI myService;
 	final public GridBagConstraints gc = new GridBagConstraints();
 
 	public OpenCVFilterGUI(String boundFilterName, String boundServiceName,

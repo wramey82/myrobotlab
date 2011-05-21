@@ -135,7 +135,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		if (p.size() == 1) {
 			setSerialPort(p.get(0));
 		} else if (p.size() > 1) {
-			if (lastSerialPortName != null)
+			if (lastSerialPortName != null && lastSerialPortName.length() > 0)
 			{
 				setSerialPort(lastSerialPortName);
 			}
@@ -545,7 +545,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	}
 	
 	boolean rawReadMsg = false;
-	int rawReadMsgLength = 5;
+	int rawReadMsgLength = 4;
 	//char rawMsgBuffer
 	
 	public void setRawReadMsg (Boolean b)
@@ -580,8 +580,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 				int numBytes = 0;
 				int totalBytes = 0;
 				
-				// TODO - refactor big time !
-				//while ((numBytes = inputStream.read(readBuffer, 0, 1)) >= 0) {
+				// TODO - refactor big time ! - still can't dynamically change msg length
+				// also need a byLength or byStopString - with options to remove delimiter
 				while ((newByte = inputStream.read()) >= 0) {
 					msg[numBytes] = (byte)newByte;
 					++numBytes;
@@ -593,7 +593,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 						StringBuffer b = new StringBuffer();
 						for (int i = 0; i < rawReadMsgLength; ++i)
 						{
-							b.append("msg[" + i + "] " + msg[i]);
+							b.append(msg[i] + " ");
 						}
 						
 						LOG.error(b.toString());
@@ -602,11 +602,15 @@ public class Arduino extends Service implements SerialPortEventListener,
 						
 						if (rawReadMsg)
 						{
+							// raw protocol
+							
 							String s = new String(msg);		
 							LOG.info(s);
 							invoke("readSerialMessage", s);
 						} else {
 						
+							// mrl protocol
+							
 							PinData p = new PinData();
 							p.time = System.currentTimeMillis();
 							p.function = msg[0];
