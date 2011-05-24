@@ -35,11 +35,12 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.service.interfaces.Communicator;
@@ -60,15 +61,19 @@ public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
-	static HashMap<String, ServerSocket> serverSockets = new HashMap<String, ServerSocket>();
-	Thread tcpListener = null;
-	Thread udpListener = null;
+	transient static HashMap<String, ServerSocket> serverSockets = new HashMap<String, ServerSocket>();
+	transient Thread tcpListener = null;
+	transient Thread udpListener = null;
 	InetAddress serverAddress = null;
-	ServerSocket serverSocket = null; // TODO UDP - currently all msgs are sent
-										// with TCP
-
+	transient ServerSocket serverSocket = null; 
+	
 	public RemoteAdapter(String n) {
 		super(n, RemoteAdapter.class.getCanonicalName());
+	}
+
+	
+	public RemoteAdapter(String n, String hostname) {
+		super(n, TestCatcher.class.getCanonicalName(), hostname);
 	}
 
 	@Override
@@ -166,55 +171,27 @@ public class RemoteAdapter extends Service {
 					try {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
-						b_in.reset(); // reset so next read is from start of
-										// byte[] again
+						b_in.reset(); // reset so next read is from start of byte[] again
 
 						if (msg == null) {
 							LOG.error("UDP null message");
 						} else {
-							// This has actual socket data vs what is "put" in
-							// TODO- can this be removed if the one after the
-							// spawned thread is checking?
-							if (msg.method.compareTo("registerServices") == 0) // TODO
-																				// RemoteAdapter
-																				// needs
-																				// to
-																				// handle
-																				// this
-																				// for
-																				// UDP
+
+							if (msg.method.compareTo("registerServices") == 0) 
 							{
-
-								ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0]; // TODO
-																									// -
-																									// not
-																									// really
-																									// good
-								InetSocketAddress localAddr = (InetSocketAddress) socket
-										.getLocalSocketAddress();
-
-								sdu.hostname = localAddr.getAddress()
-										.getHostAddress();
-								sdu.servicePort = localAddr.getPort();
-								sdu.remoteHostname = dgram.getAddress()
-										.toString();
-								sdu.remoteServicePort = dgram.getPort();
-
-								if (sdu.remoteHostname.startsWith("/")) {
-									sdu.remoteHostname = sdu.remoteHostname
-											.substring(1);
-								}
-
-								LOG.error(name + " SDU " + sdu.remoteHostname
-										+ ":" + sdu.remoteServicePort);
+								cm.registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+								continue;
 							}
 
 							// getting clients address and port
-
-							comm.addClient(socket, dgram.getAddress(), dgram
-									.getPort());
-
-							getInbox().add(msg);
+							comm.addClient(socket, dgram.getAddress(), dgram.getPort());
+							
+							if (msg.name.equals(name))
+							{
+								getInbox().add(msg);
+							} else {
+								getOutbox().add(msg);
+							}
 						}
 
 					} catch (ClassNotFoundException e) {
@@ -240,7 +217,14 @@ public class RemoteAdapter extends Service {
 			 */
 		}
 	}
-
+	
+/*	
+	public boolean preProcessHook(Message m)
+	{
+	}
+*/	
+	
+/*
 	@Override
 	public void run() {
 		thisThread = Thread.currentThread();
@@ -266,7 +250,8 @@ public class RemoteAdapter extends Service {
 			isRunning = false;
 		} // sink it TODO - ALL invokes should return out message!!!
 	}
-
+*/
+	
 	@Override
 	public void startService() {
 		// TODO - block until isReady on the ServerSocket
@@ -305,12 +290,15 @@ public class RemoteAdapter extends Service {
 	// TODO - should Service even have these ??? - should be an Interface !!
 	@Override
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
+		LOG.error("ra registerServices here");	
+/*		
 		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
 			hostcfg.setServiceEntry(sdu.serviceEntryList_.get(i));
 		}
 
 		sendServiceDirectoryUpdate(sdu.remoteHostname, sdu.remoteServicePort,
 				sdu.hostname, sdu.servicePort);
+*/				
 	}
 
 	// TODO - should Service even have these ??? - should be an Interface !!
@@ -321,22 +309,26 @@ public class RemoteAdapter extends Service {
 				+ localPort + " --> " + remoteHost + ":" + remotePort);
 		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
 
-		// setting my data for it
-		sdu.hostname = remoteHost;
-		sdu.servicePort = remotePort;
-		sdu.remoteHostname = localHost;
-		sdu.remoteServicePort = localPort;
-		// sdu.serviceEntryList_ = ServiceDirectory.get();
-		sdu.serviceEntryList_ = hostcfg.getLocalServiceEntries();
-
 		/*
-		 * // set context of connection on service entries for (int i = 0; i <
-		 * localList.size(); ++i) { ServiceEntry se = new
-		 * ServiceEntry(localList.get(i)); se.host = localHost; se.servicePort =
-		 * localPort; sdu.serviceEntryList_.add(se); }
-		 */
-		// Message msg = createAddressedMethodMessage("", "registerServices",
-		// sdu);
+		StringBuffer sb = new StringBuffer();
+		sb.append("http://");
+		sb.append(dgram.getAddress().toString());
+		sb.append(":");
+		sb.append(dgram.getPort());
+		
+		sdu.remoteURL = new URL(sb.toString());
+		
+		sb = new StringBuffer();
+		sb.append("http://");
+		sb.append(localAddr.getAddress().getHostAddress());
+		sb.append(":");
+		sb.append(localAddr.getPort());
+		
+		sdu.url = new URL(sb.toString());
+		
+		LOG.error("remoteadapter - sdu local url " + sdu.url + " remote " + sdu.remoteURL);
+		*/
+		
 		Message msg = createMessage("", "registerServices", sdu);
 		msg.msgType = "S"; // Service / System / Process level message - a
 							// message which can be processed by any service

@@ -26,53 +26,52 @@
 package org.myrobotlab.control;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class Network extends JPanel {
+public class Network extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	protected GUIService myService;
 	CommunicationInterface comm = null;
-
-	JTextField loginValue = new JTextField("");
-
+	JTextField loginValue = new JTextField("bob");
 	JTextField loginPasswordValue = new JPasswordField("blahblah");
-
-	JTextField hostnameValue = new JTextField("", 15);
-
-	JTextField servicePortValue = new JTextField("");
-
+	JTextField hostnameValue = new JTextField("localhost",15);
+	JIntegerField servicePortValue = new JIntegerField();
+/*
 	public Network(GUI s) {
 		super();
 		init();
 	}
-
-	void init() {
+*/
+	public Network(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
+	
+	public void init() {
 
 		GridBagConstraints gc = new GridBagConstraints();
 		gc.anchor = GridBagConstraints.WEST;
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.ipadx = 5;
+		
+		servicePortValue.setInt(6767);
+		
 		// gc.gridwidth = 6;
 
 //		hostnameValue.setText(myService.getCFG("hostname"));
 //		servicePortValue.setText(myService.getCFG("servicePort"));
 
-		this.setSize(300, 200);
-		this.setLayout(new GridBagLayout());
+		//this.setSize(300, 200);
+		//this.setLayout(new GridBagLayout());
 
 		// TODO - make a way of listing connections - Connection manager et al
 
@@ -82,27 +81,27 @@ public class Network extends JPanel {
 
 		gc.gridx = 0;
 		++gc.gridy;
-		this.add(new JLabel("service name:"), gc);
+		display.add(new JLabel("host "), gc);
 		++gc.gridx;
-		this.add(hostnameValue, gc);
+		display.add(hostnameValue, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
-		this.add(new JLabel("service port:"), gc);
+		display.add(new JLabel("port "), gc);
 		++gc.gridx;
-		this.add(servicePortValue, gc);
+		display.add(servicePortValue, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
-		this.add(new JLabel("login:"), gc);
+		display.add(new JLabel("login "), gc);
 		++gc.gridx;
-		this.add(loginValue, gc);
+		display.add(loginValue, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
-		this.add(new JLabel("password:"), gc);
+		display.add(new JLabel("password "), gc);
 		++gc.gridx;
-		this.add(loginPasswordValue, gc);
+		display.add(loginPasswordValue, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
@@ -110,7 +109,7 @@ public class Network extends JPanel {
 		JButton connectButton = new JButton("connect");
 		connectButton.setActionCommand("connect");
 		connectButton.addActionListener(new connect());
-		this.add(connectButton, gc);
+		display.add(connectButton, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
@@ -119,7 +118,7 @@ public class Network extends JPanel {
 	}
 
 	public String setRemoteConnectionStatus(String state) {
-		myService.remoteStatus.setText(state);
+		//myService.remoteStatus.setText(state);
 		return state;
 	}
 
@@ -129,12 +128,22 @@ public class Network extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			int port = Integer.parseInt(servicePortValue.getText());
 			myService.sendServiceDirectoryUpdate(loginValue.getText(),
-					loginPasswordValue.getText(), "frogleg", hostnameValue
-							.getText(), port); // TODO FIX THIS !!!
+					loginPasswordValue.getText(), null, hostnameValue.getText(), servicePortValue.getInt(), null); // TODO FIX THIS !!!
 		}
 
+	}
+
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

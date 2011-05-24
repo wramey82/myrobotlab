@@ -619,7 +619,7 @@ public class OpenCV extends Service {
 		Logger.getRootLogger().setLevel(Level.WARN);
 
 		OpenCV opencv = new OpenCV("opencv");
-		GUIService2 gui = new GUIService2("gui");
+		GUIService gui = new GUIService("gui");
 		gui.startService();
 		opencv.startService();
 

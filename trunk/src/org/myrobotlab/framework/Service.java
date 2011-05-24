@@ -48,6 +48,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.comm.CommunicationManager2;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class Service implements Runnable, Serializable {
@@ -69,7 +70,7 @@ public abstract class Service implements Runnable, Serializable {
 	Inbox inbox = null;
 	public URL url = null;
 	
-	protected CommunicationManager2 cm = null;
+	protected CommunicationInterface cm = null;
 	protected ConfigurationManager cfg = null;
 	protected ConfigurationManager hostcfg = null;
 
@@ -268,20 +269,58 @@ public abstract class Service implements Runnable, Serializable {
 		isRunning = true;
 	}
 
+	// override for extended functionality
+	public boolean preRoutingHook(Message m)
+	{
+		return true;
+	}
+
+	// override for extended functionality
+	public boolean preProcessHook(Message m)
+	{
+		return true;
+	}
+	
+	
 	@Override
-	public void run() {
-		//thisThread = Thread.currentThread();// TODO refactor - this is done in the constructor
+	final public void run() {
 		isRunning = true;
 
 		try {
 			while (isRunning) {
-				process(getMsg());
+				
+				Message m = getMsg();
+
+				if (!preRoutingHook(m)) {continue;}
+				
+				// route if necessary
+				if (!m.name.equals(this.name)) // && RELAY
+				{
+					outbox.add(m); // RELAYING
+				}
+
+				if (!preProcessHook(m)) {continue;}
+				
+				Object ret = invoke(m);
+				if (m.status.compareTo(Message.BLOCKING) == 0) {
+					// create new message reverse sender and name
+					// set to same msg id
+					Message msg = createMessage(m.sender, m.method, ret);
+					msg.sender = this.name;
+					msg.msgID = m.msgID;
+					// msg.status = Message.BLOCKING;
+					msg.status = Message.RETURN;
+					
+					outbox.add(msg);
+				}
+				
+				
 			}
 		} catch (InterruptedException e) {
 			if (thisThread != null) {
-				LOG.info(thisThread.getName());
+				LOG.warn(thisThread.getName());
 			}
-			LOG.info("service INTERRUPTED ");
+			LOG.warn("service INTERRUPTED ");
 			isRunning = false;
 		}
 	}
@@ -290,9 +329,7 @@ public abstract class Service implements Runnable, Serializable {
 	 * process a message - typically it will either invoke a function directly
 	 * or invoke a function and create a return msg with return data
 	 */
-	// public Object invoke(Object object, String method, Object params[]) //
-	// TODO - Message carry an array of Params?
-
+/*	Depricated with Hooks
 	public void process(Message m) {
 		Object ret = invoke(m);
 		if (m.status.compareTo(Message.BLOCKING) == 0) {
@@ -309,6 +346,7 @@ public abstract class Service implements Runnable, Serializable {
 
 		}
 	}
+*/	
 
 	/*
 	 * Service.out - all data sent - get put into messages here
@@ -638,6 +676,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	}
 
+	// TODO - refactor / remove
 	public Object invoke(Message msg) {
 
 		Object retobj = null;
@@ -652,11 +691,15 @@ public abstract class Service implements Runnable, Serializable {
 		// if (anonymousMsgRequest == MsgHandling.RELAY &&
 		// msg.name.compareTo(name) != 0) {
 		// cfg.setIfEmpty(name + ".anonymousMsgRequest", "PROCESS");
+		// TODO - strange place to put it ... it should be in Process inbox=getMsg(); if !me && RELAY send to outbox
+		
+		/* SHOULD BE CONTROLLED WITH HOOKS - DEPRICATING
 		if (anonymousMsgRequest == RELAY && msg.name.compareTo("") != 0) {
 			LOG.warn("RELAY " + name + " - sending to " + msg.name);
 			out(msg);
 			return null;
 		}
+		*/
 
 		retobj = invoke(msg.method, msg.data);
 
@@ -920,21 +963,19 @@ public abstract class Service implements Runnable, Serializable {
 	// TODO - overload ?!?!?
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
 		LOG.error(name + " sendServiceDirectoryUpdate ");
-		// LOG.info(sdu);
+
+		// TODO - GET ENV FROM service name - get ip & port
+		/*
 		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
 			ServiceEntry se = sdu.serviceEntryList_.get(i);
-			se.host = sdu.remoteHostname; // ***THIS IS WERE WE PUSH THE CORRECT
-											// IP & PORT IN - DONT KNOW IF ITS
-											// THE RIGHT SPOT***
+			se.host = sdu.remoteHostname; 
 			se.servicePort = sdu.remoteServicePort;
 			LOG.error("registering services from foriegn source " + se.host
 					+ ":" + se.servicePort + "/" + se.name);
 			hostcfg.setServiceEntry(se);
 		}
-		// svcDir.mergeForiegnSource(sdu.serviceEntryList_);
-		// TODo - implement
-		// update local service directory
-		// send update of service back - what to filter?????????
+		*/
+
 		send(name, "registerServicesNotify");
 	}
 
@@ -942,65 +983,59 @@ public abstract class Service implements Runnable, Serializable {
 	public synchronized void removeServices(ServiceDirectoryUpdate sdu) {
 	}
 
-	// TODO - THIS IS CRAP !!! REFACTOR !!!!!
-	public void sendServiceDirectoryUpdate(String name, String remoteHost,
-			int port) {
-		sendServiceDirectoryUpdate("", "", name, remoteHost, port, null);
-	}
 
-	public void sendServiceDirectoryUpdate(String remoteHost, int port) {
-		sendServiceDirectoryUpdate("", "", "", remoteHost, port, null);
-	}
-
-	public void sendServiceDirectoryUpdate(String login, String password,
-			String name, String remoteHost, int port) {
-		sendServiceDirectoryUpdate(login, password, name, remoteHost, port,
-				null);
-	}
-
-	public void sendServiceDirectoryUpdate(String login, String password,
-			String name, String remoteHost, int port, ServiceDirectoryUpdate sdu) {
+	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
+			int port, ServiceDirectoryUpdate sdu) {
 		LOG.info(name + " sendServiceDirectoryUpdate ");
 
+		StringBuffer urlstr = new StringBuffer();
+		
+		urlstr.append("http://"); // TODO - extend URL into something which can handle socket:// protocol
+		
+		if (login != null && login.length() > 0)
+		{
+			urlstr.append(login);
+			urlstr.append(":");
+			urlstr.append(password);
+			urlstr.append("@");
+		}
+		
+		InetAddress inetAddress = null;
+		
+		try {
+			//InetAddress inetAddress = InetAddress.getByName("208.29.194.106");
+			inetAddress = InetAddress.getByName(remoteHost);
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		urlstr.append(inetAddress.getHostAddress());
+		urlstr.append(":");
+		urlstr.append(port);
+		
+		URL remoteURL = null;
+		try {
+			remoteURL = new URL(urlstr.toString());
+		} catch (MalformedURLException e) {
+			LOG.error(Service.stackToString(e));
+			return;
+		}
+		
 		if (sdu == null) {
 			sdu = new ServiceDirectoryUpdate();
+			
 
 			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
 			// overloaded if you dont want to send everything
-			sdu.serviceEntryList_ = hostcfg.getLocalServiceEntries();
-			for (int j = 0; j < sdu.serviceEntryList_.size(); ++j) {
-				sdu.serviceEntryList_.get(j).localServiceHandle = null; // NULLING
-																		// OUT
-																		// LOCAL
-																		// SERVICE
-																		// HANDLE
-																		// FOR
-																		// TRANSPORT
-																		// !
-																		// (SHOULD
-																		// DO IN
-																		// CFG?)
-			}
+			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServices();
 		}
 
-		String dst;
-		if (name == null || name.length() == 0) {
-			dst = remoteHost;
-		} else {
-			dst = name;
-		}
+		sdu.remoteURL = remoteURL;
+		sdu.url = url;
+		
+		send(remoteURL, "registerServices", sdu);
 
-		sdu.login = login;
-		sdu.password = password;
-
-		sdu.hostname = host;
-		Message msg = createMessage(dst, "registerServices", sdu);
-		msg.msgType = "S"; // Service / System / Process level message - a
-							// message which can be processed by any service
-							// regardless of name
-		// msg.hostname.set(remoteHost);
-		// msg.servicePort.set(port);
-		out(msg);
 	}
 
 	public void listServices(String callBackName) {
@@ -1008,7 +1043,7 @@ public abstract class Service implements Runnable, Serializable {
 		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
 
 		// setting my data for it
-		sdu.hostname = host;
+		//sdu.hostname = host;
 		// sdu.servicePort.set(servicePort);
 		// sdu.serviceEntryList_ = svcDir.getLocal();
 		// TODO - implement
@@ -1024,6 +1059,17 @@ public abstract class Service implements Runnable, Serializable {
 	 */
 
 	// BOXING - BEGIN --------------------------------------
+	
+	// this send forces remote connect - for registering services 
+	public void send(URL url, String method, Object param1)
+	{
+		Object[] params = new Object[1];
+		params[0] = param1;
+		Message msg = createMessage(name, method, params);
+		outbox.getCommunicationManager().send(url, msg);
+	}
+	
+	
 	public void send(String name, String method, Object param1, Object param2,
 			Object param3, Object param4) {
 		Object[] params = new Object[4];
@@ -1237,6 +1283,10 @@ public abstract class Service implements Runnable, Serializable {
 		
 	}
 	
+	public CommunicationInterface getComm()
+	{
+		return cm;
+	}
 	
 	 public final static String stackToString(final Exception e) {
 		  try {

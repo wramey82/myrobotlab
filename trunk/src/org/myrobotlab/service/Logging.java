@@ -50,8 +50,6 @@ public class Logging extends Service {
 
 	@Override
 	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	public Message log (Message m)
@@ -59,36 +57,34 @@ public class Logging extends Service {
 		return m;
 	}
 	
-	public void run ()
+	
+	public boolean preProcessHook(Message m)
 	{
-		try {			
-			
-			while (isRunning) {
-				Message m = getMsg();
-				if (m.method.compareTo("log") == 0)
-				{
-					invoke("log", m);
-				} else {
-					process(m);;
-				}
-				
-			}
-			
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (m.method.equals("log"))
+		{
+			invoke("log", m);
+			return false;
 		}
-
+		return true;
 	}
 
+	
 	// TODO - do in Service
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		Logging toy = new Logging("toy");
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
+		
+		Logging toy = new Logging("logger");
 		toy.startService();
+		
+		GUIService gui = new GUIService("gui2");
+		gui.startService();
+		gui.display();
+		
 	}
 
 	@Override

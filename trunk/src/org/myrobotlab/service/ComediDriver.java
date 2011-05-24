@@ -26,7 +26,6 @@
 package org.myrobotlab.service;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.ComediDriverConfig;
@@ -36,48 +35,21 @@ import org.myrobotlab.service.data.IOSequenceEntry;
 
 public class ComediDriver extends Service {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(ComediDriver.class);
 
 	public ComediDriverConfig config;
 
 	public ComediDriver(String n) {
 		super(n, ComediDriver.class.getCanonicalName());
+		System.loadLibrary("IOPort"); 
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
 	}
 
-	@Override
-	public void run() {
-		System.loadLibrary("IOPort"); // Should this be done in RUN or
-										// constructor??
-		try {
-			while (true) {
-				Message msg;
-				msg = getMsg();
-				LOG.info("msg [" + msg.data + "]"); // TODO - change getMsg to
-													// do logging like this
-				invoke(msg);
-				// TODO - any message sent - attempt to invoke it
-				// TODO - this needs work - address or data? 1 bit -> IOMessage?
-				// -> Action Read/Write
-				// TODO - Type = Memory Comedi Parport = RAW/NORMAl
-				// ZZZ IOAddress io = (IOAddress)(msg.data.get());
-				// ZZZZ jcomedidiowrite(io.subdevice.get().intValue(),
-				// io.channel.get().intValue(), io.data.get().intValue());
-			}
-		} catch (InterruptedException e) {
-			LOG.info("shutting down");
-		}
-
-	}
-
-	public void setConfig(ComediDriverConfig c) {
-		config = c;
-	}
 
 	public void foobar() {
 		LOG.warn("foobar");

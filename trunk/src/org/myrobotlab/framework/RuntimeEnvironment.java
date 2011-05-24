@@ -1,37 +1,37 @@
 package org.myrobotlab.framework;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-public class RuntimeEnvironment {
+public class RuntimeEnvironment implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(RuntimeEnvironment.class.toString());
 
 	static private HashMap<URL, ServiceEnvironment> hosts;
 	static private HashMap<String, ServiceWrapper> registry;
+	static private HashMap<String, String> hideMethods = new HashMap<String, String>();
+	
+	private static boolean initialized = false;
+	
+	//static private HashMap<String, String> environmentColor;
 
 	// TODO - concurrentHashMap
 	// TODO wrap in service "RuntimeService"
 	// TODO releaseAll = stop + unregister
 	
-	public static boolean register(URL url, Service s)
-	{
-		return register(url, s, false);
-	}
 	
-	public static synchronized boolean register(URL url, Service s, boolean isRemote)
+	public static synchronized boolean register(URL url, Service s)
 	{
-		if (hosts == null)
+		if (!initialized)
 		{
-			hosts = new HashMap<URL, ServiceEnvironment>();			
-		}
-		
-		if (registry == null)
-		{
-			registry = new HashMap<String, ServiceWrapper>();
+			init();
 		}
 		
 		ServiceEnvironment se = null;
@@ -56,6 +56,59 @@ public class RuntimeEnvironment {
 		return true;
 	}
 	
+	public static synchronized boolean register(URL url, ServiceEnvironment s)
+	{
+		if (!initialized)
+		{
+			init();
+		}
+		
+		if (!hosts.containsKey(url))
+		{
+			LOG.info("adding new ServiceEnvironment " + url);
+		} else {
+			ServiceEnvironment se = hosts.get(url);
+			
+			if (se.serviceDirectory.size() == s.serviceDirectory.size())
+			{
+				boolean equal = true;
+				
+				s.serviceDirectory.keySet().iterator();				
+				Iterator<String> it = s.serviceDirectory.keySet().iterator();
+				while (it.hasNext()) {
+					String serviceName = it.next();
+					if (!se.serviceDirectory.containsKey(serviceName))
+					{
+						equal = false;
+						break;
+					}
+				}
+				
+				if (equal)
+				{
+					LOG.info("ServiceEnvironment " + url + " already exists - with same count and names");
+					return false;
+				}
+				
+			}
+			
+			
+			LOG.info("replacing ServiceEnvironment " + url);			
+		}
+		
+		hosts.put(url, s);
+		
+		s.serviceDirectory.keySet().iterator();
+		
+		Iterator<String> it = s.serviceDirectory.keySet().iterator();
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			registry.put(serviceName, s.serviceDirectory.get(serviceName));
+		}
+
+		
+		return true;
+	}	
 	
 	
 	public static void unregister(URL url, String name)
@@ -136,8 +189,31 @@ public class RuntimeEnvironment {
 		return hosts.size();
 	}
 	
+
+	public static ServiceEnvironment getLocalServices()
+	{
+		if (!hosts.containsKey(null))
+		{
+			LOG.error("local (null) ServiceEnvironment does not exist");
+			return null;
+		}
+		
+		return hosts.get(null);		
+	}
 	
+	public static ServiceWrapper getService(String name)
+	{
+		if (!registry.containsKey(name))
+		{
+			LOG.error("service " + name + " does not exist");
+			return null;
+		}
+		
+		return registry.get(name);
+		
+	}
 	
+	// get Service from specific Service Environment - null is typically local
 	public static ServiceWrapper getService(URL url, String name)
 	{
 		if (!hosts.containsKey(url))
@@ -193,6 +269,10 @@ public class RuntimeEnvironment {
 		registry.clear();
 	}
 
+	public static HashMap<String, ServiceWrapper> getRegistry()
+	{
+		return registry;
+	}
 
 	public static ServiceEnvironment getServiceEnvironment(URL url)
 	{
@@ -201,5 +281,55 @@ public class RuntimeEnvironment {
 			return hosts.get(url);
 		} 
 		return null;
+	}
+
+	public static synchronized void init()
+	{
+		hosts = new HashMap<URL, ServiceEnvironment>();			
+		registry = new HashMap<String, ServiceWrapper>();
+
+		hideMethods.put("main", null);
+		hideMethods.put("loadDefaultConfiguration", null);
+		hideMethods.put("getToolTip", null);
+		hideMethods.put("run", null);
+		hideMethods.put("access$0", null);
+		
+		initialized = true;
+
+	}
+	
+	public static HashMap<String, MethodEntry> getMethodMap (String serviceName)
+	{
+		if (!registry.containsKey(serviceName))
+		{
+			LOG.error(serviceName + " not in registry - can not return method map");
+			return null;
+		}
+		
+		HashMap<String, MethodEntry> ret = new HashMap<String, MethodEntry>(); 
+		ServiceWrapper sw = registry.get(serviceName);
+		
+		Class<?> c = sw.service.getClass();
+		Method[] methods = c.getDeclaredMethods();
+		
+		for (int i = 0; i < methods.length; ++i) {
+			Method m = methods[i];
+			Class<?>[] paramTypes = m.getParameterTypes();
+			Class<?> returnType = m.getReturnType();
+
+			if (!hideMethods.containsKey(m.getName()))
+			{
+				MethodEntry me = new MethodEntry();
+				me.name = m.getName();
+				me.parameterTypes = m.getParameterTypes();
+				me.returnType = m.getReturnType();
+				String s = MethodEntry.getSignature(me.name, me.parameterTypes, me.returnType);
+				ret.put(s, me);
+			}
+
+
+		}
+		
+		return ret;
 	}
 }

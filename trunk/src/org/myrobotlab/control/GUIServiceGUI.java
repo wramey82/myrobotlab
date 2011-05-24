@@ -46,8 +46,9 @@ import javax.swing.JPanel;
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;
@@ -65,7 +66,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	final int PORT_DIAMETER = 20;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;	
-	ConfigurationManager hostCFG;
+	//ConfigurationManager hostCFG;
 	
 	// notify structure begin -------------
 	public JLabel srcServiceName = new JLabel("             ");
@@ -132,7 +133,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	public void init() {
 
-		hostCFG = myService.getHostCFG();
+		//hostCFG = myService.getHostCFG();
 		
 		// build input begin ------------------
 		JPanel input = new JPanel();
@@ -269,7 +270,11 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	public void buildLocalServiceGraph() {
 
-		TreeMap<String, ServiceEntry> sortedMap = new TreeMap<String, ServiceEntry>(hostCFG.getServiceMap());
+		
+		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
+		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
+		
+		TreeMap<String, ServiceWrapper>sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		int i = 0;
@@ -281,16 +286,29 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceEntry se = hostCFG.getServiceEntry(serviceName);
+			ServiceWrapper se = services.get(serviceName);
 
 			// get service type class name
 			// String serviceClassName = se.serviceClass;
 //			cells.put(serviceName, createVertex(serviceName, x, y, 80, 20, Color.ORANGE, false));
-			String shortName[] = se.serviceClass.split("\\."); 
+			String shortName[] = se.get().getClass().getCanonicalName().split("\\."); 
 			String ret = shortName[shortName.length - 1] + "\n" + serviceName;
 
+			String blockColor = null;
+			if (se.host.accessURL == null)
+			{
+				blockColor = "orange";
+			} else {
+				blockColor = "0x99DD66";
+			}
 			
-			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, se.serviceClass, ret, se.toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 100, "");
+			mxCell v1 = (mxCell) graph.insertVertex(parent, null, 
+					new GUIServiceGraphVertex(serviceName, 
+							se.get().getClass().getCanonicalName(), 
+							ret, se.get().getToolTip(), 
+							GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, 
+							"ROUNDED;fillColor=" + blockColor);
+			
 			serviceCells.put(serviceName, v1);
 
 			v1.setConnectable(false);
@@ -304,22 +322,27 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo1.setRelative(true);
 			
-			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, se.serviceClass, "in", se.toolTip, GUIServiceGraphVertex.Type.INPORT), geo1, "shape=ellipse;perimter=ellipsePerimeter");
+			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, 
+					se.get().getClass().getCanonicalName(), 
+					"in", se.get().getToolTip(), GUIServiceGraphVertex.Type.INPORT), geo1, 
+					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
+			
 			inport.setVertex(true);
 
 			mxGeometry geo2 = new mxGeometry(1.0, 0.5, PORT_DIAMETER,PORT_DIAMETER);
 			geo2.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo2.setRelative(true);
 
-			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, se.serviceClass, "out", se.toolTip, GUIServiceGraphVertex.Type.OUTPORT), geo2, "shape=ellipse;perimter=ellipsePerimeter");
+			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, 
+					se.get().getClass().getCanonicalName(), 
+					"out", se.get().getToolTip(), 
+					GUIServiceGraphVertex.Type.OUTPORT), geo2, 
+					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
+			
 			outport.setVertex(true);
 
 			graph.addCell(inport, v1);
 			graph.addCell(outport, v1);			
-
-			if (se.localServiceHandle != null) {
-
-			}
 
 			x += 150;
 			if (x > 400) {
@@ -336,16 +359,18 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 
 	public void buildLocalServiceRoutes() {
-		Iterator<String> it = hostCFG.getServiceMap().keySet().iterator();
+		//Iterator<String> it = hostCFG.getServiceMap().keySet().iterator();
+		Iterator<String> it = RuntimeEnvironment.getRegistry().keySet().iterator();
+
 		Object parent = graph.getDefaultParent();
 		
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceEntry se = hostCFG.getServiceEntry(serviceName);
+			ServiceWrapper se = RuntimeEnvironment.getService(serviceName);
 
-			if (se.localServiceHandle != null) {
-				Service s = (Service) se.localServiceHandle;
+			//if (se.localServiceHandle != null) {
+				Service s = RuntimeEnvironment.getService(serviceName).get();
 				HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;
 				Iterator<String> ri = s.getOutbox().notifyList.keySet().iterator();
 				while (ri.hasNext()) {
@@ -357,11 +382,11 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 						//createArrow(se.name, ne.name, methodString);
 						//graph.getChildVertices(arg0)parent.
 						//graph.getChildVertices(graph.getDefaultParent());
-						graph.insertEdge(parent, null, formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(se.name), serviceCells.get(ne.name));
+						graph.insertEdge(parent, null, formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(s.name), serviceCells.get(ne.name));
 
 					}
 				}
-			}
+			//}
 
 		}
 

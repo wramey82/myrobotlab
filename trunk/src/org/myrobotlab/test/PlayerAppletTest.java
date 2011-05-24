@@ -28,13 +28,9 @@ package org.myrobotlab.test;
 
 import java.applet.Applet;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
-
-import org.myrobotlab.comm.CommAsciiOverTCP;
-import org.myrobotlab.comm.CommAsciiOverTCP.CommunicatorTCPRequestThread;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
@@ -53,7 +49,7 @@ public class PlayerAppletTest extends Applet {
 		ConfigurationManager cfg = new ConfigurationManager();
 		cfg.clear();
 
-		CommAsciiOverTCP.clientList = new HashMap<String, CommunicatorTCPRequestThread>(); // CRAP
+		//CommAsciiOverTCP.clientList = new HashMap<String, CommunicatorTCPRequestThread>(); // CRAP
 	}
 
 	public void start() {
