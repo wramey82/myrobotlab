@@ -325,11 +325,12 @@ public class FrogLeg extends Service {
 
 	// TODO - Remote.export(camera) ....
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
+		//ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
 															// only 1 TODO -
 															// kludge - fix me
 		super.registerServices(sdu);
 
+/*		
 		ServiceEntry se;
 		sdu.serviceEntryList_.clear();
 
@@ -351,7 +352,7 @@ public class FrogLeg extends Service {
 
 		sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,
 				sdu.remoteServicePort, sdu);
-
+*/
 	}
 
 	public void capture(Rectangle r) {

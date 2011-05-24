@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;
@@ -67,7 +68,9 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		}
 
-		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
+	    
+		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(RuntimeEnvironment.getMethodMap(v.name));
+		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
 		//HashMap<String, MethodEntry> m = myService.getHostCFG().getMethodMap(serviceName);
 		
 		JComboBox combo = new JComboBox();

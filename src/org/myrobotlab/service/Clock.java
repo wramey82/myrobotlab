@@ -36,6 +36,8 @@ import org.myrobotlab.framework.Service;
 
 public class Clock extends Service {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
 
 	// fields
@@ -210,20 +212,36 @@ public class Clock extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-				
+						
+		//RemoteAdapter remote = new RemoteAdapter("remote");
+		//remote.startService();
 		
+		Clock clock = new Clock("clock");
+		clock.startService();
+						
+//		Logging log = new Logging("log");
+//		log.startService();
+		
+//		clock.notify("pulse", "log", "log", Integer.class);
+
+		GUIService gui = new GUIService("gui");
+		gui.startService();	
+		
+
+/*		
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
 		try
 		{
-			/*
+			
 		       fos = new FileOutputStream("test.backup");
 		       out = new ObjectOutputStream(fos);
+		       out.writeObject(remote);
 		       out.writeObject(log);
 		       out.writeObject(clock);
 		       out.writeObject(gui);
 		       out.close();
-		    */
+		    
 			
 		       FileInputStream fis = new FileInputStream("test.backup");
 		       ObjectInputStream in = new ObjectInputStream(fis);
@@ -239,27 +257,17 @@ public class Clock extends Service {
 		       
 		       gui.startService();
 		       gui.display();
-		       
+		    
 		       
 		} catch (Exception e)
 		{
+			LOG.error(e.getMessage());
 			LOG.error(stackToString(e));
 		}
 
-		/*
-		Clock clock = new Clock("clock");
-		clock.startService();
-						
-		Logging log = new Logging("log");
-		log.startService();
-		
-		clock.notify("pulse", "log", "log", Integer.class);
-
-		GUIService gui = new GUIService("gui");
-		gui.startService();	
-		gui.display();
 		*/
-		
+		gui.display();
+
 		
 	}
 

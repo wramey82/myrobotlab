@@ -59,6 +59,18 @@ public class ServiceTest {
 
 		LOG.debug("blockingTest begin-------------");
 
+		
+		try {
+			URL url = new URL("http://localhost/127.0.0.1:655325");
+			String h = url.getHost();
+			String z = url.getQuery();
+			int port = url.getPort();
+			LOG.info(h + " " + port);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		
 		// create services
 		TestCatcher catcher = new TestCatcher("catcher01");
 		TestThrower thrower01 = new TestThrower("thrower01");
@@ -300,7 +312,7 @@ public class ServiceTest {
 		stopwatch.start();
 		int cnt = 2;
 		for (int i = 0; i < cnt; ++i) {
-			thrower01.invoke("throwNothing", null);
+			thrower01.invoke("throwNothing");
 		}
 		// catcher01.waitForCatches(cnt, 1000);
 		stopwatch.end();
@@ -319,29 +331,31 @@ public class ServiceTest {
 		// create services
 		// create the test thrower on a different host
 		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:0");
-		RemoteAdapter remote01 = new RemoteAdapter("remote01");
-		TestCatcher catcher = new TestCatcher("catcher01");
-		GUIService gui01 = new GUIService("gui01");
+		RemoteAdapter remote01 = new RemoteAdapter("remote01","http://0.0.0.0:6565");
+		TestCatcher catcher = new TestCatcher("catcher01","http://0.0.0.0:6565");
+//		GUIService gui01 = new GUIService("gui01");
 		remote01.setCFG("servicePort", "6565");
 
 		/* manually creating a proxy
 		 * put a dead proxy catcher on the throwers ServiceEnvironment
 		 * manually change the accessURL to what the remote is listening to
 		 */
-		TestCatcher proxy = new TestCatcher("catcher01", "http://localhost:0");
+		// TestCatcher proxy = new TestCatcher("catcher01", "http://localhost:0");
 		
+		/*
 		ServiceWrapper sw = RuntimeEnvironment.getService(proxy.url, proxy.name);
 		try {
 			sw.host.accessURL = new URL("http://0.0.0.0:6565");
 		} catch (MalformedURLException e) {
 			LOG.error(Service.stackToString(e));
 		}
+		*/
 		
 		// start services
 		remote01.startService();
 		catcher.startService();
 		thrower01.startService();
-		gui01.startService();
+		//gui01.startService();
 		// gui01.display();
 
 		// set notify list
@@ -360,12 +374,9 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// test results
-		LOG
-				.info(cnt + " messages sent in " + stopwatch.elapsedMillis()
-						+ " ms");
+		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName()
-				.compareTo(Integer.class.getCanonicalName()), 0);
+		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
 		assertEquals(catcher.catchList.get(0), new Integer(1));
 
 		// set new notifies - different functions

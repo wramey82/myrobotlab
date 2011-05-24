@@ -185,16 +185,17 @@ public class SoccerGame extends Service {
 		for (i = 0; i < numberOfPlayers; ++i) {
 			if (!players.get(i).isConnected) {
 				newPlayer = players.get(i);
-				newPlayer.IPAddress = sdu.remoteHostname;
-				newPlayer.port = sdu.remoteServicePort;
+				//newPlayer.IPAddress = sdu.remoteHostname;
+				//newPlayer.port = sdu.remoteServicePort;
 				newPlayer.isConnected = true;
-				LOG.info(sdu.remoteHostname + " has been assigned player0" + i);
+				//LOG.info(sdu.remoteHostname + " has been assigned player0" + i);
 				break;
 				// time for player reset
 			}
 		}
 
-		ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
+		ServiceEntry client = null;
+		//ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
 															// only 1
 
 		// put on time queue ? - if not available
@@ -207,9 +208,12 @@ public class SoccerGame extends Service {
 		super.registerServices(sdu);
 		// hostcfg.save("post.sdu.txt");
 
+		String login = "";
+		/*
 		String login = sdu.login;
 		LOG.info("login request from " + login + " @ " + sdu.remoteHostname
 				+ ":" + sdu.remoteServicePort);
+				*/
 
 		if (newPlayer == null) {
 			send(
@@ -245,11 +249,11 @@ public class SoccerGame extends Service {
 		// put in gui view service
 
 		ServiceEntry se;
-		sdu.serviceEntryList_.clear();
+		//sdu.serviceEntryList_.clear();
 
 		se = hostcfg.getServiceEntry(newPlayer.name);
 		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
+		//sdu.serviceEntryList_.add(se);
 
 		if (newPlayer.type.compareTo("cameraman") == 0) {
 			/*
@@ -279,9 +283,12 @@ public class SoccerGame extends Service {
 
 		// associate login & player #
 		newPlayer.setGUIName(client.name);
+		
+		/*
 		newPlayer.login = sdu.login;
 		newPlayer.IPAddress = sdu.remoteHostname;
 		newPlayer.port = sdu.remoteServicePort;
+		*/
 
 		currentPlayers.put(login, newPlayer);
 		// send back service info
@@ -308,8 +315,7 @@ public class SoccerGame extends Service {
 
 		// GUI INFO
 		// ESTABLH CONNECTIVITY TO THE REMOTE GUI !!
-		sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,
-				sdu.remoteServicePort, sdu);
+		//sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,sdu.remoteServicePort, sdu);
 		// GUI BEING CREATED
 
 		// set message routes between player & gui

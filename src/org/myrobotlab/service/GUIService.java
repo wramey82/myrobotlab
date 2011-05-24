@@ -53,7 +53,6 @@ import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -71,8 +70,10 @@ import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -97,7 +98,7 @@ import com.mxgraph.view.mxGraph;
  * 
  */
 
-public class GUIService extends GUI implements  WindowListener, ActionListener, Serializable {
+public class GUIService extends GUI implements WindowListener, ActionListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -117,35 +118,36 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 	//transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();
 	transient HashMap<String, ServiceGUI> serviceGUIMap = null;
 	
-	Map<String, ServiceEntry> sortedMap = null;
+	Map<String, ServiceWrapper> sortedMap = null;
+	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	//transient GridBagConstraints gc = new GridBagConstraints();
 	transient GridBagConstraints gc = null;
 
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
+	public String remoteColorTab = "0x99DD66";
+	
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
-	}
 
-	@Override
-	public void loadDefaultConfiguration() {
 		/*
 		 * The commandMap is a list of GUIService functions which should
 		 * be processed by GUIService rather than routed to control Panels
 		 */
-		cfg.set("commandMap/registerServices", "");
-		cfg.set("commandMap/loadTabPanels", ""); 
-		cfg.set("commandMap/registerServicesNotify", ""); 
-		cfg.set("commandMap/notify", ""); 
-		cfg.set("commandMap/removeNotify", ""); 
-		cfg.set("commandMap/guiUpdated", ""); 
-		cfg.set("commandMap/setRemoteConnectionStatus", ""); 
+		
+		commandMap.put("registerServices", null);
+		commandMap.put("loadTabPanels", null);
+		commandMap.put("registerServicesNotify", null);
+		commandMap.put("notify", null);
+		commandMap.put("removeNotify", null);
+		commandMap.put("guiUpdated", null);
+		commandMap.put("setRemoteConnectionStatus", null);
 
-		cfg.set("hostname", "match01");
-		cfg.set("servicePort", "3389");
-		cfg.set("remoteColorTab", "0x99CC66");
+	}
 
+	@Override
+	public void loadDefaultConfiguration() {
 	}
 
 	public HashMap<String, Boolean> customWidgetPrefs = new HashMap<String, Boolean>(); 
@@ -154,18 +156,33 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		return serviceGUIMap;
 	}
 
-	// TODO - myGUI ? - send msgs too or have them executed
 
+	public boolean preProcessHook(Message m)
+	{
+		if (commandMap.containsKey(m.method))
+		{
+			return true;
+		} 
+		
+		ServiceGUI sg = serviceGUIMap.get(m.sender);
+		if (sg == null) {
+			LOG.error("attempting to update sub-gui - sender "
+					+ m.sender + " not available in map " + name);
+		} else {
+			invoke(serviceGUIMap.get(m.sender), m.method, m.data);
+		}
+		
+		return false;
+	}
+	
+/*
 	@Override
 	public void run() {
 		try {
 
-			HashMap<String, Object> commandMap = cfg.getMap("commandMap");
 			while (isRunning) {
-				// TODO command map not needed -> if
-				// (serviceGUIMap.containsKey(m.sender)
-				// TODO - processBlocking(msg); ???
 				Message m = getMsg();
+				
 				if (commandMap.containsKey(m.method)) {
 					// the GUIService should process these command directly
 					process(m);
@@ -190,7 +207,7 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 			e.printStackTrace();
 		}
 	}
-
+*/
 	int currentTab = 0;
 	String selectedTabTitle = null;
 	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
@@ -227,17 +244,26 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		removeAllTabPanels();
 		
 		// begin building panels
-		network = new Network(this); // TODO - clean this up - add
+		network = new Network("communication",this); // TODO - clean this up - add
+		network.init();
 										
 		// TODO - throw error on name collision from client list
-		tabs.addTab("communication", (JComponent) network); 
+		//tabs.addTab("communication", (JComponent) network);
+		tabs.addTab("communication", network.display);
 
 		JPanel customPanel = new JPanel(new FlowLayout());
 		customPanel.setPreferredSize(new Dimension(800, 600));
 
 		// iterate through services list begin ------------
-		HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
-		sortedMap = new TreeMap<String, ServiceEntry>(services);
+		
+		//ServiceEnvironment servEnv = RuntimeEnvironment.getLocalServices();
+		//HashMap<String, ServiceWrapper> services = servEnv.serviceDirectory;				
+		
+		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
+		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
+		
+		//HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
+		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
 		Integer index = tabs.getTabCount() - 1;
 		
@@ -245,10 +271,10 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		Iterator<String> it = sortedMap.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceEntry se = services.get(serviceName);
+			ServiceWrapper se = services.get(serviceName);
 
 			// get service type class name
-			String serviceClassName = se.serviceClass;
+			String serviceClassName = se.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
@@ -266,8 +292,8 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 				{
 					++index;
 					titleToTabIndexMap.put(serviceName, index);
-					if (se.localServiceHandle == null) {
-						tabs.setBackgroundAt(index, Color.decode(cfg.get("remoteColorTab")));
+					if (se.getAccessURL() != null) {
+						tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
 					}
 
 				}
@@ -280,8 +306,8 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		{
 			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
 			// going out to remote systems.
-			ServiceEntry se = services.get(this.name);
-			String serviceClassName = se.serviceClass;
+			ServiceWrapper se = services.get(this.name);
+			String serviceClassName = se.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
@@ -328,10 +354,11 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 
 	}
 	
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, JPanel customPanel, ServiceEntry se)
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, JPanel customPanel, ServiceWrapper sw)
 	{
 		ServiceGUI gui = null;
 		JPanel tpanel = new JPanel();
+		Service se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.name, this);
 		if (gui != null) {
 			gui.init();
@@ -350,7 +377,6 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		}
 
 		return gui;
-		
 	}
 
 	public void display() {
@@ -453,22 +479,29 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 		 */
 
 		// shut down all local services
-		HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
+		//HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
+		
+		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry(); 
+
+		//ServiceEnvironment servEnv = RuntimeEnvironment.getLocalServices();
+		//HashMap<String, ServiceWrapper> services = servEnv.serviceDirectory;
+		
 		Iterator<String> it = services.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceEntry se = services.get(serviceName);
+			ServiceWrapper se = services.get(serviceName);
 
-			Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
+			//Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
+			Service service = se.get();
 
 			if (serviceName.compareTo(this.name) == 0) {
 				LOG.info("momentarily skipping " + this.name + "....");
 				continue;
 			}
 
-			if (local != null) {
+			if (service != null) {
 				LOG.info("shutting down " + serviceName);
-				local.stopService();
+				service.stopService();
 			} else {
 				LOG.info("skipping remote service " + serviceName);
 
@@ -696,5 +729,6 @@ public class GUIService extends GUI implements  WindowListener, ActionListener, 
 	public HashMap<String, Boolean> getCustomWidgetPrefs() {
 		return customWidgetPrefs;
 	}
+	
 	
 }

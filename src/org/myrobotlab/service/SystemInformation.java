@@ -17,6 +17,9 @@ public class SystemInformation extends Service {
 
 	// TODO - always return values without formatting - formatting can be
 	// applied with other functions
+	
+	// Process and runtime
+	// http://stackoverflow.com/questions/636367/java-executing-a-java-application-in-a-separate-process
 
 	public final static Logger LOG = Logger.getLogger(SystemInformation.class
 			.getCanonicalName());

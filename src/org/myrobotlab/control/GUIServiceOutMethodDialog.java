@@ -44,6 +44,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -87,7 +88,8 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		}
 
-		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
+		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
+		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(RuntimeEnvironment.getMethodMap(v.name));
 		
 		JComboBox combo = new JComboBox();
 		combo.addActionListener(this);

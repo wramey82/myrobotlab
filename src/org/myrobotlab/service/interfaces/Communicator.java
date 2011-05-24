@@ -44,8 +44,9 @@ public abstract class Communicator {
 
 	public abstract void addClient(Socket socket);
 
-	public abstract void addClient(DatagramSocket s, InetAddress address,
-			int port);
+	//public abstract void addClient(DatagramSocket dgram);
+
+	public abstract void addClient(DatagramSocket s, InetAddress address, int port);
 
 	public abstract void setIsUDPListening(boolean set);
 

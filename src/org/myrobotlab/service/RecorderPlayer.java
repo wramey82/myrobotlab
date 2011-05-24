@@ -168,25 +168,13 @@ public class RecorderPlayer extends Service {
 		targetServiceName = serviceName;
 	}
 
-	@Override
-	public void run() {
-		thisThread = Thread.currentThread();
-		isRunning = true;
-
-		while (isRunning) {
-			// process(getMsg());
-			try {
-				Message m = getMsg();
-				// TODO -
-				// m.name = targetServiceName;
-				m.historyList.clear();
-				msgs.add(m);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	public boolean preProcessHook(Message m)
+	{
+		m.historyList.clear();
+		msgs.add(m);
+		return true;
 	}
+	
 
 	@Override
 	public String getToolTip() {

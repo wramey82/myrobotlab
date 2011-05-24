@@ -170,7 +170,7 @@ public class MethodEntry implements Serializable {
 	}	
 	
 	// format derived from: javap -classpath myrobotlab.jar -s org.myrobotlab.service.GUIService
-	final static public String getJNASignature(String name, Class[] parameterTypes, Class returnType)
+	final static public String getJNASignature(String name, Class<?>[] parameterTypes, Class<?> returnType)
 	{
 		if (!initialized)
 		{
