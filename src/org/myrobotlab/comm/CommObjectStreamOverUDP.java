@@ -121,7 +121,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			LOG.info("sending udp msg to " + host + ":" +port + "/" + msg.name);
 
 			if (socket == null) {
-				socket = new DatagramSocket();
+				socket = new DatagramSocket(); // here is a "random port"
 				if (!isUDPListening) {
 					this.start();
 				}
@@ -183,9 +183,11 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 										// byte[] again
 						msg = (Message) o;
 
+						// client's side - "I connected to a listener and it replied with registerService" 
 						if (msg.method.equals("registerServices")) 
 						{
 							myService.getComm().registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+							addClient(socket, dgram.getAddress(),  dgram.getPort()); // i think this is correct? 
 							continue;
 						}
 
@@ -419,12 +421,12 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			// phone.udp.start(); REMOTE ADAPTER ONLY ADDS THESE - if we already
 			// have a UDP listener we dont want another
 			if (!clientList.containsKey(url))
-			{	
+			{	LOG.debug("adding client " + url);
 				clientList.put(url, phone);
 			}
 
 		} catch (MalformedURLException e) {
-			Service.stackToString(e);
+			LOG.error(Service.stackToString(e));
 			return;
 		}
 

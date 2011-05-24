@@ -54,6 +54,7 @@ public class Logging extends Service {
 	
 	public Message log (Message m)
 	{
+		LOG.info("log message from " + m.sender + "." + m.data); // TODO - remove for debug only
 		return m;
 	}
 	
@@ -74,9 +75,6 @@ public class Logging extends Service {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
 		
 		Logging toy = new Logging("logger");
 		toy.startService();

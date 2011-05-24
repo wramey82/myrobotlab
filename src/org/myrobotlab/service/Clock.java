@@ -218,15 +218,20 @@ public class Clock extends Service {
 		
 		Clock clock = new Clock("clock");
 		clock.startService();
+		
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
+
 						
 //		Logging log = new Logging("log");
 //		log.startService();
 		
 //		clock.notify("pulse", "log", "log", Integer.class);
 
-		GUIService gui = new GUIService("gui");
-		gui.startService();	
-		
+//		GUIService gui = new GUIService("gui");
+//		gui.startService();	
+//		gui.display();
+
 
 /*		
 		FileOutputStream fos = null;
@@ -266,7 +271,6 @@ public class Clock extends Service {
 		}
 
 		*/
-		gui.display();
 
 		
 	}
