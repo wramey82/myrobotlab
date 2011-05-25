@@ -216,8 +216,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 
 			pulseDataInteger.setInt(c.pulseDataInteger);
 			
+			interval.setText((c.interval + ""));
+			
 			//myBoundService = c;
-			if (c.myClock != null)
+			if (c.myClock != null) // this is transient it will always be null if remote !
 			{
 				startClock.setText("stop clock");
 			} else {

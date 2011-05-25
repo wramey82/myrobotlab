@@ -219,7 +219,7 @@ public class Clock extends Service {
 		//RemoteAdapter remote = new RemoteAdapter("remote");
 		//remote.startService(); 
 		// test
-		/*
+
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
@@ -232,15 +232,16 @@ public class Clock extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();	
 		gui.display();
-		*/
+		gui.dispose();
 
+		RuntimeEnvironment.releaseAll();
 		
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
 		try
 		{
 			
-			/*
+			
 		       fos = new FileOutputStream("test.backup");
 		       out = new ObjectOutputStream(fos);
 		       //out.writeObject(remote);
@@ -248,25 +249,25 @@ public class Clock extends Service {
 		       out.writeObject(clock);
 		       out.writeObject(gui);
 		       out.close();
-		       */
+		      
 			
 		       FileInputStream fis = new FileInputStream("test.backup");
 		       ObjectInputStream in = new ObjectInputStream(fis);
-		       Logging log = (Logging)in.readObject();
-		       Clock clock = (Clock)in.readObject();
-		       GUIService gui = (GUIService)in.readObject();
+		       Logging log1 = (Logging)in.readObject();
+		       Clock clock1 = (Clock)in.readObject();
+		       GUIService gui1 = (GUIService)in.readObject();
 		       in.close();
 		       
 		       RuntimeEnvironment.register(null,log);
 		       RuntimeEnvironment.register(null,clock);
 		       RuntimeEnvironment.register(null,gui);
 		       
-		       log.startService();
-		       clock.startService();
+		       log1.startService();
+		       clock1.startService();
 		       //clock.startClock();		       
-		       gui.startService();
-		       gui.display();
-		    	
+		       gui1.startService();
+		       gui1.display();
+		    
 		       
 		} catch (Exception e)
 		{
