@@ -26,14 +26,21 @@
 package org.myrobotlab.service;
 
 import java.awt.Dimension;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 
 public class FaceTracker extends Service {
+
+	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(FaceTracker.class.getCanonicalName());
 
@@ -180,6 +187,48 @@ public class FaceTracker extends Service {
 		FaceTracker ft = new FaceTracker("face tracker");
 		ft.startService();
 
+		
+		RuntimeEnvironment.releaseAll();
+		
+		FileOutputStream fos = null;
+		ObjectOutputStream out = null;
+		try
+		{
+			
+			
+		       fos = new FileOutputStream("test.backup");
+		       out = new ObjectOutputStream(fos);
+		       //out.writeObject(remote);
+		       out.writeObject(ft);
+		       //out.writeObject(clock);
+		       //out.writeObject(gui);
+		       out.close();
+		      
+			
+		       FileInputStream fis = new FileInputStream("test.backup");
+		       ObjectInputStream in = new ObjectInputStream(fis);
+		       Logging log1 = (Logging)in.readObject();
+		       Clock clock1 = (Clock)in.readObject();
+		       GUIService gui1 = (GUIService)in.readObject();
+		       in.close();
+		       
+		       RuntimeEnvironment.register(null,ft);
+		       //RuntimeEnvironment.register(null,clock);
+		       //RuntimeEnvironment.register(null,gui);
+		       
+		       log1.startService();
+		       clock1.startService();
+		       //clock.startClock();		       
+		       gui1.startService();
+		       gui1.display();
+		    
+		       
+		} catch (Exception e)
+		{
+			LOG.error(e.getMessage());
+			LOG.error(stackToString(e));
+		}
+		
 		/*
 		OpenCV camera = new OpenCV("camera");
 		camera.startService();

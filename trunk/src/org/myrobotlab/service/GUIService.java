@@ -72,7 +72,6 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
@@ -106,24 +105,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public transient JFrame frame = null;
 
-	//public transient ServiceTabPane tabs = new ServiceTabPane();
 	public transient ServiceTabPane tabs = null;
-	//public transient JPanel panel = new JPanel();
 	public transient JPanel panel = null;
-
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
-	
 	transient Network network = null;
-
-	//transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();
 	transient HashMap<String, ServiceGUI> serviceGUIMap = null;
 	
 	Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
-	//transient GridBagConstraints gc = new GridBagConstraints();
 	transient GridBagConstraints gc = null;
-
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
 	public String remoteColorTab = "0x99DD66";
@@ -278,9 +269,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-			if (guiClass.compareTo("org.myrobotlab.control.GUIServiceGUI") == 0) {
+			//if (guiClass.compareTo("org.myrobotlab.control.GUIServiceGUI") == 0) {
+			if (se.get().name.equals(name)) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
-				LOG.debug("delaying construction of GUIServiceGUI ");
+				LOG.debug("delaying construction my GUI " + name + " GUIServiceGUI ");
 				createGUIServiceGUI = true;
 				continue;
 			}
@@ -510,8 +502,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		// shut self down
-		LOG.info("shutting down GUIService");
-		frame.dispose();		
+		LOG.info("shutting down GUIService");				
 		this.stopService();
 		// the big hammer - TODO - close gui - allow all other services to continue
 		System.exit(1); // is this correct? - or should the gui load off a different thread?
@@ -632,6 +623,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}		  
 	
+	public void stopService() {
+		dispose();
+		super.stopService();
+	}
+	
+	public void dispose()
+	{
+		frame.dispose();
+	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
@@ -642,7 +642,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
+		//gui.display();
+		
+		GUIService gui2 = new GUIService("gui2");
+		gui2.startService();
+		gui2.display();
+
+		gui2.dispose();
+		gui.dispose();
+		
 		gui.display();
+		gui.dispose();
+		gui.display();
+		
 	}
 	
 	@Override
