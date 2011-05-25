@@ -103,6 +103,7 @@ public class RuntimeEnvironment implements Serializable{
 		Iterator<String> it = s.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
+			LOG.info("adding " + serviceName + " to registry");
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
 		}
 
