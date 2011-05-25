@@ -214,7 +214,8 @@ public class Clock extends Service {
 		
 						
 		//RemoteAdapter remote = new RemoteAdapter("remote");
-		//remote.startService();
+		//remote.startService(); 
+		// test
 		
 		Clock clock = new Clock("clock");
 		clock.startService();
