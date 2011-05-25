@@ -108,8 +108,6 @@ public class CommunicationManager2  implements Serializable, CommunicationInterf
 	{
 		try {
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
-			Socket socket = new Socket();// TODO - static way to do this?
-			InetSocketAddress localAddr = (InetSocketAddress) socket.getLocalSocketAddress();
 	
 			StringBuffer sb = new StringBuffer();
 			sb.append("http://");
