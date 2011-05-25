@@ -630,7 +630,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void dispose()
 	{
-		frame.dispose();
+		if (frame != null)
+		{
+			frame.dispose();
+		}
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {

@@ -184,8 +184,17 @@ public class FaceTracker extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 		
+		
 		FaceTracker ft = new FaceTracker("face tracker");
 		ft.startService();
+
+		ft.camera.addFilter("PyramidDown1", "PyramidDown");
+		ft.camera.addFilter("PyramidDown2", "PyramidDown");
+		ft.camera.capture();
+		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 
 		
 		RuntimeEnvironment.releaseAll();
@@ -238,9 +247,6 @@ public class FaceTracker extends Service {
 		*/
 		//clock.notify("pulse", "log", "log", Integer.class);
 
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
 	}
 	
 	@Override
