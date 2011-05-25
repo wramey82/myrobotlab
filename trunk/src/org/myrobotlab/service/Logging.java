@@ -79,6 +79,9 @@ public class Logging extends Service {
 		Logging toy = new Logging("logger");
 		toy.startService();
 		
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
+		
 		GUIService gui = new GUIService("log gui");
 		gui.startService();
 		gui.display();
