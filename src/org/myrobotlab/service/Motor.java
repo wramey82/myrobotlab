@@ -51,6 +51,8 @@ public class Motor extends Service {
 	 * POWER - PWM must be put on both lines - 2 PWM lines
 	 */
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(Motor.class.toString());
 
 	boolean isAttached = false;
@@ -70,7 +72,7 @@ public class Motor extends Service {
 	boolean locked = false; // for locking the motor in a stopped position
 	String controllerName = null; // board name
 	
-	DurationThread durationThread = null;
+	transient DurationThread durationThread = null;
 
 	public Motor(String name) {
 		super(name, Motor.class.getCanonicalName());
@@ -121,7 +123,7 @@ public class Motor extends Service {
 
 	}
 	
-	Object lock = new Object();
+	transient Object lock = new Object();
 	class DurationThread extends Thread
 	{
 		public float power = 0.0f;

@@ -77,9 +77,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public final static Logger LOG = Logger.getLogger(Arduino.class
 			.getCanonicalName());
 
-	SerialPort serialPort;
-	InputStream inputStream;
-	OutputStream outputStream;
+	transient SerialPort serialPort;
+	transient InputStream inputStream;
+	transient OutputStream outputStream;
 	
 	String lastSerialPortName; // 
 
@@ -122,7 +122,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); // mapping a pin to servo
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); // mapping a servo to pin
-	static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>(); // list of custom ports
+	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>(); // list of custom ports
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());

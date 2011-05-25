@@ -42,7 +42,7 @@ import com.sun.speech.freetts.VoiceManager;
 public class Speech extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Speech.class.getCanonicalName());
-	private Voice myVoice = null;
+	transient private Voice myVoice = null;
 	private boolean initialized = false;
 	public AudioFile speechAudioFile = null;
 
@@ -110,7 +110,10 @@ public class Speech extends Service {
 
 	@Override
 	public void stopService() {		
-		myVoice.deallocate();
+		if (myVoice.isLoaded())
+		{
+			myVoice.deallocate();
+		}
 		super.stopService();
 	}
 

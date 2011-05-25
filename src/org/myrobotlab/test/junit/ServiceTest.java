@@ -12,6 +12,8 @@ package org.myrobotlab.test.junit;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -23,9 +25,9 @@ import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Invoker;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
@@ -187,7 +189,7 @@ public class ServiceTest {
 
 		// send 1 message
 		stopwatch.start();
-		int cnt = 10000;
+		int cnt = 100;
 		for (int i = 0; i < cnt; ++i) {
 			thrower.invoke("throwInteger", new Integer(7));
 		}
@@ -532,4 +534,57 @@ public class ServiceTest {
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
 
+	@Test
+	public final void serialize() {
+		String[] serviceNames = Invoker.getServiceShortClassNames();
+		
+		LOG.info("serializing");
+		for (int i=0;i < serviceNames.length; ++i)
+		{
+			Service s = Invoker.addService(serviceNames[i], i + "");
+			
+			LOG.info("serializing " + serviceNames[i]);
+			FileOutputStream fos = null;
+			ObjectOutputStream out = null;
+			try
+			{
+			       fos = new FileOutputStream("junit.serialize.bin");
+			       out = new ObjectOutputStream(fos);
+			       out.writeObject(s);
+			       out.close();
+			    
+			       /*
+			       FileInputStream fis = new FileInputStream("test.backup");
+			       ObjectInputStream in = new ObjectInputStream(fis);
+			       Logging log = (Logging)in.readObject();
+			       Clock clock = (Clock)in.readObject();
+			       GUIService gui = (GUIService)in.readObject();
+			       in.close();
+			       
+			       log.startService();
+
+			       clock.startService();
+			       clock.startClock();
+			       
+			       gui.startService();
+			       gui.display();
+			       */
+			    
+			       s.releaseService();
+			} catch (Exception e)
+			{
+				LOG.error(e.getMessage());
+				LOG.error(Service.stackToString(e));
+			}
+			
+		}
+		
+		
+		
+		
+		RuntimeEnvironment.releaseAll();
+		LOG.debug("doubleHandedRemoteThrow end-------------");
+	}
+	
+	
 }

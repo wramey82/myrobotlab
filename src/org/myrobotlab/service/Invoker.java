@@ -131,29 +131,30 @@ public class Invoker extends Service {
 	static public String[] getServiceShortClassNames() {
 		// return getShortClassNames("org.myrobotlab.service",false);
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
-				"ChessGame", "Clock", "ComediDriver", "DifferentialDrive",
+				"ChessGame", "Clock", "DifferentialDrive",
 				"FaceTracker", "GeneticProgramming", "Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
-				"Logging", "MediaSource", "MoMo", "Motor", "OpenCV",
+				"Logging", "MediaSource", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
 				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
-				"Serial", "Servo", "SLAM", "SoccerGame", "SOHDARService",
+				"Serial", "Servo", "SLAM", "SoccerGame", 
 				"Speech", "SpeechRecognition", "StepperMotor",
 				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
 	}
 
-	public void removeService(String name) {
+	static public void removeService(String name) {
 		LOG.info("removing service " + name);
 		//super.removeServices(sdu) TODO
 	}
 
 	// TODO - 3 values - description/example input & output
 	@ToolTip("Add a new Services to the system")
-	public void addService(String className, String newName) {
+	static public Service addService(String className, String newName) {
 		LOG.info("adding service " + newName);
 		Service s = (Service) Service.getNewInstance("org.myrobotlab.service."
 				+ className, newName);
 		s.startService();
+		return s;
 	}
 
 	public void setLogLevel(String level) {

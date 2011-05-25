@@ -34,9 +34,9 @@ import org.myrobotlab.framework.Service;
 
 public class JFugue extends Service {
 
-	public final static Logger LOG = Logger.getLogger(JFugue.class
-			.getCanonicalName());
-	public Player player = new Player();
+	private static final long serialVersionUID = 1L;
+	public final static Logger LOG = Logger.getLogger(JFugue.class.getCanonicalName());
+	transient public Player player = new Player();
 
 	public JFugue(String n) {
 		super(n, JFugue.class.getCanonicalName());

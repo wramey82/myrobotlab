@@ -277,8 +277,11 @@ public class RemoteAdapter extends Service {
 		}
 		serverSocket = null;
 		isRunning = false;
-		tcpListener.interrupt();
-		tcpListener = null;
+		if (tcpListener != null)
+		{
+			tcpListener.interrupt();
+			tcpListener = null;
+		}
 
 		if (thisThread != null) {
 			thisThread.interrupt();

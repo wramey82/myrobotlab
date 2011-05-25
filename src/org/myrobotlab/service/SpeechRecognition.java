@@ -55,10 +55,10 @@ public class SpeechRecognition extends Service {
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
-	Recognizer recognizer = null;
+	transient Recognizer recognizer = null;
 	Thread listener = null;
 	DialogManager dialogManager = null;
-	SpeechProcessor speechProcessor = null;
+	transient SpeechProcessor speechProcessor = null;
 
 	// boolean isListening = true;
 

@@ -32,6 +32,7 @@ import java.io.ObjectOutputStream;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 
 public class Clock extends Service {
@@ -212,42 +213,42 @@ public class Clock extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-						
+
+		//Clock c = new Clock("c");
+		//c.startService();
 		//RemoteAdapter remote = new RemoteAdapter("remote");
 		//remote.startService(); 
 		// test
-		
+		/*
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
-
 						
-//		Logging log = new Logging("log");
-//		log.startService();
+		Logging log = new Logging("log");
+		log.startService();
 		
-//		clock.notify("pulse", "log", "log", Integer.class);
+		clock.notify("pulse", "log", "log", Integer.class);
 
-//		GUIService gui = new GUIService("gui");
-//		gui.startService();	
-//		gui.display();
+		GUIService gui = new GUIService("gui");
+		gui.startService();	
+		gui.display();
+		*/
 
-
-/*		
+		
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
 		try
 		{
 			
+			/*
 		       fos = new FileOutputStream("test.backup");
 		       out = new ObjectOutputStream(fos);
-		       out.writeObject(remote);
+		       //out.writeObject(remote);
 		       out.writeObject(log);
 		       out.writeObject(clock);
 		       out.writeObject(gui);
 		       out.close();
-		    
+		       */
 			
 		       FileInputStream fis = new FileInputStream("test.backup");
 		       ObjectInputStream in = new ObjectInputStream(fis);
@@ -256,14 +257,16 @@ public class Clock extends Service {
 		       GUIService gui = (GUIService)in.readObject();
 		       in.close();
 		       
-		       log.startService();
-
-		       clock.startService();
-		       clock.startClock();
+		       RuntimeEnvironment.register(null,log);
+		       RuntimeEnvironment.register(null,clock);
+		       RuntimeEnvironment.register(null,gui);
 		       
+		       log.startService();
+		       clock.startService();
+		       //clock.startClock();		       
 		       gui.startService();
 		       gui.display();
-		    
+		    	
 		       
 		} catch (Exception e)
 		{
@@ -271,7 +274,6 @@ public class Clock extends Service {
 			LOG.error(stackToString(e));
 		}
 
-		*/
 
 		
 	}
