@@ -79,7 +79,7 @@ public class Logging extends Service {
 		Logging toy = new Logging("logger");
 		toy.startService();
 		
-		GUIService gui = new GUIService("gui2");
+		GUIService gui = new GUIService("log gui");
 		gui.startService();
 		gui.display();
 		

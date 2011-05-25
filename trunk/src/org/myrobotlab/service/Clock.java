@@ -214,24 +214,17 @@ public class Clock extends Service {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 
-		//Clock c = new Clock("c");
-		//c.startService();
-		//RemoteAdapter remote = new RemoteAdapter("remote");
-		//remote.startService(); 
-		// test
-
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
-						
-		Logging log = new Logging("log");
-		log.startService();
-		
-		clock.notify("pulse", "log", "log", Integer.class);
+								
+		clock.notify("pulse", "clock log", "log", Integer.class);
 
-		GUIService gui = new GUIService("gui");
+		GUIService gui = new GUIService("clock gui");
 		gui.startService();	
 		gui.display();
+		
+/*		
 		gui.dispose();
 
 		RuntimeEnvironment.releaseAll();
@@ -275,7 +268,7 @@ public class Clock extends Service {
 			LOG.error(stackToString(e));
 		}
 
-
+*/
 		
 	}
 
