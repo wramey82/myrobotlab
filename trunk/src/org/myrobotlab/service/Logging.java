@@ -82,7 +82,7 @@ public class Logging extends Service {
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 		
-		GUIService gui = new GUIService("log gui");
+		GUIService gui = new GUIService("loggui");
 		gui.startService();
 		gui.display();
 		
