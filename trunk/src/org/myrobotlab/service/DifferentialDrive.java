@@ -69,7 +69,7 @@ public class DifferentialDrive extends Service {
 	public Directions directionCurrent = Directions.STOPPED;
 	public Directions directionTarget = Directions.STOPPED;
 	
-	PIDThread pid = null;
+	transient PIDThread pid = null;
 	
 	
 	// TODO - determine if control needs to be serialized

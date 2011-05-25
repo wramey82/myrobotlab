@@ -61,7 +61,7 @@ public class Outbox implements Runnable, Serializable //extends Thread
 
 	public Outbox(Service myService) {
 		//super(myService.name + "_outbox");
-		outboxThread = new Thread(this, myService.name + "_outbox");
+		//outboxThread = new Thread(this, myService.name + "_outbox");
 		this.myService = myService;
 	}
 
@@ -77,7 +77,7 @@ public class Outbox implements Runnable, Serializable //extends Thread
 	{
 		if (outboxThread == null)
 		{
-			outboxThread = new Thread(myService.name + "_outbox");
+			outboxThread = new Thread(this, myService.name + "_outbox");
 		}
 		
 		outboxThread.start();

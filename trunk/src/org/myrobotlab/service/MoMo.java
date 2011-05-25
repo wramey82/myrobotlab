@@ -69,9 +69,6 @@ public class MoMo extends Service {
 
 	SensorMonitor sensors = new SensorMonitor("sensors");
 
-	Timer timer = null;
-	TimerTask timerTask = null;
-
 	public MoMo(String n) {
 		this(n, null);
 	}

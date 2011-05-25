@@ -36,6 +36,8 @@ import org.myrobotlab.framework.Service;
 
 public class TrackingService extends Service {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(TrackingService.class
 			.getCanonicalName());
 
@@ -86,8 +88,8 @@ public class TrackingService extends Service {
 	float XMultiplier = (float) 0.15; // 0.14 ~ 0.16
 	float YMultiplier = (float) 0.15;
 
-	CvPoint2D32f lastPoint = null;
-	CvPoint2D32f targetPoint = new CvPoint2D32f(160, 120);
+	transient CvPoint2D32f lastPoint = null;
+	transient CvPoint2D32f targetPoint = new CvPoint2D32f(160, 120);
 	Rectangle deadzone = new Rectangle();
 
 	public TrackingService(String n) {
