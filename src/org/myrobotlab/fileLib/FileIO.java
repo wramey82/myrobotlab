@@ -29,14 +29,19 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Arduino;
+import org.myrobotlab.framework.Service;
 
 public class FileIO {
 
@@ -62,7 +67,35 @@ public class FileIO {
 		}
 		return result;
 	}
+
+	public static void stringToFile(String filename, String data)
+	{
+		stringToFile(filename, data, null);
+	}
 	
+	public static void stringToFile(String filename, String data, String encoding) {
+		Writer out = null;
+		try {
+			if (encoding != null)
+			{
+				out = new OutputStreamWriter(new FileOutputStream(filename), encoding);
+			} else {
+				out = new OutputStreamWriter(new FileOutputStream(filename));				
+			}
+			out.write(data);
+		} catch (Exception e) {
+			LOG.error(Service.stackToString(e));
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException e) {
+				LOG.error(Service.stackToString(e));
+			}
+		}
+	}
+
 	public static final ImageIcon getResourceIcon(String path) {
 		ImageIcon icon = null;
 		java.net.URL imgURL = FileIO.class.getResource("/resource/" + path);
