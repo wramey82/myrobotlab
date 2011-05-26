@@ -31,15 +31,19 @@ import java.io.Serializable;
 public class GUIServiceGraphVertex implements Serializable {
 	static final long serialVersionUID = 1L;
 	
-	final public String name;
-	final public String toolTip;
-	final public String canonicalName;
+	public String name;
+	public String toolTip;
+	public String canonicalName;
 	public String displayName;
 	public String status;
 	public Type type;
 	
 	public static enum Type {
 		SERVICE, INPORT, OUTPORT
+	}
+	
+	public GUIServiceGraphVertex()
+	{
 	}
 	
 	public GUIServiceGraphVertex(String name, String canonicalName, String displayName, String toolTip, Type t)

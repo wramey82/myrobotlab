@@ -68,6 +68,7 @@ import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
+import org.simpleframework.xml.Root;
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
@@ -83,7 +84,7 @@ import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
 
-
+@Root
 public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -91,8 +92,15 @@ public class OpenCV extends Service {
 	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 	int frameIndex = 0;
-
 	int lastImageWidth = 0;
+
+	int cameraIndex = 0;
+	String useInput = "null";
+	String inputMovieFileName = "input.avi";
+	boolean loopInputMovieFile = true;
+	boolean performanceTiming = false;
+	boolean sendImage = true;
+	boolean useCanvasFrame = false;
 	
 	//CvCapture grabber = null;
 	VideoProcess videoProcess = null;
@@ -112,9 +120,10 @@ public class OpenCV extends Service {
 		final public boolean isConvex;
 		final public CvPoint centeroid;
 		final public int vertices;
+		
 
 		public Polygon(CvRect boundingRectangle, CvScalar avgColor,
-				boolean isConvex, CvPoint centeroid, int vertices) {
+			boolean isConvex, CvPoint centeroid, int vertices) {
 			this.boundingRectangle = boundingRectangle;
 			this.avgColor = avgColor;
 			this.isConvex = isConvex;
@@ -125,8 +134,7 @@ public class OpenCV extends Service {
 
 		// TODO - static functions in Speech service
 		public String getShapeWord() {
-			if (vertices > 3 && vertices < 6 && isConvex) // fudge a square -
-															// fudge is square !
+			if (vertices > 3 && vertices < 6 && isConvex) 
 			{
 				return "square";
 			} else if (vertices == 3 && isConvex) {
@@ -161,35 +169,22 @@ public class OpenCV extends Service {
 
 	public void loadDefaultConfiguration() {
 
-		cfg.set("cameraIndex", 0);
+		//cfg.set("cameraIndex", 0);
 		// cfg.set("pixelsPerDegree", 7);
-		cfg.set("useInput", "null");
-		cfg.set("inputMovieFileName", "outfile1.avi");
-		cfg.set("inputMovieFileLoop", true);
+		//cfg.set("useInput", "null");
+		//cfg.set("inputMovieFileName", "outfile1.avi");
+		//cfg.set("inputMovieFileLoop", true);
 		// cfg.set("outputMovieFileName", "out.avi");
 		cfg.set("performanceTiming", false);
-		cfg.set("sendImage", true);
-		cfg.set("useCanvasFrame", false);
+		//cfg.set("sendImage", true);
+		//cfg.set("useCanvasFrame", false);
 		cfg.set("displayFilter", "output");
 	}
 
 	
-	
-	/* TODO - remove
-	final public void pause(Integer length) {
-		try {
-			// videoThread.sleep(length);
-			Thread.sleep(length);
-		} catch (InterruptedException e) {
-			return;
-		}
-	}
-	*/
-
 	@Override
 	public void startService() {
 		super.startService();
-		//grabber();
 	}
 
 	@Override
@@ -314,7 +309,7 @@ public class OpenCV extends Service {
 			
 			isWindows = Loader.getPlatformName().startsWith("windows");
 			
-			if (cfg.getBoolean("useCanvasFrame")) {
+			if (useCanvasFrame) {
 				// cf = new CanvasFrame(false);
 			}
 			
@@ -327,14 +322,14 @@ public class OpenCV extends Service {
 			//cameraSettings.setQuantity(1);
 			//CameraDevice cameraDevice;
 			try {
-				int index = cfg.getInt("cameraIndex");
+				//int index = cfg.getInt("cameraIndex");
 				
 				if (isWindows)
 				{
-					grabber = new VideoInputFrameGrabber(index);
+					grabber = new VideoInputFrameGrabber(cameraIndex);
 					grabber.start();
 				} else {
-					oldGrabber = cvCreateCameraCapture(index);
+					oldGrabber = cvCreateCameraCapture(cameraIndex);
 					if (oldGrabber == null)
 					{
 						stop ();
@@ -402,7 +397,7 @@ public class OpenCV extends Service {
 						if (cfg.get("displayFilter").compareTo(name) == 0) {
 							// bi = filter.display(frame, null);
 							published = true;
-							if (cfg.getBoolean("sendImage")) {
+							if (sendImage) {
 								// invoke("sendImage", cfg.get("displayFilter"),
 								// frame.getBufferedImage()); frame? or current
 								// display??
@@ -440,7 +435,7 @@ public class OpenCV extends Service {
 						graphics.drawString(screenText.toString(), 10, 10);
 						bi.flush();
 
-						if (cfg.getBoolean("sendImage")) {
+						if (sendImage) {
 							invoke("sendImage", cfg.get("displayFilter"), bi);
 						}
 						// LOG.error(" time");
@@ -448,7 +443,7 @@ public class OpenCV extends Service {
 					}
 
 				} else {
-					if (cfg.get("useInput") == "file") {
+					if (useInput == "file") {
 						// re-open avi file -
 						//grabber = cvCreateFileCapture(cfg.get("inputMovieFileName"));
 						// not supported at the moment
@@ -481,12 +476,13 @@ public class OpenCV extends Service {
 	}
 
 	public String setInputMovieFileName(String filename) {
-		cfg.set("inputMovieFileName", filename);
+		//cfg.set("inputMovieFileName", filename);
+		inputMovieFileName = filename;
 		return filename;
 	}
 
 	public String setUseInput(String inputType) {
-		cfg.set("useInput", inputType);
+		useInput = inputType;
 		return inputType;
 	}
 
@@ -630,48 +626,12 @@ public class OpenCV extends Service {
 		opencv.addFilter("Dilate1", "Dilate"); 
 		opencv.addFilter("InRange","InRange");
 		opencv.addFilter("Dilate2", "Dilate");
-
-		// yellow blocks
-		/*
-		 * opencv.setFilterCFG("InRange", "hueMin", 0x19);
-		 * opencv.setFilterCFG("InRange", "hueMax", 0x33); // 1A range
-		 * opencv.setFilterCFG("InRange", "valueMin", 0xe1);
-		 * opencv.setFilterCFG("InRange", "valueMax", 0xfe);// 1D range
-		 */
-
-		// green blocks
-		/*
-		 * opencv.setFilterCFG("InRange", "hueMin", 0x40);
-		 * opencv.setFilterCFG("InRange", "hueMax", 0x4f);
-		 * opencv.setFilterCFG("InRange", "valueMin", 0x70);
-		 * opencv.setFilterCFG("InRange", "valueMax", 0x80);
-		 */
-
-		// green led
-		// 58 - 5b
-		// f3f5 - f6
-		// sat 16 - 17
-		/*
-		 opencv.setFilterCFG("InRange", "hueMin", 0x6c);
-		 opencv.setFilterCFG("InRange", "hueMax", 0x73);
-		 opencv.setFilterCFG("InRange", "valueMin", 0xc9);
-		 opencv.setFilterCFG("InRange", "valueMax", 0xd8);
-		 */
 		
 		 opencv.setFilterCFG("InRange", "hueMin", 0x6b);
 		 opencv.setFilterCFG("InRange", "hueMax", 0x75);
 		 opencv.setFilterCFG("InRange", "valueMin", 0xc5);
 		 opencv.setFilterCFG("InRange", "valueMax", 0xda);
 
-		/*
-		 * String cfgName = "hueMin"; Float cfgValue = 25.0f;
-		 * 
-		 * Object[] p = new Object[2]; p[0] = cfgName; p[1] = cfgValue;
-		 * opencv.invokeFilterMethod("InRange", "setCFG", p);
-		 * 
-		 * //cfgName = "hueMax"; //cfgValue = 51.0f; p[0] = "hueMax"; p[1] =
-		 * 51.0f; opencv.invokeFilterMethod("InRange", "setCFG", p);
-		 */
 
 	}
 

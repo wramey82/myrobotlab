@@ -50,5 +50,8 @@ public abstract class GUI extends Service  {
 	public abstract HashMap<String, mxCell> getCells();
 	
 	public abstract HashMap<String, ServiceGUI> getServiceGUIMap(); 
+	
+	public abstract String getGraphXML();
+	public abstract void setGraphXML(final String xml);
 
 }
