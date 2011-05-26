@@ -29,11 +29,15 @@ import java.io.File;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 @Root
 public class Clock extends Service {
@@ -222,7 +226,13 @@ public class Clock extends Service {
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
-								
+
+		//XStream xstream = new XStream(); xpp3 dependent
+		XStream xstream = new XStream(new DomDriver());
+		xstream.alias("Clock", Clock.class);
+		String xml = xstream.toXML(clock);
+		FileIO.stringToFile("clock.xml", xml);
+		
 		//clock.notify("pulse", "clock log", "log", Integer.class);
 
 		Serializer serializer = new Persister();

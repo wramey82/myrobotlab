@@ -89,45 +89,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	}
 	
 	
-	public mxGraph graph = new mxGraph() {
-		
-		// Ports are not used as terminals for edges, they are
-		// only used to compute the graphical connection point
-		public boolean isPort(Object cell)
-		{
-			mxGeometry geo = getCellGeometry(cell);
-			
-			return (geo != null) ? geo.isRelative() : false;
-		}
-		
-		// Implements a tooltip that shows the actual
-		// source and target of an edge
-		public String getToolTipForCell(Object cell)
-		{
-			if (model.isEdge(cell))
-			{
-				return convertValueToString(model.getTerminal(cell, true)) + " -> " +
-					convertValueToString(model.getTerminal(cell, false));
-			}
-			
-			mxCell m = (mxCell)cell;
-						
-			GUIServiceGraphVertex se = (GUIServiceGraphVertex)m.getValue();
-			if (se != null)
-			{
-				return se.toolTip;
-			} else {
-				return "<html>port node<br>click to drag and drop static routes</html>";
-			}
-		}
-		
-		// Removes the folding icon and disables any folding
-		public boolean isCellFoldable(Object cell, boolean collapse)
-		{
-			//return true;
-			return false;
-		}
-	};
+	public mxGraph graph = null;
 	
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
@@ -157,15 +119,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		graphPanel.setBorder(BorderFactory.createTitledBorder("graph"));
 
 		// -------------------------BEGIN PURE JGRAPH ----------------------------
-		graph.setMinimumGraphSize(new mxRectangle(0, 0, 620, 480)); // TODO - get # of services to set size?
-
-		
-		// Sets the default edge style
-		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
-		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.ElbowConnector);
 		
 		if (myService.getGraphXML() == null || myService.getGraphXML().length() == 0)
 		{
+			graph = getNewMXGraph();
 			// new graph !
 			graph.getModel().beginUpdate();
 			try
@@ -199,6 +156,14 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        // creating JComponent
 	        graphComponent = new mxGraphComponent(graph);			
 		}
+		
+		graph.setMinimumGraphSize(new mxRectangle(0, 0, 620, 480)); // TODO - get # of services to set size?
+
+		
+		// Sets the default edge style
+		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
+		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.ElbowConnector);
+
 		
 		graphPanel.add(graphComponent);
 		
@@ -263,6 +228,51 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
         
 	}
 
+	
+	public mxGraph getNewMXGraph()
+	{
+		mxGraph g = new mxGraph() {
+			
+			// Ports are not used as terminals for edges, they are
+			// only used to compute the graphical connection point
+			public boolean isPort(Object cell)
+			{
+				mxGeometry geo = getCellGeometry(cell);
+				
+				return (geo != null) ? geo.isRelative() : false;
+			}
+			
+			// Implements a tooltip that shows the actual
+			// source and target of an edge
+			public String getToolTipForCell(Object cell)
+			{
+				if (model.isEdge(cell))
+				{
+					return convertValueToString(model.getTerminal(cell, true)) + " -> " +
+						convertValueToString(model.getTerminal(cell, false));
+				}
+				
+				mxCell m = (mxCell)cell;
+							
+				GUIServiceGraphVertex se = (GUIServiceGraphVertex)m.getValue();
+				if (se != null)
+				{
+					return se.toolTip;
+				} else {
+					return "<html>port node<br>click to drag and drop static routes</html>";
+				}
+			}
+			
+			// Removes the folding icon and disables any folding
+			public boolean isCellFoldable(Object cell, boolean collapse)
+			{
+				//return true;
+				return false;
+			}
+		};
+		
+		return g;
+	}
 	
 	public JButton getRefreshServicesButton() {
 		JButton button = new JButton("refresh services");

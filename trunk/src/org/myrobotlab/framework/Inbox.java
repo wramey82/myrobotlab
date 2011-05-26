@@ -120,7 +120,7 @@ public class Inbox implements Serializable {
 
 	public boolean duplicateMsg(ArrayList<RoutingEntry> history) {
 		for (int i = 0; i < history.size(); ++i) {
-			if (history.get(i).name.compareTo(name) == 0) {
+			if (history.get(i).name.equals(name)) {
 				return true;
 			}
 		}

@@ -29,10 +29,11 @@ export LD_LIBRARY_PATH
 
 # java -d32  force 32 bit 
 # -classpath ":myrobotlab.jar:./lib/*"  - make note : on Linux ; on Windows ! 
-# -Djava.library.path="./bin" - can not change or modify LD_LIBRARY_PATH after jvm starts 
+# -Djava.library.path=./bin - can not change or modify LD_LIBRARY_PATH after jvm starts 
+# LD_LIBRARY_PATH needed by Linux systems
+# -Djava.library.path= needed by mac
 # The shell itself need 
-# org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt
- 
+# org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt 
 
-java -classpath ":myrobotlab.jar:./lib/*" org.myrobotlab.service.Invoker -service Invoker services GUIService gui
+java -classpath ":myrobotlab.jar:./lib/*" -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui
 
