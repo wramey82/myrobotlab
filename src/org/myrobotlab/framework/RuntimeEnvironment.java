@@ -1,5 +1,11 @@
 package org.myrobotlab.framework;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -7,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeEnvironment implements Serializable{
 
@@ -315,8 +322,8 @@ public class RuntimeEnvironment implements Serializable{
 		
 		for (int i = 0; i < methods.length; ++i) {
 			Method m = methods[i];
-			Class<?>[] paramTypes = m.getParameterTypes();
-			Class<?> returnType = m.getReturnType();
+			//Class<?>[] paramTypes = m.getParameterTypes();
+			//Class<?> returnType = m.getReturnType();
 
 			if (!hideMethods.containsKey(m.getName()))
 			{
@@ -333,4 +340,87 @@ public class RuntimeEnvironment implements Serializable{
 		
 		return ret;
 	}
+
+	public static boolean save (String filename) 
+	{
+		FileOutputStream fos = null;
+		ObjectOutputStream out = null;
+		try {
+
+		//ServiceEnvironment se = getLocalServices();
+			
+			fos = new FileOutputStream(filename);
+			out = new ObjectOutputStream(fos);
+
+			/*
+			Iterator<String> it = se.serviceDirectory.keySet().iterator();
+			while (it.hasNext()) {
+				String sen = it.next();
+				ServiceWrapper sw = se.serviceDirectory.get(sen);
+				LOG.info("saving " + sw.name);
+				se.serviceDirectory.clear();
+				//Iterator<String> seit = se.keySet().iterator();
+			}
+			*/
+			
+			//out.writeObject(remote);
+			out.writeObject(RuntimeEnvironment.hosts);
+			out.writeObject(RuntimeEnvironment.registry);
+			out.writeObject(RuntimeEnvironment.hideMethods);
+		} catch (FileNotFoundException e) {
+			LOG.error(Service.stackToString(e));
+			return false;
+		} catch (IOException e) {
+			LOG.error(Service.stackToString(e));
+			return false;
+		}
+		
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static boolean load (String filename)
+	{
+        try {
+
+		       FileInputStream fis;
+		       fis = new FileInputStream(filename);
+		       ObjectInputStream in = new ObjectInputStream(fis);
+		       RuntimeEnvironment.hosts = (HashMap<URL, ServiceEnvironment>)in.readObject();
+		       RuntimeEnvironment.registry = (HashMap<String, ServiceWrapper>)in.readObject();
+		       RuntimeEnvironment.hideMethods = (HashMap<String, String>)in.readObject();
+		       in.close();
+
+	        } catch (Exception ex) {
+				LOG.error(Service.stackToString(ex));
+				return false;
+			}
+	        
+	        return true;
+	}
+	
+	public static void startLocalServices()
+	{
+		boolean hasGUI = false;
+		GUI gui = null;
+		ServiceEnvironment se = getLocalServices(); 
+		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			sw.service.startService();
+			if (sw.service.getClass().getSuperclass().equals(GUI.class))
+			{
+				gui = (GUI)sw.service;
+				hasGUI = true;
+			}
+		}
+		
+		if (hasGUI)
+		{
+			gui.display();
+		}
+		
+	}
+	
 }

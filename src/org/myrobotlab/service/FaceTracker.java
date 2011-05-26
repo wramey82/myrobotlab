@@ -189,7 +189,7 @@ public class FaceTracker extends Service {
 		ft.startService();
 
 		ft.camera.addFilter("PyramidDown1", "PyramidDown");
-		ft.camera.addFilter("PyramidDown2", "PyramidDown");
+		//ft.camera.addFilter("PyramidDown2", "PyramidDown");
 		ft.camera.capture();
 		
 		GUIService gui = new GUIService("gui");

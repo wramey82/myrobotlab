@@ -50,6 +50,7 @@ import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
+import org.simpleframework.xml.Element;
 
 public abstract class Service implements Runnable, Serializable {
 
@@ -62,6 +63,7 @@ public abstract class Service implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Service.class.toString());
 	protected String host = null; // TODO - should be final???
+	@Element
 	public final String name;
 	public final String serviceClass; // TODO - remove
 	protected boolean isRunning = false;

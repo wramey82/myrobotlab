@@ -25,16 +25,17 @@
 
 package org.myrobotlab.service;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.File;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
+@Root
 public class Clock extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -42,9 +43,13 @@ public class Clock extends Service {
 	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
 
 	// fields
+	@Element
 	public int interval = 1000;
+	@Element
 	public PulseDataType pulseDataType = PulseDataType.none;
+	@Element(required=false)
 	public String pulseDataString = null;
+	@Element
 	public int pulseDataInteger;	
 	public transient ClockThread myClock = null;
 
@@ -218,11 +223,23 @@ public class Clock extends Service {
 		clock.startService();
 		
 								
-		clock.notify("pulse", "clock log", "log", Integer.class);
+		//clock.notify("pulse", "clock log", "log", Integer.class);
 
-		GUIService gui = new GUIService("clock gui");
+		Serializer serializer = new Persister();
+		File result = new File("clock.xml");
+
+		try {
+			serializer.write(clock, result);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		GUIService gui = new GUIService("clockgui");
 		gui.startService();	
 		gui.display();
+		
+		
 		
 /*		
 		gui.dispose();

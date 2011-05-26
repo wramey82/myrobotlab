@@ -44,19 +44,23 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.GUI;
+import org.w3c.dom.Document;
 
+import com.mxgraph.io.mxCellCodec;
+import com.mxgraph.io.mxCodec;
+import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 
@@ -66,7 +70,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	final int PORT_DIAMETER = 20;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;	
-	//ConfigurationManager hostCFG;
 	
 	// notify structure begin -------------
 	public JLabel srcServiceName = new JLabel("             ");
@@ -108,10 +111,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			}
 			
 			mxCell m = (mxCell)cell;
-			
-			//String serviceName = super.getToolTipForCell(cell);
-			//ServiceEntry se = myService.getHostCFG().getServiceEntry(serviceName);
-			
+						
 			GUIServiceGraphVertex se = (GUIServiceGraphVertex)m.getValue();
 			if (se != null)
 			{
@@ -130,17 +130,16 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	};
 	
 	mxCell currentlySelectedCell = null;
-	
+	mxGraphComponent graphComponent = null;
 	public void init() {
-
-		//hostCFG = myService.getHostCFG();
 		
 		// build input begin ------------------
 		JPanel input = new JPanel();
 		input.setBorder(BorderFactory.createTitledBorder("input"));
 
 		input.add(getRefreshServicesButton());
-		input.add(getDumpCFGButton());
+		input.add(getSaveButton());
+		input.add(getLoadButton());
 		
 		JPanel newRoute = new JPanel(new GridBagLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new route"));
@@ -164,21 +163,43 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		// Sets the default edge style
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.ElbowConnector);
-				
-		graph.getModel().beginUpdate();
-		try
-		{
-			buildLocalServiceGraph();
-			buildLocalServiceRoutes();
-		} 
-		finally
-		{
-			graph.getModel().endUpdate();
-		}
-
-		//graphPanel.addKeyListener(this);
 		
-		final mxGraphComponent graphComponent = new mxGraphComponent(graph);
+		if (myService.getGraphXML() == null || myService.getGraphXML().length() == 0)
+		{
+			// new graph !
+			graph.getModel().beginUpdate();
+			try
+			{
+				buildLocalServiceGraph();
+				buildLocalServiceRoutes();
+			} 
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+
+	        // creating JComponent
+			graphComponent = new mxGraphComponent(graph);
+		} else {
+			// we have serialized version of graph
+			// deserialize it
+			
+			// register 
+			mxCodecRegistry.addPackage("org.myrobotlab.control");
+		    mxCodecRegistry.register(new mxCellCodec(new org.myrobotlab.control.GUIServiceGraphVertex()));
+		    mxCodecRegistry.register(new mxCellCodec(Type.INPORT));
+	        
+		      // load
+	        Document document = mxUtils.parseXml(myService.getGraphXML());
+
+	        mxCodec codec2 = new mxCodec(document);
+	        graph = new mxGraph();
+	        codec2.decode(document.getDocumentElement(),graph.getModel());
+	        
+	        // creating JComponent
+	        graphComponent = new mxGraphComponent(graph);			
+		}
+		
 		graphPanel.add(graphComponent);
 		
 		graphComponent.addKeyListener(this);
@@ -230,6 +251,16 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		graphPanel.setVisible(true);
 		
 		display.add(graphPanel, gc);
+		
+		/*
+		mxCodecRegistry.addPackage("org.myrobotlab.control");
+	    mxCodecRegistry.register(new mxCellCodec(new org.myrobotlab.control.GUIServiceGraphVertex()));
+	    mxCodecRegistry.register(new mxCellCodec(Type.INPORT));
+        mxCodec codec = new mxCodec();
+        String te = mxUtils.getXml(codec.encode(graph.getModel()));
+        LOG.error(te);
+        */
+        
 	}
 
 	
@@ -248,16 +279,25 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 	}
 
-	public JButton getDumpCFGButton() {
-		JButton button = new JButton("dump cfg");
-		button.setEnabled(false);
+	public JButton getSaveButton() {
+		JButton button = new JButton("save");
+		button.setEnabled(true);
 		button.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Execute when button is pressed // TODO send - message
-				ConfigurationManager rootcfg = new ConfigurationManager();
-				rootcfg.save(myService.getHost() + ".properties");
+				// serialize graph
+				mxCodecRegistry.addPackage("org.myrobotlab.control");
+			    mxCodecRegistry.register(new mxCellCodec(new org.myrobotlab.control.GUIServiceGraphVertex()));
+			    mxCodecRegistry.register(new mxCellCodec(Type.INPORT));
+		        mxCodec codec = new mxCodec();
+		        String xml = mxUtils.getXml(codec.encode(graph.getModel()));
+
+				myService.setGraphXML(xml);
+				
+				// save runtime
+				RuntimeEnvironment.save("runtime.bin");
 			}
 
 		});
@@ -265,6 +305,29 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return button;
 	}
 
+	public JButton getLoadButton() {
+		JButton button = new JButton("load");
+		button.setEnabled(true);
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				RuntimeEnvironment.releaseAll();
+				
+				// load runtime
+				RuntimeEnvironment.load("runtime.bin");
+				
+				RuntimeEnvironment.startLocalServices();
+				// Execute when button is pressed // TODO send - message
+			    				
+			}
+
+		});
+
+		return button;
+	}
+	
 
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	
@@ -359,7 +422,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 
 	public void buildLocalServiceRoutes() {
-		//Iterator<String> it = hostCFG.getServiceMap().keySet().iterator();
 		Iterator<String> it = RuntimeEnvironment.getRegistry().keySet().iterator();
 
 		Object parent = graph.getDefaultParent();

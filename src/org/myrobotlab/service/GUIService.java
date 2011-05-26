@@ -103,6 +103,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public final static Logger LOG = Logger.getLogger(GUIService.class.getCanonicalName());
 
+	public String graphXML = "";
+	
 	public transient JFrame frame = null;
 
 	public transient ServiceTabPane tabs = null;
@@ -743,6 +745,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	@Override
 	public HashMap<String, Boolean> getCustomWidgetPrefs() {
 		return customWidgetPrefs;
+	}
+
+	@Override
+	public String getGraphXML() {
+		return graphXML;
+	}
+
+	@Override
+	public void setGraphXML(String xml) {
+		graphXML = xml;
 	}
 	
 	
