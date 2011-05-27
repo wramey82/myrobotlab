@@ -120,7 +120,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 	public void actionPerformed(ActionEvent e) {
 		JComboBox cb = (JComboBox)e.getSource();
         String method = (String)cb.getSelectedItem();
-        LOG.error(method);
+        LOG.error("method is " + method);
         myService.setDstServiceName(v.name);
         myService.setPeriod0(".");
         myService.setDstMethodName(method);

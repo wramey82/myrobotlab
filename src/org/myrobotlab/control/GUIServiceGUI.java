@@ -56,6 +56,7 @@ import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
@@ -90,9 +91,9 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	
 	public mxGraph graph = null;
-	
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
+	
 	public void init() {
 		
 		// build input begin ------------------
@@ -135,8 +136,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				graph.getModel().endUpdate();
 			}
 
-	        // creating JComponent
-			graphComponent = new mxGraphComponent(graph);
 		} else {
 			// we have serialized version of graph
 			// deserialize it
@@ -150,14 +149,27 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        Document document = mxUtils.parseXml(myService.getGraphXML());
 
 	        mxCodec codec2 = new mxCodec(document);
-	        graph = new mxGraph();
+	        graph = getNewMXGraph();
 	        codec2.decode(document.getDocumentElement(),graph.getModel());
 	        
-	        // creating JComponent
-	        graphComponent = new mxGraphComponent(graph);			
+	        
+	        LOG.error(graph.getChildCells(null));
+	        /*
+	        mxIGraphModel model = graph.getModel();
+	        model.
+	        for (int i = 0, lenRoot = model.getRootCount(); i < lenRoot; i++) {
+
+	            Object o = model.getRootAt(i);
+	        
+	        graph.
+	        */
+	        
 		}
 		
-		graph.setMinimumGraphSize(new mxRectangle(0, 0, 620, 480)); // TODO - get # of services to set size?
+		graph.setMinimumGraphSize(new mxRectangle(0, 0, 640, 480)); // TODO - get # of services to set size?
+
+		// creating JComponent
+        graphComponent = new mxGraphComponent(graph);			
 
 		
 		// Sets the default edge style
@@ -186,10 +198,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 					{
 						// TODO - edges get filtered through here too - need to process - (String) type
 						GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();// zod zod zod
-						if (v.type == Type.OUTPORT)
+						if (v.displayName.equals("out"))
 						{
 							new GUIServiceOutMethodDialog(myService, "out method", v); 
-						} else if (v.type == Type.INPORT)
+						} else if (v.displayName.equals("in"))
 						{
 							new GUIServiceInMethodDialog(myService, "in method", v); 
 						}
@@ -355,7 +367,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		int y = 20;
 
 		Object parent = graph.getDefaultParent();
-		
+		serviceCells.clear();
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
