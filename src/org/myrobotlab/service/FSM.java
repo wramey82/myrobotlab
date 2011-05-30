@@ -27,6 +27,7 @@ package org.myrobotlab.service;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.simpleframework.xml.Root;
@@ -73,6 +74,21 @@ public class FSM extends Service {
 	@Override
 	public String getToolTip() {
 		return "used to generate pulses";
+	}
+	
+	public static void main(String[] args) throws ClassNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.WARN);
+		
+		Invoker invoker = new Invoker("invoker");
+		invoker.startService();
+
+		FSM fsm = new FSM("fsm");
+		fsm.startService();
+		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 	}
 
 

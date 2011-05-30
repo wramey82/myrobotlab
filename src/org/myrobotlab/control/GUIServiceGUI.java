@@ -152,8 +152,24 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        graph = getNewMXGraph();
 	        codec2.decode(document.getDocumentElement(),graph.getModel());
 	        
+	        Object parent = graph.getDefaultParent();
+	        //int cellCount = graph.getChildCells(parent).length;
+	        Object services[] = graph.getChildVertices(parent);
+	        //LOG.info("cellCount " + cellCount);
+	        LOG.info("serviceCount " + services.length);
 	        
-	        LOG.error(graph.getChildCells(null));
+	        for (int i = 0; i < services.length; ++i)
+	        {
+	        	//serviceCells
+	        	Object s = services[i];
+	        	LOG.info(s);
+	        	
+	        	mxCell m = (mxCell) services[i];
+				GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();// zod zod zod
+	        	LOG.info(v.name);
+	        	serviceCells.put(v.name, m);
+	        	//serviceCells.put(arg0, s.);
+	        }
 	        /*
 	        mxIGraphModel model = graph.getModel();
 	        model.
