@@ -132,7 +132,7 @@ public class Invoker extends Service {
 		// return getShortClassNames("org.myrobotlab.service",false);
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
 				"ChessGame", "Clock", "DifferentialDrive",
-				"FaceTracker", "GeneticProgramming", "Graphics", "GUIService",
+				"FaceTracker", "FSM", "GeneticProgramming", "Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
 				"Logging", "MediaSource", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
