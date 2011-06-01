@@ -121,12 +121,10 @@ public class TrackingService extends Service {
 		return f;
 	}
 
-	final public void center(CvPoint2D32f[] pts) {
-		// TODO - find the centeroid of points
-		center(pts[0]);
-	}
 
+	// note - using pt.x() - gets the first point if an array is sent
 	final public void center(CvPoint2D32f pt) {
+		//pt.
 		trackX((int) pt.x());
 		trackY((int) pt.y());
 	}

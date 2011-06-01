@@ -26,19 +26,13 @@
 package org.myrobotlab.image;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.HashMap;
-
-import com.googlecode.javacv.*;
-import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-
 
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 /*
  *  
@@ -48,8 +42,9 @@ import org.myrobotlab.service.OpenCV;
  * http://www.javaworld.com/javaworld/javaqa/2001-04/03-qa-0420-abstract.html
  */
 
-public abstract class OpenCVFilter {
+public abstract class OpenCVFilter implements Serializable{
 
+	private static final long serialVersionUID = 1L;
 	ConfigurationManager cfg = null;
 	final public String name;
 	OpenCV myService = null;
@@ -63,7 +58,7 @@ public abstract class OpenCVFilter {
 
 	static HashMap<String, Object> globalData = new HashMap<String, Object>();
 
-	static HashMap<String, IplImage> imageMap = new HashMap<String, IplImage>();
+	//static HashMap<String, IplImage> imageMap = new HashMap<String, IplImage>();
 	
 	public static final String FILTER_CFG_ROOT = "displayFilter/filter/";
 	public final String FILTER_INSTANCE_CFG_ROOT;

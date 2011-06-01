@@ -301,11 +301,15 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 			if (!isTracing) {
 				// Notification Arduino ------> SensorMonitor
-				NotifyEntry notifyEntry = new NotifyEntry();
-				notifyEntry.name = boundServiceName;
-				notifyEntry.outMethod_ = SensorData.publishPin;
-				notifyEntry.inMethod_ = "sensorInput";
-				notifyEntry.paramTypes = new Class[]{PinData.class};
+				NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin,
+						boundServiceName,
+						"sensorInput",
+						new Class[]{PinData.class}
+						);
+				//notifyEntry.name = boundServiceName;
+				//notifyEntry.outMethod = SensorData.publishPin;
+				//notifyEntry.inMethod = "sensorInput";
+				//notifyEntry.paramTypes = new Class[]{PinData.class};
 				myService.send(controllerName, "notify", notifyEntry);
 
 				// Notification SensorMonitor ------> GUIService

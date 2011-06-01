@@ -135,10 +135,14 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
         if (method != null && method.length() > 0)
         {
 	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
-			NotifyEntry ne = new NotifyEntry();
-			ne.name = myService.getDstServiceName();
-			ne.outMethod_ = myService.getSrcMethodName().split(" ")[0];
-			ne.inMethod_ = myService.getDstMethodName().split(" ")[0];
+			//ne.name = myService.getDstServiceName();
+			//ne.outMethod = myService.getSrcMethodName().split(" ")[0];
+			//ne.inMethod = myService.getDstMethodName().split(" ")[0];
+			NotifyEntry ne = new NotifyEntry(myService.getSrcMethodName().split(" ")[0],
+					 myService.getDstServiceName(),
+					 myService.getDstMethodName().split(" ")[0],
+					 null // this is not being filled in - TODO - fix parameter list
+					);
 			
 			LOG.error("NotifyEntry !!! " + ne);
 /*			
@@ -153,7 +157,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 			mxGraph graph = myService.getGraph();
 			Object parent = graph.getDefaultParent();
 			HashMap<String, mxCell> serviceCells = myService.getCells();
-			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(ne.outMethod_, ne.paramTypes, ne.inMethod_), serviceCells.get(srcService), serviceCells.get(ne.name));
+			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(srcService), serviceCells.get(ne.name));
 			
 	        this.dispose();
         }

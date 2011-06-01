@@ -247,8 +247,8 @@ public class ServoGUI extends ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			myService.send(boundServiceName, "setCFG", "posMin", Integer.parseInt(posMin.getText()));
-			myService.send(boundServiceName, "setCFG", "posMax", Integer.parseInt(posMax.getText()));
+			myService.send(boundServiceName, "setPosMin", Integer.parseInt(posMin.getText()));
+			myService.send(boundServiceName, "setPosMax", Integer.parseInt(posMax.getText()));
 		}
 	}
 	

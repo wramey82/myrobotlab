@@ -30,9 +30,9 @@ import org.myrobotlab.framework.Service;
 
 public class Arm extends Service {
 
-	public final static Logger LOG = Logger.getLogger(Arm.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Arm.class.getCanonicalName());
 
+	private static final long serialVersionUID = 1L;
 	public final static int IR_PIN = 1;
 
 	GUIService gui = new GUIService("gui");
