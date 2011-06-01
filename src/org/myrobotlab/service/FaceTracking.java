@@ -26,23 +26,20 @@
 package org.myrobotlab.service;
 
 import java.awt.Dimension;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.Arrays;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 
-public class FaceTracker extends Service {
+public class FaceTracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(FaceTracker.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(FaceTracking.class.getCanonicalName());
 
 	/*
 	 *  TODO - dead zone - scan / search
@@ -55,8 +52,11 @@ public class FaceTracker extends Service {
 	
 	Logging logger = new Logging("logger");
 	
-	public FaceTracker(String n) {
-		super(n, FaceTracker.class.getCanonicalName());
+	PID xpid = new PID();
+	PID ypid = new PID();
+	
+	public FaceTracking(String n) {
+		super(n, FaceTracking.class.getCanonicalName());
 		
 		tilt.startService();
 		pan.startService();
@@ -71,6 +71,13 @@ public class FaceTracker extends Service {
 		//notify("tilt", "logger", "log");
 		notify("pan", "pan", "move");
 		notify("tilt", "tilt", "move");
+		
+		xpid.SetTunings(0.1f, 0f, 0.5f);
+		xpid.Setpoint = 80;
+
+		ypid.SetTunings(0.1f, 0f, 0.5f);
+		ypid.Setpoint = 60;
+		
 	}
 	
 	@Override
@@ -102,10 +109,10 @@ public class FaceTracker extends Service {
 	public class PID {
 		
 		/*working variables*/
-		long lastTime;
-		float Input, Output, Setpoint;
-		float errSum, lastErr;
-		float kp, ki, kd;
+		public long lastTime;
+		public float Input, Output, Setpoint;
+		public float errSum, lastErr;
+		public float kp, ki, kd;
 		
 		void Compute()
 		{
@@ -138,21 +145,30 @@ public class FaceTracker extends Service {
 	{
 		// TODO - handle multiple resolutions
 		// currently I am only going to do 160 x 120
-		errorX = (point.x() - centerX)/2 * -1;
-		errorY = (point.y() - centerY)/2 * -1;
+		//errorX = (point.x() - centerX)/2 * -1;
+		//errorY = (point.y() - centerY)/2 * -1;
 		
+		xpid.Input = point.x();
+		xpid.Compute();
+		
+		ypid.Input = point.y();
+		ypid.Compute();
+		
+		//LOG.error(xpid.Output);
+		
+		/*
 		if (point.x() > centerX)
 		{
-			errorX = -1;
+			errorX = -2;
 		} else {
-			errorX = 1;			
+			errorX = 2;			
 		}
 
 		if (point.y() > centerY)
 		{
-			errorY = -1;
+			errorY = -2;
 		} else {
-			errorY = 1;			
+			errorY = 2;			
 		}
 		
 		
@@ -160,6 +176,7 @@ public class FaceTracker extends Service {
 		
 		invoke("pan", errorX);
 		invoke("tilt", errorY);
+		*/
 		/*
 		try {
 			Thread.sleep(500);
@@ -168,6 +185,8 @@ public class FaceTracker extends Service {
 			e.printStackTrace();
 		}
 		*/
+		invoke("pan", (int)xpid.Output);
+		invoke("tilt", (int)ypid.Output);
 	}
 	
 	public Integer tilt (Integer position)
@@ -180,23 +199,43 @@ public class FaceTracker extends Service {
 		return position;
 	}
 	
+	public FaceTracking publishState()
+	{
+		return this;
+	}
+
+	// TODO - reflectively do it in Service? !?
+	// No - the overhead of a Service warrants a data only proxy - so to
+	// a single container class "ClockData data = new ClockData()" could allow
+	// easy maintenance and extensibility - possibly even reflective sync if names are maintained   
+	public FaceTracking setState(FaceTracking o)
+	{
+		return o;
+	}
+	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
+				
 		
-		
-		FaceTracker ft = new FaceTracker("face tracker");
+		FaceTracking ft = new FaceTracking("face tracker");
 		ft.startService();
 
 		ft.camera.addFilter("PyramidDown1", "PyramidDown");
+		ft.camera.addFilter("PyramidDown2", "PyramidDown");
 		//ft.camera.addFilter("PyramidDown2", "PyramidDown");
 		ft.camera.capture();
+		
+		//ft.arduino.se - TODO setPort("/dev/ttyUSB0");
+		
+		//ft.tilt.attach(ft.arduino.name, 12);
+		//ft.pan.attach(ft.arduino.name, 13);
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
-		
+/*		
 		RuntimeEnvironment.releaseAll();
 		
 		FileOutputStream fos = null;

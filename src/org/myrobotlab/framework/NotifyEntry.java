@@ -26,49 +26,60 @@
 package org.myrobotlab.framework;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-public class NotifyEntry implements Serializable {
+public final class NotifyEntry implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(NotifyEntry.class);
 
-	public int ID;
-	public String outMethod_; // the keyed out method
+	public String outMethod; // the keyed out method
 	public String name; // globally unique name of Service a Message will be
 						// sent to
-	public String inMethod_; // the method which will be invoked from the
+	public String inMethod; // the method which will be invoked from the
 								// Message
-	public Class[] paramTypes = null; // the parameter type of the inMethod - named
+	public Class<?>[] paramTypes = null; // the parameter type of the inMethod - named
 								// parameterType vs dataType, because this will
 								// always specify parameters not return types
 
-	// option constants
-
-	// ctors begin ----
-	public NotifyEntry() {
-		outMethod_ = new String();
-		name = new String();
-		inMethod_ = new String();
+	private int _hashCode = 0;
+	
+	public NotifyEntry(String outMethod,String name,String inMethod, Class<?>[] paramTypes) {
+		this.outMethod = outMethod;
+		this.inMethod = inMethod;
+		this.name = name;
+		this.paramTypes = paramTypes;
 	}
-
-	public NotifyEntry(final NotifyEntry other) {
-		this();
-		set(other);
+	
+	
+	final public boolean equals(final NotifyEntry other)
+	{
+		//if (paramTypes.toString().equals(other.outMethod))
+		if (Arrays.equals(paramTypes, other.paramTypes)
+				&& name.equals(other.name)
+				&& inMethod.equals(other.inMethod)
+				&& outMethod.equals(other.outMethod)
+				)
+		{
+			return true;
+		}
+		return false;
 	}
-
-	// ctors end ----
-
-	public void set(final NotifyEntry other) {
-		ID = other.ID;
-		outMethod_ = other.outMethod_;
-		name = other.name;
-		inMethod_ = other.inMethod_;
-		paramTypes = other.paramTypes;
-
+	
+	final public int hashCode()
+	{
+		if (_hashCode == 0)
+		{
+			_hashCode = 37 + outMethod.hashCode() + name.hashCode() + inMethod.hashCode();
+			for (int i = 0; i < paramTypes.length; ++i)
+			{
+				_hashCode += paramTypes[i].hashCode();
+			}
+		}
+		
+		return _hashCode;
 	}
-
-	// assignment end ---
 
 	/*
 	 * Default format was xml is now JSON TODO - make toStringStyler like spring
@@ -76,10 +87,9 @@ public class NotifyEntry implements Serializable {
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
 		ret.append("{");
-		ret.append("\"ID\":\"" + ID + "\"");
-		ret.append("\"outMethod\":" + "\"" + outMethod_ + "\"");
+		ret.append("\"outMethod\":" + "\"" + outMethod + "\"");
 		ret.append("\"name\":" + "\"" + name + "\"");
-		ret.append("\"inMethod\":" + "\"" + inMethod_ + "\"");
+		ret.append("\"inMethod\":" + "\"" + inMethod + "\"");
 		ret.append("\"paramType\":" + "\"" + paramTypes + "\"");
 		ret.append("}");
 		return ret.toString();

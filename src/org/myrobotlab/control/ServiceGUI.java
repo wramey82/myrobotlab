@@ -155,15 +155,17 @@ public abstract class ServiceGUI {
 	 */
 	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
-		NotifyEntry notifyEntry = new NotifyEntry();
-		notifyEntry.name = myService.name;
-		notifyEntry.outMethod_ = outMethod;
-		notifyEntry.inMethod_ = inMethod;
+		NotifyEntry ne = null;
+		//notifyEntry.name = myService.name;
+		//notifyEntry.outMethod = outMethod;
+		//notifyEntry.inMethod = inMethod;
 		if (parameterType != null) {
-			notifyEntry.paramTypes = new Class[]{parameterType};
+			ne = new NotifyEntry(outMethod, myService.name, inMethod, new Class[]{parameterType});
+		} else {
+			ne = new NotifyEntry(outMethod, myService.name, inMethod, null);
 		}
 		
-		myService.send(boundServiceName, "notify", notifyEntry);
+		myService.send(boundServiceName, "notify", ne);
 
 	}
 
@@ -171,14 +173,14 @@ public abstract class ServiceGUI {
 	// addListener
 	public void removeNotifyRequest(String outMethod, String inMethod,
 			Class<?> parameterType) {
-		NotifyEntry notifyEntry = new NotifyEntry();
-		notifyEntry.name = myService.name;
-		notifyEntry.outMethod_ = outMethod;
-		notifyEntry.inMethod_ = inMethod;
+
+		NotifyEntry ne = null;
 		if (parameterType != null) {
-			notifyEntry.paramTypes = new Class[]{parameterType};
+			ne = new NotifyEntry(outMethod, myService.name, inMethod, new Class[]{parameterType});
+		} else {
+			ne = new NotifyEntry(outMethod, myService.name, inMethod, null);
 		}
-		myService.send(boundServiceName, "removeNotify", notifyEntry);
+		myService.send(boundServiceName, "removeNotify", ne);
 
 	}
 

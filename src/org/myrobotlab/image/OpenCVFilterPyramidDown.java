@@ -41,10 +41,11 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
-	public final static Logger LOG = Logger
-			.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
-	IplImage dst = null;
+	public final static Logger LOG = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+
+	transient IplImage dst = null;
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 

@@ -53,6 +53,11 @@ public class Servo extends Service implements
 
 	String controllerName = ""; // without an attached controller name - a Servo
 								// is not very interesting
+	
+	private int pos = -1; // position -1 invalid not set yet
+	private int posMin = 40;
+	private int posMax = 110;
+	private int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
 
 	public Servo(String n) {
 		super(n, Servo.class.getCanonicalName());
@@ -60,8 +65,6 @@ public class Servo extends Service implements
 
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("posMin", 40);
-		cfg.set("posMax", 110);
 	}
 
 	/*
@@ -119,7 +122,7 @@ public class Servo extends Service implements
 	 */
 
 	public Integer setPin(Integer pin) {
-		cfg.set("pin", pin);
+		this.pin = pin;
 		return pin;
 	}
 
@@ -132,18 +135,28 @@ public class Servo extends Service implements
 	 */
 
 	public Integer setPos(Integer pos) {
-		cfg.set("pos", pos);
+		this.pos = pos;
 		return pos;
 	}
 
-	public Integer getPin() {
-		return cfg.get("pin", 0);
+	public Integer getPin() { // TODO - won't this get boxed up?
+		return new Integer(pin);
 	}
 
 	public Integer getPos() {
-		return cfg.get("pos", 0);
+		return new Integer(pos);
+	}
+	
+	public void setPosMin(Integer posMin)
+	{
+		this.posMin = posMin; 
 	}
 
+	public void setPosMax(Integer posMax)
+	{
+		this.posMax = posMax; 
+	}
+	
 	public String getControllerName() // TODO - strangely this is not CFG'd -
 										// but perhaps that is OK??
 	{
@@ -207,11 +220,10 @@ public class Servo extends Service implements
 		isAttached = true;
 	}
 
+	// TODO - still used? deprecate
 	public PinData readServo(PinData p) {
 		LOG.info(p);
-		if (p.pin == cfg.getInt("pin")) {
-			setPos(p.value);
-		}
+		setPos(p.value);
 		return p;
 	}
 
@@ -228,7 +240,7 @@ public class Servo extends Service implements
 	 * between two Services
 	 */
 	public void detach() {
-		send(controllerName, ServoController.servoDetach, cfg.getInt("pin")); // TODO
+		send(controllerName, ServoController.servoDetach, pin); // TODO
 																				// if
 																				// (Boolean)sendBlocking(....
 		removeNotify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
@@ -242,33 +254,32 @@ public class Servo extends Service implements
 	// move to absolute position 0 - 180
 	public Integer moveTo(Integer pos) {
 		LOG.info("moveTo" + pos);
-		cfg.set("pos", pos);
+		this.pos = pos; 
 		invoke("servoWrite", pos);
 		return pos;
 	}
 
 	public IOData servoWrite(Integer pos) {
 		IOData d = new IOData();
-		d.address = cfg.getInt("pin");
+		d.address = pin;
 		d.value = pos;
 		return d;
 	}
 
-	public Integer move(Integer amount) // TODO - possibly depricate and handle
+	public int move(Integer amount) // TODO - possibly depricate and handle
 										// details internally?
 	{
-		int p = cfg.getInt("pos") + amount;
-		if (p < cfg.getInt("posMax") && p > cfg.getInt("posMin")) {
-			cfg.set("pos", p + amount);
-			LOG.info("move" + cfg.getInt("pos"));
-			invoke("servoWrite", p);
-			return p;
+		int p = pos + amount;
+		if (p < posMax && p > posMin) {
+			pos = p;
+			LOG.info("move" + pos);
+			invoke("servoWrite", pos);
 
 		} else {
-			LOG.error("servo out of bounds " + cfg.getInt("pos"));
+			LOG.error("servo out of bounds pin " + pin + " pos " + pos + " amount " + amount);
 		}
 
-		return null;
+		return pos;
 	}
 
 	public void sweep(int sweepStart, int sweepEnd, int sweepDelayMS,

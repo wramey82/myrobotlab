@@ -311,12 +311,8 @@ public class Wii extends Service implements WiimoteListener,
 				(data & 4) == 0);
 		++bitCount;
 		// last 2 bits
-		wiimote.setLeds(strobeState, (data & 2) == 0, (data & 1) == 0, false); // <-
-																				// throw
-																				// away
-																				// 9th
-																				// bit
-																				// (padding)
+		wiimote.setLeds(strobeState, (data & 2) == 0, (data & 1) == 0, false); 
+		
 		++bitCount;
 
 	}

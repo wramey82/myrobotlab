@@ -128,21 +128,21 @@ public class Outbox implements Runnable, Serializable //extends Thread
 			}
 
 			if (notifyList.size() != 0) {
-				//LOG.error(myService.name + " notify list size " + notifyList.size());
-				LOG.info("notifying");
-				ArrayList<NotifyEntry> subList = notifyList.get(msg.sendingMethod.toString()); // Get the value for
+
+				// key is now sendingMethod.destName.methodName - parameterType are
+				// left out until invoke time
+				ArrayList<NotifyEntry> subList = notifyList.get(msg.sendingMethod); // Get the value for
 															// the sourceMethod
 				if (subList == null) {
-					LOG.info("no static route for " + msg.sender + "."
-							+ msg.sendingMethod); // This will cause issues in
-													// broadcasts
+					LOG.info("no static route for " + msg.sender + "." + msg.sendingMethod); 
+					// This will cause issues in broadcasts
 					continue;
 				}
 
 				for (int i = 0; i < subList.size(); ++i) {
 					NotifyEntry ne = subList.get(i);
 					msg.name = ne.name;
-					msg.method = ne.inMethod_;
+					msg.method = ne.inMethod;
 					if (i != 0) // TODO - this is crap refactor
 					{
 						// TODO - optimization do NOT make copy of message on

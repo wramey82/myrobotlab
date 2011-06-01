@@ -74,6 +74,8 @@ import org.myrobotlab.service.interfaces.ServoController;
 public class Arduino extends Service implements SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(Arduino.class
 			.getCanonicalName());
 

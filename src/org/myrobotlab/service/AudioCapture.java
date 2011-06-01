@@ -43,13 +43,11 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 
 public class AudioCapture extends Service {
 
 	public final static Logger LOG = Logger.getLogger(AudioCapture.class.getCanonicalName());
-
 	private static final long serialVersionUID = 1L;
 	boolean stopCapture = false;
 	ByteArrayOutputStream byteArrayOutputStream;

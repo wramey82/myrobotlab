@@ -83,7 +83,6 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
-
 @Root
 public class OpenCV extends Service {
 
@@ -98,17 +97,17 @@ public class OpenCV extends Service {
 	String useInput = "null";
 	String inputMovieFileName = "input.avi";
 	boolean loopInputMovieFile = true;
-	boolean performanceTiming = false;
 	boolean sendImage = true;
 	boolean useCanvasFrame = false;
 	
-	//CvCapture grabber = null;
-	VideoProcess videoProcess = null;
+	transient VideoProcess videoProcess = null;
+	String displayFilter = "output";
+
+	public BlockingQueue<BufferedImage> images = new ArrayBlockingQueue<BufferedImage>(100);
 	
 	// display
 	CanvasFrame cf = null;
-	IplImage frame = null;
-	// CvMemStorage storage = null;
+	transient IplImage frame = null;
 	LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
 	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
 
@@ -175,10 +174,10 @@ public class OpenCV extends Service {
 		//cfg.set("inputMovieFileName", "outfile1.avi");
 		//cfg.set("inputMovieFileLoop", true);
 		// cfg.set("outputMovieFileName", "out.avi");
-		cfg.set("performanceTiming", false);
+		//cfg.set("performanceTiming", false);
 		//cfg.set("sendImage", true);
 		//cfg.set("useCanvasFrame", false);
-		cfg.set("displayFilter", "output");
+		//cfg.set("displayFilter", "output");
 	}
 
 	
@@ -252,15 +251,12 @@ public class OpenCV extends Service {
 		return null;
 	}
 
-	public BlockingQueue<BufferedImage> images = new ArrayBlockingQueue<BufferedImage>(
-			100);
 
 	public BufferedImage input(BufferedImage bi) {
 		try {
 			images.put(bi);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(Service.stackToString(e));
 		}
 		return bi;
 	}
@@ -352,6 +348,7 @@ public class OpenCV extends Service {
 				stop ();
 			}
 			
+			
 			while (isCaptureRunning) {
 				
 				published = false;
@@ -359,10 +356,10 @@ public class OpenCV extends Service {
 				++frameIndex;
 				logTime("start");
 
-
+				
 				//double x = highgui.cvGetCaptureProperty(grabber, highgui.CV_CAP_PROP_FRAME_WIDTH);
-				//highgui.cvSetCaptureProperty( grabber, highgui.CV_CAP_PROP_FRAME_WIDTH, 320);
-				//highgui.cvSetCaptureProperty( grabber, highgui.CV_CAP_PROP_FRAME_HEIGHT, 240);
+				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_WIDTH, 320);
+				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_HEIGHT, 240);
 					//frame = grabber.grab();
 					if (!isWindows)
 					{
@@ -394,14 +391,14 @@ public class OpenCV extends Service {
 														// frame???
 
 						// LOG.error(cfg.get("displayFilter"));
-						if (cfg.get("displayFilter").compareTo(name) == 0) {
+						if (displayFilter.equals(name)) {
 							// bi = filter.display(frame, null);
 							published = true;
 							if (sendImage) {
 								// invoke("sendImage", cfg.get("displayFilter"),
 								// frame.getBufferedImage()); frame? or current
 								// display??
-								invoke("sendImage", cfg.get("displayFilter"),
+								invoke("sendImage", displayFilter,
 										filter.display(frame, null));
 							}
 						}
@@ -436,7 +433,7 @@ public class OpenCV extends Service {
 						bi.flush();
 
 						if (sendImage) {
-							invoke("sendImage", cfg.get("displayFilter"), bi);
+							invoke("sendImage", displayFilter, bi);
 						}
 						// LOG.error(" time");
 						published = true;
@@ -487,7 +484,7 @@ public class OpenCV extends Service {
 	}
 
 	public void setDisplayFilter(String name) {
-		cfg.set("displayFilter", name);
+		displayFilter = name;
 	}
 
 	/*
@@ -505,10 +502,17 @@ public class OpenCV extends Service {
 		return value;
 	}
 
+	/*
 	public CvPoint2D32f[] publish(CvPoint2D32f[] features) {
 		return features;
 	}
+	*/
 
+	// CPP interface does not use array - but hides implementation
+	public CvPoint2D32f publish(CvPoint2D32f features) {
+		return features;
+	}
+	
 	public CvPoint publish(CvPoint point) {
 		return point;
 	}

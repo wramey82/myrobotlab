@@ -72,6 +72,8 @@ public abstract class Service implements Runnable, Serializable {
 	Inbox inbox = null;
 	public URL url = null;
 	
+	boolean performanceTiming = false;
+	
 	protected CommunicationInterface cm = null;
 	protected ConfigurationManager cfg = null;
 	protected ConfigurationManager hostcfg = null;
@@ -99,10 +101,13 @@ public abstract class Service implements Runnable, Serializable {
 
 	public Service(String instanceName, String serviceClass, String inHost) {
 		
-		try {
-			url = new URL(inHost);
-		} catch (MalformedURLException e) {
-			LOG.error(inHost + " not a valid URL");
+		if (inHost != null)
+		{
+			try {
+				url = new URL(inHost);
+			} catch (MalformedURLException e) {
+				LOG.error(inHost + " not a valid URL");
+			}
 		}
 		// determine host name
 		host = getHostName(inHost);
@@ -172,7 +177,7 @@ public abstract class Service implements Runnable, Serializable {
 		if (startTimeMilliseconds == 0) {
 			startTimeMilliseconds = System.currentTimeMillis();
 		}
-		if (cfg.getBoolean("performanceTiming")) {
+		if (performanceTiming) {
 			LOG.info("performance clock :"
 					+ (System.currentTimeMillis() - startTimeMilliseconds
 							+ " ms " + tag));
@@ -562,12 +567,28 @@ public abstract class Service implements Runnable, Serializable {
 	// this is called from video widget sendNotifyRequest
 	public void notify(NotifyEntry ne)	 
 	{
-		if (outbox.notifyList.containsKey(ne.outMethod_.toString())) {
-			outbox.notifyList.get(ne.outMethod_.toString()).add(ne);
+		if (outbox.notifyList.containsKey(ne.outMethod.toString())) {
+			// iterate through all looking for duplicate
+			boolean found = false;
+			ArrayList<NotifyEntry> nes = outbox.notifyList.get(ne.outMethod.toString());
+			for (int i = 0; i < nes.size(); ++i)
+			{
+				NotifyEntry entry = nes.get(i);
+				if (entry.equals(ne))
+				{
+					LOG.warn("attempting to add duplicate NotifyEntry " + ne);
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				nes.add(ne);
+			}
 		} else {
 			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
 			nel.add(ne);
-			outbox.notifyList.put(ne.outMethod_.toString(), nel);
+			outbox.notifyList.put(ne.outMethod.toString(), nel);
 		}
 		
 	}
@@ -575,12 +596,7 @@ public abstract class Service implements Runnable, Serializable {
 	public void notify(String outMethod, String namedInstance, String inMethod,
 			Class<?>[] paramTypes)	 
 	{
-		NotifyEntry ne = new NotifyEntry();
-		ne.outMethod_ = outMethod;
-		ne.inMethod_ = inMethod;
-		ne.name = namedInstance;
-		ne.paramTypes = paramTypes;
-		
+		NotifyEntry ne = new NotifyEntry(outMethod, namedInstance, inMethod, paramTypes);
 		notify(ne);
 	}
 
@@ -662,8 +678,8 @@ public abstract class Service implements Runnable, Serializable {
 	}
 
 	public void removeNotify(NotifyEntry ne) {
-		if (outbox.notifyList.containsKey(ne.outMethod_.toString())) {
-			ArrayList<NotifyEntry> nel = outbox.notifyList.get(ne.outMethod_
+		if (outbox.notifyList.containsKey(ne.outMethod.toString())) {
+			ArrayList<NotifyEntry> nel = outbox.notifyList.get(ne.outMethod
 					.toString());
 			for (int i = 0; i < nel.size(); ++i) {
 				NotifyEntry target = nel.get(i);
@@ -918,7 +934,7 @@ public abstract class Service implements Runnable, Serializable {
 				Class<?> interfc = interfaces[i];
 
 				LOG.info("adding interface "
-						+ interfc.getClass().getCanonicalName());
+						+ interfc.getCanonicalName());
 
 				hostcfg.setInterface(host, name, interfc.getClass()
 						.getCanonicalName());

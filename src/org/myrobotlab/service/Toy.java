@@ -62,7 +62,9 @@ public class Toy extends Service {
 	int cameraDistanceFromFloorInches = 49;
 	
 	// TODO - bury in platform - absolute vs relative pos
-	CvPoint2D32f[] lastToyPosition = new CvPoint2D32f[3]; 
+	//CvPoint2D32f[] lastToyPosition = new CvPoint2D32f[3];
+	// arrays handled internally
+	CvPoint2D32f lastToyPosition = new CvPoint2D32f(3);
 	CvPoint2D32f toyPoint = new CvPoint2D32f(); 
 	CvPoint2D32f toyCenteroid = new CvPoint2D32f(); 
 
@@ -288,15 +290,15 @@ public class Toy extends Service {
 
 			if (bottomSegment == 0)
 			{
-				graphics.drawLine((int)lastToyPosition[0].x(), (int)lastToyPosition[0].y(), (int)lastToyPosition[1].x(), (int)lastToyPosition[1].y());	
-				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[2].x(), (int)lastToyPosition[2].y());	
+				graphics.drawLine((int)lastToyPosition.position(0).x(), (int)lastToyPosition.position(0).y(), (int)lastToyPosition.position(1).x(), (int)lastToyPosition.position(1).y());	
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition.position(2).x(), (int)lastToyPosition.position(2).y());	
 			} else if (bottomSegment == 1)
 			{
-				graphics.drawLine((int)lastToyPosition[1].x(), (int)lastToyPosition[1].y(), (int)lastToyPosition[2].x(), (int)lastToyPosition[2].y());				
-				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[0].x(), (int)lastToyPosition[0].y());	
+				graphics.drawLine((int)lastToyPosition.position(1).x(), (int)lastToyPosition.position(1).y(), (int)lastToyPosition.position(2).x(), (int)lastToyPosition.position(2).y());				
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition.position(0).x(), (int)lastToyPosition.position(0).y());	
 			} else {
-				graphics.drawLine((int)lastToyPosition[2].x(), (int)lastToyPosition[2].y(), (int)lastToyPosition[0].x(), (int)lastToyPosition[0].y());				
-				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition[1].x(), (int)lastToyPosition[1].y());					
+				graphics.drawLine((int)lastToyPosition.position(2).x(), (int)lastToyPosition.position(2).y(), (int)lastToyPosition.position(0).x(), (int)lastToyPosition.position(0).y());				
+				graphics.drawLine((int)toyPoint.x(), (int)toyPoint.y(), (int)lastToyPosition.position(1).x(), (int)lastToyPosition.position(1).y());					
 			}
 							
 			// TODO persist configuration - so appropriate segment is always subsequently chosen & 
@@ -369,12 +371,12 @@ public class Toy extends Service {
 				
 			}				
 			
-			lastToyPosition[0].x(trackingPoints[0].x());
-			lastToyPosition[0].y(trackingPoints[0].y());
-			lastToyPosition[1].x(trackingPoints[1].x());
-			lastToyPosition[1].y(trackingPoints[1].y());
-			lastToyPosition[2].x(trackingPoints[2].x());
-			lastToyPosition[2].y(trackingPoints[2].y());
+			lastToyPosition.position(0).x(trackingPoints[0].x());
+			lastToyPosition.position(0).y(trackingPoints[0].y());
+			lastToyPosition.position(1).x(trackingPoints[1].x());
+			lastToyPosition.position(1).y(trackingPoints[1].y());
+			lastToyPosition.position(2).x(trackingPoints[2].x());
+			lastToyPosition.position(2).y(trackingPoints[2].y());
 			
 			// TODO verify dimensions angle and lengths
 			
@@ -524,9 +526,9 @@ public class Toy extends Service {
 		graphics.fillRect(0, 0, 640, 480);
 		
 		// last position of toy
-		lastToyPosition[0] = new CvPoint2D32f();
-		lastToyPosition[1] = new CvPoint2D32f();
-		lastToyPosition[2] = new CvPoint2D32f();
+		//lastToyPosition.position(0) = new CvPoint2D32f();
+		//lastToyPosition.position(1) = new CvPoint2D32f();
+		//lastToyPosition.position(2) = new CvPoint2D32f();
 		
 		thingiesToLookFor.add(new TargetCriteria("yellow blocks", 26, 37, 160, 256, 220, 256, 120, 1600));
 		thingiesToLookFor.add(new TargetCriteria("red blocks", 0, 12, 224, 256, 183, 222, 120, 1600));
