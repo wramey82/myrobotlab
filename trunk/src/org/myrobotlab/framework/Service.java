@@ -583,11 +583,13 @@ public abstract class Service implements Runnable, Serializable {
 			}
 			if (!found)
 			{
+				LOG.info("adding notify from " + this.name + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 				nes.add(ne);
 			}
 		} else {
 			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
 			nel.add(ne);
+			LOG.info("adding notify from " + this.name + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 			outbox.notifyList.put(ne.outMethod.toString(), nel);
 		}
 		
@@ -799,8 +801,6 @@ public abstract class Service implements Runnable, Serializable {
 		try {
 			// c = Class.forName(classname); // TODO - test if cached references
 			// are faster than lookup
-			// Object o = c.newInstance(); // Dynamically instantiate it TODO -
-			// if necessary make another static invoke
 			c = object.getClass();
 
 			Class<?>[] paramTypes = null;
@@ -832,20 +832,7 @@ public abstract class Service implements Runnable, Serializable {
 				LOG.debug("****invoking " + host + "/" + c.getCanonicalName()
 						+ "." + method + "(" + paramTypeString + ")****");
 			}
-/*
-			Method[] mm = c.getDeclaredMethods();
-			for (int z=0; z < mm.length; ++z)
-			{
-				Method zz = mm[z];
-				LOG.info(mm[z].getName());
-				Class[] t = mm[z].getParameterTypes();
-				for (int k = 0; k < t.length; ++k)
-				{
-					LOG.info(t[k].getCanonicalName());
-				}
-				//for (int zzz = 0; zzz < t.length)
-			}
-*/			
+
 			Method meth = c.getMethod(method, paramTypes);
 
 			retobj = meth.invoke(object, params);
@@ -1203,10 +1190,10 @@ public abstract class Service implements Runnable, Serializable {
 		msg.encoding = "NONE";// TODO - should be Option value
 
 		if (msg.name.length() == 0) {
-			LOG.info("create message " + host + "/*/" + msg.method + "#"
+			LOG.debug("create message " + host + "/*/" + msg.method + "#"
 					+ msg.getParameterSignature());
 		} else {
-			LOG.info("create message " + host + "/" + msg.name + "/"
+			LOG.debug("create message " + host + "/" + msg.name + "/"
 					+ msg.method + "#" + msg.getParameterSignature());
 		}
 		return msg;
@@ -1316,5 +1303,10 @@ public abstract class Service implements Runnable, Serializable {
 		  catch(Exception e2) {
 		    return "bad stackToString";
 		  }
-		 }	
+	}
+	 
+	 public final static void logException(final Exception e)
+	 {
+		 LOG.error(stackToString(e));
+	 }
 }

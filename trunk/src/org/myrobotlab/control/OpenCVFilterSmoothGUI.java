@@ -24,13 +24,13 @@
  * */
 
 
-package org.myrobotlab.image;
+package org.myrobotlab.control;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.myrobotlab.control.OpenCVFilterGUI;
+import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 
 public class OpenCVFilterSmoothGUI extends OpenCVFilterGUI {
@@ -66,6 +66,12 @@ public class OpenCVFilterSmoothGUI extends OpenCVFilterGUI {
 	public void apply() {
 		LOG.debug("apply");
 
+	}
+
+	@Override
+	public void setFilterData(OpenCVFilter filter) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	// extends FilterOpenCVGUI -

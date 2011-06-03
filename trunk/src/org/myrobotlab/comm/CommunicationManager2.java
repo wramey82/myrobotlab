@@ -76,11 +76,11 @@ public class CommunicationManager2  implements Serializable, CommunicationInterf
 		//if (sw.host.accessURL != null && !sw.host.accessURL.equals(myService.url))
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))
 		{
-			LOG.info("sending local");
+			LOG.debug("sending local");
 			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
 			sw.get().in(m);			
 		} else {
-			LOG.info("sending " + msg.method + " remote");
+			LOG.debug("sending " + msg.method + " remote");
 			getComm().send(sw.host.accessURL, msg);			
 		}
 
