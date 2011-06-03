@@ -56,6 +56,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
@@ -211,6 +212,19 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		// build filters end ------------------
 
 	}
+	
+	public void setFilterData (FilterWrapper filterData)
+	{
+		if (filters.containsKey(filterData.name))
+		{
+			OpenCVFilterGUI gui = filters.get(filterData.name);
+			gui.setFilterData(filterData.filter);
+		} else {
+			LOG.error(filterData.name + " does not contain a gui");
+		}
+	}
+	
+	
 
 	protected ImageIcon createImageIcon(String path, String description) {
 		java.net.URL imgURL = getClass().getResource(path);

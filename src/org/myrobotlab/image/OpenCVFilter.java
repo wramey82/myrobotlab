@@ -28,26 +28,23 @@ package org.myrobotlab.image;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.lang.reflect.*;
 
+import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-/*
- *  
- * 
- * References:
- * TODO implements interface or abstract class?
- * http://www.javaworld.com/javaworld/javaqa/2001-04/03-qa-0420-abstract.html
- */
-
 public abstract class OpenCVFilter implements Serializable{
 
+	public final static Logger LOG = Logger.getLogger(OpenCVFilter.class.toString());
+
 	private static final long serialVersionUID = 1L;
-	ConfigurationManager cfg = null;
+	ConfigurationManager cfg = null; // TODO - remove
 	final public String name;
-	OpenCV myService = null;
+	OpenCV myService = null; // transient?
 
 	final static public String INPUT_IMAGE_NAME = "inputImageName";
 	final static public String OUTPUT_IMAGE_NAME = "outputImageName";
@@ -76,6 +73,74 @@ public abstract class OpenCVFilter implements Serializable{
 		cfg.set(USE_ROI, false);
 	}
 
+	public void copyDataFrom (OpenCVFilter filter)
+	{
+		if (this == filter)
+		{   // data is myself - operating on local copy
+			return;
+		}
+		
+	      Class<?> filterData = filter.getClass();
+	      Class<?> activeFilter = this.getClass();
+	      //Field fields[] = filterData.getDeclaredFields();
+	      Field fields[] = filterData.getDeclaredFields();
+	      for (int j = 0, m = fields.length; j < m; j++) {
+	    	  try {
+	    		  //if (fields[j].)
+	    		  Field f = fields[j];
+
+	    		  
+	    		  if (Modifier.isPublic(f.getModifiers()) 
+	    				  && !(f.getName().equals("LOG"))
+	    				  && !Modifier.isTransient(f.getModifiers()))
+	    		  {
+	    			  	    			  
+		    		  Type t = f.getType();
+	    			  
+	    			  //LOG.info(Modifier.toString(f.getModifiers()));
+		    		  //f.isAccessible()
+		    		  
+		    		  LOG.info("setting " + f.getName());
+		    		  if (t.equals(java.lang.Boolean.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setBoolean(this, f.getBoolean(filter));		    			  
+		    		  } else if (t.equals(java.lang.Character.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setChar(this, f.getChar(filter));
+		    		  } else if (t.equals(java.lang.Byte.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setByte(this, f.getByte(filter));
+		    		  } else if (t.equals(java.lang.Short.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setShort(this, f.getShort(filter));
+		    		  } else if (t.equals(java.lang.Integer.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setInt(this, f.getInt(filter));
+		    		  } else if (t.equals(java.lang.Long.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setLong(this, f.getLong(filter));
+		    		  } else if (t.equals(java.lang.Float.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setFloat(this, f.getFloat(filter));
+		    		  } else if (t.equals(java.lang.Double.TYPE))
+		    		  {
+		    			  activeFilter.getDeclaredField(f.getName()).setDouble(this, f.getDouble(filter));
+		    		  } else {
+		    			  LOG.info("cloning object " + f.getName());
+		    			  activeFilter.getDeclaredField(f.getName()).set(this, f.get(filter));
+		    		  }
+	    			  
+	    		  }
+			} catch (Exception e) {
+				Service.logException(e);
+			}
+	        //System.out.println(names[i] + ", " + fields[j].getName() + ", "
+	    	  //+ fields[j].getType().getName() + ", " + Modifier.toString(fields[j].getModifiers()));
+	      }
+		
+	}
+	
+	// TODO - remove begin ------------------------
 	public Object setCFG(String name, Float value) // hmm what TODO ? Object
 													// won't work Object[]
 													// perhaps
@@ -109,6 +174,9 @@ public abstract class OpenCVFilter implements Serializable{
 	 * won't work Object[] perhaps { return cfg.set(name, value); }
 	 */
 
+	// TODO - remove end ------------------------
+	
+	// TODO - remove use Annotations
 	public abstract String getDescription();
 
 	public abstract void loadDefaultConfiguration();

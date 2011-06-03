@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -69,6 +70,8 @@ public abstract class OpenCVFilterGUI {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public abstract void setFilterData(OpenCVFilter filter);
 
 	public abstract JPanel getDisplay();
 

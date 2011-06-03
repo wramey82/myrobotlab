@@ -66,6 +66,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
+import org.myrobotlab.image.OpenCVFilterGoodFeaturesToTrack;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
 import org.simpleframework.xml.Root;
@@ -217,6 +218,40 @@ public class OpenCV extends Service {
 
 	}
 
+	public void setFilterData (OpenCVFilter filterData)
+	{
+		if (filters.containsKey(filterData.name)) {
+			filters.get(filterData.name).copyDataFrom(filterData);
+		} else {
+			LOG.error("setFilterData " + filterData.name + " does not exist");
+		}
+		
+	}
+	
+	public final class FilterWrapper
+	{
+		public final String name;
+		public final OpenCVFilter filter;
+		
+		public FilterWrapper(String name, OpenCVFilter filter)
+		{
+			this.name = name;
+			this.filter = filter;
+		}
+	}
+	
+	// cannot cast on a return object
+	public FilterWrapper publishFilterData(String name)
+	{
+		if (filters.containsKey(name)) {
+			return new FilterWrapper(name, filters.get(name));
+		} else {
+			LOG.error("setFilterData " + name + " does not exist");
+		}
+		
+		return null;
+	}
+	
 	public Object setFilterCFG(String filterName, String cfgName, Float value) {
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
@@ -616,15 +651,34 @@ public class OpenCV extends Service {
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
-		OpenCV opencv = new OpenCV("opencv");
+		OpenCV opencv = new OpenCV("opencv");		
+		OpenCVFilterGoodFeaturesToTrack f1 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter1"); 
+		OpenCVFilterGoodFeaturesToTrack f2 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter2"); 
+
+		HashMap<String, String> x = new HashMap<String, String>();
+		x.put("test","test");
+		HashMap<String, String> y = (HashMap<String, String>)x.clone();
+		x.clear();
+		LOG.info(y.get("test"));
+		
+		/*
+		f1.copyDataFrom(f1);
+		f1.copyDataFrom(f2);
+		*/
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		opencv.startService();
 
+		opencv.addFilter("PyramidDown", "PyramidDown");
+		//opencv.setCameraIndex(0);
+		opencv.capture();
+
 		gui.display();
 
+		/*
 		
 		opencv.addFilter("Smooth", "Smooth");
 		opencv.addFilter("Dilate1", "Dilate"); 
@@ -635,7 +689,7 @@ public class OpenCV extends Service {
 		 opencv.setFilterCFG("InRange", "hueMax", 0x75);
 		 opencv.setFilterCFG("InRange", "valueMin", 0xc5);
 		 opencv.setFilterCFG("InRange", "valueMax", 0xda);
-
+		 */
 
 	}
 

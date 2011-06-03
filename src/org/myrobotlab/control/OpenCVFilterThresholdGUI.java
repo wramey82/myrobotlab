@@ -37,6 +37,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 
 public class OpenCVFilterThresholdGUI extends OpenCVFilterGUI {
@@ -153,6 +154,12 @@ public class OpenCVFilterThresholdGUI extends OpenCVFilterGUI {
 	public JPanel getDisplay() {
 		// TODO Auto-generated method stub
 		return display;
+	}
+
+	@Override
+	public void setFilterData(OpenCVFilter filter) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
