@@ -436,7 +436,7 @@ public class RuntimeEnvironment implements Serializable{
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = registry.get(serviceName);
-			sb.append("<service name=\""+sw.service.name+"\" serviceEnironment=\""+ sw.host +"\">");
+			sb.append("<service name=\""+sw.service.name+"\" serviceEnironment=\""+ sw.getAccessURL() +"\">");
 			Iterator<String> nit = sw.service.getOutbox().notifyList.keySet().iterator();
 			while (nit.hasNext()) {
 				String n = nit.next();
