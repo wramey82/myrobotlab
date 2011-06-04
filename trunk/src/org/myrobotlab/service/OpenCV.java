@@ -654,6 +654,8 @@ public class OpenCV extends Service {
 		Logger.getRootLogger().setLevel(Level.INFO);
 
 		OpenCV opencv = new OpenCV("opencv");		
+		
+		/*
 		OpenCVFilterGoodFeaturesToTrack f1 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter1"); 
 		OpenCVFilterGoodFeaturesToTrack f2 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter2"); 
 
@@ -662,11 +664,12 @@ public class OpenCV extends Service {
 		HashMap<String, String> y = (HashMap<String, String>)x.clone();
 		x.clear();
 		LOG.info(y.get("test"));
-		
-		/*
 		f1.copyDataFrom(f1);
 		f1.copyDataFrom(f2);
 		*/
+		
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
