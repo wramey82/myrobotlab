@@ -76,6 +76,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 	public HashMap<String, Integer> stableIterations = null;	
 	
+	int lastMaxPointCount = 0;
 	IntByReference cornerCount = new IntByReference(maxPointCount);
 	CvPoint2D32f corners = null; // new way?
     int[] corner_count = { maxPointCount };
@@ -104,10 +105,18 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 			eig = cvCreateImage(cvGetSize(grey), 32, 1);
 			temp = cvCreateImage(cvGetSize(grey), 32, 1);
 
-			corners = new CvPoint2D32f(maxPointCount);
 			stableIterations = new HashMap<String, Integer>();
-			cornerCount.setValue(maxPointCount);
 		}
+		
+		if (lastMaxPointCount != maxPointCount)
+		{
+			cornerCount.setValue(maxPointCount);		
+		    corner_count = new int[]{ maxPointCount };
+
+			lastMaxPointCount = maxPointCount;
+		}
+		
+		corners = new CvPoint2D32f(maxPointCount); // this must be new'd every iteration
 
 		cvCvtColor(frame, grey, CV_BGR2GRAY);
 
@@ -118,7 +127,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	        cvGoodFeaturesToTrack(grey, eig, temp, corners,
 	                corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
-			needTrackingPoints = false;
+			//needTrackingPoints = false;
 		}
 
 		return frame;

@@ -218,10 +218,10 @@ public class OpenCV extends Service {
 
 	}
 
-	public void setFilterData (OpenCVFilter filterData)
+	public void setFilterData (FilterWrapper filterData)
 	{
 		if (filters.containsKey(filterData.name)) {
-			filters.get(filterData.name).copyDataFrom(filterData);
+			Service.copyDataFrom(filters.get(filterData.name), filterData.filter);
 		} else {
 			LOG.error("setFilterData " + filterData.name + " does not exist");
 		}

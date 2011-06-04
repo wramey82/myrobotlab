@@ -29,8 +29,10 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -46,6 +48,7 @@ import java.util.SimpleTimeZone;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.comm.CommunicationManager2;
+import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -1305,8 +1308,71 @@ public abstract class Service implements Runnable, Serializable {
 		  }
 	}
 	 
-	 public final static void logException(final Exception e)
-	 {
-		 LOG.error(stackToString(e));
-	 }
+	public final static void logException(final Exception e) {
+		LOG.error(stackToString(e));
+	}
+
+	public static void copyDataFrom(Object target, Object source) {
+		if (target == source) { // data is myself - operating on local copy
+			return;
+		}
+
+		Class<?> sourceClass = source.getClass();
+		Class<?> targetClass = target.getClass();
+		Field fields[] = sourceClass.getDeclaredFields();
+		for (int j = 0, m = fields.length; j < m; j++) {
+			try {
+				Field f = fields[j];
+
+				if (Modifier.isPublic(f.getModifiers())
+						&& !(f.getName().equals("LOG"))
+						&& !Modifier.isTransient(f.getModifiers())) {
+
+					Type t = f.getType();
+
+					// LOG.info(Modifier.toString(f.getModifiers()));
+					// f.isAccessible()
+
+					LOG.info("setting " + f.getName());
+					if (t.equals(java.lang.Boolean.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setBoolean(
+								target, f.getBoolean(source));
+					} else if (t.equals(java.lang.Character.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setChar(
+								target, f.getChar(source));
+					} else if (t.equals(java.lang.Byte.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setByte(
+								target, f.getByte(source));
+					} else if (t.equals(java.lang.Short.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setShort(
+								target, f.getShort(source));
+					} else if (t.equals(java.lang.Integer.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setInt(
+								target, f.getInt(source));
+					} else if (t.equals(java.lang.Long.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setLong(
+								target, f.getLong(source));
+					} else if (t.equals(java.lang.Float.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setFloat(
+								target, f.getFloat(source));
+					} else if (t.equals(java.lang.Double.TYPE)) {
+						targetClass.getDeclaredField(f.getName()).setDouble(
+								target, f.getDouble(source));
+					} else {
+						LOG.info("cloning object " + f.getName());
+						targetClass.getDeclaredField(f.getName()).set(target,
+								f.get(source));
+					}
+
+				}
+			} catch (Exception e) {
+				Service.logException(e);
+			}
+			// System.out.println(names[i] + ", " + fields[j].getName() + ", "
+			// + fields[j].getType().getName() + ", " +
+			// Modifier.toString(fields[j].getModifiers()));
+		}
+
+	}
+
 }
