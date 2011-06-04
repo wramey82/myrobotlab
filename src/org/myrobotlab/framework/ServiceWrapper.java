@@ -6,8 +6,8 @@ import java.net.URL;
 public class ServiceWrapper implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	final Service service;
-	final String name; // needed for sorting
+	public final Service service;
+	public final String name; // needed for sorting
 	//final boolean isRemote;	
 	final public ServiceEnvironment host; // final immutable
 	
