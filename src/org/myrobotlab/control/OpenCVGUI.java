@@ -218,7 +218,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		if (filters.containsKey(filterData.name))
 		{
 			OpenCVFilterGUI gui = filters.get(filterData.name);
-			gui.setFilterData(filterData.filter);
+			gui.setFilterData(filterData);
 		} else {
 			LOG.error(filterData.name + " does not contain a gui");
 		}

@@ -45,7 +45,6 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 	JSlider2 blockSize = new JSlider2(JSlider.HORIZONTAL, 1, 10, 3);
 	AdjustSlider change = new AdjustSlider();
 	
-	OpenCVFilterGoodFeaturesToTrack boundFilter = null;	
 	
 	public class JSlider2 extends JSlider // TODO - if worthwhile put it into control package
 	{
@@ -75,26 +74,27 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 			params[0] = name;
 			params[1] = slider.getName();
 			params[2] = slider.getValue();
-
-			String t = slider.getName();
 			
 			if (!slider.getValueIsAdjusting())
 			{
+				OpenCVFilterGoodFeaturesToTrack filter = (OpenCVFilterGoodFeaturesToTrack)boundFilter.filter;
 				if (slider.getName().equals("qualityLevel"))
 				{
-					params[2] = slider.getValue() * 2 + 1;
-					qualityLevel.value.setText("" + (float)qualityLevel.getValue()/100);
-					boundFilter.qualityLevel = (float)qualityLevel.getValue()/100;
+					//params[2] = slider.getValue() * 2 + 1;
+					//qualityLevel.value.setText("" + (float)qualityLevel.getValue()/100);
+					//filter.qualityLevel = (float)qualityLevel.getValue()/100;
 				} else if (slider.getName().equals("maxPointCount")) {
 					maxPointCount.value.setText("" + maxPointCount.getValue());
-					boundFilter.maxPointCount = maxPointCount.getValue();
+					filter.maxPointCount = maxPointCount.getValue();
 				} else if (slider.getName().equals("minDistance")) {
 					minDistance.value.setText("" + minDistance.getValue());
-					boundFilter.minDistance = minDistance.getValue();
+					filter.minDistance = minDistance.getValue();
 				} else if (slider.getName().equals("blockSize")) {
 					blockSize.value.setText("" + blockSize.getValue());
-					boundFilter.blockSize = blockSize.getValue();
+					filter.blockSize = blockSize.getValue();
 				}
+				
+				myService.send(boundServiceName, "setFilterData", boundFilter);
 			} // else - adjust gui text only
 			
 			
@@ -179,14 +179,14 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 	}
 	
 	@Override
-	public void setFilterData(OpenCVFilter boundFilter)
+	public void setFilterData(FilterWrapper boundFilter)
 	{
 		if (this.boundFilter == null)
 		{
-			this.boundFilter = (OpenCVFilterGoodFeaturesToTrack)boundFilter;			
+			this.boundFilter = boundFilter;			
 		}
 
-		OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack)boundFilter;
+		OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack)boundFilter.filter;
 		maxPointCount.setValueIsAdjusting(true);
 		minDistance.setValueIsAdjusting(true);
 		qualityLevel.setValueIsAdjusting(true);

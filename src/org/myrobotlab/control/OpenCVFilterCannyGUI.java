@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterCannyGUI extends OpenCVFilterGUI {
 
@@ -141,7 +142,7 @@ public class OpenCVFilterCannyGUI extends OpenCVFilterGUI {
 	}
 
 	@Override
-	public void setFilterData(OpenCVFilter filter) {
+	public void setFilterData(FilterWrapper filter) {
 		// TODO Auto-generated method stub
 		
 	}
