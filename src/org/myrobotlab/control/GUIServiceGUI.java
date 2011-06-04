@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
@@ -56,7 +57,6 @@ import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
@@ -103,6 +103,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		input.add(getRefreshServicesButton());
 		input.add(getSaveButton());
 		input.add(getLoadButton());
+		input.add(getDumpButton());
 		
 		JPanel newRoute = new JPanel(new GridBagLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new route"));
@@ -366,7 +367,24 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return button;
 	}
 	
+	public JButton getDumpButton() {
+		JButton button = new JButton("dump");
+		button.setEnabled(true);
+		button.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				FileIO.stringToFile("dump.xml", RuntimeEnvironment.dumpNotifyEntries());
+			    				
+			}
+
+		});
+
+		return button;
+	}
+
+	
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	
 	public void buildLocalServiceGraph() {

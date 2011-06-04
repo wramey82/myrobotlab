@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -23,7 +24,9 @@ public class RuntimeEnvironment implements Serializable{
 
 	static private HashMap<URL, ServiceEnvironment> hosts;
 	static private HashMap<String, ServiceWrapper> registry;
-	static private HashMap<String, String> hideMethods = new HashMap<String, String>();
+	
+	// TODO - this should be a GUI thing only ! or getPrettyMethods or static filterMethods
+	static private HashMap<String, String> hideMethods = new HashMap<String, String>(); 
 	
 	private static boolean initialized = false;
 	
@@ -421,6 +424,37 @@ public class RuntimeEnvironment implements Serializable{
 			gui.display();
 		}
 		
+	}
+	
+	public static String dumpNotifyEntries()
+	{
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("<NotifyEntries>");
+		
+		Iterator<String> it = registry.keySet().iterator();
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			ServiceWrapper sw = registry.get(serviceName);
+			sb.append("<service name=\""+sw.service.name+"\">");
+			Iterator<String> nit = sw.service.getOutbox().notifyList.keySet().iterator();
+			while (nit.hasNext()) {
+				String n = nit.next();
+				sb.append("<notify map=\""+n+"\">");
+				ArrayList<NotifyEntry> nes = sw.service.getOutbox().notifyList.get(n);
+				for (int i = 0; i < nes.size(); ++i)
+				{
+					NotifyEntry ne = nes.get(i);
+					sb.append("<notifyEntry outMethod=\"" + ne.outMethod + "\" name=\""+ne.name+"\" inMethod=\""+ne.outMethod+"\" />");
+				}
+				sb.append("</notify>");
+			}
+			sb.append("</service>");
+		}
+		
+		sb.append("</NotifyEntries>");
+		
+		return sb.toString();
 	}
 	
 }
