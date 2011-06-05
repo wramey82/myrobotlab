@@ -26,9 +26,7 @@
 package org.myrobotlab.comm;
 
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
