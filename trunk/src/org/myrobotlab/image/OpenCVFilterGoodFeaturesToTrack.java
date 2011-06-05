@@ -77,8 +77,8 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	public HashMap<String, Integer> stableIterations = null;	
 	
 	int lastMaxPointCount = 0;
-	IntByReference cornerCount = new IntByReference(maxPointCount);
-	CvPoint2D32f corners = null; // new way?
+	transient IntByReference cornerCount = new IntByReference(maxPointCount);
+	transient CvPoint2D32f corners = null; // new way?
     int[] corner_count = { maxPointCount };
 	
     public boolean needTrackingPoints = true;
