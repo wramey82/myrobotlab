@@ -50,6 +50,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -66,7 +67,6 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
-import org.myrobotlab.image.OpenCVFilterGoodFeaturesToTrack;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
 import org.simpleframework.xml.Root;
@@ -228,8 +228,9 @@ public class OpenCV extends Service {
 		
 	}
 	
-	public final class FilterWrapper
+	public final class FilterWrapper implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
 		public final String name;
 		public final OpenCVFilter filter;
 		
@@ -677,7 +678,7 @@ public class OpenCV extends Service {
 
 		opencv.addFilter("PyramidDown", "PyramidDown");
 		//opencv.setCameraIndex(0);
-		opencv.capture();
+		//opencv.capture();
 
 		gui.display();
 
