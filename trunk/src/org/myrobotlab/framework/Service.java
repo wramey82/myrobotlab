@@ -48,7 +48,7 @@ import java.util.SimpleTimeZone;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.comm.CommunicationManager2;
-import org.myrobotlab.image.OpenCVFilter;
+import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -1375,5 +1375,31 @@ public abstract class Service implements Runnable, Serializable {
 
 	}
 	
+	public Service publishServiceData(String name)
+	{
+		/*
+		if (filters.containsKey(name)) {
+			return new FilterWrapper(name, filters.get(name));
+		} else {
+			LOG.error("setFilterData " + name + " does not exist");
+		}
+		*/
+		
+		return null;
+	}
+	
+	public void setServiceData (FilterWrapper filterData)
+	{
+		/*
+		if (filters.containsKey(filterData.name)) {
+			Service.copyDataFrom(filters.get(filterData.name), filterData.filter);
+		} else {
+			LOG.error("setFilterData " + filterData.name + " does not exist");
+		}
+		*/
+		
+	}
+	
+
 
 }
