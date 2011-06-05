@@ -46,9 +46,7 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.Communicator;
 
@@ -183,6 +181,16 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 										// byte[] again
 						msg = (Message) o;
 
+						if (msg == null) {
+							LOG.error(myService.name
+											+ " UDP Datagram corrupt from "
+											+ socket.getInetAddress() + ":"
+											+ socket.getPort()
+											+ " - dumping null message ");
+							socket = null;
+							break;
+						} 
+						
 						// client's side - "I connected to a listener and it replied with registerService" 
 						if (msg.method.equals("registerServices")) 
 						{
@@ -204,16 +212,6 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						e.printStackTrace();
 					}
 
-					if (msg == null) {
-						LOG
-								.error(myService.name
-										+ " UDP Datagram corrupt from "
-										+ socket.getInetAddress() + ":"
-										+ socket.getPort()
-										+ " - dumping null message ");
-					} else {
-						myService.getInbox().add(msg);
-					}
 				}
 
 				// closing connections TODO - why wouldn't you close the others?
