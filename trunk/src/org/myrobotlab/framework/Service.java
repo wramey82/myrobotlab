@@ -47,7 +47,7 @@ import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.comm.CommunicationManager2;
+import org.myrobotlab.comm.CommunicationManager;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
@@ -159,7 +159,7 @@ public abstract class Service implements Runnable, Serializable {
 		cfg.load(host + "." + name + ".properties");
 
 		// now that cfg is ready make a communication manager
-		cm = new CommunicationManager2(this);
+		cm = new CommunicationManager(this);
 
 		registerServices();
 		registerServices2(url);
@@ -1400,6 +1400,40 @@ public abstract class Service implements Runnable, Serializable {
 		
 	}
 	
+	public  void registerServices(String hostAddress, int port, Message msg) 
+	{
+		try {
+			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
+	
+			StringBuffer sb = new StringBuffer();
+			sb.append("http://");
+			sb.append(hostAddress);
+			sb.append(":");
+			sb.append(port);
+			
+			sdu.remoteURL = new URL(sb.toString());
+			
+			sdu.url = url;
+			
+			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
+			
+			LOG.info(name + " recieved service directory update from " + sdu.remoteURL);
+	
+			if (RuntimeEnvironment.register(sdu.remoteURL, sdu.serviceEnvironment))
+			{
+				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
+				echoLocal.remoteURL = sdu.url;
+				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServices();
+				
+				send (msg.sender, "registerServices", echoLocal);
+			}
+		
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 
 }
