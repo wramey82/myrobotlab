@@ -10,6 +10,5 @@ public interface CommunicationInterface {
 	public void send(final URL url, final Message msg);
 	public void setComm(final Communicator comm);
 	public Communicator getComm();
-	public void registerServices(String hostAddress, int port, Message msg);
 	
 }

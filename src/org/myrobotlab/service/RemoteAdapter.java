@@ -180,7 +180,7 @@ public class RemoteAdapter extends Service {
 							if (msg.method.compareTo("registerServices") == 0) 
 							{
 								comm.addClient(socket, dgram.getAddress(), dgram.getPort());
-								cm.registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+								registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 								// getting clients address and port
 								continue;
 							}

@@ -39,16 +39,16 @@ import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 
-public class CommunicationManager2  implements Serializable, CommunicationInterface{
+public class CommunicationManager  implements Serializable, CommunicationInterface{
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(CommunicationManager2.class.toString());
+	public final static Logger LOG = Logger.getLogger(CommunicationManager.class.toString());
 	Service myService = null;
 	Outbox outbox = null;
 
 	private Communicator comm = null;
 
-	public CommunicationManager2(Service myService) {
+	public CommunicationManager(Service myService) {
 		// set local private references
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
@@ -102,40 +102,6 @@ public class CommunicationManager2  implements Serializable, CommunicationInterf
 		return comm;
 	}
 	
-	public  void registerServices(String hostAddress, int port, Message msg) 
-	{
-		try {
-			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
-	
-			StringBuffer sb = new StringBuffer();
-			sb.append("http://");
-			sb.append(hostAddress);
-			sb.append(":");
-			sb.append(port);
-			
-			sdu.remoteURL = new URL(sb.toString());
-			
-			sdu.url = myService.url;
-			
-			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
-			
-			LOG.info(myService.name + " recieved service directory update from " + sdu.remoteURL);
-	
-			if (RuntimeEnvironment.register(sdu.remoteURL, sdu.serviceEnvironment))
-			{
-				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
-				echoLocal.remoteURL = sdu.url;
-				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServices();
-				
-				myService.send (msg.sender, "registerServices", echoLocal);
-			}
-		
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
 
 
 }
