@@ -27,8 +27,8 @@ package org.myrobotlab.framework;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -46,7 +46,8 @@ public class Inbox implements Serializable {
 	boolean blocking = false;
 	int maxQueue = 10;
 
-	ConcurrentHashMap<String, Object[]> blockingList = new ConcurrentHashMap<String, Object[]>();
+	//ConcurrentHashMap<String, Object[]> blockingList = new ConcurrentHashMap<String, Object[]>();
+	HashMap<String, Object[]> blockingList = new HashMap<String, Object[]>();
 
 	public Inbox() {
 		this("Inbox");

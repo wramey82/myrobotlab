@@ -53,14 +53,11 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.SimpleTimeZone;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -69,7 +66,7 @@ import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
-import org.simpleframework.xml.Root;
+//import org.simpleframework.xml.Root; - Annotation
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
@@ -84,7 +81,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
-@Root
+//@Root
 public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -104,7 +101,9 @@ public class OpenCV extends Service {
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
 
-	public BlockingQueue<BufferedImage> images = new ArrayBlockingQueue<BufferedImage>(100);
+	// removed to support jamvm & chumby
+	// public BlockingQueue<BufferedImage> images = new ArrayBlockingQueue<BufferedImage>(100);
+	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
 	
 	// display
 	CanvasFrame cf = null;
@@ -287,7 +286,7 @@ public class OpenCV extends Service {
 		return null;
 	}
 
-
+/* removed for chumby jamvm support
 	public BufferedImage input(BufferedImage bi) {
 		try {
 			images.put(bi);
@@ -296,7 +295,7 @@ public class OpenCV extends Service {
 		}
 		return bi;
 	}
-
+*/
 	class VideoProcess implements Runnable {
 
 		boolean isCaptureRunning = false;
@@ -320,6 +319,7 @@ public class OpenCV extends Service {
 
 		public void start()
 		{
+			LOG.info("starting capture");
 			sdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
 			sdf.applyPattern("dd MMM yyyy HH:mm:ss z");
 
@@ -329,6 +329,7 @@ public class OpenCV extends Service {
 		
 		public void stop ()
 		{
+			LOG.debug("stopping capture");
 			isCaptureRunning = false;
 			videoThread = null;
 		}
@@ -339,7 +340,16 @@ public class OpenCV extends Service {
 			StringBuffer screenText = new StringBuffer();			
 			isCaptureRunning = true;
 			
-			isWindows = Loader.getPlatformName().startsWith("windows");
+			LOG.info("here1");
+			
+			try {
+				isWindows = Loader.getPlatformName().startsWith("windows");
+			} catch(Exception e)
+			{
+				Service.logException(e);
+			}
+
+			LOG.info("here2");
 			
 			if (useCanvasFrame) {
 				// cf = new CanvasFrame(false);
@@ -361,9 +371,12 @@ public class OpenCV extends Service {
 					grabber = new VideoInputFrameGrabber(cameraIndex);
 					grabber.start();
 				} else {
+					LOG.info("here3");
 					oldGrabber = cvCreateCameraCapture(cameraIndex);
+					LOG.info("here4");
 					if (oldGrabber == null)
 					{
+						LOG.error("could not create camera capture on camera index " + cameraIndex);
 						stop ();
 					}
 				}
@@ -418,7 +431,8 @@ public class OpenCV extends Service {
 						String name;
 						try {
 							name = itr.next();
-						} catch (ConcurrentModificationException c) {
+						} catch (Exception e) {
+							Service.logException(e);
 							break;
 						}
 
@@ -652,7 +666,7 @@ public class OpenCV extends Service {
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		OpenCV opencv = new OpenCV("opencv");		
 		
@@ -669,18 +683,21 @@ public class OpenCV extends Service {
 		f1.copyDataFrom(f2);
 		*/
 		
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
+		//RemoteAdapter remote = new RemoteAdapter("remote");
+		//remote.startService();
 		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
+		//GUIService gui = new GUIService("gui");
+		//gui.startService();
+		
 		opencv.startService();
 
 		opencv.addFilter("PyramidDown", "PyramidDown");
 		//opencv.setCameraIndex(0);
-		//opencv.capture();
+		LOG.info("starting capture");
+		
+		opencv.capture();
 
-		gui.display();
+		//gui.display();
 
 		/*
 		

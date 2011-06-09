@@ -115,17 +115,6 @@ public class CommunicationManager2  implements Serializable, CommunicationInterf
 			
 			sdu.remoteURL = new URL(sb.toString());
 			
-			// TODO - not needed
-			/*
-			sb = new StringBuffer();
-			sb.append("http://");
-			sb.append(localAddr.getAddress().getHostAddress());
-			sb.append(":");
-			sb.append(localAddr.getPort());
-			*/
-			
-			//sdu.url = new URL(sb.toString());
-			
 			sdu.url = myService.url;
 			
 			sdu.serviceEnvironment.accessURL = sdu.remoteURL;

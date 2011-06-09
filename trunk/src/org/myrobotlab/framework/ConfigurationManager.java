@@ -133,8 +133,10 @@ public class ConfigurationManager implements Serializable {
 	final String host;
 	final String serviceName;
 	final String serviceRoot;
-	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> data = new ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>();
-	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> dataPrevious = null;
+//	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> data = new ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>();
+//	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> dataPrevious = null;
+	static HashMap<String, HashMap<String, Object>> data = new HashMap<String, HashMap<String, Object>>();
+	static HashMap<String, HashMap<String, Object>> dataPrevious = null;
 	// boolean throwIfEmpty = false;
 	boolean throwable = false;
 
@@ -176,7 +178,7 @@ public class ConfigurationManager implements Serializable {
 
 	public void clear() {
 		dataPrevious = data;
-		data = new ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>();
+		data = new HashMap<String, HashMap<String, Object>>();
 	}
 
 	public String getRoot() {
@@ -207,7 +209,7 @@ public class ConfigurationManager implements Serializable {
 		if (!data.containsKey(serviceRoot)) {
 			return false;
 		}
-		ConcurrentHashMap<String, Object> p = data.get(serviceRoot);
+		HashMap<String, Object> p = data.get(serviceRoot);
 		return p.containsKey(name);
 	}
 
@@ -302,7 +304,7 @@ public class ConfigurationManager implements Serializable {
 		}
 
 		if (data.containsKey(outerKey)) {
-			ConcurrentHashMap<String, Object> p = data.get(outerKey);
+			HashMap<String, Object> p = data.get(outerKey);
 			if (p.containsKey(innerKey)) {
 				return p.get(innerKey);
 			}
@@ -468,10 +470,10 @@ public class ConfigurationManager implements Serializable {
 		}
 
 		if (data.containsKey(outerKey)) {
-			ConcurrentHashMap<String, Object> p = data.get(outerKey);
+			HashMap<String, Object> p = data.get(outerKey);
 			return p.put(innerKey, value);
 		} else {
-			ConcurrentHashMap<String, Object> p = new ConcurrentHashMap<String, Object>();
+			HashMap<String, Object> p = new HashMap<String, Object>();
 			Object ret = p.put(innerKey, value);
 			data.put(outerKey, p);
 			return ret;
@@ -484,10 +486,10 @@ public class ConfigurationManager implements Serializable {
 	public Object set(String name, Object value) {
 		return set(serviceRoot, name, value);
 		/*
-		 * if (data.containsKey(serviceRoot)) { ConcurrentHashMap<String,Object>
+		 * if (data.containsKey(serviceRoot)) { HashMap<String,Object>
 		 * p = data.get(serviceRoot); p.put(name, value); } else {
-		 * ConcurrentHashMap<String,Object> p = new
-		 * ConcurrentHashMap<String,Object>(); if (value == null) { throw new
+		 * HashMap<String,Object> p = new
+		 * HashMap<String,Object>(); if (value == null) { throw new
 		 * CFGError("set " + name + " can not set null as value"); } p.put(name,
 		 * value); data.put(serviceRoot, p); }
 		 */
@@ -679,7 +681,7 @@ public class ConfigurationManager implements Serializable {
 	public Object remove(String path, String key) {
 		// if (data.containsKey(serviceRoot))
 		if (data.containsKey(path)) {
-			ConcurrentHashMap<String, Object> p = data.get(path);
+			HashMap<String, Object> p = data.get(path);
 			return p.remove(key);
 		}
 		return null;
@@ -758,7 +760,7 @@ public class ConfigurationManager implements Serializable {
 //				String rootKey = rootPrefix + (String) it.next();  TODO TREE is map of map
 				String rootKey = (String) it.next();
 				Iterator inner = data.get(rootKey).keySet().iterator();
-				ConcurrentHashMap<String, Object> innerProperties = data.get(rootKey);
+				HashMap<String, Object> innerProperties = data.get(rootKey);
 
 				while (inner.hasNext()) {
 					// data.get(it.next()).store(outfile, "comments");
