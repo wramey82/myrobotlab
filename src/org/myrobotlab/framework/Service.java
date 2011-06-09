@@ -114,15 +114,15 @@ public abstract class Service implements Runnable, Serializable {
 		}
 		// determine host name
 		host = getHostName(inHost);
-
+		
 		this.name = instanceName;
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
-		// config begin
+		// config begin - for chumby
 		hostcfg = new ConfigurationManager(host);
-		cfg = new ConfigurationManager(host, name);
+		cfg = new ConfigurationManager(host, name); 
 
 		// global defaults begin - multiple services will re-set defaults
 		loadGlobalMachineDefaults();
@@ -1244,7 +1244,7 @@ public abstract class Service implements Runnable, Serializable {
 			LOG.error("could not find host, host is null or empty !");
 		}
 
-		return null;
+		return "localhost"; // no network - still can't be null // chumby
 	}
 
 	// connection publish points - begin ---------------
