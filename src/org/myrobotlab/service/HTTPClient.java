@@ -48,6 +48,7 @@ public class HTTPClient extends Service {
 
 	public final static Logger LOG = Logger.getLogger(HTTPClient.class
 			.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
 	public HTTPClient(String n) {
 		super(n, HTTPClient.class.getCanonicalName());

@@ -35,6 +35,7 @@ import org.myrobotlab.service.data.IOData;
 
 public class Player extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Player.class
 			.getCanonicalName());
 	public String IPAddress = ""; // GUI's ip

@@ -31,6 +31,7 @@ import org.myrobotlab.framework.Service;
 
 public class StepperMotor extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(StepperMotor.class
 			.getCanonicalName());
 	public final static String DIRECTION_CCW = "CCW"; // TODO - should this be

@@ -26,11 +26,9 @@
 package org.myrobotlab.service;
 
 import java.awt.Dimension;
-import java.util.Arrays;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;

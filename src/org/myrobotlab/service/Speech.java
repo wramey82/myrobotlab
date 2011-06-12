@@ -41,6 +41,10 @@ import com.sun.speech.freetts.VoiceManager;
 
 public class Speech extends Service {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Speech.class.getCanonicalName());
 	transient private Voice myVoice = null;
 	private boolean initialized = false;
@@ -51,16 +55,6 @@ public class Speech extends Service {
 		listAllVoices();
 		LOG.info("Using voice: " + cfg.get("voiceName"));
 
-		// The VoiceManager manages all the voices for FreeTTS.
-		VoiceManager voiceManager = VoiceManager.getInstance();
-		myVoice = voiceManager.getVoice(cfg.get("voiceName"));
-
-		if (myVoice == null) {
-			LOG.error("Cannot find a voice named " + cfg.get("voiceName")
-					+ ".  Please specify a different voice.");
-		} else {
-			initialized = true;
-		}
 
 	}
 
@@ -95,22 +89,10 @@ public class Speech extends Service {
 		}
 	}
 
-	@Override
-	public void startService() {
-		super.startService();
-		try {
-		// TODO - do pre-speak not here	if (!myVoice.isLoaded())
-		myVoice.allocate();
-		LOG.info("voice allocated");
-		} catch (Exception e)
-		{
-			LOG.error(e);
-		}
-	}
 
 	@Override
 	public void stopService() {		
-		if (myVoice.isLoaded())
+		if (myVoice != null && myVoice.isLoaded())
 		{
 			myVoice.deallocate();
 		}
@@ -186,6 +168,29 @@ public class Speech extends Service {
 
 		} else { // festival tts
 
+			if (myVoice == null)
+			{
+				// The VoiceManager manages all the voices for FreeTTS.
+				VoiceManager voiceManager = VoiceManager.getInstance();
+				myVoice = voiceManager.getVoice(cfg.get("voiceName"));
+	
+				if (myVoice == null) {
+					LOG.error("Cannot find a voice named " + cfg.get("voiceName")
+							+ ".  Please specify a different voice.");
+				} else {
+					initialized = true;
+				}
+			}
+			
+			try {
+				// TODO - do pre-speak not here	if (!myVoice.isLoaded())
+				myVoice.allocate();
+			LOG.info("voice allocated");
+			} catch (Exception e)
+			{
+				LOG.error(e);
+			}
+
 			if (initialized) {
 				myVoice.speak(toSpeak);
 			} else {
@@ -199,11 +204,11 @@ public class Speech extends Service {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		Speech speech = new Speech("speech");
-		speech.startService();
-		speech.speak("hello");
-		speech.startService();
 		speech.cfg.set("isATT", true);
+		speech.startService();
 		speech.speak("hello");
+		speech.speak("I believe I have bumped into something");
+		speech.speak("Ah, I have found a way out of this situation");
 	
 	}
 

@@ -29,13 +29,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
-import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.service.SensorMonitor.Alert;
 import org.myrobotlab.service.data.ColoredPoint;
 
@@ -44,6 +41,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class MoMo extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(MoMo.class
 			.getCanonicalName());
 
@@ -229,9 +227,6 @@ public class MoMo extends Service {
 
 	public void findFloor(ColoredPoint[] points) {
 		LOG.info("here");
-		int a = points[0].getRed();
-		a = points[0].getGreen();
-		a = points[0].getBlue();
 
 		if (points[0].getRed() != 128 && points[0].getGreen() != 0
 				&& points[0].getBlue() != 0) {

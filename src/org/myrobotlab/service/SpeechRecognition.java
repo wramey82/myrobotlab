@@ -50,6 +50,7 @@ import edu.cmu.sphinx.util.props.ConfigurationManager;
 
 public class SpeechRecognition extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SpeechRecognition.class
 			.getCanonicalName());
 

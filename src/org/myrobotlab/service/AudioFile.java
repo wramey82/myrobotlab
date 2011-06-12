@@ -48,6 +48,7 @@ import org.myrobotlab.framework.Service;
 
 public class AudioFile extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(AudioFile.class.getCanonicalName());
 	Player player;
 

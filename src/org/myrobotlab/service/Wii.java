@@ -62,6 +62,7 @@ import org.myrobotlab.serial.BinaryCommPort.LineDriver;
 public class Wii extends Service implements WiimoteListener,
 	SerialPortEventListener, LineDriver {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Wii.class.getCanonicalName());
 
 	Wiimote[] wiimotes = null;
@@ -324,7 +325,6 @@ public class Wii extends Service implements WiimoteListener,
 
 		Wii wii = new Wii("wii");
 
-		CommPortIdentifier portId;
 
 		// add the port as a possible option for the Arduino
 		Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,

@@ -73,6 +73,7 @@ import org.myrobotlab.service.interfaces.ServoController;
 public class Propeller extends Service implements SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Propeller.class
 			.getCanonicalName());
 

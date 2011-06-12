@@ -21,6 +21,7 @@ public class SystemInformation extends Service {
 	// Process and runtime
 	// http://stackoverflow.com/questions/636367/java-executing-a-java-application-in-a-separate-process
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SystemInformation.class
 			.getCanonicalName());
 
@@ -112,7 +113,6 @@ public class SystemInformation extends Service {
 		// String helloTo = msg;
 		String record = "";
 		StringBuffer ret = new StringBuffer("");
-		int recCount = 0;
 		// return "30 C 87 F";
 		String acpi = FileIO
 				.fileToString("/proc/acpi/thermal_zone/THM0/temperature");

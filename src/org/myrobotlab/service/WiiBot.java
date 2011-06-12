@@ -42,6 +42,7 @@ import org.myrobotlab.service.interfaces.SensorData;
 
 public class WiiBot extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(WiiBot.class
 			.getCanonicalName());
 

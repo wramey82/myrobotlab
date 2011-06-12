@@ -35,6 +35,7 @@ import org.myrobotlab.framework.Service;
 
 public class JoystickService extends Service implements JoystickListener {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(JoystickService.class
 			.getCanonicalName());
 	public Joystick joy;

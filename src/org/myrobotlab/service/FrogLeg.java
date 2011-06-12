@@ -37,18 +37,18 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.service.SensorMonitor.Alert;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
-import org.myrobotlab.framework.ServiceEntry;
-import org.myrobotlab.service.SensorMonitor.Alert;
 
 public class FrogLeg extends Service {
 
 	public final static Logger LOG = Logger.getLogger(FrogLeg.class
 			.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
 	public final static int IR_PIN = 1;
 

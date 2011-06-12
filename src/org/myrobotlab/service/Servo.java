@@ -36,6 +36,11 @@ import org.myrobotlab.service.interfaces.ServoController;
 public class Servo extends Service implements
 		org.myrobotlab.service.interfaces.Servo {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(Servo.class
 			.getCanonicalName());
 	// int pos = 0;

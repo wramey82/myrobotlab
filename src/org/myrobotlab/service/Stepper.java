@@ -51,6 +51,7 @@ public class Stepper extends Service {
 	 * POWER - PWM must be put on both lines - 2 PWM lines
 	 */
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Stepper.class.toString());
 
 	boolean isAttached = false;
