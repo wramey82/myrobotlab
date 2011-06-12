@@ -25,31 +25,9 @@
 
 package org.myrobotlab.service;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
-import gnu.io.UnsupportedCommOperationException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.TooManyListenersException;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.Clock.ClockThread;
-import org.myrobotlab.service.Clock.PulseDataType;
-import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinData;
-import org.myrobotlab.service.interfaces.AnalogIO;
-import org.myrobotlab.service.interfaces.DigitalIO;
-import org.myrobotlab.service.interfaces.ServoController;
 
 /*
  *  Currently supports:

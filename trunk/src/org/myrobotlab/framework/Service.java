@@ -867,185 +867,6 @@ public abstract class Service implements Runnable, Serializable {
 		return inbox.getMsg();
 	}
 
-	public synchronized void registerServices2(URL host) {
-		RuntimeEnvironment.register(host, this);
-	}
-	
-	public synchronized void registerServices() {
-		LOG.debug(name + " registerServices");
-
-		try {
-
-			Class<?> c;
-			c = Class.forName(serviceClass);
-
-			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
-
-			
-			// try to get method which has the correct parameter types
-			// http://java.sun.com/developer/technicalArticles/ALT/Reflection/
-			Method[] methods = c.getDeclaredMethods();
-			// register this service
-			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(),
-					this, getToolTip());
-
-			for (int i = 0; i < methods.length; ++i) {
-				Method m = methods[i];
-				Class<?>[] paramTypes = m.getParameterTypes();
-				Class<?> returnType = m.getReturnType();
-
-				/*
-				LOG
-						.info(returnType + " " + m.getName() + "("
-								+ paramTypes.toString()
-								+ ") adding as new MethodEntry");
-								*/
-
-				// TODO
-				// http://host/class/namedInstance(no need)/method/class/data
-				// host.namedInstance(Port).class(Type).function.parameter/returnvalue
-				// http(s)://host:port/(class?) -
-				// namedInstance/method/(class)parameter -- too verbose -
-				// namedInstance will specify a class
-				// http(s)://host:port/namedInstance/method/(container-
-				// metaclass utf-8 encoded string + meta-container)parameter
-				// register this services functions
-				
-				if (!hideMethods.containsKey(m.getName()))
-				{
-					// service level
-					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
-				}
-			}
-			
-			Class<?>[] interfaces = c.getInterfaces();
-
-			for (int i = 0; i < interfaces.length; ++i) {
-				Class<?> interfc = interfaces[i];
-
-				LOG.info("adding interface "
-						+ interfc.getCanonicalName());
-
-				hostcfg.setInterface(host, name, interfc.getClass()
-						.getCanonicalName());
-
-			}
-
-			// expose Service functions we want accessible
-			// hostcfg.setMethod(host, name, "notify", "sink",
-			// NotifyEntry.class.getCanonicalName());
-			// hostcfg.setMethod(host, name, "removeNotify", "sink",
-			// NotifyEntry.class.getCanonicalName());
-			// hostcfg.setMethod(host, name, "sethostcfg", "sink",
-			// NameValuePair.class.getCanonicalName());
-			// hostcfg.setMethod(host, name, "registerServices", "sink",
-			// ServiceDirectoryUpdate.class.getCanonicalName());
-
-			Type[] intfs = c.getGenericInterfaces();
-			for (int j = 0; j < intfs.length; ++j) {
-				Type t = intfs[j];
-				String nameOnly = t.toString().substring(
-						t.toString().indexOf(" ") + 1);
-				hostcfg.setInterface(host, name, nameOnly);
-			}
-
-			// hostcfg.save("cfg.txt");
-
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-
-		// send(name, "registerServicesNotify");
-
-	}
-
-	// this event comes after services have been changed
-	public void registerServicesNotify() {
-		LOG.info("registerServicesNotify");
-	}
-
-	// TODO - overload ?!?!?
-	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		LOG.error(name + " sendServiceDirectoryUpdate ");
-
-		// TODO - GET ENV FROM service name - get ip & port
-		/*
-		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
-			ServiceEntry se = sdu.serviceEntryList_.get(i);
-			se.host = sdu.remoteHostname; 
-			se.servicePort = sdu.remoteServicePort;
-			LOG.error("registering services from foriegn source " + se.host
-					+ ":" + se.servicePort + "/" + se.name);
-			hostcfg.setServiceEntry(se);
-		}
-		*/
-
-		send(name, "registerServicesNotify");
-	}
-
-	// TODO - stub out
-	public synchronized void removeServices(ServiceDirectoryUpdate sdu) {
-	}
-
-
-	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
-			int port, ServiceDirectoryUpdate sdu) {
-		LOG.info(name + " sendServiceDirectoryUpdate ");
-
-		StringBuffer urlstr = new StringBuffer();
-		
-		urlstr.append("http://"); // TODO - extend URL into something which can handle socket:// protocol
-		
-		if (login != null && login.length() > 0)
-		{
-			urlstr.append(login);
-			urlstr.append(":");
-			urlstr.append(password);
-			urlstr.append("@");
-		}
-		
-		InetAddress inetAddress = null;
-		
-		try {
-			//InetAddress inetAddress = InetAddress.getByName("208.29.194.106");
-			inetAddress = InetAddress.getByName(remoteHost);
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		urlstr.append(inetAddress.getHostAddress());
-		urlstr.append(":");
-		urlstr.append(port);
-		
-		URL remoteURL = null;
-		try {
-			remoteURL = new URL(urlstr.toString());
-		} catch (MalformedURLException e) {
-			LOG.error(Service.stackToString(e));
-			return;
-		}
-		
-		if (sdu == null) {
-			sdu = new ServiceDirectoryUpdate();
-			
-
-			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
-			// overloaded if you dont want to send everything
-			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServices();
-		}
-
-		sdu.remoteURL = remoteURL;
-		sdu.url = url;
-		
-		send(remoteURL, "registerServices", sdu);
-
-	}
-
 	public void listServices(String callBackName) {
 		LOG.info(name + " sendServiceDirectoryUpdate ");
 		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
@@ -1201,14 +1022,6 @@ public abstract class Service implements Runnable, Serializable {
 		}
 		return msg;
 	}
-
-	/*
-	 * TODO - QUERY INTO SERVICES || LINQ ?
-	 * 
-	 * public void setOperator (String FNName, Operator operator) {
-	 * ArrayList<>ServiceEntry ServiceDirectory.getEndPointIndex() setOperator
-	 * (this.name, FNName, operator.name); }
-	 */
 
 	public Inbox getInbox() {
 		return inbox;
@@ -1425,7 +1238,7 @@ public abstract class Service implements Runnable, Serializable {
 				echoLocal.remoteURL = sdu.url;
 				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServices();
 				
-				send (msg.sender, "registerServices", echoLocal);
+				send (msg.sender, "registerServices", echoLocal); // broadcast to all
 			}
 		
 		} catch (MalformedURLException e) {
@@ -1433,6 +1246,162 @@ public abstract class Service implements Runnable, Serializable {
 			e.printStackTrace();
 		}
 		
+	}
+
+	public synchronized void registerServices2(URL host) {
+		RuntimeEnvironment.register(host, this); // problem with this in it does not broadcast
+	}
+	
+	public synchronized void registerServices() {
+		LOG.debug(name + " registerServices");
+
+		try {
+
+			Class<?> c;
+			c = Class.forName(serviceClass);
+
+			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
+
+			
+			// try to get method which has the correct parameter types
+			// http://java.sun.com/developer/technicalArticles/ALT/Reflection/
+			Method[] methods = c.getDeclaredMethods();
+			// register this service
+			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(),
+					this, getToolTip());
+
+			for (int i = 0; i < methods.length; ++i) {
+				Method m = methods[i];
+				Class<?>[] paramTypes = m.getParameterTypes();
+				Class<?> returnType = m.getReturnType();
+
+				
+				if (!hideMethods.containsKey(m.getName()))
+				{
+					// service level
+					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
+				}
+			}
+			
+			Class<?>[] interfaces = c.getInterfaces();
+
+			for (int i = 0; i < interfaces.length; ++i) {
+				Class<?> interfc = interfaces[i];
+
+				LOG.info("adding interface "
+						+ interfc.getCanonicalName());
+
+				hostcfg.setInterface(host, name, interfc.getClass()
+						.getCanonicalName());
+
+			}
+
+			Type[] intfs = c.getGenericInterfaces();
+			for (int j = 0; j < intfs.length; ++j) {
+				Type t = intfs[j];
+				String nameOnly = t.toString().substring(
+						t.toString().indexOf(" ") + 1);
+				hostcfg.setInterface(host, name, nameOnly);
+			}
+
+			// hostcfg.save("cfg.txt");
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+
+		// send(name, "registerServicesNotify");
+
+	}
+
+	// this event comes after services have been changed
+	//public void registerServicesNotify() {
+	//	LOG.info("registerServicesNotify");
+	//}
+
+	// TODO - overload ?!?!?
+	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
+		LOG.error(name + " sendServiceDirectoryUpdate ");
+
+		// TODO - GET ENV FROM service name - get ip & port
+		/*
+		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
+			ServiceEntry se = sdu.serviceEntryList_.get(i);
+			se.host = sdu.remoteHostname; 
+			se.servicePort = sdu.remoteServicePort;
+			LOG.error("registering services from foriegn source " + se.host
+					+ ":" + se.servicePort + "/" + se.name);
+			hostcfg.setServiceEntry(se);
+		}
+		*/
+
+		send(name, "registerServicesNotify");
+	}
+
+	// TODO - stub out
+	//public synchronized void removeServices(ServiceDirectoryUpdate sdu) {
+	//}
+
+	/*
+	 *  sending a registerServices to an unknown process id
+	 */
+
+	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
+			int port, ServiceDirectoryUpdate sdu) {
+		LOG.info(name + " sendServiceDirectoryUpdate ");
+
+		StringBuffer urlstr = new StringBuffer();
+		
+		urlstr.append("http://"); // TODO - extend URL into something which can handle socket:// protocol
+		
+		if (login != null && login.length() > 0)
+		{
+			urlstr.append(login);
+			urlstr.append(":");
+			urlstr.append(password);
+			urlstr.append("@");
+		}
+		
+		InetAddress inetAddress = null;
+		
+		try {
+			//InetAddress inetAddress = InetAddress.getByName("208.29.194.106");
+			inetAddress = InetAddress.getByName(remoteHost);
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		urlstr.append(inetAddress.getHostAddress());
+		urlstr.append(":");
+		urlstr.append(port);
+		
+		URL remoteURL = null;
+		try {
+			remoteURL = new URL(urlstr.toString());
+		} catch (MalformedURLException e) {
+			LOG.error(Service.stackToString(e));
+			return;
+		}
+		
+		if (sdu == null) {
+			sdu = new ServiceDirectoryUpdate();
+			
+
+			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
+			// overloaded if you dont want to send everything
+			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServices();
+		}
+
+		sdu.remoteURL = remoteURL;
+		sdu.url = url;
+		
+		send(remoteURL, "registerServices", sdu);
+
 	}
 
 

@@ -556,7 +556,7 @@ public class Toy extends Service {
 	public void displayTargets()
 	{
 		LOG.error("display " + targets.size() + " targets");
-		Iterator it = targets.keySet().iterator();
+		Iterator<String> it = targets.keySet().iterator();
 		graphics.setColor(Color.green);
 		while (it.hasNext()) {
 			String key = (String) it.next();

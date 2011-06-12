@@ -31,16 +31,13 @@ import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.service.interfaces.Communicator;

@@ -33,6 +33,7 @@ import org.myrobotlab.framework.Service;
 
 public class TestCatcher extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(TestCatcher.class
 			.getCanonicalName());
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();

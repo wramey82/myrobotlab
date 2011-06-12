@@ -40,6 +40,7 @@ import org.myrobotlab.framework.Service;
 
 public class RecorderPlayer extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(RecorderPlayer.class
 			.getCanonicalName());
 	public ArrayList<Message> msgs = new ArrayList<Message>();
@@ -152,7 +153,7 @@ public class RecorderPlayer extends Service {
 
 			String s;
 			while ((s = in.readLine()) != null) {
-
+				
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

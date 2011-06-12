@@ -44,6 +44,7 @@ public class ColoredThingyFinder extends Service {
 
 	public final static Logger LOG = Logger.getLogger(ColoredThingyFinder.class
 			.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
 	String servoX = null;
 	String servoY = null;

@@ -35,6 +35,7 @@ import org.myrobotlab.service.OpenCV.Polygon;
 
 public class Rose extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Rose.class.getCanonicalName());
 
 	OpenCV camera = null;

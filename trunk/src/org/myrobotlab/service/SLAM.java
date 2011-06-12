@@ -48,6 +48,7 @@ import org.myrobotlab.framework.Service;
 
 public class SLAM extends Service implements WiimoteListener {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SLAM.class
 			.getCanonicalName());
 

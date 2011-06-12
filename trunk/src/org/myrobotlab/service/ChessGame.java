@@ -34,6 +34,7 @@ import org.myrobotlab.framework.Service;
 public class ChessGame extends Service {
 
 	public final static Logger LOG = Logger.getLogger(ChessGame.class.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
 
 	public ChessGame(String n) {

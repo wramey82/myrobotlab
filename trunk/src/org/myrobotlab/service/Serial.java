@@ -44,13 +44,14 @@ import org.myrobotlab.framework.Service;
 
 public class Serial extends Service implements SerialPortEventListener {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Serial.class
 			.getCanonicalName());
 
 	// TODO - bundle data into a class - put it on a static list
 	CommPortIdentifier portId;
 	CommPortIdentifier saveportId;
-	Enumeration portList;
+	Enumeration<?> portList;
 	InputStream inputStream;
 	SerialPort serialPort;
 	Thread readThread;

@@ -26,7 +26,6 @@
 package org.myrobotlab.service;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.ComediDriverConfig;
 import org.myrobotlab.service.data.IOAddress;

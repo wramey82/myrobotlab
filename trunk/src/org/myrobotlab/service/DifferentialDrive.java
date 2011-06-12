@@ -43,6 +43,8 @@ import org.myrobotlab.framework.Service;
  */
 
 public class DifferentialDrive extends Service {
+
+	private static final long serialVersionUID = 1L;
 	
 	public int dimensionX = 0;
 	public int dimensionY = 0;

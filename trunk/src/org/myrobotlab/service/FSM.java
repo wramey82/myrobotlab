@@ -76,7 +76,7 @@ public class FSM extends Service {
 		return "used to generate pulses";
 	}
 	
-	public static void main(String[] args) throws ClassNotFoundException {
+	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		

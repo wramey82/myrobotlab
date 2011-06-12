@@ -38,6 +38,8 @@ import org.myrobotlab.framework.Service;
 
 public class ParallelPort extends Service {
 
+	private static final long serialVersionUID = 1L;
+	
 	public ParallelPort(String name) {
 		super(name, ParallelPort.class.getCanonicalName());
 	}
@@ -58,7 +60,7 @@ public class ParallelPort extends Service {
 	    public static final String[] PORT_TYPE = { "Serial Port", "Parallel Port" };
 
 	    // these commands are specific for my printer around the text
-	    private static String printerCodes = "<n>HelloWorld!<p>";
+	    //private static String printerCodes = "<n>HelloWorld!<p>";
 
 	    public static void main(String[] args) {
 
@@ -76,7 +78,7 @@ public class ParallelPort extends Service {
 	            parallelPort = (gnu.io.ParallelPort) port.open("CommTest", 50);
 	            outputStream = parallelPort.getOutputStream();
 
-	            char[] charArray = printerCodes.toCharArray();
+	            //char[] charArray = printerCodes.toCharArray();
 	            byte[] byteArray = null; // TODO - fix CharToByteConverter.getConverter is depricated
 	            /*
 	            byte[] byteArray = CharToByteConverter.getConverter("UTF8")

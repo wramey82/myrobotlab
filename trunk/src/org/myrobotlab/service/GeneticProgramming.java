@@ -38,6 +38,7 @@ public class GeneticProgramming extends Service {
 
 	public final static Logger LOG = Logger.getLogger(GeneticProgramming.class
 			.getCanonicalName());
+	private static final long serialVersionUID = 1L;
 
 	GP gp1 = null;
 

@@ -38,6 +38,7 @@ import org.myrobotlab.framework.Service;
 
 public class Graphics extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Graphics.class.getCanonicalName());
 	
 	public String guiServiceName = null;

@@ -44,6 +44,7 @@ import org.myrobotlab.service.data.IPAndPort;
 
 public class SoccerGame extends Service {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SoccerGame.class
 			.getCanonicalName());
 
@@ -140,7 +141,7 @@ public class SoccerGame extends Service {
 			e1.printStackTrace();
 		}
 
-		Enumeration e = security.propertyNames();
+		Enumeration<?> e = security.propertyNames();
 
 		for (; e.hasMoreElements();) {
 			LOG.info(e.nextElement());

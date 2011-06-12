@@ -50,6 +50,7 @@ public class Audrey extends Service {
 	// Behaviors - Observing, Reporting, Moving Toy (confirmation), Taking command to move, 
 	// States - looking for yellow blocks | looking for learning pad | looking for blue blocks | looking for new things | asking questions about things | making relationships with things 
 	// 
+	private static final long serialVersionUID = 1L;
 
 	SpeechRecognition ear = new SpeechRecognition("ear");
 	Speech mouth = new Speech("mouth");
