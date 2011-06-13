@@ -48,7 +48,7 @@ import org.myrobotlab.chess.Board;
 import org.myrobotlab.chess.Constants;
 import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.GUI;
 import org.op.chess.ChessBoard;
 
 public class ChessGameGUI extends ServiceGUI
@@ -57,10 +57,8 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 
 	static final long serialVersionUID = 1L;
 
-	public ChessGameGUI(String name, GUIService myService) {
-		super(name, myService);
-		
-		init();
+	public ChessGameGUI(String name, GUI myService) {
+		super(name, myService);		
 	}
 
     private Board board = new Board();
