@@ -75,7 +75,7 @@ public abstract class Service implements Runnable, Serializable {
 	Inbox inbox = null;
 	public URL url = null;
 	
-	boolean performanceTiming = false;
+	public boolean performanceTiming = true;
 	
 	protected CommunicationInterface cm = null;
 	protected ConfigurationManager cfg = null;
@@ -181,7 +181,7 @@ public abstract class Service implements Runnable, Serializable {
 			startTimeMilliseconds = System.currentTimeMillis();
 		}
 		if (performanceTiming) {
-			LOG.info("performance clock :"
+			LOG.error("performance clock :"
 					+ (System.currentTimeMillis() - startTimeMilliseconds
 							+ " ms " + tag));
 		}

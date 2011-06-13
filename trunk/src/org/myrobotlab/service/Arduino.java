@@ -386,8 +386,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	// TODO - does not return Integer - does not block
-	// use PinData to retrieve info
+	// DEPRICATE !!!
 	public void servoRead(Integer pin) {
 		serialSend(SERVO_READ, pinToServo.get(pin), 0);
 	}
@@ -514,6 +513,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		return p;
 	}
 
+	// DEPRICATE !
 	public PinData readServo(PinData p) {
 		// TODO - translation back to pin identifier
 		// e.g. pin 6 could be servo[0] - sending back we need to put pin back
@@ -589,17 +589,18 @@ public class Arduino extends Service implements SerialPortEventListener,
 					++numBytes;
 					//totalBytes += numBytes;
 					
-					LOG.error("read " + numBytes + " target msg length " + rawReadMsgLength);
+					//LOG.info("read " + numBytes + " target msg length " + rawReadMsgLength);
 					
 					if (numBytes == rawReadMsgLength) {
+						/* Diagnostics
 						StringBuffer b = new StringBuffer();
 						for (int i = 0; i < rawReadMsgLength; ++i)
 						{
 							b.append(msg[i] + " ");
 						}
 						
-						LOG.error(b.toString());
-						
+						LOG.error("msg" + b.toString());
+						*/
 						totalBytes += numBytes;
 						
 						if (rawReadMsg)
@@ -622,14 +623,14 @@ public class Arduino extends Service implements SerialPortEventListener,
 							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is 2 bytes)
 							p.value += (msg[3] & 0xFF); // LSB
 	
-							if (p.function == SERVO_READ) {
-								invoke("readServo", p);
-							} else {
+							//if (p.function == SERVO_READ) { COMPLETELY DEPRICATED !!!
+							//	invoke("readServo", p);
+							//} else {
 								if (p.function == ANALOG_VALUE) {
 									p.type = 1;
 								}
 								invoke(SensorData.publishPin, p);
-							}
+							//}
 						}
 
 						//totalBytes = 0;

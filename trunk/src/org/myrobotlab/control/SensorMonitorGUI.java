@@ -306,10 +306,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 						"sensorInput",
 						new Class[]{PinData.class}
 						);
-				//notifyEntry.name = boundServiceName;
-				//notifyEntry.outMethod = SensorData.publishPin;
-				//notifyEntry.inMethod = "sensorInput";
-				//notifyEntry.paramTypes = new Class[]{PinData.class};
+
 				myService.send(controllerName, "notify", notifyEntry);
 
 				// Notification SensorMonitor ------> GUIService
@@ -381,6 +378,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	public void inputSensorData(PinData pinData) {
 		// update trace array & alert array if applicable
+		//myService.logTime("start");
 		if (traceData.containsKey(pinData.pin)) {
 			TraceData t = traceData.get(pinData.pin);
 			t.index++;
@@ -437,8 +435,11 @@ public class SensorMonitorGUI extends ServiceGUI implements
 						+ t.total, 20, t.pin * 15 + 20);
 
 			}
+			//myService.logTime("afterdraw");
 
 			video.webCamDisplay(sensorImage);
+			//myService.logTime("aftercam");
+
 		}
 	}
 
