@@ -33,7 +33,6 @@ public class PinData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(PinData.class);
 
-	public int ID;
 	public long time; // time of creation
 	public int pin; // address
 	public int function; // address
@@ -53,7 +52,6 @@ public class PinData implements Serializable {
 	// ctors end ----
 	// assignment begin --- todo - look @ clone copy
 	public void set(final PinData other) {
-		ID = other.ID;
 		pin = other.pin;
 		function = other.function;
 		value = other.value;
@@ -69,7 +67,6 @@ public class PinData implements Serializable {
 		StringBuffer ret = new StringBuffer();
 		// ret.append("{<PinData");
 		ret.append("{");
-		ret.append("\"ID\":\"" + ID + "\"");
 		ret.append("\"pin\":" + "\"" + pin + "\"");
 		ret.append("\"function\":" + "\"" + function + "\"");
 		ret.append("\"value\":" + "\"" + value + "\"");

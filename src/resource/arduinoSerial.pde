@@ -508,6 +508,7 @@ Serial.print("]\n");
            break;
            case ANALOG_READ_POLLING_STOP:
              removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
+             --analogReadPollingPinCount;
            break;
            case DIGITAL_READ_POLLING_START:
              digitalReadPin[digitalReadPollingPinCount] = ioCommand[1]; // put on polling read list
@@ -515,6 +516,7 @@ Serial.print("]\n");
            break;
            case DIGITAL_READ_POLLING_STOP:
              removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[1]);
+             --digitalReadPollingPinCount;
            break;
            case NOP:
              // No Operation
@@ -564,7 +566,7 @@ Serial.print("]\n");
     readValue = analogRead(analogReadPin[i]);
       
     // if my value is different then last time - send it
-    //  if (lastAnalogInputValue[analogReadPin[i]] != readValue) - POLLING DIFS VS POLLING !! COMMAND
+    if (lastAnalogInputValue[analogReadPin[i]] != readValue)// - POLLING DIFS VS POLLING !! COMMAND
     {       
       Serial.write(ANALOG_VALUE);
       Serial.write(analogReadPin[i]); // TODO - have to encode it to determine where it came from
@@ -576,7 +578,7 @@ Serial.print("]\n");
   }
 
   //SoftwareServo::refresh();// - conflicts with NewSoftSerial
-  //delay(20);
+  delay(20);
  
 } // loop
 

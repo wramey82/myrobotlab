@@ -55,14 +55,22 @@ public class ChumbyBot extends Service {
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
+		/*
 		ChumbyBot chumbybot = new ChumbyBot("chumbybot");
 		chumbybot.startService();
-		
+		*/
+
+		/*
 		OpenCV camera = new OpenCV("camera");
 		camera.startService();
 		camera.capture();
+		*/
+		
+		Arduino arduino = new Arduino("uBotuino");
+		arduino.startService();
+		
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();

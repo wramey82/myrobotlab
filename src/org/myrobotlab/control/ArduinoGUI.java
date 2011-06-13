@@ -219,7 +219,7 @@ public class ArduinoGUI extends ServiceGUI {
 		  
 		// TODO - set up routing of messages from service - to catch events TODO
 		// attachGUI
-		sendNotifyRequest("publishPin", "setDataLabel", PinData.class);
+		// sendNotifyRequest("publishPin", "setDataLabel", PinData.class); BAD BAD BAD - been "bug"d so many times by this ! Analog read fails!
 
 		PopupMenuListener PortPopUpListener = new PopupMenuListener() {
 

@@ -239,6 +239,11 @@ public class VideoWidget extends ServiceGUI {
 
 	}
 
+	/*
+	 * MAKE NOTE - BECAUSE THERE WERE 2 - (1 called from SensorMonitorGUI) - I got one bug
+	 * that was fixed in Serialized - (width/pack performance issue) !
+	 */
+	
 	public void webCamDisplay(BufferedImage img) {
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
@@ -265,6 +270,7 @@ public class VideoWidget extends ServiceGUI {
 		{
 			screen.invalidate();
 			myService.pack();
+			lastImageWidth = img.getWidth();
 		}
 		
 		img = null;
