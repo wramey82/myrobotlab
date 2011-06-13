@@ -53,6 +53,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
 
@@ -130,8 +132,8 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 				CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
 
 		for (int i = 0; i < lines.total(); i++) {
-			//int line[] = cvGetSeqElem(lines, i).getIntArray(0, 4);
-			IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer(4).asIntBuffer();
+			//IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer(4).asIntBuffer(); javacv 06112011 update
+			IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer().asIntBuffer();
 			p0.x(line.get(0));
 			p0.y(line.get(1));
 			p1.x(line.get(2));
