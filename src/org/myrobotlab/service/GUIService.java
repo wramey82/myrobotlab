@@ -640,7 +640,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.INFO);
 		
 		
 		GUIService gui2 = new GUIService("gui2");
