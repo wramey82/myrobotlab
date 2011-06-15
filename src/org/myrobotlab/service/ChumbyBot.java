@@ -50,7 +50,7 @@ public class ChumbyBot extends Service {
 			
 			speech.startService();
 			//speech.cfg.set("isATT", true);
-			speech.speak("I am about to start");
+			//speech.speak("I am about to start");
 			remote.startService();
 			camera.startService();
 			arduino.startService();
@@ -58,6 +58,7 @@ public class ChumbyBot extends Service {
 			servo.startService();
 			
 			servo.attach(arduino.name, 12);
+			
 
 			Thread.sleep(10000);
 			
@@ -107,7 +108,7 @@ public class ChumbyBot extends Service {
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.WARN);
 		
 		
 		ChumbyBot chumbybot = new ChumbyBot("chumbybot");
