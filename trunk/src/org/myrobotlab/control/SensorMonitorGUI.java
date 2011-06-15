@@ -53,8 +53,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
@@ -172,9 +172,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		trace.add(addTrace, gc);
 
 		++gc.gridx;
-		ConfigurationManager cm = myService.getHostCFG();
-		Vector<String> v = cm.getServicesFromInterface(SensorData.class
-				.getCanonicalName());
+		Vector<String> v = RuntimeEnvironment.getServicesFromInterface(SensorData.class.getCanonicalName());
 		traceController = new JComboBox(v);
 		trace.add(traceController, gc);
 

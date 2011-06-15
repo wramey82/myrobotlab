@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.interfaces.GUI;
@@ -455,6 +456,32 @@ public class RuntimeEnvironment implements Serializable{
 		sb.append("</NotifyEntries>");
 		
 		return sb.toString();
+	}
+	
+	public static Vector<String> getServicesFromInterface(String interfaceName) {
+		Vector<String> ret = new Vector<String>(); 
+		
+		Iterator<String> it = registry.keySet().iterator();
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			ServiceWrapper sw = registry.get(serviceName);
+			Class<?> c = sw.service.getClass();
+			
+			Class<?> [] interfaces = c.getInterfaces();
+			
+			for (int i = 0; i < interfaces.length; ++i) {
+				Class<?> m = interfaces[i];
+
+				if (m.getCanonicalName().equals(interfaceName))
+				{
+					ret.add(sw.service.name);
+				}
+
+			}
+
+		}
+		
+		return ret;
 	}
 	
 }
