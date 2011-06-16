@@ -30,7 +30,7 @@ import org.myrobotlab.service.data.IOData;
 public interface ServoController {
 
 	public final static String servoWrite = "servoWrite";
-	public final static String servoRead = "servoRead";
+	//public final static String servoRead = "servoRead"; problematic implementation
 	public final static String servoAttach = "servoAttach";
 	public final static String servoDetach = "servoDetach";
 
@@ -74,6 +74,6 @@ public interface ServoController {
 	 */
 	boolean servoDetach(Integer pin);
 
-	void servoRead(Integer pin);
+	//void servoRead(Integer pin);
 
 }
