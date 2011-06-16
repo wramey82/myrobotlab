@@ -353,10 +353,7 @@ public class Propeller extends Service implements SerialPortEventListener,
 
 	}
 
-	/*
-	 * servoWrite(IOData io) interface that allows routing with a single
-	 * parameter TODO - how to "route" to multiple parameters
-	 */
+	// TODO - determine if still used  - depricate if
 	public void servoWrite(IOData io) {
 		servoWrite(io.address, io.value);
 	}
@@ -380,12 +377,6 @@ public class Propeller extends Service implements SerialPortEventListener,
 
 		serialSend(SERVO_WRITE, pinToServo.get(pin), angle);
 
-	}
-
-	// TODO - does not return Integer - does not block
-	// use PinData to retrieve info
-	public void servoRead(Integer pin) {
-		serialSend(SERVO_READ, pinToServo.get(pin), 0);
 	}
 
 	public void releaseSerialPort() {

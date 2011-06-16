@@ -36,9 +36,6 @@ import org.myrobotlab.service.interfaces.ServoController;
 public class Servo extends Service implements
 		org.myrobotlab.service.interfaces.Servo {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(Servo.class
@@ -219,9 +216,6 @@ public class Servo extends Service implements
 		// set up msg routing  TODO - don't set up message routing - use "send" from servoMove fn
 		notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 
-		// TODO - this may need to block? - Simple if it did?
-		// get the position of the attached servo
-		// send(controllerName, ServoController.servoRead, pin);  THIS IS COMPLETELY WRONG !
 		isAttached = true;
 	}
 

@@ -27,12 +27,9 @@ package org.myrobotlab.service;
 
 import gnu.io.CommDriver;
 import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +37,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.TooManyListenersException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -76,8 +72,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Arduino.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
 
 	transient SerialPort serialPort;
 	transient InputStream inputStream;
@@ -134,12 +129,23 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		// if there is only 1 port - attempt to initialize it
 		ArrayList<String> p = getPorts();
+		LOG.info("number of ports " + p.size());
+		for (int j = 0; j < p.size(); ++j)
+		{
+			LOG.info(p.get(j));
+		}
+
 		if (p.size() == 1) {
+			LOG.info("only one serial port " + p.get(0));
 			setSerialPort(p.get(0));
 		} else if (p.size() > 1) {
 			if (lastSerialPortName != null && lastSerialPortName.length() > 0)
 			{
+				LOG.info("more than one port - but last serial port is " + lastSerialPortName);
 				setSerialPort(lastSerialPortName);
+			} else {
+				LOG.info("more than one port or no ports, and last serial port not set");
+				LOG.info("need user input to select from " + p.size() + " possibilities ");				
 			}
 		}
 		
@@ -149,17 +155,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	/*
-	 * getPorts - get ALL yes ALL the ports available
-	 */
-	@SuppressWarnings("unchecked")
 	public ArrayList<String> getPorts() {
 
 		ArrayList<String> ports = new ArrayList<String>();
 		CommPortIdentifier portId;
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
-		Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
 			String portName = portId.getName();
@@ -201,7 +203,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	@Override
 	public void loadDefaultConfiguration() {
-		lastSerialPortName = cfg.get("lastSerialPortName","");
+		//lastSerialPortName = cfg.get("lastSerialPortName","");
 	}
 
 	/*
@@ -386,10 +388,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	// DEPRICATE !!!
-	public void servoRead(Integer pin) {
-		serialSend(SERVO_READ, pinToServo.get(pin), 0);
-	}
 
 	public void releaseSerialPort() {
 		serialPort.removeEventListener();
@@ -397,9 +395,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 	}
 
 	public boolean setSerialPort(String portName) {
-		LOG.debug("setPortIdFromName requesting " + portName);
+		LOG.debug("setSerialPort requesting " + portName);
 
-		// initialize serial port
 		try {
 			CommPortIdentifier portId;
 
@@ -431,30 +428,12 @@ public class Arduino extends Service implements SerialPortEventListener,
 				return false;
 			}
 
-			Thread.sleep(200); // TODO - don't know why a delay is necessary -
-								// should enter a bug serialPort
-								// initialization????
+			Thread.sleep(200); // the initialization of the hardware takes a little time
 			
-			cfg.set("lastSerialPortName", portName); 
+			lastSerialPortName = portName;
 
-		} catch (PortInUseException e) {
-			LOG.error("PortInUseException " + e.getMessage());
-			return false;
-		} catch (IOException e) {
-			LOG.error("IOException " + e.getMessage());
-			return false;
-		} catch (TooManyListenersException e) {
-			LOG.error("TooManyListenersException " + e.getMessage());
-			return false;
-		} catch (UnsupportedCommOperationException e) {
-			LOG.error("UnsupportedCommOperationException " + e.getMessage());
-			return false;
-		} catch (InterruptedException e) {
-			LOG.error("InterruptedException " + e.getMessage());
-			return false;
-		} catch (NoSuchPortException e) {
-			// TODO Auto-generated catch block
-			LOG.error("NoSuchPortException " + portName);
+		} catch (Exception e) {
+			Service.logException(e);
 			return false;
 		}
 
@@ -716,11 +695,10 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		// Servo hand = new Servo("hand");
 		// hand.start();
-
 		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
+		// GUIService gui = new GUIService("gui");
+		// gui.startService();
+		// gui.display();
 	}
 
 	// internal data object - used to keep track of vars associated with Motors

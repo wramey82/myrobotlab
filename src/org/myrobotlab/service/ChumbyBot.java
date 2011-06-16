@@ -12,7 +12,7 @@ public class ChumbyBot extends Service {
 
 	OpenCV camera = new OpenCV("camera");
 	Servo servo = new Servo("pan");
-	Arduino arduino = new Arduino("uBotuino");
+	Arduino arduino = new Arduino("uBotino");
 	SensorMonitor sensors = new SensorMonitor("sensors");
 	RemoteAdapter remote = new RemoteAdapter("remote");
 	Speech speech = new Speech("speech");
@@ -57,6 +57,8 @@ public class ChumbyBot extends Service {
 			sensors.startService();
 			servo.startService();
 			
+			arduino.setSerialPort("/dev/ttyUSB0");
+			
 			servo.attach(arduino.name, 12);
 			
 
@@ -64,9 +66,8 @@ public class ChumbyBot extends Service {
 			
 			while (true)
 			{
+				/*
 					Thread.sleep(1000);
-					
-					
 					servo.moveTo(10);
 					Thread.sleep(4000);		
 					servo.moveTo(90);
@@ -74,6 +75,7 @@ public class ChumbyBot extends Service {
 					servo.moveTo(170);
 					Thread.sleep(4000);
 					servo.moveTo(90);
+					*/
 					
 				
 			}
@@ -108,7 +110,7 @@ public class ChumbyBot extends Service {
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		
 		ChumbyBot chumbybot = new ChumbyBot("chumbybot");
