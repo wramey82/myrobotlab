@@ -57,7 +57,7 @@ public class ChumbyBot extends Service {
 			sensors.startService();
 			servo.startService();
 			
-			arduino.setSerialPort("/dev/ttyUSB0");
+			//arduino.setSerialPort("/dev/ttyUSB0");
 			
 			servo.attach(arduino.name, 12);
 			
