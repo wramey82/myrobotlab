@@ -76,6 +76,7 @@ public class ChumbyBot extends Service {
 					Thread.sleep(4000);
 					servo.moveTo(90);
 					*/
+				Thread.sleep(1000);
 					
 				
 			}
