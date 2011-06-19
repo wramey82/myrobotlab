@@ -19,6 +19,9 @@ public class ChumbyBot extends Service {
 
 	transient Thread behavior = null;
 	
+	private final Object lock = new Object(); 
+
+	
 	public abstract class Behavior implements Runnable
 	{
 
@@ -26,7 +29,16 @@ public class ChumbyBot extends Service {
 	}
 	
 	public void startBot ()
-	{
+	{		
+		speech.startService();
+		//speech.cfg.set("isATT", true);
+		//speech.speak("I am about to start");
+		remote.startService();
+		camera.startService();
+		arduino.startService();
+		sensors.startService();
+		servo.startService();
+		
 		behavior = new Thread(new ChumbyBot.Explore(),"behavior");
 		behavior.start();
 	}
@@ -47,16 +59,7 @@ public class ChumbyBot extends Service {
 			// continue loop/explore
 			
 			try {
-			
-			speech.startService();
-			//speech.cfg.set("isATT", true);
-			//speech.speak("I am about to start");
-			remote.startService();
-			camera.startService();
-			arduino.startService();
-			sensors.startService();
-			servo.startService();
-			
+						
 			//arduino.setSerialPort("/dev/ttyUSB0");
 			
 			//servo.attach(arduino.name, 12);
