@@ -33,8 +33,8 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
-import org.myrobotlab.service.SensorMonitor.Alert;
 import org.myrobotlab.service.data.ColoredPoint;
+import org.myrobotlab.service.data.PinAlert;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
@@ -97,17 +97,17 @@ public class MoMo extends Service {
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addAlert("200", 200, 200, Alert.BOUNDRY, Alert.STATE_LOW,
+		sensors.addAlert("200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("300", 300, 300, Alert.BOUNDRY, Alert.STATE_LOW,
+		sensors.addAlert("300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("400", 400, 400, Alert.BOUNDRY, Alert.STATE_LOW,
+		sensors.addAlert("400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("500", 500, 500, Alert.BOUNDRY, Alert.STATE_LOW,
+		sensors.addAlert("500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("600", 600, 600, Alert.BOUNDRY, Alert.STATE_LOW,
+		sensors.addAlert("600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.notify("publish", this.name, "publish", Alert.class);
+		sensors.notify("publish", this.name, "publish", PinAlert.class);
 
 		// creating static route from ear/speech recognition to special action
 		ear.notify("publish", this.name, "speechToAction", String.class);
@@ -521,7 +521,7 @@ public class MoMo extends Service {
 
 	}
 
-	public void publish(Alert a) {
+	public void publish(PinAlert a) {
 		// mouth.speak("range " + a.name);
 
 		if (a.max == 200) {

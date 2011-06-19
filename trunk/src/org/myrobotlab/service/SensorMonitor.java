@@ -26,12 +26,11 @@
 package org.myrobotlab.service;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
 
 public class SensorMonitor extends Service {
@@ -40,7 +39,7 @@ public class SensorMonitor extends Service {
 	public final static Logger LOG = Logger.getLogger(SensorMonitor.class
 			.getCanonicalName());
 
-	public HashMap<String, Alert> alerts = new HashMap<String, Alert>();
+	public HashMap<Integer, PinAlert> alerts = new HashMap<Integer, PinAlert>();
 
 	public SensorMonitor(String n) {
 		super(n, SensorMonitor.class.getCanonicalName());
@@ -50,13 +49,18 @@ public class SensorMonitor extends Service {
 	public void loadDefaultConfiguration() {
 	}
 
-	public final class Alert {
+	/*
+	public final class PinAlert {
 		public static final int BOUNDRY = 1;
-
 		public static final int STATE_LOW = 2;
 		public static final int STATE_HIGH = 3;
 
-		public Alert(String n, int min, int max, int type, int state,
+		public PinAlert()
+		{
+			
+		}
+		
+		public PinAlert(String n, int min, int max, int type, int state,
 				int targetPin) {
 			this.name = n;
 			this.min = min;
@@ -69,16 +73,17 @@ public class SensorMonitor extends Service {
 		public String name;
 		public int min;
 		public int max;
-		public int type;
+		public int type; // ONESHOT (only) | MEAN ?
 		public int state;
 		public PinData pinData;
 		public int targetPin;
+		public int threshold; // use this
 	}
-
+*/
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
 		Arduino arduino = new Arduino("arduino");
@@ -89,14 +94,18 @@ public class SensorMonitor extends Service {
 		gui.display();
 	}
 
+	public final void addAlert(PinAlert alert) {
+		alerts.put(alert.pinData.pin, alert);
+	}
+	
 	public final void addAlert(String n, int min, int max, int type, int state,
 			int targetPin) {
-		alerts.put(n, new Alert(n, min, max, type, state, targetPin));
+		alerts.put(targetPin, new PinAlert(n, min, max, type, state, targetPin));
 	}
 
 	// TODO - an Attach for the ArduinoGUI - so not "automatic" pinRead
 	// read pinData notify -> checkSensorData
-	// add new Alert -> when pin 4 > 35
+	// add new PinAlert -> when pin 4 > 35
 
 	// sensorInput - an input point for sensor info
 
@@ -105,36 +114,49 @@ public class SensorMonitor extends Service {
 		// if map(pin).hasKey()
 		// for each rule check
 
-		Iterator<String> it = alerts.keySet().iterator();
-		while (it.hasNext()) {
-			Boolean publish = false;
-			String serviceName = it.next();
-			Alert alert = alerts.get(serviceName);
-			// LOG.warn(alert.min + " " + alert.max + " " + alert.state + " " +
-			// pinData.value + " " + pinData.pin + " " + alert.targetPin);
+		if (alerts.containsKey(pinData.pin))
+		{
+			PinAlert alert = alerts.get(pinData.pin);
+			/*
 			// transition across boundary -- begin
 			if (pinData.pin == alert.targetPin && pinData.value < alert.min
-					&& alert.state == Alert.STATE_HIGH) {
+					&& alert.state == PinAlert.STATE_HIGH) {
 				publish = true;
-				alert.state = Alert.STATE_LOW;
+				alert.state = PinAlert.STATE_LOW;
 			}
 
-			if (pinData.value > alert.max && alert.state == Alert.STATE_LOW) {
+			if (pinData.value > alert.max && alert.state == PinAlert.STATE_LOW) {
 				publish = true;
-				alert.state = Alert.STATE_HIGH;
+				alert.state = PinAlert.STATE_HIGH;
 			}
 			// transition across boundary -- end
-
-			if (publish) {
-				invoke("publish", alert);
+			 * 
+			 */
+			// time
+			if (alert.threshold < pinData.value)
+			{
+				alert.pinData = pinData;
+				invoke("publishPinAlert", alert);				
+				alerts.remove(pinData.pin);
 			}
-
 		}
+
 		invoke("publishSensorData", pinData);
 
 	}
 
-	public Alert publish(Alert alert) {
+	public void removeAlert(String name)
+	{
+		if (alerts.containsKey(name))
+		{
+			alerts.remove(name);
+		} else {
+			LOG.error("remoteAlert " + name + " not found");
+		}
+		
+	}
+	
+	public PinAlert publishPinAlert(PinAlert alert) {
 		return alert;
 	}
 

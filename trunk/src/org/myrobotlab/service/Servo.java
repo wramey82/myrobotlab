@@ -38,10 +38,7 @@ public class Servo extends Service implements
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Servo.class
-			.getCanonicalName());
-	// int pos = 0;
-	// int pin = 0;
+	public final static Logger LOG = Logger.getLogger(Servo.class.getCanonicalName());
 
 	boolean isAttached = false;
 
@@ -82,7 +79,6 @@ public class Servo extends Service implements
 
 			while (sweeperRunning) {
 				// controller.servoMoveTo(name, pos);
-				int pos = cfg.get("pos", 90);
 				pos += sweepIncrement;
 
 				// switch directions
@@ -159,15 +155,12 @@ public class Servo extends Service implements
 		this.posMax = posMax; 
 	}
 	
-	public String getControllerName() // TODO - strangely this is not CFG'd -
-										// but perhaps that is OK??
+	public String getControllerName() 
 	{
 		return controllerName;
 	}
 
-	public String setControllerName(String cname) // TODO - strangely this is
-													// not CFG'd - but perhaps
-													// that is OK??
+	public String setControllerName(String cname) 
 	{
 		controllerName = cname;
 		return controllerName;

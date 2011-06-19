@@ -59,10 +59,14 @@ public class ChumbyBot extends Service {
 			
 			//arduino.setSerialPort("/dev/ttyUSB0");
 			
-			servo.attach(arduino.name, 12);
+			//servo.attach(arduino.name, 12);
+			/*
+			Thread.sleep(100000);
 			
-
-			Thread.sleep(10000);
+			LOG.debug("stopping arduino");
+			arduino.stopService();
+			LOG.debug("stopped arduino");
+*/
 			
 			while (true)
 			{

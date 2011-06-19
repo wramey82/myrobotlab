@@ -43,11 +43,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -56,6 +59,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.SensorData;
@@ -96,7 +100,9 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	int red[] = new int[DATA_WIDTH];
 	int redIndex = 0;
+	// trace data is owned by the GUI
 	HashMap<Integer, TraceData> traceData = new HashMap<Integer, TraceData>();
+	// alert data is owned by the Service
 
 	public Random rand = new Random();
 
@@ -111,6 +117,87 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		int max = 0;
 		int min = 1024;
 		int mean = 0;
+	}
+	
+	class AlertDialog extends JDialog 
+	{
+		private static final long serialVersionUID = 1L;
+		public JTextField name = new JTextField(15);
+		public JIntegerField threshold = new JIntegerField(15);
+		//public JTextField type = new JTextField(15);
+		//public JTextField direction = new JTextField(15);
+		public JButton add = new JButton("add");
+		public JButton cancel = new JButton("cancel");
+		
+		public String action = null;
+		
+		class AlertButtonListener implements ActionListener {
+			AlertDialog myDialog = null;
+
+			public AlertButtonListener(AlertDialog d)
+			{
+				myDialog = d;
+			}
+			
+			public void actionPerformed(ActionEvent e) {
+				action = e.getActionCommand();
+				myDialog.dispose();
+			  }
+		}
+		
+		AlertDialog()
+		{
+			super(myService.getFrame(), "Alert Dialog", true);
+			
+			add.setActionCommand("add");
+			cancel.setActionCommand("cancel");
+			AlertButtonListener a = new AlertButtonListener(this);
+			add.addActionListener(a);
+			cancel.addActionListener(a);
+			
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridBagLayout());
+			gc.gridx = 0;
+			gc.gridy = 0;
+			panel.add(new JLabel("name : "), gc);
+			++gc.gridx;
+			panel.add(name, gc);
+
+			++gc.gridy;
+			gc.gridx = 0;
+			panel.add(new JLabel("threshold : "), gc);
+			++gc.gridx;
+			panel.add(threshold, gc);
+			++gc.gridy;
+			gc.gridx = 0;
+
+			++gc.gridy;
+			gc.gridx = 0;
+			panel.add(add, gc);
+			++gc.gridx;
+			panel.add(cancel, gc);
+			++gc.gridy;
+			gc.gridx = 0;
+			
+			
+			/*
+			++gc.gridy;
+			gc.gridx = 0;
+			panel.add(new JLabel("direction : "), gc);
+			++gc.gridx;
+			panel.add(direction, gc);
+			++gc.gridy;
+			gc.gridx = 0;
+			*/
+			
+			getContentPane().add(panel);
+		    pack(); 
+		    setVisible(true);
+
+		}
+		
+		
+		
 	}
 
 	public SensorMonitorGUI(final String boundServiceName, final GUI myService) {
@@ -345,9 +432,24 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			// TODO Auto-generated method stub
 			JFrame frame = new JFrame();
 			frame.setTitle("add new filter");
-			String name = JOptionPane.showInputDialog(frame, "new alert name");
+			//String name = JOptionPane.showInputDialog(frame, "new alert name");
 
-			alertListModel.addElement(name);
+			
+			AlertDialog alertDlg = new AlertDialog();
+			if (alertDlg.action.equals("add"))
+			{
+				alertListModel.addElement(alertDlg.name.getText() + " " + alertPin.getSelectedItem() + " " + alertDlg.threshold.getInt()); 
+				// this has to be pushed to service
+				PinAlert alert = new PinAlert();
+				alert.name = alertDlg.name.getText();
+				alert.pinData = new PinData();
+				alert.pinData.source = "arduino";
+				alert.pinData.pin = (Integer)alertPin.getSelectedItem();
+				alert.threshold = alertDlg.threshold.getInt();
+				myService.send(boundServiceName, "addAlert", alert);
+				// add line ! with name ! & color !
+			}
+
 
 		}
 
@@ -356,7 +458,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	public class RemoveAlertListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String name = (String) alerts.getSelectedValue();
-			myService.send(boundServiceName, "removeFilter", name);
+			myService.send(boundServiceName, "removeAlert", name);
 			// TODO - block on response
 			alertListModel.removeElement(name);
 		}

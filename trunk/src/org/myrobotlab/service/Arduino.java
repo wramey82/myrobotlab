@@ -72,12 +72,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Arduino.class
+			.getCanonicalName());
 
 	transient SerialPort serialPort;
 	transient InputStream inputStream;
 	transient OutputStream outputStream;
-	
+
 	String lastSerialPortName; // 
 
 	public static final int HIGH = 0x1;
@@ -114,12 +115,23 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	public boolean repeatSerialCommand = false;
 	public int repeatCommandNumber = 3; // TODO - move to config - number of
-										// additional serial sends
+	// additional serial sends
 
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
-	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); // mapping a pin to servo
-	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); // mapping a servo to pin
-	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>(); // list of custom ports
+	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); // mapping
+																			// a
+																			// pin
+																			// to
+																			// servo
+	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); // mapping
+																			// a
+																			// servo
+																			// to
+																			// pin
+	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>(); // list
+																									// of
+																									// custom
+																									// ports
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
@@ -130,8 +142,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		// if there is only 1 port - attempt to initialize it
 		ArrayList<String> p = getPorts();
 		LOG.info("number of ports " + p.size());
-		for (int j = 0; j < p.size(); ++j)
-		{
+		for (int j = 0; j < p.size(); ++j) {
 			LOG.info(p.get(j));
 		}
 
@@ -139,16 +150,18 @@ public class Arduino extends Service implements SerialPortEventListener,
 			LOG.info("only one serial port " + p.get(0));
 			setSerialPort(p.get(0));
 		} else if (p.size() > 1) {
-			if (lastSerialPortName != null && lastSerialPortName.length() > 0)
-			{
-				LOG.info("more than one port - but last serial port is " + lastSerialPortName);
+			if (lastSerialPortName != null && lastSerialPortName.length() > 0) {
+				LOG.info("more than one port - but last serial port is "
+						+ lastSerialPortName);
 				setSerialPort(lastSerialPortName);
 			} else {
-				LOG.info("more than one port or no ports, and last serial port not set");
-				LOG.info("need user input to select from " + p.size() + " possibilities ");				
+				LOG
+						.info("more than one port or no ports, and last serial port not set");
+				LOG.info("need user input to select from " + p.size()
+						+ " possibilities ");
 			}
 		}
-		
+
 		for (int i = 0; i < servosInUse.length; ++i) {
 			servosInUse[i] = false;
 		}
@@ -203,7 +216,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	@Override
 	public void loadDefaultConfiguration() {
-		//lastSerialPortName = cfg.get("lastSerialPortName","");
+		// lastSerialPortName = cfg.get("lastSerialPortName","");
 	}
 
 	/*
@@ -239,16 +252,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 	}
 
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
-	public void serialSend(String data)
-	{
+	public void serialSend(String data) {
 		serialSend(data.getBytes());
 	}
-	
-	public synchronized void serialSend(byte[] data)
-	{
+
+	public synchronized void serialSend(byte[] data) {
 		try {
-			for (int i = 0; i < data.length; ++i)
-			{
+			for (int i = 0; i < data.length; ++i) {
 				outputStream.write(data[i]);
 			}
 		} catch (IOException e) {
@@ -321,12 +331,10 @@ public class Arduino extends Service implements SerialPortEventListener,
 		LOG.info("servoAttach (" + pin + ") to " + serialPort.getName()
 				+ " function number " + SERVO_ATTACH);
 
-/* soft servo		
-		if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 10
-				&& pin != 11) {
-			LOG.error(pin + " not valid for servo");
-		}
-*/		
+		/*
+		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin !=
+		 * 10 && pin != 11) { LOG.error(pin + " not valid for servo"); }
+		 */
 
 		for (int i = 0; i < servosInUse.length; ++i) {
 			if (!servosInUse[i]) {
@@ -371,7 +379,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// @Override - TODO - make interface - implements ServoController interface
 	public void servoWrite(Integer pin, Integer angle) {
 		if (serialPort == null) // TODO - remove this only for debugging without
-								// Arduino
+		// Arduino
 		{
 			return;
 		}
@@ -388,55 +396,111 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
+	
+	  public void setDTR(boolean state) {
+		    serialPort.setDTR(state);
+	  }
 
+	  public void setRTS(boolean state) {
+		  serialPort.setRTS(state);
+	  }
+
+	  	
 	public void releaseSerialPort() {
-		serialPort.removeEventListener();
-		serialPort.close();
+		LOG.debug("releaseSerialPort");
+	    try {
+	        // do io streams need to be closed first?
+	        if (inputStream != null) inputStream.close();
+	        if (outputStream != null) outputStream.close();
+
+	      } catch (Exception e) {
+	        e.printStackTrace();
+	      }
+	      inputStream = null;
+	      outputStream = null;
+
+	      /* what a f*ing mess */
+	      new Thread(){
+	    	    @Override
+	    	    public void run(){
+	    	        serialPort.removeEventListener();
+	    	        serialPort.close();
+	    		      serialPort = null;
+	    	    }
+	    	}.start();
+	    
+	      try {
+	        //if (serialPort != null) serialPort.close();  // close the port
+	    	Thread.sleep(300); // wait for thread to terminate
+
+	      } catch (Exception e) {
+	        e.printStackTrace();
+	      }
+
+	    LOG.info("released port");
 	}
 
 	public boolean setSerialPort(String portName) {
-		LOG.debug("setSerialPort requesting " + portName);
+		LOG.debug("setSerialPort requesting [" + portName + "]");
+
+		if (serialPort != null) // || portName == null || portName.length() == 0
+		{
+			releaseSerialPort();
+		}
 
 		try {
 			CommPortIdentifier portId;
 
-			if (customPorts.containsKey(portName)) { // adding to query right
-														// back
+			if (customPorts.containsKey(portName)) { // adding custom port
+														// (wiicomm) to query
+														// right back
 				CommPortIdentifier.addPortName(portName,
 						CommPortIdentifier.PORT_SERIAL, customPorts
 								.get(portName));
 			}
-			portId = CommPortIdentifier.getPortIdentifier(portName);
 
-			serialPort = (SerialPort) portId.open("Arduino", 2000);
+			Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
+			serialPort = null;
 
-			inputStream = serialPort.getInputStream();
+			while (portList.hasMoreElements()) {
+				portId = (CommPortIdentifier) portList.nextElement();
 
-			serialPort.addEventListener(this);
+				if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+					// System.out.println("found " + portId.getName());
+					if (portId.getName().equals(portName)) {
+						// System.out.println("looking for "+iname);
+						serialPort = (SerialPort) portId.open(
+								"robot overlords", 2000);
+						inputStream = serialPort.getInputStream();
+						outputStream = serialPort.getOutputStream();
 
-			// activate the DATA_AVAILABLE notifier
-			serialPort.notifyOnDataAvailable(true);
+						serialPort.addEventListener(this);
+						serialPort.notifyOnDataAvailable(true);
 
-			// 115200 wired, 2400 IR ?? VW 2000??
-			serialPort.setSerialPortParams(115200, SerialPort.DATABITS_8,
-					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+						// 115200 wired, 2400 IR ?? VW 2000??
+						serialPort.setSerialPortParams(115200,
+								SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+								SerialPort.PARITY_NONE);
 
-			outputStream = serialPort.getOutputStream();
+						Thread.sleep(200); // the initialization of the hardware
+											// takes a little time
 
-			if (serialPort == null) {
-				LOG.error("serialPort is null - bad init?");
-				return false;
+						lastSerialPortName = portName;
+						break;
+
+					}
+				}
 			}
-
-			Thread.sleep(200); // the initialization of the hardware takes a little time
-			
-			lastSerialPortName = portName;
-
 		} catch (Exception e) {
 			Service.logException(e);
+		}
+
+		if (serialPort == null) {
+			LOG.error("serialPort is null - bad init?");
 			return false;
 		}
 
+		LOG.info(portName + " ready");
 		return true;
 	}
 
@@ -447,7 +511,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public void digitalReadPollStop(Integer address) {
 
 		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
@@ -455,8 +520,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	public void digitalWrite(IOData io)
-	{
+	public void digitalWrite(IOData io) {
 		digitalWrite(io.address, io.value);
 	}
 
@@ -476,8 +540,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(PINMODE, address, value);
 	}
 
-	public void analogWrite(IOData io)
-	{
+	public void analogWrite(IOData io) {
 		analogWrite(io.address, io.value);
 	}
 
@@ -518,27 +581,26 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	// TODO - blocking call which waits for serial return
 	// not thread safe - use mutex? - block on expected byte count?
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	
-	public String readSerialMessage(String s)
-	{
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
+
+	public String readSerialMessage(String s) {
 		return s;
 	}
-	
+
 	boolean rawReadMsg = false;
 	int rawReadMsgLength = 4;
-	//char rawMsgBuffer
-	
-	public void setRawReadMsg (Boolean b)
-	{
+
+	// char rawMsgBuffer
+
+	public void setRawReadMsg(Boolean b) {
 		rawReadMsg = b;
 	}
-	
-	public void setReadMsgLength (Integer length)
-	{
+
+	public void setReadMsgLength(Integer length) {
 		rawReadMsgLength = length;
 	}
-	
+
 	public void serialEvent(SerialPortEvent event) {
 		switch (event.getEventType()) {
 		case SerialPortEvent.BI:
@@ -552,7 +614,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
 			break;
 		case SerialPortEvent.DATA_AVAILABLE:
-			
+
 			try {
 				// read data
 
@@ -560,64 +622,65 @@ public class Arduino extends Service implements SerialPortEventListener,
 				int newByte;
 				int numBytes = 0;
 				int totalBytes = 0;
-				
-				// TODO - refactor big time ! - still can't dynamically change msg length
-				// also need a byLength or byStopString - with options to remove delimiter
+
+				// TODO - refactor big time ! - still can't dynamically change
+				// msg length
+				// also need a byLength or byStopString - with options to remove
+				// delimiter
 				while ((newByte = inputStream.read()) >= 0) {
-					msg[numBytes] = (byte)newByte;
+					msg[numBytes] = (byte) newByte;
 					++numBytes;
-					//totalBytes += numBytes;
-					
-					//LOG.info("read " + numBytes + " target msg length " + rawReadMsgLength);
-					
+					// totalBytes += numBytes;
+
+					// LOG.info("read " + numBytes + " target msg length " +
+					// rawReadMsgLength);
+
 					if (numBytes == rawReadMsgLength) {
-						/* Diagnostics
-						StringBuffer b = new StringBuffer();
-						for (int i = 0; i < rawReadMsgLength; ++i)
-						{
-							b.append(msg[i] + " ");
-						}
-						
-						LOG.error("msg" + b.toString());
-						*/
+						/*
+						 * Diagnostics StringBuffer b = new StringBuffer(); for
+						 * (int i = 0; i < rawReadMsgLength; ++i) {
+						 * b.append(msg[i] + " "); }
+						 * 
+						 * LOG.error("msg" + b.toString());
+						 */
 						totalBytes += numBytes;
-						
-						if (rawReadMsg)
-						{
+
+						if (rawReadMsg) {
 							// raw protocol
-							
-							String s = new String(msg);		
+
+							String s = new String(msg);
 							LOG.info(s);
 							invoke("readSerialMessage", s);
 						} else {
-						
+
 							// mrl protocol
-							
+
 							PinData p = new PinData();
 							p.time = System.currentTimeMillis();
 							p.function = msg[0];
 							p.pin = msg[1];
 							// java assumes signed
 							// http://www.rgagnon.com/javadetails/java-0026.html
-							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino int is 2 bytes)
+							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
+															// int is 2 bytes)
 							p.value += (msg[3] & 0xFF); // LSB
-	
-							//if (p.function == SERVO_READ) { COMPLETELY DEPRICATED !!!
-							//	invoke("readServo", p);
-							//} else {
-								if (p.function == ANALOG_VALUE) {
-									p.type = 1;
-								}
-								invoke(SensorData.publishPin, p);
-							//}
+
+							// if (p.function == SERVO_READ) { COMPLETELY
+							// DEPRICATED !!!
+							// invoke("readServo", p);
+							// } else {
+							if (p.function == ANALOG_VALUE) {
+								p.type = 1;
+							}
+							invoke(SensorData.publishPin, p);
+							// }
 						}
 
-						//totalBytes = 0;
+						// totalBytes = 0;
 						numBytes = 0;
-						
-						// reset buffer 
-						for (int i = 0; i < rawReadMsgLength; ++i)
-						{
+
+						// reset buffer
+						for (int i = 0; i < rawReadMsgLength; ++i) {
 							msg[i] = -1;
 						}
 
@@ -631,7 +694,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 		}
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public String getType() {
 		return Arduino.class.getCanonicalName();
 	}
@@ -640,24 +704,24 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// TODO - make a serialSendBlocking
 	public void digitalReadPollingStart(Integer pin) {
 		serialSend(DIGITAL_READ_POLLING_START, pin, 0); // last param is not
-														// used in read
+		// used in read
 	}
 
 	public void digitalReadPollingStop(Integer pin) {
 		serialSend(DIGITAL_READ_POLLING_STOP, pin, 0); // last param is not used
-														// in read
+		// in read
 	}
 
 	// force an analog read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
 	public void analogReadPollingStart(Integer pin) {
 		serialSend(ANALOG_READ_POLLING_START, pin, 0); // last param is not used
-														// in read
+		// in read
 	}
 
 	public void analogReadPollingStop(Integer pin) {
 		serialSend(ANALOG_READ_POLLING_STOP, pin, 0); // last param is not used
-														// in read
+		// in read
 	}
 
 	/*
@@ -695,60 +759,70 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		// Servo hand = new Servo("hand");
 		// hand.start();
-		
+
 		// GUIService gui = new GUIService("gui");
 		// gui.startService();
 		// gui.display();
 	}
 
 	// internal data object - used to keep track of vars associated with Motors
-	// TODO - as motor defintions begin to exist on boards and then in micro-controller code - this will
-	// allow Motor services to offload data / commands features to the boards and integrate other possiblites? dunno
-	class Motor
-	{
+	// TODO - as motor defintions begin to exist on boards and then in
+	// micro-controller code - this will
+	// allow Motor services to offload data / commands features to the boards
+	// and integrate other possiblites? dunno
+	class Motor {
 		boolean isAttached = false;
-		
+
 	}
-	
-	HashMap<String, Motor> motorMap = new HashMap<String, Motor>(); 
-	
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+
+	HashMap<String, Motor> motorMap = new HashMap<String, Motor>();
+
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public void motorAttach(String name, Integer PWMPin, Integer DIRPin) {
-		// set the pinmodes on the 2 pins 
-		if (serialPort != null)
-		{
+		// set the pinmodes on the 2 pins
+		if (serialPort != null) {
 			pinMode(PWMPin, Arduino.OUTPUT);
 			pinMode(DIRPin, Arduino.OUTPUT);
 		} else {
-			LOG.error("attempting to attach motor before serial connection to " + name + " Arduino is ready");
+			LOG.error("attempting to attach motor before serial connection to "
+					+ name + " Arduino is ready");
 		}
-		
+
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public void motorDetach(String name) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public void motorMove(String name, Integer amount) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
+	// @Override - only in Java 1.6 - its only a single reference not all
+	// supertypes define it
 	public void motorMoveTo(String name, Integer position) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public String getToolTip() {
-		return "<html>Arduino is a service which interfaces with an Arduino micro-controller.<br>" +
-		"This interface can operate over radio, IR, or other communications,<br>" +
-		"but and appropriate .PDE file must be loaded into the micro-controller.<br>"  +
-		"See http://myrobotlab.org/communication for details";
+		return "<html>Arduino is a service which interfaces with an Arduino micro-controller.<br>"
+				+ "This interface can operate over radio, IR, or other communications,<br>"
+				+ "but and appropriate .PDE file must be loaded into the micro-controller.<br>"
+				+ "See http://myrobotlab.org/communication for details";
+	}
+
+	public void stopService() {
+		super.stopService();
+		releaseSerialPort();
 	}
 
 }
