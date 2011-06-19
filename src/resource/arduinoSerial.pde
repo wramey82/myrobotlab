@@ -508,7 +508,6 @@ Serial.print("]\n");
            break;
            case ANALOG_READ_POLLING_STOP:
              removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
-             --analogReadPollingPinCount;
            break;
            case DIGITAL_READ_POLLING_START:
              digitalReadPin[digitalReadPollingPinCount] = ioCommand[1]; // put on polling read list
@@ -516,7 +515,6 @@ Serial.print("]\n");
            break;
            case DIGITAL_READ_POLLING_STOP:
              removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[1]);
-             --digitalReadPollingPinCount;
            break;
            case NOP:
              // No Operation
