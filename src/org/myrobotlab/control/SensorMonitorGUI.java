@@ -388,7 +388,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				// Notification Arduino ------> SensorMonitor
 				NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin,
 						boundServiceName,
-						"sensorInput",
+						"sensorInput", // TODO SensorMonitor.SensorInput
 						new Class[]{PinData.class}
 						);
 

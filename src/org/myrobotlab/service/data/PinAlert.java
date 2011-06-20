@@ -6,6 +6,15 @@ public class PinAlert {
 	public static final int STATE_LOW = 2;
 	public static final int STATE_HIGH = 3;
 
+	public String name;
+	public int min;
+	public int max;
+	public int type; // ONESHOT (only) | MEAN ?
+	public int state;
+	public PinData pinData = new PinData();
+	public int targetPin;
+	public int threshold; // use this
+
 	public PinAlert()
 	{
 		
@@ -21,14 +30,4 @@ public class PinAlert {
 		this.targetPin = targetPin;
 	}
 
-	public String name;
-	public int min;
-	public int max;
-	public int type; // ONESHOT (only) | MEAN ?
-	public int state;
-	public PinData pinData;
-	public int targetPin;
-	public int threshold; // use this
-	
-	
 }

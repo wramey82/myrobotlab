@@ -3,6 +3,9 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.PinAlert;
+import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.SensorData;
 
 public class ChumbyBot extends Service {
 
@@ -16,7 +19,9 @@ public class ChumbyBot extends Service {
 	SensorMonitor sensors = new SensorMonitor("sensors");
 	RemoteAdapter remote = new RemoteAdapter("remote");
 	Speech speech = new Speech("speech");
-
+	Motor left = new Motor("left");
+	Motor right = new Motor("right");
+	
 	transient Thread behavior = null;
 	
 	private final Object lock = new Object(); 
@@ -38,7 +43,17 @@ public class ChumbyBot extends Service {
 		arduino.startService();
 		sensors.startService();
 		servo.startService();
+
+		arduino.setSerialPort("/dev/ttyUSB0");
 		
+		// arduino to sensor monitor
+		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
+		
+		// sensor monitor to chumbybot
+		sensors.notify("publishPinAlert", this.name, "publishPinAlert", PinAlert.class);
+		
+		arduino.analogReadPollingStart(0);
+
 		behavior = new Thread(new ChumbyBot.Explore(),"behavior");
 		behavior.start();
 	}
@@ -46,30 +61,70 @@ public class ChumbyBot extends Service {
 	public class Explore extends Behavior
 	{
 		@Override
-		public void run() { // execute non Runnable
-			// start forward - some speed - DifferentialDrive?
-			// wait on IR Event
-			// stop
-			// say something relevant e.g. "wall @ 25 cm"
-			// check left
-			// check right
-			// determine correction
-			// say something relevant e.g. "clear right"
-			// turn appropriate direction 
-			// continue loop/explore
-			
+		public void run() { 
 			try {
+			
+			// execute non Runnable
+			// start forward - some speed - DifferentialDrive?
+			// no encoder - ? start timer ?
+			right.move(0.5f);
+			left.move(0.5f);
+
+			PinAlert alert = new PinAlert();
+			alert.threshold = 600;
+			alert.pinData.pin = 0;
+			sensors.addAlert(alert);
+			
+			// wait on IR Event
+			synchronized (lock) {
+				lock.wait(); 
+			}
+
+			// stop
+			right.stop();
+			left.stop();
 						
-			//arduino.setSerialPort("/dev/ttyUSB0");
+			// say something relevant e.g. "wall @ 25 cm"
+			speech.speak("Excuse me. I believe something is in my way");
+
+			// check left
+			servo.moveTo(20);
+			Thread.sleep(300);
+			// wait for servo to stop
+			// check IR - 
+			int leftRange = sensors.getLastValue(0);
 			
-			//servo.attach(arduino.name, 12);
-			/*
-			Thread.sleep(100000);
+			// check right
+			servo.moveTo(160);
+			Thread.sleep(300);
 			
-			LOG.debug("stopping arduino");
-			arduino.stopService();
-			LOG.debug("stopped arduino");
-*/
+			int rightRange = sensors.getLastValue(0);
+
+			// if both values are under - must backup or rotate base right
+			
+			if (rightRange > leftRange)
+			{
+				speech.speak("moving right");
+				left.move(0.3f);
+				Thread.sleep(400);
+				
+			} else {
+				speech.speak("moving left");
+				right.move(0.3f);
+				Thread.sleep(400);				
+			}
+
+			servo.moveTo(90);
+			speech.speak("checking forward range");
+			Thread.sleep(300);				
+			int forward = sensors.getLastValue(0);
+			if (forward < 100)
+			{
+				speech.speak("forward");
+			} else {
+				speech.speak("not safe to go forward");
+			}
+			
 			
 			while (true)
 			{
@@ -96,8 +151,11 @@ public class ChumbyBot extends Service {
 		
 	}
 	
-	public synchronized void onEvent (Object data)
+	public void publishPinAlert (PinAlert alert)
 	{
+		synchronized (lock) {
+			lock.notifyAll(); 
+		}
 		
 	}
 	
@@ -119,7 +177,7 @@ public class ChumbyBot extends Service {
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+				
 		
 		ChumbyBot chumbybot = new ChumbyBot("chumbybot");
 		chumbybot.startService();
