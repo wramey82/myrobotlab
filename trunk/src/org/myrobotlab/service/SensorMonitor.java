@@ -36,11 +36,13 @@ import org.myrobotlab.service.data.PinData;
 public class SensorMonitor extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SensorMonitor.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(SensorMonitor.class.getCanonicalName());
 
 	public HashMap<Integer, PinAlert> alerts = new HashMap<Integer, PinAlert>();
+	public HashMap<Integer, PinData> lastValue = new HashMap<Integer, PinData>();
 
+	public Speech speech = null;
+	
 	public SensorMonitor(String n) {
 		super(n, SensorMonitor.class.getCanonicalName());
 	}
@@ -57,9 +59,13 @@ public class SensorMonitor extends Service {
 		SensorMonitor sm = new SensorMonitor("sensors");
 		Arduino arduino = new Arduino("arduino");
 		GUIService gui = new GUIService("gui");
+		Speech speech = new Speech("speech");
+		sm.speech = speech;
 		arduino.startService();
 		gui.startService();
+		speech.startService();
 		sm.startService();
+
 		gui.display();
 	}
 
@@ -110,10 +116,31 @@ public class SensorMonitor extends Service {
 			}
 		}
 
+		if (!lastValue.containsKey(pinData.pin))
+		{
+			lastValue.put(pinData.pin, pinData);
+		}
+		
+		PinData last = lastValue.get(pinData.pin);
+		last.value = pinData.value;
+		//last.pin = pinData.pin;
+		//last.function = pinData.function;
+		//last.source = pinData.source;
+		
 		invoke("publishSensorData", pinData);
 
 	}
 
+	public int getLastValue(Integer pin)
+	{
+		if (lastValue.containsKey(pin))
+		{
+			return lastValue.get(pin).value;
+		}
+		LOG.error("getLastValue for pin " + pin + " does not exist");
+		return -1;
+	}
+	
 	public void removeAlert(String name)
 	{
 		if (alerts.containsKey(name))
@@ -126,6 +153,7 @@ public class SensorMonitor extends Service {
 	}
 	
 	public PinAlert publishPinAlert(PinAlert alert) {
+		speech.speak(alert.name);
 		return alert;
 	}
 
