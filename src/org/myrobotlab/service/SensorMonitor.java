@@ -54,7 +54,7 @@ public class SensorMonitor extends Service {
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
 		Arduino arduino = new Arduino("arduino");
