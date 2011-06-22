@@ -58,10 +58,12 @@ public class SensorMonitor extends Service {
 
 		SensorMonitor sm = new SensorMonitor("sensors");
 		Arduino arduino = new Arduino("arduino");
+		RemoteAdapter remote = new RemoteAdapter("remote");
 		GUIService gui = new GUIService("gui");
 		Speech speech = new Speech("speech");
 		sm.speech = speech;
 		arduino.startService();
+		remote.startService();
 		gui.startService();
 		speech.startService();
 		sm.startService();
@@ -153,7 +155,10 @@ public class SensorMonitor extends Service {
 	}
 	
 	public PinAlert publishPinAlert(PinAlert alert) {
-		speech.speak(alert.name);
+		if (speech != null)
+		{
+			speech.speak(alert.name); // dorky hack for demo
+		}
 		return alert;
 	}
 

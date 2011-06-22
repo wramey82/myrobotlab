@@ -672,6 +672,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 							if (p.function == ANALOG_VALUE) {
 								p.type = 1;
 							}
+							p.source = this.name;
 							invoke(SensorData.publishPin, p);
 							// }
 						}

@@ -228,7 +228,7 @@ public class Invoker extends Service {
 			if (cmdline.containsKey("-logToConsole"))
 			{
 				org.apache.log4j.BasicConfigurator.configure();
-				Logger.getRootLogger().setLevel(Level.DEBUG);
+				Logger.getRootLogger().setLevel(Level.ERROR);
 			} else {			
 				PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 	
