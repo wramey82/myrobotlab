@@ -533,6 +533,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				g.setColor(t.color);
 				g.drawString(" min " + t.min + " max " + t.max + " mean "
 						+ t.total, 20, t.pin * 15 + 20);
+				
+				
 
 			}
 			//myService.logTime("afterdraw");

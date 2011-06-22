@@ -1403,6 +1403,11 @@ public abstract class Service implements Runnable, Serializable {
 		send(remoteURL, "registerServices", sdu);
 
 	}
-
+	
+	// new state functions begin --------------------------
+	public Service publishState()
+	{
+		return this;
+	}
 
 }

@@ -174,11 +174,6 @@ public class Clock extends Service {
 		return d;
 	}
 	
-	// new state functions begin --------------------------
-	public Clock publishState()
-	{
-		return this;
-	}
 
 	// TODO - reflectively do it in Service? !?
 	// No - the overhead of a Service warrants a data only proxy - so to
