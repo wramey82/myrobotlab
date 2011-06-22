@@ -707,23 +707,6 @@ public abstract class Service implements Runnable, Serializable {
 		LOG.info("***" + name + " msgid " + msg.msgID + " invoking "
 				+ msg.method + " (" + msg.getParameterSignature() + ")***");
 
-		// TODO - good stuff here ! - e.g
-		// if msg not for me what do i do ? RELAY <- this could make a proxy
-		// serve
-		// if recipient is anonymous what do i do ?
-		// if (anonymousMsgRequest == MsgHandling.RELAY &&
-		// msg.name.compareTo(name) != 0) {
-		// cfg.setIfEmpty(name + ".anonymousMsgRequest", "PROCESS");
-		// TODO - strange place to put it ... it should be in Process inbox=getMsg(); if !me && RELAY send to outbox
-		
-		/* SHOULD BE CONTROLLED WITH HOOKS - DEPRICATING
-		if (anonymousMsgRequest == RELAY && msg.name.compareTo("") != 0) {
-			LOG.warn("RELAY " + name + " - sending to " + msg.name);
-			out(msg);
-			return null;
-		}
-		*/
-
 		retobj = invoke(msg.method, msg.data);
 
 		// TODO - look for sendBlocking - then send call back obj to sender
@@ -817,14 +800,14 @@ public abstract class Service implements Runnable, Serializable {
 					}
 				}
 			}
+			// TODO - method cache map
 
 			// log invoking call
 			if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
 				String paramTypeString = "";
 				if (params != null) {
 					for (int i = 0; i < params.length; ++i) {
-						paramTypeString += params[i].getClass()
-								.getCanonicalName();
+						paramTypeString += params[i].getClass().getCanonicalName();
 						if (params.length != i + 1) {
 							paramTypeString += ",";
 						}
@@ -836,6 +819,7 @@ public abstract class Service implements Runnable, Serializable {
 						+ "." + method + "(" + paramTypeString + ")****");
 			}
 
+			
 			Method meth = c.getMethod(method, paramTypes);
 
 			retobj = meth.invoke(object, params);
