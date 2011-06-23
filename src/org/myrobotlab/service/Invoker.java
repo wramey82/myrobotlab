@@ -35,7 +35,9 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -143,8 +145,7 @@ public class Invoker extends Service {
 	}
 
 	static public void removeService(String name) {
-		LOG.info("removing service " + name);
-		//super.removeServices(sdu) TODO
+		RuntimeEnvironment.release(name);
 	}
 
 	// TODO - 3 values - description/example input & output
