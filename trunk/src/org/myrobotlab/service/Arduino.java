@@ -420,6 +420,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	      outputStream = null;
 
 	      /* what a f*ing mess */
+	      /*
 	      new Thread(){
 	    	    @Override
 	    	    public void run(){
@@ -428,7 +429,16 @@ public class Arduino extends Service implements SerialPortEventListener,
 	    		      serialPort = null;
 	    	    }
 	    	}.start();
-	    
+	     */
+	      
+	      if (serialPort != null)
+	      {
+	    	  LOG.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
+	    	  serialPort.removeEventListener();
+	    	  serialPort.close();
+	    	  LOG.error("WARNING - Hurray! successfully closed Yay!");
+	      }
+	      
 	      try {
 	        //if (serialPort != null) serialPort.close();  // close the port
 	    	Thread.sleep(300); // wait for thread to terminate

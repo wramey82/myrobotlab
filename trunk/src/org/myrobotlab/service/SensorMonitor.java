@@ -38,8 +38,9 @@ public class SensorMonitor extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SensorMonitor.class.getCanonicalName());
 
-	public HashMap<Integer, PinAlert> alerts = new HashMap<Integer, PinAlert>();
-	public HashMap<Integer, PinData> lastValue = new HashMap<Integer, PinData>();
+	public HashMap<String, PinAlert> alerts = new HashMap<String, PinAlert>();
+	public HashMap<String, PinAlert> alerts_nameIndex = new HashMap<String, PinAlert>();
+	public HashMap<String, PinData> lastValue = new HashMap<String, PinData>();
 
 	public Speech speech = null;
 	
@@ -57,12 +58,14 @@ public class SensorMonitor extends Service {
 		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
-		Arduino arduino = new Arduino("arduino");
+		//Arduino arduino0 = new Arduino("arduino0");
+		Arduino arduino1 = new Arduino("arduino1");
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		GUIService gui = new GUIService("gui");
 		Speech speech = new Speech("speech");
 		sm.speech = speech;
-		arduino.startService();
+		//arduino0.startService();
+		arduino1.startService();
 		remote.startService();
 		gui.startService();
 		speech.startService();
@@ -72,18 +75,41 @@ public class SensorMonitor extends Service {
 	}
 
 	public final void addAlert(PinAlert alert) {
-		alerts.put(alert.pinData.pin, alert);
+		if (alert.pinData.source == null)
+		{
+			LOG.error("addAlert adding alert with no source controller - will be based on pin only ! " + alert.pinData.pin);
+		}
+		alerts.put(makeKey(alert.pinData), alert);
+		alerts_nameIndex.put(alert.name, alert);
 	}
 	
-	public final void addAlert(String n, int min, int max, int type, int state,
+	
+	public final void addAlert(String source, String name, int min, int max, int type, int state,
 			int targetPin) {
-		alerts.put(targetPin, new PinAlert(n, min, max, type, state, targetPin));
+		PinAlert pa = new PinAlert(name, min, max, type, state, targetPin);
+		alerts.put(makeKey(source, targetPin), pa);
+		alerts_nameIndex.put(name, pa);
 	}
 
 	// TODO - an Attach for the ArduinoGUI - so not "automatic" pinRead
 	// read pinData notify -> checkSensorData
 	// add new PinAlert -> when pin 4 > 35
 
+	final static public String makeKey(PinData pinData)
+	{
+		return makeKey(pinData.source, pinData.pin);
+	}
+	
+	
+	final static public String makeKey(String source, Integer pin)
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(source);
+		sb.append("_");
+		sb.append(pin);
+		return sb.toString();
+	}
+	
 	// sensorInput - an input point for sensor info
 
 	public void sensorInput(PinData pinData) {
@@ -91,9 +117,11 @@ public class SensorMonitor extends Service {
 		// if map(pin).hasKey()
 		// for each rule check
 
-		if (alerts.containsKey(pinData.pin))
+		String key = makeKey(pinData);
+		
+		if (alerts.containsKey(key))
 		{
-			PinAlert alert = alerts.get(pinData.pin);
+			PinAlert alert = alerts.get(key);
 			/*
 			// transition across boundary -- begin
 			if (pinData.pin == alert.targetPin && pinData.value < alert.min
@@ -114,16 +142,16 @@ public class SensorMonitor extends Service {
 			{
 				alert.pinData = pinData;
 				invoke("publishPinAlert", alert);				
-				alerts.remove(pinData.pin);
+				alerts.remove(key);
 			}
 		}
 
-		if (!lastValue.containsKey(pinData.pin))
+		if (!lastValue.containsKey(key))
 		{
-			lastValue.put(pinData.pin, pinData);
+			lastValue.put(key, pinData);
 		}
 		
-		PinData last = lastValue.get(pinData.pin);
+		PinData last = lastValue.get(key);
 		last.value = pinData.value;
 		//last.pin = pinData.pin;
 		//last.function = pinData.function;
@@ -133,21 +161,23 @@ public class SensorMonitor extends Service {
 
 	}
 
-	public int getLastValue(Integer pin)
+	public int getLastValue(String source, Integer pin)
 	{
-		if (lastValue.containsKey(pin))
+		String key = makeKey(source, pin);
+		if (lastValue.containsKey(key))
 		{
-			return lastValue.get(pin).value;
+			return lastValue.get(key).value;
 		}
-		LOG.error("getLastValue for pin " + pin + " does not exist");
+		LOG.error("getLastValue for pin " + key + " does not exist");
 		return -1;
 	}
 	
 	public void removeAlert(String name)
 	{
-		if (alerts.containsKey(name))
+		if (alerts_nameIndex.containsKey(name))
 		{
 			alerts.remove(name);
+			alerts_nameIndex.remove(name);
 		} else {
 			LOG.error("remoteAlert " + name + " not found");
 		}

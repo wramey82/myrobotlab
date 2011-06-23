@@ -770,15 +770,33 @@ public abstract class Service implements Runnable, Serializable {
 		return invoke(method, params);
 	}
 
-	public Object invoke(String method, Object[] params) // TODO remove -
-															// useless - but
-															// somehow being
-															// used
+	/* invoke in the context of a Service */	
+	public Object invoke(String method, Object[] params) 
 	{
-		return invoke(this, method, params);
+		// log invoking call
+		if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
+			String paramTypeString = "";
+			if (params != null) {
+				for (int i = 0; i < params.length; ++i) {
+					paramTypeString += params[i].getClass().getCanonicalName();
+					if (params.length != i + 1) {
+						paramTypeString += ",";
+					}
+				}
+			} else {
+				paramTypeString = "null";
+			}
+			LOG.debug("****invoking " + host + "/" + getClass().getCanonicalName()
+					+ "." + method + "(" + paramTypeString + ")****");
+		}
+
+		Object retobj = invoke(this, method, params);
+
+		return retobj;
 	}
 
-	public Object invoke(Object object, String method, Object params[]) 
+	/* general static base invoke */
+	final public Object invoke(Object object, String method, Object params[]) 
 	{
 
 		Object retobj = null;
@@ -801,29 +819,12 @@ public abstract class Service implements Runnable, Serializable {
 				}
 			}
 			// TODO - method cache map
-
-			// log invoking call
-			if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
-				String paramTypeString = "";
-				if (params != null) {
-					for (int i = 0; i < params.length; ++i) {
-						paramTypeString += params[i].getClass().getCanonicalName();
-						if (params.length != i + 1) {
-							paramTypeString += ",";
-						}
-					}
-				} else {
-					paramTypeString = "null";
-				}
-				LOG.debug("****invoking " + host + "/" + c.getCanonicalName()
-						+ "." + method + "(" + paramTypeString + ")****");
-			}
-
 			
 			Method meth = c.getMethod(method, paramTypes);
 
 			retobj = meth.invoke(object, params);
 
+			// put return object onEvent
 			out(method, retobj);
 
 		} catch (SecurityException e) {
