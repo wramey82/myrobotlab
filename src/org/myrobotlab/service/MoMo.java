@@ -97,15 +97,15 @@ public class MoMo extends Service {
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addAlert("200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.name, "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.name, "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.name, "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.name, "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert("600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.name, "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
 		sensors.notify("publish", this.name, "publish", PinAlert.class);
 

@@ -59,6 +59,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
@@ -101,7 +102,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	int red[] = new int[DATA_WIDTH];
 	int redIndex = 0;
 	// trace data is owned by the GUI
-	HashMap<Integer, TraceData> traceData = new HashMap<Integer, TraceData>();
+	HashMap<String, TraceData> traceData = new HashMap<String, TraceData>();
 	// alert data is owned by the Service
 
 	public Random rand = new Random();
@@ -379,12 +380,12 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			t.color = color;
 			t.controllerName = controllerName;
 			t.pin = (Integer) tracePin.getSelectedItem();
-			traceData.put(t.pin, t);
+			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
 			// notify Arduino pin -> SensorMonitor
 			// notify Sensor -> GUIService
 
-			if (!isTracing) {
+			//if (!isTracing) {
 				// Notification Arduino ------> SensorMonitor
 				NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin,
 						boundServiceName,
@@ -402,7 +403,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				// send begin analog / digital polling for pin
 				isTracing = true;
 
-			}
+			//}
 
 			myService.send(controllerName, "analogReadPollingStart",
 					(Integer) tracePin.getSelectedItem());
@@ -421,7 +422,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			String controllerName = p[2];
 			Integer pin = Integer.parseInt(p[3]);
 			myService.send(controllerName, "analogReadPollingStop", pin);
-			traceData.remove(pin);
+			traceData.remove(SensorMonitor.makeKey(controllerName, pin));
 		}
 
 	}
@@ -479,8 +480,10 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	public void inputSensorData(PinData pinData) {
 		// update trace array & alert array if applicable
 		//myService.logTime("start");
-		if (traceData.containsKey(pinData.pin)) {
-			TraceData t = traceData.get(pinData.pin);
+		String key = SensorMonitor.makeKey(pinData);
+		
+		if (traceData.containsKey(key)) {
+			TraceData t = traceData.get(key);
 			t.index++;
 			t.data[t.index] = pinData.value;
 			++t.total;

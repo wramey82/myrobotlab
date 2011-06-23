@@ -134,7 +134,7 @@ public class Invoker extends Service {
 				"ChessGame", "Clock", "DifferentialDrive",
 				"FaceTracking", "FSM", "GeneticProgramming", "Graphics", "GUIService",
 				"HTTPClient", "Invoker", "JFugue", "JoystickService",
-				"Logging", "MediaSource", "Motor", "OpenCV",
+				"Logging", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
 				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
 				"Serial", "Servo", "SLAM", "SoccerGame", 
