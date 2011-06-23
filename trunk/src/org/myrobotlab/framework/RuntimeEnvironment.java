@@ -33,7 +33,7 @@ public class RuntimeEnvironment implements Serializable{
 	
 	//static private HashMap<String, String> environmentColor;
 
-	// TODO - concurrentHashMap
+	// TODO - don't use concurrentHashMap for JVM compatibility reasons - use synchronized and/or cached instances
 	// TODO wrap in service "RuntimeService"
 	// TODO releaseAll = stop + unregister
 	
@@ -246,11 +246,34 @@ public class RuntimeEnvironment implements Serializable{
 		return se.serviceDirectory.get(name); 
 		
 	}
+
+	public static void release(String name) /*release service environment*/
+	{
+		release (null, name);
+	}
+	
+	public static void release(URL url, String name) /*release service environment*/
+	{
+		ServiceWrapper sw = getService(url, name);
+		sw.service.stopService();
+		registry.remove(name);
+		ServiceEnvironment se = hosts.get(url);
+		se.serviceDirectory.remove(name);
+	}
+
+	public static void release(URL url) /*release process environment*/
+	{
+		ServiceEnvironment se = hosts.get(url);
+		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		while (it.hasNext()) {
+			String name = it.next();
+			release(url, name);
+		}
+	}
 	
 	public static void releaseAll() /*local only?*/
 	{
 		LOG.debug("releaseAll");
-		int cnt = 0;
 		Iterator<URL> it = hosts.keySet().iterator();
 		while (it.hasNext()) {
 			URL sen = it.next();
