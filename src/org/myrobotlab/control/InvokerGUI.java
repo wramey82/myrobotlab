@@ -48,8 +48,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Invoker;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -80,19 +82,25 @@ public class InvokerGUI extends ServiceGUI {
 
 		possibleServices = new JList(Invoker.getServiceShortClassNames());
 
-		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
-		Map<String, ServiceEntry> sortedMap = null;
-		sortedMap = new TreeMap<String, ServiceEntry>(services);
+		//HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
+		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
+		
+		Map<String, ServiceWrapper> sortedMap = null;
+		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		String[] namesAndClasses = new String[sortedMap.size()];
 		int i = 0;
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceEntry se = services.get(serviceName);
-			String shortClassName = se.serviceClass.substring(se.serviceClass
-					.lastIndexOf(".") + 1);
-			namesAndClasses[i] = serviceName + " - " + shortClassName;
+			ServiceWrapper sw = services.get(serviceName);
+			String shortClassName = sw.service.serviceClass.substring(sw.service.serviceClass.lastIndexOf(".") + 1);
+			if (sw.host != null && sw.host.accessURL != null)
+			{
+				namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
+			} else {
+				namesAndClasses[i] = serviceName + " - " + shortClassName;
+			}
 			++i;
 		}
 
@@ -149,11 +157,10 @@ public class InvokerGUI extends ServiceGUI {
 
 				JFrame frame = new JFrame();
 				frame.setTitle("add new service");
-				String name = JOptionPane.showInputDialog(frame,
-						"new service name");
+				String name = JOptionPane.showInputDialog(frame,"new service name");
 				if (name != null) {
 					String newService = (String) possibleServices.getSelectedValue();
-					myService.send(boundServiceName, "addService", newService,name);
+					myService.send(boundServiceName, "addService", newService, name);
 					// TODO - this is asynchronous - the service will be created later
 					// - Especially on a remote process
 					// it would be nice to momentarily block on this call !!!
@@ -164,7 +171,7 @@ public class InvokerGUI extends ServiceGUI {
 					} catch (InterruptedException e1) {
 						Service.stackToString(e1);
 					}
-					myService.loadTabPanels();
+					myService.loadTabPanels(); 
 				}
 
 			}
