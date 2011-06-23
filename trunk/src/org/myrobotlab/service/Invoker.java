@@ -37,7 +37,6 @@ import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.interfaces.GUI;
 

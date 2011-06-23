@@ -41,6 +41,7 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -61,6 +62,7 @@ public abstract class ServiceGUI {
 	public JPanel menu = new JPanel();
 	public JPanel display = new JPanel();
 	JButton detachButton = null;
+	JButton releaseServiceButton = null;
 	
 	public abstract void init();
 	
@@ -87,6 +89,21 @@ public abstract class ServiceGUI {
 		}
 		
 	}
+
+	public class ReleaseServiceListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			RuntimeEnvironment.release(boundServiceName);
+			
+			myService.loadTabPanels();
+		}
+		
+	}
+	
+	
 	
 	public boolean isPanelTabbed()
 	{
@@ -99,12 +116,17 @@ public abstract class ServiceGUI {
 		this.myService = myService;
 
 		// start widget ----
-		detachButton = new JButton(getImageIcon("service_close.png"));
+		//detachButton = new JButton(getImageIcon("service_close.png"));
+		detachButton = new JButton(getImageIcon("toCustom.png"));
+		releaseServiceButton = new JButton(getImageIcon("service_close.png"));
 		detachButton.setMargin(new Insets(0, 0, 0, 0));
+		releaseServiceButton.setMargin(new Insets(0, 0, 0, 0));
+		menu.add(releaseServiceButton);
 		menu.add(detachButton);
 		
 		
 		detachButton.addActionListener(new DetachListener());
+		releaseServiceButton.addActionListener(new ReleaseServiceListener());
 		/*
 		 * JButton test = new JButton(getImageIcon("service_close.png"));
 		 * test.setMargin(new Insets(0, 0, 0, 0)); menu.add(test);
