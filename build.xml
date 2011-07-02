@@ -105,7 +105,7 @@
 				</section>
 			</manifest>
 		</jar>
-		<scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" todir="root:Chumby1@chumby:/mnt/usb-E0FD-1813/myrobotlab-0006"/>
+		<!-- scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" todir="root:Chumby1@chumby:/mnt/usb-E0FD-1813/myrobotlab-0006"/ -->
 	</target>
 	
 	<target name="clean" description="clean up" >
