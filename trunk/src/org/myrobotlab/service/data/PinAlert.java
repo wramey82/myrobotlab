@@ -1,7 +1,10 @@
 package org.myrobotlab.service.data;
 
-public class PinAlert {
+import java.io.Serializable;
 
+public class PinAlert implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	public static final int BOUNDRY = 1;
 	public static final int STATE_LOW = 2;
 	public static final int STATE_HIGH = 3;
