@@ -142,6 +142,7 @@ public class SensorMonitor extends Service {
 			{
 				alert.pinData = pinData;
 				invoke("publishPinAlert", alert);				
+				invoke("publishPinAlertText", alert);				
 				alerts.remove(key);
 			}
 		}
@@ -185,11 +186,11 @@ public class SensorMonitor extends Service {
 	}
 	
 	public PinAlert publishPinAlert(PinAlert alert) {
-		if (speech != null)
-		{
-			speech.speak(alert.name); // dorky hack for demo
-		}
 		return alert;
+	}
+	
+	public String publishPinAlertText(PinAlert alert) {		
+		return alert.name;
 	}
 
 	// output
