@@ -444,7 +444,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				PinAlert alert = new PinAlert();
 				alert.name = alertDlg.name.getText();
 				alert.pinData = new PinData();
-				alert.pinData.source = "arduino";
+				alert.pinData.source = alertController.getSelectedItem().toString();
 				alert.pinData.pin = (Integer)alertPin.getSelectedItem();
 				alert.threshold = alertDlg.threshold.getInt();
 				myService.send(boundServiceName, "addAlert", alert);
