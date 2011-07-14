@@ -408,6 +408,12 @@ public class RemoteAdapter extends Service {
 		ChessGame chess = new ChessGame("chess");
 		chess.startService();
 				
+		Invoker services = new Invoker("services");
+		services.startService();
+		
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
