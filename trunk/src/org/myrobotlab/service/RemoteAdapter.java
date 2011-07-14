@@ -66,6 +66,9 @@ public class RemoteAdapter extends Service {
 	InetAddress serverAddress = null;
 	transient ServerSocket serverSocket = null; 
 	
+	public int servicePort = 6767;
+	public String serverIP = "0.0.0.0";
+	
 	public RemoteAdapter(String n) {
 		super(n, RemoteAdapter.class.getCanonicalName());
 	}
@@ -77,8 +80,6 @@ public class RemoteAdapter extends Service {
 
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("servicePort", 6767);
-		cfg.set("serverIP", "0.0.0.0"); // listen on all
 	}
 
 	@Override
@@ -92,13 +93,13 @@ public class RemoteAdapter extends Service {
 	// TCPtcpListener to maintain connections - TODO - refactor TCPMessageListener
 	class TCPtcpListener implements Runnable {
 		public void run() {
-			if (cfg.getInt("servicePort") > 0) {
+			if (servicePort > 0) {
 				try {
 
 					LOG.info(name + " tcp attempting to listen on servicePort "
-							+ cfg.get("serverIP") + ":"
-							+ cfg.getInt("servicePort"));
-					serverSocket = new ServerSocket(cfg.getInt("servicePort"),
+							+ serverIP + ":"
+							+ servicePort);
+					serverSocket = new ServerSocket(servicePort,
 							0, serverAddress);
 					serverSockets.put(host, serverSocket);
 
@@ -128,8 +129,8 @@ public class RemoteAdapter extends Service {
 					serverSocket.close();
 				} catch (IOException e) {
 					LOG.error("Could not listen on requested ["
-							+ cfg.getInt("servicePort") + "]");
-					cfg.set("servicePort", 0);
+							+ servicePort + "]");
+					servicePort = 0;
 				}
 			} else {
 				LOG.error("servicePort is <= 0 - terminating");
@@ -149,7 +150,7 @@ public class RemoteAdapter extends Service {
 		public void run() {
 
 			LOG.info(name + " udp attempting to listen on servicePort "
-					+ cfg.get("serverIP") + ":" + cfg.getInt("servicePort"));
+					+ serverIP + ":" + servicePort);
 
 			try {
 				socket = new DatagramSocket(6668);
@@ -196,10 +197,10 @@ public class RemoteAdapter extends Service {
 		public void run() {
 
 			LOG.info(name + " udp attempting to listen on servicePort "
-					+ cfg.get("serverIP") + ":" + cfg.getInt("servicePort"));
+					+ serverIP + ":" + servicePort);
 
 			try {
-				socket = new DatagramSocket(cfg.getInt("servicePort"));
+				socket = new DatagramSocket(servicePort);
 				Communicator comm = (Communicator) cm.getComm();
 
 				byte[] b = new byte[65535];

@@ -353,6 +353,7 @@ public class ConfigurationManager implements Serializable {
 	public String get(final String path) {
 		String v = (String) get(path, (Object) null);
 		if (v == null) {
+			LOG.error("configuration error - deprecate !");
 			throw new CFGError("String " + path + " not set");
 		}
 		return v;
