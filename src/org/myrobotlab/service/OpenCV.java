@@ -91,8 +91,8 @@ public class OpenCV extends Service {
 	int frameIndex = 0;
 	int lastImageWidth = 0;
 
-	int cameraIndex = 0;
-	String useInput = "null";
+	public int cameraIndex = 0;
+	public String useInput = "null";
 	String inputMovieFileName = "input.avi";
 	boolean loopInputMovieFile = true;
 	boolean sendImage = true;
@@ -101,9 +101,11 @@ public class OpenCV extends Service {
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
 
-	// removed to support jamvm & chumby
-	// public BlockingQueue<BufferedImage> images = new ArrayBlockingQueue<BufferedImage>(100);
 	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
+	
+	// P - N Learning
+	public ArrayList<SerializableImage> positive = new ArrayList<SerializableImage>(); 
+	public ArrayList<SerializableImage> negative = new ArrayList<SerializableImage>(); 
 	
 	// display
 	CanvasFrame cf = null;
@@ -220,7 +222,7 @@ public class OpenCV extends Service {
 	public void setFilterData (FilterWrapper filterData)
 	{
 		if (filters.containsKey(filterData.name)) {
-			Service.copyDataFrom(filters.get(filterData.name), filterData.filter);
+			Service.copyShallowFrom(filters.get(filterData.name), filterData.filter);
 		} else {
 			LOG.error("setFilterData " + filterData.name + " does not exist");
 		}
@@ -365,20 +367,25 @@ public class OpenCV extends Service {
 			//CameraDevice cameraDevice;
 			try {
 				//int index = cfg.getInt("cameraIndex");
-				
-				if (isWindows)
+				if ("camera".equals(useInput))
 				{
-					grabber = new VideoInputFrameGrabber(cameraIndex);
-					grabber.start();
-				} else {
-					LOG.info("here3");
-					oldGrabber = cvCreateCameraCapture(cameraIndex);
-					LOG.info("here4");
-					if (oldGrabber == null)
+					if (isWindows)
 					{
-						LOG.error("could not create camera capture on camera index " + cameraIndex);
-						stop ();
+						grabber = new VideoInputFrameGrabber(cameraIndex);
+						grabber.start();
+					} else {
+						LOG.info("here3");
+						oldGrabber = cvCreateCameraCapture(cameraIndex);
+						LOG.info("here4");
+						if (oldGrabber == null)
+						{
+							LOG.error("could not create camera capture on camera index " + cameraIndex);
+							stop ();
+						}
 					}
+				} else {
+					LOG.error("useInput null or not supported " + useInput);
+					stop();
 				}
 				
 				//VideoInputFrameGrabber fg = new VideoInputFrameGrabber(0);
@@ -580,7 +587,12 @@ public class OpenCV extends Service {
 	public ColoredPoint[] publish(ColoredPoint[] points) {
 		return points;
 	}
-
+	
+	public SerializableImage publishTemplate (String source, BufferedImage img) {
+		SerializableImage si = new SerializableImage(img);
+		si.source = source;
+		return si;
+	}	
 	// publish functions end ---------------------------
 
 	public void stopCapture() {
@@ -590,6 +602,8 @@ public class OpenCV extends Service {
 	
 	public void capture() {
 
+		useInput = "camera";// currently only camera supported
+		
 		if (videoProcess == null)
 		{
 			// get type
@@ -666,7 +680,7 @@ public class OpenCV extends Service {
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		OpenCV opencv = new OpenCV("opencv");		
 		
@@ -686,18 +700,19 @@ public class OpenCV extends Service {
 		//RemoteAdapter remote = new RemoteAdapter("remote");
 		//remote.startService();
 		
-		//GUIService gui = new GUIService("gui");
-		//gui.startService();
+		GUIService gui = new GUIService("gui");
+		gui.startService();
 		
 		opencv.startService();
+		opencv.addFilter("PyramidDown1", "PyramidDown");
+		opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
-		opencv.addFilter("PyramidDown", "PyramidDown");
 		//opencv.setCameraIndex(0);
 		LOG.info("starting capture");
 		
 		opencv.capture();
-
-		//gui.display();
+		
+		gui.display();
 
 		/*
 		

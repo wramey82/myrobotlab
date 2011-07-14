@@ -25,19 +25,11 @@
 
 package org.myrobotlab.service;
 
-import java.io.File;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 
 @Root
 public class Clock extends Service {
@@ -55,6 +47,12 @@ public class Clock extends Service {
 	public String pulseDataString = null;
 	@Element
 	public int pulseDataInteger;	
+
+	// TODO - design concept - this should (probably) be private - yet the current framework does
+	// not allow copying of private data - setting this does not "make sense" without the 
+	// appropriate action - which is creating a clock thread
+	public boolean isClockRunning = false;
+	
 	public transient ClockThread myClock = null;
 
 	// types
@@ -64,7 +62,6 @@ public class Clock extends Service {
 	public class ClockThread implements Runnable
 	{
 		public Thread thread = null;
-		public boolean isRunning = true;
 		
 		ClockThread()
 		{
@@ -75,7 +72,7 @@ public class Clock extends Service {
 		public void run()
 		{			
 			try {
-				while (isRunning == true)
+				while (isClockRunning == true)
 				{
 					if (pulseDataType == PulseDataType.increment)
 					{
@@ -93,7 +90,7 @@ public class Clock extends Service {
 				}
 			} catch (InterruptedException e) {
 				LOG.info("ClockThread interrupt");
-				isRunning = false;
+				isClockRunning = false;
 			}
 		}
 	}
@@ -119,6 +116,9 @@ public class Clock extends Service {
 		{
 			myClock = new ClockThread();
 		}
+
+		isClockRunning = true;		
+		invoke("publishState"); // TODO - a "bit" heavy handed? appropriate I think
 	}
 	
 	public void stopClock()
@@ -126,11 +126,13 @@ public class Clock extends Service {
 		if (myClock != null) 
 		{
 			LOG.info("stopping " + name + " myClock");
-			myClock.isRunning = false;
 			myClock.thread.interrupt();
 			myClock.thread = null;
 			myClock = null;
 		}
+
+		isClockRunning = false;
+		invoke("publishState"); // TODO - a "bit" heavy handed? appropriate I think
 	}
 
 	// TODO - enum pretty unsuccessful as
@@ -178,7 +180,8 @@ public class Clock extends Service {
 	// TODO - reflectively do it in Service? !?
 	// No - the overhead of a Service warrants a data only proxy - so to
 	// a single container class "ClockData data = new ClockData()" could allow
-	// easy maintenance and extensibility - possibly even reflective sync if names are maintained   
+	// easy maintenance and extensibility - possibly even reflective sync if names are maintained
+	/*
 	public Clock setState(Clock o)
 	{
 		this.interval = o.interval;
@@ -188,13 +191,9 @@ public class Clock extends Service {
 		this.pulseDataType = o.pulseDataType;
 		return o;
 	}
-	
-	public Clock getState()
-	{
-		return this;
-	}
-	
-	
+	*/
+		
+	// TODO - you "could" get rid of these functions
 	public String setPulseDataString(String s)
 	{
 		pulseDataString = s;
@@ -221,7 +220,19 @@ public class Clock extends Service {
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
-
+		Logging log = new Logging("log");
+		log.startService();
+		
+		
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
+		
+		//Clock remote = new Clock("remote");
+		//remote.pulseDataInteger = 7777;
+		//remote.startService();
+		
+		//Service.copyShallowFrom(clock, remote);
+/*
 		//XStream xstream = new XStream(); xpp3 dependent
 		XStream xstream = new XStream(new DomDriver());
 		xstream.alias("Clock", Clock.class);
@@ -239,7 +250,7 @@ public class Clock extends Service {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+*/		
 		GUIService gui = new GUIService("clockgui");
 		gui.startService();	
 		gui.display();

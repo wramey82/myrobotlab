@@ -49,7 +49,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-public class VideoWidget extends ServiceGUI {
+public class PhotoReelWidget extends ServiceGUI {
 
 	private static final long serialVersionUID = 1L;
 	JLabel screen = new JLabel();
@@ -58,10 +58,7 @@ public class VideoWidget extends ServiceGUI {
 	JLabel deltaTime = new JLabel("0");
 
 	HashMap<String, JLabel> screens = new HashMap<String, JLabel>();
-	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 
-	JButton attach = new JButton("attach");
-	JComboBox localSource = null;
 
 	public SerializableImage lastImage = null;
 	public ImageIcon lastIcon = new ImageIcon();
@@ -72,7 +69,7 @@ public class VideoWidget extends ServiceGUI {
 	public int lastImageWidth = 0;
 	
 
-	public VideoWidget(final String boundServiceName, final GUI myService) {
+	public PhotoReelWidget(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
@@ -116,9 +113,6 @@ public class VideoWidget extends ServiceGUI {
 
 	}
 
-	public ArrayList<VideoWidget> getExports() {
-		return exports;
-	}
 
 	public JComboBox getServices(JComboBox cb) {
 		if (cb == null) {
@@ -146,14 +140,6 @@ public class VideoWidget extends ServiceGUI {
 		return cb;
 	}
 
-	class AttachListener implements ActionListener {
-		AttachListener() {
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			attachLocalGUI();
-		}
-	}
 
 	public void init() 
 	{
@@ -170,22 +156,11 @@ public class VideoWidget extends ServiceGUI {
 
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(boundServiceName + " "
-				+ boundFilterName + " video widget");
+				+ boundFilterName + " photo reel widget");
 		display.setBorder(title);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-		// gc.anchor = GridBagConstraints.BOTH;
-		// display.add(new JLabel(boundServiceName), gc);
-		// ++gc.gridy;
-		localSource = getServices(null);
-		display.add(localSource, gc);
-		++gc.gridx;
-		attach.addActionListener(new AttachListener());
-		display.add(attach, gc);
-
-		gc.gridx = 0;
-		gc.gridwidth = 2;
 		++gc.gridy;
 		display.add(screen, gc);
 		gc.gridwidth = 1;
@@ -201,7 +176,7 @@ public class VideoWidget extends ServiceGUI {
 
 	// TODO - need an explanation of why there are two and why one does
 	// not call the other
-	public void webCamDisplay(String filterName, SerializableImage img) {
+	public void publishTemplate(String filterName, SerializableImage img) {
 		if (!screens.containsKey(filterName)) {
 			screens.put(filterName, new JLabel());
 		}
@@ -220,11 +195,6 @@ public class VideoWidget extends ServiceGUI {
 		lastImage = img;
 		lastIcon.setImage(img.getImage());
 
-		if (exports.size() > 0) {
-			for (int i = 0; i < exports.size(); ++i) {
-				exports.get(i).webCamDisplay(filterName, img);
-			}
-		}
 		
 		// resize gui if necessary
 		if (lastImageWidth != img.getImage().getWidth())
@@ -244,7 +214,7 @@ public class VideoWidget extends ServiceGUI {
 	 * that was fixed in Serialized - (width/pack performance issue) !
 	 */
 	
-	public void webCamDisplay(BufferedImage img) {
+	public void publishTemplate(BufferedImage img) {
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
 		}
@@ -259,12 +229,6 @@ public class VideoWidget extends ServiceGUI {
 
 		lastIcon.setImage(img);
 
-		if (exports.size() > 0) {
-			for (int i = 0; i < exports.size(); ++i) {
-				exports.get(i).webCamDisplay(img);
-			}
-		}
-
 		// resize gui if necessary
 		if (lastImageWidth != img.getWidth())
 		{
@@ -277,33 +241,23 @@ public class VideoWidget extends ServiceGUI {
 		
 	}
 
-	public void webCamDisplay(SerializableImage img) {
+	public void publishTemplate(SerializableImage img) {
 		if (img.source != null && img.source.length() > 0) {
-			webCamDisplay(img.source, img);
+			publishTemplate(img.source, img);
 		} else {
-			webCamDisplay("unknown", img);
+			publishTemplate("unknown", img);
 		}
 	}
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("sendImage", "webCamDisplay", SerializableImage.class);
+		sendNotifyRequest("publishTemplate", "publishTemplate", SerializableImage.class);
 	}
 
-	/*
-	 * attaching a widget capable of display - to relay the image to good for
-	 * customizing displays
-	 */
-	public void attachLocalGUI() {
-		VideoGUISource vgs = (VideoGUISource) myService.getServiceGUIMap().get(
-				localSource.getSelectedItem());
-		VideoWidget vw = vgs.getLocalDisplay();
-		vw.getExports().add(this);
-	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("sendImage", "webCamDisplay", SerializableImage.class);
+		removeNotifyRequest("publishTemplate", "publishTemplate", SerializableImage.class);
 	}
 
 }

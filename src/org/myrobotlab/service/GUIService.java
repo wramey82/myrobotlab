@@ -638,17 +638,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}
 	
-	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
-		
-		
-		GUIService gui2 = new GUIService("gui2");
-		gui2.startService();
-		gui2.display();
-
-		
-	}
 	
 	@Override
 	public String getToolTip() {
@@ -745,5 +734,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		graphXML = xml;
 	}
 	
+
+	public static void main(String[] args) throws ClassNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+				
+		GUIService gui2 = new GUIService("gui2");
+		gui2.startService();
+		gui2.display();
+
+		
+	}
 	
 }

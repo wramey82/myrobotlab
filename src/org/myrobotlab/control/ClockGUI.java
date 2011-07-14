@@ -38,6 +38,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Clock.PulseDataType;
 import org.myrobotlab.service.interfaces.GUI;
@@ -57,6 +58,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	JTextField pulseDataString = new JTextField(10);
 	JIntegerField pulseDataInteger = new JIntegerField(10);
 	
+	Clock myClock = null;
+	
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -66,7 +69,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			myService.send(boundServiceName, "setType", ((JRadioButton) e.getSource()).getText());
+			//myService.send(boundServiceName, "setType", ((JRadioButton) e.getSource()).getText()); - look ma no message !
+			myClock.setType(((JRadioButton) e.getSource()).getText());
 		}
 	};
 
@@ -135,6 +139,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		gc.gridx = 0;
 		gc.gridy = 2;
         display.add(pulseData, gc);
+        
+        myClock = (Clock)RuntimeEnvironment.getService(boundServiceName).service;
 		
 	}
 
@@ -147,27 +153,17 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 				public void actionPerformed(ActionEvent e) {
 					if (startClock.getText().compareTo("start clock") == 0) {
 						startClock.setText("stop clock");
-						
-						// TODO - design considerations
-						//myService.send(boundServiceName, "setState", myBoundService); // double set on local
-//						if (myBoundService != null)
-						{
-							// TODO - proxy data class like GWT?? - directly setting field wont work remotely
-//							myBoundService.pulseDataString = pulseDataString.getText();
-						}
-						// TODO - setting fields on a proxy class - vs accessors like these
-						// what about a helper funcion - hides boundServiceName - and the setting of fields on 
-						// the Service side (buried in Service)
-						// setMethods can be bogus - and set removed then field actually set
-						// getMethods could block ?
-						
-						//myService.send(boundServiceName, "setType", );
-						
-						//myService.send(boundServiceName, "set", Integer.parseInt(interval.getText()));
-						myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
-						myService.send(boundServiceName, "startClock");
-						myService.send(boundServiceName, "setPulseDataString", pulseDataString.getText());
-						myService.send(boundServiceName, "setPulseDataInteger", Integer.parseInt(pulseDataInteger.getText()));
+												
+						myClock.interval = Integer.parseInt(interval.getText());
+						myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
+						myClock.pulseDataString = pulseDataString.getText();
+								
+						// set the state of the bound service - whether local or remote 
+						myService.send(boundServiceName, "setState", myClock); // double set on local
+						// publish the fact you set the state - 
+						// TODO - should this a function which calls both functions ? 
+						myService.send(boundServiceName, "publishState"); // TODO - bury in Service.SetState?
+						myService.send(boundServiceName, "startClock"); 
 						
 					} else {
 						startClock.setText("start clock");
@@ -188,12 +184,11 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		myService.send(boundServiceName, "setType", e.getActionCommand());
 	}
 	
-	// TODO - instead of actual Clock - send data Proxy ClockData to set/get state ! 
 	public void getState(Clock c)
 	{
-		//Clock s = (Clock)myService.sendBlocking(boundServiceName, "getState", null);
-		//LOG.info(s);
-		
+		// Setting the display fields based on incoming Clock data
+		// if the Clock is local - the actual clock is sent
+		// if the Clock is remote - a data proxy is sent
 		if (c != null)
 		{
 			if (c.pulseDataType == PulseDataType.increment)
@@ -218,29 +213,27 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 			
 			interval.setText((c.interval + ""));
 			
-			//myBoundService = c;
+			/*
+			 * WARNING - you can not base accurate data on a transient member !!!
 			if (c.myClock != null) // this is transient it will always be null if remote !
 			{
 				startClock.setText("stop clock");
 			} else {
 				startClock.setText("start clock");
 			}
+			*/
+			
+			if (c.isClockRunning)
+			{
+				startClock.setText("stop clock");				
+			} else {
+				startClock.setText("start clock");				
+			}
+			
 		}
 		
 	}
 
-/*	
-	without a proxy class - this is kindof messy
-	you could be creating/setting a local Clock when you want a Remote
-	public void setState()
-	{
-//		if (myBoundService != null)
-		{
-			myService.send(boundServiceName, "setState", myBoundService);
-		}
-		
-	}
-*/	
 
 	@Override
 	public void attachGUI() {
