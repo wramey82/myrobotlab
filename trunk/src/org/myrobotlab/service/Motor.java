@@ -141,7 +141,7 @@ public class Motor extends Service {
 		
 		public void run ()
 		{
-			while (isRunning) // this is from Service - is OK?
+			while (isRunning()) // this is from Service - is OK?
 			{
 				synchronized (lock) {
 					try {

@@ -36,6 +36,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -61,6 +62,7 @@ public class RemoteAdapter extends Service {
 	transient static HashMap<String, ServerSocket> serverSockets = new HashMap<String, ServerSocket>();
 	transient Thread tcpListener = null;
 	transient Thread udpListener = null;
+	transient Thread udpStringListener = null;
 	InetAddress serverAddress = null;
 	transient ServerSocket serverSocket = null; 
 	
@@ -87,7 +89,7 @@ public class RemoteAdapter extends Service {
 		return false;
 	}
 
-	// TCPtcpListener to maintain connections
+	// TCPtcpListener to maintain connections - TODO - refactor TCPMessageListener
 	class TCPtcpListener implements Runnable {
 		public void run() {
 			if (cfg.getInt("servicePort") > 0) {
@@ -100,8 +102,7 @@ public class RemoteAdapter extends Service {
 							0, serverAddress);
 					serverSockets.put(host, serverSocket);
 
-					while (isRunning) {
-						isRunning = true;
+					while (isRunning()) {
 						Socket clientSocket = serverSocket.accept();
 						Communicator comm = (Communicator) cm.getComm();
 						LOG.info("new connection ["
@@ -136,8 +137,59 @@ public class RemoteAdapter extends Service {
 
 		}
 	}
+	
+	
+	
+	class UDPStringListener implements Runnable
+	{
+		DatagramSocket socket = null;
+		String dst = "chess";
+		String fn = "parseOSC";
 
-	class UDPtcpListener implements Runnable {
+		public void run() {
+
+			LOG.info(name + " udp attempting to listen on servicePort "
+					+ cfg.get("serverIP") + ":" + cfg.getInt("servicePort"));
+
+			try {
+				socket = new DatagramSocket(6668);
+
+				byte[] b = new byte[65535];
+				DatagramPacket dgram = new DatagramPacket(b, b.length);
+
+				while (isRunning()) {
+					/*
+					 * byte[] buf = new byte[65535]; DatagramPacket packet = new
+					 * DatagramPacket(buf, buf.length); socket.receive(packet);
+					 * LOG.info("recieved udp");
+					 */
+
+					socket.receive(dgram); // blocks
+					//String data = new String(b);
+					String data = new String(dgram.getData(), 0, dgram.getLength());
+					dgram.setLength(b.length); // must reset length field!
+
+					LOG.debug("udp data [" + data + "]");
+					send(dst, fn, data);
+					// create a string message and send it
+				}
+
+			} catch (SocketException e) {
+				e.printStackTrace();
+				LOG.error("could not listen");
+				return;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			/*
+			 * while (isRunning) { socket.receive(p); }
+			 */
+		}
+	}
+
+	class UDPMsgListener implements Runnable { // TODO refactor and derive
 
 		DatagramSocket socket = null;
 
@@ -156,7 +208,7 @@ public class RemoteAdapter extends Service {
 
 				comm.setIsUDPListening(true);
 
-				while (isRunning) {
+				while (isRunning()) {
 					/*
 					 * byte[] buf = new byte[65535]; DatagramPacket packet = new
 					 * DatagramPacket(buf, buf.length); socket.receive(packet);
@@ -253,11 +305,12 @@ public class RemoteAdapter extends Service {
 	public void startService() {
 		// TODO - block until isReady on the ServerSocket
 		super.startService();
-		tcpListener = new Thread(new TCPtcpListener(), name + "_tcpListener");
+		tcpListener = new Thread(new TCPtcpListener(), name + "_tcpMsgListener");
 		tcpListener.start();
-		udpListener = new Thread(new UDPtcpListener(), name + "_udpListener");
+		udpListener = new Thread(new UDPMsgListener(), name + "_udpMsgListener");
 		udpListener.start();
-
+		udpStringListener = new Thread(new UDPStringListener(), name + "_udpStringListener");
+		udpStringListener.start();
 	}
 
 	@Override
@@ -273,7 +326,7 @@ public class RemoteAdapter extends Service {
 			e.printStackTrace();
 		}
 		serverSocket = null;
-		isRunning = false;
+		super.stopService();
 		if (tcpListener != null)
 		{
 			tcpListener.interrupt();
@@ -345,4 +398,18 @@ public class RemoteAdapter extends Service {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
 
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		remote.startService();
+
+		ChessGame chess = new ChessGame("chess");
+		chess.startService();
+				
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+	}	
 }

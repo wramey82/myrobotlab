@@ -47,6 +47,116 @@ public class ChessGame extends Service {
 		return m;
 	}
 	
+	int state = 0;
+	int column;
+	int row;
+	int pressedAmount;
+	char columnLetter;
+	String hmoveMsg = "";
+	
+	public String parseOSC(String data)
+	{
+		  ++pressedAmount;
+
+		  String inputType = data.substring(0,7);
+		  //println(data);
+		   
+		  if(inputType.equals("/1/push")){ //A1
+		    if(state==0){
+		      state=1;
+		    }
+		    else if(state==1){
+		      state=0;
+		    }
+		  }
+		    
+		  //int stringLength = data.length();
+		  String inputNumber= data.substring(7,9); // bad - just don't know OSC yet
+		  int indexNumber = Integer.parseInt(inputNumber);
+		   
+		  if(state==1){
+		    if(indexNumber>=1 && indexNumber<=8){
+		      row=1;
+		      column=indexNumber-1;
+		    }
+		    if(indexNumber>=9 && indexNumber<=16){
+		      row=2;
+		      column=indexNumber-9;
+		    }
+		    if(indexNumber>=17 && indexNumber<=24){
+		      row=3;
+		      column=indexNumber-17;
+		    }
+		    if(indexNumber>=25 && indexNumber<=32){
+		      row=4;
+		      column=indexNumber-25;
+		    }
+		    if(indexNumber>=33 && indexNumber<=40){
+		      row=5;
+		      column=indexNumber-33;
+		    }
+		    if(indexNumber>=41 && indexNumber<=48){
+		      row=6;
+		      column=indexNumber-41;
+		    }
+		    if(indexNumber>=49 && indexNumber<=56){
+		      row=7;
+		      column=indexNumber-49;
+		    }  
+		    if(indexNumber>=57 && indexNumber<=64){
+		      row=8;
+		      column=indexNumber-57;
+		    }
+		    if(column==0){
+		      columnLetter='a';
+		    }
+		    if(column==1){
+		      columnLetter='b';
+		    }
+		    if(column==2){
+		      columnLetter='c';
+		    } 
+		    if(column==3){
+		      columnLetter='d';
+		    }
+		    if(column==4){
+		      columnLetter='e';
+		    }
+		    if(column==5){
+		      columnLetter='f';
+		    }
+		    if(column==6){
+		      columnLetter='g';
+		    }
+		    if(column==7){
+		      columnLetter='h';
+		    }
+		    
+		    LOG.debug("" + columnLetter + " row " + row);
+		    hmoveMsg += (""+columnLetter) + row; 
+		    
+		    /*
+		    arduinoPort.write(columnLetter);
+		    arduinoPort.write(row);
+		    print(columnLetter);
+		    print(row);
+		    */
+		    
+		    if(pressedAmount==3){
+		    	LOG.debug("sending to inputMove from touchOSC " + hmoveMsg);
+		    	invoke("inputMove", hmoveMsg);
+		    	hmoveMsg = "";
+		    }
+		  }
+
+		  if(pressedAmount==4){
+		    pressedAmount=0;
+		    hmoveMsg = "";
+		  }		
+		  
+		  return hmoveMsg;
+	}
+	
 	public String makeMove(HMove m, String code)
 	{
 		String t = m.toString();
@@ -75,6 +185,7 @@ public class ChessGame extends Service {
 	
 	public String inputMove (String s)
 	{
+		LOG.debug("inputMove " + s);
 		return s;
 	}
 	

@@ -48,7 +48,6 @@ import java.util.SimpleTimeZone;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.comm.CommunicationManager;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -69,13 +68,13 @@ public abstract class Service implements Runnable, Serializable {
 	@Element
 	public final String name;
 	public final String serviceClass; // TODO - remove
-	protected boolean isRunning = false;
+	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
 	Outbox outbox = null;
 	Inbox inbox = null;
 	public URL url = null;
 	
-	public boolean performanceTiming = true;
+	public boolean performanceTiming = false;
 	
 	protected CommunicationInterface cm = null;
 	protected ConfigurationManager cfg = null;
@@ -801,11 +800,11 @@ public abstract class Service implements Runnable, Serializable {
 
 		Object retobj = null;
 		Class<?> c;
+		c = object.getClass();
 
 		try {
 			// c = Class.forName(classname); // TODO - test if cached references
 			// are faster than lookup
-			c = object.getClass();
 
 			Class<?>[] paramTypes = null;
 			if (params != null) {
@@ -820,28 +819,74 @@ public abstract class Service implements Runnable, Serializable {
 			}
 			// TODO - method cache map
 			
-			Method meth = c.getMethod(method, paramTypes);
+			Method meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
 
 			retobj = meth.invoke(object, params);
 
 			// put return object onEvent
 			out(method, retobj);
 
-		} catch (SecurityException e) {
-			LOG.error("SecurityException");
-			LOG.error(stackToString(e));
 		} catch (NoSuchMethodException e) {
-			LOG.error("NoSuchMethodException");
-			LOG.error(stackToString(e));
-		} catch (IllegalArgumentException e) {
-			LOG.error("IllegalArgumentException");
-			LOG.error(stackToString(e));
-		} catch (IllegalAccessException e) {
-			LOG.error("IllegalArgumentException");
-			LOG.error(stackToString(e));
-		} catch (InvocationTargetException e) {
-			LOG.error("InvocationTargetException");
-			LOG.error(stackToString(e));
+			LOG.warn("NoSuchMethodException - attempting upcasting");
+
+			// search for possible upcasting methods			
+			// scary ! resolution rules are undefined - first "found" first invoked ?!?
+			// TODO - optimize with method cache - heavy on memory, good on speed
+			// Performance Analysis
+		    // http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
+			// TODO - optimize "setState" function since it is a framework method - do not go through the search !
+			Method[] allMethods = c.getMethods(); // ouch
+			LOG.warn("ouch! need to search through " + allMethods.length + " methods");
+		    for (Method m : allMethods) 
+		    {
+				String mname = m.getName();
+				if (!mname.equals(method)) 
+				{
+				    continue;
+				}
+				
+		 		Type[] pType = m.getGenericParameterTypes();
+		 		// checking parameter lengths
+		 		if (pType.length != params.length)
+		 		{
+		 			continue;
+		 		}
+		 		
+		 		/*  skip this attempt of type checking - can't get it to work - does it matter?
+		 		// checking if we can match or upcast on each parameter
+		 		for (int i=0; i < pType.length; ++i)
+		 		{
+		 			//if (params[i].getClass().isAssignableFrom(pType[i].getClass()))
+			 		//if (pType[i].getClass().isAssignableFrom(params[i].getClass()))
+		 			LOG.info(pType[i].getClass().getClass().getCanonicalName());
+		 			LOG.info(pType[i].getClass().getCanonicalName());
+		 			LOG.info(params[i].getClass().getCanonicalName());
+		 			
+		 			if (pType[i].getClass().isAssignableFrom(pType[i].getClass()))
+		 			{
+					    //m.setAccessible(true); - leave private alone
+				 		//invoke it - we are done, whew!
+				 		try {
+				 			retobj = m.invoke(object, params);
+				 			return retobj; 
+						} catch (Exception e1) {
+							Service.logException(e1);
+						}
+
+		 			}
+		 					
+		 		}
+		 		*/
+		 		try {
+		 			retobj = m.invoke(object, params);
+		 			return retobj; 
+				} catch (Exception e1) {
+					Service.logException(e1);
+				}
+			} 
+						
+		} catch (Exception e) {
+			Service.logException(e);
 		}
 
 		return retobj;
@@ -1109,10 +1154,14 @@ public abstract class Service implements Runnable, Serializable {
 	public final static void logException(final Exception e) {
 		LOG.error(stackToString(e));
 	}
+	
+	/*
+	 * copyShallowFrom is used to help maintain state information with 
+	 */
 
-	public static void copyDataFrom(Object target, Object source) {
+	public static Object copyShallowFrom(Object target, Object source) {
 		if (target == source) { // data is myself - operating on local copy
-			return;
+			return target;
 		}
 
 		Class<?> sourceClass = source.getClass();
@@ -1131,6 +1180,7 @@ public abstract class Service implements Runnable, Serializable {
 					// LOG.info(Modifier.toString(f.getModifiers()));
 					// f.isAccessible()
 
+					
 					LOG.info("setting " + f.getName());
 					if (t.equals(java.lang.Boolean.TYPE)) {
 						targetClass.getDeclaredField(f.getName()).setBoolean(
@@ -1157,12 +1207,16 @@ public abstract class Service implements Runnable, Serializable {
 						targetClass.getDeclaredField(f.getName()).setDouble(
 								target, f.getDouble(source));
 					} else {
-						LOG.info("cloning object " + f.getName());
+						LOG.info("setting reference to remote object " + f.getName());
 						targetClass.getDeclaredField(f.getName()).set(target,
 								f.get(source));
 					}
 
+				} else {
+					LOG.debug("skipping " + f.getName());
 				}
+				
+				
 			} catch (Exception e) {
 				Service.logException(e);
 			}
@@ -1171,31 +1225,8 @@ public abstract class Service implements Runnable, Serializable {
 			// Modifier.toString(fields[j].getModifiers()));
 		}
 
-	}
-	
-	public Service publishServiceData(String name)
-	{
-		/*
-		if (filters.containsKey(name)) {
-			return new FilterWrapper(name, filters.get(name));
-		} else {
-			LOG.error("setFilterData " + name + " does not exist");
-		}
-		*/
-		
-		return null;
-	}
-	
-	public void setServiceData (FilterWrapper filterData)
-	{
-		/*
-		if (filters.containsKey(filterData.name)) {
-			Service.copyDataFrom(filters.get(filterData.name), filterData.filter);
-		} else {
-			LOG.error("setFilterData " + filterData.name + " does not exist");
-		}
-		*/
-		
+		return target;
+
 	}
 	
 	public  void registerServices(String hostAddress, int port, Message msg) 
@@ -1394,5 +1425,24 @@ public abstract class Service implements Runnable, Serializable {
 	{
 		return this;
 	}
+	
+	public Service setState(Service s)
+	{
+		return (Service)copyShallowFrom(this, s);
+	}
+	/* Check RuntimeEnvironment for implementation
+	// TODO - cache fields in a map if "searching" requires too much
+	public Service setState(Service other)
+	{
+		// Service is local - not remote update
+		// no need to reflectivly update
+		if (this == other) 
+		{
+			return this;
+		}
+		
+		return this;
+	}
+	*/
 
 }

@@ -506,5 +506,26 @@ public class RuntimeEnvironment implements Serializable{
 		
 		return ret;
 	}
+	/*
+
+	Implementation - now back in Service 
 	
+	// new transfer state fns
+	public static Service copyState (Service local, Service remote)
+	{
+		if (local == remote)
+			return local;
+		
+		return local;
+	}
+	// the assumption is remote has been serialized and the 
+	// top level fields need to be merged over
+	public static Object deepCopy (Object local, Object remote)
+	{
+		if (local == remote)
+			return local;
+		
+		return local;
+	}
+	*/
 }
