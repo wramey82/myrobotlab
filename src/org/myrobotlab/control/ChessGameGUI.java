@@ -431,7 +431,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     	
     	org.op.chess.Move m2 = new org.op.chess.Move(getPos(s), getPos(s.substring(2))); 
     	try {
-			youGotToMoveItMoveIt(null, m2, false);
+			youGotToMoveItMoveIt(null, m2, true); // last param is to publish or not
 		} catch (PropertyVetoException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
