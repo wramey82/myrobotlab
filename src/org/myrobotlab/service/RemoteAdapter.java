@@ -149,12 +149,14 @@ public class RemoteAdapter extends Service {
 
 		public void run() {
 
-			LOG.info(name + " udp attempting to listen on servicePort "
-					+ serverIP + ":" + servicePort);
 
 			try {
 				socket = new DatagramSocket(6668);
+				
 
+				LOG.info(name + " udp attempting to listen on servicePort "
+						+ serverIP + ":" + socket.getPort());
+				
 				byte[] b = new byte[65535];
 				DatagramPacket dgram = new DatagramPacket(b, b.length);
 
@@ -327,16 +329,30 @@ public class RemoteAdapter extends Service {
 			e.printStackTrace();
 		}
 		serverSocket = null;
+		
 		super.stopService();
+		
 		if (tcpListener != null)
 		{
 			tcpListener.interrupt();
 			tcpListener = null;
 		}
+		if (udpListener != null)
+		{
+			udpListener.interrupt();
+			udpListener = null;
+		}
+		if (udpStringListener != null)
+		{
+			udpStringListener.interrupt();
+			udpStringListener = null;			
+		}
 
 		if (thisThread != null) {
 			thisThread.interrupt();
 		}
+		
+		
 		thisThread = null;
 
 	}
@@ -401,7 +417,7 @@ public class RemoteAdapter extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
