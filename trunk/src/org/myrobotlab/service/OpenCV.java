@@ -40,9 +40,7 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateCameraCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
@@ -66,12 +64,12 @@ import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
-//import org.simpleframework.xml.Root; - Annotation
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
-import com.googlecode.javacv.VideoInputFrameGrabber;
+import com.googlecode.javacv.OpenCVFrameGrabber;
+import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -314,6 +312,7 @@ public class OpenCV extends Service {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat();
 
+		String grabberType = null;
 		FrameGrabber grabber = null;
 		CvCapture oldGrabber = null; // TODO - choose index
 		
@@ -366,9 +365,19 @@ public class OpenCV extends Service {
 			//cameraSettings.setQuantity(1);
 			//CameraDevice cameraDevice;
 			try {
+				 //OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(0); 
 				//int index = cfg.getInt("cameraIndex");
-				if ("camera".equals(useInput))
+				if ("kinect".equals(useInput))
 				{
+					grabber = new OpenKinectFrameGrabber(cameraIndex);
+					grabber.setFormat("depth");
+					
+				} else if ("camera".equals(useInput))
+				{
+					grabber.start(); // ZOD NEW !
+
+/*					
+					
 					if (isWindows)
 					{
 						grabber = new VideoInputFrameGrabber(cameraIndex);
@@ -383,6 +392,8 @@ public class OpenCV extends Service {
 							stop ();
 						}
 					}
+					
+zod*/					
 				} else {
 					LOG.error("useInput null or not supported " + useInput);
 					stop();
@@ -417,16 +428,18 @@ public class OpenCV extends Service {
 				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_WIDTH, 320);
 				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_HEIGHT, 240);
 					//frame = grabber.grab();
+				try {
 					if (!isWindows)
 					{
-						frame = cvQueryFrame(oldGrabber);
+//						frame = cvQueryFrame(oldGrabber);
+					frame = grabber.grab(); // for kinect						
+
 					} else {
-						try {
 							frame = grabber.grab();						
-						} catch (Exception e) {
-							LOG.error(stackToString(e));
-						}
 					}
+				} catch (Exception e) {
+					LOG.error(stackToString(e));
+				}
 
 
 				logTime("read");
@@ -704,8 +717,8 @@ public class OpenCV extends Service {
 		gui.startService();
 		
 		opencv.startService();
-		opencv.addFilter("PyramidDown1", "PyramidDown");
-		opencv.addFilter("MatchTemplate1", "MatchTemplate");
+		//opencv.addFilter("PyramidDown1", "PyramidDown");
+		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
 		//opencv.setCameraIndex(0);
 		LOG.info("starting capture");
