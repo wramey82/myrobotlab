@@ -253,6 +253,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
 	public void serialSend(String data) {
+		LOG.error("serialSend [" + data + "]");
 		serialSend(data.getBytes());
 	}
 

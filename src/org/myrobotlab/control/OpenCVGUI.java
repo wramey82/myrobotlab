@@ -95,6 +95,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	JComboBox cameraIndex = new JComboBox(cindex);
 
 	JRadioButton camera = new JRadioButton("camera");
+	JRadioButton kinect = new JRadioButton("kinect");
 	JRadioButton file = new JRadioButton("file");
 	JRadioButton nullInput = new JRadioButton("null", true);
 
@@ -117,6 +118,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		templateDisplay.init();
 
 		camera.addActionListener(al);
+		kinect.addActionListener(al);
 		file.addActionListener(al);
 		nullInput.addActionListener(al);
 
@@ -162,11 +164,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 		group.add(nullInput);
 		group.add(camera);
+		group.add(kinect);
 		group.add(file);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
 		input.add(nullInput, gc);
+		++gc.gridx;
+		input.add(kinect, gc);
 		++gc.gridx;
 		input.add(camera, gc);
 		++gc.gridx;
