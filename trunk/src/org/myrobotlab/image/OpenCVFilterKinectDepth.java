@@ -27,29 +27,31 @@ package org.myrobotlab.image;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-public class OpenCVFilterPyramidDown extends OpenCVFilter {
+public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
-	public OpenCVFilterPyramidDown(OpenCV service, String name) {
+	public OpenCVFilterKinectDepth(OpenCV service, String name) {
 		super(service, name);
 	}
 
@@ -107,19 +109,39 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image) {
-
-		if (image == null) {
-			LOG.error("image is null");
-		}
 		
-
 		if (dst == null) {
-			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(),
+			dst = cvCreateImage(cvSize(image.width(), image.height()), 8,
 					image.nChannels());
 		}
 
-		cvPyrDown(image, dst, filter);
+		cvThreshold(image, image, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
 
+		/*
+		ByteBuffer source = image.getByteBuffer(); 
+		int z = source.capacity();
+		ByteBuffer destination = dst.getByteBuffer(); 
+		z = destination.capacity();
+		
+		int depth = 0;
+		
+		Byte b = 0xE;
+		int max = 0;
+		
+		for (int i=0; i<image.width()*image.height(); i++) {
+			
+			depth = source.get(i) & 0xFF;
+			depth <<= 8;
+			depth = source.get(i+1) & 0xFF;
+			if (depth > max) max = depth;
+						    
+			if (depth > 100 && depth < 400)
+			{
+				destination.put(i, b);
+			}
+		}
+		*/
+		
 		return dst;
 	}
 

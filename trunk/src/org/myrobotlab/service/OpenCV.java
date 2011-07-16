@@ -39,6 +39,7 @@ import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
@@ -68,8 +69,8 @@ import org.myrobotlab.service.data.ColoredPoint;
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
-import com.googlecode.javacv.OpenCVFrameGrabber;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
+import com.googlecode.javacv.VideoInputFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -98,6 +99,8 @@ public class OpenCV extends Service {
 	
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
+	
+	public String kinectMode = "";
 
 	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
 	
@@ -370,35 +373,37 @@ public class OpenCV extends Service {
 				if ("kinect".equals(useInput))
 				{
 					grabber = new OpenKinectFrameGrabber(cameraIndex);
-					grabber.setFormat("depth");
+					grabber.setFormat(kinectMode);
 					
 				} else if ("camera".equals(useInput))
 				{
-					grabber.start(); // ZOD NEW !
-
-/*					
-					
 					if (isWindows)
 					{
 						grabber = new VideoInputFrameGrabber(cameraIndex);
 						grabber.start();
 					} else {
-						LOG.info("here3");
 						oldGrabber = cvCreateCameraCapture(cameraIndex);
-						LOG.info("here4");
 						if (oldGrabber == null)
 						{
 							LOG.error("could not create camera capture on camera index " + cameraIndex);
 							stop ();
 						}
 					}
-					
-zod*/					
 				} else {
 					LOG.error("useInput null or not supported " + useInput);
 					stop();
 				}
 				
+				if (grabber == null && oldGrabber == null)
+				{
+					LOG.error("no viable capture or frame grabber with input " + useInput);
+					stop();
+				}
+				
+				if (grabber != null)
+				{
+					grabber.start(); 
+				}
 				//VideoInputFrameGrabber fg = new VideoInputFrameGrabber(0);
 				//CvCapture c = cvCreateCameraCapture(index); old way
 				//FrameGrabber.init();
@@ -429,13 +434,11 @@ zod*/
 				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_HEIGHT, 240);
 					//frame = grabber.grab();
 				try {
-					if (!isWindows)
+					if (grabber != null)
 					{
-//						frame = cvQueryFrame(oldGrabber);
-					frame = grabber.grab(); // for kinect						
-
+						frame = grabber.grab(); 						
 					} else {
-							frame = grabber.grab();						
+						frame = cvQueryFrame(oldGrabber);						
 					}
 				} catch (Exception e) {
 					LOG.error(stackToString(e));
@@ -525,7 +528,7 @@ zod*/
 			} // while (isRunning)
 
 			try {
-				if (isWindows)
+				if (grabber != null)
 				{
 					grabber.release();
 				} else {
@@ -615,14 +618,12 @@ zod*/
 	
 	public void capture() {
 
-		useInput = "camera";// currently only camera supported
-		
-		if (videoProcess == null)
+		if (videoProcess != null)
 		{
-			// get type
-			videoProcess = new VideoProcess();
+			stopCapture();
 		}
-
+		
+		videoProcess = new VideoProcess();
 		videoProcess.start();
 	}
 
@@ -722,9 +723,10 @@ zod*/
 
 		//opencv.setCameraIndex(0);
 		LOG.info("starting capture");
-		
+/*		
+		opencv.useInput = "camera"; // TODO - final static - for capture to take a parameter (Type)
 		opencv.capture();
-		
+*/		
 		gui.display();
 
 		/*

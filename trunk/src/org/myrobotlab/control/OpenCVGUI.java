@@ -49,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -90,9 +91,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	// input
 	ButtonGroup group = new ButtonGroup();
-	String[] cindex = { "0", "1", "2", "3", "4", "5" };
 	DefaultListModel currentFilterListModel = new DefaultListModel();
-	JComboBox cameraIndex = new JComboBox(cindex);
+	JComboBox cameraIndex = new JComboBox(new String[]{ "0", "1", "2", "3", "4", "5" });
+	JComboBox kinectImageOrDepth = new JComboBox(new String[]{"image","depth"});
 
 	JRadioButton camera = new JRadioButton("camera");
 	JRadioButton kinect = new JRadioButton("kinect");
@@ -122,12 +123,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		file.addActionListener(al);
 		nullInput.addActionListener(al);
 
+		kinectImageOrDepth.addActionListener(kinectListener);
+		
 		String plist[] = { "And", "AverageColor", "Canny", "CreateHistogram",
 				"ColorTrack", "Dilate", "Erode", "FGBG", "FaceDetect",
 				"Fauvist", "FindContours", "FloodFill", "GoodFeaturesToTrack",
 				"Gray", "HoughLines2",
 				"HSV",
-				"InRange",
+				"InRange","KinectDepth",
 				// "Laser Tracking", oops lost cause not checked in !
 				"LKOpticalTrack", "MatchTemplate", "MotionTemplate", "Mouse", "Not",
 				"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
@@ -162,6 +165,15 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		title = BorderFactory.createTitledBorder("input");
 		input.setBorder(title);
 
+		//JPanel cpanel = new JPanel(new GridBagLayout());
+		JPanel cpanel = new JPanel();
+		cpanel.setBorder(BorderFactory.createEtchedBorder());
+		
+		cpanel.add(camera);
+		cpanel.add(cameraIndex);		
+		cpanel.add(kinect);
+		cpanel.add(kinectImageOrDepth);
+		
 		group.add(nullInput);
 		group.add(camera);
 		group.add(kinect);
@@ -171,19 +183,12 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		gc.gridy = 0;
 		input.add(nullInput, gc);
 		++gc.gridx;
-		input.add(kinect, gc);
-		++gc.gridx;
-		input.add(camera, gc);
-		++gc.gridx;
-		input.add(cameraIndex, gc);
 		
+		input.add(cpanel);
 		
 		cameraIndex.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
 		    	  	OpenCVGUI.this.myService.send(boundServiceName, "setCameraIndex", cameraIndex.getSelectedIndex());
-					//myService.send(boundServiceName, "setCameraIndex", cameraIndex.getSelectedIndex());
-		        //t.setText("index: " + cameraIndex.getSelectedIndex() + "   "
-		        //    + ((JComboBox) e.getSource()).getSelectedItem());
 		      }
 		    });
 		
@@ -191,13 +196,26 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		
 		gc.gridx = 0;
 		++gc.gridy;
+
+		cpanel = new JPanel();
+		cpanel.setBorder(BorderFactory.createEtchedBorder());
+		
+		cpanel.add(file);
+		cpanel.add(inputFileButton);
+		cpanel.add(inputFileLable);
+		
+		/*
 		input.add(file, gc);
 		++gc.gridx;
 		input.add(inputFileButton, gc);
 		gc.gridx = 0;
 		++gc.gridy;
 		input.add(inputFileLable, gc);
-
+		*/
+		gc.gridwidth = 2;
+		input.add(cpanel, gc);
+		gc.gridwidth = 1;
+		
 		gc.gridx = 0;
 		gc.gridy = 2;
 		display.add(input, gc);
@@ -328,10 +346,31 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		return removeFilterButton;
 	}
 
+	private ActionListener kinectListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			String mode = (String)kinectImageOrDepth.getSelectedItem();
+			if ("depth".equals(mode))
+			{
+				myOpenCV.kinectMode = "depth";
+			} else {
+				myOpenCV.kinectMode = "";
+			}
+			//myService.send(boundServiceName, "stopCapture");			
+			myService.send(boundServiceName, "setState", myOpenCV);
+			//myService.send(boundServiceName, "capture");
+
+		}
+	};
+	
+	
 	private ActionListener al = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			String useInput = ((JRadioButton) e.getSource()).getText();
-			myService.send(boundServiceName, "setUseInput", useInput);
+			//myService.send(boundServiceName, "setUseInput", useInput);
+			
+			myOpenCV.useInput = useInput;
+			
+			myService.send(boundServiceName, "setState", myOpenCV);
 			
 			if (useInput.compareTo("null") == 0)
 			{
