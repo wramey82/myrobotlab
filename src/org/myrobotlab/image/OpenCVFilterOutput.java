@@ -35,6 +35,8 @@ import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterOutput extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterOutput.class
 			.getCanonicalName());
 

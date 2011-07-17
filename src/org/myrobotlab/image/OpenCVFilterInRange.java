@@ -30,7 +30,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
-import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSetImageCOI;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
@@ -47,6 +46,8 @@ import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterInRange extends OpenCVFilter {
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterInRange.class.getCanonicalName());
 	// http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#Calculating_color_histograms
 

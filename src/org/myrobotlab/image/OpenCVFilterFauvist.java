@@ -27,19 +27,24 @@
 package org.myrobotlab.image;
 
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.cpp.opencv_core.*;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class OpenCVFilterFauvist extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterFauvist.class
 			.getCanonicalName());
 

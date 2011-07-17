@@ -358,7 +358,6 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		int x = 0;
 		int y = 0;
 		// calculate Z or calculate Distance
-		float Z = 0;
 		for (int i = 0; i < count; ++i) {
 
 			dp0.x((int) current_features.position(i).x() - 1);

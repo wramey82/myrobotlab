@@ -70,6 +70,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
 
@@ -196,7 +198,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 			// TODO - fix CvConnectedComp connected_comp = new
 			// CvConnectedComp(cvGetSeqElem( seq, i ));
 			// TODO -fix comp_rect = connected_comp.rect;
-				if (comp_rect.width() + comp_rect.height() < 100) // reject very
+				if (comp_rect != null && comp_rect.width() + comp_rect.height() < 100) // reject very
 																// small
 																// components
 					continue;

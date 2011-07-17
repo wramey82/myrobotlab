@@ -25,20 +25,21 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvConvertScale;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterKinectDepth extends OpenCVFilter {
@@ -48,6 +49,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
 	transient IplImage dst = null;
+	transient IplImage src = null;
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
@@ -107,16 +109,31 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
 	}
 
+//	CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
+//	CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
+
 	@Override
 	public IplImage process(IplImage image) {
 		
+		int x = image.nChannels();
+		x = image.depth();
+		
 		if (dst == null) {
-			dst = cvCreateImage(cvSize(image.width(), image.height()), 8,
-					image.nChannels());
+			//dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(),image.nChannels());
+			//dst = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
+			src = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
+			dst = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
 		}
 
-		cvThreshold(image, image, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
+		cvConvertScale(image, src, 1, 0);
+		//cvThreshold(dst, dst, 30, 255, CV_THRESH_BINARY);
+		
+		CvScalar min = cvScalar(0.0, 0.0, 0.0, 0.0);
+		CvScalar max = cvScalar(10000, 0.0, 0.0, 0.0);
 
+		cvInRangeS(image, min, max, dst);
+		
+		//cvCvtColor
 		/*
 		ByteBuffer source = image.getByteBuffer(); 
 		int z = source.capacity();

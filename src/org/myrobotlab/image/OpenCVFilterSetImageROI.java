@@ -37,6 +37,8 @@ import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
 

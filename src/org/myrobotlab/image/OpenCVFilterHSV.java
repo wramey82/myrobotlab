@@ -47,6 +47,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterHSV extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterHSV.class
 			.getCanonicalName());
 

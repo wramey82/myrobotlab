@@ -42,6 +42,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterAdaptiveThreshold.class.getCanonicalName());
 	IplImage gray = null;

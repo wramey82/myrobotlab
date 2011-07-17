@@ -62,6 +62,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterFindContours extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
 
 	// TODO - CONSIDER NOT Publishing OpenCV.Polygon but Publish CvSeq instead

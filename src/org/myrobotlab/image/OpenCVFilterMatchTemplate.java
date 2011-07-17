@@ -179,7 +179,11 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 				cvScalar( 255, 255, 255, 0 ), 1, 0, 0 );	
 		
 		String text = ""+minVal[0];
+		
+		textpt.y(20);
 		cvPutText(image, text, textpt, font, CV_RGB(254, 254, 254));
+		textpt.y(30);
+		cvPutText(image, "" + (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y()))) , textpt, font, CV_RGB(254, 254, 254));
 		
 		return image;
 
