@@ -25,6 +25,18 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.cvAvg;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
+import static com.googlecode.javacv.cpp.opencv_core.cvRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -32,20 +44,19 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.*;
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 
 public class OpenCVFilterAverageColor extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterAverageColor.class.getCanonicalName());
 

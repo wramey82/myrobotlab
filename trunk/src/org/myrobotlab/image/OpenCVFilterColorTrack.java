@@ -48,6 +48,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterColorTrack extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
 

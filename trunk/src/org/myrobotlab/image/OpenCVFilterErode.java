@@ -40,6 +40,8 @@ import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterErode extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterErode.class
 			.getCanonicalName());
 

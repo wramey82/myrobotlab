@@ -66,6 +66,8 @@ import static com.googlecode.javacv.cpp.opencv_objdetect.*;
 
 public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 

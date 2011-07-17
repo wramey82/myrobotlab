@@ -49,6 +49,8 @@ import com.googlecode.javacv.cpp.opencv_video.CvBGStatModel;
 
 public class OpenCVFilterFGBG extends OpenCVFilter {
 
+	private static final long serialVersionUID = 1L;
+	
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterFGBG.class
 			.getCanonicalName());
 

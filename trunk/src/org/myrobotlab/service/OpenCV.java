@@ -39,9 +39,10 @@ import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateCameraCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
@@ -49,6 +50,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +73,7 @@ import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.VideoInputFrameGrabber;
+import com.googlecode.javacv.FrameGrabber.ColorMode;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -420,6 +423,7 @@ public class OpenCV extends Service {
 				stop ();
 			}
 			
+			int kinectInterleave = 0;
 			
 			while (isCaptureRunning) {
 				
@@ -436,7 +440,18 @@ public class OpenCV extends Service {
 				try {
 					if (grabber != null)
 					{
-						frame = grabber.grab(); 						
+						//grabber.setColorMode(ColorMode.BGR);
+						/*
+						++kinectInterleave;
+						if (kinectInterleave%2 == 0)
+						{
+							grabber.setFormat("");
+						} else {
+							grabber.setFormat("depth");							
+						}
+						*/
+						frame = grabber.grab();
+						//grabber.set
 					} else {
 						frame = cvQueryFrame(oldGrabber);						
 					}
