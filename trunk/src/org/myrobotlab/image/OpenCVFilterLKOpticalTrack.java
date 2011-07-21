@@ -26,6 +26,7 @@
 
 package org.myrobotlab.image;
 
+import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
@@ -270,7 +271,12 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 		}
 
-		cvCvtColor(frame, grey, CV_BGR2GRAY);
+		if (frame.nChannels() == 3)
+		{
+			cvCvtColor(frame, grey, CV_BGR2GRAY);
+		} else {
+			cvCopy(frame, grey);
+		}
 
 		if (needTrackingPoints) // warm up camera TODO CFG
 		{

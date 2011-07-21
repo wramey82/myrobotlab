@@ -41,6 +41,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class ServoGUI extends ServiceGUI {
@@ -61,8 +63,10 @@ public class ServoGUI extends ServiceGUI {
 	JComboBox pin = null;
 	
 	// TODO - sync initially by requesting entire Servo service object - can you get cfg? that way?
-	JTextField posMin = new JTextField("40");
-	JTextField posMax = new JTextField("80");
+	JTextField posMin = new JTextField("0");
+	JTextField posMax = new JTextField("180");
+	
+	Servo myServo = null;
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -165,6 +169,8 @@ public class ServoGUI extends ServiceGUI {
 		limits.add(posMax);
 
 		display.add(limits, gc);
+
+        myServo = (Servo)RuntimeEnvironment.getService(boundServiceName).service;
 		
 	}
 	
@@ -277,6 +283,10 @@ public class ServoGUI extends ServiceGUI {
 
 		}
 		return v;
+	}
+	
+	public void getState(Servo servo)
+	{
 	}
 
 }
