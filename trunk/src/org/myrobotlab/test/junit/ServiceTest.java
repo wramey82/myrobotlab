@@ -336,7 +336,8 @@ public class ServiceTest {
 		RemoteAdapter remote01 = new RemoteAdapter("remote01","http://0.0.0.0:6565");
 		TestCatcher catcher = new TestCatcher("catcher01","http://0.0.0.0:6565");
 //		GUIService gui01 = new GUIService("gui01");
-		remote01.setCFG("servicePort", "6565");
+//		remote01.setCFG("servicePort", "6565");
+		remote01.servicePort = 6565;
 
 		/* manually creating a proxy
 		 * put a dead proxy catcher on the throwers ServiceEnvironment

@@ -556,8 +556,8 @@ public class OpenCV extends Service {
 	}
 
 	public Integer setCameraIndex(Integer index) {
-		cfg.set("cameraIndex", index);
-		return index;
+		cameraIndex = index;
+		return cameraIndex;
 	}
 
 	public String setInputMovieFileName(String filename) {
