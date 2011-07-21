@@ -50,12 +50,17 @@ public class FaceTracking extends Service {
 	
 	Logging logger = new Logging("logger");
 	
+	Speech speech = new Speech("speech");
+	
 	PID xpid = new PID();
 	PID ypid = new PID();
+	
+	String state = null;
 	
 	public FaceTracking(String n) {
 		super(n, FaceTracking.class.getCanonicalName());
 		
+		speech.startService();
 		tilt.startService();
 		pan.startService();
 		camera.startService();
@@ -64,17 +69,18 @@ public class FaceTracking extends Service {
 		//pan.attach(arduino.name, 13);
 
 		camera.notify("publish", name, "input");
+		camera.notify("isTracking", name, "isTracking", Boolean.class);
 		camera.notify("sizeChange", name, "sizeChange", Dimension.class);
 		//notify("pan", "logger", "log");
 		//notify("tilt", "logger", "log");
 		notify("pan", "pan", "move");
 		notify("tilt", "tilt", "move");
 		
-		xpid.SetTunings(0.1f, 0f, 0.5f);
-		xpid.Setpoint = 80;
+		xpid.SetTunings(0.05f, 0f, 0.6f);
+		xpid.Setpoint = 320;
 
-		ypid.SetTunings(0.1f, 0f, 0.5f);
-		ypid.Setpoint = 60;
+		ypid.SetTunings(0.05f, 0f, 0.6f);
+		ypid.Setpoint = 120;
 		
 	}
 	
@@ -91,8 +97,8 @@ public class FaceTracking extends Service {
 	}
 
 	// TODO - put cfg
-	int width = 160;
-	int height = 120;
+	int width = 640;
+	int height = 480;
 	int centerX = width/2;
 	int centerY = height/2;
 	int errorX = 0;
@@ -102,6 +108,9 @@ public class FaceTracking extends Service {
 	{
 		width = d.width;
 		height = d.height;
+		xpid.Setpoint = width/2;
+		ypid.Setpoint = height/2;
+
 	}
 	
 	public class PID {
@@ -141,50 +150,75 @@ public class FaceTracking extends Service {
 	
 	public void input (CvPoint point)
 	{
-		// TODO - handle multiple resolutions
-		// currently I am only going to do 160 x 120
-		//errorX = (point.x() - centerX)/2 * -1;
-		//errorY = (point.y() - centerY)/2 * -1;
-		
+
 		xpid.Input = point.x();
 		xpid.Compute();
 		
 		ypid.Input = point.y();
 		ypid.Compute();
 		
-		//LOG.error(xpid.Output);
-		
-		/*
-		if (point.x() > centerX)
-		{
-			errorX = -2;
-		} else {
-			errorX = 2;			
-		}
 
-		if (point.y() > centerY)
+		int correctX = (int)xpid.Output;
+		int correctY = (int)ypid.Output;
+		
+		//LOG.error(point.x() + "," + point.y() + " correct x " + correctX + " correct y " + correctY);
+		
+		if (correctX == 0 && correctY == 0)
 		{
-			errorY = -2;
+			if (state == null)
+			{
+				// I found my num num			
+				LOG.error("I found my num num");
+				speak("I found my num num");
+				state = "foundSomethingNew";
+			} else if (!"centered".equals(state)){
+				LOG.error("I'm hooked up, num num num");
+				speak("I got my num num");
+			}
+			state = "centered";
+		} else {		
+			if (!"tracking".equals(state))
+			{
+				LOG.error("I wan't dat");
+				speak("I wan't dat");
+
+			}
+			invoke("pan", correctX);
+			invoke("tilt", correctY);
+			state = "tracking";
+		}
+	}
+	
+	public void isTracking(Boolean b)
+	{
+		if (b == true)
+		{
+			LOG.error("num num - I' gonna get it");
+			speak("I'm gonna get my num num");
 		} else {
-			errorY = 2;			
+			//if (!"lostTracking".equals(state))
+			// wah wah - search routine
+			LOG.error("wah wah - where is it?"); 
+			speak("boo who who - where is my num num?");
+			state = "lostTracking";
 		}
-		
-		
-		LOG.info(point);
-		
-		invoke("pan", errorX);
-		invoke("tilt", errorY);
-		*/
-		/*
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	}
+	
+	public void speak(String s)
+	{
+		send("speechAudioFile", "playWAV", s);
+		if (canSpeak) speech.speak(s); // TODO bury in framework so Speech Service variable maintains canSpeak
+	}
+	
+	boolean canSpeak = true;
+	public void playingFile(Boolean b)
+	{
+		if (b)
+		{
+			canSpeak = false;
+		} else {
+			canSpeak = true;
 		}
-		*/
-		invoke("pan", (int)xpid.Output);
-		invoke("tilt", (int)ypid.Output);
 	}
 	
 	public Integer tilt (Integer position)
@@ -197,10 +231,12 @@ public class FaceTracking extends Service {
 		return position;
 	}
 	
+	/* Un-needed
 	public FaceTracking publishState()
 	{
 		return this;
 	}
+	*/
 
 	// TODO - reflectively do it in Service? !?
 	// No - the overhead of a Service warrants a data only proxy - so to
@@ -219,9 +255,11 @@ public class FaceTracking extends Service {
 		FaceTracking ft = new FaceTracking("face tracker");
 		ft.startService();
 
-		ft.camera.addFilter("PyramidDown1", "PyramidDown");
+		ft.camera.addFilter("Gray", "Gray");
 		ft.camera.addFilter("PyramidDown2", "PyramidDown");
+		ft.camera.addFilter("MatchTemplate", "MatchTemplate");
 		//ft.camera.addFilter("PyramidDown2", "PyramidDown");
+		ft.camera.useInput = "camera";
 		ft.camera.capture();
 		
 		//ft.arduino.se - TODO setPort("/dev/ttyUSB0");
@@ -233,62 +271,11 @@ public class FaceTracking extends Service {
 		gui.startService();
 		gui.display();
 
-/*		
-		RuntimeEnvironment.releaseAll();
-		
-		FileOutputStream fos = null;
-		ObjectOutputStream out = null;
-		try
-		{
-			
-			
-		       fos = new FileOutputStream("test.backup");
-		       out = new ObjectOutputStream(fos);
-		       //out.writeObject(remote);
-		       out.writeObject(ft);
-		       //out.writeObject(clock);
-		       //out.writeObject(gui);
-		       out.close();
-		      
-			
-		       FileInputStream fis = new FileInputStream("test.backup");
-		       ObjectInputStream in = new ObjectInputStream(fis);
-		       Logging log1 = (Logging)in.readObject();
-		       Clock clock1 = (Clock)in.readObject();
-		       GUIService gui1 = (GUIService)in.readObject();
-		       in.close();
-		       
-		       RuntimeEnvironment.register(null,ft);
-		       //RuntimeEnvironment.register(null,clock);
-		       //RuntimeEnvironment.register(null,gui);
-		       
-		       log1.startService();
-		       clock1.startService();
-		       //clock.startClock();		       
-		       gui1.startService();
-		       gui1.display();
-		    
-		       
-		} catch (Exception e)
-		{
-			LOG.error(e.getMessage());
-			LOG.error(stackToString(e));
-		}
-		
-		/*
-		OpenCV camera = new OpenCV("camera");
-		camera.startService();
-		
-		Logging log = new Logging("log");
-		log.startService();
-		*/
-		//clock.notify("pulse", "log", "log", Integer.class);
-
 	}
 	
 	@Override
 	public String getToolTip() {
-		return "used to generate pulses";
+		return "used for tracking";
 	}
 
 

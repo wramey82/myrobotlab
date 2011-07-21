@@ -231,7 +231,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// TODO depricate the ones thats not used
 
 	public synchronized void serialSend(int function, int param1, int param2) {
-		LOG.error("serialSend fn " + function + " p1 " + param1 + " p2 "
+		LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 "
 				+ param2);
 		try {
 			outputStream.write(function);

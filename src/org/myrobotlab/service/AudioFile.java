@@ -131,17 +131,20 @@ public class AudioFile extends Service {
 	/* BEGIN - TODO - reconcile - find how javazoom plays wave */
 
 	public void playWAV(String name) {
-		new AePlayWave("audioFile/" + name + ".wav").start();
+		//new AePlayWave("audioFile/" + name + ".wav").start();
+		wavPlayer.playAeWavFile("audioFile/" + name + ".wav");
 	}
 
 	public void playWAVFile(String name) {
-		new AePlayWave(name).start();
+		//new AePlayWave(name).start();
+		wavPlayer.playAeWavFile(name);
 	}
+
+	AePlayWave wavPlayer = new AePlayWave();
 	
 	public void playBlockingWavFile(String filename)
 	{
-		AePlayWave player = new AePlayWave(filename);
-		player.playAeWavFile(filename);
+		wavPlayer.playAeWavFile(filename);
 	}
 
 	enum Position {
@@ -156,7 +159,11 @@ public class AudioFile extends Service {
 		private Position curPosition;
 
 		private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
-
+		
+		public AePlayWave()
+		{			
+		}
+		
 		public AePlayWave(String wavfile) {
 			filename = wavfile;
 			curPosition = Position.NORMAL;
@@ -238,6 +245,11 @@ public class AudioFile extends Service {
 			
 		}
 
+		public Boolean playingFile(Boolean b)
+		{
+			return b;
+		}
+		
 		// for non-blocking use
 		public void run() {
 			playAeWavFile(filename, curPosition);

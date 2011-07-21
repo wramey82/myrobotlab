@@ -53,10 +53,10 @@ public class Servo extends Service implements
 	String controllerName = ""; // without an attached controller name - a Servo
 								// is not very interesting
 	
-	private int pos = -1; // position -1 invalid not set yet
-	private int posMin = 40;
-	private int posMax = 110;
-	private int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
+	public int pos = -1; // position -1 invalid not set yet
+	public int posMin = 0;
+	public int posMax = 180;
+	public int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
 
 	public Servo(String n) {
 		super(n, Servo.class.getCanonicalName());

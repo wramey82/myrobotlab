@@ -60,7 +60,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
 	
-	IplImage templ = null;
+	IplImage template = null;
 	IplImage res = null;
 	double[] minVal = new double[1];
 	double[] maxVal = new double[1];
@@ -69,6 +69,8 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	CvPoint tempRect0 = new CvPoint();
 	CvPoint tempRect1 = new CvPoint();
+	
+	CvPoint centeroid = new CvPoint(0, 0);
 	
 	
 	int i = 0;
@@ -124,29 +126,32 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	@Override
 	public void loadDefaultConfiguration() {
 		// Read in the template to be used for matching:
-		//templ = cvLoadImage("template.jpg");
+		//template = cvLoadImage("template.jpg");
 	}
 	
 	CvPoint textpt = new CvPoint(10,20);
 	private CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+	
+	int matchRatio = Integer.MAX_VALUE;
+	boolean isTracking = false;
 	
 	@Override
 	public IplImage process(IplImage image) {
 		// cvMatchTemplate(iamge, arg1, arg2, arg3);
 
 		/*
-		if (res == null && templ != null) // || dim size change 
+		if (res == null && template != null) // || dim size change 
 		{
-			res = cvCreateImage( cvSize( image.width() - templ.width() + 1, 
-					image.height() - templ.height() + 1), IPL_DEPTH_32F, 1 );
+			res = cvCreateImage( cvSize( image.width() - template.width() + 1, 
+					image.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
 		}
 		*/
 
 		// CV_TM_CCOEFF_NORMED
 		//cv.cvMatchTemplate(arg0, arg1, arg2, arg3);
-		if (templ != null && res != null)
+		if (template != null && res != null)
 		{
-			cvMatchTemplate(image, templ, res, CV_TM_SQDIFF);
+			cvMatchTemplate(image, template, res, CV_TM_SQDIFF);
 		// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
 		
 		
@@ -154,36 +159,62 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 			tempRect0.x(minLoc.x());
 			tempRect0.y(minLoc.y());
-			tempRect1.x(minLoc.x() + templ.width());
-			tempRect1.y(minLoc.y() + templ.height());
+			tempRect1.x(minLoc.x() + template.width());
+			tempRect1.y(minLoc.y() + template.height());
 		}
 
 		if (makeTemplate)
 		{
-			templ = cvCreateImage( cvSize( rect.width(), 
+			template = cvCreateImage( cvSize( rect.width(), 
 					rect.height()), image.depth(), image.nChannels() );
 			/* copy ROI to subimg */
 			cvSetImageROI(image, rect);
-			cvCopy(image, templ, null);
+			cvCopy(image, template, null);
 			cvResetImageROI(image);
 			makeTemplate = false;
-			myService.invoke("publishTemplate", name, templ.getBufferedImage());
-			res = cvCreateImage( cvSize( image.width() - templ.width() + 1, 
-					image.height() - templ.height() + 1), IPL_DEPTH_32F, 1 );
+			myService.invoke("publishTemplate", name, template.getBufferedImage());
+			res = cvCreateImage( cvSize( image.width() - template.width() + 1, 
+					image.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
 		}
 		
-		// draw rectangle
-		cvRectangle( image, 
-				tempRect0, 
-				tempRect1,
-				cvScalar( 255, 255, 255, 0 ), 1, 0, 0 );	
-		
-		String text = ""+minVal[0];
-		
-		textpt.y(20);
-		cvPutText(image, text, textpt, font, CV_RGB(254, 254, 254));
-		textpt.y(30);
-		cvPutText(image, "" + (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y()))) , textpt, font, CV_RGB(254, 254, 254));
+		if (template != null)
+		{
+			String text = ""+minVal[0];
+			
+			//textpt.y(20);
+			//cvPutText(image, text, textpt, font, CV_RGB(254, 254, 254));
+			textpt.y(20);
+			matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));		
+			cvPutText(image, "" + matchRatio , textpt, font, CV_RGB(254, 254, 254));
+			
+			if (matchRatio < 500)
+			{
+				// draw rectangle
+				cvRectangle( image, 
+						tempRect0, 
+						tempRect1,
+						cvScalar( 255, 255, 255, 0 ), 1, 0, 0 );	
+
+				textpt.y(30);
+				cvPutText(image, "locked" , textpt, font, CV_RGB(254, 254, 254));
+				centeroid.x(tempRect0.x() + ((tempRect1.x() - tempRect0.x())/2));
+				centeroid.y(tempRect0.y() + ((tempRect1.y() - tempRect0.y())/2));
+				myService.invoke("publish", centeroid);
+				if (isTracking != true) // message clutter optimization
+				{
+					myService.invoke("isTracking", true);
+				}
+				isTracking = true;
+
+			} else {
+				if (isTracking != false)
+				{
+					myService.invoke("isTracking", false);
+				} 
+				isTracking = false;
+			}
+		}// if template != null
+
 		
 		return image;
 

@@ -624,6 +624,12 @@ public class OpenCV extends Service {
 		si.source = source;
 		return si;
 	}	
+	
+	public Boolean isTracking(Boolean b)
+	{
+		return b;
+	}
+	
 	// publish functions end ---------------------------
 
 	public void stopCapture() {
@@ -706,33 +712,34 @@ public class OpenCV extends Service {
 		return filters;
 	}
 
+
+	@Override
+	public String getToolTip() {
+		return "<html>OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
+	}
+	
+	
+
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 
-		OpenCV opencv = new OpenCV("opencv");		
+		OpenCV opencv = new OpenCV("opencv");				
+		opencv.startService();
 		
-		/*
-		OpenCVFilterGoodFeaturesToTrack f1 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter1"); 
-		OpenCVFilterGoodFeaturesToTrack f2 = new OpenCVFilterGoodFeaturesToTrack(opencv, "filter2"); 
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
 
-		HashMap<String, String> x = new HashMap<String, String>();
-		x.put("test","test");
-		HashMap<String, String> y = (HashMap<String, String>)x.clone();
-		x.clear();
-		LOG.info(y.get("test"));
-		f1.copyDataFrom(f1);
-		f1.copyDataFrom(f2);
-		*/
-		
-		//RemoteAdapter remote = new RemoteAdapter("remote");
-		//remote.startService();
+		Servo pan = new Servo("pan");
+		pan.startService();
+
+		Servo tilt = new Servo("tilt");
+		tilt.startService();
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		
-		opencv.startService();
 		//opencv.addFilter("PyramidDown1", "PyramidDown");
 		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
@@ -744,24 +751,7 @@ public class OpenCV extends Service {
 */		
 		gui.display();
 
-		/*
-		
-		opencv.addFilter("Smooth", "Smooth");
-		opencv.addFilter("Dilate1", "Dilate"); 
-		opencv.addFilter("InRange","InRange");
-		opencv.addFilter("Dilate2", "Dilate");
-		
-		 opencv.setFilterCFG("InRange", "hueMin", 0x6b);
-		 opencv.setFilterCFG("InRange", "hueMax", 0x75);
-		 opencv.setFilterCFG("InRange", "valueMin", 0xc5);
-		 opencv.setFilterCFG("InRange", "valueMax", 0xda);
-		 */
 
-	}
-
-	@Override
-	public String getToolTip() {
-		return "<html>OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
 	}
 	
 }

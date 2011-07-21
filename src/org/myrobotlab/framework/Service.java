@@ -827,7 +827,7 @@ public abstract class Service implements Runnable, Serializable {
 			out(method, retobj);
 
 		} catch (NoSuchMethodException e) {
-			LOG.warn("NoSuchMethodException - attempting upcasting");
+			LOG.warn(c.getCanonicalName() + "#" + method + " NoSuchMethodException - attempting upcasting");
 
 			// search for possible upcasting methods			
 			// scary ! resolution rules are undefined - first "found" first invoked ?!?
