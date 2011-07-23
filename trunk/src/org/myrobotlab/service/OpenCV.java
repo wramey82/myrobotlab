@@ -40,7 +40,6 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateCameraCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
@@ -50,8 +49,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,8 +71,6 @@ import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
-import com.googlecode.javacv.VideoInputFrameGrabber;
-import com.googlecode.javacv.FrameGrabber.ColorMode;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -380,6 +377,18 @@ public class OpenCV extends Service {
 					
 				} else if ("camera".equals(useInput))
 				{
+					Class<?> [] paramTypes = new Class[1];
+					Object [] params = new Object[1];
+					
+					paramTypes[0] = Integer.TYPE;
+					params[0] = cameraIndex;
+					
+					//grabber = FrameGrabber.getDefault().newInstance(params);
+					
+					Constructor<?> c = FrameGrabber.getDefault().getConstructor(paramTypes);
+					grabber = (FrameGrabber)c.newInstance(params);
+
+					/*
 					if (isWindows)
 					{
 						grabber = new VideoInputFrameGrabber(cameraIndex);
@@ -392,6 +401,7 @@ public class OpenCV extends Service {
 							stop ();
 						}
 					}
+					*/
 				} else {
 					LOG.error("useInput null or not supported " + useInput);
 					stop();
