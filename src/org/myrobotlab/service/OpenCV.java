@@ -39,6 +39,7 @@ import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
  */
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
@@ -90,17 +91,25 @@ public class OpenCV extends Service {
 	int frameIndex = 0;
 	int lastImageWidth = 0;
 
+	// GRABBER BEGIN --------------------------		
+	public String grabberType = null;
+	FrameGrabber grabber = null;
+	CvCapture oldGrabber = null; // TODO - choose index
+	// grabber CFG
+	boolean isWindows = false;		
+	String format = null;
 	public int cameraIndex = 0;
-	public String useInput = "null";
+//	public String useInput = "null";
 	String inputMovieFileName = "input.avi";
+//	public String kinectMode = "";
 	boolean loopInputMovieFile = true;
 	boolean sendImage = true;
 	boolean useCanvasFrame = false;
-	
+	// GRABBER END --------------------------	
+
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
 	
-	public String kinectMode = "";
 
 	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
 	
@@ -299,6 +308,7 @@ public class OpenCV extends Service {
 		return bi;
 	}
 */
+
 	class VideoProcess implements Runnable {
 
 		boolean isCaptureRunning = false;
@@ -314,12 +324,6 @@ public class OpenCV extends Service {
 		//VideoInputFrameGrabber grabber = null;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat();
-
-		String grabberType = null;
-		FrameGrabber grabber = null;
-		CvCapture oldGrabber = null; // TODO - choose index
-		
-		boolean isWindows = false;		
 
 		public void start()
 		{
@@ -368,48 +372,35 @@ public class OpenCV extends Service {
 			//cameraSettings.setQuantity(1);
 			//CameraDevice cameraDevice;
 			try {
-				 //OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(0); 
-				//int index = cfg.getInt("cameraIndex");
-				if ("kinect".equals(useInput))
-				{
-					grabber = new OpenKinectFrameGrabber(cameraIndex);
-					grabber.setFormat(kinectMode);
-					
-				} else if ("camera".equals(useInput))
-				{
-					Class<?> [] paramTypes = new Class[1];
-					Object [] params = new Object[1];
-					
-					paramTypes[0] = Integer.TYPE;
-					params[0] = cameraIndex;
-					
-					//grabber = FrameGrabber.getDefault().newInstance(params);
-					
-					Constructor<?> c = FrameGrabber.getDefault().getConstructor(paramTypes);
-					grabber = (FrameGrabber)c.newInstance(params);
 
-					/*
-					if (isWindows)
-					{
-						grabber = new VideoInputFrameGrabber(cameraIndex);
-						grabber.start();
-					} else {
-						oldGrabber = cvCreateCameraCapture(cameraIndex);
-						if (oldGrabber == null)
-						{
-							LOG.error("could not create camera capture on camera index " + cameraIndex);
-							stop ();
-						}
-					}
-					*/
-				} else {
-					LOG.error("useInput null or not supported " + useInput);
-					stop();
+				Class<?> [] paramTypes = new Class[1];
+				Object [] params = new Object[1];
+				
+				paramTypes[0] = Integer.TYPE;
+				params[0] = cameraIndex;
+				
+				//grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
+				//grabber = FrameGrabber.getDefault().newInstance(params);
+				if (grabberType == null)
+				{
+				  //Constructor<?> c = FrameGrabber.getDefault().getConstructor(paramTypes);
 				}
+
+				Class<?> nfg = Class.forName(grabberType);
+				Constructor<?> c = nfg.getConstructor(paramTypes);
+
+				grabber = (FrameGrabber)c.newInstance(params);
+				grabber.setFormat("interleave");
+				//grabber.setFormat("video");
+				String s = grabber.getFormat();
+				//grabber.setImageWidth(320);
+				//grabber.setImageWidth(240);
+				
+				LOG.error("using " + grabber.getClass().getCanonicalName());
 				
 				if (grabber == null && oldGrabber == null)
 				{
-					LOG.error("no viable capture or frame grabber with input " + useInput);
+					LOG.error("no viable capture or frame grabber with input " + grabberType);
 					stop();
 				}
 				
@@ -433,7 +424,6 @@ public class OpenCV extends Service {
 				stop ();
 			}
 			
-			int kinectInterleave = 0;
 			
 			while (isCaptureRunning) {
 				
@@ -538,7 +528,7 @@ public class OpenCV extends Service {
 					}
 
 				} else {
-					if (useInput == "file") {
+					if (grabberType == "file") {
 						// re-open avi file -
 						//grabber = cvCreateFileCapture(cfg.get("inputMovieFileName"));
 						// not supported at the moment
@@ -577,7 +567,7 @@ public class OpenCV extends Service {
 	}
 
 	public String setUseInput(String inputType) {
-		useInput = inputType;
+		grabberType = inputType;
 		return inputType;
 	}
 
@@ -643,8 +633,11 @@ public class OpenCV extends Service {
 	// publish functions end ---------------------------
 
 	public void stopCapture() {
-		videoProcess.stop();
-		videoProcess = null;
+		if (videoProcess != null)
+		{
+			videoProcess.stop();
+			videoProcess = null;
+		}
 	}
 	
 	public void capture() {
@@ -737,7 +730,7 @@ public class OpenCV extends Service {
 
 		OpenCV opencv = new OpenCV("opencv");				
 		opencv.startService();
-		
+/*		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 
@@ -746,7 +739,7 @@ public class OpenCV extends Service {
 
 		Servo tilt = new Servo("tilt");
 		tilt.startService();
-		
+*/		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		
@@ -754,7 +747,6 @@ public class OpenCV extends Service {
 		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
 		//opencv.setCameraIndex(0);
-		LOG.info("starting capture");
 /*		
 		opencv.useInput = "camera"; // TODO - final static - for capture to take a parameter (Type)
 		opencv.capture();

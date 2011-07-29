@@ -259,7 +259,7 @@ public class FaceTracking extends Service {
 		ft.camera.addFilter("PyramidDown2", "PyramidDown");
 		ft.camera.addFilter("MatchTemplate", "MatchTemplate");
 		//ft.camera.addFilter("PyramidDown2", "PyramidDown");
-		ft.camera.useInput = "camera";
+		//ft.camera.useInput = "camera";
 		ft.camera.capture();
 		
 		//ft.arduino.se - TODO setPort("/dev/ttyUSB0");
