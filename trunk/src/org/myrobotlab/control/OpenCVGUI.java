@@ -25,6 +25,8 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -32,6 +34,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -49,7 +52,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -64,6 +66,8 @@ import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+
+import com.googlecode.javacv.FrameGrabber;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
@@ -92,15 +96,22 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	// input
 	ButtonGroup group = new ButtonGroup();
 	DefaultListModel currentFilterListModel = new DefaultListModel();
-	JComboBox cameraIndex = new JComboBox(new String[]{ "0", "1", "2", "3", "4", "5" });
-	JComboBox kinectImageOrDepth = new JComboBox(new String[]{"image","depth"});
 
-	JRadioButton camera = new JRadioButton("camera");
-	JRadioButton kinect = new JRadioButton("kinect");
+	JComboBox kinectImageOrDepth = new JComboBox(new String[]{"image","depth","interleave"});
+	JComboBox grabberTypeSelect = null;
+	
+	JButton capture = new JButton("capture");
+	
+	JPanel captureCfg = new JPanel();
 	JRadioButton file = new JRadioButton("file");
-	JRadioButton nullInput = new JRadioButton("null", true);
-
 	JButton inputFileButton = new JButton("open file");
+	JLabel indexLabel = new JLabel("index");
+	JComboBox cameraIndex = new JComboBox(new String[]{ "0", "1", "2", "3", "4", "5" });
+	
+	// garbage
+	//JRadioButton kinect = new JRadioButton("kinect");
+	//JRadioButton nullInput = new JRadioButton("null", true);
+	//JRadioButton camera = new JRadioButton("camera");
 
 	JPanel filterParameters = new JPanel();
 	
@@ -118,11 +129,21 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		templateDisplay = new PhotoReelWidget(boundServiceName, myService);
 		templateDisplay.init();
 
-		camera.addActionListener(al);
-		kinect.addActionListener(al);
-		file.addActionListener(al);
-		nullInput.addActionListener(al);
+		//camera.addActionListener(captureListener);
+		//kinect.addActionListener(captureListener);
+		capture.addActionListener(captureListener);
+		file.addActionListener(captureListener);
+		//nullInput.addActionListener(captureListener);
 
+		ArrayList<String> s = new ArrayList<String>();
+		//s.add("default");
+		for (int i = 0; i < FrameGrabber.list.size(); ++i)
+		{
+			String ss = FrameGrabber.list.get(i).getCanonicalName();
+			s.add(ss.substring(ss.lastIndexOf(".") + 1));
+		}
+		grabberTypeSelect = new JComboBox(s.toArray());
+		
 		kinectImageOrDepth.addActionListener(kinectListener);
 		
 		String plist[] = { "And", "AverageColor", "Canny", "CreateHistogram",
@@ -169,22 +190,41 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		JPanel cpanel = new JPanel();
 		cpanel.setBorder(BorderFactory.createEtchedBorder());
 		
-		cpanel.add(camera);
+		//cpanel.add(camera);
 		cpanel.add(cameraIndex);		
-		cpanel.add(kinect);
-		cpanel.add(kinectImageOrDepth);
+		//cpanel.add(kinect);
+		//cpanel.add(kinectImageOrDepth);
 		
-		group.add(nullInput);
-		group.add(camera);
-		group.add(kinect);
+		//group.add(nullInput);
+		//group.add(camera);
+		//group.add(kinect);
 		group.add(file);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-		input.add(nullInput, gc);
-		++gc.gridx;
+		//input.add(nullInput, gc);		
+		//input.add(cpanel);
+		
+		grabberTypeSelect.addActionListener(grabberTypeListener);
+		
+		// capture panel
+		cpanel = new JPanel();
+		cpanel.setBorder(BorderFactory.createEtchedBorder());
+		cpanel.add(capture);
+		cpanel.add(grabberTypeSelect);
+		
+		// build configuration for the various captures 
+		// non visible - when not applicable
+		// disable when capturing
+		captureCfg.setBorder(BorderFactory.createEtchedBorder());
+		captureCfg.add(cameraIndex);
+		captureCfg.add(kinectImageOrDepth);
+		captureCfg.add(inputFileLable);
+		
+		cpanel.add(captureCfg);
 		
 		input.add(cpanel);
+
 		
 		cameraIndex.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
@@ -197,6 +237,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		gc.gridx = 0;
 		++gc.gridy;
 
+		/*
 		cpanel = new JPanel();
 		cpanel.setBorder(BorderFactory.createEtchedBorder());
 		
@@ -204,7 +245,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		cpanel.add(inputFileButton);
 		cpanel.add(inputFileLable);
 		
-		/*
+		
 		input.add(file, gc);
 		++gc.gridx;
 		input.add(inputFileButton, gc);
@@ -283,6 +324,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	// LinkedHashMap<String, OpenCVFilterGUI>();
 	// LinkedHashMap<String, OpenCVFilter> filters = new
 	// LinkedHashMap<String,OpenCVFilter>();
+	
 
 	LinkedHashMap<String, OpenCVFilterGUI> filters = new LinkedHashMap<String, OpenCVFilterGUI>();
 
@@ -351,9 +393,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			String mode = (String)kinectImageOrDepth.getSelectedItem();
 			if ("depth".equals(mode))
 			{
-				myOpenCV.kinectMode = "depth";
+				//myOpenCV.kinectMode = "depth";
 			} else {
-				myOpenCV.kinectMode = "";
+				//myOpenCV.kinectMode = "";
 			}
 			//myService.send(boundServiceName, "stopCapture");			
 			myService.send(boundServiceName, "setState", myOpenCV);
@@ -363,25 +405,57 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	};
 	
 	
-	private ActionListener al = new ActionListener() {
+	private ActionListener captureListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			String useInput = ((JRadioButton) e.getSource()).getText();
-			//myService.send(boundServiceName, "setUseInput", useInput);
-			
-			myOpenCV.useInput = useInput;
 			
 			myService.send(boundServiceName, "setState", myOpenCV);
 			
-			if (useInput.compareTo("null") == 0)
+			if (("capture".equals(capture.getText())))
 			{
-				myService.send(boundServiceName, "stopCapture");
-			} else {
 				myService.send(boundServiceName, "capture");
+				capture.setText("stop");
+				//captureCfg.disable();
+				setChildrenEnabled(captureCfg, false);
+			} else {
+				myService.send(boundServiceName, "stopCapture");
+				capture.setText("capture");
+				setChildrenEnabled(captureCfg, true	);
 			}
+			
+		}
+	};
+
+	
+	private ActionListener grabberTypeListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			
+			// TODO - complete reset or just one fn?
+			myOpenCV.grabberType = "com.googlecode.javacv." + (String)grabberTypeSelect.getSelectedItem(); 			
+			myService.send(boundServiceName, "setState", myOpenCV); // TODO - make cleaner myBoundService.setState();
+/*			
+			if (("capture".equals(capture.getText())))
+			{
+				myService.send(boundServiceName, "capture");
+				capture.setText("stop");
+				//captureCfg.disable();
+				setChildrenEnabled(captureCfg, false);
+			} else {
+				myService.send(boundServiceName, "stopCapture");
+				capture.setText("capture");
+				setChildrenEnabled(captureCfg, true	);
+			}
+*/			
 		}
 	};
 	
-	
+	private void setChildrenEnabled(Container container, boolean enabled) {
+		for (int i=0; i<container.getComponentCount(); i++) {
+		Component comp = container.getComponent(i);
+		comp.setEnabled(enabled);
+		if (comp instanceof Container)
+		setChildrenEnabled((Container) comp, enabled);
+		}
+	}
 
 	public void webCamDisplay(SerializableImage img) {
 		video.webCamDisplay(img);
@@ -493,6 +567,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			}
 		}
 		
+		/*
 		if ("null".equals(opencv.useInput))
 		{
 			nullInput.setSelected(true);
@@ -503,6 +578,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		{
 			file.setSelected(true);
 		}
+		*/
 		
 		cameraIndex.setSelectedIndex(opencv.cameraIndex);
 				
