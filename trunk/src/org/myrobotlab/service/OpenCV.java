@@ -379,7 +379,7 @@ public class OpenCV extends Service {
 				paramTypes[0] = Integer.TYPE;
 				params[0] = cameraIndex;
 				
-				//grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
+				grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 				//grabber = FrameGrabber.getDefault().newInstance(params);
 				if (grabberType == null)
 				{
@@ -390,7 +390,7 @@ public class OpenCV extends Service {
 				Constructor<?> c = nfg.getConstructor(paramTypes);
 
 				grabber = (FrameGrabber)c.newInstance(params);
-				grabber.setFormat("interleave");
+				//grabber.setFormat("interleave");
 				//grabber.setFormat("video");
 				String s = grabber.getFormat();
 				//grabber.setImageWidth(320);
@@ -726,7 +726,7 @@ public class OpenCV extends Service {
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		OpenCV opencv = new OpenCV("opencv");				
 		opencv.startService();
@@ -740,10 +740,10 @@ public class OpenCV extends Service {
 		Servo tilt = new Servo("tilt");
 		tilt.startService();
 */		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
+//		GUIService gui = new GUIService("gui");
+//		gui.startService();
 		
-		//opencv.addFilter("PyramidDown1", "PyramidDown");
+		opencv.addFilter("PyramidDown1", "PyramidDown");
 		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
 		//opencv.setCameraIndex(0);
@@ -751,7 +751,9 @@ public class OpenCV extends Service {
 		opencv.useInput = "camera"; // TODO - final static - for capture to take a parameter (Type)
 		opencv.capture();
 */		
-		gui.display();
+//		gui.display();
+		
+		opencv.capture();
 
 
 	}
