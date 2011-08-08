@@ -764,17 +764,19 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		
+		
 
 		// Servo hand = new Servo("hand");
 		// hand.start();
 
-		// GUIService gui = new GUIService("gui");
-		// gui.startService();
-		// gui.display();
+		GUIService gui = new GUIService("lapgui");
+		gui.startService();
+		gui.display();
 	}
 
 	// internal data object - used to keep track of vars associated with Motors
