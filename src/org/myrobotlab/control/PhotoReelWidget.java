@@ -144,7 +144,7 @@ public class PhotoReelWidget extends ServiceGUI {
 	public void init() 
 	{
 
-		ImageIcon icon = FileIO.getResourceIcon("mrl_logo.jpg");
+		ImageIcon icon = FileIO.getResourceIcon("photoreel.1.png");
 		if (icon != null)
 		{
 			screen.setIcon(icon);	
