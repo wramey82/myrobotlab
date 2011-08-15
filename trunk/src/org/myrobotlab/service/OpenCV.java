@@ -379,7 +379,7 @@ public class OpenCV extends Service {
 				paramTypes[0] = Integer.TYPE;
 				params[0] = cameraIndex;
 				
-				grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
+				//grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 				//grabber = FrameGrabber.getDefault().newInstance(params);
 				if (grabberType == null)
 				{
@@ -740,8 +740,8 @@ public class OpenCV extends Service {
 		Servo tilt = new Servo("tilt");
 		tilt.startService();
 */		
-//		GUIService gui = new GUIService("gui");
-//		gui.startService();
+		GUIService gui = new GUIService("gui");
+		gui.startService();
 		
 		opencv.addFilter("PyramidDown1", "PyramidDown");
 		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
@@ -751,7 +751,7 @@ public class OpenCV extends Service {
 		opencv.useInput = "camera"; // TODO - final static - for capture to take a parameter (Type)
 		opencv.capture();
 */		
-//		gui.display();
+		gui.display();
 		
 		opencv.capture();
 
