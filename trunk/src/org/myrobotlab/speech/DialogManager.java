@@ -24,13 +24,12 @@ import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.RuleGrammar;
 import javax.speech.recognition.RuleParse;
 
-import org.apache.commons.logging.Log;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
-import edu.cmu.sphinx.jsapi.JSGFGrammar;
+import edu.cmu.sphinx.jsgf.JSGFGrammar;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.props.Configurable;
@@ -525,7 +524,7 @@ class DialogNodeBehavior {
 	 */
 	RuleParse getRuleParse(Result result) throws GrammarException {
 		String resultText = result.getBestFinalResultNoFiller();
-		RuleGrammar ruleGrammar = getGrammar().getRuleGrammar();
+		RuleGrammar ruleGrammar = (RuleGrammar)getGrammar().getRuleGrammar(); // FIXME
 		RuleParse ruleParse = ruleGrammar.parse(resultText, null);
 		return ruleParse;
 	}

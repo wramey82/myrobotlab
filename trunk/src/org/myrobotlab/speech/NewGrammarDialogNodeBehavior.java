@@ -2,6 +2,9 @@ package org.myrobotlab.speech;
 
 import java.io.IOException;
 
+import edu.cmu.sphinx.jsgf.JSGFGrammarException;
+import edu.cmu.sphinx.jsgf.JSGFGrammarParseException;
+
 /**
  * A Dialog node behavior that loads a completely new grammar upon entry into
  * the node
@@ -22,7 +25,15 @@ public class NewGrammarDialogNodeBehavior extends DialogNodeBehavior {
 	 */
 	public void onEntry() throws IOException {
 		super.onEntry();
-		getGrammar().loadJSGF(getGrammarName());
+		try {
+			getGrammar().loadJSGF(getGrammarName());
+		} catch (JSGFGrammarParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSGFGrammarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

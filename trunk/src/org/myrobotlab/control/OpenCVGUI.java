@@ -151,7 +151,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				"Fauvist", "FindContours", "FloodFill", "GoodFeaturesToTrack",
 				"Gray", "HoughLines2",
 				"HSV",
-				"InRange","KinectDepth",
+				"InRange","KinectDepth", "KinectInterleave",
 				// "Laser Tracking", oops lost cause not checked in !
 				"LKOpticalTrack", "MatchTemplate", "MotionTemplate", "Mouse", "Not",
 				"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
