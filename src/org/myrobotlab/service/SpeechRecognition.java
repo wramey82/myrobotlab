@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.speech.recognition.GrammarException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.myrobotlab.framework.Service;
@@ -69,10 +70,6 @@ public class SpeechRecognition extends Service {
 
 	// TODO - changeVoice (String newVoice)
 	public void loadDefaultConfiguration() {
-		cfg.set("volume", 75);
-		// cfg.set("grammerConfigXML", "dialogManager.xml");
-		cfg.set("grammarConfigXML", "simple.xml");
-		// cfg.set("useDialogManager", false);
 	}
 
 	public String recognized(String speech) {
@@ -81,10 +78,11 @@ public class SpeechRecognition extends Service {
 
 	public void stopRecording() {
 		microphone.stopRecording();
-
+		microphone.clear();
 	}
 
 	public void startRecording() {
+		microphone.clear();
 		microphone.startRecording();
 	}
 
@@ -106,14 +104,12 @@ public class SpeechRecognition extends Service {
 		super.stopService();
 	}
 
-	// TODO - lame - quick hack to give the "run" function back to
-	// SpeechRecognition
-	// just surrounded with another inner class
 	class SpeechProcessor extends Thread {
 		SpeechRecognition myService = null;
 		public boolean isRunning = false;
 
 		public SpeechProcessor(SpeechRecognition myService) {
+			super (myService.name + "_ear");
 			this.myService = myService;
 		}
 
@@ -128,48 +124,14 @@ public class SpeechRecognition extends Service {
 			isRunning = true;
 			// cm = new
 			// ConfigurationManager(HelloWorld.class.getResource("helloworld.config.xml"));
-			URL url = this.getClass().getResource("/resource/" + cfg.get("grammarConfigXML"));
+			URL url = this.getClass().getResource("/resource/simple.xml");
 			cm = new ConfigurationManager(url);
 
 			// PropertySheet ps = cm.getPropertySheet("jsgfGrammar");
 			// String grammarLocation = ps.getString("grammarLocation");
 			// cm = new ConfigurationManager("SpeechRecognition");
 
-			if (cfg.get("grammarConfigXML").compareTo("dialogManager.xml") == 0) {
-				dialogManager = (DialogManager) cm.lookup("dialogManager");
-
-				dialogManager.generateGrammarFiles(myService);
-
-				// TODO - generate below
-				// MyBehavior()
-				dialogManager.addNode("service", new MyBehavior());
-				dialogManager.addNode("tilt", new MyBehavior());
-				dialogManager.addNode("pan", new MyBehavior());
-
-				dialogManager.setInitialNode("service");
-
-				System.out.println("Loading dialogs ...");
-
-				try {
-					dialogManager.allocate();
-
-					// test.getGrammar().getRuleGrammar();
-					// LOG.info(email.getGrammar().getRuleGrammar());
-
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				System.out.println("Running  ...");
-
-				dialogManager.go();
-
-				System.out.println("Cleaning up  ...");
-
-				dialogManager.deallocate();
-
-			} else {
+			{
 
 				// start the word recognizer
 				recognizer = (Recognizer) cm.lookup("recognizer");
@@ -181,7 +143,6 @@ public class SpeechRecognition extends Service {
 				if (!microphone.startRecording()) {
 					LOG.error("Cannot start microphone.");
 					recognizer.deallocate();
-					System.exit(1);
 				}
 
 				// System.out.println("Say: (Good morning | Hello) ( Bhiksha | Evandro | Paul | Philip | Rita | Will )");
@@ -321,10 +282,12 @@ public class SpeechRecognition extends Service {
 		private Collection<String> collectSampleUtterances() {
 			Set<String> set = new HashSet<String>();
 			for (int i = 0; i < 100; i++) {
+				/* FIXME - broken
 				String s = getGrammar().getRandomSentence();
 				if (!set.contains(s)) {
 					set.add(s);
 				}
+				*/
 			}
 
 			List<String> sampleList = new ArrayList<String>(set);
@@ -355,6 +318,19 @@ public class SpeechRecognition extends Service {
 	@Override
 	public String getToolTip() {
 		return "<html>speech recoginition service wrapping Sphinx 4</html>";
+	}
+
+	
+	public static void main(String[] args) {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		SpeechRecognition ear = new SpeechRecognition("ear");				
+		ear.startService();
+		
+
+
 	}
 	
 }

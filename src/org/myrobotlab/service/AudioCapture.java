@@ -42,6 +42,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
@@ -222,4 +223,16 @@ public class AudioCapture extends Service {
 		return "captures and stores audio from microphone";
 	}
 
+	
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		AudioCapture audioIn = new AudioCapture("audioIn");
+		audioIn.startService();
+		audioIn.captureAudio();
+		audioIn.stopAudioCapture();
+		audioIn.playAudio();
+	}
+	
 }

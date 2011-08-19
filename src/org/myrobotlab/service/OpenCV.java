@@ -392,6 +392,7 @@ public class OpenCV extends Service {
 				grabber = (FrameGrabber)c.newInstance(params);
 				//grabber.setFormat("interleave");
 				//grabber.setFormat("video");
+				grabber.setFormat("depth");
 				String s = grabber.getFormat();
 				//grabber.setImageWidth(320);
 				//grabber.setImageWidth(240);
@@ -743,7 +744,7 @@ public class OpenCV extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		
-		opencv.addFilter("PyramidDown1", "PyramidDown");
+		//opencv.addFilter("PyramidDown1", "PyramidDown");
 		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
 
 		//opencv.setCameraIndex(0);
@@ -753,7 +754,7 @@ public class OpenCV extends Service {
 */		
 		gui.display();
 		
-		opencv.capture();
+		//opencv.capture();
 
 
 	}
