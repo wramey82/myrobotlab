@@ -31,7 +31,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -41,17 +40,23 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 
 public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
+	// useful data for the kinect is 632 X 480 - 8 pixels on the right edge are not good data
+	// http://groups.google.com/group/openkinect/browse_thread/thread/6539281cf451ae9e?pli=1
+		
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	transient IplImage src = null;
+	transient IplImage mask = null;
 	BufferedImage frameBuffer = null;
 	int filter = 7;
+	boolean createMask = false;
 
 	public OpenCVFilterKinectDepth(OpenCV service, String name) {
 		super(service, name);
@@ -71,26 +76,14 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
 	}
 
+	public void createMask()
+	{
+		createMask = true;
+	}
+	
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
-
-		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
-		++frameCounter;
-		if (x != 0 && clickCounter % 2 == 0) {
-			if (g == null) {
-				g = frameBuffer.getGraphics();
-			}
-
-			if (frameCounter % 10 == 0) {
-				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x,
-						y) & 0x00ffffff);
-			}
-			g.setColor(Color.green);
-			frameBuffer.getRGB(x, y);
-			g.drawString(lastHexValueOfPoint, x, y);
-		}
-
-		return frameBuffer;
+		return image.getBufferedImage();
 	}
 
 	@Override
@@ -115,8 +108,12 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image) {
 		
-		int x = image.nChannels();
-		x = image.depth();
+		// check for depth ! 1 ch 16 depth - if not format error & return
+		if (image.nChannels() != 1 || image.depth() != 16)
+		{
+			LOG.error("image is not a kinect depth image");
+			return image;
+		}
 		
 		if (dst == null) {
 			//dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(),image.nChannels());
@@ -128,11 +125,22 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		cvConvertScale(image, src, 1, 0);
 		//cvThreshold(dst, dst, 30, 255, CV_THRESH_BINARY);
 		
-		CvScalar min = cvScalar(0.0, 0.0, 0.0, 0.0);
-		CvScalar max = cvScalar(10000, 0.0, 0.0, 0.0);
+		CvScalar min = cvScalar(30000, 0.0, 0.0, 0.0);
+		CvScalar max = cvScalar(150000, 0.0, 0.0, 0.0);
 
 		cvInRangeS(image, min, max, dst);
 		
+		createMask = true;
+		if (createMask)
+		{
+			if (mask == null)
+			{
+				mask = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);	
+			}
+			cvCopy(dst, mask, null);
+			myService.setMask(this.name, mask);
+			createMask = false;
+		}
 		//cvCvtColor
 		/*
 		ByteBuffer source = image.getByteBuffer(); 

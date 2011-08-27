@@ -83,6 +83,10 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	final static int VALUE_MASK = 2;
 	final static int SATURATION_MASK = 4;
 	
+	// data for gui <--> filter exchange
+	public boolean useHue = false; 
+	
+	
 	public OpenCVFilterInRange(OpenCV service, String name) {
 		super(service, name);
 	}

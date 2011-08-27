@@ -878,9 +878,11 @@ public abstract class Service implements Runnable, Serializable {
 		 		}
 		 		*/
 		 		try {
+		 			LOG.debug("found appropriate method");
 		 			retobj = m.invoke(object, params);
 		 			return retobj; 
 				} catch (Exception e1) {
+					LOG.error("boom goes method " + m.getName());
 					Service.logException(e1);
 				}
 			} 
@@ -1421,6 +1423,10 @@ public abstract class Service implements Runnable, Serializable {
 	}
 	
 	// new state functions begin --------------------------
+	public void broadcastState()
+	{
+		invoke("publishState");
+	}
 	public Service publishState()
 	{
 		return this;

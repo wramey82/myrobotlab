@@ -153,7 +153,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				"HSV",
 				"InRange","KinectDepth", "KinectInterleave",
 				// "Laser Tracking", oops lost cause not checked in !
-				"LKOpticalTrack", "MatchTemplate", "MotionTemplate", "Mouse", "Not",
+				"LKOpticalTrack", "Mask","MatchTemplate", "MotionTemplate", "Mouse", "Not",
 				"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
 				"ResetImageROI", "SampleArray", "SampleImage", "SetImageROI",
 				"Smooth", "Threshold" };
@@ -393,12 +393,12 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			String mode = (String)kinectImageOrDepth.getSelectedItem();
 			if ("depth".equals(mode))
 			{
-				//myOpenCV.kinectMode = "depth";
+				myOpenCV.format = "depth";
 			} else {
-				//myOpenCV.kinectMode = "";
+				myOpenCV.format = "image";
 			}
 			//myService.send(boundServiceName, "stopCapture");			
-			myService.send(boundServiceName, "setState", myOpenCV);
+			//myService.send(boundServiceName, "setState", myOpenCV); 
 			//myService.send(boundServiceName, "capture");
 
 		}
@@ -425,12 +425,13 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		}
 	};
 
+	final public String prefixPath = "com.googlecode.javacv.";
 	
 	private ActionListener grabberTypeListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			
 			// TODO - complete reset or just one fn?
-			myOpenCV.grabberType = "com.googlecode.javacv." + (String)grabberTypeSelect.getSelectedItem(); 			
+			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem(); 			
 			myService.send(boundServiceName, "setState", myOpenCV); // TODO - make cleaner myBoundService.setState();
 /*			
 			if (("capture".equals(capture.getText())))
@@ -541,6 +542,17 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		return video;
 	}
 	
+	/*
+	 * getState is an interface function which allow the interface of the GUI Bound service to update graphical
+	 * portions of the GUI based on data changes.
+	 * 
+	 * The entire service is sent and it is this functions responsibility to update all of the gui components based
+	 * on data elements and/or method of the service.
+	 * 
+	 * getState get's its Service directly if the gui is operating "in process".  If the gui is operating "out of process"
+	 * a serialized (zombie) process is sent to provide the updated state information.  Typically "publishState" is the function
+	 * which provides the event for getState.
+	 */
 	final static String prefix = "OpenCVFilter";
 	public void getState(OpenCV opencv)
 	{
@@ -550,6 +562,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 			Iterator<String> itr = opencv.getFilters().keySet().iterator();
 
+			currentFilterListModel.clear();
 			while (itr.hasNext()) {
 				String name;
 				try {
@@ -565,6 +578,30 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				}
 				
 			}
+			
+			
+			for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i)
+			{
+				String currentObject = prefixPath + (String)grabberTypeSelect.getItemAt(i);
+				if (currentObject.equals(opencv.grabberType))
+				{
+					grabberTypeSelect.setSelectedIndex(i);
+					break;
+				}
+
+			}
+			
+			if (opencv.isCaptureRunning)
+			{
+				capture.setText("stop"); // will be a bug if changed to jpg
+			} else {
+				capture.setText("capture");
+			}
+			
+			
+			
+		} else {
+			LOG.error("getState for " + myService.name + " was called on " + boundServiceName + " with null reference to state info");
 		}
 		
 		/*

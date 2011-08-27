@@ -113,7 +113,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 		}
 		
 
-		if (dst == null) {
+		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
 			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(),
 					image.nChannels());
 		}

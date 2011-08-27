@@ -73,7 +73,7 @@ public class OpenCVFilterCannyGUI extends OpenCVFilterGUI {
 			{
 				params[2] = slider.getValue() * 2 + 1;
 			}
-			myService.send(boundServiceName, "setFilterCFG", params);
+			myGUI.send(boundServiceName, "setFilterCFG", params);
 			slider.value.setText("" + slider.getValue());
 		}
 	}

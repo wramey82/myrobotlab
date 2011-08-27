@@ -242,7 +242,7 @@ public class Invoker extends Service {
 				}
 	
 				LOG.addAppender(appender);
-				LOG.setLevel(Level.DEBUG);
+				LOG.setLevel(Level.WARN);
 			}
 			/*
 			 * Annotation check Class[] p = new Class[1]; p[0] = String.class;
