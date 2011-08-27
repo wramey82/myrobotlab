@@ -60,7 +60,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	public final static Logger LOG = Logger
 			.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
 	
-	IplImage template = null;
+	public IplImage template = null;
 	IplImage res = null;
 	double[] minVal = new double[1];
 	double[] maxVal = new double[1];
@@ -71,7 +71,6 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	CvPoint tempRect1 = new CvPoint();
 	
 	CvPoint centeroid = new CvPoint(0, 0);
-	
 	
 	int i = 0;
 
@@ -95,8 +94,8 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	int clickCount = 0;
 	int x0,y0,x1,y1;
-	CvRect rect = new CvRect();
-	boolean makeTemplate = false;
+	public CvRect rect = new CvRect();
+	public boolean makeTemplate = false;
 	public void samplePoint(MouseEvent event) {
 		// MouseEvent me = (MouseEvent)params[0];
 		if (event.getButton() == 1) {
@@ -132,7 +131,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	CvPoint textpt = new CvPoint(10,20);
 	private CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 	
-	int matchRatio = Integer.MAX_VALUE;
+	public int matchRatio = Integer.MAX_VALUE;
 	boolean isTracking = false;
 	
 	@Override

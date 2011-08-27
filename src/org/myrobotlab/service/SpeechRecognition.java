@@ -150,7 +150,7 @@ public class SpeechRecognition extends Service {
 				// loop the recognition until the programm exits.
 				while (isRunning) {
 
-					LOG.info("listening");
+					LOG.error("listening");
 
 					Result result = recognizer.recognize();
 

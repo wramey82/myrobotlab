@@ -37,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.image.OpenCVFilter;
+import org.myrobotlab.image.OpenCVFilterInRange;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 
@@ -80,7 +81,7 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 			params[0] = name;
 			params[1] = slider.getName();
 			params[2] = slider.getValue();
-			myService.send(boundServiceName, "setFilterCFG", params);
+			myGUI.send(boundServiceName, "setFilterCFG", params);
 			slider.value.setText("" + slider.getValue());
 		}
 	}
@@ -100,17 +101,23 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 			} else {
 				params[2] = false;				
 			}
-			myService.send(boundServiceName, "setFilterCFG", params);
+			myGUI.send(boundServiceName, "setFilterCFG", params);
 		}
 	}
 	
 	AdjustSlider change = new AdjustSlider();
 	AdjustCheckBox checkBoxChange = new AdjustCheckBox();
 	
+	OpenCVFilterInRange myFilter = null;
+	
 	public OpenCVFilterInRangeGUI(String boundFilterName,
 			String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
-
+		myFilter = (OpenCVFilterInRange) myOpenCVFilter;
+		
+		
+		myFilter.useHue = true;
+		
 		hueMin.setName("hueMin"); 
 		hueMax.setName("hueMax");
 		satMin.setName("saturationMin");

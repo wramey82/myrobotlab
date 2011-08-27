@@ -107,6 +107,7 @@ public abstract class OpenCVFilter implements Serializable{
 
 	// TODO - remove end ------------------------
 	
+	
 	// TODO - remove use Annotations
 	public abstract String getDescription();
 

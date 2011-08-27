@@ -94,7 +94,7 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 					filter.blockSize = blockSize.getValue();
 				}
 				
-				myService.send(boundServiceName, "setFilterData", boundFilter);
+				myGUI.send(boundServiceName, "setFilterData", boundFilter);
 			} // else - adjust gui text only
 			
 			

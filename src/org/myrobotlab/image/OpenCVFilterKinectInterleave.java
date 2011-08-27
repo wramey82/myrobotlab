@@ -116,11 +116,8 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image) {
-		
-		int channels = image.nChannels();
-		int depth = image.depth();
-		
-		if (channels == 3) // rgb
+				
+		if (image.nChannels() == 3) // rgb
 		{
 			return image;
 		}

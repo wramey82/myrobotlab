@@ -33,8 +33,10 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -44,7 +46,9 @@ public abstract class OpenCVFilterGUI {
 	final String name;
 	public JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;
-	final GUI myService;
+	final GUI myGUI;
+	protected OpenCV myService;
+	protected OpenCVFilter myOpenCVFilter;
 	final public GridBagConstraints gc = new GridBagConstraints();
 
 	//OpenCVFilterGoodFeaturesToTrack boundFilter = null;	
@@ -52,11 +56,13 @@ public abstract class OpenCVFilterGUI {
 	
 	
 	public OpenCVFilterGUI(String boundFilterName, String boundServiceName,
-			GUIService myService) {
+			GUIService myGUI) {
 		this.name = boundFilterName;
 		this.boundServiceName = boundServiceName;
-		this.myService = myService;
-
+		this.myGUI = myGUI;
+		this.myService = (OpenCV)RuntimeEnvironment.getService(boundServiceName).service;
+		this.myOpenCVFilter = myService.getFilter(name);
+		
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(name);
 		display.setBorder(title);

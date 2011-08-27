@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.SimpleTimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -97,7 +98,8 @@ public class OpenCV extends Service {
 	CvCapture oldGrabber = null; // TODO - choose index
 	// grabber CFG
 	boolean isWindows = false;		
-	String format = null;
+	public String format = null;
+	public boolean getDepth = false;
 	public int cameraIndex = 0;
 //	public String useInput = "null";
 	String inputMovieFileName = "input.avi";
@@ -110,7 +112,9 @@ public class OpenCV extends Service {
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
 	
-
+	// mask for each named filter
+	public HashMap<String, IplImage> masks = new HashMap<String, IplImage>(); 
+	
 	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
 	
 	// P - N Learning
@@ -120,6 +124,18 @@ public class OpenCV extends Service {
 	// display
 	CanvasFrame cf = null;
 	transient IplImage frame = null;
+
+	/*
+	 *  preLoadFilters - are filters which other Services can use to add, remove, or modify the filter set
+	 *  currently used by OpenCV without having to stop video processing
+	 *  Access to the preLoadFilters is synchronized and thread safe.
+	 *  The actual filters are not thread safe, however, the takes an event of load, merge, or remove for the
+	 *  actual filters to be modified.  The activity of moving the filters over is taken care of by the 
+	 *  video processing thread, so only 1 thread has access (the video processor) to the actual filters
+	 *  The "commit" action will take care of invalid states do to partial work flows  
+	 */	
+	LinkedHashMap<String, OpenCVFilter> addFilters = new LinkedHashMap<String, OpenCVFilter>();
+	ArrayList<String> removeFilters = new ArrayList<String>();
 	LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
 	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
 
@@ -308,10 +324,10 @@ public class OpenCV extends Service {
 		return bi;
 	}
 */
+	public boolean isCaptureRunning = false;
 
 	class VideoProcess implements Runnable {
 
-		boolean isCaptureRunning = false;
 		boolean published = false;
 		Thread videoThread = null;
 
@@ -363,14 +379,6 @@ public class OpenCV extends Service {
 				// cf = new CanvasFrame(false);
 			}
 			
-			// use VideoInputFrameGrabber if Loader.getPlatformName().startsWith("windows");
-			// how to use? Class<? extends FrameGrabber> fg = FrameGrabber.getDefault();						
-			//grabber = new OpenCVFrameGrabber(index); //works windows xp (fast) - linux (slow) V4L2 errors
-			//FrameGrabber grabber = new FFmpegFrameGrabber("/dev/video0","video4linux2"); 
-			//grabber = new FFmpegFrameGrabber("/dev/video0");
-			//grabber = new OpenCVFrameGrabber(0);
-			//cameraSettings.setQuantity(1);
-			//CameraDevice cameraDevice;
 			try {
 
 				Class<?> [] paramTypes = new Class[1];
@@ -379,21 +387,19 @@ public class OpenCV extends Service {
 				paramTypes[0] = Integer.TYPE;
 				params[0] = cameraIndex;
 				
-				//grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-				//grabber = FrameGrabber.getDefault().newInstance(params);
-				if (grabberType == null)
-				{
-				  //Constructor<?> c = FrameGrabber.getDefault().getConstructor(paramTypes);
-				}
-
 				Class<?> nfg = Class.forName(grabberType);
 				Constructor<?> c = nfg.getConstructor(paramTypes);
 
 				grabber = (FrameGrabber)c.newInstance(params);
+				
+				if (format != null)
+				{
+					grabber.setFormat(format);
+				}
 				//grabber.setFormat("interleave");
 				//grabber.setFormat("video");
-				grabber.setFormat("depth");
-				String s = grabber.getFormat();
+				//grabber.setFormat("depth");
+				//String s = grabber.getFormat();
 				//grabber.setImageWidth(320);
 				//grabber.setImageWidth(240);
 				
@@ -409,90 +415,76 @@ public class OpenCV extends Service {
 				{
 					grabber.start(); 
 				}
-				//VideoInputFrameGrabber fg = new VideoInputFrameGrabber(0);
-				//CvCapture c = cvCreateCameraCapture(index); old way
-				//FrameGrabber.init();
-				//cameraSettings = new CameraDevice.Settings();
-				//cameraDevice = new CameraDevice(cameraSettings);
-				//cameraSettings.setFrameGrabber(FrameGrabber.getDefault());
-				//cameraDevice = new CameraDevice("/dev/video0");
-				//frameGrabber = cameraDevice.createFrameGrabber();
-				//frameGrabber.start();
-				//IplImage img = frameGrabber.grab();
 				
 			} catch (Exception e) {
 				LOG.error(stackToString(e));
 				stop ();
 			}
-			
+			// TODO - utilize the size changing capabilites of the different grabbers
+			// grabbler.setImageWidth()
 			
 			while (isCaptureRunning) {
-				
+
 				published = false;
-				//isCaptureStopped = false;
 				++frameIndex;
 				logTime("start");
 
-				
-				//double x = highgui.cvGetCaptureProperty(grabber, highgui.CV_CAP_PROP_FRAME_WIDTH);
-				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_WIDTH, 320);
-				//cvSetCaptureProperty( oldGrabber, CV_CAP_PROP_FRAME_HEIGHT, 240);
-					//frame = grabber.grab();
 				try {
 					if (grabber != null)
 					{
-						//grabber.setColorMode(ColorMode.BGR);
-						/*
-						++kinectInterleave;
-						if (kinectInterleave%2 == 0)
+						if (!getDepth)
 						{
-							grabber.setFormat("");
+							frame = grabber.grab();
 						} else {
-							grabber.setFormat("depth");							
+							// only valid depth grabber is kinect
+							frame = ((OpenKinectFrameGrabber)grabber).grabDepth();
 						}
-						*/
-						frame = grabber.grab();
-						//grabber.set
 					} else {
-						frame = cvQueryFrame(oldGrabber);						
+						frame = cvQueryFrame(oldGrabber); // TODO DEPRICATE						
 					}
 				} catch (Exception e) {
 					LOG.error(stackToString(e));
 				}
-
 
 				logTime("read");
 
 				if (frame != null) {
 					Iterator<String> itr = filters.keySet().iterator();
 
-					while (itr.hasNext()) {
-						String name;
-						try {
-							name = itr.next();
-						} catch (Exception e) {
-							Service.logException(e);
-							break;
-						}
+					// TODO - will need to Lock to thread-safe filters against add/removal
+					// could use ConcurrentHashMap - however some JVMs do not support it
+					while (isCaptureRunning && itr.hasNext()) {
+						String name = itr.next();
 
 						OpenCVFilter filter = filters.get(name);
-						frame = filter.process(frame); // sloppy loose original
-														// frame???
+						frame = filter.process(frame); 
 
-						// LOG.error(cfg.get("displayFilter"));
+						// frame is selected in gui - publish this filters frame
 						if (displayFilter.equals(name)) {
-							// bi = filter.display(frame, null);
 							published = true;
 							if (sendImage) {
-								// invoke("sendImage", cfg.get("displayFilter"),
-								// frame.getBufferedImage()); frame? or current
-								// display??
-								invoke("sendImage", displayFilter,
-										filter.display(frame, null));
+								invoke("sendImage", displayFilter, filter.display(frame, null));
 							}
 						}
 
 					}
+					
+					if (removeAllFilters)
+					{
+						removeAllFilters();
+					}
+
+					// check if new filters are being added
+					if (addFilters.size() > 0)
+					{
+						appendFilters();
+					}
+					
+					if (removeFilters.size() > 0)
+					{
+						removeFilter();
+					}
+					
 
 					if (frame.width() != lastImageWidth)
 					{
@@ -501,17 +493,10 @@ public class OpenCV extends Service {
 					}
 					
 					// if the display was not published by one of the filters
-					// convert the frame now and publish it
+					// convert the frame now and publish it with timestamp
 					if (!published) {
 						BufferedImage bi = frame.getBufferedImage();
 						Graphics2D graphics = bi.createGraphics();
-
-						
-						/*
-						 * graphics.setColor(Color.green);
-						 * graphics.drawRect(120, 120, 120, 40);
-						 * graphics.drawRect(80, 80, 10, 10);
-						 */
 
 						screenText.delete(0, screenText.length());
 						screenText.append(sdf.format(new Date())); // TODO - configure to turn off
@@ -538,10 +523,9 @@ public class OpenCV extends Service {
 				}
 
 				frame = null; // done with current frame
-				// highgui.cvRetrieveFrame(frame.pointerByReference());
 				startTimeMilliseconds = 0;
 
-			} // while (isRunning)
+			}
 
 			try {
 				if (grabber != null)
@@ -634,6 +618,15 @@ public class OpenCV extends Service {
 	// publish functions end ---------------------------
 
 	public void stopCapture() {
+		if (grabber != null)
+		{
+			try {
+				grabber.release();
+			} catch (Exception e) {
+				Service.logException(e);
+			}
+			grabber = null;
+		}
 		if (videoProcess != null)
 		{
 			videoProcess.stop();
@@ -682,38 +675,105 @@ public class OpenCV extends Service {
 		// cvReleaseVideoWriter(outputFileStreams.get(filename).pointerByReference());
 	}
 
+	public void setMask(String name, IplImage mask)
+	{
+		masks.put(name, mask);
+	}
+	
 	public void addFilter(String name, String newFilter) {
+		
+		// WARNING - not thread safe at all 
+		// we don't want this thread directly modifying filters
+		// we will add to addFilters and let the video processor merge it in
+		// how its used - the video processor can take a relatively long time 
+		// going through a workflow - typically add/remove filters is done in
+		// small bursts with a much longer time in-between
+		// recent issues have been about the small bursts destroying the workflow
+		// now the video processor will only move the filters when its done with
+		// a workflow - if the new workflow is moved over and more is added at the same time
+		// a concurrent modification exception will occur
+		
 		String type = "org.myrobotlab.image.OpenCVFilter" + newFilter;
 		Object[] params = new Object[2];
 		params[0] = this;
-		// params[1] = cfg.getRoot();
 		params[1] = name;
-		OpenCVFilter filter = (OpenCVFilter) getNewInstance(type, params); // TODO
-																			// -
-																			// Object[]
-																			// parameters
+		OpenCVFilter filter = (OpenCVFilter) getNewInstance(type, params); 
 		filter.loadDefaultConfiguration();
-		filters.put(name, filter);
+		addFilters.put(name, filter);
+		//filters.put(name, filter);
 	}
 
-	public void removeFilter(String name) {
-		filters.remove(name);
-	}
+	// TO be used only by the VideoProcessor thread --- BEGIN ----
+	private void appendFilters()
+	{
+		Iterator<String> itr = addFilters.keySet().iterator();
 
-	public void removeFilters() {
+		while (itr.hasNext()) {
+			String name = itr.next();
+			filters.put(name, addFilters.get(name));
+		}
+		
+		addFilters.clear();
+	}
+	private void removeFilter()
+	{
+		for (int i = 0; i < removeFilters.size(); ++i)
+		{
+			filters.remove(removeFilters.get(i));
+		}
+		
+		removeFilters.clear();		
+	}
+	private void removeAllFilters()
+	{
 		filters.clear();
+		removeAllFilters = false;
+	}
+	// TO be used only by the VideoProcessor thread --- END ----
+	
+	// commitFilters
+	// preloadFilter
+	// appendFilter (single)
+	// removeFilters
+	
+	public void removeFilter(String name) {
+		//filters.remove(name);
+		removeFilters.add(name);
+	}
+
+	private boolean removeAllFilters = false;
+	public void removeFilters() {
+		//filters.clear();
 		/*
 		 * Iterator<String> itr = filters.keySet().iterator(); while
 		 * (itr.hasNext()) { filters.remove(itr.next()); }
 		 */
+		removeAllFilters = true;
 	}
 
 	public IplImage getLastFrame() {
 		return frame;
 	}
 
+	//public LinkedHashMap<String, OpenCVFilter> getFilters() {
 	public LinkedHashMap<String, OpenCVFilter> getFilters() {
+		// FIXME - part of the system relies on chaning specific data regarding filters
+		// at the moment most of the access is ok and should be done with getFilter(String name)
+		// so the structure of the LinkedHashMap can not be changed - this function should hand back a "copy"
+		// not the actual filters
 		return filters;
+	}
+	public OpenCVFilter getFilter(String name) {
+		// the kludge propagates 
+		if (addFilters.containsKey(name))
+		{
+			return addFilters.get(name);
+		} else if (filters.containsKey(name)) {
+			return filters.get(name);
+		} else {
+			LOG.error("no filter with name " + name);
+			return null;
+		}
 	}
 
 
@@ -731,6 +791,11 @@ public class OpenCV extends Service {
 
 		OpenCV opencv = new OpenCV("opencv");				
 		opencv.startService();
+		opencv.addFilter("PyramidDown1", "PyramidDown");
+		opencv.addFilter("InRange1", "InRange");
+		//opencv.setUseInput("camera");
+		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+		opencv.capture();
 /*		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
@@ -758,5 +823,6 @@ public class OpenCV extends Service {
 
 
 	}
+
 	
 }

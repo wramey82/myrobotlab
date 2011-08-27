@@ -54,7 +54,8 @@ public class Outbox implements Runnable, Serializable //extends Thread
 	boolean bufferOverrun = false;
 	boolean blocking = false;
 	int maxQueue = 10;
-	transient Thread outboxThread = null;
+	int initialThreadCount = 1;
+	transient ArrayList<Thread> outboxThreadPool = new ArrayList<Thread>();
 
 	public HashMap<String, ArrayList<NotifyEntry>> notifyList = new HashMap<String, ArrayList<NotifyEntry>>();
 	CommunicationInterface comm = null;
@@ -75,22 +76,24 @@ public class Outbox implements Runnable, Serializable //extends Thread
 	
 	public void start()
 	{
-		if (outboxThread == null)
-		{
-			outboxThread = new Thread(this, myService.name + "_outbox");
-		}
-		
-		outboxThread.start();
+		for (int i = outboxThreadPool.size(); i < initialThreadCount; ++i)
+		{	
+			Thread t =  new Thread(this, myService.name + "_outbox_" + i);
+			outboxThreadPool.add(t);
+			t.start();
+		}				
 	}
 	
 	public void stop()
 	{
 		isRunning = false;
-		if (outboxThread != null)
-		{
-			outboxThread.interrupt();
-		}
-		outboxThread = null;
+		for (int i = 0; i < outboxThreadPool.size(); ++i)
+		{	
+			Thread t =  outboxThreadPool.get(i);
+			t.interrupt();
+			outboxThreadPool.remove(i);
+			t = null;
+		}						
 	}
 
 	@Override
