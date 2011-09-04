@@ -194,7 +194,8 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						// client's side - "I connected to a listener and it replied with registerService" 
 						if (msg.method.equals("registerServices")) 
 						{
-							myService.registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+
 							addClient(socket, dgram.getAddress(),  dgram.getPort()); // i think this is correct? 
 							continue;
 						}
