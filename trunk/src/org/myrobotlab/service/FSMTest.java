@@ -1,8 +1,14 @@
 package org.myrobotlab.service;
 
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvMinMaxLoc;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,22 +18,25 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.OpenCVFilterMatchTemplate;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FSMTest extends Service {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(FSMTest.class.getCanonicalName());
-
 	
 	String context = null; 			// current context identifier
 	String contextPerson = null; 	// person of current context
 	Node contextNode = null; 		// node of current context
+	IplImage template = null; // template made from segmentation
+	IplImage cameraFrame = null; // image from camera
 	
 	// TODO - these services could be accessed via RuntimeEnvironment.service("opencv");
 	// TODO - service could be bound or created in an init - bound for remote	
@@ -41,9 +50,9 @@ public class FSMTest extends Service {
 	HashMap <String, HashMap<String, String>> phrases = new HashMap <String, HashMap<String,String>>(); 
 	
 	ArrayList<Node> memory = new ArrayList<Node>(); 
-	
-	boolean busy = false; 
+	ArrayList<Polygon> polygons = null;
 	CvRect boundingBox = null;
+
 	// findObject
 		// segmentation - run kinect at ramping range
 		// color hue 
@@ -67,11 +76,16 @@ public class FSMTest extends Service {
 		return "used as a general template";
 	}
 	
+	public void listeningEvent()
+	{
+		speech.speak("i am listening");
+		speech.speak("ready");
+	}
 	
 	public void init ()
 	{		
 		speechRecognition = new SpeechRecognition ("sphinx");
-		speechRecognition.startService();
+//		speechRecognition.startService();
 		speech = new Speech("speech");
 		speech.startService();
 		opencv = new OpenCV("opencv");
@@ -80,25 +94,35 @@ public class FSMTest extends Service {
 		gui.startService();
 		
 		speechRecognition.notify("publish", name, "heard", String.class);
+		speechRecognition.notify("listeningEvent", name, "listeningEvent");
+		
 		opencv.notify("publish", name, "publish", Polygon.class); //<--- BUG - polygon, name (only should work)
+		opencv.notify("publishIplImageTemplate", name, "getImageTemplate", IplImage.class);
+		opencv.notify("publishIplImage", name, "publishIplImage", IplImage.class);
 				
 		// start vision
 		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		
 		//opencv.addFilter("Gray1", "Gray");
-		opencv.addFilter("PyramidDown1", "PyramidDown");
+//		opencv.addFilter("PyramidDown1", "PyramidDown");
 		gui.display();
+		
+		opencv.getDepth = true; // Need a good switch in OpenCVGUI - runtime RGB RGB+Depth Depth
 		
 		opencv.capture();
 		
-		sleep(5000); 
-		
+//		sleep(5000); 
+				
 		initPhrases();
-		context = FIND_OBJECT;
-		
-		findObject();
+//		context = FIND_OBJECT;
+		context = IDLE;
+		speech.speak("my mouth is working");
+		speech.speak("my eyes are open");
+		//speech.speak("ready");
+//		findKinectPolygons();
 	}
 	
+
 	/*
 	 * Context States 
 	 * language keys
@@ -117,10 +141,13 @@ public class FSMTest extends Service {
 	final static String NO = "no"; // response
 	final static String I_AM_NOT_SURE = "i am not sure"; // response
 	final static String I_DO_NOT_UNDERSTAND = "i do not understand";
-	final static String IDENTIFY_OBJECT = "identify object";
+	final static String GET_ASSOCIATIVE_WORD = "get associative word";
 	final static String QUERY_OBJECT = "i do not know what it is can you tell me";
 	final static String WAITING_FOR_POLYGONS = "i am waiting for polygons";
 	final static String IDLE = "i am in an idle state";
+	final static String FOUND_POLYGONS = "i have found polygons";
+	final static String GET_CAMERA_FRAME = "i am getting an image";
+	
 	
 	
 	
@@ -142,13 +169,14 @@ public class FSMTest extends Service {
 		HashMap <String, String> nounWords = new HashMap<String, String>(); 
 		nounWords.put("cup", null);
 		nounWords.put("measuring thingy", null);
-		nounWords.put("beer", null);
+		nounWords.put("beer", null); 
+		nounWords.put("guitar", null);
 		nounWords.put("phone", null);
 		nounWords.put("food", null);
 		nounWords.put("ball", null);
 		nounWords.put("apple", null);
 		nounWords.put("orange", null);
-		phrases.put(IDENTIFY_OBJECT, nounWords);
+		phrases.put(GET_ASSOCIATIVE_WORD, nounWords);
 		// ------------------ SIMPLE.GRAM SYNC END --------------------------
 
 		HashMap <String, String> iDoNotKnowWhatItIsCanYouTellMePhrases = new HashMap <String, String>();
@@ -218,7 +246,7 @@ public class FSMTest extends Service {
 			return;
 		}
 		
-		if (data.equals("context"))
+		if (data.equals("context")) // VERY HELPFUL !
 		{
 			speech.speak("my current context is " + context);
 			return;
@@ -226,21 +254,33 @@ public class FSMTest extends Service {
 		
 		if (phrases.get(FIND_OBJECT).containsKey(data))
 		{
-			findObject();
-		} else if (context.equals(IDENTIFY_OBJECT) && phrases.get(IDENTIFY_OBJECT).containsKey(data)) {
-			if (contextNode == null)
-			{
-				speech.speak("i forgot what we were talking about, lousy short term memory");
-			}
+			findKinectPolygons();
+		} else if (context.equals(GET_ASSOCIATIVE_WORD) && phrases.get(GET_ASSOCIATIVE_WORD).containsKey(data)) {
 
 			speech.speak("i will associate this with " + data);
-			contextNode.word = data;
-			memory.add(contextNode);
+			// Load Memory ---- BEGIN --------			
+				contextNode = new Node();
+				
+				contextNode.word = data;
+
+				contextNode.imageData.cvTemplate = cvCreateImage(cvSize(template.width(), template.height()), 8, 1);
+				cvCopy(template, contextNode.imageData.cvTemplate, null);
+				
+				LOG.error("ch " + cameraFrame.nChannels());
+				
+				contextNode.imageData.cvCameraFrame = cvCreateImage(cvSize(cameraFrame.width(), cameraFrame.height()), 8, cameraFrame.nChannels()); // full color
+				cvCopy(cameraFrame, contextNode.imageData.cvCameraFrame, null);
+				
+				contextNode.imageData.cvGrayFrame = cvCreateImage(cvSize(cameraFrame.width(), cameraFrame.height()), 8, 1);
+				cvCvtColor(contextNode.imageData.cvCameraFrame, contextNode.imageData.cvGrayFrame, CV_BGR2GRAY);
+				
+				memory.add(contextNode);
+			// Load Memory ---- BEGIN --------			
+				
 			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
-			// clean up identifyObject - removed filters if input from user
-			// TODO will need to remove filters if resolved in memory too
-			opencv.removeFilter("Gray1");
-			opencv.removeFilter("MatchTemplate1");
+
+			opencv.removeFilters();
+			opencv.addFilter("PyramidDown1", "PyramidDown");
 			
 			context = FIND_OBJECT;
 		} else {
@@ -248,7 +288,7 @@ public class FSMTest extends Service {
 		}
 	}
 
-	public void findObject ()
+	public void findKinectPolygons ()
 	{
 		// lock ???
 		// isolate, analyze, segmentation
@@ -266,7 +306,17 @@ public class FSMTest extends Service {
 		context = WAITING_FOR_POLYGONS;
 	}
 		
-	public void findObject2()
+	public void publish(ArrayList<Polygon> p) {
+		LOG.error("found " + p.size() + " polygons");
+		polygons = p;
+		if (context.equals(WAITING_FOR_POLYGONS))
+		{
+			context = FOUND_POLYGONS;
+			processPolygons();
+		}
+	}
+	
+	public void processPolygons()
 	{
 	
 			opencv.removeFilters();
@@ -275,19 +325,22 @@ public class FSMTest extends Service {
 			// useful data for the kinect is 632 X 480 - 8 pixels on the right edge are not good data
 			// http://groups.google.com/group/openkinect/browse_thread/thread/6539281cf451ae9e?pli=1
 			
-			opencv.getDepth = false; // the switch is not "clean" - filters need to be defensive in which formats they will accept
+			opencv.getDepth = false; 
 
+			// TODO - filter out with FindContours settings !
 			// check to see if we got a new polygon
 			if (polygons == null)
 			{
 				speech.speak("i did not see anything");
-				busy = false;
+				context = IDLE;
 				return;
 			} else {
 				LOG.error("polygons size " + polygons.size());
 				for (int i = 0; i < polygons.size(); ++i)
 				{
 					Polygon p = polygons.get(i);
+					LOG.error("p" + i + "("+p.boundingRectangle.x()+","+p.boundingRectangle.y()+")" + "("+p.boundingRectangle.width()+","+p.boundingRectangle.height()+")" +
+							p.boundingRectangle.width() * p.boundingRectangle.height());
 					LOG.error(p.boundingRectangle.x());
 					if (p.boundingRectangle.x() <= 1 || p.boundingRectangle.x() >= 316) // TODO clean this up in the filter
 					{
@@ -297,42 +350,128 @@ public class FSMTest extends Service {
 					}
 				}
 				
-				if (polygons.size() == 1) // TODO - you must deal with this at some point
+				if (polygons.size() != 1) // TODO - you must deal with this at some point
 				{
+					speech.speak("i do not know how to deal with " + polygons.size() + " thing" + ((polygons.size() == 1)?"":"s yet"));	
+					context = IDLE;
+					return;
+				} else {
 					// process set of polygons
 					boundingBox = polygons.get(0).boundingRectangle;
-					speech.speak("i believe i see " + polygons.size() + " thing" + ((polygons.size() == 1)?"":"s"));					
 				}
+				
 			}
 						
-
+			//opencv.notify("publishFrame", name, "publish", SerializableImage.class); //<--- BUG - polygon, name (only should work)
+			opencv.publishIplImage(true);
+			context = GET_CAMERA_FRAME;
+	}
+	
+	final static String FOUND_CAMERA_IMAGE = "i have found an image";
+	
+	public void publishIplImage(IplImage image) {
+		if (context.equals(GET_CAMERA_FRAME) && image.nChannels() == 3) 
+		{
+			cameraFrame = image;
+			opencv.publishIplImage(false);
+			context = FOUND_CAMERA_IMAGE;
+			makeTemplate();
+		}
+	}
+	
+	// TODO - add intermediate function
+	void makeTemplate()
+	{		
+			// FIXME stop the notification - Problem from other entries?
+			opencv.removeNotify("publishFrame", name, "publish", SerializableImage.class);
+			opencv.removeFilters();
+			opencv.addFilter("PyramidDown1", "PyramidDown");
 			opencv.addFilter("Gray1", "Gray");
 			opencv.addFilter("MatchTemplate1", "MatchTemplate");
 			OpenCVFilterMatchTemplate mt = (OpenCVFilterMatchTemplate)opencv.getFilter("MatchTemplate1");
 			mt.rect = boundingBox;
-			mt.makeTemplate = true; // need new context here
-			sleep(200);// TODO - remove all sleeps
-			mt.makeTemplate = false;
-			opencv.broadcastState();
-			
-			// identifyObject -------- begin ----------
-			
-			// make a new current context node 
-			contextNode = new Node();
-			// assign the segmented image found
-			contextNode.imageData.image = cvCreateImage(cvSize(mt.template.width(), mt.template.height()), 8, 1);
-			cvCopy(mt.template, contextNode.imageData.image, null);
-									
-			// search associative memory -- begin -----
-			if (!identifyObject(contextNode))
+			mt.makeTemplate = true; 
+			context = WAIT_FOR_TEMPLATE;
+	}
+	
+	final static String WAIT_FOR_TEMPLATE = "i am waiting for a template";
+	
+	public void getImageTemplate(IplImage img)
+	{
+		if (context.equals(WAIT_FOR_TEMPLATE)) 
+		{
+			template = img;
+			context = FOUND_TEMPLATE;
+			searchMemory();
+		}
+	}
+
+	final static String FOUND_TEMPLATE = "i found a template";
+	
+	public void searchMemory()
+	{
+			// 1. Create & Fill Temporary Memory
+			// 2. Search long term memory
+		    // 3. Set appropriate context for next state
+
+			opencv.removeFilters();
+			opencv.addFilter("PyramidDown1", "PyramidDown");
+
+			if (memory.isEmpty())
 			{
-				speech.speak(getPhrase(QUERY_OBJECT)); // need input from user
-				context = IDENTIFY_OBJECT; // asking for IDENTIFY_OBJECT
+				speech.speak("my memory is a blank slate");
+				String s = getPhrase(QUERY_OBJECT);
+				speech.speak(s); // need input from user
+				context = GET_ASSOCIATIVE_WORD; // asking for GET_ASSOCIATIVE_WORD
+				return;
 			} else {
-				// associate Object - new data to add to memory object
+				// search memory
+				speech.speak("i am searching my memory for this object");
+				
+				double[] minVal = new double[1];
+				double[] maxVal = new double[1];
+				IplImage res = null;
+				CvPoint minLoc = new CvPoint();
+				CvPoint maxLoc = new CvPoint();
+				int matchRatio = 0;
+				CvPoint tempRect0 = new CvPoint();
+				CvPoint tempRect1 = new CvPoint();
+
+				
+				for (int i = 0; i < memory.size(); ++i)
+				{
+					Node n = memory.get(i);
+					res = cvCreateImage( cvSize( n.imageData.cvGrayFrame.width() - template.width() + 1, 
+							n.imageData.cvGrayFrame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
+					cvMatchTemplate(n.imageData.cvGrayFrame, template, res, CV_TM_SQDIFF);
+					// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
+					cvMinMaxLoc ( res, minVal, maxVal, minLoc, maxLoc, null );
+					
+					tempRect0.x(minLoc.x());
+					tempRect0.y(minLoc.y());
+					tempRect1.x(minLoc.x() + template.width());
+					tempRect1.y(minLoc.y() + template.height());
+
+					matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));
+
+					if (matchRatio < 1500)
+					{
+						speech.speak("i believe it is a " + n.word);
+						speech.speak("with match ratio of ");
+						speech.speak("" + matchRatio);						
+						break;
+					} else {
+						speech.speak("i do not know what it is");
+						speech.speak("the match ratio was ");
+						speech.speak("" + matchRatio);		
+						String s = getPhrase(QUERY_OBJECT);
+						speech.speak(s); // need input from user
+						context = GET_ASSOCIATIVE_WORD; // asking for GET_ASSOCIATIVE_WORD
+						return;
+						
+					}
+				}
 			}
-			// search associative memory -- end   -----
-			
 			
 			
 			// stop capture - switch to Gray Image
@@ -346,37 +485,11 @@ public class FSMTest extends Service {
 			//busy = false;
 	}
 		
-	
-	public boolean identifyObject(Node n)
-	{
-		if (memory.size() == 0)
-		{
-			return false;
-		}
-		
-		speech.speak("i am searching my memory for this object");
-		
-		for (int i = 0; i < memory.size(); ++i)
-		{
-			// big smaller?
-			
-		}
-		return true;		
-	}
-	
-	ArrayList<Polygon> polygons = null;
-	
-	public void publish(ArrayList<Polygon> p) {
-		LOG.error("found " + p.size() + " polygons");
-		polygons = p;
-		if (context.equals(WAITING_FOR_POLYGONS))
-		{
-			findObject2();
-		}
-	}
+
+	// -------------- CALLBACKS BEGIN -------------------------
 	public void publish(CvPoint p) {
 		LOG.info("got point " + p);
-	}
+	}	
 	
 	public void sleep(int mill)
 	{

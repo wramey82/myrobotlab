@@ -276,7 +276,7 @@ public class FrogLeg extends Service {
 		}
 	}
 
-	public void keyCommandString(String cmd) {
+	public void keyCommand(String cmd) {
 		if (cmd.compareTo("Up") == 0) {
 			// Integer pos = Integer.parseInt(cmd);
 			hip.invoke("move", 10);
@@ -328,7 +328,7 @@ public class FrogLeg extends Service {
 		//ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
 															// only 1 TODO -
 															// kludge - fix me
-		super.registerServices(sdu);
+		//super.registerServices(sdu); depricated
 
 /*		
 		ServiceEntry se;

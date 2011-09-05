@@ -206,7 +206,7 @@ public class SoccerGame extends Service {
 		// temporarily register requesting client cause - we need to communicate
 		// back to them
 		// hostcfg.save("pre.sdu.txt");
-		super.registerServices(sdu);
+		//super.registerServices(sdu); - depricated
 		// hostcfg.save("post.sdu.txt");
 
 		String login = "";

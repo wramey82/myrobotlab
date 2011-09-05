@@ -34,95 +34,63 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-
-import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
+public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(MoMoGUI.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(KeyboardGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
-
-	JLabel boundPos = null;
-
-	JLabel loginValue = new JLabel("");
-	JLabel msgCountValue = new JLabel("");
-
-	VideoWidget video0 = null;
-	VideoWidget video1 = null;
-
-	BasicArrowButton forward = new BasicArrowButton(BasicArrowButton.NORTH);
-	BasicArrowButton back = new BasicArrowButton(BasicArrowButton.SOUTH);
-	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
-	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 
 	JList currentPlayers;
 	JList currentLog;
+	JCheckBox sendStringsCheckBox = new JCheckBox(); 
+	
+	public boolean sendStrings = false;
 
 	DefaultListModel logModel = new DefaultListModel();
 
 	int msgCount = 0;
-
+	StringBuffer keyBuffer = new StringBuffer();
 	Keyboard keyboard = null;
 
-	public MoMoGUI(final String boundServiceName, final GUI myService) {
+	public KeyboardGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
 	public void init() {
 
-		video0 = new VideoWidget(boundServiceName, myService);
-		video0.init();
-		video1 = new VideoWidget(boundServiceName, myService);
-		video1.init();
 		keyboard = new Keyboard();
+		CheckBoxChange checkBoxChange = new CheckBoxChange(); 
 		// build input begin ------------------
 
-		gc.gridx = 0;
-		gc.gridy = 0;
+		sendStringsCheckBox.setName("send strings");
 
-		display.add(video0.display, gc);
-		++gc.gridx;
-		display.add(video1.display, gc);
-		gc.gridx = 0;
-
-		++gc.gridy;
-		gc.gridx = 0;
-		display.add(new JLabel("login "), gc);
-		gc.gridx = 1;
-		display.add(loginValue, gc);
-
-		++gc.gridy;
-		gc.gridx = 0;
-		display.add(new JLabel("msgs "), gc);
-		gc.gridx = 1;
-		display.add(msgCountValue, gc);
-
-		++gc.gridy;
-		gc.gridx = 0;
-		++gc.gridy;
 		JButton keyboardButton = new JButton(
-				"<html><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control</td></tr></table></html>");
+				"<html><body><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control.</td></tr></table></body></html>");
+		
 		display.add(keyboardButton, gc);
 		keyboardButton.addKeyListener(keyboard);
 
-		gc.gridx = 1;
+		++gc.gridx;
+		display.add(sendStringsCheckBox, gc);
+		++gc.gridx;
+		display.add(new JLabel("send strings"), gc);
 
 		currentLog = new JList(logModel);
-		currentLog.setFixedCellWidth(200);
+		currentLog.setFixedCellWidth(400);
 		currentLog.addListSelectionListener(this);
 		currentLog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		currentLog.setVisibleRowCount(10);
@@ -133,30 +101,57 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 		title = BorderFactory.createTitledBorder("key log");
 		logPanel.setBorder(title);
 		logPanel.add(logScrollPane);
-
+		
+		gc.gridx = 0;
+		gc.gridwidth = 3;
+		++gc.gridy;
 		display.add(logPanel, gc);
 
 		JScrollPane currentFiltersScrollPane2 = new JScrollPane(currentLog);
 		logPanel.add(currentFiltersScrollPane2);
 
-		++gc.gridy;
-		++gc.gridy;
-		++gc.gridy;
-		gc.gridx = 0;
-
-		gc.gridx = 1;
+		sendStringsCheckBox.addChangeListener(checkBoxChange);		
+		
 	}
 
+	public class CheckBoxChange implements ChangeListener
+	{
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			JCheckBox t = (JCheckBox) e.getSource();
+			if (t.getModel().isSelected())
+			{
+				sendStrings = true;
+			} else {
+				sendStrings = false;				
+			}
+		}
+	}
+	
+	
 	public class Keyboard implements KeyListener {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss:SSS");
 
 		public void keyPressed(KeyEvent keyEvent) {
 
-			// myService.send(boundServiceName, "keyCommand",
-			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyCommand", KeyEvent
-					.getKeyText(keyEvent.getKeyCode()));
+			int code = keyEvent.getKeyCode();
+			String text = KeyEvent.getKeyText(code);
+			
+			if (sendStrings)
+			{
+				//keyBuffer.append(b)
+				if (code == KeyEvent.VK_ENTER)
+				{
+					myService.send(boundServiceName, "keyCommand", keyBuffer.toString());
+					keyBuffer.setLength(0);
+				} else {
+					keyBuffer.append(text);
+				}
+			} else {
+				myService.send(boundServiceName, "keyCommand", text);
+			}
 
 			Calendar cal = Calendar.getInstance();
 			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
@@ -172,32 +167,14 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 			// LOG.error("Typed" + keyEvent);
 		}
 
-		private void printIt(String title, KeyEvent keyEvent) {
-			int keyCode = keyEvent.getKeyCode();
-			String keyText = KeyEvent.getKeyText(keyCode);
-			// LOG.error(title + " : " + keyText + " / " +
-			// keyEvent.getKeyChar());
-		}
 	};
 
-	public void setLogin(String login) {
-		loginValue.setText(login);
-	}
-
-	public void displayFrame(SerializableImage img) {
-
-		video0.displayFrame(img);
-	}
 
 	public void attachGUI() {
-		video0.attachGUI();
-		video1.attachGUI();
 	}
 
 	@Override
 	public void detachGUI() {
-		video0.detachGUI();
-		video1.detachGUI();
 	}
 
 	@Override
@@ -206,24 +183,8 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 
 	}
 
-	/*
-	 * public void rosterUpdate(ArrayList<String> newRoster) {
-	 * rosterModel.clear(); for (int i = 0; i < newRoster.size(); ++i) {
-	 * rosterModel.add(i, newRoster.get(i)); } }
-	 */
 	public void addLogEntry(String msg) {
 		logModel.add(0, msg);
-	}
-
-	/** Returns an ImageIcon, or null if the path was invalid. */
-	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
-		if (imgURL != null) {
-			return new ImageIcon(imgURL, description);
-		} else {
-			System.err.println("Couldn't find file: " + path);
-			return null;
-		}
 	}
 
 }

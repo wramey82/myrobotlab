@@ -43,16 +43,18 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
+public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(GraphicsGUI.class.toString());
+	public final static Logger LOG = Logger.getLogger(FSMTestGUI.class.toString());
 
-	VideoWidget video = null;
+	VideoWidget video0 = null;
+	VideoWidget video1 = null;
+	VideoWidget video2 = null;
 	BufferedImage graph = null;
 	Graphics g = null;
 	
-	public GraphicsGUI(final String boundServiceName, final GUI myService) {
+	public FSMTestGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
@@ -67,28 +69,47 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 			}
 		});
 		
-		video = new VideoWidget(boundServiceName, myService);	
-		video.init();
+		video0 = new VideoWidget(boundServiceName, myService);	
+		video0.init();
+		display.add(cg);		
+		display.add(video0.display, gc);
+
+		++gc.gridx;
+		video1 = new VideoWidget(boundServiceName, myService);	
+		video1.init();
 		display.add(cg);
-		display.add(video.display, gc);
+		display.add(video1.display, gc);
+		
+		++gc.gridx;
+		video2 = new VideoWidget(boundServiceName, myService);	
+		video2.init();
+		display.add(cg);		
+		display.add(video2.display, gc);
+
 
 	}
 
 	// TODO - com....Sensor interface
 	public void displayFrame(SerializableImage img) {
-		video.displayFrame(img);
+		video0.displayFrame(img);
+		video1.displayFrame(img);
+		video2.displayFrame(img);
 	}
 
 	@Override
 	public void attachGUI() {
-		video.attachGUI();
+		video0.attachGUI();
+		video1.attachGUI();
+		video2.attachGUI();
 		//sendNotifyRequest(outMethod, inMethod, parameterType)
 		myService.send(boundServiceName,"attach", (Object)myService.name);
 	}
 
 	@Override
 	public void detachGUI() {
-		video.detachGUI();
+		video0.detachGUI();
+		video1.detachGUI();
+		video2.detachGUI();
 		myService.send(boundServiceName,"detach");
 	}
 
@@ -96,7 +117,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	{
 		graph = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
 		g = graph.getGraphics();
-		video.displayFrame(graph);
+		video0.displayFrame(graph);
 	}
 
 	// wrappers begin --------------------------
@@ -104,19 +125,19 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	{
 		g.drawLine(x1, y1, x2, y2);
 		refreshDisplay();
-		//video.displayFrame(graph);
+		//video0.displayFrame(graph);
 	}
 	
 	public void drawString(String str, Integer x, Integer y)
 	{
 		g.drawString(str, x, y);
-		//video.displayFrame(graph);
+		//video0.displayFrame(graph);
 	}
 
 	public void drawRect(Integer x, Integer y, Integer width, Integer height)
 	{
 		g.drawRect(x, y, width, height);
-		//video.displayFrame(graph);
+		//video0.displayFrame(graph);
 	}
 
 	public void fillOval(Integer x, Integer y, Integer width, Integer height)
@@ -132,13 +153,13 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	public void clearRect(Integer x, Integer y, Integer width, Integer height)
 	{
 		g.clearRect(x, y, width, height);
-		//video.displayFrame(graph);
+		//video0.displayFrame(graph);
 	}
 
 	public void setColor(Color c)
 	{
 		g.setColor(c);
-		//video.displayFrame(graph);
+		//video0.displayFrame(graph);
 	}
 	
 	// wrappers end --------------------------
@@ -146,7 +167,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	// refresh display
 	public void refreshDisplay()
 	{
-		video.displayFrame(graph);
+		video0.displayFrame(graph);
 	}
 	
 	// TODO - encapsulate this
@@ -172,7 +193,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	@Override
 	public VideoWidget getLocalDisplay() {
 		// TODO Auto-generated method stub
-		return video;
+		return video0;
 	}
 
 }

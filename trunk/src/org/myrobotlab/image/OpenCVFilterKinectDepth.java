@@ -41,6 +41,7 @@ import org.myrobotlab.service.OpenCV;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
@@ -86,6 +87,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
+	// TODO - provide "Link" to myrobotlab.org/OpenCVFilterKinectDepth (javadoc link) - NON javadoc - link to javadoc through name!
 	@Override
 	public String getDescription() { // TODO - implement in GUI
 		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid"
@@ -105,9 +107,26 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 //	CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
 //	CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
 
+	
+	
 	@Override
 	public IplImage process(IplImage image) {
 		
+		IplImage kinectDepth = getIplImage("kinectDepth");
+		
+		// allowing publish & fork
+		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
+			dst = cvCreateImage(cvSize(kinectDepth.width() / 2, kinectDepth.height() / 2), kinectDepth.depth(),
+					kinectDepth.nChannels());
+		}
+
+		cvPyrDown(kinectDepth, dst, filter);
+		myService.invoke("publishFrame", "kinectDepth", dst.getBufferedImage());
+		// end fork
+		
+		return image;
+		
+		/*
 		// check for depth ! 1 ch 16 depth - if not format error & return
 		if (image.nChannels() != 1 || image.depth() != 16)
 		{
@@ -167,7 +186,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		}
 		*/
 		
-		return dst;
+		//return dst;
 	}
 
 }

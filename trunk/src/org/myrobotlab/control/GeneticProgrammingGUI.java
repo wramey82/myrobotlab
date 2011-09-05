@@ -83,7 +83,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 	public void init() {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 
 		// TODO - data needs to come from service and/or Mouse
 		fitnessCases[0] = new RealPoint(123, 164);
@@ -174,8 +174,8 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		}
 	}
 
-	public void webCamDisplay(SerializableImage img) {
-		video.webCamDisplay(img);
+	public void displayFrame(SerializableImage img) {
+		video.displayFrame(img);
 	}
 
 	void drawFitnessGoal() {
@@ -198,7 +198,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		sendNotifyRequest("publishInd", "publishInd", GPMessageEvaluatingIndividual.class);
 		sendNotifyRequest("publish", "publish", GPMessageBestFound.class);
 		drawFitnessGoal();
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 	}
 
 	void drawPath(RealPoint[] path) {
@@ -240,7 +240,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 
 		drawPath(ind.data);
 
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 
 		return ind;
 	}
@@ -262,7 +262,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 
 		bestProgram.setText(best.program);
 
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 
 		return best;
 	}

@@ -467,8 +467,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	}
 
 	// TODO - com....Sensor interface
-	public void webCamDisplay(SerializableImage img) {
-		video.webCamDisplay(img);
+	public void displayFrame(SerializableImage img) {
+		video.displayFrame(img);
 	}
 
 	/*
@@ -542,7 +542,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			}
 			//myService.logTime("afterdraw");
 
-			video.webCamDisplay(sensorImage);
+			video.displayFrame(sensorImage);
 			//myService.logTime("aftercam");
 
 		}

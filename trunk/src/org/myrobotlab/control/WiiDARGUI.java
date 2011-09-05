@@ -93,7 +93,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 
 		graph.setColor(Color.green);
 
-		screen.webCamDisplay(graphImage);
+		screen.displayFrame(graphImage);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -122,8 +122,8 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 		}
 	}
 
-	public void webCamDisplay(SerializableImage camImage) {
-		screen.webCamDisplay(camImage);
+	public void displayFrame(SerializableImage camImage) {
+		screen.displayFrame(camImage);
 	}
 
 	@Override
@@ -282,7 +282,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 				history.remove(0);
 			}
 
-			screen.webCamDisplay(graphImage);
+			screen.displayFrame(graphImage);
 
 		} else {
 			LOG.error("points null");
@@ -440,7 +440,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 		hist.add(p);
 
 		// screen image
-		screen.webCamDisplay(graphImage);
+		screen.displayFrame(graphImage);
 		/*
 		 * // send it to OpenCV if (cnt%20 == 0) {
 		 * myService.invoke("processImage", Utils.copyImage(graphImage)); }

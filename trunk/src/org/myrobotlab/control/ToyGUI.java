@@ -176,9 +176,9 @@ public class ToyGUI extends ServiceGUI implements ListSelectionListener {
 		loginValue.setText(login);
 	}
 
-	public void webCamDisplay(SerializableImage img) {
+	public void displayFrame(SerializableImage img) {
 
-		video0.webCamDisplay(img);
+		video0.displayFrame(img);
 	}
 
 	public void attachGUI() {

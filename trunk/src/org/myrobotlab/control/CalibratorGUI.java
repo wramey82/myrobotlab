@@ -46,8 +46,8 @@ public class CalibratorGUI extends ServiceGUI {
 		display.add(video.display, gc);
 	}
 
-	public void webCamDisplay(SerializableImage img) {
-		video.webCamDisplay(img);
+	public void displayFrame(SerializableImage img) {
+		video.displayFrame(img);
 	}
 
 	@Override

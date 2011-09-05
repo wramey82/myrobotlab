@@ -269,7 +269,7 @@ public class Calibrator extends Service {
 		displayResults();
 	}
 
-	public SerializableImage sendImage(String source, BufferedImage img) {
+	public SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
@@ -299,7 +299,7 @@ public class Calibrator extends Service {
 			// LOG.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));
 		}
-		invoke("sendImage", "cal", frameBuffer);
+		invoke("publishFrame", "cal", frameBuffer);
 	}
 
 	@Override

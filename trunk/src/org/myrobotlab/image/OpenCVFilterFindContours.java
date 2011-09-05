@@ -108,9 +108,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	@Override
 	public void loadDefaultConfiguration() {
 		
-		cfg.set("minArea", -1);
+		cfg.set("minArea", 150);
 		cfg.set("maxArea", -1);
-		cfg.set("useMinArea", false);
+		cfg.set("useMinArea", true);
 		cfg.set("useMaxArea", false);
 	}
 
@@ -163,7 +163,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		polygons.clear();
 
-		while (contour != null) {
+		while (contour != null && !contour.isNull()) {			
 			if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
 
 				// LOG.error("cvApproxPoly");
