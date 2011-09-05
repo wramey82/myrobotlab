@@ -87,7 +87,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	JList possibleFilters;
 	JList currentFilters;
 
-	VideoWidget video = null;
+	VideoWidget video0 = null;
+
 	PhotoReelWidget templateDisplay = null;
 	
 
@@ -123,9 +124,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	
 	public void init() {
 
-		video = new VideoWidget(boundServiceName, myService);
-		video.init();
-		
+		video0 = new VideoWidget(boundServiceName, myService);
+		video0.init();
+				
 		templateDisplay = new PhotoReelWidget(boundServiceName, myService);
 		templateDisplay.init();
 
@@ -151,7 +152,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				"Fauvist", "FindContours", "FloodFill", "GoodFeaturesToTrack",
 				"Gray", "HoughLines2",
 				"HSV",
-				"InRange","KinectDepth", "KinectInterleave",
+				"InRange","KinectDepth","KinectDepthMask", "KinectInterleave",
 				// "Laser Tracking", oops lost cause not checked in !
 				"LKOpticalTrack", "Mask","MatchTemplate", "MotionTemplate", "Mouse", "Not",
 				"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
@@ -175,8 +176,11 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 		gc.gridx = 0;
 		gc.gridy = 0;
+		JPanel videoPanel = new JPanel();
+		videoPanel.add(video0.display);
 		gc.gridheight = 2;
-		display.add(video.display, gc);
+		display.add(videoPanel, gc);
+//		display.add(video0.display, gc);
 		gc.gridheight = 1;
 
 		// build input begin ------------------
@@ -458,10 +462,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		}
 	}
 
-	public void webCamDisplay(SerializableImage img) {
-		video.webCamDisplay(img);
+	public void displayFrame(SerializableImage img) {
+		video0.displayFrame(img);
 	}
-
+	
 	public void publishTemplate(SerializableImage img) {
 		templateDisplay.publishTemplate(img);
 	}
@@ -472,15 +476,16 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		sendNotifyRequest("publishState", "getState", OpenCV.class);
 		myService.send(boundServiceName, "publishState");
 
-		video.attachGUI();
-		templateDisplay.attachGUI();
+		video0.attachGUI(); // default attachment
+		templateDisplay.attachGUI(); // default attachment
 	}
 
 	@Override
 	public void detachGUI() {
 		removeNotifyRequest("publishState", "getState", OpenCV.class);
 		
-		video.detachGUI();
+		video0.detachGUI();
+		//video1.detachGUI(); FIXME
 		templateDisplay.detachGUI();
 	}
 
@@ -539,7 +544,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public VideoWidget getLocalDisplay() {
 		// TODO Auto-generated method stub
-		return video;
+		return video0; // else return video1
 	}
 	
 	/*

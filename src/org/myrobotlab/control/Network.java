@@ -65,20 +65,6 @@ public class Network extends ServiceGUI {
 		
 		servicePortValue.setInt(6767);
 		
-		// gc.gridwidth = 6;
-
-//		hostnameValue.setText(myService.getCFG("hostname"));
-//		servicePortValue.setText(myService.getCFG("servicePort"));
-
-		//this.setSize(300, 200);
-		//this.setLayout(new GridBagLayout());
-
-		// TODO - make a way of listing connections - Connection manager et al
-
-		//comm = myService.getOutbox().getCommunicationManager(); // TODO RENAME
-																// THIS WRONG
-																// NAME
-
 		gc.gridx = 0;
 		++gc.gridy;
 		display.add(new JLabel("host "), gc);
@@ -113,16 +99,11 @@ public class Network extends ServiceGUI {
 
 		gc.gridx = 0;
 		++gc.gridy;
-		//this.add(myService.remoteStatus, gc);
-
 	}
 
 	public String setRemoteConnectionStatus(String state) {
-		//myService.remoteStatus.setText(state);
 		return state;
 	}
-
-	// TODO - FIX THIS
 
 	class connect implements ActionListener {
 
@@ -136,14 +117,10 @@ public class Network extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

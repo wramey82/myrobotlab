@@ -154,7 +154,7 @@ public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 
 			// myService.send(boundServiceName, "keyCommand",
 			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyCommandString", KeyEvent
+			myService.send(boundServiceName, "keyCommand", KeyEvent
 					.getKeyText(keyEvent.getKeyCode()));
 
 			Calendar cal = Calendar.getInstance();
@@ -185,9 +185,9 @@ public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 		loginValue.setText(login);
 	}
 
-	public void webCamDisplay(SerializableImage img) {
+	public void displayFrame(SerializableImage img) {
 
-		video0.webCamDisplay(img);
+		video0.displayFrame(img);
 	}
 
 	public void attachGUI() {

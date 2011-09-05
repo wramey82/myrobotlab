@@ -220,8 +220,7 @@ public abstract class Service implements Runnable, Serializable {
 		ConfigurationManager hostCFG = new ConfigurationManager(host);
 		// add global config
 		hostCFG.set("servicePort", 3389);
-		hostCFG.set("Communicator",
-				"org.myrobotlab.comm.CommObjectStreamOverTCPUDP");
+		hostCFG.set("Communicator","org.myrobotlab.comm.CommObjectStreamOverTCPUDP");
 		hostCFG.set("Serializer", "org.myrobotlab.comm.SerializerObject");
 	}
 
@@ -817,6 +816,10 @@ public abstract class Service implements Runnable, Serializable {
 					}
 				}
 			}
+			/* else { // null treated as empty array
+				paramTypes = new Class<?>[0]; // no params
+			}*/
+			
 			// TODO - method cache map
 			
 			Method meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
@@ -880,6 +883,10 @@ public abstract class Service implements Runnable, Serializable {
 		 		try {
 		 			LOG.debug("found appropriate method");
 		 			retobj = m.invoke(object, params);
+
+		 			// put return object onEvent
+					out(method, retobj);
+
 		 			return retobj; 
 				} catch (Exception e1) {
 					LOG.error("boom goes method " + m.getName());
@@ -899,20 +906,6 @@ public abstract class Service implements Runnable, Serializable {
 		return inbox.getMsg();
 	}
 
-	public void listServices(String callBackName) {
-		LOG.info(name + " sendServiceDirectoryUpdate ");
-		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-
-		// setting my data for it
-		//sdu.hostname = host;
-		// sdu.servicePort.set(servicePort);
-		// sdu.serviceEntryList_ = svcDir.getLocal();
-		// TODO - implement
-
-		Message msg = createMessage(callBackName, "registerServices", sdu);
-		out(msg);
-
-	}
 
 	/*
 	 * send takes a name of a target system - the method - and a list of
@@ -1231,6 +1224,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	}
 	
+	// called by GUI only (typically) from an gui event of connect?
 	public  void registerServices(String hostAddress, int port, Message msg) 
 	{
 		try {
@@ -1255,8 +1249,8 @@ public abstract class Service implements Runnable, Serializable {
 				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
 				echoLocal.remoteURL = sdu.url;
 				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServices();
-				
-				send (msg.sender, "registerServices", echoLocal); // broadcast to all
+				// send echo of local services back to sender
+				send (msg.sender, "registerServices", echoLocal); 
 			}
 		
 		} catch (MalformedURLException e) {
@@ -1270,6 +1264,7 @@ public abstract class Service implements Runnable, Serializable {
 		RuntimeEnvironment.register(host, this); // problem with this in it does not broadcast
 	}
 	
+	// TODO - DEPRICATE !!!!
 	public synchronized void registerServices() {
 		LOG.debug(name + " registerServices");
 
@@ -1341,12 +1336,12 @@ public abstract class Service implements Runnable, Serializable {
 	//	LOG.info("registerServicesNotify");
 	//}
 
-	// TODO - overload ?!?!?
+/*
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
 		LOG.error(name + " sendServiceDirectoryUpdate ");
 
 		// TODO - GET ENV FROM service name - get ip & port
-		/*
+
 		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
 			ServiceEntry se = sdu.serviceEntryList_.get(i);
 			se.host = sdu.remoteHostname; 
@@ -1355,11 +1350,11 @@ public abstract class Service implements Runnable, Serializable {
 					+ ":" + se.servicePort + "/" + se.name);
 			hostcfg.setServiceEntry(se);
 		}
-		*/
+
 
 		send(name, "registerServicesNotify");
 	}
-
+*/
 	// TODO - stub out
 	//public synchronized void removeServices(ServiceDirectoryUpdate sdu) {
 	//}

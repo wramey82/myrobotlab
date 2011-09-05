@@ -432,7 +432,7 @@ public class MoMo extends Service {
 		LOG.error(ret);
 	}
 
-	public void keyCommandString(String cmd) {
+	public void keyCommand(String cmd) {
 		if (cmd.compareTo("Up") == 0) {
 			right.incrementPower(0.1f);
 			left.incrementPower(0.1f);

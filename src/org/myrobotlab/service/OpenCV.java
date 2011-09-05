@@ -28,7 +28,6 @@ package org.myrobotlab.service;
 /*
 
 static wild card imports for quickly finding static functions in eclipse
-
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import static com.googlecode.javacv.cpp.opencv_objdetect.*;
@@ -38,8 +37,20 @@ import static com.googlecode.javacv.cpp.opencv_legacy.*;
 import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
- */
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
+*/
+
+ 
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
+import static com.googlecode.javacv.cpp.opencv_core.cvNot;
+import static com.googlecode.javacv.cpp.opencv_core.cvRect;
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvZero;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
@@ -59,7 +70,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.SimpleTimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -95,35 +105,44 @@ public class OpenCV extends Service {
 	// GRABBER BEGIN --------------------------		
 	public String grabberType = null;
 	FrameGrabber grabber = null;
-	CvCapture oldGrabber = null; // TODO - choose index
-	// grabber CFG
+	CvCapture oldGrabber = null; // TODO - depricate
+	// grabber cfg
 	boolean isWindows = false;		
 	public String format = null;
 	public boolean getDepth = false;
 	public int cameraIndex = 0;
-//	public String useInput = "null";
 	String inputMovieFileName = "input.avi";
-//	public String kinectMode = "";
 	boolean loopInputMovieFile = true;
-	boolean sendImage = true;
+	boolean publishFrame = true;
 	boolean useCanvasFrame = false;
 	// GRABBER END --------------------------	
 
 	transient VideoProcess videoProcess = null;
 	String displayFilter = "output";
 	
+	private boolean publishIplImage = false;
+	
 	// mask for each named filter
 	public HashMap<String, IplImage> masks = new HashMap<String, IplImage>(); 
+
+	// multi-plexing keys
+	public HashMap<String,IplImage> multiplex = new HashMap<String, IplImage>();	
 	
-	public ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(100);
+	transient public HashMap<String, Object> storage = new HashMap<String, Object>();
 	
-	// P - N Learning
+	// P - N Learning TODO - remove - implement on "images"
 	public ArrayList<SerializableImage> positive = new ArrayList<SerializableImage>(); 
 	public ArrayList<SerializableImage> negative = new ArrayList<SerializableImage>(); 
 	
 	// display
 	CanvasFrame cf = null;
 	transient IplImage frame = null;
+	transient IplImage depthFrame = null;
+	transient IplImage imageFrame = null;
+	transient IplImage kinectMask = null;
+	transient IplImage temp = null;
+	transient IplImage black = null;
+	
 
 	/*
 	 *  preLoadFilters - are filters which other Services can use to add, remove, or modify the filter set
@@ -203,7 +222,7 @@ public class OpenCV extends Service {
 		//cfg.set("inputMovieFileLoop", true);
 		// cfg.set("outputMovieFileName", "out.avi");
 		//cfg.set("performanceTiming", false);
-		//cfg.set("sendImage", true);
+		//cfg.set("publishFrame", true);
 		//cfg.set("useCanvasFrame", false);
 		//cfg.set("displayFilter", "output");
 	}
@@ -223,12 +242,30 @@ public class OpenCV extends Service {
 		super.stopService();
 	}
 
-	public SerializableImage sendImage(String source, BufferedImage img) {
+	public SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
 	}
 
+	public SerializableImage publishMask(String source, BufferedImage img) {
+		SerializableImage si = new SerializableImage(img);
+		si.source = source;
+		return si;
+	}
+	
+	
+	
+	public void publishIplImage(boolean t)
+	{
+		publishIplImage = t;
+	}
+
+	public IplImage publishIplImage(IplImage image)
+	{
+		return image;
+	}
+	
 	// public void invokeFilterMethod (String filterName, String method,
 	// MouseEvent me)
 	/*
@@ -436,12 +473,77 @@ public class OpenCV extends Service {
 						{
 							frame = grabber.grab();
 						} else {
-							// only valid depth grabber is kinect
-							frame = ((OpenKinectFrameGrabber)grabber).grabDepth();
+							// if - kinectGrabber = only valid depth grabber is kinect
+							// TODO - double thread it?
+							depthFrame = ((OpenKinectFrameGrabber)grabber).grabDepth();
+							storage.put("kinectDepth", depthFrame);
+							imageFrame = ((OpenKinectFrameGrabber)grabber).grabVideo(); 
+							frame = imageFrame;
+/*							
+							if (kinectMask == null)
+							{
+								kinectMask = cvCreateImage(cvSize(depthFrame.width(), depthFrame.height()), 8, 1);
+							}
+							
+							if (frame == null)
+							{
+								frame = cvCreateImage(cvSize(imageFrame.width(), imageFrame.height()), 8, imageFrame.nChannels());								
+							}
+														
+							if (temp == null)
+							{
+								temp = cvCreateImage(cvSize(imageFrame.width(), imageFrame.height()), 8, imageFrame.nChannels());								
+							}
+							
+							if (black == null)
+							{
+								black = cvCreateImage(cvSize(imageFrame.width(), imageFrame.height()), 8, 1);
+								cvZero(black); 								
+							}
+							
+							CvScalar min = cvScalar(30000, 0.0, 0.0, 0.0);
+							CvScalar max = cvScalar(100000, 0.0, 0.0, 0.0);
+														
+							cvInRangeS(depthFrame, min, max, kinectMask);
+
+							// shifting mask 32 down and to the left 25 x 25 y 
+							//cropped = cvCreateImage( cvSize(new_width, new_height), 8, 3)
+							//CvMat x = cvGetSubRect(null, null, cvRect(25, 25, 615, 295));
+							
+							//cvSetImageROI(black, cvRect(0, 0, 615, 395));
+							// TODO correction buried here
+							cvSetImageROI(kinectMask, cvRect(25, 0, 607, 460)); // 615-8 = to remove right hand band
+							cvSetImageROI(black, cvRect(0, 20, 607, 460)); 
+							//cvSetImageROI(kinectMask, cvRect(10, 10, 640, 480));
+							//cvSetImageROI(black, cvRect(10, 10, 640, 480));
+							//LOG.error(black.width() + "," + black.height() + " d " + black.depth() + " n " + black.nChannels());
+							//LOG.error(kinectMask.width() + "," + kinectMask.height() + " d " + kinectMask.depth() + " n " + kinectMask.nChannels());
+
+							cvNot(kinectMask, kinectMask);
+							
+							cvCopy(kinectMask, black);
+							cvResetImageROI(kinectMask);
+							cvResetImageROI(black);
+//							frame=black;
+														
+							// cvConvertScale(imageFrame, temp, 1, 0);
+							
+//							cvNot(black, black);
+							//frame = temp;
+							//frame = kinectMask;
+							cvCopy(imageFrame, frame, black);
+							
+							// publish Masked RGB
+							invoke("publishMask", displayFilter, black.getBufferedImage());
+*/							
 						}
 					} else {
 						frame = cvQueryFrame(oldGrabber); // TODO DEPRICATE						
 					}
+					
+					// starting the storage references
+					storage.put("input", frame);
+					
 				} catch (Exception e) {
 					LOG.error(stackToString(e));
 				}
@@ -456,14 +558,30 @@ public class OpenCV extends Service {
 					while (isCaptureRunning && itr.hasNext()) {
 						String name = itr.next();
 
+						// TODO - don't use parameter frame - filter from the storage only !
 						OpenCVFilter filter = filters.get(name);
 						frame = filter.process(frame); 
 
+						// fork frame off - if destination is local frame overwrites can occur
+						// a true fork is a copy
+						if (multiplex.containsKey(name))
+						{
+							// FIXME - change of size will crash
+							if (multiplex.get(name) == null)
+							{
+								multiplex.put(name, cvCreateImage(cvGetSize(frame), frame.depth(), frame.nChannels()));
+							}
+							IplImage forked = multiplex.get(name);
+							cvCopy(frame, forked);
+							invoke("publishFrame", name, forked.getBufferedImage());
+//							published = true;
+						}
+						
 						// frame is selected in gui - publish this filters frame
-						if (displayFilter.equals(name)) {
+						if (!published && displayFilter.equals(name)) {
 							published = true;
-							if (sendImage) {
-								invoke("sendImage", displayFilter, filter.display(frame, null));
+							if (publishFrame) {
+								invoke("publishFrame", displayFilter, filter.display(frame, null));
 							}
 						}
 
@@ -492,6 +610,11 @@ public class OpenCV extends Service {
 						lastImageWidth = frame.width();
 					}
 					
+					// different data type
+					if (publishIplImage)
+					{
+						invoke("publishIplImage", frame);
+					}
 					// if the display was not published by one of the filters
 					// convert the frame now and publish it with timestamp
 					if (!published) {
@@ -506,8 +629,8 @@ public class OpenCV extends Service {
 						graphics.drawString(screenText.toString(), 10, 10);
 						bi.flush();
 
-						if (sendImage) {
-							invoke("sendImage", displayFilter, bi);
+						if (publishFrame) {
+							invoke("publishFrame", displayFilter, bi);
 						}
 						// LOG.error(" time");
 						published = true;
@@ -540,6 +663,12 @@ public class OpenCV extends Service {
 		}
 	}
 
+	// multiplexing
+	public void fork (String filter)
+	{
+		multiplex.put(filter, null);
+	}
+	
 	public Integer setCameraIndex(Integer index) {
 		cameraIndex = index;
 		return cameraIndex;
@@ -608,6 +737,10 @@ public class OpenCV extends Service {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
+	}	
+
+	public IplImage publishIplImageTemplate (IplImage img) {
+		return img;
 	}	
 	
 	public Boolean isTracking(Boolean b)
@@ -780,21 +913,24 @@ public class OpenCV extends Service {
 	@Override
 	public String getToolTip() {
 		return "<html>OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
-	}
-	
-	
+	}		
 
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.WARN);
 
 		OpenCV opencv = new OpenCV("opencv");				
 		opencv.startService();
-		opencv.addFilter("PyramidDown1", "PyramidDown");
-		opencv.addFilter("InRange1", "InRange");
+		//opencv.addFilter("PyramidDown1", "PyramidDown");
+		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
+		//opencv.addFilter("InRange1", "InRange");
 		//opencv.setUseInput("camera");
+//		opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+		//opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
+		
+		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
 		opencv.capture();
 /*		
 		Arduino arduino = new Arduino("arduino");
@@ -806,21 +942,11 @@ public class OpenCV extends Service {
 		Servo tilt = new Servo("tilt");
 		tilt.startService();
 */		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
 		
-		//opencv.addFilter("PyramidDown1", "PyramidDown");
-		//opencv.addFilter("MatchTemplate1", "MatchTemplate");
-
-		//opencv.setCameraIndex(0);
-/*		
-		opencv.useInput = "camera"; // TODO - final static - for capture to take a parameter (Type)
-		opencv.capture();
-*/		
+		GUIService gui = new GUIService("gui");
+		gui.startService();		
 		gui.display();
 		
-		//opencv.capture();
-
 
 	}
 

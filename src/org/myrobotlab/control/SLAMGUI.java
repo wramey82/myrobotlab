@@ -69,7 +69,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 		img = new BufferedImage(width / 2, height / 2,
 				BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 
 		video = new VideoWidget(boundServiceName, myService);
 		video.init();
@@ -93,15 +93,15 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 		}
 	}
 
-	public void webCamDisplay(SerializableImage img) {
-		video.webCamDisplay(img);
+	public void displayFrame(SerializableImage img) {
+		video.displayFrame(img);
 	}
 
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
 		sendNotifyRequest("publishIR", "publishIR", IREvent.class);
-		video.webCamDisplay(img);
+		video.displayFrame(img);
 	}
 
 	int x;

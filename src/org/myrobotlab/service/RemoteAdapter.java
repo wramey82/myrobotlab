@@ -212,12 +212,6 @@ public class RemoteAdapter extends Service {
 				comm.setIsUDPListening(true);
 
 				while (isRunning()) {
-					/*
-					 * byte[] buf = new byte[65535]; DatagramPacket packet = new
-					 * DatagramPacket(buf, buf.length); socket.receive(packet);
-					 * LOG.info("recieved udp");
-					 */
-
 					socket.receive(dgram); // blocks
 					ObjectInputStream o_in = new ObjectInputStream(b_in);
 					try {
@@ -232,7 +226,8 @@ public class RemoteAdapter extends Service {
 							if (msg.method.compareTo("registerServices") == 0) 
 							{
 								comm.addClient(socket, dgram.getAddress(), dgram.getPort());
-								registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+								//registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+								invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 								// getting clients address and port
 								continue;
 							}
@@ -269,41 +264,7 @@ public class RemoteAdapter extends Service {
 			 */
 		}
 	}
-	
-/*	
-	public boolean preProcessHook(Message m)
-	{
-	}
-*/	
-	
-/*
-	@Override
-	public void run() {
-		thisThread = Thread.currentThread();
-		isRunning = true;
-
-		try {
-			while (isRunning) {
-				// TODO - should be config of Service to process anonymous and
-				// relay named
-				Message msg = getMsg();
-				if (msg.name.length() == 0 || msg.name.compareTo(name) == 0) {
-					// process anonymous
-					LOG.info(name + " processing " + msg.method + " <-- "
-							+ msg.sender + "/" + msg.sendingMethod);
-					invoke(msg);
-				} else {
-					// relay
-					out(msg);
-				}
-			}
-		} catch (InterruptedException e) {
-			LOG.info("service INTERRUPTED " + thisThread.getName());
-			isRunning = false;
-		} // sink it TODO - ALL invokes should return out message!!!
-	}
-*/
-	
+		
 	@Override
 	public void startService() {
 		// TODO - block until isReady on the ServerSocket
@@ -356,21 +317,21 @@ public class RemoteAdapter extends Service {
 		thisThread = null;
 
 	}
-
+/*
 	// TODO - should Service even have these ??? - should be an Interface !!
 	@Override
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
 		LOG.error("ra registerServices here");	
-/*		
+		
 		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
 			hostcfg.setServiceEntry(sdu.serviceEntryList_.get(i));
 		}
 
 		sendServiceDirectoryUpdate(sdu.remoteHostname, sdu.remoteServicePort,
 				sdu.hostname, sdu.servicePort);
-*/				
+			
 	}
-
+*/
 	// TODO - should Service even have these ??? - should be an Interface !!
 	// @Override
 	public void sendServiceDirectoryUpdate(String remoteHost, int remotePort,
@@ -417,19 +378,19 @@ public class RemoteAdapter extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.WARN);
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
-
-		ChessGame chess = new ChessGame("chess");
-		chess.startService();
 				
 		Invoker services = new Invoker("services");
 		services.startService();
-		
+/*		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+*/
+		Logging log = new Logging("log");
+		log.startService();
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();

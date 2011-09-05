@@ -317,7 +317,11 @@ public class RuntimeEnvironment implements Serializable{
 		} 
 		return null;
 	}
-
+	
+	public static HashMap<URL, ServiceEnvironment> getServiceEnvironments()
+	{
+		return new HashMap<URL, ServiceEnvironment> (hosts);
+	}
 	public static synchronized void init()
 	{
 		hosts = new HashMap<URL, ServiceEnvironment>();			

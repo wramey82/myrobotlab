@@ -151,6 +151,7 @@ public class SpeechRecognition extends Service {
 				while (isRunning) {
 
 					LOG.error("listening");
+					invoke("listeningEvent");
 
 					Result result = recognizer.recognize();
 
@@ -185,6 +186,12 @@ public class SpeechRecognition extends Service {
 
 	}
 
+	// publishing output functions
+	public void listeningEvent()
+	{
+		return;
+	}
+	
 	public String publish(String word) {
 		return word;
 	}

@@ -129,6 +129,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		 * be processed by GUIService rather than routed to control Panels
 		 */
 		
+		commandMap.put("registerServicesEvent", null);
 		commandMap.put("registerServices", null);
 		commandMap.put("loadTabPanels", null);
 		commandMap.put("registerServicesNotify", null);
@@ -247,15 +248,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		JPanel customPanel = new JPanel(new FlowLayout());
 		customPanel.setPreferredSize(new Dimension(800, 600));
 
-		// iterate through services list begin ------------
-		
-		//ServiceEnvironment servEnv = RuntimeEnvironment.getLocalServices();
-		//HashMap<String, ServiceWrapper> services = servEnv.serviceDirectory;				
-		
 		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
 		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
 		
-		//HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
 		Integer index = tabs.getTabCount() - 1;
@@ -734,15 +729,33 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		graphXML = xml;
 	}
 	
+	
+	public void registerServicesEvent (String host, int port, Message msg)
+	{
+		loadTabPanels();
+	}
+	
+	public void registerServicesEvent ()
+	{
+		loadTabPanels();
+	}
+	
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		Clock clock = new Clock("clock");
+		clock.startService();
 				
 		GUIService gui2 = new GUIService("gui2");
+		
+		gui2.notify("registerServices", gui2.name, "registerServicesEvent");
+		//gui2.notify("registerServices", gui2.name, "registerServicesEvent", String.class, Integer.class, Message.class);
+
 		gui2.startService();
 		gui2.display();
-
+		
 		
 	}
 	

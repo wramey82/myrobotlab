@@ -150,6 +150,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 		//cv.cvMatchTemplate(arg0, arg1, arg2, arg3);
 		if (template != null && res != null)
 		{
+			// TODO - DISPLAY RES SO THAT RESULTS FORM DIFFERENT FN's CAN BE EXAMINED
 			cvMatchTemplate(image, template, res, CV_TM_SQDIFF);
 		// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
 		
@@ -164,14 +165,15 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 		if (makeTemplate)
 		{
+			makeTemplate = false;
 			template = cvCreateImage( cvSize( rect.width(), 
 					rect.height()), image.depth(), image.nChannels() );
 			/* copy ROI to subimg */
 			cvSetImageROI(image, rect);
 			cvCopy(image, template, null);
 			cvResetImageROI(image);
-			makeTemplate = false;
 			myService.invoke("publishTemplate", name, template.getBufferedImage());
+			myService.invoke("publishIplImageTemplate", template); // FYI - IplImage is not serializable
 			res = cvCreateImage( cvSize( image.width() - template.width() + 1, 
 					image.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
 		}

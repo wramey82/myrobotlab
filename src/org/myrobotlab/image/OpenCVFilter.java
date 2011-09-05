@@ -42,7 +42,8 @@ public abstract class OpenCVFilter implements Serializable{
 	private static final long serialVersionUID = 1L;
 	ConfigurationManager cfg = null; // TODO - remove
 	final public String name;
-	OpenCV myService = null; // transient?
+	OpenCV myService = null; 
+	HashMap<String, Object> storage = null;
 
 	final static public String INPUT_IMAGE_NAME = "inputImageName";
 	final static public String OUTPUT_IMAGE_NAME = "outputImageName";
@@ -61,6 +62,7 @@ public abstract class OpenCVFilter implements Serializable{
 	public OpenCVFilter(OpenCV service, String filterName) {
 		this.name = filterName;
 		this.myService = service;
+		this.storage = myService.storage;
 		this.FILTER_INSTANCE_CFG_ROOT = myService.getCFG().getServiceRoot() + "/" + FILTER_CFG_ROOT  + name;
 		cfg = new ConfigurationManager(FILTER_INSTANCE_CFG_ROOT);
 		cfg.set(INPUT_IMAGE_NAME, "output");
@@ -71,6 +73,19 @@ public abstract class OpenCVFilter implements Serializable{
 		cfg.set(USE_ROI, false);
 	}
 
+	// storage accessors begin
+	public IplImage getIplImage(String name)
+	{
+		if (storage.containsKey(name))
+		{
+			return (IplImage)storage.get(name);
+		}
+		LOG.error("request for " + name + " IplImage in storage - not found");
+		return null;
+	}
+
+	// storage accessors end
+	
 	// TODO - remove begin ------------------------
 	public Object setCFG(String name, Float value) // hmm what TODO ? Object
 													// won't work Object[]

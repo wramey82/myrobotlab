@@ -26,26 +26,28 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_GRAY2BGR;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_GRAY2RGB;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterGray extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterGray.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCVFilterGray.class.getCanonicalName());
 
-	IplImage buffer = null;
+	IplImage gray = null;
+	IplImage color = null;
 
 	public OpenCVFilterGray(OpenCV service, String name) {
 		super(service, name);
@@ -71,17 +73,22 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image) {
 
-		if (buffer == null) {
-			buffer = cvCreateImage(cvGetSize(image), 8, 1);
-
-		}
 
 		// what can you expect? nothing? - if data != null then error?
 		if (image.nChannels()== 3) {
-			cvCvtColor(image, buffer, CV_BGR2GRAY);
+			if (gray == null) {
+				gray = cvCreateImage(cvGetSize(image), 8, 1);
+			}
+			cvCvtColor(image, gray, CV_BGR2GRAY);
+		} else if (image.nChannels() == 1) {
+			if (color == null) {
+				int depth = image.depth();
+				color = cvCreateImage(cvGetSize(image), depth, 3);
+			}
+			cvCvtColor(image, gray, CV_GRAY2BGR);
 		}
-
-		return buffer;
+		
+		return gray;
 	}
 
 }
