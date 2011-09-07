@@ -24,6 +24,14 @@
  * */
 
 package org.myrobotlab.image;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_legacy.*;
+import static com.googlecode.javacv.cpp.opencv_video.*;
+import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
 import java.awt.image.BufferedImage;
 
@@ -49,6 +57,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 	IplImage kinectDepth = null;
 	IplImage ktemp = null;
+	IplImage ktemp2 = null;
 	IplImage black = null;
 	IplImage itemp = null;
 	IplImage itemp2 = null;
@@ -119,19 +128,24 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// cv Pyramid Down
 		
-		if (mask == null || image.width() != mask.width())
+		if (mask == null ) // || image.width() != mask.width()
 		{
 			mask = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 8, 1);
 			ktemp = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 16, 1);
+			ktemp2 = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 8, 1);
 			black = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 8, 1);
-			cvZero(black); 								
 			itemp = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 8, 3);
 			itemp2 = cvCreateImage(cvSize(kinectDepth.width()/scale, kinectDepth.height()/scale), 8, 3);
 		}
-
+		cvZero(black); 								
+		cvZero(mask); 								
+		cvZero(itemp2); 										
+		
 		cvPyrDown(image, itemp, 7);
 		cvPyrDown(kinectDepth, ktemp, 7);
 		
+		//cvReshape(arg0, arg1, arg2, arg3);
+		// cvConvertScale(ktemp, ktemp2, 0.009, 0);
 
 		CvScalar min = cvScalar(0, 0.0, 0.0, 0.0);
 		CvScalar max = cvScalar(30000, 0.0, 0.0, 0.0);
@@ -154,9 +168,12 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 		cvCopy(itemp, itemp2, black);
 
 		
+		myService.invoke("publishFrame", "input", itemp.getBufferedImage());
 		myService.invoke("publishFrame", "kinectDepth", ktemp.getBufferedImage());
 		myService.invoke("publishFrame", "kinectMask", mask.getBufferedImage());
 
+
+		
 		return itemp2;
 
 	}

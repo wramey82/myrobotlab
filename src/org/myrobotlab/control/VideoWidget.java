@@ -191,6 +191,7 @@ public class VideoWidget extends ServiceGUI {
 			 
 			if (!screens.containsKey(img.source)) {
 				screens.put(img.source, new JLabel());
+				parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
 				getSources();
 			}
 
@@ -350,6 +351,7 @@ public class VideoWidget extends ServiceGUI {
 		display.setBorder(title);
 		
 		addVideoDisplayPanel("output"); // create initial display "output"
+		screens.put("output", new JLabel("output"));
 		//addVideoDisplayPanel("shoe"); // create initial display "output"
 		//gc.gridx = 40;
 		//display.add(new JLabel("blah blah blah"), gc);
