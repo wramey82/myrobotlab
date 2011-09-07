@@ -49,7 +49,11 @@ public class FSMTest extends Service {
 	
 	HashMap <String, HashMap<String, String>> phrases = new HashMap <String, HashMap<String,String>>(); 
 	
-	ArrayList<Node> memory = new ArrayList<Node>(); 
+	// memory
+	ArrayList<Node> knownObjects = new ArrayList<Node>();
+	ArrayList<Node> unknownObject = new ArrayList<Node>();
+	
+	
 	ArrayList<Polygon> polygons = null;
 	CvRect boundingBox = null;
 
@@ -274,10 +278,10 @@ public class FSMTest extends Service {
 				contextNode.imageData.cvGrayFrame = cvCreateImage(cvSize(cameraFrame.width(), cameraFrame.height()), 8, 1);
 				cvCvtColor(contextNode.imageData.cvCameraFrame, contextNode.imageData.cvGrayFrame, CV_BGR2GRAY);
 				
-				memory.add(contextNode);
+				knownObjects.add(contextNode);
 			// Load Memory ---- BEGIN --------			
 				
-			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
+			speech.speak("i have " + knownObjects.size() + " thing" + ((knownObjects.size()>1)?"s":"" + " in my knownObjects"));
 
 			opencv.removeFilters();
 			opencv.addFilter("PyramidDown1", "PyramidDown");
@@ -411,22 +415,22 @@ public class FSMTest extends Service {
 	public void searchMemory()
 	{
 			// 1. Create & Fill Temporary Memory
-			// 2. Search long term memory
+			// 2. Search long term knownObjects
 		    // 3. Set appropriate context for next state
 
 			opencv.removeFilters();
 			opencv.addFilter("PyramidDown1", "PyramidDown");
 
-			if (memory.isEmpty())
+			if (knownObjects.isEmpty())
 			{
-				speech.speak("my memory is a blank slate");
+				speech.speak("my knownObjects is a blank slate");
 				String s = getPhrase(QUERY_OBJECT);
 				speech.speak(s); // need input from user
 				context = GET_ASSOCIATIVE_WORD; // asking for GET_ASSOCIATIVE_WORD
 				return;
 			} else {
-				// search memory
-				speech.speak("i am searching my memory for this object");
+				// search knownObjects
+				speech.speak("i am searching my knownObjects for this object");
 				
 				double[] minVal = new double[1];
 				double[] maxVal = new double[1];
@@ -438,9 +442,9 @@ public class FSMTest extends Service {
 				CvPoint tempRect1 = new CvPoint();
 
 				
-				for (int i = 0; i < memory.size(); ++i)
+				for (int i = 0; i < knownObjects.size(); ++i)
 				{
-					Node n = memory.get(i);
+					Node n = knownObjects.get(i);
 					res = cvCreateImage( cvSize( n.imageData.cvGrayFrame.width() - template.width() + 1, 
 							n.imageData.cvGrayFrame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
 					cvMatchTemplate(n.imageData.cvGrayFrame, template, res, CV_TM_SQDIFF);
@@ -479,7 +483,7 @@ public class FSMTest extends Service {
 			// surf
 			// match Template
 			
-			// and search associative memory - serializable !! hello DB !
+			// and search associative knownObjects - serializable !! hello DB !
 			
 			//
 			//busy = false;
