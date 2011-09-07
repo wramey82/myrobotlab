@@ -92,7 +92,6 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
-//@Root
 public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -932,6 +931,8 @@ public class OpenCV extends Service {
 		
 		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
 		opencv.capture();
+		
+		
 /*		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
