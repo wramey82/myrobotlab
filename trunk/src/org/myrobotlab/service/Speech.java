@@ -244,8 +244,12 @@ public class Speech extends Service {
 			params.put("voice", voiceName);
 			params.put("txt", toSpeak);
 			params.put("speakButton", "SPEAK");
-			HTTPClient.HTTPData data = HTTPClient.post(
-					"http://192.20.225.36/tts/cgi-bin/nph-talk", params);
+			/*
+			As per http://www2.research.att.com/~ttsweb/tts/faq.php & Mark & ATT
+			 I have removed the cgi link - will be moving to Google speech as it does
+			 not have such restrictions
+			*/
+			HTTPClient.HTTPData data = HTTPClient.post("", params);
 			String redirect = null;
 			try {
 				redirect = "http://"
