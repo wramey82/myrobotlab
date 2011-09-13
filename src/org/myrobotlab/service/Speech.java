@@ -29,13 +29,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 
 import com.sun.speech.freetts.Voice;
@@ -72,12 +73,14 @@ public class Speech extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Speech.class.getCanonicalName());
 	
+	// TODO - seperate all of the var into appropriate parts - ie Global ATT Google FreeTTS
+	
 	transient private Voice myVoice = null;
 	private boolean initialized = false;
 	public AudioFile speechAudioFile = null;
 	
 	public static enum FrontendType {NORMAL, QUEUED, BLOCKING, MULTI};
-	public static enum BackendType {ATT, FREETTS};
+	public static enum BackendType {ATT, FREETTS, GOOGLE};
 	
 	public String voiceName = "audrey"; // both voice systems have a list of available voice names
 	public int volume = 100;
@@ -124,14 +127,21 @@ public class Speech extends Service {
 		}
 	}
 
+	public final static String BACKEND_TYPE_ATT = "ATT";
+	public final static String BACKEND_TYPE_FREETTS = "FREETTS";
+	public final static String BACKEND_TYPE_GOOGLE = "GOOGLE";
+	
 	public void setBackendType(String t)
 	{
-		if ("ATT".equals(t))
+		if (BACKEND_TYPE_ATT.equals(t))
 		{
 			backendType = BackendType.ATT;
-		} else if ("FREETTS".equals(t))
+		} else if (BACKEND_TYPE_FREETTS.equals(t))
 		{
 			backendType = BackendType.FREETTS;
+		} else if (BACKEND_TYPE_GOOGLE.equals(t))
+		{
+			backendType = BackendType.GOOGLE;
 		} else {
 			LOG.error("type " + t + " not supported");
 		}
@@ -206,6 +216,9 @@ public class Speech extends Service {
 
 			} else if (backendType == BackendType.FREETTS) { // festival tts
 				speakFreeTTS(toSpeak);
+			} else if (backendType == BackendType.GOOGLE) { // festival tts
+				//speakGoogle(toSpeak);
+				in(createMessage(name, "speakGoogle", toSpeak));
 			} else {
 				LOG.error("back-end speech backendType " + backendType + " not supported ");
 			}
@@ -217,7 +230,7 @@ public class Speech extends Service {
 		
 	}
 
-	// back-end functions
+	// BACK-END FUNCTIONS BEGIN ------------------------------------------------
 	public void speakATT(String toSpeak)
 	{
 		if (speechAudioFile == null) {
@@ -249,7 +262,7 @@ public class Speech extends Service {
 			 I have removed the cgi link - will be moving to Google speech as it does
 			 not have such restrictions
 			*/
-			HTTPClient.HTTPData data = HTTPClient.post("", params);
+			HTTPClient.HTTPData data = HTTPClient.post("http://192.20.225.36/tts/cgi-bin/nph-talk", params);
 			String redirect = null;
 			try {
 				redirect = "http://"
@@ -274,7 +287,8 @@ public class Speech extends Service {
 
 		}
 
-		// audio file it
+		// audio file it - THIS BLOCKS - YAY !  ITS A GOOD THING ! -  JUST DONT CALL IT DIRECTY FROM ANOTHER SERVICE
+		// @Blocks 
 		speechAudioFile.playWAVFile(audioFile);		
 	}
 	
@@ -284,6 +298,14 @@ public class Speech extends Service {
 		{
 			// The VoiceManager manages all the voices for FreeTTS.
 			VoiceManager voiceManager = VoiceManager.getInstance();
+			Voice[] possibleVoices = voiceManager.getVoices();
+			
+			LOG.error("possible voices");
+			for (int i = 0; i < possibleVoices.length; ++i)
+			{
+				LOG.error(possibleVoices[i].getName());				
+			}
+			voiceName = "kevin16";
 			myVoice = voiceManager.getVoice(voiceName);
 
 			if (myVoice == null) {
@@ -311,19 +333,81 @@ public class Speech extends Service {
 		
 	}
 	
+	//String language = "eng-us";
+	String language = "en";
+	public void speakGoogle(String toSpeak)
+	{
+		if (speechAudioFile == null) {
+			speechAudioFile = new AudioFile("speechAudioFile");
+		}
+		
+		if (!fileCacheInitialized)
+		{
+			boolean success = (new File("audioFile/google/" + language + "/" + voiceName)).mkdirs();
+		    if (!success) {
+		      LOG.debug("could not create directory: audioFile/google/" + language + "/" + voiceName);
+		    } else {
+		    	fileCacheInitialized = true;
+		    }
+		}
+		
+		String audioFile = "audioFile/google/" + language + "/" + voiceName + "/" + toSpeak + ".mp3";
+		File f = new File(audioFile);
+		LOG.info(f + (f.exists() ? " is found " : " is missing "));
+
+		if (!f.exists()) {
+			// if the wav file does not exist fetch it from att site
+			/*
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("voice", voiceName);
+			params.put("txt", toSpeak);
+			params.put("speakButton", "SPEAK");
+			*/
+			// rel="noreferrer"
+			// http://translate.google.com/translate_tts?tl=en&q=text
+			// http://translate.google.com/translate_tts?tl=fr&q=Bonjour
+			// http://translate.google.com/translate_tts?tl=en&q=hello%20there%20my%20good%20friend
+			
+			try {
+				URI uri = new URI ("http", null, "translate.google.com", 80, "/translate_tts", "tl="+language+"&q=" + toSpeak, null);
+				LOG.error(uri.toASCIIString());
+				HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
+				
+				FileOutputStream fos = new FileOutputStream(audioFile);
+				fos.write(data.method.getResponseBody());
+
+			} catch (Exception e) {
+				Service.logException(e);
+			}
+
+		}
+
+		// audio file it
+		// boolean isBlocking = true; is Blocking YAY - dont call from different service
+		speechAudioFile.playFile(audioFile, true);		
+	}
+	
+	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		Speech speech = new Speech("speech");
 		speech.startService();
+		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+		speech.speak("hello! this is an attempt to generate inflection, did it work?");
+		speech.speak("hello there");
+		speech.speak("2");
+		speech.speak("the time is 12:30");
+		speech.speak("oink oink att is good but not so good");
 		speech.speak("num, num, num, num, num");
 		speech.speak("charging");
 		speech.speak("thank you");
 		speech.speak("good bye");
 		speech.speak("I believe I have bumped into something");
 		speech.speak("Ah, I have found a way out of this situation");
-	
+		speech.speak("aaaaaaaaah, long vowels sound");
+		
 	}
 
 	@Override

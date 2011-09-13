@@ -241,13 +241,13 @@ public class OpenCV extends Service {
 		super.stopService();
 	}
 
-	public SerializableImage publishFrame(String source, BufferedImage img) {
+	public final static SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
 	}
 
-	public SerializableImage publishMask(String source, BufferedImage img) {
+	public final static SerializableImage publishMask(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
@@ -724,7 +724,8 @@ public class OpenCV extends Service {
 		return rectangle;
 	}
 
-	public ArrayList<Polygon> publish(ArrayList<Polygon> polygons) {
+	// when containers are published the <T>ypes are unknown to the publishing function
+	public ArrayList<?> publish(ArrayList<?> polygons) {
 		return polygons;
 	}
 
@@ -931,7 +932,6 @@ public class OpenCV extends Service {
 		
 		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
 		opencv.capture();
-		
 		
 /*		
 		Arduino arduino = new Arduino("arduino");
