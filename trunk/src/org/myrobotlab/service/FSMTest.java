@@ -1,29 +1,28 @@
 package org.myrobotlab.service;
 
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvMinMaxLoc;
+import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
+import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.image.OpenCVFilterMatchTemplate;
-import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.image.KinectImageNode;
+import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
 import org.myrobotlab.memory.Node;
-import org.myrobotlab.service.OpenCV.Polygon;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FSMTest extends Service {
@@ -34,9 +33,6 @@ public class FSMTest extends Service {
 	
 	String context = null; 			// current context identifier
 	String contextPerson = null; 	// person of current context
-	Node contextNode = null; 		// node of current context
-	IplImage template = null; // template made from segmentation
-	IplImage cameraFrame = null; // image from camera
 	
 	// TODO - these services could be accessed via RuntimeEnvironment.service("opencv");
 	// TODO - service could be bound or created in an init - bound for remote	
@@ -47,16 +43,11 @@ public class FSMTest extends Service {
 	
 	Random generator = new Random();
 	
-	HashMap <String, HashMap<String, String>> phrases = new HashMap <String, HashMap<String,String>>(); 
-	
-	// memory
-	ArrayList<Node> knownObjects = new ArrayList<Node>();
-	ArrayList<Node> unknownObject = new ArrayList<Node>();
-	
-	
-	ArrayList<Polygon> polygons = null;
-	CvRect boundingBox = null;
+	HashMap <String, HashMap<String, String>> phrases = new HashMap <String, HashMap<String,String>>(); 	
+	HashMap<String, Node> memory = new HashMap<String, Node>();
+	OpenCVFilterKinectDepthMask filter = null; // direct handle to filter
 
+	
 	// findObject
 		// segmentation - run kinect at ramping range
 		// color hue 
@@ -82,15 +73,19 @@ public class FSMTest extends Service {
 	
 	public void listeningEvent()
 	{
+		
 		speech.speak("i am listening");
+		/*
 		speech.speak("ready");
+		*/
 	}
 	
 	public void init ()
 	{		
 		speechRecognition = new SpeechRecognition ("sphinx");
-//		speechRecognition.startService();
+		speechRecognition.startService();
 		speech = new Speech("speech");
+		speech.setBackendType(Speech.BACKEND_TYPE_GOOGLE);
 		speech.startService();
 		opencv = new OpenCV("opencv");
 		opencv.startService();
@@ -100,30 +95,25 @@ public class FSMTest extends Service {
 		speechRecognition.notify("publish", name, "heard", String.class);
 		speechRecognition.notify("listeningEvent", name, "listeningEvent");
 		
-		opencv.notify("publish", name, "publish", Polygon.class); //<--- BUG - polygon, name (only should work)
+		opencv.notify("publish", name, "publish", KinectImageNode.class); //<--- BUG - polygon, name (only should work)
 		opencv.notify("publishIplImageTemplate", name, "getImageTemplate", IplImage.class);
 		opencv.notify("publishIplImage", name, "publishIplImage", IplImage.class);
-				
+		
+		opencv.getDepth = true;
+		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
+		filter = (OpenCVFilterKinectDepthMask)opencv.getFilter("KinectDepthMask1");
+
 		// start vision
 		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
-		
-		//opencv.addFilter("Gray1", "Gray");
-//		opencv.addFilter("PyramidDown1", "PyramidDown");
 		gui.display();
-		
-		opencv.getDepth = true; // Need a good switch in OpenCVGUI - runtime RGB RGB+Depth Depth
-		
 		opencv.capture();
-		
-//		sleep(5000); 
-				
+
 		initPhrases();
-//		context = FIND_OBJECT;
-		context = IDLE;
+		invoke("changeState", IDLE);
 		speech.speak("my mouth is working");
 		speech.speak("my eyes are open");
 		//speech.speak("ready");
-//		findKinectPolygons();
+		findKinectPolygons();
 	}
 	
 
@@ -152,7 +142,7 @@ public class FSMTest extends Service {
 	final static String FOUND_POLYGONS = "i have found polygons";
 	final static String GET_CAMERA_FRAME = "i am getting an image";
 	
-	
+	final static String UNKNOWN = "i don't know";
 	
 	
 	public void initPhrases()
@@ -183,6 +173,19 @@ public class FSMTest extends Service {
 		phrases.put(GET_ASSOCIATIVE_WORD, nounWords);
 		// ------------------ SIMPLE.GRAM SYNC END --------------------------
 
+		
+		HashMap <String, String> t = new HashMap <String, String>();
+		t.put("i am looking and waiting", null);
+		t.put("i am trying to see an object", null);
+		phrases.put(WAITING_FOR_POLYGONS, t);
+
+		t = new HashMap <String, String>();
+		t.put("i have found something", null);
+		t.put("i can see some object", null);
+		t.put("there is an object", null);
+		t.put("i see something", null);
+		phrases.put(FOUND_POLYGONS, t);
+				
 		HashMap <String, String> iDoNotKnowWhatItIsCanYouTellMePhrases = new HashMap <String, String>();
 
 		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i dont know. please tell me", null);
@@ -238,19 +241,14 @@ public class FSMTest extends Service {
 
 	public void heard (String data)
 	{
-		// if (context)
 		if (data.equals("stop"))
 		{
-
-			opencv.removeFilters();
-			opencv.addFilter("PyramidDown1", "PyramidDown");
-			
 			context = IDLE;
 			speech.speak(getPhrase(IDLE));
 			return;
 		}
 		
-		if (data.equals("context")) // VERY HELPFUL !
+		if (data.equals("context")) 
 		{
 			speech.speak("my current context is " + context);
 			return;
@@ -262,31 +260,11 @@ public class FSMTest extends Service {
 		} else if (context.equals(GET_ASSOCIATIVE_WORD) && phrases.get(GET_ASSOCIATIVE_WORD).containsKey(data)) {
 
 			speech.speak("i will associate this with " + data);
-			// Load Memory ---- BEGIN --------			
-				contextNode = new Node();
-				
-				contextNode.word = data;
-
-				contextNode.imageData.cvTemplate = cvCreateImage(cvSize(template.width(), template.height()), 8, 1);
-				cvCopy(template, contextNode.imageData.cvTemplate, null);
-				
-				LOG.error("ch " + cameraFrame.nChannels());
-				
-				contextNode.imageData.cvCameraFrame = cvCreateImage(cvSize(cameraFrame.width(), cameraFrame.height()), 8, cameraFrame.nChannels()); // full color
-				cvCopy(cameraFrame, contextNode.imageData.cvCameraFrame, null);
-				
-				contextNode.imageData.cvGrayFrame = cvCreateImage(cvSize(cameraFrame.width(), cameraFrame.height()), 8, 1);
-				cvCvtColor(contextNode.imageData.cvCameraFrame, contextNode.imageData.cvGrayFrame, CV_BGR2GRAY);
-				
-				knownObjects.add(contextNode);
-			// Load Memory ---- BEGIN --------			
-				
-			speech.speak("i have " + knownObjects.size() + " thing" + ((knownObjects.size()>1)?"s":"" + " in my knownObjects"));
-
-			opencv.removeFilters();
-			opencv.addFilter("PyramidDown1", "PyramidDown");
-			
-			context = FIND_OBJECT;
+			Node n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
+			n.word = data;
+			memory.put(data, n);
+			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
+			invoke("changeState", IDLE);
 		} else {
 			speech.speak("i do not understand. we were in context " + context + " but you said " + data);
 		}
@@ -294,225 +272,208 @@ public class FSMTest extends Service {
 
 	public void findKinectPolygons ()
 	{
-		// lock ???
-		// isolate, analyze, segmentation
-		// begin segmentation and analysis
-
-		// create depth mask - KinectDepth uses inRange to segment
-		opencv.getDepth = true; // the switch is not "clean" - filters need to be defensive in which formats they will accept
-		opencv.addFilter("KinectDepth1", "KinectDepth");
-		opencv.addFilter("FindContours1", "FindContours"); // TODO add min requirements size etc
-
-		// clear our polygons
-		polygons = null;
-		// get polygons
-		// sleep(3000);
-		context = WAITING_FOR_POLYGONS;
+		filter.publishNodes = true;
+		invoke("changeState", WAITING_FOR_POLYGONS);
 	}
+
+	
+	public void publish(ArrayList<KinectImageNode> p) {
+		LOG.error("found " + p.size() + " contextImageDataObjects");
+		filter.publishNodes = false;
 		
-	public void publish(ArrayList<Polygon> p) {
-		LOG.error("found " + p.size() + " polygons");
-		polygons = p;
+		// replacing all with current set - in future "unknown" objects can be concatenated
+		/// you could further guard by a new context
 		if (context.equals(WAITING_FOR_POLYGONS))
 		{
-			context = FOUND_POLYGONS;
+			// "not exactly thread safe"
+			invoke("changeState", FOUND_POLYGONS);
+
+			List<KinectImageNode> clone = new ArrayList<KinectImageNode>(p.size());
+//			for(KinectImageNode item: p) clone.add((Object)item.clone());
+			
+			Node n = new Node();
+			n.word = UNKNOWN;
+			n.imageData = p;
+			memory.put(UNKNOWN, n);
+			
+//			currentImageData = p.get(0);
+
 			processPolygons();
 		}
 	}
-	
-	public void processPolygons()
-	{
-	
-			opencv.removeFilters();
-			opencv.addFilter("PyramidDown1", "PyramidDown");
-			
-			// useful data for the kinect is 632 X 480 - 8 pixels on the right edge are not good data
-			// http://groups.google.com/group/openkinect/browse_thread/thread/6539281cf451ae9e?pli=1
-			
-			opencv.getDepth = false; 
-
-			// TODO - filter out with FindContours settings !
-			// check to see if we got a new polygon
-			if (polygons == null)
-			{
-				speech.speak("i did not see anything");
-				context = IDLE;
-				return;
-			} else {
-				LOG.error("polygons size " + polygons.size());
-				for (int i = 0; i < polygons.size(); ++i)
-				{
-					Polygon p = polygons.get(i);
-					LOG.error("p" + i + "("+p.boundingRectangle.x()+","+p.boundingRectangle.y()+")" + "("+p.boundingRectangle.width()+","+p.boundingRectangle.height()+")" +
-							p.boundingRectangle.width() * p.boundingRectangle.height());
-					LOG.error(p.boundingRectangle.x());
-					if (p.boundingRectangle.x() <= 1 || p.boundingRectangle.x() >= 316) // TODO clean this up in the filter
-					{
-						// kinect is a little goofy on the edges
-						polygons.remove(i);
-						
-					}
-				}
-				
-				if (polygons.size() != 1) // TODO - you must deal with this at some point
-				{
-					speech.speak("i do not know how to deal with " + polygons.size() + " thing" + ((polygons.size() == 1)?"":"s yet"));	
-					context = IDLE;
-					return;
-				} else {
-					// process set of polygons
-					boundingBox = polygons.get(0).boundingRectangle;
-				}
-				
-			}
-						
-			//opencv.notify("publishFrame", name, "publish", SerializableImage.class); //<--- BUG - polygon, name (only should work)
-			opencv.publishIplImage(true);
-			context = GET_CAMERA_FRAME;
-	}
-	
-	final static String FOUND_CAMERA_IMAGE = "i have found an image";
-	
-	public void publishIplImage(IplImage image) {
-		if (context.equals(GET_CAMERA_FRAME) && image.nChannels() == 3) 
-		{
-			cameraFrame = image;
-			opencv.publishIplImage(false);
-			context = FOUND_CAMERA_IMAGE;
-			makeTemplate();
-		}
-	}
-	
-	// TODO - add intermediate function
-	void makeTemplate()
-	{		
-			// FIXME stop the notification - Problem from other entries?
-			opencv.removeNotify("publishFrame", name, "publish", SerializableImage.class);
-			opencv.removeFilters();
-			opencv.addFilter("PyramidDown1", "PyramidDown");
-			opencv.addFilter("Gray1", "Gray");
-			opencv.addFilter("MatchTemplate1", "MatchTemplate");
-			OpenCVFilterMatchTemplate mt = (OpenCVFilterMatchTemplate)opencv.getFilter("MatchTemplate1");
-			mt.rect = boundingBox;
-			mt.makeTemplate = true; 
-			context = WAIT_FOR_TEMPLATE;
-	}
-	
-	final static String WAIT_FOR_TEMPLATE = "i am waiting for a template";
-	
-	public void getImageTemplate(IplImage img)
-	{
-		if (context.equals(WAIT_FOR_TEMPLATE)) 
-		{
-			template = img;
-			context = FOUND_TEMPLATE;
-			searchMemory();
-		}
-	}
-
-	final static String FOUND_TEMPLATE = "i found a template";
-	
-	public void searchMemory()
-	{
-			// 1. Create & Fill Temporary Memory
-			// 2. Search long term knownObjects
-		    // 3. Set appropriate context for next state
-
-			opencv.removeFilters();
-			opencv.addFilter("PyramidDown1", "PyramidDown");
-
-			if (knownObjects.isEmpty())
-			{
-				speech.speak("my knownObjects is a blank slate");
-				String s = getPhrase(QUERY_OBJECT);
-				speech.speak(s); // need input from user
-				context = GET_ASSOCIATIVE_WORD; // asking for GET_ASSOCIATIVE_WORD
-				return;
-			} else {
-				// search knownObjects
-				speech.speak("i am searching my knownObjects for this object");
-				
-				double[] minVal = new double[1];
-				double[] maxVal = new double[1];
-				IplImage res = null;
-				CvPoint minLoc = new CvPoint();
-				CvPoint maxLoc = new CvPoint();
-				int matchRatio = 0;
-				CvPoint tempRect0 = new CvPoint();
-				CvPoint tempRect1 = new CvPoint();
-
-				
-				for (int i = 0; i < knownObjects.size(); ++i)
-				{
-					Node n = knownObjects.get(i);
-					res = cvCreateImage( cvSize( n.imageData.cvGrayFrame.width() - template.width() + 1, 
-							n.imageData.cvGrayFrame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
-					cvMatchTemplate(n.imageData.cvGrayFrame, template, res, CV_TM_SQDIFF);
-					// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
-					cvMinMaxLoc ( res, minVal, maxVal, minLoc, maxLoc, null );
-					
-					tempRect0.x(minLoc.x());
-					tempRect0.y(minLoc.y());
-					tempRect1.x(minLoc.x() + template.width());
-					tempRect1.y(minLoc.y() + template.height());
-
-					matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));
-
-					if (matchRatio < 1500)
-					{
-						speech.speak("i believe it is a " + n.word);
-						speech.speak("with match ratio of ");
-						speech.speak("" + matchRatio);						
-						break;
-					} else {
-						speech.speak("i do not know what it is");
-						speech.speak("the match ratio was ");
-						speech.speak("" + matchRatio);		
-						String s = getPhrase(QUERY_OBJECT);
-						speech.speak(s); // need input from user
-						context = GET_ASSOCIATIVE_WORD; // asking for GET_ASSOCIATIVE_WORD
-						return;
-						
-					}
-				}
-			}
-			
-			
-			// stop capture - switch to Gray Image
-			// setROI
-			// surf
-			// match Template
-			
-			// and search associative knownObjects - serializable !! hello DB !
-			
-			//
-			//busy = false;
-	}
 		
+	public void processPolygons()
+	{	
+		Node object = memory.get(UNKNOWN);
+		invoke("", object);
+				
+		if (object.imageData.size() != 1)
+		{
+			speech.speak("i do not know how to deal with " + object.imageData.size() + " thing" + ((object.imageData.size() == 1)?"":"s yet"));
+			invoke("changeState", IDLE);
+			return;
+		}
+			
+		// matchTemplate - adaptive match - non-match
+		if (memory.size() == 1) // unknown objects only
+		{
+			speech.speak("my memory is empty, except for the unknown");
+			speech.speak(getPhrase(QUERY_OBJECT)); // need input from user
+			invoke("changeState", GET_ASSOCIATIVE_WORD);
+			return;
+		}
+		
+		// run through - find best match - TODO - many other algorithms and techniques
+		
+		Iterator<String> itr = memory.keySet().iterator();
+		Node unknown = memory.get(UNKNOWN);
+		int bestFit = 0;
+		int fit = 0;
+		String bestFitName = null;
+		
+		while (itr.hasNext()) {
+			String name = itr.next();
+			if (name.equals(UNKNOWN))
+			{
+				continue; // we won't compare the unknown thingy with itself
+			}
+			Node toSearch = memory.get(name);
+			fit = match(toSearch, unknown);
+			bestFit = (fit<bestFit)?fit:bestFit;
+			if (fit < bestFit)
+			{
+				bestFit = fit;
+				bestFitName = toSearch.word;
+			}
+		}
+		
+		if (bestFit < 500)
+		{
+		// if found
+		    // announce - TODO - add map "i think it might be", i'm pretty sure its a, 
+			speech.speak("i think it's a " + bestFitName);
+			// with a match ratio of ....
+			// is that correct?
+			// context = WAITING_FOR_AFFIRMATION
+		} else {
+		// else
+			// associate word
+			speech.speak("i do not know what it is");
+			speech.speak(getPhrase(QUERY_OBJECT));
+			invoke("changeState", GET_ASSOCIATIVE_WORD);
+		}
+	}
+	
+	IplImage result = null;
+	double[] minVal = new double[1];
+	double[] maxVal = new double[1];
+	CvPoint minLoc = new CvPoint();
+	CvPoint maxLoc = new CvPoint();
+	CvPoint tempRect0 = new CvPoint();
+	CvPoint tempRect1 = new CvPoint();
 
+	int resultWidth 	= 0; 
+	int resultHeight 	= 0;
+
+
+	int match (Node toSearch, Node unknown)
+	{
+		invoke("publishVideo0", toSearch);
+		invoke("publishVideo1", unknown);
+
+		IplImage frame    = toSearch.imageData.get(0).cvCameraFrame;
+		IplImage template = unknown.imageData.get(0).cvCameraFrame;
+		
+		// TODO - optimization would be to set image roi on the frame
+		// although it would need to check the templates size and adjust
+		// if necessary
+		resultWidth  = frame.width() - unknown.imageData.get(0).boudingBox.width() + 1;
+		resultHeight = frame.height() - unknown.imageData.get(0).boudingBox.height() + 1;
+
+		// TODO - dump an array of Node memory into a VideoWidget with different source names
+		// TODO - when adding to memory - process all type conversions
+		
+	
+		if (result == null || resultWidth != result.width() || resultHeight != result.height())
+		{
+			// result = cvCreateImage( cvSize( frame.width() - template.width() + 1, 
+			//		frame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
+			result = cvCreateImage( cvSize( resultWidth, resultHeight), IPL_DEPTH_32F, 1 );
+		}
+		cvSetImageROI(template, unknown.imageData.get(0).boudingBox); 
+		//cvSetImageROI(result, cvRect(0, 0, frame.width() - template.width() + 1, frame.height() - template.height() + 1)); 
+			
+		cvMatchTemplate(frame, template, result, CV_TM_SQDIFF);
+		
+		cvResetImageROI(template);
+		
+		cvMinMaxLoc ( result, minVal, maxVal, minLoc, maxLoc, null );
+		// publish result
+		invoke("publishMatchResult", result);
+		
+		tempRect0.x(minLoc.x());
+		tempRect0.y(minLoc.y());
+		tempRect1.x(minLoc.x() + template.width());
+		tempRect1.y(minLoc.y() + template.height());
+
+		int matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));		
+
+
+		return matchRatio;
+	}
+	
+	/*
+	 * TODO - add publishing points for image review back to the FSM Gui
+	 * 
+	 */
 	// -------------- CALLBACKS BEGIN -------------------------
-	public void publish(CvPoint p) {
+	public CvPoint publish(CvPoint p) {
 		LOG.info("got point " + p);
+		return p;
+	}	
+
+	public Node publishVideo0(Node o) {
+		return o;
+	}	
+
+	public Node publishVideo1(Node o) {
+		return o;
+	}	
+
+	public Node publishVideo2(Node o) {
+		return o;
+	}	
+
+	public IplImage publishMatchResult(IplImage o) {
+		LOG.info("publishMatchResult" + o);
+		return o;
 	}	
 	
-	public void sleep(int mill)
+	public String changeState (String newState)
 	{
-		try {
-			Thread.sleep(mill);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		context = newState;
+		speech.speak(getPhrase(context));
+		return newState;
+	}
+	
+	// -------------- CALLBACKS END -------------------------
+	
+	public String getPhrase (String input)
+	{
+		if (phrases.containsKey(input))
+		{
+			Object[] keys = phrases.get(input).keySet().toArray();
+			if (keys.length == 0)
+			{
+				return "i can only find a single key context, which is, " + input;
+			}
+			String randomValue = (String)keys[generator.nextInt(keys.length)];
+			return randomValue;
+		} else {
+			return "i would like to express what i am doing, but i can't for, " + input;
 		}
 	}
 	
-	// TODO - build as data structure
-	public String getPhrase (String input)
-	{
-		HashMap<String,String> t = phrases.get(input);
-		Object[] keys = phrases.get(input).keySet().toArray();
-		String randomValue = (String)keys[generator.nextInt(keys.length)];
-		return randomValue;
-	}
 		
 	public static void main(String[] args) {
 		

@@ -1,7 +1,10 @@
 package org.myrobotlab.memory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+
+import org.myrobotlab.image.KinectImageNode;
 
 public class Node implements Serializable {
 
@@ -9,10 +12,9 @@ public class Node implements Serializable {
 	public int ID = 0;
 	public Date timestamp = null;
 	public String word = null;	
-	public VisualData imageData = null;
+	public ArrayList<KinectImageNode> imageData = null;
 	
 	public Node () 
 	{
-		imageData = new VisualData();
 	}
 }

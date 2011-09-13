@@ -72,8 +72,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	Rectangle rectangle = new Rectangle();
 
-	CvMemStorage storage = null;
-	CvSeq contours;
+	CvMemStorage cvStorage = null;
 
 	IplImage gray = null;
 	IplImage polyMask = null;
@@ -135,8 +134,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		}
 
 		// TODO static global class shared between filters ????
-		if (storage == null) {
-			storage = cvCreateMemStorage(0);
+		if (cvStorage == null) {
+			cvStorage = cvCreateMemStorage(0);
 		}
 
 		if (gray == null) {
@@ -153,9 +152,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			gray = image.clone();
 		}
 
-		cvFindContours(gray, storage, contourPointer, Loader.sizeof(CvContour.class), 0 ,CV_CHAIN_APPROX_SIMPLE);
-		// new cvFindContours(gray, storage, contourPointer, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-		// old cvFindContours(gray, storage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
+		cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), 0 ,CV_CHAIN_APPROX_SIMPLE);
+		// new cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+		// old cvFindContours(gray, cvStorage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
 
 		// LOG.error("getStructure");
 		CvSeq contour = contourPointer;
@@ -207,7 +206,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				if (minArea && maxArea)
 				{
 					CvSeq points = cvApproxPoly(contour,
-							Loader.sizeof(CvContour.class), storage, CV_POLY_APPROX_DP,
+							Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
 							cvContourPerimeter(contour) * 0.02, 1);
 					
 					polygons.add(new OpenCV.Polygon(rect, null, 
@@ -263,7 +262,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
 		// LOG.error("x");
-		cvClearMemStorage(storage);
+		cvClearMemStorage(cvStorage);
 		return display;
 	}
 
