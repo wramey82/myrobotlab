@@ -474,9 +474,9 @@ public class OpenCV extends Service {
 						} else {
 							// if - kinectGrabber = only valid depth grabber is kinect
 							// TODO - double thread it?
-//							depthFrame = ((OpenKinectFrameGrabber)grabber).grabDepth();
+							depthFrame = ((OpenKinectFrameGrabber)grabber).grabDepth();
 							storage.put("kinectDepth", depthFrame);
-//							imageFrame = ((OpenKinectFrameGrabber)grabber).grabVideo(); 
+							imageFrame = ((OpenKinectFrameGrabber)grabber).grabVideo(); 
 							frame = imageFrame;
 /*							
 							if (kinectMask == null)

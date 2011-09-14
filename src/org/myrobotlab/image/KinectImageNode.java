@@ -3,6 +3,7 @@ package org.myrobotlab.image;
 import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
 import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
 
+import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,13 +23,14 @@ public class KinectImageNode implements Serializable {
 	public SerializableImage cameraFrame = null;
 	public SerializableImage mask = null;
 	//public Rectangle boudingBox = null;
-	public CvRect boudingBox = null;
+	public CvRect boundingBox = null;
+	public Rectangle boundingBox2 = null;
 	public SerializableImage template = null;
 	public String imageFilePath = null;
 
 	public IplImage getTemplate()
 	{
-		cvSetImageROI(cvMask, boudingBox); // 615-8 = to remove right hand band
+		cvSetImageROI(cvMask, boundingBox); // 615-8 = to remove right hand band
 		IplImage template = cvMask.clone(); // 
 		cvResetImageROI(cvMask);
 		return template;

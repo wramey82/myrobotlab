@@ -33,6 +33,7 @@ import static com.googlecode.javacv.cpp.opencv_legacy.*;
 import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -252,7 +253,11 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						KinectImageNode node = new KinectImageNode();
 						//node.cameraFrame = image.getBufferedImage(); 
 						node.cvCameraFrame = itemp.clone();  // pyramid down version
-						node.boudingBox = new CvRect(rect);
+						node.boundingBox = new CvRect(rect);
+						node.boundingBox2 = new Rectangle(rect.x(),rect.y(),rect.width(), rect.height());
+						LOG.error(rect);
+						LOG.error(node.boundingBox);
+						LOG.error(node.boundingBox2);
 						nodes.add(node);
 						
 						if (drawBoundingBoxes)

@@ -12,7 +12,6 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Level;
@@ -23,6 +22,7 @@ import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
 import org.myrobotlab.memory.Node;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FSMTest extends Service {
@@ -260,7 +260,10 @@ public class FSMTest extends Service {
 		} else if (context.equals(GET_ASSOCIATIVE_WORD) && phrases.get(GET_ASSOCIATIVE_WORD).containsKey(data)) {
 
 			speech.speak("i will associate this with " + data);
-			Node n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
+			Node n = memory.get(UNKNOWN);
+			LOG.error(n.imageData.get(0).boundingBox + "," + n.imageData.get(0).boundingBox2);
+			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
+			LOG.error(n.imageData.get(0).boundingBox + "," + n.imageData.get(0).boundingBox2);
 			n.word = data;
 			memory.put(data, n);
 			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
@@ -328,23 +331,25 @@ public class FSMTest extends Service {
 		
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
-		int bestFit = 0;
+		LOG.error( unknown.imageData.get(0).boundingBox);
+		LOG.error( unknown.imageData.get(0).boundingBox2);
+		int bestFit = 1000;
 		int fit = 0;
 		String bestFitName = null;
 		
 		while (itr.hasNext()) {
-			String name = itr.next();
-			if (name.equals(UNKNOWN))
+			String n = itr.next();
+			if (n.equals(UNKNOWN))
 			{
 				continue; // we won't compare the unknown thingy with itself
 			}
-			Node toSearch = memory.get(name);
+			Node toSearch = memory.get(n);
 			fit = match(toSearch, unknown);
-			bestFit = (fit<bestFit)?fit:bestFit;
+
 			if (fit < bestFit)
 			{
 				bestFit = fit;
-				bestFitName = toSearch.word;
+				bestFitName = n;
 			}
 		}
 		
@@ -377,6 +382,9 @@ public class FSMTest extends Service {
 	int resultHeight 	= 0;
 
 
+	// FIXME - bury in KinectDepthMask or other OpenCV filter to 
+	// get it working on the same thread only ...
+	// Don't use CVObjects out of OpenCV
 	int match (Node toSearch, Node unknown)
 	{
 		invoke("publishVideo0", toSearch);
@@ -388,8 +396,8 @@ public class FSMTest extends Service {
 		// TODO - optimization would be to set image roi on the frame
 		// although it would need to check the templates size and adjust
 		// if necessary
-		resultWidth  = frame.width() - unknown.imageData.get(0).boudingBox.width() + 1;
-		resultHeight = frame.height() - unknown.imageData.get(0).boudingBox.height() + 1;
+		resultWidth  = frame.width() - (int)unknown.imageData.get(0).boundingBox2.getWidth() + 1;
+		resultHeight = frame.height() - (int)unknown.imageData.get(0).boundingBox2.getHeight() + 1;
 
 		// TODO - dump an array of Node memory into a VideoWidget with different source names
 		// TODO - when adding to memory - process all type conversions
@@ -401,7 +409,12 @@ public class FSMTest extends Service {
 			//		frame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
 			result = cvCreateImage( cvSize( resultWidth, resultHeight), IPL_DEPTH_32F, 1 );
 		}
-		cvSetImageROI(template, unknown.imageData.get(0).boudingBox); 
+		CvRect rect = new CvRect();
+		rect.x(unknown.imageData.get(0).boundingBox2.x);
+		rect.y(unknown.imageData.get(0).boundingBox2.y);
+		rect.width(unknown.imageData.get(0).boundingBox2.width);
+		rect.height(unknown.imageData.get(0).boundingBox2.height);
+		cvSetImageROI(template, rect); 
 		//cvSetImageROI(result, cvRect(0, 0, frame.width() - template.width() + 1, frame.height() - template.height() + 1)); 
 			
 		cvMatchTemplate(frame, template, result, CV_TM_SQDIFF);
