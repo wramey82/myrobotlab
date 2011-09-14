@@ -36,11 +36,11 @@ public class MethodEntry implements Serializable {
 	public final static Logger LOG = Logger.getLogger(ConfigurationManager.class.toString());
 
 	public String name;
-	public Class returnType;
-	public Class[] parameterTypes;
+	public Class<?> returnType;
+	public Class<?>[] parameterTypes;
 
 	private final static HashMap<String, String> primitiveTypeToString = new HashMap<String, String>();
-	private final static HashMap<String, Class> StringToPrimitiveType = new HashMap<String, Class>();
+	private final static HashMap<String, Class<?>> StringToPrimitiveType = new HashMap<String, Class<?>>();
 	private static boolean initialized = false; 
 
 	
@@ -144,7 +144,7 @@ public class MethodEntry implements Serializable {
 	 * the simplest way is to get the results from Class.getName() - this is a bit different/arbitrary from
 	 * the JNA format of method signatures
 	 */
-	final static public String getSignature(String name, Class[] parameterTypes, Class returnType)
+	final static public String getSignature(String name, Class<?>[] parameterTypes, Class<?> returnType)
 	{
 		if (!initialized)
 		{
@@ -209,7 +209,7 @@ public class MethodEntry implements Serializable {
 		return sb.toString();
 	}
 
-	final static public String getPrettySignature(String name, Class[] parameterTypes, Class returnType)
+	final static public String getPrettySignature(String name, Class<?>[] parameterTypes, Class<?> returnType)
 	{
 		if (!initialized)
 		{

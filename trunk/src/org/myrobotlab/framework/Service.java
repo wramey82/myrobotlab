@@ -448,16 +448,15 @@ public abstract class Service implements Runnable, Serializable {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname,
 			String boundServiceName, GUI service) {
 		try {
 			Object[] params = new Object[2];
 			params[0] = boundServiceName;
 			params[1] = service;
-			Class c;
+			Class<?> c;
 			c = Class.forName(classname);
-			Constructor mc = c.getConstructor(new Class[] { String.class,
+			Constructor<?> mc = c.getConstructor(new Class[] { String.class,
 					GUI.class });
 			return mc.newInstance(params);
 		} catch (ClassNotFoundException e) {
@@ -478,7 +477,6 @@ public abstract class Service implements Runnable, Serializable {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname, String param) {
 		Object params[] = null;
 		if (param != null) {
@@ -486,10 +484,10 @@ public abstract class Service implements Runnable, Serializable {
 			params[0] = param;
 		}
 
-		Class c;
+		Class<?> c;
 		try {
 			c = Class.forName(classname);
-			Constructor mc = c.getConstructor(new Class[] { param.getClass() });
+			Constructor<?> mc = c.getConstructor(new Class[] { param.getClass() });
 			return mc.newInstance(params); // Dynamically instantiate it
 
 		} catch (ClassNotFoundException e) {
@@ -512,16 +510,15 @@ public abstract class Service implements Runnable, Serializable {
 	}
 
 	// TODO - make this the custom call
-	@SuppressWarnings("unchecked")
 	static public Object getNewInstance(String classname, Object[] param) {
-		Class c;
+		Class<?> c;
 		try {
 			c = Class.forName(classname);
-			Class[] paramTypes = new Class[param.length];
+			Class<?>[] paramTypes = new Class[param.length];
 			for (int i = 0; i < param.length; ++i) {
 				paramTypes[i] = param[i].getClass();
 			}
-			Constructor mc = c.getConstructor(paramTypes);
+			Constructor<?> mc = c.getConstructor(paramTypes);
 			return mc.newInstance(param); // Dynamically instantiate it
 
 		} catch (ClassNotFoundException e) {
@@ -1098,13 +1095,12 @@ public abstract class Service implements Runnable, Serializable {
 	}
 	// connection publish points - end ---------------
 
-	@SuppressWarnings("unchecked")
-	public static String getMethodToolTip (String className, String methodName, Class[] params)
+	public static String getMethodToolTip (String className, String methodName, Class<?>[] params)
 	{
 		
 		try {
 		
-			Class c = Class.forName(className);
+			Class<?> c = Class.forName(className);
 	
 			Method m;
 			m = c.getMethod(methodName, params);

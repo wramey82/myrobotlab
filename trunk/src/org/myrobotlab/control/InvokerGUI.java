@@ -50,7 +50,6 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Invoker;
 import org.myrobotlab.service.interfaces.GUI;

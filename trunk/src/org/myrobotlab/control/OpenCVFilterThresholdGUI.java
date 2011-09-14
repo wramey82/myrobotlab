@@ -37,7 +37,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 

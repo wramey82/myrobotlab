@@ -39,11 +39,11 @@ public class Adapter {
 			InvocationTargetException {
 
 		Object retobj = null;
-		Class c = Class.forName(classname); // Dynamically load the class
+		Class<?> c = Class.forName(classname); // Dynamically load the class
 		Object o = c.newInstance(); // Dynamically instantiate it
 
 		String dataClassName = "";
-		Class[] paramTypes = new Class[params.length]; // this part is weak
+		Class<?>[] paramTypes = new Class[params.length]; // this part is weak
 		for (int i = 0; i < params.length; ++i) {
 			// paramTypes[i] = String.class;
 			paramTypes[i] = params[i].getClass();

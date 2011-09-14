@@ -32,7 +32,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterGoodFeaturesToTrack;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;

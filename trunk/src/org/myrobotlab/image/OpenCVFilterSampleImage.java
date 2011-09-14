@@ -36,7 +36,6 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 

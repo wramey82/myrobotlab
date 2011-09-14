@@ -49,16 +49,13 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.interfaces.GUI;
-import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class VideoWidget extends ServiceGUI {
 
-	private static final long serialVersionUID = 1L;
 
 	// is this global?
-	HashMap<String, JLabel> screens = new HashMap<String, JLabel>();
+//	HashMap<String, JLabel> screens = new HashMap<String, JLabel>();
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 	// JComboBox sources = new JComboBox();
@@ -190,8 +187,8 @@ public class VideoWidget extends ServiceGUI {
 			 * img.source is the name of the bound filter
 			 */
 			 
-			if (!screens.containsKey(img.source)) {
-				screens.put(img.source, new JLabel());
+			if (!displays.containsKey(img.source)) {
+//				screens.put(img.source, new JLabel());
 				parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
 				getSources();
 			}
@@ -238,7 +235,7 @@ public class VideoWidget extends ServiceGUI {
 		public void getSources()
 		{
 
-			Map<String, JLabel> sortedMap = new TreeMap<String, JLabel>(screens);
+			Map<String, VideoDisplayPanel> sortedMap = new TreeMap<String, VideoDisplayPanel>(displays);
 			Iterator<String> it = sortedMap.keySet().iterator();
 
 			sources.removeAllItems();
@@ -352,7 +349,7 @@ public class VideoWidget extends ServiceGUI {
 		display.setBorder(title);
 		
 		addVideoDisplayPanel("output"); // create initial display "output"
-		screens.put("output", new JLabel("output"));
+//		screens.put("output", new JLabel("output"));
 		//addVideoDisplayPanel("shoe"); // create initial display "output"
 		//gc.gridx = 40;
 		//display.add(new JLabel("blah blah blah"), gc);
@@ -432,22 +429,4 @@ public class VideoWidget extends ServiceGUI {
 		}
 
 	}
-
-	/*
-	 * FIXME - there is some confusion which needs to be defined or normalized
-	 * is the filterName always the same as the SerializedImage.source ??
-	 * One or the other should be used - possibly both used but the rules of each
-	 * need to be defined.
-	 */
-	/* Depricated - OpenCV publish functions leave with .source set !
-	public void displayFrame(String filterName, SerializableImage img) {
-		if (displays.containsKey(filterName))
-		{
-			displays.get(filterName).displayFrame(filterName, img);
-		} else {
-			
-		}
-	}
-	*/
-
 }
