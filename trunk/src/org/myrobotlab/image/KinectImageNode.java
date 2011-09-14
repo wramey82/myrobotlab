@@ -27,6 +27,8 @@ public class KinectImageNode implements Serializable {
 	public Rectangle boundingBox2 = null;
 	public SerializableImage template = null;
 	public String imageFilePath = null;
+	
+	public int lastGoodFitIndex = 0;
 
 	public IplImage getTemplate()
 	{

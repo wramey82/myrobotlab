@@ -175,6 +175,16 @@ public abstract class ServiceGUI {
 	/*
 	 * Service functions
 	 */
+	public void sendNotifyRequest(String inOutMethod) 
+	{
+		sendNotifyRequest(inOutMethod, inOutMethod, null);
+	}
+
+	public void sendNotifyRequest(String inMethod, String outMethod) 
+	{
+		sendNotifyRequest(inMethod, outMethod, null);
+	}
+	
 	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
 		NotifyEntry ne = null;
@@ -193,6 +203,16 @@ public abstract class ServiceGUI {
 
 	// TODO - more closely model java event system with addNotification or
 	// addListener
+	public void removeNotifyRequest(String inOutMethod) 
+	{
+		removeNotifyRequest(inOutMethod, inOutMethod, null);
+	}
+
+	public void removeNotifyRequest(String inMethod, String outMethod) 
+	{
+		removeNotifyRequest(inMethod, outMethod, null);
+	}
+
 	public void removeNotifyRequest(String outMethod, String inMethod,
 			Class<?> parameterType) {
 

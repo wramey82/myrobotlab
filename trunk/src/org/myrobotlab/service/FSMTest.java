@@ -87,6 +87,7 @@ public class FSMTest extends Service {
 		speech = new Speech("speech");
 		speech.setBackendType(Speech.BACKEND_TYPE_GOOGLE);
 		speech.startService();
+		speech.setLanguage("en");
 		opencv = new OpenCV("opencv");
 		opencv.startService();
 		gui = new GUIService("gui");
@@ -129,20 +130,20 @@ public class FSMTest extends Service {
 	 * other input is in BagOfPhrases
 	 */
 
-	final static String FIND_OBJECT = "what is this"; // actor
-	final static String HELLO = "hello"; // response
-	final static String YES = "yes"; // response
-	final static String NO = "no"; // response
-	final static String I_AM_NOT_SURE = "i am not sure"; // response
-	final static String I_DO_NOT_UNDERSTAND = "i do not understand";
-	final static String GET_ASSOCIATIVE_WORD = "get associative word";
-	final static String QUERY_OBJECT = "i do not know what it is can you tell me";
-	final static String WAITING_FOR_POLYGONS = "i am waiting for polygons";
-	final static String IDLE = "i am in an idle state";
-	final static String FOUND_POLYGONS = "i have found polygons";
-	final static String GET_CAMERA_FRAME = "i am getting an image";
+	public final static String FIND_OBJECT = "what is this"; // actor
+	public final static String HELLO = "hello"; // response
+	public final static String YES = "yes"; // response
+	public final static String NO = "no"; // response
+	public final static String I_AM_NOT_SURE = "i am not sure"; // response
+	public final static String I_DO_NOT_UNDERSTAND = "i do not understand";
+	public final static String GET_ASSOCIATIVE_WORD = "get associative word";
+	public final static String QUERY_OBJECT = "i do not know what it is can you tell me";
+	public final static String WAITING_FOR_POLYGONS = "i am waiting for polygons";
+	public final static String IDLE = "i am in an idle state";
+	public final static String FOUND_POLYGONS = "i have found polygons";
+	public final static String GET_CAMERA_FRAME = "i am getting an image";
 	
-	final static String UNKNOWN = "i don't know";
+	public final static String UNKNOWN = "i don't know";
 	
 	
 	public void initPhrases()
@@ -327,7 +328,11 @@ public class FSMTest extends Service {
 			return;
 		}
 		
+		
+		invoke("clearVideo0");
+		
 		// run through - find best match - TODO - many other algorithms and techniques
+		
 		
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
@@ -346,13 +351,17 @@ public class FSMTest extends Service {
 			Node toSearch = memory.get(n);
 			fit = match(toSearch, unknown);
 
+			toSearch.imageData.get(0).lastGoodFitIndex = fit;
+			
 			if (fit < bestFit)
 			{
 				bestFit = fit;
 				bestFitName = n;
 			}
 		}
-		
+
+		invoke("publishVideo0", memory);
+
 		if (bestFit < 500)
 		{
 		// if found
@@ -387,8 +396,8 @@ public class FSMTest extends Service {
 	// Don't use CVObjects out of OpenCV
 	int match (Node toSearch, Node unknown)
 	{
-		invoke("publishVideo0", toSearch);
-		invoke("publishVideo1", unknown);
+		//invoke("publishVideo0", toSearch);
+		//invoke("publishVideo1", unknown);
 
 		IplImage frame    = toSearch.imageData.get(0).cvCameraFrame;
 		IplImage template = unknown.imageData.get(0).cvCameraFrame;
@@ -423,7 +432,7 @@ public class FSMTest extends Service {
 		
 		cvMinMaxLoc ( result, minVal, maxVal, minLoc, maxLoc, null );
 		// publish result
-		invoke("publishMatchResult", result);
+		// invoke("publishMatchResult", result);
 		
 		tempRect0.x(minLoc.x());
 		tempRect0.y(minLoc.y());
@@ -446,10 +455,18 @@ public class FSMTest extends Service {
 		return p;
 	}	
 
+	public HashMap<String, Node> publishVideo0(HashMap<String, Node> memory) {
+		return memory;
+	}	
+
+	// event to clear the GUI's FSMTest video
+	public void clearVideo0() {
+	}	
+	
 	public Node publishVideo0(Node o) {
 		return o;
 	}	
-
+	
 	public Node publishVideo1(Node o) {
 		return o;
 	}	
