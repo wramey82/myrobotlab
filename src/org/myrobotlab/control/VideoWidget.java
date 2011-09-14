@@ -49,6 +49,7 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
@@ -380,6 +381,30 @@ public class VideoWidget extends ServiceGUI {
 		++videoDisplayXPos;		
 		display.invalidate();
 		myService.pack();
+	}
+	
+	public void removeVideoDisplayPanel(String source)
+	{
+		if (!displays.containsKey(source))
+		{
+			LOG.error("cannot remove VideoDisplayPanel " + source);
+			return;
+		}
+		
+		VideoDisplayPanel vdp = displays.remove(source);
+		display.remove(vdp.myDisplay);		
+		//--videoDisplayXPos;		
+		display.invalidate();
+		myService.pack();
+	}
+	
+	public void removeAllVideoDisplayPanels ()
+	{
+		Iterator<String> itr = displays.keySet().iterator();
+		while (itr.hasNext()) {
+			removeVideoDisplayPanel(itr.next());
+		}
+		
 	}
 	
 	/* 
