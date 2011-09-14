@@ -288,7 +288,8 @@ public class FSMTest extends Service {
 			// "not exactly thread safe"
 			invoke("changeState", FOUND_POLYGONS);
 
-			List<KinectImageNode> clone = new ArrayList<KinectImageNode>(p.size());
+			// dont have to do this now that the filter is making new arrays
+//			List<KinectImageNode> clone = new ArrayList<KinectImageNode>(p.size());
 //			for(KinectImageNode item: p) clone.add((Object)item.clone());
 			
 			Node n = new Node();

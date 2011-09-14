@@ -57,7 +57,7 @@ public class ServiceTest {
 	@Test
 	public final void blockingTest() {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		LOG.debug("blockingTest begin-------------");
 
@@ -224,7 +224,7 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
 		assertEquals(catcher.catchList.get(0), new Integer(7));
 
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		//Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		RuntimeEnvironment.releaseAll();
 		

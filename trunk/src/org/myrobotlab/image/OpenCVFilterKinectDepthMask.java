@@ -72,7 +72,10 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	IplImage gray = null;
 	IplImage mask = null;
 	
-	public ArrayList<KinectImageNode> nodes = new ArrayList<KinectImageNode>();
+	// Make memory - do not optimize - will only lead to bugs
+	// the correct optimization would be NOT TO PUBLISH
+	//public ArrayList<KinectImageNode> nodes = new ArrayList<KinectImageNode>();
+	public ArrayList<KinectImageNode> nodes = null;
 	
 	BufferedImage frameBuffer = null;
 	CvMemStorage cvStorage = null;
@@ -197,9 +200,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 		cvResetImageROI(mask);
 		cvResetImageROI(black);
 		cvCopy(itemp, itemp2, black);
-
-		
-		
+				
 		myService.invoke("publishFrame", "input", itemp.getBufferedImage());
 		myService.invoke("publishFrame", "kinectDepth", ktemp.getBufferedImage());
 		myService.invoke("publishFrame", "kinectMask", mask.getBufferedImage());
@@ -208,8 +209,6 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 		// find contours ---- begin ------------------------------------
 		CvSeq contour = contourPointer;
 		int cnt = 0;
-
-		nodes.clear();
 		
 		// cvFindContours(mask, cvStorage, contourPointer, Loader.sizeof(CvContour.class), 0 ,CV_CHAIN_APPROX_SIMPLE); NOT CORRECTED
 		if (itemp2.nChannels()== 3) {
@@ -225,65 +224,65 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// LOG.error("getStructure");
 
-		nodes.clear();
-
-		minArea = 1500;
-		while (contour != null && !contour.isNull()) {			
-			if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
-
-				CvRect rect = cvBoundingRect(contour, 0);
-
-				// size filter
-				if (minArea > 0 && (rect.width() * rect.height()) < minArea)
-				{
-					isMinArea = false;
-				}
-
-				if (maxArea > 0)
-				{
-					isMaxArea = false;
-				} 
-				
-				
-				if (isMinArea && isMaxArea)
-				{
-					CvSeq points = cvApproxPoly(contour,
-							Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
-							cvContourPerimeter(contour) * 0.02, 1);
-					KinectImageNode node = new KinectImageNode();
-					//node.cameraFrame = image.getBufferedImage(); 
-					node.cvCameraFrame = itemp.clone();  // pyramid down version
-					node.boudingBox = new CvRect(rect);
-					nodes.add(node);
-					
-					if (drawBoundingBoxes)
+		if (publishNodes) {
+			minArea = 1500;
+			nodes = new ArrayList<KinectImageNode>();
+			while (contour != null && !contour.isNull()) {			
+				if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
+	
+					CvRect rect = cvBoundingRect(contour, 0);
+	
+					// size filter
+					if (minArea > 0 && (rect.width() * rect.height()) < minArea)
 					{
-						cvPutText(itemp2, " " + points.total() + " "
-								+ (rect.x() + rect.width() / 2) + ","
-								+ (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height() + "="
-								+ (rect.width() * rect.height()) + " " + " "
-								+ cvCheckContourConvexity(points), cvPoint(
-								rect.x() + rect.width() / 2, rect.y()), font,
-								CvScalar.WHITE);
-						p0.x(rect.x());
-						p0.y(rect.y());
-						p1.x(rect.x() + rect.width());
-						p1.y(rect.y() + rect.height());
-						cvDrawRect(itemp2, p0, p1, CvScalar.RED, 1, 8, 0);
+						isMinArea = false;
 					}
+	
+					if (maxArea > 0)
+					{
+						isMaxArea = false;
+					} 
+					
+					
+					if (isMinArea && isMaxArea)
+					{
+						CvSeq points = cvApproxPoly(contour,
+								Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
+								cvContourPerimeter(contour) * 0.02, 1);
+						KinectImageNode node = new KinectImageNode();
+						//node.cameraFrame = image.getBufferedImage(); 
+						node.cvCameraFrame = itemp.clone();  // pyramid down version
+						node.boudingBox = new CvRect(rect);
+						nodes.add(node);
+						
+						if (drawBoundingBoxes)
+						{
+							cvPutText(itemp2, " " + points.total() + " "
+									+ (rect.x() + rect.width() / 2) + ","
+									+ (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height() + "="
+									+ (rect.width() * rect.height()) + " " + " "
+									+ cvCheckContourConvexity(points), cvPoint(
+									rect.x() + rect.width() / 2, rect.y()), font,
+									CvScalar.WHITE);
+							p0.x(rect.x());
+							p0.y(rect.y());
+							p1.x(rect.x() + rect.width());
+							p1.y(rect.y() + rect.height());
+							cvDrawRect(itemp2, p0, p1, CvScalar.RED, 1, 8, 0);
+						}
+					}
+	
+					isMinArea = true;
+					isMaxArea = true;
+	
+					++cnt;
 				}
-
-				isMinArea = true;
-				isMaxArea = true;
-
-				++cnt;
-			}
-			contour = contour.h_next();
-		}
+				contour = contour.h_next();
+			} // while (contour != null && !contour.isNull())		
+			myService.invoke("publish", (Object) nodes);	
+		} // if (publishNodes)
 
 		cvClearMemStorage(cvStorage);
-
-		if (publishNodes) { myService.invoke("publish", (Object) nodes); }
 		
 		// find contours ---- end --------------------------------------
 		
