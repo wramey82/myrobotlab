@@ -40,8 +40,6 @@ public class DifferentialDriveGUI extends ServiceGUI {
 	// if is local - can get a reference (experimental)
 	DifferentialDrive localReference = null; 
 
-	private static final long serialVersionUID = 1L;
-
 	JLabel speed = new JLabel("0.0");
 
 	// bindings begin --------------

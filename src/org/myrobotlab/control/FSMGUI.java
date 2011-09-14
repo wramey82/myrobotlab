@@ -31,14 +31,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -50,8 +45,6 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
-import org.myrobotlab.service.Invoker;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class FSMGUI extends ServiceGUI {
