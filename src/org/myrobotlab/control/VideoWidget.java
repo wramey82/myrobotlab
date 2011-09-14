@@ -404,7 +404,8 @@ public class VideoWidget extends ServiceGUI {
 		while (itr.hasNext()) {
 			removeVideoDisplayPanel(itr.next());
 		}
-		
+		videoDisplayXPos = 0;
+		videoDisplayYPos = 0;
 	}
 	
 	/* 

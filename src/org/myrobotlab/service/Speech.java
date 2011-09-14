@@ -333,6 +333,12 @@ public class Speech extends Service {
 		
 	}
 	
+	
+	public void setLanguage(String l)
+	{
+		language = l;
+	}
+	
 	//String language = "eng-us";
 	String language = "en";
 	public void speakGoogle(String toSpeak)
