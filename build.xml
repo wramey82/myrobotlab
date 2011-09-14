@@ -1,5 +1,5 @@
 <!-- <project name="myrobotlab" default="dist" basedir="."> -->
-<project name="myrobotlab" default="javadoc" basedir=".">
+<project name="myrobotlab" default="junitreport" basedir=".">
 	<description>
 		http://myrobotlab.org myrobotlab build file
     </description>
@@ -10,10 +10,8 @@
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist" />
 	<property name="report.dir"  location="report" />
-	<property name="thirdParty.lib"  location="./thirdParty/lib" />
+	<property name="thirdParty.lib"  location="thirdParty/lib" />
 	
-	
-
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/lib">
 			<include name="*.jar"/>
@@ -175,37 +173,30 @@
 	        labels="OpSys-All" />
 	</target>
 	
-	  <target name="junit" depends="">
+	  <target name="junit" depends="dist">
 	        <mkdir dir="${report.dir}"/>
 	        <junit printsummary="yes">
 	            <classpath>
-	            	<!--
-	                <path refid="classpath"/>
-	                <path refid="application"/> 
-	                <path refid="${thirdParty.lib}"/>
-	            	<fileset dir="lib">
-	            	        <include name="${thirdParty.lib}"/>
-	            	 </fileset>
-	                -->
-	            	<!-- <pathelement path="${thirdParty.lib}/*.jar"/> -->
-	            	<pathelement path="${thirdParty.lib}/junit-4.4.jar"/>
+	            	<fileset dir="/home/gperry/myrobotlab/myrobotlab/thirdParty/lib">
+	            		<filename name="**/*.jar"/>	
+	            	</fileset>
 	            	
-	            	<!-- <path refid="${thirdParty.lib}/junit-4.4.jar"/> -->
-	            	
+	    	       <pathelement path="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/> 
+	      	            	
 	            </classpath>
 	            
 	            <formatter type="xml"/>
-	            
+	            <test name="org.myrobotlab.test.junit.ServiceTest" todir="${report.dir}"/>
 	            <batchtest fork="yes" todir="${report.dir}">
 	                <fileset dir="${src}" includes="*Test.java"/>
 	            </batchtest>
 	        </junit>
 	    </target>
 	    
-	    <target name="junitreport" depends="junit">
+	    <target name="junitreport" depends="">
 	        <junitreport todir="${report.dir}">
 	            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
-	            <report todir="${report.dir}"/>
+	            <report format="noframes" todir="${report.dir}"/>
 	        </junitreport>
 	    </target>
 	
