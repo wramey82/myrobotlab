@@ -23,6 +23,8 @@
  * 
  * */
 
+// TODO - have no published OpenCV items - move all to java.awt objects - no native code necessary in viewer
+
 package org.myrobotlab.image;
 import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
