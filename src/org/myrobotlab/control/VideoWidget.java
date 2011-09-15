@@ -399,8 +399,13 @@ public class VideoWidget extends ServiceGUI {
 	{
 		Iterator<String> itr = displays.keySet().iterator();
 		while (itr.hasNext()) {
-			removeVideoDisplayPanel(itr.next());
+			String n = itr.next();
+			LOG.error("removing " + n);
+			//removeVideoDisplayPanel(n);
+			VideoDisplayPanel vdp = displays.get(n);
+			display.remove(vdp.myDisplay);
 		}
+		displays.clear();
 		videoDisplayXPos = 0;
 		videoDisplayYPos = 0;
 	}
