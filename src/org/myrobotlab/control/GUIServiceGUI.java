@@ -396,7 +396,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		TreeMap<String, ServiceWrapper>sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
-		int i = 0;
 		int x = 20;
 		int y = 20;
 
@@ -468,13 +467,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				y += 150;
 				x = 20;
 			}
-
-			++i;
-
 		}
-
 	}
-
 
 
 	public void buildLocalServiceRoutes() {
@@ -510,7 +504,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 	}
 
-	public static String formatMethodString (String out, Class[] paramTypes, String in)
+	public static String formatMethodString (String out, Class<?>[] paramTypes, String in)
 	{
 		// test if outmethod = in
 		String methodString = out;

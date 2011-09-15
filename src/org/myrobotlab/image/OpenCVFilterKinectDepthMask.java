@@ -260,6 +260,8 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						CvSeq points = cvApproxPoly(contour,
 								Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
 								cvContourPerimeter(contour) * 0.02, 1);
+						// FIXME - do the work of changing all datatypes so that the only
+						// published material is java.awt object no OpenCV objects
 						KinectImageNode node = new KinectImageNode();
 						//node.cameraFrame = image.getBufferedImage(); 
 						node.cvCameraFrame = itemp.clone();  // pyramid down version

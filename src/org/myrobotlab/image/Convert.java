@@ -35,7 +35,6 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
-import java.awt.image.renderable.ParameterBlock;
 import java.util.Hashtable;
 
 /* not worth it
@@ -74,7 +73,7 @@ public class Convert {
 		WritableRaster raster = cm
 				.createCompatibleWritableRaster(width, height);
 		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		Hashtable properties = new Hashtable();
+		Hashtable<String, Object> properties = new Hashtable<String, Object>();
 		String[] keys = img.getPropertyNames();
 		if (keys != null) {
 			for (int i = 0; i < keys.length; i++) {

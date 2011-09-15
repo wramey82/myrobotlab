@@ -35,6 +35,8 @@ import java.util.Iterator;
 import javax.swing.JButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.VideoWidget.VideoDisplayPanel;
+import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.FSMTest;
 import org.myrobotlab.service.OpenCV;
@@ -115,7 +117,12 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 			Node node = memory.get(n);
 			for (int i = 0; i < node.imageData.size(); ++i)
 			{	
-				video0.addVideoDisplayPanel(n);
+				KinectImageNode kin = node.imageData.get(i);
+				//kin.extraDataLabel
+				VideoDisplayPanel vdp = video0.addVideoDisplayPanel(n);
+				vdp.extraDataLabel.setText("match:" + kin.lastGoodFitIndex);
+				// TODO - write bounding box - mask & crop image - do this at node level?
+				// in filter
 				video0.displayFrame(OpenCV.publishFrame(n,node.imageData.get(i).cvCameraFrame.getBufferedImage()));
 			}
 		}

@@ -31,12 +31,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.Service;
 import org.op.chess.ChessBoard;
 
 public final class ChessApp extends JApplet implements Constants,
     VetoableChangeListener, PropertyChangeListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger LOG = Logger.getLogger(ChessApp.class.getCanonicalName());
 
     private Board board = new Board();

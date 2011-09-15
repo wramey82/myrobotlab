@@ -77,6 +77,7 @@ public class VideoWidget extends ServiceGUI {
 		JButton fork = new JButton("fork");
 		JComboBox localSources = null;
 		JLabel sourceNameLabel = new JLabel("");
+		public JLabel extraDataLabel = new JLabel("");
 
 		public SerializableImage lastImage = null;
 		public ImageIcon lastIcon = new ImageIcon();
@@ -91,7 +92,7 @@ public class VideoWidget extends ServiceGUI {
 			public void mouseClicked(MouseEvent e) {
 				mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
 				Object[] d = new Object[1];
-				d[0] = e;
+				d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not OpenCV specific
 				myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", d); 
 			}
 
@@ -121,7 +122,7 @@ public class VideoWidget extends ServiceGUI {
 		VideoDisplayPanel(String boundFilterName, VideoWidget p)
 		{
 			this.parent = p;
-			this.boundFilterName = boundFilterName;			
+			this.boundFilterName = boundFilterName;	// TODO - boundSourceName - not OpenCV specific		
 			
 			myDisplay.setLayout(new GridBagLayout());
 
@@ -164,18 +165,25 @@ public class VideoWidget extends ServiceGUI {
 			gc.gridwidth = 5;
 			++gc.gridy;
 			myDisplay.add(screen, gc);
+			
+			// add the sub-text components
 			gc.gridwidth = 1;
 			++gc.gridy;
-			// myDisplay.add(getConnectButton(), gc);
-			// ++gc.gridy;
 			myDisplay.add(mouseInfo, gc);
 			++gc.gridx;
 			myDisplay.add(resolutionInfo, gc);
 			++gc.gridy;
 			myDisplay.add(deltaTime, gc);
+			
+			gc.gridx = 0;
 			++gc.gridy;
 			gc.gridwidth = 5;
 			myDisplay.add(sourceNameLabel, gc);		
+
+			gc.gridx = 0;
+			++gc.gridy;
+			gc.gridwidth = 5;
+			myDisplay.add(extraDataLabel, gc);		
 			
 		}
 		
@@ -241,11 +249,9 @@ public class VideoWidget extends ServiceGUI {
 			sources.removeAllItems();
 			
 			// String [] namesAndClasses = new String[sortedMap.size()];
-			int i = 0;
 			while (it.hasNext()) {
 				String serviceName = it.next();
 				sources.addItem(serviceName);
-				++i;
 			}
 		}
 
@@ -296,11 +302,9 @@ public class VideoWidget extends ServiceGUI {
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		// String [] namesAndClasses = new String[sortedMap.size()];
-		int i = 0;
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			cb.addItem(serviceName);
-			++i;
 		}
 
 		return cb;
@@ -355,7 +359,7 @@ public class VideoWidget extends ServiceGUI {
 		//display.add(new JLabel("blah blah blah"), gc);
 	}
 
-	public void addVideoDisplayPanel(String source)
+	public VideoDisplayPanel addVideoDisplayPanel(String source)
 	{
 		
 		if (videoDisplayXPos%2 == 0)
@@ -378,6 +382,8 @@ public class VideoWidget extends ServiceGUI {
 		++videoDisplayXPos;		
 		display.invalidate();
 		myService.pack();
+		
+		return vp;
 	}
 	
 	public void removeVideoDisplayPanel(String source)
