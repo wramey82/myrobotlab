@@ -280,8 +280,11 @@ public class FSMTest extends Service {
 		invoke("changeState", WAITING_FOR_POLYGONS);
 	}
 
-	
-	public void publish(ArrayList<KinectImageNode> p) {
+
+	// FYI - This "SHOULD" not need synchronized as there is only 1 thread
+	// servicing the InBox queue - remove after it is determined that it does not
+	// solve the problem
+	public synchronized void publish(ArrayList<KinectImageNode> p) {
 		LOG.error("found " + p.size() + " contextImageDataObjects");
 		filter.publishNodes = false;
 		
@@ -289,19 +292,19 @@ public class FSMTest extends Service {
 		/// you could further guard by a new context
 		if (context.equals(WAITING_FOR_POLYGONS))
 		{
-			// "not exactly thread safe"
-			invoke("changeState", FOUND_POLYGONS);
+			// invoking occurs on the same thread....
+			// this "should" be thread safe with the syncrhonized call
+			//invoke("changeState", FOUND_POLYGONS);
+			changeState(FOUND_POLYGONS);
 
-			// dont have to do this now that the filter is making new arrays
-//			List<KinectImageNode> clone = new ArrayList<KinectImageNode>(p.size());
-//			for(KinectImageNode item: p) clone.add((Object)item.clone());
-			
 			Node n = new Node();
 			n.word = UNKNOWN;
 			n.imageData = p;
 			memory.put(UNKNOWN, n);
 			
-//			currentImageData = p.get(0);
+			// the data arrives on the InBox (from the VideoProcessor Thread)
+			// the processing of the InBox message is done by the FSMTest thread
+			// which invoked by the Message call processPolygons
 
 			processPolygons();
 		}

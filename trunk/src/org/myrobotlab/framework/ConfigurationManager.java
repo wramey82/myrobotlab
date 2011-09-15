@@ -46,7 +46,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 

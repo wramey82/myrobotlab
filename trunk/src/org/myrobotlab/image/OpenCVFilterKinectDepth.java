@@ -25,11 +25,9 @@
 
 package org.myrobotlab.image;
 
-import static com.googlecode.javacv.cpp.opencv_core.cvConvertScale;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
-import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -38,10 +36,7 @@ import java.awt.image.BufferedImage;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
