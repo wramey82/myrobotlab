@@ -10,8 +10,10 @@
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist" />
 	<property name="report.dir"  location="report" />
-	<property name="thirdParty.lib"  location="thirdParty/lib" />
+	<property name="thirdParty.lib"  location="./thirdParty/lib" />
+	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 	
+
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/lib">
 			<include name="*.jar"/>
@@ -159,7 +161,7 @@
 
 
 	
-	<target name="uploadJar" depends="dist" description="upload to google code">
+	<target name="uploadJar" depends="junit" description="upload to google code">
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" 
 		classpath="/home/gperry/.ant/lib/ant-googlecode-0.0.3.jar" name="gcupload"/>
 	<gcupload 
@@ -177,26 +179,27 @@
 	        <mkdir dir="${report.dir}"/>
 	        <junit printsummary="yes">
 	            <classpath>
-	            	<fileset dir="/home/gperry/myrobotlab/myrobotlab/thirdParty/lib">
-	            		<filename name="**/*.jar"/>	
-	            	</fileset>
-	            	
-	    	       <pathelement path="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/> 
-	      	            	
+	        		<fileset dir="${thirdParty.lib}">
+	        			<include name="*.jar"/>
+	        		</fileset>
+	            	<pathelement path="${thirdParty.lib}/junit-4.4.jar"/>
+	            	<!-- pathelement path="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/ -->
+	            	<pathelement location="${build}" />
 	            </classpath>
 	            
 	            <formatter type="xml"/>
-	            <test name="org.myrobotlab.test.junit.ServiceTest" todir="${report.dir}"/>
+	            
 	            <batchtest fork="yes" todir="${report.dir}">
-	                <fileset dir="${src}" includes="*Test.java"/>
+	                <fileset dir="${src}" includes="**/junit/*Test.java"/>
 	            </batchtest>
 	        </junit>
 	    </target>
 	    
 	    <target name="junitreport" depends="">
-	        <junitreport todir="${report.dir}">
+	        <junitreport>
 	            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
-	            <report format="noframes" todir="${report.dir}"/>
+	            <report todir="${report.dir}" format="noframes">
+	        	</report>
 	        </junitreport>
 	    </target>
 	
@@ -222,6 +225,13 @@
 	    <link offline="true" href="http://download.oracle.com/javase/6/docs/api/" packagelistLoc="C:\tmp"/>
 	    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/> -->
 	    
-	  </javadoc>	
-	</target>	
+	  </javadoc>					
+	</target>
+<!-- how to call a class directly	
+	<target name="run" depends="compile">
+	  <java fork="true" failonerror="yes" classname="Addition" classpath="build">  
+	  <arg line=""/>
+	  </java>
+	  </target>
+-->	
 </project>
