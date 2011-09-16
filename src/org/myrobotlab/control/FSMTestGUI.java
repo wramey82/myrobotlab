@@ -25,7 +25,9 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -37,6 +39,7 @@ import javax.swing.JButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.control.VideoWidget.VideoDisplayPanel;
 import org.myrobotlab.image.KinectImageNode;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.FSMTest;
 import org.myrobotlab.service.OpenCV;
@@ -76,12 +79,22 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		JButton b = new JButton("look");
 		b.addActionListener(state);
 		display.add(b, gc);		
+		
 		++gc.gridx;
-
 		b = new JButton("ball");
 		b.addActionListener(state);
 		display.add(b, gc);		
 
+		++gc.gridx;
+		b = new JButton("guitar");
+		b.addActionListener(state);
+		display.add(b, gc);		
+		
+		++gc.gridx;
+		b = new JButton("save");
+		b.addActionListener(state);
+		display.add(b, gc);		
+		
 		gc.gridx = 0;
 		++gc.gridy;
 		
@@ -110,7 +123,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(FSMTest.UNKNOWN);
 		LOG.error( unknown.imageData.get(0).cvBoundingBox);
-		LOG.error( unknown.imageData.get(0).boundingBox2);
+		LOG.error( unknown.imageData.get(0).boundingBox);
 		
 		while (itr.hasNext()) {
 			String n = itr.next();
@@ -120,10 +133,17 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 				KinectImageNode kin = node.imageData.get(i);
 				//kin.extraDataLabel
 				VideoDisplayPanel vdp = video0.addVideoDisplayPanel(n);
-				vdp.extraDataLabel.setText("match:" + kin.lastGoodFitIndex);
+				vdp.extraDataLabel.setText(node.word + " match:" + kin.lastGoodFitIndex);
 				// TODO - write bounding box - mask & crop image - do this at node level?
 				// in filter
-				video0.displayFrame(OpenCV.publishFrame(n,node.imageData.get(i).cvCameraFrame.getBufferedImage()));
+				SerializableImage si = kin.cameraFrame;
+				si.source = node.word;
+				Graphics g = si.getImage().getGraphics();
+				g.setColor(Color.WHITE);
+				Rectangle r = kin.boundingBox;
+				g.drawRect(r.x, r.y, r.width, r.height);
+				g.dispose();
+				video0.displayFrame(si);
 			}
 		}
 	}
