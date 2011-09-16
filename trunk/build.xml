@@ -1,4 +1,13 @@
 <!-- <project name="myrobotlab" default="dist" basedir="."> -->
+
+<!--
+	Dependencies:
+		Windows:
+			svnversion.exe - http://www.corrupteddatarecovery.com/File-Data/svnversion.exe-Subversion-httpsubversion.tigris.org-1.4.5-(r25188).asp
+		Linux:
+			svnversion			
+-->
+
 <project name="myrobotlab" default="junitreport" basedir=".">
 	<description>
 		http://myrobotlab.org myrobotlab build file
@@ -43,7 +52,7 @@
 	<target name="compile" depends="init"
         description="compile the source " >
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}">
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
 			<classpath refid="compile.classpath"/>
 		</javac>
 		<!-- copy resources -->
@@ -195,7 +204,7 @@
 	        </junit>
 	    </target>
 	    
-	    <target name="junitreport" depends="">
+	    <target name="junitreport" depends="junit">
 	        <junitreport>
 	            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
 	            <report todir="${report.dir}" format="noframes">
