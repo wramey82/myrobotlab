@@ -18,12 +18,12 @@ public class KinectImageNode implements Serializable {
 	// won't serialize - need type conversion
 	public transient IplImage cvCameraFrame = null; 
 	public transient IplImage cvMask = null; 
+	public CvRect cvBoundingBox = null;
 	//public transient IplImage cvGrayFrame = null; 
 		
 	public SerializableImage cameraFrame = null;
 	public SerializableImage mask = null;
 	//public Rectangle boudingBox = null;
-	public CvRect boundingBox = null;
 	public Rectangle boundingBox2 = null;
 	public SerializableImage template = null;
 	public String imageFilePath = null;
@@ -32,7 +32,7 @@ public class KinectImageNode implements Serializable {
 
 	public IplImage getTemplate()
 	{
-		cvSetImageROI(cvMask, boundingBox); // 615-8 = to remove right hand band
+		cvSetImageROI(cvMask, cvBoundingBox); // 615-8 = to remove right hand band
 		IplImage template = cvMask.clone(); // 
 		cvResetImageROI(cvMask);
 		return template;

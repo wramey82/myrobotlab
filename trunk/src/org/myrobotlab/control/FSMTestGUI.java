@@ -109,7 +109,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(FSMTest.UNKNOWN);
-		LOG.error( unknown.imageData.get(0).boundingBox);
+		LOG.error( unknown.imageData.get(0).cvBoundingBox);
 		LOG.error( unknown.imageData.get(0).boundingBox2);
 		
 		while (itr.hasNext()) {

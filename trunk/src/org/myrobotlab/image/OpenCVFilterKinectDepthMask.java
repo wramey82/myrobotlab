@@ -1,6 +1,5 @@
 /**
  *                    
- * @author greg (at) myrobotlab.org
  *  
  * This file is part of MyRobotLab (http://myrobotlab.org).
  *
@@ -265,10 +264,13 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						KinectImageNode node = new KinectImageNode();
 						//node.cameraFrame = image.getBufferedImage(); 
 						node.cvCameraFrame = itemp.clone();  // pyramid down version
-						node.boundingBox = new CvRect(rect);
+						node.cvBoundingBox = new CvRect(rect);
 						node.boundingBox2 = new Rectangle(rect.x(),rect.y(),rect.width(), rect.height());
+						
+						//node.cvMask crop()
+						
 						LOG.error(rect);
-						LOG.error(node.boundingBox);
+						LOG.error(node.cvBoundingBox);
 						LOG.error(node.boundingBox2);
 						nodes.add(node);
 						
