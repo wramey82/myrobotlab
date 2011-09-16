@@ -117,7 +117,7 @@ public class FSMTest extends Service {
 		opencv.capture();
 
 		initPhrases();
-		invoke("changeState", IDLE);
+		changeState(IDLE);
 		speech.speak("my mouth is working");
 		speech.speak("my eyes are open");
 		//speech.speak("ready");
@@ -137,6 +137,7 @@ public class FSMTest extends Service {
 	 * other input is in BagOfPhrases
 	 */
 
+	// TODO - organize & find patterns in the states
 	public final static String FIND_OBJECT = "what is this"; // actor
 	public final static String HELLO = "hello"; // response
 	public final static String YES = "yes"; // response
@@ -147,8 +148,11 @@ public class FSMTest extends Service {
 	public final static String QUERY_OBJECT = "i do not know what it is can you tell me";
 	public final static String WAITING_FOR_POLYGONS = "i am waiting for polygons";
 	public final static String IDLE = "i am in an idle state";
+	public final static String HAPPY = "i am happy";
+	public final static String SAD = "i am bummed";
 	public final static String FOUND_POLYGONS = "i have found polygons";
 	public final static String GET_CAMERA_FRAME = "i am getting an image";
+	public final static String WAITING_FOR_AFFIRMATION = "is that correct?";
 	
 	public final static String UNKNOWN = "i don't know";
 	
@@ -158,31 +162,31 @@ public class FSMTest extends Service {
 		// load recognized grammar - keep in sync with simpl.gram
 		// TODO - dynamically create a simple.gram file? vs programatically change it??
 		// ------------------ SIMPLE.GRAM SYNC BEGIN --------------------------
-		HashMap <String, String> findObjectPhrases = new HashMap<String, String>(); 
-		findObjectPhrases.put("find object", null); 
-		findObjectPhrases.put("look", null); 
-		findObjectPhrases.put("what is this", null); 
-		findObjectPhrases.put("what do you see", null);
-		findObjectPhrases.put("and this", null);
-		findObjectPhrases.put("what about this", null);
-		findObjectPhrases.put("do you know what this is", null);
-		phrases.put(FIND_OBJECT, findObjectPhrases);
+		HashMap <String, String> t = new HashMap<String, String>(); 
+		t.put("find object", null); 
+		t.put("look", null); 
+		t.put("what is this", null); 
+		t.put("what do you see", null);
+		t.put("and this", null);
+		t.put("what about this", null);
+		t.put("do you know what this is", null);
+		phrases.put(FIND_OBJECT, t);
 
-		HashMap <String, String> nounWords = new HashMap<String, String>(); 
-		nounWords.put("cup", null);
-		nounWords.put("measuring thingy", null);
-		nounWords.put("beer", null); 
-		nounWords.put("guitar", null);
-		nounWords.put("phone", null);
-		nounWords.put("food", null);
-		nounWords.put("ball", null);
-		nounWords.put("apple", null);
-		nounWords.put("orange", null);
-		phrases.put(GET_ASSOCIATIVE_WORD, nounWords);
+		t = new HashMap<String, String>(); 
+		t.put("cup", null);
+		t.put("measuring thingy", null);
+		t.put("beer", null); 
+		t.put("guitar", null);
+		t.put("phone", null);
+		t.put("food", null);
+		t.put("ball", null);
+		t.put("apple", null);
+		t.put("orange", null);
+		phrases.put(GET_ASSOCIATIVE_WORD, t);
 		// ------------------ SIMPLE.GRAM SYNC END --------------------------
 
 		
-		HashMap <String, String> t = new HashMap <String, String>();
+		t = new HashMap <String, String>();
 		t.put("i am looking and waiting", null);
 		t.put("i am trying to see an object", null);
 		phrases.put(WAITING_FOR_POLYGONS, t);
@@ -194,58 +198,85 @@ public class FSMTest extends Service {
 		t.put("i see something", null);
 		phrases.put(FOUND_POLYGONS, t);
 				
-		HashMap <String, String> iDoNotKnowWhatItIsCanYouTellMePhrases = new HashMap <String, String>();
-
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i dont know. please tell me", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("can you please tell me what it is", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("please tell me what it is", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("what is it", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("would you tell me what that is", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i do not recognize it. could you tell me", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i wish i knew", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("what would you call it", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i dont know. please tell me", null);
-		iDoNotKnowWhatItIsCanYouTellMePhrases.put("i have never seen one of those before. what is it", null);
-		phrases.put(QUERY_OBJECT, iDoNotKnowWhatItIsCanYouTellMePhrases);
+		t = new HashMap <String, String>();
+		t.put("i dont know. please tell me", null);
+		t.put("can you please tell me what it is", null);
+		t.put("please tell me what it is", null);
+		t.put("what is it", null);
+		t.put("would you tell me what that is", null);
+		t.put("i do not recognize it. could you tell me", null);
+		t.put("i wish i knew", null);
+		t.put("what would you call it", null);
+		t.put("i dont know. please tell me", null);
+		t.put("i have never seen one of those before. what is it", null);
+		phrases.put(QUERY_OBJECT, t);
 		
-		HashMap <String, String> helloPhrases = new HashMap<String, String>(); 
-		helloPhrases.put("hello", null);
-		helloPhrases.put("greetings", null);
-		helloPhrases.put("yes hello", null);
-		helloPhrases.put("hi there", null);
-		helloPhrases.put("good morning", null);
-		phrases.put(HELLO, helloPhrases);
+		t = new HashMap<String, String>(); 
+		t.put("hello", null);
+		t.put("greetings", null);
+		t.put("yes hello", null);
+		t.put("hi there", null);
+		t.put("good morning", null);
+		phrases.put(HELLO, t);
 
-		HashMap <String, String> noPhrases = new HashMap<String, String>(); 
-		noPhrases.put("no", null);
-		noPhrases.put("i do not think so", null);
-		noPhrases.put("no way", null);
-		noPhrases.put("nope", null);
-		noPhrases.put("i doubt it", null);
-		phrases.put(NO, noPhrases);
+		t = new HashMap<String, String>(); 
+		t.put("no", null);
+		t.put("i do not think so", null);
+		t.put("no way", null);
+		t.put("nope", null);
+		t.put("i doubt it", null);
+		phrases.put(NO, t);
 
-		HashMap <String, String> yesPhrases = new HashMap<String, String>(); 
-		yesPhrases.put("yes", null);
-		yesPhrases.put("i believe so", null);
-		yesPhrases.put("most certainly", null);
-		yesPhrases.put("yep", null);
-		yesPhrases.put("affirmative", null);
-		yesPhrases.put("yes of course", null);
-		yesPhrases.put("yeah", null);
-		phrases.put(YES, yesPhrases);
+		t = new HashMap<String, String>(); 
+		t.put("yes", null);
+		t.put("i believe so", null);
+		t.put("most certainly", null);
+		t.put("yep", null);
+		t.put("affirmative", null);
+		t.put("correct", null);
+		t.put("yes of course", null);
+		t.put("yeah", null);
+		phrases.put(YES, t);
 
-		HashMap <String, String> idlePhrases = new HashMap<String, String>(); 
-		idlePhrases.put(IDLE, null);
-		idlePhrases.put("i am at rest", null);
-		idlePhrases.put("i have stopped", null);
-		idlePhrases.put("i am ready", null);
-		idlePhrases.put("i am calm and will be listening for your next command", null);
-		idlePhrases.put("i am zen", null);
-		idlePhrases.put("i am very still", null);
-		phrases.put(IDLE, idlePhrases);
+		t = new HashMap<String, String>(); 
+		t.put(IDLE, null);
+		t.put("i am at rest", null);
+		t.put("i have stopped", null);
+		t.put("i am ready", null);
+		t.put("i am calm and will be listening for your next command", null);
+		t.put("i am zen", null);
+		t.put("i am very still", null);
+		phrases.put(IDLE, t);
 		
-	}
-	
+		t = new HashMap<String, String>(); 
+		t.put(WAITING_FOR_AFFIRMATION, null);
+		t.put("i that right?", null);
+		t.put("am i right?", null);
+		phrases.put(WAITING_FOR_AFFIRMATION, t);		
+		
+		t = new HashMap<String, String>(); 
+		t.put(HAPPY, null);		
+		t.put("great", null);
+		t.put("wonderful", null);
+		t.put("fabulous", null);
+		t.put("kickass", null);
+		t.put("i am rockin", null);
+		t.put("that makes me feel good", null);
+		t.put("excellent", null);
+		phrases.put(HAPPY, t);		
+
+		t = new HashMap<String, String>(); 
+		t.put(SAD, null);		
+		t.put("great", null);
+		t.put("wonderful", null);
+		t.put("fabulous", null);
+		t.put("kickass", null);
+		t.put("i am rockin", null);
+		t.put("that makes me feel good", null);
+		t.put("excellent", null);
+		phrases.put(SAD, t);		
+		
+	}	
 
 	public void heard (String data)
 	{
@@ -278,18 +309,59 @@ public class FSMTest extends Service {
 			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
 			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n.word = data;
-			memory.put(data, n);
+			if (!memory.containsKey(n.word))
+			{
+				// i have learned something new
+				speech.speak("i have learned something new");
+				memory.put(data, n);
+			} else {
+				// i have bound it to something i previously new about
+				speech.speak("i have catogorized it");
+				Node n2 = memory.get(n.word);
+				n2.imageData.add(n.imageData.get(0)); // FIXME - messy
+			}
 			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
-			invoke("changeState", IDLE);
+			lastAssociativeWord = n.word;
+			changeState(IDLE);
 		} else {
 			speech.speak("i do not understand. we were in context " + context + " but you said " + data);
 		}
+		
+		if (phrases.get(YES).containsKey(data) && context.equals(WAITING_FOR_AFFIRMATION))
+		{
+			speech.speak(getPhrase(HAPPY));
+		}
+
+		// result of the computer incorrectly guessing and associating object
+		// need to back out the change - guess only happens if there is a
+		// pre-existing memory object - so the image data must be deleted and a
+		// new UNKOWN object put back in
+		if (phrases.get(NO).containsKey(data) && context.equals(WAITING_FOR_AFFIRMATION))
+		{
+			speech.speak(getPhrase(SAD));
+			// remove last KinectImageData from the "contextWord"
+			// moving node out of word context and into the UNKNOWN
+			// changing state back to GET_ASSOCIATIVE_WORD
+			Node n = memory.get(lastAssociativeWord);
+			// remove last image data
+			KinectImageNode kin = n.imageData.remove(n.imageData.size()-1);
+			Node unknown = new Node();
+			unknown.word = UNKNOWN;
+			unknown.imageData.add(kin);
+			memory.put(UNKNOWN, unknown);
+			// try again - notify ready for correct identification
+			speech.speak(getPhrase(QUERY_OBJECT));
+			changeState(GET_ASSOCIATIVE_WORD);
+		}
+	
 	}
+	
+	String lastAssociativeWord = null;
 
 	public void findKinectPolygons ()
 	{
 		filter.publishNodes = true;
-		invoke("changeState", WAITING_FOR_POLYGONS);
+		changeState(WAITING_FOR_POLYGONS);
 	}
 
 
@@ -330,16 +402,16 @@ public class FSMTest extends Service {
 		if (object.imageData.size() != 1)
 		{
 			speech.speak("i do not know how to deal with " + object.imageData.size() + " thing" + ((object.imageData.size() == 1)?"":"s yet"));
-			invoke("changeState", IDLE);
+			changeState(IDLE);
 			return;
 		}
 			
 		// matchTemplate - adaptive match - non-match
 		if (memory.size() == 1) // unknown objects only
 		{
-			speech.speak("my memory is empty, except for the unknown");
+			//speech.speak("my memory is empty, except for the unknown");
 			speech.speak(getPhrase(QUERY_OBJECT)); // need input from user
-			invoke("changeState", GET_ASSOCIATIVE_WORD);
+			changeState(GET_ASSOCIATIVE_WORD);
 			return;
 		}
 		
@@ -347,8 +419,6 @@ public class FSMTest extends Service {
 		invoke("clearVideo0");
 		
 		// run through - find best match - TODO - many other algorithms and techniques
-		
-		
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
 		LOG.error( unknown.imageData.get(0).cvBoundingBox);
@@ -382,6 +452,8 @@ public class FSMTest extends Service {
 		// if found
 		    // announce - TODO - add map "i think it might be", i'm pretty sure its a, 
 			speech.speak("i think it's a " + bestFitName);
+			Node n = memory.get(bestFitName);
+			n.imageData.add(unknown.imageData.get(0)); // FIXME - messy
 			// with a match ratio of ....
 			// is that correct?
 			// context = WAITING_FOR_AFFIRMATION
@@ -390,7 +462,7 @@ public class FSMTest extends Service {
 			// associate word
 			speech.speak("i do not know what it is");
 			speech.speak(getPhrase(QUERY_OBJECT));
-			invoke("changeState", GET_ASSOCIATIVE_WORD);
+			changeState(GET_ASSOCIATIVE_WORD);
 		}
 	}
 	
@@ -520,6 +592,7 @@ public class FSMTest extends Service {
 		}
 	}
 	
+	// TODO - WebService Call to POST GET and search memory - Jibble it with REST - use new MRL.net utils
 	public void save() //saveMemory
 	{
 		// save to file system in html format vs database
@@ -528,7 +601,7 @@ public class FSMTest extends Service {
 		StringBuffer html = new StringBuffer();
 		html.append("<html><head><head><body>");
 		html.append("<table class=\"memoryTable\">");
-		html.append("<th><td>word</td><td><image></td></th>");
+		html.append("<th><td>word</td><td>image</td></th>");
 		
 		while (itr.hasNext()) {
 			String n = itr.next();
@@ -549,7 +622,7 @@ public class FSMTest extends Service {
 				html.append("<img src=\"images/"+word+"/cropped_" + i + ".jpg\" />");
 				Utils.saveBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"cameraFrame_" + i +".jpg");
 				Utils.saveBufferedImage(kin.cropped.getImage(), "html/images/"+word+"cropped_" + i +".jpg");
-				// TODO - masked - info.txt file to parse (db at some point) - index values - reference values
+				// TODO - masked/alpha - info.txt file to parse (db at some point) - index values - reference values
 				/*
 				Graphics g = bi.getGraphics();
 				g.setColor(Color.WHITE);
@@ -567,7 +640,7 @@ public class FSMTest extends Service {
 		
 		Writer out;
 		try {
-			out = new OutputStreamWriter(new FileOutputStream("index.html"), "UTF-8");
+			out = new OutputStreamWriter(new FileOutputStream("html/index.html"), "UTF-8");
 			out.write(html.toString());
 		    out.close();
 		} catch (Exception e) {
