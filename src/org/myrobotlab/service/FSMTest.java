@@ -262,9 +262,9 @@ public class FSMTest extends Service {
 
 			speech.speak("i will associate this with " + data);
 			Node n = memory.get(UNKNOWN);
-			LOG.error(n.imageData.get(0).boundingBox + "," + n.imageData.get(0).boundingBox2);
+			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox2);
 			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
-			LOG.error(n.imageData.get(0).boundingBox + "," + n.imageData.get(0).boundingBox2);
+			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox2);
 			n.word = data;
 			memory.put(data, n);
 			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
@@ -339,7 +339,7 @@ public class FSMTest extends Service {
 		
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
-		LOG.error( unknown.imageData.get(0).boundingBox);
+		LOG.error( unknown.imageData.get(0).cvBoundingBox);
 		LOG.error( unknown.imageData.get(0).boundingBox2);
 		int bestFit = 1000;
 		int fit = 0;
