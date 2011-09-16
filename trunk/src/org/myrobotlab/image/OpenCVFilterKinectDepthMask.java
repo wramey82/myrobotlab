@@ -259,19 +259,27 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						CvSeq points = cvApproxPoly(contour,
 								Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
 								cvContourPerimeter(contour) * 0.02, 1);
-						// FIXME - do the work of changing all datatypes so that the only
+						// FIXME - do the work of changing all data types so that the only
 						// published material is java.awt object no OpenCV objects
 						KinectImageNode node = new KinectImageNode();
 						//node.cameraFrame = image.getBufferedImage(); 
 						node.cvCameraFrame = itemp.clone();  // pyramid down version
 						node.cvBoundingBox = new CvRect(rect);
-						node.boundingBox2 = new Rectangle(rect.x(),rect.y(),rect.width(), rect.height());
+						node.boundingBox = new Rectangle(rect.x(),rect.y(),rect.width(), rect.height());
+
+						// convert camera frame
+						node.cameraFrame = OpenCV.publishFrame("",node.cvCameraFrame.getBufferedImage());
 						
-						//node.cvMask crop()
+						// cropped
+						cvSetImageROI(node.cvCameraFrame, node.cvBoundingBox);
+						node.cvCropped = cvCreateImage(cvSize(node.cvBoundingBox.width(), node.cvBoundingBox.height()), 8, 3);
+						cvCopy(node.cvCameraFrame, node.cvCropped);
+						cvResetImageROI(node.cvCameraFrame);
+						node.cropped = OpenCV.publishFrame("",node.cvCropped.getBufferedImage());
 						
 						LOG.error(rect);
 						LOG.error(node.cvBoundingBox);
-						LOG.error(node.boundingBox2);
+						LOG.error(node.boundingBox);
 						nodes.add(node);
 						
 						if (drawBoundingBoxes)

@@ -9,6 +9,12 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
+import org.myrobotlab.image.Utils;
 import org.myrobotlab.memory.Node;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -242,6 +249,11 @@ public class FSMTest extends Service {
 
 	public void heard (String data)
 	{
+		if (data.equals("save"))
+		{
+			save();
+		}
+		
 		if (data.equals("stop"))
 		{
 			context = IDLE;
@@ -262,9 +274,9 @@ public class FSMTest extends Service {
 
 			speech.speak("i will associate this with " + data);
 			Node n = memory.get(UNKNOWN);
-			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox2);
+			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
-			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox2);
+			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n.word = data;
 			memory.put(data, n);
 			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
@@ -340,7 +352,7 @@ public class FSMTest extends Service {
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
 		LOG.error( unknown.imageData.get(0).cvBoundingBox);
-		LOG.error( unknown.imageData.get(0).boundingBox2);
+		LOG.error( unknown.imageData.get(0).boundingBox);
 		int bestFit = 1000;
 		int fit = 0;
 		String bestFitName = null;
@@ -408,8 +420,8 @@ public class FSMTest extends Service {
 		// TODO - optimization would be to set image roi on the frame
 		// although it would need to check the templates size and adjust
 		// if necessary
-		resultWidth  = frame.width() - (int)unknown.imageData.get(0).boundingBox2.getWidth() + 1;
-		resultHeight = frame.height() - (int)unknown.imageData.get(0).boundingBox2.getHeight() + 1;
+		resultWidth  = frame.width() - (int)unknown.imageData.get(0).boundingBox.getWidth() + 1;
+		resultHeight = frame.height() - (int)unknown.imageData.get(0).boundingBox.getHeight() + 1;
 
 		// TODO - dump an array of Node memory into a VideoWidget with different source names
 		// TODO - when adding to memory - process all type conversions
@@ -422,10 +434,10 @@ public class FSMTest extends Service {
 			result = cvCreateImage( cvSize( resultWidth, resultHeight), IPL_DEPTH_32F, 1 );
 		}
 		CvRect rect = new CvRect();
-		rect.x(unknown.imageData.get(0).boundingBox2.x);
-		rect.y(unknown.imageData.get(0).boundingBox2.y);
-		rect.width(unknown.imageData.get(0).boundingBox2.width);
-		rect.height(unknown.imageData.get(0).boundingBox2.height);
+		rect.x(unknown.imageData.get(0).boundingBox.x);
+		rect.y(unknown.imageData.get(0).boundingBox.y);
+		rect.width(unknown.imageData.get(0).boundingBox.width);
+		rect.height(unknown.imageData.get(0).boundingBox.height);
 		cvSetImageROI(template, rect); 
 		//cvSetImageROI(result, cvRect(0, 0, frame.width() - template.width() + 1, frame.height() - template.height() + 1)); 
 			
@@ -508,6 +520,61 @@ public class FSMTest extends Service {
 		}
 	}
 	
+	public void save() //saveMemory
+	{
+		// save to file system in html format vs database
+		Iterator<String> itr = memory.keySet().iterator();
+		
+		StringBuffer html = new StringBuffer();
+		html.append("<html><head><head><body>");
+		html.append("<table class=\"memoryTable\">");
+		html.append("<th><td>word</td><td><image></td></th>");
+		
+		while (itr.hasNext()) {
+			String n = itr.next();
+			Node node = memory.get(n);
+			html.append("<tr><td>");
+			html.append(node.word);
+			html.append("</td>");
+			html.append("<tr><td>");
+			for (int i = 0; i < node.imageData.size(); ++i)
+			{	
+				KinectImageNode kin = node.imageData.get(i);
+				//kin.extraDataLabel
+				// TODO - write bounding box - mask & crop image - do this at node level?
+				// in filter
+				String word = node.word;
+				new File("html/images/"+word).mkdirs();
+				
+				html.append("<img src=\"images/"+word+"/cropped_" + i + ".jpg\" />");
+				Utils.saveBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"cameraFrame_" + i +".jpg");
+				Utils.saveBufferedImage(kin.cropped.getImage(), "html/images/"+word+"cropped_" + i +".jpg");
+				// TODO - masked - info.txt file to parse (db at some point) - index values - reference values
+				/*
+				Graphics g = bi.getGraphics();
+				g.setColor(Color.WHITE);
+				Rectangle r = kin.boundingBox;
+				g.drawRect(r.x, r.y, r.width, r.height);
+				g.dispose();
+				*/
+			}
+			html.append("</td></tr>");
+
+		}
+		html.append("</table>");
+		html.append("</body>");
+		html.append("</html>");
+		
+		Writer out;
+		try {
+			out = new OutputStreamWriter(new FileOutputStream("index.html"), "UTF-8");
+			out.write(html.toString());
+		    out.close();
+		} catch (Exception e) {
+			Service.logException(e);
+		}
+
+	}
 		
 	public static void main(String[] args) {
 		
