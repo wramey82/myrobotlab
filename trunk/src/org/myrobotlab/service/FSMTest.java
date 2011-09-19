@@ -10,10 +10,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +119,7 @@ public class FSMTest extends Service {
 		speech.speak("my mouth is working");
 		speech.speak("my eyes are open");
 		//speech.speak("ready");
-		findKinectPolygons();
+		//findKinectPolygons();
 	}
 	
 
@@ -176,6 +174,9 @@ public class FSMTest extends Service {
 		t.put("cup", null);
 		t.put("measuring thingy", null);
 		t.put("beer", null); 
+		t.put("box", null); 
+		t.put("hand", null); 
+		t.put("cup", null); 
 		t.put("guitar", null);
 		t.put("phone", null);
 		t.put("food", null);
@@ -601,15 +602,14 @@ public class FSMTest extends Service {
 		StringBuffer html = new StringBuffer();
 		html.append("<html><head><head><body>");
 		html.append("<table class=\"memoryTable\">");
-		html.append("<th><td>word</td><td>image</td></th>");
+		html.append("<tr><td><b>word</b></td><td><b>image</b></td></tr>\n");
 		
 		while (itr.hasNext()) {
 			String n = itr.next();
 			Node node = memory.get(n);
 			html.append("<tr><td>");
 			html.append(node.word);
-			html.append("</td>");
-			html.append("<tr><td>");
+			html.append("</td><td>");
 			for (int i = 0; i < node.imageData.size(); ++i)
 			{	
 				KinectImageNode kin = node.imageData.get(i);
@@ -620,8 +620,8 @@ public class FSMTest extends Service {
 				new File("html/images/"+word).mkdirs();
 				
 				html.append("<img src=\"images/"+word+"/cropped_" + i + ".jpg\" />");
-				Utils.saveBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"cameraFrame_" + i +".jpg");
-				Utils.saveBufferedImage(kin.cropped.getImage(), "html/images/"+word+"cropped_" + i +".jpg");
+				Utils.saveBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"/cameraFrame_" + i +".jpg");
+				Utils.saveBufferedImage(kin.cropped.getImage(), "html/images/"+word+"/cropped_" + i +".jpg");
 				// TODO - masked/alpha - info.txt file to parse (db at some point) - index values - reference values
 				/*
 				Graphics g = bi.getGraphics();
@@ -631,7 +631,7 @@ public class FSMTest extends Service {
 				g.dispose();
 				*/
 			}
-			html.append("</td></tr>");
+			html.append("</td></tr>\n");
 
 		}
 		html.append("</table>");

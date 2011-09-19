@@ -647,6 +647,7 @@ public class ConfigurationManagerTest {
 		cfg.set("thrower01", "org.myrobotlab.Service.TestThrower");
 		cfg.set("motor01", "org.myrobotlab.Service.Motor");
 
+		/*
 		Date d = new Date();
 		for (Iterator<String> it = cfg.keySet().iterator(); it.hasNext();) {
 			String name = (String) it.next();
@@ -669,7 +670,8 @@ public class ConfigurationManagerTest {
 			assertEquals(null, cfg.get("class", null));
 			// LOG.info(cfg.get("lastModified"));
 		}
-
+		*/
+		
 		// TODO - add asserts
 		cfg.get("host", "");
 		cfg.get("host", "notLocalhost");

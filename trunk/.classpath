@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="thirdParty/lib/cmutimelex.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/cmu_us_kal.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="thirdParty/lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/commons-httpclient-3.1.jar" sourcepath="/home/gperry/.m2/repository/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1-sources.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/commons-io-1.3.2.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/commons-logging-adapters-1.1.jar"/>
@@ -47,5 +47,6 @@
 	<classpathentry kind="lib" path="thirdParty/lib/gson-1.7.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javaFlacEncoder-0.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/javacv.jar"/>
+	<classpathentry kind="lib" path="/home/gperry/myrobotlab/myrobotlab/thirdParty/lib/mysql-connector-java-3.1.14-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

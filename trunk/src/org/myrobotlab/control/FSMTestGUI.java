@@ -86,7 +86,17 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		display.add(b, gc);		
 
 		++gc.gridx;
-		b = new JButton("guitar");
+		b = new JButton("hand");
+		b.addActionListener(state);
+		display.add(b, gc);		
+
+		++gc.gridx;
+		b = new JButton("box");
+		b.addActionListener(state);
+		display.add(b, gc);		
+
+		++gc.gridx;
+		b = new JButton("cup");
 		b.addActionListener(state);
 		display.add(b, gc);		
 		
@@ -95,6 +105,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		b.addActionListener(state);
 		display.add(b, gc);		
 		
+		gc.gridwidth = 10;
 		gc.gridx = 0;
 		++gc.gridy;
 		

@@ -12,7 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.myrobotlab.comm.ClientHttpRequest;
+import org.myrobotlab.net.ClientHttpRequest;
 import org.myrobotlab.service.GoogleSTT;
 
 import com.google.gson.Gson;
