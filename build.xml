@@ -3,12 +3,12 @@
 <!--
 	Dependencies:
 		Windows:
-			svnversion.exe - http://www.corrupteddatarecovery.com/File-Data/svnversion.exe-Subversion-httpsubversion.tigris.org-1.4.5-(r25188).asp
+			svnversion.exe from Collabnet
 		Linux:
 			svnversion			
 -->
 
-<project name="myrobotlab" default="junitreport" basedir=".">
+<project name="myrobotlab" default="javadoc" basedir=".">
 	<description>
 		http://myrobotlab.org myrobotlab build file
     </description>
@@ -212,30 +212,31 @@
 	        </junitreport>
 	    </target>
 	
-	<target name="javadoc" depends="junitreport">
-	 <javadoc packagenames="org.myrobotlab.framework.*"
-	 	
-	 	excludepackagenames="org.apache.*, org.op.*"
-	           sourcepath="src"
-	           defaultexcludes="yes"
-	           destdir="doc"
-	           author="true"
-	           version="true"
-	           use="true"
-	           windowtitle="myrobotlab">
-	 	<!--
-	    <doctitle><![CDATA[<h1>myrobotlab</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>GNU GPL v2</i>]]></bottom>
-	    <tag name="todo" scope="all" description="To do:"/>
-	 	-->
-	 	<!--
-	    <group title="Framework" packages="com.dummy.test.a*"/>
-	    <group title="Group 2 Packages" packages="com.dummy.test.b*:com.dummy.test.c*"/>
-	    <link offline="true" href="http://download.oracle.com/javase/6/docs/api/" packagelistLoc="C:\tmp"/>
-	    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/> -->
-	    
-	  </javadoc>					
-	</target>
+	<!-- thankfully created in Eclipse -->
+	<target name="javadoc">
+	        <javadoc access="public" 
+	        		packagenames="org.myrobotlab.*" 
+	        		author="true" 
+	        	 	destdir="doc" 
+	        		doctitle="myrobotlab" 
+	        		nodeprecated="false" 
+	        		nodeprecatedlist="false" 
+	        		noindex="false" 
+	        		nonavbar="false" 
+	        		notree="false" 
+	        	 	source="1.6" 
+	        		sourcepath="src" 
+	        		splitindex="true" 
+	        		use="true" 
+	        		version="true">
+	        	<classpath>
+	        		<fileset dir="./thirdParty/lib">
+	        			<include name="*.jar"/>
+	        		</fileset>	        	
+	        	</classpath>
+	        	</javadoc>
+		
+	    </target>
 <!-- how to call a class directly	
 	<target name="run" depends="compile">
 	  <java fork="true" failonerror="yes" classname="Addition" classpath="build">  

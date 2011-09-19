@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.comm;
+package org.myrobotlab.net;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -51,7 +51,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
 
-		String communicatorClass ="org.myrobotlab.comm.CommObjectStreamOverUDP";
+		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverUDP";
 		LOG.info("instanciating a " + communicatorClass);
 		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 

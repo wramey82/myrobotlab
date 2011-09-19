@@ -47,7 +47,7 @@ import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.comm.CommunicationManager;
+import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -220,8 +220,8 @@ public abstract class Service implements Runnable, Serializable {
 		ConfigurationManager hostCFG = new ConfigurationManager(host);
 		// add global config
 		hostCFG.set("servicePort", 3389);
-		hostCFG.set("Communicator","org.myrobotlab.comm.CommObjectStreamOverTCPUDP");
-		hostCFG.set("Serializer", "org.myrobotlab.comm.SerializerObject");
+		hostCFG.set("Communicator","org.myrobotlab.net.CommObjectStreamOverTCPUDP");
+		hostCFG.set("Serializer", "org.myrobotlab.net.SerializerObject");
 	}
 
 	public void loadServiceDefaultConfiguration() {

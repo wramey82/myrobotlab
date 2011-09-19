@@ -142,4 +142,15 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 
 	}
 
+	
+	public static void main(String[] args) {
+		
+		CMDLine cmdline = new CMDLine();
+		cmdline.splitLine(args);
+
+		if (cmdline.containsKey("-test"))
+		{
+			String service = cmdline.getSafeArgument("-service", 0, "");
+		}
+	}	
 }

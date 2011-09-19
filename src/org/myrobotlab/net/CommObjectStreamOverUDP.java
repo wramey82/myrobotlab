@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.comm;
+package org.myrobotlab.net;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
