@@ -37,7 +37,8 @@ public class Serializer extends Service {
 
 			// STEP 3: Open a connection
 			System.out.println("Connecting to a selected database...");
-			conn = DriverManager.getConnection(DB_URL, user, password);
+			String connectionURL = "jdbc:mysql://"+host+"/"+database;
+			conn = DriverManager.getConnection(connectionURL, user, password);
 			System.out.println("Connected database successfully...");
 
 			// STEP 4: Execute a query
@@ -78,9 +79,8 @@ public class Serializer extends Service {
 
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://50.17.127.113/test";
-
-	// Database credentials
+	String host = null;
+	String database = null;
 	String user = null;
 	String password = null;
 
@@ -96,6 +96,8 @@ public class Serializer extends Service {
 		if (!cmdline.containsKey("-user") || !cmdline.containsKey("-password")) {
 			serializer.user = cmdline.getSafeArgument("-user", 0, "");
 			serializer.password = cmdline.getSafeArgument("-password", 0, "");
+			serializer.host = cmdline.getSafeArgument("-host", 0, "");
+			serializer.database = cmdline.getSafeArgument("-database", 0, "");
 		}
 
 		Node n = new Node();
