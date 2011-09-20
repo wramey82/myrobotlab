@@ -67,14 +67,12 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	
 	public void send(final Message msg) {
 		
-		//ServiceWrapper sw = RuntimeEnvironment.getService(myService.url, msg.name);
 		ServiceWrapper sw = RuntimeEnvironment.getService(msg.name);
 		if (sw == null)
 		{
 			LOG.error(msg.name + " service does not exist - should clean up " + msg.sender );
 			return;
 		}
-		//if (sw.host.accessURL != null && !sw.host.accessURL.equals(myService.url))
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))
 		{
 			LOG.debug("sending local");
@@ -84,17 +82,6 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 			LOG.debug("sending " + msg.method + " remote");
 			getComm().send(sw.host.accessURL, msg);			
 		}
-
-		/*
-		if (!sw.isRemote()) {
-			LOG.info("sending local");
-			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
-			sw.get().in(m);
-		} else {
-			LOG.info("sending " + msg.method + " remote");
-			getComm().send(msg);
-		}
-		*/
 	}
 
 	public void setComm(Communicator comm) {

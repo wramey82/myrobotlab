@@ -44,6 +44,16 @@ import org.myrobotlab.service.TestThrower;
 // TODO - test Configuration
 // TODO - add non hardware dependent services
 
+/*
+ * Dependencies - 
+ * All Systems	
+ * 		OpenCV binaries and appropriate pathing
+ * 		RXTXSerial (Arduino) - and appropriate pathing
+ * Microsoft
+ * 		microsoft runtime libraries http://www.microsoft.com/download/en/confirmation.aspx?id=5555
+ * 		
+ */
+
 public class ServiceTest {
 
 	public final static Logger LOG = Logger.getLogger(ServiceTest.class.getCanonicalName());
@@ -57,7 +67,8 @@ public class ServiceTest {
 	@Test
 	public final void blockingTest() {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		//Logger.getRootLogger().setLevel(Level.FATAL); // no logging
 
 		LOG.debug("blockingTest begin-------------");
 
@@ -116,7 +127,6 @@ public class ServiceTest {
 	public final void testSingleThrow() {
 
 		LOG.debug("testSingleThrow begin-------------");
-		Logger.getRootLogger().setLevel(Level.FATAL); // no logging
 
 		// create services
 		TestThrower thrower = new TestThrower("thrower02");
@@ -174,7 +184,7 @@ public class ServiceTest {
 	@Test
 	public final void stressTest() {
 
-		LOG.debug("testSingleThrow begin-------------");
+		LOG.debug("stressTest begin-------------");
 
 		// create services
 		TestThrower thrower = new TestThrower("thrower02");
@@ -223,8 +233,6 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.size(), cnt);
 		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
 		assertEquals(catcher.catchList.get(0), new Integer(7));
-
-		//Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		RuntimeEnvironment.releaseAll();
 		
@@ -330,36 +338,17 @@ public class ServiceTest {
 	public final void remoteThrow() {
 		LOG.debug("remoteThrow begin-------------");
 
-		// create services
-		// create the test thrower on a different host
+		// FIXME !!!
 		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:0");
-		RemoteAdapter remote01 = new RemoteAdapter("remote01","http://0.0.0.0:6565");
-		TestCatcher catcher = new TestCatcher("catcher01","http://0.0.0.0:6565");
-//		GUIService gui01 = new GUIService("gui01");
-//		remote01.setCFG("servicePort", "6565");
-		remote01.servicePort = 6565;
-
-		/* manually creating a proxy
-		 * put a dead proxy catcher on the throwers ServiceEnvironment
-		 * manually change the accessURL to what the remote is listening to
-		 */
-		// TestCatcher proxy = new TestCatcher("catcher01", "http://localhost:0");
+		//RemoteAdapter remote01 = new RemoteAdapter("remote01","http://0.0.0.0:6767");
+		//TestCatcher catcher = new TestCatcher("catcher01","http://0.0.0.0:6767");
+		RemoteAdapter remote01 = new RemoteAdapter("remote01");
+		TestCatcher catcher = new TestCatcher("catcher01");
+		remote01.servicePort = 6767;
 		
-		/*
-		ServiceWrapper sw = RuntimeEnvironment.getService(proxy.url, proxy.name);
-		try {
-			sw.host.accessURL = new URL("http://0.0.0.0:6565");
-		} catch (MalformedURLException e) {
-			LOG.error(Service.stackToString(e));
-		}
-		*/
-		
-		// start services
 		remote01.startService();
 		catcher.startService();
 		thrower01.startService();
-		//gui01.startService();
-		// gui01.display();
 
 		// set notify list
 		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
@@ -383,10 +372,8 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.get(0), new Integer(1));
 
 		// set new notifies - different functions
-		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger",
-				Integer.class);
-		thrower01.notify("highPitchInteger", "catcher01", "catchInteger",
-				Integer.class);
+		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
+		thrower01.notify("highPitchInteger", "catcher01", "catchInteger", Integer.class);
 		thrower01.notify("noPitchInteger", "catcher01", "catchInteger",
 				Integer.class);
 
