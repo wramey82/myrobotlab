@@ -265,13 +265,12 @@ public abstract class Service implements Runnable, Serializable {
 		RuntimeEnvironment.unregister(url, name);
 	}
 
-	public void startService() // TODO - startService pauseService stopService - also
-						// HIDE THIS ! - make runnable
+	public void startService() 
 	{
 		outbox.start();
 		if (thisThread == null)
 		{
-			thisThread = new Thread(this, name); 
+			thisThread = new Thread(this, name);  // TODO - make ServerThread - to hold context 
 		}
 		thisThread.start();
 		isRunning = true;

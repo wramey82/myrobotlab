@@ -42,7 +42,7 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
  * It knows nothing about protocols, serialization methods, or communication methods.
  */
 
-public class Outbox implements Runnable, Serializable //extends Thread 
+public class Outbox implements Runnable, Serializable 
 {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Outbox.class.getCanonicalName());

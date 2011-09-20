@@ -275,6 +275,7 @@ public class RemoteAdapter extends Service {
 		udpListener.start();
 		udpStringListener = new Thread(new UDPStringListener(), name + "_udpStringListener");
 		udpStringListener.start();
+
 	}
 
 	@Override
