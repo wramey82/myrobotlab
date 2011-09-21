@@ -1,157 +1,155 @@
-/**
- *                    
- * @author greg (at) myrobotlab.org
- *  
- * This file is part of MyRobotLab (http://myrobotlab.org).
- *
- * MyRobotLab is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version (subject to the "Classpath" exception
- * as provided in the LICENSE.txt file that accompanied this code).
- *
- * MyRobotLab is distributed in the hope that it will be useful or fun,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * All libraries in thirdParty bundle are subject to their own license
- * requirements - please refer to http://myrobotlab.org/libraries for 
- * details.
- * 
- * Enjoy !
- * 
- * */
-
 package org.myrobotlab.fileLib;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FindFile {
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-	boolean ShortFileName_ = false; // 8.3 format todo depricate?
-	boolean IncludeDirs_ = false; // include diretories in list of files
-	boolean Recurse_ = true; // recurse through sub directories
-	boolean CaseInsensitive_ = true; // compares are insensitive
-	String Root_ = "."; // the starting point for the search
-	String SearchCriteria_ = "^*"; // search criteria for files
+public final class FindFile  { //implements FilenameFilter
+	/*
+	private String root = "."; // the starting point for the search;
+	private Boolean recurse = true;
+	private Boolean includeDirsInResult = false;
+	private Pattern pattern = null;
+	*/
 
-	List<File> FileList_ = new ArrayList<File>();
+	public final static Logger LOG = Logger.getLogger(FindFile.class.getCanonicalName());
 
-	public FindFile(final String SearchCriteria) throws IOException {
-		SearchCriteria_ = SearchCriteria;
+	public List<File> find(String criteria)throws FileNotFoundException {
+		return find(null, criteria, true, false);
+	}
+	
+	public List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult)throws FileNotFoundException {
+		if (root == null)
+		{
+			root = ".";
+		}
+
+		if (criteria != null)
+		{			
+			criteria = ".*";
+		}
+				
+		File r = new File(root);
+		validateDirectory(r);
+		List<File> result = process(r, criteria, recurse, includeDirsInResult);
+		Collections.sort(result);
+		return result;
 	}
 
-	public void find() throws IOException {
-		find(SearchCriteria_, Root_);
-	}
+	// recursively go through ALL directories regardless of matching
+	// need to find all files before we can filter them
+	private List<File> process(File rootPath, String criteria, boolean recurse, boolean includeDirsInResult) throws FileNotFoundException {
+		List<File> result = new ArrayList<File>();
+		File[] filesAndDirs = rootPath.listFiles();
+		List<File> filesDirs = Arrays.asList(filesAndDirs);
+		LOG.info("looking at path " + rootPath + " has " + filesDirs.size() + " files");
+		for (File file : filesDirs) {
 
-	public void find(final String SearchCriteria) throws IOException {
-		find(SearchCriteria, Root_);
-	}
+			StringBuffer out = new StringBuffer();
+			out.append(file.getName());
 
-	public void find(final String SearchCriteria, final String Root)
-			throws IOException {
-		java.io.File f = new java.io.File(Root);
-		find(f, SearchCriteria);
-	}
+			Pattern pattern = Pattern.compile(criteria);
 
-	public void find(java.io.File dir, String name) throws IOException {
-		Pattern pattern = Pattern.compile(name);
-
-		if (dir == null)
-			return;
-		java.io.File[] files = dir.listFiles();
-		if (files == null)
-			throw new IOException("not a valid directory");
-		for (int i = 0; i < files.length; ++i) {
-			System.out.println(files[i].getCanonicalPath());
-			// if (files[i].getName().compareToIgnoreCase(name) == 0)
-			Matcher matcher = pattern.matcher(files[i].getName());
-			if (matcher.find()) {
-				if ((!files[i].isDirectory())
-						|| (files[i].isDirectory() && IncludeDirs_)) {
-					File f = new File();
-					f.filename = files[i].getName();
-					f.path = files[i].getPath();
-					f.modified = files[i].lastModified();
-					f.size = (int) files[i].length();
-					FileList_.add(f);
+			Matcher matcher = pattern.matcher(file.getName());
+			if (matcher.find())
+			{
+				out.append(" matches");
+				if (file.isFile() ||(!file.isFile() && includeDirsInResult))
+				{
+					out.append(" will be added");
+					result.add(file);
+				} else {
+					out.append(" will not be added");
 				}
-
-				// System.out.println("match: " + files[i].getCanonicalPath());
+			} else {
+				out.append(" does not match");
 			}
-			if (files[i].isDirectory() && Recurse_)
-				find(files[i], name);
+			
+			if (!file.isFile() && recurse) {
+				LOG.info("decending into " + file.getName());
+				List<File> deeperList = process(file, criteria, recurse, includeDirsInResult);
+				result.addAll(deeperList);
+			}
+
+			LOG.info(out.toString());
+		}
+		return result;
+	}
+
+	static private void validateDirectory(File aDirectory)
+			throws FileNotFoundException {
+		if (aDirectory == null) {
+			throw new IllegalArgumentException("Directory should not be null.");
+		}
+		if (!aDirectory.exists()) {
+			throw new FileNotFoundException("Directory does not exist: "
+					+ aDirectory);
+		}
+		if (!aDirectory.isDirectory()) {
+			throw new IllegalArgumentException("Is not a directory: "
+					+ aDirectory);
+		}
+		if (!aDirectory.canRead()) {
+			throw new IllegalArgumentException("Directory cannot be read: "
+					+ aDirectory);
 		}
 	}
 
-	public String getRoot() {
-		return Root_;
-	}
+	public static void main(String... aArgs) throws FileNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-	public void setRoot(String root_) {
-		Root_ = root_;
-	}
+		FindFile ff2 = new FindFile(); // TODO - make static
+		
+		//List<File> files = ff2.find("\\.(?i:)(?:jpg|gif|doc|java)$");
+		List<File> files = ff2.find(".*\\.java$");
+		//List<File> files = ff2.find(".*\\.svn$");
 
-	public String getSearchCriteria() {
-		return SearchCriteria_;
-	}
 
-	public void setSearchCriteria(String searchCriteria_) {
-		SearchCriteria_ = searchCriteria_;
+		// print out all file names, in the the order of File.compareTo()
+		for (File file : files) {
+			System.out.println(file);
+		}
 	}
+	class RegexFilter implements FilenameFilter {
+		  private Pattern pattern;
 
-	public boolean isIncludeDirs() {
-		return IncludeDirs_;
+		  public RegexFilter(String regex) {
+		    pattern = Pattern.compile(regex);
+		  }
+
+		  public boolean accept(File dir, String name) {
+		    // Strip path information, search for regex:
+		    return pattern.matcher(new File(name).getName()).matches();
+		  }
 	}
-
-	public void setIncludeDirs(boolean includeDirs_) {
-		IncludeDirs_ = includeDirs_;
-	}
-
-	public boolean isRecurse() {
-		return Recurse_;
-	}
-
-	public void setRecurse(boolean recurse_) {
-		Recurse_ = recurse_;
-	}
-
-	public boolean isCaseInsensitive() {
-		return CaseInsensitive_;
-	}
-
-	public void setCaseInsensitive(boolean caseInsensitive_) {
-		CaseInsensitive_ = caseInsensitive_;
-	}
-
-	public List<File> getFileList() {
-		return FileList_;
-	}
-
-	public void setFileList(List<File> fileList_) {
-		FileList_ = fileList_;
-	}
-
+	
+	// TODO - extention filter
+	// TODO - simple astrix filter
+	
 	/*
-	 * public int FindInFile(final String match, boolean CaseSensitive, boolean
-	 * DisregardWhiteSpace) {
-	 * 
-	 * }
-	 * 
-	 * public int AddFile(final File newfile) {
-	 * 
-	 * } public int AddDir(final String Path) {
-	 * 
-	 * }
-	 * 
-	 * public int FillFileInfo(final String DirPath, File file) {
-	 * 
-	 * }
-	 */
+	@Override
+	public boolean accept(File directory, String filename) {
+		   boolean fileOK = true;
+
+		    if (name != null) {
+		      fileOK &= filename.startsWith(name);
+		    }
+
+		    if (extension != null) {
+		      fileOK &= filename.endsWith('.' + extension);
+		    }
+		    return fileOK;
+	}
+	*/
+
 }

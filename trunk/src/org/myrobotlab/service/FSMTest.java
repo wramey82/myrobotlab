@@ -11,6 +11,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
@@ -29,6 +31,11 @@ import org.myrobotlab.memory.Node;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+/*
+ * TODO - 
+ * AFFIRMATION mode after success or non success
+ */
 
 public class FSMTest extends Service {
 
@@ -319,7 +326,7 @@ public class FSMTest extends Service {
 				memory.put(data, n);
 			} else {
 				// i have bound it to something i previously new about
-				speech.speak("i have catogorized it");
+				speech.speak("i have catogorized it under " + n.word);
 				Node n2 = memory.get(n.word);
 				n2.imageData.add(n.imageData.get(0)); // FIXME - messy
 			}
@@ -682,6 +689,24 @@ public class FSMTest extends Service {
 			Service.logException(e);
 		}
 
+	}
+	
+	public void load()
+	{
+		/*
+		try {
+			FindFile ff = new FindFile();
+			ff.find("cameraFrame_*", "");
+			for (int i = 0; i < ff.getFileList().size(); ++i)
+			{
+				File f = ff.getFileList().get(i);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		
 	}
 		
 	public static void main(String[] args) {
