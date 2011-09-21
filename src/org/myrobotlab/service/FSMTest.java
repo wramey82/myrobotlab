@@ -284,6 +284,8 @@ public class FSMTest extends Service {
 		if (data.equals("save"))
 		{
 			save();
+			speech.speak("my memory has been saved");
+			return;
 		}
 		
 		if (data.equals("stop"))
@@ -448,7 +450,9 @@ public class FSMTest extends Service {
 
 		invoke("publishVideo0", memory);
 
-		if (bestFit < 500)
+		LOG.error("bestFit" + bestFit);
+		
+		if (bestFit < 100)
 		{
 		// if found
 		    // announce - TODO - add map "i think it might be", i'm pretty sure its a, 
@@ -478,59 +482,90 @@ public class FSMTest extends Service {
 	int resultWidth 	= 0; 
 	int resultHeight 	= 0;
 
-
 	// FIXME - bury in KinectDepthMask or other OpenCV filter to 
 	// get it working on the same thread only ...
 	// Don't use CVObjects out of OpenCV
 	int match (Node toSearch, Node unknown)
 	{
-		//invoke("publishVideo0", toSearch);
-		//invoke("publishVideo1", unknown);
 
-		IplImage frame    = toSearch.imageData.get(0).cvCameraFrame;
-		IplImage template = unknown.imageData.get(0).cvCameraFrame;
+		// at the moment only uses one unknown image
+		KinectImageNode templateImageData = unknown.imageData.get(0); 
+		IplImage template = templateImageData.cvCameraFrame;
 		
-		// TODO - optimization would be to set image roi on the frame
-		// although it would need to check the templates size and adjust
-		// if necessary
-		resultWidth  = frame.width() - (int)unknown.imageData.get(0).boundingBox.getWidth() + 1;
-		resultHeight = frame.height() - (int)unknown.imageData.get(0).boundingBox.getHeight() + 1;
-
-		// TODO - dump an array of Node memory into a VideoWidget with different source names
-		// TODO - when adding to memory - process all type conversions
+		int bestFit = Integer.MAX_VALUE;
 		
-	
-		if (result == null || resultWidth != result.width() || resultHeight != result.height())
+		LOG.error("searching through " + toSearch.imageData.size() + " " + toSearch.word + " images ");
+		// iterate through the list of known templates
+		for (int i = 0; i < toSearch.imageData.size(); ++i)
 		{
-			// result = cvCreateImage( cvSize( frame.width() - template.width() + 1, 
-			//		frame.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
-			result = cvCreateImage( cvSize( resultWidth, resultHeight), IPL_DEPTH_32F, 1 );
-		}
-		CvRect rect = new CvRect();
-		rect.x(unknown.imageData.get(0).boundingBox.x);
-		rect.y(unknown.imageData.get(0).boundingBox.y);
-		rect.width(unknown.imageData.get(0).boundingBox.width);
-		rect.height(unknown.imageData.get(0).boundingBox.height);
-		cvSetImageROI(template, rect); 
-		//cvSetImageROI(result, cvRect(0, 0, frame.width() - template.width() + 1, frame.height() - template.height() + 1)); 
+		
+			KinectImageNode imageData = toSearch.imageData.get(i); 
+			IplImage frame = imageData.cvCameraFrame;
 			
-		cvMatchTemplate(frame, template, result, CV_TM_SQDIFF);
-		
-		cvResetImageROI(template);
-		
-		cvMinMaxLoc ( result, minVal, maxVal, minLoc, maxLoc, null );
-		// publish result
-		// invoke("publishMatchResult", result);
-		
-		tempRect0.x(minLoc.x());
-		tempRect0.y(minLoc.y());
-		tempRect1.x(minLoc.x() + template.width());
-		tempRect1.y(minLoc.y() + template.height());
+			// TODO adaptive ROI in toSearch images 
+			// unfortunately cvMatchTemplate has to have the template smaller than the 
+			// toSearchImage - without this, it is likely that plane surfaced items will
+			// match a wall or other large plain expanse
+			
+			CvRect searchROI = new CvRect();
+			searchROI.x(imageData.boundingBox.x);
+			searchROI.y(imageData.boundingBox.y);
+			searchROI.width(imageData.boundingBox.width);
+			searchROI.height(imageData.boundingBox.height);
 
-		int matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));		
+			// adaptive search area begin
+			if (templateImageData.boundingBox.width > imageData.boundingBox.width)
+			{
+				searchROI.width(templateImageData.boundingBox.width);
+				searchROI.x(imageData.boundingBox.x - ((templateImageData.boundingBox.width - imageData.boundingBox.width)/2));
+			}
+			
+			if (templateImageData.boundingBox.height > imageData.boundingBox.height)
+			{
+				searchROI.height(templateImageData.boundingBox.height);
+				searchROI.y(imageData.boundingBox.y - ((templateImageData.boundingBox.height - imageData.boundingBox.height)/2));
+			}
+			// adaptive search area end
+			
+			// create result area - TODO - can this be done with ROI (optimization)
+			resultWidth  = searchROI.width() - (int)unknown.imageData.get(0).boundingBox.getWidth() + 1;
+			resultHeight = searchROI.height() - (int)unknown.imageData.get(0).boundingBox.getHeight() + 1;
+	
+			if (result == null || resultWidth != result.width() || resultHeight != result.height())
+			{
+				result = cvCreateImage( cvSize( resultWidth, resultHeight), IPL_DEPTH_32F, 1 );
+			}
+			
+			// set roi for the toSearch
+			
+			cvSetImageROI(frame, searchROI); 
+			
+			// set roi of template for cropped template
+			CvRect tmplROI = new CvRect();
+			tmplROI.x(templateImageData.boundingBox.x);
+			tmplROI.y(templateImageData.boundingBox.y);
+			tmplROI.width(templateImageData.boundingBox.width);
+			tmplROI.height(templateImageData.boundingBox.height);
+			cvSetImageROI(template, tmplROI); 
+				
+			cvMatchTemplate(frame, template, result, CV_TM_SQDIFF);
+			cvResetImageROI(template);
+			cvResetImageROI(frame);
+			cvMinMaxLoc ( result, minVal, maxVal, minLoc, maxLoc, null );
+			
+			// TODO - refactor
+			tempRect0.x(minLoc.x());
+			tempRect0.y(minLoc.y());
+			tempRect1.x(minLoc.x() + template.width());
+			tempRect1.y(minLoc.y() + template.height());
+	
+			int matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));	
+			if (matchRatio<bestFit) bestFit = matchRatio;
+			LOG.error("image " + i + " match ratio " + matchRatio);
+		}
 
-
-		return matchRatio;
+		LOG.error("bestFit=" + bestFit);
+		return bestFit;
 	}
 	
 	/*
@@ -571,7 +606,7 @@ public class FSMTest extends Service {
 	public String changeState (String newState)
 	{
 		context = newState;
-		speech.speak(getPhrase(context));
+		//speech.speak(getPhrase(context));
 		return newState;
 	}
 	

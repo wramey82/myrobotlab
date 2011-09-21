@@ -39,6 +39,7 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
 */
 
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
  
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
@@ -74,6 +75,7 @@ import org.myrobotlab.service.data.ColoredPoint;
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
+import com.googlecode.javacv.ObjectFinder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
@@ -912,17 +914,34 @@ public class OpenCV extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 
+		IplImage imgA = cvLoadImage(
+	                "hand0.jpg",
+	                CV_LOAD_IMAGE_GRAYSCALE);
+	    IplImage imgB = cvLoadImage(
+	                "hand1.jpg",
+	                CV_LOAD_IMAGE_GRAYSCALE);
+		try {
+			ObjectFinder of = new ObjectFinder(imgA);
+			of.find(imgB);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
+		
 		OpenCV opencv = new OpenCV("opencv");				
 		opencv.startService();
 		//opencv.addFilter("PyramidDown1", "PyramidDown");
-		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
+//		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		//opencv.addFilter("InRange1", "InRange");
 		//opencv.setUseInput("camera");
 //		opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		//opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 		
-		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
+//		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
 		opencv.capture();
 		
 /*		
