@@ -11,6 +11,9 @@ import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.memory.Node;
 
+import com.google.*;
+import com.googlecode.javacv.ObjectFinder;
+
 public class Serializer extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -109,6 +112,7 @@ public class Serializer extends Service {
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
+		
 	}
 
 }
