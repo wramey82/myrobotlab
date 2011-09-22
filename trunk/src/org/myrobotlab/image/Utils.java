@@ -33,6 +33,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -188,13 +189,11 @@ public class Utils {
 			return hsv;
 		}	
 
-	public final static void saveBufferedImage(BufferedImage newImg,
-			String filename) {
-		saveBufferedImage(newImg, filename, null);
+	public final static void writeBufferedImage(BufferedImage newImg, String filename) {
+		writeBufferedImage(newImg, filename, null);
 	}
 
-	public final static void saveBufferedImage(BufferedImage newImg,
-			String filename, String format) {
+	public final static void writeBufferedImage(BufferedImage newImg, String filename, String format) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(newImg, "jpg", baos);
@@ -205,6 +204,18 @@ public class Utils {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public final static BufferedImage readBufferedImage(String filename)
+	{
+		//URL url = new URL(getCodeBase(), "strawberry.jpg");
+		try{
+		   File file = new File(filename);
+		   BufferedImage img = ImageIO.read(file);
+		   return img;
+		} catch (IOException e) {		
+			return null;
+		}
 	}
 
 	/**

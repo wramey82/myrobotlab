@@ -24,6 +24,8 @@
  * */
 package org.myrobotlab.fileLib;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -33,6 +35,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
@@ -185,4 +192,47 @@ public class FileIO {
 	}
 
 	
+	public final static boolean writeBinary (String filename, Object toSave)
+	{
+		   try{
+			      //use buffering
+			      OutputStream file = new FileOutputStream(filename);
+			      OutputStream buffer = new BufferedOutputStream( file );
+			      ObjectOutput output = new ObjectOutputStream( buffer );
+			      try{
+			        output.writeObject(toSave);
+			      }
+			      finally{
+			        output.close();
+			      }
+			    }  
+			    catch(IOException e){
+			    	Service.logException(e);
+			    	return false;
+			    }
+			    return true;
+	}
+	
+	
+	public final static Object readBinary (String filename)
+	{
+	    try{
+	      InputStream file = new FileInputStream(filename);
+	      InputStream buffer = new BufferedInputStream( file );
+	      ObjectInput input = new ObjectInputStream ( buffer );
+	      try{
+	        return (Object)input.readObject();
+	      }
+	      finally{
+	        input.close();
+	      }
+	    }
+	    catch(Exception e){
+	    	Service.logException(e);
+	    	return null;
+	    }		
+	}
 }
+
+
+

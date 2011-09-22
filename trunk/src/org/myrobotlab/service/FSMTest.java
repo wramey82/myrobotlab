@@ -9,6 +9,7 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,14 +18,17 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Utils;
 import org.myrobotlab.memory.Node;
 
@@ -662,8 +666,9 @@ public class FSMTest extends Service {
 				new File("html/images/"+word).mkdirs();
 				
 				html.append("<img src=\"images/"+word+"/cropped_" + i + ".jpg\" />");
-				Utils.saveBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"/cameraFrame_" + i +".jpg");
-				Utils.saveBufferedImage(kin.cropped.getImage(), "html/images/"+word+"/cropped_" + i +".jpg");
+				Utils.writeBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"/cameraFrame_" + i +".jpg");
+				FileIO.writeBinary("html/images/"+word+"/boundingBox_"+i, kin.boundingBox);
+				Utils.writeBufferedImage(kin.cropped.getImage(), "html/images/"+word+"/cropped_" + i +".jpg");
 				// TODO - masked/alpha - info.txt file to parse (db at some point) - index values - reference values
 				/*
 				Graphics g = bi.getGraphics();
@@ -693,20 +698,61 @@ public class FSMTest extends Service {
 	
 	public void load()
 	{
-		/*
+		int imgCount = 0;
 		try {
-			FindFile ff = new FindFile();
-			ff.find("cameraFrame_*", "");
-			for (int i = 0; i < ff.getFileList().size(); ++i)
+			List<File> files = FindFile.find("html","cameraFrame_*");
+			for (int i = 0; i < files.size(); ++i)
 			{
-				File f = ff.getFileList().get(i);
+				File f = files.get(i);
+				String path = f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf(File.separatorChar));
+				String index = f.getName().substring(f.getName().lastIndexOf("_") + 1,f.getName().indexOf(".jpg"));
+				String word = path.substring(path.lastIndexOf(File.separatorChar)+1);
+				//Integer index = Integer.parseInt(index);
+				LOG.error(f.getAbsolutePath());
+				//SerializableImage si = (SerializableImage)FileIO.readBinary(f.getAbsolutePath());
+				SerializableImage si = new SerializableImage(Utils.readBufferedImage(f.getAbsolutePath()));
+				si.source = word; // TODO - what else? "filesystem" ? date?
+				if (si != null)
+				{
+					Rectangle r = (Rectangle)FileIO.readBinary(path + File.separatorChar + "boundingBox_" + index);
+					
+					if (r != null)
+					{
+						KinectImageNode kin = new KinectImageNode();
+						kin.cameraFrame = si;
+						kin.boundingBox = r;
+						kin.cvBoundingBox = new CvRect();
+						kin.cvBoundingBox.x(kin.boundingBox.x);
+						kin.cvBoundingBox.y(kin.boundingBox.y);
+						kin.cvBoundingBox.width(kin.boundingBox.width);
+						kin.cvBoundingBox.height(kin.boundingBox.height);
+						kin.cvCameraFrame = IplImage.createFrom(kin.cameraFrame.getImage());
+						++imgCount;
+						if (memory.containsKey(word))
+						{
+							memory.get(word).imageData.add(kin);
+						} else {
+							ArrayList<KinectImageNode> imgData = new ArrayList<KinectImageNode>();
+							Node n = new Node();
+							n.word = word;
+							n.imageData = imgData;
+							n.imageData.add(kin);
+							memory.put(word, n);
+						}
+							
+						//kin.cvBoundingBox = new CvRect();
+					}
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
 		
+		speech.speak("i have " + memory.size() + " things in my visual memory");
+		speech.speak("and");
+		speech.speak(""+imgCount);
+		speech.speak("images");
 	}
 		
 	public static void main(String[] args) {
@@ -715,9 +761,11 @@ public class FSMTest extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 		
-		FSMTest template = new FSMTest("fsm");
-		template.startService();
-		template.init();
+		
+		FSMTest fsm = new FSMTest("fsm");
+		fsm.startService();
+		fsm.init();
+		fsm.load();
 		//template.speechRecognition.stopRecording();
 		//template.speechRecognition.startRecording();
 				
