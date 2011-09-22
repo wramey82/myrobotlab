@@ -23,17 +23,21 @@ public final class FindFile  { //implements FilenameFilter
 
 	public final static Logger LOG = Logger.getLogger(FindFile.class.getCanonicalName());
 
-	public List<File> find(String criteria)throws FileNotFoundException {
+	public static List<File> find(String criteria)throws FileNotFoundException {
 		return find(null, criteria, true, false);
 	}
+
+	public static List<File> find(String root, String criteria)throws FileNotFoundException {
+		return find(root, criteria, true, false);
+	}
 	
-	public List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult)throws FileNotFoundException {
+	public static List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult)throws FileNotFoundException {
 		if (root == null)
 		{
 			root = ".";
 		}
 
-		if (criteria != null)
+		if (criteria == null)
 		{			
 			criteria = ".*";
 		}
@@ -47,7 +51,7 @@ public final class FindFile  { //implements FilenameFilter
 
 	// recursively go through ALL directories regardless of matching
 	// need to find all files before we can filter them
-	private List<File> process(File rootPath, String criteria, boolean recurse, boolean includeDirsInResult) throws FileNotFoundException {
+	private static List<File> process(File rootPath, String criteria, boolean recurse, boolean includeDirsInResult) throws FileNotFoundException {
 		List<File> result = new ArrayList<File>();
 		File[] filesAndDirs = rootPath.listFiles();
 		List<File> filesDirs = Arrays.asList(filesAndDirs);
