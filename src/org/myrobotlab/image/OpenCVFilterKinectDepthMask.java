@@ -90,7 +90,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	CvMemStorage cvStorage = null;
 
-	public boolean drawBoundingBoxes = true;
+	public boolean drawBoundingBoxes = false;
 	public boolean publishNodes = false;
 	
 	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
