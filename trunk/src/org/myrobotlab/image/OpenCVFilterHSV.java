@@ -25,6 +25,14 @@
 
 package org.myrobotlab.image;
 
+/*
+ *  HSV changes in OpenCV -
+ *  https://code.ros.org/trac/opencv/ticket/328 H is only 1-180
+ *  H <- H/2 (to fit to 0 to 255)
+ *  
+ *  CV_HSV2BGR_FULL uses full 0 to 255 range
+ */
+
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
@@ -49,8 +57,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterHSV.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCVFilterHSV.class.getCanonicalName());
 
 	IplImage hsv = null;
 	IplImage hue = null;
@@ -142,6 +149,8 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 			LOG.error("image is null");
 		}
 
+		// CV_BGR2HSV_FULL - uses full 0-255 vs 0-180
+		// CV_HSV2BGR_FULL
 		cvCvtColor(image, hsv, CV_RGB2HSV);
 
 		// cvSetImageCOI( hsv, 1);

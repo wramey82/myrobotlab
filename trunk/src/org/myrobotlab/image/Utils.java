@@ -40,7 +40,8 @@ import java.lang.reflect.Field;
 
 import javax.imageio.ImageIO;
 
-// TODO - rename ColorUtils
+// TODO - refactor to OpenCV and nonOpenCV classes
+// http://www.colblindor.com/color-name-hue/ - excellent resource
 
 public class Utils {
 
@@ -153,7 +154,15 @@ public class Utils {
 		return RGB2HSV(c.getRed(), c.getGreen(), c.getBlue(), hsv);
 	}
 	
-	// TODO - depricate
+	/*
+	public String colorWordFromHSV(int hue, int saturation, int value)
+	{
+		if (hue < 19 || hue > 
+		
+	}
+	*/
+	
+	// TODO - deprecate
 	// When programming in Java, use the RGBtoHSB and HSBtoRGB  functions from the java.awt.Color class.
 	// http://cs.haifa.ac.il/hagit/courses/ist/Lectures/Demos/ColorApplet2/t_convert.html#RGB to HSV & HSV to RGB
 	final public static int[] RGB2HSV(int r, int g, int b, int hsv[]) {

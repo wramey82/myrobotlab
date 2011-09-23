@@ -1,6 +1,7 @@
 package org.myrobotlab.service;
 
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvMinMaxLoc;
 import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
@@ -695,7 +696,11 @@ public class FSMTest extends Service {
 		}
 
 	}
-	
+	/*
+	 * The conundrum of type conversions.  OpenCV functions will want OpenCV but to serialize
+	 * and store in the database we'll want SerializableImages, however the filesystem will want 
+	 * .jpgs or some other common readable image format
+	 */
 	public void load()
 	{
 		int imgCount = 0;
@@ -727,7 +732,16 @@ public class FSMTest extends Service {
 						kin.cvBoundingBox.width(kin.boundingBox.width);
 						kin.cvBoundingBox.height(kin.boundingBox.height);
 						kin.cvCameraFrame = IplImage.createFrom(kin.cameraFrame.getImage());
+						
+						// create cropped image
+						cvSetImageROI(kin.cvCameraFrame, kin.cvBoundingBox);
+						kin.cvCropped = cvCreateImage(cvSize(kin.cvBoundingBox.width(), kin.cvBoundingBox.height()), 8, 3);
+						cvCopy(kin.cvCameraFrame, kin.cvCropped);
+						cvResetImageROI(kin.cvCameraFrame);
+						kin.cropped = OpenCV.publishFrame("",kin.cvCropped.getBufferedImage());
+
 						++imgCount;
+						
 						if (memory.containsKey(word))
 						{
 							memory.get(word).imageData.add(kin);
