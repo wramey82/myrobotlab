@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.control.VideoWidget.VideoDisplayPanel;
@@ -42,7 +43,7 @@ import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.FSMTest;
-import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.FSMTest.MatchResult;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
@@ -51,11 +52,14 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(FSMTestGUI.class.toString());
 
-	VideoWidget video0 = null;
+	VideoWidget bestFitVideo = null;
+	VideoWidget newImageVideo = null;
 	//VideoWidget video1 = null;
 	//VideoWidget video2 = null;
 	BufferedImage graph = null;
 	Graphics g = null;
+	JLabel matchIndex = new JLabel("0");
+	JLabel matchWord = new JLabel();
 	
 	public FSMTestGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -104,15 +108,32 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		b = new JButton("save");
 		b.addActionListener(state);
 		display.add(b, gc);		
+
+		gc.gridx = 0;
+
+		++gc.gridy;
+		display.add(matchWord, gc);		
 		
-		gc.gridwidth = 10;
+		++gc.gridy;
+		display.add(new JLabel("match index : "), gc);		
+
+		++gc.gridx;
+		display.add(matchIndex, gc);		
+		
 		gc.gridx = 0;
 		++gc.gridy;
 		
-		video0 = new VideoWidget(boundServiceName, myService);	
-		video0.init();
-		display.add(video0.display, gc);		
-/*		
+		bestFitVideo = new VideoWidget(boundServiceName, myService);	
+		bestFitVideo.init();
+		display.add(bestFitVideo.display, gc);		
+
+		gc.gridwidth = 10;
+		++gc.gridx;
+		newImageVideo = new VideoWidget(boundServiceName, myService);	
+		newImageVideo.init();
+		display.add(newImageVideo.display, gc);		
+		
+		/*		
 		++gc.gridy;
 		video1 = new VideoWidget(boundServiceName, myService);	
 		video1.init();
@@ -127,6 +148,16 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 	}
 
+	public void displayMatch(MatchResult result)
+	{
+		matchWord.setText(result.word);
+		matchIndex.setText("" + result.matchIndex);
+		result.bestFit.cropped.source = "output"; // TODO - BAD - your modifying real data for trivial local purposes
+		bestFitVideo.displayFrame(result.bestFit.cropped);
+		result.newImage.cropped.source = "output"; // TODO - BAD - your modifying real data for trivial local purposes
+		newImageVideo.displayFrame(result.newImage.cropped);
+	}
+	
 	// TODO - com....Sensor interface
 	public void displayVideo0(HashMap<String, Node> memory) {
 		
@@ -143,7 +174,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 			{	
 				KinectImageNode kin = node.imageData.get(i);
 				//kin.extraDataLabel
-				VideoDisplayPanel vdp = video0.addVideoDisplayPanel(n);
+				VideoDisplayPanel vdp = bestFitVideo.addVideoDisplayPanel(n);
 				vdp.extraDataLabel.setText(node.word + " match:" + kin.lastGoodFitIndex);
 				// TODO - write bounding box - mask & crop image - do this at node level?
 				// in filter
@@ -154,7 +185,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 				Rectangle r = kin.boundingBox;
 				g.drawRect(r.x, r.y, r.width, r.height);
 				g.dispose();
-				video0.displayFrame(si);
+				bestFitVideo.displayFrame(si);
 			}
 		}
 	}
@@ -171,7 +202,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	
 	public void clearVideo0 ()
 	{
-		video0.removeAllVideoDisplayPanels();
+		bestFitVideo.removeAllVideoDisplayPanels();
 	}
 	/*	
 	
@@ -190,12 +221,14 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 */	
 	@Override
 	public void attachGUI() {
-		video0.attachGUI();
+		//bestFitVideo.attachGUI(); // is this necessary - it ju
+		//newImageVideo.attachGUI();
 //		video1.attachGUI();
 //		video2.attachGUI();
 		//sendNotifyRequest(outMethod, inMethod, parameterType)
-		sendNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
-		sendNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
+		//sendNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
+		sendNotifyRequest("publishMatch", "displayMatch", MatchResult.class);
+		//sendNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
 		//sendNotifyRequest("publishVideo1", "displayVideo1", Node.class);
 		//sendNotifyRequest("publishVideo2", "displayVideo2", Node.class);
 		//sendNotifyRequest("publishMatchResult", "displayMatchResult", IplImage.class);
@@ -204,9 +237,9 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 	@Override
 	public void detachGUI() {
-		video0.detachGUI();
-		removeNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
-		removeNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
+		//bestFitVideo.detachGUI();
+		//removeNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
+		//removeNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
 		//video1.detachGUI();
 		//video2.detachGUI();
 		myService.send(boundServiceName,"detach");
@@ -216,7 +249,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	@Override
 	public VideoWidget getLocalDisplay() {
 		// TODO Auto-generated method stub
-		return video0;
+		return bestFitVideo;
 	}
 
 }

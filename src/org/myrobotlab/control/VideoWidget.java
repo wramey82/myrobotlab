@@ -53,12 +53,9 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class VideoWidget extends ServiceGUI {
 
-
-	// is this global?
-//	HashMap<String, JLabel> screens = new HashMap<String, JLabel>();
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
-	// JComboBox sources = new JComboBox();
+	boolean allowFork = true;
 	
 	// TODO - too big for inner class
 	public class VideoDisplayPanel
@@ -195,7 +192,7 @@ public class VideoWidget extends ServiceGUI {
 			 * img.source is the name of the bound filter
 			 */
 			 
-			if (!displays.containsKey(img.source)) {
+			if (parent.allowFork && !displays.containsKey(img.source)) {
 //				screens.put(img.source, new JLabel());
 				parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
 				getSources();
@@ -278,6 +275,11 @@ public class VideoWidget extends ServiceGUI {
 		
 	} // VideoDisplayPanel
 
+	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork)
+	{
+		this(boundFilterName, myService);
+		this.allowFork = allowFork;
+	}
 
 	public VideoWidget(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
