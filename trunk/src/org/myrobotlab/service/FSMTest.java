@@ -431,7 +431,7 @@ public class FSMTest extends Service {
 		}
 		
 		
-		invoke("clearVideo0");
+		//invoke("clearVideo0");
 		
 		// run through - find best match - TODO - many other algorithms and techniques
 		Iterator<String> itr = memory.keySet().iterator();
@@ -441,6 +441,7 @@ public class FSMTest extends Service {
 		int bestFit = 1000;
 		int fit = 0;
 		String bestFitName = null;
+		Integer index = new Integer(0);
 		
 		while (itr.hasNext()) {
 			String n = itr.next();
@@ -449,7 +450,7 @@ public class FSMTest extends Service {
 				continue; // we won't compare the unknown thingy with itself
 			}
 			Node toSearch = memory.get(n);
-			fit = match(toSearch, unknown);
+			fit = match(toSearch, unknown, index);
 
 			toSearch.imageData.get(0).lastGoodFitIndex = fit;
 			
@@ -460,7 +461,6 @@ public class FSMTest extends Service {
 			}
 		}
 
-		invoke("publishVideo0", memory);
 
 		LOG.error("bestFit" + bestFit);
 		
@@ -468,12 +468,16 @@ public class FSMTest extends Service {
 		{
 		// if found
 		    // announce - TODO - add map "i think it might be", i'm pretty sure its a, 
-			speech.speak("i think it's a " + bestFitName);
+			speech.speak("i think it is a " + bestFitName);
 			Node n = memory.get(bestFitName);
 			n.imageData.add(unknown.imageData.get(0)); // FIXME - messy
 			// with a match ratio of ....
 			// is that correct?
 			// context = WAITING_FOR_AFFIRMATION
+			// publish index bestFitName bestFit
+			//invoke("publishVideo0", memory);
+			invoke("publishMatch", new MatchResult(n.word, bestFit, n.imageData.get(index), n.imageData.get(n.imageData.size()-1))); 
+
 		} else {
 		// else
 			// associate word
@@ -497,7 +501,7 @@ public class FSMTest extends Service {
 	// FIXME - bury in KinectDepthMask or other OpenCV filter to 
 	// get it working on the same thread only ...
 	// Don't use CVObjects out of OpenCV
-	int match (Node toSearch, Node unknown)
+	int match (Node toSearch, Node unknown, Integer index)
 	{
 
 		// at the moment only uses one unknown image
@@ -572,7 +576,10 @@ public class FSMTest extends Service {
 			tempRect1.y(minLoc.y() + template.height());
 	
 			int matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));	
-			if (matchRatio<bestFit) bestFit = matchRatio;
+			if (matchRatio<bestFit){ 
+				bestFit = matchRatio;
+				index = i;
+			}
 			LOG.error("image " + i + " match ratio " + matchRatio);
 		}
 
@@ -594,6 +601,26 @@ public class FSMTest extends Service {
 		return memory;
 	}	
 
+	public class MatchResult 
+	{
+		public String word;
+		public KinectImageNode bestFit;
+		public KinectImageNode newImage;
+		public int matchIndex;
+		
+		MatchResult(String word, int matchIndex, KinectImageNode bestFit, KinectImageNode newImage)
+		{
+			this.word = word;
+			this.bestFit = bestFit;
+			this.newImage = newImage;
+			this.matchIndex = matchIndex;
+		}
+	}
+	
+	public MatchResult publishMatch(MatchResult result) {
+		return result;
+	}	
+	
 	// event to clear the GUI's FSMTest video
 	public void clearVideo0() {
 	}	
@@ -677,7 +704,7 @@ public class FSMTest extends Service {
 				Rectangle r = kin.boundingBox;
 				g.drawRect(r.x, r.y, r.width, r.height);
 				g.dispose();
-				*/
+				*/ 
 			}
 			html.append("</td></tr>\n");
 
