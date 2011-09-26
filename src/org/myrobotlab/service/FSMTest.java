@@ -39,7 +39,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 /*
  * TODO - 
- * AFFIRMATION mode after success or non success
+ * Test AFFIRMATION mode after success or non success
  */
 
 public class FSMTest extends Service {
@@ -80,7 +80,6 @@ public class FSMTest extends Service {
 	
 	@Override
 	public void loadDefaultConfiguration() {
-		
 	}
 	
 	@Override
@@ -90,11 +89,7 @@ public class FSMTest extends Service {
 	
 	public void listeningEvent()
 	{
-		
 		speech.speak("i am listening");
-		/*
-		speech.speak("ready");
-		*/
 	}
 	
 	public void init ()
@@ -130,8 +125,6 @@ public class FSMTest extends Service {
 		changeState(IDLE);
 		speech.speak("my mouth is working");
 		speech.speak("my eyes are open");
-		//speech.speak("ready");
-		//findKinectPolygons();
 	}
 	
 
@@ -315,7 +308,10 @@ public class FSMTest extends Service {
 		
 		if (phrases.get(FIND_OBJECT).containsKey(data))
 		{
-			findKinectPolygons();
+			findKinectPolygons(); 
+			// changes -> WAITING_FOR_POLYGONS -> (once found) -> 
+			// FOUND_POLYGONS ->(processPolygons)->
+			// (IDLE || GET_ASSOCIATIVE_WORD || GET_AFFIRMATION)
 		} else if (context.equals(GET_ASSOCIATIVE_WORD) && phrases.get(GET_ASSOCIATIVE_WORD).containsKey(data)) {
 
 			speech.speak("i will associate this with " + data);
@@ -812,5 +808,5 @@ public class FSMTest extends Service {
 				
 	}
 
-
+    // this is a test
 }
