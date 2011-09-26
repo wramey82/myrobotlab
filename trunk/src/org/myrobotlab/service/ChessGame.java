@@ -46,7 +46,7 @@ public class ChessGame extends Service {
 		
 		return m;
 	}
-	
+	 
 	int state = 0;
 	int column;
 	int row;

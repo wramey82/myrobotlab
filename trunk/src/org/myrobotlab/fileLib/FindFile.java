@@ -114,9 +114,9 @@ public final class FindFile  { //implements FilenameFilter
 
 		FindFile ff2 = new FindFile(); // TODO - make static
 		
-		//List<File> files = ff2.find("\\.(?i:)(?:jpg|gif|doc|java)$");
-		List<File> files = ff2.find(".*\\.java$");
-		//List<File> files = ff2.find(".*\\.svn$");
+		//List<File> files = FindFile.find("\\.(?i:)(?:jpg|gif|doc|java)$");
+		List<File> files = FindFile.find(".*\\.java$");
+		//List<File> files = FindFile.find(".*\\.svn$");
 
 
 		// print out all file names, in the the order of File.compareTo()
