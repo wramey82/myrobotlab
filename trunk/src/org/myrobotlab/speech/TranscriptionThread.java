@@ -12,6 +12,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.myrobotlab.net.ClientHttpRequest;
 import org.myrobotlab.service.GoogleSTT;
 
@@ -20,10 +22,17 @@ import com.google.gson.Gson;
 /**
  * Each transcription is handled in a separate thread to ensure that the program remains responsive while the thread is waiting for 
  * a response from the server.
+ * Lifted from a great page http://stt.getflourish.com/
+ * by Mr. Florian Schulz.
+ * More info in Chromium source :)
+ * http://src.chromium.org/svn/trunk/src/content/browser/speech/speech_recognition_request.cc
  * @author Florian Schulz
  */
 
 public class TranscriptionThread extends Thread {
+
+	public final static Logger LOG = Logger.getLogger(GoogleSTT.class.getCanonicalName());
+	
 	boolean running;
 
 	private float confidence;
@@ -53,7 +62,7 @@ public class TranscriptionThread extends Thread {
 				running = false;
 			} else {
 				try {
-					sleep(500);
+					sleep(500); // <- TODO - wait/notify/block - lets not do this 1/2 sec pause
 				} catch (InterruptedException e) {
 				}
 			}
@@ -74,14 +83,22 @@ public class TranscriptionThread extends Thread {
 
 		File file = new File(path);
 
+		lang = "en-US";
+		// &pfilter=2 ????
+		
 		String response = "";
 		ClientHttpRequest rs;
 		try {
-			rs = new ClientHttpRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=" + lang);
+			LOG.error("pre new client " + System.currentTimeMillis());
+			rs = new ClientHttpRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter=2&lang=" + lang + "&maxresults=6");
+			LOG.error("post new client " + System.currentTimeMillis());
 			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000");
-			rs.setParameter("file", file);
+			rs.setParameter("file", file);// <-- woosh 6 seconds?
+			LOG.error("post file param " + System.currentTimeMillis());
 			InputStream stream = rs.post();
+			LOG.error("post http fost " + System.currentTimeMillis());
 			response = convertStreamToString(stream);
+			LOG.error("response " + System.currentTimeMillis());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -182,4 +199,18 @@ public class TranscriptionThread extends Thread {
         Date date = new Date();
         return dateFormat.format(date);
 	}
+
+
+	
+	
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		TranscriptionThread t = new TranscriptionThread("en-US");
+		t.transcribe("test2.flac");		
+		
+	}
+	
+
 }

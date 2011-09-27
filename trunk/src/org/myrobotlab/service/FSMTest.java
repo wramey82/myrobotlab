@@ -184,10 +184,14 @@ public class FSMTest extends Service {
 		t.put("cup", null); 
 		t.put("guitar", null);
 		t.put("phone", null);
-		t.put("food", null);
+		t.put("bucket", null);
 		t.put("ball", null);
-		t.put("apple", null);
-		t.put("orange", null);
+		//t.put("apple", null);
+		//t.put("orange", null);
+		//t.put("frits", null);
+		//t.put("odd bot", null);
+		//t.put("tin head", null);
+		//t.put("chris the carpenter", null);
 		phrases.put(GET_ASSOCIATIVE_WORD, t);
 		// ------------------ SIMPLE.GRAM SYNC END --------------------------
 
@@ -327,11 +331,11 @@ public class FSMTest extends Service {
 				memory.put(data, n);
 			} else {
 				// i have bound it to something i previously new about
-				speech.speak("i have catogorized it under " + n.word);
+				speech.speak("i have categorized it under " + n.word);
 				Node n2 = memory.get(n.word);
 				n2.imageData.add(n.imageData.get(0)); // FIXME - messy
 			}
-			speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
+			//speech.speak("i have " + memory.size() + " thing" + ((memory.size()>1)?"s":"" + " in my memory"));
 			lastAssociativeWord = n.word;
 			changeState(IDLE);
 		} else {
@@ -469,7 +473,7 @@ public class FSMTest extends Service {
 			n.imageData.add(unknown.imageData.get(0)); // FIXME - messy
 			// with a match ratio of ....
 			// is that correct?
-			// context = WAITING_FOR_AFFIRMATION
+			context = WAITING_FOR_AFFIRMATION;
 			// publish index bestFitName bestFit
 			//invoke("publishVideo0", memory);
 			invoke("publishMatch", new MatchResult(n.word, bestFit, n.imageData.get(index), n.imageData.get(n.imageData.size()-1))); 
@@ -528,13 +532,13 @@ public class FSMTest extends Service {
 			// adaptive search area begin
 			if (templateImageData.boundingBox.width > imageData.boundingBox.width)
 			{
-				searchROI.width(templateImageData.boundingBox.width);
+				searchROI.width(templateImageData.boundingBox.width + 2);
 				searchROI.x(imageData.boundingBox.x - ((templateImageData.boundingBox.width - imageData.boundingBox.width)/2));
 			}
 			
 			if (templateImageData.boundingBox.height > imageData.boundingBox.height)
 			{
-				searchROI.height(templateImageData.boundingBox.height);
+				searchROI.height(templateImageData.boundingBox.height + 2);
 				searchROI.y(imageData.boundingBox.y - ((templateImageData.boundingBox.height - imageData.boundingBox.height)/2));
 			}
 			// adaptive search area end
