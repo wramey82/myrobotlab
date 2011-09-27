@@ -10,7 +10,7 @@
 
 grammar simple;
 
-public <greet> = (yes | no | correct | stop | save | context | look | what is this | what do you see | and this | what about this | do you know what this is | ball | hand | cup | box | beer | guitar);
+public <greet> = (ball | hand | box | beer | bucket | yes | no | correct | stop | save | context | look | what is this | what do you see | and this | what about this | do you know what this is );
 
  
 
