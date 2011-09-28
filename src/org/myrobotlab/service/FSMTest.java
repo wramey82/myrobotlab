@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -677,6 +678,11 @@ public class FSMTest extends Service {
 		html.append("<html><head><head><body>");
 		html.append("<table class=\"memoryTable\">");
 		html.append("<tr><td><b>word</b></td><td><b>image</b></td></tr>\n");
+		
+		// move old directory if exists - file indexes will be 
+		// regenerated
+		File old = new File("html");
+		old.renameTo(new File("html." + (new Date())));
 		
 		while (itr.hasNext()) {
 			String n = itr.next();
