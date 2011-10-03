@@ -530,6 +530,7 @@ public class FSMTest extends Service {
 			searchROI.width(imageData.boundingBox.width);
 			searchROI.height(imageData.boundingBox.height);
 
+			// TODO - dynamic adjustments will explode if on the edge
 			// adaptive search area begin
 			if (templateImageData.boundingBox.width > imageData.boundingBox.width)
 			{

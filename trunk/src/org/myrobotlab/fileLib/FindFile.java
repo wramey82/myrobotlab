@@ -112,7 +112,6 @@ public final class FindFile  { //implements FilenameFilter
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		FindFile ff2 = new FindFile(); // TODO - make static
 		
 		//List<File> files = FindFile.find("\\.(?i:)(?:jpg|gif|doc|java)$");
 		List<File> files = FindFile.find(".*\\.java$");
