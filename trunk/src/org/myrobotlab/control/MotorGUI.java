@@ -26,17 +26,23 @@
 package org.myrobotlab.control;
 
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
+import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.MotorController;
 
 public class MotorGUI extends ServiceGUI {
 
@@ -48,9 +54,12 @@ public class MotorGUI extends ServiceGUI {
 	private JLabel posValue = new JLabel("0");
 	private JLabel speedValue = new JLabel("0");
 	JButton attachButton = null;
-	JComboBox controller = null;
-	JComboBox pin = null;
-
+	JComboBox controller = new JComboBox();
+	JComboBox powerPin = new JComboBox();
+	JComboBox directionPin = new JComboBox();
+	MotorController myMotorController = null;
+	JLabel powerPinLabel = new JLabel("power pin");
+	JLabel directionPinLabel = new JLabel("direction pin");
 
 	public MotorGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -61,8 +70,27 @@ public class MotorGUI extends ServiceGUI {
 
 		// build input begin ------------------
 		JPanel controlPanel = new JPanel();
-		controlPanel.setLayout(new GridBagLayout());
+		//controlPanel.setLayout(new GridBagLayout());
 
+		TitledBorder title;
+		title = BorderFactory.createTitledBorder("controller");
+		controlPanel.setBorder(title);
+		
+		Vector<String> v = RuntimeEnvironment.getServicesFromInterface(MotorController.class.getCanonicalName());
+		v.add(0, "");
+		controller = new JComboBox(v);
+		controlPanel.add(controller);
+
+		powerPinLabel.setEnabled(false);					
+		powerPin.setEnabled(false);
+		controlPanel.add(powerPinLabel);
+		controlPanel.add(powerPin);		
+
+		directionPinLabel.setEnabled(false);
+		directionPin.setEnabled(false);
+		controlPanel.add(directionPinLabel);
+		controlPanel.add(directionPin);
+		
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
 
@@ -108,16 +136,55 @@ public class MotorGUI extends ServiceGUI {
 		gc.gridy = 0;
 
 		
-		Vector<String> v = new Vector();
-		v.add("arduino");
-		controller = new JComboBox(v);
-		display.add(controller, gc);
+		display.add(controlPanel, gc);
 
 		++gc.gridy;
 		display.add(input, gc);
 		
 
+		ActionListener controllerActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String newController = (String) cb.getSelectedItem();
+				
+				if (newController != null && newController.length() > 0) {
+					//myService.send(boundServiceName, "setSerialPort", newPort);
+					myMotorController = (MotorController)RuntimeEnvironment.getService(newController).service;
+					// TODO - lame - data is not mutable - should be an appropriate method
+					// clear then add
+					powerPin.removeAllItems();
+					directionPin.removeAllItems();
+					
+					powerPin.addItem("");
+					directionPin.addItem("");
+					
+					Vector<Integer> v = myMotorController.getOutputPins();
+					
+					for (int i = 0; i < v.size(); ++i)
+					{
+						powerPin.addItem(""+v.get(i));
+						directionPin.addItem(""+v.get(i));
+					}
+					powerPin.setEnabled(true);
+					directionPin.setEnabled(true);
+					powerPinLabel.setEnabled(true);					
+					directionPinLabel.setEnabled(true);
+				} else {
+					// TODO detach
+					powerPin.removeAllItems();
+					directionPin.removeAllItems();
 
+					powerPin.setEnabled(false);					
+					directionPin.setEnabled(false);
+					powerPinLabel.setEnabled(false);					
+					directionPinLabel.setEnabled(false);
+				}
+
+			}
+		};
+		
+		controller.addActionListener(controllerActionListener);
 		// build input end ------------------
 
 	}

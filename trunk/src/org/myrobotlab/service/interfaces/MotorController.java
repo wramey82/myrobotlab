@@ -25,6 +25,8 @@
 
 package org.myrobotlab.service.interfaces;
 
+import java.util.Vector;
+
 public interface MotorController {
 
 	public final static String digitalWrite = "digitalWrite";
@@ -97,5 +99,16 @@ public interface MotorController {
 	 * @return void
 	 */
 	void motorDetach(String name);
+
+	/**
+	 * getOutputPins - get a list of output pin address from the controller which could be power
+	 * or directional.
+	 * 
+	 * @return Vector<Integer> list of output pins
+	 */	
+	
+	Vector<Integer> getOutputPins();
+
+	
 
 }
