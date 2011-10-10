@@ -27,7 +27,10 @@ package org.myrobotlab.control;
 
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
+import java.util.Vector;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -44,6 +47,10 @@ public class MotorGUI extends ServiceGUI {
 	private JSlider speed = null;
 	private JLabel posValue = new JLabel("0");
 	private JLabel speedValue = new JLabel("0");
+	JButton attachButton = null;
+	JComboBox controller = null;
+	JComboBox pin = null;
+
 
 	public MotorGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -53,6 +60,9 @@ public class MotorGUI extends ServiceGUI {
 	public void init() {
 
 		// build input begin ------------------
+		JPanel controlPanel = new JPanel();
+		controlPanel.setLayout(new GridBagLayout());
+
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
 
@@ -92,7 +102,21 @@ public class MotorGUI extends ServiceGUI {
 		 * input.add(getPosValue()); input.add(getSpeedLabel());
 		 * input.add(speedValue);
 		 */
-		display.add(input);
+		gc.gridheight = 1;
+		gc.gridwidth = 1;
+		gc.gridx = 0;
+		gc.gridy = 0;
+
+		
+		Vector<String> v = new Vector();
+		v.add("arduino");
+		controller = new JComboBox(v);
+		display.add(controller, gc);
+
+		++gc.gridy;
+		display.add(input, gc);
+		
+
 
 		// build input end ------------------
 
@@ -245,5 +269,6 @@ public class MotorGUI extends ServiceGUI {
 		removeNotifyRequest("incrementPosition", "incrementPosition", Integer.class);
 
 	}
+	
 
 }

@@ -766,12 +766,12 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// micro-controller code - this will
 	// allow Motor services to offload data / commands features to the boards
 	// and integrate other possiblites? dunno
-	class Motor {
+	class MotorData {
 		boolean isAttached = false;
 
 	}
 
-	HashMap<String, Motor> motorMap = new HashMap<String, Motor>();
+	HashMap<String, MotorData> motorMap = new HashMap<String, MotorData>();
 
 	// @Override - only in Java 1.6 - its only a single reference not all
 	// supertypes define it
@@ -829,10 +829,11 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		
-		
+		Motor left = new Motor("left");
+		left.startService();
 
-		// Servo hand = new Servo("hand");
-		// hand.start();
+		Servo hand = new Servo("hand");
+		hand.startService();
 
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
