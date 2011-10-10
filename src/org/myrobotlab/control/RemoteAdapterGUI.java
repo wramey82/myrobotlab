@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Dimension;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -57,6 +58,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 		display.add(new JLabel("number of messages : 1388"), gc);
 		gc.gridx = 0;
 		++gc.gridy;
+		//list.setPreferredSize(new Dimension(arg0, arg1))
 		display.add(list, gc);
 		/*
 	    list.model.add(0, (Object)new CommunicationNodeEntry("0.0.0.0:6432 -> 192.168.0.5:6767 latency 32ms rx 30 tx 120 msg 5 UDP", "3.gif"));
@@ -96,14 +98,10 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void attachGUI() {
-		
-
 	}
 
 }
