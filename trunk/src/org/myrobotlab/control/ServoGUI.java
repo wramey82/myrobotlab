@@ -47,8 +47,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class ServoGUI extends ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(ServoGUI.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(ServoGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
