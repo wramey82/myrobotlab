@@ -256,7 +256,7 @@ public class ArduinoGUI extends ServiceGUI {
 
 		};
 
-		ActionListener PortActionListener = new ActionListener() {
+		ActionListener portActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JComboBox cb = (JComboBox) e.getSource();
@@ -315,7 +315,7 @@ public class ArduinoGUI extends ServiceGUI {
 		PWMRate3.addActionListener(PWMRate3ActionListener);
 
 		ttyPort.addPopupMenuListener(PortPopUpListener);
-		ttyPort.addActionListener(PortActionListener);
+		ttyPort.addActionListener(portActionListener);
 
 	}
 

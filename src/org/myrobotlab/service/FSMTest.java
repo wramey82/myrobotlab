@@ -106,6 +106,8 @@ public class FSMTest extends Service {
 		gui = new GUIService("gui");
 		gui.startService();
 		
+		speech.notify("isSpeaking", name, "isSpeaking");
+		
 		speechRecognition.notify("publish", name, "heard", String.class);
 		speechRecognition.notify("listeningEvent", name, "listeningEvent");
 		
@@ -128,6 +130,12 @@ public class FSMTest extends Service {
 		speech.speak("my eyes are open");
 	}
 	
+	boolean isSpeaking = false;
+	
+	public void isSpeaking (Boolean b)
+	{
+		isSpeaking = b;
+	}
 
 	/*
 	 * Context States 
@@ -291,6 +299,12 @@ public class FSMTest extends Service {
 
 	public void heard (String data)
 	{
+		if (isSpeaking)
+		{
+			LOG.error("heard " + data + ", but I am speaking - not going to act on this");
+			return;
+		}
+		
 		if (data.equals("save"))
 		{
 			save();

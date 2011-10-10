@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -771,6 +772,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
+	
 	HashMap<String, MotorData> motorMap = new HashMap<String, MotorData>();
 
 	// @Override - only in Java 1.6 - its only a single reference not all
@@ -821,6 +823,17 @@ public class Arduino extends Service implements SerialPortEventListener,
 		releaseSerialPort();
 	}
 
+	public Vector<Integer> getOutputPins()
+	{
+		// TODO - base on "type"
+		Vector<Integer> ret = new Vector<Integer>();
+		for (int i = 2; i < 13; ++i )
+		{
+			ret.add(i);
+		}
+		return ret;
+	}
+	
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();

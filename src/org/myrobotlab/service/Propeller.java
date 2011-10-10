@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.TooManyListenersException;
+import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -740,6 +741,16 @@ public class Propeller extends Service implements SerialPortEventListener,
 	public void motorMoveTo(String name, Integer position) {
 		// TODO Auto-generated method stub
 		
+	}
+	public Vector<Integer> getOutputPins()
+	{
+		// TODO - base on "type"
+		Vector<Integer> ret = new Vector<Integer>();
+		for (int i = 2; i < 13; ++i )
+		{
+			ret.add(i);
+		}
+		return ret;
 	}
 
 	@Override
