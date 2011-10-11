@@ -50,6 +50,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.speech.TranscriptionThread;
 
+
 public class GoogleSTT extends Service {
 
 	public final static Logger LOG = Logger.getLogger(GoogleSTT.class.getCanonicalName());
@@ -66,9 +67,12 @@ public class GoogleSTT extends Service {
 	// capture specifics - strategy is lowest size and best quality
 	float sampleRate 		= 8000.0F; 	// 8000,11025,16000,22050,44100
 	int sampleSizeInBits 	= 16;	 	// 8,16
-	int channels 			= 1;		// 1,2
+	int channels 			= 1;		// 1,2 TODO - check for 2 & triangulation 
 	boolean signed 			= true;		// true,false
 	boolean bigEndian 		= false;
+	double inputVolumeLevel = 0;
+	int bytesPerSecond = (int)sampleRate * sampleSizeInBits * channels / 8;
+	int rmsSampleRate = 8; // sample times per second 
 	
 	boolean debug = true;
 	
@@ -79,14 +83,8 @@ public class GoogleSTT extends Service {
 	public final static int TRANSCRIBING = 3;
 	FLAC_FileEncoder encoder; // TODO - encodes via file system - should allow just byte arrays from memory
 	private String language = "en";
-	TranscriptionThread transcription = null;
+	transient TranscriptionThread transcription = null;
 
-	// TODO - put timings in
-	// find volume through RSM
-	
-	// Check - http://codeidol.com/java/swing/Audio/Show-Audio-Information-While-Playing-SoundHack/ 
-	// for rant on getLevel() never working
-	
 	public GoogleSTT(String n) {
 		super(n, GoogleSTT.class.getCanonicalName());
 		performanceTiming = true;
@@ -101,18 +99,22 @@ public class GoogleSTT extends Service {
 		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);		
 	}
 
+	// TODO - refactor and normalize
 	public void captureAudio() {
 		try {
 			audioFormat = getAudioFormat();
+			LOG.info("sample rate         " + sampleRate);
+			LOG.info("channels            " + channels);
+			LOG.info("sample size in bits " + sampleSizeInBits);
+			LOG.info("signed              " + signed);
+			LOG.info("bigEndian           " + bigEndian);
+			LOG.info("data rate is " + bytesPerSecond + " bytes per second");
 			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
 			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			targetDataLine.open(audioFormat);
 			targetDataLine.start();
 
-			// Create a thread to capture the
-			// microphone data and start it
-			// running. It will run until
-			// the Stop button is clicked.
+			// capture from microphone
 			Thread captureThread = new Thread(new CaptureThread());
 			captureThread.start();
 		} catch (Exception e) {
@@ -130,29 +132,54 @@ public class GoogleSTT extends Service {
 		return byteArrayOutputStream;
 	}
 	
+	
+	// Write data to the internal buffer of the data line
+	// where it will be delivered to the speaker. 
+	// volumeRMS((double[])tempBuffer);
+	
+	// copy the sample into a double for rms
+	// http://www.jsresources.org/faq_audio.html#calculate_power
+	// rms = sqrt( (x0^2 + x1^2 + x2^2 + x3^2) / 4)
+	// convert sampleSizeInBits/8 to double (bucket)
+	
+	// conversions - http://stackoverflow.com/questions/1026761/how-to-convert-a-byte-array-to-its-numeric-value-java
+	// http://www.daniweb.com/software-development/java/code/216874
+	
 	class CaptureThread extends Thread {
 		// An arbitrary-size temporary holding
 		// buffer
-		byte tempBuffer[] = new byte[10000];
+		byte buffer[] = new byte[bytesPerSecond/rmsSampleRate];
+		int bytesPerSample = sampleSizeInBits/8;
+		//double rmsSample = new double[];
 
 		public void run() {
+			LOG.info("starting capture with " + buffer.length + " byte buffer length");
 			byteArrayOutputStream = new ByteArrayOutputStream();
 			stopCapture = false;
-			try {// Loop until stopCapture is set
-				// by another thread that
-				// services the Stop button.
-				while (!stopCapture) {
-					// Read data from the internal
-					// buffer of the data line.
-					int cnt = targetDataLine.read(tempBuffer, 0, tempBuffer.length);
-					// LOG.info("level " + targetDataLine.getLevel()); Sun Java Bug - bummer !
+			try {
 
+				while (!stopCapture) {
+
+					int cnt = targetDataLine.read(buffer, 0, buffer.length);
+					// LOG.info("level " + targetDataLine.getLevel()); not implemented - bummer !
+
+					// rms
+					for (int i = 0; i < buffer.length/bytesPerSample; ++i)
+					{
+						// data type conversion
+						for (int j = 0; j < bytesPerSample; ++j)
+						{
+							// (long)(0xff & buffer[7]) << (j*8)
+						}
+						
+						
+					}
+					
 					if (cnt > 0) {
-						// Save data in output stream
-						// object.
-						byteArrayOutputStream.write(tempBuffer, 0, cnt);
+						byteArrayOutputStream.write(buffer, 0, cnt);
 					}// end if
 				}// end while
+				
 				byteArrayOutputStream.close();
 				
 				saveWavAsFile(byteArrayOutputStream.toByteArray(), audioFormat, "test2.wav");
@@ -161,9 +188,9 @@ public class GoogleSTT extends Service {
 				
 			} catch (Exception e) {
 				LOG.error(Service.stackToString(e));
-			}// end catch
-		}// end run
-	}// end inner class CaptureThread
+			}
+		}
+	}
 
 	private void transcribe(String path) {
 		// only interrupt if available
@@ -194,76 +221,7 @@ public class GoogleSTT extends Service {
 			}
 		} catch(Exception e) { }
 	}	
-	public class PlayThread extends Thread {
-		byte tempBuffer[] = new byte[10000];
-
-		public void run() {
-			try {
-				int cnt;
-				
-				// AudioSystem.getAudioInputStream(FlacEncoding.FLAC, audioInputStream); DAMMIT ! NOT IMPLEMENTED !
-
-				// Keep looping until the input
-				// read method returns -1 for
-				// empty stream.
-				while ((cnt = audioInputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) 
-				{
-					if (cnt > 0) {
-						// Write data to the internal
-						// buffer of the data line
-						// where it will be delivered
-						// to the speaker.
-						// volumeRMS((double[])tempBuffer);
-						sourceDataLine.write(tempBuffer, 0, cnt);
-					}// end if
-				}// end while
-				// Block and wait for internal
-				// buffer of the data line to
-				// empty.
-				sourceDataLine.drain();
-				sourceDataLine.close();
-			} catch (Exception e) {
-				LOG.error(Service.stackToString(e));
-			}// end catch
-		}// end run
-	}// end inner class PlayThread
-
 	
-	// This method plays back the audio
-	// data that has been saved in the
-	// ByteArrayOutputStream
-	public void playAudio() {
-		try {
-			// Get everything set up for
-			// playback.
-			// Get the previously-saved data
-			// into a byte array object.
-			byte audioData[] = byteArrayOutputStream.toByteArray();
-			// Get an input stream on the
-			// byte array containing the data
-			InputStream byteArrayInputStream = new ByteArrayInputStream(
-					audioData);
-			AudioFormat audioFormat = getAudioFormat();
-			audioInputStream = new AudioInputStream(byteArrayInputStream,
-					audioFormat, audioData.length / audioFormat.getFrameSize());
-			DataLine.Info dataLineInfo = new DataLine.Info(
-					SourceDataLine.class, audioFormat);
-			
-			sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
-			sourceDataLine.open(audioFormat);
-			sourceDataLine.start();
-
-			// Create a thread to play back
-			// the data and start it
-			// running. It will run until
-			// all the data has been played
-			// back.
-			Thread playThread = new Thread(new PlayThread());
-			playThread.start();
-		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
-		}// end catch
-	}// end playAudio
 	
 /*	
 	public double volumeRMS(double[] raw) {
@@ -289,7 +247,46 @@ public class GoogleSTT extends Service {
 	    return rootMeanSquare;
 	}
 */	
+	public static double toDouble(byte[] data) {
+	    if (data == null || data.length != 8) return 0x0;
+	    return Double.longBitsToDouble(toLong(data));
+	}
 	
+	public static long toLong(byte[] data) {
+	    if (data == null || data.length != 8) return 0x0;
+	    return (long)(
+	            (long)(0xff & data[0]) << 56  |
+	            (long)(0xff & data[1]) << 48  |
+	            (long)(0xff & data[2]) << 40  |
+	            (long)(0xff & data[3]) << 32  |
+	            (long)(0xff & data[4]) << 24  |
+	            (long)(0xff & data[5]) << 16  |
+	            (long)(0xff & data[6]) << 8   |
+	            (long)(0xff & data[7]) << 0
+	            );
+	}	
+	
+	public static double rms(double[] nums){
+		  double ms = 0;
+		  for (int i = 0; i < nums.length; i++)
+		   ms += nums[i] * nums[i];
+		  ms /= nums.length;
+		  return Math.sqrt(ms);
+	}
+	
+/*	
+	public synchronized float level()
+	  {
+	    float level = 0;
+	    for (int i = 0; i < samples.length; i++)
+	    {
+	      level += (samples[i] * samples[i]);
+	    }
+	    level /= samples.length;
+	    level = (float) Math.sqrt(level);
+	    return level;
+	  }
+*/		 
 	@Override
 	public String getToolTip() {		
 		return "Uses the Google Speech To Text service";
@@ -300,10 +297,9 @@ public class GoogleSTT extends Service {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		GoogleSTT stt = new GoogleSTT("stt");
-		stt.startService();
+		//stt.startService();
 		stt.captureAudio();
 		stt.stopAudioCapture();
-		stt.playAudio();
 	}
 	
 	
