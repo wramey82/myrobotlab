@@ -48,27 +48,13 @@ public interface DigitalIO {
 	 * simplify the address to a single integer value. This may involve
 	 * constructing a map to support more complicated address schemes.
 	 * 
-	 * @param address
-	 *            - the address on the device which value will be written too
-	 * @param value
-	 *            - the value to be written, typically 1 or 255 range
-	 * @return void
+	 * @param io - and IOData contains 2 relevant members
+	 *  address - the address on the device which value will be written too
+	 *  value - the value to be written, typically 1 or 255 range
 	 */
 	// public void digitalWrite(Integer address, Integer value);
 	public void digitalWrite(IOData io);
 
-	/**
-	 * digitalRead will provide a simple mechanism to call into an arbitrary
-	 * device which can support digital reads. For devices which have
-	 * specialized addressing schemes a wrapper must be created which will
-	 * simplify the address to a single integer value. This may involve
-	 * constructing a map to support more complicated address schemes.
-	 * 
-	 * @param address
-	 *            - the address on the device which value will be written too
-	 * @return Integer - the value read
-	 */
-	// public Integer digitalRead(Integer address);
 	public void digitalReadPollStart(Integer address);
 
 	public void digitalReadPollStop(Integer address);

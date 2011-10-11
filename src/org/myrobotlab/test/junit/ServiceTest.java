@@ -22,6 +22,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
@@ -522,6 +523,23 @@ public class ServiceTest {
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
 
+	@Test
+	public final void remoteInterfaceTest ()
+	{
+		// TODO SOAP PROXY etc
+		Message msg = new Message();
+		RemoteAdapter remote01 = new RemoteAdapter("remote01");
+		TestCatcher catcher = new TestCatcher("catcher01");
+
+		msg.name = "catcher01";
+		msg.method = "bothHandsCatchInteger";
+		msg.sender = "test";
+		msg.setData(5,10);
+		
+		
+		
+	}
+	
 	@Test
 	public final void serialize() {
 		String[] serviceNames = Invoker.getServiceShortClassNames();

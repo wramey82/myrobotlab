@@ -44,10 +44,9 @@ public interface AnalogIO {
 	 * simplify the address to a single integer value. This may involve
 	 * constructing a map to support more complicated address schemes.
 	 * 
-	 * @param address
-	 *            - the address on the device which value will be written too
-	 * @param value
-	 *            - the value to be written, typically 1 or 255 range
+	 * @param io - and IOData contains 2 relevant members
+	 *  address - the address on the device which value will be written too
+	 *  value - the value to be written, typically 1 or 255 range
 	 * @return void
 	 */
 	// public void analogWrite(Integer address, Integer value);
