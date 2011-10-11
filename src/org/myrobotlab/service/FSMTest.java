@@ -90,7 +90,8 @@ public class FSMTest extends Service {
 	
 	public void listeningEvent()
 	{
-		speech.speak("i am listening");
+		//speech.speak("i am listening");
+		LOG.error("listeningEvent");
 	}
 	
 	public void init ()
@@ -135,6 +136,7 @@ public class FSMTest extends Service {
 	public void isSpeaking (Boolean b)
 	{
 		isSpeaking = b;
+		LOG.error("isSpeaking" + b);
 	}
 
 	/*
