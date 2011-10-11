@@ -167,10 +167,17 @@ public class GoogleSTT extends Service {
 					for (int i = 0; i < buffer.length/bytesPerSample; ++i)
 					{
 						// data type conversion
+						// signed 2 byte to int
+						// little Indian
+						
+						int v;
+						v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i] << 0);
+						/*
 						for (int j = 0; j < bytesPerSample; ++j)
 						{
 							// (long)(0xff & buffer[7]) << (j*8)
 						}
+						*/
 						
 						
 					}
