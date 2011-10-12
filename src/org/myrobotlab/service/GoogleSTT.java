@@ -145,6 +145,19 @@ public class GoogleSTT extends Service {
 	// conversions - http://stackoverflow.com/questions/1026761/how-to-convert-a-byte-array-to-its-numeric-value-java
 	// http://www.daniweb.com/software-development/java/code/216874
 	
+	public static double rms(double[] nums){
+		  double ms = 0;
+		  for (int i = 0; i < nums.length; i++)
+		   ms += nums[i] * nums[i];
+		  ms /= nums.length;
+		  return Math.sqrt(ms);
+	}
+	
+	double runningRMS = 0;
+	
+	double thresholdRMSDifference = 0;
+	
+	
 	class CaptureThread extends Thread {
 		// An arbitrary-size temporary holding
 		// buffer
@@ -163,6 +176,7 @@ public class GoogleSTT extends Service {
 					int cnt = targetDataLine.read(buffer, 0, buffer.length);
 					// LOG.info("level " + targetDataLine.getLevel()); not implemented - bummer !
 
+					double ms = 0;
 					// rms
 					for (int i = 0; i < buffer.length/bytesPerSample; ++i)
 					{
@@ -171,7 +185,9 @@ public class GoogleSTT extends Service {
 						// little Indian
 						
 						int v;
-						v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i] << 0);
+						v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i+1] << 0);
+						
+						ms += v;
 						/*
 						for (int j = 0; j < bytesPerSample; ++j)
 						{
@@ -181,7 +197,12 @@ public class GoogleSTT extends Service {
 						
 						
 					}
+					ms /= buffer.length/bytesPerSample;
+					double rms = Math.sqrt(ms);
 					
+					LOG.info("root mean square " + rms + " for " + buffer.length/bytesPerSample + " samples");
+					
+					// && isListening && thresholdReached && (listenTime < minListenTime)
 					if (cnt > 0) {
 						byteArrayOutputStream.write(buffer, 0, cnt);
 					}// end if
@@ -273,13 +294,6 @@ public class GoogleSTT extends Service {
 	            );
 	}	
 	
-	public static double rms(double[] nums){
-		  double ms = 0;
-		  for (int i = 0; i < nums.length; i++)
-		   ms += nums[i] * nums[i];
-		  ms /= nums.length;
-		  return Math.sqrt(ms);
-	}
 	
 /*	
 	public synchronized float level()
