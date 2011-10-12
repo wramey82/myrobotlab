@@ -217,7 +217,7 @@
 	        <javadoc access="public" 
 	        		packagenames="org.myrobotlab.*" 
 	        		author="true" 
-	        	 	destdir="doc" 
+	        	 	destdir="javadoc" 
 	        		doctitle="myrobotlab" 
 	        		nodeprecated="false" 
 	        		nodeprecatedlist="false" 
