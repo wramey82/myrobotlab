@@ -184,10 +184,15 @@ public class GoogleSTT extends Service {
 						// signed 2 byte to int
 						// little Indian
 						
-						int v;
-						v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i+1] << 0);
+						//int v;
+						//v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i+1] << 0);
+						//v  = (int)(0xff & buffer[i+1] << 8) | (int)(0xff & buffer[i] << 0);
 						
-						ms += v;
+						int intVal = ((buffer[i+1] & 0xff) << 8) | (buffer[i] & 0xff);
+						
+						//LOG.info(intVal);
+						//ms += intVal * intVal;
+						ms += intVal;
 						/*
 						for (int j = 0; j < bytesPerSample; ++j)
 						{
@@ -220,6 +225,16 @@ public class GoogleSTT extends Service {
 		}
 	}
 
+	
+	 public static int toInt( byte[] bytes ) {
+		    int result = 0;
+		    for (int i=0; i<4; i++) {
+		      result = ( result << 8 ) - Byte.MIN_VALUE + (int) bytes[i];
+		    }
+		    return result;
+		  }	
+	
+	
 	private void transcribe(String path) {
 		// only interrupt if available
 		// transcription.interrupt();
