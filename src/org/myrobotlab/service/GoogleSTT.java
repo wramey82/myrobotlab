@@ -2,7 +2,8 @@
  * 
  * Thanks Tritonus.org for handling byte float buffer array complexities
  * Thanks Minim (http://code.compartmental.net/tools/minim/) for an example of
- * root mean squared example of getLevel()
+ * root mean squared example of getLevel() an of course
+ * Thanks Google !
  *                    
  * @author greg (at) myrobotlab.org
  *  
