@@ -34,7 +34,6 @@ package org.myrobotlab.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import javaFlacEncoder.FLAC_FileEncoder;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -49,6 +48,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.speech.TranscriptionThread;
+import org.tritonus.share.sampled.FloatSampleBuffer;
 
 
 public class GoogleSTT extends Service {
@@ -85,6 +85,9 @@ public class GoogleSTT extends Service {
 	private String language = "en";
 	transient TranscriptionThread transcription = null;
 
+	private FloatSampleBuffer buffer;
+	private int bufferSize = 512;
+	
 	public GoogleSTT(String n) {
 		super(n, GoogleSTT.class.getCanonicalName());
 		performanceTiming = true;
@@ -109,11 +112,17 @@ public class GoogleSTT extends Service {
 			LOG.info("signed              " + signed);
 			LOG.info("bigEndian           " + bigEndian);
 			LOG.info("data rate is " + bytesPerSecond + " bytes per second");
+			// create a dataline with parameters
 			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
+			// attempt to get a input data line with those parameters
 			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			targetDataLine.open(audioFormat);
 			targetDataLine.start();
 
+			buffer = new FloatSampleBuffer(targetDataLine.getFormat().getChannels(), 
+					bufferSize,
+			        targetDataLine.getFormat().getSampleRate());
+			
 			// capture from microphone
 			Thread captureThread = new Thread(new CaptureThread());
 			captureThread.start();
@@ -156,26 +165,32 @@ public class GoogleSTT extends Service {
 	double runningRMS = 0;
 	
 	double thresholdRMSDifference = 0;
-	
+	public byte[] rawBytes;
 	
 	class CaptureThread extends Thread {
 		// An arbitrary-size temporary holding
 		// buffer
-		byte buffer[] = new byte[bytesPerSecond/rmsSampleRate];
+		//byte buffer[] = new byte[bytesPerSecond/rmsSampleRate];
 		int bytesPerSample = sampleSizeInBits/8;
 		//double rmsSample = new double[];
 
+		
 		public void run() {
-			LOG.info("starting capture with " + buffer.length + " byte buffer length");
+			int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine.getFormat());
+			rawBytes = new byte[byteBufferSize];// TODO - create buffer here too?
+			LOG.info("starting capture with " + bufferSize + " buffer size and " + byteBufferSize + " byte buffer length");
 			byteArrayOutputStream = new ByteArrayOutputStream();
 			stopCapture = false;
 			try {
 
 				while (!stopCapture) {
-
-					int cnt = targetDataLine.read(buffer, 0, buffer.length);
-					// LOG.info("level " + targetDataLine.getLevel()); not implemented - bummer !
-
+					
+				    // read from the line
+					int cnt = targetDataLine.read(rawBytes, 0, rawBytes.length);
+				      // convert to float samples
+				      buffer.setSamplesFromBytes(rawBytes, 0, targetDataLine.getFormat(), 
+				                                 0, buffer.getSampleCount());					
+					/*
 					double ms = 0;
 					// rms
 					for (int i = 0; i < buffer.length/bytesPerSample; ++i)
@@ -193,23 +208,16 @@ public class GoogleSTT extends Service {
 						//LOG.info(intVal);
 						//ms += intVal * intVal;
 						ms += intVal;
-						/*
-						for (int j = 0; j < bytesPerSample; ++j)
-						{
-							// (long)(0xff & buffer[7]) << (j*8)
-						}
-						*/
-						
-						
 					}
 					ms /= buffer.length/bytesPerSample;
 					double rms = Math.sqrt(ms);
-					
 					LOG.info("root mean square " + rms + " for " + buffer.length/bytesPerSample + " samples");
+					*/
+					float rms = level(buffer.getChannel(0)); //?
 					
 					// && isListening && thresholdReached && (listenTime < minListenTime)
 					if (cnt > 0) {
-						byteArrayOutputStream.write(buffer, 0, cnt);
+						byteArrayOutputStream.write(rawBytes, 0, cnt);
 					}// end if
 				}// end while
 				
@@ -225,6 +233,17 @@ public class GoogleSTT extends Service {
 		}
 	}
 
+	public float level(float[] samples)
+	  {
+	    float level = 0;
+	    for (int i = 0; i < samples.length; i++)
+	    {
+	      level += (samples[i] * samples[i]);
+	    }
+	    level /= samples.length;
+	    level = (float) Math.sqrt(level);
+	    return level;
+	  }	
 	
 	 public static int toInt( byte[] bytes ) {
 		    int result = 0;
