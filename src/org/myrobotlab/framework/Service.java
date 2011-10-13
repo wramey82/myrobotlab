@@ -186,6 +186,30 @@ public abstract class Service implements Runnable, Serializable {
 		}
 	}
 
+	public static HashMap <String, Long> timerMap = null;
+	static public void logTime (String timerName, String tag)
+	{
+		if (timerMap == null)
+		{
+			timerMap = new HashMap <String, Long>();
+		}
+		
+		if (!timerMap.containsKey(timerName) || "start".equals(tag))
+		{
+			timerMap.put(timerName, System.currentTimeMillis());
+		}
+		
+		StringBuffer sb = new StringBuffer(40);
+		sb.append("timer ");
+		sb.append(timerName);
+		sb.append(" ");
+		sb.append(System.currentTimeMillis() - timerMap.get(timerName));
+		sb.append(" ms ");
+		sb.append(tag);
+		
+		LOG.error(sb);		
+	}
+	
 	/*
 	 * setCFG a Service level accessor for remote messages to change
 	 * configuration of foreign services.

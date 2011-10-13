@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.myrobotlab.framework.Service;
+
 /**
  * Client HTTP Request class
  * This class helps to send POST HTTP requests with various form data,
@@ -189,6 +191,7 @@ public class ClientHttpRequest {
    * @throws IOException
    */
   public void setParameter(String name, String filename, InputStream is) throws IOException {
+	  Service.logTime("t1", "setParameter begin (after new fileinput)");
     boundary();
     writeName(name);
     write("; filename=\"");
@@ -196,9 +199,11 @@ public class ClientHttpRequest {
     write('"');
     newline();
     write("Content-Type: ");
+	  Service.logTime("t1", "pre guessContentTypeFromName");
     String type = URLConnection.guessContentTypeFromName(filename);
     if (type == null) type = "application/octet-stream";
     writeln(type);
+	  Service.logTime("t1", "post guessContentTypeFromName");
     newline();
     pipe(is, os);
     newline();
@@ -211,7 +216,9 @@ public class ClientHttpRequest {
    * @throws IOException
    */
   public void setParameter(String name, File file) throws IOException {
+	  Service.logTime("t1", "pre set file");
     setParameter(name, file.getPath(), new FileInputStream(file));
+	  Service.logTime("t1", "post set file");
   }
 
   /**
