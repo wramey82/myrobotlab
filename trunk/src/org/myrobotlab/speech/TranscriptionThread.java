@@ -14,6 +14,7 @@ import java.util.Date;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.ClientHttpRequest;
 import org.myrobotlab.service.GoogleSTT;
 
@@ -89,16 +90,17 @@ public class TranscriptionThread extends Thread {
 		String response = "";
 		ClientHttpRequest rs;
 		try {
-			LOG.error("pre new client " + System.currentTimeMillis());
+			Service.logTime("t1", "pre new client");
 			rs = new ClientHttpRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter=2&lang=" + lang + "&maxresults=6");
-			LOG.error("post new client " + System.currentTimeMillis());
-			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000");
+			Service.logTime("t1", "post new client");
+			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // TODO - from targetLineData ?
 			rs.setParameter("file", file);// <-- woosh 6 seconds?
-			LOG.error("post file param " + System.currentTimeMillis());
+			Service.logTime("t1", "post file in param");
+
 			InputStream stream = rs.post();
-			LOG.error("post http fost " + System.currentTimeMillis());
+			Service.logTime("t1", "post client.post");
 			response = convertStreamToString(stream);
-			LOG.error("response " + System.currentTimeMillis());
+			Service.logTime("t1", "convert response");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

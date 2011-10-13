@@ -171,14 +171,14 @@ public class GoogleSTT extends Service {
 	
 	double thresholdRMSDifference = 0;
 	public byte[] rawBytes;
-	
+	boolean isCapturing = false;
+	long captureStartTimeMS;
+	long captureTimeMinimumMS = 1200;
+	long captureTimeMS;
+	float rms;
+		
 	class CaptureThread extends Thread {
-		// An arbitrary-size temporary holding
-		// buffer
-		//byte buffer[] = new byte[bytesPerSecond/rmsSampleRate];
 		int bytesPerSample = sampleSizeInBits/8;
-		//double rmsSample = new double[];
-
 		
 		public void run() {
 			int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine.getFormat());
@@ -188,6 +188,8 @@ public class GoogleSTT extends Service {
 			stopCapture = false;
 			try {
 
+				float rmsThreshold = 0.0030f;
+				
 				while (!stopCapture) {
 					
 				    // read from the line
@@ -195,35 +197,28 @@ public class GoogleSTT extends Service {
 				      // convert to float samples
 				      buffer.setSamplesFromBytes(rawBytes, 0, targetDataLine.getFormat(), 
 				                                 0, buffer.getSampleCount());					
-					/*
-					double ms = 0;
-					// rms
-					for (int i = 0; i < buffer.length/bytesPerSample; ++i)
+
+				    rms = level(buffer.getChannel(0)); //?
+					if (rms > rmsThreshold)
 					{
-						// data type conversion
-						// signed 2 byte to int
-						// little Indian
-						
-						//int v;
-						//v  = (int)(0xff & buffer[i] << 8) | (int)(0xff & buffer[i+1] << 0);
-						//v  = (int)(0xff & buffer[i+1] << 8) | (int)(0xff & buffer[i] << 0);
-						
-						int intVal = ((buffer[i+1] & 0xff) << 8) | (buffer[i] & 0xff);
-						
-						//LOG.info(intVal);
-						//ms += intVal * intVal;
-						ms += intVal;
+						LOG.info("rms " + rms + " will begin recording ");
+						isCapturing = true;
+						captureStartTimeMS = System.currentTimeMillis();
 					}
-					ms /= buffer.length/bytesPerSample;
-					double rms = Math.sqrt(ms);
-					LOG.info("root mean square " + rms + " for " + buffer.length/bytesPerSample + " samples");
-					*/
-					float rms = level(buffer.getChannel(0)); //?
 					
 					// && isListening && thresholdReached && (listenTime < minListenTime)
-					if (cnt > 0) {
+					if (cnt > 0 && isCapturing) {
 						byteArrayOutputStream.write(rawBytes, 0, cnt);
 					}// end if
+					
+					captureTimeMS = System.currentTimeMillis()-captureStartTimeMS;
+					
+					if (isCapturing == true && captureTimeMS > captureTimeMinimumMS && rms < rmsThreshold)
+					{
+						isCapturing = false;
+						stopCapture = true;
+					}
+					
 				}// end while
 				
 				byteArrayOutputStream.close();
@@ -263,14 +258,15 @@ public class GoogleSTT extends Service {
 		// only interrupt if available
 		// transcription.interrupt();
 		
-		logTime("begin");
+		Service.logTime("t1", "start");
+		Service.logTime("t1", "pre new transcription");
 		TranscriptionThread transcription = new TranscriptionThread(language);
 		transcription.debug = debug;
-		logTime("pre start");
+		Service.logTime("t1", "pre new thread start");
 		transcription.start();
-		logTime("post start");
+		Service.logTime("t1", "pre transcription");
 		transcription.startTranscription(path);
-		logTime("post trans");
+		Service.logTime("t1", "post transcription");
 		
 		//threads.add(transcription);
 	}	
