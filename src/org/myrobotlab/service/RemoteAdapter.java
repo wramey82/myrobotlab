@@ -45,7 +45,7 @@ import org.myrobotlab.service.interfaces.Communicator;
 
 /***
  * 
- * @author GPerry
+ * @author grog
  * 
  *         This is a service which allows foreign clients to connect. It
  *         maintains a list of currently connected clients. Most of the
@@ -59,13 +59,16 @@ public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
-	transient static HashMap<String, ServerSocket> serverSockets = new HashMap<String, ServerSocket>();
-	transient Thread tcpListener = null;
-	transient Thread udpListener = null;
-	transient Thread udpStringListener = null;
+
+	// types of listening threads - multiple could be managed
+	// when correct interfaces and base classes are done
+	transient TCPListener tcpListener = null;
+	transient UDPListener udpListener = null;
+	transient UDPStringListener udpStringListener = null;
+
 	InetAddress serverAddress = null;
-	transient ServerSocket serverSocket = null; 
 	
+	// FIXME - all port & ip data needs to be only in the threads
 	public int servicePort = 6767;
 	public String serverIP = "0.0.0.0";
 	
@@ -84,24 +87,46 @@ public class RemoteAdapter extends Service {
 
 	@Override
 	public boolean isReady() {
-		if (serverSocket != null) {
-			return serverSocket.isBound();
+		// TODO - selectively enable and/or check
+		// TODO - check other threads
+		if (tcpListener.serverSocket != null)
+		{
+			return tcpListener.serverSocket.isBound();
 		}
 		return false;
 	}
 
-	// TCPtcpListener to maintain connections - TODO - refactor TCPMessageListener
-	class TCPtcpListener implements Runnable {
+	class TCPListener extends Thread {
+		RemoteAdapter myService = null;
+		transient ServerSocket serverSocket = null; 
+
+		public TCPListener (String n, RemoteAdapter s)
+		{
+			super(n);
+			myService = s;
+		}
+
+		public void shutdown()
+		{
+			if ((serverSocket != null) && (!serverSocket.isClosed()))
+			{
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+				
 		public void run() {
 			if (servicePort > 0) {
 				try {
 
-					LOG.info(name + " tcp attempting to listen on servicePort "
-							+ serverIP + ":"
-							+ servicePort);
-					serverSocket = new ServerSocket(servicePort,
-							0, serverAddress);
-					serverSockets.put(host, serverSocket);
+					serverSocket = new ServerSocket(servicePort,0, serverAddress);
+					
+					LOG.info(name + " TCPListener listening on "
+							+ serverSocket.getLocalSocketAddress());
 
 					while (isRunning()) {
 						Socket clientSocket = serverSocket.accept();
@@ -141,31 +166,39 @@ public class RemoteAdapter extends Service {
 	
 	
 	
-	class UDPStringListener implements Runnable
+	class UDPStringListener extends Thread
 	{
 		DatagramSocket socket = null;
 		String dst = "chess";
 		String fn = "parseOSC";
 
+		RemoteAdapter myService = null;
+		public UDPStringListener (String n, RemoteAdapter s)
+		{
+			super(n);
+			myService = s;
+		}
+		
+		public void shutdown()
+		{
+			if ((socket != null) && (!socket.isClosed()))
+			{
+				socket.close();
+			}
+		}
 		public void run() {
 
 
 			try {
 				socket = new DatagramSocket(6668);
 				
-
-				LOG.info(name + " udp attempting to listen on servicePort "
-						+ serverIP + ":" + socket.getPort());
+				LOG.info(name + " UDPStringListener listening on "
+						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
 				
 				byte[] b = new byte[65535];
 				DatagramPacket dgram = new DatagramPacket(b, b.length);
 
 				while (isRunning()) {
-					/*
-					 * byte[] buf = new byte[65535]; DatagramPacket packet = new
-					 * DatagramPacket(buf, buf.length); socket.receive(packet);
-					 * LOG.info("recieved udp");
-					 */
 
 					socket.receive(dgram); // blocks
 					//String data = new String(b);
@@ -192,17 +225,32 @@ public class RemoteAdapter extends Service {
 		}
 	}
 
-	class UDPMsgListener implements Runnable { // TODO refactor and derive
+	class UDPListener extends Thread { // TODO refactor and derive
 
 		DatagramSocket socket = null;
+		RemoteAdapter myService = null;
+		public UDPListener (String n, RemoteAdapter s)
+		{
+			super(n);
+			myService = s;
+		}
 
+		public void shutdown()
+		{
+			if ((socket != null) && (!socket.isClosed()))
+			{
+				socket.close();
+			}
+		}
+		
 		public void run() {
-
-			LOG.info(name + " udp attempting to listen on servicePort "
-					+ serverIP + ":" + servicePort);
 
 			try {
 				socket = new DatagramSocket(servicePort);
+
+				LOG.info(name + " UDPListener listening on "
+						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
+
 				Communicator comm = (Communicator) cm.getComm();
 
 				byte[] b = new byte[65535];
@@ -269,52 +317,42 @@ public class RemoteAdapter extends Service {
 	public void startService() {
 		// TODO - block until isReady on the ServerSocket
 		super.startService();
-		tcpListener = new Thread(new TCPtcpListener(), name + "_tcpMsgListener");
+		tcpListener = new TCPListener(name + "_tcpMsgListener", this);
 		tcpListener.start();
-		udpListener = new Thread(new UDPMsgListener(), name + "_udpMsgListener");
+		udpListener = new UDPListener(name + "_udpMsgListener", this);
 		udpListener.start();
-		udpStringListener = new Thread(new UDPStringListener(), name + "_udpStringListener");
+		udpStringListener = new UDPStringListener(name + "_udpStringListener", this);
 		udpStringListener.start();
-
 	}
 
 	@Override
 	public void stopService() {
-		ServerSocket serverSocket = serverSockets.get(getHost());
-
-		try {
-			if (serverSocket != null) {
-				serverSocket.close();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		serverSocket = null;
 		
 		super.stopService();
 		
 		if (tcpListener != null)
 		{
 			tcpListener.interrupt();
+			tcpListener.shutdown();
 			tcpListener = null;
 		}
 		if (udpListener != null)
 		{
 			udpListener.interrupt();
+			udpListener.shutdown();
 			udpListener = null;
 		}
 		if (udpStringListener != null)
 		{
 			udpStringListener.interrupt();
+			udpStringListener.shutdown();
 			udpStringListener = null;			
 		}
 
 		if (thisThread != null) {
 			thisThread.interrupt();
 		}
-		
-		
+				
 		thisThread = null;
 
 	}
