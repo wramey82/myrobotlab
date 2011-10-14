@@ -12,8 +12,13 @@ package org.myrobotlab.test.junit;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -526,19 +531,45 @@ public class ServiceTest {
 	@Test
 	public final void remoteInterfaceTest ()
 	{
-		// TODO SOAP PROXY etc
-		Message msg = new Message();
-		RemoteAdapter remote01 = new RemoteAdapter("remote01");
+		// The following services would be running in a remote
+		// instance of MRL - creating them here is only for demonstrative 
+		// purposes
+		RemoteAdapter remote = new RemoteAdapter("remote");
 		TestCatcher catcher = new TestCatcher("catcher01");
-
+		remote.startService();
+		catcher.startService();
+		
+		// begin client sending status message (or any message for that matter)
+		// create message
+		Message msg = new Message();
 		msg.name = "catcher01";
 		msg.method = "bothHandsCatchInteger";
 		msg.sender = "test";
 		msg.setData(5,10);
 		
-		
+		// send it
+		try {
+
+			DatagramSocket socket = new DatagramSocket(); 
+			ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(b_out);
+
+			oos.writeObject(msg);
+			oos.flush();
+			byte[] b = b_out.toByteArray();
+
+			DatagramPacket packet = new DatagramPacket(b, b.length, 
+					InetAddress.getByName("localhost"), 6767);
+			
+			socket.send(packet);
+			oos.reset();
+
+		} catch (Exception e) {
+			LOG.error("threw [" + e.getMessage() + "]");
+		}		
 		
 	}
+
 	
 	@Test
 	public final void serialize() {
