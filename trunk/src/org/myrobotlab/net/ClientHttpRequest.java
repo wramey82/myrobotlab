@@ -1,5 +1,6 @@
 package org.myrobotlab.net;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.myrobotlab.framework.Service;
 
@@ -20,14 +22,23 @@ import org.myrobotlab.framework.Service;
  *
  * @author Vlad Patryshev
  * @version 1.0
+ * 
+ * Modified by grog - added buffered output to increase performance in larger
+ * POSTs.  In file operations buffered output is 10x faster.  Currently, a POST
+ * of a large file takes ~6 seconds TODO - fill in details and result
+ * 
+ * References:
+ *   http://www.javabeat.net/tips/36-file-upload-and-download-using-java.html
+ *   http://www.java2s.com/Code/Java/File-Input-Output/ComparingBufferedandUnbufferedWritingPerformance.htm
  */
 public class ClientHttpRequest {
   URLConnection connection;
-  OutputStream os = null;
-  Map cookies = new HashMap();
+  OutputStream osstr = null;
+  BufferedOutputStream os = null;
+  Map<String,String> cookies = new HashMap<String, String>();
 
   protected void connect() throws IOException {
-    if (os == null) os = connection.getOutputStream();
+    if (os == null) os = new BufferedOutputStream(connection.getOutputStream());
   }
 
   protected void write(char c) throws IOException {
@@ -36,8 +47,11 @@ public class ClientHttpRequest {
   }
 
   protected void write(String s) throws IOException {
+	Service.logTime("t1", "write-connect");
     connect();
+	Service.logTime("t1", "write-post connect");
     os.write(s.getBytes());
+	Service.logTime("t1", "post write s.getBytes");
   }
 
   protected void newline() throws IOException {
@@ -67,8 +81,6 @@ public class ClientHttpRequest {
   public ClientHttpRequest(URLConnection connection) throws IOException {
     this.connection = connection;
     connection.setDoOutput(true);
-    //connection.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // whoops - this sshould be external
-    //connection.setRequestProperty("Content-Type", "audio/x-flac; rate=44000"); // whoops - this sshould be external
   }
 
   /**
@@ -102,8 +114,8 @@ public class ClientHttpRequest {
   public void postCookies() {
     StringBuffer cookieList = new StringBuffer();
 
-    for (Iterator i = cookies.entrySet().iterator(); i.hasNext();) {
-      Map.Entry entry = (Map.Entry)(i.next());
+    for (Iterator<Entry<String, String>> i = cookies.entrySet().iterator(); i.hasNext();) {
+      Entry<String, String> entry = (i.next());
       cookieList.append(entry.getKey().toString() + "=" + entry.getValue());
 
       if (i.hasNext()) {
@@ -130,7 +142,7 @@ public class ClientHttpRequest {
    * @param cookies the cookie "name-to-value" map
    * @throws IOException
    */
-  public void setCookies(Map cookies) throws IOException {
+  public void setCookies(Map<String, String> cookies) throws IOException {
     if (cookies == null) return;
     this.cookies.putAll(cookies);
   }
@@ -170,12 +182,12 @@ public class ClientHttpRequest {
   private void pipe(InputStream in, OutputStream out) throws IOException {
     byte[] buf = new byte[500000];
     int nread;
-    int navailable;
-    int total = 0;
+    //int navailable;
+    //int total = 0;
     synchronized (in) {
       while((nread = in.read(buf, 0, buf.length)) >= 0) {
         out.write(buf, 0, nread);
-        total += nread;
+        //total += nread;
       }
     }
     out.flush();
@@ -310,7 +322,7 @@ public class ClientHttpRequest {
    * @see #setParameters
    * @see setCookies
    */
-  public InputStream post(Map cookies, Map parameters) throws IOException {
+  public InputStream post(Map<String, String> cookies, Map parameters) throws IOException {
     setCookies(cookies);
     setParameters(parameters);
     return post();
@@ -426,7 +438,7 @@ public class ClientHttpRequest {
    * @see #setCookies
    * @see #setParameters
    */
-  public InputStream post(URL url, Map cookies, Map parameters) throws IOException {
+  public InputStream post(URL url, Map<String, String> cookies, Map parameters) throws IOException {
     return new ClientHttpRequest(url).post(cookies, parameters);
   }
 
