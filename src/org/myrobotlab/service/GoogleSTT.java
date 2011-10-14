@@ -182,15 +182,6 @@ public class GoogleSTT extends Service {
 		public void run() {
 			boolean x = true;
 
-			int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine
-					.getFormat());
-			rawBytes = new byte[byteBufferSize];// TODO - create buffer here
-			// too?
-			LOG.info("starting capture with " + bufferSize
-					+ " buffer size and " + byteBufferSize
-					+ " byte buffer length");
-			byteArrayOutputStream = new ByteArrayOutputStream();
-			stopCapture = false; // FIXME - remove
 			int transcriptionIndex = 0;
 
 			while (x) {
@@ -207,6 +198,14 @@ public class GoogleSTT extends Service {
 					}
 				}
 
+				int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine.getFormat());
+				rawBytes = new byte[byteBufferSize];// TODO - create buffer here ?
+				LOG.info("starting capture with " + bufferSize
+						+ " buffer size and " + byteBufferSize
+						+ " byte buffer length");
+				byteArrayOutputStream = new ByteArrayOutputStream();
+				stopCapture = false; // FIXME - remove
+				
 				try {
 					while (!stopCapture) {
 
