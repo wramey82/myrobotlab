@@ -46,7 +46,8 @@ public class TranscriptionThread extends Thread {
 	private String lang;
 	
 	
-	public TranscriptionThread(String lang) {
+	public TranscriptionThread(String n, String lang) {
+		super(n);
 		this.lang = lang;
 		running = false;
 	}
@@ -57,6 +58,11 @@ public class TranscriptionThread extends Thread {
 	}
 
 	public void run() {
+		// TODO - this thread will only transcribe one record
+		// if it is to do multiple records we need to do proper
+		// notification with .notify and .wait
+		transcribe(this.record);
+		/*
 		while (true) {
 			if (running) {
 				transcribe(this.record);
@@ -68,6 +74,7 @@ public class TranscriptionThread extends Thread {
 				}
 			}
 		}
+		*/
 	}
 
 	public boolean isRunning() {
@@ -208,7 +215,7 @@ public class TranscriptionThread extends Thread {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-		TranscriptionThread t = new TranscriptionThread("en-US");
+		TranscriptionThread t = new TranscriptionThread("transcriber","en-US");
 		t.transcribe("test2.flac");		
 		
 	}
