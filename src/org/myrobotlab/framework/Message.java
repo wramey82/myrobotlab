@@ -30,6 +30,10 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+/**
+ * @author grperry
+ *
+ */
 public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BLOCKING = "B";
@@ -39,23 +43,43 @@ public class Message implements Serializable {
 	public int ID;
 	public String msgID; // unique identifier for this message
 	public String timeStamp; // datetimestamp when message is created GMT
-	public String name; // globally unique name of destination Service -
-						// typically this is filled in from the notifyList
-	public String sender; // globally unique name of Service which sent the
-							// message
-	public String sendingMethod; // the origininating source method of this
-									// message
-	public ArrayList<RoutingEntry> historyList; // history of the message -
-												// routing stops and times
-	public String status; // status of the message
+	/**
+	 * globally unique name of destination Service.  This will be the Service
+	 * endpoint of this Message.
+	 */
+	public String name;
+	/**
+	 * name of the sending Service which sent this Message 
+	 */
+	public String sender; 
+	/**
+	 * originating source method which generated this Message 
+	 */
+	public String sendingMethod; 
+	/**
+	 * history of the message, its routing stops and Services it passed
+	 * through.  This is important to prevent endless looping of messages.
+	 */
+	public ArrayList<RoutingEntry> historyList;
+	/**
+	 * status is currently not used (for future use)
+	 */
+	public String status;
 	public String msgType; // Broadcast|Blocking|Blocking Return - depricated
-	public String method; // requested service method to invoke
+	/**
+	 * the method which will be invoked on the destination @see Service 
+	 */
+	public String method;
 	// public String dataClass ; //type class of data - e.g. java.lang.String -
 	// should change this name to dataClass
 	public String encoding; // depricated (should probably be Option not Text) -
 							// limited number of encoding types - type of
 							// encoding used on data TODO - should be part of
 							// Communicator - not here
+	/**
+	 *  the data which will be sent to the destination method
+	 *  
+	 */
 	public Object[] data; // data payload - if invoking a service request this
 							// would be the parameter (list) - this would the
 							// return type data if the message is outbound

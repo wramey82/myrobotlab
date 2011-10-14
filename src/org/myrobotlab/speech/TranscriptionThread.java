@@ -84,13 +84,12 @@ public class TranscriptionThread extends Thread {
 
 		File file = new File(path);
 
-		lang = "en-US";
-		// &pfilter=2 ????
-		
+		lang = "en-US";		
 		String response = "";
 		ClientHttpRequest rs;
 		try {
 			Service.logTime("t1", "pre new client");
+			// TODO - add Android headers 
 			rs = new ClientHttpRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter=2&lang=" + lang + "&maxresults=6");
 			Service.logTime("t1", "post new client");
 			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // TODO - from targetLineData ?
