@@ -485,7 +485,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		removeNotifyRequest("publishState", "getState", OpenCV.class);
 		
 		video0.detachGUI();
-		//video1.detachGUI(); FIXME
 		templateDisplay.detachGUI();
 	}
 
@@ -555,8 +554,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	 * on data elements and/or method of the service.
 	 * 
 	 * getState get's its Service directly if the gui is operating "in process".  If the gui is operating "out of process"
-	 * a serialized (zombie) process is sent to provide the updated state information.  Typically "publishState" is the function
-	 * which provides the event for getState.
+	 * a serialized (zombie) process is sent to provide the updated state information.  Typically "publishState" 
+	 * is the function which provides the event for getState.
 	 */
 	final static String prefix = "OpenCVFilter";
 	public void getState(OpenCV opencv)
