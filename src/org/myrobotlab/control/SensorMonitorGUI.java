@@ -59,6 +59,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
@@ -101,6 +102,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	int red[] = new int[DATA_WIDTH];
 	int redIndex = 0;
+	
+	SensorMonitor myBoundService = null;
 	// trace data is owned by the GUI
 	HashMap<String, TraceData> traceData = new HashMap<String, TraceData>();
 	// alert data is owned by the Service
@@ -396,8 +399,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				myService.send(controllerName, "notify", notifyEntry);
 
 				// Notification SensorMonitor ------> GUIService
-				sendNotifyRequest("publishSensorData", "inputSensorData",
-						PinData.class);
+				sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
 
 				// send input for digital pin
 				// send begin analog / digital polling for pin
@@ -412,6 +414,18 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	}
 
+	public PinData addTraceData (PinData pinData)
+	{
+		// add the data to the array
+		TraceData t = new TraceData();
+		t.label = pinData.source;
+		t.color = new Color(rand.nextInt(16777215));
+		t.controllerName = pinData.source;
+		t.pin = pinData.pin;
+		traceData.put(SensorMonitor.makeKey(pinData.source, t.pin), t);
+		return pinData;
+	}
+	
 	public class RemoveTraceListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String name = (String) traces.getSelectedValue();
@@ -548,15 +562,6 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		}
 	}
 
-	@Override
-	public void attachGUI() {
-		video.attachGUI();
-	}
-
-	@Override
-	public void detachGUI() {
-		video.detachGUI();
-	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
@@ -594,4 +599,27 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		return video;
 	}
 
+	@Override
+	public void attachGUI() {
+		video.attachGUI();
+		// TODO - bury in GUI Framework?
+		// set the route
+		sendNotifyRequest("publishState", "getState", SensorMonitor.class);
+		sendNotifyRequest("addTraceData", "addTraceData", PinData.class);
+		// fire the update
+		myService.send(boundServiceName, "publishState");
+	}
+
+	@Override
+	public void detachGUI() {
+		video.detachGUI();
+		removeNotifyRequest("publishState", "getState", SensorMonitor.class);
+		removeNotifyRequest("addTraceData", "addTraceData", PinData.class);
+	}
+	
+	public void getState(SensorMonitor service)
+	{
+		myBoundService = service;
+	}	
+	
 }

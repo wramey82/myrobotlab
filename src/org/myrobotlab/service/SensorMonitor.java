@@ -52,27 +52,6 @@ public class SensorMonitor extends Service {
 	public void loadDefaultConfiguration() {
 	}
 
-	public static void main(String[] args) {
-
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		SensorMonitor sm = new SensorMonitor("sensors");
-		//Arduino arduino0 = new Arduino("arduino0");
-		Arduino arduino1 = new Arduino("arduino1");
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		GUIService gui = new GUIService("gui");
-		Speech speech = new Speech("speech");
-		sm.speech = speech;
-		//arduino0.startService();
-		arduino1.startService();
-		remote.startService();
-		gui.startService();
-		speech.startService();
-		sm.startService();
-
-		gui.display();
-	}
 
 	public final void addAlert(PinAlert alert) {
 		if (alert.pinData.source == null)
@@ -202,6 +181,36 @@ public class SensorMonitor extends Service {
 	@Override
 	public String getToolTip() {
 		return "<html>sensor monitor - capable of displaying sensor information in a crude oscilliscope fasion</html>";
+	}
+
+	/*
+	 * publishing point to add trace data to listeners (like the gui)
+	 */
+	public PinData addTraceData (PinData pinData)
+	{
+		return pinData;
+	}
+	
+	public static void main(String[] args) {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		SensorMonitor sm = new SensorMonitor("sensors");
+		//Arduino arduino0 = new Arduino("arduino0");
+		//Arduino arduino1 = new Arduino("arduino1");
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		GUIService gui = new GUIService("gui");
+		//Speech speech = new Speech("speech");
+		//sm.speech = speech;
+		//arduino0.startService();
+		//arduino1.startService();
+		remote.startService();
+		gui.startService();
+		//speech.startService();
+		sm.startService();
+
+		gui.display();
 	}
 	
 }

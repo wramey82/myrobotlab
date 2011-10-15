@@ -53,6 +53,8 @@ public abstract class ServiceGUI {
 	final GUI myService;
 
 	GridBagConstraints gc = new GridBagConstraints();
+	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
+	public int myIndex = -1; 
 
 	// TODO - do not grab widgetFrame directly - ask for widgetDisplay()
 
@@ -64,11 +66,7 @@ public abstract class ServiceGUI {
 	JButton detachButton = null;
 	JButton releaseServiceButton = null;
 	
-	public abstract void init();
-	
-	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
-	public int myIndex = -1; 
-	
+	public abstract void init();	
 
 	// TODO - refactor better name vs detach
 	public class DetachListener implements ActionListener

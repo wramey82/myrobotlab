@@ -96,7 +96,7 @@ public class GoogleSTT extends Service {
 	// root mean square level detection and capture management
 	// TODO - auto-gain adjustment
 	float rms;
-	float rmsThreshold = 0.0040f;
+	float rmsThreshold = 0.0050f;
 	public byte[] rawBytes;
 	boolean isCapturing = false;
 	long captureStartTimeMS;
@@ -280,7 +280,7 @@ public class GoogleSTT extends Service {
 		// transcription.interrupt();
 
 		Service.logTime("t1", "start");
-		Service.logTime("t1", "pre new transcription");
+		Service.logTime("t1", "pre new transcription " + path);
 		TranscriptionThread transcription = new TranscriptionThread(this.name + "_transcriber", language);
 		transcription.debug = true;
 		Service.logTime("t1", "pre new thread start");
