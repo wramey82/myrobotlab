@@ -859,14 +859,15 @@ public abstract class Service implements Runnable, Serializable {
 		    // http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
 			// TODO - optimize "setState" function since it is a framework method - do not go through the search !
 			Method[] allMethods = c.getMethods(); // ouch
-			LOG.warn("ouch! need to search through " + allMethods.length + " methods");
+			LOG.error("ouch! need to search through " + allMethods.length + " methods");
+
 		    for (Method m : allMethods) 
 		    {
 				String mname = m.getName();
 				if (!mname.equals(method)) 
 				{
 				    continue;
-				}
+				} 
 				
 		 		Type[] pType = m.getGenericParameterTypes();
 		 		// checking parameter lengths
@@ -906,13 +907,14 @@ public abstract class Service implements Runnable, Serializable {
 
 		 			// put return object onEvent
 					out(method, retobj);
-
 		 			return retobj; 
 				} catch (Exception e1) {
 					LOG.error("boom goes method " + m.getName());
 					Service.logException(e1);
 				}
 			} 
+		    
+		    LOG.error("did not find method");
 						
 		} catch (Exception e) {
 			Service.logException(e);
