@@ -101,8 +101,10 @@ public class Speech extends Service {
 	
 	// having this synchronization and frontend type
 	// will probably negate the need for a isSpeaking event
-	private synchronized Boolean isSpeaking(Boolean b)
+	@SuppressWarnings("unused")
+	public synchronized Boolean isSpeaking(Boolean b)
 	{
+		LOG.error("isSpeaking " + b);
 		isSpeaking = b;
 		return isSpeaking;
 	}
@@ -201,31 +203,22 @@ public class Speech extends Service {
 	
 	public boolean speakNormal(String toSpeak)
 	{
-		// if we are already saying something
-		// and a new request to say something comes in
-		// we dump it we can only do so much, you know?
-		// must not block
-		if (!isSpeaking)
-		{
-			isSpeaking(true);
-			if (backendType == BackendType.ATT) {
-				//speakATT(toSpeak);//
-				//invoke ("speakATT", toSpeak);
-				in(createMessage(name, "speakATT", toSpeak));
-
-			} else if (backendType == BackendType.FREETTS) { // festival tts
-				speakFreeTTS(toSpeak);
-			} else if (backendType == BackendType.GOOGLE) { // festival tts
-				//speakGoogle(toSpeak);
-				in(createMessage(name, "speakGoogle", toSpeak));
-			} else {
-				LOG.error("back-end speech backendType " + backendType + " not supported ");
-			}
-			isSpeaking(false);
-			return true;
-		}
+		// idealy in "normal" speech our ideas are queued
+		// until we have time to actually say them
 		
-		return false;
+		if (backendType == BackendType.ATT) {
+			// in(createMessage(name, "speakATT", toSpeak));
+			LOG.error("no longer supported as per the deathstar's liscense agreement");
+		} else if (backendType == BackendType.FREETTS) { // festival tts
+			// speakFreeTTS(toSpeak);
+			in(createMessage(name, "speakFreeTTS", toSpeak));
+		} else if (backendType == BackendType.GOOGLE) { // festival tts
+			in(createMessage(name, "speakGoogle", toSpeak));
+		} else {
+			LOG.error("back-end speech backendType " + backendType + " not supported ");
+		}
+
+		return true;
 		
 	}
 
@@ -325,7 +318,9 @@ public class Speech extends Service {
 		}
 
 		if (initialized) {
+			invoke("isSpeaking", true);
 			myVoice.speak(toSpeak);
+			invoke("isSpeaking", false);
 		} else {
 			LOG.error("can not speak - uninitialized");
 		}
@@ -389,20 +384,23 @@ public class Speech extends Service {
 
 		// audio file it
 		// boolean isBlocking = true; is Blocking YAY - dont call from different service
-		speechAudioFile.playFile(audioFile, true);		
+		
+		invoke("isSpeaking", true);
+		speechAudioFile.playFile(audioFile, true);	
+		invoke("isSpeaking", false);		
 	}
 	
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 		
 		Speech speech = new Speech("speech");
 		speech.startService();
-		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+		speech.setBackendType(BACKEND_TYPE_FREETTS);
 		speech.speak("hello! this is an attempt to generate inflection, did it work?");
-		speech.speak("hello there");
-		speech.speak("2");
+		speech.speak("hello there. this is a long and detailed message");
+		speech.speak("1 2 3 4 5 6 7 8 9 10, i know how to count");
 		speech.speak("the time is 12:30");
 		speech.speak("oink oink att is good but not so good");
 		speech.speak("num, num, num, num, num");
