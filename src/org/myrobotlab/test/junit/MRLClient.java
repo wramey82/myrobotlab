@@ -11,6 +11,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinData;
 
 public class MRLClient {
@@ -19,6 +22,8 @@ public class MRLClient {
 
 	public static boolean sendMessage (String host, int port, String serviceName, String method, Object ... params)
 	{
+		
+		
 
 		// create message - status or control
 		Message msg = new Message();
@@ -70,9 +75,20 @@ public class MRLClient {
 	}
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		// service creation
+		RemoteAdapter remote = new RemoteAdapter("remote");
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		GUIService gui = new GUIService("gui");
+		
+		remote.startService();
+		sensors.startService();
+		gui.startService();
+		gui.display();
+		
 		
 		Random dummyData = new Random();
 		PinData pinData = new PinData();
@@ -94,8 +110,9 @@ public class MRLClient {
 		// now just send the data !
 		for (int i = 0; i < 10000; ++i)
 		{			
-			pinData.value = 500 +  (2-dummyData.nextInt(4));			
+			pinData.value += (2-dummyData.nextInt(4));			
 			MRLClient.sendMessage("sensors", "sensorInput", new Object[]{pinData});
+			Thread.sleep(10);
 		}
 
 	}
