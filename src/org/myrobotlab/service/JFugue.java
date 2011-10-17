@@ -29,7 +29,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfugue.Player;
 import org.jfugue.Rhythm;
-
 import org.myrobotlab.framework.Service;
 
 public class JFugue extends Service {

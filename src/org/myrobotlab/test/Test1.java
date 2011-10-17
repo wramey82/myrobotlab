@@ -1,7 +1,6 @@
 package org.myrobotlab.test;
 
 import java.io.File;
-import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;

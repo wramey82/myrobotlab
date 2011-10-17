@@ -59,7 +59,6 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;

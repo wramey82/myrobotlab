@@ -31,11 +31,10 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.ConfigurationManager;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 /*
  * Basic Grouping algorithm -

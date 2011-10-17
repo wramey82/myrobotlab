@@ -25,7 +25,6 @@
 
 package org.myrobotlab.control;
 
-import java.awt.Dimension;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;

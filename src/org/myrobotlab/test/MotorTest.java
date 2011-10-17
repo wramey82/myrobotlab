@@ -26,7 +26,6 @@
 package org.myrobotlab.test;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.Invoker;
 
 public class MotorTest {

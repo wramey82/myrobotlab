@@ -28,7 +28,6 @@ package org.myrobotlab.test;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;

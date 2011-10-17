@@ -10,7 +10,10 @@ package org.myrobotlab.chess;
 //  Java version created by Peter Hunter on Sat Jan 05 2002.
 //  Copyright (c) 2002 Peter Hunter. All rights reserved.
 //
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 final public class Search {
     public HMove getBest() {

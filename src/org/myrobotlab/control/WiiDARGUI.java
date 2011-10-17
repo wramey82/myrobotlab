@@ -41,11 +41,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.WiiDAR;
 import org.myrobotlab.service.Wii.IRData;
+import org.myrobotlab.service.WiiDAR;
 import org.myrobotlab.service.WiiDAR.Point;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;

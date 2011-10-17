@@ -39,7 +39,6 @@ import java.util.Random;
 import java.util.TooManyListenersException;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.Wii;
 
 // System.nanoTime()

@@ -31,9 +31,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-
 import org.myrobotlab.framework.ConfigurationManager;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FilterDrawTargetArea {
 

@@ -28,10 +28,10 @@ package org.myrobotlab.service;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 
 import com.centralnexus.input.Joystick;
 import com.centralnexus.input.JoystickListener;
-import org.myrobotlab.framework.Service;
 
 public class JoystickService extends Service implements JoystickListener {
 

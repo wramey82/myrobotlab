@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class JoystickServiceGUI extends ServiceGUI {

@@ -29,9 +29,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterOutput extends OpenCVFilter {
 

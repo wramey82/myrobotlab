@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;

@@ -27,6 +27,7 @@ package org.myrobotlab.service;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 
 import wiiusej.WiiUseApiManager;
 import wiiusej.Wiimote;
@@ -43,8 +44,6 @@ import wiiusej.wiiusejevents.wiiuseapievents.GuitarHeroRemovedEvent;
 import wiiusej.wiiusejevents.wiiuseapievents.NunchukInsertedEvent;
 import wiiusej.wiiusejevents.wiiuseapievents.NunchukRemovedEvent;
 import wiiusej.wiiusejevents.wiiuseapievents.StatusEvent;
-
-import org.myrobotlab.framework.Service;
 
 public class SLAM extends Service implements WiimoteListener {
 

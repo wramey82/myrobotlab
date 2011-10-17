@@ -26,7 +26,6 @@
 package org.myrobotlab.service;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 
 public class StepperMotor extends Service {

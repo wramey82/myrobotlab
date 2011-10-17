@@ -46,22 +46,31 @@ import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 */
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
+import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
+import static com.googlecode.javacv.cpp.opencv_core.cvRectangle;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
+import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
+
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-
-
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.cpp.opencv_core.*;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_objdetect.CvHaarClassifierCascade;
-
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_objdetect.*;
 
 
 public class OpenCVFilterFaceDetect extends OpenCVFilter {
