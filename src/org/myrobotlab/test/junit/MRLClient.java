@@ -22,9 +22,6 @@ public class MRLClient {
 
 	public static boolean sendMessage (String host, int port, String serviceName, String method, Object ... params)
 	{
-		
-		
-
 		// create message - status or control
 		Message msg = new Message();
 		msg.name = serviceName;
