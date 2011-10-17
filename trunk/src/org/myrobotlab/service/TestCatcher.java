@@ -28,7 +28,6 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 
 public class TestCatcher extends Service {

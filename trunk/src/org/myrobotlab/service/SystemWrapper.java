@@ -25,12 +25,11 @@
 
 package org.myrobotlab.service;
 
+import java.awt.Toolkit;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-
-import java.awt.Toolkit;
 
 public class SystemWrapper extends Service {
 

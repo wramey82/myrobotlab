@@ -10,7 +10,9 @@ package org.myrobotlab.chess;
 //  owns the copyright, and is used with his permission. All rights are
 //  reserved by the owners of the respective copyrights.
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 final public class Board implements Constants {
     final static int DOUBLED_PAWN_PENALTY = 10;

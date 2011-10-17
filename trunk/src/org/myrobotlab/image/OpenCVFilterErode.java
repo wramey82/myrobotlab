@@ -34,9 +34,9 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterErode extends OpenCVFilter {
 

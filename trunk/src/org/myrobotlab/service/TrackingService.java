@@ -27,12 +27,11 @@ package org.myrobotlab.service;
 
 import java.awt.Rectangle;
 
+import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
+
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
-
-import org.apache.log4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 public class TrackingService extends Service {
 

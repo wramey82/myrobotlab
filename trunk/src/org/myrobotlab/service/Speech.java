@@ -91,9 +91,19 @@ public class Speech extends Service {
 	
 	private boolean isSpeaking = false;
 	
+	final public static HashMap<String, String> googleLanguageMap = new HashMap<String, String>();
+	
 	public Speech(String n) {
 		super(n, Speech.class.getCanonicalName());
 		LOG.info("Using voice: " + voiceName);
+		
+		googleLanguageMap.put("english", "en");
+		googleLanguageMap.put("danish", "da");
+		googleLanguageMap.put("dutch", "nl");
+		googleLanguageMap.put("german", "de");
+		googleLanguageMap.put("french", "fr");
+		googleLanguageMap.put("japanese", "ja");
+		googleLanguageMap.put("portuguese", "pt");
 	}
 
 	public void loadDefaultConfiguration() {
@@ -131,6 +141,9 @@ public class Speech extends Service {
 	public final static String BACKEND_TYPE_ATT = "ATT";
 	public final static String BACKEND_TYPE_FREETTS = "FREETTS";
 	public final static String BACKEND_TYPE_GOOGLE = "GOOGLE";
+	
+	
+	
 	
 	public void setBackendType(String t)
 	{
@@ -390,14 +403,17 @@ public class Speech extends Service {
 		invoke("isSpeaking", false);		
 	}
 	
-	
+	// codes - http://code.google.com/apis/language/translate/v2/using_rest.html
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 		
+		
 		Speech speech = new Speech("speech");
 		speech.startService();
-		speech.setBackendType(BACKEND_TYPE_FREETTS);
+		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+		speech.setLanguage("fr");
+		speech.speak("it is a pleasure to meet you, I am speaking.  I do love to speak. What should we talk about.");
 		speech.speak("hello! this is an attempt to generate inflection, did it work?");
 		speech.speak("hello there. this is a long and detailed message");
 		speech.speak("1 2 3 4 5 6 7 8 9 10, i know how to count");

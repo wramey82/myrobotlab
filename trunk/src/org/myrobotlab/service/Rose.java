@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV.Polygon;
 

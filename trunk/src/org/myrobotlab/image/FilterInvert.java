@@ -28,9 +28,9 @@ package org.myrobotlab.image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-
 import org.myrobotlab.framework.ConfigurationManager;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FilterInvert {
 

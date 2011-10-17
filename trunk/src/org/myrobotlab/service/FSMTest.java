@@ -48,23 +48,30 @@ public class FSMTest extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(FSMTest.class.getCanonicalName());
-	
+
+	// Context related
 	String context = null; 			// current context identifier
 	String contextPerson = null; 	// person of current context
-	
-	// TODO - these services could be accessed via RuntimeEnvironment.service("opencv");
-	// TODO - service could be bound or created in an init - bound for remote	
+	String lastAssociativeWord = null;
+
+	// state info
+	boolean isSpeaking = false;
+	HashMap<String, Node> memory = new HashMap<String, Node>();
+
+	// necessary services
 	OpenCV opencv = null;
 	SpeechRecognition speechRecognition = null;
 	Speech speech = null;
 	GUIService gui = null;
+	Arduino arduino = null;
+	Motor right = null;
 	
+	// random generator 
 	Random generator = new Random();
 	
 	HashMap <String, HashMap<String, String>> phrases = new HashMap <String, HashMap<String,String>>(); 	
-	HashMap<String, Node> memory = new HashMap<String, Node>();
-	OpenCVFilterKinectDepthMask filter = null; // direct handle to filter
 
+	OpenCVFilterKinectDepthMask filter = null; // direct handle to filter
 	
 	// findObject
 		// segmentation - run kinect at ramping range
@@ -87,13 +94,7 @@ public class FSMTest extends Service {
 	public String getToolTip() {
 		return "used as a general template";
 	}
-	
-	public void listeningEvent()
-	{
-		//speech.speak("i am listening");
-		LOG.error("listeningEvent");
-	}
-	
+		
 	public void init ()
 	{		
 		speechRecognition = new SpeechRecognition ("sphinx");
@@ -110,12 +111,12 @@ public class FSMTest extends Service {
 		speech.notify("isSpeaking", name, "isSpeaking");
 		
 		speechRecognition.notify("publish", name, "heard", String.class);
-		speechRecognition.notify("listeningEvent", name, "listeningEvent");
 		
 		opencv.notify("publish", name, "publish", KinectImageNode.class); //<--- BUG - polygon, name (only should work)
 		opencv.notify("publishIplImageTemplate", name, "getImageTemplate", IplImage.class);
 		opencv.notify("publishIplImage", name, "publishIplImage", IplImage.class);
 		
+		// filter setup
 		opencv.getDepth = true;
 		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		filter = (OpenCVFilterKinectDepthMask)opencv.getFilter("KinectDepthMask1");
@@ -131,12 +132,16 @@ public class FSMTest extends Service {
 		speech.speak("my eyes are open");
 	}
 	
-	boolean isSpeaking = false;
-	
-	public void isSpeaking (Boolean b)
+
+	/**
+	 * @param speaking Event function - necessary to NOT listen while speaking.
+	 * true = should not process listening events
+	 * false = may process listening events
+	 */
+	public void isSpeaking (Boolean speaking)
 	{
-		isSpeaking = b;
-		LOG.error("isSpeaking" + b);
+		isSpeaking = speaking;
+		LOG.error("isSpeaking" + speaking);
 	}
 
 	/*
@@ -307,6 +312,12 @@ public class FSMTest extends Service {
 			return;
 		}
 		
+		if ("english".equals(data) || "danish".equals(data) || "dutch".equals(data) || "portuguese".equals(data) || "japanese".equals(data))
+		{
+			speech.setLanguage(Speech.googleLanguageMap.get(data));
+			speech.speak("i will speak " + data);
+		}
+		
 		if (data.equals("save"))
 		{
 			save();
@@ -388,7 +399,6 @@ public class FSMTest extends Service {
 	
 	}
 	
-	String lastAssociativeWord = null;
 
 	public void findKinectPolygons ()
 	{
@@ -396,10 +406,6 @@ public class FSMTest extends Service {
 		changeState(WAITING_FOR_POLYGONS);
 	}
 
-
-	// FYI - This "SHOULD" not need synchronized as there is only 1 thread
-	// servicing the InBox queue - remove after it is determined that it does not
-	// solve the problem
 	public synchronized void publish(ArrayList<KinectImageNode> p) {
 		LOG.error("found " + p.size() + " contextImageDataObjects");
 		filter.publishNodes = false;
@@ -446,10 +452,7 @@ public class FSMTest extends Service {
 			changeState(GET_ASSOCIATIVE_WORD);
 			return;
 		}
-		
-		
-		//invoke("clearVideo0");
-		
+				
 		// run through - find best match - TODO - many other algorithms and techniques
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);

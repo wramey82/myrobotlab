@@ -39,7 +39,6 @@ import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 
 public class Serial extends Service implements SerialPortEventListener {

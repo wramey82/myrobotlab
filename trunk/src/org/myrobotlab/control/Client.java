@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.GUIService;
 
 public class Client extends JApplet {

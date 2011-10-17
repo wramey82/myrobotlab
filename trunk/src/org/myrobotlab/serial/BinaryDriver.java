@@ -30,7 +30,6 @@ import gnu.io.CommDriver;
 import gnu.io.CommPort;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.serial.BinaryCommPort.LineDriver;
 
 public class BinaryDriver implements CommDriver {

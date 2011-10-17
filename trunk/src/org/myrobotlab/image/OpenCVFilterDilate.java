@@ -31,9 +31,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import org.myrobotlab.service.OpenCV;
 
 public class OpenCVFilterDilate extends OpenCVFilter {
 

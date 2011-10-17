@@ -32,8 +32,6 @@ import gnu.io.PortInUseException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-//import sun.io.CharToByteConverter;
-
 import org.myrobotlab.framework.Service;
 
 public class ParallelPort extends Service {

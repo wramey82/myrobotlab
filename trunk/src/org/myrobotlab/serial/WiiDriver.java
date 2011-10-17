@@ -30,7 +30,6 @@ import gnu.io.CommDriver;
 import gnu.io.CommPort;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.service.Wii;
 
 public class WiiDriver implements CommDriver {

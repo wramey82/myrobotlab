@@ -30,7 +30,6 @@ import gnu.io.CommPortIdentifier;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.WiiDriver;
 import org.myrobotlab.service.Wii.IRData;

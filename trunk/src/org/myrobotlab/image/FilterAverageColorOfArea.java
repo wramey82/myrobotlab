@@ -27,8 +27,9 @@ package org.myrobotlab.image;
 
 import java.awt.image.BufferedImage;
 
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import org.myrobotlab.service.OpenCV;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class FilterAverageColorOfArea extends OpenCVFilter {
 

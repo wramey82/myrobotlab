@@ -26,7 +26,6 @@
 package org.myrobotlab.service.data;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;

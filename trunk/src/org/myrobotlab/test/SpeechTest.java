@@ -26,7 +26,6 @@
 package org.myrobotlab.test;
 
 import org.apache.log4j.Level;
-
 import org.myrobotlab.framework.Inbox;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.framework.Service;
