@@ -135,6 +135,7 @@ public class FSMTest extends Service {
 
 	/**
 	 * @param speaking Event function - necessary to NOT listen while speaking.
+	 * Otherwise, robot gets confused when processing own speech as commands.
 	 * true = should not process listening events
 	 * false = may process listening events
 	 */
@@ -157,7 +158,7 @@ public class FSMTest extends Service {
 	 */
 
 	// TODO - organize & find patterns in the states
-	public final static String FIND_OBJECT = "what is this"; // actor
+	public final static String FIND_OBJECT = "look"; // actor
 	public final static String HELLO = "hello"; // response
 	public final static String YES = "yes"; // response
 	public final static String NO = "no"; // response
@@ -316,6 +317,12 @@ public class FSMTest extends Service {
 		{
 			speech.setLanguage(Speech.googleLanguageMap.get(data));
 			speech.speak("i will speak " + data);
+		}
+		
+		if (phrases.get(HELLO).containsKey(data))
+		{
+			speech.speak(getPhrase(HELLO));
+			return;
 		}
 		
 		if (data.equals("save"))
