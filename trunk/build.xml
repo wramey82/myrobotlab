@@ -8,7 +8,7 @@
 			svnversion			
 -->
 
-<project name="myrobotlab" default="javadoc" basedir=".">
+<project name="myrobotlab" default="uploadJar" basedir=".">
 	<description>
 		http://myrobotlab.org myrobotlab build file
     </description>
@@ -120,8 +120,7 @@
 				</section>
 			</manifest>
 		</jar>
-		 <!-- scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" todir="root:Chumby1@chumby:/mnt/usb-E0FD-1813/myrobotlab-0014"/ -->
-		<!-- scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" todir="gperry:maahrpwd@maahr:/home/gperry/releases/myrobotlab-0013"/ -->
+		<!-- scp copies here -->
 	</target>
 		 
 	<target name="clean" description="clean up" >
