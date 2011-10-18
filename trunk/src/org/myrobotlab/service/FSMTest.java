@@ -317,9 +317,11 @@ public class FSMTest extends Service {
 		{
 			speech.setLanguage(Speech.googleLanguageMap.get(data));
 			speech.speak("i will speak " + data);
+			return;
 		}
 		
-		if (phrases.get(HELLO).containsKey(data))
+		//if (phrases.get(HELLO).containsKey(data))
+		if ("hello audrey".equals(data))
 		{
 			speech.speak(getPhrase(HELLO));
 			return;
