@@ -343,6 +343,7 @@ public class Speech extends Service {
 	
 	public void setLanguage(String l)
 	{
+		fileCacheInitialized = false;
 		language = l;
 	}
 	
