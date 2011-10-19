@@ -21,7 +21,7 @@ public class Jython extends Service {
 	
 	@Override
 	public String getToolTip() {
-		return "used as a general template";
+		return "Jython IDE";
 	}
 	
 	public static void main(String[] args) {
