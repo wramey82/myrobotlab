@@ -236,6 +236,9 @@
 	        	</javadoc>
 		
 	    </target>
+	
+<!-- TODO - upload javadoc, check in javadoc? -->	
+	
 <!-- how to call a class directly	
 	<target name="run" depends="compile">
 	  <java fork="true" failonerror="yes" classname="Addition" classpath="build">  
