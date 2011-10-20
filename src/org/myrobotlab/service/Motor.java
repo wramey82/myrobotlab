@@ -25,6 +25,8 @@
 
 package org.myrobotlab.service;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.AnalogIO;
@@ -34,6 +36,7 @@ import org.myrobotlab.service.interfaces.DigitalIO;
 // This mimics a DPDT Motor
 public class Motor extends Service {
 	/*
+	 * FIXME - this implementation needs to be hidden by the motor controller
 	 * TODO - there are only 2 ways to control a simple DC motor - SMOKE and
 	 * H-Bridge/DPDT Where DPDT - one digital line is off/on - the other is CW
 	 * CCW
@@ -58,7 +61,7 @@ public class Motor extends Service {
 	
 	int PWRPin;
 	int DIRPin;
-	int powerMultiplier = 255; // default to Arduino analogWrite max
+	int powerMultiplier = 255; // FIXME - remove | default to Arduino analogWrite max
 								
 	int FORWARD = 1;
 	int BACKWARD = 0;
@@ -73,6 +76,12 @@ public class Motor extends Service {
 	
 	transient DurationThread durationThread = null;
 
+	/**
+	 * Motor constructor takes a single unique name for identification.
+	 * e.g. Motor left = new Motor("left");
+	 * 
+	 * @param name
+	 */
 	public Motor(String name) {
 		super(name, Motor.class.getCanonicalName());
 	}
@@ -81,11 +90,39 @@ public class Motor extends Service {
 	public void loadDefaultConfiguration() {
 	}
 
+	/**
+	 * attach (controllerName, PWRPin, DIRPin is primarily for simple motor
+	 * controllers such as the Arduino, PicAxe, or other controllers which can
+	 * typically control motors with 2 bits.  One for power with pulse width modulation
+	 * and another for direction.
+	 * 
+	 * If more configuration data is needed then use 
+	 * {@link #attach(String, Properties) attach with Properties}
+	 * 
+	 * @param controllerName
+	 * @param PWRPin
+	 * @param DIRPin
+	 */
 	public void attach(String controllerName, int PWRPin, int DIRPin) {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;
 		this.DIRPin = DIRPin;
 		send(controllerName, "motorAttach", this.name, PWRPin, DIRPin);
+	}
+
+	/**
+	 * attach associates the motor controller which could be an Arduino, PICAXE
+	 * or other circuitry.  The Properties are used to send the controller the
+	 * necessary details of the connection and configuration.
+	 * 
+	 * @param controllerName - name of the controller controlling this Motor
+	 * @param config - all the configuration needed for the motor controller
+	 * most times this will just require a PWRPin and DIRPin to describe which
+	 * pins will be used to control power and direction of the motor
+	 */
+	public void attach(String controllerName, Properties config) {
+		this.controllerName = controllerName;
+		send(controllerName, "motorAttach", this.name, config);
 	}
 	
 	public void invertDirection() {
@@ -93,6 +130,9 @@ public class Motor extends Service {
 		BACKWARD = 1;
 	}
 
+	// TODO - make setPower too
+	// TODO - Events (inherit)  hasStopped hasBegunToMove 
+	// TODO - isMoving isStopped
 	public void incrementPower(float increment) {
 		if (power + increment > maxPower || power + increment < -maxPower) 
 		{
@@ -157,13 +197,8 @@ public class Motor extends Service {
 					} catch (InterruptedException e) {
 						LOG.warn("duration thread interrupted");
 					}
-					
-					
-					
 				}
-				
 			}
-			
 		}
 	}
 
@@ -176,6 +211,7 @@ public class Motor extends Service {
 	// TODO - operate from thread pool
 	public void moveFor (float power, int duration, boolean block)
 	{
+		// TODO - remove - Timer which implements SensorFeedback should be used
 		if (!block)
 		{
 			// non-blocking call to move for a duration
