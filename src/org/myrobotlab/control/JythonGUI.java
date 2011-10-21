@@ -30,6 +30,9 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -49,20 +52,32 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 		super(boundServiceName, myService);
 	}
 	
+	JButton exec = new JButton("exec");
 	
 	public void init() {
 		
+		StateActionListener state = new StateActionListener();
+
 		gc.gridx = 0;
 		gc.gridy = 0;
 
+		exec.addActionListener(state);
+		
+		
 		editor = new RSyntaxTextArea();
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
 		scrollPane = new RTextScrollPane(editor);
 
+		JPanel menuPanel = new JPanel(new BorderLayout());
+		menuPanel.add(exec, BorderLayout.LINE_START);
+		
+		
 		display.setLayout(new BorderLayout());
-		display.setPreferredSize(new Dimension(800, 600));
+		
+		display.add(menuPanel, BorderLayout.PAGE_START);		
 
-		display.add(scrollPane);
+		display.setPreferredSize(new Dimension(800, 600));
+		display.add(scrollPane, BorderLayout.CENTER);
 
 		// TODO - LOOK GOOD STUFF!
 		myJython = (Jython) RuntimeEnvironment.getService(boundServiceName).service;
@@ -70,6 +85,18 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 	}
 
 	Jython myJython = null;
+	
+	public class StateActionListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JButton button = (JButton) e.getSource();
+			myService.send(boundServiceName, button.getText(), editor.getText());			
+		}
+		
+	}
+		
 	
 	// TODO put in ServiceGUI framework?
 	public void getState(Jython j)

@@ -2,7 +2,9 @@ package org.myrobotlab.service;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -32,6 +34,9 @@ import org.python.util.PythonInterpreter;
  * http://fifesoft.com/rsyntaxtextarea/ <- AMAZING PROJECT
  * http://www.pushing-pixels.org/2008/06/27/syntax-coloring-for-the-swing-editor-pane.html
  * 
+ * Java Jython integration
+ * http://jythonpodcast.hostjava.net/jythonbook/en/1.0/JythonAndJavaIntegration.html#using-jython-within-java-applications
+ * 
  */
 public class Jython extends Service {
 
@@ -39,6 +44,10 @@ public class Jython extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Jython.class.getCanonicalName());
 
+	String inputScript = null;
+	String setupScript = null;
+	String loopScript  = null;
+	
 	public Jython(String n) {
 		super(n, Jython.class.getCanonicalName());
 	}
@@ -73,6 +82,17 @@ public class Jython extends Service {
 		interp.exec(code);
 	}
 	
+	public Object input (Message msg)
+	{
+		if (interp == null)
+		{
+			createPythonInterpreter();
+		}
+		
+		//PyObject data = new PyObject(msg);
+		
+		return null;
+	}
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
