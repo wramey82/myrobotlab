@@ -49,5 +49,7 @@
 	<classpathentry kind="lib" path="thirdParty/lib/javaFlacEncoder-0.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/tritonus_share-0.3.6.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/mysql-connector-java-3.1.14-bin.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/jython.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

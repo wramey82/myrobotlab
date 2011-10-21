@@ -938,11 +938,11 @@ public class OpenCV extends Service {
 		//opencv.addFilter("InRange1", "InRange");
 		//opencv.setUseInput("camera");
 //		opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+//		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		//opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 		
 //		opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
-		opencv.capture();
+//		opencv.capture();
 		
 /*		
 		Arduino arduino = new Arduino("arduino");
