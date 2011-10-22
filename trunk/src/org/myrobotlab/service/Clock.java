@@ -251,6 +251,8 @@ public class Clock extends Service {
 			e.printStackTrace();
 		}
 */		
+		
+		
 		GUIService gui = new GUIService("clockgui");
 		gui.startService();	
 		gui.display();
