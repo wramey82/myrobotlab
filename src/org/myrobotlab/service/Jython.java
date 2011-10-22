@@ -47,6 +47,7 @@ public class Jython extends Service {
 	String inputScript = null;
 	String setupScript = null;
 	String loopScript  = null;
+	String script = null;
 	
 	public Jython(String n) {
 		super(n, Jython.class.getCanonicalName());
@@ -78,10 +79,16 @@ public class Jython extends Service {
 		{
 			createPythonInterpreter();
 		}
-		
-		interp.exec(code);
+		script = code;		
+		interp.exec(script);
 	}
 	
+	public String getScript()
+	{
+		return script;
+	}
+	
+	/*
 	public Object input (Message msg)
 	{
 		if (interp == null)
@@ -93,15 +100,39 @@ public class Jython extends Service {
 		
 		return null;
 	}
+	*/
+	
+	public String input (String s)
+	{
+		StringBuffer callback = new StringBuffer();
+		callback.append("input ('");
+		callback.append(s);
+		callback.append("')");
+		//exec(callback.toString());
+		if (interp == null)
+		{
+			createPythonInterpreter();
+		}
+		interp.exec(callback.toString());
+		return s;
+	}
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		Jython jython = new Jython("jython");
 		jython.startService();
 		
-		//jython.exec("print \"Hello, World!\" ;");
+String s = "# input.py\n" + 
+		"def input(object):\n" + 
+		"    print 'object is ', object\n" + 
+		"    return object\n";
+	
+		s += "input(5)";
+		
+		//jython.exec("print \"Hello World\" ;");
+		jython.exec(s);
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
