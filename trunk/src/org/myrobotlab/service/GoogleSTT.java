@@ -36,6 +36,7 @@
  *  http://www.jsresources.org/faq_audio.html#calculate_power
  *  http://stackoverflow.com/questions/1026761/how-to-convert-a-byte-array-to-its-numeric-value-java
  *  http://www.daniweb.com/software-development/java/code/216874
+ *  http://code.google.com/apis/language/translate/v2/using_rest.html
  * 
  * */
 
