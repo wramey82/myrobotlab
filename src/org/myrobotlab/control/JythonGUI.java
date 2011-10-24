@@ -26,11 +26,11 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -43,6 +43,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -90,7 +91,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 	// TODO - put in FileUtils
 	  void open () {
 		    FileDialog file = new FileDialog (myService.getFrame(), "Open File", FileDialog.LOAD);
-		    file.setFile ("*.java;*.txt");  // Set initial filename filter
+		    file.setFile ("*.py");  // Set initial filename filter
 		    file.setVisible(true); // Blocks
 		    String curFile;
 		    if ((curFile = file.getFile()) != null) {
@@ -136,10 +137,28 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 		      //setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		    }
 	 }
-	
+
 	public JMenuItem createMenuItem(String label)
 	{
-		JMenuItem mi = new JMenuItem(label);
+		return createMenuItem(label, -1, null);
+	}
+	
+	public JMenuItem createMenuItem(String label, int vKey, String accelerator)
+	{
+		JMenuItem mi = null;
+		if (vKey == -1)
+		{
+			mi = new JMenuItem(label);
+		} else {
+			mi = new JMenuItem(label, vKey);			
+		}
+		
+		if (accelerator != null)
+		{
+			KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke(accelerator);
+		    mi.setAccelerator(ctrlCKeyStroke);
+		}
+
 		mi.addActionListener(al);
 		return mi;
 	}
@@ -158,23 +177,23 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 	    
 	    // file
 		JMenu file = new JMenu("file");
-	    file.setMnemonic('f');
+	    file.setMnemonic(KeyEvent.VK_F);
 	    bar.add(file);
 	    
 	    file.add(createMenuItem("new"));
-	    file.add(createMenuItem("save"));
+	    file.add(createMenuItem("save", KeyEvent.VK_S, "control S"));
 	    file.add(createMenuItem("save as"));
-	    file.add(createMenuItem("open"));
+	    file.add(createMenuItem("open", KeyEvent.VK_O, "control O"));
 	    file.addSeparator();
 
 	    // edit
 		JMenu edit = new JMenu("edit");
-		edit.setMnemonic('e');
+		edit.setMnemonic(KeyEvent.VK_E);
 	    bar.add(edit);
 
 	    // examples
 		JMenu examples = new JMenu("examples");
-		examples.setMnemonic('x');		
+		examples.setMnemonic(KeyEvent.VK_X);		
 	    examples.add(createMenuItem("Arduino"));
 	    examples.add(createMenuItem("OpenCV"));
 	    examples.add(createMenuItem("Clock"));
