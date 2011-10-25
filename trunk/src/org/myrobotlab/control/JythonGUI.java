@@ -85,7 +85,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			} else if (m.getText().equals("save as")) {
 				saveAs();
 			} else if (m.getText().equals("Arduino")) {
-				editor.setText(FileIO.getResourceBinary("python/test.py"));
+				editor.setText(FileIO.getResourceFile("python/test.py"));
 			}
 		}
 	}
