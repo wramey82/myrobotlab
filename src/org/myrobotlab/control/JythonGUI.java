@@ -36,6 +36,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -48,166 +50,192 @@ import javax.swing.KeyStroke;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class JythonGUI extends ServiceGUI implements ActionListener{
+public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	
+
 	RSyntaxTextArea editor = null;
 	RTextScrollPane scrollPane = null;
-	
+
 	public JythonGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	JButton exec = new JButton("exec");
-	//JMenu fileMenu = new JMenu("file");
-	//JMenuBar menuBar = new JMenuBar();
-	
+	// JMenu fileMenu = new JMenu("file");
+	// JMenuBar menuBar = new JMenuBar();
+
 	EditorActionListener al = new EditorActionListener();
-	
-	public class EditorActionListener implements ActionListener
-	{
-		
+
+	public class EditorActionListener implements ActionListener {
+
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			LOG.debug("EditorActionListener.actionPerformed " + arg0);
-			JMenuItem m = (JMenuItem)arg0.getSource();
-			if (m.getText().equals("save"))
-			{
+			JMenuItem m = (JMenuItem) arg0.getSource();
+			if (m.getText().equals("save")) {
 				save();
-			} else if (m.getText().equals("open"))
-			{
+			} else if (m.getText().equals("open")) {
 				open();
+			} else if (m.getText().equals("save as")) {
+				saveAs();
+			} else if (m.getText().equals("Arduino")) {
+				editor.setText(FileIO.getResourceBinary("python/test.py"));
 			}
-		}		
-	}	
-	
+		}
+	}
+
 	JLabel statusInfo = new JLabel();
 
 	// TODO - put in FileUtils
-	  void open () {
-		    FileDialog file = new FileDialog (myService.getFrame(), "Open File", FileDialog.LOAD);
-		    file.setFile ("*.py");  // Set initial filename filter
-		    file.setVisible(true); // Blocks
-		    String curFile;
-		    if ((curFile = file.getFile()) != null) {
-		      String filename = file.getDirectory() + curFile;
-		      char[] data;
-		      //setCursor (Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		      File f = new File (filename);
-		      try {
-		        FileReader fin = new FileReader (f);
-		        int filesize = (int)f.length();
-		        data = new char[filesize];
-		        fin.read (data, 0, filesize);
-		        editor.setText (new String (data));
-		        statusInfo.setText ("Loaded: " + filename);
-		      } catch (FileNotFoundException exc) {
-		        statusInfo.setText ("File Not Found: " + filename);
-		      } catch (IOException exc) {
-		        statusInfo.setText ("IOException: " + filename);
-		      }
-		      //setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		    }
-		  }
+	void open() {
+		FileDialog file = new FileDialog(myService.getFrame(), "Open File", FileDialog.LOAD);
+		file.setFile("*.py"); // Set initial filename filter
+		file.setVisible(true); // Blocks
+		String curFile;
+		if ((curFile = file.getFile()) != null) {
+			String newfilename = file.getDirectory() + curFile;
+			char[] data;
+			// setCursor (Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			File f = new File(newfilename);
+			try {
+				FileReader fin = new FileReader(f);
+				int filesize = (int) f.length();
+				data = new char[filesize];
+				fin.read(data, 0, filesize);
+				editor.setText(new String(data));
+				statusInfo.setText("Loaded: " + newfilename);
+				filename = newfilename;
+			} catch (FileNotFoundException exc) {
+				statusInfo.setText("File Not Found: " + newfilename);
+			} catch (IOException exc) {
+				statusInfo.setText("IOException: " + newfilename);
+			}
+			// setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
 
-	
-	 void save () {
-		    FileDialog file = new FileDialog (myService.getFrame(), "Save File", FileDialog.SAVE);
-		    file.setVisible(true);
-		    String curFile;
-		    if ((curFile = file.getFile()) != null) {
-		      String filename = file.getDirectory() + curFile;// + "1";
-		      //setCursor (Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		      File f = new File (filename);
-		      try {
-		        FileWriter fw = new FileWriter (f);
-		        String text = editor.getText();
-		        int textsize = text.length();
-		        fw.write (editor.getText(), 0, textsize);
-		        fw.close ();
-		        statusInfo.setText ("Saved: " + filename);
-		      } catch (IOException exc) {
-		        statusInfo.setText ("IOException: " + filename);
-		      }
-		      //setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		    }
-	 }
+	String filename = null;
 
-	public JMenuItem createMenuItem(String label)
-	{
-		return createMenuItem(label, -1, null);
+	void save() {
+
+		if (filename == null || !(new File(filename).exists()))
+		{
+			saveAs();
+		} else {
+			writeFile(filename, editor.getText());
+		}
+	}
+
+	void saveAs() {
+		FileDialog fd = new FileDialog(myService.getFrame(), "Save File",FileDialog.SAVE);
+		fd.setVisible(true);
+		String selectedFilename = fd.getFile();
+		if (selectedFilename != null)
+		{
+			filename = fd.getDirectory() + selectedFilename; // new selected file
+		} else {
+			statusInfo.setText("canceled file save");
+			return;
+		}
+		writeFile(filename, editor.getText());
 	}
 	
-	public JMenuItem createMenuItem(String label, int vKey, String accelerator)
+	// TODO - check for outside modification with lastmoddate
+	File currentFile = null;
+	
+	// TODO - put in fileutils
+	public boolean writeFile(String filename, String data)
 	{
+		File f = new File(filename);		
+		try {
+			FileWriter fw = new FileWriter(f);
+			fw.write(data, 0, data.length());
+			fw.close();
+			statusInfo.setText("saved: " + filename);
+		} catch (IOException exc) {
+			statusInfo.setText("IOException: " + filename);
+			return false;
+		}
+		currentFile = f;
+		return true;
+	}
+	
+	public JMenuItem createMenuItem(String label) {
+		return createMenuItem(label, -1, null);
+	}
+
+	public JMenuItem createMenuItem(String label, int vKey, String accelerator) {
 		JMenuItem mi = null;
-		if (vKey == -1)
-		{
+		if (vKey == -1) {
 			mi = new JMenuItem(label);
 		} else {
-			mi = new JMenuItem(label, vKey);			
+			mi = new JMenuItem(label, vKey);
 		}
-		
-		if (accelerator != null)
-		{
+
+		if (accelerator != null) {
 			KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke(accelerator);
-		    mi.setAccelerator(ctrlCKeyStroke);
+			mi.setAccelerator(ctrlCKeyStroke);
 		}
 
 		mi.addActionListener(al);
 		return mi;
 	}
-	
+
 	public void init() {
 
 		/*
-        ImageIcon iconNew = new ImageIcon(getClass().getResource("new.png"));
-        ImageIcon iconOpen = new ImageIcon(getClass().getResource("open.png"));
-        ImageIcon iconSave = new ImageIcon(getClass().getResource("save.png"));
-        ImageIcon iconExit = new ImageIcon(getClass().getResource("exit.png"));
-        */
+		 * ImageIcon iconNew = new ImageIcon(getClass().getResource("new.png"));
+		 * ImageIcon iconOpen = new
+		 * ImageIcon(getClass().getResource("open.png")); ImageIcon iconSave =
+		 * new ImageIcon(getClass().getResource("save.png")); ImageIcon iconExit
+		 * = new ImageIcon(getClass().getResource("exit.png"));
+		 */
 
-		
 		JMenuBar bar = new JMenuBar();
-	    
-	    // file
-		JMenu file = new JMenu("file");
-	    file.setMnemonic(KeyEvent.VK_F);
-	    bar.add(file);
-	    
-	    file.add(createMenuItem("new"));
-	    file.add(createMenuItem("save", KeyEvent.VK_S, "control S"));
-	    file.add(createMenuItem("save as"));
-	    file.add(createMenuItem("open", KeyEvent.VK_O, "control O"));
-	    file.addSeparator();
 
-	    // edit
+		// file
+		JMenu file = new JMenu("file");
+		file.setMnemonic(KeyEvent.VK_F);
+		bar.add(file);
+
+		file.add(createMenuItem("new"));
+		file.add(createMenuItem("save", KeyEvent.VK_S, "control S"));
+		file.add(createMenuItem("save as"));
+		file.add(createMenuItem("open", KeyEvent.VK_O, "control O"));
+		file.addSeparator();
+
+		// edit
+		/* boring - 
 		JMenu edit = new JMenu("edit");
 		edit.setMnemonic(KeyEvent.VK_E);
-	    bar.add(edit);
+		bar.add(edit);
+		*/
 
-	    // examples
+		// examples
 		JMenu examples = new JMenu("examples");
-		examples.setMnemonic(KeyEvent.VK_X);		
-	    examples.add(createMenuItem("Arduino"));
-	    examples.add(createMenuItem("OpenCV"));
-	    examples.add(createMenuItem("Clock"));
-	    examples.add(createMenuItem("Speech"));
-	    bar.add(examples);
-		
-		
+		examples.setMnemonic(KeyEvent.VK_X);
+		String [] ex = null;
+		// TODO - this "should" be dynamically created based on /resource structure 
+		// not sure if thats possible....
+		examples.add(createMenuItem("Arduino"));
+		examples.add(createMenuItem("OpenCV"));
+		examples.add(createMenuItem("Clock"));
+		examples.add(createMenuItem("Speech"));
+		bar.add(examples);
+
 		StateActionListener state = new StateActionListener();
 
 		gc.gridx = 0;
 		gc.gridy = 0;
 
 		exec.addActionListener(state);
-		
+
 		editor = new RSyntaxTextArea();
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
 		scrollPane = new RTextScrollPane(editor);
@@ -215,44 +243,42 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(bar, BorderLayout.LINE_START);
 		menuPanel.add(exec);
-		
-		
+
 		display.setLayout(new BorderLayout());
-		
-		display.add(menuPanel, BorderLayout.PAGE_START);		
+
+		display.add(menuPanel, BorderLayout.PAGE_START);
 
 		display.setPreferredSize(new Dimension(800, 600));
 		display.add(scrollPane, BorderLayout.CENTER);
 
+		display.add(statusInfo, BorderLayout.PAGE_END);
+		
+		
 		// TODO - LOOK GOOD STUFF!
 		myJython = (Jython) RuntimeEnvironment.getService(boundServiceName).service;
-		
-		if (myJython != null)
-		{
+
+		if (myJython != null) {
 			editor.setText(myJython.getScript());
 		}
 
 	}
 
 	Jython myJython = null;
-	
-	public class StateActionListener implements ActionListener
-	{
+
+	public class StateActionListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JButton button = (JButton) e.getSource();
-			myService.send(boundServiceName, button.getText(), editor.getText());			
+			myService.send(boundServiceName, button.getText(), editor.getText());
 		}
-		
+
 	}
-		
-	
+
 	// TODO put in ServiceGUI framework?
-	public void getState(Jython j)
-	{
+	public void getState(Jython j) {
 		// TODO set GUI state debug from Service data
-		
+
 	}
 
 	@Override
@@ -269,7 +295,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

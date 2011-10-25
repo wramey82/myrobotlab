@@ -1,10 +1,10 @@
 package org.myrobotlab.service;
 
+import java.io.File;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -121,9 +121,11 @@ public class Jython extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
+		
 		Jython jython = new Jython("jython");
 		jython.startService();
-		
+
+/*		
 String s = "# input.py\n" + 
 		"def input(object):\n" + 
 		"    print 'object is ', object\n" + 
@@ -133,7 +135,7 @@ String s = "# input.py\n" +
 		
 		//jython.exec("print \"Hello World\" ;");
 		jython.exec(s);
-		
+*/		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
