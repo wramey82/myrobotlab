@@ -67,6 +67,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	}
 
 	JButton exec = new JButton("exec");
+	JButton restart = new JButton("restart");
 	// JMenu fileMenu = new JMenu("file");
 	// JMenuBar menuBar = new JMenuBar();
 
@@ -85,7 +86,11 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			} else if (m.getText().equals("save as")) {
 				saveAs();
 			} else if (m.getText().equals("Arduino")) {
-				editor.setText(FileIO.getResourceFile("python/test.py"));
+				editor.setText(FileIO.getResourceFile("python/example/Arduino/dynamicallyLoadProgram.py"));
+			} else if (m.getText().equals("OpenCV")) {
+				editor.setText(FileIO.getResourceFile("python/example/OpenCV/faceTracking.py"));
+			} else if (m.getText().equals("Speech")) {
+				editor.setText(FileIO.getResourceFile("python/example/Speech/sayThings.py"));
 			}
 		}
 	}
@@ -234,7 +239,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		exec.addActionListener(state);
 
 		editor = new RSyntaxTextArea();
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
@@ -242,7 +246,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(bar, BorderLayout.LINE_START);
-		menuPanel.add(exec);
+
+		restart.addActionListener(state);
+		bar.add(restart);
+
+		exec.addActionListener(state);
+		bar.add(exec);
 
 		display.setLayout(new BorderLayout());
 
