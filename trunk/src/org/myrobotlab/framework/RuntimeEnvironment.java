@@ -215,9 +215,14 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static ServiceWrapper getService(String name)
 	{
+		if (!initialized)
+		{
+			init();
+		}
+
 		if (!registry.containsKey(name))
 		{
-			LOG.error("service " + name + " does not exist");
+			LOG.debug("service " + name + " does not exist");
 			return null;
 		}
 		

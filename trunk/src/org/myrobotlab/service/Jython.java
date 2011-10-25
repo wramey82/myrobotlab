@@ -88,6 +88,15 @@ public class Jython extends Service {
 		return script;
 	}
 	
+	public void restart()
+	{
+		if (interp != null)
+		{
+			interp.cleanup();
+			interp = null;
+		}
+		
+	}
 	/*
 	public Object input (Message msg)
 	{

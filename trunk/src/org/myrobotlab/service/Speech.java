@@ -85,7 +85,7 @@ public class Speech extends Service {
 	public int volume = 100;
 
 	public FrontendType frontendType = FrontendType.NORMAL;
-	public BackendType backendType = BackendType.ATT;
+	public BackendType backendType = BackendType.GOOGLE;
 
 	boolean fileCacheInitialized = false;
 	
@@ -141,8 +141,6 @@ public class Speech extends Service {
 	public final static String BACKEND_TYPE_ATT = "ATT";
 	public final static String BACKEND_TYPE_FREETTS = "FREETTS";
 	public final static String BACKEND_TYPE_GOOGLE = "GOOGLE";
-	
-	
 	
 	
 	public void setBackendType(String t)
@@ -340,8 +338,12 @@ public class Speech extends Service {
 		
 	}
 	
-	
 	public void setLanguage(String l)
+	{
+		in(createMessage(name, "queueSetLanguage", l));
+	}
+	
+	public void queueSetLanguage(String l)
 	{
 		fileCacheInitialized = false;
 		language = l;
