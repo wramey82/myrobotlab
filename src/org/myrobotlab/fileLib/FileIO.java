@@ -191,6 +191,7 @@ public class FileIO {
 			str = new StringBuffer();
 			while ((s = br.readLine()) != null) {
 				str.append(s);
+				str.append("\n");
 			}
 		} catch (IOException e) {
 			LOG.error("could not open filename /resource/" + filename);
