@@ -91,6 +91,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 				editor.setText(FileIO.getResourceFile("python/example/OpenCV/faceTracking.py"));
 			} else if (m.getText().equals("Speech")) {
 				editor.setText(FileIO.getResourceFile("python/example/Speech/sayThings.py"));
+			} else if (m.getText().equals("Clock")) {
+				editor.setText(FileIO.getResourceFile("python/example/Clock/inputTest.py"));
 			}
 		}
 	}
