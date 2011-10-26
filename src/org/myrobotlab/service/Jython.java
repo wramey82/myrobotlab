@@ -101,7 +101,7 @@ public class Jython extends Service {
 	{
 		if (m.method.equals("input"))
 		{
-			invoke("log", m);
+			invoke("input", m);
 			return false; // FIXME why is it boolean and not Object?
 		}
 		return true;
