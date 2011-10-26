@@ -21,6 +21,12 @@
  * 
  * Enjoy !
  * 
+ * Dependencies:
+ * sphinx4-1.0beta6
+ * google recognition - a network connection is required
+ * 
+ * References:
+ * Swapping Grammars - http://cmusphinx.sourceforge.net/wiki/sphinx4:swappinggrammars
  * */
 
 package org.myrobotlab.service;
@@ -43,10 +49,12 @@ import org.myrobotlab.speech.DialogManager;
 import org.myrobotlab.speech.NewGrammarDialogNodeBehavior;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
+import edu.cmu.sphinx.linguist.Linguist;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.TimerPool;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
+import edu.cmu.sphinx.util.props.PropertyException;
 
 public class SpeechRecognition extends Service {
 
@@ -103,6 +111,27 @@ public class SpeechRecognition extends Service {
 		super.stopService();
 	}
 
+	/**
+	 * function to swap grammars to allow sphinx a little more
+	 * capability regarding "new words"
+	 * 
+	 * check http://cmusphinx.sourceforge.net/wiki/sphinx4:swappinggrammars
+	 * 
+	 * @param newGrammarName
+	 * @throws PropertyException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 */
+	void swapGrammar(String newGrammarName)
+			throws PropertyException, InstantiationException, IOException {
+	  LOG.debug("Swapping to grammar " + newGrammarName);
+	  Linguist linguist = (Linguist) cm.lookup("flatLinguist");
+	  linguist.deallocate();
+	  // TODO - bundle sphinx4-1.0beta6
+	  // cm.setProperty("jsgfGrammar", "grammarName", newGrammarName);
+	  linguist.allocate();
+	}
+		
 	class SpeechProcessor extends Thread {
 		SpeechRecognition myService = null;
 		public boolean isRunning = false;

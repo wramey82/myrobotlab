@@ -127,6 +127,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		/*
 		 * The commandMap is a list of GUIService functions which should
 		 * be processed by GUIService rather than routed to control Panels
+		 * TODO - dynamically generate "all" top level functions getMethods + Service ?
 		 */
 		
 		commandMap.put("registerServicesEvent", null);
@@ -169,39 +170,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return false;
 	}
 	
-/*
-	@Override
-	public void run() {
-		try {
 
-			while (isRunning) {
-				Message m = getMsg();
-				
-				if (commandMap.containsKey(m.method)) {
-					// the GUIService should process these command directly
-					process(m);
-				} else {
-					// let a ServiceGUI dialog process the command
-					// ServiceGUI sg = serviceGUIMap.get(m.sender);
-					ServiceGUI sg = serviceGUIMap.get(m.sender);
-					if (sg == null) {
-						LOG.error("attempting to update sub-gui - sender "
-								+ m.sender + " not available in map " + name);
-					} else {
-						invoke(serviceGUIMap.get(m.sender), m.method, m.data);
-					}
-					// processBlocking(m);
-
-				}
-				// process(m); // if this is not called the service will not
-				// support blocking - possible good reason not to override run
-			}
-		} catch (InterruptedException e) {
-			LOG.error("InterruptedException");
-			e.printStackTrace();
-		}
-	}
-*/
 	int currentTab = 0;
 	String selectedTabTitle = null;
 	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
