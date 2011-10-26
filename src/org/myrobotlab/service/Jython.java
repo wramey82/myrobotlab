@@ -1,9 +1,8 @@
 package org.myrobotlab.service;
 
-import java.io.File;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -97,25 +96,34 @@ public class Jython extends Service {
 		}
 		
 	}
-	/*
-	public Object input (Message msg)
+
+	public boolean preProcessHook(Message m)
 	{
-		if (interp == null)
+		if (m.method.equals("input"))
 		{
-			createPythonInterpreter();
+			invoke("log", m);
+			return false; // FIXME why is it boolean and not Object?
 		}
-		
-		//PyObject data = new PyObject(msg);
-		
-		return null;
+		return true;
 	}
-	*/
 	
-	public String input (String s)
+	
+	/**
+	 * input 
+	 * 
+	 * is the callback point of data coming from MRL into the Jython code.
+	 * This will handle Java input messages from other Services.  There is
+	 * a corresponding "input" function in any Python code which wants to 
+	 * intercept & use this data.
+	 * 
+	 * @param msg
+	 * @return
+	 */
+	public Message input(Message msg)
 	{
 		StringBuffer callback = new StringBuffer();
 		callback.append("input ('");
-		callback.append(s);
+		callback.append(msg.data);
 		callback.append("')");
 		//exec(callback.toString());
 		if (interp == null)
@@ -123,7 +131,7 @@ public class Jython extends Service {
 			createPythonInterpreter();
 		}
 		interp.exec(callback.toString());
-		return s;
+		return msg;
 	}
 	
 	public static void main(String[] args) {

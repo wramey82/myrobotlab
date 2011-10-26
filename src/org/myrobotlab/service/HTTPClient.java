@@ -42,7 +42,12 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceFactory;
 
+/**
+ * @author greg (at) myrobotlab.org
+ * wrapper service for Apache HTTPClient
+ */
 public class HTTPClient extends Service {
 
 	public final static Logger LOG = Logger.getLogger(HTTPClient.class
@@ -291,16 +296,19 @@ public class HTTPClient extends Service {
 		
 	}
 
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
-
-				
-	}
-
 	@Override
 	public String getToolTip() {
 		return "an HTTP client, used to fetch information on the web";
 	}
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		//HTTPClient http = (HTTPClient)ServiceFactory.createService ("http", (Class<?>)HTTPClient.class);
+		HTTPData data = HTTPClient.get("http://localhost/");		
+		LOG.info(data);
+	}
+	
 	
 }
