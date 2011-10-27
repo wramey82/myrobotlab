@@ -1,12 +1,20 @@
+from jarray import array
 from java.lang import String
 from java.lang import Class
 from org.myrobotlab.service import Clock
 from org.myrobotlab.service import Logging
+from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.framework import Message
 
 # inputTest.py
 # example script for MRL showing Jython Service
 # input method.  Input is a hook which allows
 # other services to send data to your script.
+# This script will also show a "Message" which
+# is the basic form of communication between all
+# Services in MRL.  Additionally it will show how to 
+# extract data from the message to be used in the 
+# script.
 
 # Create a running instance of the Clock Service.
 # <<URL>>
@@ -16,7 +24,7 @@ clock = ServiceFactory.createService("clock","Clock")
 # Create a running instance of the Logging Service.
 # <<URL>>
 # Name it "log".
-clock = ServiceFactory.createService("log","Logging")
+log = ServiceFactory.createService("log","Logging")
 
 
 # ----------------------------------
@@ -36,9 +44,13 @@ clock = ServiceFactory.createService("log","Logging")
 # when messages are sent to Jython#input(String)
 
 
-def input(object):
-    print 'object is ', object
-    return object
+def input(msg):
+    "@sig public void input(org.myrobotlab.framework.Message msg)"
+    print 'object is ', msg
+    data = msg.data
+    #myString = (1, data)
+    print 'data is %s' % (1,data)  
+    return data
 
 
 clock.setPulseDataString('new clock data !!')
@@ -51,3 +63,4 @@ clock.startClock()
 
 # FIXME - is there anyway to get String.class?
 # TODO - make an opencv class - template match
+
