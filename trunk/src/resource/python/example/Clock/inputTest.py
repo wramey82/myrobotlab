@@ -43,14 +43,9 @@ log = ServiceFactory.createService("log","Logging")
 # Within the MRL Jython serivce the method is invoked
 # when messages are sent to Jython#input(String)
 
-
-def input(msg):
-    "@sig public void input(org.myrobotlab.framework.Message msg)"
-    print 'object is ', msg
-    data = msg.data
-    #myString = (1, data)
-    print 'data is %s' % (1,data)  
-    return data
+def input():
+    print 'python object is ', msg_clock_pulse
+    print 'python data is ', msg_clock_pulse.data[0]
 
 
 clock.setPulseDataString('new clock data !!')

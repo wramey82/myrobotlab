@@ -36,6 +36,13 @@ import org.python.util.PythonInterpreter;
  * Java Jython integration
  * http://jythonpodcast.hostjava.net/jythonbook/en/1.0/JythonAndJavaIntegration.html#using-jython-within-java-applications
  * 
+ * Redirecting std out
+ * http://bytes.com/topic/python/answers/40880-redirect-standard-output-jython-jtextarea
+ * http://stefaanlippens.net/redirect_python_print
+ * http://stackoverflow.com/questions/1000360/python-print-on-stdout-on-a-terminal
+ * http://coreygoldberg.blogspot.com/2009/05/python-redirect-or-turn-off-stdout-and.html
+ * https://www.ibm.com/developerworks/mydeveloperworks/blogs/JythonSwing/?lang=en
+ * 
  */
 public class Jython extends Service {
 
@@ -45,7 +52,7 @@ public class Jython extends Service {
 
 	String inputScript = null;
 	String setupScript = null;
-	String loopScript  = null;
+	String msgHandlerScript  = null;
 	String script = null;
 	
 	public Jython(String n) {
@@ -121,24 +128,26 @@ public class Jython extends Service {
 	 */
 	public Message input(Message msg)
 	{
-		StringBuffer callback = new StringBuffer();
-		callback.append("input ('");
-		callback.append(msg);
-		callback.append("')");
-		//exec(callback.toString());
 		if (interp == null)
 		{
 			createPythonInterpreter();
 		}
-		interp.exec(callback.toString());
+
+		StringBuffer msgHandle = new StringBuffer();
+		msgHandle.append("msg_");
+		msgHandle.append(msg.sender);
+		msgHandle.append("_");
+		msgHandle.append(msg.sendingMethod);
+		
+		interp.set(msgHandle.toString(), msg);
+		interp.exec("input()");
 		return msg;
 	}
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		
+				
 		Jython jython = new Jython("jython");
 		jython.startService();
 
