@@ -168,7 +168,7 @@ public class OpenCV extends Service {
 			this.isConvex = isConvex;
 			this.centeroid = centeroid;
 			this.vertices = vertices;
-
+			
 		}
 
 		// TODO - static functions in Speech service

@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  * @author grperry
  *
  */
-public class Message implements Serializable, MessageType {
+public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BLOCKING = "B";
 	public final static String RETURN = "R";
@@ -177,9 +177,16 @@ public class Message implements Serializable, MessageType {
 		return ret.toString();
 	}
 
-	@Override
 	public Object[] getData() {
 		return data;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }
