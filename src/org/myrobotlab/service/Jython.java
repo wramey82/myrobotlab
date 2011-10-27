@@ -123,7 +123,7 @@ public class Jython extends Service {
 	{
 		StringBuffer callback = new StringBuffer();
 		callback.append("input ('");
-		callback.append(msg.data);
+		callback.append(msg);
 		callback.append("')");
 		//exec(callback.toString());
 		if (interp == null)
