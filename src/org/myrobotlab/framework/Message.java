@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  * @author grperry
  *
  */
-public class Message implements Serializable {
+public class Message implements Serializable, MessageType {
 	private static final long serialVersionUID = 1L;
 	public final static String BLOCKING = "B";
 	public final static String RETURN = "R";
@@ -128,37 +128,8 @@ public class Message implements Serializable {
 
 	}
 
-	// rather silly parameter building but - convienent
-
-	final public void setData(Object param0) {
-		this.data = new Object[1];
-		this.data[0] = param0;
-	}
-
-	final public void setData(Object param0, Object param1) {
-		this.data = new Object[2];
-		this.data[0] = param0;
-		this.data[1] = param1;
-	}
-
-	final public void setData(Object param0, Object param1, Object param2) {
-		this.data = new Object[3];
-		this.data[0] = param0;
-		this.data[1] = param1;
-		this.data[2] = param2;
-	}
-
-	final public void setData(Object param0, Object param1, Object param2,
-			Object param3) {
-		this.data = new Object[4];
-		this.data[0] = param0;
-		this.data[1] = param1;
-		this.data[2] = param2;
-		this.data[3] = param3;
-	}
-
-	final public void setData(Object[] params) {
-		this.data = params;
+	final public void setData(Object ... param0) {
+		this.data = param0;
 	}
 
 	final public String getParameterSignature() {
@@ -204,6 +175,11 @@ public class Message implements Serializable {
 		// ret.append("</Message>");
 		ret.append("}");
 		return ret.toString();
+	}
+
+	@Override
+	public Object[] getData() {
+		return data;
 	}
 
 }
