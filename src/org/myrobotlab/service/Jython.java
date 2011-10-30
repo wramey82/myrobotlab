@@ -78,14 +78,36 @@ public class Jython extends Service {
 		PySystemState.initialize();
 		interp = new PythonInterpreter();		
 	}
+
 	
+	/**
+	 * replaces and executes current Python script
+	 * @param code
+	 */
 	public void exec (String code)
+	{
+		exec(code, true);
+	}	
+	
+	
+	/**
+	 * replaces and executes current Python script
+	 * if replace = false - will not replace "script" variable
+	 * can be useful if ancillary scripts are needed e.g. monitors
+	 * 
+	 * @param code
+	 * @param replace
+	 */
+	public void exec (String code, boolean replace)
 	{
 		if (interp == null)
 		{
 			createPythonInterpreter();
 		}
-		script = code;		
+		if (replace)
+		{
+			script = code;
+		}
 		interp.exec(script);
 	}
 	
@@ -146,22 +168,11 @@ public class Jython extends Service {
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 				
 		Jython jython = new Jython("jython");
 		jython.startService();
 
-/*		
-String s = "# input.py\n" + 
-		"def input(object):\n" + 
-		"    print 'object is ', object\n" + 
-		"    return object\n";
-	
-		s += "input(5)";
-		
-		//jython.exec("print \"Hello World\" ;");
-		jython.exec(s);
-*/		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

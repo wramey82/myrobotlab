@@ -121,6 +121,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public String remoteColorTab = "0x99DD66";
 	
+	int currentTab = 0;
+	String selectedTabTitle = null;
+	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
+
+	
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
 
@@ -169,12 +174,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		return false;
 	}
-	
-
-	int currentTab = 0;
-	String selectedTabTitle = null;
-	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
-	
+		
+	/**
+	 *  a function to rebuild the GUI display.  Smaller data-exchange should be done with getState/publishState.
+	 *  This can be used to rebuild the panels after a new service has been created or a foriegn set of services
+	 *  has been registered.
+	 */
+	public void rebuild()
+	{
+		loadTabPanels();
+	}
 	
 	public ServiceTabPane loadTabPanels() {
 		LOG.debug("loadTabPanels");

@@ -259,12 +259,12 @@ public class Audrey extends Service {
 	}
 
 	public void cameraOn() {
-		camera.setUseInput("camera");
+		camera.setInputType("camera");
 		camera.capture();
 	}
 
 	public void cameraOff() {
-		camera.setUseInput("null");
+		camera.setInputType("null");
 		camera.capture();
 	}
 

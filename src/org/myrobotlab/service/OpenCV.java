@@ -96,7 +96,8 @@ public class OpenCV extends Service {
 	int lastImageWidth = 0;
 
 	// GRABBER BEGIN --------------------------		
-	public String grabberType = null;
+	String inputType = "camera";
+	public String grabberType =  "com.googlecode.javacv.OpenCVFrameGrabber";
 	FrameGrabber grabber = null;
 	CvCapture oldGrabber = null; // TODO - depricate
 	// grabber cfg
@@ -673,9 +674,14 @@ public class OpenCV extends Service {
 		return filename;
 	}
 
-	public String setUseInput(String inputType) {
-		grabberType = inputType;
-		return inputType;
+	public String setInputType(String inputType) {
+		this.grabberType = grabberType;
+		return grabberType;
+	}
+	
+	public String setFrameGrabberType(String grabberType) {
+		this.grabberType = grabberType;
+		return grabberType;
 	}
 
 	public void setDisplayFilter(String name) {
@@ -936,7 +942,7 @@ public class OpenCV extends Service {
 		//opencv.addFilter("PyramidDown1", "PyramidDown");
 //		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		//opencv.addFilter("InRange1", "InRange");
-		//opencv.setUseInput("camera");
+		//opencv.setFrameGrabberType("camera");
 //		opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 //		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		//opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
