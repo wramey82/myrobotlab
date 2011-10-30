@@ -471,24 +471,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	}
 	
 	@Override
-	public void attachGUI() {
-		// TODO - bury in GUI Framework?
-		sendNotifyRequest("publishState", "getState", OpenCV.class);
-		myService.send(boundServiceName, "publishState");
-
-		video0.attachGUI(); // default attachment
-		templateDisplay.attachGUI(); // default attachment
-	}
-
-	@Override
-	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", OpenCV.class);
-		
-		video0.detachGUI();
-		templateDisplay.detachGUI();
-	}
-
-	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		// LOG.debug(e);
 		if (!e.getValueIsAdjusting()) {
@@ -623,6 +605,24 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		
 		cameraIndex.setSelectedIndex(opencv.cameraIndex);
 				
+	}
+
+	@Override
+	public void attachGUI() {
+		// TODO - bury in GUI Framework?
+		sendNotifyRequest("publishState", "getState", OpenCV.class);
+		myService.send(boundServiceName, "publishState");
+
+		video0.attachGUI(); // default attachment
+		templateDisplay.attachGUI(); // default attachment
+	}
+
+	@Override
+	public void detachGUI() {
+		removeNotifyRequest("publishState", "getState", OpenCV.class);
+		
+		video0.detachGUI();
+		templateDisplay.detachGUI();
 	}
 	
 

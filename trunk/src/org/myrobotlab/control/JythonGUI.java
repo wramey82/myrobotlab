@@ -36,8 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -71,7 +69,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	// JMenu fileMenu = new JMenu("file");
 	// JMenuBar menuBar = new JMenuBar();
 
-	EditorActionListener al = new EditorActionListener();
+	EditorActionListener menuListener = new EditorActionListener();
 
 	public class EditorActionListener implements ActionListener {
 
@@ -85,14 +83,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 				open();
 			} else if (m.getText().equals("save as")) {
 				saveAs();
-			} else if (m.getText().equals("Arduino")) {
-				editor.setText(FileIO.getResourceFile("python/example/Arduino/dynamicallyLoadProgram.py"));
-			} else if (m.getText().equals("OpenCV")) {
-				editor.setText(FileIO.getResourceFile("python/example/OpenCV/faceTracking.py"));
-			} else if (m.getText().equals("Speech")) {
-				editor.setText(FileIO.getResourceFile("python/example/Speech/sayThings.py"));
-			} else if (m.getText().equals("Clock")) {
-				editor.setText(FileIO.getResourceFile("python/example/Clock/inputTest.py"));
+			} else if (m.getActionCommand().equals("examples"))
+			{
+				editor.setText(FileIO.getResourceFile("python/examples/" + m.getText()));
+			} else if (m.getActionCommand().equals("system"))
+			{
+				editor.setText(FileIO.getResourceFile("python/system/" + m.getText()));
 			}
 		}
 	}
@@ -172,17 +168,26 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		currentFile = f;
 		return true;
 	}
+
+	public JMenuItem createMenuItem(String label, String actionCommand) {
+		return createMenuItem(label, -1, null, actionCommand);
+	}
 	
 	public JMenuItem createMenuItem(String label) {
-		return createMenuItem(label, -1, null);
+		return createMenuItem(label, -1, null, null);
 	}
 
-	public JMenuItem createMenuItem(String label, int vKey, String accelerator) {
+	public JMenuItem createMenuItem(String label, int vKey, String accelerator, String actionCommand) {
 		JMenuItem mi = null;
 		if (vKey == -1) {
 			mi = new JMenuItem(label);
 		} else {
 			mi = new JMenuItem(label, vKey);
+		}
+		
+		if (actionCommand != null)
+		{
+			mi.setActionCommand(actionCommand);
 		}
 
 		if (accelerator != null) {
@@ -190,7 +195,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			mi.setAccelerator(ctrlCKeyStroke);
 		}
 
-		mi.addActionListener(al);
+		mi.addActionListener(menuListener);
 		return mi;
 	}
 
@@ -212,9 +217,9 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		bar.add(file);
 
 		file.add(createMenuItem("new"));
-		file.add(createMenuItem("save", KeyEvent.VK_S, "control S"));
+		file.add(createMenuItem("save", KeyEvent.VK_S, "control S", null));
 		file.add(createMenuItem("save as"));
-		file.add(createMenuItem("open", KeyEvent.VK_O, "control O"));
+		file.add(createMenuItem("open", KeyEvent.VK_O, "control O", null));
 		file.addSeparator();
 
 		// edit
@@ -227,20 +232,35 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// examples
 		JMenu examples = new JMenu("examples");
 		examples.setMnemonic(KeyEvent.VK_X);
-		String [] ex = null;
-		// TODO - this "should" be dynamically created based on /resource structure 
-		// not sure if thats possible....
-		examples.add(createMenuItem("Arduino"));
-		examples.add(createMenuItem("OpenCV"));
-		examples.add(createMenuItem("Clock"));
-		examples.add(createMenuItem("Speech"));
+		
+		JMenu menu = new JMenu("Arduino");
+		menu.add(createMenuItem("dynamicallyLoadProgram.py","examples"));
+		examples.add(menu);
+
+		menu = new JMenu("Clock");
+		menu.add(createMenuItem("inputTest.py","examples"));
+		examples.add(menu);
+
+		menu = new JMenu("OpenCV");
+		menu.add(createMenuItem("faceTracking.py","examples"));
+		examples.add(menu);
+
+		menu = new JMenu("Speech");
+		menu.add(createMenuItem("sayThings.py","examples"));
+		examples.add(menu);
+		
 		bar.add(examples);
+		
+		// system
+		JMenu system = new JMenu("system");
+		system.setMnemonic(KeyEvent.VK_S);
+		menu = new JMenu("monitor");
+		menu.add(createMenuItem("monitor.py","system"));
+		system.add(menu);
+		
+		bar.add(system);
 
 		StateActionListener state = new StateActionListener();
-
-		gc.gridx = 0;
-		gc.gridy = 0;
-
 
 		editor = new RSyntaxTextArea();
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
@@ -265,7 +285,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		display.add(statusInfo, BorderLayout.PAGE_END);
 		
 		
-		// TODO - LOOK GOOD STUFF!
+		// TODO - LOOK GOOD STUFF! 
+		// FIXME - OTHER GUI's SHOULD DO THE SAME !
 		myJython = (Jython) RuntimeEnvironment.getService(boundServiceName).service;
 
 		if (myJython != null) {
