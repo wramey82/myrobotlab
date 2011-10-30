@@ -26,6 +26,10 @@ clock = ServiceFactory.createService("clock","Clock")
 # Name it "log".
 log = ServiceFactory.createService("log","Logging")
 
+# get handle on gui
+gui = ServiceFactory.createService("gui","GUIService")
+# rebuild the gui since we added two new services
+gui.rebuild()
 
 # ----------------------------------
 # input
@@ -44,7 +48,7 @@ log = ServiceFactory.createService("log","Logging")
 # when messages are sent to Jython#input(String)
 
 def input():
-    print 'python object is ', msg_clock_pulse
+    # print 'python object is ', msg_clock_pulse
     print 'python data is ', msg_clock_pulse.data[0]
 
 
