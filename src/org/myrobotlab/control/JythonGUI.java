@@ -66,9 +66,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	JButton exec = new JButton("exec");
 	JButton restart = new JButton("restart");
-	// JMenu fileMenu = new JMenu("file");
-	// JMenuBar menuBar = new JMenuBar();
-
 	EditorActionListener menuListener = new EditorActionListener();
 
 	public class EditorActionListener implements ActionListener {
