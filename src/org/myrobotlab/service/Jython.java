@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.python.core.PySystemState;
@@ -79,6 +80,12 @@ public class Jython extends Service {
 		interp = new PythonInterpreter();		
 	}
 
+	public void monitorAttach()
+	{
+		String monitorScript = FileIO.getResourceFile("python/examples/monitor.py");
+		exec(monitorScript, false);
+	}
+
 	
 	/**
 	 * replaces and executes current Python script
@@ -108,7 +115,7 @@ public class Jython extends Service {
 		{
 			script = code;
 		}
-		interp.exec(script);
+		interp.exec(code);
 	}
 	
 	public String getScript()
