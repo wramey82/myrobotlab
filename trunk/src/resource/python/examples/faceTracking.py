@@ -21,6 +21,12 @@ gui = ServiceFactory.createService("gui","GUIService")
 # rebuild the gui since we have added a new OpenCV service
 gui.rebuild()
 
+# get a handle on the Jython Service
+gui = ServiceFactory.createService("jython","Jython")
+# start a Jython monitor so we can see the data from opencv
+gui.monitorAttach()
+
+
 # ----------------------------------
 # input
 # ----------------------------------

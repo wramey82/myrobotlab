@@ -67,6 +67,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	JButton exec = new JButton("exec");
 	JButton restart = new JButton("restart");
 	EditorActionListener menuListener = new EditorActionListener();
+	JLabel statusInfo = new JLabel();
 
 	public class EditorActionListener implements ActionListener {
 
@@ -80,6 +81,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 				open();
 			} else if (m.getText().equals("save as")) {
 				saveAs();
+			} else if (m.getText().equals("monitor")) {
+				myService.send(boundServiceName, "monitorAttach");
 			} else if (m.getActionCommand().equals("examples"))
 			{
 				editor.setText(FileIO.getResourceFile("python/examples/" + m.getText()));
@@ -90,7 +93,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		}
 	}
 
-	JLabel statusInfo = new JLabel();
 
 	// TODO - put in FileUtils
 	void open() {
@@ -245,17 +247,19 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu = new JMenu("Speech");
 		menu.add(createMenuItem("sayThings.py","examples"));
 		examples.add(menu);
+
+		menu = new JMenu("system");
+		menu.add(createMenuItem("monitor.py","examples"));
+		examples.add(menu);
 		
 		bar.add(examples);
 		
 		// system
-		JMenu system = new JMenu("system");
-		system.setMnemonic(KeyEvent.VK_S);
-		menu = new JMenu("monitor");
-		menu.add(createMenuItem("monitor.py","system"));
-		system.add(menu);
+		menu = new JMenu("system");
+		menu.add(createMenuItem("monitor","monitor"));
+		// menu.add(createMenuItem("monitor.py","system"));
 		
-		bar.add(system);
+		bar.add(menu);
 
 		StateActionListener state = new StateActionListener();
 

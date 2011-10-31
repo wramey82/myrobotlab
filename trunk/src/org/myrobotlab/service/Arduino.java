@@ -119,21 +119,10 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// additional serial sends
 
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
-	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); // mapping
-																			// a
-																			// pin
-																			// to
-																			// servo
-	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); // mapping
-																			// a
-																			// servo
-																			// to
-																			// pin
-	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>(); // list
-																									// of
-																									// custom
-																									// ports
-
+	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); 
+	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); 
+	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>();
+	
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
 		// get ports - return array of strings
@@ -181,14 +170,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 			String portName = portId.getName();
 			LOG.info(portName);
 			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				// filter - we don't want Fedora's ttyS* devices
-				// if ((portName.length() > 9) && (portName.substring(0,
-				// 9).compareTo("/dev/ttyS") == 0))
-				// {
-				// LOG.warn("found " + portName + " but disregarding");
-				// } else {
 				ports.add(portName);
-				// }
 			}
 		}
 
