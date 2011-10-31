@@ -36,6 +36,7 @@ import org.myrobotlab.service.interfaces.DigitalIO;
 // This mimics a DPDT Motor
 public class Motor extends Service {
 	/*
+	 * Move (-1 ... 1)  input represents power
 	 * FIXME - this implementation needs to be hidden by the motor controller
 	 * TODO - there are only 2 ways to control a simple DC motor - SMOKE and
 	 * H-Bridge/DPDT Where DPDT - one digital line is off/on - the other is CW
@@ -125,6 +126,7 @@ public class Motor extends Service {
 		send(controllerName, "motorAttach", this.name, config);
 	}
 	
+	// motor primitives begin ------------------------------------
 	public void invertDirection() {
 		FORWARD = 0;
 		BACKWARD = 1;
@@ -139,11 +141,10 @@ public class Motor extends Service {
 			LOG.error("power " + power + " out of bounds with increment "+ increment);
 			return;
 		}
-		float newPowerLevel = power + increment;
-		move(newPowerLevel);
+		power += increment;
+		move(power);
 	}
 
-	// motor primitives begin ------------------------------------
 	public void move(float newPowerLevel) {
 		if (locked) return;
 
@@ -156,12 +157,44 @@ public class Motor extends Service {
 
 		//LOG.error("direction " + ((newPowerLevel > 0) ? "FORWARD" : "BACKWARD"));
 		LOG.error(name + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
+		// FIXME - MotorController needs a "scalePWM" which takes a float - the controller
+		// then maps it to what would be appropriate - in Arduino 0-255 - remove "powerMultiplier"
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (newPowerLevel * powerMultiplier)));
 
 		power = newPowerLevel;
 
 	}
 	
+	public void setMaxPower(float max) {
+		maxPower = max;
+	}
+
+
+	
+	public void stop() {
+		move(0);
+	}
+
+	public void unLock() {
+		LOG.info("unLock");
+		locked = false;
+	}
+
+	public void lock() {
+		LOG.info("lock");
+		locked = true;
+	}
+
+	public void stopAndLock() {
+		LOG.info("stopAndLock");
+		move(0);
+		lock();
+	}
+
+
+	
+	// FIXME - use Clock - adapt clock to maintain an array of clocks
+	// get a named instance - stopping and starting should not be creating & destroying
 	transient Object lock = new Object();
 	class DurationThread extends Thread
 	{
@@ -248,30 +281,6 @@ public class Motor extends Service {
 		}
 		
 		
-	}
-
-	public void stop() {
-		move(0);
-	}
-
-	public void unLock() {
-		LOG.info("unLock");
-		locked = false;
-	}
-
-	public void lock() {
-		LOG.info("lock");
-		locked = true;
-	}
-
-	public void stopAndLock() {
-		LOG.info("stopAndLock");
-		move(0);
-		lock();
-	}
-
-	public void setMaxPower(float max) {
-		maxPower = max;
 	}
 
 	
