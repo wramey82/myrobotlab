@@ -26,8 +26,10 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,6 +40,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -45,6 +48,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -57,17 +62,19 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 
-	RSyntaxTextArea editor = null;
+	RSyntaxTextArea editor = new RSyntaxTextArea();
 	RTextScrollPane scrollPane = null;
-
-	public JythonGUI(final String boundServiceName, final GUI myService) {
-		super(boundServiceName, myService);
-	}
-
 	JButton exec = new JButton("exec");
 	JButton restart = new JButton("restart");
 	EditorActionListener menuListener = new EditorActionListener();
 	JLabel statusInfo = new JLabel();
+	Jython myJython = null;
+	// TODO - check for outside modification with lastmoddate
+	File currentFile = null;
+	
+	public JythonGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
 
 	public class EditorActionListener implements ActionListener {
 
@@ -148,8 +155,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		writeFile(filename, editor.getText());
 	}
 	
-	// TODO - check for outside modification with lastmoddate
-	File currentFile = null;
 	
 	// TODO - put in fileutils
 	public boolean writeFile(String filename, String data)
@@ -200,17 +205,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	public void init() {
 
-		/*
-		 * ImageIcon iconNew = new ImageIcon(getClass().getResource("new.png"));
-		 * ImageIcon iconOpen = new
-		 * ImageIcon(getClass().getResource("open.png")); ImageIcon iconSave =
-		 * new ImageIcon(getClass().getResource("save.png")); ImageIcon iconExit
-		 * = new ImageIcon(getClass().getResource("exit.png"));
-		 */
-
+		// --------- text menu begin ------------------------
 		JMenuBar bar = new JMenuBar();
 
-		// file
+		// file ----------
 		JMenu file = new JMenu("file");
 		file.setMnemonic(KeyEvent.VK_F);
 		bar.add(file);
@@ -221,14 +219,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		file.add(createMenuItem("open", KeyEvent.VK_O, "control O", null));
 		file.addSeparator();
 
-		// edit
-		/* boring - 
+		// edit ---------		
 		JMenu edit = new JMenu("edit");
 		edit.setMnemonic(KeyEvent.VK_E);
 		bar.add(edit);
-		*/
-
-		// examples
+		
+		// examples -----
 		JMenu examples = new JMenu("examples");
 		examples.setMnemonic(KeyEvent.VK_X);
 		
@@ -254,19 +250,19 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		
 		bar.add(examples);
 		
-		// system
+		// system -----------
 		menu = new JMenu("system");
 		menu.add(createMenuItem("monitor","monitor"));
-		// menu.add(createMenuItem("monitor.py","system"));
 		
 		bar.add(menu);
 
 		StateActionListener state = new StateActionListener();
 
-		editor = new RSyntaxTextArea();
+		// make python highlighting
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
 		scrollPane = new RTextScrollPane(editor);
 
+		// TODO - change border layout
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(bar, BorderLayout.LINE_START);
 
@@ -278,6 +274,19 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		display.setLayout(new BorderLayout());
 
+		JMenuBar graphicBar = new JMenuBar();
+		
+		// TODO pkg gui? with get gui Icon button
+		JButton b = new JButton(null,FileIO.getResourceIcon("monitor.png"));
+		//b.setPreferredSize(new Dimension(32,32));
+		b.setMargin(new Insets(0, 0, 0, 0)); 
+		b.setBorderPainted(false);
+		b.setToolTipText("monitor");
+		b.setBackground(new Color(0xff00ff));
+
+		graphicBar.add(b);
+		menuPanel.add(graphicBar);
+		
 		display.add(menuPanel, BorderLayout.PAGE_START);
 
 		display.setPreferredSize(new Dimension(800, 600));
@@ -296,7 +305,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	}
 
-	Jython myJython = null;
 
 	public class StateActionListener implements ActionListener {
 
@@ -331,4 +339,16 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	}
 
+	/*
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.ERROR);
+		
+		 JFrame f = new JFrame("This is a test");
+		 ServiceGUI sg = new JythonGUI("boundServiceName", null);
+		 sg.init();
+		 f.add(sg.display);
+		 f.setVisible(true);
+	}
+	*/
 }
