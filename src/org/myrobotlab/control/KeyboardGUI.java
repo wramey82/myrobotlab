@@ -34,6 +34,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -45,6 +46,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -55,7 +57,7 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 
 	JList currentPlayers;
 	JList currentLog;
-	JCheckBox sendStringsCheckBox = new JCheckBox(); 
+	JCheckBox sendStringsCheckBox; 
 	
 	public boolean sendStrings = false;
 
@@ -65,6 +67,9 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 	StringBuffer keyBuffer = new StringBuffer();
 	Keyboard keyboard = null;
 
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public KeyboardGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -74,7 +79,7 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		keyboard = new Keyboard();
 		CheckBoxChange checkBoxChange = new CheckBoxChange(); 
 		// build input begin ------------------
-
+		sendStringsCheckBox = new JCheckBox();
 		sendStringsCheckBox.setName("send strings");
 
 		JButton keyboardButton = new JButton(
@@ -186,4 +191,6 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		logModel.add(0, msg);
 	}
 
+	
+	
 }
