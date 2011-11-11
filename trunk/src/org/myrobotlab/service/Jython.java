@@ -175,7 +175,7 @@ public class Jython extends Service {
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 				
 		Jython jython = new Jython("jython");
 		jython.startService();
