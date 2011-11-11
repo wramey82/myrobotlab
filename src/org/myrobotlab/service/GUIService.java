@@ -723,9 +723,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
+		Invoker services = new Invoker("services");
+		services.startService();
+			
 		Clock clock = new Clock("clock");
 		clock.startService();
-				
+		
 		GUIService gui2 = new GUIService("gui2");
 		
 		gui2.notify("registerServices", gui2.name, "registerServicesEvent");

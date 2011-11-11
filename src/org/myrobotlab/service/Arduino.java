@@ -158,9 +158,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 		}
 
 	}
-
+	
 	public ArrayList<String> getPorts() {
-
+		
 		ArrayList<String> ports = new ArrayList<String>();
 		CommPortIdentifier portId;
 		// getPortIdentifiers - returns all ports "available" on the machine -
