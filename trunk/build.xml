@@ -65,6 +65,7 @@
 		
 		<echo file="${build}/resource/version.txt">${repository.revision} ${DSTAMP} ${TSTAMP}</echo>
 
+		<!-- FIXME - windows can't support all repo revision labels - specifically ":" - build will fail -->
 		<copy todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/bin">
 		    <fileset dir="./thirdParty/bin"/>
 		</copy>
