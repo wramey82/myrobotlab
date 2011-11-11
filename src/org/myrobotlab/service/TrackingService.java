@@ -88,7 +88,7 @@ public class TrackingService extends Service {
 	float YMultiplier = (float) 0.15;
 
 	transient CvPoint2D32f lastPoint = null;
-	transient CvPoint2D32f targetPoint = new CvPoint2D32f(160, 120);
+	transient CvPoint2D32f targetPoint = null;
 	Rectangle deadzone = new Rectangle();
 
 	public TrackingService(String n) {
@@ -98,6 +98,7 @@ public class TrackingService extends Service {
 		deadzone.width = 20;
 		deadzone.y = 110;
 		deadzone.height = 20;
+		
 	}
 
 	@Override
@@ -144,6 +145,11 @@ public class TrackingService extends Service {
 	final public void trackX(Integer x) {
 		XMultiplier = (float) -0.12;
 
+		// FIXME - bad - but can't put it into constructor or ServiceTest will fail with UnsatisfiedLinkError
+		if (targetPoint == null)
+		{
+			targetPoint = new CvPoint2D32f(160, 120);
+		}
 		LOG.info("trackPointX " + x);
 		XCorrection = (x - targetPoint.x()) * XMultiplier;
 		if (tracking && (x < deadzone.x || x > deadzone.x + deadzone.width)) {

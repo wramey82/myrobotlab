@@ -89,11 +89,11 @@
 
 		<copy file="myrobotlab.bat" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
 		<!-- permissions are not preserved -->
-		<!-- copy file="myrobotlab.sh" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/ -->
-		<exec executable="cp" >
+		<copy file="myrobotlab.sh" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
+		<!-- exec executable="cp" >  Why would you do this ??? not OS dependent !
 			<arg value="myrobotlab.sh" />
 		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
-		</exec>
+		</exec -->
 		<copy file="LICENSE.txt" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
 		
 	</target>
@@ -171,7 +171,7 @@
 	
 	<target name="uploadJar" depends="junit" description="upload to google code">
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" 
-		classpath="/home/gperry/.ant/lib/ant-googlecode-0.0.3.jar" name="gcupload"/>
+		classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload"/>
 	<gcupload 
 	        username="" 
 	        password="" 

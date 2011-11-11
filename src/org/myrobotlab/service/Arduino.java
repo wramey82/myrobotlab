@@ -30,6 +30,7 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -498,6 +499,31 @@ public class Arduino extends Service implements SerialPortEventListener,
 		return true;
 	}
 
+	
+	public boolean setSerialPortParams (int baudRate)
+	{
+		if (serialPort == null)
+		{
+			LOG.error("serialPort is null");
+		}
+		return setSerialPortParams (baudRate, serialPort.getDataBits(), serialPort.getStopBits(), serialPort.getParity());
+	}
+	public boolean setSerialPortParams (int baudRate, int dataBits, int stopBits, int parity)
+	{
+		if (serialPort == null)
+		{
+			LOG.error("serialPort is null");
+		}
+		
+		try {
+			serialPort.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+		} catch (UnsupportedCommOperationException e) {
+			Service.logException(e);
+		}
+		
+		return true;
+	}
+	
 	public void digitalReadPollStart(Integer address) {
 
 		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
@@ -824,8 +850,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		
-		Motor left = new Motor("left");
-		left.startService();
+		//Motor left = new Motor("left");
+		//left.startService();
 
 		Servo hand = new Servo("hand");
 		hand.startService();
