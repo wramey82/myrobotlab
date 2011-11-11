@@ -75,7 +75,7 @@ public class Motor extends Service {
 	boolean locked = false; // for locking the motor in a stopped position
 	String controllerName = null; // board name
 	
-	transient DurationThread durationThread = null;
+	transient EncoderTimer durationThread = null;
 
 	/**
 	 * Motor constructor takes a single unique name for identification.
@@ -166,6 +166,11 @@ public class Motor extends Service {
 	}
 	
 	public void setMaxPower(float max) {
+		if (maxPower > 1 || maxPower < 0)
+		{
+			LOG.error("max power must be between 0.0 and 0.1");
+			return;
+		}
 		maxPower = max;
 	}
 
@@ -193,17 +198,17 @@ public class Motor extends Service {
 
 
 	
-	// FIXME - use Clock - adapt clock to maintain an array of clocks
+	// FIXME - implements an Encoder interface
 	// get a named instance - stopping and starting should not be creating & destroying
 	transient Object lock = new Object();
-	class DurationThread extends Thread
+	class EncoderTimer extends Thread
 	{
 		public float power = 0.0f;
 		public int duration = 0;
 		
 		Motor instance = null;
 		
-		DurationThread(float power, int duration, Motor instance)
+		EncoderTimer(float power, int duration, Motor instance)
 		{
 			super (name + "_duration");
 			this.power = power;
@@ -250,7 +255,7 @@ public class Motor extends Service {
 			// non-blocking call to move for a duration
 			if (durationThread == null)
 			{
-				durationThread = new DurationThread(power, duration, this);
+				durationThread = new EncoderTimer(power, duration, this);
 				durationThread.start();
 			} else {
 				if (inMotion)
