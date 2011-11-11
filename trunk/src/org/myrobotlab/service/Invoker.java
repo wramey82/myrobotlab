@@ -134,7 +134,7 @@ public class Invoker extends Service {
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
 				"ChessGame", "Clock", "DifferentialDrive",
 				"FaceTracking", "FSM", "GeneticProgramming", "Graphics", "GUIService",
-				"HTTPClient", "Invoker", "JFugue", "JoystickService", "Keyboard",
+				"HTTPClient", "Invoker", "JFugue", "JoystickService", "Jython","Keyboard",
 				"Logging", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
 				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
