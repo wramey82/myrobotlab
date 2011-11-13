@@ -62,8 +62,10 @@ public class Invoker extends Service {
 
 	static void help() {
 		System.out.println("Invoker " + version());
-		System.out.println("-h       # help ");
-		System.out.println("-list        # list services");
+		System.out.println("-h       			# help ");
+		System.out.println("-list        		# list services");
+		System.out.println("-logToConsole       # redirects logging to console");
+		System.out.println("-logLevel        	# log level [DEBUG | INFO | WARNING | ERROR | FATAL]");
 		System.out.println("-service [Service] [Service Name] ...");
 		System.out.println("example:");
 		System.out.println(helpString);
@@ -75,7 +77,7 @@ public class Invoker extends Service {
 		return v;
 	}
 
-	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui";
+	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui -logLevel DEBUG -logToConsole";
 
 	@Override
 	public void loadDefaultConfiguration() {
@@ -157,29 +159,19 @@ public class Invoker extends Service {
 		return s;
 	}
 
-	public void setLogLevel(String level) {
-		if (level == null) {
-			LOG.setLevel(Level.DEBUG);
-			return;
-		}
-
-		if (level.compareTo("INFO") == 0) {
-			//LOG.setLevel(Level.INFO);
+	public static void setLogLevel(String level) {
+		if (("INFO").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.INFO);
 		}
-		if (level.compareTo("WARN") == 0) {
-			//LOG.setLevel(Level.WARN);
+		if (("WARN").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.WARN);
 		}
-		if (level.compareTo("ERROR") == 0) {
-			//LOG.setLevel(Level.ERROR);
+		if (("ERROR").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.ERROR);
 		}
-		if (level.compareTo("FATAL") == 0) {
-			//LOG.setLevel(Level.FATAL);
+		if (("FATAL").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.FATAL);
 		} else {
-			//LOG.setLevel(Level.DEBUG);
 			Logger.getRootLogger().setLevel(Level.DEBUG);
 		}
 	}
@@ -187,14 +179,14 @@ public class Invoker extends Service {
 
 	public static void main(String[] args) {
 		URL url = null;
-			try {
-				 url = new URL ("http://0.0.0.0:0");
-			} catch (MalformedURLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			System.out.println(url.getHost());
-			System.out.println(url.getPort());
+		try {
+			 url = new URL ("http://0.0.0.0:0");
+		} catch (MalformedURLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		System.out.println(url.getHost());
+		System.out.println(url.getPort());
 		
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
@@ -243,6 +235,11 @@ public class Invoker extends Service {
 	
 				LOG.addAppender(appender);
 				LOG.setLevel(Level.WARN);
+			}
+			
+			if (cmdline.containsKey("-logLevel"))
+			{
+				setLogLevel(cmdline.getSafeArgument("-logLevel", 0, "DEBUG"));
 			}
 			/*
 			 * Annotation check Class[] p = new Class[1]; p[0] = String.class;

@@ -85,9 +85,6 @@ public class RecorderPlayer extends Service {
 		}
 	}
 
-	public void save() {
-
-	}
 
 	public void saveAs(String filename) {
 		try {

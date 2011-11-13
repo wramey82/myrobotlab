@@ -25,6 +25,7 @@
 
 package org.myrobotlab.framework;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -53,6 +54,8 @@ import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
 public abstract class Service implements Runnable, Serializable {
 
@@ -210,31 +213,84 @@ public abstract class Service implements Runnable, Serializable {
 		LOG.error(sb);		
 	}
 	
+	/**
+	 * method of serializing
+	 * default will be simple xml to name file
+	 */
+	public boolean save()
+	{
+		Serializer serializer = new Persister();
+
+		try {
+			File cfg = new File(this.name + ".xml");
+			serializer.write(this, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * method of de-serializing
+	 * default will to load simple xml from name file
+	 */
+	public boolean load()
+	{		
+	
+		Serializer serializer = new Persister();
+		try {
+			File cfg = new File(this.name + ".xml");
+			serializer.read(this, cfg);			
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+	
 	/*
 	 * setCFG a Service level accessor for remote messages to change
 	 * configuration of foreign services.
+	 */
+	/**
+	 * @deprecated 
 	 */
 	public ConfigurationManager getCFG() {
 		return cfg;
 	}
 
+	/**
+	 * @deprecated 
+	 */
 	public ConfigurationManager getHostCFG() {
 		return hostcfg;
 	}
 
+	/**
+	 * @deprecated 
+	 */
 	public String getCFG(String name) {
 		return cfg.get(name);
 	}
 
+	/**
+	 * @deprecated 
+	 */
 	public void setCFG(NameValuePair mvp) {
 		cfg.set(mvp.name.toString(), mvp.value.toString());
 	}
 
-	// TODO - should be Object value? - would that mean all clients need to cast?
+	/**
+	 * @deprecated 
+	 */
 	public void setCFG(String name, String value) {
 		cfg.set(name, value);
 	}
 
+	/**
+	 * @deprecated 
+	 */
 	public void setCFG(String name, Integer value) {
 		cfg.set(name, value);
 	}

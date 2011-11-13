@@ -28,7 +28,7 @@ public class MagaBot extends Service {
 		{
 			arduino.startService();
 			arduino.setSerialPort(serialPortName);
-			arduino.setSerialPortParams(9600);
+			arduino.setBaud(9600);
 			isInitialized = true;
 		}
 		

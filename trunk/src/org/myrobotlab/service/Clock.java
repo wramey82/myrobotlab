@@ -252,6 +252,7 @@ public class Clock extends Service {
 		}
 */		
 		
+		clock.save();
 		
 		GUIService gui = new GUIService("clockgui");
 		gui.startService();	

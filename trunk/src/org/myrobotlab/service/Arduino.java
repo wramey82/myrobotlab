@@ -51,38 +51,52 @@ import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorData;
 import org.myrobotlab.service.interfaces.ServoController;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
-/*
- *  Currently supports:
- *   	Arduino Duemilanove - http://arduino.cc/en/Main/ArduinoBoardDuemilanove
+/**
+ *  Implementation of a Arduino Service connected to MRL through a serial port.  
+ *  The protocol is basically a pass through of system calls to the Arduino board.  Data 
+ *  can be passed back from the digital or analog ports by request to start polling. The
+ *  serial port can be wireless (bluetooth), rf, or wired. The communication protocol
+ *  supported is in arduinoSerial.pde - located here :
+ *  
+ *	Should support nearly all Arduino board types  
  *   
- *   - Find Arduino Message set - DigitalWrite (pin, data?)
- *   - ArduinoProgram HashMap<Key, Program>
- *   - loadProgram (Key)
- *   - key - default key & program   
- *   
- *   
- *   TODO - attach to ttyUSB ----> starts "attach" to gui
- *   
+ *   TODO:
+ *   Data should be serializable in xml or properties, binary should already work
  *   
  *   References:
- *   http://www.arduino.cc/playground/Main/RotaryEncoders
- *   
+ *    <a href="http://www.arduino.cc/playground/Main/RotaryEncoders">Rotary Encoders</a> 
+ *   @author GroG
  */
+
+@Root
 public class Arduino extends Service implements SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Arduino.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
 
+	// non serializable serial object
 	transient SerialPort serialPort;
 	transient InputStream inputStream;
 	transient OutputStream outputStream;
+	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>();
 
-	String lastSerialPortName; // 
+	@Element
+	String portName = ""; 
+	@Element
+	int baudRate = 115200;
+	@Element
+	int dataBits = 8;
+	@Element
+	int parity = 0;
+	@Element
+	int stopBits = 1;
 
+	// imported Arduino constants
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
 	public static final int OUTPUT = 0x1;
@@ -92,7 +106,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
 
-	// functions
+	// serial protocol functions
 	public static final int DIGITAL_WRITE = 0;
 	public static final int ANALOG_WRITE = 2;
 	public static final int ANALOG_VALUE = 3;
@@ -115,40 +129,47 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static final int SERVO_SWEEP = 10;
 	public static final int MAX_SERVOS = 8; // TODO dependent on board?
 
-	public boolean repeatSerialCommand = false;
-	public int repeatCommandNumber = 3; // TODO - move to config - number of
-	// additional serial sends
-
+	// servos
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); 
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); 
-	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>();
+
+	/**
+	 *  list of serial port names from the system which the Arduino service is 
+	 *  running
+	 */
+	public ArrayList<String> portNames = new ArrayList<String>(); 
 	
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
 		// get ports - return array of strings
 		// set port? / init port
 		// detach port
+		
+		load(); // attempt to load config
 
+		// attempt to get serial port based on there only being 1
+		// or based on previous config
+		
 		// if there is only 1 port - attempt to initialize it
-		ArrayList<String> p = getPorts();
-		LOG.info("number of ports " + p.size());
-		for (int j = 0; j < p.size(); ++j) {
-			LOG.info(p.get(j));
+		portNames = getPorts();
+		LOG.info("number of ports " + portNames.size());
+		for (int j = 0; j < portNames.size(); ++j) {
+			LOG.info(portNames.get(j));
 		}
 
-		if (p.size() == 1) {
-			LOG.info("only one serial port " + p.get(0));
-			setSerialPort(p.get(0));
-		} else if (p.size() > 1) {
-			if (lastSerialPortName != null && lastSerialPortName.length() > 0) {
-				LOG.info("more than one port - but last serial port is "
-						+ lastSerialPortName);
-				setSerialPort(lastSerialPortName);
+		if (portNames.size() == 1) { // heavy handed?
+			LOG.info("only one serial port " + portNames.get(0));
+			setSerialPort(portNames.get(0));
+		} else if (portNames.size() > 1) {
+			if (portName != null && portName.length() > 0) {
+				LOG.info("more than one port - last serial port is "
+						+ portName);
+				setSerialPort(portName);
 			} else {
-				LOG
-						.info("more than one port or no ports, and last serial port not set");
-				LOG.info("need user input to select from " + p.size()
+				// idea - auto discovery attempting to auto-load arduinoSerial.pde
+				LOG.warn("more than one port or no ports, and last serial port not set");
+				LOG.warn("need user input to select from " + portNames.size()
 						+ " possibilities ");
 			}
 		}
@@ -159,6 +180,25 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 	
+	/**
+	 * @return the current serials port name or null if not opened
+	 */
+	public String getPortName()
+	{
+		if (serialPort != null)
+		{
+			return portName;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * getPorts returns all serial ports, including the current port being used, 
+	 * and any custom added ports (e.g. wii ports) 
+	 * 
+	 * @return array of port names which are currently being used, or serial, or custom
+	 */
 	public ArrayList<String> getPorts() {
 		
 		ArrayList<String> ports = new ArrayList<String>();
@@ -168,10 +208,10 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
-			String portName = portId.getName();
-			LOG.info(portName);
+			String inPortName = portId.getName();
+			LOG.info(inPortName);
 			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				ports.add(portName);
+				ports.add(inPortName);
 			}
 		}
 
@@ -190,20 +230,11 @@ public class Arduino extends Service implements SerialPortEventListener,
 		return ports;
 	}
 
-	public String getCurrentPort() {
-		if (serialPort == null || serialPort.getName() == null) {
-			return "";
-		} else {
-			return serialPort.getName();
-		}
-	}
-
 	@Override
 	public void loadDefaultConfiguration() {
-		// lastSerialPortName = cfg.get("lastSerialPortName","");
 	}
 
-	/*
+	/**
 	 * serialSend communicate to the arduino using our simple language 3 bytes 3
 	 * byte functions - |function name| d0 | d1
 	 * 
@@ -211,9 +242,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 	 * /var/lock/uucp /var/spool/uucp /var/spool/uucppublic and all are chown'd
 	 * by uucp:uucp
 	 */
-
-	// TODO depricate the ones thats not used
-
 	public synchronized void serialSend(int function, int param1, int param2) {
 		LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 "
 				+ param2);
@@ -221,14 +249,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 			outputStream.write(function);
 			outputStream.write(param1);
 			outputStream.write(param2); // 0 - 180
-			if (repeatSerialCommand) {
-				for (int i = 0; i < repeatCommandNumber; ++i) {
-					outputStream.write(function);
-					outputStream.write(param1);
-					outputStream.write(param2); // 0 - 180
-				}
-
-			}
 		} catch (IOException e) {
 			LOG.error("serialSend " + e.getMessage());
 		}
@@ -251,16 +271,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		}
 	}
 
-	/*
-	 * DEPRECATED ---------------------------------- public synchronized void
-	 * serialSend (int function, int pin, byte data[]) {
-	 * //LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 " +
-	 * param2); try { outputStream.write(function); outputStream.write(pin);
-	 * outputStream.write(data); // 0 - 180 } catch (IOException e) {
-	 * LOG.error("serialSend " + e.getMessage()); }
-	 * 
-	 * }
-	 */
 	public void setPWMFrequency(IOData io) {
 		int freq = io.value;
 		int prescalarValue = 0;
@@ -293,10 +303,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(SET_PWM_FREQUENCY, io.address, prescalarValue);
 	}
 
-	/*
-	 * can the int pin be suppressed an managed in CFG? & communicated back and
-	 * forth using Servo.getCFG("pin")
-	 */
 
 	/*
 	 * Servo Commands Arduino has a concept of a software Servo - and supports
@@ -306,8 +312,14 @@ public class Arduino extends Service implements SerialPortEventListener,
 	 * regardless of the controller (Arduino in this case but could be any
 	 * uController)
 	 */
-	public boolean servoAttach(Integer pin) {
-		if (serialPort == null) {
+	
+	// ---------------------------- Servo Methods Begin -----------------------
+	
+	/* servoAttach
+	 * attach a servo to a pin
+	 * @see org.myrobotlab.service.interfaces.ServoController#servoAttach(java.lang.Integer)
+	 */
+	public boolean servoAttach(Integer pin) { if (serialPort == null) {
 			LOG.error("could not attach servo to pin " + pin
 					+ " serial port in null - not initialized?");
 			return false;
@@ -381,7 +393,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
+	// ---------------------------- Servo Methods End -----------------------
 	
+	// ---------------------- Serial Control Methods Begin ------------------
 	  public void setDTR(boolean state) {
 		    serialPort.setDTR(state);
 	  }
@@ -389,7 +403,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 	  public void setRTS(boolean state) {
 		  serialPort.setRTS(state);
 	  }
-
 	  	
 	public void releaseSerialPort() {
 		LOG.debug("releaseSerialPort");
@@ -404,7 +417,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	      inputStream = null;
 	      outputStream = null;
 
-	      /* what a f*ing mess */
+	      /* what a f*ing mess rxtxbug*/
 	      /*
 	      new Thread(){
 	    	    @Override
@@ -435,23 +448,39 @@ public class Arduino extends Service implements SerialPortEventListener,
 	    LOG.info("released port");
 	}
 
-	public boolean setSerialPort(String portName) {
-		LOG.debug("setSerialPort requesting [" + portName + "]");
+	/**
+	 * setSerialPort - sets the serial port to the requested port name
+	 * and initially attempts to open with 115200 8N1
+	 * @param inPortName name of serial port 
+	 * 			Linux [ttyUSB0, ttyUSB1, ... S0, S1, ...]
+	 * 			Windows [COM1, COM2, ...]
+	 * 			OSX [???]
+	 * @return if successful
+	 * 
+	 */
+	public boolean setSerialPort(String inPortName) {
+		LOG.debug("setSerialPort requesting [" + inPortName + "]");
 
-		if (serialPort != null) // || portName == null || portName.length() == 0
+		if (serialPort != null) 
 		{
 			releaseSerialPort();
+		}
+		
+		if (inPortName == null || inPortName.length() == 0)
+		{
+			LOG.info("setting serial to nothing");
+			return true;
 		}
 
 		try {
 			CommPortIdentifier portId;
 
-			if (customPorts.containsKey(portName)) { // adding custom port
+			if (customPorts.containsKey(inPortName)) { // adding custom port
 														// (wiicomm) to query
 														// right back
-				CommPortIdentifier.addPortName(portName,
+				CommPortIdentifier.addPortName(inPortName,
 						CommPortIdentifier.PORT_SERIAL, customPorts
-								.get(portName));
+								.get(inPortName));
 			}
 
 			Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
@@ -460,12 +489,13 @@ public class Arduino extends Service implements SerialPortEventListener,
 			while (portList.hasMoreElements()) {
 				portId = (CommPortIdentifier) portList.nextElement();
 
+				LOG.debug("checking port " + portId.getName());
 				if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-					// System.out.println("found " + portId.getName());
-					if (portId.getName().equals(portName)) {
+					LOG.debug("is serial");
+					if (portId.getName().equals(inPortName)) {
+						LOG.debug("matches " + inPortName);
 						// System.out.println("looking for "+iname);
-						serialPort = (SerialPort) portId.open(
-								"robot overlords", 2000);
+						serialPort = (SerialPort) portId.open("robot overlords", 2000);
 						inputStream = serialPort.getInputStream();
 						outputStream = serialPort.getOutputStream();
 
@@ -473,14 +503,20 @@ public class Arduino extends Service implements SerialPortEventListener,
 						serialPort.notifyOnDataAvailable(true);
 
 						// 115200 wired, 2400 IR ?? VW 2000??
-						serialPort.setSerialPortParams(115200,
-								SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
-								SerialPort.PARITY_NONE);
+						serialPort.setSerialPortParams(baudRate,
+														dataBits, 
+														stopBits,
+														parity);
 
 						Thread.sleep(200); // the initialization of the hardware
 											// takes a little time
 
-						lastSerialPortName = portName;
+						// portName = serialPort.getName(); BUG - serialPort.getName != the name which is requested
+						// Windows you ask for "COM1" but when you ask for it back you get "/.//COM1"
+						portName = inPortName;
+						LOG.debug("opened " + getPortString());
+						save(); // successfully bound to port - saving
+						broadcastState(); // state has changed let everyone know
 						break;
 
 					}
@@ -491,28 +527,64 @@ public class Arduino extends Service implements SerialPortEventListener,
 		}
 
 		if (serialPort == null) {
-			LOG.error("serialPort is null - bad init?");
+			LOG.error(inPortName + " serialPort is null - bad init?");
 			return false;
 		}
 
-		LOG.info(portName + " ready");
+		LOG.info(inPortName + " ready");
 		return true;
 	}
 
+	public String getPortString()
+	{
+		if (serialPort != null)
+		{
+			try {
+				return portName  + "/" // can't use serialPort.getName() 
+						+ serialPort.getBaudRate() + "/" 
+						+ serialPort.getDataBits() + "/"
+						+ serialPort.getParity() + "/"
+						+ serialPort.getStopBits();
+			} catch (Exception e) {
+				Service.logException(e);
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
 	
-	public boolean setSerialPortParams (int baudRate)
+	public boolean setBaud(int baudRate)
 	{
 		if (serialPort == null)
 		{
-			LOG.error("serialPort is null");
+			LOG.error("setBaudBase - serialPort is null");
+			return false;
 		}
-		return setSerialPortParams (baudRate, serialPort.getDataBits(), serialPort.getStopBits(), serialPort.getParity());
+		try {
+			// boolean ret = serialPort.set.setBaudBase(baudRate); // doesnt work - operation not allowed
+			boolean ret = setSerialPortParams(baudRate, serialPort.getDataBits(), serialPort.getStopBits(), serialPort.getParity());
+			this.baudRate = baudRate;
+			save();
+			broadcastState(); // state has changed let everyone know
+			return ret;
+		} catch (Exception e) {
+			Service.logException(e);
+		}
+		return false;
 	}
+	
+	public int getBaudRate()
+	{
+		return baudRate;
+	}
+	
 	public boolean setSerialPortParams (int baudRate, int dataBits, int stopBits, int parity)
 	{
 		if (serialPort == null)
 		{
-			LOG.error("serialPort is null");
+			LOG.error("setSerialPortParams - serialPort is null");
+			return false;
 		}
 		
 		try {
@@ -530,9 +602,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(DIGITAL_READ_POLLING_START, address, 0);
 
 	}
+	// ---------------------- Serial Control Methods End ------------------
+	// ---------------------- Protocol Methods Begin ------------------
 
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
 	public void digitalReadPollStop(Integer address) {
 
 		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
@@ -753,33 +825,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 	 * are addressed 0 - 1 with analog reads
 	 */
 
-	/*
-	 * Deprecated until resurrected // break out begin --------------------- //
-	 * call back stub public PinData analogValue(PinData pinData) { // TODO -
-	 * breakout based on mode
-	 * 
-	 * invoke ("analogpublishPin" + pinData.pin, pinData.value);
-	 * 
-	 * return pinData; }
-	 * 
-	 * // publishing points public int analogValuePin0 (int data) { return data;
-	 * }
-	 * 
-	 * public int analogValuePin1 (int data) { return data; }
-	 * 
-	 * // break out end ---------------------
-	 */
-
-	// internal data object - used to keep track of vars associated with Motors
-	// TODO - as motor defintions begin to exist on boards and then in
-	// micro-controller code - this will
-	// allow Motor services to offload data / commands features to the boards
-	// and integrate other possiblites? dunno
 	class MotorData {
 		boolean isAttached = false;
-
 	}
-
 	
 	HashMap<String, MotorData> motorMap = new HashMap<String, MotorData>();
 
@@ -797,22 +845,16 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
 	public void motorDetach(String name) {
 		// TODO Auto-generated method stub
 
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
 	public void motorMove(String name, Integer amount) {
 		// TODO Auto-generated method stub
 
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
 	public void motorMoveTo(String name, Integer position) {
 		// TODO Auto-generated method stub
 
@@ -845,7 +887,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
@@ -853,6 +895,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 		//Motor left = new Motor("left");
 		//left.startService();
 
+		arduino.save();
+		
 		Servo hand = new Servo("hand");
 		hand.startService();
 
