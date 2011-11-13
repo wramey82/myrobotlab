@@ -329,7 +329,7 @@ public class FSMTest extends Service {
 		
 		if (data.equals("save"))
 		{
-			save();
+			saveMemory();
 			speech.speak("my memory has been saved");
 			return;
 		}
@@ -698,7 +698,7 @@ public class FSMTest extends Service {
 	}
 	
 	// TODO - WebService Call to POST GET and search memory - Jibble it with REST - use new MRL.net utils
-	public void save() //saveMemory
+	public void saveMemory() //saveMemory
 	{
 		// save to file system in html format vs database
 		Iterator<String> itr = memory.keySet().iterator();
@@ -763,7 +763,7 @@ public class FSMTest extends Service {
 	 * and store in the database we'll want SerializableImages, however the filesystem will want 
 	 * .jpgs or some other common readable image format
 	 */
-	public void load()
+	public void loadMemory()
 	{
 		int imgCount = 0;
 		try {
@@ -841,7 +841,7 @@ public class FSMTest extends Service {
 		FSMTest fsm = new FSMTest("fsm");
 		fsm.startService();
 		fsm.init();
-		fsm.load();
+		fsm.loadMemory();
 		//template.speechRecognition.stopRecording();
 		//template.speechRecognition.startRecording();
 				

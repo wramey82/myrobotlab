@@ -40,26 +40,32 @@ import javax.swing.JPanel;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class ArduinoGUI extends ServiceGUI {
 
+	private Arduino myArduino = null;
+	
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		myArduino = (Arduino)RuntimeEnvironment.getService(boundServiceName).service;
 	}
 
 	static final long serialVersionUID = 1L;
 	final String type = "Diecimila";
 	JIntegerField rawReadMsgLength = new JIntegerField(4);
-
+	ActionListener portActionListener = null;
+	ActionListener baudActionListener = null;
 	ArrayList<Pin> pinList = null; 
 	JComboBox types = new JComboBox(new String[] { "Duemilanove" }); 
 	JComboBox ttyPort = new JComboBox(new String[] { "" }); 
-	JComboBox serialRate = new JComboBox(new String[] { "300", "1200", "2400",
-			"4800", "9600", "14400", "19200", "28800", "57600", "115200" }); 
+	JComboBox baudRate = new JComboBox(new Integer[] {300, 1200, 2400,
+			4800, 9600, 14400, 19200, 28800, 57600, 115200 }); 
 	JComboBox PWMRate1 = new JComboBox(new String[] { "62", "250", "1000",
 			"8000", "64000" }); // For pins 6 and 5 1kHz default
 	JComboBox PWMRate2 = new JComboBox(new String[] { "31", "125", "500",
@@ -103,15 +109,7 @@ public class ArduinoGUI extends ServiceGUI {
 		return pins;
 	}
 
-	public void setPorts(ArrayList<String> p) {
-		// ttyPort.removeAllItems();
-		for (int i = 0; i < p.size(); ++i) {
-			String n = p.get(i);
-			LOG.info(n);
-			ttyPort.addItem(n);
-		}
-
-	}
+	
 
 	public void init() {
 
@@ -152,7 +150,7 @@ public class ArduinoGUI extends ServiceGUI {
 		++gc.gridx;
 		input.add(new JLabel(" serial rate : "), gc);
 		++gc.gridx;
-		input.add(serialRate, gc);
+		input.add(baudRate, gc);
 
 		++gc.gridx;
 		input.add(new JLabel(" pwm 3 11 : "), gc);
@@ -170,12 +168,9 @@ public class ArduinoGUI extends ServiceGUI {
 			input.add(pinList.get(i), gc);
 		}
 
-		
-		
+			
 		Action rawReadMsgAction = new AbstractAction("CheckBox Label") {
-		      /**
-			 * 
-			 */
+
 			private static final long serialVersionUID = 1L;
 
 			// called when the button is pressed
@@ -203,71 +198,36 @@ public class ArduinoGUI extends ServiceGUI {
 
 		  gc.gridx = 0;
 		  gc.gridy = 0;
-
 		  
 		  JPanel msgPanel = new JPanel();
 		  rawReadMessage.setText(" read raw ");
 		  msgPanel.add(rawReadMessage);
 		  msgPanel.add(new JLabel(" msg length "));
 		  msgPanel.add(rawReadMsgLength);
-		  
-		  
-		  
+		 
 		  display.add(msgPanel, gc);
 		  ++gc.gridy;
 		  display.add(input, gc);
 		  
-		// TODO - set up routing of messages from service - to catch events TODO
-		// attachGUI
-		// sendNotifyRequest("publishPin", "setDataLabel", PinData.class); BAD BAD BAD - been "bug"d so many times by this ! Analog read fails!
 
-		PopupMenuListener PortPopUpListener = new PopupMenuListener() {
-
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-			}
-
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-				// myService.send(boundServiceName, "getPorts"); // TODO - needs
-				// to block
-				// ArrayList<String> p =
-				// (ArrayList<String>)myService.sendBlocking(boundServiceName,
-				// "getPorts", null);
-
-				/*
-				 * try { Thread.sleep(1000); } catch (InterruptedException e) {
-				 * // TODO Auto-generated catch block e.printStackTrace(); }
-				 */
-				// TODO - lame use BlockingQueue & SendBlocking - with timeout
-				// value - populate with error on timeout
-				/*
-				 * ttyPort.removeAllItems(); for (int i = 0; i < p.size();++i) {
-				 * ttyPort.addItem(p.get(i)); }
-				 */
-
-			}
-
-		};
-
-		ActionListener portActionListener = new ActionListener() {
+		 portActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JComboBox cb = (JComboBox) e.getSource();
 				String newPort = (String) cb.getSelectedItem();
-				if (newPort != null && newPort.length() > 0) {
-					myService.send(boundServiceName, "setSerialPort", newPort);
-				}
-
+				myService.send(boundServiceName, "setSerialPort", newPort);
 			}
 		};
 
+		 baudActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				Integer newBaud = (Integer) cb.getSelectedItem();
+				myService.send(boundServiceName, "setBaud", newBaud);
+			}
+		};
+		
 		ActionListener PWMRate1ActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -314,8 +274,8 @@ public class ArduinoGUI extends ServiceGUI {
 		PWMRate2.addActionListener(PWMRate2ActionListener);
 		PWMRate3.addActionListener(PWMRate3ActionListener);
 
-		ttyPort.addPopupMenuListener(PortPopUpListener);
 		ttyPort.addActionListener(portActionListener);
+		baudRate.addActionListener(baudActionListener);
 
 	}
 
@@ -328,43 +288,55 @@ public class ArduinoGUI extends ServiceGUI {
 		pin.counter.setText((d).toString());
 	}
 
-	@Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
+	public void getState(Arduino a)
+	{
+		if (a != null)
+		{
+			setPorts(a.portNames);			
+		}
+		
+		baudRate.removeActionListener(baudActionListener);
+		baudRate.setSelectedItem(myArduino.getBaudRate());
+		baudRate.addActionListener(baudActionListener);		
+	}
+	
+	/**
+	 * setPorts is called by getState - which is called when the Arduino changes port state
+	 * is NOT called by the GUI component
+	 * @param p
+	 */
+	public void setPorts(ArrayList<String> p) {
+		//ttyPort.removeAllItems();
+		
+		//ttyPort.addItem(""); // the null port
+		// ttyPort.removeAllItems();
+		for (int i = 0; i < p.size(); ++i) {
+			String n = p.get(i);
+			LOG.info(n);
+			ttyPort.addItem(n);
+		}
 
-		// listen for the get ports on the Arduino
-		sendNotifyRequest("getPorts", "setPorts", ArrayList.class);
-		sendNotifyRequest("getCurrentPort", "setCurrentPort", String.class);
-
-		myService.send(boundServiceName, "getPorts");
-		myService.send(boundServiceName, "getCurrentPort");
+		if (myArduino != null)
+		{
+			// remove and re-add the action listener
+			// because we don't want a recursive event
+			// when the Service changes the state
+			ttyPort.removeActionListener(portActionListener);
+			ttyPort.setSelectedItem(myArduino.getPortName());
+			ttyPort.addActionListener(portActionListener);
+		}
 
 	}
 
-	public void setCurrentPort(String p) {
-		if (p == null || p.length() == 0)
-			return;
-
-		boolean found = false;
-		for (int i = 0; i < ttyPort.getItemCount(); ++i) {
-			if (((String) ttyPort.getItemAt(i)).compareTo(p) == 0) {
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) {
-			ttyPort.addItem(p);
-		}
-
-		ttyPort.setSelectedItem(p);
+	@Override
+	public void attachGUI() {
+		sendNotifyRequest("publishState", "getState", Arduino.class);
+		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("getPorts", "setPorts", ArrayList.class);
-		removeNotifyRequest("getCurrentPort", "setCurrentPort", String.class);
-
+		removeNotifyRequest("publishState", "getState", Arduino.class);
 	}
 
 }

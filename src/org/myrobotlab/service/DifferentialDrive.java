@@ -45,8 +45,17 @@ public class DifferentialDrive extends Service {
 
 	private static final long serialVersionUID = 1L;
 	
-	public int dimensionX = 0;
+	/**
+	 * dimension of the platform from wheel to wheel
+	 */
+	public int dimensionX = 0; 
+	/**
+	 * dimension of the platform from bow to stern
+	 */
 	public int dimensionY = 0;
+	/**
+	 * dimension of the platform from floor to top
+	 */
 	public int dimensionZ = 0;
 
 	public int positionX = 0;
