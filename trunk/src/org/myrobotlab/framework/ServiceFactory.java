@@ -8,8 +8,7 @@ import org.myrobotlab.service.Speech;
 
 public class ServiceFactory {
 
-	public final static Logger LOG = Logger.getLogger(ServiceFactory.class
-			.toString());
+	public final static Logger LOG = Logger.getLogger(ServiceFactory.class.toString());
 
 	static public synchronized Service createService(String name, String type) {
 		try {
@@ -47,8 +46,6 @@ public class ServiceFactory {
 			Object invoker = constructor.newInstance(new Object[] { name });
 
 			Service newService = (Service) invoker;
-
-			newService.startService(); // TODO make safe
 
 			return newService;
 		} catch (Exception e) {

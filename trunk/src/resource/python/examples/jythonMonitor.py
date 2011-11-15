@@ -14,7 +14,7 @@ class Monitor:
   def __init__(self):
     self.stdout = None
     self.stderr = None
-    frame = JFrame("Monitor")
+    frame = JFrame("Jython Monitor")
     frame.setSize(400, 300)
     frame.setLayout(BorderLayout())
 
@@ -31,9 +31,9 @@ class Monitor:
 
     label2 = JLabel("This is a tab2")
 
-    panel2 = JPanel()
-    panel2.add(label2)
-    tabPane.addTab("errors", panel2)
+    # panel2 = JPanel()
+    # panel2.add(label2)
+    # tabPane.addTab("errors", panel2)
 
     frame.add(tabPane)
     #frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)

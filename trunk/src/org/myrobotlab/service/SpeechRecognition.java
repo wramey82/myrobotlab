@@ -31,7 +31,9 @@
 
 package org.myrobotlab.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +46,7 @@ import javax.speech.recognition.GrammarException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.speech.DialogManager;
 import org.myrobotlab.speech.NewGrammarDialogNodeBehavior;
@@ -59,8 +62,7 @@ import edu.cmu.sphinx.util.props.PropertyException;
 public class SpeechRecognition extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SpeechRecognition.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(SpeechRecognition.class.getCanonicalName());
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
@@ -75,7 +77,6 @@ public class SpeechRecognition extends Service {
 		super(n, SpeechRecognition.class.getCanonicalName());
 	}
 
-	// TODO - changeVoice (String newVoice)
 	public void loadDefaultConfiguration() {
 	}
 
@@ -83,6 +84,43 @@ public class SpeechRecognition extends Service {
 		return speech;
 	}
 
+	
+	/**
+	 * createGrammar must be called before the Service starts if a new grammar is needed
+	 * 
+	 * example:
+	 * 		SpeechRecognition.createGrammar ("ear", "stop | go | left | right | back");
+	 * 		ear = ServiceFactory.create("ear", "SpeechRecognition")
+	 * 
+	 * @param name - name of the Service which will be utilizing this grammar
+	 * @param grammar - grammar content 
+	 * @return
+	 */
+	public boolean createGrammar (String grammar)
+	{	
+		// get base simple.xml file - and modify it to
+		// point to the correct .gram file
+		String simplexml = FileIO.getResourceFile("simple.xml");
+		//String grammarLocation = "file://" + cfgDir.replaceAll("\\\\", "/") + "/";
+		//simplexml = simplexml.replaceAll("resource:/resource/", cfgDir.replaceAll("\\\\", "/"));
+		simplexml = simplexml.replaceAll("resource:/resource/", ".\\\\.myrobotlab");
+		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\""+this.name+"\"");
+		save("xml", simplexml);
+		
+		
+		String gramdef = "#JSGF V1.0;\n"
+				+ "grammar "+name+";\n"
+				+ "public <greet> = (" + grammar + ");";
+		save("gram", gramdef);
+		
+		return true;
+	}
+	
+	/**
+	 * stopRecording - it does "work", however, the speech recognition part seems to degrade
+	 * when startRecording is called.  I have worked around this by
+	 * not stopping the recording, but by not processing what was recognized
+	 */
 	public void stopRecording() {
 		microphone.stopRecording();
 		microphone.clear();
@@ -143,76 +181,75 @@ public class SpeechRecognition extends Service {
 
 		public void run() {
 
-			/*
-			 * if (args.length > 0) { cm = new ConfigurationManager(args[0]); }
-			 * else { cm = new
-			 * ConfigurationManager(HelloWorld.class.getResource(
-			 * "helloworld.config.xml")); }
-			 */
 			isRunning = true;
-			// cm = new
-			// ConfigurationManager(HelloWorld.class.getResource("helloworld.config.xml"));
-			URL url = this.getClass().getResource("/resource/simple.xml");
-			cm = new ConfigurationManager(url);
+			
+			String newPath = cfgDir + File.separator + myService.name + ".xml";
+			File localGramFile  = new File(newPath);
 
+			if (localGramFile.exists())
+			{
+				cm = new ConfigurationManager(newPath);	
+			} else {
+				// resource in jar default
+				cm = new ConfigurationManager(this.getClass().getResource("/resource/simple.xml"));
+			}
+			
 			// PropertySheet ps = cm.getPropertySheet("jsgfGrammar");
 			// String grammarLocation = ps.getString("grammarLocation");
 			// cm = new ConfigurationManager("SpeechRecognition");
 
-			{
 
-				// start the word recognizer
-				recognizer = (Recognizer) cm.lookup("recognizer");
-				recognizer.allocate();
+			// start the word recognizer
+			recognizer = (Recognizer) cm.lookup("recognizer");
+			recognizer.allocate();
 
-				// start the microphone or exit if the programm if this is not
-				// possible
-				microphone = (Microphone) cm.lookup("microphone");
-				if (!microphone.startRecording()) {
-					LOG.error("Cannot start microphone.");
-					recognizer.deallocate();
-				}
-
-				// System.out.println("Say: (Good morning | Hello) ( Bhiksha | Evandro | Paul | Philip | Rita | Will )");
-
-				// loop the recognition until the programm exits.
-				while (isRunning) {
-
-					LOG.error("listening");
-					invoke("listeningEvent");
-
-					Result result = recognizer.recognize();
-
-					//LOG.error(result.getBestPronunciationResult()); - TODO - try it
-					
-					if (result != null) {
-						String resultText = result.getBestFinalResultNoFiller();
-						if (resultText.length() > 0) {
-							recognized(resultText);
-							if (resultText.length() > 0) {
-								invoke("publish", resultText);
-							} else {
-								invoke("publish", "what");
-							}
-
-						}
-						LOG.error("You said: " + resultText + '\n');
-					} else {
-						try {
-							Thread.sleep(300);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						recognized("what did you say");
-						LOG.info("I can't hear what you said.\n");
-					}
-				}
+			// start the microphone or exit if the programm if this is not
+			// possible
+			microphone = (Microphone) cm.lookup("microphone");
+			if (!microphone.startRecording()) {
+				LOG.error("Cannot start microphone.");
+				recognizer.deallocate();
 			}
 
+			// System.out.println("Say: (Good morning | Hello) ( Bhiksha | Evandro | Paul | Philip | Rita | Will )");
+
+			// loop the recognition until the programm exits.
+			while (isRunning) {
+
+				LOG.error("listening");
+				invoke("listeningEvent");
+
+				Result result = recognizer.recognize();
+
+				//LOG.error(result.getBestPronunciationResult()); - TODO - try it
+				// FIXME - should be recognized NOT publish
+				if (result != null) {
+					String resultText = result.getBestFinalResultNoFiller();
+					if (resultText.length() > 0) {
+						recognized(resultText);
+						if (resultText.length() > 0) {
+							invoke("publish", resultText);
+						} else {
+							invoke("publish", "what");
+						}
+
+					}
+					LOG.error("You said: " + resultText + '\n');
+				} else {
+					try {
+						Thread.sleep(300);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					recognized("what did you say");
+					LOG.info("I can't hear what you said.\n");
+				}
+			}
 		}
 
 	}
+
 
 	// publishing output functions
 	public void listeningEvent()
@@ -361,7 +398,8 @@ public class SpeechRecognition extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		SpeechRecognition ear = new SpeechRecognition("ear");				
+		SpeechRecognition ear = new SpeechRecognition("ear");
+		ear.createGrammar("hello | up | down | yes | no");
 		ear.startService();
 		
 

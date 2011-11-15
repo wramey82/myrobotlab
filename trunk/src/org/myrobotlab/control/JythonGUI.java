@@ -40,7 +40,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -48,8 +47,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -88,8 +85,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 				open();
 			} else if (m.getText().equals("save as")) {
 				saveAs();
-			} else if (m.getText().equals("monitor")) {
-				myService.send(boundServiceName, "monitorAttach");
+			} else if (m.getText().equals("jython monitor")) {
+				myService.send(boundServiceName, "attachJythonMonitor");
 			} else if (m.getActionCommand().equals("examples"))
 			{
 				editor.setText(FileIO.getResourceFile("python/examples/" + m.getText()));
@@ -242,14 +239,16 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		menu = new JMenu("Speech");
 		menu.add(createMenuItem("sayThings.py","examples"));
+		menu.add(createMenuItem("speechRecognitionTest.py","examples"));
 		examples.add(menu);
-
+		
 		menu = new JMenu("system");
-		menu.add(createMenuItem("monitor.py","examples"));
+		menu.add(createMenuItem("jythonMonitor.py","examples"));
 		examples.add(menu);
 
 		menu = new JMenu("magabot");
 		menu.add(createMenuItem("magabotTest.py","examples"));
+		menu.add(createMenuItem("magabotSpeechTest.py","examples"));
 		examples.add(menu);
 
 		menu = new JMenu("mrlbots");
@@ -260,7 +259,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		
 		// system -----------
 		menu = new JMenu("system");
-		menu.add(createMenuItem("monitor","monitor"));
+		menu.add(createMenuItem("jython monitor","jython monitor"));
 		
 		bar.add(menu);
 

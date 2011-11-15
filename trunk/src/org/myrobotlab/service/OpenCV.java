@@ -221,12 +221,6 @@ public class OpenCV extends Service {
 		//cfg.set("displayFilter", "output");
 	}
 
-	
-	@Override
-	public void startService() {
-		super.startService();
-	}
-
 	@Override
 	public void stopService() {
 		if (videoProcess != null)

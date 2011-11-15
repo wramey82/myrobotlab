@@ -94,10 +94,9 @@
 
     <component name="jsgfGrammar" type="edu.cmu.sphinx.jsgf.JSGFGrammar">    
         <property name="dictionary" value="dictionary"/>
-          <property name="grammarLocation"
-             value="resource:/resource/"/>
+        <property name="grammarLocation" value="resource:/resource/"/>
         <property name="grammarName" value="simple"/>
-	<property name="logMath" value="logMath"/> 
+		<property name="logMath" value="logMath"/> 
     </component>
 
 
