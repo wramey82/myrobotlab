@@ -225,35 +225,42 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		JMenu examples = new JMenu("examples");
 		examples.setMnemonic(KeyEvent.VK_X);
 		
-		JMenu menu = new JMenu("Arduino");
+		JMenu menu = new JMenu("arduino");
 		menu.add(createMenuItem("dynamicallyLoadProgram.py","examples"));
 		examples.add(menu);
 
-		menu = new JMenu("Clock");
-		menu.add(createMenuItem("inputTest.py","examples"));
-		examples.add(menu);
-
-		menu = new JMenu("OpenCV");
-		menu.add(createMenuItem("faceTracking.py","examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Speech");
-		menu.add(createMenuItem("sayThings.py","examples"));
-		menu.add(createMenuItem("speechRecognitionTest.py","examples"));
+		menu = new JMenu("chumby");
+		menu.add(createMenuItem("chumby.py","examples"));
 		examples.add(menu);
 		
-		menu = new JMenu("system");
-		menu.add(createMenuItem("jythonMonitor.py","examples"));
-		examples.add(menu);
-
 		menu = new JMenu("magabot");
 		menu.add(createMenuItem("magabotTest.py","examples"));
 		menu.add(createMenuItem("magabotSpeechTest.py","examples"));
 		examples.add(menu);
 
+		menu = new JMenu("simple");
+		menu.add(createMenuItem("inputTest.py","examples"));
+		examples.add(menu);
+
+		menu = new JMenu("speech");
+		menu.add(createMenuItem("sayThings.py","examples"));
+		menu.add(createMenuItem("talkBack.py","examples"));
+		examples.add(menu);
+		
+		menu = new JMenu("system");
+		menu.add(createMenuItem("jythonMonitor.py","examples"));
+		examples.add(menu);
+		
+		menu = new JMenu("vision");
+		menu.add(createMenuItem("faceTracking.py","examples"));
+		examples.add(menu);
+
+
+		/*
 		menu = new JMenu("mrlbots");
 		menu.add(createMenuItem("minibot.py","examples"));
 		examples.add(menu);
+		*/
 		
 		bar.add(examples);
 		

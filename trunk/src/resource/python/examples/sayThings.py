@@ -4,7 +4,8 @@ from org.myrobotlab.framework import ServiceFactory
 
 # sayThings.py
 # example script for MRL showing various methods
-# of the Speech Service <<javadoc url>>
+# of the Speech Service 
+# http://myrobotlab.org/doc/org/myrobotlab/service/Speech.html
 
 # The preferred method for creating services is
 # through the ServiceFactory. This will allow
@@ -17,6 +18,8 @@ from org.myrobotlab.framework import ServiceFactory
 # Create a running instance of the Speech Service.
 # Name it "speech".
 speech = ServiceFactory.createService("speech","Speech")
+speech.startService()
+
 # Speak with initial defaults - Google en
 speech.speak("hello brave new world")
 
@@ -25,22 +28,24 @@ speech.speak("hello brave new world")
 # once it is pulled from Goole.  So the 
 # first time it is slow but subsequent times its very 
 # quick and can be run without network connectivity.
-speech.setBackendType("GOOGLE"); 
-speech.setLanguage("en");
-speech.speak("Hello World From Google.");
-speech.setLanguage("pt"); # Google supports some language codes
-speech.speak("Hello World From Google.");
-speech.setLanguage("de");
-speech.speak("Hello World From Google.");
-speech.setLanguage("ja");
-speech.speak("Hello World From Google.");
-speech.setLanguage("da");
-speech.speak("Hello World From Google.");
+speech.setBackendType("GOOGLE") 
+speech.setLanguage("en")
+speech.speak("Hello World From Google.")
+speech.setLanguage("pt") # Google supports some language codes
+speech.speak("Hello World From Google.")
+speech.setLanguage("de")
+speech.speak("Hello World From Google.")
+speech.setLanguage("ja")
+speech.speak("Hello World From Google.")
+speech.setLanguage("da")
+speech.speak("Hello World From Google.")
+speech.setLanguage("ro")
+speech.speak("Hello World From Google.")
 
 sleep(3)
 # Switching to FreeTTS <<url>>
 # http://freetts.sourceforge.net/docs/index.php
-speech.setBackendType("FREETTS"); 
-speech.speak("Hello World From Free TTS.");
+speech.setBackendType("FREETTS") 
+speech.speak("Hello World From Free TTS.")
 
 

@@ -1,5 +1,8 @@
 package org.myrobotlab.service;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
@@ -50,6 +53,7 @@ public class Jython extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(Jython.class.getCanonicalName());
+	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	String inputScript = null;
 	String setupScript = null;
@@ -58,6 +62,12 @@ public class Jython extends Service {
 	
 	public Jython(String n) {
 		super(n, Jython.class.getCanonicalName());
+		Method[] methods = this.getClass().getMethods();
+		for (int i = 0; i < methods.length; ++i)
+		{
+			LOG.info("will filter method " + methods[i].getName());
+			commandMap.put(methods[i].getName(), methods[i]);
+		}
 	}
 	
 	@Override
@@ -146,30 +156,27 @@ public class Jython extends Service {
 		
 	}
 
-	public boolean preProcessHook(Message m)
-	{
-		if (m.method.equals("input"))
-		{
-			invoke("input", m);
-			return false; // FIXME why is it boolean and not Object?
-		}
-		return true;
-	}
-	
-	
 	/**
-	 * input 
+	 * preProcessHook is used to intercept messages and process or route them before being
+	 * processed/invoked in the Service.
 	 * 
-	 * is the callback point of data coming from MRL into the Jython code.
-	 * This will handle Java input messages from other Services.  There is
-	 * a corresponding "input" function in any Python code which wants to 
-	 * intercept & use this data.
+	 * Here all messages allowed to go and effect the Jython service will be let through.
+	 * However, all messsages not found in this filter will go "into" they Jython script.
+	 * There they can be handled in the scripted users code.
 	 * 
-	 * @param msg
-	 * @return
+	 * @see org.myrobotlab.framework.Service#preProcessHook(org.myrobotlab.framework.Message)
 	 */
-	public Message input(Message msg)
+	public boolean preProcessHook(Message msg)
 	{
+		// let the messages for this service
+		// get processed normally
+		if (commandMap.containsKey(msg.method))
+		{
+			return true;
+		} 
+		// otherwise its target is for the
+		// scripting environment 
+		// set the data - and call the call-back function
 		if (interp == null)
 		{
 			createPythonInterpreter();
@@ -182,9 +189,12 @@ public class Jython extends Service {
 		msgHandle.append(msg.sendingMethod);
 		
 		interp.set(msgHandle.toString(), msg);
-		interp.exec("input()");
-		return msg;
+		interp.exec(msg.method + "()");
+		
+		return false;
 	}
+	
+	
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();

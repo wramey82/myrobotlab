@@ -197,6 +197,11 @@ public class Speech extends Service {
 		{
 			myVoice.deallocate();
 		}
+		if (speechAudioFile != null)
+		{
+			speechAudioFile.stopService();
+			speechAudioFile = null;
+		}
 		super.stopService();
 	}
 
@@ -355,6 +360,7 @@ public class Speech extends Service {
 	{
 		if (speechAudioFile == null) {
 			speechAudioFile = new AudioFile("speechAudioFile");
+			speechAudioFile.startService();
 		}
 		
 		if (!fileCacheInitialized)
@@ -409,15 +415,15 @@ public class Speech extends Service {
 	// codes - http://code.google.com/apis/language/translate/v2/using_rest.html
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		
 		Speech speech = new Speech("speech");
 		speech.startService();
-		speech.setBackendType(BACKEND_TYPE_GOOGLE);
-		speech.setLanguage("fr");
-		speech.speak("it is a pleasure to meet you, I am speaking.  I do love to speak. What should we talk about.");
-		speech.speak("hello! this is an attempt to generate inflection, did it work?");
+//		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+//		speech.setLanguage("fr");
+		speech.speak("it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about.");
+		speech.speak("hello! this is an attempt to generate inflection did it work?");
 		speech.speak("hello there. this is a long and detailed message");
 		speech.speak("1 2 3 4 5 6 7 8 9 10, i know how to count");
 		speech.speak("the time is 12:30");

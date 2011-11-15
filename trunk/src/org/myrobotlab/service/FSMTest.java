@@ -110,7 +110,7 @@ public class FSMTest extends Service {
 		
 		speech.notify("isSpeaking", name, "isSpeaking");
 		
-		speechRecognition.notify("publish", name, "heard", String.class);
+		speechRecognition.notify("recognized", name, "heard", String.class);
 		
 		opencv.notify("publish", name, "publish", KinectImageNode.class); //<--- BUG - polygon, name (only should work)
 		opencv.notify("publishIplImageTemplate", name, "getImageTemplate", IplImage.class);

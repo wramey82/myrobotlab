@@ -155,7 +155,7 @@ public class Audrey extends Service {
 		mouth.notify("stopped", ear.name, "startRecording");
 		
 		// creating static route from ear/speech recognition to special action
-		ear.notify("publish", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.name, "speechToAction", String.class);
 		
 		// starting services
 		mouth.startService();
