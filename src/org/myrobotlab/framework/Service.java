@@ -275,7 +275,11 @@ public abstract class Service implements Runnable, Serializable {
 		Serializer serializer = new Persister();
 		try {
 			File cfg = new File(cfgDir + File.separator + this.name + ".xml");
-			serializer.read(this, cfg);			
+			if (cfg.exists()){
+				serializer.read(this, cfg);
+			} else {
+				LOG.info("cfg file "   + cfgDir + File.separator + this.name + ".xml" + " does not exist");
+			}
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;

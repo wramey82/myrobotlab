@@ -28,16 +28,12 @@ from org.myrobotlab.framework import ServiceFactory
 ear = ServiceFactory.createService("ear","SpeechRecognition")
 # create the grammar you would like recognized
 # this must be done before the service is started
-ear.createGrammar("go | stop | left | right | back")
+ear.createGrammar("hello | forward | back | stop | turn left | turn right | spin | power off")
 ear.startService()
 
 # start the mouth
 mouth = ServiceFactory.createService("mouth","Speech")
 mouth.startService()
-
-# creat a magabot
-magabot = ServiceFactory.createService("magabot","MagaBot")
-magabot.init("COM8");  # initalize arduino on port specified to 9600 8n1
 
 speaking = False
 
@@ -48,21 +44,12 @@ def heard():
       data = msg_ear_recognized.data[0]
       mouth.speak("you said " + data)
       print "heard ", data
-      if (data == "stop"):
-        print("stopping magabot")
-        magabot.sendOrder('p')
-      elif (data == "left"):
-        print ("magabot goes left")
-        magabot.sendOrder('a');
-      elif (data == "right"):
-        print ("magabot goes left")
-        magabot.sendOrder('d');
-      elif (data == "go"):
-        print ("magabot goes forward")
-        magabot.sendOrder('w');
+      if (data == "forward"):
+         print "robot goes forward" 
+      elif (data == "hello"):
+         print  "robot says hello"
     # ... etc
     
-# used for voice cancellation
 def isSpeaking():
     speaking = msg_mouth_isSpeaking.data[0]
     print "is speaking " , speaking
@@ -74,4 +61,3 @@ mouth.notify("isSpeaking", jython.name, "isSpeaking");
 
 # start a jython monitor to see the results of recognized speech
 jython.monitor()
-

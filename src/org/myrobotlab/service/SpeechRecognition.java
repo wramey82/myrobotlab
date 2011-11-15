@@ -33,8 +33,6 @@ package org.myrobotlab.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -80,10 +78,28 @@ public class SpeechRecognition extends Service {
 	public void loadDefaultConfiguration() {
 	}
 
-	public String recognized(String speech) {
-		return speech;
+	/**
+	 * The main output for this service.  "word" is the word recognized.  This has to be setup before by
+	 * calling createGrammar (" stop | go | new | grammar ")  and a list of words or phrases to recognize.
+	 * 
+	 * @param word
+	 * @return the word
+	 */
+	public String recognized(String word) {
+		return word;
 	}
 
+	
+	
+	/**
+	 * Event is sent when the listening Service is actually listening.  There is some delay when it initially
+	 * loads.
+	 */
+	public void listeningEvent()
+	{
+		return;
+	}
+		
 	
 	/**
 	 * createGrammar must be called before the Service starts if a new grammar is needed
@@ -193,27 +209,18 @@ public class SpeechRecognition extends Service {
 				// resource in jar default
 				cm = new ConfigurationManager(this.getClass().getResource("/resource/simple.xml"));
 			}
-			
-			// PropertySheet ps = cm.getPropertySheet("jsgfGrammar");
-			// String grammarLocation = ps.getString("grammarLocation");
-			// cm = new ConfigurationManager("SpeechRecognition");
-
 
 			// start the word recognizer
 			recognizer = (Recognizer) cm.lookup("recognizer");
 			recognizer.allocate();
 
-			// start the microphone or exit if the programm if this is not
-			// possible
 			microphone = (Microphone) cm.lookup("microphone");
 			if (!microphone.startRecording()) {
 				LOG.error("Cannot start microphone.");
 				recognizer.deallocate();
 			}
 
-			// System.out.println("Say: (Good morning | Hello) ( Bhiksha | Evandro | Paul | Philip | Rita | Will )");
-
-			// loop the recognition until the programm exits.
+			// loop the recognition until the program exits.
 			while (isRunning) {
 
 				LOG.error("listening");
@@ -221,20 +228,14 @@ public class SpeechRecognition extends Service {
 
 				Result result = recognizer.recognize();
 
-				//LOG.error(result.getBestPronunciationResult()); - TODO - try it
-				// FIXME - should be recognized NOT publish
+				//LOG.error(result.getBestPronunciationResult());
 				if (result != null) {
 					String resultText = result.getBestFinalResultNoFiller();
 					if (resultText.length() > 0) {
-						recognized(resultText);
-						if (resultText.length() > 0) {
-							invoke("publish", resultText);
-						} else {
-							invoke("publish", "what");
-						}
-
+						invoke("recognized", resultText);
+						LOG.error("You said: " + resultText + '\n');
 					}
-					LOG.error("You said: " + resultText + '\n');
+					
 				} else {
 					try {
 						Thread.sleep(300);
@@ -242,23 +243,12 @@ public class SpeechRecognition extends Service {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					recognized("what did you say");
-					LOG.info("I can't hear what you said.\n");
+					//invoke("unrecognizedSpeech");
+					LOG.error("I can't hear what you said.\n");
 				}
 			}
 		}
 
-	}
-
-
-	// publishing output functions
-	public void listeningEvent()
-	{
-		return;
-	}
-	
-	public String publish(String word) {
-		return word;
 	}
 
 	/**

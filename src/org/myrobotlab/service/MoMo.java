@@ -110,7 +110,7 @@ public class MoMo extends Service {
 		sensors.notify("publish", this.name, "publish", PinAlert.class);
 
 		// creating static route from ear/speech recognition to special action
-		ear.notify("publish", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.name, "speechToAction", String.class);
 
 		// Motors attached to Arduino
 		// left motor inverted to keep it simple for me

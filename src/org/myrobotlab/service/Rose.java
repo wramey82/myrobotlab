@@ -90,7 +90,7 @@ public class Rose extends Service {
 		// mouth.notify("started", ear.name, "stopRecording", null);
 		// mouth.notify("stopped", ear.name, "startRecording", null);
 
-		ear.notify("publish", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.name, "speechToAction", String.class);
 
 	}
 
