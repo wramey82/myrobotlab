@@ -315,13 +315,18 @@ public class RemoteAdapter extends Service {
 	@Override
 	public void startService() {
 		// TODO - block until isReady on the ServerSocket
-		super.startService();
-		tcpListener = new TCPListener(name + "_tcpMsgListener", this);
-		tcpListener.start();
-		udpListener = new UDPListener(name + "_udpMsgListener", this);
-		udpListener.start();
-		udpStringListener = new UDPStringListener(name + "_udpStringListener", this);
-		udpStringListener.start();
+		if (!isRunning())
+		{
+			super.startService();
+			tcpListener = new TCPListener(name + "_tcpMsgListener", this);
+			tcpListener.start();
+			udpListener = new UDPListener(name + "_udpMsgListener", this);
+			udpListener.start();
+			udpStringListener = new UDPStringListener(name + "_udpStringListener", this);
+			udpStringListener.start();
+		} else {
+			LOG.warn("RemoteAdapter " + name + " is already started");
+		}
 	}
 
 	@Override

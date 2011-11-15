@@ -8,6 +8,7 @@ from org.myrobotlab.service import OpenCV
 
 # create or get a handle to an OpenCV service
 opencv = ServiceFactory.createService("opencv","OpenCV")
+opencv.startService()
 # reduce the size - face tracking doesn't need much detail
 # the smaller the faster
 opencv.addFilter("PyramidDown1", "PyramidDown")
@@ -18,14 +19,9 @@ opencv.addFilter("FaceDetect1", "FaceDetect")
 # get a handle on the GUIService - probably already created if your
 # using the editor
 gui = ServiceFactory.createService("gui","GUIService")
+
 # rebuild the gui since we have added a new OpenCV service
 gui.rebuild()
-
-# get a handle on the Jython Service
-gui = ServiceFactory.createService("jython","Jython")
-# start a Jython monitor so we can see the data from opencv
-gui.monitorAttach()
-
 
 # ----------------------------------
 # input
@@ -43,9 +39,11 @@ def input():
     print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
     return object
 
-opencv.notify("publish", "jython", "input", CvPoint().getClass()); 
+# create a message route from opencv to jython so we can see the coordinate locations
+opencv.notify("publish", jython.name, "input", CvPoint().getClass()); 
 
 # set the input source to the first camera
 opencv.capture()
-
+# start a Jython monitor so we can see the data from opencv
+jython.monitorAttach()
 

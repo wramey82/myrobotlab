@@ -9,7 +9,7 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 /**
- * @author grog
+ * @author GroG
  *
  * a Service to access Jython interpreter.  
  * 
@@ -77,12 +77,25 @@ public class Jython extends Service {
 	{
 		// TODO - check if exists - destroy / de-initialize if necessary
 		PySystemState.initialize();
-		interp = new PythonInterpreter();		
+		interp = new PythonInterpreter();	
+		
+		// add self reference
+		// Python scripts can refer to this service as 'jython' regardless 
+		// of the actual name
+		String selfReferenceScript = "from org.myrobotlab.framework import ServiceFactory\n"
+				+ "from org.myrobotlab.service import Jython\n"
+				+ "jython = ServiceFactory.createService(\"" + this.name + "\",\"Jython\")\n	";
+		interp.exec(selfReferenceScript);
+		
 	}
 
-	public void monitorAttach()
+	public void monitor()
 	{
-		String monitorScript = FileIO.getResourceFile("python/examples/monitor.py");
+		attachJythonMonitor();
+	}
+	public void attachJythonMonitor()
+	{
+		String monitorScript = FileIO.getResourceFile("python/examples/jythonMonitor.py");
 		exec(monitorScript, false);
 	}
 

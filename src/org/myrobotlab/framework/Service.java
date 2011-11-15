@@ -48,6 +48,7 @@ import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
@@ -57,6 +58,19 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+/**
+ * 
+ * Service is the base of the MyRobotLab Service Oriented Architecture.  All meaningful Services derive from this class. There is a _TemplateService.java 
+ * in the org.myrobotlab.service package.  This can be used as a very fast template for creating new Services.  Each Service begins with two threads
+ * One is for the "Outbox" this delivers messages out of the Service.  The other is the "run" thread which processes all incoming messages.
+ * 
+ * @author GroG
+ *
+ *  Dependencies:
+ *  	apache Log4J - logging
+ *      simpleframework - basic configuration
+ *  
+ */
 public abstract class Service implements Runnable, Serializable {
 
 	// TODO - UNDERSTAND THAT host:port IS THE KEY !! - IT IS A COMBONATIONAL
@@ -80,6 +94,9 @@ public abstract class Service implements Runnable, Serializable {
 	public boolean performanceTiming = false;
 	
 	protected CommunicationInterface cm = null;
+	/**
+	 * @deprecated
+	 */
 	protected ConfigurationManager cfg = null;
 	protected ConfigurationManager hostcfg = null;
 
@@ -95,7 +112,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
-	
+	protected static String cfgDir = null;
 	private static boolean hostInitialized = false;
 	
 	abstract public String getToolTip();
@@ -122,7 +139,6 @@ public abstract class Service implements Runnable, Serializable {
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
-		// config begin - for chumby
 		hostcfg = new ConfigurationManager(host);
 		cfg = new ConfigurationManager(host, name); 
 
@@ -140,6 +156,8 @@ public abstract class Service implements Runnable, Serializable {
 			
 			String libararyPath = System.getProperty("java.library.path");
 			String userDir = System.getProperty("user.dir");
+			
+			cfgDir = userDir + File.separator + ".myrobotlab";
 
 			LOG.info("os.name [" + System.getProperty("os.name") + "]");
 			LOG.info("os.version [" + System.getProperty("os.version") + "]");
@@ -152,6 +170,9 @@ public abstract class Service implements Runnable, Serializable {
 			ConfigurationManager rootcfg = new ConfigurationManager();
 			rootcfg.load(host + ".properties");
 			hostInitialized = true;
+			
+			// create local configuration directory
+			new File(cfgDir).mkdir();
 		}
 		
 		// service instance level defaults
@@ -222,8 +243,21 @@ public abstract class Service implements Runnable, Serializable {
 		Serializer serializer = new Persister();
 
 		try {
-			File cfg = new File(this.name + ".xml");
+			File cfg = new File(cfgDir + File.separator + this.name + ".xml");
 			serializer.write(this, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean save(String cfgFileName, String data)
+	{
+		// saves user data in the .myrobotlab directory
+		// with the file naming convention of name.<cfgFileName>		
+		try {
+			FileIO.stringToFile(cfgDir + File.separator + this.name + "." + cfgFileName, data);
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
@@ -240,13 +274,23 @@ public abstract class Service implements Runnable, Serializable {
 	
 		Serializer serializer = new Persister();
 		try {
-			File cfg = new File(this.name + ".xml");
+			File cfg = new File(cfgDir + File.separator + this.name + ".xml");
 			serializer.read(this, cfg);			
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
 		return true;
+	}
+	
+	public String load(String cfgFileName)
+	{		
+		try {
+			return FileIO.fileToString(cfgDir + File.separator + this.name + "." + cfgFileName);
+		} catch (Exception e) {
+			Service.logException(e);
+			return null;
+		}
 	}
 	
 	/*
@@ -347,13 +391,18 @@ public abstract class Service implements Runnable, Serializable {
 
 	public void startService() 
 	{
-		outbox.start();
-		if (thisThread == null)
+		if (!isRunning())
 		{
-			thisThread = new Thread(this, name);  // TODO - make ServerThread - to hold context 
+			outbox.start();
+			if (thisThread == null)
+			{
+				thisThread = new Thread(this, name);  
+			}
+			thisThread.start();
+			isRunning = true;
+		} else {
+			LOG.warn("startService request: service " + name + " is already running");
 		}
-		thisThread.start();
-		isRunning = true;
 	}
 
 	// override for extended functionality

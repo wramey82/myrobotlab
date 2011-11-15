@@ -136,7 +136,7 @@ public class RecorderPlayer extends Service {
 
 	}
 
-	public boolean load(String name) {
+	public boolean loadFile(String name) {
 		return loadFromFile(name + ".msgs");
 	}
 

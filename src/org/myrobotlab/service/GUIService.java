@@ -49,6 +49,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
@@ -61,13 +62,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
+import org.myrobotlab.control.TextAreaAppender;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
@@ -371,7 +375,29 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.setIconImage(img);		
 		
 		JMenuBar menuBar = new JMenuBar();
-	    JMenu help = new JMenu("help");
+	    
+		// --- system ----
+		JMenu system = new JMenu("system");
+	    
+		JMenuItem mi = new JMenuItem("save");
+	    mi.addActionListener(this);
+	    system.add(mi);
+
+		mi = new JMenuItem("load");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+
+		mi = new JMenuItem("refresh");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+	    	    
+		mi = new JMenuItem("java monitor");
+	    mi.addActionListener(this);
+	    system.add(mi);
+	    
+	    menuBar.add(system);
+	    
+		JMenu help = new JMenu("help");
 	    JMenuItem about = new JMenuItem("about");
 	    about.addActionListener(this);
 	    help.add(about);
@@ -718,7 +744,33 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		loadTabPanels();
 	}
 	
-
+	protected static void setupLog4JAppender(JTextArea logArea) {
+		// This code attaches the appender to the text area
+		TextAreaAppender.setTextArea(logArea);
+		
+		// Normally configuration would be done via a log4j.properties
+		// file found on the class path, but here we will explicitly set
+		// values to keep it simple.
+		//
+		// Great introduction to Log4J at http://logging.apache.org/log4j/docs/manual.html
+		//
+		// Could also have used straight code like: app.logger.setLevel(Level.INFO);
+		Properties logProperties = new Properties();
+		logProperties.put("log4j.rootLogger", "INFO, TEXTAREA");
+/*		logProperties.put("log4j.rootLogger", "INFO, CONSOLE, TEXTAREA");
+		logProperties.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender"); // A standard console appender
+		logProperties.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
+		logProperties.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{HH:mm:ss} [%12.12t] %5.5p %40.40c: %m%n");
+*/
+		logProperties.put("log4j.appender.TEXTAREA", "org.myrobotlab.control.TextAreaAppender");  // Our custom appender
+		logProperties.put("log4j.appender.TEXTAREA.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
+		logProperties.put("log4j.appender.TEXTAREA.layout.ConversionPattern", "%d{HH:mm:ss} %5.5p %40.40c: %m%n");
+		
+		PropertyConfigurator.configure(logProperties);
+	}
+	
+	
+	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
@@ -730,6 +782,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		clock.startService();
 		
 		GUIService gui2 = new GUIService("gui2");
+		
+		JFrame j = new JFrame();
+		j.setSize(120, 120);
+		JTextArea logger = new JTextArea(50,100);
+		j.add(logger);
+		setupLog4JAppender(logger);
+		j.setVisible(true);
 		
 		gui2.notify("registerServices", gui2.name, "registerServicesEvent");
 		//gui2.notify("registerServices", gui2.name, "registerServicesEvent", String.class, Integer.class, Message.class);

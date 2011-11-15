@@ -20,12 +20,12 @@ from org.myrobotlab.framework import Message
 # <<URL>>
 # Name it "clock".
 clock = ServiceFactory.createService("clock","Clock")
-
+clock.startService()
 # Create a running instance of the Logging Service.
 # <<URL>>
 # Name it "log".
 log = ServiceFactory.createService("log","Logging")
-
+log.startService()
 # get handle on gui
 gui = ServiceFactory.createService("gui","GUIService")
 # rebuild the gui since we added two new services
@@ -54,12 +54,13 @@ def input():
 
 clock.setPulseDataString('new clock data !!')
 
-clock.notify("pulse", "jython", "input", String().getClass()); 
+# send a monitor to the log service and the jython service
+# you should be able to see the data in the log gui or the jython monitor
+clock.notify("pulse", jython.name, "input", String().getClass()); 
 clock.notify("pulse", "log", "log", String().getClass());
 
 clock.setPulseDataType(clock.PulseDataType.string)
 clock.startClock()
 
-# FIXME - is there anyway to get String.class?
-# TODO - make an opencv class - template match
-
+# start a jython monitor
+jython.monitor()
