@@ -9,12 +9,12 @@ from javax.swing import WindowConstants
 from java.awt import BorderLayout
 from java.lang import Boolean
 
-class Monitor:
+class Console:
 
   def __init__(self):
     self.stdout = None
     self.stderr = None
-    frame = JFrame("Jython Monitor")
+    frame = JFrame("Jython Console")
     frame.setSize(400, 300)
     frame.setLayout(BorderLayout())
 
@@ -27,7 +27,7 @@ class Monitor:
     log.setEditable(Boolean("false"))
     self.log = log
     panel1.add(JScrollPane(log))
-    tabPane.addTab("monitor", panel1)
+    tabPane.addTab("console", panel1)
 
     label2 = JLabel("This is a tab2")
 
@@ -56,5 +56,5 @@ class Monitor:
       self.stdout = None
       self.stderr = None
     
-monitor = Monitor()
-monitor.attach()
+console = Console()
+console.attach()

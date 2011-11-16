@@ -44,6 +44,6 @@ opencv.notify("publish", jython.name, "input", CvPoint().getClass());
 
 # set the input source to the first camera
 opencv.capture()
-# start a Jython monitor so we can see the data from opencv
-jython.monitorAttach()
+# start a Jython console so we can see the data from opencv
+jython.console()
 

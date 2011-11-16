@@ -54,6 +54,7 @@ public class Jython extends Service {
 
 	public final static Logger LOG = Logger.getLogger(Jython.class.getCanonicalName());
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
+	transient PythonInterpreter interp = null;
 
 	String inputScript = null;
 	String setupScript = null;
@@ -66,7 +67,7 @@ public class Jython extends Service {
 		for (int i = 0; i < methods.length; ++i)
 		{
 			LOG.info("will filter method " + methods[i].getName());
-			commandMap.put(methods[i].getName(), methods[i]);
+			commandMap.put(methods[i].getName(), null);
 		}
 	}
 	
@@ -80,7 +81,6 @@ public class Jython extends Service {
 		return "Jython IDE";
 	}
 	
-	PythonInterpreter interp = null;
 	// PyObject interp.eval(String s) - for verifying?
 	
 	public void createPythonInterpreter ()
@@ -99,14 +99,14 @@ public class Jython extends Service {
 		
 	}
 
-	public void monitor()
+	public void console()
 	{
-		attachJythonMonitor();
+		attachJythonConsole();
 	}
-	public void attachJythonMonitor()
+	public void attachJythonConsole()
 	{
-		String monitorScript = FileIO.getResourceFile("python/examples/jythonMonitor.py");
-		exec(monitorScript, false);
+		String consoleScript = FileIO.getResourceFile("python/examples/jythonConsole.py");
+		exec(consoleScript, false);
 	}
 
 	
@@ -123,7 +123,7 @@ public class Jython extends Service {
 	/**
 	 * replaces and executes current Python script
 	 * if replace = false - will not replace "script" variable
-	 * can be useful if ancillary scripts are needed e.g. monitors
+	 * can be useful if ancillary scripts are needed e.g. monitors & consoles
 	 * 
 	 * @param code
 	 * @param replace

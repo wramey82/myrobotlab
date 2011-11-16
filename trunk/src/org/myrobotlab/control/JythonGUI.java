@@ -85,8 +85,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 				open();
 			} else if (m.getText().equals("save as")) {
 				saveAs();
-			} else if (m.getText().equals("jython monitor")) {
-				myService.send(boundServiceName, "attachJythonMonitor");
+			} else if (m.getText().equals("jython console")) {
+				myService.send(boundServiceName, "attachJythonConsole");
 			} else if (m.getActionCommand().equals("examples"))
 			{
 				editor.setText(FileIO.getResourceFile("python/examples/" + m.getText()));
@@ -224,7 +224,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// examples -----
 		JMenu examples = new JMenu("examples");
 		examples.setMnemonic(KeyEvent.VK_X);
-		
+/*		
 		JMenu menu = new JMenu("arduino");
 		menu.add(createMenuItem("dynamicallyLoadProgram.py","examples"));
 		examples.add(menu);
@@ -232,8 +232,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu = new JMenu("chumby");
 		menu.add(createMenuItem("chumby.py","examples"));
 		examples.add(menu);
-		
-		menu = new JMenu("magabot");
+*/		
+		JMenu menu = new JMenu("magabot");
 		menu.add(createMenuItem("magabotTest.py","examples"));
 		menu.add(createMenuItem("magabotSpeechTest.py","examples"));
 		examples.add(menu);
@@ -248,7 +248,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		examples.add(menu);
 		
 		menu = new JMenu("system");
-		menu.add(createMenuItem("jythonMonitor.py","examples"));
+		menu.add(createMenuItem("jythonConsole.py","examples"));
 		examples.add(menu);
 		
 		menu = new JMenu("vision");
@@ -266,7 +266,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		
 		// system -----------
 		menu = new JMenu("system");
-		menu.add(createMenuItem("jython monitor","jython monitor"));
+		menu.add(createMenuItem("jython console","jython console"));
 		
 		bar.add(menu);
 
@@ -291,11 +291,11 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		JMenuBar graphicBar = new JMenuBar();
 		
 		// TODO pkg gui? with get gui Icon button
-		JButton b = new JButton(null,FileIO.getResourceIcon("monitor.png"));
+		JButton b = new JButton(null,FileIO.getResourceIcon("console.png"));
 		//b.setPreferredSize(new Dimension(32,32));
 		b.setMargin(new Insets(0, 0, 0, 0)); 
 		b.setBorderPainted(false);
-		b.setToolTipText("monitor");
+		b.setToolTipText("console");
 		b.setBackground(new Color(0xff00ff));
 
 		graphicBar.add(b);
@@ -325,7 +325,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JButton button = (JButton) e.getSource();
-			myService.send(boundServiceName, button.getText(), editor.getText());
+			if ("restart".equals(button.getText()))
+			{
+				myService.send(boundServiceName, button.getText());				
+			} else {
+				myService.send(boundServiceName, button.getText(), editor.getText());
+			}
 		}
 
 	}

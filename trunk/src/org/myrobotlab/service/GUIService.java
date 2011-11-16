@@ -67,6 +67,7 @@ import javax.swing.JTextArea;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
@@ -775,22 +776,28 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
+		/*
 		Invoker services = new Invoker("services");
 		services.startService();
 			
 		Clock clock = new Clock("clock");
 		clock.startService();
+		*/
 		
 		GUIService gui2 = new GUIService("gui2");
 		
-		JFrame j = new JFrame();
+		// begin debugging console Java Moitor
+		/*
+		JFrame j = new JFrame("Java Console");
 		j.setSize(120, 120);
 		JTextArea logger = new JTextArea(50,100);
 		j.add(logger);
 		setupLog4JAppender(logger);
 		j.setVisible(true);
+		*/
+		Console con = new Console();
 		
-		gui2.notify("registerServices", gui2.name, "registerServicesEvent");
+		//gui2.notify("registerServices", gui2.name, "registerServicesEvent");
 		//gui2.notify("registerServices", gui2.name, "registerServicesEvent", String.class, Integer.class, Message.class);
 
 		gui2.startService();
