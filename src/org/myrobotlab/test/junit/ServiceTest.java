@@ -13,6 +13,7 @@ package org.myrobotlab.test.junit;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
@@ -616,16 +617,33 @@ public class ServiceTest {
 			{
 				LOG.error(e.getMessage());
 				LOG.error(Service.stackToString(e));
-			}
-			
+			} 
 		}
-		
-		
-		
-		
+						
 		RuntimeEnvironment.releaseAll();
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
 	
+	@Test
+	public void cleanUp ()
+	{
+		try {
+			// wait a second for all 
+			// listening network sockets to close
+			Thread.sleep(1000);
+			
+			// time clean up
+			RuntimeEnvironment.releaseAll();
+
+			File f = new File("junit.serialize.bin");
+			f.delete();
+			f = new File("cfg.txt");
+			f.delete();
+			
+			} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+	}
 	
 }

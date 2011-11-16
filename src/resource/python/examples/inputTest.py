@@ -54,13 +54,13 @@ def input():
 
 clock.setPulseDataString('new clock data !!')
 
-# send a monitor to the log service and the jython service
-# you should be able to see the data in the log gui or the jython monitor
+# send a data to the log service and the jython service
+# you should be able to see the data in the log gui or the jython console
 clock.notify("pulse", jython.name, "input", String().getClass()); 
 clock.notify("pulse", "log", "log", String().getClass());
 
 clock.setPulseDataType(clock.PulseDataType.string)
 clock.startClock()
 
-# start a jython monitor
-jython.monitor()
+# start a jython console
+jython.console()

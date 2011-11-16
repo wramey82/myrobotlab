@@ -72,6 +72,6 @@ ear.notify("recognized", jython.name, "heard", String().getClass());
 # prevent infinite loop 
 mouth.notify("isSpeaking", jython.name, "isSpeaking");
 
-# start a jython monitor to see the results of recognized speech
-jython.monitor()
+# start a jython console to see the results of recognized speech
+jython.console()
 
