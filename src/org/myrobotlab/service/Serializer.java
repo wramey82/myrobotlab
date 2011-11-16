@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.memory.Node;
-
+// CANNOT BE SERIALIZED YET !!!!!! - 
 public class Serializer extends Service {
 
 	private static final long serialVersionUID = 1L;

@@ -52,8 +52,8 @@ public class FaceTracking extends Service {
 	
 	Speech speech = new Speech("speech");
 	
-	PID xpid = new PID();
-	PID ypid = new PID();
+	transient PID xpid = new PID();
+	transient PID ypid = new PID();
 	
 	String state = null;
 	
