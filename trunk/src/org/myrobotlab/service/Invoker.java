@@ -140,7 +140,7 @@ public class Invoker extends Service {
 				"Logging", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
 				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
-				"Serial", "Servo", "SLAM", "SoccerGame", 
+				"Servo", "SLAM", "SoccerGame", 
 				"Speech", "SpeechRecognition", "StepperMotor",
 				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
 	}

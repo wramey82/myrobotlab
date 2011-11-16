@@ -577,8 +577,13 @@ public class ServiceTest {
 		LOG.info("serializing");
 		for (int i=0;i < serviceNames.length; ++i)
 		{
+			
 			Service s = Invoker.addService(serviceNames[i], i + "");
 			
+			if (i == 29)
+			{
+				LOG.info("here");
+			}
 			LOG.info("serializing " + serviceNames[i]);
 			FileOutputStream fos = null;
 			ObjectOutputStream out = null;
