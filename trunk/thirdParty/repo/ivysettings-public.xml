@@ -3,7 +3,7 @@
 -->
 <ivysettings>
   <resolvers>
-    <url name="public">
+    <url name="runtime">
       <ivy pattern="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/[organisation]/[module]/[revision]/ivy.xml" />
       <artifact pattern="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/[organisation]/[module]/[revision]/[artifact].[ext]" />
     </url>
