@@ -9,6 +9,6 @@
         <conf name="test" />
     </configurations>
     <publications>
-        <artifact name="ChessBoard.jar" type="jar"/>
+        <artifact name="ChessBoard" type="jar"/>
     </publications>
 </ivy-module>
