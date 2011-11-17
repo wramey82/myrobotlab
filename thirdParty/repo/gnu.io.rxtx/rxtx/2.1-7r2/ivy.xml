@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="gnu.io.rxtx" module="rxtx" status="release" revision="2.1-7r2">
+    </info>
+    <configurations>
+        <conf name="public" />
+        <conf name="runtime" />
+    </configurations>
+    <publications>
+        <artifact name="RXTXcomm" type="jar"/>
+    </publications>
+</ivy-module>

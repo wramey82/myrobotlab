@@ -1,5 +1,4 @@
-<!-- refer to :
-	http://ant.apache.org/ivy/history/2.2.0/tutorial/defaultconf.html 
+<!-- refer to : http://ant.apache.org/ivy/history/2.2.0/tutorial/defaultconf.html 
 -->
 <ivysettings>
   <resolvers>
