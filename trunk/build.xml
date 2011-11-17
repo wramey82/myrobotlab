@@ -1,17 +1,16 @@
 <!-- <project name="myrobotlab" default="dist" basedir="."> -->
-
 <!--
 	Dependencies:
 		Windows:
 			svnversion.exe from Collabnet
 		Linux:
-			svnversion			
+			svnversion	
+
+	TODO : release fullRelease transfer/upload		
 -->
 
 <project name="myrobotlab" default="uploadJar" basedir=".">
-	<description>
-		http://myrobotlab.org myrobotlab build file
-    </description>
+	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
 	<!-- set global properties for this build -->
@@ -22,25 +21,30 @@
 	<property name="thirdParty.lib"  location="./thirdParty/lib" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 	
-
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/lib">
 			<include name="*.jar"/>
 		</fileset>
 	</path>
 	
-	<target name="init">
-		<!-- Create the time stamp -->
-		<tstamp/>
-
+	<target name="init">	
+		<tstamp/> <!-- Create the time stamp -->
 		<exec executable="svnversion" outputproperty="repository.revision" />
-		<echo message="Repository revision is ${repository.revision}" />
-
-		<!-- replace file="${src}/org/myrobotlab/service/GUIService.java" token="@@@svnversion@@@" value="${repository.revision}"/>
-		<replace file="${src}/org/myrobotlab/service/GUIService.java" token="@@@tstamp@@@" value="${DSTAMP}"/>
-		<replace file="${src}/org/myrobotlab/service/Invoker.java" token="@@@svnversion@@@" value="${repository.revision}"/>
-		<replace file="${src}/org/myrobotlab/service/Invoker.java" token="@@@tstamp@@@" value="${DSTAMP}"/ -->
-
+		<echo message="repository revision is ${repository.revision}" />
+		<tempfile property="temp.file"/>
+		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
+		character for a windows file system -->
+		<echo message="${repository.revision}" file="${temp.file}"/>
+		<loadfile srcfile="${temp.file}" property="rev">
+		    <filterchain>
+		        <replaceregex pattern=":" replace="."/>
+		    </filterchain>
+		</loadfile>
+		<delete file="${temp.file}"/>
+		<echo message="rev ${rev}" />
+		<property name="label" value="${rev}.${DSTAMP}.${TSTAMP}"/>
+		<echo message="label ${label}" />
+	
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
 	</target>
@@ -63,51 +67,51 @@
 		    <fileset dir="${src}/resource"/>
 		</copy>
 		
-		<echo file="${build}/resource/version.txt">${repository.revision} ${DSTAMP} ${TSTAMP}</echo>
+		<echo file="${build}/resource/version.txt">${label}</echo>
 
-		<!-- FIXME - windows can't support all repo revision labels - specifically ":" - build will fail -->
-		<copy todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/bin">
+		<copy todir="${dist}/${label}/bin">
 		    <fileset dir="./thirdParty/bin"/>
 		</copy>
 
-		<copy todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/haarcascades">
+		<copy todir="${dist}/${label}/haarcascades">
 		    <fileset dir="./haarcascades"/>
 		</copy>
 		
-		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/jna.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/javacpp.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/javacv-linux-x86.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/javacv-windows-x86.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<copy file="./thirdParty/lib/javacv-macosx-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-
-		<!-- copy file="./thirdParty/lib/javacv-windows-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/ -->
-		<!-- copy file="./thirdParty/lib/javacv-linux-x86_64.jar" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/ -->
+		<!-- FIXME - dependencies have changed - make the ivy repo -->
+		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/jna.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/javacpp.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/javacv-linux-x86.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/javacv-windows-x86.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/javacv-macosx-x86_64.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/simple-xml-2.5.3.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/jython.jar" todir="${dist}/${label}/lib"/>
+		<copy file="./thirdParty/lib/rsyntaxtextarea.jar" todir="${dist}/${label}/lib"/>
 		
-
-		<copy file="myrobotlab.bat" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
+		<!-- dont support 64 bit opencv yet -->
+		<!-- copy file="./thirdParty/lib/javacv-windows-x86_64.jar" todir="${dist}/${label}/lib"/ -->
+		<!-- copy file="./thirdParty/lib/javacv-linux-x86_64.jar" todir="${dist}/${label}/lib"/ -->
+		
+		<copy file="myrobotlab.bat" todir="${dist}/${label}"/>
+		<copy file="jython.bat" todir="${dist}/${label}"/>
 		<!-- permissions are not preserved -->
-		<copy file="myrobotlab.sh" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
-		<!-- exec executable="cp" >  Why would you do this ??? not OS dependent !
-			<arg value="myrobotlab.sh" />
-		    <arg value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}" />
-		</exec -->
-		<copy file="LICENSE.txt" todir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
-		
+		<copy file="myrobotlab.sh" todir="${dist}/${label}"/>
+		<copy file="jython.sh" todir="${dist}/${label}"/>
+		<copy file="LICENSE.txt" todir="${dist}/${label}"/>	
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution" >
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}"/>
-		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}"/>
-		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/lib"/>
-		<mkdir dir="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/bin"/>
+		<mkdir dir="${dist}/${label}"/>
+		<mkdir dir="${dist}/${label}/lib"/>
+		<mkdir dir="${dist}/${label}/bin"/>
 		
 		<!-- Put everything in ${build} into the myrobotlab-${DSTAMP}.jar file -->
-		<jar jarfile="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" basedir="${build}">
+		<jar jarfile="${dist}/${label}/myrobotlab.jar" basedir="${build}">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
 				<!-- section name="myrobotlab" -->
@@ -131,7 +135,7 @@
 	</target>
 
 	<property name="report"  value="${build}/junitreport"/>
-	<property name="application"  value="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/>
+	<property name="application"  value="${dist}/${label}/myrobotlab.jar"/>
 	
 	<!-- target name="junit" depends="dist">
 	        <mkdir dir="${report}"/>
@@ -178,7 +182,7 @@
 	        password="" 
 	        projectname="myrobotlab" 
 		    verbose="true"
-	        filename="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar" 
+	        filename="${dist}/${label}/myrobotlab.jar" 
 	        targetfilename="myrobotlab.${DSTAMP}.${TSTAMP}.jar"
 	        summary="latest build of myrobotlab.jar r${repository.revision}"
 	        labels="OpSys-All" />
@@ -192,7 +196,7 @@
 	        			<include name="*.jar"/>
 	        		</fileset>
 	            	<pathelement path="${thirdParty.lib}/junit-4.4.jar"/>
-	            	<!-- pathelement path="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/myrobotlab.jar"/ -->
+	            	<!-- pathelement path="${dist}/${label}/myrobotlab.jar"/ -->
 	            	<pathelement location="${build}" />
 	            </classpath>
 	            
