@@ -3,9 +3,7 @@
     <info organisation="org.op.httpenglish.chessboard" module="chessboard" status="release" revision="1.0">
     </info>
     <configurations>
-        <conf name="public" />
-        <conf name="provided" />
-        <conf name="test" />
+        <conf name="runtime" />
     </configurations>
     <publications>
         <artifact name="ChessBoard" type="jar"/>
