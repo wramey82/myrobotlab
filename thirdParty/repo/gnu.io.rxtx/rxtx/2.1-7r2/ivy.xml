@@ -5,9 +5,10 @@
     <configurations>
         <conf name="public" />
         <conf name="runtime" />
+        <conf name="x8632.linux" />
     </configurations>
     <publications>
         <artifact name="RXTXcomm" type="jar"/>
-        <artifact name="librxtxSerial" type="library" ext="so" platform="ia32.linux"/>
+        <artifact name="librxtxSerial" type="library" ext="so" />
     </publications>
 </ivy-module>
