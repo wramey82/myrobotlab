@@ -9,6 +9,6 @@
     </configurations>
     <publications>
         <artifact name="RXTXcomm" type="jar"/>
-        <artifact name="librxtxSerial" type="zod" ext="so" />
+        <artifact name="x8632.linux/librxtxSerial" type="native" ext="so" />
     </publications>
 </ivy-module>
