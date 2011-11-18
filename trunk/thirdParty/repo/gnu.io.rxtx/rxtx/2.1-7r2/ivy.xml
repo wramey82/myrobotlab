@@ -8,5 +8,6 @@
     </configurations>
     <publications>
         <artifact name="RXTXcomm" type="jar"/>
+        <artifact name="librxtxSerial" type="library" ext="so" platform="ia32.linux"/>
     </publications>
 </ivy-module>
