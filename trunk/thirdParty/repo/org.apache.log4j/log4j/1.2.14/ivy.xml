@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="org.apache.log4j" module="log4j" status="release" revision="1.2.14">
+    </info>
+    <configurations>
+        <conf name="public" />
+        <conf name="runtime" />
+    </configurations>
+    <publications>
+        <artifact name="log4j-1.2.14" type="jar"/>
+    </publications>
+</ivy-module>
