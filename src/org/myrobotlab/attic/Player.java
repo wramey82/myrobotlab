@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.util.Timer;
 import java.util.TimerTask;

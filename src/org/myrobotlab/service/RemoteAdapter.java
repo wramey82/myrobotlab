@@ -426,7 +426,7 @@ public class RemoteAdapter extends Service {
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 				
-		Invoker services = new Invoker("services");
+		ServiceFactory services = new ServiceFactory("services");
 		services.startService();
 /*		
 		Arduino arduino = new Arduino("arduino");

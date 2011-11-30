@@ -74,7 +74,7 @@ import org.simpleframework.xml.Root;
 @Root
 public class Arduino extends Service implements SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
-
+	
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
@@ -888,8 +888,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		Arduino arduino = new Arduino("arduino");
+	
+		Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
 		arduino.startService();
 		
 		//Motor left = new Motor("left");
@@ -903,6 +903,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
 		gui.display();
+			
 	}
 	
 }

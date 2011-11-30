@@ -81,7 +81,7 @@ public abstract class Service implements Runnable, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Service.class.toString());
-	protected String host = null; // TODO - should be final???
+	protected String host = null; // TODO - should be final??? helpful in testing??? TODO - put in RuntimeEnvironment???
 	@Element
 	public final String name;
 	public final String serviceClass; // TODO - remove
@@ -120,19 +120,20 @@ public abstract class Service implements Runnable, Serializable {
 	public Service(String instanceName, String serviceClass) {
 		this(instanceName, serviceClass, null);
 	}
+	
 
 	public Service(String instanceName, String serviceClass, String inHost) {
 		
 		if (inHost != null)
 		{
 			try {
-				url = new URL(inHost);
+				url = new URL(inHost); // TODO - initialize once RuntimeEnvironment
 			} catch (MalformedURLException e) {
 				LOG.error(inHost + " not a valid URL");
 			}
 		}
 		// determine host name
-		host = getHostName(inHost);
+		host = getHostName(inHost);// TODO - initialize once RuntimeEnvironment
 		
 		this.name = instanceName;
 		this.serviceClass = serviceClass;
@@ -143,7 +144,7 @@ public abstract class Service implements Runnable, Serializable {
 		cfg = new ConfigurationManager(host, name); 
 
 		// global defaults begin - multiple services will re-set defaults
-		loadGlobalMachineDefaults();
+		loadGlobalMachineDefaults(); // TODO - put in RuntimeEnvironments
 
 		// service instance defaults
 		loadServiceDefaultConfiguration();
@@ -153,6 +154,14 @@ public abstract class Service implements Runnable, Serializable {
 		// over-ride process level with host file
 		if (!hostInitialized)
 		{
+			// ;.\libraries\x86\32\windows
+			System.setProperty("java.library.path", System.getProperty("java.library.path") + 
+					File.pathSeparator + 
+					"libraries" +File.separator + "native" +File.separator +
+					RuntimeEnvironment.getArch() + "." +
+					RuntimeEnvironment.getBitness() + "." +
+					RuntimeEnvironment.getOS()
+					);
 			
 			String libararyPath = System.getProperty("java.library.path");
 			String userDir = System.getProperty("user.dir");
@@ -160,8 +169,10 @@ public abstract class Service implements Runnable, Serializable {
 			cfgDir = userDir + File.separator + ".myrobotlab";
 
 			LOG.info("os.name [" + System.getProperty("os.name") + "]");
+			LOG.info("getOS [" + RuntimeEnvironment.getOS() + "]");
 			LOG.info("os.version [" + System.getProperty("os.version") + "]");
 			LOG.info("os.arch [" + System.getProperty("os.arch") + "]");
+			LOG.info("getArch [" + RuntimeEnvironment.getArch() + "]");
 			LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
 			LOG.info("java.library.path [" + libararyPath + "]");
 			LOG.info("user.dir [" + userDir + "]");
@@ -251,6 +262,20 @@ public abstract class Service implements Runnable, Serializable {
 		}
 		return true;
 	}
+
+	public boolean save(Object o, String cfgFileName)
+	{
+		Serializer serializer = new Persister();
+
+		try {
+			File cfg = new File(cfgDir + File.separator + cfgFileName);
+			serializer.write(o, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
 	
 	public boolean save(String cfgFileName, String data)
 	{
@@ -271,30 +296,35 @@ public abstract class Service implements Runnable, Serializable {
 	 */
 	public boolean load()
 	{		
+		return load(null, null);
+	}
 	
+	public boolean load(Object o, String inCfgFileName)
+	{	
+		String filename = null;
+		if (inCfgFileName == null)
+		{
+			filename = cfgDir + File.separator + this.name + ".xml";
+		} else {
+			filename = cfgDir + File.separator + inCfgFileName;
+		}
+		if (o == null)
+		{
+			o = this;
+		}
 		Serializer serializer = new Persister();
 		try {
-			File cfg = new File(cfgDir + File.separator + this.name + ".xml");
+			File cfg = new File(filename);
 			if (cfg.exists()){
-				serializer.read(this, cfg);
+				serializer.read(o, cfg);
 			} else {
-				LOG.info("cfg file "   + cfgDir + File.separator + this.name + ".xml" + " does not exist");
+				LOG.info("cfg file "   + filename + " does not exist");
 			}
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
 		return true;
-	}
-	
-	public String load(String cfgFileName)
-	{		
-		try {
-			return FileIO.fileToString(cfgDir + File.separator + this.name + "." + cfgFileName);
-		} catch (Exception e) {
-			Service.logException(e);
-			return null;
-		}
 	}
 	
 	/*
@@ -936,7 +966,7 @@ public abstract class Service implements Runnable, Serializable {
 
 			Class<?>[] paramTypes = null;
 			if (params != null) {
-				paramTypes = new Class[params.length]; // this part is weak
+				paramTypes = new Class[params.length]; 
 				for (int i = 0; i < params.length; ++i) {
 					if (params[i] != null) {
 						paramTypes[i] = params[i].getClass();
@@ -968,7 +998,7 @@ public abstract class Service implements Runnable, Serializable {
 		    // http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
 			// TODO - optimize "setState" function since it is a framework method - do not go through the search !
 			Method[] allMethods = c.getMethods(); // ouch
-			LOG.error("ouch! need to search through " + allMethods.length + " methods");
+			LOG.warn("ouch! need to search through " + allMethods.length + " methods");
 
 		    for (Method m : allMethods) 
 		    {
@@ -1561,6 +1591,8 @@ public abstract class Service implements Runnable, Serializable {
 	{
 		return (Service)copyShallowFrom(this, s);
 	}
+	
+	
 	/* Check RuntimeEnvironment for implementation
 	// TODO - cache fields in a map if "searching" requires too much
 	public Service setState(Service other)

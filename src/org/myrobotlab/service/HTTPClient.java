@@ -42,7 +42,6 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceFactory;
 
 /**
  * @author greg (at) myrobotlab.org
@@ -305,7 +304,7 @@ public class HTTPClient extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		//HTTPClient http = (HTTPClient)ServiceFactory.createService ("http", (Class<?>)HTTPClient.class);
+		//HTTPClient http = (HTTPClient)ServiceFactory.create ("http", (Class<?>)HTTPClient.class);
 		HTTPData data = HTTPClient.get("http://localhost/");		
 		LOG.info(data);
 	}

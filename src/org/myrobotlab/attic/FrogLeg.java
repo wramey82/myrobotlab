@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -39,6 +39,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.GeneticProgramming;
+import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.SensorMonitor;
+import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.data.PinAlert;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -58,7 +66,7 @@ public class FrogLeg extends Service {
 	// AudioFile mouth = new AudioFile("mouth");
 	Speech mouth = new Speech("mouth");
 	OpenCV camera = new OpenCV("camera");
-	// Invoker invoker = new Invoker("invoker");
+	// ServiceFactory ServiceFactory = new ServiceFactory("services");
 	Servo hip = new Servo("hip");
 	Servo knee = new Servo("knee");
 	GeneticProgramming gp = new GeneticProgramming("gp");

@@ -11,7 +11,7 @@ from org.myrobotlab.framework import ServiceFactory
 from org.myrobotlab.service import Arduino
 
 # create and start the Arduino Service
-arduino = ServiceFactory.createService("arduino","Arduino")
+arduino = ServiceFactory.create("arduino","Arduino")
 arduino.startService()
 
 arduino.setSerialPort("/dev/ttyUSB0")

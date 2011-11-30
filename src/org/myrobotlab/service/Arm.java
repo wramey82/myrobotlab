@@ -35,22 +35,16 @@ public class Arm extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static int IR_PIN = 1;
 
-	GUIService gui = new GUIService("gui");
-	// Speech mouth = new Speech("mouth");
-	OpenCV camera = new OpenCV("camera");
-	Arduino arduino = new Arduino("arduino");
-	// Invoker invoker = new Invoker("invoker");
 	Servo shoulder = new Servo("shoulder");
 	Servo elbow = new Servo("elbow");
 	Servo wrist = new Servo("wrist");
 	Servo hand = new Servo("hand");
 
+	int armLength = 0;
+	int formArmLength = 0;
+	
 	public Arm(String n) {
-		this(n, null);
-	}
-
-	public Arm(String n, String serviceDomain) {
-		super(n, Arm.class.getCanonicalName(), serviceDomain);
+		super(n, Arm.class.getCanonicalName());
 	}
 
 	@Override
@@ -58,10 +52,6 @@ public class Arm extends Service {
 	}
 
 	public void startRobot() {
-		gui.startService();
-		camera.startService();
-		gui.display();
-
 	}
 
 	// TODO - do in Service

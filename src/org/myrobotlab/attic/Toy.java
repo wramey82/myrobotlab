@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -34,6 +34,13 @@ import java.util.Iterator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.DifferentialDrive;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Graphics;
+import org.myrobotlab.service.Motor;
+import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;

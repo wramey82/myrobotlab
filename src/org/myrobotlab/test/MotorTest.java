@@ -26,7 +26,7 @@
 package org.myrobotlab.test;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Invoker;
+import org.myrobotlab.service.ServiceFactory;
 
 public class MotorTest {
 
@@ -37,8 +37,8 @@ public class MotorTest {
 
 		// Arduino arduino = new Arduino("arduino");
 		// arduino.start();
-		Invoker invoker = new Invoker("invoker");
-		invoker.startService();
+		ServiceFactory ServiceFactory = new ServiceFactory("ServiceFactory");
+		ServiceFactory.startService();
 		// GU
 
 	}

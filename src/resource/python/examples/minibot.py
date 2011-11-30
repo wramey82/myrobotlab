@@ -7,7 +7,7 @@ from time import sleep
 # an Arduino
 # as well as anything which can do Position Encoding (interface)
 
-arduino = ServiceFactory.createService("arduino","Arduino")
+arduino = ServiceFactory.create("arduino","Arduino")
 
 # FIXME - re-entrant and auto-save functionality
 arduino.setPort("COM8")

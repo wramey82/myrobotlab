@@ -37,6 +37,37 @@ public class RuntimeEnvironment implements Serializable{
 	// TODO wrap in service "RuntimeService"
 	// TODO releaseAll = stop + unregister
 	
+	public static String getOS()
+	{
+		String os = System.getProperty("os.name").toLowerCase();
+		if ((os.indexOf( "linux" ) >= 0))
+		{
+			return "linux";
+		} else if ((os.indexOf( "mac" ) >= 0)) {
+			return "mac";			
+		} else if ((os.indexOf( "win" ) >= 0))
+		{
+			return "windows";			
+		} else {
+			return "unknown";
+		}		
+	}
+	
+	public static int getBitness()
+	{
+		return 32;
+	}
+	
+	/**
+	 * Returns only the bitness of the JRE
+	 * hooked here in-case we need to normalize
+	 * @return hardware architecture
+	 */
+	public static String getArch()
+	{
+		String arch = System.getProperty("os.arch").toLowerCase(); 
+		return arch;
+	}	
 	
 	public static synchronized boolean register(URL url, Service s)
 	{
@@ -537,4 +568,14 @@ public class RuntimeEnvironment implements Serializable{
 		return local;
 	}
 	*/
+	public static boolean isMac() {
+		return getOS().equals("mac");
+	}
+	public static boolean isLinux() {
+		return getOS().equals("linux");
+	}
+
+	public static boolean isWindows() {
+		return getOS().equals("windows");
+	}
 }

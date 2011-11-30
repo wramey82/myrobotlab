@@ -25,20 +25,24 @@
 
 package org.myrobotlab.service.interfaces;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public interface SerialPort {
 
+	public boolean send(int data);
+	public boolean send(int[] data);
+	public boolean send(byte[] data);
+	public String readSerial (byte[] s);
+	// setMinReadLength
+
+	public boolean setSerialPortParams(int dataRate, int dataBits, int stopBits, int parity);
+	
+
+	/*
 	public OutputStream getOuputStream();
-
 	public InputStream getInputStream();
-
-	public void setSerialPortParams(int dataRate, int dataBits, int stopBits,
-			int parity);
-
 	public void addEventListener(SerialPortEventListener listener);
-
 	public void notifyOnDataAvailable(boolean d);
+	*/
+
 
 }

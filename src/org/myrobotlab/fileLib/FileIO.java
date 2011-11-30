@@ -74,7 +74,10 @@ public class FileIO {
 			LOG.error("could not open filename " + filename);
 		} finally {
 			try {
-				in.close();
+				if (in != null)
+				{
+					in.close();
+				}
 			} catch (IOException e) { /* ignore it */
 			}
 		}
