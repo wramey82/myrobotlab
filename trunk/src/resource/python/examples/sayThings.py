@@ -17,7 +17,7 @@ from org.myrobotlab.framework import ServiceFactory
 
 # Create a running instance of the Speech Service.
 # Name it "speech".
-speech = ServiceFactory.createService("speech","Speech")
+speech = ServiceFactory.create("speech","Speech")
 speech.startService()
 
 # Speak with initial defaults - Google en

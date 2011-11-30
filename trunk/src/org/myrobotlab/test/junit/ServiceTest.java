@@ -33,7 +33,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Invoker;
+import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
@@ -573,13 +573,13 @@ public class ServiceTest {
 	
 	@Test
 	public final void serialize() {
-		String[] serviceNames = Invoker.getServiceShortClassNames();
+		String[] serviceNames = ServiceFactory.getServiceShortClassNames();
 		
 		LOG.info("serializing");
 		for (int i=0;i < serviceNames.length; ++i)
 		{
 			
-			Service s = Invoker.addService(serviceNames[i], i + "");
+			Service s = ServiceFactory.addService(serviceNames[i], i + "");
 			
 			if (i == 29)
 			{

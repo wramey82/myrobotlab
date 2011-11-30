@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +39,12 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.AudioFile;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.data.IPAndPort;
 
 public class SoccerGame extends Service {
@@ -122,7 +128,7 @@ public class SoccerGame extends Service {
 				player = new Player("player0" + i);
 			}
 
-			player.game = this;
+			//player.game = this;
 			player.startService();
 			players.add(player);
 		}

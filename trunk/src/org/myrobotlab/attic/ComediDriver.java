@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;

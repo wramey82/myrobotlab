@@ -7,7 +7,7 @@ from com.googlecode.javacv.cpp.opencv_core import CvPoint;
 from org.myrobotlab.service import OpenCV
 
 # create or get a handle to an OpenCV service
-opencv = ServiceFactory.createService("opencv","OpenCV")
+opencv = ServiceFactory.create("opencv","OpenCV")
 opencv.startService()
 # reduce the size - face tracking doesn't need much detail
 # the smaller the faster
@@ -18,7 +18,7 @@ opencv.addFilter("FaceDetect1", "FaceDetect")
 
 # get a handle on the GUIService - probably already created if your
 # using the editor
-gui = ServiceFactory.createService("gui","GUIService")
+gui = ServiceFactory.create("gui","GUIService")
 
 # rebuild the gui since we have added a new OpenCV service
 gui.rebuild()

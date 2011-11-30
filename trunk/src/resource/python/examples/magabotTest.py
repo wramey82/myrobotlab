@@ -6,7 +6,7 @@ from time import sleep
 
 # Create a running instance of the MagaBot Service.
 
-magabot = ServiceFactory.createService("magabot","MagaBot")
+magabot = ServiceFactory.create("magabot","MagaBot")
 magabot.startService()
 magabot.init("COM8")  # initalize arduino on port specified to 9600 8n1
 

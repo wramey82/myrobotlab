@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -31,6 +31,12 @@ import java.util.Random;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Motor;
+import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.Speech;
+import org.myrobotlab.service.SpeechRecognition;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 // http://ai.eecs.umich.edu/cogarch0/subsump/arch.html  Augmented Finite State Machines

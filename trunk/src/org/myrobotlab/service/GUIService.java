@@ -49,7 +49,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
@@ -66,13 +65,11 @@ import javax.swing.JTextArea;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.Network;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
-import org.myrobotlab.control.TextAreaAppender;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
@@ -97,7 +94,7 @@ import com.mxgraph.view.mxGraph;
  * Arduino arduino01 -> post message -> outbox -> outbound -> notifyList -> reference of sender? (NO) will not transport
  * across process boundry 
  * 
- * 		serviceGUI needs an invoker
+ * 		serviceGUI needs a ServiceFactory
  * 		Arduino arduin-> post back (data) --> GUI - look up serviceGUI by senders name ServiceGUI->invoke(data)
  * 
  */
@@ -745,46 +742,38 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		loadTabPanels();
 	}
 	
-	protected static void setupLog4JAppender(JTextArea logArea) {
-		// This code attaches the appender to the text area
-		TextAreaAppender.setTextArea(logArea);
-		
-		// Normally configuration would be done via a log4j.properties
-		// file found on the class path, but here we will explicitly set
-		// values to keep it simple.
-		//
-		// Great introduction to Log4J at http://logging.apache.org/log4j/docs/manual.html
-		//
-		// Could also have used straight code like: app.logger.setLevel(Level.INFO);
-		Properties logProperties = new Properties();
-		logProperties.put("log4j.rootLogger", "INFO, TEXTAREA");
-/*		logProperties.put("log4j.rootLogger", "INFO, CONSOLE, TEXTAREA");
-		logProperties.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender"); // A standard console appender
-		logProperties.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
-		logProperties.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{HH:mm:ss} [%12.12t] %5.5p %40.40c: %m%n");
-*/
-		logProperties.put("log4j.appender.TEXTAREA", "org.myrobotlab.control.TextAreaAppender");  // Our custom appender
-		logProperties.put("log4j.appender.TEXTAREA.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
-		logProperties.put("log4j.appender.TEXTAREA.layout.ConversionPattern", "%d{HH:mm:ss} %5.5p %40.40c: %m%n");
-		
-		PropertyConfigurator.configure(logProperties);
+	
+	public void console()
+	{
+		attachJavaConsole();
 	}
 	
-	
+	public void attachJavaConsole()
+	{
+		//Console console = new Console();
+		JFrame j = new JFrame("Java Console");
+		j.setSize(120, 120);
+		JTextArea logger = new JTextArea(50,100);
+		j.add(Console.getRootConsole());
+		//setupLog4JAppender(logger);
+		j.setVisible(true);		
+	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		/*
-		Invoker services = new Invoker("services");
+		ServiceFactory services = new ServiceFactory("services");
 		services.startService();
 			
 		Clock clock = new Clock("clock");
 		clock.startService();
 		*/
 		
-		GUIService gui2 = new GUIService("gui2");
+		GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
+		gui2.console();
+		gui2.startService();
 		
 		// begin debugging console Java Moitor
 		/*
@@ -795,7 +784,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		setupLog4JAppender(logger);
 		j.setVisible(true);
 		*/
-		Console con = new Console();
+		//Console con = new Console();
 		
 		//gui2.notify("registerServices", gui2.name, "registerServicesEvent");
 		//gui2.notify("registerServices", gui2.name, "registerServicesEvent", String.class, Integer.class, Message.class);

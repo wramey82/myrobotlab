@@ -19,15 +19,15 @@ from org.myrobotlab.framework import Message
 # Create a running instance of the Clock Service.
 # <<URL>>
 # Name it "clock".
-clock = ServiceFactory.createService("clock","Clock")
+clock = ServiceFactory.create("clock","Clock")
 clock.startService()
 # Create a running instance of the Logging Service.
 # <<URL>>
 # Name it "log".
-log = ServiceFactory.createService("log","Logging")
+log = ServiceFactory.create("log","Logging")
 log.startService()
 # get handle on gui
-gui = ServiceFactory.createService("gui","GUIService")
+gui = ServiceFactory.create("gui","GUIService")
 # rebuild the gui since we added two new services
 gui.rebuild()
 

@@ -25,14 +25,14 @@ from org.myrobotlab.framework import ServiceFactory
 # platform additional JVM arguments might be necessary e.g. -Xmx256m
 
 # start an ear
-ear = ServiceFactory.createService("ear","SpeechRecognition")
+ear = ServiceFactory.create("ear","SpeechRecognition")
 # create the grammar you would like recognized
 # this must be done before the service is started
 ear.createGrammar("hello | forward | back | stop | turn left | turn right | spin | power off")
 ear.startService()
 
 # start the mouth
-mouth = ServiceFactory.createService("mouth","Speech")
+mouth = ServiceFactory.create("mouth","Speech")
 mouth.startService()
 
 speaking = False

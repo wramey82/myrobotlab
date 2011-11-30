@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Dependency;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.python.core.PySystemState;
@@ -71,6 +72,15 @@ public class Jython extends Service {
 		}
 	}
 	
+	public static Dependency[] getDependencies()
+	{
+		return new Dependency[]{
+				new Dependency("org.python.core","core","2.5.2"),
+				new Dependency("org.apache.log4j","log4j","1.2.14"),
+				new Dependency("org.simpleframework.xml","xml","2.5.3")
+		};
+	}
+	
 	@Override
 	public void loadDefaultConfiguration() {
 		
@@ -94,7 +104,7 @@ public class Jython extends Service {
 		// of the actual name
 		String selfReferenceScript = "from org.myrobotlab.framework import ServiceFactory\n"
 				+ "from org.myrobotlab.service import Jython\n"
-				+ "jython = ServiceFactory.createService(\"" + this.name + "\",\"Jython\")\n	";
+				+ "jython = ServiceFactory.create(\"" + this.name + "\",\"Jython\")\n	";
 		interp.exec(selfReferenceScript);
 		
 	}
@@ -200,7 +210,7 @@ public class Jython extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 				
-		Jython jython = new Jython("jython");
+		Jython jython = (Jython) ServiceFactory.create("jython","Jython");
 		jython.startService();
 
 		GUIService gui = new GUIService("gui");

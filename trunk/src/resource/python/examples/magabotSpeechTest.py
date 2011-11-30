@@ -25,18 +25,18 @@ from org.myrobotlab.framework import ServiceFactory
 # platform additional JVM arguments might be necessary e.g. -Xmx256m
 
 # start an ear
-ear = ServiceFactory.createService("ear","SpeechRecognition")
+ear = ServiceFactory.create("ear","SpeechRecognition")
 # create the grammar you would like recognized
 # this must be done before the service is started
 ear.createGrammar("go | stop | left | right | back")
 ear.startService()
 
 # start the mouth
-mouth = ServiceFactory.createService("mouth","Speech")
+mouth = ServiceFactory.create("mouth","Speech")
 mouth.startService()
 
 # creat a magabot
-magabot = ServiceFactory.createService("magabot","MagaBot")
+magabot = ServiceFactory.create("magabot","MagaBot")
 magabot.init("COM8");  # initalize arduino on port specified to 9600 8n1
 
 speaking = False

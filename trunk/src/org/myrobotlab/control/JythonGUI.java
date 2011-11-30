@@ -296,7 +296,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		b.setMargin(new Insets(0, 0, 0, 0)); 
 		b.setBorderPainted(false);
 		b.setToolTipText("console");
-		b.setBackground(new Color(0xff00ff));
+		b.setBackground(new Color(0x81f8c7));
 
 		graphicBar.add(b);
 		menuPanel.add(graphicBar);

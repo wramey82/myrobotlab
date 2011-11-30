@@ -23,26 +23,24 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.OpenCV.Polygon;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-public class ColoredThingyFinder extends Service {
+public class Calibrator extends Service {
 
-	public final static Logger LOG = Logger.getLogger(ColoredThingyFinder.class
+	public final static Logger LOG = Logger.getLogger(Calibrator.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -110,8 +108,8 @@ public class ColoredThingyFinder extends Service {
 		memory.put(x, mapy);
 	}
 
-	public ColoredThingyFinder(String n) {
-		super(n, ColoredThingyFinder.class.getCanonicalName());
+	public Calibrator(String n) {
+		super(n, Calibrator.class.getCanonicalName());
 	}
 
 	@Override
@@ -134,90 +132,93 @@ public class ColoredThingyFinder extends Service {
 		return opencv;
 	}
 
-	public void findArrayOfColor() {
-		// look at an array of colors
-
-		// say the array of collors
-
-		// listen for a command "find a blue thingy"
-
-		// center that position
-
-		// verify the color is correct - send "i found a <color> thingy" (group
-		// color) erode - fill
-
-	}
-
-	public void calibrate() {
+	public void sleep(int millis) {
 		try {
 
-			Thread.sleep(2000); // let camera stabilize
-
-			// auto configure
-			// get list of servos from service cfg if not specified directly
-			// get list of motors ?
-			// get list of cameras - get resolutions (will invalidate lk
-			// tracking point if too close to edge)
-
-			// send moveTo HOME command to servos
-			send(servoX, "moveTo", home.x);
-			send(servoY, "moveTo", home.y);
-			Thread.sleep(200); // let camera stabilize
-
-			// ask sendBlocking last frame from camera - push into HOME "memory"
-			// set camera on
-			send(opencv, "setUseInput", "camera");
-			send(opencv, "capture");
-			send(opencv, "addFilter", "calibrator", "LKOpticalTrack");
-
-			IplImage homeImage = null;
-			while (homeImage == null) {
-				homeImage = (IplImage) sendBlocking(opencv, "getLastFrame",
-						null);
-			}
-
-			Object[] params = new Object[4];
-			params[0] = "publish";
-			params[1] = this.name;
-			params[2] = "setOpticalTrackingPoints";
-			params[3] = CvPoint2D32f.class.getCanonicalName();
-			send(opencv, "notify", params);
-			// set camera up for lk tracking
-
-			// send notification request to publish data from lk tracking
-			// (wait)- will affect global data
-			// current_features = setOpticalTrackingPoints(null);
-			new_features = null;
-			while (new_features == null) {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-			// saved_features = Arrays.copyOf(new_features,
-			// new_features.length);
-			saved_features = copyArray(new_features);
-			loadImageToMemory(home.x, home.y, homeImage, new Date(),
-					saved_features);
-			moveAndCompare(servoX, home.x + 3);
-
-			// backplane
-			// find current position
-			// find offset
-			// exclusive or plane - look for differences (new objects)
-
-			// if threshold is high enough - ask
-			// "What is this"
-			// get input (voice) - text - email - web (google image) - google 3d
-			// warehouse ??
-			// serialize data/memory
-
+			Thread.sleep(millis); // let camera stabilize
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // wait for camera to stabalize
+
+	}
+
+	public void calibrate() {
+		sleep(1000); // stabalize
+
+		if (servoX == null || servoY == null || opencv == null) {
+			LOG.error("servoX servoY & opencv need to be set to calibrate");
+		}
+
+		// auto configure
+		// get list of servos from service cfg if not specified directly
+		// get list of motors ?
+		// get list of cameras - get resolutions (will invalidate lk tracking
+		// point if too close to edge)
+
+		// TODO - do NOT go home
+		// send moveTo HOME command to servos
+		send(servoX, "moveTo", home.x);
+		send(servoY, "moveTo", home.y);
+		sleep(200);
+		// Thread.sleep(200); // let camera stabilize
+
+		// ask sendBlocking last frame from camera - push into HOME "memory"
+		// set camera on
+
+		send(opencv, "setUseInput", "camera");
+		send(opencv, "capture");
+		send(opencv, "addFilter", "calibrator", "LKOpticalTrack");
+
+		IplImage homeImage = null;
+		while (homeImage == null) {
+			homeImage = (IplImage) sendBlocking(opencv, "getLastFrame", null);
+		}
+
+		// TODO - addMsgListener
+		Object[] params = new Object[4];
+		params[0] = "publish";
+		params[1] = this.name;
+		params[2] = "setOpticalTrackingPoints";
+		params[3] = CvPoint2D32f.class.getCanonicalName();
+		send(opencv, "notify", params);
+		// set camera up for lk tracking
+
+		// send notification request to publish data from lk tracking (wait)-
+		// will affect global data
+		// current_features = setOpticalTrackingPoints(null);
+		new_features = null;
+		while (new_features == null) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// saved_features = Arrays.copyOf(new_features, new_features.length);
+		saved_features = copyArray(new_features);
+		loadImageToMemory(home.x, home.y, homeImage, new Date(), saved_features);
+
+		moveAndCompare(servoX, home.x);
+		moveAndCompare(servoX, home.x + 3);
+		moveAndCompare(servoY, home.y + 3);
+
+		moveAndCompare(servoX, home.x);
+		moveAndCompare(servoY, home.y);
+		moveAndCompare(servoY, home.y + 5);
+
+		// backplane
+		// find current position
+		// find offset
+		// exclusive or plane - look for differences (new objects)
+
+		// if threshold is high enough - ask
+		// "What is this"
+		// get input (voice) - text - email - web (google image) - google 3d
+		// warehouse ??
+		// serialize data/memory
+
 	}
 
 	/*
@@ -232,6 +233,7 @@ public class ColoredThingyFinder extends Service {
 	}
 
 	public void moveAndCompare(String servoName, Integer pos) {
+		LOG.error("moving " + servoName + " " + pos);
 
 		send(servoName, "moveTo", pos); // +1/-1
 
@@ -300,58 +302,9 @@ public class ColoredThingyFinder extends Service {
 		invoke("publishFrame", "cal", frameBuffer);
 	}
 
-	public void sayWhatYouFound() {
-		if (opencv == null) {
-			LOG.error("opencv is required");
-			return;
-		}
-		send(opencv, "setUseInput", "camera");
-		send(opencv, "capture");
-		// send(opencv, "addFilter", "calibrator", "LKOpticalTrack");
-		send(opencv, "addFilter", "dilate", "Dilate");
-		send(opencv, "addFilter", "erode", "Erode");
-		send(opencv, "addFilter", "dilate0", "Dilate");
-		send(opencv, "addFilter", "erode1", "Erode");
-		send(opencv, "addFilter", "findContours", "FindContours");
-
-	}
-
-	public ArrayList<Polygon> polygonsInMyHead = null;
-
-	public void IFound(ArrayList<Polygon> polygons) {
-		// TODO - if state map?? change ... pause as speak state
-		// TODO - repress recognizer
-		try {
-			invoke("say", "state/i see");
-			invoke("say", "numbers/" + polygons.size());
-			invoke("say", "shapes/polygons");
-			Thread.sleep(1000);
-
-			for (int i = 0; i < polygons.size(); ++i) {
-				Polygon p = (Polygon) polygons.get(i);
-				invoke("say", "colors/" + p.getColorWord());
-				invoke("say", p.getSizeWord());
-				Thread.sleep(1000);
-				invoke("say", "shapes/" + p.getShapeWord());
-				Thread.sleep(1000);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// TODO - start recognizer
-		// TODO - say listening?
-
-	}
-
-	public String say(String word) {
-		return word;
-	}
-
 	@Override
 	public String getToolTip() {
-		return "used find and report on colored objects";
+		return "Calibrates PID";
 	}
-	
+
 }

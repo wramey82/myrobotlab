@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.attic;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,6 +33,14 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Motor;
+import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.SensorMonitor;
+import org.myrobotlab.service.Speech;
+import org.myrobotlab.service.SpeechRecognition;
 import org.myrobotlab.service.data.ColoredPoint;
 import org.myrobotlab.service.data.PinAlert;
 
@@ -58,7 +66,7 @@ public class MoMo extends Service {
 	// AudioFile mouth = new AudioFile("mouth");
 	Speech mouth = new Speech("mouth");
 	OpenCV camera = new OpenCV("camera");
-	// Invoker invoker = new Invoker("invoker");
+	// ServiceFactory ServiceFactory = new ServiceFactory("ServiceFactory");
 	// Servo shaker = new Servo("shaker");
 
 	Motor left = new Motor("left");
@@ -88,7 +96,7 @@ public class MoMo extends Service {
 		mouth.startService();
 		// remote.start();
 		camera.startService();
-		// invoker.start();
+		// ServiceFactory.start();
 		gui.startService();
 		// ear.start();
 		// shaker.start();

@@ -33,7 +33,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
@@ -270,7 +269,8 @@ public class Speech extends Service {
 			 I have removed the cgi link - will be moving to Google speech as it does
 			 not have such restrictions
 			*/
-			HTTPClient.HTTPData data = HTTPClient.post("http://192.20.225.36/tts/cgi-bin/nph-talk", params);
+			// HTTPClient.HTTPData data = HTTPClient.post("http://192.20.225.36/tts/cgi-bin/nph-talk", params);
+			HTTPClient.HTTPData data = null;
 			String redirect = null;
 			try {
 				redirect = "http://"
@@ -282,9 +282,6 @@ public class Speech extends Service {
 				FileOutputStream fos = new FileOutputStream(audioFile);
 				fos.write(data2.method.getResponseBody());
 
-			} catch (URIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

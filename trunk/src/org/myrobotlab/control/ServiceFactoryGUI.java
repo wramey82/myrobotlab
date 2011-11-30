@@ -51,12 +51,12 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.Invoker;
+import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class InvokerGUI extends ServiceGUI {
+public class ServiceFactoryGUI extends ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(InvokerGUI.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(ServiceFactoryGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JList possibleServices;
@@ -67,7 +67,7 @@ public class InvokerGUI extends ServiceGUI {
 	JComboBox logLevel = new JComboBox(level);
 	
 	// TODO - widgetize the "possible services" list
-	public InvokerGUI(final String boundServiceName, final GUI myService) {
+	public ServiceFactoryGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
@@ -79,7 +79,7 @@ public class InvokerGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		possibleServices = new JList(Invoker.getServiceShortClassNames());
+		possibleServices = new JList(ServiceFactory.getServiceShortClassNames());
 
 		//HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
 		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
