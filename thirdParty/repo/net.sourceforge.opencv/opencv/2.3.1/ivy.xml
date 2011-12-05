@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="net.sourceforge.opencv" module="opencv" status="release" revision="2.3.1">
+    </info>
+    <configurations>
+        <conf name="public" />
+        <conf name="runtime" />
+        <conf name="arm.32.linux" />
+        <conf name="x86.32.linux" />
+        <conf name="x86.32.mac" />
+        <conf name="x86.32.windows" />
+    </configurations>
+    <publications>
+        <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
+
+        <artifact name="x86.32.linux/opencv_calib3d231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_contrib231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_core231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_features2d231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_flann231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_gpu231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_highgui231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_imgproc231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_legacy231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_ml231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_objdetect231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_ts231" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/opencv_video231" type="native" ext="so" conf="x86.32.linux"/>
+        
+        <artifact name="x86.32.windows/opencv_calib3d231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_contrib231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_core231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_features2d231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_flann231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_gpu231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_highgui231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_imgproc231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_legacy231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ml231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_objdetect231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ts231" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_video231" type="native" ext="dll" conf="x86.32.windows"/>
+        
+    </publications>
+</ivy-module>
