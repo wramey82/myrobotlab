@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="com.googlecode.javacv" module="javacv" status="release" revision="20111001">
+    </info>
+    <configurations>
+        <conf name="public" />
+        <conf name="runtime" />
+        <conf name="arm.32.linux" />
+        <conf name="x86.32.linux" />
+        <conf name="x86.32.mac" />
+        <conf name="x86.32.windows" />
+    </configurations>
+    <publications>
+        <artifact name="javacv" type="jar"/>
+        <artifact name="javacpp" type="jar"/>
+        <artifact name="javacv-windows-x86" type="jar" conf="x86.32.windows"/>
+    </publications>
+</ivy-module>
