@@ -9,7 +9,7 @@
 	TODO : release fullRelease transfer/upload		
 -->
 
-<project name="myrobotlab" default="uploadJar" basedir=".">
+<project name="myrobotlab" default="dist" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
@@ -77,23 +77,13 @@
 		    <fileset dir="./haarcascades"/>
 		</copy>
 		
-		<!-- FIXME - dependencies have changed - make the ivy repo -->
-		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/jna.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/javacpp.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/javacv.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/javacv-linux-x86.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/javacv-windows-x86.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/javacv-macosx-x86_64.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/simple-xml-2.5.3.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/jython.jar" todir="${dist}/${label}/lib"/>
-		<copy file="./thirdParty/lib/rsyntaxtextarea.jar" todir="${dist}/${label}/lib"/>
-		
-		<!-- dont support 64 bit opencv yet -->
-		<!-- copy file="./thirdParty/lib/javacv-windows-x86_64.jar" todir="${dist}/${label}/lib"/ -->
-		<!-- copy file="./thirdParty/lib/javacv-linux-x86_64.jar" todir="${dist}/${label}/lib"/ -->
+		<!-- only dependencies for ServiceFactory needed -->
+		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${label}/libraries/jar"/>
+		<copy file="./thirdParty/lib/simple-xml-2.5.3.jar" todir="${dist}/${label}/libraries/jar"/>
+		<copy file="./thirdParty/lib/ivy.jar" todir="${dist}/${label}/libraries/jar"/>
+		<copy file="./thirdParty/lib/rsyntaxtextarea.jar" todir="${dist}/${label}/libraries/jar"/>
+		<copy file="./thirdParty/lib/jgraphx.jar" todir="${dist}/${label}/libraries/jar"/>
+		<copy file="./thirdParty/lib/RXTXcomm.jar" todir="${dist}/${label}/libraries/jar"/>		
 		
 		<copy file="myrobotlab.bat" todir="${dist}/${label}"/>
 		<copy file="jython.bat" todir="${dist}/${label}"/>
@@ -101,17 +91,40 @@
 		<copy file="myrobotlab.sh" todir="${dist}/${label}"/>
 		<copy file="jython.sh" todir="${dist}/${label}"/>
 		<copy file="LICENSE.txt" todir="${dist}/${label}"/>	
+		<copy file="ivysettings.xml" todir="${dist}/${label}"/>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution" >
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}"/>
 		<mkdir dir="${dist}/${label}"/>
-		<mkdir dir="${dist}/${label}/lib"/>
 		<mkdir dir="${dist}/${label}/bin"/>
+
+		<mkdir dir="${dist}/${label}/libraries"/>
+		<mkdir dir="${dist}/${label}/libraries/jar"/>
 		
+		<!-- garbage
+		<jar jarfile="${dist}/${label}/boot.jar" basedir="${build}"
+			includes="org/myrobotlab/boot/MyRobotLabClassLoader.class,
+			org/myrobotlab/cmdline/CcmdParam.class,
+			org/myrobotlab/cmdline/CMDLine.class">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<section name="compile">
+					<attribute name="Main-Class" value="org.myrobotlab.bootloader.MyRobotLabClassLoader"/>
+					<attribute name="Specification-Title" value="myrobotlab"/>
+					<attribute name="Specification-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
+					<attribute name="Specification-Vendor" value="myrobotlab"/>
+					<attribute name="Implementation-Title" value="myrobotlab"/>
+					<attribute name="Implementation-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
+					<attribute name="Implementation-Vendor" value="myrobotlab.org"/>
+				</section>
+			</manifest>			
+		</jar>
+		-->
 		<!-- Put everything in ${build} into the myrobotlab-${DSTAMP}.jar file -->
-		<jar jarfile="${dist}/${label}/myrobotlab.jar" basedir="${build}">
+		<jar jarfile="${dist}/${label}/libraries/jar/myrobotlab.jar" basedir="${build}">
+			<!-- excludes="org/myrobotlab/boot/" -->
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
 				<!-- section name="myrobotlab" -->
@@ -125,9 +138,20 @@
 				</section>
 			</manifest>
 		</jar>
-		<!-- scp copies here -->
 	</target>
-		 
+	
+	<!-- TODO - make command line update work -->
+	<target name="scp.chumby" depends="dist">
+		<input message="Please enter chumby userid:" addproperty="chumby.scp.userid" />
+		<input message="Please enter chumby password:" addproperty="chumby.scp.password" />
+		<scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/libraries/jar/myrobotlab.jar" todir="${chumby.scp.userid}:${chumby.scp.password}@chumby:/mnt/usb-E0FD-1813/myrobotlab-0014"/>
+	</target>
+	<target name="scp.maahr" depends="dist">
+		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
+		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
+		<scp file="${dist}/${repository.revision}.${DSTAMP}.${TSTAMP}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@maahr:/home/gperry/releases/myrobotlab-0013"/>
+	</target>
+	
 	<target name="clean" description="clean up" >
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
@@ -135,7 +159,7 @@
 	</target>
 
 	<property name="report"  value="${build}/junitreport"/>
-	<property name="application"  value="${dist}/${label}/myrobotlab.jar"/>
+	<property name="application"  value="${dist}/${label}/libraries/jar/myrobotlab.jar"/>
 	
 	<!-- target name="junit" depends="dist">
 	        <mkdir dir="${report}"/>
@@ -175,14 +199,16 @@
 
 	
 	<target name="uploadJar" depends="junit" description="upload to google code">
+	<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
+	<input message="Please enter upload password:" addproperty="gc.upload.password" />
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" 
 		classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload"/>
 	<gcupload 
-	        username="" 
-	        password="" 
+	        username="${gc.upload.userid}" 
+	        password="${gc.upload.password}" 
 	        projectname="myrobotlab" 
 		    verbose="true"
-	        filename="${dist}/${label}/myrobotlab.jar" 
+	        filename="${dist}/${label}/libraries/jar/myrobotlab.jar" 
 	        targetfilename="myrobotlab.${DSTAMP}.${TSTAMP}.jar"
 	        summary="latest build of myrobotlab.jar r${repository.revision}"
 	        labels="OpSys-All" />
@@ -196,7 +222,7 @@
 	        			<include name="*.jar"/>
 	        		</fileset>
 	            	<pathelement path="${thirdParty.lib}/junit-4.4.jar"/>
-	            	<!-- pathelement path="${dist}/${label}/myrobotlab.jar"/ -->
+	            	<!-- pathelement path="${dist}/${label}/libraries/jar/myrobotlab.jar"/ -->
 	            	<pathelement location="${build}" />
 	            </classpath>
 	            
