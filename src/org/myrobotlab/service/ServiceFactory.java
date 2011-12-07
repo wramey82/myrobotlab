@@ -418,16 +418,13 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 					cmd.add(".ivy");
 	
 					cmd.add("-retrieve");
-					//cmd.add("libraries/[type]/[artifact]-[revision].[ext]");
 					cmd.add("libraries/[type]/[artifact].[ext]");
 	
 					cmd.add("-settings");
-					//cmd.add("ivysettings.xml"); // TODO - wish I could load as a resource...
-					// chain local - public-repo
-					cmd.add("ivy-local.xml");
+					cmd.add("ivysettings.xml"); // TODO - wish I could load as a resource...
 	
-					cmd.add("-cachepath");
-					cmd.add("cachefile.txt");					
+					//cmd.add("-cachepath");
+					//cmd.add("cachefile.txt");					
 					
 					cmd.add("-dependency");
 					cmd.add(dep.organisation); // org
@@ -441,6 +438,8 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 					
 					CommandLineParser parser = Main.getParser();
 					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+					
+					// local config - 
 					
 					// if the Service is downloaded we have to dynamically 
 					// load the classes - if we are not going to restart
