@@ -30,7 +30,6 @@ import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.util.cli.CommandLineParser;
@@ -38,10 +37,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
-import org.myrobotlab.boot.MyRobotLabClassLoader;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Dependency;
+import org.myrobotlab.framework.Ivy2;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
@@ -60,8 +59,8 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class ServiceFactory extends Service {
 
-	public final static Logger LOG = Logger.getRootLogger();
-	//public final static Logger LOG = Logger.getLogger(ServiceFactory.class.getCanonicalName());
+	//public final static Logger LOG = Logger.getRootLogger();
+	public final static Logger LOG = Logger.getLogger(ServiceFactory.class.getCanonicalName());
 	public final static ServiceInfo info = ServiceInfo.getInstance();
 	
 	static GUI gui = null;
@@ -155,10 +154,10 @@ public class ServiceFactory extends Service {
 				"FaceTracking", "FSM", "GeneticProgramming", "Graphics", "GUIService",
 				"HTTPClient",  "JFugue", "JoystickService", "Jython","Keyboard",
 				"Logging", "Motor", "OpenCV",
-				"ParallelPort", "PICAXE", "PID", "Player", "PlayerStage",
-				"RecorderPlayer", "RemoteAdapter", "Rose", "SensorMonitor",
+				"ParallelPort", "PICAXE", "PID", "PlayerStage",
+				"RecorderPlayer", "RemoteAdapter", "SensorMonitor",
 				"Servo", "SLAM",  
-				"Speech", "SpeechRecognition", "ServiceFactory", "StepperMotor",
+				"Speech", "SpeechRecognition", "ServiceFactory",
 				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
 	}
 
@@ -192,6 +191,7 @@ public class ServiceFactory extends Service {
 	}
 
 	// TODO - 3 values - description/example input & output
+	/*
 	@ToolTip("Add a new Services to the system")
 	static public Service addService(String className, String newName) {
 		LOG.info("adding service " + newName);
@@ -200,27 +200,8 @@ public class ServiceFactory extends Service {
 		s.startService();
 		return s;
 	}
-
-	// TODO - move to Service?
-	public static void setLogLevel(String level) {
-		if (("INFO").equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.INFO);
-		}
-		if (("WARN").equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.WARN);
-		}
-		if (("ERROR").equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.ERROR);
-		}
-		if (("FATAL").equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.FATAL);
-		} else {
-			Logger.getRootLogger().setLevel(Level.DEBUG);
-		}
-	}
+	*/
 	
-	
-
 	/**
 	 * this "should" be the gateway function to a MyRobotLab instance
 	 * going through this main will allow the see{@link}MyRobotLabClassLoader 
@@ -237,10 +218,12 @@ public class ServiceFactory extends Service {
 			e2.printStackTrace();
 		}
 		
+		/*
 		System.out.println("thread cls :" + Thread.currentThread().getContextClassLoader());
 		System.out.println("system cls :" + ClassLoader.getSystemClassLoader());
 		System.out.println("my cls :" + ServiceFactory.class.getClassLoader());
 		System.out.println("my cls :" + ServiceFactory.class.getClassLoader().getParent());
+		*/
 
 		System.out.println(url.getHost());
 		System.out.println(url.getPort());
@@ -296,8 +279,9 @@ public class ServiceFactory extends Service {
 					System.out.println(Service.stackToString(e));
 				}
 	
-				LOG.addAppender(appender);
-				LOG.setLevel(Level.WARN);
+				
+				Logger.getRootLogger().addAppender(appender);
+				Logger.getRootLogger().setLevel(Level.WARN);
 			}
 			
 			//LOG.info(MyRobotLabClassLoader.classLoaderTreeString(ServiceFactory.class));
@@ -418,12 +402,16 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 			// use Ivy standalone			
 			// Main.main(cmd.toArray(new String[cmd.size()]));
 			//Method getDependencies = cls.getMethod("getDependencies");
-			ArrayList<Dependency> d = ServiceInfo.getDependencies(fullTypeName);
+			// Programmatic use of Ivy
+			// https://cwiki.apache.org/IVY/programmatic-use-of-ivy.html
+			ArrayList<Dependency> d = ServiceInfo.getDependencies(fullTypeName);			
 			if (d != null)
 			{
 				LOG.info(name + " found " + d.size() + " dependencies");
 				for (int i=0; i < d.size(); ++i)
-				{
+				{					
+					Dependency dep = d.get(i);					
+					
 					ArrayList<String> cmd = new ArrayList<String>();
 					
 					cmd.add("-cache");
@@ -434,9 +422,13 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 					cmd.add("libraries/[type]/[artifact].[ext]");
 	
 					cmd.add("-settings");
-					cmd.add("ivysettings.xml"); // TODO - wish I could load as a resource...
+					//cmd.add("ivysettings.xml"); // TODO - wish I could load as a resource...
+					// chain local - public-repo
+					cmd.add("ivy-local.xml");
 	
-					Dependency dep = d.get(i);
+					cmd.add("-cachepath");
+					cmd.add("cachefile.txt");					
+					
 					cmd.add("-dependency");
 					cmd.add(dep.organisation); // org
 					cmd.add(dep.module); 		// module		
@@ -448,7 +440,7 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 							RuntimeEnvironment.getOS());
 					
 					CommandLineParser parser = Main.getParser();
-					Main.run(parser, cmd.toArray(new String[cmd.size()]));
+					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
 					
 					// if the Service is downloaded we have to dynamically 
 					// load the classes - if we are not going to restart
@@ -481,10 +473,11 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 			LOG.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
 			//MyRobotLabClassLoader loader = (MyRobotLabClassLoader) = Thread.currentThread().getContextClassLoader();
 			LOG.info("refreshing classloader");
-			MyRobotLabClassLoader.refresh();
+			//MyRobotLabClassLoader.refresh();
 //			Class<?> cls = Class.forName(fullTypeName);
 //			Class<?> cls = MyRobotLabClassLoader.getClassLoader().loadClass(fullTypeName);
-			Class<?> cls = ServiceFactory.class.getClassLoader().loadClass(fullTypeName);
+//			Class<?> cls = ServiceFactory.class.getClassLoader().loadClass(fullTypeName);
+			Class<?> cls = Class.forName(fullTypeName);
  			Constructor<?> constructor = cls.getConstructor(new Class[] { String.class });
 
 			// create an instance

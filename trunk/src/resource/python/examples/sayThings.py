@@ -1,6 +1,6 @@
 from time import sleep
 from org.myrobotlab.service import Speech
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 
 # sayThings.py
 # example script for MRL showing various methods

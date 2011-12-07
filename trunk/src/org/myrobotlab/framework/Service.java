@@ -50,6 +50,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.net.CommunicationManager;
+import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -1591,7 +1592,42 @@ public abstract class Service implements Runnable, Serializable {
 	{
 		return (Service)copyShallowFrom(this, s);
 	}
-	
+
+	public static void setLogLevel(String level) {
+		if (("INFO").equalsIgnoreCase(level)) {
+			Logger.getRootLogger().setLevel(Level.INFO);
+		}
+		if (("WARN").equalsIgnoreCase(level)) {
+			Logger.getRootLogger().setLevel(Level.WARN);
+		}
+		if (("ERROR").equalsIgnoreCase(level)) {
+			Logger.getRootLogger().setLevel(Level.ERROR);
+		}
+		if (("FATAL").equalsIgnoreCase(level)) {
+			Logger.getRootLogger().setLevel(Level.FATAL);
+		} else {
+			Logger.getRootLogger().setLevel(Level.DEBUG);
+		}
+	}
+
+	public void setMyLogLevel(String level){
+		Logger logger = Logger.getLogger(this.getClass().toString());
+		if (("INFO").equalsIgnoreCase(level)) {
+			logger.setLevel(Level.INFO);
+		}
+		if (("WARN").equalsIgnoreCase(level)) {
+			logger.setLevel(Level.WARN);
+		}
+		if (("ERROR").equalsIgnoreCase(level)) {
+			logger.setLevel(Level.ERROR);
+		}
+		if (("FATAL").equalsIgnoreCase(level)) {
+			logger.setLevel(Level.FATAL);
+		} else {
+			logger.setLevel(Level.DEBUG);
+		}
+	}
+
 	
 	/* Check RuntimeEnvironment for implementation
 	// TODO - cache fields in a map if "searching" requires too much

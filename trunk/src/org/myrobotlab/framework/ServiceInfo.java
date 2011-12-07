@@ -11,23 +11,45 @@ public class ServiceInfo {
 	
 	// TODO - command line refresh - repo management & configuration options "latest" etc
 	
+	public void addBase(String shortServiceName)
+	{
+		addDependency(shortServiceName,"org.apache.log4j","1.2.14");
+		addDependency(shortServiceName,"org.simpleframework.xml","2.5.3");	
+	}
+	
 	private ServiceInfo()
 	{
-		
-		//addDependency("Arduino","org.apache.log4j","1.2.14");
-		//addDependency("Arduino","org.simpleframework.xml","2.5.3");	
+		//addDependency("Arduino","org.myrobotlab","latest"); !!!
+		//addServiceDependency("Arm","Servo"); - would this be maintained in Ivy descriptors?		
+
+		addBase("Arduino");
 		addDependency("Arduino","gnu.io.rxtx","2.1-7r2");		
 
-		//addServiceDependency("Arm","Servo");		
-		
-		//addDependency("AudioCapture","org.apache.log4j","1.2.14");
-		//addDependency("AudioCapture","org.simpleframework.xml","2.5.3");	
-		
-		//addDependency("AudioFile","org.apache.log4j","1.2.14");
-		//addDependency("AudioFile","org.simpleframework.xml","2.5.3");	
+		addBase("Arm");		
+		addBase("AudioCapture");		
+		addBase("AudioFile");
 		addDependency("AudioFile","javazoom.jl.player","1.0.1");
 
+		addBase("Chessgame");
 		addDependency("Chessgame","org.op.chess","1.0.0");	
+				
+		addBase("Clock");
+		addBase("DifferentialDrive");
+		addBase("GoogleSTT");		
+		addBase("GUIService");
+		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
+		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
+
+		addBase("Jython");		
+		addDependency("Jython","org.python.core","2.5.2");	
+
+		addBase("Keyboard");		
+		addBase("Motor");		
+
+		addBase("OpenCV");		
+		addDependency("OpenCV","com.googlecode.javacv","20111001");	
+		addDependency("OpenCV","net.sourceforge.opencv","2.3.1");	
+		
 		
 		addCategory  ("Arduino", "micro-controller");
 
@@ -80,10 +102,6 @@ public class ServiceInfo {
 		
 	}
 	
-	public static void addServiceDependency (String shortName, String serviceShortName)
-	{
-		
-	}
 	
 	/**
 	 * function to return an array of dependencies for the ServiceFactory
@@ -120,7 +138,7 @@ public class ServiceInfo {
 	public void addDependency (String shortName, String org, String version)
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
-		String module = org.substring(org.lastIndexOf("."));		
+		String module = org.substring(org.lastIndexOf(".")+1);		
 		ArrayList <Dependency> list = null;
 		if (dependencies.containsKey(fullname))
 		{
@@ -147,6 +165,5 @@ public class ServiceInfo {
 		}
 		list.add(category);	
 	}
-	
 	
 }

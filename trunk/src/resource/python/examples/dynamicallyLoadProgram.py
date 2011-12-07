@@ -7,13 +7,13 @@
 #          appropriate one depending on current task.  This could make the effective
 #	   programming size (if modularized in 16K blocks) of a running robot limitless
 
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 from org.myrobotlab.service import Arduino
 
 # create and start the Arduino Service
 arduino = ServiceFactory.create("arduino","Arduino")
 arduino.startService()
 
-arduino.setSerialPort("/dev/ttyUSB0")
+arduino.setPort("/dev/ttyUSB0")
 
 arduino.loadFile("/resource/Arduino/StandardFirmata.pde")

@@ -1,6 +1,6 @@
 from org.myrobotlab.service import Arduino
 from org.myrobotlab.service import MagaBot
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 
 from time import sleep
 

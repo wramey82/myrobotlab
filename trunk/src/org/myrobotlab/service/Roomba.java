@@ -189,7 +189,7 @@ public class Roomba extends Service implements SerialPort {
 	 * @return true on successful connect, false otherwise
 	 */
 	public boolean connect(String portid) {
-		serial.setSerialPort(portid);
+		serial.setPort(portid);
 		if (serial.isReady())
 			return true;
 		else

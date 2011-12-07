@@ -3,7 +3,7 @@ from java.lang import String
 from java.lang import Class
 from org.myrobotlab.service import Clock
 from org.myrobotlab.service import Logging
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 from org.myrobotlab.framework import Message
 
 # inputTest.py

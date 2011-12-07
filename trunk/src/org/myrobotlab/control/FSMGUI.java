@@ -116,7 +116,7 @@ public class FSMGUI extends ServiceGUI {
 						"new service name");
 				if (name != null) {
 					String newService = (String) transitionStates.getSelectedValue();
-					myService.send(boundServiceName, "addService", newService,name);
+					myService.send(boundServiceName, "create", newService,name);
 					// TODO - this is asynchronous - the service will be created later
 					// - Especially on a remote process
 					// it would be nice to momentarily block on this call !!!

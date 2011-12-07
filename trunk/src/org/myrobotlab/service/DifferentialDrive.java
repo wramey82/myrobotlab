@@ -80,6 +80,7 @@ public class DifferentialDrive extends Service {
 	public Directions directionTarget = Directions.STOPPED;
 	
 	transient PIDThread pid = null;
+	Object pidLock = new Object();
 	
 	
 	// TODO - determine if control needs to be serialized
@@ -122,19 +123,12 @@ public class DifferentialDrive extends Service {
 	
 
 	/*
-	 * TurningThread is responsible for controlled turns.  It will monitor
-	 * feedback and adjust motors accordingly.
-	 * 
 	 * This is a (first) attempt of making a PID (PD) (P) controller for turning.
 	 * This article (http://www.inpharmix.com/jps/PID_Controller_For_Lego_Mindstorms_Robots.html) was EXTREMELY helpful
 	 * for someone (like me) who has never implemented a PID controller.
 	 * 
 	 * The added complexity for Video Tracking feed back is the HUGE delay in the feedback stream (up to 1.5 seconds)
-	 * 
-	 * 
 	 * TODO - encapsulate into a utility - generalize for all to use PIDUtil PIDThread
-	 * 
-	 * 
 	 * Reference :
 	 * http://www.arduino.cc/playground/Code/PIDLibrary - Arduino's library, would be helpful on local PID applications
 	 * http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/ - quick and excellent explanation
@@ -211,48 +205,6 @@ public class DifferentialDrive extends Service {
 	{
 		
 	}
-		
-	/*
-	 * 
-	 */
-
-
-	// used in calibration - to use in other places, it should probably be implemented as threadpool
-	class RampingThread extends Thread
-	{
-		int timeInterval; // in milliseconds
-		float start; // start of ramp
-		float end; // end of ramp
-		float step; // increment amount over timeInterval
-		Motor motor;
-		public float power;
-		
-		RampingThread(Motor motor, int timeInterval, float start, float end, float step)
-		{
-			super(name +"_ramping");
-			this.motor = motor;
-			this.timeInterval = timeInterval;
-			this.start = start;
-			this.end = end;
-			this.step = step;
-		}
-		
-		public void run() {
-			try {
-				for (power = start; power < end; power += step) {
-					motor.incrementPower(power);
-					LOG.error("power " + power);
-					Thread.sleep((long) (timeInterval * step));
-				}
-			} catch (InterruptedException e) {
-				LOG.info("terminating ramping thread");
-			}
-
-		}
-
-	}
-	
-	Object pidLock = new Object();
 	
 	class PIDThread extends Thread
 	{
