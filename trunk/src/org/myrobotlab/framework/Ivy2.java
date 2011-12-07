@@ -61,6 +61,7 @@ import org.apache.ivy.util.url.CredentialsStore;
 import org.apache.ivy.util.url.URLHandler;
 import org.apache.ivy.util.url.URLHandlerDispatcher;
 import org.apache.ivy.util.url.URLHandlerRegistry;
+import org.apache.log4j.Logger;
 
 /**
  * Copied from Ivy's "Main" class - with the idea of being able to hook into
@@ -70,6 +71,9 @@ import org.apache.ivy.util.url.URLHandlerRegistry;
  * <p>
  * Valid arguments can be obtained with the -? argument.
  */public class Ivy2 {
+
+	public final static Logger LOG = Logger.getLogger(Ivy2.class.getCanonicalName());
+	 
     private static final int HELP_WIDTH = 80;
 
     public static CommandLineParser getParser() {
@@ -186,6 +190,7 @@ import org.apache.ivy.util.url.URLHandlerRegistry;
             System.err.println(ex.getMessage());
             usage(parser, false);
             //System.exit(1);
+        	LOG.error("Ivy error");
             return;
         }
     }
@@ -275,6 +280,7 @@ import org.apache.ivy.util.url.URLHandlerRegistry;
             ResolveReport report = ivy.resolve(ivyfile.toURI().toURL(), resolveOptions);
             if (report.hasError()) {
                 // System.exit(1);
+            	LOG.error("Ivy resolve error");
             }
             ModuleDescriptor md = report.getModuleDescriptor();
 
