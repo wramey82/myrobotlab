@@ -215,7 +215,7 @@ public class ArduinoGUI extends ServiceGUI {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox cb = (JComboBox) e.getSource();
 				String newPort = (String) cb.getSelectedItem();
-				myService.send(boundServiceName, "setSerialPort", newPort);
+				myService.send(boundServiceName, "setPort", newPort);
 			}
 		};
 

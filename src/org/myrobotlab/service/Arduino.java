@@ -160,12 +160,12 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		if (portNames.size() == 1) { // heavy handed?
 			LOG.info("only one serial port " + portNames.get(0));
-			setSerialPort(portNames.get(0));
+			setPort(portNames.get(0));
 		} else if (portNames.size() > 1) {
 			if (portName != null && portName.length() > 0) {
 				LOG.info("more than one port - last serial port is "
 						+ portName);
-				setSerialPort(portName);
+				setPort(portName);
 			} else {
 				// idea - auto discovery attempting to auto-load arduinoSerial.pde
 				LOG.warn("more than one port or no ports, and last serial port not set");
@@ -449,7 +449,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	}
 
 	/**
-	 * setSerialPort - sets the serial port to the requested port name
+	 * setPort - sets the serial port to the requested port name
 	 * and initially attempts to open with 115200 8N1
 	 * @param inPortName name of serial port 
 	 * 			Linux [ttyUSB0, ttyUSB1, ... S0, S1, ...]
@@ -458,8 +458,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 	 * @return if successful
 	 * 
 	 */
-	public boolean setSerialPort(String inPortName) {
-		LOG.debug("setSerialPort requesting [" + inPortName + "]");
+	public boolean setPort(String inPortName) {
+		LOG.debug("setPort requesting [" + inPortName + "]");
 
 		if (serialPort != null) 
 		{

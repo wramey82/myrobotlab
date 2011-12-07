@@ -31,6 +31,7 @@ public class RuntimeEnvironment implements Serializable{
 	
 	private static boolean initialized = false;
 	
+	private static boolean needsRestart = false;
 	//static private HashMap<String, String> environmentColor;
 
 	// TODO - don't use concurrentHashMap for JVM compatibility reasons - use synchronized and/or cached instances
@@ -577,5 +578,15 @@ public class RuntimeEnvironment implements Serializable{
 
 	public static boolean isWindows() {
 		return getOS().equals("windows");
+	}
+	
+	public static void requestRestart()
+	{
+		needsRestart = true;
+	}
+	
+	public static boolean needsRestart()
+	{
+		return needsRestart;
 	}
 }

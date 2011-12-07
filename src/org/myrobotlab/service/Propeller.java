@@ -148,11 +148,11 @@ public class Propeller extends Service implements SerialPortEventListener,
 		// if there is only 1 port - attempt to initialize it
 		ArrayList<String> p = getPorts();
 		if (p.size() == 1) {
-			setSerialPort(p.get(0));
+			setPort(p.get(0));
 		} else if (p.size() > 1) {
 			if (lastSerialPortName != null)
 			{
-				setSerialPort(lastSerialPortName);
+				setPort(lastSerialPortName);
 			}
 		}
 		
@@ -384,7 +384,7 @@ public class Propeller extends Service implements SerialPortEventListener,
 		serialPort.close();
 	}
 
-	public boolean setSerialPort(String portName) {
+	public boolean setPort(String portName) {
 		LOG.debug("setPortIdFromName requesting " + portName);
 
 		// initialize serial port

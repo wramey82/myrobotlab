@@ -1,6 +1,6 @@
 from java.lang import String
 from java.lang import Class
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 from org.myrobotlab.service import OpenCV
 from org.myrobotlab.service import GUIService
 from com.googlecode.javacv.cpp.opencv_core import CvPoint;

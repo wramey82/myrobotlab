@@ -579,7 +579,7 @@ public class ServiceTest {
 		for (int i=0;i < serviceNames.length; ++i)
 		{
 			
-			Service s = ServiceFactory.addService(serviceNames[i], i + "");
+			Service s = ServiceFactory.create(serviceNames[i], i + "");
 			
 			if (i == 29)
 			{

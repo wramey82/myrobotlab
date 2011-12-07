@@ -1,7 +1,7 @@
 from java.lang import String
 from org.myrobotlab.service import Speech
 from org.myrobotlab.service import SpeechRecognition
-from org.myrobotlab.framework import ServiceFactory
+from org.myrobotlab.service import ServiceFactory
 
 # This demo is a basic speech recognition script.
 #

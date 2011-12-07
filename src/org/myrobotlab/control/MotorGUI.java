@@ -149,7 +149,7 @@ public class MotorGUI extends ServiceGUI {
 				String newController = (String) cb.getSelectedItem();
 				
 				if (newController != null && newController.length() > 0) {
-					//myService.send(boundServiceName, "setSerialPort", newPort);
+					//myService.send(boundServiceName, "setPort", newPort);
 					myMotorController = (MotorController)RuntimeEnvironment.getService(newController).service;
 					// TODO - lame - data is not mutable - should be an appropriate method
 					// clear then add

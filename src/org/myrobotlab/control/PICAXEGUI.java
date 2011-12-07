@@ -195,7 +195,7 @@ public class PICAXEGUI extends ServiceGUI {
 				JComboBox cb = (JComboBox) e.getSource();
 				String newPort = (String) cb.getSelectedItem();
 				if (newPort != null && newPort.length() > 0) {
-					myService.send(boundServiceName, "setSerialPort", newPort);
+					myService.send(boundServiceName, "setPort", newPort);
 				}
 
 			}

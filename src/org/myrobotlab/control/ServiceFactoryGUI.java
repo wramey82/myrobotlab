@@ -159,7 +159,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 				String name = JOptionPane.showInputDialog(frame,"new service name");
 				if (name != null) {
 					String newService = (String) possibleServices.getSelectedValue();
-					myService.send(boundServiceName, "addService", newService, name);
+					myService.send(boundServiceName, "create", name, newService);
 					// TODO - this is asynchronous - the service will be created later
 					// - Especially on a remote process
 					// it would be nice to momentarily block on this call !!!
