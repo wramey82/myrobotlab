@@ -10,8 +10,7 @@ cd $APPDIR
 
 # for pre-Java wildcard jar loading  
 for LIB in \
-    myrobotlab.jar \
-    lib/*.jar \
+    libraries/jar/*.jar \
     ;
 do
     CLASSPATH="${CLASSPATH}:${APPDIR}/${LIB}"
@@ -35,5 +34,5 @@ export LD_LIBRARY_PATH
 # The shell itself need 
 # org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt 
 
-java -classpath ":myrobotlab.jar:./lib/*" -Djava.library.path=./bin org.myrobotlab.service.Invoker -service Invoker services GUIService gui
+java -classpath "./libraries/jar/*" -Djava.library.path=./bin org.myrobotlab.service.ServiceFactory -service services ServiceFactory gui GUIService 
 
