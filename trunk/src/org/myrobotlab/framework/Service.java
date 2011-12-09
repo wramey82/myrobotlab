@@ -1593,6 +1593,10 @@ public abstract class Service implements Runnable, Serializable {
 		return (Service)copyShallowFrom(this, s);
 	}
 
+	/**
+	 * dynamically set the logging level
+	 * @param level DEBUG | INFO | WARN | ERROR | FATAL
+	 */
 	public static void setLogLevel(String level) {
 		if (("INFO").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.INFO);
@@ -1610,6 +1614,11 @@ public abstract class Service implements Runnable, Serializable {
 		}
 	}
 
+	/**
+	 * dynamically set the level of the current Service logger in case you want to change the
+	 * logging level of say an OpenCV Service to a different level than a Clock Service
+	 * @param level DEBUG | INFO | WARN | ERROR | FATAL
+	 */
 	public void setMyLogLevel(String level){
 		Logger logger = Logger.getLogger(this.getClass().toString());
 		if (("INFO").equalsIgnoreCase(level)) {
