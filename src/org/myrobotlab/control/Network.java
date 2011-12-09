@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -46,12 +47,7 @@ public class Network extends ServiceGUI {
 	JTextField loginPasswordValue = new JPasswordField("blahblah");
 	JTextField hostnameValue = new JTextField("localhost",15);
 	JIntegerField servicePortValue = new JIntegerField();
-/*
-	public Network(GUI s) {
-		super();
-		init();
-	}
-*/
+
 	public Network(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -66,6 +62,11 @@ public class Network extends ServiceGUI {
 		servicePortValue.setInt(6767);
 		
 		gc.gridx = 0;
+		JLabel image = new JLabel();
+		image.setIcon(FileIO.getResourceIcon("mrl_logo.jpg"));
+		display.add(image);
+		
+		/*
 		++gc.gridy;
 		display.add(new JLabel("host "), gc);
 		++gc.gridx;
@@ -96,9 +97,7 @@ public class Network extends ServiceGUI {
 		connectButton.setActionCommand("connect");
 		connectButton.addActionListener(new connect());
 		display.add(connectButton, gc);
-
-		gc.gridx = 0;
-		++gc.gridy;
+		*/
 	}
 
 	public String setRemoteConnectionStatus(String state) {

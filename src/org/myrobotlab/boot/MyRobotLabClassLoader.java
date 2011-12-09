@@ -81,6 +81,13 @@ import org.myrobotlab.cmdline.CMDLine;
  * 		http://www.docjar.com/html/api/java/net/URLClassLoader.java.html
  * 
  */
+/*
+System.out.println("thread cls :" + Thread.currentThread().getContextClassLoader());
+System.out.println("system cls :" + ClassLoader.getSystemClassLoader());
+System.out.println("my cls :" + ServiceFactory.class.getClassLoader());
+System.out.println("my cls :" + ServiceFactory.class.getClassLoader().getParent());
+*/
+
 public class MyRobotLabClassLoader extends URLClassLoader {
 
     private static MyRobotLabClassLoader loader = null;

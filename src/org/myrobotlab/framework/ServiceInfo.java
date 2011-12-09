@@ -2,6 +2,7 @@ package org.myrobotlab.framework;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class ServiceInfo {
 
@@ -10,6 +11,10 @@ public class ServiceInfo {
 	private static ServiceInfo instance = null;
 	
 	// TODO - command line refresh - repo management & configuration options "latest" etc
+	static public Set<String> getKeySet()
+	{
+		return dependencies.keySet();
+	}
 	
 	public void addBase(String shortServiceName)
 	{
@@ -48,7 +53,7 @@ public class ServiceInfo {
 
 		addBase("OpenCV");		
 		addDependency("OpenCV","com.googlecode.javacv","20111001");	
-		addDependency("OpenCV","net.sourceforge.opencv","2.3.1");	
+		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
 		
 		
 		addCategory  ("Arduino", "micro-controller");

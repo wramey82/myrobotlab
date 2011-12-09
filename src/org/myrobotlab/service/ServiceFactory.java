@@ -30,6 +30,8 @@ import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.util.cli.CommandLineParser;
@@ -45,8 +47,9 @@ import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.interfaces.GUI;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 /*
  *   I would have liked to dynamically extract the possible Services from the code itself - unfortunately this is near impossible
@@ -54,14 +57,27 @@ import org.myrobotlab.service.interfaces.GUI;
  *   Additionally in some cases "all" classes need to be pulled back then filtered on services - which is not very practical.
  *   Sadly, these means a list needs to be maintained within this class.
  * 
+ * 	References:
+ * http://stackoverflow.com/questions/318239/how-do-i-set-environment-variables-from-java
  * 
  */
 
+@Root
 public class ServiceFactory extends Service {
 
 	//public final static Logger LOG = Logger.getRootLogger();
 	public final static Logger LOG = Logger.getLogger(ServiceFactory.class.getCanonicalName());
 	public final static ServiceInfo info = ServiceInfo.getInstance();
+
+	@Element
+	public String proxyHost;
+	@Element
+	public String proxyPort;
+	@Element
+	public String proxyUserName;
+	@Element
+	public String proxyPassword;
+	
 	
 	static GUI gui = null;
 	private static final long serialVersionUID = 1L;	
@@ -207,6 +223,9 @@ public class ServiceFactory extends Service {
 	 * going through this main will allow the see{@link}MyRobotLabClassLoader 
 	 * to load the appropriate classes and give access to the addURL to allow dynamic
 	 * additions of new modules without having to restart.
+	 * 
+	 * TODO :   -cmd <method> invokes the appropriate static method e.g. -cmd setLogLevel DEBUG
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -218,13 +237,6 @@ public class ServiceFactory extends Service {
 			e2.printStackTrace();
 		}
 		
-		/*
-		System.out.println("thread cls :" + Thread.currentThread().getContextClassLoader());
-		System.out.println("system cls :" + ClassLoader.getSystemClassLoader());
-		System.out.println("my cls :" + ServiceFactory.class.getClassLoader());
-		System.out.println("my cls :" + ServiceFactory.class.getClassLoader().getParent());
-		*/
-
 		System.out.println(url.getHost());
 		System.out.println(url.getPort());
 
@@ -263,7 +275,7 @@ public class ServiceFactory extends Service {
 			// excellent documentation
 			// http://logging.apache.org/log4j/1.2/manual.html
 			// SimpleLayout layout = new SimpleLayout();
-			
+
 			if (cmdline.containsKey("-logToConsole"))
 			{
 				org.apache.log4j.BasicConfigurator.configure();
@@ -310,8 +322,20 @@ public class ServiceFactory extends Service {
 			 * "sys_paths" ); fieldSysPath.setAccessible( true );
 			 * fieldSysPath.set( null, null );
 			 */
-
-			invokeCMDLine(cmdline);
+			// TODO refactor function names update vs getAllDependencies
+			// switch on cmd name and default it to invokeCMDLine such that
+			// only need to ->  invoke(cmdline.getSafeArgument("-cmd","","invokeCMDLine")
+			
+			// TODO - check for updates - depending on host configuration
+			
+			if (cmdline.containsKey("-update"))
+			{
+				// force all updates
+				getAllDependencies();
+				return;
+			} else {
+				invokeCMDLine(cmdline);
+			}
 		} catch (Exception e) {
 			LOG.error(Service.stackToString(e));
 			try {
@@ -350,6 +374,20 @@ log4j.appender.REMOTE.layout=org.apache.log4j.PatternLayout
 log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
 
 	 */
+	
+	
+	static public Service createAndStart (String name, String type)
+	{
+		Service s = create(name, type);
+		if (s == null)
+		{
+			LOG.error("cannot start service " + name);
+			return null;
+		}
+		s.startService();
+		return s;
+	}
+	
 
 	static public synchronized Service create(String name, String type) {
 		return create(name, "org.myrobotlab.service.", type);
@@ -376,38 +414,31 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 		return null;
 	}
 
-	/**
-	 * @param name
-	 * @param cls
-	 * @return
-	 */
-	static public synchronized Service createService(String name, String fullTypeName) {
-		LOG.debug("ServiceFactory.createService");
-		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) //|| !cls.isInstance(Service.class)) \
-		{
-			LOG.error(fullTypeName + " not a type or " + name + " not defined ");
-			return null;
-		}
+	
+	static public void getAllDependencies()
+	{
+		  Iterator<String> it = ServiceInfo.getKeySet().iterator();
+		  while (it.hasNext()) {
+		        String s = it.next();
+		        getDependencies(s);
+		    }
+	}
+	
+	static public void getDependencies(String fullTypeName)
+	{
+		LOG.debug("getDependencies " + fullTypeName);
 		
-		ServiceWrapper sw = RuntimeEnvironment.getService(name);
-		if (sw != null) {
-			LOG.debug("service " + name + " already exists");
-			return sw.service;
-		}
-		
-		// create cmdline for Ivy standalone call to repo
-		
-
 		try {
 			// use Ivy standalone			
 			// Main.main(cmd.toArray(new String[cmd.size()]));
-			//Method getDependencies = cls.getMethod("getDependencies");
+			// Method getDependencies = cls.getMethod("getDependencies");
 			// Programmatic use of Ivy
 			// https://cwiki.apache.org/IVY/programmatic-use-of-ivy.html
-			ArrayList<Dependency> d = ServiceInfo.getDependencies(fullTypeName);			
+			ArrayList<Dependency> d = ServiceInfo.getDependencies(fullTypeName);
+
 			if (d != null)
 			{
-				LOG.info(name + " found " + d.size() + " dependencies");
+				LOG.info(fullTypeName + " found " + d.size() + " dependencies");
 				for (int i=0; i < d.size(); ++i)
 				{					
 					Dependency dep = d.get(i);					
@@ -421,7 +452,7 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 					cmd.add("libraries/[type]/[artifact].[ext]");
 	
 					cmd.add("-settings");
-					cmd.add("ivysettings.xml"); // TODO - wish I could load as a resource...
+					cmd.add("ivysettings.xml");
 	
 					//cmd.add("-cachepath");
 					//cmd.add("cachefile.txt");					
@@ -446,11 +477,43 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 					// http://tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html
 				}
 			} else {
-				LOG.info(name + " returned no dependencies");
+				if (d == null)
+				{
+					LOG.info(fullTypeName + " returned no dependencies");
+				}
 			}
 		} catch (Exception e) {
 			Service.logException(e);
+		}		
+	}
+	
+	/**
+	 * @param name
+	 * @param cls
+	 * @return
+	 */
+	static public synchronized Service createService(String name, String fullTypeName) {
+		LOG.debug("ServiceFactory.createService");
+		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) //|| !cls.isInstance(Service.class)) \
+		{
+			LOG.error(fullTypeName + " not a type or " + name + " not defined ");
+			return null;
 		}
+		
+		ServiceWrapper sw = RuntimeEnvironment.getService(name);
+		if (sw != null) {
+			LOG.debug("service " + name + " already exists");
+			return sw.service;
+		}
+				
+		File ivysettings = new File("ivysettings.xml");
+		if (ivysettings.exists())
+		{
+			getDependencies(fullTypeName);
+		} else {
+			LOG.debug("iverysettings.xml not available - will not manage dependencies");
+		}
+
 		// get dependencies
 		//Main.main(args)
 
