@@ -433,7 +433,8 @@ public class ServiceFactory extends Service {
 					cmd.add("libraries/[type]/[artifact].[ext]");
 	
 					cmd.add("-settings");
-					cmd.add("ivysettings.xml");
+					//cmd.add("ivysettings.xml");
+					cmd.add("ivychain.xml");
 	
 					//cmd.add("-cachepath");
 					//cmd.add("cachefile.txt");					

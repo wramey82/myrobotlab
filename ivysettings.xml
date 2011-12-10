@@ -1,4 +1,0 @@
-<ivysettings>
-   <settings defaultResolver="public"/>
-   <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivysettings-public.xml"/>
-</ivysettings>	
