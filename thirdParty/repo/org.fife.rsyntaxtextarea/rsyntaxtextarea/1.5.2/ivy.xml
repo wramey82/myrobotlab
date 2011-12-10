@@ -11,6 +11,6 @@
         <conf name="x86.32.windows" />
     </configurations>
     <publications>
-        <artifact name="jgraphx" type="jar"/>
+        <artifact name="rsyntaxtextarea" type="jar"/>
     </publications>
 </ivy-module>

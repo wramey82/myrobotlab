@@ -281,7 +281,7 @@ public class ServiceFactory extends Service {
 				org.apache.log4j.BasicConfigurator.configure();
 				Logger.getRootLogger().setLevel(Level.DEBUG);
 			} else {			
-				PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
+				PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"); // same format as BasicConfigurator
 	
 				RollingFileAppender appender = null;
 				try {
@@ -304,34 +304,16 @@ public class ServiceFactory extends Service {
 			}
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
-
-			// libararyPath += ":" + userDir + "/bin";
-			// System.setProperty("java.library.path", libararyPath);
-			// LOG.debug("new java.library.path [" + libararyPath + "]");
-
 			// hack to reconcile the different ways os handle and expect
 			// "PATH & LD_LIBRARY_PATH" to be handled
 			// found here -
 			// http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
 			// but does not work
-
-			/*
-			 * System.setProperty( "java.library.path", libararyPath );
-			 * 
-			 * Field fieldSysPath = ClassLoader.class.getDeclaredField(
-			 * "sys_paths" ); fieldSysPath.setAccessible( true );
-			 * fieldSysPath.set( null, null );
-			 */
-			// TODO refactor function names update vs getAllDependencies
-			// switch on cmd name and default it to invokeCMDLine such that
-			// only need to ->  invoke(cmdline.getSafeArgument("-cmd","","invokeCMDLine")
-			
-			// TODO - check for updates - depending on host configuration
 			
 			if (cmdline.containsKey("-update"))
 			{
 				// force all updates
-				getAllDependencies();
+				update();
 				return;
 			} else {
 				invokeCMDLine(cmdline);
@@ -361,18 +343,17 @@ public class ServiceFactory extends Service {
 	 * 
 	 *  http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=3
 	 *  log4j.rootLogger=DEBUG, FILE, CONSOLE, REMOTE
-log4j.appender.FILE=org.apache.log4j.FileAppender
-log4j.appender.FILE.file=/tmp/logs/log.txt
-log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
-log4j.appender.FILE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
-log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
-log4j.appender.CONSOLE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-log4j.appender.REMOTE=com.holub.log4j.RemoteAppender
-log4j.appender.REMOTE.Port=1234
-log4j.appender.REMOTE.layout=org.apache.log4j.PatternLayout
-log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-
+		log4j.appender.FILE=org.apache.log4j.FileAppender
+		log4j.appender.FILE.file=/tmp/logs/log.txt
+		log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+		log4j.appender.FILE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
+		log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
+		log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
+		log4j.appender.CONSOLE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
+		log4j.appender.REMOTE=com.holub.log4j.RemoteAppender
+		log4j.appender.REMOTE.Port=1234
+		log4j.appender.REMOTE.layout=org.apache.log4j.PatternLayout
+		log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
 	 */
 	
 	
@@ -415,7 +396,7 @@ log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L
 	}
 
 	
-	static public void getAllDependencies()
+	static public void update()
 	{
 		  Iterator<String> it = ServiceInfo.getKeySet().iterator();
 		  while (it.hasNext()) {

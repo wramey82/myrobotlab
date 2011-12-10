@@ -38,7 +38,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class Network extends ServiceGUI {
+public class Welcome extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
@@ -48,14 +48,14 @@ public class Network extends ServiceGUI {
 	JTextField hostnameValue = new JTextField("localhost",15);
 	JIntegerField servicePortValue = new JIntegerField();
 
-	public Network(final String boundServiceName, final GUI myService) {
+	public Welcome(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
 	public void init() {
 
 		GridBagConstraints gc = new GridBagConstraints();
-		gc.anchor = GridBagConstraints.WEST;
+		//gc.anchor = GridBagConstraints.WEST;
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.ipadx = 5;
 		
@@ -66,6 +66,11 @@ public class Network extends ServiceGUI {
 		image.setIcon(FileIO.getResourceIcon("mrl_logo.jpg"));
 		display.add(image);
 		
+		++gc.gridy;
+		++gc.gridy;
+		++gc.gridy;
+		++gc.gridy;
+		display.add(new JLabel("<html><h3><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I for one, welcome our new robot overlords ...</i></h3></html>"), gc);
 		/*
 		++gc.gridy;
 		display.add(new JLabel("host "), gc);

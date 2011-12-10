@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -28,15 +29,30 @@ public class RuntimeEnvironment implements Serializable{
 	
 	// TODO - this should be a GUI thing only ! or getPrettyMethods or static filterMethods
 	static private HashMap<String, String> hideMethods = new HashMap<String, String>(); 
-	
-	private static boolean initialized = false;
-	
+		
 	private static boolean needsRestart = false;
-	//static private HashMap<String, String> environmentColor;
-
+	private static boolean checkForDependencies = true; // TODO implement - Ivy related
+	
+	/**
+	 * singleton instance of the runtime environment 
+	 */
+	private static final RuntimeEnvironment INSTANCE = new RuntimeEnvironment();
 	// TODO - don't use concurrentHashMap for JVM compatibility reasons - use synchronized and/or cached instances
 	// TODO wrap in service "RuntimeService"
 	// TODO releaseAll = stop + unregister
+	
+	private RuntimeEnvironment()
+	{
+		hosts = new HashMap<URL, ServiceEnvironment>();			
+		registry = new HashMap<String, ServiceWrapper>();
+
+		hideMethods.put("main", null);
+		hideMethods.put("loadDefaultConfiguration", null);
+		hideMethods.put("getToolTip", null);
+		hideMethods.put("run", null);
+		hideMethods.put("access$0", null);
+		
+	}
 	
 	public static String getOS()
 	{
@@ -72,11 +88,6 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static synchronized boolean register(URL url, Service s)
 	{
-		if (!initialized)
-		{
-			init();
-		}
-		
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url))
 		{
@@ -101,10 +112,6 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static synchronized boolean register(URL url, ServiceEnvironment s)
 	{
-		if (!initialized)
-		{
-			init();
-		}
 		
 		if (!hosts.containsKey(url))
 		{
@@ -247,10 +254,6 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static ServiceWrapper getService(String name)
 	{
-		if (!initialized)
-		{
-			init();
-		}
 
 		if (!registry.containsKey(name))
 		{
@@ -359,20 +362,6 @@ public class RuntimeEnvironment implements Serializable{
 	{
 		return new HashMap<URL, ServiceEnvironment> (hosts);
 	}
-	public static synchronized void init()
-	{
-		hosts = new HashMap<URL, ServiceEnvironment>();			
-		registry = new HashMap<String, ServiceWrapper>();
-
-		hideMethods.put("main", null);
-		hideMethods.put("loadDefaultConfiguration", null);
-		hideMethods.put("getToolTip", null);
-		hideMethods.put("run", null);
-		hideMethods.put("access$0", null);
-		
-		initialized = true;
-
-	}
 	
 	public static HashMap<String, MethodEntry> getMethodMap (String serviceName)
 	{
@@ -431,7 +420,7 @@ public class RuntimeEnvironment implements Serializable{
 			}
 			*/
 			
-			//out.writeObject(remote);
+			//out.writeObject(remote);			
 			out.writeObject(RuntimeEnvironment.hosts);
 			out.writeObject(RuntimeEnvironment.registry);
 			out.writeObject(RuntimeEnvironment.hideMethods);
@@ -491,6 +480,11 @@ public class RuntimeEnvironment implements Serializable{
 		
 	}
 	
+	/**
+	 * a method which returns a xml representation of all the listeners and routes in the
+	 * runtime system
+	 * @return
+	 */
 	public static String dumpNotifyEntries()
 	{
 		StringBuffer sb = new StringBuffer();
@@ -589,4 +583,10 @@ public class RuntimeEnvironment implements Serializable{
 	{
 		return needsRestart;
 	}
+
+	public static void main(String[] args) throws ClassNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		RuntimeEnvironment.getService("blah");
+	}
+
 }

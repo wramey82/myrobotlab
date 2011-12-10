@@ -50,6 +50,7 @@ import org.apache.ivy.core.retrieve.RetrieveOptions;
 import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorWriter;
 import org.apache.ivy.plugins.report.XmlReportParser;
+import org.apache.ivy.util.AbstractMessageLogger;
 import org.apache.ivy.util.DefaultMessageLogger;
 import org.apache.ivy.util.Message;
 import org.apache.ivy.util.cli.CommandLine;
@@ -179,7 +180,8 @@ import org.apache.log4j.Logger;
             .addOption(new OptionBuilder("version")
                 .description("displays version information").create());
     }
-
+    
+    
     public static void main(String[] args) throws Exception {
         CommandLineParser parser = getParser();
         try {
@@ -198,6 +200,7 @@ import org.apache.log4j.Logger;
     public static int run(CommandLineParser parser, String[] args) throws Exception {
             // parse the command line arguments
             CommandLine line = parser.parse(args);
+            //Message.setDefaultLogger(new Ivy2MessageLogger(Message.MSG_DEBUG));
 
             if (line.hasOption("?")) {
                 usage(parser, line.hasOption("deprecated"));
@@ -281,19 +284,28 @@ import org.apache.log4j.Logger;
             if (report.hasError()) {
                 // System.exit(1);
             	LOG.error("Ivy resolve error");
+            	List<String> l = report.getAllProblemMessages();
+            	for (int i = 0; i < l.size(); ++i)
+            	{
+            		LOG.error(l.get(i));
+            	}
             }
+            
             ModuleDescriptor md = report.getModuleDescriptor();
 
             if (confs.length == 1 && "*".equals(confs[0])) {
                 confs = md.getConfigurationsNames();
             }
+            
+            int ret = 0;
+            
             if (line.hasOption("retrieve")) {
                 String retrievePattern = settings.substitute(line.getOptionValue("retrieve"));
                 if (retrievePattern.indexOf("[") == -1) {
                     retrievePattern = retrievePattern + "/lib/[conf]/[artifact].[ext]";
                 }
                 String ivyPattern = settings.substitute(line.getOptionValue("ivypattern"));
-                ivy.retrieve(md.getModuleRevisionId(), retrievePattern, new RetrieveOptions()
+                ret = ivy.retrieve(md.getModuleRevisionId(), retrievePattern, new RetrieveOptions()
                         .setConfs(confs).setSync(line.hasOption("sync"))
                         .setUseOrigin(line.hasOption("useOrigin"))
                         .setDestIvyPattern(ivyPattern)

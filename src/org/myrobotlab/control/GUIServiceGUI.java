@@ -97,13 +97,14 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	public void init() {
 		
 		// build input begin ------------------
-		JPanel input = new JPanel();
-		input.setBorder(BorderFactory.createTitledBorder("input"));
+		//JPanel input = new JPanel();
+		//input.setBorder(BorderFactory.createTitledBorder("input"));
 
-		input.add(getRefreshServicesButton());
-		input.add(getSaveButton());
-		input.add(getLoadButton());
-		input.add(getDumpButton());
+		// all should be methods of the menu
+		//input.add(getRefreshServicesButton());
+		//input.add(getSaveButton());
+		//input.add(getLoadButton());
+		//input.add(getDumpButton());
 		
 		JPanel newRoute = new JPanel(new GridBagLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new route"));
@@ -183,7 +184,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        
 		}
 		
-		graph.setMinimumGraphSize(new mxRectangle(0, 0, 640, 480)); // TODO - get # of services to set size?
+		graph.setMinimumGraphSize(new mxRectangle(0, 0, 640, 300)); // TODO - get # of services to set size?
 
 		// creating JComponent
         graphComponent = new mxGraphComponent(graph);			
@@ -236,7 +237,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-		display.add(input, gc);
+		//display.add(input, gc);
 		
 		++gc.gridy;		
 		display.add(newRoute, gc);

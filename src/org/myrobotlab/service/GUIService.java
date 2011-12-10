@@ -67,7 +67,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
-import org.myrobotlab.control.Network;
+import org.myrobotlab.control.Welcome;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
 import org.myrobotlab.fileLib.FileIO;
@@ -112,7 +112,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public transient ServiceTabPane tabs = null;
 	public transient JPanel panel = null;
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
-	transient Network network = null;
+	transient Welcome network = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = null;
 	
 	Map<String, ServiceWrapper> sortedMap = null;
@@ -218,12 +218,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		removeAllTabPanels();
 		
 		// begin building panels
-		network = new Network("communication",this); // TODO - clean this up - add
+		network = new Welcome("",this); // TODO - clean this up - add
 		network.init();
 										
 		// TODO - throw error on name collision from client list
 		//tabs.addTab("communication", (JComponent) network);
-		tabs.addTab("communication", network.display);
+		tabs.addTab("Welcome", network.display);
 
 		JPanel customPanel = new JPanel(new FlowLayout());
 		customPanel.setPreferredSize(new Dimension(800, 600));
@@ -381,6 +381,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    mi.addActionListener(this);
 	    system.add(mi);
 
+		mi = new JMenuItem("save as");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+	    
 		mi = new JMenuItem("load");
 	    mi.addActionListener(this);
 	    system.add(mi);	    
@@ -389,9 +393,42 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    mi.addActionListener(this);
 	    system.add(mi);	    
 	    	    
-		mi = new JMenuItem("java monitor");
+		mi = new JMenuItem("console");
 	    mi.addActionListener(this);
 	    system.add(mi);
+
+	    JMenu m = new JMenu("logging");
+	    system.add(m);
+
+		    mi = new JMenuItem("debug");
+		    mi.addActionListener(this);
+		    m.add(mi);
+		    mi = new JMenuItem("info");
+		    mi.addActionListener(this);
+		    m.add(mi);
+		    mi = new JMenuItem("warn");
+		    mi.addActionListener(this);
+		    m.add(mi);
+		    mi = new JMenuItem("error");
+		    mi.addActionListener(this);
+		    m.add(mi);
+		    mi = new JMenuItem("fatal");
+		    mi.addActionListener(this);
+		    m.add(mi);
+	    
+	    m = new JMenu("update");
+	    system.add(m);
+	    
+			mi = new JMenuItem("check now");
+		    mi.addActionListener(this);
+		    m.add(mi);
+
+		
+	    /*
+	    mi = new JMenuItem("","update");
+	    mi.addActionListener(this);
+	    system.add(mi);
+	    */
 	    
 	    menuBar.add(system);
 	    
@@ -529,13 +566,32 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		String v = FileIO.getResourceFile("version.txt");
-		
-		new AboutDialog(frame, "about", 
-		"<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+v+"</p><html>");
+	public void actionPerformed(ActionEvent ae) {
+		String action = ae.getActionCommand();
+		if ("save".equals(action))
+		{
+			RuntimeEnvironment.save("myrobotlab.mrl");
+		} else if ("check now".equals(action))
+		{
+			ServiceFactory.update();
+		} else if ("debug".equals(action) || 
+				"info".equals(action) ||
+				"warn".equals(action) ||
+				"error".equals(action) ||
+				"fatal".equals(action))
+		{
+			setLogLevel(action.toUpperCase());
+		} else {
+			invoke(action);
+		}
 	}
 	
+	public void about ()
+	{
+		String v = FileIO.getResourceFile("version.txt");
+		new AboutDialog(frame, "about", 
+		"<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+v+"</p><html>");		
+	}
 	
 	public class AboutDialog extends JDialog implements ActionListener, MouseListener {
 
@@ -743,19 +799,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 	
 	
-	public void console()
+	static public void console()
 	{
 		attachJavaConsole();
 	}
 	
-	public void attachJavaConsole()
+	static public void attachJavaConsole()
 	{
-		//Console console = new Console();
 		JFrame j = new JFrame("Java Console");
-		j.setSize(120, 120);
-		JTextArea logger = new JTextArea(50,100);
-		j.add(Console.getRootConsole());
-		//setupLog4JAppender(logger);
+		j.setSize(500, 550);
+		Console c = new Console("blah");
+		j.add(c.getScrollPane());
 		j.setVisible(true);		
 	}
 	
@@ -772,7 +826,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		*/
 		
 		GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
-		gui2.console();
+		//GUIService.console();
 		gui2.startService();
 		
 		// begin debugging console Java Moitor
