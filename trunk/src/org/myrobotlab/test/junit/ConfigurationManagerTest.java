@@ -242,7 +242,7 @@ public class ConfigurationManagerTest {
 
 		// map testing
 		cfg.set("typeMap/Sonar", "sonarInfo");
-		cfg.set("typeMap/Network", "PilotGUI");
+		cfg.set("typeMap/Welcome", "PilotGUI");
 		cfg.set("typeMap/SystemInformation", "PilotGUI");
 		cfg.set("typeMap/SODHAR", "PilotGUI");
 

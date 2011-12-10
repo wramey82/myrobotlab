@@ -3,10 +3,13 @@ package org.myrobotlab.control;
 import java.awt.Component;
 import java.util.Properties;
 
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -14,43 +17,27 @@ import org.apache.log4j.spi.LoggingEvent;
 public class Console extends AppenderSkeleton {
 	
 	static public JTextArea textArea = null;
+	static public JScrollPane scrollPane = null;
 	
 	public Console () {
+		// LOG4J will use the default constructor for access !
+	}
+
+	// TODO - Options
+	// JFrame or Component
+	// remove/save other appenders
+	// append ???
+	public Console (String zod) { // TODO boolean JFrame or component 
+		textArea = new JTextArea();
+		scrollPane = new JScrollPane(textArea);
+		
+		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
+		setLayout(layout);
+		
+		Logger.getRootLogger().addAppender(this);
+
 	}
 	
-	static public JTextArea getRootConsole()
-	{
-		// This code attaches the appender to the text area
-		JTextArea text = new JTextArea();
-		Console.setTextArea(text);
-		//Logger.getRootLogger().addAppender(appender);
-		
-		// Normally configuration would be done via a log4j.properties
-		// file found on the class path, but here we will explicitly set
-		// values to keep it simple.
-		//
-		// Great introduction to Log4J at http://logging.apache.org/log4j/docs/manual.html
-		//
-		// Could also have used straight code like: app.logger.setLevel(Level.INFO);
-		Properties logProperties = new Properties();
-		logProperties.put("log4j.rootLogger", "INFO, TEXTAREA");
-/*		logProperties.put("log4j.rootLogger", "INFO, CONSOLE, TEXTAREA");
-		logProperties.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender"); // A standard console appender
-		logProperties.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
-		logProperties.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{HH:mm:ss} [%12.12t] %5.5p %40.40c: %m%n");
-*/
-		logProperties.put("log4j.appender.TEXTAREA", "org.myrobotlab.control.Console");  // Our custom appender
-		logProperties.put("log4j.appender.TEXTAREA.layout", "org.apache.log4j.PatternLayout"); //See: http://logging.apache.org/log4j/docs/api/org/apache/log4j/PatternLayout.html
-		logProperties.put("log4j.appender.TEXTAREA.layout.ConversionPattern", "%d{HH:mm:ss} %5.5p %40.40c: %m%n");
-		
-		PropertyConfigurator.configure(logProperties);
-		return text;
-	}
-	
-	/** Set the target JTextArea for the logging information to appear. */
-	static public void setTextArea(JTextArea textArea) {
-		Console.textArea = textArea;
-	}
 	/**
 	 * Format and then append the loggingEvent to the stored
 	 * JTextArea.
@@ -68,7 +55,7 @@ public class Console extends AppenderSkeleton {
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-		
+		Logger.getRootLogger().removeAppender(this);		
 	}
 	@Override
 	public boolean requiresLayout() {
@@ -76,7 +63,10 @@ public class Console extends AppenderSkeleton {
 		return true;
 	}
 
-
+	public JScrollPane getScrollPane()
+	{
+		return scrollPane;
+	}
 	public Component getTextArea() {
 		return textArea;
 	}

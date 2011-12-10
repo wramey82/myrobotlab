@@ -45,6 +45,9 @@ public class ServiceInfo {
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
+		addBase("Jfugue");		
+		addDependency("GUIService","org.jfugue.music","4.0.3");	
+		
 		addBase("Jython");		
 		addDependency("Jython","org.python.core","2.5.2");	
 

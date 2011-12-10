@@ -1054,7 +1054,7 @@ public abstract class Service implements Runnable, Serializable {
 				}
 			} 
 		    
-		    LOG.error("did not find method");
+		    LOG.error("did not find method " + method + " with " + ((params==null)?"()":params.length) + " params");
 						
 		} catch (Exception e) {
 			Service.logException(e);
@@ -1085,7 +1085,7 @@ public abstract class Service implements Runnable, Serializable {
 		outbox.getCommunicationManager().send(url, msg);
 	}
 	
-	
+	// TODO - remove create variable arg list
 	public void send(String name, String method, Object param1, Object param2,
 			Object param3, Object param4) {
 		Object[] params = new Object[4];

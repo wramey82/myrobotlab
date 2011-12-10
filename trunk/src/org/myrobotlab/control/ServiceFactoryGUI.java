@@ -63,8 +63,6 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	JList currentServices;
 	BasicArrowButton addServiceButton = null;
 	BasicArrowButton removeServiceButton = null;
-	String level[] = { "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
-	JComboBox logLevel = new JComboBox(level);
 	
 	// TODO - widgetize the "possible services" list
 	public ServiceFactoryGUI(final String boundServiceName, final GUI myService) {
@@ -127,25 +125,8 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		
 		++gc.gridy;
 		gc.gridx = 0;
-		JPanel debug = new JPanel();
-		title = BorderFactory.createTitledBorder("logging");
-		debug.setBorder(title);
-		
-		debug.add(logLevel);
-		logLevel.addItemListener(new LogLevel());
-	    display.add(debug, gc);
 	}
-	
-	public class LogLevel implements ItemListener {
-
-		@Override
-		public void itemStateChanged(ItemEvent e) {
-	        String str = (String)logLevel.getSelectedItem();
-	        myService.send(boundServiceName, "setLogLevel", str);			
-		}
 		
-	}
-	
 
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
