@@ -34,5 +34,5 @@ export LD_LIBRARY_PATH
 # The shell itself need 
 # org.myrobotlab.service.Invoker -service Invoker services GUIService gui > log.txt 
 
-java -classpath "./libraries/jar/*" -Djava.library.path=./bin org.myrobotlab.service.ServiceFactory -service jython Jython gui GUIService 
+java -classpath "./libraries/jar/*" -Djava.library.path="./libraries/native/x86.32.linux:./libraries/native/x86.64.linux:./libraries/native/x86.32.mac" org.myrobotlab.service.ServiceFactory -service jython Jython gui GUIService 
 
