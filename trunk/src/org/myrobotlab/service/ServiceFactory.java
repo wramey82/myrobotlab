@@ -77,7 +77,8 @@ public class ServiceFactory extends Service {
 	public String proxyUserName;
 	@Element
 	public String proxyPassword;
-	
+	@Element
+	public static String ivyFileName = "ivychain.xml";
 	
 	static GUI gui = null;
 	private static final long serialVersionUID = 1L;	
@@ -171,7 +172,7 @@ public class ServiceFactory extends Service {
 				"HTTPClient",  "JFugue", "JoystickService", "Jython","Keyboard",
 				"Logging", "Motor", "OpenCV",
 				"ParallelPort", "PICAXE", "PID", "PlayerStage",
-				"RecorderPlayer", "RemoteAdapter", "SensorMonitor",
+				"RecorderPlayer", "RemoteAdapter", "Roomba","SensorMonitor",
 				"Servo", "SLAM",  
 				"Speech", "SpeechRecognition", "ServiceFactory",
 				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
@@ -434,7 +435,7 @@ public class ServiceFactory extends Service {
 	
 					cmd.add("-settings");
 					//cmd.add("ivysettings.xml");
-					cmd.add("ivychain.xml");
+					cmd.add(ivyFileName);
 	
 					//cmd.add("-cachepath");
 					//cmd.add("cachefile.txt");					
@@ -488,7 +489,7 @@ public class ServiceFactory extends Service {
 			return sw.service;
 		}
 				
-		File ivysettings = new File("ivysettings.xml");
+		File ivysettings = new File(ivyFileName);
 		if (ivysettings.exists())
 		{
 			getDependencies(fullTypeName);

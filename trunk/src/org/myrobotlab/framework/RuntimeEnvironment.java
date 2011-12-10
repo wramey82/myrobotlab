@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -420,7 +419,8 @@ public class RuntimeEnvironment implements Serializable{
 			}
 			*/
 			
-			//out.writeObject(remote);			
+			//out.writeObject(remote);	
+			//out.writeObject(instance);
 			out.writeObject(RuntimeEnvironment.hosts);
 			out.writeObject(RuntimeEnvironment.registry);
 			out.writeObject(RuntimeEnvironment.hideMethods);
@@ -436,13 +436,14 @@ public class RuntimeEnvironment implements Serializable{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static boolean load (String filename)
+	public static boolean load(String filename)
 	{
         try {
 
 		       FileInputStream fis;
 		       fis = new FileInputStream(filename);
 		       ObjectInputStream in = new ObjectInputStream(fis);
+		       //instance = (RuntimeEnvironment)in.readObject();
 		       RuntimeEnvironment.hosts = (HashMap<URL, ServiceEnvironment>)in.readObject();
 		       RuntimeEnvironment.registry = (HashMap<String, ServiceWrapper>)in.readObject();
 		       RuntimeEnvironment.hideMethods = (HashMap<String, String>)in.readObject();

@@ -58,6 +58,10 @@ public class ServiceInfo {
 		addDependency("OpenCV","com.googlecode.javacv","20111001");	
 		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
 		
+		addBase("ServiceMonitor");		
+
+		addBase("Roomba");		
+		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");		
 		
 		addCategory  ("Arduino", "micro-controller");
 
