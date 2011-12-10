@@ -72,6 +72,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SensorMonitorGUI.class.toString());
 
+	// TODO - calcuations and data SHOULD NOT be in this GUI panel !!! 
 	JList traces;
 	JList alerts;
 
@@ -118,7 +119,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		int index = 0;
 		int total = 0;
 		int max = 0;
-		int min = 1024;
+		int min = 1024; // TODO - user input on min/max
+		int sum = 0;
 		int mean = 0;
 	}
 	
@@ -500,6 +502,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			t.index++;
 			t.data[t.index] = pinData.value;
 			++t.total;
+			t.sum += pinData.value;
+			t.mean = t.sum/t.total;
 
 			g.setColor(t.color);
 			// g.drawRect(20, t.pin * 15 + 5, 200, 15);
@@ -548,7 +552,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 				g.fillRect(20, t.pin * 15 + 5, 200, 15);
 				g.setColor(t.color);
 				g.drawString(" min " + t.min + " max " + t.max + " mean "
-						+ t.total, 20, t.pin * 15 + 20);
+						+ t.mean + " total " + t.total + " sum " + t.sum, 20, t.pin * 15 + 20);
 				
 				
 

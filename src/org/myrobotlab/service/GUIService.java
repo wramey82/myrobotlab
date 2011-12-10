@@ -565,6 +565,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 
+	// TODO - refactor names
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		String action = ae.getActionCommand();
@@ -574,6 +575,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		} else if ("check now".equals(action))
 		{
 			ServiceFactory.update();
+		} else if ("load".equals(action)) 
+		{
+			loadRuntime();
 		} else if ("debug".equals(action) || 
 				"info".equals(action) ||
 				"warn".equals(action) ||
@@ -586,7 +590,23 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}
 	
-	public void about ()
+	public void loadRuntime()
+	{
+		RuntimeEnvironment.releaseAll();
+		
+		// load runtime
+		RuntimeEnvironment.load("myrobotlab.mrl");
+		
+		RuntimeEnvironment.startLocalServices();
+		// Execute when button is pressed // TODO send - message
+
+	}
+	
+	public void refresh()
+	{
+		loadTabPanels();
+	}
+	public void about()
 	{
 		String v = FileIO.getResourceFile("version.txt");
 		new AboutDialog(frame, "about", 
