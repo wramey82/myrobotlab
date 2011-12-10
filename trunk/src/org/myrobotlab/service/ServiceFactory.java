@@ -446,9 +446,10 @@ public class ServiceFactory extends Service {
 					cmd.add(dep.version); 	// version
 					
 					cmd.add("-confs");
-					cmd.add("runtime,"+RuntimeEnvironment.getArch()+"."+
-							RuntimeEnvironment.getBitness()+"." + 
-							RuntimeEnvironment.getOS());
+					String confs = "runtime,"+RuntimeEnvironment.getArch()+"."+
+					RuntimeEnvironment.getBitness()+"." + 
+					RuntimeEnvironment.getOS();
+					cmd.add(confs);
 					
 					CommandLineParser parser = Main.getParser();
 					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
