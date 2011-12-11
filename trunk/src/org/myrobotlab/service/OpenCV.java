@@ -914,6 +914,7 @@ public class OpenCV extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 
+		/*
 		IplImage imgA = cvLoadImage(
 	                "hand0.jpg",
 	                CV_LOAD_IMAGE_GRAYSCALE);
@@ -929,9 +930,9 @@ public class OpenCV extends Service {
 		}
 
 		
+		*/
 		
-		
-		OpenCV opencv = new OpenCV("opencv");				
+		OpenCV opencv = (OpenCV)ServiceFactory.createAndStart("opencv", "OpenCV");				
 		opencv.startService();
 		//opencv.addFilter("PyramidDown1", "PyramidDown");
 //		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
