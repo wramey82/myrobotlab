@@ -57,6 +57,7 @@ public class ServiceInfo {
 		addBase("OpenCV");		
 		addDependency("OpenCV","com.googlecode.javacv","20111001");	
 		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
+		addDependency("OpenCV","com.sun.jna","3.2.2");	
 		
 		addBase("ServiceMonitor");		
 
