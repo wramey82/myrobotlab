@@ -31,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.util.cli.CommandLineParser;

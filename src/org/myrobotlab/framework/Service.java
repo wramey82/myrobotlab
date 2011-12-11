@@ -1600,13 +1600,13 @@ public abstract class Service implements Runnable, Serializable {
 	public static void setLogLevel(String level) {
 		if (("INFO").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.INFO);
-		}
+		} else
 		if (("WARN").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.WARN);
-		}
+		} else 
 		if (("ERROR").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.ERROR);
-		}
+		} else
 		if (("FATAL").equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.FATAL);
 		} else {
