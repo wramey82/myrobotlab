@@ -91,7 +91,7 @@
 		<copy file="myrobotlab.sh" todir="${dist}/${label}"/>
 		<copy file="jython.sh" todir="${dist}/${label}"/>
 		<copy file="LICENSE.txt" todir="${dist}/${label}"/>	
-		<copy file="ivysettings.xml" todir="${dist}/${label}"/>
+		<copy file="ivychain.xml" todir="${dist}/${label}"/>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution" >
