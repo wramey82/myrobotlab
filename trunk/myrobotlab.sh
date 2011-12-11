@@ -19,7 +19,7 @@ export CLASSPATH
 
 # Mac's don't use LD_LIBRARY_PATH yet its 
 # required to load shared objects on Linux systems
-LD_LIBRARY_PATH=`pwd`/libraries/native/x86.32.linux:`pwd`/libraries/native/x86.64.linux:`pwd`/libraries/native/x86.32.mac:${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=`pwd`/libraries/native/x86.32.linux:`pwd`/libraries/native/x86.64.linux:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # export PATH="${APPDIR}/java/bin:${PATH}"
