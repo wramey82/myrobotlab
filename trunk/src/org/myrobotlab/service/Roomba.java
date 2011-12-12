@@ -830,6 +830,12 @@ public class Roomba extends Service implements SerialPort {
 		send(cmd);
 	}
 
+	public void dock()
+	{
+		byte cmd[] = { (byte) DOCK };
+		send(cmd);
+	}
+	
 	/**
 	 * Turn all vacuum motors on or off according to state
 	 * 
@@ -1468,16 +1474,24 @@ public class Roomba extends Service implements SerialPort {
 		Roomba roomba = new Roomba("roomba");		
 		roomba.startService();
 		
-		roomba.connect("/dev/ttyUSB0");
+		//roomba.connect("/dev/ttyUSB0");
+		roomba.connect("COM3");
+		
 		roomba.setMyLogLevel("DEBUG");
-		roomba.control();
-		roomba.setLEDs(true, true, true, true, true, true, 1,1);
-
-		// modes
-		roomba.start();
-		roomba.control();
-		roomba.safe();
-		roomba.full();
+				
+		//TODO remote test - need to undock - move - dock & re-charge !
+		//Testing 
+		
+		// regular startup
+        roomba.startup();
+        roomba.control();
+        roomba.playNote( 72, 10 );  // C , test note
+        roomba.pause( 200 );
+		
+        // move tests
+        roomba.setSpeed(200);
+		roomba.spinLeft(90);
+		roomba.spinRight(90);
 		
 		roomba.goForward(10);
 		roomba.goBackward(10);
@@ -1490,6 +1504,44 @@ public class Roomba extends Service implements SerialPort {
 		roomba.turnRight();
 		roomba.stop();
 
+		roomba.dock(); // not valid in full or safe mode
+		roomba.wakeup(); // <-????
+
+		// LEDs
+		roomba.setLEDs(true, true, true, true, true, true, 1,1);
+		roomba.setLEDs( true,true,true, true,true,true, 255, 255 );
+		roomba.pause(300);
+		roomba.setLEDs( false,false,false, false,false,false, 0, 128);
+
+		
+		// vacum & clean
+		roomba.vacuum(true);
+		roomba.vacuum(false);
+		roomba.clean();
+		roomba.spot();
+		
+		// polling
+		boolean t = roomba.spotButton();
+        String s = roomba.sensorsAsString();
+		
+		// sound
+		roomba.playSong(1);
+		roomba.playNote(3, 10);
+		// high - 
+		roomba.playNote( 90, 32 );  // C7
+		roomba.pause( 200 );
+		// low - 
+		roomba.playNote( 50, 32 );  // C1
+		roomba.pause( 200 );
+
+		// modes
+		roomba.start();
+		roomba.control();
+		roomba.safe();
+		roomba.full();
+		
+		roomba.powerOff();
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
