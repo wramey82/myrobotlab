@@ -1465,8 +1465,14 @@ public class Roomba extends Service implements SerialPort {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		Roomba roomba = new Roomba("roomba");
+		Roomba roomba = new Roomba("roomba");		
 		roomba.startService();
+		
+		roomba.connect("/dev/ttyUSB0");
+		roomba.setMyLogLevel("DEBUG");
+		roomba.control();
+		roomba.setLEDs(true, true, true, true, true, true, 1,1);
+		
 		roomba.start();
 
 		GUIService gui = new GUIService("gui");
