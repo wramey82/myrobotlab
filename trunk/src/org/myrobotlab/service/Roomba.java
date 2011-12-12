@@ -1472,8 +1472,23 @@ public class Roomba extends Service implements SerialPort {
 		roomba.setMyLogLevel("DEBUG");
 		roomba.control();
 		roomba.setLEDs(true, true, true, true, true, true, 1,1);
-		
+
+		// modes
 		roomba.start();
+		roomba.control();
+		roomba.safe();
+		roomba.full();
+		
+		roomba.goForward(10);
+		roomba.goBackward(10);
+		roomba.turn(50);
+		roomba.stop();
+		roomba.turn(-50);
+		roomba.stop();
+		roomba.turnLeft();
+		roomba.stop();
+		roomba.turnRight();
+		roomba.stop();
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
