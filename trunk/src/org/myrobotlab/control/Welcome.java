@@ -63,7 +63,7 @@ public class Welcome extends ServiceGUI {
 		
 		gc.gridx = 0;
 		JLabel image = new JLabel();
-		image.setIcon(FileIO.getResourceIcon("mrl_logo.jpg"));
+		image.setIcon(FileIO.getResourceIcon("mrl_logo.gif"));
 		display.add(image);
 		
 		++gc.gridy;
