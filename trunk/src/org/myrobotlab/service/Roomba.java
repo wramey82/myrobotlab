@@ -1479,17 +1479,24 @@ public class Roomba extends Service implements SerialPort {
 		
 		roomba.setMyLogLevel("DEBUG");
 				
-		//TODO remote test - need to undock - move - dock & re-charge !
-		//Testing 
+		// TODO remote test - need to undock - move - dock & re-charge !
+		// setup other cameras - see if video feed is digestable
+		// Testing 
+		// Encoders
+		// http://en.wikipedia.org/wiki/Dead_reckoning#Differential_steer_drive_dead_reckoning
 		
 		// regular startup
         roomba.startup();
+        roomba.wakeup();
+		roomba.dock(); // not valid in full or safe mode
+
+        
         roomba.control();
         roomba.playNote( 72, 10 );  // C , test note
         roomba.pause( 200 );
 		
         // move tests
-        roomba.setSpeed(200);
+        roomba.setSpeed(100);
 		roomba.spinLeft(90);
 		roomba.spinRight(90);
 		
@@ -1504,7 +1511,6 @@ public class Roomba extends Service implements SerialPort {
 		roomba.turnRight();
 		roomba.stop();
 
-		roomba.dock(); // not valid in full or safe mode
 		roomba.wakeup(); // <-????
 
 		// LEDs
