@@ -1,9 +1,10 @@
 package org.myrobotlab.service;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -16,6 +17,10 @@ public class IPCamera extends Service {
 	private static final long serialVersionUID = 1L;
 	
 	public URL url = null;
+	
+	public String user = "";
+	public String password = "";
+	public String host = "";
 
 	public final static Logger LOG = Logger.getLogger(IPCamera.class.getCanonicalName());
 
@@ -23,10 +28,11 @@ public class IPCamera extends Service {
 		super(n, IPCamera.class.getCanonicalName());
 	}
 	
-	public boolean connect (String cameraURL)
+	
+	public boolean getStatus ()
 	{
 		try {
-			url = new URL(cameraURL);
+			url = new URL("http://" + host + "/get_status.cgi??user=" +user+ "&pwd=" + password);
 	        URLConnection yc = url.openConnection();
 	        BufferedReader in = new BufferedReader(
 	                                new InputStreamReader(
@@ -41,6 +47,33 @@ public class IPCamera extends Service {
 			return false;
 		}
 		return true;
+	}
+	
+	public boolean getVideo ()
+	{
+		try {
+			url = new URL("http://" + host + "/videostream.cgi??user=" +user+ "&pwd=" + password);
+	        URLConnection connection = url.openConnection();
+	        	        
+	        InputStream input = connection.getInputStream();
+            byte[] buffer = new byte[4096];
+            int n = - 1;
+
+            String file = "out.jpg";
+            OutputStream output = new FileOutputStream( file );
+            while ( (n = input.read(buffer)) != -1)
+            {
+                    if (n > 0)
+                    {
+                            output.write(buffer, 0, n);
+                    }
+            }
+            output.close();		} catch (Exception e) {
+			logException(e);
+			return false;
+		}
+		return true;
+		
 	}
 	
 	@Override
@@ -60,7 +93,8 @@ public class IPCamera extends Service {
 		IPCamera foscam = new IPCamera("foscam");
 		
 		foscam.startService();
-		foscam.connect("http://admin:zardoz7@192.168.0.59/get_status.cgi");
+		foscam.getVideo();
+		foscam.getStatus();
 				
 		GUIService gui = new GUIService("gui");
 		gui.startService();
