@@ -522,7 +522,7 @@ public class Toy extends Service {
 		graphics.attach(gui.name);
 		gui.display();
 
-		camera.setInputType("camera");
+		camera.setInpurtSource("camera");
 		camera.capture();
 		
 		right.invertDirection();
