@@ -51,6 +51,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -91,30 +92,30 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	PhotoReelWidget templateDisplay = null;
 	
-
-	JLabel inputFileLable = new JLabel("output1.avi");
+	JButton capture = new JButton("capture");
 
 	// input
-	ButtonGroup group = new ButtonGroup();
+	// capture config
+	JPanel captureCfg = new JPanel();
+	JRadioButton fileRadio = new JRadioButton();
+	JRadioButton cameraRadio = new JRadioButton();
+	JTextField inputFile = new JTextField("");
+	JLabel inputFileLable = new JLabel("file");
+	JLabel cameraIndexLable = new JLabel("camera");
+	JLabel modeLabel = new JLabel("mode");
+	JButton inputFileButton = new JButton("open file");
+
+	ButtonGroup groupRadio = new ButtonGroup();
 	DefaultListModel currentFilterListModel = new DefaultListModel();
 
 	JComboBox kinectImageOrDepth = new JComboBox(new String[]{"image","depth","interleave"});
 	JComboBox grabberTypeSelect = null;
+		
+	JComboBox cameraIndex = new JComboBox(new Integer[]{ 0, 1, 2, 3, 4, 5 });
 	
-	JButton capture = new JButton("capture");
-	
-	JPanel captureCfg = new JPanel();
-	JRadioButton file = new JRadioButton("file");
-	JButton inputFileButton = new JButton("open file");
-	JLabel indexLabel = new JLabel("index");
-	JComboBox cameraIndex = new JComboBox(new String[]{ "0", "1", "2", "3", "4", "5" });
-	
-	// garbage
-	//JRadioButton kinect = new JRadioButton("kinect");
-	//JRadioButton nullInput = new JRadioButton("null", true);
-	//JRadioButton camera = new JRadioButton("camera");
-
 	JPanel filterParameters = new JPanel();
+	
+	LinkedHashMap<String, OpenCVFilterGUI> filters = new LinkedHashMap<String, OpenCVFilterGUI>();	
 	
 	OpenCV myOpenCV;
 
@@ -127,21 +128,22 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		video0 = new VideoWidget(boundServiceName, myService);
 		video0.init();
 				
+		// TODO - refactor and make invisible unless filter warrants it
 		templateDisplay = new PhotoReelWidget(boundServiceName, myService);
-		templateDisplay.init();
+		templateDisplay.init();		
 
-		//camera.addActionListener(captureListener);
-		//kinect.addActionListener(captureListener);
 		capture.addActionListener(captureListener);
-		file.addActionListener(captureListener);
-		//nullInput.addActionListener(captureListener);
 
 		ArrayList<String> s = new ArrayList<String>();
-		//s.add("default");
 		for (int i = 0; i < FrameGrabber.list.size(); ++i)
 		{
 			String ss = FrameGrabber.list.get(i).getCanonicalName();
-			s.add(ss.substring(ss.lastIndexOf(".") + 1));
+			String fg = ss.substring(ss.lastIndexOf(".") + 1);			
+			// filter out the two I've never seen
+			if (!"DC1394FrameGrabber".equals(fg) && !"FlyCaptureFrameGrabber".equals(fg))
+			{
+				s.add(fg);
+			}
 		}
 		grabberTypeSelect = new JComboBox(s.toArray());
 		
@@ -189,78 +191,48 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder("input");
 		input.setBorder(title);
-
-		//JPanel cpanel = new JPanel(new GridBagLayout());
-		JPanel cpanel = new JPanel();
-		cpanel.setBorder(BorderFactory.createEtchedBorder());
-		
-		//cpanel.add(camera);
-		cpanel.add(cameraIndex);		
-		//cpanel.add(kinect);
-		//cpanel.add(kinectImageOrDepth);
-		
-		//group.add(nullInput);
-		//group.add(camera);
-		//group.add(kinect);
-		group.add(file);
+				
+		groupRadio.add(cameraRadio);
+		groupRadio.add(fileRadio);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-		//input.add(nullInput, gc);		
-		//input.add(cpanel);
 		
 		grabberTypeSelect.addActionListener(grabberTypeListener);
 		
 		// capture panel
-		cpanel = new JPanel();
+		JPanel cpanel = new JPanel();
 		cpanel.setBorder(BorderFactory.createEtchedBorder());
 		cpanel.add(capture);
 		cpanel.add(grabberTypeSelect);
-		
 		// build configuration for the various captures 
 		// non visible - when not applicable
 		// disable when capturing
 		captureCfg.setBorder(BorderFactory.createEtchedBorder());
-		captureCfg.add(cameraIndex);
-		captureCfg.add(kinectImageOrDepth);
-		captureCfg.add(inputFileLable);
-		
-		cpanel.add(captureCfg);
-		
-		input.add(cpanel);
 
-		
+		captureCfg.add(cameraRadio);
+		captureCfg.add(cameraIndexLable);
+		captureCfg.add(cameraIndex);
+		captureCfg.add(modeLabel);
+		captureCfg.add(kinectImageOrDepth);
+		captureCfg.add(fileRadio);
+		captureCfg.add(inputFileLable);
+		captureCfg.add(inputFile);
+				
+		input.add(cpanel, gc);
+		++gc.gridy;
+		input.add(captureCfg, gc);
+
+		/* OpenCV members are set on the zombie
 		cameraIndex.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
 		    	  	OpenCVGUI.this.myService.send(boundServiceName, "setCameraIndex", cameraIndex.getSelectedIndex());
 		      }
 		    });
-		
-		
-		
+		*/
 		gc.gridx = 0;
 		++gc.gridy;
 
-		/*
-		cpanel = new JPanel();
-		cpanel.setBorder(BorderFactory.createEtchedBorder());
-		
-		cpanel.add(file);
-		cpanel.add(inputFileButton);
-		cpanel.add(inputFileLable);
-		
-		
-		input.add(file, gc);
-		++gc.gridx;
-		input.add(inputFileButton, gc);
-		gc.gridx = 0;
-		++gc.gridy;
-		input.add(inputFileLable, gc);
-		*/
-		gc.gridwidth = 2;
-		input.add(cpanel, gc);
-		gc.gridwidth = 1;
-		
 		gc.gridx = 0;
 		gc.gridy = 2;
 		display.add(input, gc);
@@ -322,15 +294,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			return null;
 		}
 	}
-
-	// TODO - bind - and keep these lists in synch
-	// private LinkedHashMap<String, OpenCVFilterGUI> currentFilters = new
-	// LinkedHashMap<String, OpenCVFilterGUI>();
-	// LinkedHashMap<String, OpenCVFilter> filters = new
-	// LinkedHashMap<String,OpenCVFilter>();
-	
-
-	LinkedHashMap<String, OpenCVFilterGUI> filters = new LinkedHashMap<String, OpenCVFilterGUI>();
 
 	public JButton getAddFilterButton() {
 		addFilterButton = new BasicArrowButton(BasicArrowButton.EAST);
@@ -412,6 +375,24 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	private ActionListener captureListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			
+			// TODO - setState only done in Capture !!!!!
+			// TODO - setting all of OpenCV's actual variables should ONLY be done here
+			// otherwise invalid states may occur while a capture is running
+			// the model is to set all the data of the gui just before the capture 
+			// request is sent
+			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem();
+			if (fileRadio.isSelected())
+			{
+				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_FILE;
+				myOpenCV.inputFile = inputFile.getText();
+			} else if (cameraRadio.isSelected())
+			{
+				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
+				myOpenCV.cameraIndex = (Integer)cameraIndex.getSelectedItem();
+			} else {
+				LOG.error("unknown input source ");
+			}
+			
 			myService.send(boundServiceName, "setState", myOpenCV);
 			
 			if (("capture".equals(capture.getText())))
@@ -431,28 +412,44 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	final public String prefixPath = "com.googlecode.javacv.";
 	
+	
+	/**
+	 * GUI defaults for grabber types 
+	 */
 	private ActionListener grabberTypeListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			
-			// TODO - complete reset or just one fn?
-			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem(); 			
-			myService.send(boundServiceName, "setState", myOpenCV); // TODO - make cleaner myBoundService.setState();
-/*			
-			if (("capture".equals(capture.getText())))
+			String type = (String)grabberTypeSelect.getSelectedItem();
+			if ("OpenKinectFrameGrabber".equals(type))
 			{
-				myService.send(boundServiceName, "capture");
-				capture.setText("stop");
-				//captureCfg.disable();
-				setChildrenEnabled(captureCfg, false);
-			} else {
-				myService.send(boundServiceName, "stopCapture");
-				capture.setText("capture");
-				setChildrenEnabled(captureCfg, true	);
-			}
-*/			
+				cameraRadio.setSelected(true);
+				cameraIndexLable.setVisible(true);
+				cameraIndex.setVisible(true);
+				modeLabel.setVisible(true);
+				kinectImageOrDepth.setVisible(true);
+				inputFileLable.setVisible(false);
+				inputFile.setVisible(false);
+				fileRadio.setVisible(false);
+			} 
+			
+			if ("OpenCVFrameGrabber".equals(type) || 
+					"VideoInputFrameGrabber".equals(type) || 
+					"FFmpegFrameGrabber".equals(type))
+			{
+				//cameraRadio.setSelected(true);
+				kinectImageOrDepth.setSelectedItem("image");
+				//myOpenCV.format = "image";
+				cameraIndexLable.setVisible(true);
+				cameraIndex.setVisible(true);
+				modeLabel.setVisible(false);
+				kinectImageOrDepth.setVisible(false);
+				inputFileLable.setVisible(true);
+				inputFile.setVisible(true);
+			}			
 		}
 	};
 	
+	// TODO - put in util class
 	private void setChildrenEnabled(Container container, boolean enabled) {
 		for (int i=0; i<container.getComponentCount(); i++) {
 		Component comp = container.getComponent(i);
@@ -564,8 +561,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				}
 				
 			}
-			
-			
+						
 			for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i)
 			{
 				String currentObject = prefixPath + (String)grabberTypeSelect.getItemAt(i);
@@ -577,34 +573,21 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 			}
 			
-			if (opencv.isCaptureRunning)
+			if (opencv.capturing)
 			{
 				capture.setText("stop"); // will be a bug if changed to jpg
 			} else {
 				capture.setText("capture");
 			}
 			
+			inputFile.setText(opencv.inputFile);
 			
 			
 		} else {
 			LOG.error("getState for " + myService.name + " was called on " + boundServiceName + " with null reference to state info");
 		}
-		
-		/*
-		if ("null".equals(opencv.useInput))
-		{
-			nullInput.setSelected(true);
-		} else if ("camera".equals(opencv.useInput))
-		{
-			camera.setSelected(true);
-		} else if ("file".equals(opencv.useInput))
-		{
-			file.setSelected(true);
-		}
-		*/
-		
-		cameraIndex.setSelectedIndex(opencv.cameraIndex);
 				
+		cameraIndex.setSelectedIndex(opencv.cameraIndex);
 	}
 
 	@Override
