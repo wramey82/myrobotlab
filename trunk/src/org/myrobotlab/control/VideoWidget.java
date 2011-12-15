@@ -297,6 +297,8 @@ public class VideoWidget extends ServiceGUI {
 		if (cb == null) {
 			cb = new JComboBox();
 		}
+		
+		// FIXME - only accept VideoStreamSource Interfaces !
 
 		// FIXME - cfg deprecated !!!!
 		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();

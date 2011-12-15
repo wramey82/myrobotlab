@@ -24,10 +24,10 @@ public class IPCamera extends Service {
 	public String host = "";
 	public String user = "";
 	public String password = "";
-	
+
 	private IPCameraFrameGrabber grabber = null;
 	private Thread videoProcess = null;
-	
+
 	private boolean capturing = false;
 
 	public final static Logger LOG = Logger.getLogger(IPCamera.class.getCanonicalName());
@@ -36,48 +36,51 @@ public class IPCamera extends Service {
 		super(n, IPCamera.class.getCanonicalName());
 	}
 
-	public class VideoProcess implements Runnable {		
+	public class VideoProcess implements Runnable {
 		@Override
 		public void run() {
-			capturing = true;
-			while (capturing)
-			{
-				//publishFrame(host, grabber.grabBufferedImage());
-				invoke("publishFrame", new Object[]{host, grabber.grabBufferedImage()});
+			try {
+				grabber.start();
+				capturing = true;
+				while (capturing) {
+					BufferedImage bi = grabber.grabBufferedImage();
+					if (bi != null){
+						invoke("publishFrame", new Object[] { host,  bi });
+					}
+				}
+			} catch (Exception e) {
+
+				logException(e);
 			}
 		}
 	}
-	
+
 	public final static SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
 	}
 
-	public boolean attach (String host, String user, String password)
-	{
+	public boolean attach(String host, String user, String password) {
 		this.host = host;
 		this.user = user;
 		this.password = password;
-		
+
 		grabber = new IPCameraFrameGrabber(host, user, password);
-		
+
 		return true;
 	}
-	
+
 	public String getStatus() {
-		StringBuffer ret = new StringBuffer();		
+		StringBuffer ret = new StringBuffer();
 		try {
-			
-			url = new URL("http://" + host + "/get_status.cgi??user=" + user
-					+ "&pwd=" + password);
-			URLConnection yc = url.openConnection();
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					yc.getInputStream()));
+
+			URL url = new URL("http://" + host + "/get_status.cgi?user=" + user+ "&pwd=" + password);
+			URLConnection con = url.openConnection();
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
 
-			while ((inputLine = in.readLine()) != null)
-			{
+			while ((inputLine = in.readLine()) != null) {
 				ret.append(inputLine);
 			}
 			in.close();
@@ -88,12 +91,11 @@ public class IPCamera extends Service {
 	}
 
 	public void capture() {
-		if (videoProcess != null)
-		{
+		if (videoProcess != null) {
 			capturing = false;
 			videoProcess = null;
 		}
-		videoProcess = new Thread(new VideoProcess(),name + "_videoProcess");
+		videoProcess = new Thread(new VideoProcess(), name + "_videoProcess");
 		videoProcess.start();
 	}
 
@@ -113,11 +115,15 @@ public class IPCamera extends Service {
 
 		IPCamera foscam = new IPCamera("foscam");
 
+		foscam.attach("192.168.0.59", "admin", "zardoz7");
+		foscam.capture();
+
 		foscam.startService();
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		
 	}
 
 }

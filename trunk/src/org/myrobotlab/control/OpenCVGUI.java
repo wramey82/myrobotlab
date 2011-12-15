@@ -105,6 +105,15 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	JLabel modeLabel = new JLabel("mode");
 	JButton inputFileButton = new JButton("open file");
 
+	JLabel hostLabel = new JLabel("host");
+	JTextField host = new JTextField("192.168.0.2", 10);
+	JLabel userLabel = new JLabel("user");
+	JTextField user = new JTextField("admin", 10);
+	JLabel passwordLabel = new JLabel("password");
+	JTextField password = new JTextField("password", 10);
+	JComboBox IPCameraType = new JComboBox(new String[]{"foscam FI8918W"});
+	
+	
 	ButtonGroup groupRadio = new ButtonGroup();
 	DefaultListModel currentFilterListModel = new DefaultListModel();
 
@@ -145,6 +154,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				s.add(fg);
 			}
 		}
+		
+		s.add("IPCameraFrameGrabber");
+		
 		grabberTypeSelect = new JComboBox(s.toArray());
 		
 		kinectImageOrDepth.addActionListener(kinectListener);
@@ -218,6 +230,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		captureCfg.add(fileRadio);
 		captureCfg.add(inputFileLable);
 		captureCfg.add(inputFile);
+		
+		captureCfg.add(hostLabel);
+		captureCfg.add(host);
+		captureCfg.add(userLabel);
+		captureCfg.add(user);
+		captureCfg.add(passwordLabel);
+		captureCfg.add(password);
+		captureCfg.add(IPCameraType);
 				
 		input.add(cpanel, gc);
 		++gc.gridy;
@@ -269,6 +289,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		
 		// TODO - bury in framework?
         myOpenCV = (OpenCV)RuntimeEnvironment.getService(boundServiceName).service;
+        
+        // TODO - remove action listener?
+        grabberTypeSelect.setSelectedItem("OpenCVFrameGrabber");
 
 	}
 	
@@ -430,6 +453,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				inputFileLable.setVisible(false);
 				inputFile.setVisible(false);
 				fileRadio.setVisible(false);
+				
+				hostLabel.setVisible(false);
+				host.setVisible(false);
+				userLabel.setVisible(false);
+				user.setVisible(false);
+				passwordLabel.setVisible(false);
+				password.setVisible(false);
+				IPCameraType.setVisible(false);
 			} 
 			
 			if ("OpenCVFrameGrabber".equals(type) || 
@@ -445,7 +476,43 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				kinectImageOrDepth.setVisible(false);
 				inputFileLable.setVisible(true);
 				inputFile.setVisible(true);
+				
+				fileRadio.setVisible(true);
+				cameraRadio.setVisible(true);
+				
+				hostLabel.setVisible(false);
+				host.setVisible(false);
+				userLabel.setVisible(false);
+				user.setVisible(false);
+				passwordLabel.setVisible(false);
+				password.setVisible(false);
+				IPCameraType.setVisible(false);				
 			}			
+
+			if ("IPCameraFrameGrabber".equals(type))
+			{
+				//cameraRadio.setSelected(true);
+				//kinectImageOrDepth.setSelectedItem("image");
+				//myOpenCV.format = "image";
+				cameraIndexLable.setVisible(false);
+				cameraIndex.setVisible(false);
+				modeLabel.setVisible(false);
+				kinectImageOrDepth.setVisible(false);
+				inputFileLable.setVisible(false);
+				inputFile.setVisible(false);
+				
+				fileRadio.setVisible(false);
+				cameraRadio.setVisible(false);
+				
+				hostLabel.setVisible(true);
+				host.setVisible(true);
+				userLabel.setVisible(true);
+				user.setVisible(true);
+				passwordLabel.setVisible(true);
+				password.setVisible(true);
+				IPCameraType.setVisible(true);				
+			}			
+		
 		}
 	};
 	
