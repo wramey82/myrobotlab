@@ -45,8 +45,8 @@ public class ServiceInfo {
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
-		addBase("Jfugue");		
-		addDependency("GUIService","org.jfugue.music","4.0.3");	
+		addBase("JFugue");		
+		addDependency("JFugue","org.jfugue.music","4.0.3");	
 		
 		addBase("Jython");		
 		addDependency("Jython","org.python.core","2.5.2");	
@@ -59,11 +59,19 @@ public class ServiceInfo {
 		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
 		addDependency("OpenCV","com.sun.jna","3.2.2");	
 		
-		addBase("ServiceMonitor");		
-
 		addBase("Roomba");		
-		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");		
+		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
 		
+		addBase("ServiceMonitor");		
+		addBase("Servo");		
+
+		addBase("Simbad");		
+		addDependency("Simbad","net.sourceforge.simbad","1.4");	
+		
+		addBase("Speech");		
+		addDependency("Speech","com.sun.speech.freetts","1.2");	
+		
+		/////////////////////CATEGORIES////////////////////
 		addCategory  ("Arduino", "micro-controller");
 
 		addCategory  ("AudioCapture", "sound");
