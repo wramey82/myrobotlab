@@ -417,7 +417,8 @@ public class Speech extends Service {
 		
 		Speech speech = new Speech("speech");
 		speech.startService();
-//		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+//		speech.setBackendType(BACKEND_TYPE_FREETTS);
+		speech.setBackendType(BACKEND_TYPE_GOOGLE);
 //		speech.setLanguage("fr");
 		speech.speak("it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about.");
 		speech.speak("hello! this is an attempt to generate inflection did it work?");

@@ -217,7 +217,6 @@ public class Utils {
 	
 	public final static BufferedImage readBufferedImage(String filename)
 	{
-		//URL url = new URL(getCodeBase(), "strawberry.jpg");
 		try{
 		   File file = new File(filename);
 		   BufferedImage img = ImageIO.read(file);

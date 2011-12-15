@@ -39,6 +39,8 @@ import org.myrobotlab.framework.Service;
  *	interface.
  *
  *	Possible expectations : motors will have to be local
+ *
+ *	http://en.wikipedia.org/wiki/Dead_reckoning#Differential_steer_drive_dead_reckoning
  */
 
 public class DifferentialDrive extends Service {
