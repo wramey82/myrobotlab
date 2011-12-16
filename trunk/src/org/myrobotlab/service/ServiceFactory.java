@@ -164,7 +164,10 @@ public class ServiceFactory extends Service {
 	 * @return - list of Service Names available
 	 */
 	static public String[] getServiceShortClassNames() {
+		
+		return info.getShortClassNames();
 		// return getShortClassNames("org.myrobotlab.service",false);
+		/*
 		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
 				"ChessGame", "Clock", "DifferentialDrive",
 				"FaceTracking", "FSM", "GeneticProgramming", "Graphics", "GUIService",
@@ -175,6 +178,7 @@ public class ServiceFactory extends Service {
 				"Servo", "SLAM",  
 				"Speech", "SpeechRecognition", "ServiceFactory",
 				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
+				*/
 	}
 
 	
@@ -403,6 +407,7 @@ public class ServiceFactory extends Service {
 		        String s = it.next();
 		        getDependencies(s);
 		    }
+		  // TODO if (Ivy2.hasNewDependencies()) - schedule restart
 	}
 	
 	static public void getDependencies(String fullTypeName)
@@ -493,14 +498,10 @@ public class ServiceFactory extends Service {
 		if (ivysettings.exists())
 		{
 			getDependencies(fullTypeName);
+			// TODO - if (Ivy2.newDependencies()) - schedule restart
 		} else {
-			LOG.debug("iverysettings.xml not available - will not manage dependencies");
+			LOG.debug(ivyFileName + " not available - will not manage dependencies");
 		}
-
-		// get dependencies
-		//Main.main(args)
-
-
 
 		try {
 			
