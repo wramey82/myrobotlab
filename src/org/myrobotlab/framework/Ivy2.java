@@ -311,6 +311,7 @@ import org.apache.log4j.Logger;
                         .setDestIvyPattern(ivyPattern)
                         .setArtifactFilter(FilterHelper.getArtifactTypeFilter(line.getOptionValues("types")))
                         .setMakeSymlinks(line.hasOption("symlink")));
+                LOG.info("ivy.retrieve returned " + ret);
             }
             if (line.hasOption("cachepath")) {
                 outputCachePath(ivy, cache, md, confs, line.getOptionValue("cachepath",

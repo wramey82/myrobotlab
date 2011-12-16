@@ -1,7 +1,9 @@
 package org.myrobotlab.framework;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 public class ServiceInfo {
@@ -45,8 +47,13 @@ public class ServiceInfo {
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
+		addBase("IPCamera");		
+		
 		addBase("JFugue");		
 		addDependency("JFugue","org.jfugue.music","4.0.3");	
+
+		addBase("Joystick");		
+		addDependency("Joystick","com.centralnexus.joystick","0.7");	
 		
 		addBase("Jython");		
 		addDependency("Jython","org.python.core","2.5.2");	
@@ -59,10 +66,12 @@ public class ServiceInfo {
 		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
 		addDependency("OpenCV","com.sun.jna","3.2.2");	
 		
+		addBase("RemoteAdapter");		
+
 		addBase("Roomba");		
 		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
 		
-		addBase("ServiceMonitor");		
+		addBase("SensorMonitor");		
 		addBase("Servo");		
 
 		addBase("Simbad");		
@@ -91,6 +100,7 @@ public class ServiceInfo {
 		addCategory  ("GUIService", "programming");
 
 		addCategory  ("OpenCV", "vision");
+		addCategory  ("IPCamera", "vision");
 		
 		addCategory  ("Motor", "actuators");
 		addCategory  ("Servo", "actuators");
@@ -105,7 +115,8 @@ public class ServiceInfo {
 		addCategory  ("SpeechRecognition", "speech");
 		
 		//addCategory  ("Skype", "telerobotics");
-		//addCategory  ("GoogleAPI", "telerobotics");
+		//addCategory  ("GoogleAPI", "telerobotics"); **
+		//addCategory  ("GoogleGoggles", "telerobotics"); **
 		
 		addCategory  ("WiiDAR", "navigation");
 		addCategory  ("SLAM", "navigation");
@@ -153,7 +164,16 @@ public class ServiceInfo {
 	
 	public String[] getShortClassNames()
 	{
-		return dependencies.keySet().toArray(new String[dependencies.keySet().size()]);
+		ArrayList<String> sorted = new ArrayList<String>();
+		
+		Iterator<String> it = dependencies.keySet().iterator();
+		while (it.hasNext()) {
+			String sn = it.next();
+			sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
+		}
+		Collections.sort(sorted);
+		return sorted.toArray(new String[sorted.size()]);
+		//return dependencies.keySet().toArray(new String[dependencies.keySet().size()]);
 	}
 	
 	public void addDependency (String shortName, String org, String version)

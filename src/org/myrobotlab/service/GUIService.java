@@ -392,7 +392,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		mi = new JMenuItem("refresh");
 	    mi.addActionListener(this);
 	    system.add(mi);	    
-	    	    
+
+		mi = new JMenuItem("connect");
+	    mi.addActionListener(this);
+	    system.add(mi);
+	    
 		mi = new JMenuItem("console");
 	    mi.addActionListener(this);
 	    system.add(mi);
