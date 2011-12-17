@@ -115,7 +115,7 @@ public class IPCamera extends Service {
 
 		IPCamera foscam = new IPCamera("foscam");
 
-		foscam.attach("192.168.0.59", "admin", "zardoz7");
+		foscam.attach("192.168.0.59", "", "");
 		foscam.capture();
 
 		foscam.startService();
