@@ -23,7 +23,7 @@ import simbad.sim.EnvironmentDescription;
  * 
  * Reference :
  * http://simbad.sourceforge.net/guide.php#robotapi
- *
+ * http://www.ibm.com/developerworks/java/library/j-robots/ - simbad & subsumption
  */
 public class Simulator extends Service {
 

@@ -41,7 +41,7 @@ import org.myrobotlab.framework.Service;
  * @author GroG
  *
  * Interface service for player/stage http://playerstage.sourceforge.net/
- * using Javaclient2 http://java-player.sourceforge.net/index.php
+ * using Javaclient3 http://java-player.sourceforge.net/examples-3.php#Navigator
  */
 
 public class PlayerStage extends Service {
