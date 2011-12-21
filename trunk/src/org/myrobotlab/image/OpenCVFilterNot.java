@@ -67,13 +67,7 @@ public class OpenCVFilterNot extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image) {
-
 		buffer = image.clone();
-
-		if (image == null) {
-			LOG.error("image is null");
-		}
-
 		cvNot(image, buffer);
 		return buffer;
 	}

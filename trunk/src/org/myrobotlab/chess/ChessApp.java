@@ -160,12 +160,10 @@ public final class ChessApp extends JApplet implements Constants,
     
     public void vetoableChange(PropertyChangeEvent pce) throws PropertyVetoException {
         org.op.chess.Move move = (org.op.chess.Move) pce.getNewValue();
+        if (move == null) return;
         
     	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
-    	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());
-
-        
-        if (move == null) return;
+    	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());        
         int promote = 0;
         int to = move.getTo(); int from = move.getFrom();
         if ((((to < 8) && (board.side == LIGHT)) || ((to > 55) && (board.side == DARK))) &&

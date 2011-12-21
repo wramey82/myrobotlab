@@ -32,7 +32,7 @@ import org.myrobotlab.framework.Service;
  * 
  * Reference : 
  * http://www.oursland.net/projects/fastslam/ - implementation and online demo
- * 
+ * http://openslam.org/
  * @author grog
  *
  */

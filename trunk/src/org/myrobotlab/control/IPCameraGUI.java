@@ -25,84 +25,84 @@
 
 package org.myrobotlab.control;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.IPCamera;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(IPCameraGUI.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(IPCameraGUI.class
+			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
-	JLabel boundPos = null;
+	VideoWidget video0;
+	Keyboard keyboard;
+	
+	IPCamera myIPCamera;
 
-	JLabel loginValue = new JLabel("");
-	JLabel msgCountValue = new JLabel("");
+	DirectionWidget direction = new DirectionWidget();
+	DirectionEventListener del = new DirectionEventListener();
 
-	VideoWidget video0 = null;
+	public class DirectionEventListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			LOG.info(ae);
+			if ("n".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
+			} else if ("ne".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+			} else if ("e".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+			} else if ("se".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+			} else if ("s".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
+			} else if ("sw".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+			} else if ("w".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+			} else if ("nw".equals(ae.getActionCommand())) {
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+			}
+		}
 
-	BasicArrowButton forward = new BasicArrowButton(BasicArrowButton.NORTH);
-	BasicArrowButton back = new BasicArrowButton(BasicArrowButton.SOUTH);
-	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
-	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
-
-	JList currentPlayers;
-	JList currentLog;
-
-	DefaultListModel logModel = new DefaultListModel();
-
-	int msgCount = 0;
-
-	Keyboard keyboard = null;
+	}
 
 	public IPCameraGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		myIPCamera = (IPCamera)RuntimeEnvironment.getService(boundServiceName).service;
+		direction.setDirectionListener(del);
 	}
-	
-	
-	public void init() 
-	{
+
+	public void init() {
 
 		video0 = new VideoWidget(boundServiceName, myService, false);
 		video0.init();
-		keyboard = new Keyboard();
-		// build input begin ------------------
 
 		gc.gridx = 0;
 		gc.gridy = 0;
 
 		display.add(video0.display, gc);
-
-		++gc.gridy;
-		gc.gridx = 0;
-		display.add(new JLabel("login "), gc);
-		gc.gridx = 1;
-		display.add(loginValue, gc);
-
-		++gc.gridy;
-		gc.gridx = 0;
-		display.add(new JLabel("msgs "), gc);
-		gc.gridx = 1;
-		display.add(msgCountValue, gc);
+		++gc.gridx;
+		display.add(direction, gc);
 
 		++gc.gridy;
 		gc.gridx = 0;
@@ -114,46 +114,21 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 		gc.gridx = 1;
 
-		currentLog = new JList(logModel);
-		currentLog.setFixedCellWidth(200);
-		currentLog.addListSelectionListener(this);
-		currentLog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		currentLog.setVisibleRowCount(10);
-
-		TitledBorder title;
-		JPanel logPanel = new JPanel();
-		JScrollPane logScrollPane = new JScrollPane(currentPlayers);
-		title = BorderFactory.createTitledBorder("key log");
-		logPanel.setBorder(title);
-		logPanel.add(logScrollPane);
-
-		display.add(logPanel, gc);
-
-		JScrollPane currentFiltersScrollPane2 = new JScrollPane(currentLog);
-		logPanel.add(currentFiltersScrollPane2);
-
-		++gc.gridy;
-		++gc.gridy;
-		++gc.gridy;
-		gc.gridx = 0;
-
-		gc.gridx = 1;
 	}
 
+	/**
+	 * TODO - make Keyboard Widget
+	 * 
+	 * @author greg
+	 * 
+	 */
 	public class Keyboard implements KeyListener {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss:SSS");
 
 		public void keyPressed(KeyEvent keyEvent) {
-
-			// myService.send(boundServiceName, "keyCommand",
-			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyPressed", keyEvent.getKeyCode());
-
-			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
-
+			myService.send(boundServiceName, "keyPressed",
+					keyEvent.getKeyCode());
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
@@ -165,10 +140,6 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 	};
-
-	public void setLogin(String login) {
-		loginValue.setText(login);
-	}
 
 	public void displayFrame(SerializableImage img) {
 
@@ -190,16 +161,10 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	}
 
-	/*
-	 * public void rosterUpdate(ArrayList<String> newRoster) {
-	 * rosterModel.clear(); for (int i = 0; i < newRoster.size(); ++i) {
-	 * rosterModel.add(i, newRoster.get(i)); } }
+	/**
+	 * Returns an ImageIcon, or null if the path was invalid. TODO - move to
+	 * FileIO.Util
 	 */
-	public void addLogEntry(String msg) {
-		logModel.add(0, msg);
-	}
-
-	/** Returns an ImageIcon, or null if the path was invalid. */
 	protected ImageIcon createImageIcon(String path, String description) {
 		java.net.URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
