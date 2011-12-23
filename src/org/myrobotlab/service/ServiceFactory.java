@@ -92,7 +92,7 @@ public class ServiceFactory extends Service {
 		System.out.println("-list        		# list services");
 		System.out.println("-logToConsole       # redirects logging to console");
 		System.out.println("-logLevel        	# log level [DEBUG | INFO | WARNING | ERROR | FATAL]");
-		System.out.println("-service [Service] [Service Name] ...");
+		System.out.println("-service [Service Name] [Service] ...");
 		System.out.println("example:");
 		System.out.println(helpString);
 	}

@@ -47,15 +47,20 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class VideoWidget extends ServiceGUI {
 
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 	boolean allowFork = true;
+	JComboBox localSources = null;
 	
 	// TODO - too big for inner class
 	public class VideoDisplayPanel
@@ -72,7 +77,6 @@ public class VideoWidget extends ServiceGUI {
 
 		JButton attach = new JButton("attach");
 		JButton fork = new JButton("fork");
-		JComboBox localSources = null;
 		JLabel sourceNameLabel = new JLabel("");
 		public JLabel extraDataLabel = new JLabel("");
 
@@ -297,14 +301,12 @@ public class VideoWidget extends ServiceGUI {
 		if (cb == null) {
 			cb = new JComboBox();
 		}
-		
-		// FIXME - only accept VideoStreamSource Interfaces !
-
-		// FIXME - cfg deprecated !!!!
-		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
-		Map<String, ServiceEntry> sortedMap = new TreeMap<String, ServiceEntry>(services);
+				
+		//RuntimeEnvironment.getServicesFromInterface(interfaceName);
+		ServiceEnvironment se = RuntimeEnvironment.getLocalServices();
+		Map<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(se.serviceDirectory);
 		Iterator<String> it = sortedMap.keySet().iterator();
-
+		
 		// String [] namesAndClasses = new String[sortedMap.size()];
 		while (it.hasNext()) {
 			String serviceName = it.next();
@@ -332,11 +334,9 @@ public class VideoWidget extends ServiceGUI {
 	 * customizing displays
 	 */
 	public void attachLocalGUI() {
-/* FIXME FIXME FIXME		
 		VideoGUISource vgs = (VideoGUISource) myService.getServiceGUIMap().get(localSources.getSelectedItem());
 		VideoWidget vw = vgs.getLocalDisplay();
 		vw.getExports().add(this);
-*/		
 	}
 
 	@Override

@@ -47,6 +47,7 @@ public class ServiceInfo {
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
+		addBase("Graphics");
 		addBase("IPCamera");		
 		
 		addBase("JFugue");		
