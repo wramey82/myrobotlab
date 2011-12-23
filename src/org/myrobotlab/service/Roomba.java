@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.Port;
 import org.myrobotlab.service.interfaces.SerialPort;
@@ -69,9 +70,6 @@ import org.myrobotlab.service.interfaces.SerialPort;
 public class Roomba extends Service implements SerialPort {
 	/** version of the library */
 	static public final String VERSION = "0.96";
-
-	/** turns on/off various debugging messages */
-	public boolean debug = false;
 
 	/** distance between wheels on the roomba, in millimeters */
 	public static final int wheelbase = 258;
@@ -955,7 +953,7 @@ public class Roomba extends Service implements SerialPort {
 	 */
 	public String sensorsAsString() {
 		String sd = "";
-		if (debug) {
+		if (LOG.getLevel().equals(LogLevel.DEBUG)) {
 			sd = "\n";
 			for (int i = 0; i < 26; i++)
 				sd += " " + hex(sensor_bytes[i]);
