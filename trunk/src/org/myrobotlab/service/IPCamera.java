@@ -2,10 +2,7 @@ package org.myrobotlab.service;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -77,21 +74,22 @@ public class IPCamera extends Service {
 		return si;
 	}
 
-	public boolean attach(String host, String user, String password) {
+	public boolean connect(String host, String user, String password) {
 		this.host = host;
 		this.user = user;
 		this.password = password;
-
 		grabber = new IPCameraFrameGrabber(host, user, password);
-
+		//String status = getStatus();
+		invoke("getStatus");
 		return true;
 	}
 
-	
-	public String move(int param)
+	public String move(Integer param)
 	{
+		LOG.debug("move " + param);
 		StringBuffer ret = new StringBuffer();
 		try {
+			// TODO - re-use connection optimization
 
 			URL url = new URL("http://" + host + "/decoder_control.cgi?command="+param+"user=" + user+ "&pwd=" + password);
 			URLConnection con = url.openConnection();
@@ -104,6 +102,7 @@ public class IPCamera extends Service {
 			in.close();
 		} catch (Exception e) {
 			logException(e);
+			connect(host, user, password);
 		}
 		return ret.toString();		
 	}
@@ -139,6 +138,11 @@ public class IPCamera extends Service {
 		return ret.toString();		
 	}
 		
+	/**
+	 * method to determine connectivity of a valid host, user & password to a foscam
+	 * camera.
+	 * @return
+	 */
 	public String getStatus() {
 		StringBuffer ret = new StringBuffer();
 		try {
@@ -148,11 +152,14 @@ public class IPCamera extends Service {
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
 
+			// TODO - parse for good info
+			
 			while ((inputLine = in.readLine()) != null) {
 				ret.append(inputLine);
 			}
 			in.close();
 		} catch (Exception e) {
+			ret.append(e.getMessage());
 			logException(e);
 		}
 		return ret.toString();

@@ -192,7 +192,7 @@ public class Graphics extends Service {
 		
 		GUIService gui = new GUIService("gui");
 		Graphics graph = new Graphics("graph");
-		
+		OpenCV opencv = new OpenCV("opencv");
 		// manual intervention - clear screen
 		
 		gui.startService();

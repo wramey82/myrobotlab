@@ -65,11 +65,13 @@ import javax.swing.JTextField;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
+import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_objdetect;
 import com.googlecode.javacv.cpp.opencv_objdetect.CvHaarClassifierCascade;
 
 
@@ -149,6 +151,10 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 
 		if (cascade == null) {
+	        // Preload the opencv_objdetect module to work around a known bug.
+	        Loader.load(opencv_objdetect.class);
+	        
+			cvLoad("haarcascades/haarcascade_frontalface_alt.xml");
 			cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
 			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 			

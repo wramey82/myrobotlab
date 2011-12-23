@@ -1011,7 +1011,7 @@ public abstract class Service implements Runnable, Serializable {
 				
 		 		Type[] pType = m.getGenericParameterTypes();
 		 		// checking parameter lengths
-		 		if (pType.length != params.length)
+		 		if (params == null && pType.length != 0 || pType.length != params.length)
 		 		{
 		 			continue;
 		 		}
