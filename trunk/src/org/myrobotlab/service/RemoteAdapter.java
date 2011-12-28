@@ -275,7 +275,12 @@ public class RemoteAdapter extends Service {
 								comm.addClient(socket, dgram.getAddress(), dgram.getPort());
 								//registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 								invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+								// FIXME - no retObject on invoke - how to generate the event ???
 								// getting clients address and port
+								//getOutbox().add(msg);
+								//msg.name=myService.name;
+								//getInbox().add(msg);
+								
 								continue;
 							}
 

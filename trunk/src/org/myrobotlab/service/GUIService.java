@@ -61,15 +61,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
-import org.myrobotlab.control.Welcome;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.ServiceTabPane;
+import org.myrobotlab.control.Welcome;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
@@ -589,6 +589,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				"fatal".equals(action))
 		{
 			setLogLevel(action.toUpperCase());
+		} else if ("connect".equals(action)) 
+		{
+			ConnectDialog dlg = new ConnectDialog(new JFrame(), "title", "message", this);
 		} else {
 			invoke(action);
 		}

@@ -57,7 +57,9 @@ public class IPCamera extends Service {
 				capturing = true;
 				while (capturing) {
 					BufferedImage bi = grabber.grabBufferedImage();
+					LOG.info("grabbed");
 					if (bi != null){
+						LOG.info("publishFrame");
 						invoke("publishFrame", new Object[] { host,  bi });
 					}
 				}
@@ -91,7 +93,7 @@ public class IPCamera extends Service {
 		try {
 			// TODO - re-use connection optimization
 
-			URL url = new URL("http://" + host + "/decoder_control.cgi?command="+param+"user=" + user+ "&pwd=" + password);
+			URL url = new URL("http://" + host + "/decoder_control.cgi?command="+param+"&user=" + user+ "&pwd=" + password);
 			URLConnection con = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -148,6 +150,7 @@ public class IPCamera extends Service {
 		try {
 
 			URL url = new URL("http://" + host + "/get_status.cgi?user=" + user+ "&pwd=" + password);
+			LOG.debug("getStatus " + url);
 			URLConnection con = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -158,6 +161,14 @@ public class IPCamera extends Service {
 				ret.append(inputLine);
 			}
 			in.close();
+			
+			LOG.debug(ret.indexOf("var id"));
+			
+			if (ret.indexOf("var id") != -1)
+			{
+				ret = new StringBuffer("connected");
+			} else {
+			}
 		} catch (Exception e) {
 			ret.append(e.getMessage());
 			logException(e);
@@ -173,6 +184,14 @@ public class IPCamera extends Service {
 		videoProcess = new Thread(new VideoProcess(), name + "_videoProcess");
 		videoProcess.start();
 	}
+	
+	public void stopCapture() {
+		capturing = false;
+		if (videoProcess != null) {
+			capturing = false;
+			videoProcess = null;
+		}
+	}
 
 	@Override
 	public void loadDefaultConfiguration() {
@@ -186,7 +205,7 @@ public class IPCamera extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		IPCamera foscam = new IPCamera("foscam");
 

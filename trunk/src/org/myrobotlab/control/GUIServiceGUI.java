@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
@@ -548,14 +549,12 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		sendNotifyRequest("registerServices", "loadTabPanels");//(String hostAddress, int port, Message msg) 
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-
+		removeNotifyRequest("registerServices", "loadTabPanels");
 	}
 
 

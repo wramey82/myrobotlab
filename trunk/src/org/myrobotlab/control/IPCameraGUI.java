@@ -57,6 +57,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 	IPCamera myIPCamera;
 
 	JButton connect;
+	JButton capture;
 	JLabel connected;
 	JLabel notConnected;
 	
@@ -73,26 +74,35 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
 			} else if ("ne".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
 			} else if ("e".equals(ae.getActionCommand())) {
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
 			} else if ("se".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
 			} else if ("s".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
 			} else if ("sw".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_DOWN);
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
 			} else if ("w".equals(ae.getActionCommand())) {
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
 			} else if ("nw".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
 			} else if ("stop".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_CENTER);
 			} else if ("connect".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "connect", host.getText(), user.getText(), password.getText());
+			} else if ("capture".equals(ae.getActionCommand())) {
+				JButton b = (JButton)ae.getSource();
+				if ("stop capture".equals(b.getText()))
+				{	b.setText("capture");
+					myService.send(boundServiceName, "stopCapture");					
+				} else {
+					b.setText("stop capture");
+					myService.send(boundServiceName, "capture");
+				}
 			}
 		}
 
@@ -104,9 +114,9 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		direction.setDirectionListener(del);
 	}
 
-	JTextField host = new JTextField("127.0.0.2", 8);
+	JTextField host = new JTextField("myrobotlab.dyndns.org:1060", 8);
 	JTextField user = new JTextField("admin", 8);
-	JPasswordField password = new JPasswordField("password", 8);
+	JPasswordField password = new JPasswordField("zardoz7", 8);
 	
 	public void init() {
 
@@ -157,6 +167,11 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 		info = new JPanel();
 		
+		capture = new JButton("capture");
+		capture.setActionCommand("capture");
+		capture.addActionListener(del);
+		++gc.gridy;
+		display.add(capture, gc);
 		++gc.gridy;
 		display.add(info, gc);
 	}
