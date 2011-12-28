@@ -101,17 +101,16 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		total = 0;
 		while ((n = input.read(buffer, 0, contentLength - total)) != -1) {
 			total += n;
+			baos.write(buffer, 0, n);
 			if (total == contentLength) {
-				baos.write(buffer, 0, n);
 				break;
 			}
 		}
-		LOG.info("wrote " + total);
 		
+		baos.flush();
+		//LOG.info("wrote " + baos.size() + "," + total);
 		BufferedImage bi = ImageIO.read(new ByteArrayInputStream (baos.toByteArray()));
-		Thread.sleep(90);
-		return bi;
-	
+		return bi;	
 	}
 
 	@Override

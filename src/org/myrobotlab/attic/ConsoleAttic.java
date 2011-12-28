@@ -1,4 +1,4 @@
-package org.myrobotlab.control;
+package org.myrobotlab.attic;
 
 //
 // A simple Java Console for your application (Swing version)

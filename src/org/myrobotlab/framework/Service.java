@@ -50,7 +50,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.net.CommunicationManager;
-import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
@@ -1492,37 +1491,6 @@ public abstract class Service implements Runnable, Serializable {
 
 	}
 
-	// this event comes after services have been changed
-	//public void registerServicesNotify() {
-	//	LOG.info("registerServicesNotify");
-	//}
-
-/*
-	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		LOG.error(name + " sendServiceDirectoryUpdate ");
-
-		// TODO - GET ENV FROM service name - get ip & port
-
-		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
-			ServiceEntry se = sdu.serviceEntryList_.get(i);
-			se.host = sdu.remoteHostname; 
-			se.servicePort = sdu.remoteServicePort;
-			LOG.error("registering services from foriegn source " + se.host
-					+ ":" + se.servicePort + "/" + se.name);
-			hostcfg.setServiceEntry(se);
-		}
-
-
-		send(name, "registerServicesNotify");
-	}
-*/
-	// TODO - stub out
-	//public synchronized void removeServices(ServiceDirectoryUpdate sdu) {
-	//}
-
-	/*
-	 *  sending a registerServices to an unknown process id
-	 */
 
 	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
 			int port, ServiceDirectoryUpdate sdu) {
