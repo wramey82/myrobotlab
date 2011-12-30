@@ -95,6 +95,7 @@ public class OpenCV extends Service {
 
 	public final static String INPUT_SOURCE_CAMERA = "camera";
 	public final static String INPUT_SOURCE_FILE = "file";
+	public final static String INPUT_SOURCE_NETWORK = "network";
 	
 	// GRABBER BEGIN --------------------------
 	public String inputSource = INPUT_SOURCE_CAMERA;
@@ -110,6 +111,9 @@ public class OpenCV extends Service {
 	boolean loopInputMovieFile = true;
 	boolean publishFrame = true;
 	boolean useCanvasFrame = false;
+	public String ip;
+	public String user;
+	public String password;
 	// GRABBER END --------------------------
 
 	transient VideoProcess videoProcess = null;
@@ -387,7 +391,16 @@ public class OpenCV extends Service {
 				} else if (INPUT_SOURCE_FILE.equals(inputSource)) { 
 					paramTypes[0] = String.class;
 					params[0] = inputFile;
-				}
+				} else if (INPUT_SOURCE_NETWORK.equals(inputSource)) { 
+					paramTypes = new Class[3];
+					params = new Object[3];
+					paramTypes[0] = String.class;
+					params[0] = ip;
+					paramTypes[1] = String.class;
+					params[1] = user;
+					paramTypes[2] = String.class;
+					params[2] = password;
+				} 
 
 				Class<?> nfg = Class.forName(grabberType);
 				// TODO - get correct constructor for Capture Configuration..
