@@ -36,6 +36,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	public void start() throws Exception {
 		url = new URL("http://" + host + "/videostream.cgi?user=" + user
 				+ "&pwd=" + password);
+		LOG.error(url);
 		connection = url.openConnection();
 		input = connection.getInputStream();
 	}

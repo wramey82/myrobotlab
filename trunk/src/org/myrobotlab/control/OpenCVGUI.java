@@ -49,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -75,6 +76,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(OpenCVGUI.class.toString());
+	public String prefixPath = "com.googlecode.javacv.";
 
 	JButton connectButton = null;
 	JButton saveFeaturesButton = null;
@@ -105,12 +107,12 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	JLabel modeLabel = new JLabel("mode");
 	JButton inputFileButton = new JButton("open file");
 
-	JLabel hostLabel = new JLabel("host");
-	JTextField host = new JTextField("192.168.0.2", 10);
+	JLabel ipLabel = new JLabel("ip");
+	JTextField ip = new JTextField("192.168.0.2", 10);
 	JLabel userLabel = new JLabel("user");
 	JTextField user = new JTextField("admin", 10);
 	JLabel passwordLabel = new JLabel("password");
-	JTextField password = new JTextField("password", 10);
+	JPasswordField password = new JPasswordField("password", 10);
 	JComboBox IPCameraType = new JComboBox(new String[]{"foscam FI8918W"});
 	
 	
@@ -231,8 +233,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		captureCfg.add(inputFileLable);
 		captureCfg.add(inputFile);
 		
-		captureCfg.add(hostLabel);
-		captureCfg.add(host);
+		captureCfg.add(ipLabel);
+		captureCfg.add(ip);
 		captureCfg.add(userLabel);
 		captureCfg.add(user);
 		captureCfg.add(passwordLabel);
@@ -403,7 +405,19 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			// otherwise invalid states may occur while a capture is running
 			// the model is to set all the data of the gui just before the capture 
 			// request is sent
+			if ("IPCameraFrameGrabber".equals((String)grabberTypeSelect.getSelectedItem()))
+			{
+				prefixPath = "org.myrobotlab.image.";		
+				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
+			} else {
+				prefixPath = "com.googlecode.javacv.";
+			}
 			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem();
+			
+			myOpenCV.ip = ip.getText();
+			myOpenCV.password = password.getText();
+			myOpenCV.user = user.getText();
+			
 			if (fileRadio.isSelected())
 			{
 				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_FILE;
@@ -413,7 +427,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
 				myOpenCV.cameraIndex = (Integer)cameraIndex.getSelectedItem();
 			} else {
-				LOG.error("unknown input source ");
+				LOG.error("input source is " + myOpenCV.inputSource);
 			}
 			
 			myService.send(boundServiceName, "setState", myOpenCV);
@@ -433,7 +447,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		}
 	};
 
-	final public String prefixPath = "com.googlecode.javacv.";
 	
 	
 	/**
@@ -454,8 +467,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				inputFile.setVisible(false);
 				fileRadio.setVisible(false);
 				
-				hostLabel.setVisible(false);
-				host.setVisible(false);
+				ipLabel.setVisible(false);
+				ip.setVisible(false);
 				userLabel.setVisible(false);
 				user.setVisible(false);
 				passwordLabel.setVisible(false);
@@ -480,8 +493,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				fileRadio.setVisible(true);
 				cameraRadio.setVisible(true);
 				
-				hostLabel.setVisible(false);
-				host.setVisible(false);
+				ipLabel.setVisible(false);
+				ip.setVisible(false);
 				userLabel.setVisible(false);
 				user.setVisible(false);
 				passwordLabel.setVisible(false);
@@ -504,8 +517,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				fileRadio.setVisible(false);
 				cameraRadio.setVisible(false);
 				
-				hostLabel.setVisible(true);
-				host.setVisible(true);
+				ipLabel.setVisible(true);
+				ip.setVisible(true);
 				userLabel.setVisible(true);
 				user.setVisible(true);
 				passwordLabel.setVisible(true);
