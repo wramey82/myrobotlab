@@ -80,7 +80,8 @@ public class IPCamera extends Service {
 		this.host = host;
 		this.user = user;
 		this.password = password;
-		grabber = new IPCameraFrameGrabber(host, user, password);
+		// foscam url http://host/videostream.cgi?user=username&pwd=password
+		grabber = new IPCameraFrameGrabber("http://" + host+"/videostream.cgi?user="+user+"&pwd="+password);
 		//String status = getStatus();
 		invoke("getStatus");
 		return true;
