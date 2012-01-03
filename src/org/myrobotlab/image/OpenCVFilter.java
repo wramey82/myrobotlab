@@ -32,15 +32,19 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.OpenCV;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+@Root
 public abstract class OpenCVFilter implements Serializable{
 
 	public final static Logger LOG = Logger.getLogger(OpenCVFilter.class.toString());
 
 	private static final long serialVersionUID = 1L;
 	ConfigurationManager cfg = null; // TODO - remove
+	@Element
 	final public String name;
 	OpenCV myService = null; 
 	HashMap<String, Object> storage = null;

@@ -107,12 +107,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	JLabel modeLabel = new JLabel("mode");
 	JButton inputFileButton = new JButton("open file");
 
-	JLabel ipLabel = new JLabel("ip");
-	JTextField ip = new JTextField("192.168.0.2", 10);
-	JLabel userLabel = new JLabel("user");
-	JTextField user = new JTextField("admin", 10);
-	JLabel passwordLabel = new JLabel("password");
-	JPasswordField password = new JPasswordField("password", 10);
 	JComboBox IPCameraType = new JComboBox(new String[]{"foscam FI8918W"});
 	
 	
@@ -136,7 +130,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	
 	public void init() {
 
-		video0 = new VideoWidget(boundServiceName, myService);
+		video0 = new VideoWidget(boundServiceName, myService, false);
 		video0.init();
 				
 		// TODO - refactor and make invisible unless filter warrants it
@@ -165,11 +159,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		
 		String plist[] = { "And", "AverageColor", "Canny", "CreateHistogram",
 				"ColorTrack", "Dilate", "Erode", "FGBG", "FaceDetect",
-				"Fauvist", "FindContours", "FloodFill", "GoodFeaturesToTrack",
+				"Fauvist", "FindContours", "FloodFill", "FloorFinder", "GoodFeaturesToTrack",
 				"Gray", "HoughLines2",
 				"HSV",
 				"InRange","KinectDepth","KinectDepthMask", "KinectInterleave",
-				// "Laser Tracking", oops lost cause not checked in !
 				"LKOpticalTrack", "Mask","MatchTemplate", "MotionTemplate", "Mouse", "Not",
 				"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
 				"ResetImageROI", "SampleArray", "SampleImage", "SetImageROI",
@@ -233,12 +226,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		captureCfg.add(inputFileLable);
 		captureCfg.add(inputFile);
 		
-		captureCfg.add(ipLabel);
-		captureCfg.add(ip);
-		captureCfg.add(userLabel);
-		captureCfg.add(user);
-		captureCfg.add(passwordLabel);
-		captureCfg.add(password);
 		captureCfg.add(IPCameraType);
 				
 		input.add(cpanel, gc);
@@ -413,11 +400,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				prefixPath = "com.googlecode.javacv.";
 			}
 			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem();
-			
-			myOpenCV.ip = ip.getText();
-			myOpenCV.password = password.getText();
-			myOpenCV.user = user.getText();
-			
+						
 			if (fileRadio.isSelected())
 			{
 				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_FILE;
@@ -467,12 +450,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				inputFile.setVisible(false);
 				fileRadio.setVisible(false);
 				
-				ipLabel.setVisible(false);
-				ip.setVisible(false);
-				userLabel.setVisible(false);
-				user.setVisible(false);
-				passwordLabel.setVisible(false);
-				password.setVisible(false);
 				IPCameraType.setVisible(false);
 			} 
 			
@@ -493,12 +470,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				fileRadio.setVisible(true);
 				cameraRadio.setVisible(true);
 				
-				ipLabel.setVisible(false);
-				ip.setVisible(false);
-				userLabel.setVisible(false);
-				user.setVisible(false);
-				passwordLabel.setVisible(false);
-				password.setVisible(false);
 				IPCameraType.setVisible(false);				
 			}			
 
@@ -511,18 +482,13 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				cameraIndex.setVisible(false);
 				modeLabel.setVisible(false);
 				kinectImageOrDepth.setVisible(false);
-				inputFileLable.setVisible(false);
-				inputFile.setVisible(false);
+				inputFileLable.setVisible(true);
+				inputFile.setVisible(true);
+				fileRadio.setSelected(true);
 				
 				fileRadio.setVisible(false);
 				cameraRadio.setVisible(false);
 				
-				ipLabel.setVisible(true);
-				ip.setVisible(true);
-				userLabel.setVisible(true);
-				user.setVisible(true);
-				passwordLabel.setVisible(true);
-				password.setVisible(true);
 				IPCameraType.setVisible(true);				
 			}			
 		

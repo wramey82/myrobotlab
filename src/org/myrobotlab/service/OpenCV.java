@@ -44,8 +44,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvQueryFrame;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvReleaseCapture;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
 import java.awt.Dimension;
@@ -69,8 +67,10 @@ import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.ColoredPoint;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementMap;
+import org.simpleframework.xml.Root;
 
-import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
@@ -80,15 +80,14 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
+@Root
 public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCV.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 	int frameIndex = 0;
 	int lastImageWidth = 0;
@@ -98,22 +97,25 @@ public class OpenCV extends Service {
 	public final static String INPUT_SOURCE_NETWORK = "network";
 	
 	// GRABBER BEGIN --------------------------
+	@Element
 	public String inputSource = INPUT_SOURCE_CAMERA;
+	@Element
 	public String grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
 	FrameGrabber grabber = null;
 
 	// grabber cfg
-	boolean isWindows = false;
+	@Element
 	public String format = null;
+	@Element
 	public boolean getDepth = false;
+	@Element	
 	public int cameraIndex = 0;
+	@Element
 	public String inputFile = "http://localhost/videostream.cgi";
 	boolean loopInputMovieFile = true;
 	boolean publishFrame = true;
 	boolean useCanvasFrame = false;
-	public String ip;
-	public String user;
-	public String password;
+	//public String url;
 	// GRABBER END --------------------------
 
 	transient VideoProcess videoProcess = null;
@@ -155,6 +157,7 @@ public class OpenCV extends Service {
 	 */
 	LinkedHashMap<String, OpenCVFilter> addFilters = new LinkedHashMap<String, OpenCVFilter>();
 	ArrayList<String> removeFilters = new ArrayList<String>();
+	@ElementMap	
 	LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
 	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
 
@@ -209,6 +212,7 @@ public class OpenCV extends Service {
 
 	public OpenCV(String n) {
 		super(n, OpenCV.class.getCanonicalName());
+		load();
 	}
 
 	public void loadDefaultConfiguration() {
@@ -391,15 +395,6 @@ public class OpenCV extends Service {
 				} else if (INPUT_SOURCE_FILE.equals(inputSource)) { 
 					paramTypes[0] = String.class;
 					params[0] = inputFile;
-				} else if (INPUT_SOURCE_NETWORK.equals(inputSource)) { 
-					paramTypes = new Class[3];
-					params = new Object[3];
-					paramTypes[0] = String.class;
-					params[0] = ip;
-					paramTypes[1] = String.class;
-					params[1] = user;
-					paramTypes[2] = String.class;
-					params[2] = password;
 				} 
 
 				Class<?> nfg = Class.forName(grabberType);
@@ -658,6 +653,8 @@ public class OpenCV extends Service {
 
 	public void capture() {
 
+		save();
+		
 		if (videoProcess != null) {
 			stopCapture();
 		}
@@ -842,6 +839,9 @@ public class OpenCV extends Service {
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
 
+		IPCamera ip = new IPCamera("ip");
+		ip.startService();
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

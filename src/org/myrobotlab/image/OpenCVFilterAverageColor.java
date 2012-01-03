@@ -45,6 +45,8 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -52,7 +54,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
+@Root
 public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
@@ -62,6 +64,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
+	@Element
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull

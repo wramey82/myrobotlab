@@ -104,7 +104,8 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		}
 
 		if (storage == null) {
-			storage = cvCreateMemStorage(0);
+			//storage = cvCreateMemStorage(0);
+			storage = CvMemStorage.create();
 		}
 
 		if (inlines == null) {
@@ -125,19 +126,25 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
 		// http://www.aishack.in/2010/04/hough-transform-in-opencv/ -
 		// explanation of hough transform parameters
-		// 	
-		// CvSeq lines = cv.cvHoughLines2( inlines, storage.getPointer(),
-		// cv.CV_HOUGH_PROBABILISTIC, 1, Math.PI/180, 10, 40, 10);
+
 		CvSeq lines = cvHoughLines2(inlines, storage,
 				CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
 
+
 		for (int i = 0; i < lines.total(); i++) {
+			
 			//IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer(4).asIntBuffer(); javacv 06112011 update
+			/*
 			IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer().asIntBuffer();
 			p0.x(line.get(0));
 			p0.y(line.get(1));
 			p1.x(line.get(2));
 			p1.y(line.get(3));
+			*/
+
+			CvPoint p0 = new CvPoint(cvGetSeqElem(lines,i));
+			CvPoint p1 = new CvPoint(cvGetSeqElem(lines,i+1));
+			
 			cvDrawLine(image, p0, p1, CV_RGB(255, 255, 255), 2, 8, 0);
 		}
 		

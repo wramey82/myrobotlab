@@ -4,8 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -16,28 +19,49 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class IPCameraFrameGrabber extends FrameGrabber {
 
+	/*
+	 * excellent reference - http://www.jpegcameras.com/
+	 * foscam url http://host/videostream.cgi?user=username&pwd=password
+	 * 			  http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password
+	 * android ip cam  http://192.168.0.57:8080/videofeed
+	 */
 	public final static Logger LOG = Logger.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
 
-	private String host;
-	private String user;
-	private String password;
 	private URL url;
 	private URLConnection connection;
 	private InputStream input;
+	private Map <String, List<String>> headerfields;
+	private String boundryKey;
 
-	public IPCameraFrameGrabber (String host, String user, String password)
+	public IPCameraFrameGrabber (String urlstr)
 	{
-		this.host = host;
-		this.user = user;
-		this.password = password;
+		try {
+			url = new URL (urlstr);
+		} catch (MalformedURLException e) {
+			LOG.error(e);
+		}
 	}
+	
 	
 	@Override
 	public void start() throws Exception {
-		url = new URL("http://" + host + "/videostream.cgi?user=" + user
-				+ "&pwd=" + password);
-		LOG.error(url);
+		
+		LOG.error("connecting to " + url);
 		connection = url.openConnection();
+		headerfields = connection.getHeaderFields();
+		if (headerfields.containsKey("Content-Type"))
+		{
+			List<String> ct = headerfields.get("Content-Type");
+			for (int i = 0; i < ct.size(); ++i)
+			{
+				String key = ct.get(i);
+				int j = key.indexOf("boundary=");
+				if (j != -1)
+				{
+					boundryKey= key.substring(j+9);
+				}
+			}
+		}
 		input = connection.getInputStream();
 	}
 
@@ -68,7 +92,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		StringBuffer sb = new StringBuffer();
 		int total = 0;
 		int c;
-		// read http header
+		// read http subheader
 		while ((c = input.read()) != -1) {
 			if (c > 0) {
 				sb.append((char)c);
@@ -80,18 +104,28 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 					if (c == 13)
 					{
 						sb.append((char)input.read());// '10'
-						break; // done with header
+						break; // done with subheader
 					}
 					
 				}
 			}
 		}
-		// find size of embedded jpeg in stream
-		String header = sb.toString();
-		int c0 = header.indexOf("Content-Length: ") + 16;
-		int c1 = header.indexOf('\r',c0); 
-		int contentLength = Integer.parseInt(header.substring(c0,c1));
-		LOG.info("Content-Length: " + contentLength);
+		// find embedded jpeg in stream
+		String subheader = sb.toString();
+		LOG.error(subheader);
+		int contentLength = -1;
+		//if (boundryKey == null)
+		//{
+			// Yay! - server was nice and sent content length
+			int c0 = subheader.indexOf("Content-Length: ");
+			int c1 = subheader.indexOf('\r',c0);
+			 c0 += 16;
+			 contentLength = Integer.parseInt(subheader.substring(c0,c1));
+			 LOG.info("Content-Length: " + contentLength);
+		//} else {
+			
+		//}
+		
 		// adaptive size - careful - don't want a 2G jpeg
 		if (contentLength > buffer.length)
 		{
