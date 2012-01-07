@@ -206,6 +206,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
 		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
+		int cnt = 0;
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
 			String inPortName = portId.getName();
@@ -889,7 +890,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 	
-		Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
+		//Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
+		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		
 		//Motor left = new Motor("left");
@@ -897,9 +899,15 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		arduino.save();
 		
-		Servo hand = new Servo("hand");
+		Servo hand = new Servo("right");
 		hand.startService();
 
+		Servo left = new Servo("left");
+		left.startService();
+
+		Servo neck = new Servo("neck");
+		neck.startService();
+		
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
 		gui.display();
