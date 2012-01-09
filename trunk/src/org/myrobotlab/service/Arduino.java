@@ -893,6 +893,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		//Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		//arduino.setPort("/dev/ttyS50");
 		
 		//Motor left = new Motor("left");
 		//left.startService();
