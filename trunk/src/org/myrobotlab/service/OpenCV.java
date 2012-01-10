@@ -817,8 +817,7 @@ public class OpenCV extends Service {
 		 * e.printStackTrace(); }
 		 */
 
-		OpenCV opencv = (OpenCV) ServiceFactory.createAndStart("opencv",
-				"OpenCV");
+		OpenCV opencv = (OpenCV) ServiceFactory.createAndStart("opencv","OpenCV");
 		opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
@@ -839,12 +838,16 @@ public class OpenCV extends Service {
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
 
+
 		IPCamera ip = new IPCamera("ip");
 		ip.startService();
-		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		opencv.addFilter("pyramdDown", "PyramidDown");
+		//opencv.addFilter("floodFill", "FloodFill");
+
+		opencv.capture();
 
 	}
 
