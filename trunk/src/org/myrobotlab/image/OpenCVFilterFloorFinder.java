@@ -24,17 +24,8 @@
  * */
 
 package org.myrobotlab.image;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_objdetect.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_legacy.*;
-import static com.googlecode.javacv.cpp.opencv_video.*;
-import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
-import static com.googlecode.javacv.cpp.opencv_core.cvAvg;
 import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
@@ -56,18 +47,31 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
+	public final static Logger LOG = Logger
+			.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
 
-	int width = 180;
-	int height = 120;
-	
-	
+	IplImage buffer = null;
+	BufferedImage frameBuffer = null;
+	int convert = CV_BGR2HSV; // TODO - convert to all schemes
+	JFrame myFrame = null;
+	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
+														// from SOHDARService
+														// configuration
+
+	CvPoint startPoint = new CvPoint(180, 120);
+	CvScalar fillColor = cvScalar(255.0, 0.0, 0.0, 1.0);
+	CvScalar lo_diff = CV_RGB(20.0, 20.0, 20.0);// cvScalar(20, 0.0, 0.5, 1.0);
+	CvScalar up_diff = CV_RGB(20.0, 20.0, 20.0);
+
 	public OpenCVFilterFloorFinder(OpenCV service, String name) {
 		super(service, name);
 	}
 
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
+		// CvScalar avg = cxcore.cvAvg(image, null);
+		// cv.cvFloodFill(image, startPoint, fillColor,
+		// lo_diff, up_diff, null, 4, null);
 		return image.getBufferedImage();
 	}
 
@@ -82,22 +86,24 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image) {
-		
-		//for (int i = 0; i < image.width())
-		cvAvg(image, null);
-		
-		width = 50;
-		height = 40;
-		// make mask - shape - triangle square - dimensions
-		CvPoint pt1 = new CvPoint(image.width()/2 - width/2, image.height()-height);
-		CvPoint pt2 = new CvPoint(image.width()/2 + width/2, image.height()-1);
-		cvDrawRect(image, pt1, pt2, CvScalar.RED, 1, 8, 0);
-		// average the mask
-		//CvScalar template = cvAvg(image, null);
+		// if (startPoint == null)
+		{
+			startPoint = new CvPoint(image.width() / 2, image.height() - 4);
+		}
 
-		// or bitwise inverse & and - find max deviation - average
-		
+		fillColor = cvScalar(255.0, 255.0, 255.0, 1.0);
+
+		lo_diff = CV_RGB(1, 12, 13);// cvScalar(20, 0.0, 0.5, 1.0);
+		up_diff = CV_RGB(1, 12, 13);
+
+		cvFloodFill(image, startPoint, fillColor,
+				lo_diff, up_diff, null, 4, null);
+
+		fillColor = cvScalar(0.0, 255.0, 0.0, 1.0);
+		cvDrawRect(image, startPoint, startPoint, fillColor, 2, 1, 0);
+
 		return image;
+
 	}
 
 }
