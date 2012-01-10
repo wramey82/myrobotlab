@@ -28,7 +28,6 @@ package org.myrobotlab.image;
 import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
@@ -39,11 +38,11 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvHoughLines2;
 
 import java.awt.image.BufferedImage;
-import java.nio.IntBuffer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
+import com.googlecode.javacpp.Pointer;
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -127,24 +126,22 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		// http://www.aishack.in/2010/04/hough-transform-in-opencv/ -
 		// explanation of hough transform parameters
 
+		// CV_HOUGH_MULTI_SCALE || CV_HOUGH_STANDARD
 		CvSeq lines = cvHoughLines2(inlines, storage,
 				CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
 
 
 		for (int i = 0; i < lines.total(); i++) {
 			
-			//IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer(4).asIntBuffer(); javacv 06112011 update
-			/*
-			IntBuffer line = cvGetSeqElem(lines, i).asByteBuffer().asIntBuffer();
-			p0.x(line.get(0));
-			p0.y(line.get(1));
-			p1.x(line.get(2));
-			p1.y(line.get(3));
-			*/
+			Pointer line = cvGetSeqElem(lines, i);
+			CvPoint pt1  = new CvPoint(line).position(0);
+			CvPoint pt2  = new CvPoint(line).position(1);
 
-			CvPoint p0 = new CvPoint(cvGetSeqElem(lines,i));
-			CvPoint p1 = new CvPoint(cvGetSeqElem(lines,i+1));
-			
+
+            System.out.println("Line spotted: ");
+            System.out.println("\t pt1: " + pt1);
+            System.out.println("\t pt2: " + pt2);
+            //cvLine(image, pt1, pt2, CV_RGB(255, 0, 0), 3, CV_AA, 0); // draw the segment on the image            
 			cvDrawLine(image, p0, p1, CV_RGB(255, 255, 255), 2, 8, 0);
 		}
 		
