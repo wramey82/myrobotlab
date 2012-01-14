@@ -41,6 +41,9 @@ public class Graphics extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Graphics.class.getCanonicalName());
 	
+	public int width = 640;
+	public int height = 480;
+	
 	public String guiServiceName = null;
 	
 	public Graphics(String n) {
@@ -61,13 +64,11 @@ public class Graphics extends Service {
 	
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("width", 320);
-		cfg.set("height", 240);		
 	}
 	
 	public void createGraph ()
 	{
-		createGraph(cfg.getInt("width"), cfg.getInt("height"));
+		createGraph(width, height);
 	}
 
 	public void createGraph (Integer x, Integer y)
@@ -86,6 +87,11 @@ public class Graphics extends Service {
 		send(guiServiceName, "drawString", str, x, y);
 	}
 
+	public void drawGrid(Integer x, Integer y)
+	{
+		send(guiServiceName, "drawGrid", x, y);
+	}	
+	
 	public void drawRect(Integer x, Integer y, Integer width, Integer height)
 	{
 		send(guiServiceName, "drawRect", x, y, width, height);
@@ -192,7 +198,7 @@ public class Graphics extends Service {
 		
 		GUIService gui = new GUIService("gui");
 		Graphics graph = new Graphics("graph");
-		OpenCV opencv = new OpenCV("opencv");
+		//OpenCV opencv = new OpenCV("opencv");
 		// manual intervention - clear screen
 		
 		gui.startService();
@@ -202,7 +208,11 @@ public class Graphics extends Service {
 		graph.attach(gui.name);
 		graph.createGraph(640, 480);
 		graph.setColor(new Color(0x666666));
-		graph.drawLine(20, 20, 300, 300);
+		graph.drawGrid(10, 10);
+		
+		//graph.draw
+		
+		
 	}
 
 	@Override

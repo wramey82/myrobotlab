@@ -23,16 +23,23 @@
  * 
  * */
 
+/*
+ * TODO - this service should be depricated and all functionality rolled into GUIService
+ * such that one could dynamically create an new tabbed panel, video widget, etc... !
+ */
+
 package org.myrobotlab.control;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
@@ -117,6 +124,28 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	{
 		g.drawRect(x, y, width, height);
 		//video.displayFrame(graph);
+	}
+	
+	public void drawGrid (int width, int height)
+	{
+		for (int i = 0; i < graph.getHeight(); i+=height)
+		{
+			g.drawLine(0, i, graph.getWidth(), i);
+		}
+
+		for (int i = 0; i < graph.getWidth(); i+=width)
+		{
+			g.drawLine(i, 0, i, graph.getHeight());
+		}
+		
+		Color old = g.getColor();
+		g.setColor(Color.RED);
+		
+		// center - x y + heading degree
+		//g.drawArc(300, 300, 10, 10, 0, 360);
+		g.drawOval(295, 295, 10, 10); // cg.drawOval(xCenter-r, yCenter-r, 2*r, 2*r);
+		g.drawLine(300, 300, 300, 290); // polar to cart
+		g.setColor(old);
 	}
 
 	public void fillOval(Integer x, Integer y, Integer width, Integer height)
