@@ -191,26 +191,52 @@ public class SensorMonitor extends Service {
 		return pinData;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
-		//Arduino arduino0 = new Arduino("arduino0");
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
 		//Arduino arduino1 = new Arduino("arduino1");
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		GUIService gui = new GUIService("gui");
+		//RemoteAdapter remote = new RemoteAdapter("remote");
 		//Speech speech = new Speech("speech");
 		//sm.speech = speech;
-		//arduino0.startService();
+		//arduino.startService();
 		//arduino1.startService();
-		remote.startService();
-		gui.startService();
+		//remote.startService();
 		//speech.startService();
 		sm.startService();
 
+		Servo neck = new Servo("neck");
+		neck.startService();
+		neck.attach("arduino", 4);
+
+		GUIService gui = new GUIService("gui");
+		gui.startService();
 		gui.display();
-	}
-	
+		neck.moveTo(179);
+		neck.moveTo(0);
+		neck.moveTo(160);
+		neck.moveTo(90);
+		neck.moveTo(0);
+		
+		for (int j = 0; j < 30; ++j)
+		{
+			int i;
+			for (i = 0; i < 160; i+=10)
+			{
+				neck.moveTo(i);
+				Thread.sleep(300);
+			}
+			for (i = 160; i > 0; i-=10)
+			{
+				neck.moveTo(i);
+				Thread.sleep(300);
+			}
+		}
+
+		
+	}	
 }

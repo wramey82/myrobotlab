@@ -900,14 +900,24 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		arduino.save();
 		
-		Servo hand = new Servo("right");
-		hand.startService();
+		Servo right = new Servo("right");
+		right.startService();
 
 		Servo left = new Servo("left");
 		left.startService();
 
 		Servo neck = new Servo("neck");
 		neck.startService();
+		
+		left.attach("arduino", 2);
+		right.attach("arduino", 3);
+		
+		left.move(130);
+		right.move(50);
+		
+		left.move(0);
+		right.move(0);
+		
 		
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
