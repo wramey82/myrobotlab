@@ -31,7 +31,10 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.ServoController;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
+@Root
 public class Servo extends Service implements
 		org.myrobotlab.service.interfaces.Servo {
 
@@ -41,102 +44,58 @@ public class Servo extends Service implements
 
 	boolean isAttached = false;
 
-	// sweep related
+	@Element
+	String controllerName = ""; 
+	
+	@Element
+	public int pos = -1; // position -1 invalid not set yet
+	@Element
+	public int posMin = 0;
+	@Element
+	public int posMax = 180;
+	@Element
+	public int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
+	
+	// sweep related TODO - should be implemented in Arduino protocol
 	int sweepStart = 89;
 	int sweepEnd = 91;
 	int sweepDelayMS = 1000;
 	int sweepIncrement = 1;
 	boolean sweeperRunning = false;
-	Thread sweeper = null;
-
-	String controllerName = ""; // without an attached controller name - a Servo
-								// is not very interesting
+	transient Thread sweeper = null;
 	
-	public int pos = -1; // position -1 invalid not set yet
-	public int posMin = 0;
-	public int posMax = 180;
-	public int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
-
 	public Servo(String n) {
 		super(n, Servo.class.getCanonicalName());
+		load();
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
 	}
 
-	/*
-	 * TODO - implement an Arduino sweep method Sweeper - is a class which can
-	 * sweep the servo, however, it is implemented on the Java side. If smoother
-	 * sweeping is desired an Arduino side sweep should be considered using
-	 * Arduino threads
-	 */
-	private class Sweeper implements Runnable {
-
-		@Override
-		public void run() {
-
-			while (sweeperRunning) {
-				// controller.servoMoveTo(name, pos);
-				pos += sweepIncrement;
-
-				// switch directions
-				if ((pos <= sweepStart && sweepIncrement < 0)
-						|| (pos >= sweepEnd && sweepIncrement > 0)) {
-					sweepIncrement = sweepIncrement * -1;
-				}
-
-				// moveTo(pos); hmm vs send ??? TODO - what is better??? - refer
-				// to documentation
-				invoke("servoWrite", pos);
-
-				try {
-					Thread.sleep(sweepDelayMS);
-				} catch (InterruptedException e) {
-					sweeperRunning = false;
-					e.printStackTrace();
-				}
-			}
-		}
-
-	}
 
 	public void attach(String controller, Integer pin) {
 		setControllerName(controller);
 		attach(pin);
+		save(); // bound to controller and pin
+		broadcastState(); // state has changed let everyone know
 	}
 
 	public boolean isAttached() {
 		return isAttached;
 	}
 
-	/*
-	 * -----Publishing Point-------------
-	 * 
-	 * setPin - sets the Servo data pin which will correspond to the
-	 * ServoControllers hardware pin this is stubbed out in an accessor so that
-	 * events which change the pin can be broadcast to listeners
-	 */
-
 	public Integer setPin(Integer pin) {
 		this.pin = pin;
 		return pin;
 	}
-
-	/*
-	 * -----pos Publishing Point-------------
-	 * 
-	 * setPos - sets the Servo data pos which will correspond to the
-	 * ServoControllers current angle this is stubbed out in an accessor so that
-	 * events which change the pos can be broadcast to listeners
-	 */
 
 	public Integer setPos(Integer pos) {
 		this.pos = pos;
 		return pos;
 	}
 
-	public Integer getPin() { // TODO - won't this get boxed up?
+	public Integer getPin() { 
 		return new Integer(pin);
 	}
 
@@ -165,91 +124,66 @@ public class Servo extends Service implements
 		return controllerName;
 	}
 
-	/*
-	 * attach - attaches the software Servo service to the servo of a
-	 * ServoController this function should not need to be broadcast nor routed
-	 * but is a command function to be used to initialize the communication
-	 * between two Services
-	 */
 
-	public void attach(Integer pin) {
+	public boolean attach(Integer pin) {
 		invoke("setPin", pin); // broadcasting change of pin
 
 		if (controllerName.length() == 0) {
 			LOG.error("can not attach, controller name is blank");
-			return;
+			return false;
 		}
 		
 		if (isAttached)
 		{
 			LOG.warn("servo " + name +  " is already attached - detach before re-attaching");
-			return;
+			return false;
 		}
 
-		// TODO
-		// send / sendDirect here - I don't want a route established but I do
-		// want to send the message - AND i want to block
-		// for the response !!!!!!
-		// TODO if (Boolean)sendBlocking(controllerName,
-		// ServoController.servoAttach, name, pin)
 		send(controllerName, ServoController.servoAttach, pin);
-
-		
-		// TODO - addMsgListener
-/*		DONT SET UP READING POSITION UNLESS REQUESTED TO	
-		Object[] params = new Object[4];
-		params[0] = "readServo";
-		params[1] = name;
-		params[2] = "readServo";
-		params[3] = PinData.class.getCanonicalName();
-		send(controllerName, "notify", params);
-*/
-		
-		// set up msg routing  TODO - don't set up message routing - use "send" from servoMove fn
 		notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 
 		isAttached = true;
+		return isAttached;
 	}
 
-	// TODO - still used? deprecate
-	public PinData readServo(PinData p) {
-		LOG.info(p);
-		setPos(p.value);
-		return p;
+	public int readServo() {
+		return pos;
 	}
 
+	// callback from controller
 	public PinData publishPin(PinData p) {
 		LOG.info(p);
 		setPos(p.value);
 		return p;
 	}
 
-	/*
-	 * detach - detaches the software Servo service from the servo of the
-	 * ServoController this function should not need to be broadcast nor routed
-	 * but is a command function to be used to tear down the communication
-	 * between two Services
-	 */
 	public void detach() {
 		send(controllerName, ServoController.servoDetach, pin); // TODO
-																				// if
-																				// (Boolean)sendBlocking(....
 		removeNotify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 		isAttached = false;
+		broadcastState();
 	}
 
-	// TODO - client methods - moveTo & move & sweep & whatever
-	// server/controller methods - write (on notify?) i guess - the attach is a
-	// boolean - should block again
-
-	// move to absolute position 0 - 180
+	/**
+	 * moveTo - used to move the servo to a new position
+	 * @param pos - absolute position to move to normally servos can move between
+	 * 0 - 180 unless other limits are set
+	 * @return
+	 */
 	public Integer moveTo(Integer pos) {
-		LOG.info("moveTo" + pos);
+		LOG.info("moveTo " + pos);
 		this.pos = pos; 
 		invoke("servoWrite", pos);
 		return pos;
 	}
 
+	/**
+	 * moveTo() should be used by the Services or user wanting to control the servo
+	 * This function in turn is invoked and is used as an interface to the 
+	 * ServoController
+	 * @param pos - position to move
+	 * @return
+	 */
 	public IOData servoWrite(Integer pos) {
 		IOData d = new IOData();
 		d.address = pin;
@@ -257,8 +191,14 @@ public class Servo extends Service implements
 		return d;
 	}
 
-	public int move(Integer amount) // TODO - possibly depricate and handle
-										// details internally?
+
+	/**
+	 * move (pos) is used to move the servo a relative amount to its
+	 * current position
+	 * @param amount relative position
+	 * @return the current position
+	 */
+	public int move(Integer amount) 
 	{
 		int p = pos + amount;
 		if (p < posMax && p > posMin) {
@@ -271,6 +211,45 @@ public class Servo extends Service implements
 		}
 
 		return pos;
+	}
+
+	@Override
+	public String getToolTip() {
+		return "<html>service for a servo</html>";
+	}
+	
+	
+	/**
+	 * Sweeper - TODO - should be implemented in the arduino code for smoother function
+	 *
+	 */
+	private class Sweeper implements Runnable { 
+		@Override
+		public void run() {
+
+			while (sweeperRunning) {
+				// controller.servoMoveTo(name, pos);
+				pos += sweepIncrement;
+
+				// switch directions
+				if ((pos <= sweepStart && sweepIncrement < 0)
+						|| (pos >= sweepEnd && sweepIncrement > 0)) {
+					sweepIncrement = sweepIncrement * -1;
+				}
+
+				// moveTo(pos); hmm vs send ??? TODO - what is better??? - refer
+				// to documentation
+				invoke("servoWrite", pos);
+
+				try {
+					Thread.sleep(sweepDelayMS);
+				} catch (InterruptedException e) {
+					sweeperRunning = false;
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 	public void sweep(int sweepStart, int sweepEnd, int sweepDelayMS,
@@ -298,14 +277,8 @@ public class Servo extends Service implements
 		sweep(sweepStart, sweepEnd, sweepDelayMS, sweepIncrement);
 	}
 
-	/*
-	 * Arduino needs to implement the interface ServoController Communication
-	 * details stored in Configuration Servo - has reference to ServoController
-	 * 
-	 * refresh rate min interval max interval NUMBER !
-	 */
-
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws InterruptedException {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
@@ -313,17 +286,39 @@ public class Servo extends Service implements
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 
-		Servo servo = new Servo("servo");
-		servo.startService();
+		Servo right = new Servo("right");
+		right.startService();
 
+		Servo left = new Servo("left");
+		left.startService();
+
+		//Servo neck = new Servo("neck");
+		//neck.startService();
+		
+		for (int i = 0; i < 30; ++i)
+		{
+		
+			right.attach("arduino", 2);
+			left.attach("arduino", 3);
+			
+			right.moveTo(120); // 70 back
+			left.moveTo(70); // 118 back
+	
+			Thread.sleep(10000);
+			
+			right.moveTo(90);		
+			left.moveTo(90);
+	
+			right.detach();
+			left.detach();
+		}
+
+		/*
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		*/
+		
 	}
-
-	@Override
-	public String getToolTip() {
-		return "<html>service for a servo</html>";
-	}
-
+	
 }

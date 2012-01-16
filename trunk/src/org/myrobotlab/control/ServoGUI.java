@@ -42,6 +42,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -52,7 +53,7 @@ public class ServoGUI extends ServiceGUI {
 
 	JLabel boundPos = null;
 
-	DigitalButton attachButton = null;
+	AttachButton attachButton = null;
 	JSlider slider = null;
 
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
@@ -69,6 +70,7 @@ public class ServoGUI extends ServiceGUI {
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+        myServo = (Servo)RuntimeEnvironment.getService(boundServiceName).service;
 	}
 	
 	public void init() {
@@ -119,7 +121,7 @@ public class ServoGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		attachButton = new DigitalButton();
+		attachButton = new AttachButton();
 		attachButton.setText("attach");
 		control.add(attachButton, gc);
 		++gc.gridx;
@@ -169,35 +171,9 @@ public class ServoGUI extends ServiceGUI {
 
 		display.add(limits, gc);
 
-        myServo = (Servo)RuntimeEnvironment.getService(boundServiceName).service;
 		
 	}
 	
-	public void attachGUI() {
-		/*
-		 * ARRGH!! - BUG sendBLocking dangerous for GUI
-		 * 
-		 * // gui is querying servo - is it attached to a controller? boolean
-		 * isAttached = (Boolean)myService.sendBlocking(boundServiceName,
-		 * "isAttached", null);
-		 * 
-		 * if (isAttached) { attachButton.setText("detach"); // query servo for
-		 * state data Integer servoPinValue =
-		 * (Integer)myService.sendBlocking(boundServiceName, "getPin", null);
-		 * String servoControllerName =
-		 * (String)myService.sendBlocking(boundServiceName, "getControllerName",
-		 * null); Integer servoPos =
-		 * (Integer)myService.sendBlocking(boundServiceName, "getPos", null);
-		 * slider.setValue(servoPos); pin.setSelectedItem(servoPinValue);
-		 * controller.setSelectedItem(servoControllerName); } else {
-		 * attachButton.setText("attach"); controller.setSelectedItem(""); }
-		 */
-		LOG.info(pin);
-		// IOData d = (IOData)myService.sendBlocking(boundServiceName, "moveTo",
-		// data);
-		// removeNotifyRequest("getCFG", "setController",
-		// String.class.getCanonicalName()); -- TODO - done in
-	}
 
 	private JSlider getAnalogValue() {
 		if (slider == null) {
@@ -219,12 +195,11 @@ public class ServoGUI extends ServiceGUI {
 		return slider;
 	}
 
-	private class DigitalButton extends JButton implements ActionListener {
+	private class AttachButton extends JButton implements ActionListener {
 		private static final long serialVersionUID = 1L;
 
-		public DigitalButton() {
+		public AttachButton() {
 			super();
-			setText("Off");
 			addActionListener(this);
 		}
 
@@ -258,11 +233,6 @@ public class ServoGUI extends ServiceGUI {
 	}
 	
 	
-	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-
-	}
 
 	public Vector<String> getAllServoControllers() {
 		Vector<String> v = new Vector<String>();
@@ -286,6 +256,24 @@ public class ServoGUI extends ServiceGUI {
 	
 	public void getState(Servo servo)
 	{
+		controller.setSelectedItem(servo.getControllerName());
+		pin.setSelectedItem(servo.getPin());
+		if (servo.isAttached())
+		{
+			attachButton.setText("detach");
+		} else {
+			attachButton.setText("attach");
+		}
 	}
 
+	public void attachGUI() {
+		sendNotifyRequest("publishState", "getState", Servo.class);
+		myService.send(boundServiceName, "publishState");
+	}
+
+	@Override
+	public void detachGUI() {
+		removeNotifyRequest("publishState", "getState", Servo.class);		
+	}
+	
 }
