@@ -52,7 +52,7 @@
 	<classpathentry kind="lib" path="thirdParty/lib/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/jython.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/ivy.jar"/>
-	<classpathentry kind="lib" path="/home/gperry/mrl2/myrobotlab/thirdParty/lib/simbad-1.4.jar"/>
-	<classpathentry kind="lib" path="/home/gperry/mrl2/myrobotlab/thirdParty/lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/simbad-1.4.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

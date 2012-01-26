@@ -204,7 +204,6 @@ public class DifferentialDriveGUI extends ServiceGUI {
 
 		positionX.setText(Integer.toString(t.positionX));
 		positionY.setText(Integer.toString(t.positionY));
-		positionZ.setText(Integer.toString(t.positionZ));
 
 		targetX.setText(Integer.toString(t.targetX));
 		targetY.setText(Integer.toString(t.targetY));
