@@ -71,7 +71,7 @@ import org.myrobotlab.framework.Service;
  *  
  */
 
-public class DiffDrive extends Service {
+public class MyRobot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
@@ -91,44 +91,41 @@ public class DiffDrive extends Service {
 	
 	public Servo left;
 	public Servo right;
+	public Servo neck;
+	
+	public Arduino arduino;
 
-	public final static Logger LOG = Logger.getLogger(DiffDrive.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(MyRobot.class.getCanonicalName());
 
-	public DiffDrive(String n) {
+	public MyRobot(String n) {
 		this(n, null);
 	}
 
-	public DiffDrive(String n, String serviceDomain) {
-		super(n, DiffDrive.class.getCanonicalName(), serviceDomain);
+	public MyRobot(String n, String serviceDomain) {
+		super(n, MyRobot.class.getCanonicalName(), serviceDomain);
 	}
 	
 	@Override
 	public void loadDefaultConfiguration() {
 	}
 	
-	public DiffDrive publishState(DiffDrive t)
+	public MyRobot publishState(MyRobot t)
 	{
 		return t;
 	}
 	
-	public void attach (String leftServoName, String rightServoName)
-	{
-		if (RuntimeEnvironment.getService(leftServoName) != null)
-		{
-			left = (Servo)RuntimeEnvironment.getService(leftServoName).service;
-		} else {
-			LOG.error(leftServoName + " does not exist");
-		}
-		if (RuntimeEnvironment.getService(rightServoName) != null)
-		{
-			right = (Servo)RuntimeEnvironment.getService(rightServoName).service;
-		} else {
-			LOG.error(rightServoName + " does not exist");
-		}
+	public void createServices () {
+		
+		neck = new Servo(name + "_neck");
+		right = new Servo(name + "_right");
+		left = new Servo(name + "_left");
+		arduino = new Arduino(name + "_bbb");
+
+		neck.attach(arduino.name, 9);
+		right.attach(arduino.name, 4);
+		left.attach(arduino.name, 5);
 	}
 	
-	// absolute / relative functions end -------------------
-
 	// control functions begin -------------------
 	
 	// TODO spinLeft(int power, int time)
@@ -183,9 +180,17 @@ public class DiffDrive extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 
-		GUIService gui = new GUIService("gui");
-		DiffDrive dee = new DiffDrive("tweedledee");
+		MyRobot dee = new MyRobot("tweedledee");
+		dee.createServices();
 		dee.startService();
+		
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		sensors.startService();
+		
+		Graphics graphics = new Graphics("graphics");
+		graphics.startService();
+
+		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 		//platform.startRobot();
