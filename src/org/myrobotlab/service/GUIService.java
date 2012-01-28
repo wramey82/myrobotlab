@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -152,7 +153,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void loadDefaultConfiguration() {
 	}
 
-	public HashMap<String, Boolean> customWidgetPrefs = new HashMap<String, Boolean>(); 
+	public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
 	
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
@@ -226,7 +227,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		tabs.addTab("Welcome", network.display);
 
 		JPanel customPanel = new JPanel(new FlowLayout());
-		customPanel.setPreferredSize(new Dimension(800, 600));
+//		customPanel.setPreferredSize(new Dimension(800, 600));
 
 		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
 		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
@@ -334,16 +335,31 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.put(serviceName, gui);
 			gui.attachGUI();
 
-			if (!customWidgetPrefs.containsKey(se.name) || (customWidgetPrefs.containsKey(se.name) && customWidgetPrefs.get(se.name) == false)) {
+			if (!customWidgetPrefs.containsKey(se.name) || (customWidgetPrefs.containsKey(se.name) && customWidgetPrefs.get(se.name) == GUI.WIDGET_PREF_TABBED)) {
 				tpanel.add(gui.widgetFrame); 
 				tabs.addTab(serviceName, tpanel);
+				customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_TABBED);
 			} else {
-				customPanel.add(gui.widgetFrame);
 				
-				JFrame frame = new JFrame();
-			    frame.getContentPane().add(gui.widgetFrame);
-			    frame.pack();
-			    frame.setVisible(true);
+				if (customWidgetPrefs.get(se.name) == GUI.WIDGET_PREF_UNDOCK)
+				{
+					JFrame undocked = new JFrame();
+					
+					// icon
+					URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+					Toolkit kit = Toolkit.getDefaultToolkit();
+					Image img = kit.createImage(url);
+					undocked.setIconImage(img);					
+					
+					// set widget state
+					undocked.getContentPane().add(gui.widgetFrame);
+					undocked.pack();
+					undocked.setVisible(true);
+					undocked.setTitle(se.name);
+				    customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_UNDOCKED);
+				    
+				    undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, se.name));
+				}
 			}
 
 		} else {
@@ -351,6 +367,26 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		return gui;
+	}
+	
+	public class UndockedWidgetWindowAdapter extends WindowAdapter
+	{
+		private String name;
+		JFrame myFrame;
+		GUI parent;
+		
+		public UndockedWidgetWindowAdapter (JFrame myFrame, GUI parent, String name)
+		{
+			this.myFrame = myFrame;
+			this.parent = parent;
+			this.name = name;
+		}
+		
+        public void windowClosing(WindowEvent winEvt) {
+            parent.getCustomWidgetPrefs().put(name, GUI.WIDGET_PREF_TABBED);
+            parent.loadTabPanels();
+        	myFrame.dispose();
+        }		
 	}
 
 	public void display() {
@@ -805,7 +841,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	@Override
-	public HashMap<String, Boolean> getCustomWidgetPrefs() {
+	public HashMap<String, Integer> getCustomWidgetPrefs() {
 		return customWidgetPrefs;
 	}
 
@@ -853,6 +889,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		MyRobot dee = new MyRobot("dee");
 		dee.startService();
 		dee.createServices();
+		
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		sensors.startService();
 
 		/*
 		ServiceFactory services = new ServiceFactory("services");

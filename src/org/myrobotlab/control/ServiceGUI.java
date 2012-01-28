@@ -69,27 +69,20 @@ public abstract class ServiceGUI {
 	
 	public abstract void init();	
 
-	// TODO - refactor better name vs detach
 	public class DetachListener implements ActionListener
 	{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			LOG.error("detach " + boundServiceName);
-			HashMap<String, Boolean> cwp = myService.getCustomWidgetPrefs();
-			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false))
+			HashMap<String, Integer> cwp = myService.getCustomWidgetPrefs();
+
+			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == GUI.WIDGET_PREF_TABBED))
 			{
-				cwp.put(boundServiceName, true);
+				cwp.put(boundServiceName, GUI.WIDGET_PREF_UNDOCK);
 			} else {
-				cwp.put(boundServiceName, false);
+				cwp.put(boundServiceName, GUI.WIDGET_PREF_TABBED);
 			}
-			
-			// BRILL IDEA ! - FRAME out instead of putting them in custom
-			// TOFIX - need to refactor GUI so I can get a handle on the cwp/panel that
-			// is being moved
-			
-			// JFrame frame = new JFrame();
-			// frame.getContentPane().add(new MainClass());
 			
 			myService.loadTabPanels();
 		}
@@ -113,8 +106,8 @@ public abstract class ServiceGUI {
 	
 	public boolean isPanelTabbed()
 	{
-		HashMap<String, Boolean> cwp = myService.getCustomWidgetPrefs();
-		return (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == false));
+		HashMap<String, Integer> cwp = myService.getCustomWidgetPrefs();
+		return (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == GUI.WIDGET_PREF_TABBED));
 	}
 	
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
@@ -133,19 +126,12 @@ public abstract class ServiceGUI {
 		
 		detachButton.addActionListener(new DetachListener());
 		releaseServiceButton.addActionListener(new ReleaseServiceListener());
-		/*
-		 * JButton test = new JButton(getImageIcon("service_close.png"));
-		 * test.setMargin(new Insets(0, 0, 0, 0)); menu.add(test);
-		 */
+
 		BevelBorder widgetTitle;
 		widgetTitle = (BevelBorder) BorderFactory
 				.createBevelBorder(BevelBorder.RAISED);
 		widgetFrame.setBorder(widgetTitle);
 		widgetFrame.setLayout(new GridBagLayout());
-
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder(boundServiceName);
-		display.setBorder(title);
 
 		gc.anchor = GridBagConstraints.FIRST_LINE_END;
 
@@ -160,8 +146,6 @@ public abstract class ServiceGUI {
 
 		//ConfigurationManager hostcfg = new ConfigurationManager(Service.getHostName(null));
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
-
-		// display.add(serviceDisplay, gc);
 
 	}
 

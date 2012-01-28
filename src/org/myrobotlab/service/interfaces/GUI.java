@@ -24,7 +24,12 @@ public abstract class GUI extends Service  {
 		super(instanceName, serviceClass, inHost);
 	}
 
-	public abstract HashMap<String, Boolean> getCustomWidgetPrefs();
+	public static final int WIDGET_PREF_TABBED 		= 0;
+	public static final int WIDGET_PREF_CUSTOM 		= 1;
+	public static final int WIDGET_PREF_UNDOCK 		= 2;
+	public static final int WIDGET_PREF_UNDOCKED 	= 3;
+	
+	public abstract HashMap<String, Integer> getCustomWidgetPrefs();
 
 	public abstract ServiceTabPane loadTabPanels();	
 	public abstract JFrame getFrame();

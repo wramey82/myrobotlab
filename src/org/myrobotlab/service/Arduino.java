@@ -888,7 +888,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.ERROR);
 	
 		//Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
 		Arduino arduino = new Arduino("arduino");
@@ -898,7 +898,10 @@ public class Arduino extends Service implements SerialPortEventListener,
 		//Motor left = new Motor("left");
 		//left.startService();
 
-		arduino.save();
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		sensors.startService();
+		
+//		arduino.save();
 		
 		Servo right = new Servo("right");
 		right.startService();
@@ -909,20 +912,42 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Servo neck = new Servo("neck");
 		neck.startService();
 		
-		left.attach("arduino", 2);
-		right.attach("arduino", 3);
-		
-		left.move(130);
-		right.move(50);
-		
-		left.move(0);
-		right.move(0);
-		
 		
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
 		gui.display();
+
+		
+		neck.attach("arduino", 9);
+		neck.moveTo(10);
+		neck.moveTo(90);
+		neck.moveTo(170);
+		neck.moveTo(90);
+		neck.moveTo(10);
+		neck.moveTo(90);
+		neck.moveTo(170);
+		neck.moveTo(90);
+		neck.moveTo(10);
+		neck.moveTo(90);
+		neck.moveTo(170);
+		neck.moveTo(90);
+		
+		for (int i = 0; i < 100; ++i)
+		{
+		
+			left.attach("arduino", 2);
+			right.attach("arduino", 3);
 			
+			left.moveTo(130);
+			right.moveTo(50);
+			
+			left.moveTo(90);
+			right.moveTo(90);
+	
+			left.detach();
+			right.detach();
+		}
+		
 	}
 	
 }
