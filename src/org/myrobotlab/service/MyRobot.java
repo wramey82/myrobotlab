@@ -121,9 +121,14 @@ public class MyRobot extends Service {
 		left = new Servo(name + "_left");
 		arduino = new Arduino(name + "_bbb");
 
+		neck.startService();
+		right.startService();
+		left.startService();
+		arduino.startService();
+		
 		neck.attach(arduino.name, 9);
 		right.attach(arduino.name, 4);
-		left.attach(arduino.name, 5);
+		left.attach(arduino.name, 5);				
 	}
 	
 	// control functions begin -------------------
@@ -166,7 +171,6 @@ public class MyRobot extends Service {
 		targetY = y;
 	}
 	
-
 	@Override
 	public String getToolTip() {
 		return "<html>used to encapsulate many of the functions and formulas regarding 2 motor platforms.<br>" +
@@ -180,7 +184,7 @@ public class MyRobot extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 
-		MyRobot dee = new MyRobot("tweedledee");
+		MyRobot dee = new MyRobot("dee");
 		dee.createServices();
 		dee.startService();
 		
@@ -190,6 +194,9 @@ public class MyRobot extends Service {
 		Graphics graphics = new Graphics("graphics");
 		graphics.startService();
 
+		Jython jython = new Jython("jython");
+		jython.startService();
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

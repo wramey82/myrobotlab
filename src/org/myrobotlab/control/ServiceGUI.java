@@ -35,6 +35,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
@@ -82,6 +83,13 @@ public abstract class ServiceGUI {
 			} else {
 				cwp.put(boundServiceName, false);
 			}
+			
+			// BRILL IDEA ! - FRAME out instead of putting them in custom
+			// TOFIX - need to refactor GUI so I can get a handle on the cwp/panel that
+			// is being moved
+			
+			// JFrame frame = new JFrame();
+			// frame.getContentPane().add(new MainClass());
 			
 			myService.loadTabPanels();
 		}
