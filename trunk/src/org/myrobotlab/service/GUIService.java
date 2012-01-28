@@ -190,13 +190,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public ServiceTabPane loadTabPanels() {
 		LOG.debug("loadTabPanels");
+		
+		// get the current selected tab
 		currentTab = tabs.getSelectedIndex();
 		if (currentTab > 0)
 		{
 			selectedTabTitle = tabs.getTitleAt(currentTab);
 		}
 		
-		// detach if panels are currently attached
+		// detach from Services, if panels are currently attached
 		Iterator<String> sgi = serviceGUIMap.keySet().iterator();
 		while (sgi.hasNext()) {
 			String serviceName = sgi.next();
@@ -204,26 +206,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			sg.detachGUI();
 		}
 
-		// TODO - 2 x bugs 
-		// 1. not synchronized - put in synchronized block?
-		// 2. called too many times
-		// tabs.removeAll(); - will explode too
-		// http://code.google.com/p/myrobotlab/issues/detail?id=1
-		/*
-		LOG.info("tab count" + tabs.getTabCount());
-		while (tabs.getTabCount() > 0)
-		{
-		    tabs.remove(0);
-		}
-		*/
+		// remove the panesl
 		removeAllTabPanels();
 		
 		// begin building panels
-		network = new Welcome("",this); // TODO - clean this up - add
+		// TODO - refactor "network"
+		network = new Welcome("",this); 
 		network.init();
 										
 		// TODO - throw error on name collision from client list
-		//tabs.addTab("communication", (JComponent) network);
 		tabs.addTab("Welcome", network.display);
 
 		JPanel customPanel = new JPanel(new FlowLayout());
@@ -236,6 +227,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		Integer index = tabs.getTabCount() - 1;
 		
+		// build Service panels
 		boolean createGUIServiceGUI = false;
 		Iterator<String> it = sortedMap.keySet().iterator();
 		while (it.hasNext()) {
@@ -247,7 +239,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-			//if (guiClass.compareTo("org.myrobotlab.control.GUIServiceGUI") == 0) {
 			if (se.get().name.equals(name)) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
 				LOG.debug("delaying construction my GUI " + name + " GUIServiceGUI ");
@@ -286,28 +277,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			titleToTabIndexMap.put("custom", index);
 
 		}
-		
-		tabs.addTab("custom", customPanel);		
-		++index;
-		titleToTabIndexMap.put("custom", index);
-		
+				
 		frame.pack();
 		
-		// attempt to select the previously selected tab
 		
-		if (selectedTabTitle != null && titleToTabIndexMap.containsKey(selectedTabTitle))
-		{
-			int newPos = titleToTabIndexMap.get(selectedTabTitle);
-			tabs.setSelectedIndex(newPos);
-		}
-		/*
-		if (currentTab != -1)
-		{
-			tabs.setSelectedIndex(currentTab);
-		} else {
+//		if (selectedTabTitle != null && titleToTabIndexMap.containsKey(selectedTabTitle))
+//		{
+			// HA ! one way to fix - always select 0 index ! - The Welcome Screen !
 			tabs.setSelectedIndex(0);
-		}
-		*/
+//		}
 		
 		return tabs;
 
