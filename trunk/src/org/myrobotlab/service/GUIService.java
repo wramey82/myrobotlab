@@ -339,6 +339,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				tabs.addTab(serviceName, tpanel);
 			} else {
 				customPanel.add(gui.widgetFrame);
+				
+				JFrame frame = new JFrame();
+			    frame.getContentPane().add(gui.widgetFrame);
+			    frame.pack();
+			    frame.setVisible(true);
 			}
 
 		} else {
@@ -843,6 +848,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		
+		MyRobot dee = new MyRobot("dee");
+		dee.startService();
+		dee.createServices();
 
 		/*
 		ServiceFactory services = new ServiceFactory("services");
