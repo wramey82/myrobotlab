@@ -216,6 +216,8 @@ public class SensorMonitor extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		
+		/*
 		neck.moveTo(179);
 		neck.moveTo(0);
 		neck.moveTo(160);
@@ -237,6 +239,6 @@ public class SensorMonitor extends Service {
 			}
 		}
 
-		
+		*/
 	}	
 }
