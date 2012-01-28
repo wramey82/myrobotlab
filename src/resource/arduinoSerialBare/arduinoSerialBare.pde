@@ -52,9 +52,18 @@
 #define ANALOG_READ_POLLING_STOP	 14
 #define DIGITAL_READ_POLLING_START	 15
 #define DIGITAL_READ_POLLING_STOP	 16
+#define SET_ANALOG_TRIGGER               17
+#define REMOVE_ANALOG_TRIGGER            18
+#define SET_DIGITAL_TRIGGER              19
+#define REMOVE_DIGITAL_TRIGGER           20
 
 #define SERIAL_ERROR           254
 #define NOP  255
+
+// pin services
+#define POLLING_MASK 1
+#define TRIGGER_MASK 2
+// TODO #define SERVO_SWEEP
 
 Servo servos[MAX_SERVOS];
 
@@ -68,10 +77,12 @@ int nibbleCount = 0;        // wii-led protocol
 int digitalReadPin[13];          	// array of pins to read from
 int digitalReadPollingPinCount = 0;     // number of pins currently reading
 int lastDigitalInputValue[13];   	// array of last input values
+int digitalPinService[13];              // the services this pin is involved in
 
 int analogReadPin[4];          		// array of pins to read from
 int analogReadPollingPinCount = 0;     	// number of pins currently reading
 int lastAnalogInputValue[4];   		// array of last input values
+int analogPinService[4];                // the services this pin is involved in
 
 unsigned long retULValue;
 
@@ -232,18 +243,31 @@ Serial.print("]\n");
            break;
            case ANALOG_READ_POLLING_START:
              analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
+             analogPinService[ioCommand[1]] |= POLLING;
+             // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT - if already set don't increment
              ++analogReadPollingPinCount;
            break;
            case ANALOG_READ_POLLING_STOP:
+             // TODO - MAKE RE-ENRANT
              removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
+             analogPinService[ioCommand[1]] &= ~POLLING;
            break;
            case DIGITAL_READ_POLLING_START:
+             // TODO - MAKE RE-ENRANT
              digitalReadPin[digitalReadPollingPinCount] = ioCommand[1]; // put on polling read list
              ++digitalReadPollingPinCount;
            break;
            case DIGITAL_READ_POLLING_STOP:
+             // TODO - MAKE RE-ENRANT
              removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[1]);
            break;
+           case SET_ANALOG_TRIGGER:
+             // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT
+             analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
+             analogPinService[ioCommand[1]] |= TRIGGER;
+             ++analogReadPollingPinCount;
+           break;
+           
            case NOP:
              // No Operation
            break;

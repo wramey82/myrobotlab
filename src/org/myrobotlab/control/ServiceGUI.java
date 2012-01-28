@@ -77,10 +77,12 @@ public abstract class ServiceGUI {
 			LOG.error("detach " + boundServiceName);
 			HashMap<String, Integer> cwp = myService.getCustomWidgetPrefs();
 
+			
 			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == GUI.WIDGET_PREF_TABBED))
 			{
 				cwp.put(boundServiceName, GUI.WIDGET_PREF_UNDOCK);
 			} else {
+				//TOFIX - if I am UNDOCKED and I'm here - then CLOSE THE FRAME ! 
 				cwp.put(boundServiceName, GUI.WIDGET_PREF_TABBED);
 			}
 			
