@@ -71,38 +71,6 @@ public class Welcome extends ServiceGUI {
 		++gc.gridy;
 		++gc.gridy;
 		display.add(new JLabel("<html><h3><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I for one, welcome our new robot overlords ...</i></h3></html>"), gc);
-		/*
-		++gc.gridy;
-		display.add(new JLabel("host "), gc);
-		++gc.gridx;
-		display.add(hostnameValue, gc);
-
-		gc.gridx = 0;
-		++gc.gridy;
-		display.add(new JLabel("port "), gc);
-		++gc.gridx;
-		display.add(servicePortValue, gc);
-
-		gc.gridx = 0;
-		++gc.gridy;
-		display.add(new JLabel("login "), gc);
-		++gc.gridx;
-		display.add(loginValue, gc);
-
-		gc.gridx = 0;
-		++gc.gridy;
-		display.add(new JLabel("password "), gc);
-		++gc.gridx;
-		display.add(loginPasswordValue, gc);
-
-		gc.gridx = 0;
-		++gc.gridy;
-		gc.gridwidth = 2;
-		JButton connectButton = new JButton("connect");
-		connectButton.setActionCommand("connect");
-		connectButton.addActionListener(new connect());
-		display.add(connectButton, gc);
-		*/
 	}
 
 	public String setRemoteConnectionStatus(String state) {

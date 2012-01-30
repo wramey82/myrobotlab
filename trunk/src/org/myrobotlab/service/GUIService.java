@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Point;
@@ -62,6 +61,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -69,7 +69,6 @@ import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
-import org.myrobotlab.control.ServiceTabPane;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
@@ -110,25 +109,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public transient JFrame frame = null;
 
-	public transient ServiceTabPane tabs = null;
+	public transient JTabbedPane tabs = null;
 	public transient JPanel panel = null;
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
-	transient Welcome network = null;
+	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = null;
 	
 	Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
-
-	public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
 
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
 	public String remoteColorTab = "0x99DD66";
 	
-	int currentTab = 0;
 	String selectedTabTitle = null;
-	HashMap<String, Integer> titleToTabIndexMap = new HashMap<String, Integer>(); 
 
 	
 	public GUIService(String n) {
@@ -155,6 +150,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void loadDefaultConfiguration() {
 	}
 
+	//public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
 	
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
@@ -189,15 +185,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		loadTabPanels();
 	}
 	
-	public ServiceTabPane loadTabPanels() {
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels()
+	 * This is a bit "big hammer" in that it destroys all panels and rebuilds the GUI
+	 */
+	public JTabbedPane loadTabPanels() {
 		LOG.debug("loadTabPanels");
 		
-		// get the current selected tab
-		currentTab = tabs.getSelectedIndex();
-		if (currentTab > 0)
-		{
-			selectedTabTitle = tabs.getTitleAt(currentTab);
-		}
 		
 		// detach from Services, if panels are currently attached
 		Iterator<String> sgi = serviceGUIMap.keySet().iterator();
@@ -207,19 +201,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			sg.detachGUI();
 		}
 
-		// remove the panesl
-		removeAllTabPanels();
 		
 		// begin building panels
-		// TODO - refactor "network"
-		network = new Welcome("",this); 
-		network.init();
-										
-		// TODO - throw error on name collision from client list
-		tabs.addTab("Welcome", network.display);
-
-		JPanel customPanel = new JPanel(new FlowLayout());
-//		customPanel.setPreferredSize(new Dimension(800, 600));
+		if (!serviceGUIMap.containsKey("welcome")) // FIXME - possible problem loading a non-Service ServiceGUI
+		{
+			welcome = new Welcome("",this); 
+			welcome.init();
+			tabs.addTab("Welcome", welcome.display);
+			serviceGUIMap.put("welcome", welcome);
+		}
 
 		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
 		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
@@ -246,24 +236,26 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				createGUIServiceGUI = true;
 				continue;
 			}
+
+			if (serviceGUIMap.containsKey(se.name))
+			{
+				LOG.debug("not creating " + se.name + " gui - it already exists");
+				continue;
+			}
 			
-			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, customPanel, se);
+			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, se);
 			if (newGUI != null)
 			{
-				if (newGUI.isPanelTabbed())
-				{
-					++index;
-					titleToTabIndexMap.put(serviceName, index);
-					if (se.getAccessURL() != null) {
-						tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
-					}
-
+				++index;
+				if (se.getAccessURL() != null) {
+					tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
 				}
+
 			}
 
 		}
 
-		// creating the ServiceGUI for "this" class
+		// creating the ServiceGUI for "this" class - delayed to get all Services
 		if (createGUIServiceGUI)
 		{
 			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
@@ -273,28 +265,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
-			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, customPanel, se);
+			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, se);
 			++index;
-			titleToTabIndexMap.put("custom", index);
 
 		}
 				
 		frame.pack();
-		
-		
-//		if (selectedTabTitle != null && titleToTabIndexMap.containsKey(selectedTabTitle))
-//		{
-			// HA ! one way to fix - always select 0 index ! - The Welcome Screen !
-			tabs.setSelectedIndex(0);
-//		}
+		tabs.setSelectedIndex(0);
 		
 		return tabs;
 
 	}
 	
+		
 	public synchronized void removeAllTabPanels()
 	{
-		//tabs.removeAll();
 		LOG.info("tab count" + tabs.getTabCount());
 		while (tabs.getTabCount() > 0)
 		{
@@ -303,7 +288,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 	
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, JPanel customPanel, ServiceWrapper sw)
+	/**
+	 * attempts to create a new ServiceGUI and add it to the map
+	 * 
+	 * @param serviceName
+	 * @param guiClass
+	 * @param sw
+	 * @return
+	 */
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw)
 	{
 		ServiceGUI gui = null;
 		JPanel tpanel = new JPanel();
@@ -313,33 +306,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			gui.init();
 			serviceGUIMap.put(serviceName, gui);
 			gui.attachGUI();
-
-			if (!customWidgetPrefs.containsKey(se.name) || (customWidgetPrefs.containsKey(se.name) && customWidgetPrefs.get(se.name) == GUI.WIDGET_PREF_TABBED)) {
-				tpanel.add(gui.widgetFrame); 
-				tabs.addTab(serviceName, tpanel);
-				customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_TABBED);
-			} else {
-				
-				if (customWidgetPrefs.get(se.name) == GUI.WIDGET_PREF_UNDOCK)
-				{
-					JFrame undocked = new JFrame();
-					
-					// icon
-					URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
-					Toolkit kit = Toolkit.getDefaultToolkit();
-					Image img = kit.createImage(url);
-					undocked.setIconImage(img);					
-					
-					// set widget state
-					undocked.getContentPane().add(gui.widgetFrame);
-					undocked.pack();
-					undocked.setVisible(true);
-					undocked.setTitle(se.name);
-				    customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_UNDOCKED);
-				    
-				    undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, se.name));
-				}
-			}
+			tpanel.add(gui.widgetFrame); 
+			tabs.addTab(serviceName, tpanel);
+//			customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_TABBED);
 
 		} else {
 			LOG.warn("could not construct a " + guiClass + " object");
@@ -347,6 +316,60 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		return gui;
 	}
+	
+	
+	/**
+	 * Move Service panel into a JFrame
+	 * @param boundServiceName
+	 */
+	public void undockPanel(String boundServiceName)
+	{
+		JFrame undocked = new JFrame();
+		
+		
+		// icon
+		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Image img = kit.createImage(url);
+		undocked.setIconImage(img);					
+		
+		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
+		sg.detachButton.setVisible(false);
+	    tabs.remove(sg.widgetFrame.getParent()); // FIXME - memory leak tpanel parent is not disposed - put tpanel in widget
+
+		undocked.getContentPane().add(sg.widgetFrame);
+		undocked.pack();
+		undocked.setVisible(true);
+		undocked.setTitle(boundServiceName);
+	    undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, boundServiceName));
+	    
+	    frame.pack();		
+	}
+	
+	/**
+	 * Move Service panel back into tabbed panels
+	 * @param boundServiceName
+	 */
+	public void dockPanel(String boundServiceName)
+	{
+		// add a single tabbed panel
+		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
+		JPanel tpanel = new JPanel();
+		tpanel.add(sg.widgetFrame);
+		sg.detachButton.setVisible(true);
+		tabs.add(boundServiceName, tpanel);		
+		
+		/*
+		 * FIXME
+		ServiceWrapper se = RuntimeEnvironment.getService(serviceName);
+		if (se.getAccessURL() != null) {
+			tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
+		}
+		*/
+
+		frame.pack();
+	}
+	
 	
 	public class UndockedWidgetWindowAdapter extends WindowAdapter
 	{
@@ -362,15 +385,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		
         public void windowClosing(WindowEvent winEvt) {
-            parent.getCustomWidgetPrefs().put(name, GUI.WIDGET_PREF_TABBED);
-            parent.loadTabPanels();
+            dockPanel(name);
         	myFrame.dispose();
         }		
 	}
 
 	public void display() {
 		
-		tabs = new ServiceTabPane();
+		tabs = new JTabbedPane();
 		panel = new JPanel();
 		serviceGUIMap = new HashMap<String, ServiceGUI>();		
 		gc = new GridBagConstraints();
@@ -379,7 +401,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + name);
 
-		ServiceTabPane stp = loadTabPanels();
+		JTabbedPane stp = loadTabPanels();
 		
 		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -493,12 +515,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	public String setRemoteConnectionStatus(String state) {
-		network.setRemoteConnectionStatus(state);
+		welcome.setRemoteConnectionStatus(state);
 		return state;
 	}
 
 	public IPAndPort noConnection(IPAndPort conn) {
-		network.setRemoteConnectionStatus("<html><body><font color=\"red\">could not connect</font></body></html>");
+		welcome.setRemoteConnectionStatus("<html><body><font color=\"red\">could not connect</font></body></html>");
 		return conn;
 	}
 
@@ -818,12 +840,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void setPeriod1(String s) {
 		guiServiceGUI.period1.setText(s);		
 	}
-
+/*
 	@Override
 	public HashMap<String, Integer> getCustomWidgetPrefs() {
 		return customWidgetPrefs;
 	}
-
+*/
 	@Override
 	public String getGraphXML() {
 		return graphXML;
@@ -871,6 +893,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		SensorMonitor sensors = new SensorMonitor("sensors");
 		sensors.startService();
+		
 
 		/*
 		ServiceFactory services = new ServiceFactory("services");
@@ -879,6 +902,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Clock clock = new Clock("clock");
 		clock.startService();
 		*/
+		
+		Jython jython = new Jython("jython");
+		jython.startService();
+		
 		
 		GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
 		//GUIService.console();

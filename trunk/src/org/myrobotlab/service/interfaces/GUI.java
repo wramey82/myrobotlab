@@ -3,9 +3,9 @@ package org.myrobotlab.service.interfaces;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.control.ServiceGUI;
-import org.myrobotlab.control.ServiceTabPane;
 import org.myrobotlab.framework.Service;
 
 import com.mxgraph.model.mxCell;
@@ -24,17 +24,12 @@ public abstract class GUI extends Service  {
 		super(instanceName, serviceClass, inHost);
 	}
 
-	public static final int WIDGET_PREF_TABBED 		= 0;
-	public static final int WIDGET_PREF_CUSTOM 		= 1;
-	public static final int WIDGET_PREF_UNDOCK 		= 2;
-	public static final int WIDGET_PREF_UNDOCKED 	= 3;
-	
-	public abstract HashMap<String, Integer> getCustomWidgetPrefs();
-
-	public abstract ServiceTabPane loadTabPanels();	
+	public abstract JTabbedPane loadTabPanels();	
 	public abstract JFrame getFrame();
 	public abstract void pack();
 	public abstract void display();
+	
+	public abstract void undockPanel(String boundServiceName);
 
 	// for GUIServiceIn/OutMethodDialogs
 	public abstract void setPeriod0(String s);
