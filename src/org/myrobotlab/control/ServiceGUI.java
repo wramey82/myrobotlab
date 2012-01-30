@@ -30,15 +30,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
@@ -64,7 +61,7 @@ public abstract class ServiceGUI {
 												// close/detach button & title
 	public JPanel menu = new JPanel();
 	public JPanel display = new JPanel();
-	JButton detachButton = null;
+	public JButton detachButton = null;
 	JButton releaseServiceButton = null;
 	
 	public abstract void init();	
@@ -74,22 +71,8 @@ public abstract class ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			LOG.error("detach " + boundServiceName);
-			HashMap<String, Integer> cwp = myService.getCustomWidgetPrefs();
-
-			
-			if (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == GUI.WIDGET_PREF_TABBED))
-			{
-				cwp.put(boundServiceName, GUI.WIDGET_PREF_UNDOCK);
-			} else {
-				
-				//if (cwp.get(boundServiceName).equals(GUI.WIDGET_PREF_UNDOCKED))
-				//TOFIX - if I am UNDOCKED and I'm here - then CLOSE THE FRAME ! 
-				// GUI or cwp needs a reference or method to close the frame
-				cwp.put(boundServiceName, GUI.WIDGET_PREF_TABBED);
-			}
-			
-			myService.loadTabPanels();
+			LOG.error("undock " + boundServiceName);
+			myService.undockPanel(boundServiceName);
 		}
 		
 	}
@@ -107,14 +90,7 @@ public abstract class ServiceGUI {
 		
 	}
 	
-	
-	
-	public boolean isPanelTabbed()
-	{
-		HashMap<String, Integer> cwp = myService.getCustomWidgetPrefs();
-		return (!cwp.containsKey(boundServiceName) || (cwp.containsKey(boundServiceName) && cwp.get(boundServiceName) == GUI.WIDGET_PREF_TABBED));
-	}
-	
+		
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
