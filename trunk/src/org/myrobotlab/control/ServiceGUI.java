@@ -82,7 +82,10 @@ public abstract class ServiceGUI {
 			{
 				cwp.put(boundServiceName, GUI.WIDGET_PREF_UNDOCK);
 			} else {
+				
+				//if (cwp.get(boundServiceName).equals(GUI.WIDGET_PREF_UNDOCKED))
 				//TOFIX - if I am UNDOCKED and I'm here - then CLOSE THE FRAME ! 
+				// GUI or cwp needs a reference or method to close the frame
 				cwp.put(boundServiceName, GUI.WIDGET_PREF_TABBED);
 			}
 			
