@@ -119,6 +119,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
+	public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
+
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
@@ -153,7 +155,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void loadDefaultConfiguration() {
 	}
 
-	public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
 	
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;

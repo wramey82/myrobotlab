@@ -81,6 +81,7 @@ public class MyRobot extends Service {
 	public float positionX = 0;
 	public float positionY = 0;
 	
+	// polar
 	public float theta = 0;
 	public float distance = 0;
 	
@@ -89,9 +90,24 @@ public class MyRobot extends Service {
 	
 	public int headingCurrent = 0;
 	
-	public Servo left;
-	public Servo right;
-	public Servo neck;
+	transient public Servo left;
+	transient public Servo right;
+	transient public Servo neck;
+	
+	/**
+	 * servos do not go both directions at the same speed - this will be 
+	 * a constant to attempt to adjust for the mechanical/electrical differences
+	 */
+	int leftError;
+	int rightError;
+	
+	
+	/**
+	 * start & stops are not instantaneous - this adjustment is included as a constant
+	 * in maneuvers which include stops & starts
+	 */
+	int startError;
+	int stopError;
 	
 	public Arduino arduino;
 
@@ -134,6 +150,11 @@ public class MyRobot extends Service {
 	// control functions begin -------------------
 	
 	// TODO spinLeft(int power, int time)
+	// TODO - possibly have uC be the timer 
+	public void moveUntil (int power, int time)
+	{
+		
+	}
 	
 	public void spinLeft(int power)
 	{
