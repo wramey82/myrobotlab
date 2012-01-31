@@ -20,8 +20,8 @@ public class PinAlert implements Serializable {
 
 	public PinAlert()
 	{
-		
 	}
+
 	
 	public PinAlert(String n, int min, int max, int type, int state,
 			int targetPin) {

@@ -26,11 +26,14 @@
 package org.myrobotlab.service;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.PinAlert;
+import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.SensorData;
 
 /**
  * @author GroG
@@ -54,6 +57,8 @@ import org.myrobotlab.framework.Service;
  *  find the drift for shutting off speed
  *  what is WHEEL_BASE ?
  *  
+ *  1. start - move forward - keep track of time
+ *  
  *  Do some maneuvering tests
  *  
  *  Find out what the "real" min max and error is of the IR sensor
@@ -75,7 +80,8 @@ public class MyRobot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public Timer timer;
+	public Timer timer = new Timer();
+	private Object event = new Object();
 	
 	// cartesian
 	public float positionX = 0;
@@ -90,9 +96,17 @@ public class MyRobot extends Service {
 	
 	public int headingCurrent = 0;
 	
+	int leftPin = 4;
+	int rightPin = 5;
+	int neckPin = 9;
+	
+	int rightStopPos 	= 90;
+	int leftStopPos 	= 90;
+	
 	transient public Servo left;
 	transient public Servo right;
 	transient public Servo neck;
+	transient public SensorMonitor sensors;
 	
 	/**
 	 * servos do not go both directions at the same speed - this will be 
@@ -129,31 +143,64 @@ public class MyRobot extends Service {
 	{
 		return t;
 	}
-	
-	public void createServices () {
 		
-		neck = new Servo(name + "_neck");
-		right = new Servo(name + "_right");
-		left = new Servo(name + "_left");
-		arduino = new Arduino(name + "_bbb");
-
-		neck.startService();
-		right.startService();
-		left.startService();
-		arduino.startService();
-		
-		neck.attach(arduino.name, 9);
-		right.attach(arduino.name, 4);
-		left.attach(arduino.name, 5);				
-	}
-	
 	// control functions begin -------------------
 	
 	// TODO spinLeft(int power, int time)
 	// TODO - possibly have uC be the timer 
+	// TODO - bury any move or stop with attach & detach in the uC
+	// TODO - make continuous rotational Servo handle all this
 	public void moveUntil (int power, int time)
 	{
+		// start timer;
+		timer.schedule(new TimedTask(), time);
+		right.attach(rightPin); // FIXME - attach right & left in single uC call
+		left.attach(leftPin);
+		right.moveTo(power);
+		left.moveTo(-power);
+		waitForEvent(); // blocks
+	}
+	
+	// queued ?
+	/*
+	public void moveUntil2 (int power, int time)
+	{
+		in(createMessage(name, "speakGoogle", toSpeak));				
+	}
+	*/
+	
+	public void waitForEvent() 
+	{
+		synchronized (event)
+		{
+			try {
+				event.wait();
+			} catch (InterruptedException e) {				
+			}
+		}
 		
+	}
+	
+	/**
+	 * a timed event task - used to block in dead reckoning
+	 *
+	 */
+	class TimedTask extends TimerTask {
+	    public void run() {
+	    	stop();
+			synchronized (event)
+			{
+				event.notifyAll();
+			}
+	    }
+	  }
+	
+	public void stop()
+	{
+		right.moveTo(rightStopPos);
+		left.moveTo(leftStopPos);
+		right.detach();
+		left.detach();
 	}
 	
 	public void spinLeft(int power)
@@ -170,8 +217,8 @@ public class MyRobot extends Service {
 	
 	public void move(int power)
 	{
-		right.moveTo(power);
-		left.moveTo(-power);
+		right.moveTo(rightStopPos + power);
+		left.moveTo(leftStopPos - power);
 	}
 	
 	public void moveTo (float distance)
@@ -199,29 +246,70 @@ public class MyRobot extends Service {
 	}
 	
 	// turning related end --------------------------
+
+	public final static String STATE_IDLE = "IDLE";
+
+	public final static String ALERT_WALL = "ALERT_WALL";
+
+	String state = STATE_IDLE;
+	
+	// fsm ------------------------------------
+	public void start() {
+		
+		neck = new Servo(name + "_neck");
+		right = new Servo(name + "_right");
+		left = new Servo(name + "_left");
+		arduino = new Arduino(name + "_bbb");
+		sensors = new SensorMonitor(name + "sensors");
+		
+		this.startService();
+		sensors.startService();
+		neck.startService();
+		right.startService();
+		left.startService();
+		arduino.startService();
+		
+		neck.setControllerName(arduino.name);
+		right.setControllerName(arduino.name);
+		left.setControllerName(arduino.name);
+
+		Graphics graphics = new Graphics("graphics");
+		graphics.startService();
+		
+		// don't know where I am...
+		// set neck forward 
+		neck.moveTo(90);
+
+		// set a route of data from arduino to the sensor monitor
+		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
+
+		// set an alert from sensor monitor to MyRobot
+		sensors.notify("publishPinAlert", this.name, "sensorAlert", PinAlert.class);
+		sensors.addAlert(arduino.name, ALERT_WALL, 600, 700, 3, 5, 0);
+		
+		// move & set timer
+		move(20);
+
+	}
+	
+	public void sensorAlert(PinAlert alert)
+	{
+		stop();
+		state = STATE_IDLE;
+	}
+	
+	public void explore()
+	{
+		
+	}
 	
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
 		MyRobot dee = new MyRobot("dee");
-		dee.createServices();
-		dee.startService();
-		
-		SensorMonitor sensors = new SensorMonitor("sensors");
-		sensors.startService();
-		
-		Graphics graphics = new Graphics("graphics");
-		graphics.startService();
-
-		Jython jython = new Jython("jython");
-		jython.startService();
-		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		//platform.startRobot();
+		dee.start();
 	}
 
 }
