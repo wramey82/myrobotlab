@@ -832,12 +832,10 @@ public class FSMTest extends Service {
 	}
 		
 	public static void main(String[] args) {
-		
-		
+				
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
-		
-		
+				
 		FSMTest fsm = new FSMTest("fsm");
 		fsm.startService();
 		fsm.init();

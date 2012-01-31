@@ -888,11 +888,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		
 		MyRobot dee = new MyRobot("dee");
-		dee.startService();
-		dee.createServices();
-		
-		SensorMonitor sensors = new SensorMonitor("sensors");
-		sensors.startService();
+		dee.start();
 		
 
 		/*
@@ -901,10 +897,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			
 		Clock clock = new Clock("clock");
 		clock.startService();
-		*/
 		
 		Jython jython = new Jython("jython");
 		jython.startService();
+		*/
 		
 		
 		GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
