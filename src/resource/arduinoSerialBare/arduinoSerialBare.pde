@@ -243,14 +243,14 @@ Serial.print("]\n");
            break;
            case ANALOG_READ_POLLING_START:
              analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
-             analogPinService[ioCommand[1]] |= POLLING;
+             analogPinService[ioCommand[1]] |= POLLING_MASK;
              // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT - if already set don't increment
              ++analogReadPollingPinCount;
            break;
            case ANALOG_READ_POLLING_STOP:
              // TODO - MAKE RE-ENRANT
              removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
-             analogPinService[ioCommand[1]] &= ~POLLING;
+             analogPinService[ioCommand[1]] &= ~POLLING_MASK;
            break;
            case DIGITAL_READ_POLLING_START:
              // TODO - MAKE RE-ENRANT
@@ -264,7 +264,7 @@ Serial.print("]\n");
            case SET_ANALOG_TRIGGER:
              // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT
              analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
-             analogPinService[ioCommand[1]] |= TRIGGER;
+             analogPinService[ioCommand[1]] |= TRIGGER_MASK;
              ++analogReadPollingPinCount;
            break;
            
