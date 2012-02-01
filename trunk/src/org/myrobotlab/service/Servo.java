@@ -140,7 +140,9 @@ public class Servo extends Service implements
 		}
 
 		send(controllerName, ServoController.servoAttach, pin);
-		notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		//notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		// TODO - notice between publishing point and direct message
+		// currently removing publishing point
 
 		isAttached = true;
 		return isAttached;
@@ -158,8 +160,9 @@ public class Servo extends Service implements
 	}
 
 	public void detach() {
-		send(controllerName, ServoController.servoDetach, pin); // TODO
-		removeNotify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		send(controllerName, ServoController.servoDetach, pin); // TODO - possible
+		// configurable publishing point versus direct send
+		//removeNotify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 		isAttached = false;
 		broadcastState();
 	}
@@ -172,8 +175,13 @@ public class Servo extends Service implements
 	 */
 	public Integer moveTo(Integer pos) {
 		LOG.info("moveTo " + pos);
+		send(controllerName, ServoController.servoWrite, pin, pos); 
 		this.pos = pos; 
-		invoke("servoWrite", pos);
+		// invoke("servoWrite", pos); TODO - consider
+		// the differences between direct send and publishing to a point
+		// make it configurable? - at the moment the expectation of a working Servo
+		// means it "must" be associated with something which implements ServoController
+		// so we are going to direct send only at the momo
 		return pos;
 	}
 
