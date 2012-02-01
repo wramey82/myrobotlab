@@ -273,12 +273,19 @@ public class MyRobot extends Service {
 		right.setControllerName(arduino.name);
 		left.setControllerName(arduino.name);
 
-		Graphics graphics = new Graphics("graphics");
-		graphics.startService();
+//		Graphics graphics = new Graphics("graphics");
+//		graphics.startService();
+		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 		
 		// don't know where I am...
 		// set neck forward 
-		neck.moveTo(90);
+		// neck.moveTo(90);
+		// neck.moveTo(90);
+		move(10);
+		stop();
 
 		// set a route of data from arduino to the sensor monitor
 		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
