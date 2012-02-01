@@ -256,11 +256,11 @@ public class MyRobot extends Service {
 	// fsm ------------------------------------
 	public void start() {
 		
-		neck = new Servo(name + "_neck");
-		right = new Servo(name + "_right");
-		left = new Servo(name + "_left");
-		arduino = new Arduino(name + "_bbb");
-		sensors = new SensorMonitor(name + "sensors");
+		neck = new Servo(name + "Neck");
+		right = new Servo(name + "Right");
+		left = new Servo(name + "Left");
+		arduino = new Arduino(name + "BBB");
+		sensors = new SensorMonitor(name + "Sensors");
 		
 		this.startService();
 		sensors.startService();
@@ -269,16 +269,21 @@ public class MyRobot extends Service {
 		left.startService();
 		arduino.startService();
 		
-		neck.setControllerName(arduino.name);
-		right.setControllerName(arduino.name);
-		left.setControllerName(arduino.name);
+		
+		
+		neck.attach(arduino.name, 9);
+		right.attach(arduino.name, 3);
+		left.attach(arduino.name, 4);
 
+/*
 //		Graphics graphics = new Graphics("graphics");
 //		graphics.startService();
-		
+*/
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		
+
 		
 		// don't know where I am...
 		// set neck forward 
