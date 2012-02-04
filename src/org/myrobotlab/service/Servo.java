@@ -74,20 +74,40 @@ public class Servo extends Service implements
 	}
 
 
-	public void attach(String controller, Integer pin) {
-		setControllerName(controller);
-		attach(pin);
-		save(); // bound to controller and pin
-		broadcastState(); // state has changed let everyone know
+	public void attach(String controllerName, Integer pin) {
+		this.controllerName = controllerName;
+		this.pin = pin;
+		if (attach())
+		{
+			save(); // bound to controller and pin
+			broadcastState(); // state has changed let everyone know
+		}
 	}
 
-	public boolean isAttached() {
+	public boolean attach()
+	{
+		if (controllerName.length() == 0) {
+			LOG.error("can not attach, controller name is blank");
+			return false;
+		}
+		
+		if (isAttached)
+		{
+			LOG.warn("servo " + name +  " is already attached - detach before re-attaching");
+			return false;
+		}
+
+		send(controllerName, ServoController.servoAttach, pin);
+		//notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		// TODO - notice between publishing point and direct message
+		// currently removing publishing point
+
+		isAttached = true;
 		return isAttached;
 	}
-
-	public Integer setPin(Integer pin) {
-		this.pin = pin;
-		return pin;
+	
+	public boolean isAttached() {
+		return isAttached;
 	}
 
 	public Integer setPos(Integer pos) {
@@ -118,36 +138,6 @@ public class Servo extends Service implements
 		return controllerName;
 	}
 
-	public String setControllerName(String cname) 
-	{
-		controllerName = cname;
-		return controllerName;
-	}
-
-
-	public boolean attach(Integer pin) {
-		invoke("setPin", pin); // broadcasting change of pin
-
-		if (controllerName.length() == 0) {
-			LOG.error("can not attach, controller name is blank");
-			return false;
-		}
-		
-		if (isAttached)
-		{
-			LOG.warn("servo " + name +  " is already attached - detach before re-attaching");
-			return false;
-		}
-
-		send(controllerName, ServoController.servoAttach, pin);
-		//notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
-		// TODO - notice between publishing point and direct message
-		// currently removing publishing point
-
-		isAttached = true;
-		return isAttached;
-	}
-
 	public int readServo() {
 		return pos;
 	}
@@ -174,7 +164,7 @@ public class Servo extends Service implements
 	 * @return
 	 */
 	public Integer moveTo(Integer pos) {
-		LOG.info("moveTo " + pos);
+		LOG.info(name + " moveTo " + pos);
 		send(controllerName, ServoController.servoWrite, pin, pos); 
 		this.pos = pos; 
 		// invoke("servoWrite", pos); TODO - consider

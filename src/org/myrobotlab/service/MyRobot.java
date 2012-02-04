@@ -97,7 +97,7 @@ public class MyRobot extends Service {
 	public int headingCurrent = 0;
 	
 	int leftPin = 4;
-	int rightPin = 5;
+	int rightPin = 3;
 	int neckPin = 9;
 	
 	int rightStopPos 	= 90;
@@ -154,20 +154,13 @@ public class MyRobot extends Service {
 	{
 		// start timer;
 		timer.schedule(new TimedTask(), time);
-		right.attach(rightPin); // FIXME - attach right & left in single uC call
-		left.attach(leftPin);
+		right.attach(); // FIXME - attach right & left in single uC call - Arduino platform API
+		left.attach();
 		right.moveTo(power);
 		left.moveTo(-power);
 		waitForEvent(); // blocks
 	}
-	
-	// queued ?
-	/*
-	public void moveUntil2 (int power, int time)
-	{
-		in(createMessage(name, "speakGoogle", toSpeak));				
-	}
-	*/
+
 	
 	public void waitForEvent() 
 	{
@@ -195,6 +188,7 @@ public class MyRobot extends Service {
 	    }
 	  }
 	
+	// FIXME - is absolute - but needs to be incremental
 	public void stop()
 	{
 		right.moveTo(rightStopPos);
@@ -215,10 +209,25 @@ public class MyRobot extends Service {
 		left.moveTo(-power);
 	}
 	
+	// TODO - is relative and incremental - change to absolute
 	public void move(int power)
-	{
-		right.moveTo(rightStopPos + power);
-		left.moveTo(leftStopPos - power);
+	{	
+		// to attach or not to attach that is the question
+		right.attach();
+		left.attach();
+		
+		try {
+		// must ramp
+		for (int i = 0; i < power; ++i)
+		{
+			right.moveTo(rightStopPos + i);
+			left.moveTo(leftStopPos - i); // + leftError
+			Thread.sleep(100);
+		}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void moveTo (float distance)
@@ -268,30 +277,25 @@ public class MyRobot extends Service {
 		right.startService();
 		left.startService();
 		arduino.startService();
-		
-		
-		
+				
 		neck.attach(arduino.name, 9);
-		right.attach(arduino.name, 3);
-		left.attach(arduino.name, 4);
+		right.attach(arduino.name, rightPin);
+		left.attach(arduino.name, leftPin);
 
 /*
 //		Graphics graphics = new Graphics("graphics");
 //		graphics.startService();
 */
+		
+/*		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 		
+*/
 
+		explore();
 		
-		// don't know where I am...
-		// set neck forward 
-		// neck.moveTo(90);
-		// neck.moveTo(90);
-		move(10);
-		stop();
-
 		// set a route of data from arduino to the sensor monitor
 		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
 
@@ -310,8 +314,33 @@ public class MyRobot extends Service {
 		state = STATE_IDLE;
 	}
 	
+	// left > 101 backwards 101 
+	// left < 83 forwards
+	// stop mid 92
+	
+	// right < 83 backwards
+	// right > 99 forwards
+	// stop mid 91
+	
+	
 	public void explore()
 	{
+		try {
+
+			for (int i = 0; i < 100; ++i)
+			{
+				move(15);
+				Thread.sleep(2000);
+				stop();			
+			}
+			
+			LOG.info("here");
+			
+			
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
