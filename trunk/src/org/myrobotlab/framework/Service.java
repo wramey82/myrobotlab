@@ -53,7 +53,6 @@ import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
-import org.myrobotlab.service.interfaces.GUI;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -610,34 +609,7 @@ public abstract class Service implements Runnable, Serializable {
 		return null;
 	}
 
-	static public Object getNewInstance(String classname,
-			String boundServiceName, GUI service) {
-		try {
-			Object[] params = new Object[2];
-			params[0] = boundServiceName;
-			params[1] = service;
-			Class<?> c;
-			c = Class.forName(classname);
-			Constructor<?> mc = c.getConstructor(new Class[] { String.class,
-					GUI.class });
-			return mc.newInstance(params);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 
 	static public Object getNewInstance(String classname, String param) {
 		Object params[] = null;

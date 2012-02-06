@@ -49,6 +49,7 @@ import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 import org.w3c.dom.Document;
@@ -359,7 +360,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				// load runtime
 				RuntimeEnvironment.load("runtime.bin");
 				
-				RuntimeEnvironment.startLocalServices();
+				RuntimeEnvironment.startLocalServices(); // FIXME - previously started gui .display()
+				
+				// FIXME - startGUI
+				
 				// Execute when button is pressed // TODO send - message
 			    				
 			}
@@ -367,6 +371,32 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		});
 
 		return button;
+	}
+	
+	public static void startLocalServices()
+	{
+		boolean hasGUI = false;
+		GUI gui = null;
+		ServiceEnvironment se = RuntimeEnvironment.getLocalServices(); 
+		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			sw.service.startService();
+			
+			if (sw.service.getClass().getSuperclass().equals(GUI.class))
+			{
+				gui = (GUI)sw.service;
+				hasGUI = true;
+			}
+			
+		}
+	
+		if (hasGUI)
+		{
+			gui.display();
+		}
+	
 	}
 	
 	public JButton getDumpButton() {

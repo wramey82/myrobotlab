@@ -29,12 +29,11 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -63,7 +62,7 @@ public class Welcome extends ServiceGUI {
 		
 		gc.gridx = 0;
 		JLabel image = new JLabel();
-		image.setIcon(FileIO.getResourceIcon("mrl_logo.gif"));
+		image.setIcon(Utils.getResourceIcon("mrl_logo.gif"));
 		display.add(image);
 		
 		++gc.gridy;

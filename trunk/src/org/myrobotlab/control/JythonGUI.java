@@ -52,6 +52,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -291,7 +292,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		JMenuBar graphicBar = new JMenuBar();
 		
 		// TODO pkg gui? with get gui Icon button
-		JButton b = new JButton(null,FileIO.getResourceIcon("console.png"));
+		JButton b = new JButton(null,Utils.getResourceIcon("console.png"));
 		//b.setPreferredSize(new Dimension(32,32));
 		b.setMargin(new Insets(0, 0, 0, 0)); 
 		b.setBorderPainted(false);
