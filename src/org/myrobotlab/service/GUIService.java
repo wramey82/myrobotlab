@@ -43,6 +43,8 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -75,6 +77,7 @@ import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -174,7 +177,45 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		return false;
 	}
-		
+
+	/**
+	 * method to construct ServiceGUIs - similar to the Service.getNewInstance
+	 * but specifically for swing GUIs
+	 * 
+	 * @param classname
+	 * @param boundServiceName
+	 * @param service
+	 * @return
+	 */
+	static public Object getNewInstance(String classname,
+			String boundServiceName, GUI service) {
+		try {
+			Object[] params = new Object[2];
+			params[0] = boundServiceName;
+			params[1] = service;
+			Class<?> c;
+			c = Class.forName(classname);
+			Constructor<?> mc = c.getConstructor(new Class[] { String.class,
+					GUI.class });
+			return mc.newInstance(params);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
+	
 	/**
 	 *  a function to rebuild the GUI display.  Smaller data-exchange should be done with getState/publishState.
 	 *  This can be used to rebuild the panels after a new service has been created or a foriegn set of services
@@ -678,7 +719,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		    JPanel messagePane = new JPanel();
 		    
 		    JLabel pic = new JLabel();
-			ImageIcon icon = FileIO.getResourceIcon("mrl_logo_about_128.png");
+			ImageIcon icon = Utils.getResourceIcon("mrl_logo_about_128.png");
 			if (icon != null)
 			{
 				pic.setIcon(icon);	
@@ -887,8 +928,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		
-		MyRobot dee = new MyRobot("dee");
-		dee.start();
+//		MyRobot dee = new MyRobot("dee");
+//		dee.start();
 		
 
 		/*
@@ -903,7 +944,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		*/
 		
 		
-		GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
+		//GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
+		GUIService gui2 = new GUIService("gui2");
 		//GUIService.console();
 		gui2.startService();
 		

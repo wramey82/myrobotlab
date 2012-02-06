@@ -39,6 +39,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+
+import org.apache.log4j.Logger;
+import org.myrobotlab.fileLib.FileIO;
 
 // TODO - refactor to OpenCV and nonOpenCV classes
 // http://www.colblindor.com/color-name-hue/ - excellent resource
@@ -52,6 +56,7 @@ public class Utils {
 	 * & 0xff; System.out.println("argb: " + alpha + ", " + red + ", " + green +
 	 * ", " + blue); }
 	 */
+	public final static Logger LOG = Logger.getLogger(Utils.class.getCanonicalName());
 
 	// static HashMap <int,>
 	// array [r][g][b]
@@ -270,6 +275,19 @@ public class Utils {
 				.getDefaultConfiguration();
 		return configuration.createCompatibleImage(width, height,
 				Transparency.TRANSLUCENT);
+	}
+	
+
+	public static final ImageIcon getResourceIcon(String path) {
+		ImageIcon icon = null;
+		java.net.URL imgURL = FileIO.class.getResource("/resource/" + path);
+		if (imgURL != null) {
+			icon = new ImageIcon(imgURL);
+			return icon;
+		} else {
+			LOG.error("Couldn't find file: " + path);
+			return null;
+		}
 	}
 
 }

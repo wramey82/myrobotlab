@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.interfaces.GUI;
+//import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeEnvironment implements Serializable{
 
@@ -462,26 +462,28 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static void startLocalServices()
 	{
-		boolean hasGUI = false;
-		GUI gui = null;
+		//boolean hasGUI = false;
+		//GUI gui = null;
 		ServiceEnvironment se = getLocalServices(); 
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
 			sw.service.startService();
+			/*
 			if (sw.service.getClass().getSuperclass().equals(GUI.class))
 			{
 				gui = (GUI)sw.service;
 				hasGUI = true;
 			}
+			*/
 		}
-		
+	/*	
 		if (hasGUI)
 		{
 			gui.display();
 		}
-		
+	*/	
 	}
 	
 	/**

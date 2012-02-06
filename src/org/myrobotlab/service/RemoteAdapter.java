@@ -77,7 +77,7 @@ public class RemoteAdapter extends Service {
 
 	
 	public RemoteAdapter(String n, String hostname) {
-		super(n, TestCatcher.class.getCanonicalName(), hostname);
+		super(n, RemoteAdapter.class.getCanonicalName(), hostname);
 	}
 
 	@Override
@@ -431,17 +431,17 @@ public class RemoteAdapter extends Service {
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 				
-		ServiceFactory services = new ServiceFactory("services");
-		services.startService();
+//		ServiceFactory services = new ServiceFactory("services");
+//		services.startService();
 /*		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 */
-		Logging log = new Logging("log");
-		log.startService();
+//		Logging log = new Logging("log");
+//		log.startService();
 		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
+//		GUIService gui = new GUIService("gui");
+//		gui.startService();
+//		gui.display();
 	}	
 }

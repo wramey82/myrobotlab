@@ -42,16 +42,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
-import javax.swing.ImageIcon;
+//import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
@@ -111,19 +103,6 @@ public class FileIO {
 			}
 		}
 	}
-
-	public static final ImageIcon getResourceIcon(String path) {
-		ImageIcon icon = null;
-		java.net.URL imgURL = FileIO.class.getResource("/resource/" + path);
-		if (imgURL != null) {
-			icon = new ImageIcon(imgURL);
-			return icon;
-		} else {
-			LOG.error("Couldn't find file: " + path);
-			return null;
-		}
-	}
-	
 
 	// TODO - NOT IMPLMENENTED 
 	public final static String getResourceBinary(String filename) {
