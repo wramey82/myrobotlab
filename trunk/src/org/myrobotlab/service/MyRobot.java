@@ -256,11 +256,16 @@ public class MyRobot extends Service {
 	
 	// turning related end --------------------------
 
-	public final static String STATE_IDLE = "IDLE";
+	// behavior - TODO - pre-pend
+	public final static String BEHAVIOR_IDLE 		= "i am idle";
+	public final static String BEHAVIOR_EXPLORE 	= "i am exploring";
 
+	// command (out) states
+	
+	// sensor (in) states	
 	public final static String ALERT_WALL = "ALERT_WALL";
 
-	String state = STATE_IDLE;
+	String state = BEHAVIOR_IDLE;
 	
 	// fsm ------------------------------------
 	public void start() {
@@ -311,7 +316,7 @@ public class MyRobot extends Service {
 	public void sensorAlert(PinAlert alert)
 	{
 		stop();
-		state = STATE_IDLE;
+		state = BEHAVIOR_IDLE;
 	}
 	
 	// left > 101 backwards 101 
