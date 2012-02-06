@@ -894,7 +894,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		//arduino.setPort("/dev/ttyS50");
-		
+/*		
 		//Motor left = new Motor("left");
 		//left.startService();
 
@@ -912,12 +912,12 @@ public class Arduino extends Service implements SerialPortEventListener,
 		Servo neck = new Servo("neck");
 		neck.startService();
 		
-		
+*/		
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();
 		gui.display();
 
-		
+/*		
 		neck.attach("arduino", 9);
 		neck.moveTo(10);
 		neck.moveTo(90);
@@ -947,7 +947,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 			left.detach();
 			right.detach();
 		}
-		
+*/		
 	}
 	
 }
