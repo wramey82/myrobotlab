@@ -220,9 +220,7 @@ public class Clock extends Service {
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
-		Logging log = new Logging("log");
-		log.startService();
-		
+/*		
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();

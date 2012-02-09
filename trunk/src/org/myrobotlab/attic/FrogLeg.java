@@ -331,38 +331,6 @@ public class FrogLeg extends Service {
 
 	}
 
-	// TODO - Remote.export(camera) ....
-	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		//ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
-															// only 1 TODO -
-															// kludge - fix me
-		//super.registerServices(sdu); depricated
-
-/*		
-		ServiceEntry se;
-		sdu.serviceEntryList_.clear();
-
-		se = hostcfg.getFullServiceEntry("frogleg");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("camera");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("sensors");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("arduino");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,
-				sdu.remoteServicePort, sdu);
-*/
-	}
-
 	public void capture(Rectangle r) {
 		captureData.add(new Rectangle(r));
 	}
