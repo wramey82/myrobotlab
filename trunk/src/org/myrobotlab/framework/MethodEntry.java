@@ -91,8 +91,7 @@ public class MethodEntry implements Serializable {
 
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
 		
 		return me;

@@ -127,7 +127,7 @@ public class TestCatcher extends Service {
 					// TODO Auto-generated catch block
 					LOG.error("waitForCatches " + numberOfCatches
 							+ " interrupted");
-					// e.printStackTrace();
+					// logException(e);
 				}
 			}
 		}
@@ -145,7 +145,7 @@ public class TestCatcher extends Service {
 					// TODO Auto-generated catch block
 					LOG.error("testObject1List " + numberOfCatches
 							+ " interrupted");
-					// e.printStackTrace();
+					// logException(e);
 				}
 			}
 		}

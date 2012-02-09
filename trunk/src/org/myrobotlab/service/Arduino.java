@@ -413,7 +413,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	        if (outputStream != null) outputStream.close();
 
 	      } catch (Exception e) {
-	        e.printStackTrace();
+	        logException(e);
 	      }
 	      inputStream = null;
 	      outputStream = null;
@@ -443,7 +443,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 	    	Thread.sleep(300); // wait for thread to terminate
 
 	      } catch (Exception e) {
-	        e.printStackTrace();
+	        logException(e);
 	      }
 
 	    LOG.info("released port");

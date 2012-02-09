@@ -19,8 +19,8 @@ import org.myrobotlab.framework.Service;
 public class ConnectDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
-	JTextField host = new JTextField("127.0.0.1", 10);
-	JTextField port = new JTextField("6767", 10);
+	public JTextField host = new JTextField("127.0.0.1", 10);
+	public JTextField port = new JTextField("6767", 10);
 	JButton connect = new JButton("connect");
 	JButton cancel = new JButton("cancel");
 	Service myService;

@@ -277,7 +277,7 @@ public class Motor extends Service {
 			try {
 				Thread.sleep(duration);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logException(e);
 			}
 			
 			stop();
@@ -396,7 +396,7 @@ int encoderPin = 0; // TODO - put in Encoder class
 			try {
 				Thread.sleep(amount * positionMultiplier);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logException(e);
 			}
 			// TODO - this is overlapp mode (least useful)
 			// timer.schedule(new FeedbackTask(FeedbackTask.stopMotor, amount *

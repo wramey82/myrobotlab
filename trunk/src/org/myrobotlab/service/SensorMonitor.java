@@ -42,7 +42,6 @@ public class SensorMonitor extends Service {
 	public HashMap<String, PinAlert> alerts_nameIndex = new HashMap<String, PinAlert>();
 	public HashMap<String, PinData> lastValue = new HashMap<String, PinData>();
 
-	public Speech speech = null;
 	
 	public SensorMonitor(String n) {
 		super(n, SensorMonitor.class.getCanonicalName());
@@ -197,8 +196,10 @@ public class SensorMonitor extends Service {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
+		/*
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		*/
 		//Arduino arduino1 = new Arduino("arduino1");
 		//RemoteAdapter remote = new RemoteAdapter("remote");
 		//Speech speech = new Speech("speech");
@@ -209,6 +210,7 @@ public class SensorMonitor extends Service {
 		//speech.startService();
 		sm.startService();
 
+		/*
 		Servo neck = new Servo("neck");
 		neck.startService();
 		neck.attach("arduino", 4);
@@ -216,6 +218,7 @@ public class SensorMonitor extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		*/
 		
 		/*
 		neck.moveTo(179);

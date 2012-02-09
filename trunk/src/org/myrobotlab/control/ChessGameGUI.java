@@ -48,6 +48,7 @@ import org.myrobotlab.chess.Board;
 import org.myrobotlab.chess.Constants;
 import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.GUI;
 import org.op.chess.ChessBoard;
 
@@ -415,7 +416,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 			youGotToMoveItMoveIt(null, m2, false);
 		} catch (PropertyVetoException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
 
 		return m2;
@@ -434,7 +435,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 			youGotToMoveItMoveIt(null, m2, true); // last param is to publish or not
 		} catch (PropertyVetoException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
     	
     	return s;

@@ -113,7 +113,7 @@ public class RemoteAdapter extends Service {
 					serverSocket.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logException(e);
 				}
 			}
 		}
@@ -210,12 +210,12 @@ public class RemoteAdapter extends Service {
 				}
 
 			} catch (SocketException e) {
-				e.printStackTrace();
+				logException(e);
 				LOG.error("could not listen");
 				return;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 
 			/*
@@ -294,7 +294,7 @@ public class RemoteAdapter extends Service {
 						}
 
 					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
+						logException(e);						
 						LOG.error("udp datagram dumping bad msg");
 					}
 					dgram.setLength(b.length); // must reset length field!
@@ -303,12 +303,12 @@ public class RemoteAdapter extends Service {
 				}
 
 			} catch (SocketException e) {
-				e.printStackTrace();
+				logException(e);
 				LOG.error("could not listen");
 				return;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 
 			/*
@@ -365,48 +365,15 @@ public class RemoteAdapter extends Service {
 		thisThread = null;
 
 	}
-/*
-	// TODO - should Service even have these ??? - should be an Interface !!
-	@Override
-	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		LOG.error("ra registerServices here");	
-		
-		for (int i = 0; i < sdu.serviceEntryList_.size(); ++i) {
-			hostcfg.setServiceEntry(sdu.serviceEntryList_.get(i));
-		}
 
-		sendServiceDirectoryUpdate(sdu.remoteHostname, sdu.remoteServicePort,
-				sdu.hostname, sdu.servicePort);
-			
-	}
-*/
+	// FIXME - deprecate ???  Is it used? 
 	// TODO - should Service even have these ??? - should be an Interface !!
-	// @Override
+	// @Override	
 	public void sendServiceDirectoryUpdate(String remoteHost, int remotePort,
 			String localHost, int localPort) {
 		LOG.info(name + " sendServiceDirectoryUpdate from " + localHost + ":"
 				+ localPort + " --> " + remoteHost + ":" + remotePort);
 		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-
-		/*
-		StringBuffer sb = new StringBuffer();
-		sb.append("http://");
-		sb.append(dgram.getAddress().toString());
-		sb.append(":");
-		sb.append(dgram.getPort());
-		
-		sdu.remoteURL = new URL(sb.toString());
-		
-		sb = new StringBuffer();
-		sb.append("http://");
-		sb.append(localAddr.getAddress().getHostAddress());
-		sb.append(":");
-		sb.append(localAddr.getPort());
-		
-		sdu.url = new URL(sb.toString());
-		
-		LOG.error("remoteadapter - sdu local url " + sdu.url + " remote " + sdu.remoteURL);
-		*/
 		
 		Message msg = createMessage("", "registerServices", sdu);
 		msg.msgType = "S"; // Service / System / Process level message - a
@@ -426,7 +393,7 @@ public class RemoteAdapter extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();

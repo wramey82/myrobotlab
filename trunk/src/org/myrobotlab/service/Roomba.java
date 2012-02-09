@@ -1391,7 +1391,7 @@ public class Roomba extends Service implements SerialPort {
 	 * something slightly more intelligent to do.
 	 */
 	public void errorMessage(String where, Throwable e) {
-		e.printStackTrace();
+		logException(e);
 		throw new RuntimeException("Error inside Serial." + where + "()");
 	}
 

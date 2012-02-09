@@ -83,7 +83,7 @@ public class HTTPClient extends Service {
 			try {
 				return method.getResponseBodyAsString();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logException(e);
 				return null;
 			}
 		}
@@ -158,13 +158,13 @@ public class HTTPClient extends Service {
 
 		} catch (HttpException e) {
 			System.err.println("Fatal protocol violation: " + e.getMessage());
-			e.printStackTrace();
+			logException(e);
 		} catch (IOException e) {
 			System.err.println("Fatal transport error: " + e.getMessage());
-			e.printStackTrace();
+			logException(e);
 		} catch (Exception e) {
 			System.err.println("Fatal error: " + e.getMessage());
-			e.printStackTrace();
+			logException(e);
 		} finally {
 			// Release the connection.
 			//p.releaseConnection();
@@ -208,10 +208,10 @@ public class HTTPClient extends Service {
 
 		} catch (HttpException e) {
 			System.err.println("Fatal protocol violation: " + e.getMessage());
-			e.printStackTrace();
+			logException(e);
 		} catch (IOException e) {
 			System.err.println("Fatal transport error: " + e.getMessage());
-			e.printStackTrace();
+			logException(e);
 		} finally {
 			// Release the connection.
 			//g.releaseConnection();
@@ -242,7 +242,7 @@ public class HTTPClient extends Service {
 			form_token = HTTPClient.parse(data.method.getResponseBodyAsString(),"<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"","\"  />");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 		// post comment
@@ -280,7 +280,7 @@ public class HTTPClient extends Service {
 			form_token = HTTPClient.parse(data.method.getResponseBodyAsString(),"<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"","\"  />");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 		// post comment

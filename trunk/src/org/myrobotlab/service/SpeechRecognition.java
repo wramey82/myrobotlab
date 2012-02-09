@@ -241,7 +241,7 @@ public class SpeechRecognition extends Service {
 						Thread.sleep(300);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logException(e);
 					}
 					//invoke("unrecognizedSpeech");
 					LOG.error("I can't hear what you said.\n");

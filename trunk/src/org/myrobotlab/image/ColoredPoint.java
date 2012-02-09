@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.service.data;
+package org.myrobotlab.image;
 
 import java.awt.Color;
 import java.io.Serializable;

@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.GUIService;
 
 public class Client extends JApplet {
@@ -112,7 +113,7 @@ public class Client extends JApplet {
 					.error("Couldn't get Internet appletAddress: Unknown appletHostAddress");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
 
 		this.setContentPane(getJContentPane());

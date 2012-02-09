@@ -84,7 +84,7 @@ public class SystemInformation extends Service {
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 			ret.append("FileNotFoundException " + cpuTempFile);
 		} catch (IOException e) {
 			ret.append("IOException ");

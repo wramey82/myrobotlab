@@ -329,7 +329,7 @@ public class DifferentialDrive extends Service {
 		
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 		
@@ -509,7 +509,7 @@ public class DifferentialDrive extends Service {
 				lock.wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 		}
 		

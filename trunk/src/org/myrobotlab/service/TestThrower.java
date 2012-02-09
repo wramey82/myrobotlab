@@ -114,7 +114,7 @@ public class TestThrower extends Service {
 					Thread.sleep(sleep);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logException(e);
 					running = false;
 				}
 			}

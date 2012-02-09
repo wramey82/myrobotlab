@@ -34,8 +34,10 @@ import java.util.Iterator;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.util.cli.CommandLineParser;
-import org.apache.log4j.Level;
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.net.*;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.myrobotlab.cmdline.CMDLine;
@@ -252,56 +254,20 @@ public class ServiceFactory extends Service {
 		cmdline.splitLine(args);
 
 		try {
-			
-			
-
-			// org.apache.log4j.BasicConfigurator.configure();
-			// Logger.getRootLogger().setLevel(Level.DEBUG);
-
-			// Logger logger = Logger.getLogger("log.out");
-			// #define the appender named
-			// FILE log4j.appender.FILE=org.apache.log4j.FileAppender
-			// log4j.appender.FILE.File=${user.home}/log.out
-
-			/*
-			 * # Set root logger level to DEBUG and its only appender to A1.
-			 * log4j.rootLogger=DEBUG, A1
-			 * 
-			 * # A1 is set to be a ConsoleAppender.
-			 * log4j.appender.A1=org.apache.log4j.ConsoleAppender
-			 * 
-			 * # A1 uses PatternLayout.
-			 * log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-			 * log4j.appender.A1.layout.ConversionPattern=%-4r [%t] %-5p %c %x -
-			 * %m%n
-			 */
-
-			// excellent documentation
-			// http://logging.apache.org/log4j/1.2/manual.html
-			// SimpleLayout layout = new SimpleLayout();
-
 			if (cmdline.containsKey("-logToConsole"))
 			{
-				org.apache.log4j.BasicConfigurator.configure();
-				Logger.getRootLogger().setLevel(Level.DEBUG);
+				addAppender(LOGGING_APPENDER_CONSOLE);
+				setLogLevel(LOG_LEVEL_DEBUG);
+			} else if (cmdline.containsKey("-logToRemote")) {
+				String host = cmdline.getSafeArgument("-logToRemote", 0, "localhost");
+				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445"); 
+				addAppender(LOGGING_APPENDER_SOCKET, host, port);
+				setLogLevel(LOG_LEVEL_DEBUG);
 			} else {			
-				PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"); // same format as BasicConfigurator
-	
-				RollingFileAppender appender = null;
-				try {
-					String userDir = System.getProperty("user.dir");
-					appender = new RollingFileAppender(layout, userDir +  File.separator + "log.txt", false);
-				} catch (Exception e) {
-					System.out.println(Service.stackToString(e));
-				}
-	
-				
-				Logger.getRootLogger().addAppender(appender);
-				Logger.getRootLogger().setLevel(Level.WARN);
+				addAppender(LOGGING_APPENDER_ROLLING_FILE);
+				setLogLevel(LOG_LEVEL_WARN);
 			}
-			
-			//LOG.info(MyRobotLabClassLoader.classLoaderTreeString(ServiceFactory.class));
-			
+						
 			if (cmdline.containsKey("-logLevel"))
 			{
 				setLogLevel(cmdline.getSafeArgument("-logLevel", 0, "DEBUG"));
@@ -456,7 +422,13 @@ public class ServiceFactory extends Service {
 					cmd.add(confs);
 					
 					CommandLineParser parser = Main.getParser();
-					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+					
+					try {
+						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+					} catch (Exception e)
+					{
+						logException(e);
+					}
 					
 					// local config - 
 					

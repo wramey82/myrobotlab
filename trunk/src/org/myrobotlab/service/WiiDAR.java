@@ -246,7 +246,7 @@ public class WiiDAR extends Service {
 	 * invoke("publishSweepData", copy(points)); points.clear();
 	 * 
 	 * ++cnt; } } catch (InterruptedException e) { // TODO Auto-generated catch
-	 * block e.printStackTrace(); }
+	 * block logException(e); }
 	 * 
 	 * }
 	 */
@@ -461,7 +461,7 @@ public class WiiDAR extends Service {
 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 
 		}

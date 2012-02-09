@@ -63,10 +63,10 @@ import java.util.SimpleTimeZone;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.OpenCVFilterAverageColor;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.data.ColoredPoint;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
@@ -814,7 +814,7 @@ public class OpenCV extends Service {
 		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
 		 * catch (Exception e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
+		 * logException(e); }
 		 */
 
 		OpenCV opencv = (OpenCV) ServiceFactory.createAndStart("opencv","OpenCV");

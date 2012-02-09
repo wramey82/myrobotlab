@@ -12,6 +12,9 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.IPCameraFrameGrabber;
 import org.myrobotlab.image.SerializableImage;
 
+// Android related - http://stackoverflow.com/questions/8301543/android-bitmap-to-bufferedimage
+// Bitmap to BufferedImage - conversion once Bitmap class is serialized
+
 public class IPCamera extends Service {
 
 	private static final long serialVersionUID = 1L;

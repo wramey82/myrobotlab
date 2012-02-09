@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
-import org.myrobotlab.service.data.ColoredPoint;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 

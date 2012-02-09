@@ -266,7 +266,7 @@ public class Wii extends Service implements WiimoteListener,
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			} // must slow down to initialize
 
 			// force to correct state strobe state
