@@ -26,6 +26,11 @@ public class RuntimeEnvironment implements Serializable{
 	static private HashMap<URL, ServiceEnvironment> hosts;
 	static private HashMap<String, ServiceWrapper> registry;
 	
+	static private boolean inclusiveExportFilterEnabled = false;
+	static private boolean exclusiveExportFilterEnabled = false;
+	static private HashMap<String, String> inclusiveExportFilter = new HashMap<String, String>();
+	static private HashMap<String, String> exclusiveExportFilter = new HashMap<String, String>();
+	
 	// TODO - this should be a GUI thing only ! or getPrettyMethods or static filterMethods
 	static private HashMap<String, String> hideMethods = new HashMap<String, String>(); 
 		
@@ -252,6 +257,57 @@ public class RuntimeEnvironment implements Serializable{
 		}
 		
 		return hosts.get(null);		
+	}
+
+	/**
+	 * getLocalServicesForExport returns a filtered map of Service references
+	 * to export to another instance of MRL.  The objective of filtering may help resolve
+	 * functionality, security, or technical issues.  For example, the Dalvik JVM
+	 * can only run certain Services.  It would be error prone to export a GUIService
+	 * to a jvm which does not support swing. 
+	 * 
+	 * Since the map of Services is made for export - it is NOT a copy but references
+	 * 
+	 * The filtering is done by Service Type.. although in the future it could be extended
+	 * to Service.name
+	 * 
+	 * @return
+	 */
+	public static ServiceEnvironment getLocalServicesForExport()
+	{
+		
+		if (!hosts.containsKey(null))
+		{
+			LOG.error("local (null) ServiceEnvironment does not exist");
+			return null;
+		}
+		
+		ServiceEnvironment export = new ServiceEnvironment(null);
+		
+		ServiceEnvironment local = hosts.get(null);	
+		
+		Iterator<String> it = local.serviceDirectory.keySet().iterator();
+		while (it.hasNext()) {
+			String name = it.next();
+			ServiceWrapper sw = local.serviceDirectory.get(name); 
+			Service s = sw.service;
+			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(s.getClass().getCanonicalName())) {
+				LOG.debug("adding " + name + " to export ");
+				export.serviceDirectory.put(name, sw);
+			}
+		}
+		
+		return export;
+	}
+	
+	public void addInclusiveExportFilterServiceType (String packageName, String className)
+	{
+		inclusiveExportFilter.put(packageName + "." + className, className);
+	}
+
+	public void addInclusiveExportFilterServiceType (String shortClassName)
+	{
+		inclusiveExportFilter.put("org.myrobotlab.service." + shortClassName, shortClassName);
 	}
 	
 	public static ServiceWrapper getService(String name)

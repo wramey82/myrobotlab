@@ -1532,7 +1532,7 @@ public abstract class Service implements Runnable, Serializable {
 			// and an exclusion list enabled & exclusion list
 			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
 			// overloaded if you dont want to send everything
-			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServices();
+			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServicesForExport();
 		}
 
 		sdu.remoteURL = remoteURL;

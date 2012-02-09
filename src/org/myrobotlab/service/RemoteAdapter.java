@@ -394,9 +394,14 @@ public class RemoteAdapter extends Service {
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		Logging log = new Logging("log");
+		log.startService();
 		
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
+		
+
 				
 //		ServiceFactory services = new ServiceFactory("services");
 //		services.startService();
