@@ -822,7 +822,7 @@ public class FSMTest extends Service {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 		speech.speak("i have " + memory.size() + " things in my visual memory");

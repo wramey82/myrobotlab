@@ -53,8 +53,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -62,6 +64,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
@@ -199,19 +202,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 					GUI.class });
 			return mc.newInstance(params);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 		return null;
 	}	
@@ -480,30 +483,64 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    mi.addActionListener(this);
 	    system.add(mi);
 	    
-		mi = new JMenuItem("console");
-	    mi.addActionListener(this);
-	    system.add(mi);
+		//mi = new JMenuItem("console");
+	    //mi.addActionListener(this);
+	    //system.add(mi);
 
 	    JMenu m = new JMenu("logging");
 	    system.add(m);
 
-		    mi = new JMenuItem("debug");
+	    JMenu m2 = new JMenu("level");
+	    m.add(m2);
+
+	    	ButtonGroup group = new ButtonGroup();
+	    	
+	    	mi = new JRadioButtonMenuItem (LOG_LEVEL_DEBUG);
 		    mi.addActionListener(this);
-		    m.add(mi);
-		    mi = new JMenuItem("info");
+		    group.add(mi);
+		    m2.add(mi);
+
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_INFO);
 		    mi.addActionListener(this);
-		    m.add(mi);
-		    mi = new JMenuItem("warn");
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_WARN);
 		    mi.addActionListener(this);
-		    m.add(mi);
-		    mi = new JMenuItem("error");
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_ERROR);
 		    mi.addActionListener(this);
-		    m.add(mi);
-		    mi = new JMenuItem("fatal");
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_FATAL);
 		    mi.addActionListener(this);
-		    m.add(mi);
-	    
+		    group.add(mi);
+		    m2.add(mi);
+
+	    m2 = new JMenu("type");
+	    m.add(m2);
+		    
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_NONE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+		    
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_CONSOLE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_ROLLING_FILE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_SOCKET);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+		    
 	    m = new JMenu("update");
+
 	    system.add(m);
 	    
 			mi = new JMenuItem("check now");
@@ -665,16 +702,28 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		} else if ("load".equals(action)) 
 		{
 			loadRuntime();
-		} else if ("debug".equals(action) || 
-				"info".equals(action) ||
-				"warn".equals(action) ||
-				"error".equals(action) ||
-				"fatal".equals(action))
+		} else if (LOG_LEVEL_DEBUG.equals(action) || 
+				LOG_LEVEL_INFO.equals(action) ||
+				LOG_LEVEL_WARN.equals(action) ||
+				LOG_LEVEL_ERROR.equals(action) ||
+				LOG_LEVEL_FATAL.equals(action))
 		{
-			setLogLevel(action.toUpperCase());
+			setLogLevel(action);
 		} else if ("connect".equals(action)) 
 		{
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "title", "message", this);
+		} else if (LOGGING_APPENDER_NONE.equals(action)) 
+		{
+			removeAllAppenders();
+		} else if (LOGGING_APPENDER_SOCKET.equals(action)) 
+		{
+			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
+			if (m.isSelected()) {
+				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this);
+				addAppender(LOGGING_APPENDER_SOCKET, dlg.host.getText(), dlg.port.getText());
+			} else {
+				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
+			}
 		} else {
 			invoke(action);
 		}

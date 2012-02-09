@@ -51,10 +51,10 @@ public class Serializer extends Service {
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC
-			se.printStackTrace();
+			logException(se);
 		} catch (Exception e) {
 			// Handle errors for Class.forName
-			e.printStackTrace();
+			logException(e);
 		} finally {
 			// finally block used to close resources
 			try {
@@ -66,7 +66,7 @@ public class Serializer extends Service {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException se) {
-				se.printStackTrace();
+				logException(se);
 			}// end finally try
 		}// end try
 		return true;

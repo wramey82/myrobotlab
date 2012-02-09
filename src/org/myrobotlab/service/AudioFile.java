@@ -217,10 +217,10 @@ public class AudioFile extends Service {
 				auline = (SourceDataLine) AudioSystem.getLine(info);
 				auline.open(format);
 			} catch (LineUnavailableException e) {
-				e.printStackTrace();
+				logException(e);
 				return;
 			} catch (Exception e) {
-				e.printStackTrace();
+				logException(e);
 				return;
 			}
 
@@ -245,7 +245,7 @@ public class AudioFile extends Service {
 						auline.write(abData, 0, nBytesRead);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				logException(e);
 				return;
 			} finally {
 				auline.drain();

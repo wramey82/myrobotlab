@@ -96,7 +96,13 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 		if (!hasSwitch(pSwitch))
 			return sRet;
 
-		return getArgument(pSwitch, iIdx);
+		String r = getArgument(pSwitch, iIdx);
+		if ((r == null || r.length() == 0) && (pDefault != null && pDefault.length() != 0))
+		{
+			return pDefault;
+		} else {
+			return r;
+		}
 	}
 
 	public String getArgument(final String pSwitch, int iIdx) {

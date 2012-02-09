@@ -80,7 +80,7 @@ public class RecorderPlayer extends Service {
 				Thread.sleep(deltaMsgTime);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 		}
 	}
@@ -131,7 +131,7 @@ public class RecorderPlayer extends Service {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 
 	}
@@ -153,7 +153,7 @@ public class RecorderPlayer extends Service {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 
 		return ret;

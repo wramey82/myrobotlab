@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
+import org.myrobotlab.framework.Service;
 
 // http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=5
 public class Console extends AppenderSkeleton {
@@ -33,7 +34,7 @@ public class Console extends AppenderSkeleton {
 		
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		setLayout(layout);
-		
+		setName(Service.LOGGING_APPENDER_CONSOLE_GUI);
 		Logger.getRootLogger().addAppender(this);
 
 	}

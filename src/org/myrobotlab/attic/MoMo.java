@@ -33,6 +33,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Motor;
@@ -41,7 +42,6 @@ import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.SpeechRecognition;
-import org.myrobotlab.service.data.ColoredPoint;
 import org.myrobotlab.service.data.PinAlert;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;

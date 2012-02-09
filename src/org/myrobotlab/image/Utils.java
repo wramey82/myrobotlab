@@ -43,6 +43,7 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Service;
 
 // TODO - refactor to OpenCV and nonOpenCV classes
 // http://www.colblindor.com/color-name-hue/ - excellent resource
@@ -215,7 +216,7 @@ public class Utils {
 			fos.write(baos.toByteArray());
 			fos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Service.logException(e);
 		}
 
 	}

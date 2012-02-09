@@ -243,7 +243,7 @@ public class Servo extends Service implements
 					Thread.sleep(sweepDelayMS);
 				} catch (InterruptedException e) {
 					sweeperRunning = false;
-					e.printStackTrace();
+					logException(e);
 				}
 			}
 		}
@@ -275,14 +275,15 @@ public class Servo extends Service implements
 		sweep(sweepStart, sweepEnd, sweepDelayMS, sweepIncrement);
 	}
 
-	
 	public static void main(String[] args) throws InterruptedException {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
+		/*
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		*/
 
 		Servo right = new Servo("right");
 		right.startService();

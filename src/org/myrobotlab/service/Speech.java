@@ -284,10 +284,10 @@ public class Speech extends Service {
 
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logException(e);
 			}
 
 		}

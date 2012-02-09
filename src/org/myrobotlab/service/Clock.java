@@ -248,16 +248,16 @@ public class Clock extends Service {
 			serializer.write(clock, result);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 */		
 		
 		clock.save();
-		
+	
 		GUIService gui = new GUIService("clockgui");
 		gui.startService();	
 		gui.display();
-		
+	
 		
 		
 /*		

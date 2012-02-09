@@ -46,8 +46,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.SimpleTimeZone;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
+import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.data.IPAndPort;
@@ -102,12 +107,25 @@ public abstract class Service implements Runnable, Serializable {
 	// performance timing
 	public long startTimeMilliseconds = 0;
 
-	// TODO - use enumeration
+	// relay directives
 	static public final String PROCESS = "PROCESS";
 	static public final String RELAY = "RELAY";
 	static public final String IGNORE = "IGNORE";
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
+	
+	// logging 
+	public final static String LOG_LEVEL_DEBUG 		= "DEBUG";
+	public final static String LOG_LEVEL_INFO 		= "INFO";
+	public final static String LOG_LEVEL_WARN 		= "WARN";
+	public final static String LOG_LEVEL_ERROR 		= "ERROR";
+	public final static String LOG_LEVEL_FATAL 		= "FATAL";
+	public final static String LOGGING_APPENDER_NONE 			= "none";
+	public final static String LOGGING_APPENDER_CONSOLE 		= "console";
+	public final static String LOGGING_APPENDER_CONSOLE_GUI		= "console gui";
+	public final static String LOGGING_APPENDER_ROLLING_FILE 	= "file";
+	public final static String LOGGING_APPENDER_SOCKET			= "remote";
+
 
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
@@ -167,14 +185,19 @@ public abstract class Service implements Runnable, Serializable {
 			
 			cfgDir = userDir + File.separator + ".myrobotlab";
 
-			LOG.info("os.name [" + System.getProperty("os.name") + "]");
-			LOG.info("getOS [" + RuntimeEnvironment.getOS() + "]");
+			// http://developer.android.com/reference/java/lang/System.html
+			LOG.info("---------------normalize-------------------");
+			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
+			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + RuntimeEnvironment.getArch() + "]");
+			LOG.info("---------------non-normalize---------------");						
+			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
+			LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
+			LOG.info("java.home [" + System.getProperty("java.home") + "]");
 			LOG.info("os.version [" + System.getProperty("os.version") + "]");
-			LOG.info("os.arch [" + System.getProperty("os.arch") + "]");
-			LOG.info("getArch [" + RuntimeEnvironment.getArch() + "]");
 			LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
 			LOG.info("java.library.path [" + libararyPath + "]");
 			LOG.info("user.dir [" + userDir + "]");
+			
 			
 			// load root level configuration
 			ConfigurationManager rootcfg = new ConfigurationManager();
@@ -401,7 +424,7 @@ public abstract class Service implements Runnable, Serializable {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 	}
 
@@ -592,19 +615,19 @@ public abstract class Service implements Runnable, Serializable {
 			Constructor<?> mc = c.getConstructor(new Class[] { Service.class });
 			return mc.newInstance(new Object[] { service });
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 		return null;
 	}
@@ -625,19 +648,19 @@ public abstract class Service implements Runnable, Serializable {
 			return mc.newInstance(params); // Dynamically instantiate it
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 
 		return null;
@@ -656,19 +679,19 @@ public abstract class Service implements Runnable, Serializable {
 			return mc.newInstance(param); // Dynamically instantiate it
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 
 		return null;
@@ -1129,7 +1152,7 @@ public abstract class Service implements Runnable, Serializable {
 				returnContainer.wait();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 
 		return returnContainer[0];
@@ -1249,12 +1272,12 @@ public abstract class Service implements Runnable, Serializable {
 		}
 		
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 
 		return null;
@@ -1266,7 +1289,7 @@ public abstract class Service implements Runnable, Serializable {
 		return cm;
 	}
 	
-	 public final static String stackToString(final Exception e) {
+	 public final static String stackToString(final Throwable e) {
 		  try {
 		    StringWriter sw = new StringWriter();
 		    PrintWriter pw = new PrintWriter(sw);
@@ -1278,7 +1301,7 @@ public abstract class Service implements Runnable, Serializable {
 		  }
 	}
 	 
-	public final static void logException(final Exception e) {
+	public final static void logException(final Throwable e) {
 		LOG.error(stackToString(e));
 	}
 	
@@ -1387,7 +1410,7 @@ public abstract class Service implements Runnable, Serializable {
 		
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 	}
@@ -1452,11 +1475,11 @@ public abstract class Service implements Runnable, Serializable {
 			// hostcfg.save("cfg.txt");
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			logException(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			logException(e);
 		}
 
 		// send(name, "registerServicesNotify");
@@ -1505,7 +1528,8 @@ public abstract class Service implements Runnable, Serializable {
 		if (sdu == null) {
 			sdu = new ServiceDirectoryUpdate();
 			
-
+			// FIXME - needs to have an inclusion list enabled & inclusion list
+			// and an exclusion list enabled & exclusion list
 			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
 			// overloaded if you dont want to send everything
 			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServices();
@@ -1533,25 +1557,50 @@ public abstract class Service implements Runnable, Serializable {
 		return (Service)copyShallowFrom(this, s);
 	}
 
+
+	// ----------------  logging begin ---------------------------
 	/**
 	 * dynamically set the logging level
 	 * @param level DEBUG | INFO | WARN | ERROR | FATAL
 	 */
 	public static void setLogLevel(String level) {
-		if (("INFO").equalsIgnoreCase(level)) {
+		LOG.debug("setLogLevel " + level);
+		if ((LOG_LEVEL_INFO).equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.INFO);
 		} else
-		if (("WARN").equalsIgnoreCase(level)) {
+		if ((LOG_LEVEL_WARN).equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.WARN);
 		} else 
-		if (("ERROR").equalsIgnoreCase(level)) {
+		if ((LOG_LEVEL_ERROR).equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.ERROR);
 		} else
-		if (("FATAL").equalsIgnoreCase(level)) {
+		if ((LOG_LEVEL_FATAL).equalsIgnoreCase(level)) {
 			Logger.getRootLogger().setLevel(Level.FATAL);
 		} else {
 			Logger.getRootLogger().setLevel(Level.DEBUG);
 		}
+	}
+	
+	public static String getLogLevel()
+	{
+		if (Logger.getRootLogger().getLevel() == Level.INFO)
+		{
+			return LOG_LEVEL_INFO;
+		} else if (Logger.getRootLogger().getLevel() == Level.WARN)
+		{
+			return LOG_LEVEL_WARN;			
+		} else if (Logger.getRootLogger().getLevel() == Level.ERROR)
+		{
+			return LOG_LEVEL_ERROR;			
+		} else if (Logger.getRootLogger().getLevel() == Level.FATAL)
+		{
+			return LOG_LEVEL_FATAL;			
+		} else if (Logger.getRootLogger().getLevel() == Level.DEBUG)
+		{
+			return LOG_LEVEL_DEBUG;			
+		}
+
+		return null;
 	}
 
 	/**
@@ -1576,7 +1625,65 @@ public abstract class Service implements Runnable, Serializable {
 			logger.setLevel(Level.DEBUG);
 		}
 	}
+	
 
+	public static void addAppender(String type)
+	{
+		addAppender(type, null, null);
+	}
+	
+	public static void addAppender(String type, String host, String port)
+	{
+		// same format as BasicConfigurator.configure()
+		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"); 
+		Appender appender = null;
+
+		try {
+		
+			if (LOGGING_APPENDER_CONSOLE.equals(type))
+			{
+				appender = new ConsoleAppender(layout);
+				appender.setName(LOGGING_APPENDER_CONSOLE);
+			} else if (LOGGING_APPENDER_CONSOLE_GUI.equals(type)) {
+				// FIXME must be done by a GUI
+				//appender = new SocketAppender(host, Integer.parseInt(port));
+				//appender.setName(LOGGING_APPENDER_SOCKET);
+			} else if (LOGGING_APPENDER_SOCKET.equals(type)) {			
+				appender = new SocketAppender(host, Integer.parseInt(port));
+				appender.setName(LOGGING_APPENDER_SOCKET);
+			} else if (LOGGING_APPENDER_ROLLING_FILE.equals(type)) {			
+				String userDir = System.getProperty("user.dir");
+				appender = new RollingFileAppender(layout, userDir +  File.separator + "myrobotlab.log", false);
+				appender.setName(LOGGING_APPENDER_ROLLING_FILE);
+			} else {
+				LOG.error("attempting to add unkown type of Appender " + type);
+				return;
+			}
+			
+		} catch (Exception e) {
+			System.out.println(Service.stackToString(e));
+		}
+
+		if (appender != null)
+		{
+			Logger.getRootLogger().addAppender(appender);		
+		}
+		
+	}
+	
+	public static void remoteAppender(String name)
+	{
+		Logger.getRootLogger().removeAppender(name);
+	}
+	
+	public static void removeAllAppenders()
+	{
+		Logger.getRootLogger().removeAllAppenders();
+	}
+	
+	
+	// ----------------  logging end ---------------------------
+	
 	
 	/* Check RuntimeEnvironment for implementation
 	// TODO - cache fields in a map if "searching" requires too much

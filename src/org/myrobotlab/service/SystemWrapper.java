@@ -53,7 +53,7 @@ public class SystemWrapper extends Service {
 			return p.exitValue();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logException(e);
 		}
 		
 		return 0;

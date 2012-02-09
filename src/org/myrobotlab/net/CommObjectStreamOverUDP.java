@@ -204,13 +204,13 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						
 					} catch (StreamCorruptedException e) {
 						msg = null;
-						e.printStackTrace();
+						Service.logException(e);
 					} catch (ClassCastException e) {
 						msg = null;
-						e.printStackTrace();
+						Service.logException(e);
 					} catch (IOException e) {
 						msg = null;
-						e.printStackTrace();
+						Service.logException(e);
 					}
 
 				}
@@ -223,10 +223,10 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				LOG.error("UDPThread threw");
 				isRunning = false;
 				socket = null;
-				e.printStackTrace();
+				Service.logException(e);
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Service.logException(e);
 			}
 		}// run
 
@@ -258,7 +258,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				ois = new ObjectInputStream(socket.getInputStream());
 				this.start(); // starting listener
 			} catch (IOException e) {
-				e.printStackTrace();
+				Service.logException(e);
 				LOG.error("could not create streams from socket");
 			}
 
@@ -286,7 +286,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						msg = (Message) o;
 					} catch (Exception e) {
 						msg = null;
-						e.printStackTrace();
+						Service.logException(e);
 					}
 					if (msg == null) {
 						// TODO
@@ -316,7 +316,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				LOG.error("TCPThread threw");
 				isRunning = false;
 				socket = null;
-				e.printStackTrace();
+				Service.logException(e);
 			}
 
 			// connection has been broken
@@ -379,7 +379,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			return;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
 
 	}
@@ -460,7 +460,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				if (r.tcp.socket != null)
 					r.tcp.socket.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				Service.logException(e);
 			}
 		}
 
