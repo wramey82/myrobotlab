@@ -281,10 +281,15 @@ public class RuntimeEnvironment implements Serializable{
 			LOG.error("local (null) ServiceEnvironment does not exist");
 			return null;
 		}
+
+		ServiceEnvironment local = hosts.get(null);
 		
-		ServiceEnvironment export = new ServiceEnvironment(null);
+		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled)
+		{
+			return local;
+		}
 		
-		ServiceEnvironment local = hosts.get(null);	
+		ServiceEnvironment export = new ServiceEnvironment(null);		
 		
 		Iterator<String> it = local.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
