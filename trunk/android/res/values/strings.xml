@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- MyRobotLab main -->
+    <string name="add_service">add service</string>
+    <string name="app_name">MyRobotLab</string>
+    <string name="new_service">New Service</string>
+    <string name="connect_scan">connect scan</string>
+    <string-array name="services_available">
+        <!--   item>Android</item -->
+        <item>ArduinoBT</item>
+        <item>Clock</item>
+        <!-- http://code.google.com/p/android-scripting/ -->
+        <item>Jython</item>
+        <item>Motor</item>
+        <item>RemoteAdapter</item>
+        <item>SensorMonitor</item>
+        <item>Servo</item>
+    </string-array>
+
+    <string name="attach">attach</string>
+    <string name="refresh">refresh</string>
+    <string name="add">add</string>
+    <string name="cancel">cancel</string>
+    <string name="host">host</string>
+    <string name="port">port</string>
+    <string name="remoteLogging">remote logging</string>
+    <string name="defaultHost">127.0.0.1</string>
+    <string name="defaultPort">4445</string>
+
+    <!--  BluetoothChat -->
+    <string name="send">send</string>
+    <string name="not_connected">you are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">bluetooth was not enabled... leaving MyRobotLab</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="title_connected_to">connected</string>
+    <string name="title_not_connected">not connected</string>
+
+    <!--  Bluetooth DeviceListActivity -->
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_paired">no devices have been paired</string>
+    <string name="none_found">no devices found</string>
+    <string name="title_paired_devices">paired devices</string>
+    <string name="title_other_devices">other available devices</string>
+    <string name="button_scan">scan for devices</string>
+
+    <!-- Bluetooth Options Menu -->
+    <string name="connect">connect a device</string>
+    <string name="discoverable">make discoverable</string>
+
+    <!--  imported from APIDemos -->
+        <string name="title_checkbox_preference">Checkbox preference</string>
+        <string name="summary_checkbox_preference">This is a checkbox</string>
+            <string name="default_value_edittext_preference">Default value</string>
+            <string name="title_edittext_preference">Edit text preference</string>
+                <string name="summary_edittext_preference">An example that uses an edit text dialog</string>
+    <string name="dialog_title_edittext_preference">Enter your favorite animal</string>
+    <string name="default_value_list_preference">beta</string>
+        <string name="title_list_preference">List preference</string>
+        <string name="summary_list_preference">An example that uses a list dialog</string>
+            <string name="dialog_title_list_preference">Choose one</string>
+        
+</resources>
