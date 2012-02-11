@@ -37,6 +37,18 @@ public class RuntimeEnvironment implements Serializable{
 	private static boolean needsRestart = false;
 	private static boolean checkForDependencies = true; // TODO implement - Ivy related
 	
+	// VM Names
+	public final static String DALVIK 	= "dalvik"; 
+	public final static String HOTSPOT 	= "hotspot"; 
+
+	// OS Names
+	public final static String LINUX 	= "linux"; 
+	public final static String MAC 		= "mac"; 
+	public final static String WINDOWS	= "windows"; 
+		
+	public final static String UNKNOWN	= "unknown"; 
+	
+	
 	/**
 	 * singleton instance of the runtime environment 
 	 */
@@ -61,17 +73,29 @@ public class RuntimeEnvironment implements Serializable{
 	public static String getOS()
 	{
 		String os = System.getProperty("os.name").toLowerCase();
-		if ((os.indexOf( "linux" ) >= 0))
+		if ((os.indexOf( LINUX ) >= 0))
 		{
-			return "linux";
-		} else if ((os.indexOf( "mac" ) >= 0)) {
-			return "mac";			
+			return LINUX;
+		} else if ((os.indexOf( MAC ) >= 0)) {
+			return MAC;			
 		} else if ((os.indexOf( "win" ) >= 0))
 		{
-			return "windows";			
+			return WINDOWS;			
 		} else {
-			return "unknown";
+			return UNKNOWN;
 		}		
+	}
+	
+	public static String getVMName()
+	{
+		String vmname = System.getProperty("java.vm.name").toLowerCase();
+		
+		if (vmname.equals("davlik"))
+		{
+			return vmname;
+		} else {
+			return "hotspot";
+		}
 	}
 	
 	public static int getBitness()
@@ -259,6 +283,8 @@ public class RuntimeEnvironment implements Serializable{
 		return hosts.get(null);		
 	}
 
+	
+	
 	/**
 	 * getLocalServicesForExport returns a filtered map of Service references
 	 * to export to another instance of MRL.  The objective of filtering may help resolve
@@ -274,8 +300,7 @@ public class RuntimeEnvironment implements Serializable{
 	 * @return
 	 */
 	public static ServiceEnvironment getLocalServicesForExport()
-	{
-		
+	{		
 		if (!hosts.containsKey(null))
 		{
 			LOG.error("local (null) ServiceEnvironment does not exist");
@@ -283,6 +308,16 @@ public class RuntimeEnvironment implements Serializable{
 		}
 
 		ServiceEnvironment local = hosts.get(null);
+		
+		// FIXME - temporary for testing
+		//if (getVMName().equals(DALVIK))
+		//{
+			inclusiveExportFilterEnabled = true;
+			addInclusiveExportFilterServiceType("RemoteAdapter");
+			addInclusiveExportFilterServiceType("SensorMonitor");
+			addInclusiveExportFilterServiceType("Clock");
+			addInclusiveExportFilterServiceType("Logging");
+		//}
 		
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled)
 		{
@@ -297,20 +332,26 @@ public class RuntimeEnvironment implements Serializable{
 			ServiceWrapper sw = local.serviceDirectory.get(name); 
 			Service s = sw.service;
 			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(s.getClass().getCanonicalName())) {
-				LOG.debug("adding " + name + " to export ");
-				export.serviceDirectory.put(name, sw);
+				LOG.debug("adding " + name + " " + s.getClass().getCanonicalName() + " to export ");
+				// create new structure - otherwise it won't be correctly filtered
+				ServiceWrapper sw2 = new ServiceWrapper(name, s ,export);
+				export.serviceDirectory.put(name, sw2);
+			} else {
+				LOG.debug("adding " + name + " with name info only");
+				ServiceWrapper sw2 = new ServiceWrapper(name, null ,export);
+				export.serviceDirectory.put(name, sw2);				
 			}
 		}
 		
 		return export;
 	}
 	
-	public void addInclusiveExportFilterServiceType (String packageName, String className)
+	public static void addInclusiveExportFilterServiceType (String packageName, String className)
 	{
 		inclusiveExportFilter.put(packageName + "." + className, className);
 	}
 
-	public void addInclusiveExportFilterServiceType (String shortClassName)
+	public static void addInclusiveExportFilterServiceType (String shortClassName)
 	{
 		inclusiveExportFilter.put("org.myrobotlab.service." + shortClassName, shortClassName);
 	}
@@ -631,14 +672,14 @@ public class RuntimeEnvironment implements Serializable{
 	}
 	*/
 	public static boolean isMac() {
-		return getOS().equals("mac");
+		return getOS().equals(MAC);
 	}
 	public static boolean isLinux() {
-		return getOS().equals("linux");
+		return getOS().equals(LINUX);
 	}
 
 	public static boolean isWindows() {
-		return getOS().equals("windows");
+		return getOS().equals(WINDOWS);
 	}
 	
 	public static void requestRestart()

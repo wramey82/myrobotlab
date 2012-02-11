@@ -25,6 +25,9 @@
 
 package org.myrobotlab.service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
@@ -212,100 +215,6 @@ public class Clock extends Service {
 		interval = milliseconds;
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-
-		Clock clock = new Clock("clock");
-		clock.startService();
-		
-/*		
-		
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
-		
-		//Clock remote = new Clock("remote");
-		//remote.pulseDataInteger = 7777;
-		//remote.startService();
-		
-		//Service.copyShallowFrom(clock, remote);
-/*
-		//XStream xstream = new XStream(); xpp3 dependent
-		XStream xstream = new XStream(new DomDriver());
-		xstream.alias("Clock", Clock.class);
-		String xml = xstream.toXML(clock);
-		FileIO.stringToFile("clock.xml", xml);
-		
-		//clock.notify("pulse", "clock log", "log", Integer.class);
-
-		Serializer serializer = new Persister();
-		File result = new File("clock.xml");
-
-		try {
-			serializer.write(clock, result);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logException(e);
-		}
-*/		
-		
-		clock.save();
-	
-		GUIService gui = new GUIService("clockgui");
-		gui.startService();	
-		gui.display();
-	
-		
-		
-/*		
-		gui.dispose();
-
-		RuntimeEnvironment.releaseAll();
-		
-		FileOutputStream fos = null;
-		ObjectOutputStream out = null;
-		try
-		{
-			
-			
-		       fos = new FileOutputStream("test.backup");
-		       out = new ObjectOutputStream(fos);
-		       //out.writeObject(remote);
-		       out.writeObject(log);
-		       out.writeObject(clock);
-		       out.writeObject(gui);
-		       out.close();
-		      
-			
-		       FileInputStream fis = new FileInputStream("test.backup");
-		       ObjectInputStream in = new ObjectInputStream(fis);
-		       Logging log1 = (Logging)in.readObject();
-		       Clock clock1 = (Clock)in.readObject();
-		       GUIService gui1 = (GUIService)in.readObject();
-		       in.close();
-		       
-		       RuntimeEnvironment.register(null,log);
-		       RuntimeEnvironment.register(null,clock);
-		       RuntimeEnvironment.register(null,gui);
-		       
-		       log1.startService();
-		       clock1.startService();
-		       //clock.startClock();		       
-		       gui1.startService();
-		       gui1.display();
-		    
-		       
-		} catch (Exception e)
-		{
-			LOG.error(e.getMessage());
-			LOG.error(stackToString(e));
-		}
-
-*/
-		
-	}
-
 	@Override
 	public void stopService() {
 		stopClock();
@@ -317,5 +226,21 @@ public class Clock extends Service {
 		return "used to generate pulses";
 	}
 
-
+	public static void main(String[] args) throws ClassNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		try {
+			URI uri = new URI("mrl://192.168.0.1:5554");
+			LOG.info(uri);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Clock clock = new Clock("clock");
+		clock.startService();
+		
+	}
+	
 }

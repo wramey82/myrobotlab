@@ -72,15 +72,6 @@ public class Jython extends Service {
 		}
 	}
 	
-	public static Dependency[] getDependencies()
-	{
-		return new Dependency[]{
-				new Dependency("org.python.core","core","2.5.2"),
-				new Dependency("org.apache.log4j","log4j","1.2.14"),
-				new Dependency("org.simpleframework.xml","xml","2.5.3")
-		};
-	}
-	
 	@Override
 	public void loadDefaultConfiguration() {
 		
@@ -213,6 +204,7 @@ public class Jython extends Service {
 		Jython jython = (Jython) ServiceFactory.create("jython","Jython");
 		jython.startService();
 
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

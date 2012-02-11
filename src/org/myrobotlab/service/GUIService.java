@@ -127,7 +127,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
-	public String remoteColorTab = "0x99DD66";
+	public String remoteColorTab = "0x007000";
+	public String remoteFont = "0xFFFFFF";
 	
 	String selectedTabTitle = null;
 
@@ -269,7 +270,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String serviceName = it.next();
 			ServiceWrapper se = services.get(serviceName);
 
-			// get service type class name
+			// get service type class name TODO
 			String serviceClassName = se.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
@@ -293,6 +294,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				++index;
 				if (se.getAccessURL() != null) {
 					tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
+					tabs.setForegroundAt(index, Color.decode(remoteFont));
 				}
 
 			}
@@ -992,30 +994,25 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		jython.startService();
 		*/
 		
+		Clock clock = new Clock("clock");
+		clock.startService();
 		
-		//GUIService gui2 = (GUIService) ServiceFactory.create("gui2","GUIService");
 		GUIService gui2 = new GUIService("gui2");
-		//GUIService.console();
 		gui2.startService();
 		
-		// begin debugging console Java Moitor
-		/*
-		JFrame j = new JFrame("Java Console");
-		j.setSize(120, 120);
-		JTextArea logger = new JTextArea(50,100);
-		j.add(logger);
-		setupLog4JAppender(logger);
-		j.setVisible(true);
-		*/
-		//Console con = new Console();
-		
-		//gui2.notify("registerServices", gui2.name, "registerServicesEvent");
-		//gui2.notify("registerServices", gui2.name, "registerServicesEvent", String.class, Integer.class, Message.class);
-
-		gui2.startService();
 		gui2.display();
 		
-		
+		/*
+		ServiceEnvironment se = RuntimeEnvironment.getLocalServices();		
+		LOG.info(se.serviceDirectory.size());
+		se = RuntimeEnvironment.getLocalServicesForExport();
+		LOG.info(se.serviceDirectory.size());
+		LOG.info(se.serviceDirectory.get("clock").service.getClass().getCanonicalName());
+		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
+		//sdu.serviceEnvironment = new ServiceEnvironment(null);
+		sdu.serviceEnvironment = RuntimeEnvironment.getLocalServicesForExport();
+		gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.1.1", 6767, sdu);
+		*/
 	}
 	
 }

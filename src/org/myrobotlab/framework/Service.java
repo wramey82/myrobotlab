@@ -189,6 +189,9 @@ public abstract class Service implements Runnable, Serializable {
 			LOG.info("---------------normalize-------------------");
 			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
 			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + RuntimeEnvironment.getArch() + "]");
+			LOG.info("getBitness [" + RuntimeEnvironment.getBitness() + "]");
+			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
+						
 			LOG.info("---------------non-normalize---------------");						
 			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
 			LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
