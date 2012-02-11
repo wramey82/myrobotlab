@@ -12,7 +12,7 @@ public class ServiceEnvironment implements Serializable {
 	public URL accessURL;
 	public HashMap<String, ServiceWrapper> serviceDirectory; // TODO make public & concurrent
 			
-	ServiceEnvironment(URL url)
+	public ServiceEnvironment(URL url)
 	{
 		this.accessURL = url;
 		serviceDirectory = new HashMap<String, ServiceWrapper>();

@@ -47,6 +47,9 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.Communicator;
 
@@ -133,7 +136,9 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 				ByteArrayOutputStream b_out = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(b_out);
-
+				//ServiceWrapper sw = ((ServiceDirectoryUpdate)msg.data[0]).serviceEnvironment.serviceDirectory.get("clock");
+				//LOG.info(((ServiceDirectoryUpdate)msg.data[0]).serviceEnvironment.serviceDirectory.get("clock"));
+				//Clock c = (Clock)sw.service;
 				oos.writeObject(msg);
 				oos.flush();
 				byte[] b = b_out.toByteArray();
