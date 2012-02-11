@@ -85,8 +85,8 @@ public class MyRobotLabActivity extends ListActivity {
         availableServices.setAdapter(adapter);
 
         // refresh button     
-        addService = (Button) header.findViewById(R.id.addService);		 
-        addService.setOnClickListener(new OnClickListener() {
+        refresh = (Button) header.findViewById(R.id.addService);		 
+        refresh.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 			refreshServiceView();
@@ -199,7 +199,7 @@ public class MyRobotLabActivity extends ListActivity {
                     		Toast.makeText(getApplicationContext(), " could not create " + serviceName + " of type " + typeName, Toast.LENGTH_LONG).show();
                     	} else {
 	                    	s.startService();
-	                    	services.add(typeName);
+	                    	services.add(RuntimeEnvironment.getService(serviceName).name); // adding ServiceWrapper
                     	}
                     	
                     	if(D) Log.e(TAG, "++ started new service ++ ");
@@ -255,21 +255,26 @@ public class MyRobotLabActivity extends ListActivity {
 		// get type
 		// get type_"activity" & start it
 		// get service type class name
-		String serviceClassName = s.service.getClass().getCanonicalName();
-		String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-		guiClass = "org.myrobotlab.android" + guiClass + "Activity";
-		if(D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
-
-		
 		Intent intent = null;
-		try {
-			intent = new Intent(this, Class.forName(guiClass));
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		if (s != null )
+		{
+			String serviceClassName = s.service.getClass().getCanonicalName();
+			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
+			guiClass = "org.myrobotlab.android" + guiClass + "Activity";
 
-		//Map map = (Map) l.getItemAtPosition(position);
+			if(D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
+			
+			try {
+				intent = new Intent(this, Class.forName(guiClass));
+			} catch (ClassNotFoundException e) {
+				Log.e(TAG, Service.stackToString(e));
+			}
+
+			//Map map = (Map) l.getItemAtPosition(position);
+		} else {
+			Log.e(TAG, "could not get service " + item);
+		}
         //Intent intent = (Intent) map.get("intent");
 		if (intent != null)
 		{
