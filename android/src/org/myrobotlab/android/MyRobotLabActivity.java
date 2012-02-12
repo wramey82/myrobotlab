@@ -15,6 +15,8 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +44,7 @@ public class MyRobotLabActivity extends ListActivity {
 
 	public static final String TAG = "MyRobotLab";
 	public static final boolean D = true;
+	// android registry
 	public final static HashMap<String, Intent> intents = new HashMap<String, Intent>();
 
 	// dialogs
@@ -57,9 +60,9 @@ public class MyRobotLabActivity extends ListActivity {
 
 	Context myContext;
 
-	Android androidService; // (singleton)
+	public static Android androidService; // (singleton)
 
-	// android registry?
+	// android "tab" view
 	ArrayList<String> services = new ArrayList<String>();
 
 	/** Called when the activity is first created. */
@@ -68,16 +71,26 @@ public class MyRobotLabActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		if (D)
 			Log.e(TAG, "++ onCreate ++");
-		// setContentView(R.layout.myrobotlab); // os method
-
-		// *****************************************************
-		// RuntimeEnvironment.addEnvironmentChangeListener(this);
-
-		// getting header & footer - could be done as single xml doc
-		// but might be nice to have contiguous header throughout - e.g logging
-		// connect etc
-		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header,
-				null);
+		
+		if (androidService == null)
+		{
+			WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+			WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+			int ipAddress = wifiInfo.getIpAddress();
+			
+			String name = String.format("%d.%d.%d.%d",
+					(ipAddress & 0xff),
+					(ipAddress >> 8 & 0xff),
+					(ipAddress >> 16 & 0xff),
+					(ipAddress >> 24 & 0xff));
+			
+			androidService = new Android(name);
+			androidService.startService();
+			intents.put(name, getIntent()); // TODO - normalize calls into one call
+			services.add(name);
+		}
+		
+		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header, null);
 
 		// remote logging
 		remoteLogging = (Button) header.findViewById(R.id.remoteLogging);
