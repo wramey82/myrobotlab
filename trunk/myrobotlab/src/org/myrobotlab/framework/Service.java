@@ -1683,6 +1683,11 @@ public abstract class Service implements Runnable, Serializable {
 	{
 		Logger.getRootLogger().removeAllAppenders();
 	}
+
+	public String getShortTypeName() {
+		String serviceClassName = this.getClass().getCanonicalName();
+		return serviceClassName.substring(serviceClassName.lastIndexOf(".")+1);
+	}
 	
 	
 	// ----------------  logging end ---------------------------
