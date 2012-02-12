@@ -9,11 +9,11 @@
 </TableRow>        
 <TableRow>    
    <TextView 
-        android:id="@string/listeningPorts"
+        android:id="@+id/textView1"
         android:layout_span="2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/udp" />
+        android:text="@string/listeningPorts" />
 </TableRow>
 <TableRow>    
    <TextView 
