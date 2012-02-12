@@ -24,6 +24,7 @@
         </activity>
         <activity android:name="RemoteAdapterActivity"></activity>
         <activity android:name="ServoActivity"></activity>
+        <activity android:name="ArduinoBTActivity"></activity>
     </application>
 
 </manifest>
