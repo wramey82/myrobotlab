@@ -220,6 +220,7 @@ public class MyRobotLabActivity extends ListActivity {
 											bundle.putString(SERVICE_NAME,s.name);
 											intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));
 											intent.putExtras(bundle);
+											intents.put(s.name, intent);
 										} catch (ClassNotFoundException e) {
 											Log.e(TAG, Service.stackToString(e));
 										}
@@ -227,7 +228,6 @@ public class MyRobotLabActivity extends ListActivity {
 										// Map map = (Map)
 										// l.getItemAtPosition(position);
 
-										intents.put(s.name, null);
 										services.add(RuntimeEnvironment.getService(serviceName).name); // adding
 																				// ServiceWrapper
 
