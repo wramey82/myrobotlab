@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name="RemoteAdapterActivity"></activity>
+        <activity android:name="LoggingActivity"></activity>
         <activity android:name="ServoActivity"></activity>
         <activity android:name="ArduinoBTActivity"></activity>
     </application>

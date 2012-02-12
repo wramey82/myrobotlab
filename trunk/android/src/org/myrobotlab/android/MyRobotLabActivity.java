@@ -30,10 +30,19 @@ import android.widget.Toast;
 // references - 
 // http://code.google.com/p/android-scripting/ TODO send them mrl info
 
+/**
+ * @author GroG
+ * 
+ * MyRobotLabActivity handles the Android Service - this correlates
+ * to the GUIService and Swing control components of the Java Swing
+ * implementation 
+ *
+ */
 public class MyRobotLabActivity extends ListActivity {
 	
 	public static final String TAG = "MyRobotLab";
     public static final boolean D = true;
+    public final static HashMap<String, Intent> intents = new HashMap<String, Intent>();
     
     // dialogs
     public static final int DIALOG_MYROBOTLAB_ADD_SERVICE = 1;
@@ -67,7 +76,6 @@ public class MyRobotLabActivity extends ListActivity {
         // but might be nice to have contiguous header throughout - e.g logging
         // connect etc
 		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header, null);
-		View footer = getLayoutInflater().inflate(R.layout.myrobotlab_footer, null);
 
 		
 		// remote logging
@@ -110,7 +118,7 @@ public class MyRobotLabActivity extends ListActivity {
         // active services
 		ListView listView = getListView();
 		listView.addHeaderView(header);
-		listView.addFooterView(footer);
+
 		// http://developer.android.com/reference/android/R.layout.html
 		// http://stackoverflow.com/questions/4540754/add-dynamically-elements-to-a-listview-android
 		setListAdapter(new ArrayAdapter<String>(this,
@@ -201,6 +209,7 @@ public class MyRobotLabActivity extends ListActivity {
                     		Toast.makeText(getApplicationContext(), " could not create " + serviceName + " of type " + typeName, Toast.LENGTH_LONG).show();
                     	} else {
 	                    	s.startService();
+	                    	intents.put(s.name, null);
 	                    	services.add(RuntimeEnvironment.getService(serviceName).name); // adding ServiceWrapper
                     	}
                     	
