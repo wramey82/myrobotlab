@@ -19,6 +19,9 @@
         <item>Servo</item> 
     </string-array>
 
+    <string name="listeningPorts">listening ports</string>
+    <string name="startService">start service</string>
+    <string name="pin">pin</string>
     <string name="udp">udp</string>
     <string name="attach">attach</string>
     <string name="refresh">refresh</string>

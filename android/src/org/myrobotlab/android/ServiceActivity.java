@@ -59,6 +59,7 @@ public class ServiceActivity extends Activity {
         }
                 
         setUIHeaderData();
+        setContentView(layout);
     }
     
     public void setText(int field, String data)
@@ -81,8 +82,9 @@ public class ServiceActivity extends Activity {
 			inform(sw.service.name + " could not find field " + field);
 			return;
 		}
-		
-		text.setText(data);
+		StringBuffer d = new StringBuffer();
+		d.append(data);
+		text.setText(d.toString());
     }
     
     public void inform (String s)

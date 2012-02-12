@@ -17,28 +17,25 @@
 //package org.myrobotlab.android;
 package org.myrobotlab.android; 
 
+import org.myrobotlab.service.Logging;
 import org.myrobotlab.service.RemoteAdapter;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
 
 // references :
 // http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
 
 //  extends ServiceActivity
-public class RemoteAdapterActivity extends ServiceActivity {
+public class LoggingActivity extends ServiceActivity {
 
-	RemoteAdapter myService = null;
+	Logging myService = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.remote_adapter_activity);
+        super.onCreate(savedInstanceState, R.layout.logging_activity);
         
-        myService = (RemoteAdapter)sw.service;   
-        setText(R.id.udpdata, myService.servicePort);
-        //setContentView(layout);        
-
+        myService = (Logging)sw.service;   
+//        setText(R.id.udpdata, myService.);
     }
 
 }
