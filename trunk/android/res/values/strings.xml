@@ -2,8 +2,8 @@
 <resources>
 
     <!-- MyRobotLab main -->
-    <string name="add_service">add service</string>
     <string name="app_name">MyRobotLab</string>
+    <string name="add_service">add service</string>
     <string name="new_service">New Service</string>
     <string name="connect_scan">connect scan</string>
     <string-array name="services_available">
@@ -11,13 +11,15 @@
         <item>ArduinoBT</item>
         <item>Clock</item>
         <!-- http://code.google.com/p/android-scripting/ -->
-        <item>Jython</item>
+        <!-- item>Jython</item -->
+        <item>Logging</item>
         <item>Motor</item>
         <item>RemoteAdapter</item>
         <item>SensorMonitor</item>
-        <item>Servo</item>
+        <item>Servo</item> 
     </string-array>
 
+    <string name="udp">udp</string>
     <string name="attach">attach</string>
     <string name="refresh">refresh</string>
     <string name="add">add</string>
@@ -25,6 +27,8 @@
     <string name="host">host</string>
     <string name="port">port</string>
     <string name="remoteLogging">remote logging</string>
+    
+    <!-- hints -->
     <string name="defaultHost">127.0.0.1</string>
     <string name="defaultPort">4445</string>
 
