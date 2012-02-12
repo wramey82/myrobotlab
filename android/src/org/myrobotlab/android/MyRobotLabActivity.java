@@ -44,6 +44,8 @@ public class MyRobotLabActivity extends ListActivity {
     Button remoteLogging;
     Spinner availableServices;
     
+    final static public String SERVICE_NAME = "name"; 
+    
     Context myContext;
     
     Android androidService; // (singleton)
@@ -246,12 +248,12 @@ public class MyRobotLabActivity extends ListActivity {
     // he da man - http://www.vogella.de/articles/AndroidIntent/article.html
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		String item = (String) getListAdapter().getItem(position - 1);
-		Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+		String name = (String) getListAdapter().getItem(position - 1);
+		Toast.makeText(this, name + " selected", Toast.LENGTH_LONG).show();
 		
 		// get service
 		
-		ServiceWrapper s = RuntimeEnvironment.getService(item);
+		ServiceWrapper s = RuntimeEnvironment.getService(name);
 		// get type
 		// get type_"activity" & start it
 		// get service type class name
@@ -266,14 +268,17 @@ public class MyRobotLabActivity extends ListActivity {
 			if(D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
 			
 			try {
+				Bundle bundle = new Bundle();
+				bundle.putString(SERVICE_NAME, name);
 				intent = new Intent(this, Class.forName(guiClass));
+				intent.putExtras(bundle);
 			} catch (ClassNotFoundException e) {
 				Log.e(TAG, Service.stackToString(e));
 			}
 
 			//Map map = (Map) l.getItemAtPosition(position);
 		} else {
-			Log.e(TAG, "could not get service " + item);
+			Log.e(TAG, "could not get service " + name);
 		}
         //Intent intent = (Intent) map.get("intent");
 		if (intent != null)
