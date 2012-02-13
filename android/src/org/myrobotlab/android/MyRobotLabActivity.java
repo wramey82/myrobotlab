@@ -85,6 +85,7 @@ public class MyRobotLabActivity extends ListActivity {
 					(ipAddress >> 24 & 0xff));
 			
 			androidService = new Android(name);
+			androidService.setContext(getApplicationContext()); // FIXME - cheesey
 			androidService.startService();
 			intents.put(name, getIntent()); // TODO - normalize calls into one call
 			services.add(name);
