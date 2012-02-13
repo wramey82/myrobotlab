@@ -321,7 +321,7 @@ public class RuntimeEnvironment implements Serializable{
 		
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled)
 		{
-			return local;
+			return local; // FIXME - still need to construct new SWs
 		}
 		
 		ServiceEnvironment export = new ServiceEnvironment(null);		
@@ -341,6 +341,7 @@ public class RuntimeEnvironment implements Serializable{
 				ServiceWrapper sw2 = new ServiceWrapper(name, null ,export);
 				export.serviceDirectory.put(name, sw2);				
 			}
+			// TODO - add exclusive list & name vs type exclusions
 		}
 		
 		return export;
