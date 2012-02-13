@@ -29,7 +29,7 @@ public class ServiceActivity extends Activity {
 	public void setUIHeaderData()
 	{
 		TextView text = (TextView) layout.findViewById(R.id.name);
-		text.setText(sw.service.name);
+		text.setText(sw.service.getName());
 		
 		text = (TextView) layout.findViewById(R.id.type);
 		text.setText(sw.service.getShortTypeName());
@@ -67,7 +67,7 @@ public class ServiceActivity extends Activity {
 		TextView text = (TextView) layout.findViewById(field);
 		if (text == null)
 		{
-			inform(sw.service.name + " could not find field " + field);
+			inform(sw.service.getName() + " could not find field " + field);
 			return;
 		}
 		
@@ -79,7 +79,7 @@ public class ServiceActivity extends Activity {
 		TextView text = (TextView) layout.findViewById(field);
 		if (text == null)
 		{
-			inform(sw.service.name + " could not find field " + field);
+			inform(sw.service.getName() + " could not find field " + field);
 			return;
 		}
 		StringBuffer d = new StringBuffer();
