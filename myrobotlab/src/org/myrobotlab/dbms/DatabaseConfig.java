@@ -114,7 +114,7 @@ public class DatabaseConfig {
 
 	public static String name() {
 		if (LOG.isDebugEnabled()) {
-			StringBuilder logString = new StringBuilder("DatabaseConfig.name()");
+			StringBuilder logString = new StringBuilder("DatabaseConfig.getName()()");
 			LOG.debug(logString);
 		} // if
 

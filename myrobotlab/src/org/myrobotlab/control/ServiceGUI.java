@@ -159,13 +159,13 @@ public abstract class ServiceGUI {
 	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
 		NotifyEntry ne = null;
-		//notifyEntry.name = myService.name;
+		//notifyEntry.getName() = myService.getName();
 		//notifyEntry.outMethod = outMethod;
 		//notifyEntry.inMethod = inMethod;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myService.name, inMethod, new Class[]{parameterType});
+			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
 		} else {
-			ne = new NotifyEntry(outMethod, myService.name, inMethod, null);
+			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, null);
 		}
 		
 		myService.send(boundServiceName, "notify", ne);
@@ -189,9 +189,9 @@ public abstract class ServiceGUI {
 
 		NotifyEntry ne = null;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myService.name, inMethod, new Class[]{parameterType});
+			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
 		} else {
-			ne = new NotifyEntry(outMethod, myService.name, inMethod, null);
+			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, null);
 		}
 		myService.send(boundServiceName, "removeNotify", ne);
 

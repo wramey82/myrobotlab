@@ -241,9 +241,9 @@ public class Toy extends Service {
 	{
 		try {
 			
-			right.attach(arduino.name, 3, 11); 
+			right.attach(arduino.getName(), 3, 11); 
 			Thread.sleep(160);
-			left.attach(arduino.name, 6, 7);
+			left.attach(arduino.getName(), 6, 7);
 			Thread.sleep(160);
 			arduino.pinMode(7, Arduino.OUTPUT);
 			Thread.sleep(160);
@@ -255,9 +255,9 @@ public class Toy extends Service {
 			
 			platform.attach(left, right);
 			
-			neck.attach(arduino.name,12);
+			neck.attach(arduino.getName(),12);
 			Thread.sleep(160);
-			jaw.attach(arduino.name,13);
+			jaw.attach(arduino.getName(),13);
 			Thread.sleep(80);
 			right.move(0);
 			left.move(0);
@@ -267,7 +267,7 @@ public class Toy extends Service {
 			e.printStackTrace();
 		}
 
-		//jaw.attach(arduino.name, 13);
+		//jaw.attach(arduino.getName(), 13);
 	}
 	
 	
@@ -280,7 +280,7 @@ public class Toy extends Service {
 
 		
 		// set notify foundSomething
-		camera.notify("publish", name, "foundToy", Polygon.class);
+		camera.notify("publish", getName(), "foundToy", Polygon.class);
 				
 	}
 		
@@ -447,7 +447,7 @@ public class Toy extends Service {
 		camera.setFilterCFG("FindContours", "useMinArea", true);
 				
 		// set notify foundSomething
-		camera.notify("publish", this.name, "foundThingy", Polygon.class);
+		camera.notify("publish", this.getName(), "foundThingy", Polygon.class);
 
 	}
 	
@@ -502,8 +502,8 @@ public class Toy extends Service {
 	{
 		camera.removeFilters();
 		//camera.removeNotify();
-		camera.removeNotify("publish", name, "foundThingy", Polygon.class);
-		camera.removeNotify("publish", name, "foundToy", Polygon.class);
+		camera.removeNotify("publish", getName(), "foundThingy", Polygon.class);
+		camera.removeNotify("publish", getName(), "foundToy", Polygon.class);
 
 	}
 	
@@ -519,7 +519,7 @@ public class Toy extends Service {
 		camera.startService();
 		graphics.startService();
 		platform.startService();
-		graphics.attach(gui.name);
+		graphics.attach(gui.getName());
 		gui.display();
 
 		camera.setInpurtSource("camera");
@@ -620,7 +620,7 @@ public class Toy extends Service {
 			break;
 
 		case 66: // 'b'
-			//send(platform.name, "calibrate");
+			//send(platform.getName(), "calibrate");
 			//platform.setTargetHeading(-30);
 			//right.moveFor(0.14f, 40*200); -> < 180
 			//right.moveFor(0.16f, 1*200); // good 1 degree

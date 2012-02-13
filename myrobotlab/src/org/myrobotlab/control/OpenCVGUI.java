@@ -630,7 +630,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			
 			
 		} else {
-			LOG.error("getState for " + myService.name + " was called on " + boundServiceName + " with null reference to state info");
+			LOG.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
 		}
 				
 		cameraIndex.setSelectedIndex(opencv.cameraIndex);

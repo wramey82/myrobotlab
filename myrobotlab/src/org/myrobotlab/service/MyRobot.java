@@ -270,11 +270,11 @@ public class MyRobot extends Service {
 	// fsm ------------------------------------
 	public void start() {
 		
-		neck = new Servo(name + "Neck");
-		right = new Servo(name + "Right");
-		left = new Servo(name + "Left");
-		arduino = new Arduino(name + "BBB");
-		sensors = new SensorMonitor(name + "Sensors");
+		neck = new Servo(getName() + "Neck");
+		right = new Servo(getName() + "Right");
+		left = new Servo(getName() + "Left");
+		arduino = new Arduino(getName() + "BBB");
+		sensors = new SensorMonitor(getName() + "Sensors");
 		
 		this.startService();
 		sensors.startService();
@@ -283,9 +283,9 @@ public class MyRobot extends Service {
 		left.startService();
 		arduino.startService();
 				
-		neck.attach(arduino.name, 9);
-		right.attach(arduino.name, rightPin);
-		left.attach(arduino.name, leftPin);
+		neck.attach(arduino.getName(), 9);
+		right.attach(arduino.getName(), rightPin);
+		left.attach(arduino.getName(), leftPin);
 
 /*
 //		Graphics graphics = new Graphics("graphics");
@@ -302,11 +302,11 @@ public class MyRobot extends Service {
 		explore();
 		
 		// set a route of data from arduino to the sensor monitor
-		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
+		arduino.notify(SensorData.publishPin, sensors.getName(), "sensorInput", PinData.class);
 
 		// set an alert from sensor monitor to MyRobot
-		sensors.notify("publishPinAlert", this.name, "sensorAlert", PinAlert.class);
-		sensors.addAlert(arduino.name, ALERT_WALL, 600, 700, 3, 5, 0);
+		sensors.notify("publishPinAlert", this.getName(), "sensorAlert", PinAlert.class);
+		sensors.addAlert(arduino.getName(), ALERT_WALL, 600, 700, 3, 5, 0);
 		
 		// move & set timer
 		move(20);

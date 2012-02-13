@@ -13,12 +13,12 @@ public class ServiceWrapper implements Serializable {
 	
 	ServiceWrapper(Service s)
 	{
-		this(s.name, s, null);
+		this(s.getName(), s, null);
 	}
 
 	ServiceWrapper(Service s, ServiceEnvironment host)
 	{
-		this(s.name, s, host);
+		this(s.getName(), s, host);
 	}
 	
 	ServiceWrapper(String name, Service s, ServiceEnvironment host)

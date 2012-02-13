@@ -67,7 +67,7 @@ public class IOSequence implements Serializable {
 
 	public static String name() {
 		if (LOG.isDebugEnabled()) {
-			StringBuilder logString = new StringBuilder("IOSequence.name()");
+			StringBuilder logString = new StringBuilder("IOSequence.getName()()");
 			LOG.debug(logString);
 		} // if
 

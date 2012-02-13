@@ -57,7 +57,7 @@ public abstract class OpenCVFilterGUI {
 	
 	public OpenCVFilterGUI(String boundFilterName, String boundServiceName,
 			GUIService myGUI) {
-		this.name = boundFilterName;
+		name = boundFilterName;
 		this.boundServiceName = boundServiceName;
 		this.myGUI = myGUI;
 		this.myService = (OpenCV)RuntimeEnvironment.getService(boundServiceName).service;

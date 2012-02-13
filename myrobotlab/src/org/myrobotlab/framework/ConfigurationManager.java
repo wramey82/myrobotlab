@@ -842,8 +842,8 @@ public class ConfigurationManager implements Serializable {
 		String meName = get("service/" + serviceName + "/method/" + method, null);
 				
 		if (meName != null) {
-			//me.name = signature;
-			me.name = (String) get("service/" + serviceName + "/method/" + method + "/name", (Object) null);
+			//me.getName() = signature;
+			me.getName() = (String) get("service/" + serviceName + "/method/" + method + "/name", (Object) null);
 			me.returnType = (Class) get("service/" + serviceName + "/method/" + method + "/returnType", (Object) null);
 			me.parameterTypes = (Class[]) get("service/" + serviceName + "/method/" + method + "/parameterTypes", (Object) null);
 			return me;
@@ -861,7 +861,7 @@ public class ConfigurationManager implements Serializable {
 		if (meName != null) {
 			me.name = name;
 			/* silly but reserved for future use */
-			// me.name = (Class)get("service/" + serviceName + "/interface/" +
+			// me.getName() = (Class)get("service/" + serviceName + "/interface/" +
 			// name + "/name", (Object)null);
 			return me;
 		}

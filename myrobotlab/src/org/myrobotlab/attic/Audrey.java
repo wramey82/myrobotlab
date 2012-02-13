@@ -134,7 +134,7 @@ public class Audrey extends Service {
 
 		
 		// set notify foundSomething
-		camera.notify("publish", name, "foundYellowBlocks", Polygon.class);
+		camera.notify("publish", getName(), "foundYellowBlocks", Polygon.class);
 		
 	}
 
@@ -157,11 +157,11 @@ public class Audrey extends Service {
 		mouth.getCFG().set("isATT", true);
 
 		// suppress listening when talking
-		mouth.notify("started", ear.name, "stopRecording"); // TODO speak.queue()
-		mouth.notify("stopped", ear.name, "startRecording");
+		mouth.notify("started", ear.getName(), "stopRecording"); // TODO speak.queue()
+		mouth.notify("stopped", ear.getName(), "startRecording");
 		
 		// creating static route from ear/speech recognition to special action
-		ear.notify("recognized", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.getName(), "speechToAction", String.class);
 		
 		// starting services
 		mouth.startService();
@@ -174,8 +174,8 @@ public class Audrey extends Service {
 
 		gui.display();
 
-		right.attach(arduino.name, 5, 12);
-		left.attach(arduino.name, 6, 13);
+		right.attach(arduino.getName(), 5, 12);
+		left.attach(arduino.getName(), 6, 13);
 		
 		left.invertDirection();
 		

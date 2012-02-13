@@ -70,7 +70,7 @@ public class ComediDriverConfig implements Serializable {
 	public static String name() {
 		if (LOG.isDebugEnabled()) {
 			StringBuilder logString = new StringBuilder(
-					"ComediDriverConfig.name()");
+					"ComediDriverConfig.getName()()");
 			LOG.debug(logString);
 		} // if
 

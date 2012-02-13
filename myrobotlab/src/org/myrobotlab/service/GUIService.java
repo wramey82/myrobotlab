@@ -174,7 +174,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
 		if (sg == null) {
 			LOG.error("attempting to update sub-gui - sender "
-					+ m.sender + " not available in map " + name);
+					+ m.sender + " not available in map " + getName());
 		} else {
 			invoke(serviceGUIMap.get(m.sender), m.method, m.data);
 		}
@@ -275,9 +275,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-			if (se.get().name.equals(name)) {
+			if (se.get().getName().equals(getName())) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
-				LOG.debug("delaying construction my GUI " + name + " GUIServiceGUI ");
+				LOG.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
 				createGUIServiceGUI = true;
 				continue;
 			}
@@ -306,12 +306,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
 			// going out to remote systems.
-			ServiceWrapper se = services.get(this.name);
+			ServiceWrapper se = services.get(this.getName());
 			String serviceClassName = se.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
-			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.name, guiClass, se);
+			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.getName(), guiClass, se);
 			++index;
 
 		}
@@ -347,14 +347,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		ServiceGUI gui = null;
 		JPanel tpanel = new JPanel();
 		Service se = sw.get();
-		gui = (ServiceGUI) getNewInstance(guiClass, se.name, this);
+		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 		if (gui != null) {
 			gui.init();
 			serviceGUIMap.put(serviceName, gui);
 			gui.attachGUI();
 			tpanel.add(gui.widgetFrame); 
 			tabs.addTab(serviceName, tpanel);
-//			customWidgetPrefs.put(se.name, GUI.WIDGET_PREF_TABBED);
+//			customWidgetPrefs.put(se.getName(), GUI.WIDGET_PREF_TABBED);
 
 		} else {
 			LOG.warn("could not construct a " + guiClass + " object");
@@ -445,7 +445,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame = new JFrame();
 
 		frame.addWindowListener(this);
-		frame.setTitle("myrobotlab - " + name);
+		frame.setTitle("myrobotlab - " + getName());
 
 		JTabbedPane stp = loadTabPanels();
 		
@@ -648,8 +648,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			//Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
 			Service service = se.get();
 
-			if (serviceName.compareTo(this.name) == 0) {
-				LOG.info("momentarily skipping " + this.name + "....");
+			if (serviceName.compareTo(this.getName()) == 0) {
+				LOG.info("momentarily skipping " + this.getName() + "....");
 				continue;
 			}
 

@@ -76,9 +76,9 @@ public class GeneticProgramming extends Service {
 	public static void main(String[] args) {
 		Arduino arduino = new Arduino("arduino");
 		Servo hip = new Servo("hip");
-		hip.attach(arduino.name, 9);
+		hip.attach(arduino.getName(), 9);
 		Servo knee = new Servo("knee");
-		knee.attach(arduino.name, 10);
+		knee.attach(arduino.getName(), 10);
 		GeneticProgramming gp = new GeneticProgramming("gp");
 		arduino.startService();
 		knee.startService();

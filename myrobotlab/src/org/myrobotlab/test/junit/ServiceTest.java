@@ -107,7 +107,7 @@ public class ServiceTest {
 		stopwatch.start();
 		for (int i = 0; i < cnt; ++i) {
 			data[0] = new Integer(i);
-			ret = (Integer) thrower01.sendBlocking(catcher.name, "catchInteger", data);
+			ret = (Integer) thrower01.sendBlocking(catcher.getName(), "catchInteger", data);
 			assertEquals(ret, i);
 		}
 		stopwatch.end();
@@ -116,7 +116,7 @@ public class ServiceTest {
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		LOG.info(catcher.catchList.size());
 
-		Object o = (Object) thrower01.sendBlocking(catcher.name, "returnNull", null);
+		Object o = (Object) thrower01.sendBlocking(catcher.getName(), "returnNull", null);
 		assertEquals(null, o);
 		
 		// release all

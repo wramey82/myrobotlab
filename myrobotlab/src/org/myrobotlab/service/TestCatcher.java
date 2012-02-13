@@ -117,7 +117,7 @@ public class TestCatcher extends Service {
 	}
 
 	public void waitForCatches(int numberOfCatches, int maxWaitTimeMilli) {
-		LOG.info(name + ".waitForCatches waiting for " + numberOfCatches
+		LOG.info(getName() + ".waitForCatches waiting for " + numberOfCatches
 				+ " currently " + catchList.size());
 		synchronized (catchList) {
 			while (catchList.size() < numberOfCatches) {
@@ -135,7 +135,7 @@ public class TestCatcher extends Service {
 	}
 
 	public void waitForLowCatches(int numberOfCatches, int maxWaitTimeMilli) {
-		LOG.info(name + ".waitForLowCatches waiting for " + numberOfCatches
+		LOG.info(getName() + ".waitForLowCatches waiting for " + numberOfCatches
 				+ " currently " + lowCatchList.size());
 		synchronized (lowCatchList) {
 			while (lowCatchList.size() < numberOfCatches) {

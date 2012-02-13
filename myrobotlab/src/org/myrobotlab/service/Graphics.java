@@ -188,7 +188,7 @@ public class Graphics extends Service {
 				textPos+=10;
 			}
 		}
-		plotXValueMap.put(msg.name, ++x%cfg.getInt("width"));
+		plotXValueMap.put(msg.getName(), ++x%cfg.getInt("width"));
 	}
 	
 	
@@ -205,7 +205,7 @@ public class Graphics extends Service {
 		graph.startService();
 		
 		gui.display();
-		graph.attach(gui.name);
+		graph.attach(gui.getName());
 		graph.createGraph(640, 480);
 		graph.setColor(new Color(0x666666));
 		graph.drawGrid(10, 10);

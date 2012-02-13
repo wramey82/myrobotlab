@@ -71,7 +71,7 @@ public class IOData implements Serializable {
 
 	public static String name() {
 		if (LOG.isDebugEnabled()) {
-			StringBuilder logString = new StringBuilder("IOData.name()");
+			StringBuilder logString = new StringBuilder("IOData.getName()()");
 			LOG.debug(logString);
 		} // if
 

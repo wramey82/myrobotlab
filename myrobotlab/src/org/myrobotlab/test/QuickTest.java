@@ -45,10 +45,10 @@ public class QuickTest {
 		Servo pan = new Servo("pan");
 		Servo tilt = new Servo("tilt");
 
-		tilt.attach(board.name, 6); // TODO - should have failed/thrown !!! make
+		tilt.attach(board.getName(), 6); // TODO - should have failed/thrown !!! make
 									// bug Servo does not have a analogWrite fn!
 									// out
-		pan.attach(board.name, 5); // TODO - allow gui to attach
+		pan.attach(board.getName(), 5); // TODO - allow gui to attach
 
 		pan.startService();
 		tilt.startService();

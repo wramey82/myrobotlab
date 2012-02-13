@@ -124,7 +124,7 @@ public class RemoteAdapter extends Service {
 
 					serverSocket = new ServerSocket(servicePort,0, serverAddress);
 					
-					LOG.info(name + " TCPListener listening on "
+					LOG.info(getName() + " TCPListener listening on "
 							+ serverSocket.getLocalSocketAddress());
 
 					while (isRunning()) {
@@ -191,7 +191,7 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(6668);
 				
-				LOG.info(name + " UDPStringListener listening on "
+				LOG.info(getName() + " UDPStringListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
 				
 				byte[] b = new byte[65535];
@@ -247,7 +247,7 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(servicePort);
 
-				LOG.info(name + " UDPListener listening on "
+				LOG.info(getName() + " UDPListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
 
 				Communicator comm = (Communicator) cm.getComm();
@@ -278,14 +278,14 @@ public class RemoteAdapter extends Service {
 								// FIXME - no retObject on invoke - how to generate the event ???
 								// getting clients address and port
 								//getOutbox().add(msg);
-								//msg.name=myService.name;
+								//msg.getName()=myService.getName();
 								//getInbox().add(msg);
 								
 								continue;
 							}
 
 							
-							if (msg.name.equals(name))
+							if (msg.getName().equals(getName()))
 							{
 								getInbox().add(msg);
 							} else {
@@ -323,14 +323,14 @@ public class RemoteAdapter extends Service {
 		if (!isRunning())
 		{
 			super.startService();
-			tcpListener = new TCPListener(name + "_tcpMsgListener", this);
+			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
 			tcpListener.start();
-			udpListener = new UDPListener(name + "_udpMsgListener", this);
+			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
 			udpListener.start();
-			udpStringListener = new UDPStringListener(name + "_udpStringListener", this);
+			udpStringListener = new UDPStringListener(getName() + "_udpStringListener", this);
 			udpStringListener.start();
 		} else {
-			LOG.warn("RemoteAdapter " + name + " is already started");
+			LOG.warn("RemoteAdapter " + getName() + " is already started");
 		}
 	}
 
@@ -371,7 +371,7 @@ public class RemoteAdapter extends Service {
 	// @Override	
 	public void sendServiceDirectoryUpdate(String remoteHost, int remotePort,
 			String localHost, int localPort) {
-		LOG.info(name + " sendServiceDirectoryUpdate from " + localHost + ":"
+		LOG.info(getName() + " sendServiceDirectoryUpdate from " + localHost + ":"
 				+ localPort + " --> " + remoteHost + ":" + remotePort);
 		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
 		

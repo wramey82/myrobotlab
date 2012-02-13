@@ -172,7 +172,7 @@ public class GoogleSTT extends Service {
 		private Service myService = null;
 
 		CaptureThread(Service s) {
-			this(s, s.name + "_capture");
+			this(s, s.getName() + "_capture");
 		}
 
 		CaptureThread(Service s, String n) {
@@ -282,7 +282,7 @@ public class GoogleSTT extends Service {
 
 		Service.logTime("t1", "start");
 		Service.logTime("t1", "pre new transcription " + path);
-		TranscriptionThread transcription = new TranscriptionThread(this.name + "_transcriber", language);
+		TranscriptionThread transcription = new TranscriptionThread(this.getName() + "_transcriber", language);
 		transcription.debug = true;
 		Service.logTime("t1", "pre new thread start");
 		transcription.start();

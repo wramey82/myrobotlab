@@ -41,7 +41,7 @@ public class StepperMotor extends Service {
 
 	public StepperMotor(String name) {
 		super(name, StepperMotor.class.getCanonicalName());
-		// config.name = name; TODO WHY HURT YOURSELF?
+		// config.getName() = name; TODO WHY HURT YOURSELF?
 	}
 
 	public void loadDefaultConfiguration() {

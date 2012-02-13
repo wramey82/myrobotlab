@@ -70,7 +70,7 @@ public class ParallelPort extends Service {
 
 	            System.out.println("\nport.portType = " + port.getPortType());
 	            System.out.println("port type = "+ PORT_TYPE[port.getPortType() - 1]);
-	            System.out.println("port.name = " + port.getName());
+	            System.out.println("port.getName() = " + port.getName());
 
 	            // open the parallel port -- open(App name, timeout)
 	            parallelPort = (gnu.io.ParallelPort) port.open("CommTest", 50);

@@ -230,7 +230,7 @@ public class Player extends Service {
 				break;
 			}
 			}
-			LOG.info(name + " " + cmd);
+			LOG.info(getName() + " " + cmd);
 			game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
 					+ "\">" + login + "</font> " + cmdString);
 		}
@@ -238,7 +238,7 @@ public class Player extends Service {
 	}
 
 	public String playerCommand(String cmd) {
-		LOG.info(name + " " + cmd);
+		LOG.info(getName() + " " + cmd);
 		game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
 				+ "\">" + login + "</font> " + cmd);
 		return cmd;

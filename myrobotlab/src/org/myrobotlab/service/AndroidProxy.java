@@ -4,14 +4,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-public class AndroidControl extends Service {
+public class AndroidProxy extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(AndroidControl.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(AndroidProxy.class.getCanonicalName());
 
-	public AndroidControl(String n) {
-		super(n, AndroidControl.class.getCanonicalName());
+	public AndroidProxy(String n) {
+		super(n, AndroidProxy.class.getCanonicalName());
 	}
 	
 	@Override
@@ -28,7 +28,7 @@ public class AndroidControl extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		
-		AndroidControl template = new AndroidControl("template");
+		AndroidProxy template = new AndroidProxy("proxy");
 		template.startService();
 		/*
 		GUIService gui = new GUIService("gui");

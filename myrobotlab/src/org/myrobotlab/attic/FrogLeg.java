@@ -97,27 +97,27 @@ public class FrogLeg extends Service {
 		camera.startService();
 		gui.startService();
 		hip.startService();
-		hip.attach(arduino.name, 9);
+		hip.attach(arduino.getName(), 9);
 		knee.startService();
-		knee.attach(arduino.name, 10);
+		knee.attach(arduino.getName(), 10);
 		gp.startService();
 
 		gp.createGP();
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addAlert(arduino.name, "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.notify("publish", this.name, "publish", PinAlert.class);
-		camera.notify("publish", gp.name, "evalCallBack", Rectangle.class);
+		sensors.notify("publish", this.getName(), "publish", PinAlert.class);
+		camera.notify("publish", gp.getName(), "evalCallBack", Rectangle.class);
 
 		// 320 x 240 is easier to work with over wireless
 		// camera.addFilter("PyramidDown", "PyramidDown");
@@ -196,13 +196,13 @@ public class FrogLeg extends Service {
 		// remove triggers
 		// camera.removeNotify(outMethod, serviceName, inMethod, paramType); //
 		// TODO - make removable by query best
-		camera.removeNotify("publish", this.name, "trackPoint", CvPoint2D32f[].class);
+		camera.removeNotify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 		// load the movement filter
 		movementFilter();
 
 		// set trigger
-		camera.notify("publish", this.name, "foundMovement", Rectangle.class);
+		camera.notify("publish", this.getName(), "foundMovement", Rectangle.class);
 	}
 
 	boolean tracking = false;
@@ -211,7 +211,7 @@ public class FrogLeg extends Service {
 		// if (!tracking)
 		{
 			// remove movement trigger
-			camera.removeNotify("publish", this.name, "foundMovement", Rectangle.class);
+			camera.removeNotify("publish", this.getName(), "foundMovement", Rectangle.class);
 
 			// begin tracking
 			tracking = true;
@@ -228,7 +228,7 @@ public class FrogLeg extends Service {
 			// add the optical track filters
 			opticalTrackFilter();
 			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", null);
-			camera.notify("publish", this.name, "trackPoint", CvPoint2D32f[].class);
+			camera.notify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
 			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
@@ -327,7 +327,7 @@ public class FrogLeg extends Service {
 		}
 
 		camera.removeFilter("Mouse");
-		camera.removeNotify("publish", this.name, "mousePoints", CvPoint2D32f[].class);
+		camera.removeNotify("publish", this.getName(), "mousePoints", CvPoint2D32f[].class);
 
 	}
 
@@ -363,11 +363,11 @@ public class FrogLeg extends Service {
 
 	public void startCapture() {
 		captureData.clear();
-		camera.notify("publish", this.name, "capture", Rectangle.class);
+		camera.notify("publish", this.getName(), "capture", Rectangle.class);
 	}
 
 	public void stopCapture() {
-		camera.removeNotify("publish", this.name, "capture", Rectangle.class);
+		camera.removeNotify("publish", this.getName(), "capture", Rectangle.class);
 	}
 	
 	@Override

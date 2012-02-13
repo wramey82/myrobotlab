@@ -89,8 +89,8 @@ public class Port implements SerialPortEventListener {
 		// set port? / init port
 		// detach port
 		
-		//cfgFileName = service.name + "." + portName.replaceAll("[$/\\\\;:]", "") + ".xml";
-		cfgFileName = myService.name + ".serial.xml";
+		//cfgFileName = service.getName() + "." + portName.replaceAll("[$/\\\\;:]", "") + ".xml";
+		cfgFileName = myService.getName() + ".serial.xml";
 		if (!myService.load(this, cfgFileName))
 		{
 			LOG.info("no " + cfgFileName + " configuration for port");

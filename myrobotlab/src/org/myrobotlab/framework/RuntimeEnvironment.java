@@ -70,9 +70,14 @@ public class RuntimeEnvironment implements Serializable{
 		
 	}
 	
+	public static Platform getPlatform()
+	{
+		return new Platform(getOS(), getArch(), getBitness(), getVMName());
+	}
+	
 	public static String getOS()
 	{
-		String os = System.getProperty("os.name").toLowerCase();
+		String os = System.getProperty("os.name()").toLowerCase();
 		if ((os.indexOf( LINUX ) >= 0))
 		{
 			return LINUX;
@@ -88,7 +93,7 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static String getVMName()
 	{
-		String vmname = System.getProperty("java.vm.name").toLowerCase();
+		String vmname = System.getProperty("java.vm.getName()").toLowerCase();
 		
 		if (vmname.equals("davlik"))
 		{
@@ -117,8 +122,21 @@ public class RuntimeEnvironment implements Serializable{
 		return arch;
 	}	
 	
-	public static synchronized boolean register(URL url, Service s)
+	
+	/**
+	 * ONLY CALLED BY registerServices2 ... would be a bug if called from 
+	 * foreign service - (no platform!) .. URL (URI) will always be null
+	 * FIXME - change to register(URL url)
+	 * 
+	 * @param url
+	 * @param s
+	 * @return
+	 */
+//	public static synchronized boolean register(URL url, Service s)
+	public static synchronized boolean register(Service s)
 	{
+		URL url = null; // LOCAL SERVICE !!!
+		
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url))
 		{
@@ -128,14 +146,14 @@ public class RuntimeEnvironment implements Serializable{
 			se = hosts.get(url);
 		}
 		
-		if (se.serviceDirectory.containsKey(s.name))
+		if (se.serviceDirectory.containsKey(s.getName()))
 		{
-			LOG.error("attempting to register " + s.name + " which is already registered in " + url);
+			LOG.error("attempting to register " + s.getName() + " which is already registered in " + url);
 			return false;
 		} else {
 			ServiceWrapper sw = new ServiceWrapper(s, se); 
-			se.serviceDirectory.put(s.name, sw);
-			registry.put(s.name, sw);
+			se.serviceDirectory.put(s.getName(), sw);
+			registry.put(s.getName(), sw);
 		}
 		
 		return true;
@@ -295,7 +313,7 @@ public class RuntimeEnvironment implements Serializable{
 	 * Since the map of Services is made for export - it is NOT a copy but references
 	 * 
 	 * The filtering is done by Service Type.. although in the future it could be extended
-	 * to Service.name
+	 * to Service.getName()
 	 * 
 	 * @return
 	 */
@@ -324,8 +342,9 @@ public class RuntimeEnvironment implements Serializable{
 			return local; // FIXME - still need to construct new SWs
 		}
 		
-		ServiceEnvironment export = new ServiceEnvironment(null);		
-		
+		// URL is null but the "acceptor" will fill in the correct URI/ID
+		ServiceEnvironment export = new ServiceEnvironment(null); 	
+				
 		Iterator<String> it = local.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
 			String name = it.next();
@@ -519,7 +538,7 @@ public class RuntimeEnvironment implements Serializable{
 			while (it.hasNext()) {
 				String sen = it.next();
 				ServiceWrapper sw = se.serviceDirectory.get(sen);
-				LOG.info("saving " + sw.name);
+				LOG.info("saving " + sw.getName());
 				se.serviceDirectory.clear();
 				//Iterator<String> seit = se.keySet().iterator();
 			}
@@ -604,7 +623,7 @@ public class RuntimeEnvironment implements Serializable{
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = registry.get(serviceName);
-			sb.append("<service name=\""+sw.service.name+"\" serviceEnironment=\""+ sw.getAccessURL() +"\">");
+			sb.append("<service name=\""+sw.service.getName()+"\" serviceEnironment=\""+ sw.getAccessURL() +"\">");
 			Iterator<String> nit = sw.service.getOutbox().notifyList.keySet().iterator();
 			while (nit.hasNext()) {
 				String n = nit.next();
@@ -641,7 +660,7 @@ public class RuntimeEnvironment implements Serializable{
 
 				if (m.getCanonicalName().equals(interfaceName))
 				{
-					ret.add(sw.service.name);
+					ret.add(sw.service.getName());
 				}
 
 			}

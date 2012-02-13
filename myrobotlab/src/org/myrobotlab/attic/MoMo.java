@@ -100,37 +100,37 @@ public class MoMo extends Service {
 		gui.startService();
 		// ear.start();
 		// shaker.start();
-		// shaker.attach(arduino.name, 11);
+		// shaker.attach(arduino.getName(), 11);
 
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addAlert(arduino.name, "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.name, "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addAlert(arduino.getName(), "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.notify("publish", this.name, "publish", PinAlert.class);
+		sensors.notify("publish", this.getName(), "publish", PinAlert.class);
 
 		// creating static route from ear/speech recognition to special action
-		ear.notify("recognized", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.getName(), "speechToAction", String.class);
 
 		// Motors attached to Arduino
 		// left motor inverted to keep it simple for me
-		// neck.attach(arduino.name, 10, 12);
-		right.attach(arduino.name, 9, 8);
-		// left.attach(arduino.name, 11, 13);
-		left.attach(arduino.name, 10, 11);
+		// neck.attach(arduino.getName(), 10, 12);
+		right.attach(arduino.getName(), 9, 8);
+		// left.attach(arduino.getName(), 11, 13);
+		left.attach(arduino.getName(), 10, 11);
 		left.invertDirection();
 
 		// 2 encoders attached
-		// right.attachEncoder(arduino.name, 2);
-		// left.attachEncoder(arduino.name, 3);
+		// right.attachEncoder(arduino.getName(), 2);
+		// left.attachEncoder(arduino.getName(), 3);
 
 		left.stop();
 		right.stop();
@@ -270,7 +270,7 @@ public class MoMo extends Service {
 		// opticalTrackFilter ();
 
 		// add the call back
-		camera.notify("publish", this.name,
+		camera.notify("publish", this.getName(),
 				"adjustPowerMaintainStraightCourse", CvPoint2D32f.class);
 
 	}
@@ -341,13 +341,13 @@ public class MoMo extends Service {
 		// remove triggers
 		// camera.removeNotify(outMethod, serviceName, inMethod, paramType); //
 		// TODO - make removable by query best
-		camera.removeNotify("publish", this.name, "trackPoint", CvPoint2D32f[].class);
+		camera.removeNotify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 		// load the movement filter
 		movementFilter();
 
 		// set trigger
-		camera.notify("publish", this.name, "foundMovement", Rectangle.class);
+		camera.notify("publish", this.getName(), "foundMovement", Rectangle.class);
 	}
 
 	boolean tracking = false;
@@ -356,7 +356,7 @@ public class MoMo extends Service {
 		// if (!tracking)
 		{
 			// remove movement trigger
-			camera.removeNotify("publish", this.name, "foundMovement",Rectangle.class);
+			camera.removeNotify("publish", this.getName(), "foundMovement",Rectangle.class);
 
 			// begin tracking
 			tracking = true;
@@ -373,7 +373,7 @@ public class MoMo extends Service {
 			// add the optical track filters
 			opticalTrackFilter();
 			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", null);
-			camera.notify("publish", this.name, "trackPoint", CvPoint2D32f[].class);
+			camera.notify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
 			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
@@ -470,26 +470,26 @@ public class MoMo extends Service {
 		} else if (cmd.compareTo("6") == 0) {
 			// shaker.invoke("moveTo",20);
 		} else if (cmd.compareTo("R") == 0) {
-			camera.removeNotify("publish", this.name, "sampleEndPoints",
+			camera.removeNotify("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 			beginSampled = false;
-			camera.notify("publish", this.name, "sampleBeginPoints",
+			camera.notify("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
 		} else if (cmd.compareTo("T") == 0) {
-			camera.removeNotify("publish", this.name, "sampleBeginPoints",
+			camera.removeNotify("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
 			endSampled = false;
-			camera.notify("publish", this.name, "sampleEndPoints",
+			camera.notify("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 
 		} else if (cmd.compareTo("M") == 0) {
 			camera.addFilter("Mouse", "Mouse");
-			camera.notify("publish", this.name, "mousePoints",
+			camera.notify("publish", this.getName(), "mousePoints",
 					CvPoint2D32f[].class);
 		} else if (cmd.compareTo("G") == 0) {
-			camera.removeNotify("publish", this.name, "sampleBeginPoints",
+			camera.removeNotify("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
-			camera.removeNotify("publish", this.name, "sampleEndPoints",
+			camera.removeNotify("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 			generateSketchupFile();
 		}
@@ -524,13 +524,13 @@ public class MoMo extends Service {
 
 		//Log.error(ret);
 		camera.removeFilter("Mouse");
-		camera.removeNotify("publish", this.name, "mousePoints",
+		camera.removeNotify("publish", this.getName(), "mousePoints",
 				CvPoint2D32f[].class);
 
 	}
 
 	public void publish(PinAlert a) {
-		// mouth.speak("range " + a.name);
+		// mouth.speak("range " + a.getName());
 
 		if (a.max == 200) {
 			mouth.speak("range 5 inches");
@@ -585,7 +585,7 @@ public class MoMo extends Service {
 		se.localServiceHandle = null;
 		sdu.serviceEntryList_.add(se);
 
-		sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,
+		sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,
 				sdu.remoteServicePort, sdu);
 */				
 

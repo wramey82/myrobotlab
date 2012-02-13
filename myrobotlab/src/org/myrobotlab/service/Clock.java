@@ -68,7 +68,7 @@ public class Clock extends Service {
 		
 		ClockThread()
 		{
-			thread = new Thread(this,name + "_ticking_thread");
+			thread = new Thread(this, getName() + "_ticking_thread");
 			thread.start();
 		}
 				
@@ -128,7 +128,7 @@ public class Clock extends Service {
 	{
 		if (myClock != null) 
 		{
-			LOG.info("stopping " + name + " myClock");
+			LOG.info("stopping " + getName() + " myClock");
 			myClock.thread.interrupt();
 			myClock.thread = null;
 			myClock = null;

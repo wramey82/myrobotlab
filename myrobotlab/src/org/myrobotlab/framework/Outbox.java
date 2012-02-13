@@ -61,8 +61,8 @@ public class Outbox implements Runnable, Serializable
 	CommunicationInterface comm = null;
 
 	public Outbox(Service myService) {
-		//super(myService.name + "_outbox");
-		//outboxThread = new Thread(this, myService.name + "_outbox");
+		//super(myService.getName() + "_outbox");
+		//outboxThread = new Thread(this, myService.getName() + "_outbox");
 		this.myService = myService;
 	}
 
@@ -78,7 +78,7 @@ public class Outbox implements Runnable, Serializable
 	{
 		for (int i = outboxThreadPool.size(); i < initialThreadCount; ++i)
 		{	
-			Thread t =  new Thread(this, myService.name + "_outbox_" + i);
+			Thread t =  new Thread(this, myService.getName() + "_outbox_" + i);
 			outboxThreadPool.add(t);
 			t.start();
 		}				
@@ -122,10 +122,10 @@ public class Outbox implements Runnable, Serializable
 			// all of this needs to be controlled by Service paramters
 			// TODO - clean up - (name || hostname && serviceport) &&
 			// outboxMsgHandling == RELAY
-			if (msg.name.length() > 0
+			if (msg.getName().length() > 0
 					&& myService.outboxMsgHandling.compareTo(Service.RELAY) == 0
 					|| msg.msgType.compareTo("S") == 0) {
-				LOG.info("configured to RELAY " + msg.name);
+				LOG.info("configured to RELAY " + msg.getName());
 				comm.send(msg);
 
 			}
@@ -157,7 +157,7 @@ public class Outbox implements Runnable, Serializable
 					comm.send(msg);
 				}
 			} else {
-				LOG.debug(msg.name + "/" + msg.method + "#"
+				LOG.debug(msg.getName() + "/" + msg.method + "#"
 						+ msg.getParameterSignature() + " notifyList is empty");
 				continue;
 			}

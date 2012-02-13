@@ -67,10 +67,10 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	
 	public void send(final Message msg) {
 		
-		ServiceWrapper sw = RuntimeEnvironment.getService(msg.name);
+		ServiceWrapper sw = RuntimeEnvironment.getService(msg.getName());
 		if (sw == null)
 		{
-			LOG.error(msg.name + " service does not exist - should clean up " + msg.sender );
+			LOG.error(msg.getName() + " service does not exist - should clean up " + msg.sender );
 			return;
 		}
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))

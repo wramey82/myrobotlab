@@ -154,14 +154,14 @@ public class SoccerGame extends Service {
 		// security end -----------------------
 
 		// set up aux devices begin -----------
-		pan.attach(arduino.name, 6);
-		tilt.attach(arduino.name, 5);
+		pan.attach(arduino.getName(), 6);
+		tilt.attach(arduino.getName(), 5);
 		// set up aux devices end -----------
 
 		// set up global message routes begin--
 		// when the remote adapter finds a client disconnecting - send a msg to
 		// the SoccerGame to disconnect them
-		remote.notify("connectionBroken", this.name, "connectionBrokenEvent", IPAndPort.class); // TODO - TAKE CLASS
+		remote.notify("connectionBroken", this.getName(), "connectionBrokenEvent", IPAndPort.class); // TODO - TAKE CLASS
 		// set up global message routes end--
 
 		// start services begin----------------
@@ -182,7 +182,7 @@ public class SoccerGame extends Service {
 
 	// new player association request // registerServices
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		LOG.info(name + " new soccer player request ! " + sdu);
+		LOG.info(getName() + " new soccer player request ! " + sdu);
 
 		Player newPlayer = null;
 
@@ -233,20 +233,20 @@ public class SoccerGame extends Service {
 			send(client.name, "setRemoteConnectionStatus",
 					makeHTMLErrorParam(login
 							+ " already has control of player "
-							+ currentPlayers.get(login).name));
+							+ currentPlayers.get(login).getName()));
 			return;
 		}
 
 		/*
 		 * if (!security.containsKey(sdu.login) || ((String)
 		 * security.get(sdu.login)).compareTo(sdu.password) != 0) {
-		 * send(client.name, "setRemoteConnectionStatus", makeHTMLErrorParam
+		 * send(client.getName(), "setRemoteConnectionStatus", makeHTMLErrorParam
 		 * ("login " + sdu.login + "failed")); LOG.error("login " + sdu.login +
 		 * "/" + sdu.password + "failed"); return; }
 		 */
 
 		send(client.name, "setRemoteConnectionStatus",
-				makeHTMLOKParam("connected to " + newPlayer.name
+				makeHTMLOKParam("connected to " + newPlayer.getName()
 						+ " welcome to the game !"));
 
 		// TODO - prepare to dump service description if user no good
@@ -257,7 +257,7 @@ public class SoccerGame extends Service {
 		ServiceEntry se;
 		//sdu.serviceEntryList_.clear();
 
-		se = hostcfg.getServiceEntry(newPlayer.name);
+		se = hostcfg.getServiceEntry(newPlayer.getName());
 		se.localServiceHandle = null;
 		//sdu.serviceEntryList_.add(se);
 
@@ -307,7 +307,7 @@ public class SoccerGame extends Service {
 		// SEND NOTIFICATION ENTRY - ON UPDATEGUI
 		Object[] params = new Object[4];
 		params[0] = "guiUpdated";
-		params[1] = newPlayer.name;
+		params[1] = newPlayer.getName();
 		params[2] = "guiUpdated";
 		// params[3] = new Object[0];
 		params[3] = Integer.class.toString();
@@ -321,7 +321,7 @@ public class SoccerGame extends Service {
 
 		// GUI INFO
 		// ESTABLH CONNECTIVITY TO THE REMOTE GUI !!
-		//sendServiceDirectoryUpdate("", "", client.name, sdu.hostname,sdu.remoteServicePort, sdu);
+		//sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,sdu.remoteServicePort, sdu);
 		// GUI BEING CREATED
 
 		// set message routes between player & gui
@@ -422,7 +422,7 @@ public class SoccerGame extends Service {
 
 		for (int i = 0; i < players.size(); ++i) {
 			Player p = players.get(i);
-			String info = "<html>" + p.name + " ";
+			String info = "<html>" + p.getName() + " ";
 			if (p.team.compareTo("red") == 0) {
 				info += "<font color=\"red\">" + p.login + "</html>";
 			} else {
