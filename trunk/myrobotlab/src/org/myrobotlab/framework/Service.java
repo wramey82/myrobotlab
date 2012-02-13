@@ -87,7 +87,7 @@ public abstract class Service implements Runnable, Serializable {
 	public final static Logger LOG = Logger.getLogger(Service.class.toString());
 	protected String host = null; // TODO - should be final??? helpful in testing??? TODO - put in RuntimeEnvironment???
 	@Element
-	public final String name;
+	private final String name;
 	public final String serviceClass; // TODO - remove
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
@@ -137,7 +137,11 @@ public abstract class Service implements Runnable, Serializable {
 	public Service(String instanceName, String serviceClass) {
 		this(instanceName, serviceClass, null);
 	}
-	
+
+	public String getName()
+	{
+		return name;
+	}
 
 	public Service(String instanceName, String serviceClass, String inHost) {
 		
@@ -152,7 +156,7 @@ public abstract class Service implements Runnable, Serializable {
 		// determine host name
 		host = getHostName(inHost);// TODO - initialize once RuntimeEnvironment
 		
-		this.name = instanceName;
+		name = instanceName;
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
@@ -187,13 +191,13 @@ public abstract class Service implements Runnable, Serializable {
 
 			// http://developer.android.com/reference/java/lang/System.html
 			LOG.info("---------------normalize-------------------");
-			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
+			LOG.info("os.name() [" + System.getProperty("os.name()") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
 			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + RuntimeEnvironment.getArch() + "]");
 			LOG.info("getBitness [" + RuntimeEnvironment.getBitness() + "]");
-			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
+			LOG.info("java.vm.getName() [" + System.getProperty("java.vm.getName()") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
 						
 			LOG.info("---------------non-normalize---------------");						
-			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
+			LOG.info("java.vm.getName() [" + System.getProperty("java.vm.getName()") + "]");
 			LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
 			LOG.info("java.home [" + System.getProperty("java.home") + "]");
 			LOG.info("os.version [" + System.getProperty("os.version") + "]");
@@ -220,8 +224,8 @@ public abstract class Service implements Runnable, Serializable {
 		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);
 
-		registerServices();
-		registerServices2(url);
+		registerServices();// FIXME - deprecate - remove !
+		registerLocalService();
 
 	}
 
@@ -233,8 +237,7 @@ public abstract class Service implements Runnable, Serializable {
 		return true;
 	}
 
-	public void logTime(String tag) // TODO - this should be a library function
-									// service.util.PerformanceTimer()
+	public void logTime(String tag) 
 	{
 		if (startTimeMilliseconds == 0) {
 			startTimeMilliseconds = System.currentTimeMillis();
@@ -279,7 +282,7 @@ public abstract class Service implements Runnable, Serializable {
 		Serializer serializer = new Persister();
 
 		try {
-			File cfg = new File(cfgDir + File.separator + this.name + ".xml");
+			File cfg = new File(cfgDir + File.separator + this.getName() + ".xml");
 			serializer.write(this, cfg);
 		} catch (Exception e) {
 			Service.logException(e);
@@ -307,7 +310,7 @@ public abstract class Service implements Runnable, Serializable {
 		// saves user data in the .myrobotlab directory
 		// with the file naming convention of name.<cfgFileName>		
 		try {
-			FileIO.stringToFile(cfgDir + File.separator + this.name + "." + cfgFileName, data);
+			FileIO.stringToFile(cfgDir + File.separator + this.getName() + "." + cfgFileName, data);
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
@@ -329,7 +332,7 @@ public abstract class Service implements Runnable, Serializable {
 		String filename = null;
 		if (inCfgFileName == null)
 		{
-			filename = cfgDir + File.separator + this.name + ".xml";
+			filename = cfgDir + File.separator + this.getName() + ".xml";
 		} else {
 			filename = cfgDir + File.separator + inCfgFileName;
 		}
@@ -489,7 +492,7 @@ public abstract class Service implements Runnable, Serializable {
 				if (!preRoutingHook(m)) {continue;}
 				
 				// route if necessary
-				if (!m.name.equals(this.name)) // && RELAY
+				if (!m.getName().equals(this.getName())) // && RELAY
 				{
 					outbox.add(m); // RELAYING
 				}
@@ -501,7 +504,7 @@ public abstract class Service implements Runnable, Serializable {
 					// create new message reverse sender and name
 					// set to same msg id
 					Message msg = createMessage(m.sender, m.method, ret);
-					msg.sender = this.name;
+					msg.sender = this.getName();
 					msg.msgID = m.msgID;
 					// msg.status = Message.BLOCKING;
 					msg.status = Message.RETURN;
@@ -531,7 +534,7 @@ public abstract class Service implements Runnable, Serializable {
 			// create new message reverse sender and name
 			// set to same msg id
 			Message msg = createMessage(m.sender, m.method, ret);
-			msg.sender = this.name;
+			msg.sender = this.getName();
 			msg.msgID = m.msgID;
 			// msg.status = Message.BLOCKING;
 			msg.status = Message.RETURN;
@@ -565,7 +568,7 @@ public abstract class Service implements Runnable, Serializable {
 													// as output
 
 		if (m.sender.length() == 0) {
-			m.sender = this.name;
+			m.sender = this.getName();
 		}
 		if (m.sendingMethod.length() == 0) {
 			m.sendingMethod = method;
@@ -741,13 +744,13 @@ public abstract class Service implements Runnable, Serializable {
 			}
 			if (!found)
 			{
-				LOG.info("adding notify from " + this.name + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
+				LOG.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 				nes.add(ne);
 			}
 		} else {
 			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
 			nel.add(ne);
-			LOG.info("adding notify from " + this.name + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
+			LOG.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 			outbox.notifyList.put(ne.outMethod.toString(), nel);
 		}
 		
@@ -1091,7 +1094,7 @@ public abstract class Service implements Runnable, Serializable {
 		params[2] = param3;
 		params[3] = param4;
 		Message msg = createMessage(name, method, params);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 	
@@ -1102,19 +1105,19 @@ public abstract class Service implements Runnable, Serializable {
 		params[1] = param2;
 		params[2] = param3;
 		Message msg = createMessage(name, method, params);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
 	public void send(String name, String method) {
 		Message msg = createMessage(name, method, null);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
 	public void send(String name, String method, Object param1) {
 		Message msg = createMessage(name, method, param1);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
@@ -1123,13 +1126,13 @@ public abstract class Service implements Runnable, Serializable {
 		params[0] = param1;
 		params[1] = param2;
 		Message msg = createMessage(name, method, params);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
 	public void send(String name, String method, Object[] data) {
 		Message msg = createMessage(name, method, data);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 	
@@ -1138,7 +1141,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	public Object sendBlocking(String name, String method, Object[] data) {
 		Message msg = createMessage(name, method, data);
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		msg.status = Message.BLOCKING;
 
 		Object[] returnContainer = new Object[1];
@@ -1185,7 +1188,7 @@ public abstract class Service implements Runnable, Serializable {
 		Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 		formatter.setCalendar(cal);
 
-		msg.sender = this.name;
+		msg.sender = this.getName();
 		if (msg.msgID.length() == 0) {
 			msg.msgID = formatter.format(d);
 		}
@@ -1197,11 +1200,11 @@ public abstract class Service implements Runnable, Serializable {
 		msg.method = method;
 		msg.encoding = "NONE";// TODO - should be Option value
 
-		if (msg.name.length() == 0) {
+		if (msg.getName().length() == 0) {
 			LOG.debug("create message " + host + "/*/" + msg.method + "#"
 					+ msg.getParameterSignature());
 		} else {
-			LOG.debug("create message " + host + "/" + msg.name + "/"
+			LOG.debug("create message " + host + "/" + msg.getName() + "/"
 					+ msg.method + "#" + msg.getParameterSignature());
 		}
 		return msg;
@@ -1428,8 +1431,12 @@ public abstract class Service implements Runnable, Serializable {
 		
 	}
 
-	public synchronized void registerServices2(URL host) {
-		RuntimeEnvironment.register(host, this); // problem with this in it does not broadcast
+	/**
+	 * FIXME - registerLocalService() - calls RuntimeEnvironment(null, this)
+	 * @param host always null for local service
+	 */
+	public synchronized void registerLocalService() {
+		RuntimeEnvironment.register(this); // problem with this in it does not broadcast
 	}
 	
 	// TODO - DEPRICATE !!!!

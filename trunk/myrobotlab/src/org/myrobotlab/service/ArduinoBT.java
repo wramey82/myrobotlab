@@ -972,7 +972,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     							if (p.function == ANALOG_VALUE) {
     								p.type = 1;
     							}
-    							p.source = myService.name;
+    							p.source = myService.getName();
     							invoke(SensorData.publishPin, p);
     							// }
     						}

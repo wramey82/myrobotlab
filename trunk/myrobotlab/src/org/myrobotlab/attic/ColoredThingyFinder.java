@@ -179,7 +179,7 @@ public class ColoredThingyFinder extends Service {
 
 			Object[] params = new Object[4];
 			params[0] = "publish";
-			params[1] = this.name;
+			params[1] = this.getName();
 			params[2] = "setOpticalTrackingPoints";
 			params[3] = CvPoint2D32f.class.getCanonicalName();
 			send(opencv, "notify", params);

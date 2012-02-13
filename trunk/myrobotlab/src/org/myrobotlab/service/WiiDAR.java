@@ -292,7 +292,7 @@ public class WiiDAR extends Service {
 	 * }
 	 * 
 	 * 
-	 * public void startRobot() { // setting up servo servo.attach(arduino.name,
+	 * public void startRobot() { // setting up servo servo.attach(arduino.getName(),
 	 * 9);
 	 * 
 	 * // setting up wii wii.getWiimotes(); wii.setSensorBarAboveScreen();
@@ -307,17 +307,17 @@ public class WiiDAR extends Service {
 	 * 
 	 * // send data from the wii to wiidar wii.notify(this, "publishIR",
 	 * IRData.class.getCanonicalName()); // data from widar to the gui
-	 * notify("publishArrayofPoints", gui.name,"displaySweepData",
+	 * notify("publishArrayofPoints", gui.getName(),"displaySweepData",
 	 * Point.class.getCanonicalName());
 	 * 
 	 * // send the data from the wii to wiidar // wii.notify("publishIR",
-	 * this.name, "computeDepth", IRData.class.getCanonicalName()); // send the
+	 * this.getName(), "computeDepth", IRData.class.getCanonicalName()); // send the
 	 * computed depth & data to the gui // notify("computeDepth",
-	 * gui.name,"publishSinglePoint", Point.class.getCanonicalName());
-	 * notify("publishSinglePoint", gui.name,"publishSinglePoint",
+	 * gui.getName(),"publishSinglePoint", Point.class.getCanonicalName());
+	 * notify("publishSinglePoint", gui.getName(),"publishSinglePoint",
 	 * Point.class.getCanonicalName()); // gui.notify("processImage",
-	 * opencv.name,"input", BufferedImage.class.getCanonicalName());
-	 * //wii.notify("publishPin", this.name, "publishPin",
+	 * opencv.getName(),"input", BufferedImage.class.getCanonicalName());
+	 * //wii.notify("publishPin", this.getName(), "publishPin",
 	 * IRData.class.getCanonicalName()); arduino.notify(this,
 	 * SensorData.publishPin, PinData.class.getCanonicalName()); //wii.notify(
 	 * 

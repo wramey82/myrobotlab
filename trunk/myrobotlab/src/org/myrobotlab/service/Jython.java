@@ -95,7 +95,7 @@ public class Jython extends Service {
 		// of the actual name
 		String selfReferenceScript = "from org.myrobotlab.service import ServiceFactory\n"
 				+ "from org.myrobotlab.service import Jython\n"
-				+ "jython = ServiceFactory.create(\"" + this.name + "\",\"Jython\")\n	";
+				+ "jython = ServiceFactory.create(\"" + this.getName() + "\",\"Jython\")\n	";
 		interp.exec(selfReferenceScript);
 		
 	}

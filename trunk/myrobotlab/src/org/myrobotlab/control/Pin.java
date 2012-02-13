@@ -244,18 +244,18 @@ public class Pin extends JPanel {
 				IOData io = new IOData();
 				io.address = pin.getPinNumber();
 				io.value = OUTPUT;
-				pin.myService.send(pin.name, "pinMode", io); // TODO - default
+				pin.myService.send(pin.getName(), "pinMode", io); // TODO - default
 																// arduino is ??
 																// OUTPUT??
-				pin.myService.send(pin.name, "digitalReadPollStop", pin
+				pin.myService.send(pin.getName(), "digitalReadPollStop", pin
 						.getPinNumber());
 			} else {
 				LOG.info("INPUT");
 				IOData io = new IOData();
 				io.address = pin.getPinNumber();
 				io.value = INPUT;
-				pin.myService.send(pin.name, "pinMode", io);
-				pin.myService.send(pin.name, "digitalReadPollStart", pin
+				pin.myService.send(pin.getName(), "pinMode", io);
+				pin.myService.send(pin.getName(), "digitalReadPollStart", pin
 						.getPinNumber());
 			}
 		}

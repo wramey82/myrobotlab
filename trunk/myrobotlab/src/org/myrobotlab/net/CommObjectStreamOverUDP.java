@@ -119,7 +119,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			String host = url.getHost();
 			int port = url.getPort();
 			
-			LOG.info("sending udp msg to " + host + ":" +port + "/" + msg.name);
+			LOG.info("sending udp msg to " + host + ":" +port + "/" + msg.getName());
 
 			if (socket == null) {
 				socket = new DatagramSocket(); // here is a "random port"
@@ -187,7 +187,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						msg = (Message) o;
 
 						if (msg == null) {
-							LOG.error(myService.name
+							LOG.error(myService.getName()
 											+ " UDP Datagram corrupt from "
 											+ socket.getInetAddress() + ":"
 											+ socket.getPort()
@@ -251,7 +251,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		ObjectOutputStream oos = null;
 
 		public TCPThread() {
-			super(myService.name + "_TCPThread");
+			super(myService.getName() + "_TCPThread");
 		}
 
 		public TCPThread(Socket socket) {
@@ -295,7 +295,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 					}
 					if (msg == null) {
 						// TODO
-						LOG.error(myService.name
+						LOG.error(myService.getName()
 								+ " null message - will continue to listen");
 						LOG.error("disconnecting " + socket.getInetAddress()
 								+ ":" + socket.getPort());
@@ -379,8 +379,8 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			// }
 
 		} catch (ConfigurationManager.CFGError e) {
-			LOG.error("error could not find Service Entry in " + myService.name
-					+ " for " + msg.name + "/" + msg.method);
+			LOG.error("error could not find Service Entry in " + myService.getName()
+					+ " for " + msg.getName() + "/" + msg.method);
 			return;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -73,7 +73,7 @@ public class Property implements Serializable {
 
 	public static String name() {
 		if (LOG.isDebugEnabled()) {
-			StringBuilder logString = new StringBuilder("Property.name()");
+			StringBuilder logString = new StringBuilder("Property.getName()()");
 			LOG.debug(logString);
 		} // if
 

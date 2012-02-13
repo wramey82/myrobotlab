@@ -232,7 +232,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		//sendNotifyRequest("publishVideo1", "displayVideo1", Node.class);
 		//sendNotifyRequest("publishVideo2", "displayVideo2", Node.class);
 		//sendNotifyRequest("publishMatchResult", "displayMatchResult", IplImage.class);
-		myService.send(boundServiceName,"attach", (Object)myService.name);
+		myService.send(boundServiceName,"attach", (Object)myService.getName());
 	}
 
 	@Override

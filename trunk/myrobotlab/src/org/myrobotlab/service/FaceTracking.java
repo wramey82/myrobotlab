@@ -66,11 +66,11 @@ public class FaceTracking extends Service {
 		camera.startService();
 		logger.startService();
 		arduino.startService();
-		//pan.attach(arduino.name, 13);
+		//pan.attach(arduino.getName(), 13);
 
-		camera.notify("publish", name, "input");
-		camera.notify("isTracking", name, "isTracking", Boolean.class);
-		camera.notify("sizeChange", name, "sizeChange", Dimension.class);
+		camera.notify("publish", getName(), "input");
+		camera.notify("isTracking", getName(), "isTracking", Boolean.class);
+		camera.notify("sizeChange", getName(), "sizeChange", Dimension.class);
 		//notify("pan", "logger", "log");
 		//notify("tilt", "logger", "log");
 		notify("pan", "pan", "move");
@@ -264,8 +264,8 @@ public class FaceTracking extends Service {
 		
 		//ft.arduino.se - TODO setPort("/dev/ttyUSB0");
 		
-		//ft.tilt.attach(ft.arduino.name, 12);
-		//ft.pan.attach(ft.arduino.name, 13);
+		//ft.tilt.attach(ft.arduino.getName(), 12);
+		//ft.pan.attach(ft.arduino.getName(), 13);
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();

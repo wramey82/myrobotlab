@@ -35,7 +35,7 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.service.DifferentialDrive;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class AndroidControlGUI extends ServiceGUI {
+public class AndroidProxyGUI extends ServiceGUI {
 	
 	// if is local - can get a reference (experimental)
 	DifferentialDrive localReference = null; 
@@ -74,7 +74,7 @@ public class AndroidControlGUI extends ServiceGUI {
 	
 	
 
-	public AndroidControlGUI(final String boundServiceName, final GUI myService) {
+	public AndroidProxyGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	

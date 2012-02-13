@@ -82,21 +82,21 @@ public class Rose extends Service {
 	public void setMessageRoutes() {
 		/*
 		 * 
-		 * // tracking camera.notify("publish", tracker.name, "center",
+		 * // tracking camera.notify("publish", tracker.getName(), "center",
 		 * CvPoint.class.getCanonicalName()); tracker.notify("correctX",
-		 * pan.name, "move", Integer.class.getCanonicalName());
-		 * tracker.notify("correctY", tilt.name, "move",
+		 * pan.getName(), "move", Integer.class.getCanonicalName());
+		 * tracker.notify("correctY", tilt.getName(), "move",
 		 * Integer.class.getCanonicalName());
 		 */
 
 		// event set the polygons i see when there are new polygons
-		camera.notify("publish", this.name, "setPolygons", ArrayList.class);
+		camera.notify("publish", this.getName(), "setPolygons", ArrayList.class);
 
 		// suppress listening when talking
-		// mouth.notify("started", ear.name, "stopRecording", null);
-		// mouth.notify("stopped", ear.name, "startRecording", null);
+		// mouth.notify("started", ear.getName(), "stopRecording", null);
+		// mouth.notify("stopped", ear.getName(), "startRecording", null);
 
-		ear.notify("recognized", this.name, "speechToAction", String.class);
+		ear.notify("recognized", this.getName(), "speechToAction", String.class);
 
 	}
 
@@ -197,10 +197,10 @@ public class Rose extends Service {
 
 			Thread.sleep(2000);
 
-			tilt.attach(arduino.name, 6); // TODO - should have failed/thrown
+			tilt.attach(arduino.getName(), 6); // TODO - should have failed/thrown
 											// !!! make bug Servo does not have
 											// a analogWrite fn! out
-			pan.attach(arduino.name, 5); // TODO - allow gui to attach
+			pan.attach(arduino.getName(), 5); // TODO - allow gui to attach
 
 			center();
 			mouth.play("state/ready");
@@ -216,7 +216,7 @@ public class Rose extends Service {
 
 	public void report() {
 		// stop looking for objects
-		camera.removeNotify("publish", this.name, "setPolygons", ArrayList.class);
+		camera.removeNotify("publish", this.getName(), "setPolygons", ArrayList.class);
 
 		try {
 
@@ -242,7 +242,7 @@ public class Rose extends Service {
 		}
 
 		// event set the polygons i see when there are new polygons
-		camera.notify("publish", this.name, "setPolygons", ArrayList.class);
+		camera.notify("publish", this.getName(), "setPolygons", ArrayList.class);
 
 	}
 

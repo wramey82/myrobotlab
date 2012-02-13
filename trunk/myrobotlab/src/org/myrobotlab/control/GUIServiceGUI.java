@@ -523,10 +523,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 						NotifyEntry ne = nl.get(i);
 
 
-						//createArrow(se.name, ne.name, methodString);
+						//createArrow(se.getName(), ne.getName(), methodString);
 						//graph.getChildVertices(arg0)parent.
 						//graph.getChildVertices(graph.getDefaultParent());
-						graph.insertEdge(parent, null, formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(s.name), serviceCells.get(ne.name));
+						graph.insertEdge(parent, null, formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(s.getName()), serviceCells.get(ne.name));
 
 					}
 				}

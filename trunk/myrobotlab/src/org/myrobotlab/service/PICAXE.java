@@ -67,7 +67,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 		
 		PICAXEThread()
 		{
-			thread = new Thread(this,name + "_ticking_thread");
+			thread = new Thread(this,getName() + "_ticking_thread");
 			thread.start();
 		}
 				
@@ -124,7 +124,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	{
 		if (myPICAXE != null) 
 		{
-			LOG.info("stopping " + name + " myPICAXE");
+			LOG.info("stopping " + getName() + " myPICAXE");
 			myPICAXE.isRunning = false;
 			myPICAXE.thread.interrupt();
 			myPICAXE.thread = null;

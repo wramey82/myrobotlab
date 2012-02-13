@@ -161,7 +161,7 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		display.add(blockSize.value, gc);
 		
 		// set the hook
-		NotifyEntry ne = new NotifyEntry("publishFilterData", myService.name, "setFilterData", new Class[]{FilterWrapper.class});
+		NotifyEntry ne = new NotifyEntry("publishFilterData", myService.getName(), "setFilterData", new Class[]{FilterWrapper.class});
 		myService.send(boundServiceName, "notify", ne);
 		// thread wait?
 		// send the event

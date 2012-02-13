@@ -108,7 +108,7 @@ public class Motor extends Service {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;
 		this.DIRPin = DIRPin;
-		send(controllerName, "motorAttach", this.name, PWRPin, DIRPin);
+		send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class Motor extends Service {
 	 */
 	public void attach(String controllerName, Properties config) {
 		this.controllerName = controllerName;
-		send(controllerName, "motorAttach", this.name, config);
+		send(controllerName, "motorAttach", this.getName(), config);
 	}
 	
 	// motor primitives begin ------------------------------------
@@ -156,7 +156,7 @@ public class Motor extends Service {
 		}
 
 		//LOG.error("direction " + ((newPowerLevel > 0) ? "FORWARD" : "BACKWARD"));
-		LOG.error(name + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
+		LOG.error(getName() + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
 		// FIXME - MotorController needs a "scalePWM" which takes a float - the controller
 		// then maps it to what would be appropriate - in Arduino 0-255 - remove "powerMultiplier"
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (newPowerLevel * powerMultiplier)));
@@ -210,7 +210,7 @@ public class Motor extends Service {
 		
 		EncoderTimer(float power, int duration, Motor instance)
 		{
-			super (name + "_duration");
+			super (instance.getName() + "_duration");
 			this.power = power;
 			this.duration = duration;
 			this.instance = instance;
@@ -313,7 +313,7 @@ public void attachEncoder(String encoderName, int pin) // TODO Encoder Interface
 
 	NotifyEntry notifyEntry = new NotifyEntry();
 
-	notifyEntry.name = name;
+	notifyEntry.getName() = name;
 	notifyEntry.outMethod = "publishPin";
 	notifyEntry.inMethod = "incrementPosition";
 	notifyEntry.paramType = PinData.class.getCanonicalName();

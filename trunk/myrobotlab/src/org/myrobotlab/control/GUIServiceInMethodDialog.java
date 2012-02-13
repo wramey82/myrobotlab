@@ -70,7 +70,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 
 	    
 		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(RuntimeEnvironment.getMethodMap(v.name));
-		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
+		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
 		//HashMap<String, MethodEntry> m = myService.getHostCFG().getMethodMap(serviceName);
 		
 		JComboBox combo = new JComboBox();
@@ -135,7 +135,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
         if (method != null && method.length() > 0)
         {
 	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
-			//ne.name = myService.getDstServiceName();
+			//ne.getName() = myService.getDstServiceName();
 			//ne.outMethod = myService.getSrcMethodName().split(" ")[0];
 			//ne.inMethod = myService.getDstMethodName().split(" ")[0];
 			NotifyEntry ne = new NotifyEntry(myService.getSrcMethodName().split(" ")[0],

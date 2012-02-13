@@ -108,13 +108,13 @@ public class FSMTest extends Service {
 		gui = new GUIService("gui");
 		gui.startService();
 		
-		speech.notify("isSpeaking", name, "isSpeaking");
+		speech.notify("isSpeaking", getName(), "isSpeaking");
 		
-		speechRecognition.notify("recognized", name, "heard", String.class);
+		speechRecognition.notify("recognized", getName(), "heard", String.class);
 		
-		opencv.notify("publish", name, "publish", KinectImageNode.class); //<--- BUG - polygon, name (only should work)
-		opencv.notify("publishIplImageTemplate", name, "getImageTemplate", IplImage.class);
-		opencv.notify("publishIplImage", name, "publishIplImage", IplImage.class);
+		opencv.notify("publish", getName(), "publish", KinectImageNode.class); //<--- BUG - polygon, getName() (only should work)
+		opencv.notify("publishIplImageTemplate", getName(), "getImageTemplate", IplImage.class);
+		opencv.notify("publishIplImage", getName(), "publishIplImage", IplImage.class);
 		
 		// filter setup
 		opencv.getDepth = true;

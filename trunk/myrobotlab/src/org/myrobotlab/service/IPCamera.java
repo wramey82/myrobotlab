@@ -185,7 +185,7 @@ public class IPCamera extends Service {
 			capturing = false;
 			videoProcess = null;
 		}
-		videoProcess = new Thread(new VideoProcess(), name + "_videoProcess");
+		videoProcess = new Thread(new VideoProcess(), getName() + "_videoProcess");
 		videoProcess.start();
 	}
 	

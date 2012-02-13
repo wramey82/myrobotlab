@@ -47,10 +47,10 @@ public class ChumbyBot extends Service {
 		arduino.setPort("/dev/ttyUSB0");
 		
 		// arduino to sensor monitor
-		arduino.notify(SensorData.publishPin, sensors.name, "sensorInput", PinData.class);
+		arduino.notify(SensorData.publishPin, sensors.getName(), "sensorInput", PinData.class);
 		
 		// sensor monitor to chumbybot
-		sensors.notify("publishPinAlert", this.name, "publishPinAlert", PinAlert.class);
+		sensors.notify("publishPinAlert", this.getName(), "publishPinAlert", PinAlert.class);
 		
 		arduino.analogReadPollingStart(0);
 
@@ -92,13 +92,13 @@ public class ChumbyBot extends Service {
 			Thread.sleep(300);
 			// wait for servo to stop
 			// check IR - 
-			int leftRange = sensors.getLastValue(arduino.name, 0);
+			int leftRange = sensors.getLastValue(arduino.getName(), 0);
 			
 			// check right
 			servo.moveTo(160);
 			Thread.sleep(300);
 			
-			int rightRange = sensors.getLastValue(arduino.name, 0);
+			int rightRange = sensors.getLastValue(arduino.getName(), 0);
 
 			// if both values are under - must backup or rotate base right
 			
@@ -117,7 +117,7 @@ public class ChumbyBot extends Service {
 			servo.moveTo(90);
 			speech.speak("checking forward range");
 			Thread.sleep(300);				
-			int forward = sensors.getLastValue(arduino.name, 0);
+			int forward = sensors.getLastValue(arduino.getName(), 0);
 			if (forward < 100)
 			{
 				speech.speak("forward");

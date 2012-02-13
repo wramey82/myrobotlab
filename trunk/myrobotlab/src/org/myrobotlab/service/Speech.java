@@ -226,9 +226,9 @@ public class Speech extends Service {
 			LOG.error("no longer supported as per the deathstar's liscense agreement");
 		} else if (backendType == BackendType.FREETTS) { // festival tts
 			// speakFreeTTS(toSpeak);
-			in(createMessage(name, "speakFreeTTS", toSpeak));
+			in(createMessage(getName(), "speakFreeTTS", toSpeak));
 		} else if (backendType == BackendType.GOOGLE) { // festival tts
-			in(createMessage(name, "speakGoogle", toSpeak));
+			in(createMessage(getName(), "speakGoogle", toSpeak));
 		} else {
 			LOG.error("back-end speech backendType " + backendType + " not supported ");
 		}
@@ -342,7 +342,7 @@ public class Speech extends Service {
 	
 	public void setLanguage(String l)
 	{
-		in(createMessage(name, "queueSetLanguage", l));
+		in(createMessage(getName(), "queueSetLanguage", l));
 	}
 	
 	public void queueSetLanguage(String l)

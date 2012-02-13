@@ -120,12 +120,12 @@ public class SpeechRecognition extends Service {
 		//String grammarLocation = "file://" + cfgDir.replaceAll("\\\\", "/") + "/";
 		//simplexml = simplexml.replaceAll("resource:/resource/", cfgDir.replaceAll("\\\\", "/"));
 		simplexml = simplexml.replaceAll("resource:/resource/", ".\\\\.myrobotlab");
-		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\""+this.name+"\"");
+		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\""+this.getName()+"\"");
 		save("xml", simplexml);
 		
 		
 		String gramdef = "#JSGF V1.0;\n"
-				+ "grammar "+name+";\n"
+				+ "grammar "+getName()+";\n"
 				+ "public <greet> = (" + grammar + ");";
 		save("gram", gramdef);
 		
@@ -191,7 +191,7 @@ public class SpeechRecognition extends Service {
 		public boolean isRunning = false;
 
 		public SpeechProcessor(SpeechRecognition myService) {
-			super (myService.name + "_ear");
+			super (myService.getName() + "_ear");
 			this.myService = myService;
 		}
 
@@ -199,7 +199,7 @@ public class SpeechRecognition extends Service {
 
 			isRunning = true;
 			
-			String newPath = cfgDir + File.separator + myService.name + ".xml";
+			String newPath = cfgDir + File.separator + myService.getName() + ".xml";
 			File localGramFile  = new File(newPath);
 
 			if (localGramFile.exists())

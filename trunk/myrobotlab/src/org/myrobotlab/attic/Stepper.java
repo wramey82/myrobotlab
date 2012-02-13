@@ -80,7 +80,7 @@ public class Stepper extends Service {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;
 		this.DIRPin = DIRPin;
-		send(controllerName, "motorAttach", this.name, PWRPin, DIRPin);
+		send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
 	}
 	
 	public void invertDirection() {
@@ -112,7 +112,7 @@ public class Stepper extends Service {
 		}
 
 		//LOG.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
-		LOG.error(name + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
+		LOG.error(getName() + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (power * powerMultiplier)));
 
 		this.power = power;
@@ -167,7 +167,7 @@ public void attachEncoder(String encoderName, int pin) // TODO Encoder Interface
 
 	NotifyEntry notifyEntry = new NotifyEntry();
 
-	notifyEntry.name = name;
+	notifyEntry.getName() = name;
 	notifyEntry.outMethod = "publishPin";
 	notifyEntry.inMethod = "incrementPosition";
 	notifyEntry.paramType = PinData.class.getCanonicalName();

@@ -93,7 +93,7 @@ public class Servo extends Service implements
 		
 		if (isAttached)
 		{
-			LOG.warn("servo " + name +  " is already attached - detach before re-attaching");
+			LOG.warn("servo " + getName() +  " is already attached - detach before re-attaching");
 			return false;
 		}
 
@@ -164,7 +164,7 @@ public class Servo extends Service implements
 	 * @return
 	 */
 	public Integer moveTo(Integer pos) {
-		LOG.info(name + " moveTo " + pos);
+		LOG.info(getName() + " moveTo " + pos);
 		send(controllerName, ServoController.servoWrite, pin, pos); 
 		this.pos = pos; 
 		// invoke("servoWrite", pos); TODO - consider

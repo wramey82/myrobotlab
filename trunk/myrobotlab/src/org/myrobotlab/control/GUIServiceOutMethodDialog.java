@@ -88,7 +88,7 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		}
 
-		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.name));
+		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
 		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(RuntimeEnvironment.getMethodMap(v.name));
 		
 		JComboBox combo = new JComboBox();

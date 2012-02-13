@@ -115,7 +115,7 @@ public class Message implements Serializable {
 		ID = other.ID;
 		msgID = other.msgID;
 		timeStamp = other.timeStamp;
-		name = other.name;
+		name = other.getName();
 		sender = other.sender;
 		sendingMethod = other.sendingMethod;
 		historyList = other.historyList;

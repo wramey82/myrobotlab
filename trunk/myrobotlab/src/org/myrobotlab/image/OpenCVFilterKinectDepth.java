@@ -152,7 +152,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 				mask = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);	
 			}
 			cvCopy(dst, mask, null);
-			myService.setMask(this.name, mask);
+			myService.setMask(this.getName(), mask);
 			createMask = false;
 		}
 		//cvCvtColor
