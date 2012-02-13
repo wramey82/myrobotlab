@@ -231,10 +231,10 @@ public class MyRobotLabActivity extends ListActivity {
 
 										try {
 											Bundle bundle = new Bundle();
-											bundle.putString(SERVICE_NAME,s.name);
+											bundle.putString(SERVICE_NAME,s.getName());
 											intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));
 											intent.putExtras(bundle);
-											intents.put(s.name, intent);
+											intents.put(s.getName(), intent);
 										} catch (ClassNotFoundException e) {
 											Log.e(TAG, Service.stackToString(e));
 										}
