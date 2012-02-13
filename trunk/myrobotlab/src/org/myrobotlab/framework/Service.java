@@ -1382,7 +1382,17 @@ public abstract class Service implements Runnable, Serializable {
 
 	}
 	
-	// called by GUI only (typically) from an gui event of connect?
+	/**
+	 * registerServices is the method initially called to contact a remote 
+	 * process.  Often is will be a GUI sending this request over the wire
+	 * to be received in another process by a RemoteAdapter. 
+	 * if the registration of foreign Services is successful, the request is
+	 * echoed back to the sender, such that all Services ready for export are
+	 * shared.
+	 * @param hostAddress 
+	 * @param port
+	 * @param msg
+	 */
 	public  void registerServices(String hostAddress, int port, Message msg) 
 	{
 		try {
@@ -1406,7 +1416,7 @@ public abstract class Service implements Runnable, Serializable {
 			{
 				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
 				echoLocal.remoteURL = sdu.url;
-				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServices();
+				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServicesForExport();
 				// send echo of local services back to sender
 				send (msg.sender, "registerServices", echoLocal); 
 			}
