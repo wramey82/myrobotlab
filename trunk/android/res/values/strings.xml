@@ -14,6 +14,7 @@
         <!-- item>Jython</item -->
         <item>Logging</item>
         <item>Motor</item>
+        <item>Proxy</item>
         <item>RemoteAdapter</item>
         <item>SensorMonitor</item>
         <item>Servo</item> 

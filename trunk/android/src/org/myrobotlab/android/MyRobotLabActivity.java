@@ -8,6 +8,7 @@ import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Android;
+import org.myrobotlab.service.Proxy;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 // references - 
@@ -61,6 +63,7 @@ public class MyRobotLabActivity extends ListActivity {
 	Context myContext;
 
 	public static Android androidService; // (singleton)
+	public Proxy proxyService; // FIXME temporary
 
 	// android "tab" view
 	ArrayList<String> services = new ArrayList<String>();
@@ -84,15 +87,41 @@ public class MyRobotLabActivity extends ListActivity {
 					(ipAddress >> 16 & 0xff),
 					(ipAddress >> 24 & 0xff));
 			
+
+			/*
 			androidService = new Android(name);
-			androidService.setContext(getApplicationContext()); // FIXME - cheesey
 			androidService.startService();
 			intents.put(name, getIntent()); // TODO - normalize calls into one call
+			// TODO - FIXME - figure how to consolidate and what it means !!!
 			services.add(name);
+			*/
+			
+			createAndStartService(name, Android.class.getCanonicalName());
+			androidService = (Android)RuntimeEnvironment.getService(name).service;
+			androidService.setContext(getApplicationContext()); // FIXME - cheesey
+			androidService.startSensors();
+
+			/*
+			proxyService = new Proxy(name + "Proxy");
+			proxyService.setTargetService(androidService);
+			proxyService.startService();
+			*/
+			createAndStartService(name + "Proxy", Proxy.class.getCanonicalName());
+			proxyService = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
+			proxyService.setTargetService(androidService);
+			
 		}
 		
 		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header, null);
 
+		// manual service header
+		TextView text = (TextView) header.findViewById(R.id.name);
+		text.setText(androidService.getName());
+		
+		text = (TextView) header.findViewById(R.id.type);
+		text.setText(androidService.getShortTypeName());
+
+		
 		// remote logging
 		remoteLogging = (Button) header.findViewById(R.id.remoteLogging);
 		remoteLogging.setOnClickListener(new OnClickListener() {
@@ -111,7 +140,7 @@ public class MyRobotLabActivity extends ListActivity {
 		availableServices.setAdapter(adapter);
 
 		// refresh button
-		refresh = (Button) header.findViewById(R.id.addService);
+		refresh = (Button) header.findViewById(R.id.refresh);
 		refresh.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -139,26 +168,6 @@ public class MyRobotLabActivity extends ListActivity {
 		setListAdapter(new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_single_choice,
 				android.R.id.text1, services));
-
-		// not so simple
-		/*
-		 * SimpleAdapter sa = new SimpleAdapter( this, getData("here"),
-		 * android.R.layout.simple_list_item_1, new String[] { "title" }, new
-		 * int[] { android.R.id.text1 });
-		 * 
-		 * /*******TODO********
-		 * 
-		 * Intent intent = getIntent(); String path =
-		 * intent.getStringExtra("com.example.android.apis.Path");
-		 * 
-		 * if (path == null) { path = ""; }
-		 * 
-		 * setListAdapter(new SimpleAdapter(this, getData(path),
-		 * android.R.layout.simple_list_item_1, new String[] { "title" }, new
-		 * int[] { android.R.id.text1 }));
-		 * getListView().setTextFilterEnabled(true);
-		 */
-
 	}
 
 	// callback from RuntimeEnvironment read:
@@ -171,8 +180,7 @@ public class MyRobotLabActivity extends ListActivity {
 		// HashMap<URL, ServiceEnvironment> registry =
 		// RuntimeEnvironment.getServiceEnvironments();
 
-		HashMap<String, ServiceWrapper> registry = RuntimeEnvironment
-				.getRegistry();
+		HashMap<String, ServiceWrapper> registry = RuntimeEnvironment.getRegistry();
 
 		Iterator<String> it = registry.keySet().iterator();
 		while (it.hasNext()) {
@@ -188,6 +196,47 @@ public class MyRobotLabActivity extends ListActivity {
 
 	}
 
+	public boolean createAndStartService(String name, String type)
+	{
+		Service s = (Service) Service.getNewInstance(type, name);
+		if (s == null) {
+			Toast.makeText(getApplicationContext(),
+					" could not create " + name + " of type " + type, Toast.LENGTH_LONG).show();
+		} else {
+			s.startService();
+
+			Intent intent = null;
+
+			String serviceClassName = s.getClass().getCanonicalName();
+			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
+			guiClass = "org.myrobotlab.android" + guiClass + "Activity";
+
+			if (D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
+
+			try {
+				Bundle bundle = new Bundle();
+				bundle.putString(SERVICE_NAME,s.getName());
+				intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));
+				intent.putExtras(bundle);
+				intents.put(s.getName(), intent);
+			} catch (ClassNotFoundException e) {
+				Log.e(TAG, Service.stackToString(e));
+				return false;
+			}
+
+			// Map map = (Map)
+			// l.getItemAtPosition(position);
+
+			services.add(RuntimeEnvironment.getService(name).name); // adding
+													// ServiceWrapper
+
+		}
+
+		if (D) Log.e(TAG, "++ started new service ++ ");
+		/* User clicked OK so do some stuff */		
+		return true;
+	}
+	
 	// http://developer.android.com/guide/topics/ui/dialogs.html
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog;
@@ -214,41 +263,8 @@ public class MyRobotLabActivity extends ListActivity {
 									
 									String typeName = "org.myrobotlab.service." + availableServices.getSelectedItem().toString();
 									String serviceName = text.getText().toString();
-									Service s = (Service) Service.getNewInstance(typeName, serviceName);
-									if (s == null) {
-										Toast.makeText(getApplicationContext(),
-												" could not create " + serviceName + " of type " + typeName, Toast.LENGTH_LONG).show();
-									} else {
-										s.startService();
-
-										Intent intent = null;
-
-										String serviceClassName = s.getClass().getCanonicalName();
-										String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-										guiClass = "org.myrobotlab.android" + guiClass + "Activity";
-
-										if (D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
-
-										try {
-											Bundle bundle = new Bundle();
-											bundle.putString(SERVICE_NAME,s.getName());
-											intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));
-											intent.putExtras(bundle);
-											intents.put(s.getName(), intent);
-										} catch (ClassNotFoundException e) {
-											Log.e(TAG, Service.stackToString(e));
-										}
-
-										// Map map = (Map)
-										// l.getItemAtPosition(position);
-
-										services.add(RuntimeEnvironment.getService(serviceName).name); // adding
-																				// ServiceWrapper
-
-									}
-
-									if (D) Log.e(TAG, "++ started new service ++ ");
-									/* User clicked OK so do some stuff */
+									//---------------------------------------------------------------
+									createAndStartService(serviceName, typeName);
 								}
 							})
 					.setNegativeButton(R.string.cancel,

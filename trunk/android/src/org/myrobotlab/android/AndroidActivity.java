@@ -17,7 +17,7 @@
 //package org.myrobotlab.android;
 package org.myrobotlab.android; 
 
-import org.myrobotlab.service.Proxy;
+import org.myrobotlab.service.Android;
 
 import android.os.Bundle;
 
@@ -25,16 +25,16 @@ import android.os.Bundle;
 // http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
 
 //  extends ServiceActivity
-public class ProxyActivity extends ServiceActivity {
+public class AndroidActivity extends ServiceActivity {
 
-	Proxy myService = null;
+	Android myService = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.remote_adapter_activity);
         
-        myService = (Proxy)sw.service;   
-        // setText(R.id.udpdata, myService.servicePort);
+        myService = (Android)sw.service;   
+        //setText(R.id.udpdata, myService.servicePort);
         //setContentView(layout);        
 
     }

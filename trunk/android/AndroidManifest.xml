@@ -27,6 +27,8 @@
         <activity android:name="LoggingActivity"></activity>
         <activity android:name="ServoActivity"></activity>
         <activity android:name="ArduinoBTActivity"></activity>
-    </application>
+        <activity android:name="ProxyActivity"></activity>
+        <activity android:name="AndroidActivity"></activity>
+        </application>
 
 </manifest>
