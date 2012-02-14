@@ -36,6 +36,10 @@ public class Android extends Service implements SensorEventListener {
 	public void startService()
 	{
 		super.startService();
+	}
+	
+	public void startSensors()
+	{
 		sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		sensorManager.registerListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),

@@ -77,7 +77,7 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static String getOS()
 	{
-		String os = System.getProperty("os.name()").toLowerCase();
+		String os = System.getProperty("os.name").toLowerCase();
 		if ((os.indexOf( LINUX ) >= 0))
 		{
 			return LINUX;
@@ -93,7 +93,7 @@ public class RuntimeEnvironment implements Serializable{
 	
 	public static String getVMName()
 	{
-		String vmname = System.getProperty("java.vm.getName()").toLowerCase();
+		String vmname = System.getProperty("java.vm.name").toLowerCase();
 		
 		if (vmname.equals("davlik"))
 		{

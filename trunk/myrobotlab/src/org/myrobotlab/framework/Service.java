@@ -191,13 +191,13 @@ public abstract class Service implements Runnable, Serializable {
 
 			// http://developer.android.com/reference/java/lang/System.html
 			LOG.info("---------------normalize-------------------");
-			LOG.info("os.name() [" + System.getProperty("os.name()") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
+			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
 			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + RuntimeEnvironment.getArch() + "]");
 			LOG.info("getBitness [" + RuntimeEnvironment.getBitness() + "]");
-			LOG.info("java.vm.getName() [" + System.getProperty("java.vm.getName()") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
+			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
 						
 			LOG.info("---------------non-normalize---------------");						
-			LOG.info("java.vm.getName() [" + System.getProperty("java.vm.getName()") + "]");
+			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
 			LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
 			LOG.info("java.home [" + System.getProperty("java.home") + "]");
 			LOG.info("os.version [" + System.getProperty("os.version") + "]");
@@ -653,22 +653,9 @@ public abstract class Service implements Runnable, Serializable {
 			Constructor<?> mc = c.getConstructor(new Class[] { param.getClass() });
 			return mc.newInstance(params); // Dynamically instantiate it
 
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			logException(e);
-		} catch (SecurityException e) {
-			logException(e);
-		} catch (NoSuchMethodException e) {
-			logException(e);
-		} catch (RuntimeException e) {
-			logException(e);
-		} catch (InstantiationException e) {
-			logException(e);
-		} catch (IllegalAccessException e) {
-			logException(e);
-		} catch (InvocationTargetException e) {
-			logException(e);
-		}
-
+		} 
 		return null;
 	}
 
