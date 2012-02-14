@@ -71,7 +71,7 @@ public class Compiler implements MessageConsumer {
 
 	static public boolean isWindows() {
 		// return PApplet.platform == PConstants.WINDOWS;
-		return System.getProperty("os.name()").indexOf("Windows") != -1;
+		return System.getProperty("os.name").indexOf("Windows") != -1;
 	}
 
 	static public Map<String, String> getBoardPreferences() {
@@ -92,7 +92,7 @@ public class Compiler implements MessageConsumer {
 	 */
 	static public boolean isLinux() {
 		// return PApplet.platform == PConstants.LINUX;
-		return System.getProperty("os.name()").indexOf("Linux") != -1;
+		return System.getProperty("os.name").indexOf("Linux") != -1;
 	}
 
 	static public String getHardwarePath() {
@@ -112,7 +112,7 @@ public class Compiler implements MessageConsumer {
 	 */
 	static public boolean isMacOS() {
 		// return PApplet.platform == PConstants.MACOSX;
-		return System.getProperty("os.name()").indexOf("Mac") != -1;
+		return System.getProperty("os.name").indexOf("Mac") != -1;
 	}
 
 	static public File getContentFile(String name) {
