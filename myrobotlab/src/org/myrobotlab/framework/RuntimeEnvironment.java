@@ -195,6 +195,7 @@ public class RuntimeEnvironment implements Serializable{
 			LOG.info("replacing ServiceEnvironment " + url);			
 		}
 		
+		s.accessURL = url; // NEW - update 
 		hosts.put(url, s);
 		
 		s.serviceDirectory.keySet().iterator();
@@ -203,6 +204,7 @@ public class RuntimeEnvironment implements Serializable{
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			LOG.info("adding " + serviceName + " to registry");
+			//s.serviceDirectory.get(serviceName).host = s;
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
 		}
 

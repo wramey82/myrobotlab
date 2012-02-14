@@ -1379,6 +1379,12 @@ public abstract class Service implements Runnable, Serializable {
 	 * if the registration of foreign Services is successful, the request is
 	 * echoed back to the sender, such that all Services ready for export are
 	 * shared.
+	 * 
+	 * it is also invoked by RemoteAdapters as they recieve the initial request
+	 * the remote URL is filled in from the other end of the socket info
+	 * Since the foreign Services do not necessarily know how they are identified
+	 * the ServiceEnvironment & Service accessURL are filled in here
+	 * 
 	 * @param hostAddress 
 	 * @param port
 	 * @param msg
@@ -1398,10 +1404,10 @@ public abstract class Service implements Runnable, Serializable {
 			
 			sdu.url = url;
 			
-			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
-			
+			sdu.serviceEnvironment.accessURL = sdu.remoteURL;			
 			LOG.info(name + " recieved service directory update from " + sdu.remoteURL);
 	
+			// if successfully registered with "new" Services - echo a registration back
 			if (RuntimeEnvironment.register(sdu.remoteURL, sdu.serviceEnvironment))
 			{
 				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
