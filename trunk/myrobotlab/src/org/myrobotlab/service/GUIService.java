@@ -233,6 +233,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	/* (non-Javadoc)
 	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels()
 	 * This is a bit "big hammer" in that it destroys all panels and rebuilds the GUI
+	 * don't use except to initially build
 	 */
 	public JTabbedPane loadTabPanels() {
 		LOG.debug("loadTabPanels");
@@ -268,31 +269,39 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Iterator<String> it = sortedMap.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper se = services.get(serviceName);
+			ServiceWrapper sw = services.get(serviceName);
 
+			// SW sent in registerServices - yet Service is null due to incompatible Service Types
+			// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
+			if (sw.get() == null)
+			{
+				LOG.error(sw.get().getName() + " does not have a valid Service - not exported ???");
+				continue;
+			}
+			
 			// get service type class name TODO
-			String serviceClassName = se.get().getClass().getCanonicalName();
+			String serviceClassName = sw.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-			if (se.get().getName().equals(getName())) {
+			if (sw.get().getName().equals(getName())) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
 				LOG.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
 				createGUIServiceGUI = true;
 				continue;
 			}
 
-			if (serviceGUIMap.containsKey(se.name))
+			if (serviceGUIMap.containsKey(sw.name))
 			{
-				LOG.debug("not creating " + se.name + " gui - it already exists");
+				LOG.debug("not creating " + sw.name + " gui - it already exists");
 				continue;
 			}
 			
-			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, se);
+			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
 			if (newGUI != null)
 			{
 				++index;
-				if (se.getAccessURL() != null) {
+				if (sw.getAccessURL() != null) {
 					tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
 					tabs.setForegroundAt(index, Color.decode(remoteFont));
 				}
@@ -308,6 +317,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			// going out to remote systems.
 			ServiceWrapper se = services.get(this.getName());
 			String serviceClassName = se.get().getClass().getCanonicalName();
+
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 			
@@ -348,6 +358,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		JPanel tpanel = new JPanel();
 		Service se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
+
 		if (gui != null) {
 			gui.init();
 			serviceGUIMap.put(serviceName, gui);
@@ -407,8 +418,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		/*
 		 * FIXME
-		ServiceWrapper se = RuntimeEnvironment.getService(serviceName);
-		if (se.getAccessURL() != null) {
+		ServiceWrapper sw = RuntimeEnvironment.getService(serviceName);
+		if (sw.getAccessURL() != null) {
 			tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
 		}
 		*/
@@ -643,10 +654,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Iterator<String> it = services.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper se = services.get(serviceName);
+			ServiceWrapper sw = services.get(serviceName);
 
 			//Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
-			Service service = se.get();
+			Service service = sw.get();
 
 			if (serviceName.compareTo(this.getName()) == 0) {
 				LOG.info("momentarily skipping " + this.getName() + "....");
