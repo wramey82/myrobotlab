@@ -67,14 +67,13 @@ public class MyRobotLabActivity extends ListActivity {
 
 	Context myContext;
 
-	public static Android androidService; // (singleton)
+	public static Android androidService; // (make singleton)
 	public Proxy proxyService; // FIXME temporary
 
-	// android "tab" view
+	// android "tab" view TODO change to backing HashMap
 	ArrayList<String> services = new ArrayList<String>();
 
-	
-	
+		
 	public class ServiceListAdapter extends ArrayAdapter<String> {
 	    //private int[] colors = new int[] { 0x30FF0000, 0x300000FF };
 	    public ServiceListAdapter(Context context, int resource, int resourceID, List<String> items) {
@@ -132,9 +131,7 @@ public class MyRobotLabActivity extends ListActivity {
 			androidService.startSensors();
 
 			/*
-			proxyService = new Proxy(name + "Proxy");
-			proxyService.setTargetService(androidService);
-			proxyService.startService();
+			TODO - temporary - only necessary for different JVMs sharing resources
 			*/
 			createAndStartService(name + "Proxy", Proxy.class.getCanonicalName());
 			proxyService = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
