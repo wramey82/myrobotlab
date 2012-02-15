@@ -1,7 +1,11 @@
 package org.myrobotlab.service;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.android.ServiceActivity;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 
 import android.content.Context;
@@ -16,6 +20,11 @@ public class Android extends Service implements SensorEventListener {
 	private boolean color = false; 
 	//private View view;
 	private long lastUpdate;
+
+	// TODO - what things to put in MRL singleton ???
+	transient HashMap<String, ServiceActivity> serviceActivityMap = null;
+	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
+
 
 	private Context context;
 	public final static Logger LOG = Logger.getLogger(Android.class.getCanonicalName());
@@ -127,4 +136,28 @@ public class Android extends Service implements SensorEventListener {
 		// unregister listener
 		sensorManager.unregisterListener(this);
 	}
+	
+	public HashMap<String, ServiceActivity> getServiceGUIMap() {
+		return serviceActivityMap;
+	}
+
+
+	public boolean preProcessHook(Message m)
+	{
+		if (commandMap.containsKey(m.method))
+		{
+			return true;
+		} 
+		
+		ServiceActivity sg = serviceActivityMap.get(m.sender);
+		if (sg == null) {
+			LOG.error("attempting to update sub-gui - sender "
+					+ m.sender + " not available in map " + getName());
+		} else {
+			invoke(serviceActivityMap.get(m.sender), m.method, m.data);
+		}
+		
+		return false;
+	}
+	
 }

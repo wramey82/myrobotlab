@@ -44,7 +44,6 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
 
-	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
 	public final String boundServiceName;
