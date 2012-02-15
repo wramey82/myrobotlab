@@ -3,8 +3,8 @@
     xmlns:okCancelBar="http://schemas.android.com/apk/res/com.example.android.merge">
     
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:id="@+id/service_header"
     >
     
@@ -16,7 +16,7 @@
         android:src="@drawable/android"
         android:background="#00000000"
         />
-       <TextView
+   <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,6 +33,9 @@
         android:contentDescription="@string/help"
         android:src="@drawable/help"
         android:background="#00000000"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+        
         /><!--  android:background="@drawable/round_button"  -->
 </TableRow>
 <TableRow>
