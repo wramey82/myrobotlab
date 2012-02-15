@@ -31,7 +31,7 @@ public class AndroidActivity extends ServiceActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.remote_adapter_activity);
+        super.onCreate(savedInstanceState, R.layout.remoteadapter);
         
         myService = (Android)sw.service;   
         //setText(R.id.udpdata, myService.servicePort);

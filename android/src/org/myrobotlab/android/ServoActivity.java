@@ -17,7 +17,7 @@ public class ServoActivity extends ServiceActivity implements OnClickListener {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState, R.layout.servo_activity);
+		super.onCreate(savedInstanceState, R.layout.servo);
 		myService = (Servo) sw.service;
 
 		attach = (Button) findViewById(R.id.attach);

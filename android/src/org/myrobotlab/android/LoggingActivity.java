@@ -34,7 +34,7 @@ public class LoggingActivity extends ServiceActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.logging_activity);
+        super.onCreate(savedInstanceState, R.layout.logging);
         
         myService = (Logging)sw.service;   
 //        setText(R.id.udpdata, myService.);

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+<TableRow>      
+<!-- === Service header begin ===============-->
+<include layout="@layout/service_header"/>    
+<!-- === Service header end =================-->
+</TableRow>        
+<TableRow>    
+   <TextView 
+        android:id="@+id/textView1"
+        android:layout_span="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/listeningPorts" />
+</TableRow>
+<TableRow>    
+   <TextView 
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/udp" />
+   <TextView
+        android:id="@+id/udpdata"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+</TableRow>
+ 
+</TableLayout>
