@@ -22,6 +22,8 @@
 
     <string name="listeningPorts">listening ports</string>
     <string name="startService">start service</string>
+    <string name="remove">remove</string>
+    <string name="help">help</string>
     <string name="pin">pin</string>
     <string name="udp">udp</string>
     <string name="attach">attach</string>

@@ -3,6 +3,7 @@ package org.myrobotlab.android;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
@@ -16,6 +17,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -23,9 +25,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,6 +61,9 @@ public class MyRobotLabActivity extends ListActivity {
 	Button addService;
 	Button remoteLogging;
 	Spinner availableServices;
+	ServiceListAdapter runningServices;
+	
+	ImageButton help;
 
 	final static public String SERVICE_NAME = "name";
 
@@ -68,6 +75,31 @@ public class MyRobotLabActivity extends ListActivity {
 	// android "tab" view
 	ArrayList<String> services = new ArrayList<String>();
 
+	
+	
+	public class ServiceListAdapter extends ArrayAdapter<String> {
+	    //private int[] colors = new int[] { 0x30FF0000, 0x300000FF };
+	    public ServiceListAdapter(Context context, int resource, int resourceID, List<String> items) {
+	    	super(context, resource, resourceID, items);
+	    }
+
+	 @Override
+	 public View getView(int position, View convertView, ViewGroup parent) {
+	   View view = super.getView(position, convertView, parent);
+	   ServiceWrapper sw = RuntimeEnvironment.getService(getItem(position));
+	   if (sw.host.accessURL != null)
+	   {
+		   view.setBackgroundColor(0xFF007000);
+	   }
+	   
+	   //int colorPos = position % colors.length;
+	   //view.setBackgroundColor(colors[colorPos]);
+	   return view;
+	 }
+
+	}
+
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -148,6 +180,18 @@ public class MyRobotLabActivity extends ListActivity {
 			}
 
 		});
+		
+		// help
+		help = (ImageButton) header.findViewById(R.id.help);
+		help.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent i = new Intent(Intent.ACTION_VIEW, 
+					       Uri.parse("http://myrobotlab.org/content/Android"));
+					startActivity(i);
+			}
+
+		});
 
 		// add service button
 		addService = (Button) header.findViewById(R.id.addService);
@@ -165,9 +209,10 @@ public class MyRobotLabActivity extends ListActivity {
 
 		// http://developer.android.com/reference/android/R.layout.html
 		// http://stackoverflow.com/questions/4540754/add-dynamically-elements-to-a-listview-android
-		setListAdapter(new ArrayAdapter<String>(this,
+		runningServices = new ServiceListAdapter(this,
 				android.R.layout.simple_list_item_single_choice,
-				android.R.id.text1, services));
+				android.R.id.text1, services);
+		setListAdapter(runningServices);
 	}
 
 	// callback from RuntimeEnvironment read:
@@ -194,6 +239,7 @@ public class MyRobotLabActivity extends ListActivity {
 			}
 		}
 
+		runningServices.notifyDataSetChanged();
 	}
 
 	public boolean createAndStartService(String name, String type)
