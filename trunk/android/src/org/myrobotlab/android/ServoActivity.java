@@ -37,4 +37,16 @@ public class ServoActivity extends ServiceActivity implements OnClickListener {
 
 	}
 
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

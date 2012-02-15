@@ -41,4 +41,16 @@ public class RemoteAdapterActivity extends ServiceActivity {
 
     }
 
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

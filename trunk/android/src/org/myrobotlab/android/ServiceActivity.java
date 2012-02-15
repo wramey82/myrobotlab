@@ -17,7 +17,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ServiceActivity extends Activity {
+public abstract class ServiceActivity extends Activity {
 
 	// Debugging
     private static final String TAG = "ServiceActivity";
@@ -25,8 +25,9 @@ public class ServiceActivity extends Activity {
 
     // reference to application Service
     // TODO - make reference or replace with Runtime Service
-    final Android myAndroid = null; 
-	public String boundServiceName;
+    private Android myAndroid; 
+	private String boundServiceName;
+	private MRL mrl;
 
     
 	public Bundle bundle = null;
@@ -80,25 +81,29 @@ public class ServiceActivity extends Activity {
 
 	}
 
+	
     protected void onCreate(Bundle savedInstanceState, int layoutID) {
     	super.onCreate(savedInstanceState);
+    	
+    	mrl = MRL.getInstance();
+    	myAndroid = MRL.android;
     	
         // begin exchange of data from service to UI
         layout = getLayoutInflater().inflate(layoutID, null);        		
     	
         // get service reference
         bundle = this.getIntent().getExtras();
-        String name = bundle.getString(MyRobotLabActivity.SERVICE_NAME);
-        if (name == null || name.length() == 0)
+        boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
+        if (boundServiceName == null || boundServiceName.length() == 0)
         {
         	inform("name empty! need key in Bundle !");
         	return;
         }
         
-        sw = RuntimeEnvironment.getService(name);
+        sw = RuntimeEnvironment.getService(boundServiceName);
         if (sw == null)
         {
-        	inform("bad service reference - name " + name + " not valid !");
+        	inform("bad service reference - name " + boundServiceName + " not valid !");
         	return;
         }
                 
@@ -142,20 +147,18 @@ public class ServiceActivity extends Activity {
 	 * attachGUI is called to initialize any communication routes which need to be
 	 * setup between the service & the UI
 	 */
-	public void attachGUI() {};
+	abstract public void attachGUI();
 
 	/**
 	 * removes communication routes and releases resources when the UI is 
 	 * removed
 	 */
-	public void detachGUI() {};
+	abstract public void detachGUI();
 	
+	// TODO - event listener model
 	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
 		NotifyEntry ne = null;
-		//notifyEntry.getName() = myService.getName();
-		//notifyEntry.outMethod = outMethod;
-		//notifyEntry.inMethod = inMethod;
 		if (parameterType != null) {
 			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
 		} else {
@@ -166,6 +169,18 @@ public class ServiceActivity extends Activity {
 
 	}
 
-	
+	public void removeNotifyRequest(String outMethod, String inMethod,
+			Class<?> parameterType) {
+
+		NotifyEntry ne = null;
+		if (parameterType != null) {
+			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
+		} else {
+			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, null);
+		}
+		myAndroid.send(boundServiceName, "removeNotify", ne);
+
+	}
+
 	
 }
