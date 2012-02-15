@@ -31,6 +31,16 @@ public class Android extends Service implements SensorEventListener {
 
 	public Android(String n) {
 		super(n, Android.class.getCanonicalName());
+		
+		commandMap.put("registerServicesEvent", null);
+		commandMap.put("registerServices", null);
+		commandMap.put("loadTabPanels", null);
+		commandMap.put("registerServicesNotify", null);
+		commandMap.put("notify", null);
+		commandMap.put("removeNotify", null);
+		commandMap.put("guiUpdated", null);
+		commandMap.put("setRemoteConnectionStatus", null);
+
 	}
 	
 	@Override
