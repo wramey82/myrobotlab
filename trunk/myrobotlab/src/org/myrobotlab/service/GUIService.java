@@ -275,7 +275,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
 			if (sw.get() == null)
 			{
-				LOG.error(sw.get().getName() + " does not have a valid Service - not exported ???");
+				LOG.error(serviceName + " does not have a valid Service - not exported ???");
 				continue;
 			}
 			
