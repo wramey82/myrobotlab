@@ -119,7 +119,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public transient JPanel panel = null;
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
 	transient Welcome welcome = null;
-	transient HashMap<String, ServiceGUI> serviceGUIMap = null;
+	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
 	
 	Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
@@ -451,7 +451,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		tabs = new JTabbedPane();
 		panel = new JPanel();
-		serviceGUIMap = new HashMap<String, ServiceGUI>();		
 		gc = new GridBagConstraints();
 		frame = new JFrame();
 
