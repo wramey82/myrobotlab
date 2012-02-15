@@ -1,13 +1,26 @@
 package org.myrobotlab.android;
 
+import org.myrobotlab.service.Android;
+
 import android.app.Application;
 import android.preference.PreferenceManager;
 
-public class MyRobotLabApplication extends Application {
-    
-	private static MyRobotLabApplication instance;
+/**
+ * The global singleton shared between all Activities
+ *
+ */
+public class MRL extends Application {
 
-    public static MyRobotLabApplication getInstance() {
+	// shared instance of app data
+	private static MRL instance;
+	// shared instance of the Android Service
+	public static Android android;
+
+	// bundle constants
+	final static public String BOUND_SERVICE_NAME = "BOUND_SERVICE_NAME";
+	
+	
+    public static MRL getInstance() {
         return instance;
    }
 	
@@ -31,4 +44,5 @@ public class MyRobotLabApplication extends Application {
         // do all you initialization here
 
     }
+
 }

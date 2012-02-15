@@ -65,8 +65,6 @@ public class MyRobotLabActivity extends ListActivity {
 	
 	ImageButton help;
 
-	final static public String SERVICE_NAME = "name";
-
 	Context myContext;
 
 	public static Android androidService; // (singleton)
@@ -261,7 +259,9 @@ public class MyRobotLabActivity extends ListActivity {
 
 			try {
 				Bundle bundle = new Bundle();
-				bundle.putString(SERVICE_NAME,s.getName());
+				
+				// adding boundServiceName
+				bundle.putString(MRL.BOUND_SERVICE_NAME,s.getName());
 //				bundle.pu
 // SET GLOBAL DATA				
 				// ServiceActivity newActivity = 

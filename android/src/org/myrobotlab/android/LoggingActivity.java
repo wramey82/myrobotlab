@@ -45,12 +45,7 @@ public class LoggingActivity extends ServiceActivity {
         m.data = new Object[]{"blah", "blah2"};
         Log (m);        	
     }
-    
-    // attachGUI
-    
-    
-    // detachGUI
-    
+        
     public void Log(Message m)
     {
 		StringBuffer data = null;
@@ -69,10 +64,17 @@ public class LoggingActivity extends ServiceActivity {
 		}
 		
 		log.append(m.sender + "." + m.sendingMethod + " " + data + "\n");
-		
-		//log.setCaretPosition(log.getDocument().getLength());    	
-    	//data.append(m.)
+	
     }
    
+    @Override
+    public void attachGUI() {
+		sendNotifyRequest("log", "log", Message.class);		
+    }
+
+	@Override
+	public void detachGUI() {
+		removeNotifyRequest("log", "log", Message.class);
+	}
 
 }
