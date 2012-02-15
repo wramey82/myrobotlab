@@ -4,9 +4,15 @@ import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,11 +26,25 @@ public class ServiceActivity extends Activity {
 	public ServiceWrapper sw = null;
 	//public Service myService = null;
 	public View layout = null;
+
 	
 	public Bundle getBundle() 
 	{
 		return bundle;
 	}		
+	
+	private void showImage(String icon) {
+	    //String uri = "drawable/icon";
+		String path = "drawable/" + icon;
+
+	    // int imageResource = R.drawable.icon;
+	    int imageResource = getResources().getIdentifier(path, null, getPackageName());
+
+	    //ImageView imageView = (ImageView) findViewById(R.id.icon);
+	    ImageButton imageView = (ImageButton) layout.findViewById(R.id.icon);
+	    Drawable image = getResources().getDrawable(imageResource);
+	    imageView.setImageDrawable(image);
+	}
 	
 	public void setUIHeaderData()
 	{
@@ -33,6 +53,25 @@ public class ServiceActivity extends Activity {
 		
 		text = (TextView) layout.findViewById(R.id.type);
 		text.setText(sw.service.getShortTypeName());
+
+		// icon
+		// ImageButton icon = (ImageButton) layout.findViewById(R.id.icon);
+		// icon.sets
+		// http://stackoverflow.com/questions/2349652/android-open-resource-from-drawable-string
+		showImage(sw.service.getShortTypeName().toLowerCase());
+		
+		// help
+		ImageButton help = (ImageButton) layout.findViewById(R.id.help);
+		help.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent i = new Intent(Intent.ACTION_VIEW, 
+					       Uri.parse("http://myrobotlab.org/content/" + sw.service.getShortTypeName()));
+					startActivity(i);
+			}
+
+		});
+
 
 	}
 

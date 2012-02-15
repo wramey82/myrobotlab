@@ -7,25 +7,18 @@
 <include layout="@layout/service_header"/>    
 <!-- === Service header end =================-->
 </TableRow>        
-<TableRow>    
-   <TextView 
-        android:id="@string/listeningPorts"
-        android:layout_span="2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/udp" />
+<TableRow>
+
+    <EditText
+        android:id="@+id/log"
+        android:layout_span="4"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:editable="false"
+        android:inputType="textMultiLine" />
+    
 </TableRow>
-<TableRow>    
-   <TextView 
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/udp" />
-   <TextView
-        android:id="@+id/udpdata"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-</TableRow>
+
+
  
 </TableLayout>

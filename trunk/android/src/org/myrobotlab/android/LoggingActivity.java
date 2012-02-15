@@ -17,10 +17,11 @@
 //package org.myrobotlab.android;
 package org.myrobotlab.android; 
 
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.Logging;
-import org.myrobotlab.service.RemoteAdapter;
 
 import android.os.Bundle;
+import android.widget.EditText;
 
 // references :
 // http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
@@ -29,6 +30,7 @@ import android.os.Bundle;
 public class LoggingActivity extends ServiceActivity {
 
 	Logging myService = null;
+	EditText log = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,41 @@ public class LoggingActivity extends ServiceActivity {
         
         myService = (Logging)sw.service;   
 //        setText(R.id.udpdata, myService.);
+        log = (EditText)layout.findViewById(R.id.log);
+        Message m = new Message();
+        m.sender = "fake";
+        m.sendingMethod = "method";
+        m.data = new Object[]{"blah", "blah2"};
+        Log (m);        	
     }
+    
+    // attachGUI
+    
+    
+    // detachGUI
+    
+    public void Log(Message m)
+    {
+		StringBuffer data = null;
+		
+		if (m.data != null)
+		{
+			data = new StringBuffer();
+			for (int i = 0; i < m.data.length; ++i)
+			{
+				data.append(m.data[i]);
+				if (m.data.length > 1)
+				{
+					data.append(" ");
+				}
+			}
+		}
+		
+		log.append(m.sender + "." + m.sendingMethod + " " + data + "\n");
+		
+		//log.setCaretPosition(log.getDocument().getLength());    	
+    	//data.append(m.)
+    }
+   
 
 }
