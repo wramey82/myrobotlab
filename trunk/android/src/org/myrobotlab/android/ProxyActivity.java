@@ -31,7 +31,7 @@ public class ProxyActivity extends ServiceActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.remote_adapter_activity);
+        super.onCreate(savedInstanceState, R.layout.proxy);
         
         myService = (Proxy)sw.service;   
         // setText(R.id.udpdata, myService.servicePort);

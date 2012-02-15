@@ -14,7 +14,7 @@ import android.os.Bundle;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.remote_adapter_activity);
+        super.onCreate(savedInstanceState, R.layout.remoteadapter);
         
         myService = (ArduinoBT)sw.service;   
         // setText(R.id.udpdata, myService.servicePort);

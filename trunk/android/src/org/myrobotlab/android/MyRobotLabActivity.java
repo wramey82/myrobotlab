@@ -262,8 +262,13 @@ public class MyRobotLabActivity extends ListActivity {
 			try {
 				Bundle bundle = new Bundle();
 				bundle.putString(SERVICE_NAME,s.getName());
-				intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));
+//				bundle.pu
+// SET GLOBAL DATA				
+				// ServiceActivity newActivity = 
+				
+				intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));				
 				intent.putExtras(bundle);
+				// add it to "servicePanels"
 				intents.put(s.getName(), intent);
 			} catch (ClassNotFoundException e) {
 				Log.e(TAG, Service.stackToString(e));
@@ -311,6 +316,7 @@ public class MyRobotLabActivity extends ListActivity {
 									String serviceName = text.getText().toString();
 									//---------------------------------------------------------------
 									createAndStartService(serviceName, typeName);
+									text.setText("");
 								}
 							})
 					.setNegativeButton(R.string.cancel,

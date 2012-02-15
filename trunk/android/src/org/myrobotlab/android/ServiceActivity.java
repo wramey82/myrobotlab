@@ -1,7 +1,9 @@
 package org.myrobotlab.android;
 
+import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Android;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,12 @@ public class ServiceActivity extends Activity {
     private static final String TAG = "ServiceActivity";
     private static final boolean D = true;
 
+    // reference to application Service
+    // TODO - make reference or replace with Runtime Service
+    final Android myAndroid = null; 
+	public String boundServiceName;
+
+    
 	public Bundle bundle = null;
 	public ServiceWrapper sw = null;
 	//public Service myService = null;
@@ -34,10 +41,8 @@ public class ServiceActivity extends Activity {
 	}		
 	
 	private void showImage(String icon) {
-	    //String uri = "drawable/icon";
 		String path = "drawable/" + icon;
 
-	    // int imageResource = R.drawable.icon;
 	    int imageResource = getResources().getIdentifier(path, null, getPackageName());
 
 	    //ImageView imageView = (ImageView) findViewById(R.id.icon);
@@ -132,5 +137,35 @@ public class ServiceActivity extends Activity {
     	if(D) Log.e(TAG, s);
     	
     }
+    
+	/**
+	 * attachGUI is called to initialize any communication routes which need to be
+	 * setup between the service & the UI
+	 */
+	public void attachGUI() {};
+
+	/**
+	 * removes communication routes and releases resources when the UI is 
+	 * removed
+	 */
+	public void detachGUI() {};
+	
+	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
+	{
+		NotifyEntry ne = null;
+		//notifyEntry.getName() = myService.getName();
+		//notifyEntry.outMethod = outMethod;
+		//notifyEntry.inMethod = inMethod;
+		if (parameterType != null) {
+			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
+		} else {
+			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, null);
+		}
+		
+		myAndroid.send(boundServiceName, "notify", ne);
+
+	}
+
+	
 	
 }
