@@ -324,7 +324,7 @@ public class SpeechRecognition extends Service {
 		 */
 		private void execute(String cmd) {
 			try {
-				Runtime.getRuntime().exec(cmd);
+				java.lang.Runtime.getRuntime().exec(cmd);
 			} catch (IOException e) {
 				// if we can't run the command, just fall back to
 				// a non-working demo.

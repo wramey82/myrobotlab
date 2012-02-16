@@ -286,10 +286,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				
 				mxCell m = (mxCell)cell;
 							
-				GUIServiceGraphVertex se = (GUIServiceGraphVertex)m.getValue();
-				if (se != null)
+				GUIServiceGraphVertex sw = (GUIServiceGraphVertex)m.getValue();
+				if (sw != null)
 				{
-					return se.toolTip;
+					return sw.toolTip;
 				} else {
 					return "<html>port node<br>click to drag and drop static routes</html>";
 				}
@@ -389,7 +389,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				gui = (GUI)sw.service;
 				hasGUI = true;
 			}
-			
 		}
 	
 		if (hasGUI)
@@ -436,16 +435,29 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper se = services.get(serviceName);
+			ServiceWrapper sw = services.get(serviceName);
 
 			// get service type class name
-			// String serviceClassName = se.serviceClass;
+			// String serviceClassName = sw.serviceClass;
 //			cells.put(serviceName, createVertex(serviceName, x, y, 80, 20, Color.ORANGE, false));
-			String shortName[] = se.get().getClass().getCanonicalName().split("\\."); 
-			String ret = shortName[shortName.length - 1] + "\n" + serviceName;
+			String ret;
+			String toolTip;
+			String canonicalName;
+			
+			if (sw.get() == null)
+			{
+				canonicalName = "unknown";
+				ret = "unknown";
+				toolTip = "";
+			} else {
+				canonicalName = sw.get().getClass().getCanonicalName();
+				String shortName[] = canonicalName.split("\\."); 
+				ret = shortName[shortName.length - 1] + "\n" + serviceName;
+				toolTip = sw.get().getToolTip();
+			}
 
 			String blockColor = null;
-			if (se.host.accessURL == null)
+			if (sw.host.accessURL == null)
 			{
 				blockColor = "orange";
 			} else {
@@ -454,8 +466,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, 
 					new GUIServiceGraphVertex(serviceName, 
-							se.get().getClass().getCanonicalName(), 
-							ret, se.get().getToolTip(), 
+							canonicalName, 
+							ret, toolTip, 
 							GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, 
 							"ROUNDED;fillColor=" + blockColor);
 			
@@ -473,8 +485,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			geo1.setRelative(true);
 			
 			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, 
-					se.get().getClass().getCanonicalName(), 
-					"in", se.get().getToolTip(), GUIServiceGraphVertex.Type.INPORT), geo1, 
+					canonicalName, 
+					"in", toolTip, GUIServiceGraphVertex.Type.INPORT), geo1, 
 					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
 			
 			inport.setVertex(true);
@@ -484,8 +496,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			geo2.setRelative(true);
 
 			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, 
-					se.get().getClass().getCanonicalName(), 
-					"out", se.get().getToolTip(), 
+					canonicalName, 
+					"out", toolTip, 
 					GUIServiceGraphVertex.Type.OUTPORT), geo2, 
 					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
 			
@@ -511,24 +523,29 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper se = RuntimeEnvironment.getService(serviceName);
+			ServiceWrapper sw = RuntimeEnvironment.getService(serviceName);
 
-			//if (se.localServiceHandle != null) {
+			//if (sw.localServiceHandle != null) {
 				Service s = RuntimeEnvironment.getService(serviceName).get();
-				HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;
-				Iterator<String> ri = s.getOutbox().notifyList.keySet().iterator();
-				while (ri.hasNext()) {
-					ArrayList<NotifyEntry> nl = notifyList.get(ri.next());
-					for (int i = 0; i < nl.size(); ++i) {
-						NotifyEntry ne = nl.get(i);
-
-
-						//createArrow(se.getName(), ne.getName(), methodString);
-						//graph.getChildVertices(arg0)parent.
-						//graph.getChildVertices(graph.getDefaultParent());
-						graph.insertEdge(parent, null, formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(s.getName()), serviceCells.get(ne.name));
-
+				if (s != null)
+				{
+					HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;
+					Iterator<String> ri = s.getOutbox().notifyList.keySet().iterator();
+					while (ri.hasNext()) {
+						ArrayList<NotifyEntry> nl = notifyList.get(ri.next());
+						for (int i = 0; i < nl.size(); ++i) {
+							NotifyEntry ne = nl.get(i);
+	
+	
+							//createArrow(sw.getName(), ne.getName(), methodString);
+							//graph.getChildVertices(arg0)parent.
+							//graph.getChildVertices(graph.getDefaultParent());
+							graph.insertEdge(parent, null, formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(s.getName()), serviceCells.get(ne.name));
+	
+						}
 					}
+				} else {
+					LOG.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
 				}
 			//}
 

@@ -45,6 +45,9 @@ package org.myrobotlab.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javaFlacEncoder.FLAC_FileEncoder;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -353,6 +356,7 @@ public class GoogleSTT extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
+		
 		GoogleSTT stt = new GoogleSTT("stt");
 		// stt.startService();
 		stt.captureAudio();
