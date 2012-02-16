@@ -10,7 +10,7 @@ import android.widget.EditText;
 public class LoggingActivity extends ServiceActivity {
 
 	Logging myService = null;
-	EditText log = null;
+	EditText logText = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,16 +18,16 @@ public class LoggingActivity extends ServiceActivity {
         
         myService = (Logging)sw.service;   
 //        setText(R.id.udpdata, myService.);
-        log = (EditText)layout.findViewById(R.id.log);
+        logText = (EditText)layout.findViewById(R.id.log);
         Message m = new Message();
         m.sender = "fake";
         m.sendingMethod = "method";
         m.data = new Object[]{"blah", "blah2"};
-        Log (m);        	
+        log (m);        	
     }
 
     // http://stackoverflow.com/questions/2197744/android-textview-text-not-getting-wrapped
-    public void Log(Message m)
+    public void log(Message m)
     {
 		StringBuffer data = null;
 		
@@ -43,7 +43,7 @@ public class LoggingActivity extends ServiceActivity {
 				}
 			}
 		}		
-		log.append(m.sender + "." + m.sendingMethod + " " + data + "\n");	
+		logText.append(m.sender + "." + m.sendingMethod + " " + data + "\n");	
     }
    
  // TODO - this needs to be associated with Name & Intent !
