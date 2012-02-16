@@ -8,7 +8,6 @@ import java.util.List;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.Android;
 import org.myrobotlab.service.Proxy;
 
 import android.app.AlertDialog;
@@ -18,8 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,14 +41,18 @@ import android.widget.Toast;
  *         MyRobotLabActivity handles the Android Service - this correlates to
  *         the GUIService and Swing control components of the Java Swing
  *         implementation
+ *         
+ *         This is the "Application" & starting point of the UI
+ *         Android specifics are in the AndroidActivity
+ *         
+ *         This Activity is responsible for starting other Services,
+ *         Logging, connecting to other instances, and other global
+ *         procedures
  * 
  */
 public class MyRobotLabActivity extends ListActivity {
 
 	public static final String TAG = "MyRobotLab";
-	public static final boolean D = true;
-	// android registry
-	public final static HashMap<String, Intent> intents = new HashMap<String, Intent>();
 
 	// dialogs
 	public static final int DIALOG_MYROBOTLAB_ADD_SERVICE = 1;
@@ -65,9 +66,7 @@ public class MyRobotLabActivity extends ListActivity {
 	
 	ImageButton help;
 
-	Context myContext;
-
-	public static Android androidService; // (make singleton)
+	//public static Android androidService; // (make singleton)
 	public Proxy proxyService; // FIXME temporary
 
 	// android "tab" view TODO change to backing HashMap
@@ -101,52 +100,18 @@ public class MyRobotLabActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (D)
+		if (MRL.D)
 			Log.e(TAG, "++ onCreate ++");
 		
-		if (androidService == null)
-		{
-			WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-			WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-			int ipAddress = wifiInfo.getIpAddress();
-			
-			String name = String.format("%d.%d.%d.%d",
-					(ipAddress & 0xff),
-					(ipAddress >> 8 & 0xff),
-					(ipAddress >> 16 & 0xff),
-					(ipAddress >> 24 & 0xff));
-			
-
-			/*
-			androidService = new Android(name);
-			androidService.startService();
-			intents.put(name, getIntent()); // TODO - normalize calls into one call
-			// TODO - FIXME - figure how to consolidate and what it means !!!
-			services.add(name);
-			*/
-			
-			createAndStartService(name, Android.class.getCanonicalName());
-			androidService = (Android)RuntimeEnvironment.getService(name).service;
-			androidService.setContext(getApplicationContext()); // FIXME - cheesey
-			androidService.startSensors();
-
-			/*
-			TODO - temporary - only necessary for different JVMs sharing resources
-			*/
-			createAndStartService(name + "Proxy", Proxy.class.getCanonicalName());
-			proxyService = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
-			proxyService.setTargetService(androidService);
-			
-		}
-		
+	
 		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header, null);
 
 		// manual service header
 		TextView text = (TextView) header.findViewById(R.id.name);
-		text.setText(androidService.getName());
+		text.setText(MRL.android.getName());
 		
 		text = (TextView) header.findViewById(R.id.type);
-		text.setText(androidService.getShortTypeName());
+		text.setText(MRL.android.getShortTypeName());
 
 		
 		// remote logging
@@ -166,7 +131,7 @@ public class MyRobotLabActivity extends ListActivity {
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		availableServices.setAdapter(adapter);
 
-		// refresh button
+		// refresh button - TODO - DEPRICATE
 		refresh = (Button) header.findViewById(R.id.refresh);
 		refresh.setOnClickListener(new OnClickListener() {
 			@Override
@@ -204,10 +169,14 @@ public class MyRobotLabActivity extends ListActivity {
 
 		// http://developer.android.com/reference/android/R.layout.html
 		// http://stackoverflow.com/questions/4540754/add-dynamically-elements-to-a-listview-android
-		runningServices = new ServiceListAdapter(this,
-				android.R.layout.simple_list_item_single_choice,
-				android.R.id.text1, services);
-		setListAdapter(runningServices);
+		if (runningServices == null) // TODO - test for null vs init in member list?
+		{
+			runningServices = new ServiceListAdapter(this,
+					android.R.layout.simple_list_item_single_choice,
+					android.R.id.text1, services);
+			setListAdapter(runningServices);
+		}		
+		refreshServiceView();
 	}
 
 	// callback from RuntimeEnvironment read:
@@ -237,53 +206,6 @@ public class MyRobotLabActivity extends ListActivity {
 		runningServices.notifyDataSetChanged();
 	}
 
-	public boolean createAndStartService(String name, String type)
-	{
-		Service s = (Service) Service.getNewInstance(type, name);
-		if (s == null) {
-			Toast.makeText(getApplicationContext(),
-					" could not create " + name + " of type " + type, Toast.LENGTH_LONG).show();
-		} else {
-			s.startService();
-
-			Intent intent = null;
-
-			String serviceClassName = s.getClass().getCanonicalName();
-			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-			guiClass = "org.myrobotlab.android" + guiClass + "Activity";
-
-			if (D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
-
-			try {
-				Bundle bundle = new Bundle();
-				
-				// adding boundServiceName
-				bundle.putString(MRL.BOUND_SERVICE_NAME,s.getName());
-//				bundle.pu
-// SET GLOBAL DATA				
-				// ServiceActivity newActivity = 
-				
-				intent = new Intent(MyRobotLabActivity.this,Class.forName(guiClass));				
-				intent.putExtras(bundle);
-				// add it to "servicePanels"
-				intents.put(s.getName(), intent);
-			} catch (ClassNotFoundException e) {
-				Log.e(TAG, Service.stackToString(e));
-				return false;
-			}
-
-			// Map map = (Map)
-			// l.getItemAtPosition(position);
-
-			services.add(RuntimeEnvironment.getService(name).name); // adding
-													// ServiceWrapper
-
-		}
-
-		if (D) Log.e(TAG, "++ started new service ++ ");
-		/* User clicked OK so do some stuff */		
-		return true;
-	}
 	
 	// http://developer.android.com/guide/topics/ui/dialogs.html
 	protected Dialog onCreateDialog(int id) {
@@ -307,12 +229,13 @@ public class MyRobotLabActivity extends ListActivity {
 										int whichButton) {
 									EditText text = (EditText) addServiceTextEntryView.findViewById(R.id.serviceName);
 									
-									if (D) Log.e(TAG, "++ service " + text.getText() + " of type " + availableServices.getSelectedItem().toString() + " ++");
+									if (MRL.D) Log.e(TAG, "++ service " + text.getText() + " of type " + availableServices.getSelectedItem().toString() + " ++");
 									
 									String typeName = "org.myrobotlab.service." + availableServices.getSelectedItem().toString();
 									String serviceName = text.getText().toString();
 									//---------------------------------------------------------------
-									createAndStartService(serviceName, typeName);
+									MRL.getInstance().createAndStartService(serviceName, typeName);
+									services.add(serviceName); // adding													
 									text.setText("");
 								}
 							})
@@ -343,7 +266,7 @@ public class MyRobotLabActivity extends ListActivity {
 									String port = ((EditText) remoteLoggingEntryView
 											.findViewById(R.id.port)).getText()
 											.toString();
-									if (D) Log.e(TAG, "++ remote logging to " + host + ":" + port + " ++");
+									if (MRL.D) Log.e(TAG, "++ remote logging to " + host + ":" + port + " ++");
 									Service.addAppender(
 											Service.LOGGING_APPENDER_SOCKET,
 											host, port);
@@ -370,7 +293,7 @@ public class MyRobotLabActivity extends ListActivity {
 		String name = (String) getListAdapter().getItem(position - 1);
 		Toast.makeText(this, name + " selected", Toast.LENGTH_LONG).show();
 
-		Intent intent = intents.get(name);
+		Intent intent = MRL.intents.get(name);
 		if (intent != null) {
 			startActivity(intent);
 		} else {

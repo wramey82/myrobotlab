@@ -1,32 +1,12 @@
-/*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-//package org.myrobotlab.android;
 package org.myrobotlab.android; 
 
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Logging;
 
 import android.os.Bundle;
 import android.widget.EditText;
 
-// references :
-// http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
-
-//  extends ServiceActivity
 public class LoggingActivity extends ServiceActivity {
 
 	Logging myService = null;
@@ -45,7 +25,8 @@ public class LoggingActivity extends ServiceActivity {
         m.data = new Object[]{"blah", "blah2"};
         Log (m);        	
     }
-        
+
+    // http://stackoverflow.com/questions/2197744/android-textview-text-not-getting-wrapped
     public void Log(Message m)
     {
 		StringBuffer data = null;
@@ -61,20 +42,23 @@ public class LoggingActivity extends ServiceActivity {
 					data.append(" ");
 				}
 			}
-		}
-		
-		log.append(m.sender + "." + m.sendingMethod + " " + data + "\n");
-	
+		}		
+		log.append(m.sender + "." + m.sendingMethod + " " + data + "\n");	
     }
    
+ // TODO - this needs to be associated with Name & Intent !
+    
     @Override
-    public void attachGUI() {
-		sendNotifyRequest("log", "log", Message.class);		
+    public void attachGUI() { 
+		sendNotifyRequest("log", "log", Message.class);	
+		sendNotifyRequest("publishState", "getState", Clock.class);
+		// myService.send(boundServiceName, "publishState"); no refresh needed
     }
 
 	@Override
 	public void detachGUI() {
 		removeNotifyRequest("log", "log", Message.class);
+		removeNotifyRequest("publishState", "getState", Clock.class);
 	}
 
 }
