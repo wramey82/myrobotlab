@@ -48,6 +48,7 @@ public class RuntimeEnvironment implements Serializable{
 		
 	public final static String UNKNOWN	= "unknown"; 
 	
+	private static org.myrobotlab.service.Runtime service;
 	
 	/**
 	 * singleton instance of the runtime environment 
@@ -61,7 +62,9 @@ public class RuntimeEnvironment implements Serializable{
 	{
 		hosts = new HashMap<URL, ServiceEnvironment>();			
 		registry = new HashMap<String, ServiceWrapper>();
-
+		service = new org.myrobotlab.service.Runtime("runtime"); // FIXME - unique instance name !! ip+??
+		service.startService();
+		
 		hideMethods.put("main", null);
 		hideMethods.put("loadDefaultConfiguration", null);
 		hideMethods.put("getToolTip", null);
@@ -133,7 +136,10 @@ public class RuntimeEnvironment implements Serializable{
 	 * @return
 	 */
 //	public static synchronized boolean register(URL url, Service s)
-	public static synchronized boolean register(Service s)
+	// TODO more aptly named registerLocal(Service s) ?
+	// FIXME - getState publish setState need to reconcile with 
+	// these definitions
+	public static synchronized Service register(Service s)
 	{
 		URL url = null; // LOCAL SERVICE !!!
 		
@@ -149,16 +155,25 @@ public class RuntimeEnvironment implements Serializable{
 		if (se.serviceDirectory.containsKey(s.getName()))
 		{
 			LOG.error("attempting to register " + s.getName() + " which is already registered in " + url);
-			return false;
+			return s;
 		} else {
 			ServiceWrapper sw = new ServiceWrapper(s, se); 
 			se.serviceDirectory.put(s.getName(), sw);
 			registry.put(s.getName(), sw);
 		}
 		
-		return true;
+		return s;
 	}
 	
+	/**
+	 * registers a ServiceEnvironment which is a complete set of Services from a
+	 * foreign instance of MRL. It returns whether changes have been made.  This
+	 * is necessary to determine if the register should be echoed back.
+	 * 
+	 * @param url
+	 * @param s
+	 * @return
+	 */
 	public static synchronized boolean register(URL url, ServiceEnvironment s)
 	{
 		

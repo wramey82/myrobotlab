@@ -184,6 +184,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		myService.send(boundServiceName, "setType", e.getActionCommand());
 	}
 	
+	// FIXME - is get/set state interact with RuntimeEnvironment registry ??? 
+	// it probably should
 	public void getState(Clock c)
 	{
 		// Setting the display fields based on incoming Clock data
@@ -235,9 +237,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	}
 
 
+	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Clock.class);
+		sendNotifyRequest("publishState", "getState", Clock.class); 
 		myService.send(boundServiceName, "publishState");
 	}
 
