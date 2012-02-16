@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.android.MRL;
 import org.myrobotlab.android.ServiceActivity;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RuntimeEnvironment;
@@ -22,8 +23,6 @@ public class Android extends Service implements SensorEventListener {
 	//private View view;
 	private long lastUpdate;
 
-	// TODO - what things to put in MRL singleton ???
-	transient HashMap<String, ServiceActivity> serviceActivityMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	private Context context;
@@ -31,7 +30,7 @@ public class Android extends Service implements SensorEventListener {
 
 	public Android(String n) {
 		super(n, Android.class.getCanonicalName());
-		
+		// TODO - generate reflectively
 		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
 		
 		// TODO - dynamically reflect to load map
@@ -88,21 +87,6 @@ public class Android extends Service implements SensorEventListener {
 		return "used as a general android";
 	}
 	
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
-		
-		Android android = new Android("android");
-		android.startService();
-		
-		/*
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		*/
-		
-	}
-
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
@@ -158,10 +142,6 @@ public class Android extends Service implements SensorEventListener {
 		sensorManager.unregisterListener(this);
 	}
 	
-	public HashMap<String, ServiceActivity> getServiceGUIMap() {
-		return serviceActivityMap;
-	}
-
 
 	public boolean preProcessHook(Message m)
 	{
@@ -170,15 +150,28 @@ public class Android extends Service implements SensorEventListener {
 			return true;
 		} 
 		
-		ServiceActivity sg = serviceActivityMap.get(m.sender);
-		if (sg == null) {
-			LOG.error("attempting to update sub-gui - sender "
-					+ m.sender + " not available in map " + getName());
-		} else {
-			invoke(serviceActivityMap.get(m.sender), m.method, m.data);
+		ServiceActivity ca = MRL.getCurrentActivity();
+		if (ca != null && ca.getBoundServiceName().equals(m.sender))
+		{
+			invoke(ca, m.method, m.data);
 		}
 		
 		return false;
+	}
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.WARN);
+		
+		Android android = new Android("android");
+		android.startService();
+		
+		/*
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		*/
+		
 	}
 	
 }
