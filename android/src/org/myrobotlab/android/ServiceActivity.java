@@ -26,9 +26,9 @@ public abstract class ServiceActivity extends Activity {
     // reference to application Service
     // TODO - make reference or replace with Runtime Service
     // the Android Service is being treated like a Runtime ???
-    private Android myAndroid; 
+    private static Android myAndroid; 
 	private String boundServiceName;
-	public MRL mrl;
+	public static MRL mrl;
 
 	public Bundle bundle = null;
 	public ServiceWrapper sw = null;
@@ -99,7 +99,13 @@ public abstract class ServiceActivity extends Activity {
     	// we are now the currently active view !
     	MRL.setCurrentActivity(this);   	
 
-        
+        // set up notification routes on first initialization
+    	if (!MRL.GUIAttached.containsKey(boundServiceName) || !MRL.GUIAttached.get(boundServiceName))
+    	{
+    		attachGUI();
+    		MRL.GUIAttached.put(boundServiceName, true);
+    	}
+    	
         if (boundServiceName == null || boundServiceName.length() == 0)
         {
         	inform("name empty! need key in Bundle !");

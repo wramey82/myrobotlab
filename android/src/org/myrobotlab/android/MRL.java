@@ -35,6 +35,9 @@ public class MRL extends Application {
 	// android registry
 	public final static HashMap<String, Intent> intents = new HashMap<String, Intent>();
 	
+	// for initialization from Service -to-> ServiceActivity
+	public final static HashMap<String, Boolean> GUIAttached = new HashMap<String, Boolean>();
+	
 	// temporary proxy
 	public static Proxy proxy; // FIXME - temporary until Runtime export is figured out
 	
