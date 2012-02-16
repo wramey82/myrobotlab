@@ -6,6 +6,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.android.ServiceActivity;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 
 import android.content.Context;
@@ -25,13 +26,15 @@ public class Android extends Service implements SensorEventListener {
 	transient HashMap<String, ServiceActivity> serviceActivityMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
-
 	private Context context;
 	public final static Logger LOG = Logger.getLogger(Android.class.getCanonicalName());
 
 	public Android(String n) {
 		super(n, Android.class.getCanonicalName());
 		
+		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
+		
+		// TODO - dynamically reflect to load map
 		commandMap.put("registerServicesEvent", null);
 		commandMap.put("registerServices", null);
 		commandMap.put("loadTabPanels", null);
@@ -39,8 +42,16 @@ public class Android extends Service implements SensorEventListener {
 		commandMap.put("notify", null);
 		commandMap.put("removeNotify", null);
 		commandMap.put("guiUpdated", null);
+		commandMap.put("registered", null);
+		commandMap.put("released", null);
 		commandMap.put("setRemoteConnectionStatus", null);
 
+	}
+	
+	public String registered (String n)
+	{
+		LOG.info("got registered event " + n);
+		return n;
 	}
 	
 	@Override
