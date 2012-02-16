@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -62,7 +63,9 @@ public class RuntimeEnvironment implements Serializable{
 	{
 		hosts = new HashMap<URL, ServiceEnvironment>();			
 		registry = new HashMap<String, ServiceWrapper>();
-		service = new org.myrobotlab.service.Runtime("runtime"); // FIXME - unique instance name !! ip+??
+		Random rand = new Random();
+		String n = "BORG " + rand.nextInt(99999);
+		service = new org.myrobotlab.service.Runtime(n); 
 		service.startService();
 		
 		hideMethods.put("main", null);
@@ -71,6 +74,15 @@ public class RuntimeEnvironment implements Serializable{
 		hideMethods.put("run", null);
 		hideMethods.put("access$0", null);
 		
+	}
+	public static String getName()
+	{
+		return service.getName();
+	}
+	
+	public static org.myrobotlab.service.Runtime getRuntime()
+	{
+		return service;
 	}
 	
 	public static Platform getPlatform()
@@ -155,11 +167,16 @@ public class RuntimeEnvironment implements Serializable{
 		if (se.serviceDirectory.containsKey(s.getName()))
 		{
 			LOG.error("attempting to register " + s.getName() + " which is already registered in " + url);
+			service.invoke("collision", s.getName());
 			return s;
 		} else {
 			ServiceWrapper sw = new ServiceWrapper(s, se); 
 			se.serviceDirectory.put(s.getName(), sw);
 			registry.put(s.getName(), sw);
+			if (service != null) // !runtime
+			{
+					service.invoke("registered", s.getName());
+			}
 		}
 		
 		return s;
@@ -221,6 +238,7 @@ public class RuntimeEnvironment implements Serializable{
 			LOG.info("adding " + serviceName + " to registry");
 			//s.serviceDirectory.get(serviceName).host = s;
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
+			service.invoke("registered", serviceName);
 		}
 
 		
@@ -251,6 +269,7 @@ public class RuntimeEnvironment implements Serializable{
 			LOG.error("unregister "+ name +" does note exist for " + url + "." + name );
 		} else {
 			se.serviceDirectory.remove(name);			
+			service.invoke("released", name);
 		}
 		
 				
@@ -428,7 +447,7 @@ public class RuntimeEnvironment implements Serializable{
 		
 	}
 
-	public static void release(String name) /*release service environment*/
+	public static void release(String name) /*release local Service*/
 	{
 		release (null, name);
 	}
@@ -440,6 +459,8 @@ public class RuntimeEnvironment implements Serializable{
 		registry.remove(name);
 		ServiceEnvironment se = hosts.get(url);
 		se.serviceDirectory.remove(name);
+		service.invoke("released", name);
+
 	}
 
 	public static void release(URL url) /*release process environment*/
@@ -476,6 +497,7 @@ public class RuntimeEnvironment implements Serializable{
 			LOG.info("clearing environment " + se.accessURL);
 			se.serviceDirectory.clear();
 			//Iterator<String> seit = se.keySet().iterator();
+			// FIXME - release events
 		}
 
 		LOG.info("clearing hosts environments");
@@ -487,7 +509,7 @@ public class RuntimeEnvironment implements Serializable{
 
 	public static HashMap<String, ServiceWrapper> getRegistry()
 	{
-		return registry;
+		return registry;// FIXME should be new HashMap<>
 	}
 
 	public static ServiceEnvironment getServiceEnvironment(URL url)
