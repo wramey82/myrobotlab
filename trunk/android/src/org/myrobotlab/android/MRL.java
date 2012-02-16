@@ -7,6 +7,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Android;
 import org.myrobotlab.service.Proxy;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
@@ -42,6 +43,10 @@ public class MRL extends Application {
 	
 	public static final String TAG = "MRL";
 	public static boolean D = true;
+
+	// the active Activity FIXME - you should also save
+	// its current state e.g. ONPAUSE and not send messages then
+	private static ServiceActivity currentActivity = null;
 	
     public static MRL getInstance() {
         return instance;
@@ -146,6 +151,14 @@ public class MRL extends Application {
 		if (D) Log.e(TAG, "++ started new service ++ ");
 		/* User clicked OK so do some stuff */		
 		return true;
+	}
+
+	public static ServiceActivity getCurrentActivity() {
+		return currentActivity;
+	}
+
+	public static void setCurrentActivity(ServiceActivity ca) {
+		currentActivity = ca;
 	}
 
     
