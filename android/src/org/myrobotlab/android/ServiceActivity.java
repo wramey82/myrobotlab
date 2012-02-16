@@ -94,6 +94,12 @@ public abstract class ServiceActivity extends Activity {
         // get service reference
         bundle = this.getIntent().getExtras();
         boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
+        
+    	// set the context
+    	// we are now the currently active view !
+    	MRL.setCurrentActivity(this);   	
+
+        
         if (boundServiceName == null || boundServiceName.length() == 0)
         {
         	inform("name empty! need key in Bundle !");
@@ -182,5 +188,9 @@ public abstract class ServiceActivity extends Activity {
 
 	}
 
+	public String getBoundServiceName()
+	{
+		return boundServiceName;
+	}
 	
 }
