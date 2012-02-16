@@ -25,11 +25,11 @@ public abstract class ServiceActivity extends Activity {
 
     // reference to application Service
     // TODO - make reference or replace with Runtime Service
+    // the Android Service is being treated like a Runtime ???
     private Android myAndroid; 
 	private String boundServiceName;
-	private MRL mrl;
+	public MRL mrl;
 
-    
 	public Bundle bundle = null;
 	public ServiceWrapper sw = null;
 	//public Service myService = null;
