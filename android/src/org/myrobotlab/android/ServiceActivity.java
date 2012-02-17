@@ -1,5 +1,6 @@
 package org.myrobotlab.android;
 
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,8 +29,7 @@ public abstract class ServiceActivity extends Activity {
     // TODO - make reference or replace with Runtime Service
     // the Android Service is being treated like a Runtime ???
     private static Android myAndroid; 
-	private String boundServiceName;
-	public static MRL mrl;
+	public String boundServiceName;
 
 	public Bundle bundle = null;
 	public ServiceWrapper sw = null;
@@ -84,9 +85,9 @@ public abstract class ServiceActivity extends Activity {
 	
     protected void onCreate(Bundle savedInstanceState, int layoutID) {
     	super.onCreate(savedInstanceState);
+    	MRL.getInstance(); // FIXME - most likely not necessary as only the class definition will construct it
+    	myAndroid = MRL.android; // FIXME - remove if not used
     	
-    	mrl = MRL.getInstance();
-    	myAndroid = MRL.android;
     	
         // begin exchange of data from service to UI
         layout = getLayoutInflater().inflate(layoutID, null);        		
@@ -94,10 +95,17 @@ public abstract class ServiceActivity extends Activity {
         // get service reference
         bundle = this.getIntent().getExtras();
         boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
-        
+//------------------------------------------------------------------------
+//    	MRL.handlers.put(boundServiceName, new ServiceHandler(this));
+//------------------------------------------------------------------------
+
     	// set the context
-    	// we are now the currently active view !
-    	MRL.setCurrentActivity(this);   	
+    	// we are now the currently active view ! FIXME - does not work !        
+    	//MRL.setCurrentActivity(this);   	
+    	
+    	// setting the current service name context
+    	// MRL.setCurrentServiceName(boundServiceName);
+    	MRL.currentServiceName = boundServiceName;
 
         // set up notification routes on first initialization
     	if (!MRL.GUIAttached.containsKey(boundServiceName) || !MRL.GUIAttached.get(boundServiceName))
@@ -193,10 +201,23 @@ public abstract class ServiceActivity extends Activity {
 		myAndroid.send(boundServiceName, "removeNotify", ne);
 
 	}
-
-	public String getBoundServiceName()
-	{
-		return boundServiceName;
-	}
-	
+	/*
+    public class ServiceHandler extends Handler {
+    
+    	ServiceActivity myServiceActivity = null;
+    	ServiceHandler(ServiceActivity serviceActivity)
+    	{
+    		super();
+    		myServiceActivity = serviceActivity;
+    	}
+    	
+    	@Override
+    	public void handleMessage(android.os.Message msg) {
+    		Message m = (Message)msg.obj;
+    		//MRL.android.invoke(m);
+    		MRL.android.invoke(myServiceActivity, m.method, m.data);
+    		super.handleMessage(msg);
+		  }
+		}
+		*/
 }

@@ -5,14 +5,15 @@ import java.util.HashMap;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Android;
-import org.myrobotlab.service.Proxy;
+import org.myrobotlab.service.Logging;
+import org.myrobotlab.service.RemoteAdapter;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -39,7 +40,7 @@ public class MRL extends Application {
 	public final static HashMap<String, Boolean> GUIAttached = new HashMap<String, Boolean>();
 	
 	// temporary proxy
-	public static Proxy proxy; // FIXME - temporary until Runtime export is figured out
+	// public static Proxy proxy; // FIXME - temporary until Runtime export is figured out
 	
 	// bundle constants
 	final static public String BOUND_SERVICE_NAME = "BOUND_SERVICE_NAME";
@@ -47,9 +48,21 @@ public class MRL extends Application {
 	public static final String TAG = "MRL";
 	public static boolean D = true;
 
+	  
+	/**
+	 * single handler for non-User back end UI updates
+	 * Android Service uses this to let events & messages
+	 * from other Services interact with the current
+	 * Android Activity UI
+	 */
+	//public static Handler handler = new Handler();
+	
 	// the active Activity FIXME - you should also save
 	// its current state e.g. ONPAUSE and not send messages then
-	private static ServiceActivity currentActivity = null;
+	//private static ServiceActivity currentActivity = null;
+	public volatile static String currentServiceName = null;
+	public volatile static HashMap <String, Handler> handlers = new HashMap <String, Handler>();
+	
 	
     public static MRL getInstance() {
         return instance;
@@ -103,9 +116,14 @@ public class MRL extends Application {
 			/*
 			TODO - temporary - only necessary for different JVMs sharing resources
 			*/
+			/*
 			createAndStartService(name + "Proxy", Proxy.class.getCanonicalName());
 			proxy = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
 			proxy.setTargetService(android);
+			*/
+			
+			createAndStartService("remote", RemoteAdapter.class.getCanonicalName());
+			createAndStartService("logger", Logging.class.getCanonicalName());
 			
 		}
     }
@@ -156,6 +174,7 @@ public class MRL extends Application {
 		return true;
 	}
 
+/*
 	public static ServiceActivity getCurrentActivity() {
 		return currentActivity;
 	}
@@ -164,6 +183,14 @@ public class MRL extends Application {
 		currentActivity = ca;
 	}
 
+	public static String getCurrentServiceName() {
+		return currentServiceName;
+	}
+
+	public static void setCurrentServiceName(String currentServiceName) {
+		MRL.currentServiceName = currentServiceName;
+	}
+*/
     
 
 }
