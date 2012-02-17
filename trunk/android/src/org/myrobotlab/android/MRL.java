@@ -136,41 +136,44 @@ public class MRL extends Application {
 					" could not create " + name + " of type " + type, Toast.LENGTH_LONG).show();
 		} else {
 			s.startService();
-
-			Intent intent = null;
-
-			String serviceClassName = s.getClass().getCanonicalName();
-			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-			guiClass = "org.myrobotlab.android" + guiClass + "Activity";
-
-			if (D) Log.e(TAG, "++ attempting to create " + guiClass + " ++");
-
-			try {
-				Bundle bundle = new Bundle();
-				
-				// adding boundServiceName
-				bundle.putString(MRL.BOUND_SERVICE_NAME,s.getName());
-				
-				intent = new Intent(MRL.this,Class.forName(guiClass));				
-				intent.putExtras(bundle);
-				// add it to "servicePanels"
-				// FIXME - when you add attachGUI & detachGUI - that will 
-				// be useful - but it doesn't help the "root cause" of change
-				// RuntimeEnvironment.register(...)
-				// which is changes to the RuntimeEnvironment				
-				intents.put(s.getName(), intent);
-				// c = classForName (type + Activity)
-				// c.attachGUI(serviceName, name) // one time static call
-				// when you detach you can remove route
-			} catch (ClassNotFoundException e) {
-				Log.e(TAG, Service.stackToString(e));
+			if (!addServiceActivityIntent(s.getName(), s.getShortTypeName()))
+			{
 				return false;
 			}
-
 		}
 
 		if (D) Log.e(TAG, "++ started new service ++ ");
 		/* User clicked OK so do some stuff */		
+		return true;
+	}
+	
+	public boolean addServiceActivityIntent(String name, String shortTypeName)
+	{
+		try {
+			Bundle bundle = new Bundle();
+			String activityCanonicalName = "org.myrobotlab.android." + shortTypeName + "Activity";
+			// adding boundServiceName
+			bundle.putString(MRL.BOUND_SERVICE_NAME, name);
+			
+			if (D) Log.e(TAG, "++ attempting to create " + activityCanonicalName + " ++");
+			
+			Intent intent = null;
+			intent = new Intent(MRL.this,Class.forName(activityCanonicalName));				
+			intent.putExtras(bundle);
+			// add it to "servicePanels"
+			// FIXME - when you add attachGUI & detachGUI - that will 
+			// be useful - but it doesn't help the "root cause" of change
+			// RuntimeEnvironment.register(...)
+			// which is changes to the RuntimeEnvironment				
+			intents.put(name, intent);
+			// c = classForName (type + Activity)
+			// c.attachGUI(serviceName, name) // one time static call
+			// when you detach you can remove route
+		} catch (ClassNotFoundException e) {
+			Log.e(TAG, Service.stackToString(e));
+			return false;
+		}
+		
 		return true;
 	}
 
