@@ -283,7 +283,7 @@ public class MyRobot extends Service {
 		left.startService();
 		arduino.startService();
 				
-		neck.attach(arduino.getName(), 9);
+		neck.attach(arduino.getName(), neckPin);
 		right.attach(arduino.getName(), rightPin);
 		left.attach(arduino.getName(), leftPin);
 

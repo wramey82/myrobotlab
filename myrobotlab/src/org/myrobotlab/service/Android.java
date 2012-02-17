@@ -15,6 +15,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 public class Android extends Service implements SensorEventListener {
 
 	private static final long serialVersionUID = 1L;
@@ -27,9 +28,11 @@ public class Android extends Service implements SensorEventListener {
 
 	private Context context;
 	public final static Logger LOG = Logger.getLogger(Android.class.getCanonicalName());
+	
 
 	public Android(String n) {
 		super(n, Android.class.getCanonicalName());
+		
 		// TODO - generate reflectively
 		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
 		
@@ -150,11 +153,26 @@ public class Android extends Service implements SensorEventListener {
 			return true;
 		} 
 		
-		ServiceActivity ca = MRL.getCurrentActivity();
+		// if my current Activity UI equals my message sender
+		// send the data
+		if (m.sender.equals(MRL.currentServiceName))
+		{
+			Handler handler = MRL.handlers.get(m.sender);
+			android.os.Message msg = handler.obtainMessage();
+		    msg.what = 1;
+		    msg.obj = m;
+		    //msg.arg1 = index;
+		    handler.sendMessage(msg);
+		}
+		
+		/*
+		ServiceActivity ca = MRL.getCurrentActivity();// FIXME - DOES NOT WORK !!!
 		if (ca != null && ca.getBoundServiceName().equals(m.sender))
 		{
+			MRL.handler.
 			invoke(ca, m.method, m.data);
 		}
+		*/
 		
 		return false;
 	}
