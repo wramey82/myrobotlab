@@ -23,12 +23,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="RemoteAdapterActivity"></activity>
-        <activity android:name="LoggingActivity"></activity>
-        <activity android:name="ServoActivity"></activity>
-        <activity android:name="ArduinoBTActivity"></activity>
-        <activity android:name="ProxyActivity"></activity>
         <activity android:name="AndroidActivity"></activity>
+        <activity android:name="ArduinoBTActivity"></activity>
+        <activity android:name="LoggingActivity"></activity>
+        <activity android:name="ProxyActivity"></activity>
+        <activity android:name="RemoteAdapterActivity"></activity>
+        <activity android:name="RuntimeActivity"></activity>
+        <activity android:name="ServoActivity"></activity>
         </application>
 
 </manifest>
