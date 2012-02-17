@@ -75,6 +75,7 @@ public class RuntimeEnvironment implements Serializable{
 		hideMethods.put("access$0", null);
 		
 	}
+	
 	public static String getName()
 	{
 		return service.getName();
@@ -110,11 +111,11 @@ public class RuntimeEnvironment implements Serializable{
 	{
 		String vmname = System.getProperty("java.vm.name").toLowerCase();
 		
-		if (vmname.equals("davlik"))
+		if (vmname.equals(DALVIK))
 		{
 			return vmname;
 		} else {
-			return "hotspot";
+			return HOTSPOT;
 		}
 	}
 	
