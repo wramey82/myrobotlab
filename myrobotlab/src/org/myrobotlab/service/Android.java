@@ -33,9 +33,15 @@ public class Android extends Service implements SensorEventListener {
 	public Android(String n) {
 		super(n, Android.class.getCanonicalName());
 		
-		// TODO - generate reflectively
-		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
 		
+		
+		// add runtime notification - so we can manage
+		// new Services starting or release or importing
+		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
+		MRL.getInstance().addServiceActivityIntent(RuntimeEnvironment.getName(),
+				RuntimeEnvironment.getRuntime().getShortTypeName());
+		
+		// TODO - generate reflectively
 		// TODO - dynamically reflect to load map
 		commandMap.put("registerServicesEvent", null);
 		commandMap.put("registerServices", null);
@@ -163,6 +169,9 @@ public class Android extends Service implements SensorEventListener {
 		    msg.obj = m;
 		    //msg.arg1 = index;
 		    handler.sendMessage(msg);
+		    // TODO try handler.sendMessageAtFrontOfQueue(msg)
+		    // TODO - make the myrobotlab.xml listview flash when a
+		    // message goest to a specific Service
 		}
 		
 		/*

@@ -5,6 +5,7 @@ import java.net.URL;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
@@ -126,6 +127,11 @@ public class Runtime extends Service {
 	public static final void loadLibrary(String filename)
 	{
 	    java.lang.Runtime.getRuntime().loadLibrary(filename);
+	}
+	
+	public static final Platform getPlatform()
+	{
+		return RuntimeEnvironment.getPlatform();
 	}
 	
 	public static void main(String[] args) {
