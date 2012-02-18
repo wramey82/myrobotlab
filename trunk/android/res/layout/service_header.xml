@@ -14,7 +14,7 @@
         android:id="@+id/icon"
         android:contentDescription="@string/help"
         android:src="@drawable/android"
-        android:background="#00000000"
+        android:background="@color/black"
         />
    <TextView
         android:id="@+id/name"
@@ -28,6 +28,12 @@
         android:layout_height="wrap_content"
 	    android:padding="4dip"
          />
+      <ImageButton
+        android:id="@+id/help"
+        android:contentDescription="@string/help"
+        android:src="@drawable/help"
+        android:background="@color/black"
+        />
    <!--  android:background="@drawable/round_button"  -->
 </TableRow>
 <TableRow>
