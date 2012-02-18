@@ -8,71 +8,39 @@
     android:id="@+id/service_header"
     >
     
-<!-- === Service header begin ===============-->    
-<TableRow>
-   <ImageButton
+<!-- === Service header begin ===============-->
+      
+<TableRow>   
+	<ImageButton
         android:id="@+id/icon"
-        android:contentDescription="@string/help"
         android:src="@drawable/android"
         android:background="@color/black"
-        />
-   <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-    	android:padding="4dip"
-         />
-   <TextView
-        android:id="@+id/type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-	    android:padding="4dip"
-         />
-      <ImageButton
+        />	
+	<ImageButton
+        android:id="@+id/removeService"
+        android:src="@drawable/remove"
+        android:background="@color/black"
+        android:paddingLeft="10px"/>
+	<ImageButton
+        android:id="@+id/moveGUI"
+        android:src="@drawable/move"
+        android:background="@color/black"
+        android:paddingLeft="10px"/>
+	<ImageButton
         android:id="@+id/help"
         android:contentDescription="@string/help"
         android:src="@drawable/help"
         android:background="@color/black"
-        />
-   <!--  android:background="@drawable/round_button"  -->
+        android:paddingLeft="10px"/>
 </TableRow>
 <TableRow>
-    <TextView
-        android:id="@+id/state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+   <TextView
+        android:id="@+id/name"
+    	android:padding="4dip"
          />
    <TextView
-        android:id="@+id/msgCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-         />
-   <TextView
-        android:id="@+id/msgCountz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-         />
-</TableRow>
-<TableRow>
-    <TextView
-        android:id="@+id/somethin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-         />
-    <TextView
-        android:id="@+id/somethinelse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-         />
-    <Button
-        android:id="@+id/remove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/remove" />
-    <TextView
-        android:id="@+id/somethin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/type"
+	    android:padding="4dip"
          />
 </TableRow>
 <!-- === Service header end ===============-->    

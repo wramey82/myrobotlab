@@ -4,12 +4,7 @@
     android:layout_height="match_parent" >
 
 <TableRow >
-    <!--   Button - autoStart's Phone UI
-        android:id="@+id/startService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/startService" / -->
-        
+ 
 <!-- === Service header begin ===============-->
 <include layout="@layout/service_header"/>    
 <!-- === Service header end =================-->

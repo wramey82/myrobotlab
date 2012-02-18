@@ -20,6 +20,8 @@
         <item>Servo</item> 
     </string-array>
 
+    <string name="getPort">get port</string>
+    
     
     <string name="pin0">pin 0</string>
     <string name="pin1">pin 1</string>
