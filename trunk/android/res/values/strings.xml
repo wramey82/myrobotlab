@@ -20,6 +20,23 @@
         <item>Servo</item> 
     </string-array>
 
+    
+    <string name="pin0">pin 0</string>
+    <string name="pin1">pin 1</string>
+    <string name="pin2">pin 2</string>
+    <string name="pin3">pin 3</string>
+    <string name="pin4">pin 4</string>
+    <string name="pin5">pin 5</string>
+	<string name="pin6">pin 6</string>
+	<string name="pin7">pin 7</string>
+	<string name="pin8">pin 8</string>
+	<string name="pin9">pin 9</string>
+	<string name="pin10">pin 10</string>
+	<string name="pin11">pin 11</string>
+	<string name="pin12">pin 12</string>
+	<string name="pin13">pin 13</string>
+                    
+    
     <string name="vmName">VM Name</string>
     <string name="arch">arch</string>
     <string name="os">os</string>

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Android;
+import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.Logging;
 import org.myrobotlab.service.RemoteAdapter;
 
@@ -124,6 +125,7 @@ public class MRL extends Application {
 			
 			createAndStartService("remote", RemoteAdapter.class.getCanonicalName());
 			createAndStartService("logger", Logging.class.getCanonicalName());
+			createAndStartService("arduino", ArduinoBT.class.getCanonicalName());
 			
 		}
     }
