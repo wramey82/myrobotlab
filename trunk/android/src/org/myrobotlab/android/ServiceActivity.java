@@ -1,6 +1,5 @@
 package org.myrobotlab.android;
 
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -11,7 +10,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,7 +31,6 @@ public abstract class ServiceActivity extends Activity {
 
 	public Bundle bundle = null;
 	public ServiceWrapper sw = null;
-	//public Service myService = null;
 	public View layout = null;
 
 	
@@ -47,7 +44,6 @@ public abstract class ServiceActivity extends Activity {
 
 	    int imageResource = getResources().getIdentifier(path, null, getPackageName());
 
-	    //ImageView imageView = (ImageView) findViewById(R.id.icon);
 	    ImageButton imageView = (ImageButton) layout.findViewById(R.id.icon);
 	    Drawable image = getResources().getDrawable(imageResource);
 	    imageView.setImageDrawable(image);
@@ -61,9 +57,6 @@ public abstract class ServiceActivity extends Activity {
 		text = (TextView) layout.findViewById(R.id.type);
 		text.setText(sw.service.getShortTypeName());
 
-		// icon
-		// ImageButton icon = (ImageButton) layout.findViewById(R.id.icon);
-		// icon.sets
 		// http://stackoverflow.com/questions/2349652/android-open-resource-from-drawable-string
 		showImage(sw.service.getShortTypeName().toLowerCase());
 		
@@ -87,24 +80,17 @@ public abstract class ServiceActivity extends Activity {
     	super.onCreate(savedInstanceState);
     	MRL.getInstance(); // FIXME - most likely not necessary as only the class definition will construct it
     	myAndroid = MRL.android; // FIXME - remove if not used
-    	
-    	
+    	    	
         // begin exchange of data from service to UI
         layout = getLayoutInflater().inflate(layoutID, null);        		
     	
         // get service reference
         bundle = this.getIntent().getExtras();
         boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
-//------------------------------------------------------------------------
-//    	MRL.handlers.put(boundServiceName, new ServiceHandler(this));
-//------------------------------------------------------------------------
 
     	// set the context
     	// we are now the currently active view ! FIXME - does not work !        
-    	//MRL.setCurrentActivity(this);   	
-    	
     	// setting the current service name context
-    	// MRL.setCurrentServiceName(boundServiceName);
     	MRL.currentServiceName = boundServiceName;
 
         // set up notification routes on first initialization

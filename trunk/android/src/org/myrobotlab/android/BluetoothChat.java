@@ -59,8 +59,8 @@ public class BluetoothChat extends Activity {
     public static final String TOAST = "toast";
 
     // Intent request codes
-    private static final int REQUEST_CONNECT_DEVICE = 2;
-    private static final int REQUEST_ENABLE_BT = 3;
+    public static final int REQUEST_CONNECT_DEVICE = 2;
+    public static final int REQUEST_ENABLE_BT = 3;
 
     // Layout Views
     private TextView mTitle;
