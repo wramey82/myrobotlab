@@ -1,41 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<TableLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-<TableRow >
- 
 <!-- === Service header begin ===============-->
 <include layout="@layout/service_header"/>    
-<!-- === Service header end =================-->
-        
-</TableRow>
+<!-- === Service header end =================-->        
 
 <TableRow >
     <Button
         android:id="@+id/refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/refresh" />
-    
+        android:text="@string/refresh" />    
     <Button
         android:id="@+id/remoteLogging"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/remoteLogging" />
 </TableRow>
+
 <TableRow >    
     <Spinner
-        android:id="@+id/new_service"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-<Button
+        android:id="@+id/new_service"/>
+	<Button
         android:id="@+id/addService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add" />
-    
-</TableRow>
-    
-    
+        android:text="@string/add" />    
+</TableRow>    
 </TableLayout>

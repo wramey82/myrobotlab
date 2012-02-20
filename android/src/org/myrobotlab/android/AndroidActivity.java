@@ -32,23 +32,15 @@ public class AndroidActivity extends ServiceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.remoteadapter);
-        
         myService = (Android)sw.service;   
-        //setText(R.id.udpdata, myService.servicePort);
-        //setContentView(layout);        
-
     }
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

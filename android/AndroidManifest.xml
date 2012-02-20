@@ -25,7 +25,6 @@
         </activity>
         <activity android:name="AndroidActivity"></activity>
         <activity android:name="ArduinoBTActivity"></activity>
-        <activity android:name="BluetoothChat"></activity>
         <activity android:name="DeviceListActivity"></activity>
         <activity android:name="LoggingActivity"></activity>
         <activity android:name="ProxyActivity"></activity>
