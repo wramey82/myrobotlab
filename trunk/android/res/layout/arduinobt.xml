@@ -13,6 +13,17 @@
 <include layout="@layout/service_header"/>    
 <!-- === Service header end =================-->
 </TableRow>        
+<TableRow>
+    	<Button
+        android:id="@+id/button_send"
+	    android:text="@string/send"
+	    />
+    
+	<TextView 
+        android:id="@+id/title_right_text"
+        android:text="@string/port" 
+        />
+</TableRow>        
 <TableRow>    
 	<TextView 
         android:id="@+id/portText"

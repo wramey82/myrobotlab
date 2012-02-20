@@ -8,6 +8,7 @@ import org.myrobotlab.service.Android;
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.Logging;
 import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.Servo;
 
 import android.app.Application;
 import android.content.Intent;
@@ -126,6 +127,8 @@ public class MRL extends Application {
 			createAndStartService("remote", RemoteAdapter.class.getCanonicalName());
 			createAndStartService("logger", Logging.class.getCanonicalName());
 			createAndStartService("arduino", ArduinoBT.class.getCanonicalName());
+			createAndStartService("left", Servo.class.getCanonicalName());
+			createAndStartService("right", Servo.class.getCanonicalName());
 			
 		}
     }
