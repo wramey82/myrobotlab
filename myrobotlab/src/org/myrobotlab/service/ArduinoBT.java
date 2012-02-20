@@ -85,21 +85,42 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     private static final String TAG = "ArduinoBT";
     private static final boolean D = true;
 
-	// serial uuid but does notw work for simple bt devices
+    // Name for the SDP record when creating server socket
+    private static final String NAME_SECURE = "BluetoothChatSecure";
+    private static final String NAME_INSECURE = "BluetoothChatInsecure";
+
+    // Unique UUID for this application
+    private static final UUID MY_UUID_SECURE =
+        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+    //private static final UUID MY_UUID_INSECURE =
+    //    UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+    
 	private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-	int mState = STATE_NONE;
-	
+    
+
+    // Member fields
+    public BluetoothAdapter mAdapter;
+    private volatile Handler mHandler;
+    
+	//private AcceptThread mSecureAcceptThread;
+    //private AcceptThread mInsecureAcceptThread;
+    public ConnectThread mConnectThread;
+    public ConnectedThread mConnectedThread;
+    private int mState;
+
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
 
-	
-	// non serializable serial object
-//	transient SerialPort deviceName;
-//	transient static HashMap<String, CommDriver> customPorts = new HashMap<String, CommDriver>();
+    /**
+     * Constructor. Prepares a new BluetoothChat session.
+     * @param context  The UI Activity Context
+     * @param mHandler  A Handler to send messages back to the UI Activity
+     */
+
     BluetoothAdapter adapter = null;
     // Name of the connected device
 	@Element
@@ -107,7 +128,6 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
   
     private ConnectThread connectThread = null;
     private ConnectedThread connectedThread = null;
-    private final Handler handler = null;
  
 	@Element
 	int baudRate = 115200;
@@ -118,7 +138,8 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	@Element
 	int stopBits = 1;
 
-	// imported Arduino constants FIXME - NORMLIZE / GLOBALIZE
+	
+	// FIXME imported Arduino constants FIXME - NORMLIZE / GLOBALIZE
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
 	public static final int OUTPUT = 0x1;
@@ -314,7 +335,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	 * attach a servo to a pin
 	 * @see org.myrobotlab.service.interfaces.ServoController#servoAttach(java.lang.Integer)
 	 */
-	public boolean servoAttach(Integer pin) { if (deviceName == null) {
+	public boolean servoAttach(Integer pin) { 
+		
+		if (deviceName == null) {
 			LOG.error("could not attach servo to pin " + pin
 					+ " serial port in null - not initialized?");
 			return false;
@@ -721,12 +744,14 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         connectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = handler.obtainMessage(BluetoothChat.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothChat.DEVICE_NAME, device.getName());
         msg.setData(bundle);
-        handler.sendMessage(msg);
+        mHandler.sendMessage(msg);
 
+        deviceName = device.getName();
+        
         setState(STATE_CONNECTED);
     }
 
@@ -766,16 +791,29 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         r.write(out);
     }
 
+    public void write(int function, int param1, int param2) {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = connectedThread;
+        }
+        // Perform the write unsynchronized
+        r.write(new byte[]{(byte)function, (byte)param1, (byte)param2});
+    }
+
+    
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
-        Message msg = handler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothChat.TOAST, "Unable to connect device");
         msg.setData(bundle);
-        handler.sendMessage(msg);
+        mHandler.sendMessage(msg);
 
         // Start the service over to restart listening mode
         //BluetoothChatService.this.start();
@@ -786,11 +824,11 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = handler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothChat.TOAST, "Device connection was lost");
         msg.setData(bundle);
-        handler.sendMessage(msg);
+        mHandler.sendMessage(msg);
 
         // Start the service over to restart listening mode
         //BluetoothChatService.this.start();
@@ -932,7 +970,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     						
     						
     	                    // Send the obtained bytes to the UI Activity
-    	                    handler.obtainMessage(BluetoothChat.MESSAGE_READ, numBytes, -1, buffer)
+    	                    mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, numBytes, -1, buffer)
     	                            .sendToTarget();
     	 
     						
@@ -1004,7 +1042,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                handler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
+                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
                         .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
@@ -1029,7 +1067,15 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        handler.obtainMessage(BluetoothChat.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(BluetoothChat.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
+    public Handler getmHandler() {
+		return mHandler;
+	}
+
+	public void setmHandler(Handler mHandler) {
+		this.mHandler = mHandler;
+	}
+    
 }
