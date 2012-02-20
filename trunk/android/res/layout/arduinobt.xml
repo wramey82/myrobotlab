@@ -4,17 +4,22 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
     >
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-	android:layout_height="wrap_content"    
->
-<TableRow>      
+<TableLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" 
+	>
+
+<TableRow> 
+<!-- added TableRow container around service_header to push table contents 
+	in/out & status light to the right...  stretches seekbar too -->  
 <!-- === Service header begin ===============-->
 <include layout="@layout/service_header"/>    
 <!-- === Service header end =================-->
-</TableRow>        
+</TableRow>
+
 <TableRow>
-    	<Button
+	<Button
         android:id="@+id/button_send"
 	    android:text="@string/send"
 	    />

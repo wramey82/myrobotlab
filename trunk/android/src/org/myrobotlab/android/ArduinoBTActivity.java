@@ -1,5 +1,7 @@
 package org.myrobotlab.android; 
 
+import java.util.HashMap;
+
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.Servo;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +25,7 @@ import android.widget.Toast;
 // http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
 
 //  extends ServiceActivity
-	public class ArduinoBTActivity extends ServiceActivity {
+	public class ArduinoBTActivity extends ServiceActivity implements Button.OnClickListener {
 
 	// Debugging
     private static final String TAG = "BluetoothChat";
@@ -47,8 +50,9 @@ import android.widget.Toast;
     private BluetoothAdapter mBluetoothAdapter = null;
 
 	ArduinoBT mChatService = null;
-	
-	
+	Button[] digitalStatusButtons = new Button[13]; 
+	Button[] digitalInOutButtons = new Button[13]; 
+		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.arduinobt);
@@ -72,7 +76,7 @@ import android.widget.Toast;
 			public void onClick(View arg0) {
 	            Intent enableIntent = new Intent(MRL.getInstance(), DeviceListActivity.class);
 	            //startActivityForResult(enableIntent, BluetoothChat.REQUEST_ENABLE_BT);
-	            startActivityForResult(enableIntent, BluetoothChat.REQUEST_CONNECT_DEVICE);
+	            startActivityForResult(enableIntent, REQUEST_CONNECT_DEVICE);
 			}
 		});
 
@@ -100,7 +104,38 @@ import android.widget.Toast;
             }
         });
 
+        initControlButtons();
+    }
+    
+    /*
 
+		String name = "bacon";
+		int id = resources.getIdentifier(name, "string", "com.package");
+		if (id == 0) {
+		    Log.e(TAG, "Lookup id for resource '"+name+"' failed";
+		    // graceful error handling code here
+		}
+
+     */
+    
+    HashMap <Integer, String> idToName = new HashMap <Integer, String>();
+    
+    public void initControlButtons()
+    {
+    	for (int i = 0; i < 13; ++i)
+    	{
+		    String buttonName = "s" + i;
+		    
+		    int resID = getResources().getIdentifier(buttonName, "id", "org.myrobotlab.android");
+		    
+		    idToName.put(resID, buttonName);
+		    
+		    //int resID = getResources().getIdentifier("org.anddev.android.testproject:drawable/bug", null, null);
+		    ImageButton s = ((ImageButton) findViewById(resID));
+		    s.setOnClickListener(this);
+		    //digitalStatusButtons[i] =
+		    //buttons[i][j].setOnClickListener(this);
+    	}
     }
     
     @Override
@@ -127,7 +162,7 @@ import android.widget.Toast;
      */
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
-        if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+        if (mChatService.getState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -147,7 +182,7 @@ import android.widget.Toast;
 	public synchronized void serialSend(int function, int param1, int param2) 
     {
         // Check that we're actually connected before trying anything
-        if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+        if (mChatService.getState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -199,16 +234,16 @@ import android.widget.Toast;
             case MESSAGE_STATE_CHANGE:
                 if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                 switch (msg.arg1) {
-                case BluetoothChatService.STATE_CONNECTED:
+                case ArduinoBT.STATE_CONNECTED:
                     mTitle.setText(R.string.title_connected_to);
                     mTitle.append(mConnectedDeviceName);
                     //mConversationArrayAdapter.clear();
                     break;
-                case BluetoothChatService.STATE_CONNECTING:
+                case ArduinoBT.STATE_CONNECTING:
                     mTitle.setText(R.string.title_connecting);
                     break;
-                case BluetoothChatService.STATE_LISTEN:
-                case BluetoothChatService.STATE_NONE:
+                case ArduinoBT.STATE_LISTEN:
+                case ArduinoBT.STATE_NONE:
                     mTitle.setText(R.string.title_not_connected);
                     break;
                 }
@@ -309,4 +344,26 @@ import android.widget.Toast;
 		
 	}
 
+	// FIXME - pin state information needs to be owned by ArduinoBT
+	
+	@Override
+	public void onClick(View view) {
+		//Toast.makeText(this, idToName.get(view.getId()), Toast.LENGTH_SHORT).show();
+		
+		String btnName = idToName.get(view.getId());
+		
+		//view.getClass();
+		
+		// status button
+		if (btnName.startsWith("s"))
+		{
+			ImageButton s = (ImageButton) view;
+			s.setImageResource(R.drawable.green);
+		}
+		
+		// get type
+		// check state
+		// send message
+		// change state
+	}
 }

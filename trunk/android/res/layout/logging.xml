@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-<TableRow>      
+	>
+
 <!-- === Service header begin ===============-->
 <include layout="@layout/service_header"/>    
 <!-- === Service header end =================-->
-</TableRow>        
-<TableRow>
 
+<TableRow>
     <TextView
         android:id="@+id/log"
         android:layout_span="4"
@@ -16,10 +14,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:editable="false"     
-        android:inputType="textMultiLine" />
-    
+        android:inputType="textMultiLine" />    
 </TableRow>
-
-
- 
 </TableLayout>

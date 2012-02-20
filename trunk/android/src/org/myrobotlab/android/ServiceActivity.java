@@ -39,7 +39,7 @@ public abstract class ServiceActivity extends Activity {
 		return bundle;
 	}		
 	
-	private void showImage(String icon) {
+	private void showServiceIcon(String icon) {
 		String path = "drawable/" + icon;
 
 	    int imageResource = getResources().getIdentifier(path, null, getPackageName());
@@ -58,7 +58,7 @@ public abstract class ServiceActivity extends Activity {
 		text.setText(sw.service.getShortTypeName());
 
 		// http://stackoverflow.com/questions/2349652/android-open-resource-from-drawable-string
-		showImage(sw.service.getShortTypeName().toLowerCase());
+		showServiceIcon(sw.service.getShortTypeName().toLowerCase());
 		
 		// help
 		ImageButton help = (ImageButton) layout.findViewById(R.id.help);
