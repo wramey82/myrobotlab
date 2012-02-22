@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
 	>
 
 <!-- === Service header begin ===============-->
@@ -9,16 +11,36 @@
 <TableRow>    
    <TextView 
         android:id="@+id/textView1"
-        android:layout_span="2"
-        android:text="@string/listeningPorts" />
+        android:text="@string/listeningPorts" 
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"         
+        />
 </TableRow>
 <TableRow>    
    <TextView 
         android:id="@+id/textView4"
-        android:text="@string/udp" />
+        android:text="@string/udp" 
+        />
    <TextView
         android:id="@+id/udpdata"
         />
 </TableRow>
- 
+<TableRow>    
+   <TextView 
+        android:id="@+id/textView5"
+        android:text="@string/messageCount" 
+        />
+   <TextView
+        android:id="@+id/msgCount"
+        />
+</TableRow>
+<TableRow>    
+   <TextView 
+        android:id="@+id/t5"
+        android:text="@string/connections" 
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"         
+        />
+</TableRow>
+
 </TableLayout>

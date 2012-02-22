@@ -21,8 +21,11 @@
     </string-array>
 
     <string name="getPort">get port</string>
+
+    <string name="shutdown">shutdown</string>
     
     <string name="name">name</string>
+    <string name="analogPins">analog pins</string>
     
     <string name="pin0">pin 0</string>
     <string name="pin1">pin 1</string>
@@ -49,7 +52,6 @@
     <string name="remove">remove</string>
     <string name="help">help</string>
     <string name="pin">pin</string>
-    <string name="udp">udp</string>
     <string name="attach">attach</string>
     <string name="refresh">refresh</string>
     <string name="add">add</string>
@@ -57,6 +59,11 @@
     <string name="host">host</string>
     <string name="port">port</string>
     <string name="remoteLogging">remote logging</string>
+
+    <!-- labels -->
+    <string name="udp">udp </string>
+    <string name="messageCount">message count </string>
+    <string name="connections">connections </string>
     
     <!-- hints -->
     <string name="defaultHost">127.0.0.1</string>
