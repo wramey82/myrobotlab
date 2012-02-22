@@ -36,10 +36,10 @@ import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.android.BluetoothChat;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
@@ -66,9 +66,6 @@ import android.util.Log;
  *  
  *	Should support nearly all Arduino board types  
  *   
- *   TODO:
- *   Data should be serializable in xml or properties, binary should already work
- *   
  *   References:
  *    <a href="http://www.arduino.cc/playground/Main/RotaryEncoders">Rotary Encoders</a> 
  *   @author GroG
@@ -85,42 +82,38 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     private static final String TAG = "ArduinoBT";
     private static final boolean D = true;
 
-    // Name for the SDP record when creating server socket
-    private static final String NAME_SECURE = "BluetoothChatSecure";
-    private static final String NAME_INSECURE = "BluetoothChatInsecure";
-
-    // Unique UUID for this application
-    private static final UUID MY_UUID_SECURE =
-        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-    //private static final UUID MY_UUID_INSECURE =
-    //    UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-    
 	private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    // Message types sent from the BluetoothChatService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
     
-
+    // Key names received from the BluetoothChatService Handler
+    public static final String DEVICE_NAME = "device_name";
+    public static final String TOAST = "toast";
+    
     // Member fields
-    public BluetoothAdapter mAdapter;
+    public BluetoothAdapter btAdapter;
     private volatile Handler mHandler;
-    
-	//private AcceptThread mSecureAcceptThread;
-    //private AcceptThread mInsecureAcceptThread;
-    public ConnectThread mConnectThread;
-    public ConnectedThread mConnectedThread;
-    private int mState;
 
+    private int state;
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
 
-    /**
-     * Constructor. Prepares a new BluetoothChat session.
-     * @param context  The UI Activity Context
-     * @param mHandler  A Handler to send messages back to the UI Activity
-     */
+    // serial connection details
+	boolean rawReadMsg = false;
+	int rawReadMsgLength = 4;
 
+	// FIXME methods - is this a good idea ??? should this be generated like 
+	// android R file ???
+	public static final String digitalWrite = "digitalWrite";
+	
     BluetoothAdapter adapter = null;
     // Name of the connected device
 	@Element
@@ -137,13 +130,10 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	int parity = 0;
 	@Element
 	int stopBits = 1;
-
 	
 	// FIXME imported Arduino constants FIXME - NORMLIZE / GLOBALIZE
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
-	public static final int OUTPUT = 0x1;
-	public static final int INPUT = 0x0;
 
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
@@ -176,7 +166,10 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>(); 
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>(); 
-
+			
+	
+	public HashMap<Integer, PinState> pins = new HashMap<Integer, PinState>(); 
+	
 	/**
 	 *  list of serial port names from the system which the Arduino service is 
 	 *  running
@@ -185,39 +178,36 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	
 	public ArduinoBT(String n) {
 		super(n, ArduinoBT.class.getCanonicalName());
+
+		load(); // attempt to load config
+		
 		// get ports - return array of strings
 		// set port? / init port
 		// detach port
 		
-		load(); // attempt to load config
-
-		adapter = BluetoothAdapter.getDefaultAdapter();
-		mState = STATE_NONE;
-		// attempt to get serial port based on there only being 1
-		// or based on previous config
-		
-		// if there is only 1 port - attempt to initialize it
-		portNames = getDeviceNames();
-		LOG.info("number of ports " + portNames.size());
-		for (int j = 0; j < portNames.size(); ++j) {
-			LOG.info(portNames.get(j));
-		}
-
-		if (portNames.size() == 1) { // heavy handed?
-			LOG.info("only one serial port " + portNames.get(0));
-			setPort(portNames.get(0));
-		} else if (portNames.size() > 1) {
-			if (deviceName != null && deviceName.length() > 0) {
-				LOG.info("more than one port - last serial port is "
-						+ deviceName);
-				setPort(deviceName);
+		// populate the pins
+		for (int i = 0; i < 13; ++i) // + 6 analogs
+		{   
+			PinState p = new PinState();
+			p.value = 0; // FIXME - if you set it here - you should initialize the board to 0
+			p.address = i;
+			if (i == 3 || i == 5 || i == 6 || i == 9 || i == 10 || i == 11)
+			{
+				// pwm pins
+				p.type = PinState.ANALOGDIGITAL;
+				pins.put(i, p);
+			} else if (i > 13) {
+				p.type = PinState.ANALOG;
+				pins.put(i, p);				
 			} else {
-				// idea - auto discovery attempting to auto-load arduinoSerial.pde
-				LOG.warn("more than one port or no ports, and last serial port not set");
-				LOG.warn("need user input to select from " + portNames.size()
-						+ " possibilities ");
+				p.type = PinState.DIGITAL;
+				pins.put(i, p);				
 			}
 		}
+		
+		// FIXME distill Arduino out of BT & GNU IO
+		adapter = BluetoothAdapter.getDefaultAdapter();
+		state = STATE_NONE;
 
 		for (int i = 0; i < servosInUse.length; ++i) {
 			servosInUse[i] = false;
@@ -225,33 +215,19 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 
 	}
 	
-	/**
-	 * @return the current serials port name or null if not opened
-	 */
-	public String getPortName() //FIXME - BT MAC address or BT Name ???
+	public PinState getPinState(int pinNum)
 	{
-		if (deviceName != null)
-		{
-			return deviceName;
-		}
-		
-		return null;
+		return pins.get(pinNum);		
 	}
 	
 	/**
-	 * getPorts returns all serial ports, including the current port being used, 
-	 * and any custom added ports (e.g. wii ports) 
-	 * 
-	 * @return array of port names which are currently being used, or serial, or custom
+	 * @return the current serials port name or null if not opened
 	 */
-	// get BT devices
-	public ArrayList<String> getDeviceNames() {
-		
-		// fill in device names
-		ArrayList<String> deviceNames = new ArrayList<String>();
-
-		return deviceNames;
+	public String getDeviceName() //FIXME - BT MAC address or BT Name ???
+	{
+		return deviceName;
 	}
+	
 
 	@Override
 	public void loadDefaultConfiguration() {
@@ -274,7 +250,12 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		data[1] = (byte)param1;
 		data[2] = (byte)param2;
 
-		connectedThread.write(data);
+		if (connectedThread != null)
+		{
+			connectedThread.write(data);
+		} else {
+			LOG.error("currently not connected"); // FIXME at some point use a Service logger interface
+		}
 	}
 
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
@@ -421,21 +402,6 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	    LOG.info("released port");
 	}
 
-	/**
-	 * setPort - sets the serial port to the requested port name
-	 * and initially attempts to open with 115200 8N1
-	 * @param inPortName name of serial port 
-	 * 			Linux [ttyUSB0, ttyUSB1, ... S0, S1, ...]
-	 * 			Windows [COM1, COM2, ...]
-	 * 			OSX [???]
-	 * @return if successful
-	 * 
-	 */
-	public boolean setPort(String inPortName) {
-		LOG.debug("setPort requesting [" + inPortName + "]");
-		//connect();
-		return false;
-	}
 
 	public String getDeviceString()
 	{
@@ -497,40 +463,23 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	// ---------------------- Protocol Methods Begin ------------------
 
 	public void digitalReadPollStop(Integer address) {
-
 		LOG.info("digitalRead (" + address + ") to " + deviceName);
 		serialSend(DIGITAL_READ_POLLING_STOP, address, 0);
-
 	}
 
-	public void digitalWrite(IOData io) {
-		digitalWrite(io.address, io.value);
-	}
-
-	public void digitalWrite(Integer address, Integer value) {
-		LOG.info("digitalWrite (" + address + "," + value + ") to "
-				+ deviceName + " function number " + DIGITAL_WRITE);
-		serialSend(DIGITAL_WRITE, address, value);
-	}
-
-	public void pinMode(IOData io) {
-		pinMode(io.address, io.value);
+	public IOData digitalWrite(IOData io) {
+		serialSend(DIGITAL_WRITE, io.address, io.value);
+		return io;
 	}
 
 	public void pinMode(Integer address, Integer value) {
-		LOG.info("pinMode (" + address + "," + value + ") to "
-				+ deviceName + " function number " + PINMODE);
+		pins.get(address).mode = value;
 		serialSend(PINMODE, address, value);
 	}
 
-	public void analogWrite(IOData io) {
-		analogWrite(io.address, io.value);
-	}
-
-	public void analogWrite(Integer address, Integer value) {
-		LOG.info("analogWrite (" + address + "," + value + ") to "
-				+ deviceName + " function number " + ANALOG_WRITE);
-		serialSend(ANALOG_WRITE, address, value);
+	public IOData analogWrite(IOData io) {
+		serialSend(ANALOG_WRITE, io.address, io.value);
+		return io;
 	}
 
 	public PinData publishPin(PinData p) {
@@ -538,45 +487,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		return p;
 	}
 
-	// DEPRICATE !
-	public PinData readServo(PinData p) {
-		// TODO - translation back to pin identifier
-		// e.g. pin 6 could be servo[0] - sending back we need to put pin back
-		// pin is actually servo index until this translation bleh
-		p.pin = servoToPin.get(p.pin);
-		LOG.info(p);
-		return p;
-	}
-
-	/*
-	public static void addPortName(String n, int portType, CommDriver cpd) {
-		// it IS misleading to have addPortName put the port in, but not
-		// available through getPortIdentifiers !
-		// http://en.wikibooks.org/wiki/Serial_Programming/Serial_Java -
-		// The method CommPortIdentifier.addPortName() is misleading,
-		// since driver classes are platform specific and their
-		// implementations are not part of the public API
-
-		customPorts.put(n, cpd);
-		// CommPortIdentifier.addPortName(n, portType, cpd); // this does
-		// nothing of relevance - because it does not
-		// persist across getPortIdentifier calls
-	}
-	*/
-
-	// TODO - blocking call which waits for serial return
-	// not thread safe - use mutex? - block on expected byte count?
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
-
 	public String readSerialMessage(String s) {
 		return s;
 	}
-
-	boolean rawReadMsg = false;
-	int rawReadMsgLength = 4;
-
-	// char rawMsgBuffer
 
 	public void setRawReadMsg(Boolean b) {
 		rawReadMsg = b;
@@ -586,12 +499,6 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		rawReadMsgLength = length;
 	}
 
-
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
-	public String getType() {
-		return ArduinoBT.class.getCanonicalName();
-	}
 
 	// force an digital read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
@@ -636,8 +543,8 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	public void motorAttach(String name, Integer PWMPin, Integer DIRPin) {
 		// set the pinmodes on the 2 pins
 		if (deviceName != null) {
-			pinMode(PWMPin, ArduinoBT.OUTPUT);
-			pinMode(DIRPin, ArduinoBT.OUTPUT);
+			pinMode(PWMPin, PinState.OUTPUT);
+			pinMode(DIRPin, PinState.OUTPUT);
 		} else {
 			LOG.error("attempting to attach motor before serial connection to "
 					+ name + " Arduino is ready");
@@ -684,24 +591,14 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		return ret;
 	}
 	
-	public static void main(String[] args) {
-
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
-	
-		//Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
-		ArduinoBT arduino = new ArduinoBT("arduino");
-		arduino.startService();
-
-	}
-
 	   /**
      * Return the current connection state. */
     public synchronized int getState() {
-        return mState;
+        return state;
     }
 
     /**
+     * Gleaned from Google's API Bluetooth Demo
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
      * @param secure Socket Security type - Secure (true) , Insecure (false)
@@ -710,7 +607,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         if (D) Log.d(TAG, "connect to: " + device);
 
         // Cancel any thread attempting to make a connection
-        if (mState == STATE_CONNECTING) {
+        if (state == STATE_CONNECTING) {
             if (connectThread != null) {connectThread.cancel(); connectThread = null;}
         }
 
@@ -744,9 +641,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         connectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothChat.DEVICE_NAME, device.getName());
+        bundle.putString(DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -784,7 +681,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != STATE_CONNECTED) return;
+            if (state != STATE_CONNECTED) return;
             r = connectedThread;
         }
         // Perform the write unsynchronized
@@ -796,7 +693,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != STATE_CONNECTED) return;
+            if (state != STATE_CONNECTED) return;
             r = connectedThread;
         }
         // Perform the write unsynchronized
@@ -809,12 +706,13 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothChat.TOAST, "Unable to connect device");
+        bundle.putString(TOAST, "Unable to connect device");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
+        deviceName = null;
         // Start the service over to restart listening mode
         //BluetoothChatService.this.start();
     }
@@ -824,12 +722,13 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothChat.TOAST, "Device connection was lost");
+        bundle.putString(TOAST, "Device connection was lost");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
+        deviceName = null;
         // Start the service over to restart listening mode
         //BluetoothChatService.this.start();
     }
@@ -862,6 +761,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
                 Log.e(TAG, "tmp = " + tmp);
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
+                deviceName = null;
             }
             mmSocket = tmp;
         }
@@ -967,21 +867,12 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     					// rawReadMsgLength);
 
     					if (numBytes == rawReadMsgLength) {
-    						
-    						
-    	                    // Send the obtained bytes to the UI Activity
-    	                    mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, numBytes, -1, buffer)
+
+    						// Send the obtained bytes to the UI Activity
+    	                    mHandler.obtainMessage(MESSAGE_READ, numBytes, -1, buffer)
     	                            .sendToTarget();
-    	 
-    						
-    						/*
-    						 * Diagnostics StringBuffer b = new StringBuffer(); for
-    						 * (int i = 0; i < rawReadMsgLength; ++i) {
-    						 * b.append(msg[i] + " "); }
-    						 * 
-    						 * LOG.error("msg" + b.toString());
-    						 */
-    						totalBytes += numBytes;
+
+    	                    totalBytes += numBytes;
 
     						if (rawReadMsg) {
     							// raw protocol
@@ -994,8 +885,8 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     							// mrl protocol
 
     							PinData p = new PinData();
-    							p.time = System.currentTimeMillis();
-    							p.function = msg[0];
+    							//p.time = System.currentTimeMillis();
+    							p.method = msg[0];
     							p.pin = msg[1];
     							// java assumes signed
     							// http://www.rgagnon.com/javadetails/java-0026.html
@@ -1003,13 +894,6 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     															// int is 2 bytes)
     							p.value += (msg[3] & 0xFF); // LSB
 
-    							// if (p.function == SERVO_READ) { COMPLETELY
-    							// DEPRICATED !!!
-    							// invoke("readServo", p);
-    							// } else {
-    							if (p.function == ANALOG_VALUE) {
-    								p.type = 1;
-    							}
     							p.source = myService.getName();
     							invoke(SensorData.publishPin, p);
     							// }
@@ -1042,7 +926,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
+                mHandler.obtainMessage(MESSAGE_WRITE, -1, -1, buffer)
                         .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
@@ -1063,11 +947,11 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
      * @param state  An integer defining the current connection state
      */
     private synchronized void setState(int state) {
-        if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
-        mState = state;
+        if (D) Log.d(TAG, "setState() " + state + " -> " + state);
+        this.state = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(BluetoothChat.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     public Handler getmHandler() {

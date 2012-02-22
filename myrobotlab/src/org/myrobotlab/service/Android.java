@@ -164,11 +164,14 @@ public class Android extends Service implements SensorEventListener {
 		if (m.sender.equals(MRL.currentServiceName))
 		{
 			Handler handler = MRL.handlers.get(m.sender);
-			android.os.Message msg = handler.obtainMessage();
-		    msg.what = 1;
-		    msg.obj = m;
-		    //msg.arg1 = index;
-		    handler.sendMessage(msg);
+			if (handler != null)
+			{
+				android.os.Message msg = handler.obtainMessage();
+			    msg.what = 1;
+			    msg.obj = m;
+			    //msg.arg1 = index;
+			    handler.sendMessage(msg);
+			}
 		    // TODO try handler.sendMessageAtFrontOfQueue(msg)
 		    // TODO - make the myrobotlab.xml listview flash when a
 		    // message goest to a specific Service

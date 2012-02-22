@@ -98,7 +98,7 @@ public class MRLClient {
 
 		pinData.pin = 2;
 		pinData.source = "mySource";
-		pinData.function = 17;
+		pinData.method = 17;
 		pinData.value = 500;
 
 		// the sensor monitor will need a setup call - to add trace data

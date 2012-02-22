@@ -52,21 +52,12 @@ public interface DigitalIO {
 	 *  address - the address on the device which value will be written too
 	 *  value - the value to be written, typically 1 or 255 range
 	 */
-	// public void digitalWrite(Integer address, Integer value);
-	public void digitalWrite(IOData io);
+
+	public IOData digitalWrite(IOData io);
 
 	public void digitalReadPollStart(Integer address);
 
 	public void digitalReadPollStop(Integer address);
 
-	/**
-	 * getType will return the canonical class name of the controller that
-	 * supports this interface. e.g. org.myrobotlab.service.Arduino or
-	 * com.someone.service.PICAxe
-	 * 
-	 * @return String - the canonical class name of the controller supporting
-	 *         the DigitalIO interface
-	 */
-	public String getType();
 
 }

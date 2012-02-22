@@ -58,6 +58,23 @@ public class Runtime extends Service {
 		return name;
 	}
 	
+	public String release(String serviceName)
+	{
+		RuntimeEnvironment.release(serviceName);
+		return serviceName;
+	}
+	
+	public void releaseAll()
+	{
+		RuntimeEnvironment.releaseAll();
+	}
+	
+	public URL release(URL url)
+	{
+		RuntimeEnvironment.release(url);
+		return url;
+	}
+	
 	/**
 	 * collision event - when a registration is attempted but there is a 
 	 * name collision

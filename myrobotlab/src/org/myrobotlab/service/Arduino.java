@@ -613,8 +613,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 	}
 
-	public void digitalWrite(IOData io) {
+	public IOData digitalWrite(IOData io) {
 		digitalWrite(io.address, io.value);
+		return io;
 	}
 
 	public void digitalWrite(Integer address, Integer value) {
@@ -633,8 +634,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 		serialSend(PINMODE, address, value);
 	}
 
-	public void analogWrite(IOData io) {
+	public IOData analogWrite(IOData io) {
 		analogWrite(io.address, io.value);
+		return io;
 	}
 
 	public void analogWrite(Integer address, Integer value) {
@@ -749,8 +751,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 							// mrl protocol
 
 							PinData p = new PinData();
-							p.time = System.currentTimeMillis();
-							p.function = msg[0];
+							//p.time = System.currentTimeMillis();
+							p.method = msg[0];
 							p.pin = msg[1];
 							// java assumes signed
 							// http://www.rgagnon.com/javadetails/java-0026.html
@@ -762,9 +764,11 @@ public class Arduino extends Service implements SerialPortEventListener,
 							// DEPRICATED !!!
 							// invoke("readServo", p);
 							// } else {
-							if (p.function == ANALOG_VALUE) {
-								p.type = 1;
+							/*
+							if (p.method == ANALOG_VALUE) {
+								p.type = PinData.TYPE_ANALOG;
 							}
+							*/
 							p.source = this.getName();
 							invoke(SensorData.publishPin, p);
 							// }
