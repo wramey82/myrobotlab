@@ -5,6 +5,8 @@ import java.util.HashMap;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.service.data.PinState;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -49,26 +51,65 @@ import android.widget.Toast;
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
 
-	ArduinoBT mChatService = null;
-	Button[] digitalStatusButtons = new Button[13]; 
-	Button[] digitalInOutButtons = new Button[13]; 
+	ArduinoBT myService = null;
+	//Button[] digitalStatusButtons = new Button[13]; 
+	//Button[] digitalInOutButtons = new Button[13];
+	
+	public class PinButton 
+	{
+		public final static int UNKNOWN = 0xFF;
+		public final static int IO = 0x00;
+		public final static int VALUE = 0x01;
 		
+		public String name;
+		public int type = UNKNOWN; // IO / VALUE / SENSOR
+		public PinState pin = null;
+		public ImageButton button = null;
+	}
+	
+	HashMap <Integer, PinButton> buttons = new HashMap <Integer, PinButton>();
+	
+	/**
+	 * container object to contain the "actual" pin control
+	 * and all additional UI components to control it
+	 * this can include :
+	 * mode button - switches from INPUT/OUTPUT
+	 * value button - which can be 0 or 1 for digital pins
+	 * analogSeekBar - for PWM pins
+	 * TextViews - for analog read values
+	 * 
+	 * many UI elements are needed or can control a single PinState
+	 * therefore a Map is used to map the UI id value to the PinControl
+	 *
+	 */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.arduinobt);
         
-        mChatService = (ArduinoBT)sw.service;   
-        // setText(R.id.udpdata, myService.servicePort);
-        //setContentView(layout);      
-        mChatService.setmHandler(mHandler);
+        // FIXME - 
+        // setup the handler from Android service for 
+        // message routing from the service to the activity
+        myService = (ArduinoBT)sw.service;   
+        myService.setmHandler(mHandler);
+        
+    	// FIXME - safe to bury in ServiceActivity !!!        
+//------------------------------------------------------------        
+       	MRL.handlers.put(boundServiceName, new MyHandler(this));
+//------------------------------------------------------------        
+
         
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         
         // Set up the custom title
         mTitle = (TextView) findViewById(R.id.title_right_text);
-
+        String deviceName = myService.getDeviceName();
+        if  (deviceName == null) {
+        	mTitle.setText(R.string.not_connected);
+        } else {
+        	mTitle.setText(deviceName);
+        }
         
 		Button getPort = (Button) layout.findViewById(R.id.getPort);
 		getPort.setOnClickListener(new OnClickListener() {
@@ -80,59 +121,47 @@ import android.widget.Toast;
 			}
 		});
 
-        mSendButton = (Button) findViewById(R.id.button_send);
-        mSendButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                //TextView view = (TextView) findViewById(R.id.edit_text_out);
-                //String message = "test";
-                //sendMessage(message);
-            	
-            	Servo left = (Servo)RuntimeEnvironment.getService("left").service;
-            	left.attach("arduino", 4);
-            	
-            	left.moveTo(90);
-            	left.moveTo(92);
-            	left.moveTo(94);
-            	left.moveTo(98);
-            	left.moveTo(100);
-            	left.moveTo(102);
-            	left.moveTo(108);
-            	
-            	
-                //serialSend(ArduinoBT.SERVO_ATTACH, 1)
-            }
-        });
-
-        initControlButtons();
+        initPinButtons();
     }
     
-    /*
-
-		String name = "bacon";
-		int id = resources.getIdentifier(name, "string", "com.package");
-		if (id == 0) {
-		    Log.e(TAG, "Lookup id for resource '"+name+"' failed";
-		    // graceful error handling code here
-		}
-
-     */
-    
-    HashMap <Integer, String> idToName = new HashMap <Integer, String>();
-    
-    public void initControlButtons()
+    public void initPinButtons()
     {
-    	for (int i = 0; i < 13; ++i)
+    	    	
+    	for (int i = 0; i < myService.pins.size(); ++i) // 13 digital 6 analog
     	{
-		    String buttonName = "s" + i;
-		    
-		    int resID = getResources().getIdentifier(buttonName, "id", "org.myrobotlab.android");
-		    
-		    idToName.put(resID, buttonName);
+    		// digital value button (grey/green/red?)
+    		String name = "s" + i;
+    		int bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");		    
+    		if (bID != 0)
+		    {
+        		PinButton p = new PinButton(); 
+        		p.name = name;
+        		p.type = PinButton.VALUE;
+    			p.button = ((ImageButton) findViewById(bID));
+    			p.pin = myService.pins.get(i);
+    			p.button.setOnClickListener(this);
+    			buttons.put(bID, p);
+		    } else {
+		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
+		    }
+
+    		// 
+		    name = "b" + i;		    
+		    bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
+		    if (bID != 0)
+		    {
+        		PinButton p = new PinButton(); 
+        		p.name = name;
+        		p.type = PinButton.IO;
+    			p.button = ((ImageButton) findViewById(bID));
+    			p.pin = myService.pins.get(i);
+    			p.button.setOnClickListener(this);
+    			buttons.put(bID, p);
+		    } else {
+		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
+		    }
 		    
 		    //int resID = getResources().getIdentifier("org.anddev.android.testproject:drawable/bug", null, null);
-		    ImageButton s = ((ImageButton) findViewById(resID));
-		    s.setOnClickListener(this);
 		    //digitalStatusButtons[i] =
 		    //buttons[i][j].setOnClickListener(this);
     	}
@@ -162,7 +191,7 @@ import android.widget.Toast;
      */
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
-        if (mChatService.getState() != ArduinoBT.STATE_CONNECTED) {
+        if (myService.getState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -171,7 +200,7 @@ import android.widget.Toast;
         if (message.length() > 0) {
             // Get the message bytes and tell the BluetoothChatService to write
             byte[] send = message.getBytes();
-            mChatService.write(send);
+            myService.write(send);
 
             // Reset out string buffer to zero and clear the edit text field
            // mOutStringBuffer.setLength(0);
@@ -182,7 +211,7 @@ import android.widget.Toast;
 	public synchronized void serialSend(int function, int param1, int param2) 
     {
         // Check that we're actually connected before trying anything
-        if (mChatService.getState() != ArduinoBT.STATE_CONNECTED) {
+        if (myService.getState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -191,7 +220,7 @@ import android.widget.Toast;
         //if (message.length() > 0) {
             // Get the message bytes and tell the BluetoothChatService to write
             //byte[] send = message.getBytes();
-            mChatService.write(function, param1, param2);
+            myService.write(function, param1, param2);
 
             // Reset out string buffer to zero and clear the edit text field
            // mOutStringBuffer.setLength(0);
@@ -211,11 +240,11 @@ import android.widget.Toast;
         // not enabled during onStart(), so we were paused to enable it...
         // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
         /*
-        if (mChatService != null) {
+        if (myService != null) {
             // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
+            if (myService.getState() == BluetoothChatService.STATE_NONE) {
               // Start the Bluetooth chat services
-              mChatService.start();
+              myService.start();
             }
         }
         */
@@ -306,7 +335,7 @@ import android.widget.Toast;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         
         // Attempt to connect to the device
-        mChatService.connect(device);
+        myService.connect(device);
     }
     
 
@@ -325,17 +354,18 @@ import android.widget.Toast;
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Stop the Bluetooth chat services
-        if (mChatService != null) mChatService.stop();
+        //if (myService != null) myService.stop();
         if(D) Log.e(TAG, "--- ON DESTROY ---");
     }
-
-    
 
 	@Override
 	public void attachGUI() {
 		// TODO Auto-generated method stub
-		
+		// pinMode change
+		// digitalWrite change
+		// analogWrite change
+		sendNotifyRequest("publishState", "getState", ArduinoBT.class);
+		//myService.send(boundServiceName, "publishState"); TODO - broadcast first state
 	}
 
 	@Override
@@ -348,22 +378,52 @@ import android.widget.Toast;
 	
 	@Override
 	public void onClick(View view) {
-		//Toast.makeText(this, idToName.get(view.getId()), Toast.LENGTH_SHORT).show();
+				
+		PinButton p = buttons.get(view.getId());
 		
-		String btnName = idToName.get(view.getId());
-		
-		//view.getClass();
-		
-		// status button
-		if (btnName.startsWith("s"))
-		{
-			ImageButton s = (ImageButton) view;
-			s.setImageResource(R.drawable.green);
-		}
-		
+		//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
+
 		// get type
 		// check state
 		// send message
 		// change state
+		
+		// digital "VALUE" button pressed
+		if (p.type == PinButton.VALUE)
+		{
+			if (p.pin.value == 0) // last pin value 
+			{
+				// send pinData to ArduinoBT - digitalWrite
+				// choice is - set it now - or get it on sync
+				// level of sync - call back would be sync with the Service
+				// TODO - optimization - create a single IOData per pin
+				myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.HIGH));
+				p.button.setImageResource(R.drawable.green); // FIXME possibly wrong state
+				p.pin.value = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
+			} else {
+				myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.LOW));				
+				p.button.setImageResource(R.drawable.grey);
+				p.pin.value = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
+			}
+			
+		}
 	}
+	
+	// FIXME - safe to bury in ServiceActivity !!!
+    public class MyHandler extends Handler {
+    	volatile Activity activity;
+    	MyHandler(Activity a)
+    	{
+    		super();
+    		activity = a;    		
+    	}
+    	  @Override
+    	  public void handleMessage(android.os.Message msg) {
+    		  org.myrobotlab.framework.Message m = (org.myrobotlab.framework.Message)msg.obj;
+    		  //log(m);
+    		  // invoke
+    		  MRL.android.invoke(activity, m.method, m.data);
+    		  super.handleMessage(msg);
+    	  }
+    }
 }

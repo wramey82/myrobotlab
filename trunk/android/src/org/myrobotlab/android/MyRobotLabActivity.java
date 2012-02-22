@@ -1,6 +1,5 @@
 package org.myrobotlab.android;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +48,7 @@ import android.widget.Toast;
  *         Logging, connecting to other instances, and other global
  *         procedures
  * 
+ * 	TODO - onDestroy - shutdown everything
  */
 public class MyRobotLabActivity extends ListActivity {
 
@@ -57,21 +57,17 @@ public class MyRobotLabActivity extends ListActivity {
 	// dialogs
 	public static final int DIALOG_MYROBOTLAB_ADD_SERVICE = 1;
 	public static final int DIALOG_MYROBOTLAB_CONNECT_HOST_PORT = 2;
+	public static final int DIALOG_MYROBOTLAB_SHUTDOWN = 3;
 
 	Button refresh;
 	Button addService;
 	Button remoteLogging;
 	Spinner availableServices;
-	ServiceListAdapter runningServices;
 	
 	ImageButton help;
 
 	//public static Android androidService; // (make singleton)
 	public Proxy proxyService; // FIXME temporary
-
-	// android "tab" view TODO change to backing HashMap
-	ArrayList<String> services = new ArrayList<String>();
-
 		
 	public class ServiceListAdapter extends ArrayAdapter<String> {
 	    //private int[] colors = new int[] { 0x30FF0000, 0x300000FF };
@@ -122,6 +118,16 @@ public class MyRobotLabActivity extends ListActivity {
 				showDialog(DIALOG_MYROBOTLAB_CONNECT_HOST_PORT);
 			}
 		});
+		
+       ImageButton release = (ImageButton) header.findViewById(R.id.release);
+        release.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				showDialog(DIALOG_MYROBOTLAB_SHUTDOWN);
+			}
+		});
+	        
 
 		// available services
 		availableServices = (Spinner) header.findViewById(R.id.new_service);
@@ -169,12 +175,12 @@ public class MyRobotLabActivity extends ListActivity {
 
 		// http://developer.android.com/reference/android/R.layout.html
 		// http://stackoverflow.com/questions/4540754/add-dynamically-elements-to-a-listview-android
-		if (runningServices == null) // TODO - test for null vs init in member list?
+		if (MRL.runningServices == null) // TODO - test for null vs init in member list?
 		{
-			runningServices = new ServiceListAdapter(this,
+			MRL.runningServices = new ServiceListAdapter(this,
 					android.R.layout.simple_list_item_single_choice,
-					android.R.id.text1, services);
-			setListAdapter(runningServices);
+					android.R.id.text1, MRL.services);
+			setListAdapter(MRL.runningServices);
 		}		
 		refreshServiceView();
 	}
@@ -184,7 +190,7 @@ public class MyRobotLabActivity extends ListActivity {
 	// http://en.wikipedia.org/wiki/Observer_pattern
 	// http://docs.oracle.com/javase/tutorial/uiswing/events/index.html
 	public void refreshServiceView() {
-		services.clear();
+		MRL.services.clear();
 
 		// HashMap<URL, ServiceEnvironment> registry =
 		// RuntimeEnvironment.getServiceEnvironments();
@@ -195,7 +201,7 @@ public class MyRobotLabActivity extends ListActivity {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = registry.get(serviceName);
-			services.add(serviceName);
+			MRL.services.add(serviceName);
 			if (sw.host.accessURL == null) {
 				// local - leave row black
 			} else {
@@ -203,14 +209,36 @@ public class MyRobotLabActivity extends ListActivity {
 			}
 		}
 
-		runningServices.notifyDataSetChanged();
+		MRL.runningServices.notifyDataSetChanged();
 	}
 
+	
+	/*
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+	    @Override
+	    public void onClick(DialogInterface dialog, int which) {
+	        switch (which){
+	        case DialogInterface.BUTTON_POSITIVE:
+	            //Yes button clicked
+	        	MRL.releaseAll();
+	            break;
+
+	        case DialogInterface.BUTTON_NEGATIVE:
+	            //No button clicked
+	            break;
+	        }
+	    }
+	};
+
+	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	*/
+	
 	
 	// http://developer.android.com/guide/topics/ui/dialogs.html
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog;
 		LayoutInflater factory;
+		if (MRL.D) Log.e(TAG, "++ onCreateDialog " + id);
 
 		switch (id) {
 
@@ -235,7 +263,7 @@ public class MyRobotLabActivity extends ListActivity {
 									String serviceName = text.getText().toString();
 									//---------------------------------------------------------------
 									MRL.getInstance().createAndStartService(serviceName, typeName);
-									services.add(serviceName); // adding													
+									MRL.services.add(serviceName); // adding													
 									text.setText("");
 								}
 							})
@@ -281,12 +309,33 @@ public class MyRobotLabActivity extends ListActivity {
 									/* User clicked cancel so do some stuff */
 								}
 							}).create();
+			
+		case DIALOG_MYROBOTLAB_SHUTDOWN:
+			return new AlertDialog.Builder(MyRobotLabActivity.this)
+			.setTitle(R.string.shutdown)
+			.setPositiveButton(R.string.shutdown,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							/* User clicked OK so do some stuff */
+				        	MRL.releaseAll(); // bye bye
+						}
+					})
+			.setNegativeButton(R.string.cancel,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							/* User clicked cancel so do some stuff */
+						}
+					}).create();
 		default:
 			dialog = null;
 		}
 		return dialog;
 	}
 
+	
+	
 	// he da man - http://www.vogella.de/articles/AndroidIntent/article.html
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {

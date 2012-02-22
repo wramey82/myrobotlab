@@ -1,7 +1,9 @@
 package org.myrobotlab.android;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.android.MyRobotLabActivity.ServiceListAdapter;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Android;
@@ -41,6 +43,12 @@ public class MRL extends Application {
 	// for initialization from Service -to-> ServiceActivity
 	public final static HashMap<String, Boolean> GUIAttached = new HashMap<String, Boolean>();
 	
+	// android "tab" view TODO change to backing HashMap
+	public final static ArrayList<String> services = new ArrayList<String>();
+	
+	public static ServiceListAdapter runningServices;
+
+
 	// temporary proxy
 	// public static Proxy proxy; // FIXME - temporary until Runtime export is figured out
 	
@@ -133,12 +141,44 @@ public class MRL extends Application {
 		}
     }
     
-	public boolean createAndStartService(String name, String type)
+    public static boolean release (String serviceName)
+    {
+    	boolean ret = RuntimeEnvironment.release(serviceName);
+    	if (ret)
+    	{
+    		services.remove(serviceName);
+    		//runningServices.remove(serviceName);
+    		runningServices.notifyDataSetChanged();
+    		intents.remove(serviceName);
+    		GUIAttached.remove(serviceName);
+    		shortToast(serviceName + " released");
+    	} else {
+    		shortToast("could not release " + serviceName);
+    	}
+    	return ret;
+    }
+    
+    public static void releaseAll()
+    {
+    	services.clear();
+    	runningServices.clear();
+    	intents.clear();
+    	GUIAttached.clear();
+    	RuntimeEnvironment.releaseAll();
+    	System.exit(0);
+    }
+    
+    public static void shortToast(String msg)
+    {
+    	Toast.makeText(MRL.getInstance().getApplicationContext(),
+				msg, Toast.LENGTH_LONG).show();
+    }
+    
+	public static boolean createAndStartService(String name, String type)
 	{
 		Service s = (Service) Service.getNewInstance(type, name);
 		if (s == null) {
-			Toast.makeText(getApplicationContext(),
-					" could not create " + name + " of type " + type, Toast.LENGTH_LONG).show();
+			shortToast(" could not create " + name + " of type " + type);
 		} else {
 			s.startService();
 			if (!addServiceActivityIntent(s.getName(), s.getShortTypeName()))
@@ -152,7 +192,7 @@ public class MRL extends Application {
 		return true;
 	}
 	
-	public boolean addServiceActivityIntent(String name, String shortTypeName)
+	public static boolean addServiceActivityIntent(String name, String shortTypeName)
 	{
 		try {
 			Bundle bundle = new Bundle();
@@ -163,7 +203,7 @@ public class MRL extends Application {
 			if (D) Log.e(TAG, "++ attempting to create " + activityCanonicalName + " ++");
 			
 			Intent intent = null;
-			intent = new Intent(MRL.this,Class.forName(activityCanonicalName));				
+			intent = new Intent(MRL.getInstance(),Class.forName(activityCanonicalName));				
 			intent.putExtras(bundle);
 			// add it to "servicePanels"
 			// FIXME - when you add attachGUI & detachGUI - that will 
@@ -181,24 +221,5 @@ public class MRL extends Application {
 		
 		return true;
 	}
-
-/*
-	public static ServiceActivity getCurrentActivity() {
-		return currentActivity;
-	}
-
-	public static void setCurrentActivity(ServiceActivity ca) {
-		currentActivity = ca;
-	}
-
-	public static String getCurrentServiceName() {
-		return currentServiceName;
-	}
-
-	public static void setCurrentServiceName(String currentServiceName) {
-		MRL.currentServiceName = currentServiceName;
-	}
-*/
-    
 
 }

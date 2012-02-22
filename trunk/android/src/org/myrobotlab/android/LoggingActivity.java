@@ -1,10 +1,8 @@
 package org.myrobotlab.android; 
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Logging;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
@@ -54,12 +52,16 @@ public class LoggingActivity extends ServiceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.logging);
- 
+		TextView logText = (TextView)layout.findViewById(R.id.log);
+		logText.setText("f'ing shit");
+
+    	// FIXME - safe to bury in ServiceActivity !!!        
 //------------------------------------------------------------        
        	MRL.handlers.put(boundServiceName, new MyHandler(this));
 //------------------------------------------------------------        
         
         myService = (Logging)sw.service;   
+
     }
 
     // http://stackoverflow.com/questions/2197744/android-textview-text-not-getting-wrapped
@@ -87,18 +89,17 @@ public class LoggingActivity extends ServiceActivity {
     @Override
     public void attachGUI() { 
 		sendNotifyRequest("log", "log", Message.class);	
-		sendNotifyRequest("publishState", "getState", Clock.class);
+		sendNotifyRequest("publishState", "getState", Logging.class);
 		// myService.send(boundServiceName, "publishState"); no refresh needed
     }
 
 	@Override
 	public void detachGUI() {
 		removeNotifyRequest("log", "log", Message.class);
-		removeNotifyRequest("publishState", "getState", Clock.class);
+		removeNotifyRequest("publishState", "getState", Logging.class);
 	}
 	
-
-    
+	// FIXME - safe to bury in ServiceActivity !!!
     public class MyHandler extends Handler {
     	volatile LoggingActivity activity;
     	MyHandler(LoggingActivity a)

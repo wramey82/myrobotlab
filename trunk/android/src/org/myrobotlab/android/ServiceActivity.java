@@ -115,6 +115,16 @@ public abstract class ServiceActivity extends Activity {
                 
         setUIHeaderData();
         setContentView(layout);
+        
+        ImageButton release = (ImageButton) layout.findViewById(R.id.release);
+        release.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				MRL.release(boundServiceName);				
+			}
+		});
+        
     }
     
     public void setText(int field, String data)

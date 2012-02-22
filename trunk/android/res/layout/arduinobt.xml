@@ -18,12 +18,7 @@
 <!-- === Service header end =================-->
 </TableRow>
 
-<TableRow>
-	<Button
-        android:id="@+id/button_send"
-	    android:text="@string/send"
-	    />
-    
+<TableRow >    
 	<TextView 
         android:id="@+id/title_right_text"
         android:text="@string/port" 
@@ -343,7 +338,9 @@
         android:background="@color/android_green_dark" 
         />
 </TableRow>
-
+<TableRow>
+    <TextView android:text="@string/analogPins"/>
+</TableRow>
 
 </TableLayout>
 </ScrollView>
