@@ -1,6 +1,6 @@
 /**
  *                    
- * @author greg (at) myrobotlab.org
+ * @author grog (at) myrobotlab.org
  *  
  * This file is part of MyRobotLab (http://myrobotlab.org).
  *
@@ -33,42 +33,26 @@ public class PinData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(PinData.class);
 
-	public long time; // time of creation
-	public int pin; // address
-	public int function; // address
+	public final static int TYPE_DIGITAL 		= 0x0;
+	public final static int TYPE_ANALOG 		= 0x1;
+	public final static int TYPE_DIGITALANALOG 	= 0x2;
+	
+	//public long time; 	// time of creation
+	public int pin; 	// address
+	public int method; 	// address
 	public int value; // address
-	public int type; // 0 Binary 1 Analog ?
+	//public int type; // 0 Binary 1 Analog ?
 	public String source;
 
-	// ctors begin ----
 	public PinData() {
 	}
 
-	public PinData(final PinData other) {
-		this();
-		set(other);
-	}
-
-	// ctors end ----
-	// assignment begin --- todo - look @ clone copy
-	public void set(final PinData other) {
-		pin = other.pin;
-		function = other.function;
-		value = other.value;
-
-	}
-
-	// assignment end ---
-
-	/*
-	 * Default format was xml is now JSON TODO - make toStringStyler like spring
-	 */
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
 		// ret.append("{<PinData");
 		ret.append("{");
 		ret.append("\"pin\":" + "\"" + pin + "\"");
-		ret.append("\"function\":" + "\"" + function + "\"");
+		ret.append("\"function\":" + "\"" + method + "\"");
 		ret.append("\"value\":" + "\"" + value + "\"");
 
 		// ret.append("</PinData>");

@@ -150,7 +150,7 @@ public class MRLClient implements Runnable {
 		*/
 		pinData.pin = 2;
 		pinData.source = "mySource";
-		pinData.function = 17;
+		pinData.method = 17;
 	    pinData.value = 500;
        //pinData.value = (int) PhysicsCar_use_For_Testing.compVal;
 		

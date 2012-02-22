@@ -448,22 +448,30 @@ public class RuntimeEnvironment implements Serializable{
 		
 	}
 
-	public static void release(String name) /*release local Service*/
+	public static boolean release(String name) /*release local Service*/
 	{
-		release (null, name);
+		return release (null, name);
 	}
 	
-	public static void release(URL url, String name) /*release service environment*/
+	// FIXME - can only release local services
+	public static boolean release(URL url, String name) //release service environment
 	{
 		ServiceWrapper sw = getService(url, name);
-		sw.service.stopService();
-		registry.remove(name);
-		ServiceEnvironment se = hosts.get(url);
-		se.serviceDirectory.remove(name);
-		service.invoke("released", name);
-
+		if (sw != null)
+		{
+			if (sw.service != null) {
+				sw.service.stopService(); //FIXME send message to stop ??? wait for callback?
+				registry.remove(name);
+				ServiceEnvironment se = hosts.get(url);
+				se.serviceDirectory.remove(name);
+				service.invoke("released", name);
+				return true;
+			}
+		}
+		return false;
 	}
-
+	
+	
 	public static void release(URL url) /*release process environment*/
 	{
 		ServiceEnvironment se = hosts.get(url);

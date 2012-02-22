@@ -25,12 +25,17 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -40,6 +45,7 @@ import javax.swing.border.BevelBorder;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -62,6 +68,7 @@ public abstract class ServiceGUI {
 	public JPanel display = new JPanel();
 	public JButton detachButton = null;
 	JButton releaseServiceButton = null;
+	JButton help = null;
 	
 	public abstract void init();	
 
@@ -89,21 +96,50 @@ public abstract class ServiceGUI {
 		
 	}
 	
+    private ImageIcon getScaledIcon(final Image image, final double scale)  
+    {  
+        ImageIcon scaledIcon = new ImageIcon(image)  
+        {  
+            public int getIconWidth()  
+            {  
+                return (int)(image.getWidth(null) * scale);  
+            }  
+   
+            public int getIconHeight()  
+            {  
+                return (int)(image.getHeight(null) * scale);  
+            }  
+   
+            public void paintIcon(Component c, Graphics g, int x, int y)  
+            {  
+                g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);  
+            }  
+        };  
+        return scaledIcon;  
+    }  
+    
+    public JButton getButton(String name)
+    {
+    	JButton b = new JButton(getScaledIcon(getImage(name), 0.50));
+    	b.setMargin(new Insets(0, 0, 0, 0));
+		b.setOpaque(false);
+		b.setContentAreaFilled(false);
+		b.setBorderPainted(false);	
+    	return b;
+    }
 		
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
 
-		// start widget ----
-		//detachButton = new JButton(getImageIcon("service_close.png"));
-		detachButton = new JButton(getImageIcon("toCustom.png"));
-		releaseServiceButton = new JButton(getImageIcon("service_close.png"));
-		detachButton.setMargin(new Insets(0, 0, 0, 0));
-		releaseServiceButton.setMargin(new Insets(0, 0, 0, 0));
+		detachButton = getButton("detach.png");
+		releaseServiceButton = getButton("release.png");
+		help = getButton("help.png");
+		
 		menu.add(releaseServiceButton);
 		menu.add(detachButton);
-		
-		
+		menu.add(help);
+			
 		detachButton.addActionListener(new DetachListener());
 		releaseServiceButton.addActionListener(new ReleaseServiceListener());
 
@@ -129,7 +165,21 @@ public abstract class ServiceGUI {
 
 	}
 
-	
+	protected Image getImage(String path) {
+		Image icon = null;
+		java.net.URL imgURL = getClass().getResource("/resource/" + path);
+		if (imgURL != null) {
+			try {
+				icon = ImageIO.read(imgURL);
+			} catch (IOException e) {
+				Service.logException(e);
+			}
+			return icon;
+		} else {
+			LOG.error("Couldn't find file: " + path);
+			return null;
+		}
+	}	
 	protected ImageIcon getImageIcon(String path) {
 		ImageIcon icon = null;
 		java.net.URL imgURL = getClass().getResource("/resource/" + path);

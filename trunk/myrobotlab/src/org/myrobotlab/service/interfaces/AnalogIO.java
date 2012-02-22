@@ -50,28 +50,6 @@ public interface AnalogIO {
 	 * @return void
 	 */
 	// public void analogWrite(Integer address, Integer value);
-	public void analogWrite(IOData io);
+	public IOData analogWrite(IOData io);
 
-	/**
-	 * analogRead will provide a simple mechanism to call into an arbitrary
-	 * device which can support analog reads. For devices which have specialized
-	 * addressing schemes a wrapper must be created which will simplify the
-	 * address to a single integer value. This may involve constructing a map to
-	 * support more complicated address schemes.
-	 * 
-	 * @param address
-	 *            - the address on the device which value will be written too
-	 * @return Integer - the value read
-	 */
-	// public Integer analogRead(Integer address);
-
-	/**
-	 * getType will return the canonical class name of the controller that
-	 * supports this interface. e.g. org.myrobotlab.service.Arduino or
-	 * com.someone.service.PICAxe
-	 * 
-	 * @return String - the canonical class name of the controller supporting
-	 *         the AnalogIO interface
-	 */
-	public String getType();
 }
