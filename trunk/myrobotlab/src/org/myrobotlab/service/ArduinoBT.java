@@ -34,13 +34,12 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
@@ -113,6 +112,10 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	// FIXME methods - is this a good idea ??? should this be generated like 
 	// android R file ???
 	public static final String digitalWrite = "digitalWrite";
+	public static final String pinMode = "pinMode";
+	public static final String analogWrite = "analogWrite";
+	public static final String analogReadPollingStart = "analogReadPollingStart";
+	public static final String analogReadPollingStop = "analogReadPollingStop";
 	
     BluetoothAdapter adapter = null;
     // Name of the connected device
@@ -186,7 +189,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		// detach port
 		
 		// populate the pins
-		for (int i = 0; i < 13; ++i) // + 6 analogs
+		for (int i = 0; i < 20; ++i) // + 6 analogs
 		{   
 			PinState p = new PinState();
 			p.value = 0; // FIXME - if you set it here - you should initialize the board to 0
@@ -593,7 +596,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	
 	   /**
      * Return the current connection state. */
-    public synchronized int getState() {
+    public synchronized int getBTState() {
         return state;
     }
 
