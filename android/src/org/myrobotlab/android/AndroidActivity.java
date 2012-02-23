@@ -31,16 +31,18 @@ public class AndroidActivity extends ServiceActivity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, R.layout.remoteadapter);
+        super.onCreate(savedInstanceState, R.layout.android);
         myService = (Android)sw.service;   
     }
 
 	@Override
 	public void attachGUI() {
+		sendNotifyRequest("logMsg", "logMsg", String.class);	
 	}
 
 	@Override
 	public void detachGUI() {
+		removeNotifyRequest("logMsg", "logMsg", String.class);	
 	}
 
 }

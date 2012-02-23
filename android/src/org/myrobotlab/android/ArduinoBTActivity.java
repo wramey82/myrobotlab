@@ -191,8 +191,6 @@ import android.widget.Toast;
         }
     }
 
-    private Button mSendButton;
-
     /**
      * Sends a message.
      * @param message  A string of text to send.

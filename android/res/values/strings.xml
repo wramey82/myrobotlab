@@ -67,6 +67,7 @@
     <string name="remoteLogging">remote logging</string>
 
     <!-- labels -->
+    <string name="messages">messages </string>
     <string name="udp">udp </string>
     <string name="messageCount">message count </string>
     <string name="connections">connections </string>

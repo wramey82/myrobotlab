@@ -1,5 +1,6 @@
 package org.myrobotlab.android;
 
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -76,6 +78,12 @@ public abstract class ServiceActivity extends Activity {
         bundle = this.getIntent().getExtras();
         boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
 
+        // FIXME - safe to bury in ServiceActivity !!!        
+        //------------------------------------------------------------        
+        MRL.handlers.put(boundServiceName, new MyHandler(this));
+        //------------------------------------------------------------        
+        
+        
     	// set the context
     	// we are now the currently active view ! FIXME - does not work !        
     	// setting the current service name context
@@ -180,23 +188,37 @@ public abstract class ServiceActivity extends Activity {
 		myAndroid.send(boundServiceName, "removeNotify", ne);
 
 	}
-	/*
-    public class ServiceHandler extends Handler {
-    
-    	ServiceActivity myServiceActivity = null;
-    	ServiceHandler(ServiceActivity serviceActivity)
-    	{
-    		super();
-    		myServiceActivity = serviceActivity;
-    	}
-    	
-    	@Override
-    	public void handleMessage(android.os.Message msg) {
-    		Message m = (Message)msg.obj;
-    		//MRL.android.invoke(m);
-    		MRL.android.invoke(myServiceActivity, m.method, m.data);
-    		super.handleMessage(msg);
-		  }
+	
+	//---handlers for message routings between services & gui components--------
+	/**
+	 * handleMessage recieve's Android Message from backend
+	 * data component is a MRL Message - which is routed here (to the
+	 * appropriate gui view) by the Android Service and invoked
+	 */
+
+	public class MyHandler extends Handler {
+		volatile ServiceActivity activity;
+
+		MyHandler(ServiceActivity a) {
+			super();
+			activity = a;
 		}
-		*/
+
+		@Override
+		public void handleMessage(android.os.Message msg) {
+			Message m = (Message) msg.obj;
+			if(D) 
+			{
+				String inMsg = "++ msg from " + m.sender + " to android gui " + m + " ++";
+				Log.e(TAG, inMsg);
+				//MRL.toast(inMsg);
+			}
+			MRL.androidService.invoke(activity, m.method, m.data);
+			super.handleMessage(msg);
+		}
+	}
+	
+	
+	
+	
 }
