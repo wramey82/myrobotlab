@@ -321,7 +321,6 @@
         android:background="@color/android_orange_dark" 
         />
 </TableRow>
-
 <TableRow
 	android:background="@color/android_green_dark">            
 	<TextView 
@@ -341,6 +340,7 @@
         android:background="@color/android_green_dark" 
         />
 </TableRow>
+<!-- analog pins -->
 <TableRow
 	android:background="@color/android_orange_dark">            
 	<TextView 
@@ -353,6 +353,91 @@
         />
 	<ImageButton
         android:id="@+id/s14"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_orange_dark" 
+        />
+</TableRow>
+<TableRow
+	android:background="@color/android_green_dark">            
+	<TextView 
+        android:id="@+id/t15"
+        android:text="@string/pinA1"
+        />
+	<TextView 
+        android:id="@+id/v15"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s15"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_green_dark" 
+        />
+</TableRow>
+<TableRow
+	android:background="@color/android_orange_dark">            
+	<TextView 
+        android:id="@+id/t16"
+        android:text="@string/pinA2"
+        />
+	<TextView 
+        android:id="@+id/v16"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s16"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_orange_dark" 
+        />
+</TableRow>
+<TableRow
+	android:background="@color/android_green_dark">            
+	<TextView 
+        android:id="@+id/t17"
+        android:text="@string/pinA3"
+        />
+	<TextView 
+        android:id="@+id/v17"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s17"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_green_dark" 
+        />
+</TableRow>
+<TableRow
+	android:background="@color/android_orange_dark">            
+	<TextView 
+        android:id="@+id/t18"
+        android:text="@string/pinA4"
+        />
+	<TextView 
+        android:id="@+id/v18"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s18"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_orange_dark" 
+        />
+</TableRow>
+<TableRow
+	android:background="@color/android_orange_dark">            
+	<TextView 
+        android:id="@+id/t19"
+        android:text="@string/pinA5"
+        />
+	<TextView 
+        android:id="@+id/v19"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s19"
         android:contentDescription="@string/pin"
         android:src="@drawable/grey"
         android:background="@color/android_orange_dark" 

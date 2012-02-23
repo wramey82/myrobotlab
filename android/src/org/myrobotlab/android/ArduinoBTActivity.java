@@ -47,6 +47,7 @@ import android.widget.Toast;
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
     DigitalClickListener digitalClickListener = new DigitalClickListener();
+    AnalogClickListener analogClickListener = new AnalogClickListener();
     InOutClickListener inOutClickListener = new InOutClickListener();
     
 
@@ -57,7 +58,7 @@ import android.widget.Toast;
 		public int pinID;
 		public PinState pin = null;
 		public ImageButton inOut = null;
-		public ImageButton digital = null;
+		public ImageButton signal = null;
 		public SeekBar analog = null;
 	}
 	
@@ -121,7 +122,7 @@ import android.widget.Toast;
     public void initPinButtons()
     {
     	    	
-    	for (int i = 0; i < myService.pins.size(); ++i) // 13 digital 6 analog
+    	for (int i = 0; i < myService.pins.size(); ++i) // 14 digital +6 analog
     	{
     		// digital value button (grey/green/red?)
     		PinButtonGroup p = new PinButtonGroup();
@@ -132,24 +133,32 @@ import android.widget.Toast;
 			p.pin = myService.pins.get(i);
     		if (bID != 0)
 		    {
-    			p.digital = ((ImageButton) findViewById(bID));
-    			p.digital.setOnClickListener(digitalClickListener);
+    			p.signal = ((ImageButton) findViewById(bID));
+        		if (i < 14)
+        		{
+        			p.signal.setOnClickListener(digitalClickListener);
+        		} else {
+        			p.signal.setOnClickListener(analogClickListener);
+        		}
     			buttons.put(bID, p);
 		    } else {
 		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
 		    }
 
     		// 
-		    name = "b" + i;		    
-		    bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
-		    if (bID != 0)
-		    {
-    			p.inOut = ((ImageButton) findViewById(bID));
-    			p.inOut.setOnClickListener(inOutClickListener);
-    			buttons.put(bID, p);
-		    } else {
-		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
-		    }
+    		if (i < 14)
+    		{
+			    name = "b" + i;		    
+			    bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
+			    if (bID != 0)
+			    {
+	    			p.inOut = ((ImageButton) findViewById(bID));
+	    			p.inOut.setOnClickListener(inOutClickListener);
+	    			buttons.put(bID, p);
+			    } else {
+			    	if(D) Log.e(TAG, "button " + name + " can not be found");	
+			    }
+    		}
 		    if (i == 3 || i == 5 || i == 6 || i == 9 || i == 10 || i == 11)
 		    {
 		    	name = "sb" + i;
@@ -434,11 +443,11 @@ import android.widget.Toast;
 					// level of sync - call back would be sync with the Service
 					// TODO - optimization - create a single IOData per pin
 					myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.HIGH));
-					p.digital.setImageResource(R.drawable.green); // FIXME possibly wrong state
+					p.signal.setImageResource(R.drawable.green); // FIXME possibly wrong state
 					p.pin.value = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
 				} else {
 					myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.LOW));				
-					p.digital.setImageResource(R.drawable.grey);
+					p.signal.setImageResource(R.drawable.grey);
 					p.pin.value = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
 				}
 				
@@ -453,13 +462,6 @@ import android.widget.Toast;
 			PinButtonGroup p = buttons.get(view.getId());
 			
 			//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
-
-			// get type
-			// check state
-			// send message
-			// change state
-			
-			// digital "VALUE" button pressed
 				if (p.pin.mode == PinState.INPUT) // last pin value 
 				{
 					// send pinData to ArduinoBT - digitalWrite
@@ -473,6 +475,31 @@ import android.widget.Toast;
 					myService.send(boundServiceName, ArduinoBT.pinMode, PinState.INPUT);				
 					p.inOut.setImageResource(R.drawable.square_in);
 					p.pin.mode = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
+				}
+				
+			}
+		}
+	public class AnalogClickListener implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View view) {
+			PinButtonGroup p = buttons.get(view.getId());
+			
+			//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
+				if (p.pin.mode == PinState.INPUT) // last pin value 
+				{
+					// send pinData to ArduinoBT - digitalWrite
+					// choice is - set it now - or get it on sync
+					// level of sync - call back would be sync with the Service
+					// TODO - optimization - create a single IOData per pin
+					myService.send(boundServiceName, ArduinoBT.analogReadPollingStop, p.pin.address);
+					p.signal.setImageResource(R.drawable.grey); // FIXME possibly wrong state
+					p.pin.mode = PinState.OUTPUT; // FIXME - BS - this should be set by event callback
+				} else {
+					myService.send(boundServiceName, ArduinoBT.analogReadPollingStart, p.pin.address);				
+					p.signal.setImageResource(R.drawable.red);
+					p.pin.mode = PinState.INPUT; // FIXME - BS - this should be set by event callback
 				}
 				
 			}
