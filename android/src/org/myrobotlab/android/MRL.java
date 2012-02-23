@@ -10,7 +10,6 @@ import org.myrobotlab.service.Android;
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.Logging;
 import org.myrobotlab.service.RemoteAdapter;
-import org.myrobotlab.service.Servo;
 
 import android.app.Application;
 import android.content.Intent;
@@ -28,6 +27,41 @@ import android.widget.Toast;
  * 
  * References : 
  * 		http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
+ *		http://code.google.com/p/android-scripting/ TODO send them mrl info
+ *		http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/ 
+ *		http://stackoverflow.com/questions/2197744/android-textview-text-not-getting-wrapped
+  * Multi-threaded Android UI References
+ * http://www.aviyehuda.com/2010/12/android-multithreading-in-a-ui-environment/ (excellent)
+ * http://developer.android.com/resources/articles/painless-threading.html
+ * http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html (IPC)
+ * http://stackoverflow.com/questions/901239/android-using-runonuithread-to-do-ui-changes-from-a-thread (runOnUiThread)
+ * (Clock) http://stackoverflow.com/questions/3765161/updating-ui-with-runnable-postdelayed-not-working-with-timer-app
+ * http://indyvision.net/2010/02/android-threads-tutorial-part-3/ (Handlers & Threads)
+ * http://www.vogella.de/articles/AndroidPerformance/article.html Vogel (Handler example)
+ * http://stackoverflow.com/questions/1111980/how-to-handle-screen-orientation-change-when-progress-dialog-and-background-thre
+ * http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/
+ * http://stackoverflow.com/questions/5185015/updating-android-ui-using-threads (the Key)
+ * 
+ * LifeCycle :
+ * http://developer.android.com/reference/android/app/Activity.html
+ * http://www.youtube.com/watch?v=ooWKZgJnYVo
+ * 
+ * So I'm coming to a realization regarding Android UI & Activities.
+ * 1. You don't get to handle activities - no creating, no references, no touchy
+ * 2. They get recycled faster than Jello in a garbage disposal
+ * 3. If if you do get a reference to one, the Android framework has the ability to dis-associate it 
+ * from the UI & create another one.  So you end up with a handle to an Activity which can do nothing
+ * to the UI ... basically a handle to a memory leak :P
+ * 4. Don't bother having member variables in Activities ... there is no point, the lifetime of the activity &
+ * the ability of the activity to effect the UI is so nebulous - don't expect local state information to
+ * make a difference.
+ * 
+ * Possible solutions :
+ * 1. fight the system :)  ...  make all change to the UI methods static such that the "invoke" in the
+ * Service thread invokes a static method
+ * 2. Perhaps the Handler class offers a way?
+ * http://developer.android.com/resources/articles/timed-ui-updates.html
+*
  * 
  */
 public class MRL extends Application {
@@ -35,7 +69,7 @@ public class MRL extends Application {
 	// shared global instance of application data
 	private static MRL instance;
 	// shared global instance of the Android Service
-	public static Android android;
+	public static Android androidService;
 
 	// android registry
 	public final static HashMap<String, Intent> intents = new HashMap<String, Intent>();
@@ -48,6 +82,8 @@ public class MRL extends Application {
 	
 	public static ServiceListAdapter runningServices;
 
+	// driving under the influence or debug user interface
+    static boolean DUI = true;
 
 	// temporary proxy
 	// public static Proxy proxy; // FIXME - temporary until Runtime export is figured out
@@ -96,7 +132,7 @@ public class MRL extends Application {
     
     protected void initializeInstance() {
 
-		if (android == null)
+		if (androidService == null)
 		{
 			WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 			WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -117,11 +153,10 @@ public class MRL extends Application {
 			services.add(name);
 			*/
 			
-			
 			createAndStartService(name, Android.class.getCanonicalName());
-			android = (Android)RuntimeEnvironment.getService(name).service;
-			android.setContext(getApplicationContext()); // FIXME - cheesey
-			android.startSensors();
+			androidService = (Android)RuntimeEnvironment.getService(name).service;
+			androidService.setContext(getApplicationContext()); // FIXME - cheesey
+//			android.startSensors();
 
 			/*
 			TODO - temporary - only necessary for different JVMs sharing resources
@@ -131,12 +166,14 @@ public class MRL extends Application {
 			proxy = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
 			proxy.setTargetService(android);
 			*/
-			
+					
 			createAndStartService("remote", RemoteAdapter.class.getCanonicalName());
-			createAndStartService("logger", Logging.class.getCanonicalName());
+			createAndStartService("logger", Logging.class.getCanonicalName());			
 			createAndStartService("arduino", ArduinoBT.class.getCanonicalName());
+			/*
 			createAndStartService("left", Servo.class.getCanonicalName());
 			createAndStartService("right", Servo.class.getCanonicalName());
+			*/
 			
 		}
     }
@@ -150,10 +187,10 @@ public class MRL extends Application {
     		//runningServices.remove(serviceName);
     		runningServices.notifyDataSetChanged();
     		intents.remove(serviceName);
-    		GUIAttached.remove(serviceName);
-    		shortToast(serviceName + " released");
+    		GUIAttached.remove(serviceName);    		
+    		toast(serviceName + " released");
     	} else {
-    		shortToast("could not release " + serviceName);
+    		toast("could not release " + serviceName);
     	}
     	return ret;
     }
@@ -165,20 +202,32 @@ public class MRL extends Application {
     	intents.clear();
     	GUIAttached.clear();
     	RuntimeEnvironment.releaseAll();
-    	System.exit(0);
+    	// reference
+    	// http://stackoverflow.com/questions/2092951/how-to-close-android-application
+    	System.runFinalizersOnExit(true);    	
+    	int pid = android.os.Process.myPid();
+        android.os.Process.killProcess(pid);         
+    	//System.exit(0);
     }
     
-    public static void shortToast(String msg)
+    public static void toast(String msg)
     {
-    	Toast.makeText(MRL.getInstance().getApplicationContext(),
-				msg, Toast.LENGTH_LONG).show();
+    	toast("MRL", msg);
+    }
+    
+    
+    public static void toast(String tag, String msg)
+    {
+    	if (DUI) Toast.makeText(MRL.getInstance().getApplicationContext(),
+				msg, Toast.LENGTH_SHORT).show();
+    	if (D) Log.e(tag, msg);
     }
     
 	public static boolean createAndStartService(String name, String type)
 	{
 		Service s = (Service) Service.getNewInstance(type, name);
 		if (s == null) {
-			shortToast(" could not create " + name + " of type " + type);
+			toast(" could not create " + name + " of type " + type);
 		} else {
 			s.startService();
 			if (!addServiceActivityIntent(s.getName(), s.getShortTypeName()))

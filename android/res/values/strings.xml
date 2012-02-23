@@ -26,7 +26,15 @@
     
     <string name="name">name</string>
     <string name="analogPins">analog pins</string>
-    
+
+    <string name="A0">0</string>
+    <string name="pinA0">pin A0</string>
+    <string name="pinA1">pin A1</string>
+        <string name="pinA2">pin A2</string>
+        <string name="pinA3">pin A3</string>
+            <string name="pinA4">pin A4</string>
+            <string name="pinA5">pin A5</string>
+            
     <string name="pin0">pin 0</string>
     <string name="pin1">pin 1</string>
     <string name="pin2">pin 2</string>

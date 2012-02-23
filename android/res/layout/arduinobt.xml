@@ -114,7 +114,10 @@
 
 <TableRow
     android:background="@color/android_orange_dark">
-    <SeekBar android:id="@+id/sb3" />
+    <SeekBar android:id="@+id/sb3" 
+        android:progress="1"
+        android:max="255"
+        />
 </TableRow>
 
 <TableRow
@@ -338,9 +341,22 @@
         android:background="@color/android_green_dark" 
         />
 </TableRow>
-<TableRow>
-    <TextView android:text="@string/analogPins"/>
+<TableRow
+	android:background="@color/android_orange_dark">            
+	<TextView 
+        android:id="@+id/t14"
+        android:text="@string/pinA0"
+        />
+	<TextView 
+        android:id="@+id/v14"
+        android:text="@string/A0"
+        />
+	<ImageButton
+        android:id="@+id/s14"
+        android:contentDescription="@string/pin"
+        android:src="@drawable/grey"
+        android:background="@color/android_orange_dark" 
+        />
 </TableRow>
-
 </TableLayout>
 </ScrollView>

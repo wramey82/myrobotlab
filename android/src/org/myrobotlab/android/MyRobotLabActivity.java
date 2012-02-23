@@ -31,9 +31,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// references - 
-// http://code.google.com/p/android-scripting/ TODO send them mrl info
-
 /**
  * @author GroG
  * 
@@ -47,8 +44,6 @@ import android.widget.Toast;
  *         This Activity is responsible for starting other Services,
  *         Logging, connecting to other instances, and other global
  *         procedures
- * 
- * 	TODO - onDestroy - shutdown everything
  */
 public class MyRobotLabActivity extends ListActivity {
 
@@ -104,10 +99,10 @@ public class MyRobotLabActivity extends ListActivity {
 
 		// manual service header
 		TextView text = (TextView) header.findViewById(R.id.name);
-		text.setText(MRL.android.getName());
+		text.setText(MRL.androidService.getName());
 		
 		text = (TextView) header.findViewById(R.id.type);
-		text.setText(MRL.android.getShortTypeName());
+		text.setText(MRL.androidService.getShortTypeName());
 
 		
 		// remote logging

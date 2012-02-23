@@ -2,9 +2,7 @@ package org.myrobotlab.android;
 
 import java.util.HashMap;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.ArduinoBT;
-import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinState;
 
@@ -20,25 +18,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// references :
-// http://www.dreamincode.net/forums/topic/130521-android-part-iii-dynamic-layouts/
-
-//  extends ServiceActivity
-	public class ArduinoBTActivity extends ServiceActivity implements Button.OnClickListener {
+	public class ArduinoBTActivity extends ServiceActivity implements OnSeekBarChangeListener {
 
 	// Debugging
     private static final String TAG = "BluetoothChat";
     private static final boolean D = true;
 
     // Message types sent from the BluetoothChatService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
+    public static final int MESSAGE_STATE_CHANGE 	= 1;
+    public static final int MESSAGE_READ 			= 2;
+    public static final int MESSAGE_WRITE 			= 3;
+    public static final int MESSAGE_DEVICE_NAME 	= 4;
+    public static final int MESSAGE_TOAST 			= 5;
 
     // Key names received from the BluetoothChatService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -50,24 +46,22 @@ import android.widget.Toast;
 
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
+    DigitalClickListener digitalClickListener = new DigitalClickListener();
+    InOutClickListener inOutClickListener = new InOutClickListener();
+    
 
 	ArduinoBT myService = null;
-	//Button[] digitalStatusButtons = new Button[13]; 
-	//Button[] digitalInOutButtons = new Button[13];
 	
-	public class PinButton 
-	{
-		public final static int UNKNOWN = 0xFF;
-		public final static int IO = 0x00;
-		public final static int VALUE = 0x01;
-		
-		public String name;
-		public int type = UNKNOWN; // IO / VALUE / SENSOR
+	public class PinButtonGroup 
+	{		
+		public int pinID;
 		public PinState pin = null;
-		public ImageButton button = null;
+		public ImageButton inOut = null;
+		public ImageButton digital = null;
+		public SeekBar analog = null;
 	}
 	
-	HashMap <Integer, PinButton> buttons = new HashMap <Integer, PinButton>();
+	HashMap <Integer, PinButtonGroup> buttons = new HashMap <Integer, PinButtonGroup>();
 	
 	/**
 	 * container object to contain the "actual" pin control
@@ -130,16 +124,16 @@ import android.widget.Toast;
     	for (int i = 0; i < myService.pins.size(); ++i) // 13 digital 6 analog
     	{
     		// digital value button (grey/green/red?)
+    		PinButtonGroup p = new PinButtonGroup();
+    		
     		String name = "s" + i;
-    		int bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");		    
+    		int bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
+    		p.pinID = i;
+			p.pin = myService.pins.get(i);
     		if (bID != 0)
 		    {
-        		PinButton p = new PinButton(); 
-        		p.name = name;
-        		p.type = PinButton.VALUE;
-    			p.button = ((ImageButton) findViewById(bID));
-    			p.pin = myService.pins.get(i);
-    			p.button.setOnClickListener(this);
+    			p.digital = ((ImageButton) findViewById(bID));
+    			p.digital.setOnClickListener(digitalClickListener);
     			buttons.put(bID, p);
 		    } else {
 		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
@@ -150,15 +144,20 @@ import android.widget.Toast;
 		    bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
 		    if (bID != 0)
 		    {
-        		PinButton p = new PinButton(); 
-        		p.name = name;
-        		p.type = PinButton.IO;
-    			p.button = ((ImageButton) findViewById(bID));
-    			p.pin = myService.pins.get(i);
-    			p.button.setOnClickListener(this);
+    			p.inOut = ((ImageButton) findViewById(bID));
+    			p.inOut.setOnClickListener(inOutClickListener);
     			buttons.put(bID, p);
 		    } else {
 		    	if(D) Log.e(TAG, "button " + name + " can not be found");	
+		    }
+		    if (i == 3 || i == 5 || i == 6 || i == 9 || i == 10 || i == 11)
+		    {
+		    	name = "sb" + i;
+		    	bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
+		    	SeekBar analog = ((SeekBar) findViewById(bID));
+		    	p.analog = analog;
+		    	p.analog.setOnSeekBarChangeListener(this);
+		    	buttons.put(bID, p);
 		    }
 		    
 		    //int resID = getResources().getIdentifier("org.anddev.android.testproject:drawable/bug", null, null);
@@ -174,7 +173,7 @@ import android.widget.Toast;
 
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         // Otherwise, setup the chat session
@@ -191,7 +190,7 @@ import android.widget.Toast;
      */
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
-        if (myService.getState() != ArduinoBT.STATE_CONNECTED) {
+        if (myService.getBTState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -211,7 +210,7 @@ import android.widget.Toast;
 	public synchronized void serialSend(int function, int param1, int param2) 
     {
         // Check that we're actually connected before trying anything
-        if (myService.getState() != ArduinoBT.STATE_CONNECTED) {
+        if (myService.getBTState() != ArduinoBT.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -374,40 +373,7 @@ import android.widget.Toast;
 		
 	}
 
-	// FIXME - pin state information needs to be owned by ArduinoBT
-	
-	@Override
-	public void onClick(View view) {
-				
-		PinButton p = buttons.get(view.getId());
-		
-		//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
 
-		// get type
-		// check state
-		// send message
-		// change state
-		
-		// digital "VALUE" button pressed
-		if (p.type == PinButton.VALUE)
-		{
-			if (p.pin.value == 0) // last pin value 
-			{
-				// send pinData to ArduinoBT - digitalWrite
-				// choice is - set it now - or get it on sync
-				// level of sync - call back would be sync with the Service
-				// TODO - optimization - create a single IOData per pin
-				myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.HIGH));
-				p.button.setImageResource(R.drawable.green); // FIXME possibly wrong state
-				p.pin.value = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
-			} else {
-				myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.LOW));				
-				p.button.setImageResource(R.drawable.grey);
-				p.pin.value = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
-			}
-			
-		}
-	}
 	
 	// FIXME - safe to bury in ServiceActivity !!!
     public class MyHandler extends Handler {
@@ -422,8 +388,94 @@ import android.widget.Toast;
     		  org.myrobotlab.framework.Message m = (org.myrobotlab.framework.Message)msg.obj;
     		  //log(m);
     		  // invoke
-    		  MRL.android.invoke(activity, m.method, m.data);
+    		  MRL.androidService.invoke(activity, m.method, m.data);
     		  super.handleMessage(msg);
     	  }
     }
+
+	@Override
+	public void onProgressChanged(SeekBar analog, int value, boolean arg2) {
+
+		PinButtonGroup p = buttons.get(analog.getId());
+		myService.send(boundServiceName, ArduinoBT.analogWrite, new IOData(p.pin.address, value));
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public class DigitalClickListener implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View view) {
+			PinButtonGroup p = buttons.get(view.getId());
+			
+			//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
+
+			// get type
+			// check state
+			// send message
+			// change state
+			
+			// digital "VALUE" button pressed
+				if (p.pin.value == 0) // last pin value 
+				{
+					// send pinData to ArduinoBT - digitalWrite
+					// choice is - set it now - or get it on sync
+					// level of sync - call back would be sync with the Service
+					// TODO - optimization - create a single IOData per pin
+					myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.HIGH));
+					p.digital.setImageResource(R.drawable.green); // FIXME possibly wrong state
+					p.pin.value = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
+				} else {
+					myService.send(boundServiceName, ArduinoBT.digitalWrite, new IOData(p.pin.address, ArduinoBT.LOW));				
+					p.digital.setImageResource(R.drawable.grey);
+					p.pin.value = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
+				}
+				
+			}
+	}
+	
+	public class InOutClickListener implements OnClickListener
+	{
+
+		@Override
+		public void onClick(View view) {
+			PinButtonGroup p = buttons.get(view.getId());
+			
+			//Toast.makeText(this, p.name + " " + p.type, Toast.LENGTH_SHORT).show();
+
+			// get type
+			// check state
+			// send message
+			// change state
+			
+			// digital "VALUE" button pressed
+				if (p.pin.mode == PinState.INPUT) // last pin value 
+				{
+					// send pinData to ArduinoBT - digitalWrite
+					// choice is - set it now - or get it on sync
+					// level of sync - call back would be sync with the Service
+					// TODO - optimization - create a single IOData per pin
+					myService.send(boundServiceName, ArduinoBT.pinMode, PinState.OUTPUT);
+					p.inOut.setImageResource(R.drawable.square_out); // FIXME possibly wrong state
+					p.pin.mode = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
+				} else {
+					myService.send(boundServiceName, ArduinoBT.pinMode, PinState.INPUT);				
+					p.inOut.setImageResource(R.drawable.square_in);
+					p.pin.mode = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
+				}
+				
+			}
+		}
+		
 }
