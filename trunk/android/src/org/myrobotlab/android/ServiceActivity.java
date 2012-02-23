@@ -19,13 +19,9 @@ import android.widget.Toast;
 
 public abstract class ServiceActivity extends Activity {
 
-	// Debugging
     private static final String TAG = "ServiceActivity";
     private static final boolean D = true;
-
-    // reference to application Service
-    // TODO - make reference or replace with Runtime Service
-    // the Android Service is being treated like a Runtime ???
+    
     private static Android myAndroid; 
 	public String boundServiceName;
 
@@ -33,7 +29,6 @@ public abstract class ServiceActivity extends Activity {
 	public ServiceWrapper sw = null;
 	public View layout = null;
 
-	
 	public Bundle getBundle() 
 	{
 		return bundle;
@@ -41,9 +36,7 @@ public abstract class ServiceActivity extends Activity {
 	
 	private void showServiceIcon(String icon) {
 		String path = "drawable/" + icon;
-
 	    int imageResource = getResources().getIdentifier(path, null, getPackageName());
-
 	    ImageButton imageView = (ImageButton) layout.findViewById(R.id.icon);
 	    Drawable image = getResources().getDrawable(imageResource);
 	    imageView.setImageDrawable(image);
@@ -57,10 +50,8 @@ public abstract class ServiceActivity extends Activity {
 		text = (TextView) layout.findViewById(R.id.type);
 		text.setText(sw.service.getShortTypeName());
 
-		// http://stackoverflow.com/questions/2349652/android-open-resource-from-drawable-string
 		showServiceIcon(sw.service.getShortTypeName().toLowerCase());
 		
-		// help
 		ImageButton help = (ImageButton) layout.findViewById(R.id.help);
 		help.setOnClickListener(new OnClickListener() {
 			@Override
@@ -69,17 +60,14 @@ public abstract class ServiceActivity extends Activity {
 					       Uri.parse("http://myrobotlab.org/content/" + sw.service.getShortTypeName()));
 					startActivity(i);
 			}
-
 		});
-
-
 	}
 
 	
     protected void onCreate(Bundle savedInstanceState, int layoutID) {
     	super.onCreate(savedInstanceState);
     	MRL.getInstance(); // FIXME - most likely not necessary as only the class definition will construct it
-    	myAndroid = MRL.android; // FIXME - remove if not used
+    	myAndroid = MRL.androidService; // FIXME - remove if not used
     	    	
         // begin exchange of data from service to UI
         layout = getLayoutInflater().inflate(layoutID, null);        		
@@ -102,14 +90,14 @@ public abstract class ServiceActivity extends Activity {
     	
         if (boundServiceName == null || boundServiceName.length() == 0)
         {
-        	inform("name empty! need key in Bundle !");
+        	MRL.toast("name empty! need key in Bundle !");
         	return;
         }
         
         sw = RuntimeEnvironment.getService(boundServiceName);
         if (sw == null)
         {
-        	inform("bad service reference - name " + boundServiceName + " not valid !");
+        	MRL.toast("bad service reference - name " + boundServiceName + " not valid !");
         	return;
         }
                 
@@ -121,7 +109,8 @@ public abstract class ServiceActivity extends Activity {
 			
 			@Override
 			public void onClick(View arg0) {
-				MRL.release(boundServiceName);				
+				MRL.release(boundServiceName);	
+				finish();
 			}
 		});
         
@@ -132,7 +121,7 @@ public abstract class ServiceActivity extends Activity {
 		TextView text = (TextView) layout.findViewById(field);
 		if (text == null)
 		{
-			inform(sw.service.getName() + " could not find field " + field);
+			MRL.toast(sw.service.getName() + " could not find field " + field);
 			return;
 		}
 		
@@ -144,7 +133,7 @@ public abstract class ServiceActivity extends Activity {
 		TextView text = (TextView) layout.findViewById(field);
 		if (text == null)
 		{
-			inform(sw.service.getName() + " could not find field " + field);
+			MRL.toast(sw.service.getName() + " could not find field " + field);
 			return;
 		}
 		StringBuffer d = new StringBuffer();
@@ -152,12 +141,6 @@ public abstract class ServiceActivity extends Activity {
 		text.setText(d.toString());
     }
     
-    public void inform (String s)
-    {
-    	Toast.makeText(getApplicationContext(),s, Toast.LENGTH_LONG).show();
-    	if(D) Log.e(TAG, s);
-    	
-    }
     
 	/**
 	 * attachGUI is called to initialize any communication routes which need to be
