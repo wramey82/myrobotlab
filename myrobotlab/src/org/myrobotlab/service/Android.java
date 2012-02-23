@@ -88,7 +88,10 @@ public class Android extends Service implements SensorEventListener {
 	public void stopService()
 	{
 		super.stopService();
-		sensorManager.unregisterListener(this);
+		if (sensorManager != null)
+		{
+			sensorManager.unregisterListener(this);
+		}
 	}
 	
 	@Override

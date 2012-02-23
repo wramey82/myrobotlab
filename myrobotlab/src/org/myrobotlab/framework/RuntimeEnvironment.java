@@ -495,7 +495,12 @@ public class RuntimeEnvironment implements Serializable{
 				ServiceWrapper sw = se.serviceDirectory.get(serviceName);
 				LOG.info("stopping service "  + se.accessURL + "/" + serviceName);
 				//sw.service.releaseService();
-				sw.service.stopService();
+				if (sw.service != null)
+				{
+					sw.service.stopService();
+				} else {
+					LOG.warn("unknown type and/or remote service");
+				}
 			}
 		}
 		
