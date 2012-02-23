@@ -191,6 +191,17 @@ public class Android extends Service implements SensorEventListener {
 		
 		return false;
 	}
+	
+	
+	/**
+	 * a general message function - is displayed on the AndroidActivity screen
+	 * @param msg
+	 * @return
+	 */
+	public String logMsg(String msg)
+	{
+		return msg;
+	}
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
