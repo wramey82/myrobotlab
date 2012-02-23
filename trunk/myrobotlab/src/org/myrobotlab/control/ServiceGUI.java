@@ -46,6 +46,8 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -83,6 +85,25 @@ public abstract class ServiceGUI {
 		
 	}
 
+	public class HelpListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			ServiceWrapper sw = RuntimeEnvironment.getService(boundServiceName);
+			if (sw != null){
+				Service s = sw.service;
+				if (s != null){
+					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/content/" + s.getShortTypeName());
+					return;
+				}
+			}
+			LOG.error(boundServiceName + " service not found for help request");
+		}
+		
+	}
+	
 	public class ReleaseServiceListener implements ActionListener
 	{
 
@@ -142,6 +163,7 @@ public abstract class ServiceGUI {
 			
 		detachButton.addActionListener(new DetachListener());
 		releaseServiceButton.addActionListener(new ReleaseServiceListener());
+		help.addActionListener(new HelpListener());
 
 		BevelBorder widgetTitle;
 		widgetTitle = (BevelBorder) BorderFactory

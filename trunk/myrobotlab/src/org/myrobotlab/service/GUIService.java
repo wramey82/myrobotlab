@@ -1002,6 +1002,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Servo servo1 = new Servo("servo1");
 		servo1.startService();
 		*/
+
+		Jython jython = new Jython("jython");
+		jython.startService();
 		
 		Clock clock = new Clock("clock");
 		clock.startService();

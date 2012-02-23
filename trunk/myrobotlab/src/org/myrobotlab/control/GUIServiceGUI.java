@@ -436,10 +436,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
-
-			// get service type class name
-			// String serviceClassName = sw.serviceClass;
-//			cells.put(serviceName, createVertex(serviceName, x, y, 80, 20, Color.ORANGE, false));
 			String ret;
 			String toolTip;
 			String canonicalName;
@@ -447,12 +443,11 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			if (sw.get() == null)
 			{
 				canonicalName = "unknown";
-				ret = "unknown";
+				ret = serviceName + "\n" + "unknown";
 				toolTip = "";
 			} else {
-				canonicalName = sw.get().getClass().getCanonicalName();
-				String shortName[] = canonicalName.split("\\."); 
-				ret = shortName[shortName.length - 1] + "\n" + serviceName;
+				canonicalName = sw.get().getShortTypeName();
+				ret = serviceName + "\n" + sw.get().getShortTypeName();
 				toolTip = sw.get().getToolTip();
 			}
 
@@ -523,7 +518,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper sw = RuntimeEnvironment.getService(serviceName);
 
 			//if (sw.localServiceHandle != null) {
 				Service s = RuntimeEnvironment.getService(serviceName).get();
