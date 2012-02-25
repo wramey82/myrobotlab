@@ -310,8 +310,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		}
 
-		// creating the ServiceGUI for "this" class - delayed to get all Services
-		if (createGUIServiceGUI)
+		// FIXME creating the ServiceGUI for "this" class if its not already created
+		// FIXME - you'll need to recreate/refresh the block map since new 
+		// service might have been added or dropped out !
+		if (createGUIServiceGUI && !serviceGUIMap.containsKey(getName()))
 		{
 			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
 			// going out to remote systems.

@@ -116,7 +116,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	JTextField host = new JTextField("myrobotlab.dyndns.org:1060", 8);
 	JTextField user = new JTextField("admin", 8);
-	JPasswordField password = new JPasswordField("zardoz7", 8);
+	JPasswordField password = new JPasswordField("xxxxx", 8);
 	
 	public void init() {
 
