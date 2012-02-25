@@ -32,6 +32,8 @@
  *
  * http://myrobotlab.org
  *
+ * TODO - create analogSensitivity (delta) & analogGain (scalar)
+ *
  */
 
 #include <Servo.h>
@@ -267,7 +269,7 @@ Serial.print("]\n");
              analogPinService[ioCommand[1]] |= TRIGGER_MASK;
              ++analogReadPollingPinCount;
            break;
-           
+
            case NOP:
              // No Operation
            break;

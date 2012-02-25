@@ -46,6 +46,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
@@ -62,9 +63,6 @@ import org.simpleframework.xml.Root;
  *  supported is in arduinoSerial.pde - located here :
  *  
  *	Should support nearly all Arduino board types  
- *   
- *   TODO:
- *   Data should be serializable in xml or properties, binary should already work
  *   
  *   References:
  *    <a href="http://www.arduino.cc/playground/Main/RotaryEncoders">Rotary Encoders</a> 
@@ -99,8 +97,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 	// imported Arduino constants
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
-	public static final int OUTPUT = 0x1;
-	public static final int INPUT = 0x0;
 
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
@@ -122,12 +118,14 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public static final int ANALOG_READ_POLLING_STOP = 14;
 	public static final int DIGITAL_READ_POLLING_START = 15;
 	public static final int DIGITAL_READ_POLLING_STOP = 16;
+	public static final int SET_ANALOG_PIN_SENSITIVITY 	= 17;
+	public static final int SET_ANALOG_PIN_GAIN 		= 18;
 
 	// servo related
 	public static final int SERVO_ANGLE_MIN = 0;
 	public static final int SERVO_ANGLE_MAX = 180;
 	public static final int SERVO_SWEEP = 10;
-	public static final int MAX_SERVOS = 8; // TODO dependent on board?
+	public static final int MAX_SERVOS 			= 8; 
 
 	// servos
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
@@ -206,7 +204,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
 		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
-		int cnt = 0;
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
 			String inPortName = portId.getName();
@@ -696,102 +693,6 @@ public class Arduino extends Service implements SerialPortEventListener,
 		rawReadMsgLength = length;
 	}
 
-	public void serialEvent(SerialPortEvent event) {
-		switch (event.getEventType()) {
-		case SerialPortEvent.BI:
-		case SerialPortEvent.OE:
-		case SerialPortEvent.FE:
-		case SerialPortEvent.PE:
-		case SerialPortEvent.CD:
-		case SerialPortEvent.CTS:
-		case SerialPortEvent.DSR:
-		case SerialPortEvent.RI:
-		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
-			break;
-		case SerialPortEvent.DATA_AVAILABLE:
-
-			try {
-				// read data
-
-				byte[] msg = new byte[rawReadMsgLength];
-				int newByte;
-				int numBytes = 0;
-				int totalBytes = 0;
-
-				// TODO - refactor big time ! - still can't dynamically change
-				// msg length
-				// also need a byLength or byStopString - with options to remove
-				// delimiter
-				while ((newByte = inputStream.read()) >= 0) {
-					msg[numBytes] = (byte) newByte;
-					++numBytes;
-					// totalBytes += numBytes;
-
-					// LOG.info("read " + numBytes + " target msg length " +
-					// rawReadMsgLength);
-
-					if (numBytes == rawReadMsgLength) {
-						/*
-						 * Diagnostics StringBuffer b = new StringBuffer(); for
-						 * (int i = 0; i < rawReadMsgLength; ++i) {
-						 * b.append(msg[i] + " "); }
-						 * 
-						 * LOG.error("msg" + b.toString());
-						 */
-						totalBytes += numBytes;
-
-						if (rawReadMsg) {
-							// raw protocol
-
-							String s = new String(msg);
-							LOG.info(s);
-							invoke("readSerialMessage", s);
-						} else {
-
-							// mrl protocol
-
-							PinData p = new PinData();
-							//p.time = System.currentTimeMillis();
-							p.method = msg[0];
-							p.pin = msg[1];
-							// java assumes signed
-							// http://www.rgagnon.com/javadetails/java-0026.html
-							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
-															// int is 2 bytes)
-							p.value += (msg[3] & 0xFF); // LSB
-
-							// if (p.function == SERVO_READ) { COMPLETELY
-							// DEPRICATED !!!
-							// invoke("readServo", p);
-							// } else {
-							/*
-							if (p.method == ANALOG_VALUE) {
-								p.type = PinData.TYPE_ANALOG;
-							}
-							*/
-							p.source = this.getName();
-							invoke(SensorData.publishPin, p);
-							// }
-						}
-
-						// totalBytes = 0;
-						numBytes = 0;
-
-						// reset buffer
-						for (int i = 0; i < rawReadMsgLength; ++i) {
-							msg[i] = -1;
-						}
-
-					}
-				}
-
-			} catch (IOException e) {
-			}
-
-			break;
-		}
-	}
-
 	// @Override - only in Java 1.6 - its only a single reference not all
 	// supertypes define it
 	public String getType() {
@@ -841,8 +742,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 	public void motorAttach(String name, Integer PWMPin, Integer DIRPin) {
 		// set the pinmodes on the 2 pins
 		if (serialPort != null) {
-			pinMode(PWMPin, Arduino.OUTPUT);
-			pinMode(DIRPin, Arduino.OUTPUT);
+			pinMode(PWMPin, PinState.OUTPUT);
+			pinMode(DIRPin, PinState.OUTPUT);
 		} else {
 			LOG.error("attempting to attach motor before serial connection to "
 					+ name + " Arduino is ready");
@@ -954,4 +855,99 @@ public class Arduino extends Service implements SerialPortEventListener,
 */		
 	}
 	
+
+	public void serialEvent(SerialPortEvent event) {
+		switch (event.getEventType()) {
+		case SerialPortEvent.BI:
+		case SerialPortEvent.OE:
+		case SerialPortEvent.FE:
+		case SerialPortEvent.PE:
+		case SerialPortEvent.CD:
+		case SerialPortEvent.CTS:
+		case SerialPortEvent.DSR:
+		case SerialPortEvent.RI:
+		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+			break;
+		case SerialPortEvent.DATA_AVAILABLE:
+
+			try {
+				// read data
+
+				byte[] msg = new byte[rawReadMsgLength];
+				int newByte;
+				int numBytes = 0;
+
+				// TODO - refactor big time ! - still can't dynamically change
+				// msg length
+				// also need a byLength or byStopString - with options to remove
+				// delimiter
+				while ((newByte = inputStream.read()) >= 0) {
+					msg[numBytes] = (byte) newByte;
+					++numBytes;
+					// totalBytes += numBytes;
+
+					// LOG.info("read " + numBytes + " target msg length " +
+					// rawReadMsgLength);
+
+					if (numBytes == rawReadMsgLength) {
+						/*
+						 * Diagnostics StringBuffer b = new StringBuffer(); for
+						 * (int i = 0; i < rawReadMsgLength; ++i) {
+						 * b.append(msg[i] + " "); }
+						 * 
+						 * LOG.error("msg" + b.toString());
+						 */
+
+						if (rawReadMsg) {
+							// raw protocol
+
+							String s = new String(msg);
+							LOG.info(s);
+							invoke("readSerialMessage", s);
+						} else {
+
+							// mrl protocol
+
+							PinData p = new PinData();
+							//p.time = System.currentTimeMillis();
+							p.method = msg[0];
+							p.pin = msg[1];
+							// java assumes signed
+							// http://www.rgagnon.com/javadetails/java-0026.html
+							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
+															// int is 2 bytes)
+							p.value += (msg[3] & 0xFF); // LSB
+
+							// if (p.function == SERVO_READ) { COMPLETELY
+							// DEPRICATED !!!
+							// invoke("readServo", p);
+							// } else {
+							/*
+							if (p.method == ANALOG_VALUE) {
+								p.type = PinData.TYPE_ANALOG;
+							}
+							*/
+							p.source = this.getName();
+							invoke(SensorData.publishPin, p);
+							// }
+						}
+
+						// totalBytes = 0;
+						numBytes = 0;
+
+						// reset buffer
+						for (int i = 0; i < rawReadMsgLength; ++i) {
+							msg[i] = -1;
+						}
+
+					}
+				}
+
+			} catch (IOException e) {
+			}
+
+			break;
+		}
+	}
+
 }

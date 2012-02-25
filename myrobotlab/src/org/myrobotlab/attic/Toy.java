@@ -40,8 +40,9 @@ import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Graphics;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.OpenCV;
-import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.OpenCV.Polygon;
+import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.data.PinState;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
@@ -245,13 +246,13 @@ public class Toy extends Service {
 			Thread.sleep(160);
 			left.attach(arduino.getName(), 6, 7);
 			Thread.sleep(160);
-			arduino.pinMode(7, Arduino.OUTPUT);
+			arduino.pinMode(7, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(11, Arduino.OUTPUT);
+			arduino.pinMode(11, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(12, Arduino.OUTPUT);
+			arduino.pinMode(12, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(13, Arduino.OUTPUT);
+			arduino.pinMode(13, PinState.OUTPUT);
 			
 			platform.attach(left, right);
 			

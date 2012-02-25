@@ -143,27 +143,29 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
 
 	// serial protocol functions
-	public static final int DIGITAL_WRITE = 0;
-	public static final int ANALOG_WRITE = 2;
-	public static final int ANALOG_VALUE = 3;
-	public static final int PINMODE = 4;
-	public static final int PULSE_IN = 5;
-	public static final int SERVO_ATTACH = 6;
-	public static final int SERVO_WRITE = 7;
-	public static final int SERVO_SET_MAX_PULSE = 8;
-	public static final int SERVO_DETACH = 9;
-	public static final int SET_PWM_FREQUENCY = 11;
-	public static final int SERVO_READ = 12;
-	public static final int ANALOG_READ_POLLING_START = 13;
-	public static final int ANALOG_READ_POLLING_STOP = 14;
-	public static final int DIGITAL_READ_POLLING_START = 15;
-	public static final int DIGITAL_READ_POLLING_STOP = 16;
+	public static final int DIGITAL_WRITE 				= 0;
+	public static final int ANALOG_WRITE 				= 2;
+	public static final int ANALOG_VALUE 				= 3;
+	public static final int PINMODE 					= 4;
+	public static final int PULSE_IN 					= 5;
+	public static final int SERVO_ATTACH 				= 6;
+	public static final int SERVO_WRITE 				= 7;
+	public static final int SERVO_SET_MAX_PULSE 		= 8;
+	public static final int SERVO_DETACH 				= 9;
+	public static final int SET_PWM_FREQUENCY 			= 11;
+	public static final int SERVO_READ 					= 12;
+	public static final int ANALOG_READ_POLLING_START 	= 13;
+	public static final int ANALOG_READ_POLLING_STOP 	= 14;
+	public static final int DIGITAL_READ_POLLING_START 	= 15;
+	public static final int DIGITAL_READ_POLLING_STOP 	= 16;
+	public static final int SET_ANALOG_PIN_SENSITIVITY 	= 17;
+	public static final int SET_ANALOG_PIN_GAIN 		= 18;
 
 	// servo related
-	public static final int SERVO_ANGLE_MIN = 0;
-	public static final int SERVO_ANGLE_MAX = 180;
-	public static final int SERVO_SWEEP = 10;
-	public static final int MAX_SERVOS = 8; // TODO dependent on board?
+	public static final int SERVO_ANGLE_MIN 	= 0;
+	public static final int SERVO_ANGLE_MAX 	= 180;
+	public static final int SERVO_SWEEP 		= 10;
+	public static final int MAX_SERVOS 			= 8; 
 
 	// servos
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
@@ -817,7 +819,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
      */
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
+        private final InputStream inputStream;
         private final OutputStream mmOutStream;
         private final Service myService;
 
@@ -836,49 +838,29 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
                 Log.e(TAG, "temp sockets not created", e);
             }
 
-            mmInStream = tmpIn;
+            inputStream = tmpIn;
             mmOutStream = tmpOut;
         }
 
         public void run() {
             Log.i(TAG, "BEGIN connectedThread");
             byte[] buffer = new byte[1024];
-            int bytes;
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                    // Read from the InputStream
-                    // bytes = mmInStream.read(buffer);
-
-                    // read and publish bytes
     				byte[] msg = new byte[rawReadMsgLength];
     				int newByte;
     				int numBytes = 0;
-    				int totalBytes = 0;
-
-    				// TODO - refactor big time ! - still can't dynamically change
-    				// msg length
-    				// also need a byLength or byStopString - with options to remove
-    				// delimiter
-    				while ((newByte = mmInStream.read(buffer)) >= 0) {
+    				
+    				// FIXME - should be inputStream.read(msg) - for an
+    				// attempted 4 byte read - and if < 4 bytes read the diff
+    				while ((newByte = inputStream.read()) >= 0) {
     					msg[numBytes] = (byte) newByte;
     					++numBytes;
-    					// totalBytes += numBytes;
-
-    					// LOG.info("read " + numBytes + " target msg length " +
-    					// rawReadMsgLength);
 
     					if (numBytes == rawReadMsgLength) {
-
-    						// Send the obtained bytes to the UI Activity
-    	                    mHandler.obtainMessage(MESSAGE_READ, numBytes, -1, buffer)
-    	                            .sendToTarget();
-
-    	                    totalBytes += numBytes;
-
     						if (rawReadMsg) {
-    							// raw protocol
 
     							String s = new String(msg);
     							LOG.info(s);
@@ -888,21 +870,22 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     							// mrl protocol
 
     							PinData p = new PinData();
-    							//p.time = System.currentTimeMillis();
     							p.method = msg[0];
     							p.pin = msg[1];
     							// java assumes signed
-    							// http://www.rgagnon.com/javadetails/java-0026.html
-    							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
-    															// int is 2 bytes)
+    							// MSB - (Arduino int is 2 bytes)
+    							p.value = (msg[2] & 0xFF) << 8; 
     							p.value += (msg[3] & 0xFF); // LSB
 
     							p.source = myService.getName();
     							invoke(SensorData.publishPin, p);
-    							// }
+        						// Send the obtained bytes to the UI Activity
+    							/*
+        	                    mHandler.obtainMessage(MESSAGE_READ, numBytes, -1, buffer)
+        	                            .sendToTarget();
+        	                            */
     						}
 
-    						// totalBytes = 0;
     						numBytes = 0;
 
     						// reset buffer
