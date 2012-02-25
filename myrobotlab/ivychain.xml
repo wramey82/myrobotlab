@@ -8,8 +8,8 @@
 		  <artifact pattern="${ivy.settings.dir}/.ivy/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
 	  	</filesystem>   	
 		<url name="public-remote">
-		  <ivy pattern="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/[organisation]/[module]/[revision]/ivy.xml"/>
-		  <artifact pattern="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/[organisation]/[module]/[revision]/[artifact].[ext]"/>
+		  <ivy pattern="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/[organisation]/[module]/[revision]/ivy.xml"/>
+		  <artifact pattern="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/[organisation]/[module]/[revision]/[artifact].[ext]"/>
 		</url>
 	  </chain>
 	</resolvers>
