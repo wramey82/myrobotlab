@@ -350,6 +350,8 @@
 	<TextView 
         android:id="@+id/v14"
         android:text="@string/A0"
+        android:layout_width="fill_parent"
+  		android:layout_height="fill_parent"
         />
 	<ImageButton
         android:id="@+id/s14"

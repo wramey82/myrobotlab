@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.data.PinState;
 
 import android.app.Activity;
@@ -50,7 +51,6 @@ import android.widget.Toast;
     AnalogClickListener analogClickListener = new AnalogClickListener();
     InOutClickListener inOutClickListener = new InOutClickListener();
     
-
 	ArduinoBT myService = null;
 	
 	public class PinButtonGroup 
@@ -62,7 +62,16 @@ import android.widget.Toast;
 		public SeekBar analog = null;
 	}
 	
+	/**
+	 * GUI button IDs to a pinGroup.. many gui elements can point to a single
+	 * button group, whos responsibility is a single pin - many to one relationship
+	 */
 	HashMap <Integer, PinButtonGroup> buttons = new HashMap <Integer, PinButtonGroup>();
+	
+	/**
+	 * index for finding the button group based on pin data from the backend
+	 */
+	HashMap <Integer, PinButtonGroup> pinToButton = new HashMap <Integer, PinButtonGroup>();
 	
 	/**
 	 * container object to contain the "actual" pin control
@@ -87,13 +96,7 @@ import android.widget.Toast;
         // message routing from the service to the activity
         myService = (ArduinoBT)sw.service;   
         myService.setmHandler(mHandler);
-        
-    	// FIXME - safe to bury in ServiceActivity !!!        
-//------------------------------------------------------------        
-       	MRL.handlers.put(boundServiceName, new MyHandler(this));
-//------------------------------------------------------------        
-
-        
+                
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         
@@ -126,6 +129,7 @@ import android.widget.Toast;
     	{
     		// digital value button (grey/green/red?)
     		PinButtonGroup p = new PinButtonGroup();
+    		pinToButton.put(i, p);
     		
     		String name = "s" + i;
     		int bID = getResources().getIdentifier(name, "id", "org.myrobotlab.android");
@@ -364,6 +368,24 @@ import android.widget.Toast;
         if(D) Log.e(TAG, "--- ON DESTROY ---");
     }
 
+    
+    // does not return PinData, because if you are hooking/registering off the 
+    // GUI for publishPin events ... you are doing it wrong..  register off the
+    // Service
+    public void publishPin(PinData data)
+    {
+    	Log.e(TAG, "--- publishPin ---");
+    	//PinButtonGroup p = pinToButton.get(data.pin);
+    	if (data.pin > 13)
+    	{
+    		// analog pin polling event
+    		String btName = "v" + data.pin;
+		    int bID = getResources().getIdentifier(btName, "id", "org.myrobotlab.android");
+		    TextView value = ((TextView) findViewById(bID));
+		    value.setText(Integer.toString(data.value));    		
+    	}
+    }
+    
 	@Override
 	public void attachGUI() {
 		// TODO Auto-generated method stub
@@ -371,6 +393,7 @@ import android.widget.Toast;
 		// digitalWrite change
 		// analogWrite change
 		sendNotifyRequest("publishState", "getState", ArduinoBT.class);
+		sendNotifyRequest("publishPin", "publishPin", PinData.class);
 		//myService.send(boundServiceName, "publishState"); TODO - broadcast first state
 	}
 
@@ -379,26 +402,6 @@ import android.widget.Toast;
 		// TODO Auto-generated method stub
 		
 	}
-
-
-	
-	// FIXME - safe to bury in ServiceActivity !!!
-    public class MyHandler extends Handler {
-    	volatile Activity activity;
-    	MyHandler(Activity a)
-    	{
-    		super();
-    		activity = a;    		
-    	}
-    	  @Override
-    	  public void handleMessage(android.os.Message msg) {
-    		  org.myrobotlab.framework.Message m = (org.myrobotlab.framework.Message)msg.obj;
-    		  //log(m);
-    		  // invoke
-    		  MRL.androidService.invoke(activity, m.method, m.data);
-    		  super.handleMessage(msg);
-    	  }
-    }
 
 	@Override
 	public void onProgressChanged(SeekBar analog, int value, boolean arg2) {
@@ -467,10 +470,12 @@ import android.widget.Toast;
 					// level of sync - call back would be sync with the Service
 					// TODO - optimization - create a single IOData per pin
 					myService.send(boundServiceName, ArduinoBT.pinMode, PinState.OUTPUT);
+					myService.send(boundServiceName, ArduinoBT.analogReadPollingStop, p.pin.address);					
 					p.inOut.setImageResource(R.drawable.square_out); // FIXME possibly wrong state
 					p.pin.mode = ArduinoBT.HIGH; // FIXME - BS - this should be set by event callback
 				} else {
 					myService.send(boundServiceName, ArduinoBT.pinMode, PinState.INPUT);				
+					myService.send(boundServiceName, ArduinoBT.analogReadPollingStart, p.pin.address);					
 					p.inOut.setImageResource(R.drawable.square_in);
 					p.pin.mode = ArduinoBT.LOW; // FIXME - BS - this should be set by event callback
 				}

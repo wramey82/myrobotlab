@@ -8,7 +8,6 @@
     <string name="connect_scan">connect scan</string>
 
     <string-array name="services_available">
-
         <!-- item>Android</item -->
         <item>ArduinoBT</item>
         <item>Clock</item>
@@ -21,7 +20,28 @@
         <item>SensorMonitor</item>
         <item>Servo</item>
     </string-array>
+    
+    <string name="listeningPorts">listening ports</string>
+    <string name="startService">start service</string>
+    <string name="remove">remove</string>
+    <string name="help">help</string>
+    <string name="pin">pin</string>
+    <string name="attach">attach</string>
+    <string name="refresh">refresh</string>
+    <string name="add">add</string>
+    <string name="cancel">cancel</string>
+    <string name="host">host</string>
+    <string name="port">port</string>
+    <string name="remoteLogging">remote logging</string>
 
+    <!-- Service Activities Begin -->
+    <!-- ArduinoBT -->
+    <string name="send">send</string>
+    <string name="not_connected">you are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">bluetooth was not enabled... leaving MyRobotLab</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="title_connected_to">connected </string>
+    <string name="title_not_connected">not connected</string>
     <string name="getPort">get port</string>
     <string name="shutdown">shutdown</string>
     <string name="name">name</string>
@@ -49,43 +69,10 @@
     <string name="pin11">pin 11</string>
     <string name="pin12">pin 12</string>
     <string name="pin13">pin 13</string>
-    <string name="vmName">VM Name</string>
-    <string name="arch">arch</string>
-    <string name="os">os</string>
-    <string name="bitness">bitness</string>
-    <string name="listeningPorts">listening ports</string>
-    <string name="startService">start service</string>
-    <string name="remove">remove</string>
-    <string name="help">help</string>
-    <string name="pin">pin</string>
-    <string name="attach">attach</string>
-    <string name="refresh">refresh</string>
-    <string name="add">add</string>
-    <string name="cancel">cancel</string>
-    <string name="host">host</string>
-    <string name="port">port</string>
-    <string name="remoteLogging">remote logging</string>
+    
 
-    <!-- labels -->
-    <string name="messages">messages </string>
-    <string name="udp">udp </string>
-    <string name="messageCount">message count </string>
-    <string name="connections">connections </string>
-
-    <!-- hints -->
-    <string name="defaultHost">127.0.0.1</string>
-    <string name="defaultPort">4445</string>
-
-    <!-- BluetoothChat -->
-    <string name="send">send</string>
-    <string name="not_connected">you are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">bluetooth was not enabled... leaving MyRobotLab</string>
-    <string name="title_connecting">connecting...</string>
-    <string name="title_connected_to">connected</string>
-    <string name="title_not_connected">not connected</string>
-
-    <!-- Bluetooth DeviceListActivity -->
-    <string name="scanning">scanning for devices...</string>
+    <!-- ArduinoBT - DeviceListActivity -->
+    <string name="scanning">scanning for devices</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_paired">no devices have been paired</string>
     <string name="none_found">no devices found</string>
@@ -96,17 +83,22 @@
     <!-- Bluetooth Options Menu -->
     <string name="connect">connect a device</string>
     <string name="discoverable">make discoverable</string>
+    
+    <!-- Remote Adapter labels -->
+    <string name="messages">messages </string>
+    <string name="udp">udp </string>
+    <string name="messageCount">message count </string>
+    <string name="connections">connections </string>
+    
+    <!-- Runtime labels -->
+    <string name="vmName">VM Name </string>
+    <string name="arch">arch </string>
+    <string name="os">os </string>
+    <string name="bitness">bitness </string>
+    
+    <!-- hints -->
+    <string name="defaultHost">127.0.0.1</string>
+    <string name="defaultPort">4445</string>
 
-    <!-- imported from APIDemos -->
-    <string name="title_checkbox_preference">Checkbox preference</string>
-    <string name="summary_checkbox_preference">This is a checkbox</string>
-    <string name="default_value_edittext_preference">Default value</string>
-    <string name="title_edittext_preference">Edit text preference</string>
-    <string name="summary_edittext_preference">An example that uses an edit text dialog</string>
-    <string name="dialog_title_edittext_preference">Enter your favorite animal</string>
-    <string name="default_value_list_preference">beta</string>
-    <string name="title_list_preference">List preference</string>
-    <string name="summary_list_preference">An example that uses a list dialog</string>
-    <string name="dialog_title_list_preference">Choose one</string>
 
 </resources>

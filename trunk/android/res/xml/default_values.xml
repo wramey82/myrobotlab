@@ -18,11 +18,11 @@
      See DefaultValues.java for more information. -->
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
-
+<!--  
     <CheckBoxPreference
             android:key="default_toggle"
             android:defaultValue="true"
-            android:title="@string/title_checkbox_preference"
+            android:title="@string/title_checkbox_preference" 
             android:summary="@string/summary_checkbox_preference" />
 
     <EditTextPreference
@@ -40,5 +40,5 @@
             android:entries="@array/entries_list_preference"
             android:entryValues="@array/entryvalues_list_preference"
             android:dialogTitle="@string/dialog_title_list_preference" />
-
+-->
 </PreferenceScreen>
