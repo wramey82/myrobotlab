@@ -3,7 +3,7 @@
     <info organisation="org.fife.rsyntaxtextarea" module="rsyntaxtextarea" status="release" revision="1.5.2">
     </info>
     <configurations>
-        <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivyconfigurations.xml"/>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
         <artifact name="rsyntaxtextarea" type="jar"/>

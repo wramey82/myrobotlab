@@ -3,7 +3,7 @@
     <info organisation="org.op.chess" module="chess" status="release" revision="1.0.0">
     </info>
     <configurations>
-        <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivyconfigurations.xml"/>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
         <artifact name="ChessBoard" type="jar"/>

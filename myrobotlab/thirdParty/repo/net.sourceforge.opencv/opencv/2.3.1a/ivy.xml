@@ -3,7 +3,7 @@
     <info organisation="net.sourceforge.opencv" module="opencv" status="release" revision="2.3.1a">
     </info>
     <configurations>
-        <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivyconfigurations.xml"/>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
         <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>

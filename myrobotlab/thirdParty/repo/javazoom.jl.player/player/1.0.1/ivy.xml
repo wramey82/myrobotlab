@@ -3,7 +3,7 @@
     <info organisation="javazoom.jl.player" module="player" status="release" revision="1.0.1">
     </info>
     <configurations>
-        <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivyconfigurations.xml"/>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
         <artifact name="jl1.0.1" type="jar"/>

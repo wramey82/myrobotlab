@@ -3,7 +3,7 @@
     <info organisation="com.googlecode.javacv" module="javacv" status="release" revision="20111001">
     </info>
     <configurations>
-        <include url="http://myrobotlab.googlecode.com/svn/trunk/thirdParty/repo/ivyconfigurations.xml"/>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
         <artifact name="javacv" type="jar"/>
