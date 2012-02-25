@@ -58,6 +58,7 @@ public class ServiceInfo {
 		addDependency("Jython","org.python.core","2.5.2");	
 
 		addBase("Keyboard");		
+		addBase("Logging");		
 		addBase("Motor");		
 
 		addBase("OpenCV");		
