@@ -117,7 +117,7 @@ public abstract class ServiceGUI {
 		
 	}
 	
-    private ImageIcon getScaledIcon(final Image image, final double scale)  
+    public static ImageIcon getScaledIcon(final Image image, final double scale)  
     {  
         ImageIcon scaledIcon = new ImageIcon(image)  
         {  
@@ -139,7 +139,9 @@ public abstract class ServiceGUI {
         return scaledIcon;  
     }  
     
-    public JButton getButton(String name)
+    
+    
+    public static JButton getButton(String name)
     {
     	JButton b = new JButton(getScaledIcon(getImage(name), 0.50));
     	b.setMargin(new Insets(0, 0, 0, 0));
@@ -187,24 +189,42 @@ public abstract class ServiceGUI {
 
 	}
 
-	protected Image getImage(String path) {
+	protected static Image getImage(String path) 
+	{
+		return getImage(path, null);
+	}
+	
+	protected static Image getImage(String path, String defaultImage) {
 		Image icon = null;
-		java.net.URL imgURL = getClass().getResource("/resource/" + path);
+		java.net.URL imgURL = ServiceGUI.class.getResource("/resource/" + path);
 		if (imgURL != null) {
 			try {
 				icon = ImageIO.read(imgURL);
+				return icon;
 			} catch (IOException e) {
 				Service.logException(e);
-			}
-			return icon;
-		} else {
-			LOG.error("Couldn't find file: " + path);
-			return null;
+			}			
 		}
+		
+		// trying default image 
+		imgURL = ServiceGUI.class.getResource("/resource/" + defaultImage);
+		if (imgURL != null) 
+		{
+			try {
+				icon = ImageIO.read(imgURL);
+				return icon;
+			} catch (IOException e) {
+				Service.logException(e);
+			}			
+		}
+
+		LOG.error("Couldn't find file: " + path + " or default " + defaultImage);
+		return null;
+
 	}	
-	protected ImageIcon getImageIcon(String path) {
+	protected static ImageIcon getImageIcon(String path) {
 		ImageIcon icon = null;
-		java.net.URL imgURL = getClass().getResource("/resource/" + path);
+		java.net.URL imgURL = ServiceGUI.class.getResource("/resource/" + path);
 		if (imgURL != null) {
 			icon = new ImageIcon(imgURL);
 			return icon;
