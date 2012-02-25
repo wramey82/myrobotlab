@@ -26,8 +26,6 @@ public class ServiceInfo {
 	
 	private ServiceInfo()
 	{
-		//addDependency("Arduino","org.myrobotlab","latest"); !!!
-		//addServiceDependency("Arm","Servo"); - would this be maintained in Ivy descriptors?		
 
 		addBase("Arduino");
 		addDependency("Arduino","gnu.io.rxtx","2.1-7r2");		

@@ -34,12 +34,7 @@ import java.util.Iterator;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.util.cli.CommandLineParser;
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.net.*;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Dependency;
@@ -53,20 +48,21 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 /*
- *   I would have liked to dynamically extract the possible Services from the code itself - unfortunately this is near impossible
- *   The methods to get this information are different depending on if app is running from the filesystem, from a jar, or from an applet.
- *   Additionally in some cases "all" classes need to be pulled back then filtered on services - which is not very practical.
- *   Sadly, these means a list needs to be maintained within this class.
+ * I would have liked to dynamically extract the possible Services from the code itself - unfortunately this is near impossible
+ * The methods to get this information are different depending on if app is running from the filesystem, from a jar, or from an applet.
+ * Additionally in some cases "all" classes need to be pulled back then filtered on services - which is not very practical.
+ * Sadly, these means a list needs to be maintained within this class.
  * 
- * 	References:
+ * References:
  * http://stackoverflow.com/questions/318239/how-do-i-set-environment-variables-from-java
+ * http://www.cooljeff.co.uk/2009/08/01/handling-native-dependencies-with-apache-ivy/
+ * http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=3
  * 
  */
 
 @Root
 public class ServiceFactory extends Service {
 
-	//public final static Logger LOG = Logger.getRootLogger();
 	public final static Logger LOG = Logger.getLogger(ServiceFactory.class.getCanonicalName());
 	public final static ServiceInfo info = ServiceInfo.getInstance();
 
@@ -160,32 +156,14 @@ public class ServiceFactory extends Service {
 		}
 	}
 
-	/**
-	 * TODO - remove this and maintain it only in the map - getServiceShortNames will get a sorted list
-	 * if keys
-	 * @return - list of Service Names available
-	 */
 	static public String[] getServiceShortClassNames() {
-		
 		return info.getShortClassNames();
-		// return getShortClassNames("org.myrobotlab.service",false);
-		/*
-		return new String[] { "Arduino", "Arm", "AudioCapture", "AudioFile",
-				"ChessGame", "Clock", "DifferentialDrive",
-				"FaceTracking", "FSM", "GeneticProgramming", "Graphics", "GUIService",
-				"HTTPClient",  "JFugue", "JoystickService", "Jython","Keyboard",
-				"Logging", "Motor", "OpenCV",
-				"ParallelPort", "PICAXE", "PID", "PlayerStage",
-				"RecorderPlayer", "RemoteAdapter", "Roomba","SensorMonitor",
-				"Servo", "SLAM",  
-				"Speech", "SpeechRecognition", "ServiceFactory",
-				"SystemInformation", "TrackingService", "WiiDAR", "Wii" };
-				*/
 	}
 
 	
-	/**
-	 * initially I thought that is would be a good idea to dynamically laod Services
+	/**	
+	 * 
+	 * initially I thought that is would be a good idea to dynamically load Services
 	 * and append their definitions to the class path.
 	 * This would "theoretically" be done with ivy to get/download the appropriate 
 	 * dependent jars from the repo.  Then use a custom ClassLoader to load the new
@@ -239,16 +217,11 @@ public class ServiceFactory extends Service {
 		try {
 			 url = new URL ("http://0.0.0.0:0");
 		} catch (MalformedURLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+			Service.logException(e2);
 		}
 		
 		System.out.println(url.getHost());
 		System.out.println(url.getPort());
-
-		// set the new dynamic class loader - done in the boot.jar / MyRobotLabClassLoader
-		// Thread.currentThread().setContextClassLoader(MyRobotLabClassLoader.getInstance());
-		// MyRobotLabClassLoader.classLoaderTreeString(o)
 		
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
@@ -299,33 +272,6 @@ public class ServiceFactory extends Service {
 		}
 	}
 
-	
-	/*
-	 * Service Loader
-	 * Ivy
-	 * ia64 is Intel Itanium so it is def not for you, also amd64 is not for you either. you want to look for x86, i386, i586 or i686 packages, I am not too sure about ia32, but if nothing else is there try ia32.
-	 * repo interface - expectation is <cpu-platform>.<bitsize>.<os> e.g. x86.32.linux for confs
-	 * http://www.cooljeff.co.uk/2009/08/01/handling-native-dependencies-with-apache-ivy/
-	 * @see org.myrobotlab.framework.Service#getToolTip()
-	 */
-	
-	/* Writing customer appenders
-	 * 
-	 *  http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=3
-	 *  log4j.rootLogger=DEBUG, FILE, CONSOLE, REMOTE
-		log4j.appender.FILE=org.apache.log4j.FileAppender
-		log4j.appender.FILE.file=/tmp/logs/log.txt
-		log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
-		log4j.appender.FILE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-		log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
-		log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
-		log4j.appender.CONSOLE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-		log4j.appender.REMOTE=com.holub.log4j.RemoteAppender
-		log4j.appender.REMOTE.Port=1234
-		log4j.appender.REMOTE.layout=org.apache.log4j.PatternLayout
-		log4j.appender.REMOTE.layout.ConversionPattern=[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n
-	 */
-	
 	
 	static public Service createAndStart (String name, String type)
 	{
