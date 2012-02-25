@@ -105,7 +105,7 @@ public class ServiceFactory extends Service {
 		return v;
 	}
 
-	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.ServiceFactory -service ServiceFactory services GUIService gui -logLevel DEBUG -logToConsole";
+	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.ServiceFactory -service services ServiceFactory gui GUIService -logLevel DEBUG -logToConsole";
 
 	@Override
 	public void loadDefaultConfiguration() {

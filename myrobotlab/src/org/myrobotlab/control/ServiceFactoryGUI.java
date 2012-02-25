@@ -25,25 +25,27 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -77,7 +79,15 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		possibleServices = new JList(ServiceFactory.getServiceShortClassNames());
+		String[] sscn = ServiceFactory.getServiceShortClassNames();
+		ServiceEntry[] ses = new ServiceEntry[sscn.length];
+		for (int i = 0; i < ses.length; ++i)
+		{
+			ses[i] = new ServiceEntry(sscn[i]);
+		}
+				
+		possibleServices = new JList(ses);
+		possibleServices.setCellRenderer(new ServiceRenderer());
 
 		//HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
 		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
@@ -107,8 +117,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		inputgc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 		JScrollPane currentServicesScrollPane = new JScrollPane(currentServices);
-		JScrollPane possibleServicesScrollPane = new JScrollPane(
-				possibleServices);
+		JScrollPane possibleServicesScrollPane = new JScrollPane(possibleServices);
 
 		currentServices.setVisibleRowCount(20);
 		possibleServices.setVisibleRowCount(20);
@@ -139,7 +148,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 				frame.setTitle("add new service");
 				String name = JOptionPane.showInputDialog(frame,"new service name");
 				if (name != null) {
-					String newService = (String) possibleServices.getSelectedValue();
+					String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
 					myService.send(boundServiceName, "createAndStart", name, newService);
 					// TODO - this is asynchronous - the service will be created later
 					// - Especially on a remote process
@@ -189,4 +198,48 @@ public class ServiceFactoryGUI extends ServiceGUI {
 
 	}
 	
+	class ServiceEntry {
+		public String type;
+		public boolean loaded = false;
+		ServiceEntry(String type)
+		{
+			this.type = type;
+		}
+		
+		public String toString()
+		{
+			return type;
+		}
+	}
+	
+	
+	private static final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
+	
+	class ServiceRenderer extends JLabel implements ListCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		public ServiceRenderer() {
+		    setOpaque(true);
+		    setIconTextGap(12);
+		  }
+
+		  public Component getListCellRendererComponent(JList list, Object value,
+		      int index, boolean isSelected, boolean cellHasFocus) {
+			  ServiceEntry entry = (ServiceEntry) value;
+		    setText(entry.type);
+		    ImageIcon icon = 
+		    		ServiceGUI.getScaledIcon(
+		    		ServiceGUI.getImage((entry.type + ".png").toLowerCase(),"help.png"), 0.50); 
+		    setIcon(icon);
+		    if (isSelected) {
+		      setBackground(HIGHLIGHT_COLOR);
+		      setForeground(Color.white);
+		    } else {
+		      setBackground(Color.white);
+		      setForeground(Color.black);
+		    }
+		    return this;
+		  }
+	}
 }
