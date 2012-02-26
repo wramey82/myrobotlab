@@ -56,8 +56,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinAlert;
@@ -264,7 +265,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		trace.add(addTrace, gc);
 
 		++gc.gridx;
-		Vector<String> v = RuntimeEnvironment.getServicesFromInterface(SensorData.class.getCanonicalName());
+		Vector<String> v = Runtime.getServicesFromInterface(SensorData.class.getCanonicalName());
 		traceController = new JComboBox(v);
 		trace.add(traceController, gc);
 

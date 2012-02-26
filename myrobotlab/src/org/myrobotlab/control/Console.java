@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.Runtime;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;

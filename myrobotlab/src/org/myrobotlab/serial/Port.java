@@ -14,10 +14,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.LogLevel;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.simpleframework.xml.Element;
@@ -185,7 +182,7 @@ public class Port implements SerialPortEventListener {
 	 */
 	public String cleanName(String portName)
 	{
-		if (RuntimeEnvironment.isWindows())
+		if (org.myrobotlab.service.Runtime.isWindows())
 		{
 			return portName.replaceAll(".\\\\", "");
 		}

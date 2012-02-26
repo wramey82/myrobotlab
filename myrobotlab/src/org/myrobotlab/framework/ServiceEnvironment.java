@@ -3,6 +3,7 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
+import org.myrobotlab.service.Runtime;
 
 /**
  * ServiceEnvironment represents a instance of MRL
@@ -28,6 +29,6 @@ public class ServiceEnvironment implements Serializable {
 	{
 		this.accessURL = url;
 		serviceDirectory = new HashMap<String, ServiceWrapper>();
-		platform = RuntimeEnvironment.getPlatform();
+		platform = Runtime.getPlatform();
 	}
 }

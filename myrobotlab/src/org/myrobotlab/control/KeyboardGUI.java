@@ -48,6 +48,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {

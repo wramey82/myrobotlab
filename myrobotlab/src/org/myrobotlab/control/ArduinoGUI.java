@@ -37,12 +37,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Clock;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
@@ -53,7 +50,7 @@ public class ArduinoGUI extends ServiceGUI {
 	
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myArduino = (Arduino)RuntimeEnvironment.getService(boundServiceName).service;
+		myArduino = (Arduino)Runtime.getService(boundServiceName).service;
 	}
 
 	static final long serialVersionUID = 1L;

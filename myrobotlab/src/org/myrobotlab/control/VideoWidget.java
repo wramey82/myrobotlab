@@ -46,13 +46,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+import org.myrobotlab.service.Runtime;
 
 public class VideoWidget extends ServiceGUI {
 
@@ -301,8 +302,8 @@ public class VideoWidget extends ServiceGUI {
 			cb = new JComboBox();
 		}
 				
-		//RuntimeEnvironment.getServicesFromInterface(interfaceName);
-		ServiceEnvironment se = RuntimeEnvironment.getLocalServices();
+		//Runtime.getServicesFromInterface(interfaceName);
+		ServiceEnvironment se = Runtime.getLocalServices();
 		Map<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(se.serviceDirectory);
 		Iterator<String> it = sortedMap.keySet().iterator();
 		
