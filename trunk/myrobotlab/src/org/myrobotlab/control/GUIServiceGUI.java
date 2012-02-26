@@ -45,11 +45,9 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 import org.w3c.dom.Document;
@@ -97,16 +95,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	mxGraphComponent graphComponent = null;
 	
 	public void init() {
-		
-		// build input begin ------------------
-		//JPanel input = new JPanel();
-		//input.setBorder(BorderFactory.createTitledBorder("input"));
-
-		// all should be methods of the menu
-		//input.add(getRefreshServicesButton());
-		//input.add(getSaveButton());
-		//input.add(getLoadButton());
-		//input.add(getDumpButton());
 		
 		JPanel newRoute = new JPanel(new GridBagLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new route"));
@@ -373,6 +361,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return button;
 	}
 	
+	/*
 	public static void startLocalServices()
 	{
 		boolean hasGUI = false;
@@ -397,6 +386,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		}
 	
 	}
+	*/
 	
 	public JButton getDumpButton() {
 		JButton button = new JButton("dump");
@@ -588,6 +578,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return methodString;
 	}
 	
+	//FIXME - should it hook to the Runtime ???
 	@Override
 	public void attachGUI() {
 		sendNotifyRequest("registerServices", "loadTabPanels");//(String hostAddress, int port, Message msg) 
