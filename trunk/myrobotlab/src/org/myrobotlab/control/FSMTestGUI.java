@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.control.VideoWidget.VideoDisplayPanel;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;

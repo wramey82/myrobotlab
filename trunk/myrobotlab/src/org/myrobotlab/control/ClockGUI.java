@@ -38,10 +38,11 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Clock.PulseDataType;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.Runtime;
 
 public class ClockGUI extends ServiceGUI implements ActionListener{
 
@@ -140,7 +141,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		gc.gridy = 2;
         display.add(pulseData, gc);
         
-        myClock = (Clock)RuntimeEnvironment.getService(boundServiceName).service;
+        myClock = (Clock)Runtime.getService(boundServiceName).service;
 		
 	}
 
@@ -184,7 +185,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		myService.send(boundServiceName, "setType", e.getActionCommand());
 	}
 	
-	// FIXME - is get/set state interact with RuntimeEnvironment registry ??? 
+	// FIXME - is get/set state interact with Runtime registry ??? 
 	// it probably should
 	public void getState(Clock c)
 	{

@@ -77,7 +77,6 @@ import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Utils;
@@ -259,8 +258,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.put("welcome", welcome);
 		}
 
-		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
-		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		LOG.info("service count " + Runtime.getRegistry().size());
 		
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
@@ -663,9 +662,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// shut down all local services
 		//HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
 		
-		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry(); 
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry(); 
 
-		//ServiceEnvironment servEnv = RuntimeEnvironment.getLocalServices();
+		//ServiceEnvironment servEnv = Runtime.getLocalServices();
 		//HashMap<String, ServiceWrapper> services = servEnv.serviceDirectory;
 		
 		Iterator<String> it = services.keySet().iterator();
@@ -725,7 +724,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		String action = ae.getActionCommand();
 		if ("save".equals(action))
 		{
-			RuntimeEnvironment.save("myrobotlab.mrl");
+			Runtime.save("myrobotlab.mrl");
 		} else if ("check now".equals(action))
 		{
 			ServiceFactory.update();
@@ -761,12 +760,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void loadRuntime()
 	{
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		
 		// load runtime
-		RuntimeEnvironment.load("myrobotlab.mrl");
+		Runtime.load("myrobotlab.mrl");
 		
-		RuntimeEnvironment.startLocalServices();
+		Runtime.startLocalServices();
 		// Execute when button is pressed // TODO send - message
 
 	}

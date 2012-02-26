@@ -8,7 +8,8 @@ public class Platform implements Serializable {
 	final public String arch;
 	final public int bitness;
 	final public String vmName;
-	Platform(String os, String arch, int bitness, String vmName)
+	
+	public Platform(String os, String arch, int bitness, String vmName)
 	{
 		this.os = os;
 		this.arch = arch;

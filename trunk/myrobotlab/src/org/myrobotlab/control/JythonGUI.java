@@ -51,10 +51,11 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.Runtime;
 
 public class JythonGUI extends ServiceGUI implements ActionListener {
 
@@ -312,7 +313,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		
 		// TODO - LOOK GOOD STUFF! 
 		// FIXME - OTHER GUI's SHOULD DO THE SAME !
-		myJython = (Jython) RuntimeEnvironment.getService(boundServiceName).service;
+		myJython = (Jython) Runtime.getService(boundServiceName).service;
 
 		if (myJython != null) {
 			editor.setText(myJython.getScript());

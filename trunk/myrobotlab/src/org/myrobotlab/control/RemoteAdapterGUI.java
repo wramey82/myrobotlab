@@ -31,9 +31,10 @@ import java.util.Iterator;
 
 import javax.swing.JLabel;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.Runtime;
 
 public class RemoteAdapterGUI extends ServiceGUI {
 
@@ -70,11 +71,11 @@ public class RemoteAdapterGUI extends ServiceGUI {
 
 	}
 
-	// TODO - register listening to RuntimeEnvironment !!! 
+	// TODO - register listening to Runtime !!! 
 	public void updateNodeList()
 	{
-		HashMap<URL, ServiceEnvironment> services = RuntimeEnvironment.getServiceEnvironments();
-		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
+		HashMap<URL, ServiceEnvironment> services = Runtime.getServiceEnvironments();
+		LOG.info("service count " + Runtime.getRegistry().size());
 				
 		Iterator<URL> it = services.keySet().iterator();
 		

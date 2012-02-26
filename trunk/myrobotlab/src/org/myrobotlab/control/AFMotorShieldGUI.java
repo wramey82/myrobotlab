@@ -38,7 +38,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
+
 import org.myrobotlab.service.AFMotorShield;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.interfaces.GUI;
@@ -59,7 +60,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 
 	public AFMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myAFMotorShield = (AFMotorShield)RuntimeEnvironment.getService(boundServiceName).service;
+		myAFMotorShield = (AFMotorShield)Runtime.getService(boundServiceName).service;
 	}
 	
 	class ButtonListener implements ActionListener {

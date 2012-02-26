@@ -38,7 +38,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -62,7 +62,7 @@ public class RuntimeGUI extends ServiceGUI {
         gc.gridx = 0;
         gc.gridy = 0;
          
-        myRuntime = (Runtime)RuntimeEnvironment.getService(boundServiceName).service;
+        myRuntime = (Runtime)Runtime.getService(boundServiceName).service;
 		
 	}
 

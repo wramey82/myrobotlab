@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
@@ -37,6 +36,7 @@ import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
+import org.myrobotlab.service.Runtime;
 
 /**
  * @author GroG TODO - timing based and NON timing based testing TODO - global
@@ -120,7 +120,7 @@ public class ServiceTest {
 		assertEquals(null, o);
 		
 		// release all
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		
 		// testing robustness of releasing after releasing all
 		catcher.releaseService();
@@ -182,7 +182,7 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
 		assertEquals(catcher.catchList.get(0), new Integer(7));
 
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		
 		LOG.debug("testSingleThrow end-------------");
 	}
@@ -240,7 +240,7 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
 		assertEquals(catcher.catchList.get(0), new Integer(7));
 
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		
 		LOG.debug("testSingleThrow end-------------");
 	}
@@ -276,7 +276,7 @@ public class ServiceTest {
 		assertEquals(catcher01.catchList.size(), cnt);
 		assertEquals(catcher02.catchList.size(), cnt);
 		
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 	}
 
 	// http://supportweb.cs.bham.ac.uk/documentation/tutorials/docsystem/build/tutorials/junit/junit.html
@@ -304,7 +304,7 @@ public class ServiceTest {
 
 		assertEquals(catcher01.catchList.size(), cnt);
 		
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 
 	}
 
@@ -335,7 +335,7 @@ public class ServiceTest {
 
 		assertEquals(catcher01.catchList.size(), 0);
 
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 
 		LOG.debug("testRemoveNotify begin-------------");
 	}
@@ -409,7 +409,7 @@ public class ServiceTest {
 		LOG.info(catcher.catchList.size());
 		// assertEquals(catcher.catchList.size(), 5);
 		
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 
 		LOG.debug("remoteThrow end-------------");
 	}
@@ -451,7 +451,7 @@ public class ServiceTest {
 		assertEquals(catcher.catchList.get(0), new Integer(1));
 		assertEquals(catcher.catchList.get(1), new Integer(2));
 
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 
 		LOG.debug("bothHandsCatchIntegerTest end-------------");
 	}
@@ -524,7 +524,7 @@ public class ServiceTest {
 		// check results
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
 
@@ -620,7 +620,7 @@ public class ServiceTest {
 			} 
 		}
 						
-		RuntimeEnvironment.releaseAll();
+		Runtime.releaseAll();
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
 	
@@ -633,7 +633,7 @@ public class ServiceTest {
 			Thread.sleep(1000);
 			
 			// time clean up
-			RuntimeEnvironment.releaseAll();
+			Runtime.releaseAll();
 
 			File f = new File("junit.serialize.bin");
 			f.delete();

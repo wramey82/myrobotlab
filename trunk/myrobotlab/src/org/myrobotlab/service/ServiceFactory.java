@@ -39,7 +39,6 @@ import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Dependency;
 import org.myrobotlab.framework.Ivy2;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -187,7 +186,7 @@ public class ServiceFactory extends Service {
 	 * @param name - name of Service to be removed and whos resources will be released
 	 */
 	static public void removeService(String name) {
-		RuntimeEnvironment.release(name);
+		Runtime.release(name);
 	}
 
 	// TODO - 3 values - description/example input & output
@@ -362,9 +361,9 @@ public class ServiceFactory extends Service {
 					cmd.add(dep.version); 	// version
 					
 					cmd.add("-confs");
-					String confs = "runtime,"+RuntimeEnvironment.getArch()+"."+
-					RuntimeEnvironment.getBitness()+"." + 
-					RuntimeEnvironment.getOS();
+					String confs = "runtime,"+Runtime.getArch()+"."+
+							Runtime.getBitness()+"." + 
+							Runtime.getOS();
 					cmd.add(confs);
 					
 					CommandLineParser parser = Main.getParser();
@@ -406,7 +405,7 @@ public class ServiceFactory extends Service {
 			return null;
 		}
 		
-		ServiceWrapper sw = RuntimeEnvironment.getService(name);
+		ServiceWrapper sw = Runtime.getService(name);
 		if (sw != null) {
 			LOG.debug("service " + name + " already exists");
 			return sw.service;

@@ -26,6 +26,8 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import org.myrobotlab.service.Runtime;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -41,7 +43,7 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;
@@ -69,7 +71,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 		}
 
 	    
-		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(RuntimeEnvironment.getMethodMap(v.name));
+		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(Runtime.getMethodMap(v.name));
 		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
 		//HashMap<String, MethodEntry> m = myService.getHostCFG().getMethodMap(serviceName);
 		

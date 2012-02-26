@@ -33,12 +33,13 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.Runtime;
 
 public abstract class OpenCVFilterGUI {
 	public final static Logger LOG = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());
@@ -60,7 +61,7 @@ public abstract class OpenCVFilterGUI {
 		name = boundFilterName;
 		this.boundServiceName = boundServiceName;
 		this.myGUI = myGUI;
-		this.myService = (OpenCV)RuntimeEnvironment.getService(boundServiceName).service;
+		this.myService = (OpenCV)Runtime.getService(boundServiceName).service;
 		this.myOpenCVFilter = myService.getFilter(name);
 		
 		TitledBorder title;

@@ -11,17 +11,17 @@ public class ServiceWrapper implements Serializable {
 	//final boolean isRemote;	
 	final public ServiceEnvironment host; // final immutable
 	
-	ServiceWrapper(Service s)
+	public ServiceWrapper(Service s)
 	{
 		this(s.getName(), s, null);
 	}
 
-	ServiceWrapper(Service s, ServiceEnvironment host)
+	public ServiceWrapper(Service s, ServiceEnvironment host)
 	{
 		this(s.getName(), s, host);
 	}
 	
-	ServiceWrapper(String name, Service s, ServiceEnvironment host)
+	public ServiceWrapper(String name, Service s, ServiceEnvironment host)
 	{
 		this.name = name;
 		this.service = s;

@@ -40,9 +40,10 @@ import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.Runtime;
 
 public class MotorGUI extends ServiceGUI {
 
@@ -76,7 +77,7 @@ public class MotorGUI extends ServiceGUI {
 		title = BorderFactory.createTitledBorder("controller");
 		controlPanel.setBorder(title);
 		
-		Vector<String> v = RuntimeEnvironment.getServicesFromInterface(MotorController.class.getCanonicalName());
+		Vector<String> v = Runtime.getServicesFromInterface(MotorController.class.getCanonicalName());
 		v.add(0, "");
 		controller = new JComboBox(v);
 		controlPanel.add(controller);
@@ -150,7 +151,7 @@ public class MotorGUI extends ServiceGUI {
 				
 				if (newController != null && newController.length() > 0) {
 					//myService.send(boundServiceName, "setPort", newPort);
-					myMotorController = (MotorController)RuntimeEnvironment.getService(newController).service;
+					myMotorController = (MotorController)Runtime.getService(newController).service;
 					// TODO - lame - data is not mutable - should be an appropriate method
 					// clear then add
 					powerPin.removeAllItems();

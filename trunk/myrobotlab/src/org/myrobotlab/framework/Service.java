@@ -26,6 +26,8 @@
 package org.myrobotlab.framework;
 
 import java.io.File;
+import org.myrobotlab.service.Runtime;
+
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -179,9 +181,9 @@ public abstract class Service implements Runnable, Serializable {
 			System.setProperty("java.library.path", System.getProperty("java.library.path") + 
 					File.pathSeparator + 
 					"libraries" +File.separator + "native" +File.separator +
-					RuntimeEnvironment.getArch() + "." +
-					RuntimeEnvironment.getBitness() + "." +
-					RuntimeEnvironment.getOS()
+					Runtime.getArch() + "." +
+					Runtime.getBitness() + "." +
+					Runtime.getOS()
 					);
 			
 			String libararyPath = System.getProperty("java.library.path");
@@ -191,10 +193,10 @@ public abstract class Service implements Runnable, Serializable {
 
 			// http://developer.android.com/reference/java/lang/System.html
 			LOG.info("---------------normalize-------------------");
-			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + RuntimeEnvironment.getOS() + "]");
-			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + RuntimeEnvironment.getArch() + "]");
-			LOG.info("getBitness [" + RuntimeEnvironment.getBitness() + "]");
-			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + RuntimeEnvironment.getVMName() + "]");
+			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Runtime.getOS() + "]");
+			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Runtime.getArch() + "]");
+			LOG.info("getBitness [" + Runtime.getBitness() + "]");
+			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Runtime.getVMName() + "]");
 						
 			LOG.info("---------------non-normalize---------------");						
 			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
@@ -448,7 +450,7 @@ public abstract class Service implements Runnable, Serializable {
 		// note - if stopService is overwritten with extra 
 		// threads - releaseService will need to be overwritten too
 		stopService(); 
-		RuntimeEnvironment.unregister(url, name);
+		Runtime.unregister(url, name);
 	}
 
 	public void startService() 
@@ -1408,11 +1410,11 @@ public abstract class Service implements Runnable, Serializable {
 			LOG.info(name + " recieved service directory update from " + sdu.remoteURL);
 	
 			// if successfully registered with "new" Services - echo a registration back
-			if (RuntimeEnvironment.register(sdu.remoteURL, sdu.serviceEnvironment))
+			if (Runtime.register(sdu.remoteURL, sdu.serviceEnvironment))
 			{
 				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
 				echoLocal.remoteURL = sdu.url;
-				echoLocal.serviceEnvironment = RuntimeEnvironment.getLocalServicesForExport();
+				echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
 				// send echo of local services back to sender
 				send (msg.sender, "registerServices", echoLocal); 
 			}
@@ -1429,7 +1431,7 @@ public abstract class Service implements Runnable, Serializable {
 	 * @param host always null for local service
 	 */
 	public synchronized void registerLocalService() {
-		RuntimeEnvironment.register(this); // problem with this in it does not broadcast
+		Runtime.register(this); // problem with this in it does not broadcast
 	}
 	
 	// TODO - DEPRICATE !!!!
@@ -1545,7 +1547,7 @@ public abstract class Service implements Runnable, Serializable {
 			// and an exclusion list enabled & exclusion list
 			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
 			// overloaded if you dont want to send everything
-			sdu.serviceEnvironment = RuntimeEnvironment.getLocalServicesForExport();
+			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
 		}
 
 		sdu.remoteURL = remoteURL;

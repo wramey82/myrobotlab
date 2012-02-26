@@ -46,10 +46,11 @@ import javax.swing.JPanel;
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.Runtime;
 import org.w3c.dom.Document;
 
 import com.mxgraph.io.mxCellCodec;
@@ -327,7 +328,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 				myService.setGraphXML(xml);
 				
 				// save runtime
-				RuntimeEnvironment.save("runtime.bin");
+				Runtime.save("runtime.bin");
 			}
 
 		});
@@ -343,12 +344,12 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				RuntimeEnvironment.releaseAll();
+				Runtime.releaseAll();
 				
 				// load runtime
-				RuntimeEnvironment.load("runtime.bin");
+				Runtime.load("runtime.bin");
 				
-				RuntimeEnvironment.startLocalServices(); // FIXME - previously started gui .display()
+				Runtime.startLocalServices(); // FIXME - previously started gui .display()
 				
 				// FIXME - startGUI
 				
@@ -366,7 +367,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	{
 		boolean hasGUI = false;
 		GUI gui = null;
-		ServiceEnvironment se = RuntimeEnvironment.getLocalServices(); 
+		ServiceEnvironment se = Runtime.getLocalServices(); 
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
@@ -396,7 +397,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				FileIO.stringToFile("dump.xml", RuntimeEnvironment.dumpNotifyEntries());
+				FileIO.stringToFile("dump.xml", Runtime.dumpNotifyEntries());
 			    				
 			}
 
@@ -411,8 +412,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	public void buildLocalServiceGraph() {
 
 		
-		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
-		LOG.info("service count " + RuntimeEnvironment.getRegistry().size());
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		LOG.info("service count " + Runtime.getRegistry().size());
 		
 		TreeMap<String, ServiceWrapper>sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -501,7 +502,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 
 	public void buildLocalServiceRoutes() {
-		Iterator<String> it = RuntimeEnvironment.getRegistry().keySet().iterator();
+		Iterator<String> it = Runtime.getRegistry().keySet().iterator();
 
 		Object parent = graph.getDefaultParent();
 		
@@ -510,7 +511,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			String serviceName = it.next();
 
 			//if (sw.localServiceHandle != null) {
-				Service s = RuntimeEnvironment.getService(serviceName).get();
+				Service s = Runtime.getService(serviceName).get();
 				if (s != null)
 				{
 					HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;

@@ -43,8 +43,9 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.RuntimeEnvironment;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
@@ -91,7 +92,7 @@ public abstract class ServiceGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			ServiceWrapper sw = RuntimeEnvironment.getService(boundServiceName);
+			ServiceWrapper sw = Runtime.getService(boundServiceName);
 			if (sw != null){
 				Service s = sw.service;
 				if (s != null){
@@ -110,7 +111,7 @@ public abstract class ServiceGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			RuntimeEnvironment.release(boundServiceName);
+			Runtime.release(boundServiceName);
 			
 			myService.loadTabPanels();
 		}

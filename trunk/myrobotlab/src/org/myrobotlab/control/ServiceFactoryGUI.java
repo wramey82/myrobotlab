@@ -50,7 +50,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.ServiceFactory;
@@ -91,7 +92,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		possibleServices.setCellRenderer(new ServiceRenderer());
 
 		//HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
-		HashMap<String, ServiceWrapper> services = RuntimeEnvironment.getRegistry();
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
 		
 		Map<String, ServiceWrapper> sortedMap = null;
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);

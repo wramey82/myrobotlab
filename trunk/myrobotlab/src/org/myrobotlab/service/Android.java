@@ -5,9 +5,7 @@ import java.util.HashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.android.MRL;
-import org.myrobotlab.android.ServiceActivity;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 
 import android.content.Context;
@@ -37,9 +35,9 @@ public class Android extends Service implements SensorEventListener {
 		
 		// add runtime notification - so we can manage
 		// new Services starting or release or importing
-		RuntimeEnvironment.getRuntime().notify(n, "registered", String.class);
-		MRL.getInstance().addServiceActivityIntent(RuntimeEnvironment.getName(),
-				RuntimeEnvironment.getRuntime().getShortTypeName());
+		Runtime.getInstance().notify(n, "registered", String.class);
+		MRL.getInstance().addServiceActivityIntent(Runtime.getInstance().getName(),
+				Runtime.getInstance().getShortTypeName());
 		
 		// TODO - generate reflectively
 		// TODO - dynamically reflect to load map

@@ -41,7 +41,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.IPCamera;
 import org.myrobotlab.service.interfaces.GUI;
@@ -110,7 +111,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	public IPCameraGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myIPCamera = (IPCamera)RuntimeEnvironment.getService(boundServiceName).service;
+		myIPCamera = (IPCamera)Runtime.getService(boundServiceName).service;
 		direction.setDirectionListener(del);
 	}
 

@@ -60,7 +60,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.SerializableImage;
@@ -277,7 +278,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 		
 		// TODO - bury in framework?
-        myOpenCV = (OpenCV)RuntimeEnvironment.getService(boundServiceName).service;
+        myOpenCV = (OpenCV)Runtime.getService(boundServiceName).service;
         
         // TODO - remove action listener?
         grabberTypeSelect.setSelectedItem("OpenCVFrameGrabber");

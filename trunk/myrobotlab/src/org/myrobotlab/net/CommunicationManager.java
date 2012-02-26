@@ -31,11 +31,11 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
-import org.myrobotlab.framework.RuntimeEnvironment;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.Runtime;
 
 public class CommunicationManager  implements Serializable, CommunicationInterface{
 
@@ -67,7 +67,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	
 	public void send(final Message msg) {
 		
-		ServiceWrapper sw = RuntimeEnvironment.getService(msg.getName());
+		ServiceWrapper sw = Runtime.getService(msg.getName());
 		if (sw == null)
 		{
 			LOG.error(msg.getName() + " service does not exist - should clean up " + msg.sender );
