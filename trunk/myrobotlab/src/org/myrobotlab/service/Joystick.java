@@ -30,15 +30,14 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-import com.centralnexus.input.Joystick;
 import com.centralnexus.input.JoystickListener;
 
-public class JoystickService extends Service implements JoystickListener {
+public class Joystick extends Service implements JoystickListener {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(JoystickService.class
+	public final static Logger LOG = Logger.getLogger(Joystick.class
 			.getCanonicalName());
-	public Joystick joy;
+	public com.centralnexus.input.Joystick joy;
 	public final int MAX_AXES = 6;
 
 	public final int R = 0;
@@ -59,14 +58,14 @@ public class JoystickService extends Service implements JoystickListener {
 
 	}
 
-	public JoystickService(String n) {
-		super(n, JoystickService.class.getCanonicalName());
+	public Joystick(String n) {
+		super(n, Joystick.class.getCanonicalName());
 
 		try {
 			LOG
 					.info("number of joysticks reported "
-							+ Joystick.getNumDevices());
-			joy = Joystick.createInstance(0);
+							+ com.centralnexus.input.Joystick.getNumDevices());
+			joy = com.centralnexus.input.Joystick.createInstance(0);
 			/*
 			 * for (int idx = joy.getID() + 1; idx < Joystick.getNumDevices();
 			 * idx++) { //if (Joystick.isPluggedIn(idx)) { // joy2 =
@@ -100,7 +99,7 @@ public class JoystickService extends Service implements JoystickListener {
 	}
 
 	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void joystickAxisChanged(Joystick j) {
+	public void joystickAxisChanged(com.centralnexus.input.Joystick j) {
 		LOG.info(" axis jid " + j.getID() + " dz " + j.getDeadZone() + " r "
 				+ j.getR() + " u " + j.getU() + " v " + j.getV() + " x "
 				+ j.getX() + " y " + j.getY() + " z " + j.getZ());
@@ -155,23 +154,23 @@ public class JoystickService extends Service implements JoystickListener {
 	}
 
 	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void joystickButtonChanged(Joystick j) {
+	public void joystickButtonChanged(com.centralnexus.input.Joystick j) {
 
 		int buttonsPressed = j.getButtons();
 
-		if ((buttonsPressed & Joystick.BUTTON1) == Joystick.BUTTON1) {
+		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON1) == com.centralnexus.input.Joystick.BUTTON1) {
 			invoke("button1");
 		}
 
-		if ((buttonsPressed & Joystick.BUTTON2) == Joystick.BUTTON2) {
+		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON2) == com.centralnexus.input.Joystick.BUTTON2) {
 			invoke("button2");
 		}
 
-		if ((buttonsPressed & Joystick.BUTTON3) == Joystick.BUTTON3) {
+		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON3) == com.centralnexus.input.Joystick.BUTTON3) {
 			invoke("button3");
 		}
 
-		if ((buttonsPressed & Joystick.BUTTON4) == Joystick.BUTTON4) {
+		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON4) == com.centralnexus.input.Joystick.BUTTON4) {
 			invoke("button4");
 		}
 	}

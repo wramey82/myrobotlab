@@ -65,6 +65,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	JList currentServices;
 	BasicArrowButton addServiceButton = null;
 	BasicArrowButton removeServiceButton = null;
+	private static final Color HIGHLIGHT_COLOR = new Color(0, 0xEE, 0x22);
 	
 	// TODO - widgetize the "possible services" list
 	public ServiceFactoryGUI(final String boundServiceName, final GUI myService) {
@@ -83,7 +84,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		ServiceEntry[] ses = new ServiceEntry[sscn.length];
 		for (int i = 0; i < ses.length; ++i)
 		{
-			ses[i] = new ServiceEntry(sscn[i]);
+			ses[i] = new ServiceEntry(null, sscn[i]);
 		}
 				
 		possibleServices = new JList(ses);
@@ -96,23 +97,29 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
-		String[] namesAndClasses = new String[sortedMap.size()];
+		ServiceEntry[] namesAndClasses = new ServiceEntry[sortedMap.size()];
 		int i = 0;
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
-			String shortClassName = sw.service.serviceClass.substring(sw.service.serviceClass.lastIndexOf(".") + 1);
+			String shortClassName = sw.service.getShortTypeName();
 			if (sw.host != null && sw.host.accessURL != null)
 			{
-				namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
+				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
+				namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
 			} else {
-				namesAndClasses[i] = serviceName + " - " + shortClassName;
+				//namesAndClasses[i] = serviceName + " - " + shortClassName;
+				namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
 			}
 			++i;
 		}
 
 		currentServices = new JList(namesAndClasses);
+		currentServices.setCellRenderer(new ServiceRenderer());
 
+		currentServices.setFixedCellWidth(200);
+		possibleServices.setFixedCellWidth(200);
+		
 		GridBagConstraints inputgc = new GridBagConstraints();
 		inputgc.anchor = GridBagConstraints.FIRST_LINE_START;
 
@@ -121,6 +128,12 @@ public class ServiceFactoryGUI extends ServiceGUI {
 
 		currentServices.setVisibleRowCount(20);
 		possibleServices.setVisibleRowCount(20);
+		
+		JPanel filters = new JPanel();
+		filters.add(new JLabel("filters"));
+		filters.add(new JButton("video"));
+		
+		input.add(filters, inputgc);
 		input.add(possibleServicesScrollPane, inputgc);
 		input.add(getRemoveServiceButton(), inputgc);
 		input.add(getAddServiceButton(), inputgc);
@@ -176,8 +189,8 @@ public class ServiceFactoryGUI extends ServiceGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String oldService = (String) currentServices.getSelectedValue();
-				myService.send(boundServiceName, "removeService", oldService);
+				ServiceEntry oldService = (ServiceEntry) currentServices.getSelectedValue();
+				myService.send(boundServiceName, "removeService", oldService.type);
 				myService.loadTabPanels();
 			}
 
@@ -199,10 +212,12 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	}
 	
 	class ServiceEntry {
+		public String name;
 		public String type;
 		public boolean loaded = false;
-		ServiceEntry(String type)
+		ServiceEntry(String name, String type)
 		{
+			this.name = name;
 			this.type = type;
 		}
 		
@@ -213,7 +228,6 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	}
 	
 	
-	private static final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
 	
 	class ServiceRenderer extends JLabel implements ListCellRenderer {
 
@@ -227,11 +241,28 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		  public Component getListCellRendererComponent(JList list, Object value,
 		      int index, boolean isSelected, boolean cellHasFocus) {
 			  ServiceEntry entry = (ServiceEntry) value;
-		    setText(entry.type);
+			  String title = "";
+			  if (entry.type != null)
+			  {
+				  title = entry.type;
+			  }
+			  if (entry.name != null)
+			  {
+				  title = entry.name;
+			  }
+		
+			  if (entry.name != null)
+			  {
+				  setText("<html><font color=#004400>" + title + "</font></html>");
+			  } else {
+				  setText("<html><font color=#BBBBBB>" + title + "</font></html>");
+			  }
+			
 		    ImageIcon icon = 
 		    		ServiceGUI.getScaledIcon(
 		    		ServiceGUI.getImage((entry.type + ".png").toLowerCase(),"unknown.png"), 0.50); 
 		    setIcon(icon);
+		    
 		    if (isSelected) {
 		      setBackground(HIGHLIGHT_COLOR);
 		      setForeground(Color.white);
@@ -239,6 +270,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		      setBackground(Color.white);
 		      setForeground(Color.black);
 		    }
+		    
 		    return this;
 		  }
 	}

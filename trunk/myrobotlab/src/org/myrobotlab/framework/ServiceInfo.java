@@ -35,17 +35,20 @@ public class ServiceInfo {
 		addBase("AudioFile");
 		addDependency("AudioFile","javazoom.jl.player","1.0.1");
 
-		addBase("Chessgame");
-		addDependency("Chessgame","org.op.chess","1.0.0");	
+		addBase("ChessGame");
+		addDependency("ChessGame","org.op.chess","1.0.0");	
 				
 		addBase("Clock");
 		addBase("DifferentialDrive");
+		addBase("FSM");
 		addBase("GoogleSTT");		
 		addBase("GUIService");
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
 		addBase("Graphics");
+		addBase("HTTPClient");
+
 		addBase("IPCamera");		
 		
 		addBase("JFugue");		
@@ -65,6 +68,9 @@ public class ServiceInfo {
 		addDependency("OpenCV","com.googlecode.javacv","20111001");	
 		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
 		addDependency("OpenCV","com.sun.jna","3.2.2");	
+
+		addBase("ParallelPort");				
+		addDependency("ParallelPort","gnu.io.rxtx","2.1-7r2");		
 		
 		addBase("RemoteAdapter");		
 
@@ -72,6 +78,7 @@ public class ServiceInfo {
 		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
 		
 		addBase("SensorMonitor");		
+		addBase("ServiceFactory");		
 		addBase("Servo");		
 
 		addBase("Simbad");		
