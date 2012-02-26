@@ -230,7 +230,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		    setText(entry.type);
 		    ImageIcon icon = 
 		    		ServiceGUI.getScaledIcon(
-		    		ServiceGUI.getImage((entry.type + ".png").toLowerCase(),"help.png"), 0.50); 
+		    		ServiceGUI.getImage((entry.type + ".png").toLowerCase(),"unknown.png"), 0.50); 
 		    setIcon(icon);
 		    if (isSelected) {
 		      setBackground(HIGHLIGHT_COLOR);

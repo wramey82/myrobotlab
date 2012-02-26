@@ -121,6 +121,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
 	
+	HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();			
 	Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
@@ -220,6 +221,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return null;
 	}	
 	
+	// FIXME - refactor name - remove kruft
 	/**
 	 *  a function to rebuild the GUI display.  Smaller data-exchange should be done with getState/publishState.
 	 *  This can be used to rebuild the panels after a new service has been created or a foriegn set of services
@@ -313,11 +315,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// FIXME creating the ServiceGUI for "this" class if its not already created
 		// FIXME - you'll need to recreate/refresh the block map since new 
 		// service might have been added or dropped out !
-		if (createGUIServiceGUI && !serviceGUIMap.containsKey(getName()))
+		// POSSIBILITY is to REMOVE THEN ADD
+		if (createGUIServiceGUI) // && !serviceGUIMap.containsKey(getName())
 		{
+			// if it already exists remove it
+			if (serviceGUIMap.containsKey(getName()))
+			{
+				removeTab(getName());
+			}
 			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
 			// going out to remote systems.
-			ServiceWrapper se = services.get(this.getName());
+			ServiceWrapper se = services.get(getName());
 			String serviceClassName = se.get().getClass().getCanonicalName();
 
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
@@ -333,6 +341,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		return tabs;
 
+	}
+	
+	public void removeTab(String name)
+	{
+		LOG.info(serviceGUIMap.size());
+		JPanel tab = tabPanelMap.get(name);
+		if (tab != null)
+		{
+			tabs.remove(tab);
+			serviceGUIMap.remove(name);
+			tabPanelMap.remove(name);
+			LOG.info(serviceGUIMap.size());
+		} else {
+			LOG.error("can not removeTab " + name);
+		}
 	}
 	
 		
@@ -364,6 +387,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (gui != null) {
 			gui.init();
 			serviceGUIMap.put(serviceName, gui);
+			tabPanelMap.put(serviceName, tpanel);
 			gui.attachGUI();
 			tpanel.add(gui.widgetFrame); 
 			tabs.addTab(serviceName, tpanel);
@@ -418,14 +442,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		sg.detachButton.setVisible(true);
 		tabs.add(boundServiceName, tpanel);		
 		
-		/*
-		 * FIXME
-		ServiceWrapper sw = RuntimeEnvironment.getService(serviceName);
-		if (sw.getAccessURL() != null) {
-			tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
-		}
-		*/
-
 		frame.pack();
 	}
 	
