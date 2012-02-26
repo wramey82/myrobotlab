@@ -2,7 +2,7 @@ package org.myrobotlab.android;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Android;
 
@@ -102,7 +102,7 @@ public abstract class ServiceActivity extends Activity {
         	return;
         }
         
-        sw = RuntimeEnvironment.getService(boundServiceName);
+        sw = Runtime.getService(boundServiceName);
         if (sw == null)
         {
         	MRL.toast("bad service reference - name " + boundServiceName + " not valid !");
