@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.android.MyRobotLabActivity.ServiceListAdapter;
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Android;
 import org.myrobotlab.service.ArduinoBT;
@@ -154,7 +154,7 @@ public class MRL extends Application {
 			*/
 			
 			createAndStartService(name, Android.class.getCanonicalName());
-			androidService = (Android)RuntimeEnvironment.getService(name).service;
+			androidService = (Android)Runtime.getService(name).service;
 			androidService.setContext(getApplicationContext()); // FIXME - cheesey
 //			android.startSensors();
 
@@ -163,7 +163,7 @@ public class MRL extends Application {
 			*/
 			/*
 			createAndStartService(name + "Proxy", Proxy.class.getCanonicalName());
-			proxy = (Proxy)RuntimeEnvironment.getService(name + "Proxy").service;
+			proxy = (Proxy)Runtime.getService(name + "Proxy").service;
 			proxy.setTargetService(android);
 			*/
 					
@@ -180,7 +180,7 @@ public class MRL extends Application {
     
     public static boolean release (String serviceName)
     {
-    	boolean ret = RuntimeEnvironment.release(serviceName);
+    	boolean ret = Runtime.release(serviceName);
     	if (ret)
     	{
     		services.remove(serviceName);
@@ -201,7 +201,7 @@ public class MRL extends Application {
     	runningServices.clear();
     	intents.clear();
     	GUIAttached.clear();
-    	RuntimeEnvironment.releaseAll();
+    	Runtime.releaseAll();
     	// reference
     	// http://stackoverflow.com/questions/2092951/how-to-close-android-application
     	System.runFinalizersOnExit(true);    	
@@ -257,8 +257,8 @@ public class MRL extends Application {
 			// add it to "servicePanels"
 			// FIXME - when you add attachGUI & detachGUI - that will 
 			// be useful - but it doesn't help the "root cause" of change
-			// RuntimeEnvironment.register(...)
-			// which is changes to the RuntimeEnvironment				
+			// Runtime.register(...)
+			// which is changes to the Runtime				
 			intents.put(name, intent);
 			// c = classForName (type + Activity)
 			// c.attachGUI(serviceName, name) // one time static call

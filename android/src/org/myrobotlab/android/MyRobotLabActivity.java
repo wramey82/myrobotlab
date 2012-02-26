@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.myrobotlab.framework.RuntimeEnvironment;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Proxy;
@@ -73,7 +73,7 @@ public class MyRobotLabActivity extends ListActivity {
 	 @Override
 	 public View getView(int position, View convertView, ViewGroup parent) {
 	   View view = super.getView(position, convertView, parent);
-	   ServiceWrapper sw = RuntimeEnvironment.getService(getItem(position));
+	   ServiceWrapper sw = Runtime.getService(getItem(position));
 	   if (sw.host.accessURL != null)
 	   {
 		   view.setBackgroundColor(0xFF007000);
@@ -180,7 +180,7 @@ public class MyRobotLabActivity extends ListActivity {
 		refreshServiceView();
 	}
 
-	// callback from RuntimeEnvironment read:
+	// callback from Runtime read:
 	// http://docs.oracle.com/javase/tutorial/uiswing/events/api.html
 	// http://en.wikipedia.org/wiki/Observer_pattern
 	// http://docs.oracle.com/javase/tutorial/uiswing/events/index.html
@@ -188,9 +188,9 @@ public class MyRobotLabActivity extends ListActivity {
 		MRL.services.clear();
 
 		// HashMap<URL, ServiceEnvironment> registry =
-		// RuntimeEnvironment.getServiceEnvironments();
+		// Runtime.getServiceEnvironments();
 
-		HashMap<String, ServiceWrapper> registry = RuntimeEnvironment.getRegistry();
+		HashMap<String, ServiceWrapper> registry = Runtime.getRegistry();
 
 		Iterator<String> it = registry.keySet().iterator();
 		while (it.hasNext()) {
