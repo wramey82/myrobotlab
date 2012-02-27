@@ -1,5 +1,5 @@
 from org.myrobotlab.service import Arduino
-from org.myrobotlab.service import ServiceFactory
+from org.myrobotlab.service import Runtime
 
 from time import sleep
 
@@ -7,7 +7,7 @@ from time import sleep
 # an Arduino
 # as well as anything which can do Position Encoding (interface)
 
-arduino = ServiceFactory.create("arduino","Arduino")
+arduino = Runtime.create("arduino","Arduino")
 
 # FIXME - re-entrant and auto-save functionality
 arduino.setPort("COM8")

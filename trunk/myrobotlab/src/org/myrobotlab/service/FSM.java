@@ -80,9 +80,6 @@ public class FSM extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		
-		ServiceFactory ServiceFactory = new ServiceFactory("services");
-		ServiceFactory.startService();
-
 		FSM fsm = new FSM("fsm");
 		fsm.startService();
 		

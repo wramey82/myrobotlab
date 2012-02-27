@@ -4,7 +4,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.ServiceFactory;
 
 public class Chumby extends Service {
 
@@ -31,9 +30,6 @@ public class Chumby extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		
-		ServiceFactory ServiceFactory = new ServiceFactory("services");
-		ServiceFactory.startService();
-
 		Chumby chumby = new Chumby("chumby");
 		chumby.startService();
 		

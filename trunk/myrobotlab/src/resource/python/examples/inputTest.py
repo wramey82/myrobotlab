@@ -3,7 +3,7 @@ from java.lang import String
 from java.lang import Class
 from org.myrobotlab.service import Clock
 from org.myrobotlab.service import Logging
-from org.myrobotlab.service import ServiceFactory
+from org.myrobotlab.service import Runtime
 from org.myrobotlab.framework import Message
 
 # inputTest.py
@@ -19,15 +19,15 @@ from org.myrobotlab.framework import Message
 # Create a running instance of the Clock Service.
 # <<URL>>
 # Name it "clock".
-clock = ServiceFactory.create("clock","Clock")
+clock = Runtime.create("clock","Clock")
 clock.startService()
 # Create a running instance of the Logging Service.
 # <<URL>>
 # Name it "log".
-log = ServiceFactory.create("log","Logging")
+log = Runtime.create("log","Logging")
 log.startService()
 # get handle on gui
-gui = ServiceFactory.create("gui","GUIService")
+gui = Runtime.create("gui","GUIService")
 # rebuild the gui since we added two new services
 gui.rebuild()
 
