@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -50,10 +51,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -62,11 +64,15 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	public final static Logger LOG = Logger.getLogger(ServiceFactoryGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
-	JList possibleServices;
-	JList currentServices;
 	BasicArrowButton addServiceButton = null;
-	BasicArrowButton removeServiceButton = null;
+	BasicArrowButton releaseServiceButton = null;
 	private static final Color HIGHLIGHT_COLOR = new Color(0, 0xEE, 0x22);
+	
+	DefaultListModel possibleServicesModel = new DefaultListModel();
+	DefaultListModel currentServicesModel = new DefaultListModel();
+
+	JList possibleServices = new JList(possibleServicesModel);
+	JList currentServices  = new JList(currentServicesModel);
 	
 	// TODO - widgetize the "possible services" list
 	public ServiceFactoryGUI(final String boundServiceName, final GUI myService) {
@@ -81,41 +87,11 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		String[] sscn = ServiceFactory.getServiceShortClassNames();
-		ServiceEntry[] ses = new ServiceEntry[sscn.length];
-		for (int i = 0; i < ses.length; ++i)
-		{
-			ses[i] = new ServiceEntry(null, sscn[i]);
-		}
-				
-		possibleServices = new JList(ses);
-		possibleServices.setCellRenderer(new ServiceRenderer());
-
-		//HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		getPossibleServices(null);
 		
-		Map<String, ServiceWrapper> sortedMap = null;
-		sortedMap = new TreeMap<String, ServiceWrapper>(services);
-		Iterator<String> it = sortedMap.keySet().iterator();
+		getCurrentServices();
 
-		ServiceEntry[] namesAndClasses = new ServiceEntry[sortedMap.size()];
-		int i = 0;
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = services.get(serviceName);
-			String shortClassName = sw.service.getShortTypeName();
-			if (sw.host != null && sw.host.accessURL != null)
-			{
-				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
-				namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-			} else {
-				//namesAndClasses[i] = serviceName + " - " + shortClassName;
-				namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-			}
-			++i;
-		}
-
-		currentServices = new JList(namesAndClasses);
+		//currentServices = new JList(namesAndClasses);
 		currentServices.setCellRenderer(new ServiceRenderer());
 
 		currentServices.setFixedCellWidth(200);
@@ -130,19 +106,32 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		currentServices.setVisibleRowCount(20);
 		possibleServices.setVisibleRowCount(20);
 		
+		possibleServices.setCellRenderer(new ServiceRenderer());
 		
+		// make category filter buttons
 		JPanel filters = new JPanel(new GridBagLayout());
 		GridBagConstraints fgc = new GridBagConstraints();
 		++fgc.gridy;
+		fgc.fill = GridBagConstraints.HORIZONTAL;
 		filters.add(new JLabel("filters"), fgc);		
 		++fgc.gridy;
-		filters.add(new JButton("video"), fgc);
+		JButton nofilter = new JButton("all");
+		nofilter.addActionListener(filterListener);
+		filters.add(nofilter, fgc);
 		++fgc.gridy;
-		filters.add(new JButton("AI"), fgc);
 		
+		String[] cats = ServiceInfo.getUniqueCategoryNames();
+		for (int j = 0; j < cats.length ; ++j)
+		{
+			JButton b = new JButton(cats[j]);
+			b.addActionListener(filterListener);
+			filters.add(b, fgc);
+			++fgc.gridy;
+		}
+				
 		input.add(filters, inputgc);
 		input.add(possibleServicesScrollPane, inputgc);
-		input.add(getRemoveServiceButton(), inputgc);
+		input.add(getReleaseServiceButton(), inputgc);
 		input.add(getAddServiceButton(), inputgc);
 		input.add(currentServicesScrollPane, inputgc);
 
@@ -155,7 +144,34 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		++gc.gridy;
 		gc.gridx = 0;
 	}
-		
+	
+	public void getCurrentServices ()
+	{
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+
+		Map<String, ServiceWrapper> sortedMap = null;
+		sortedMap = new TreeMap<String, ServiceWrapper>(services);
+		Iterator<String> it = sortedMap.keySet().iterator();
+
+		//ServiceEntry[] namesAndClasses = new ServiceEntry[sortedMap.size()];
+		int i = 0;
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			ServiceWrapper sw = services.get(serviceName);
+			String shortClassName = sw.service.getShortTypeName();
+			if (sw.host != null && sw.host.accessURL != null)
+			{
+				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
+				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
+				currentServicesModel.addElement(new ServiceEntry(serviceName, shortClassName));
+			} else {
+				//namesAndClasses[i] = serviceName + " - " + shortClassName;
+				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
+				currentServicesModel.addElement(new ServiceEntry(serviceName, shortClassName));
+			}
+			++i;
+		}
+	}
 
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
@@ -180,7 +196,10 @@ public class ServiceFactoryGUI extends ServiceGUI {
 					} catch (InterruptedException e1) {
 						Service.stackToString(e1);
 					}
-					myService.loadTabPanels(); 
+					myService.loadTabPanels();// FIXME - reload on Runtime register service event !
+					ServiceEntry newServiceEntry = (ServiceEntry) possibleServices.getSelectedValue();
+					newServiceEntry.name = name;
+					currentServicesModel.addElement(newServiceEntry);// FIXME - reload on Runtime register service event !
 				}
 
 			}
@@ -190,32 +209,35 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		return addServiceButton;
 	}
 
-	public JButton getRemoveServiceButton() {
-		removeServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
-		removeServiceButton.addActionListener(new ActionListener() {
+	public JButton getReleaseServiceButton() {
+		releaseServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
+		releaseServiceButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ServiceEntry oldService = (ServiceEntry) currentServices.getSelectedValue();
-				myService.send(boundServiceName, "removeService", oldService.type);
-				myService.loadTabPanels();
+				currentServicesModel.removeElement(oldService); // FIXME - callback from releaseService !!!!
+				myService.send(boundServiceName, "releaseService", oldService.type);
+				myService.loadTabPanels(); // FIXME - callback from releaseService !!!!
 			}
 
 		});
 
-		return removeServiceButton;
+		return releaseServiceButton;
 	}
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		// FIXME - to be implemented when merged with Runtime
+		//sendNotifyRequest("released", "released", String.class); 
+		//sendNotifyRequest("publishState", "getState", Arduino.class);
+		//myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-
+		// FIXME - to be implemented when merged with Runtime
+		//removeNotifyRequest("released", "released", String.class);
 	}
 	
 	class ServiceEntry {
@@ -233,8 +255,6 @@ public class ServiceFactoryGUI extends ServiceGUI {
 			return type;
 		}
 	}
-	
-	
 	
 	class ServiceRenderer extends JLabel implements ListCellRenderer {
 
@@ -280,5 +300,36 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		    
 		    return this;
 		  }
+	}
+	
+	public void getPossibleServices(String filter)
+	{
+		possibleServicesModel.clear();
+		String[] sscn = ServiceFactory.getServiceShortClassNames(filter);
+		ServiceEntry[] ses = new ServiceEntry[sscn.length];
+		for (int i = 0; i < ses.length; ++i)
+		{
+			//ses[i] = new ServiceEntry(null, sscn[i]);
+			possibleServicesModel.addElement(new ServiceEntry(null, sscn[i]));
+		}
+				
+		//possibleServices = new JList(ses);
+	}
+	
+	FilterListener filterListener = new FilterListener();
+	
+	class FilterListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent cmd) {
+			LOG.info(cmd.getActionCommand());
+			if ("all".equals(cmd.getActionCommand()))
+			{
+				getPossibleServices(null);
+			} else {
+				getPossibleServices(cmd.getActionCommand());
+			}
+		}
+		
 	}
 }

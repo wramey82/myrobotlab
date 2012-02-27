@@ -31,7 +31,7 @@ public abstract class GUI extends Service  {
 	public abstract JTabbedPane loadTabPanels();	
 	public abstract JFrame getFrame();
 	public abstract void pack();
-	public abstract void display();
+	//public abstract void display(); PUT IN Service class
 	
 	public abstract void undockPanel(String boundServiceName);
 

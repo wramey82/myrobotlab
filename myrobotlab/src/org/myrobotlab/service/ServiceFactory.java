@@ -42,7 +42,6 @@ import org.myrobotlab.framework.Ivy2;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.interfaces.GUI;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -76,7 +75,7 @@ public class ServiceFactory extends Service {
 	@Element
 	public static String ivyFileName = "ivychain.xml";
 	
-	static GUI gui = null;
+	static Service gui = null;
 	private static final long serialVersionUID = 1L;	
 		
 	public ServiceFactory(String instanceName) {
@@ -106,7 +105,7 @@ public class ServiceFactory extends Service {
 	public void loadDefaultConfiguration() {
 
 	}
-
+	
 	public final static void invokeCMDLine(CMDLine cmdline) {
 
 		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
@@ -137,11 +136,16 @@ public class ServiceFactory extends Service {
 				
 				s.startService();
 				
-				Class<?> c = s.getClass().getSuperclass();				
-				if (c.equals(GUI.class)) {
-					gui = (GUI) s;
+				// if the service has a display
+				// delay the display untill all Services have
+				// been created
+				if (s.hasDisplay())
+				{
+					gui = s;
 				}
 			}
+			// if the system is going to have a display
+			// display it
 			if (gui != null) {
 				gui.display();
 			}
@@ -156,7 +160,11 @@ public class ServiceFactory extends Service {
 	}
 
 	static public String[] getServiceShortClassNames() {
-		return info.getShortClassNames();
+		return getServiceShortClassNames(null);
+	}
+	
+	static public String[] getServiceShortClassNames(String filter) {
+		return ServiceInfo.getShortClassNames(filter);
 	}
 
 	
@@ -185,21 +193,14 @@ public class ServiceFactory extends Service {
 	/**
 	 * @param name - name of Service to be removed and whos resources will be released
 	 */
-	static public void removeService(String name) {
+	static public void releaseService(String name) {
 		Runtime.release(name);
 	}
 
-	// TODO - 3 values - description/example input & output
-	/*
-	@ToolTip("Add a new Services to the system")
-	static public Service addService(String className, String newName) {
-		LOG.info("adding service " + newName);
-		Service s = (Service) Service.getNewInstance("org.myrobotlab.service."
-				+ className, newName);
-		s.startService();
-		return s;
+	// callback from the Runtime of a successful release of a Service
+	static public String released(String name) {
+		return name;
 	}
-	*/
 	
 	/**
 	 * this "should" be the gateway function to a MyRobotLab instance
@@ -311,6 +312,11 @@ public class ServiceFactory extends Service {
 	}
 
 	
+	/**
+	 * update - force Ivy to check for all dependencies of all possible
+	 * Services - Ivy will attempt to check & fufill dependencies by downloading
+	 * jars from the repo 
+	 */
 	static public void update()
 	{
 		  Iterator<String> it = ServiceInfo.getKeySet().iterator();
@@ -321,6 +327,11 @@ public class ServiceFactory extends Service {
 		  // TODO if (Ivy2.hasNewDependencies()) - schedule restart
 	}
 	
+	/** 
+	 * gets the dependencies of a Service using Ivy
+	 * interfaces with Ivy using its command parameters
+	 * @param fullTypeName
+	 */
 	static public void getDependencies(String fullTypeName)
 	{
 		LOG.debug("getDependencies " + fullTypeName);
