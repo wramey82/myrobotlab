@@ -128,6 +128,7 @@ public abstract class Service implements Runnable, Serializable {
 	public final static String LOGGING_APPENDER_ROLLING_FILE 	= "file";
 	public final static String LOGGING_APPENDER_SOCKET			= "remote";
 
+	transient public final static Runtime runtime = Runtime.getInstance();
 
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
@@ -147,11 +148,12 @@ public abstract class Service implements Runnable, Serializable {
 
 	public Service(String instanceName, String serviceClass, String inHost) {
 		
+/*
 		if (!Runtime.isRuntime(this))
 		{
 			Runtime.getInstance();	
 		}		
-		
+*/		
 		if (inHost != null)
 		{
 			try {

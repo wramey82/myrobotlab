@@ -130,9 +130,15 @@ public class ServiceFactoryGUI extends ServiceGUI {
 		currentServices.setVisibleRowCount(20);
 		possibleServices.setVisibleRowCount(20);
 		
-		JPanel filters = new JPanel();
-		filters.add(new JLabel("filters"));
-		filters.add(new JButton("video"));
+		
+		JPanel filters = new JPanel(new GridBagLayout());
+		GridBagConstraints fgc = new GridBagConstraints();
+		++fgc.gridy;
+		filters.add(new JLabel("filters"), fgc);		
+		++fgc.gridy;
+		filters.add(new JButton("video"), fgc);
+		++fgc.gridy;
+		filters.add(new JButton("AI"), fgc);
 		
 		input.add(filters, inputgc);
 		input.add(possibleServicesScrollPane, inputgc);
