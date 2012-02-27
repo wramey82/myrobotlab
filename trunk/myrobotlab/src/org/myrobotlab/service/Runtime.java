@@ -268,13 +268,16 @@ public class Runtime extends Service {
 		if (se.serviceDirectory.containsKey(s.getName()))
 		{
 			LOG.error("attempting to register " + s.getName() + " which is already registered in " + url);
-			INSTANCE.invoke("collision", s.getName());
+			if (INSTANCE != null)
+			{
+				INSTANCE.invoke("collision", s.getName());
+			}
 			return s;
 		} else {
 			ServiceWrapper sw = new ServiceWrapper(s, se); 
 			se.serviceDirectory.put(s.getName(), sw);
 			registry.put(s.getName(), sw);
-			//if (service != null) // !runtime
+			if (INSTANCE != null)
 			{
 				INSTANCE.invoke("registered", s.getName());
 			}
@@ -864,22 +867,5 @@ public class Runtime extends Service {
 	{
 		return needsRestart;
 	}
-
-	//-------------pass through end -------------------
-	
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
-		
-		Runtime template = new Runtime("runtime");
-		template.startService();
-		
-		/*
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		*/
-	}
-
 	
 }
