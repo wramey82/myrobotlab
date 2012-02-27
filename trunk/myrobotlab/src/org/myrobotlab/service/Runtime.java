@@ -24,10 +24,16 @@ import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 
 /**
- * Runtime is just a service wrapper for the methods which already exist
- * in RuntimeEnvironment object - it also can handle notifications and event
- * of the global RuntimeEnvironment changing...
  * 
+ * Runtime is responsible for the creation and removal of all Services
+ * and the associated static registries 
+ * It maintains state information regarding possible & running local Services
+ * It maintains state information regarding foreign Runtimes
+ * It is a singleton and should be the only service of Runtime running in a
+ * process
+ * The host and registry maps are used in routing communication to the
+ * appropriate service (be it local or remote)
+ * It will be the first Service created
  * It also wraps the real JVM Runtime object
  *
  */
@@ -44,7 +50,7 @@ public class Runtime extends Service {
 	static private HashMap<String, String> inclusiveExportFilter = new HashMap<String, String>();
 	static private HashMap<String, String> exclusiveExportFilter = new HashMap<String, String>();
 	
-	// TODO - this should be a GUI thing only ! or getPrettyMethods or static filterMethods
+	// FIXME - this should be a GUI thing only ! or getPrettyMethods or static filterMethods
 	static private HashMap<String, String> hideMethods = new HashMap<String, String>(); 
 		
 	private static boolean needsRestart = false;
@@ -62,23 +68,19 @@ public class Runtime extends Service {
 	public final static String UNKNOWN	= "unknown"; 
 	
 	// ---- rte members end ------------------------------
-	
-	
 	public final static Logger LOG = Logger.getLogger(Runtime.class.getCanonicalName());
 	private static Runtime INSTANCE = null;
 
 	private Runtime(String n) {
 		super(n, Runtime.class.getCanonicalName());
 
-		//hosts = new HashMap<URL, ServiceEnvironment>();			
-		//registry = new HashMap<String, ServiceWrapper>();
-		
 		hideMethods.put("main", null);
 		hideMethods.put("loadDefaultConfiguration", null);
 		hideMethods.put("getToolTip", null);
 		hideMethods.put("run", null);
 		hideMethods.put("access$0", null);
 
+		// starting this
 		startService();
 	}
 	
@@ -97,38 +99,6 @@ public class Runtime extends Service {
 		return INSTANCE;		
 	}
 	
-	/**
-	 * registration event
-	 * @param name - the name of the Service which was successfully registered
-	 * @return
-	 */
-	public String registered (String name)
-	{
-		return name;
-	}
-	
-	/**
-	 * release event 
-	 * @param name - the name of the Service which was successfully released
-	 * @return
-	 */
-	public String released (String name)
-	{
-		return name;
-	}
-	
-	
-	/**
-	 * collision event - when a registration is attempted but there is a 
-	 * name collision
-	 * @param name - the name of the two Services with the same name
-	 * @return
-	 */
-	public String collision (String name)
-	{
-		return name;
-	}
-	
 	@Override
 	public void loadDefaultConfiguration() {
 		
@@ -139,6 +109,7 @@ public class Runtime extends Service {
 		return "Runtime singleton service";
 	}
 	
+	//---------- Java Runtime wrapper functions begin --------	
 	public int exec (String[] params)
 	{
 		java.lang.Runtime r = java.lang.Runtime.getRuntime();
@@ -184,6 +155,7 @@ public class Runtime extends Service {
 	    java.lang.Runtime.getRuntime().loadLibrary(filename);
 	}
 	
+	//---------- Java Runtime wrapper functions end   --------
 	
 	//-------------pass through begin -------------------
 	public static Platform getPlatform()
@@ -694,8 +666,8 @@ public class Runtime extends Service {
 			while (it.hasNext()) {
 				String sen = it.next();
 				ServiceWrapper sw = se.serviceDirectory.get(sen);
-				LOG.info("saving " + sw.getName());
-				se.serviceDirectory.clear();
+				LOG.info("saving " + sw.service.getName());
+				out.writeObject(sw);
 				//Iterator<String> seit = se.keySet().iterator();
 			}
 			*/
@@ -703,6 +675,7 @@ public class Runtime extends Service {
 			//out.writeObject(remote);	
 			//out.writeObject(instance);
 			out.writeObject(hosts);
+			
 			out.writeObject(registry);
 			out.writeObject(hideMethods);
 		} catch (FileNotFoundException e) {
@@ -867,5 +840,42 @@ public class Runtime extends Service {
 	{
 		return needsRestart;
 	}
+
+	// ---------------- callback events begin -------------	
+	/**
+	 * registration event
+	 * @param name - the name of the Service which was successfully registered
+	 * @return
+	 */
+	public String registered (String name)
+	{
+		return name;
+	}
 	
+	/**
+	 * release event 
+	 * @param name - the name of the Service which was successfully released
+	 * @return
+	 */
+	public String released (String name)
+	{
+		return name;
+	}
+	
+	
+	/**
+	 * collision event - when a registration is attempted but there is a 
+	 * name collision
+	 * @param name - the name of the two Services with the same name
+	 * @return
+	 */
+	public String collision (String name)
+	{
+		return name;
+	}
+	// ---------------- callback events end   -------------	
+	
+	// ---------------- ServiceFactory begin --------------
+	
+	// ---------------- ServiceFactory end   --------------
 }

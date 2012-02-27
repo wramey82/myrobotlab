@@ -136,6 +136,27 @@ public abstract class Service implements Runnable, Serializable {
 	private static boolean hostInitialized = false;
 	
 	abstract public String getToolTip();
+	
+	/**
+	 * framework interface for Services which can display themselves
+	 * most will not implement this method.
+	 * keeps the framework display type agnostic  
+	 */
+	public void display()
+	{		
+	}
+	
+	/**
+	 * returns if the Service has a display - this would be any Service
+	 * who had a display system GUIService (Swing) would be an example,
+	 * most Services would return false
+	 * keeps the framework display type agnostic
+	 * @return
+	 */
+	public boolean hasDisplay()
+	{
+		return false;
+	}
 
 	public Service(String instanceName, String serviceClass) {
 		this(instanceName, serviceClass, null);

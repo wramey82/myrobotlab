@@ -120,8 +120,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
 	
-	HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();			
-	Map<String, ServiceWrapper> sortedMap = null;
+	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();			
+	transient Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	transient GridBagConstraints gc = null;
@@ -153,6 +153,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.framework.Service#hasDisplay()
+	 * returns true, since this Service manages the Swing display
+	 */
+	public boolean hasDisplay()
+	{
+		return true;
+	}
+	
+	
 	@Override
 	public void loadDefaultConfiguration() {
 	}

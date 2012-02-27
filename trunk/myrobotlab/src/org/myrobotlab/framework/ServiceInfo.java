@@ -90,10 +90,12 @@ public class ServiceInfo {
 		/////////////////////CATEGORIES////////////////////
 		addCategory  ("Arduino", "micro-controller");
 
-		addCategory  ("AudioCapture", "sound");
-		addCategory  ("AudioFile", "sound");
-		addCategory  ("Speech", "sound");
-		addCategory  ("JFugue", "sound");
+		addCategory  ("FSM", "intelligence");
+
+		addCategory  ("AudioCapture", "audio");
+		addCategory  ("AudioFile", "audio");
+		addCategory  ("Speech", "audio");
+		addCategory  ("JFugue", "audio");
 		
 		addCategory  ("ChumbyBot", "robots");
 		addCategory  ("Roomba", "robots");
@@ -115,7 +117,7 @@ public class ServiceInfo {
 		addCategory  ("Simbad", "simulator");
 		addCategory  ("PlayerStage", "simulator");
 		
-		addCategory  ("SendorMonitor", "sensors");
+		addCategory  ("SensorMonitor", "sensors");
 
 		addCategory  ("Speech", "speech");
 		addCategory  ("GoogleSTT", "speech");
@@ -125,13 +127,13 @@ public class ServiceInfo {
 		//addCategory  ("GoogleAPI", "telerobotics"); **
 		//addCategory  ("GoogleGoggles", "telerobotics"); **
 		
-		addCategory  ("WiiDAR", "navigation");
-		addCategory  ("SLAM", "navigation");
+		//addCategory  ("WiiDAR", "navigation");
+		//addCategory  ("SLAM", "navigation");
 		
 		//addCategory  ("ROS", "interoperability");
 		//addCategory  ("Processing", "interoperability");
 		
-		addCategory  ("GeneticProgramming", "AI");
+		//addCategory  ("GeneticProgramming", "AI");
 		//addCategory  ("NeuralNetwork", "AI");
 		//addCategory  ("FSM", "AI");
 		
@@ -168,22 +170,41 @@ public class ServiceInfo {
 		}
 		return instance;
 	}
+
+	public static String[] getShortClassNames()
+	{
+		return getShortClassNames(null);
+	}	
 	
-	public String[] getShortClassNames()
+	public static String[] getShortClassNames(String filter)
 	{
 		ArrayList<String> sorted = new ArrayList<String>();
 		
 		Iterator<String> it = dependencies.keySet().iterator();
 		while (it.hasNext()) {
 			String sn = it.next();
-			sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
+			if (filter != null)
+			{
+				ArrayList<String> cats = categories.get(sn);
+				if (cats != null) {
+					for (int i = 0; i < cats.size(); ++i)
+					{
+						if (filter.equals(cats.get(i)))
+						{
+							sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
+						}
+					}
+				}
+			} else {
+				sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
+			}
 		}
 		Collections.sort(sorted);
 		return sorted.toArray(new String[sorted.size()]);
 		//return dependencies.keySet().toArray(new String[dependencies.keySet().size()]);
 	}
 	
-	public void addDependency (String shortName, String org, String version)
+	public static void addDependency (String shortName, String org, String version)
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
 		String module = org.substring(org.lastIndexOf(".")+1);		
@@ -199,7 +220,7 @@ public class ServiceInfo {
 		list.add(d);
 	}
 	
-	public void addCategory(String shortName, String category)
+	public static void addCategory(String shortName, String category)
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
 		ArrayList<String>list = null;
@@ -213,5 +234,27 @@ public class ServiceInfo {
 		}
 		list.add(category);	
 	}
-	
+	public static String[] getUniqueCategoryNames ()
+	{
+		ArrayList<String> sorted = new ArrayList<String>();
+		HashMap<String,String> normal = new HashMap<String,String>();
+		Iterator<String> it = categories.keySet().iterator();
+		while (it.hasNext()) {
+			String sn = it.next();
+			ArrayList<String> al = categories.get(sn);
+			for (int i = 0; i < al.size(); ++i)
+			{
+				normal.put(al.get(i), null);
+			}
+		}
+
+		it = normal.keySet().iterator();
+		while (it.hasNext()) {
+			String sn = it.next();
+			sorted.add(sn);
+		}		
+		
+		Collections.sort(sorted);
+		return sorted.toArray(new String[sorted.size()]);		
+	}
 }
