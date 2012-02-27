@@ -36,8 +36,8 @@ public class Runtime extends Service {
 	private static final long serialVersionUID = 1L;
 	
 	// ---- rte members begin ----------------------------
-	static private HashMap<URL, ServiceEnvironment> hosts;
-	static private HashMap<String, ServiceWrapper> registry;
+	static private HashMap<URL, ServiceEnvironment> hosts = new HashMap<URL, ServiceEnvironment>();	;
+	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
 	
 	static private boolean inclusiveExportFilterEnabled = false;
 	static private boolean exclusiveExportFilterEnabled = false;
@@ -65,14 +65,13 @@ public class Runtime extends Service {
 	
 	
 	public final static Logger LOG = Logger.getLogger(Runtime.class.getCanonicalName());
-	public final static Runtime INSTANCE = new Runtime("BORG " + new Random().nextInt(99999));
+	private static Runtime INSTANCE = null;
 
-	public Runtime(String n) {
+	private Runtime(String n) {
 		super(n, Runtime.class.getCanonicalName());
 
-		hosts = new HashMap<URL, ServiceEnvironment>();			
-		registry = new HashMap<String, ServiceWrapper>();
-		Random rand = new Random();
+		//hosts = new HashMap<URL, ServiceEnvironment>();			
+		//registry = new HashMap<String, ServiceWrapper>();
 		
 		hideMethods.put("main", null);
 		hideMethods.put("loadDefaultConfiguration", null);
@@ -83,9 +82,19 @@ public class Runtime extends Service {
 		startService();
 	}
 	
+	public static boolean isRuntime(Service newService)
+	{
+		return newService.getClass().equals(Runtime.class);
+	}
+	
 	public static Runtime getInstance()
 	{
-		return INSTANCE;
+		if (INSTANCE == null)
+		{
+			INSTANCE = new Runtime("BORG " + new Random().nextInt(99999));
+		}
+			
+		return INSTANCE;		
 	}
 	
 	/**
@@ -864,6 +873,7 @@ public class Runtime extends Service {
 		
 		Runtime template = new Runtime("runtime");
 		template.startService();
+		
 		/*
 		GUIService gui = new GUIService("gui");
 		gui.startService();
@@ -871,5 +881,5 @@ public class Runtime extends Service {
 		*/
 	}
 
-
+	
 }

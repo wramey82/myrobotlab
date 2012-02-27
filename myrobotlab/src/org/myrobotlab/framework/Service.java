@@ -147,6 +147,11 @@ public abstract class Service implements Runnable, Serializable {
 
 	public Service(String instanceName, String serviceClass, String inHost) {
 		
+		if (!Runtime.isRuntime(this))
+		{
+			Runtime.getInstance();	
+		}		
+		
 		if (inHost != null)
 		{
 			try {
