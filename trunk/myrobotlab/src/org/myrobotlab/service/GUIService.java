@@ -1005,7 +1005,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-
+		
 		/*
 		MyRobot dee = new MyRobot("dee");
 		dee.start();
