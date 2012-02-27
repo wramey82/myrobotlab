@@ -20,7 +20,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
 <!--  
     <CheckBoxPreference
-            android:key="default_toggle"
+            android:key="default_toggle" 
             android:defaultValue="true"
             android:title="@string/title_checkbox_preference" 
             android:summary="@string/summary_checkbox_preference" />
