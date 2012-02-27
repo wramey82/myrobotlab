@@ -32,11 +32,10 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
-import org.myrobotlab.service.Runtime;
 
 /**
  * @author GroG TODO - timing based and NON timing based testing TODO - global
@@ -573,13 +572,13 @@ public class ServiceTest {
 	
 	@Test
 	public final void serialize() {
-		String[] serviceNames = ServiceFactory.getServiceShortClassNames();
+		String[] serviceNames = Runtime.getServiceShortClassNames();
 		
 		LOG.info("serializing");
 		for (int i=0;i < serviceNames.length; ++i)
 		{
 			
-			Service s = ServiceFactory.create(serviceNames[i], i + "");
+			Service s = Runtime.create(serviceNames[i], i + "");
 			
 			if (i == 29)
 			{

@@ -26,7 +26,6 @@
 package org.myrobotlab.test;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.ServiceFactory;
 
 public class MotorTest {
 
@@ -34,12 +33,6 @@ public class MotorTest {
 			.getCanonicalName());
 
 	public static void main(String[] args) throws InterruptedException {
-
-		// Arduino arduino = new Arduino("arduino");
-		// arduino.start();
-		ServiceFactory ServiceFactory = new ServiceFactory("ServiceFactory");
-		ServiceFactory.startService();
-		// GU
 
 	}
 

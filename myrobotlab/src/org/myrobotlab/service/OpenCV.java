@@ -817,7 +817,7 @@ public class OpenCV extends Service {
 		 * logException(e); }
 		 */
 
-		OpenCV opencv = (OpenCV) ServiceFactory.createAndStart("opencv","OpenCV");
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
 		opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");

@@ -54,9 +54,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.ServiceFactory;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class ServiceFactoryGUI extends ServiceGUI {
@@ -305,7 +303,7 @@ public class ServiceFactoryGUI extends ServiceGUI {
 	public void getPossibleServices(String filter)
 	{
 		possibleServicesModel.clear();
-		String[] sscn = ServiceFactory.getServiceShortClassNames(filter);
+		String[] sscn = Runtime.getServiceShortClassNames(filter);
 		ServiceEntry[] ses = new ServiceEntry[sscn.length];
 		for (int i = 0; i < ses.length; ++i)
 		{

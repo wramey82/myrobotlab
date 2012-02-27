@@ -201,7 +201,7 @@ public class Jython extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 				
-		Jython jython = (Jython) ServiceFactory.create("jython","Jython");
+		Jython jython = (Jython) Runtime.create("jython","Jython");
 		jython.startService();
 
 		

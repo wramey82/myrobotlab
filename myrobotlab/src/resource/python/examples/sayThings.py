@@ -1,6 +1,6 @@
 from time import sleep
 from org.myrobotlab.service import Speech
-from org.myrobotlab.service import ServiceFactory
+from org.myrobotlab.service import Runtime
 
 # sayThings.py
 # example script for MRL showing various methods
@@ -8,7 +8,7 @@ from org.myrobotlab.service import ServiceFactory
 # http://myrobotlab.org/doc/org/myrobotlab/service/Speech.html
 
 # The preferred method for creating services is
-# through the ServiceFactory. This will allow
+# through the Runtime. This will allow
 # the script to be rerun without creating a new
 # Service each time. The initial delay from Service
 # creation and caching voice files can be large, however
@@ -17,7 +17,7 @@ from org.myrobotlab.service import ServiceFactory
 
 # Create a running instance of the Speech Service.
 # Name it "speech".
-speech = ServiceFactory.create("speech","Speech")
+speech = Runtime.create("speech","Speech")
 speech.startService()
 
 # Speak with initial defaults - Google en

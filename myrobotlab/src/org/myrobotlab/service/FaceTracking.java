@@ -44,7 +44,7 @@ public class FaceTracking extends Service {
 	 */
 	Servo tilt = new Servo("tilt");
 	Servo pan = new Servo("pan");
-	OpenCV camera = (OpenCV)ServiceFactory.create("camera","OpenCV");
+	OpenCV camera = (OpenCV)Runtime.create("camera","OpenCV");
 	
 	Arduino arduino = new Arduino("arduino");
 	

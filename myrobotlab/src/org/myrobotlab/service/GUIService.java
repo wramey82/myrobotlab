@@ -737,7 +737,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			Runtime.save("myrobotlab.mrl");
 		} else if ("check now".equals(action))
 		{
-			ServiceFactory.update();
+			Runtime.update();
 		} else if ("load".equals(action)) 
 		{
 			loadRuntime();
