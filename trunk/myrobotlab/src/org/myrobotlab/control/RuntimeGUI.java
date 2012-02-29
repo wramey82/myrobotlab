@@ -67,6 +67,8 @@ public class RuntimeGUI extends ServiceGUI {
 	BasicArrowButton releaseServiceButton = null;
 	private static final Color HIGHLIGHT_COLOR = new Color(0, 0xEE, 0x22);
 	
+	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>(); 
+	
 	DefaultListModel possibleServicesModel = new DefaultListModel();
 	DefaultListModel currentServicesModel = new DefaultListModel();
 
@@ -112,7 +114,7 @@ public class RuntimeGUI extends ServiceGUI {
 		GridBagConstraints fgc = new GridBagConstraints();
 		++fgc.gridy;
 		fgc.fill = GridBagConstraints.HORIZONTAL;
-		filters.add(new JLabel("filters"), fgc);		
+		filters.add(new JLabel("category filters"), fgc);		
 		++fgc.gridy;
 		JButton nofilter = new JButton("all");
 		nofilter.addActionListener(filterListener);
@@ -152,23 +154,25 @@ public class RuntimeGUI extends ServiceGUI {
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
-		//ServiceEntry[] namesAndClasses = new ServiceEntry[sortedMap.size()];
-		int i = 0;
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
 			String shortClassName = sw.service.getShortTypeName();
 			if (sw.host != null && sw.host.accessURL != null)
 			{
+				// FIXME
 				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
 				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-				currentServicesModel.addElement(new ServiceEntry(serviceName, shortClassName));
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName);
+				currentServicesModel.addElement(se);
+				nameToServiceEntry.put(serviceName, se);
 			} else {
 				//namesAndClasses[i] = serviceName + " - " + shortClassName;
 				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-				currentServicesModel.addElement(new ServiceEntry(serviceName, shortClassName));
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName);
+				currentServicesModel.addElement(se);
+				nameToServiceEntry.put(serviceName, se);
 			}
-			++i;
 		}
 	}
 
@@ -196,26 +200,31 @@ public class RuntimeGUI extends ServiceGUI {
 		return addServiceButton;
 	}
 	
-	public String registered (String newServiceName)
+	public ServiceWrapper registered (ServiceWrapper sw)
 	{
-		// FIXME - bug if index is moved before call back is processed
-		ServiceEntry selected = (ServiceEntry) possibleServices.getSelectedValue();
-		ServiceEntry newServiceEntry = new ServiceEntry(newServiceName, selected.type);
+		// FIXME - this will break when an unknown type comes
+		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, sw.service.getShortTypeName());
 		currentServicesModel.addElement(newServiceEntry);
+		nameToServiceEntry.put(sw.name, newServiceEntry);
 		//myService.loadTabPanels();
-		myService.addTab(newServiceName);
-		return newServiceName;
+		myService.addTab(sw.name);
+		return sw;
 	}
 
-	public String released (String newServiceName)
+	public ServiceWrapper released (ServiceWrapper sw)
 	{
 		// FIXME - bug if index is moved before call back is processed
-		ServiceEntry selected = (ServiceEntry) currentServices.getSelectedValue();
+		//ServiceEntry selected = (ServiceEntry) currentServices.getSelectedValue();
 		//ServiceEntry newServiceEntry = new ServiceEntry(newServiceName, selected.type);
-		myService.removeTab(newServiceName);
-		currentServicesModel.removeElement(selected);
+		myService.removeTab(sw.name);// FIXME will bust when service == null
+		if (nameToServiceEntry.containsKey(sw.name))
+		{
+			currentServicesModel.removeElement(nameToServiceEntry.get(sw.name));
+		} else {
+			LOG.error(sw.name + " released event - but could not find in currentServiceModel");
+		}
 		//myService.loadTabPanels();
-		return newServiceName;
+		return sw;
 	}
 	
 	public JButton getReleaseServiceButton() {
@@ -237,14 +246,14 @@ public class RuntimeGUI extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("registered", "registered", String.class);
-		sendNotifyRequest("released", "released", String.class);
+		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
+		sendNotifyRequest("released", "released", ServiceWrapper.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("registered", "registered", String.class);
-		removeNotifyRequest("released", "released", String.class);
+		removeNotifyRequest("registered", "registered", ServiceWrapper.class);
+		removeNotifyRequest("released", "released", ServiceWrapper.class);
 	}
 	
 	class ServiceEntry {

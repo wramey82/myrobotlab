@@ -412,8 +412,10 @@ public class RemoteAdapter extends Service {
 //		Logging log = new Logging("log");
 //		log.startService();
 		
-//		GUIService gui = new GUIService("gui");
-//		gui.startService();
-//		gui.display();
+		/*
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		*/
 	}	
 }
