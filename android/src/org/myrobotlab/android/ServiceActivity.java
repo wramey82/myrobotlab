@@ -64,7 +64,6 @@ public abstract class ServiceActivity extends Activity {
 			}
 		});
 	}
-
 	
     protected void onCreate(Bundle savedInstanceState, int layoutID) {
     	super.onCreate(savedInstanceState);
@@ -76,7 +75,12 @@ public abstract class ServiceActivity extends Activity {
     	
         // get service reference
         bundle = this.getIntent().getExtras();
-        boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
+        if (bundle == null)
+        {
+        	boundServiceName = "android"; // FIXME - at least final static it in MRL
+        } else {
+        	boundServiceName = bundle.getString(MRL.BOUND_SERVICE_NAME);
+        }
 
         // FIXME - safe to bury in ServiceActivity !!!        
         //------------------------------------------------------------        

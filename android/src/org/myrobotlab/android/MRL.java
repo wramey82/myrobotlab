@@ -152,7 +152,7 @@ public class MRL extends Application {
 			// TODO - FIXME - figure how to consolidate and what it means !!!
 			services.add(name);
 			*/
-			
+			name = "android";
 			createAndStartService(name, Android.class.getCanonicalName());
 			androidService = (Android)Runtime.getService(name).service;
 			androidService.setContext(getApplicationContext()); // FIXME - cheesey
