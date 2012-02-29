@@ -85,6 +85,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	//public JLabel arrow1 = new JLabel(" ");
 	// notify structure end -------------
 
+	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	
 	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -94,6 +95,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
+	JPanel graphPanel = new JPanel();
+
 	
 	public void init() {
 		
@@ -109,9 +112,27 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		newRoute.add(period1);
 		newRoute.add(dstMethodName);
 
-		JPanel graphPanel = new JPanel();
 		graphPanel.setBorder(BorderFactory.createTitledBorder("graph"));
 
+
+		buildGraph();
+		
+		gc.gridx = 0;
+		gc.gridy = 0;
+		
+		++gc.gridy;		
+		display.add(newRoute, gc);
+		
+		++gc.gridy;
+		graphPanel.setVisible(true);
+		
+		display.add(graphPanel, gc);
+        
+	}
+
+	public void buildGraph()
+	{
+		LOG.info("buildGraph");
 		// -------------------------BEGIN PURE JGRAPH ----------------------------
 		
 		if (myService.getGraphXML() == null || myService.getGraphXML().length() == 0)
@@ -163,16 +184,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        	serviceCells.put(v.name, m);
 	        	//serviceCells.put(arg0, s.);
 	        }
-	        /*
-	        mxIGraphModel model = graph.getModel();
-	        model.
-	        for (int i = 0, lenRoot = model.getRootCount(); i < lenRoot; i++) {
-
-	            Object o = model.getRootAt(i);
-	        
-	        graph.
-	        */
-	        
 		}
 		
 		graph.setMinimumGraphSize(new mxRectangle(0, 0, 640, 300)); // TODO - get # of services to set size?
@@ -225,30 +236,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		graphComponent.setToolTips(true);		
 
 		// -------------------------END PURE JGRAPH--------------------------------------
-
-		gc.gridx = 0;
-		gc.gridy = 0;
-		//display.add(input, gc);
 		
-		++gc.gridy;		
-		display.add(newRoute, gc);
-		
-		++gc.gridy;
-		graphPanel.setVisible(true);
-		
-		display.add(graphPanel, gc);
-		
-		/*
-		mxCodecRegistry.addPackage("org.myrobotlab.control");
-	    mxCodecRegistry.register(new mxCellCodec(new org.myrobotlab.control.GUIServiceGraphVertex()));
-	    mxCodecRegistry.register(new mxCellCodec(Type.INPORT));
-        mxCodec codec = new mxCodec();
-        String te = mxUtils.getXml(codec.encode(graph.getModel()));
-        LOG.error(te);
-        */
-        
 	}
-
 	
 	public mxGraph getNewMXGraph()
 	{
@@ -301,7 +290,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.loadTabPanels();
+				//myService.loadTabPanels(); FIXME - no longer needed ???
 			}
 
 		});
@@ -362,32 +351,6 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return button;
 	}
 	
-	/*
-	public static void startLocalServices()
-	{
-		boolean hasGUI = false;
-		GUI gui = null;
-		ServiceEnvironment se = Runtime.getLocalServices(); 
-		Iterator<String> it = se.serviceDirectory.keySet().iterator();
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-			sw.service.startService();
-			
-			if (sw.service.getClass().getSuperclass().equals(GUI.class))
-			{
-				gui = (GUI)sw.service;
-				hasGUI = true;
-			}
-		}
-	
-		if (hasGUI)
-		{
-			gui.display();
-		}
-	
-	}
-	*/
 	
 	public JButton getDumpButton() {
 		JButton button = new JButton("dump");
@@ -407,11 +370,9 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	}
 
 	
-	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	
 	public void buildLocalServiceGraph() {
 
-		
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
 		LOG.info("service count " + Runtime.getRegistry().size());
 		
@@ -582,12 +543,14 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	//FIXME - should it hook to the Runtime ???
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("registerServices", "loadTabPanels");//(String hostAddress, int port, Message msg) 
+		//sendNotifyRequest("registerServices", "loadTabPanels");//(String hostAddress, int port, Message msg) 
+		//sendNotifyRequest("registered", "loadTabPanels");//(String hostAddress, int port, Message msg) 
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("registerServices", "loadTabPanels");
+		//removeNotifyRequest("registerServices", "loadTabPanels");
+		//removeNotifyRequest("registered", "loadTabPanels");
 	}
 
 

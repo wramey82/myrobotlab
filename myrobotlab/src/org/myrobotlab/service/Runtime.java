@@ -14,10 +14,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
 import org.apache.ivy.Main;
+import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.util.cli.CommandLineParser;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
@@ -65,6 +67,8 @@ public class Runtime extends Service {
 		
 	private static boolean needsRestart = false;
 	private static boolean checkForDependencies = true; // TODO implement - Ivy related
+	
+	public static final String registered = "registered"; 
 	
 	// VM Names
 	public final static String DALVIK 	= "dalvik"; 
@@ -1193,6 +1197,17 @@ public class Runtime extends Service {
 					
 					try {
 						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+						ResolveReport report = Ivy2.getReport();
+			            if (report.hasError()) {
+			                // System.exit(1);
+			            	LOG.error("Ivy resolve error");
+			            	// invoke Dependency Error - 
+			            	List<String> l = report.getAllProblemMessages();
+			            	for (int j = 0; j < l.size(); ++j)
+			            	{
+			            		LOG.error(l.get(j));
+			            	}
+			            }
 					} catch (Exception e)
 					{
 						logException(e);

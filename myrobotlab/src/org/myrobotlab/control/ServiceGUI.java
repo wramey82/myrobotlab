@@ -81,6 +81,7 @@ public abstract class ServiceGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			LOG.error("undock " + boundServiceName);
+			//releaseServiceButton.setVisible(false); - FIXME same functionality
 			myService.undockPanel(boundServiceName);
 		}
 		
@@ -111,9 +112,7 @@ public abstract class ServiceGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			Runtime.release(boundServiceName);
-			
-			myService.loadTabPanels();
+			Runtime.release(boundServiceName); // FYI - local only			
 		}
 		
 	}
@@ -122,7 +121,9 @@ public abstract class ServiceGUI {
     {  
         ImageIcon scaledIcon = new ImageIcon(image)  
         {  
-            public int getIconWidth()  
+			private static final long serialVersionUID = 1L;
+
+			public int getIconWidth()  
             {  
                 return (int)(image.getWidth(null) * scale);  
             }  

@@ -1070,7 +1070,7 @@ public abstract class Service implements Runnable, Serializable {
 				}
 			} 
 		    
-		    LOG.error("did not find method " + method + " with " + ((params==null)?"()":params.length) + " params");
+		    LOG.error("did not find method [" + method + "] with " + ((params==null)?"()":params.length) + " params");
 						
 		} catch (Exception e) {
 			Service.logException(e);
