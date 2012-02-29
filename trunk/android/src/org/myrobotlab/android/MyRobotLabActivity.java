@@ -153,7 +153,7 @@ public class MyRobotLabActivity extends ServiceActivity implements OnItemClickLi
 			@Override
 			public void onClick(View arg0) {
 				Intent i = new Intent(Intent.ACTION_VIEW, 
-					       Uri.parse("http://myrobotlab.org/content/Android"));
+					       Uri.parse("http://myrobotlab.org/service/android"));
 					startActivity(i);
 			}
 

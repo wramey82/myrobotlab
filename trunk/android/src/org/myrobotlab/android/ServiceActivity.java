@@ -59,7 +59,7 @@ public abstract class ServiceActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Intent i = new Intent(Intent.ACTION_VIEW, 
-					       Uri.parse("http://myrobotlab.org/content/" + sw.service.getShortTypeName()));
+					       Uri.parse("http://myrobotlab.org/service/" + sw.service.getShortTypeName()));
 					startActivity(i);
 			}
 		});
