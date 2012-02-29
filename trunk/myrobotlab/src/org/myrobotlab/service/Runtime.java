@@ -33,6 +33,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.data.Style;
 import org.simpleframework.xml.Element;
 
 /**
@@ -52,6 +53,8 @@ import org.simpleframework.xml.Element;
 public class Runtime extends Service {
 
 	private static final long serialVersionUID = 1L;
+	
+	static public Style style = new Style();
 	
 	// ---- rte members begin ----------------------------
 	static private HashMap<URL, ServiceEnvironment> hosts = new HashMap<URL, ServiceEnvironment>();	;

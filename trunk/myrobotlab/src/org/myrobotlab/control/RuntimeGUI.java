@@ -56,6 +56,7 @@ import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeGUI extends ServiceGUI {
@@ -296,9 +297,9 @@ public class RuntimeGUI extends ServiceGUI {
 		
 			  if (entry.name != null)
 			  {
-				  setText("<html><font color=#004400>" + title + "</font></html>");
+				  setText("<html><font color=#"+Style.base0+">" + title + "</font></html>");
 			  } else {
-				  setText("<html><font color=#BBBBBB>" + title + "</font></html>");
+				  setText("<html><font color=#"+Style.disabled+">" + title + "</font></html>");
 			  }
 			
 		    ImageIcon icon = 

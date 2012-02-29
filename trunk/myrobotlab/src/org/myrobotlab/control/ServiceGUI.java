@@ -97,7 +97,7 @@ public abstract class ServiceGUI {
 			if (sw != null){
 				Service s = sw.service;
 				if (s != null){
-					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/content/" + s.getShortTypeName());
+					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + s.getShortTypeName());
 					return;
 				}
 			}

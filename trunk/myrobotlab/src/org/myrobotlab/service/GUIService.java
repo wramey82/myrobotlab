@@ -81,6 +81,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Utils;
 import org.myrobotlab.service.data.IPAndPort;
+import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;
@@ -127,8 +128,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
-	public String remoteColorTab = "0x007000";
-	public String remoteFont = "0xFFFFFF";
+	public String remoteColorTab = "0x" + Style.remoteColorTab;
+	public String remoteFont = "0x" + Style.remoteFont;
 	
 	String selectedTabTitle = null;
 
@@ -320,7 +321,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
 		// woot - got index !
-		int index = tabs.indexOfTab(serviceName);
+		int index = tabs.indexOfTab(serviceName) - 1;
 		if (newGUI != null)
 		{
 			++index;
@@ -329,11 +330,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				tabs.setForegroundAt(index, Color.decode(remoteFont));
 			}
 		}
-		//guiServiceGUI.buildGraph();
+
 		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
 		if (guiServiceGUI != null)
 		{
-			//guiServiceGUI.buildGraph();  FIXME - buildGraph - has to become re-entrant
+			guiServiceGUI.rebuildGraph(); 
 		}
 		frame.pack();
 	}
@@ -364,6 +365,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			LOG.error("can not removeTab " + name);
 		}
 		
+		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
+		if (guiServiceGUI != null)
+		{
+			guiServiceGUI.rebuildGraph(); 
+		}
 		frame.pack();
 	}
 	
@@ -1155,8 +1161,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		servo1.startService();
 		*/
 
-		Jython jython = new Jython("jython");
-		jython.startService();
+		//Jython jython = new Jython("jython");
+		//jython.startService();
 		
 		Clock clock = new Clock("clock");
 		clock.startService();

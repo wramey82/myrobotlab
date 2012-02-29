@@ -25,8 +25,9 @@
 
 package org.myrobotlab.control;
 
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -47,11 +48,11 @@ import javax.swing.JPanel;
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.NotifyEntry;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.data.Style;
+import org.myrobotlab.service.interfaces.GUI;
 import org.w3c.dom.Document;
 
 import com.mxgraph.io.mxCellCodec;
@@ -86,11 +87,16 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	//public JLabel arrow1 = new JLabel(" ");
 	// notify structure end -------------
 
+	boolean showRoutes = true;
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
 	JPanel graphPanel = new JPanel();
+
+	
+	private JButton rebuildButton = new JButton("rebuild");
+	private JButton showRoutesButton = new JButton("hide routes");
 
 	
 	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
@@ -99,7 +105,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	
 	public void init() {
 		
-		JPanel newRoute = new JPanel(new GridBagLayout());
+		JPanel newRoute = new JPanel(new FlowLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new message route"));
 		newRoute.add(srcServiceName);
 		newRoute.add(period0);
@@ -113,38 +119,67 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 
 		graphPanel.setBorder(BorderFactory.createTitledBorder("graph"));
 
-
 		buildGraph();
 		
 		gc.gridx = 0;
 		gc.gridy = 0;
-		
-		++gc.gridy;		
+		gc.gridwidth = 2;
 		display.add(newRoute, gc);
-		
+		gc.gridwidth = 1;
+
 		++gc.gridy;
-		graphPanel.setVisible(true);
+		// begin graph view buttons
+		JPanel filters = new JPanel(new GridBagLayout());
+		GridBagConstraints fgc = new GridBagConstraints();
+		fgc.fill = GridBagConstraints.HORIZONTAL;
+		fgc.gridy = 0; fgc.gridx = 0;
+		filters.add(rebuildButton, fgc);
+		++fgc.gridy;
+		filters.add(showRoutesButton, fgc);
+		display.add(filters, gc);
+		++gc.gridx;
 		
+		graphPanel.setVisible(true);		
 		display.add(graphPanel, gc);
 		++gc.gridy;
 		
-		JButton clearButton = new JButton("clear");
-		clearButton.setActionCommand("clear");
-		clearButton.addActionListener(new ButtonListener());
-		display.add(clearButton, gc);
-        
+		rebuildButton.setActionCommand("rebuild");
+		rebuildButton.addActionListener(new ButtonListener());
+		
+		showRoutesButton.setActionCommand("hide routes");
+		showRoutesButton.addActionListener(new ButtonListener());
+		
 	}
 
 	class ButtonListener implements ActionListener {
 
 		  public void actionPerformed(ActionEvent e) {
-		    if (e.getActionCommand().equals("clear")) {
-		      clearGraph();
+			String cmd = e.getActionCommand(); 
+		    if (cmd.equals("rebuild")) {
+		      rebuildGraph();
+		    } else if (cmd.equals("show routes")) {
+		    	JButton b = (JButton)e.getSource();
+		    	b.setText("hide routes");
+		    	b.setActionCommand("hide routes");
+		    	showRoutes = true;
+		    	rebuildGraph();
+		    } else if (cmd.equals("hide routes")) {
+		    	JButton b = (JButton)e.getSource();
+		    	b.setText("show routes");
+		    	b.setActionCommand("show routes");		    	
+		    	showRoutes = false;
+		    	rebuildGraph();
 		    }
 		  }
 	}
 	
 	public void clearGraph()
+	{
+		graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+		buildGraph();
+	}
+
+	public void rebuildGraph()
 	{
 		graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
 		buildGraph();
@@ -158,14 +193,19 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		if (myService.getGraphXML() == null || myService.getGraphXML().length() == 0)
 		{
 			if (graph == null)
-			{ graph = getNewMXGraph();}
+			{ 
+				graph = getNewMXGraph();
+			}
 			
 			// new graph !
 			graph.getModel().beginUpdate();
 			try
 			{
 				buildLocalServiceGraph();
-				buildLocalServiceRoutes();
+				if (showRoutes)
+				{
+					buildLocalServiceRoutes();
+				}
 			} 
 			finally
 			{
@@ -207,12 +247,16 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        	//serviceCells.put(arg0, s.);
 	        }
 		}
+		
 		// TODO - get # of services to set size?
 		graph.setMinimumGraphSize(new mxRectangle(0, 0, 600, 400)); 
 
 		// Sets the default edge style
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);//.ElbowConnector
+		style.put(mxConstants.STYLE_STROKECOLOR, "0x" + Style.base0);//.ElbowConnector
+		
+		
 		
 		// creating JComponent
 		if (graphComponent == null)
@@ -305,6 +349,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		return g;
 	}
 	
+	// FIXME - no longer needed (remove)
 	public JButton getRefreshServicesButton() {
 		JButton button = new JButton("refresh services");
 		button.addActionListener(new ActionListener() {
@@ -427,7 +472,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			String blockColor = null;
 			if (sw.host.accessURL == null)
 			{
-				blockColor = "0xCCCCCC";
+				blockColor = "0xCCCCCC"; // FIXME - get from Runtime.System colors !!!
 			} else {
 				blockColor = "0x99DD66";
 			}
