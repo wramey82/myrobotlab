@@ -4,14 +4,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Proxy;
+import org.myrobotlab.service.Runtime;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,7 +46,9 @@ import android.widget.Toast;
  *         Logging, connecting to other instances, and other global
  *         procedures
  */
-public class MyRobotLabActivity extends ListActivity {
+
+// FIXME - merge with runtime - (is Runtime + Android)
+public class MyRobotLabActivity extends ServiceActivity implements OnItemClickListener  {
 
 	public static final String TAG = "MyRobotLab";
 
@@ -90,11 +93,13 @@ public class MyRobotLabActivity extends ListActivity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState, R.layout.myrobotlab);
+		//super.onCreate(savedInstanceState);
 		if (MRL.D)
 			Log.e(TAG, "++ onCreate ++");
-		
-	
+			
+		ListView listView =  (ListView) findViewById(R.id.serviceList);
+		listView.setOnItemClickListener(this);
 		View header = getLayoutInflater().inflate(R.layout.myrobotlab_header, null);
 
 		// manual service header
@@ -165,7 +170,7 @@ public class MyRobotLabActivity extends ListActivity {
 		});
 
 		// active services
-		ListView listView = getListView();
+		// ListView listView = getListView();
 		listView.addHeaderView(header);
 
 		// http://developer.android.com/reference/android/R.layout.html
@@ -175,7 +180,7 @@ public class MyRobotLabActivity extends ListActivity {
 			MRL.runningServices = new ServiceListAdapter(this,
 					android.R.layout.simple_list_item_single_choice,
 					android.R.id.text1, MRL.services);
-			setListAdapter(MRL.runningServices);
+			listView.setAdapter(MRL.runningServices);
 		}		
 		refreshServiceView();
 	}
@@ -333,8 +338,13 @@ public class MyRobotLabActivity extends ListActivity {
 	
 	// he da man - http://www.vogella.de/articles/AndroidIntent/article.html
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		String name = (String) getListAdapter().getItem(position - 1);
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+//	protected void onListItemClick(ListView l, View v, int position, long id) {
+//	public void onClick(View v) {
+		//String name = (String) getListAdapter().getItem(position - 1);
+		String name = (String) parent.getItemAtPosition(position);
+//		String name = "android";
 		Toast.makeText(this, name + " selected", Toast.LENGTH_LONG).show();
 
 		Intent intent = MRL.intents.get(name);
@@ -346,5 +356,25 @@ public class MyRobotLabActivity extends ListActivity {
 		}
 
 	}
+
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/*
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+	*/
 
 }
