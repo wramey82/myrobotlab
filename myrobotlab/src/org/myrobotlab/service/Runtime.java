@@ -280,7 +280,7 @@ public class Runtime extends Service {
 			registry.put(s.getName(), sw);
 			if (INSTANCE != null)
 			{
-				INSTANCE.invoke("registered", s.getName());
+				INSTANCE.invoke("registered", sw);
 			}
 		}
 		
@@ -343,14 +343,17 @@ public class Runtime extends Service {
 			LOG.info("adding " + serviceName + " to registry");
 			//s.serviceDirectory.get(serviceName).host = s;
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
-			INSTANCE.invoke("registered", serviceName);
+			INSTANCE.invoke("registered", s.serviceDirectory.get(serviceName));
 		}
 
 		
 		return true;
 	}	
 	
-	
+	/*  FIXME - possibly needed when the intent is to
+	 * remove the registration of a foreign Service
+	 * 
+	 */
 	public static void unregister(URL url, String name)
 	{
 
@@ -373,14 +376,14 @@ public class Runtime extends Service {
 		{
 			LOG.error("unregister "+ name +" does note exist for " + url + "." + name );
 		} else {
-			se.serviceDirectory.remove(name);			
-			INSTANCE.invoke("released", name);
-		}
-		
+			INSTANCE.invoke("released", se.serviceDirectory.get(name));
+			se.serviceDirectory.remove(name);						
+		}		
 				
 	}
+	
 		
-	// unregister a service environment
+	// unregister a service environment	
 	public static void unregisterAll(URL url)
 	{
 		if (!hosts.containsKey(url))
@@ -399,7 +402,8 @@ public class Runtime extends Service {
 		
 	}
 	
-	// unregister everything
+	
+	// unregister everything	
 	public static void unregisterAll()
 	{
 		Iterator<URL> it = hosts.keySet().iterator();
@@ -408,6 +412,7 @@ public class Runtime extends Service {
 			unregisterAll(se);
 		}
 	}
+	
 
 	public int getServiceCount()
 	{
@@ -567,8 +572,8 @@ public class Runtime extends Service {
 				sw.service.stopService(); //FIXME send message to stop ??? wait for callback?
 				registry.remove(name);
 				ServiceEnvironment se = hosts.get(url);
-				se.serviceDirectory.remove(name);
-				INSTANCE.invoke("released", name);
+				INSTANCE.invoke("released", se.serviceDirectory.get(name));
+				se.serviceDirectory.remove(name);				
 				return true;
 			}
 		}
@@ -876,9 +881,9 @@ public class Runtime extends Service {
 	 * @param name - the name of the Service which was successfully registered
 	 * @return
 	 */
-	public String registered (String name)
+	public ServiceWrapper registered (ServiceWrapper sw)
 	{
-		return name;
+		return sw;
 	}
 	
 	/**
@@ -886,9 +891,9 @@ public class Runtime extends Service {
 	 * @param name - the name of the Service which was successfully released
 	 * @return
 	 */
-	public String released (String name)
+	public ServiceWrapper released (ServiceWrapper sw)
 	{
-		return name;
+		return sw;
 	}
 	
 	

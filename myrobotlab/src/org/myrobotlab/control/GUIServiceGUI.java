@@ -26,6 +26,7 @@
 package org.myrobotlab.control;
 
 import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -86,17 +87,15 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	// notify structure end -------------
 
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>(); 
-	
-	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
-		super(boundServiceName, myService);
-	}
-	
-	
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
 	JPanel graphPanel = new JPanel();
 
+	
+	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
+	}
 	
 	public void init() {
 		
@@ -127,9 +126,30 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		graphPanel.setVisible(true);
 		
 		display.add(graphPanel, gc);
+		++gc.gridy;
+		
+		JButton clearButton = new JButton("clear");
+		clearButton.setActionCommand("clear");
+		clearButton.addActionListener(new ButtonListener());
+		display.add(clearButton, gc);
         
 	}
 
+	class ButtonListener implements ActionListener {
+
+		  public void actionPerformed(ActionEvent e) {
+		    if (e.getActionCommand().equals("clear")) {
+		      clearGraph();
+		    }
+		  }
+	}
+	
+	public void clearGraph()
+	{
+		graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+		buildGraph();
+	}
+	
 	public void buildGraph()
 	{
 		LOG.info("buildGraph");
@@ -137,7 +157,9 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		
 		if (myService.getGraphXML() == null || myService.getGraphXML().length() == 0)
 		{
-			graph = getNewMXGraph();
+			if (graph == null)
+			{ graph = getNewMXGraph();}
+			
 			// new graph !
 			graph.getModel().beginUpdate();
 			try
@@ -151,8 +173,8 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			}
 
 		} else {
-			// we have serialized version of graph
-			// deserialize it
+			// we have serialized version of graph...
+			// de-serialize it
 			
 			// register 
 			mxCodecRegistry.addPackage("org.myrobotlab.control");
@@ -185,56 +207,55 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	        	//serviceCells.put(arg0, s.);
 	        }
 		}
-		
-		graph.setMinimumGraphSize(new mxRectangle(0, 0, 640, 300)); // TODO - get # of services to set size?
+		// TODO - get # of services to set size?
+		graph.setMinimumGraphSize(new mxRectangle(0, 0, 600, 400)); 
 
-		// creating JComponent
-        graphComponent = new mxGraphComponent(graph);			
-
-		
 		// Sets the default edge style
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
-		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.ElbowConnector);
-
+		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);//.ElbowConnector
 		
-		graphPanel.add(graphComponent);
-		
-		graphComponent.addKeyListener(this);
-		//graphComponent.getGraphControl().addKeyListener(this);
-		graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
+		// creating JComponent
+		if (graphComponent == null)
 		{
-		
-			public void mouseReleased(MouseEvent e)
+			graphComponent = new mxGraphComponent(graph);
+			graphPanel.add(graphComponent);		
+			graphComponent.addKeyListener(this);
+			graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
 			{
-				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-				
-				currentlySelectedCell = (mxCell)cell;
-				
-				if (cell != null)
+			
+				public void mouseReleased(MouseEvent e)
 				{
-					mxCell m = (mxCell)cell;
-					System.out.println("cell="+graph.getLabel(cell) + ", " + m.getId() + ", " + graph.getLabel(m.getParent()));
-					if (m.isVertex())
-					{
-						// TODO - edges get filtered through here too - need to process - (String) type
-						GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();// zod zod zod
-						if (v.displayName.equals("out"))
-						{
-							new GUIServiceOutMethodDialog(myService, "out method", v); 
-						} else if (v.displayName.equals("in"))
-						{
-							new GUIServiceInMethodDialog(myService, "in method", v); 
-						}
-					} else if (m.isEdge()) {
-						LOG.error("isEdge");
-					}
+					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
 					
+					currentlySelectedCell = (mxCell)cell;
+					
+					if (cell != null)
+					{
+						mxCell m = (mxCell)cell;
+						System.out.println("cell="+graph.getLabel(cell) + ", " + m.getId() + ", " + graph.getLabel(m.getParent()));
+						if (m.isVertex())
+						{
+							// TODO - edges get filtered through here too - need to process - (String) type
+							GUIServiceGraphVertex v = (GUIServiceGraphVertex)m.getValue();
+							if (v.displayName.equals("out"))
+							{
+								new GUIServiceOutMethodDialog(myService, "out method", v); 
+							} else if (v.displayName.equals("in"))
+							{
+								new GUIServiceInMethodDialog(myService, "in method", v); 
+							}
+						} else if (m.isEdge()) {
+							LOG.error("isEdge");
+						}
+						
+					}
 				}
-			}
-		});		
-		
-		graphComponent.setToolTips(true);		
+			});		
+			
+			graphComponent.setToolTips(true);		
 
+		}
+		
 		// -------------------------END PURE JGRAPH--------------------------------------
 		
 	}
@@ -416,7 +437,10 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 							canonicalName, 
 							ret, toolTip, 
 							GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, 
-							"ROUNDED;fillColor=" + blockColor);
+							"shape=image;image=/resource/" + canonicalName.toLowerCase() + ".png");
+			//"ROUNDED;fillColor=" + blockColor);
+			
+			//graphComponent.getGraphControl().scrollRectToVisible(new Rectangle(0, 0, 900, 800), true);
 			
 			serviceCells.put(serviceName, v1);
 
