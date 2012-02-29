@@ -114,8 +114,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public transient JFrame frame = null;
 
-	public transient JTabbedPane tabs = null;
-	public transient JPanel panel = null;
+	public transient JTabbedPane tabs = new JTabbedPane();
+	public transient JPanel panel = new JPanel();
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
@@ -139,7 +139,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		/*
 		 * The commandMap is a list of GUIService functions which should
 		 * be processed by GUIService rather than routed to control Panels
-		 * TODO - dynamically generate "all" top level functions getMethods + Service ?
+		 * FIXME !!! - dynamically generate "all" top level functions getMethods + Service ?
 		 */
 		
 		commandMap.put("registerServicesEvent", null);
@@ -152,7 +152,20 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		commandMap.put("setRemoteConnectionStatus", null);
 
 	}
-
+	
+	/**
+	 * implemented as all other msgs - the RuntimeGUI will 
+	 * call loadTabbed - when IT gets a registered !!!!
+	 * call back from Runtime - Service registering event
+	 * sent when a service has successfully registered
+	 * @param newService
+	 */
+	/*
+	public void registered (String newService)
+	{
+		loadTabPanels();
+	}
+	*/
 	/* (non-Javadoc)
 	 * @see org.myrobotlab.framework.Service#hasDisplay()
 	 * returns true, since this Service manages the Swing display
@@ -229,24 +242,148 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		return null;
 	}	
-	
-	// FIXME - refactor name - remove kruft
-	/**
-	 *  a function to rebuild the GUI display.  Smaller data-exchange should be done with getState/publishState.
-	 *  This can be used to rebuild the panels after a new service has been created or a foriegn set of services
-	 *  has been registered.
+
+	/*
+	 RELEASED
+	 REGISTERED
+	 ROUTEREMOVED
+	 ROUTEADDED
+	 
+	 NEEDS A GUICHANGED EVENT - FOR WHENEVER ADDTAB OR REMOVETAB ARE CALLED !!!
+	 A PRE-GUI Flag
+	 and a CREATEGUI Event
+	 
+	 or a NEEDBlockRefresh
+	 
+	 			ServiceWrapper wrapper = services.get(serviceName);
+			// if you find a local gui
+			if (wrapper.host == null && 
+					wrapper.service != null && 
+					wrapper.service.hasDisplay())
+			{
+				localGUI = 
+			}
+	 
 	 */
-	public void rebuild()
+	boolean hasInit = false;
+	
+	public void buildTabPanels()
 	{
-		loadTabPanels();
+		// add the wecome screen
+		// FIXME - possible problem loading a non-Service ServiceGUI
+		if (!serviceGUIMap.containsKey("welcome")) 
+		{
+			welcome = new Welcome("",this); 
+			welcome.init();
+			tabs.addTab("Welcome", welcome.display);
+			serviceGUIMap.put("welcome", welcome);
+		}
+
+		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		LOG.info("service count " + Runtime.getRegistry().size());
+		
+		sortedMap = new TreeMap<String, ServiceWrapper>(services);
+		Iterator<String> it = sortedMap.keySet().iterator();
+				
+		while (it.hasNext()) {
+			String serviceName = it.next();
+			addTab(serviceName);
+		}				
+		frame.pack();
+		//tabs.setSelectedIndex(0);
+		
 	}
+	
+	public void addTab(String serviceName)
+	{
+		// ================= begin addTap(name) =============================
+		ServiceWrapper sw = Runtime.getService(serviceName);
+
+		// SW sent in registerServices - yet Service is null due to incompatible Service Types
+		// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
+		if (sw.get() == null)
+		{
+			LOG.error(serviceName + " does not have a valid Service - not exported ???");
+			return;
+		}
+		
+		// get service type class name TODO
+		String serviceClassName = sw.get().getClass().getCanonicalName();
+		String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
+		guiClass = "org.myrobotlab.control" + guiClass + "GUI";
+
+		if (serviceGUIMap.containsKey(sw.name))
+		{
+			LOG.debug("not creating " + sw.name + " gui - it already exists");
+			return;
+		}
+		
+		ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
+		// woot - got index !
+		int index = tabs.indexOfTab(serviceName);
+		if (newGUI != null)
+		{
+			++index;
+			if (sw.getAccessURL() != null) {
+				tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
+				tabs.setForegroundAt(index, Color.decode(remoteFont));
+			}
+		}
+		//guiServiceGUI.buildGraph();
+		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
+		if (guiServiceGUI != null)
+		{
+			//guiServiceGUI.buildGraph();  FIXME - buildGraph - has to become re-entrant
+		}
+		frame.pack();
+	}
+	
+	public void removeTab(String name)
+	{
+		LOG.info(serviceGUIMap.size());
+		
+		// detaching & removing the ServiceGUI
+		ServiceGUI sg = serviceGUIMap.get(name);
+		if (sg != null)
+		{
+			sg.detachGUI();
+		} else {
+			LOG.error(name + " was not in the serviceGUIMap - unable to preform detach");
+		}
+		
+		// removing the tab
+		JPanel tab = tabPanelMap.get(name);
+		if (tab != null)
+		{
+			tabs.remove(tab);
+			serviceGUIMap.remove(name);
+			tabPanelMap.remove(name);
+
+			LOG.info(serviceGUIMap.size());
+		} else {
+			LOG.error("can not removeTab " + name);
+		}
+		
+		frame.pack();
+	}
+	
 	
 	/* (non-Javadoc)
 	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels()
 	 * This is a bit "big hammer" in that it destroys all panels and rebuilds the GUI
 	 * don't use except to initially build
 	 */
+	
+	boolean test = true;
+	
 	public JTabbedPane loadTabPanels() {
+		if (test)
+		{
+			buildTabPanels();
+			return null;
+		}
+		
+		
 		LOG.debug("loadTabPanels");
 		
 		
@@ -259,7 +396,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		
-		// begin building panels
+		// begin building panels put in init !
 		if (!serviceGUIMap.containsKey("welcome")) // FIXME - possible problem loading a non-Service ServiceGUI
 		{
 			welcome = new Welcome("",this); 
@@ -346,25 +483,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 				
 		frame.pack();
-		tabs.setSelectedIndex(0);
+		//tabs.setSelectedIndex(0);
 		
 		return tabs;
 
-	}
-	
-	public void removeTab(String name)
-	{
-		LOG.info(serviceGUIMap.size());
-		JPanel tab = tabPanelMap.get(name);
-		if (tab != null)
-		{
-			tabs.remove(tab);
-			serviceGUIMap.remove(name);
-			tabPanelMap.remove(name);
-			LOG.info(serviceGUIMap.size());
-		} else {
-			LOG.error("can not removeTab " + name);
-		}
 	}
 	
 		
@@ -476,134 +598,29 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public void display() {
 		
-		tabs = new JTabbedPane();
-		panel = new JPanel();
 		gc = new GridBagConstraints();
+		
 		frame = new JFrame();
-
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + getName());
-
-		JTabbedPane stp = loadTabPanels();
 		
 		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		
-		panel.add(stp, gc);
+                								JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    frame.add(sp);
+	    
+		//loadTabPanels();
+	    buildTabPanels();
+		panel.add(tabs, gc);
 
 		// TODO - catch appropriate missing resource
+		// set the top left icon of the JFrame
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
 		frame.setIconImage(img);		
 		
-		JMenuBar menuBar = new JMenuBar();
-	    
-		// --- system ----
-		JMenu system = new JMenu("system");
-	    
-		JMenuItem mi = new JMenuItem("save");
-	    mi.addActionListener(this);
-	    system.add(mi);
-
-		mi = new JMenuItem("save as");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-	    
-		mi = new JMenuItem("load");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-
-		mi = new JMenuItem("refresh");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-
-		mi = new JMenuItem("connect");
-	    mi.addActionListener(this);
-	    system.add(mi);
-	    
-		//mi = new JMenuItem("console");
-	    //mi.addActionListener(this);
-	    //system.add(mi);
-
-	    JMenu m = new JMenu("logging");
-	    system.add(m);
-
-	    JMenu m2 = new JMenu("level");
-	    m.add(m2);
-
-	    	ButtonGroup group = new ButtonGroup();
-	    	
-	    	mi = new JRadioButtonMenuItem (LOG_LEVEL_DEBUG);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_INFO);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_WARN);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_ERROR);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_FATAL);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-
-	    m2 = new JMenu("type");
-	    m.add(m2);
-		    
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_NONE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-		    
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_CONSOLE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_ROLLING_FILE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_SOCKET);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-		    
-	    m = new JMenu("update");
-
-	    system.add(m);
-	    
-			mi = new JMenuItem("check now");
-		    mi.addActionListener(this);
-		    m.add(mi);
-
-		
-	    /*
-	    mi = new JMenuItem("","update");
-	    mi.addActionListener(this);
-	    system.add(mi);
-	    */
-	    
-	    menuBar.add(system);
-	    
-		JMenu help = new JMenu("help");
-	    JMenuItem about = new JMenuItem("about");
-	    about.addActionListener(this);
-	    help.add(about);
-	    menuBar.add(help);
-		
-	    frame.setJMenuBar(menuBar);
-	    frame.add(sp);
-		//frame.add(panel);
+		// menu
+	    frame.setJMenuBar(buildMenu());
 		frame.setVisible(true);
 		frame.pack();
 
@@ -780,10 +797,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 	
-	public void refresh()
-	{
-		loadTabPanels();
-	}
 	public void about()
 	{
 		String v = FileIO.getResourceFile("version.txt");
@@ -1010,6 +1023,118 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		j.add(c.getScrollPane());
 		j.setVisible(true);		
 	}
+	
+	
+	public JMenuBar buildMenu()
+	{
+		
+		JMenuBar menuBar = new JMenuBar();
+	    
+		// --- system ----
+		JMenu system = new JMenu("system");
+	    
+		JMenuItem mi = new JMenuItem("save");
+	    mi.addActionListener(this);
+	    system.add(mi);
+
+		mi = new JMenuItem("save as");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+	    
+		mi = new JMenuItem("load");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+
+		mi = new JMenuItem("refresh");
+	    mi.addActionListener(this);
+	    system.add(mi);	    
+
+		mi = new JMenuItem("connect");
+	    mi.addActionListener(this);
+	    system.add(mi);
+	    
+		//mi = new JMenuItem("console");
+	    //mi.addActionListener(this);
+	    //system.add(mi);
+
+	    JMenu m = new JMenu("logging");
+	    system.add(m);
+
+	    JMenu m2 = new JMenu("level");
+	    m.add(m2);
+
+	    	ButtonGroup group = new ButtonGroup();
+	    	
+	    	mi = new JRadioButtonMenuItem (LOG_LEVEL_DEBUG);
+		    mi.addActionListener(this);
+		    group.add(mi);
+		    m2.add(mi);
+
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_INFO);
+		    mi.addActionListener(this);
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_WARN);
+		    mi.addActionListener(this);
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_ERROR);
+		    mi.addActionListener(this);
+		    group.add(mi);
+		    m2.add(mi);
+		    
+		    mi = new JRadioButtonMenuItem (LOG_LEVEL_FATAL);
+		    mi.addActionListener(this);
+		    group.add(mi);
+		    m2.add(mi);
+
+	    m2 = new JMenu("type");
+	    m.add(m2);
+		    
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_NONE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+		    
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_CONSOLE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_ROLLING_FILE);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+
+			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_SOCKET);
+		    mi.addActionListener(this);
+		    m2.add(mi);
+		    
+	    m = new JMenu("update");
+
+	    system.add(m);
+	    
+			mi = new JMenuItem("check now");
+		    mi.addActionListener(this);
+		    m.add(mi);
+
+		
+	    /*
+	    mi = new JMenuItem("","update");
+	    mi.addActionListener(this);
+	    system.add(mi);
+	    */
+	    
+	    menuBar.add(system);
+	    
+		JMenu help = new JMenu("help");
+	    JMenuItem about = new JMenuItem("about");
+	    about.addActionListener(this);
+	    help.add(about);
+	    menuBar.add(help);
+				
+		return menuBar;
+	}
+	
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();

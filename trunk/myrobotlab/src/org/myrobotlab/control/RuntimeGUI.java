@@ -54,6 +54,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -72,6 +73,8 @@ public class RuntimeGUI extends ServiceGUI {
 	JList possibleServices = new JList(possibleServicesModel);
 	JList currentServices  = new JList(currentServicesModel);
 	
+	FilterListener filterListener = new FilterListener();
+	
 	// TODO - widgetize the "possible services" list
 	public RuntimeGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -85,11 +88,9 @@ public class RuntimeGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		getPossibleServices(null);
-		
+		getPossibleServices(null);		
 		getCurrentServices();
 
-		//currentServices = new JList(namesAndClasses);
 		currentServices.setCellRenderer(new ServiceRenderer());
 
 		currentServices.setFixedCellWidth(200);
@@ -184,20 +185,8 @@ public class RuntimeGUI extends ServiceGUI {
 				if (name != null) {
 					String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
 					myService.send(boundServiceName, "createAndStart", name, newService);
-					// TODO - this is asynchronous - the service will be created later
-					// - Especially on a remote process
-					// it would be nice to momentarily block on this call !!!
-					// in the interim - do a pause to allow the Service to start & register
-					// before updating the  GUI
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						Service.stackToString(e1);
-					}
-					myService.loadTabPanels();// FIXME - reload on Runtime register service event !
-					ServiceEntry newServiceEntry = (ServiceEntry) possibleServices.getSelectedValue();
-					newServiceEntry.name = name;
-					currentServicesModel.addElement(newServiceEntry);// FIXME - reload on Runtime register service event !
+					// FYI - this is an asynchronous request - to handle call back
+					// you must register for a "registered" event on the local or remote Runtime
 				}
 
 			}
@@ -206,7 +195,29 @@ public class RuntimeGUI extends ServiceGUI {
 
 		return addServiceButton;
 	}
+	
+	public String registered (String newServiceName)
+	{
+		// FIXME - bug if index is moved before call back is processed
+		ServiceEntry selected = (ServiceEntry) possibleServices.getSelectedValue();
+		ServiceEntry newServiceEntry = new ServiceEntry(newServiceName, selected.type);
+		currentServicesModel.addElement(newServiceEntry);
+		//myService.loadTabPanels();
+		myService.addTab(newServiceName);
+		return newServiceName;
+	}
 
+	public String released (String newServiceName)
+	{
+		// FIXME - bug if index is moved before call back is processed
+		ServiceEntry selected = (ServiceEntry) currentServices.getSelectedValue();
+		//ServiceEntry newServiceEntry = new ServiceEntry(newServiceName, selected.type);
+		myService.removeTab(newServiceName);
+		currentServicesModel.removeElement(selected);
+		//myService.loadTabPanels();
+		return newServiceName;
+	}
+	
 	public JButton getReleaseServiceButton() {
 		releaseServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
 		releaseServiceButton.addActionListener(new ActionListener() {
@@ -214,9 +225,9 @@ public class RuntimeGUI extends ServiceGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ServiceEntry oldService = (ServiceEntry) currentServices.getSelectedValue();
-				currentServicesModel.removeElement(oldService); // FIXME - callback from releaseService !!!!
-				myService.send(boundServiceName, "releaseService", oldService.type);
-				myService.loadTabPanels(); // FIXME - callback from releaseService !!!!
+				//currentServicesModel.removeElement(oldService); // FIXME - callback from releaseService !!!!
+				myService.send(boundServiceName, "releaseService", oldService.name);
+				//myService.loadTabPanels(); // FIXME - callback from releaseService !!!!
 			}
 
 		});
@@ -226,16 +237,14 @@ public class RuntimeGUI extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		// FIXME - to be implemented when merged with Runtime
-		//sendNotifyRequest("released", "released", String.class); 
-		//sendNotifyRequest("publishState", "getState", Arduino.class);
-		//myService.send(boundServiceName, "publishState");
+		sendNotifyRequest("registered", "registered", String.class);
+		sendNotifyRequest("released", "released", String.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		// FIXME - to be implemented when merged with Runtime
-		//removeNotifyRequest("released", "released", String.class);
+		removeNotifyRequest("registered", "registered", String.class);
+		removeNotifyRequest("released", "released", String.class);
 	}
 	
 	class ServiceEntry {
@@ -313,9 +322,7 @@ public class RuntimeGUI extends ServiceGUI {
 				
 		//possibleServices = new JList(ses);
 	}
-	
-	FilterListener filterListener = new FilterListener();
-	
+		
 	class FilterListener implements ActionListener
 	{
 		@Override

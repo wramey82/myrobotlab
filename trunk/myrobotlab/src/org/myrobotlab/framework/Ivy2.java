@@ -76,6 +76,7 @@ import org.apache.log4j.Logger;
 	public final static Logger LOG = Logger.getLogger(Ivy2.class.getCanonicalName());
 	 
     private static final int HELP_WIDTH = 80;
+    private static ResolveReport report = null;
 
     public static CommandLineParser getParser() {
         return new CommandLineParser()
@@ -280,7 +281,7 @@ import org.apache.log4j.Logger;
             if (line.hasOption("refresh")) {
                 resolveOptions.setRefresh(true);
             }
-            ResolveReport report = ivy.resolve(ivyfile.toURI().toURL(), resolveOptions);
+            report = ivy.resolve(ivyfile.toURI().toURL(), resolveOptions);
             if (report.hasError()) {
                 // System.exit(1);
             	LOG.error("Ivy resolve error");
@@ -562,6 +563,11 @@ import org.apache.log4j.Logger;
     }
 
     private Ivy2() {
+    }
+    
+    public static ResolveReport getReport()
+    {
+    	return report;
     }
 
 }

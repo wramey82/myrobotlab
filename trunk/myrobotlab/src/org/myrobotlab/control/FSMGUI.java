@@ -118,19 +118,7 @@ public class FSMGUI extends ServiceGUI {
 				if (name != null) {
 					String newService = (String) transitionStates.getSelectedValue();
 					myService.send(boundServiceName, "create", newService,name);
-					// TODO - this is asynchronous - the service will be created later
-					// - Especially on a remote process
-					// it would be nice to momentarily block on this call !!!
-					// in the interim - do a pause to allow the Service to start & register
-					// before updating the  GUI
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						Service.stackToString(e1);
-					}
-					myService.loadTabPanels();
 				}
-
 			}
 
 		});

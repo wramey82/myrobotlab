@@ -14,7 +14,7 @@ import com.mxgraph.view.mxGraph;
 
 /**
  * Swing gui interface
- *
+ * FIXME - WHY USE THIS INTERFACE???
  */
 public abstract class GUI extends Service  {
 
@@ -57,5 +57,9 @@ public abstract class GUI extends Service  {
 	
 	public abstract String getGraphXML();
 	public abstract void setGraphXML(final String xml);
+	
+	public abstract void addTab(String name);
+	public abstract void removeTab(String name);
+
 
 }
