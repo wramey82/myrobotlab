@@ -100,7 +100,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	public void init() {
 		
 		JPanel newRoute = new JPanel(new GridBagLayout());
-		newRoute.setBorder(BorderFactory.createTitledBorder("new route"));
+		newRoute.setBorder(BorderFactory.createTitledBorder("new message route"));
 		newRoute.add(srcServiceName);
 		newRoute.add(period0);
 		newRoute.add(srcMethodName);
@@ -427,7 +427,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			String blockColor = null;
 			if (sw.host.accessURL == null)
 			{
-				blockColor = "orange";
+				blockColor = "0xCCCCCC";
 			} else {
 				blockColor = "0x99DD66";
 			}
