@@ -249,12 +249,19 @@ public class RuntimeGUI extends ServiceGUI {
 	public void attachGUI() {
 		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
 		sendNotifyRequest("released", "released", ServiceWrapper.class);
+		sendNotifyRequest("failedDependency", "failedDependency", String.class);
 	}
 
 	@Override
 	public void detachGUI() {
 		removeNotifyRequest("registered", "registered", ServiceWrapper.class);
 		removeNotifyRequest("released", "released", ServiceWrapper.class);
+		removeNotifyRequest("failedDependency", "failedDependency", String.class);
+	}
+	
+	public void failedDependency (String dep)
+	{
+		JOptionPane.showMessageDialog(null, "<html>Unable to load Service...<br>" + dep + "</html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	class ServiceEntry {

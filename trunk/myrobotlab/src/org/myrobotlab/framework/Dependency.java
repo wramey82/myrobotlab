@@ -5,6 +5,7 @@ public class Dependency {
 	public String organisation;
 	public String module;
 	public String version;
+	public boolean resolved = false;
 
 	public Dependency(String organisation, String module, String version)
 	{

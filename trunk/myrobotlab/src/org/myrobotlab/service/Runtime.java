@@ -1156,10 +1156,10 @@ public class Runtime extends Service {
 	 * interfaces with Ivy using its command parameters
 	 * @param fullTypeName
 	 */
-	static public void getDependencies(String fullTypeName)
+	static public boolean getDependencies(String fullTypeName)
 	{
 		LOG.debug("getDependencies " + fullTypeName);
-		
+		boolean ret = true;
 		try {
 			// use Ivy standalone			
 			// Main.main(cmd.toArray(new String[cmd.size()]));
@@ -1207,12 +1207,18 @@ public class Runtime extends Service {
 						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
 						ResolveReport report = Ivy2.getReport();
 			            if (report.hasError()) {
+			            	ret = false;
 			                // System.exit(1);
 			            	LOG.error("Ivy resolve error");
 			            	// invoke Dependency Error - 
 			            	List<String> l = report.getAllProblemMessages();
 			            	for (int j = 0; j < l.size(); ++j)
 			            	{
+				            	
+				    			if (INSTANCE != null)
+				    			{
+				    				INSTANCE.invoke("failedDependency", l.get(j));
+				    			}
 			            		LOG.error(l.get(j));
 			            	}
 			            }
@@ -1235,7 +1241,21 @@ public class Runtime extends Service {
 			}
 		} catch (Exception e) {
 			Service.logException(e);
+			ret = false;
 		}		
+		
+		return ret;
+	}
+	
+	/**
+	 * publishing point of Ivy sub system - sends even failedDependency when the
+	 * retrieve report for a Service fails
+	 * @param dep
+	 * @return
+	 */
+	public String failedDependency(String dep)
+	{
+		return dep;
 	}
 	
 	/**
@@ -1260,7 +1280,11 @@ public class Runtime extends Service {
 		File ivysettings = new File(ivyFileName);
 		if (ivysettings.exists())
 		{
-			getDependencies(fullTypeName);
+			if (!getDependencies(fullTypeName))
+			{
+				LOG.error("failed dependencies");
+				return null;
+			}
 			// TODO - if (Ivy2.newDependencies()) - schedule restart
 		} else {
 			LOG.debug(ivyFileName + " not available - will not manage dependencies");

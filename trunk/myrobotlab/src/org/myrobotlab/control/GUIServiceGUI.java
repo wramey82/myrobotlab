@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -68,7 +69,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 
-public class GUIServiceGUI extends ServiceGUI implements KeyListener {
+public class GUIServiceGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 	
@@ -263,20 +264,52 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		{
 			graphComponent = new mxGraphComponent(graph);
 			graphPanel.add(graphComponent);		
-			graphComponent.addKeyListener(this);
+			//graphComponent.addKeyListener(this);
+			
+			//graphComponent.getGraphControl().addMouseListener(this);
+			
+			graphComponent.getGraphControl().addMouseMotionListener(new MouseMotionListener() {
+				
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+					LOG.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());										
+				}
+				
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+					LOG.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());					
+				}
+			});
+			
 			graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
 			{
 			
+/*				
+				protected void mouseLocationChanged(MouseEvent e)
+				{
+					LOG.info(e.getX() + ", " + e.getY());
+				}
+				
+				public void mouseDragged(MouseEvent e)
+				{
+					// http://forum.jgraph.com/questions/1343/mouse-coordinates-at-drop-event
+					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+					LOG.info(e.getX() + "," + e.getY());
+				}
+*/				
+				
 				public void mouseReleased(MouseEvent e)
 				{
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					
+					LOG.info("cell " + e.getX() + "," + e.getY());
 					currentlySelectedCell = (mxCell)cell;
 					
 					if (cell != null)
 					{
 						mxCell m = (mxCell)cell;
-						System.out.println("cell="+graph.getLabel(cell) + ", " + m.getId() + ", " + graph.getLabel(m.getParent()));
+						LOG.info("cell="+graph.getLabel(cell) + ", " + m.getId() + ", " + graph.getLabel(m.getParent()));
 						if (m.isVertex())
 						{
 							// TODO - edges get filtered through here too - need to process - (String) type
@@ -303,6 +336,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		// -------------------------END PURE JGRAPH--------------------------------------
 		
 	}
+	
 	
 	public mxGraph getNewMXGraph()
 	{
@@ -472,9 +506,9 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 			String blockColor = null;
 			if (sw.host.accessURL == null)
 			{
-				blockColor = "0xCCCCCC"; // FIXME - get from Runtime.System colors !!!
+				blockColor = "0x" + Style.background0; // FIXME - get from Runtime.System colors !!!
 			} else {
-				blockColor = "0x99DD66";
+				blockColor = "0x" + Style.remoteBackground0;
 			}
 			
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, 
@@ -622,7 +656,20 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 		//removeNotifyRequest("registered", "loadTabPanels");
 	}
 
+/*	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		LOG.info(e.getX() + "," + e.getY());
+	}
 
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+*/
+/*
 	@Override
 	public void keyTyped(KeyEvent e) {
 		LOG.error("here");
@@ -637,7 +684,7 @@ public class GUIServiceGUI extends ServiceGUI implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		LOG.error("here");
 	}
-	
+*/	
 	// about begin
 
 }
