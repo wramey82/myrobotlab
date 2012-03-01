@@ -21,14 +21,16 @@ public class ServiceInfo implements Serializable{
 
 	
 	@ElementMap(entry="property", value="value", attribute=true, inline=true)
-	private static HashMap<String, ArrayList<Dependency>> dependencies = new HashMap<String, ArrayList<Dependency>>();
+	private static HashMap<String, DependencyList> dependencyList = new HashMap<String, DependencyList>();
+	
+	//private static HashMap<String, ArrayList<Dependency>> dependencies = new HashMap<String, ArrayList<Dependency>>();
 	private static HashMap<String, ArrayList<String>> categories = new HashMap<String, ArrayList<String>>();
 	private static ServiceInfo instance = null;
 	
 	// TODO - command line refresh - repo management & configuration options "latest" etc
 	static public Set<String> getKeySet()
 	{
-		return dependencies.keySet();
+		return dependencyList.keySet();
 	}
 
 	// TODO - think of cleaning all dependencies from Service.java ???
@@ -93,12 +95,12 @@ public class ServiceInfo implements Serializable{
 		boolean ret = false;
 		
 		// no dependencies
-		if (!dependencies.containsKey(fullServiceName))
+		if (!dependencyList.containsKey(fullServiceName))
 		{
 			return false;
 		}
 		
-		ArrayList<Dependency> d = dependencies.get(fullServiceName);
+		DependencyList d = dependencyList.get(fullServiceName);
 		for (int i = 0; i < d.size(); ++i)
 		{
 			Dependency dep = d.get(i);
@@ -242,7 +244,16 @@ public class ServiceInfo implements Serializable{
 	 */
 	public static ArrayList<Dependency> getDependencies (String fullname)
 	{
-		return dependencies.get(fullname);
+		if (dependencyList.containsKey(fullname))
+		{
+			DependencyList d = dependencyList.get(fullname);
+			if (d != null)
+			{
+				return d.getDependencies();
+			}
+		}
+		
+		return null;
 	}
 	
 	
@@ -268,7 +279,7 @@ public class ServiceInfo implements Serializable{
 	{
 		ArrayList<String> sorted = new ArrayList<String>();
 		
-		Iterator<String> it = dependencies.keySet().iterator();
+		Iterator<String> it = dependencyList.keySet().iterator();
 		while (it.hasNext()) {
 			String sn = it.next();
 			if (filter != null)
@@ -296,13 +307,14 @@ public class ServiceInfo implements Serializable{
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
 		String module = org.substring(org.lastIndexOf(".")+1);		
-		ArrayList <Dependency> list = null;
-		if (dependencies.containsKey(fullname))
+		//ArrayList <Dependency> list = null;
+		DependencyList list = null;
+		if (dependencyList.containsKey(fullname))
 		{
-			list =  dependencies.get(fullname);
+			list =  dependencyList.get(fullname);
 		} else {
-			list = new ArrayList<Dependency>();
-			dependencies.put(fullname, list);
+			list = new DependencyList();
+			dependencyList.put(fullname, list);
 		}
 		Dependency d = new Dependency(org, module, version);
 		list.add(d);
