@@ -130,7 +130,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
-	protected static String cfgDir = null;
+	protected static String cfgDir = System.getProperty("user.dir") + File.separator + ".myrobotlab";
 	private static boolean hostInitialized = false;
 	
 	abstract public String getToolTip();
@@ -216,7 +216,7 @@ public abstract class Service implements Runnable, Serializable {
 			String libararyPath = System.getProperty("java.library.path");
 			String userDir = System.getProperty("user.dir");
 			
-			cfgDir = userDir + File.separator + ".myrobotlab";
+			//cfgDir = userDir + File.separator + ".myrobotlab";
 
 			// http://developer.android.com/reference/java/lang/System.html
 			LOG.info("---------------normalize-------------------");
@@ -1747,4 +1747,9 @@ public abstract class Service implements Runnable, Serializable {
 	}
 	*/
 
+	public static String getCFGDir()
+	{
+		return cfgDir;
+	}
+	
 }

@@ -1,13 +1,26 @@
 package org.myrobotlab.framework;
 
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-public class ServiceInfo {
+import org.apache.log4j.Logger;
+import org.simpleframework.xml.ElementMap;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
+public class ServiceInfo implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	
+	public final static Logger LOG = Logger.getLogger(ServiceInfo.class.toString());
+
+	
+	@ElementMap(entry="property", value="value", attribute=true, inline=true)
 	private static HashMap<String, ArrayList<Dependency>> dependencies = new HashMap<String, ArrayList<Dependency>>();
 	private static HashMap<String, ArrayList<String>> categories = new HashMap<String, ArrayList<String>>();
 	private static ServiceInfo instance = null;
@@ -17,11 +30,86 @@ public class ServiceInfo {
 	{
 		return dependencies.keySet();
 	}
-	
+
+	// TODO - think of cleaning all dependencies from Service.java ???
+	// it would be a "good thing" :)
 	public void addBase(String shortServiceName)
 	{
 		addDependency(shortServiceName,"org.apache.log4j","1.2.14");
 		addDependency(shortServiceName,"org.simpleframework.xml","2.5.3");	
+	}
+	
+	public boolean save()
+	{
+		Serializer serializer = new Persister();
+
+		try {
+			File cfg = new File(Service.getCFGDir() + File.separator + "dependencies" + ".xml");
+			serializer.write(this, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean load()
+	{		
+		return load(null, "dependencies");
+	}
+	
+	public boolean load(Object o, String inCfgFileName)
+	{
+		// TODO - normalize - Service.load(this, "dependencies");
+		String filename = null;
+		if (inCfgFileName == null)
+		{
+			filename = Service.getCFGDir() + File.separator + inCfgFileName + ".xml";
+		} else {
+			filename = Service.getCFGDir() + File.separator + inCfgFileName;
+		}
+		if (o == null)
+		{
+			o = this;
+		}
+		Serializer serializer = new Persister();
+		try {
+			File cfg = new File(filename);
+			if (cfg.exists()){
+				serializer.read(o, cfg);
+			} else {
+				LOG.warn("cfg file "   + filename + " does not exist");
+			}
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+
+	
+	public static boolean hasUnfulfilledDependencies(String fullServiceName)
+	{
+		boolean ret = false;
+		
+		// no dependencies
+		if (!dependencies.containsKey(fullServiceName))
+		{
+			return false;
+		}
+		
+		ArrayList<Dependency> d = dependencies.get(fullServiceName);
+		for (int i = 0; i < d.size(); ++i)
+		{
+			Dependency dep = d.get(i);
+			if (!dep.resolved)
+			{
+				return true;
+			}
+		}
+		
+		
+		return ret;
 	}
 	
 	private ServiceInfo()
