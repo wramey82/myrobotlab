@@ -931,7 +931,7 @@ public class Runtime extends Service {
 		return v;
 	}
 
-	static String helpString = "java -Djava.library.path=./bin org.myrobotlab.service.Runtime -service services Runtime gui GUIService -logLevel DEBUG -logToConsole";
+	static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel DEBUG -logToConsole";
 
 	
 	public final static void invokeCMDLine(CMDLine cmdline) {
@@ -1208,6 +1208,7 @@ public class Runtime extends Service {
 						ResolveReport report = Ivy2.getReport();
 			            if (report.hasError()) {
 			            	ret = false;
+			            	dep.resolved = false;
 			                // System.exit(1);
 			            	LOG.error("Ivy resolve error");
 			            	// invoke Dependency Error - 
@@ -1221,6 +1222,8 @@ public class Runtime extends Service {
 				    			}
 			            		LOG.error(l.get(j));
 			            	}
+			            } else {
+			            	dep.resolved = true;
 			            }
 					} catch (Exception e)
 					{
@@ -1280,11 +1283,15 @@ public class Runtime extends Service {
 		File ivysettings = new File(ivyFileName);
 		if (ivysettings.exists())
 		{
+			ServiceInfo.getInstance().load();
+
 			if (!getDependencies(fullTypeName))
 			{
 				LOG.error("failed dependencies");
 				return null;
 			}
+			
+			ServiceInfo.getInstance().save();
 			// TODO - if (Ivy2.newDependencies()) - schedule restart
 		} else {
 			LOG.debug(ivyFileName + " not available - will not manage dependencies");
