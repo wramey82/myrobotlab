@@ -6,7 +6,7 @@ package org.myrobotlab.service.data;
 public class Style {
 
 	public static String base0 = "004400";
-	public static String background0 = "000000";
+	public static String background0 = "CCCCCC";
 	public static String highlight0 = "000000"; 
 
 	public static String base1 = "000000";
@@ -22,7 +22,7 @@ public class Style {
 	public static String remoteFont = "FFFFFF";
 
 	public static String remoteBase0 = "000000"; 
-	public static String remoteBackground0 = "000000"; 
+	public static String remoteBackground0 = "99DD66"; 
 	public static String remoteHighlight0 = "000000"; 
 	
 }
