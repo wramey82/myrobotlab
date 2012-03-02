@@ -41,7 +41,7 @@ import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.Speech;
-import org.myrobotlab.service.SpeechRecognition;
+import org.myrobotlab.service.Sphinx;
 import org.myrobotlab.service.data.PinAlert;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -59,7 +59,7 @@ public class MoMo extends Service {
 	 * static { Logger.getRootLogger().setLevel(Level.WARN); }
 	 */
 
-	SpeechRecognition ear = new SpeechRecognition("ear");
+	Sphinx ear = new Sphinx("ear");
 	RemoteAdapter remote = new RemoteAdapter("remote");
 	Arduino arduino = new Arduino("arduino");
 	GUIService gui = new GUIService("gui");

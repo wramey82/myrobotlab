@@ -1201,6 +1201,16 @@ public class Runtime extends Service {
 							Runtime.getOS();
 					cmd.add(confs);
 					
+					// show cmd params
+					StringBuilder sb = new StringBuilder();
+					for (int k = 0; k < cmd.size(); ++k)
+					{
+						sb.append(cmd.get(k));
+						sb.append(" ");
+					}
+					
+					LOG.info(sb.toString());
+					
 					CommandLineParser parser = Main.getParser();
 					
 					try {

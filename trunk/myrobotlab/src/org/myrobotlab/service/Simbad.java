@@ -7,7 +7,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-import simbad.gui.Simbad;
 import simbad.sim.Agent;
 import simbad.sim.Arch;
 import simbad.sim.Box;
@@ -26,7 +25,7 @@ import simbad.sim.EnvironmentDescription;
  * http://www.ibm.com/developerworks/java/library/j-robots/ - simbad & subsumption
  * JMonkey
  */
-public class Simulator extends Service {
+public class Simbad extends Service {
 
 	private static final long serialVersionUID = 1L;
 	//Simbad frame = new Simbad(new MyEnv() ,false);
@@ -61,8 +60,8 @@ public class Simulator extends Service {
 	        }
 	    }
 	}	
-	public Simulator(String n) {
-		super(n, Simulator.class.getCanonicalName());
+	public Simbad(String n) {
+		super(n, Simbad.class.getCanonicalName());
 	}
 	
 	@Override
@@ -81,12 +80,12 @@ public class Simulator extends Service {
 		
 		MyEnv env = new MyEnv();
 		
-		Simbad frame = new Simbad(env ,false);
+		simbad.gui.Simbad frame = new simbad.gui.Simbad(env ,false);
 		
 		env.add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1), env));
 		//frame.
 		
-		Simulator template = new Simulator("simulator");
+		Simbad template = new Simbad("simulator");
 		template.startService();
 		
 		GUIService gui = new GUIService("gui");

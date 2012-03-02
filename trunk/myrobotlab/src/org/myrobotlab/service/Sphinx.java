@@ -57,10 +57,10 @@ import edu.cmu.sphinx.util.TimerPool;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
 import edu.cmu.sphinx.util.props.PropertyException;
 
-public class SpeechRecognition extends Service {
+public class Sphinx extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SpeechRecognition.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Sphinx.class.getCanonicalName());
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
@@ -71,8 +71,8 @@ public class SpeechRecognition extends Service {
 
 	// boolean isListening = true;
 
-	public SpeechRecognition(String n) {
-		super(n, SpeechRecognition.class.getCanonicalName());
+	public Sphinx(String n) {
+		super(n, Sphinx.class.getCanonicalName());
 	}
 
 	public void loadDefaultConfiguration() {
@@ -187,10 +187,10 @@ public class SpeechRecognition extends Service {
 	}
 		
 	class SpeechProcessor extends Thread {
-		SpeechRecognition myService = null;
+		Sphinx myService = null;
 		public boolean isRunning = false;
 
-		public SpeechProcessor(SpeechRecognition myService) {
+		public SpeechProcessor(Sphinx myService) {
 			super (myService.getName() + "_ear");
 			this.myService = myService;
 		}
@@ -388,7 +388,7 @@ public class SpeechRecognition extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		SpeechRecognition ear = new SpeechRecognition("ear");
+		Sphinx ear = new Sphinx("ear");
 		ear.createGrammar("hello | up | down | yes | no");
 		ear.startService();
 		

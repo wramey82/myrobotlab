@@ -60,7 +60,7 @@ public class FSMTest extends Service {
 
 	// necessary services
 	OpenCV opencv = null;
-	SpeechRecognition speechRecognition = null;
+	Sphinx speechRecognition = null;
 	Speech speech = null;
 	GUIService gui = null;
 	Arduino arduino = null;
@@ -97,7 +97,7 @@ public class FSMTest extends Service {
 		
 	public void init ()
 	{		
-		speechRecognition = new SpeechRecognition ("sphinx");
+		speechRecognition = new Sphinx ("sphinx");
 		speechRecognition.startService();
 		speech = new Speech("speech");
 		speech.setBackendType(Speech.BACKEND_TYPE_GOOGLE);

@@ -151,12 +151,15 @@ public class ServiceInfo implements Serializable{
 		addBase("DifferentialDrive");
 		addBase("FSM");
 		addBase("GoogleSTT");		
+		addDependency("GoogleSTT","javaFlacEncoder.FLAC_FileEncoder","0.1");	
+		addDependency("GoogleSTT","org.tritonus.share.sampled.floatsamplebuffer","0.3.6");	
 		addBase("GUIService");
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
 		addBase("Graphics");
 		addBase("HTTPClient");
+		addDependency("GUIService","org.apache.commons.httpclient","3.1");	
 
 		addBase("IPCamera");		
 		
@@ -180,6 +183,9 @@ public class ServiceInfo implements Serializable{
 
 		addBase("ParallelPort");				
 		addDependency("ParallelPort","gnu.io.rxtx","2.1-7r2");		
+
+		addBase("PlayerStage");				
+		addDependency("PlayerStage","javaclient3.playerstage","3");		
 		
 		addBase("RemoteAdapter");		
 
@@ -191,10 +197,14 @@ public class ServiceInfo implements Serializable{
 		addBase("Servo");		
 
 		addBase("Simbad");		
-		addDependency("Simbad","net.sourceforge.simbad","1.4");	
+		addDependency("Simbad","simbad.gui","1.4");	
+		addDependency("Simbad","javax.vecmath","1.5.1");	
 		
 		addBase("Speech");		
 		addDependency("Speech","com.sun.speech.freetts","1.2");	
+
+		addBase("Wii");		
+		addDependency("Wii","wiiuse.wiimote","0.12b");	
 		
 		/////////////////////CATEGORIES////////////////////
 		addCategory  ("Arduino", "micro-controller");
@@ -219,6 +229,8 @@ public class ServiceInfo implements Serializable{
 
 		addCategory  ("OpenCV", "vision");
 		addCategory  ("IPCamera", "vision");
+
+		addCategory  ("Joystick", "controller");
 		
 		addCategory  ("Motor", "actuators");
 		addCategory  ("Servo", "actuators");
@@ -228,9 +240,11 @@ public class ServiceInfo implements Serializable{
 		
 		addCategory  ("SensorMonitor", "sensors");
 
-		addCategory  ("Speech", "speech");
-		addCategory  ("GoogleSTT", "speech");
-		addCategory  ("SpeechRecognition", "speech");
+		addCategory  ("Speech", "speech synthesis");
+		addCategory  ("GoogleSTT", "speech recognition");
+		addCategory  ("Sphinx", "speech recognition");
+
+		addCategory  ("Wii", "controller");
 		
 		//addCategory  ("Skype", "telerobotics");
 		//addCategory  ("GoogleAPI", "telerobotics"); **
