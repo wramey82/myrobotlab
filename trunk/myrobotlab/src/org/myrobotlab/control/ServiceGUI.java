@@ -193,7 +193,7 @@ public abstract class ServiceGUI {
 
 	protected static Image getImage(String path) 
 	{
-		return getImage(path, null);
+		return getImage(path, "unknown.png");
 	}
 	
 	protected static Image getImage(String path, String defaultImage) {

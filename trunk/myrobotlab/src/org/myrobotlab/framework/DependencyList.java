@@ -6,39 +6,35 @@ import java.util.ArrayList;
 import org.simpleframework.xml.ElementList;
 
 /**
- * necessary for simplexml to handle HashMap<String, ArrayList<Dependency>>
+ * list of relations from a Service type to a Dependency key
+ * the key is used to look up in the masterList - this keeps
+ * the data normalized and if one Service fulfills its dependency and 
+ * the dependency is shared with another Service type, it is fulfilled there
+ * too
+ * 
+ * The dependency key is the "org" - no version is keyed at the moment.. this
+ * would be something to avoid anyway (complexities of cross-versions - jar hell)
  *
  */
 public class DependencyList implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
 
-	@ElementList(name="dependencies")
-	ArrayList<Dependency> dependencies = new ArrayList<Dependency>(); 
+	private static final long serialVersionUID = 1L;
+	@ElementList(name="list")
+	private ArrayList<String> list = new ArrayList<String>(); 
 	
-	public Dependency get(int index)
+	public void add(String org)
 	{
-		return dependencies.get(index);
-	}
-	
-	public void add(Dependency d)
-	{
-		dependencies.add(d);
-	}
-	
-	public void clear()
-	{
-		dependencies.clear();
+		list.add(org);
 	}
 	
 	public int size()
 	{
-		return dependencies.size();
+		return list.size();
 	}
 	
-	public ArrayList<Dependency> getDependencies()
+	public String get(int index)
 	{
-		return dependencies;
+		return list.get(index);
 	}
 	
 }

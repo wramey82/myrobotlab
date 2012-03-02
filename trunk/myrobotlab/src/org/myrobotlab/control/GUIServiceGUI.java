@@ -30,16 +30,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -68,6 +66,17 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
+
+/*
+ * 
+ * 
+ * reference : brightening or darkening an image
+ * http://exampledepot.com/egs/java.awt.image/Bright.html
+ * TODO - put all image utils in ... duh ... image/Utils :P
+ * 
+ * 
+ */
+
 
 public class GUIServiceGUI extends ServiceGUI {
 

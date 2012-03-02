@@ -13,6 +13,10 @@ public class Dependency {
 	@Element
 	public boolean resolved = false;
 
+	public Dependency()
+	{		
+	}
+	
 	public Dependency(String organisation, String module, String version)
 	{
 		this.organisation 	= organisation;
