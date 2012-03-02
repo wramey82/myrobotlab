@@ -36,7 +36,7 @@ import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Speech;
-import org.myrobotlab.service.SpeechRecognition;
+import org.myrobotlab.service.Sphinx;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 // http://ai.eecs.umich.edu/cogarch0/subsump/arch.html  Augmented Finite State Machines
@@ -57,7 +57,7 @@ public class Audrey extends Service {
 	// 
 	private static final long serialVersionUID = 1L;
 
-	SpeechRecognition ear = new SpeechRecognition("ear");
+	Sphinx ear = new Sphinx("ear");
 	Speech mouth = new Speech("mouth");
 
 	Arduino arduino = new Arduino("arduino");

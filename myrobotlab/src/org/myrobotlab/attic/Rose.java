@@ -35,7 +35,7 @@ import org.myrobotlab.service.AudioFile;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Servo;
-import org.myrobotlab.service.SpeechRecognition;
+import org.myrobotlab.service.Sphinx;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 public class Rose extends Service {
@@ -49,7 +49,7 @@ public class Rose extends Service {
 	Servo pan = null;
 	Servo tilt = null;
 	AudioFile mouth = null;
-	SpeechRecognition ear = null;
+	Sphinx ear = null;
 	ArrayList<Polygon> shapesISee = null;
 
 	public Rose(String n) {
@@ -67,7 +67,7 @@ public class Rose extends Service {
 		pan = new Servo("pan");
 		tilt = new Servo("tilt");
 		mouth = new AudioFile("mouth");
-		ear = new SpeechRecognition("ear");
+		ear = new Sphinx("ear");
 
 		ear.startService();
 		mouth.startService();
