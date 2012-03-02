@@ -43,7 +43,7 @@ import org.myrobotlab.framework.Service;
  *	http://en.wikipedia.org/wiki/Dead_reckoning#Differential_steer_drive_dead_reckoning
  */
 
-public class DifferentialDrive extends Service {
+public class RobotPlatform extends Service {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -141,14 +141,14 @@ public class DifferentialDrive extends Service {
 	 * 
 	 */
 
-	public final static Logger LOG = Logger.getLogger(DifferentialDrive.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(RobotPlatform.class.getCanonicalName());
 
-	public DifferentialDrive(String n) {
+	public RobotPlatform(String n) {
 		this(n, null);
 	}
 
-	public DifferentialDrive(String n, String serviceDomain) {
-		super(n, DifferentialDrive.class.getCanonicalName(), serviceDomain);
+	public RobotPlatform(String n, String serviceDomain) {
+		super(n, RobotPlatform.class.getCanonicalName(), serviceDomain);
 	}
 	
 	@Override
@@ -162,7 +162,7 @@ public class DifferentialDrive extends Service {
 	}
 	
 	// new state function
-	public DifferentialDrive publishState(DifferentialDrive t)
+	public RobotPlatform publishState(RobotPlatform t)
 	{
 		return t;
 	}

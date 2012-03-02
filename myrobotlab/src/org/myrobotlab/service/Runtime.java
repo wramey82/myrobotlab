@@ -958,11 +958,16 @@ public class Runtime extends Service {
 						+ cmdline.getSafeArgument("-service", i + 1, "") + " named " +
 				 cmdline.getSafeArgument("-service", i, ""));
 
-				Service s = Runtime.create(
-						cmdline.getSafeArgument("-service", i, ""),
-						cmdline.getSafeArgument("-service", i + 1, ""));
+				String name = cmdline.getSafeArgument("-service", i, "");
+				String type = cmdline.getSafeArgument("-service", i + 1, "");
+				Service s = Runtime.create(name, type);
 				
-				s.startService();
+				if (s != null)
+				{
+					s.startService();
+				} else {
+					LOG.error("could not create service "  + name + " " + type);
+				}
 				
 				// if the service has a display
 				// delay the display untill all Services have
@@ -1148,8 +1153,15 @@ public class Runtime extends Service {
 		        String s = it.next();
 		        getDependencies(s);
 		    }
+		  // FIXME - generate Ivy xml file
+		  // LOG.error(dependencyCommandLine);
 		  // TODO if (Ivy2.hasNewDependencies()) - schedule restart
 	}
+	
+	//public static String dependencyCommandLine = "";	
+	//public static boolean debug = false;
+	//FIXME - generate Ivy file !!!!!!
+	
 	
 	/** 
 	 * gets the dependencies of a Service using Ivy
@@ -1209,7 +1221,12 @@ public class Runtime extends Service {
 						sb.append(" ");
 					}
 					
+					// FIXME - generate Ivy xml file
+					//dependencyCommandLine += sb.toString() + "\n"; 
 					LOG.info(sb.toString());
+					//debug = true;
+					//if (debug) continue;
+
 					
 					CommandLineParser parser = Main.getParser();
 					

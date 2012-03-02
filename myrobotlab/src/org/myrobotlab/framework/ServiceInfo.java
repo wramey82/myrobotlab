@@ -50,6 +50,11 @@ public class ServiceInfo implements Serializable{
 	// it would be a "good thing" :)
 	public void addBase(String shortServiceName)
 	{
+		addBase(shortServiceName, true);
+	}
+	
+	public void addBase(String shortServiceName, boolean released)
+	{
 		addDependency(shortServiceName,"org.apache.log4j","1.2.14");
 		addDependency(shortServiceName,"org.simpleframework.xml","2.5.3");	
 	}
@@ -136,6 +141,8 @@ public class ServiceInfo implements Serializable{
 	private ServiceInfo()
 	{
 
+		// FIXME - set dependencies - but a flag to repress showing !!
+		addBase("AFMotorShield");
 		addBase("Arduino");
 		addDependency("Arduino","gnu.io.rxtx","2.1-7r2");		
 
@@ -147,24 +154,30 @@ public class ServiceInfo implements Serializable{
 		addBase("ChessGame");
 		addDependency("ChessGame","org.op.chess","1.0.0");	
 				
+		//addBase("ChumbyBot");
 		addBase("Clock");
-		addBase("DifferentialDrive");
+		addBase("FaceTracking");
 		addBase("FSM");
+		addBase("FSMTest");
+		addBase("GeneticProgramming");
 		addBase("GoogleSTT");		
 		addDependency("GoogleSTT","javaFlacEncoder.FLAC_FileEncoder","0.1");	
 		addDependency("GoogleSTT","org.tritonus.share.sampled.floatsamplebuffer","0.3.6");	
+		addBase("Graphics");
 		addBase("GUIService");
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
 		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
 
-		addBase("Graphics");
 		addBase("HTTPClient");
-		addDependency("GUIService","org.apache.commons.httpclient","3.1");	
+		addDependency("HTTPClient","org.apache.commons.httpclient","3.1");	
 
 		addBase("IPCamera");		
 		
 		addBase("JFugue");		
 		addDependency("JFugue","org.jfugue.music","4.0.3");	
+
+		addBase("Jibble");
+		addDependency("Jibble","org.jibble.simplewebserver","1.0");	
 
 		addBase("Joystick");		
 		addDependency("Joystick","com.centralnexus.joystick","0.7");	
@@ -174,7 +187,10 @@ public class ServiceInfo implements Serializable{
 
 		addBase("Keyboard");		
 		addBase("Logging");		
+		//addBase("MagaBot");		
 		addBase("Motor");		
+		//addBase("MyRobot");		
+		// TODO - addBase("MSR4") - radioshack micro-controller
 
 		addBase("OpenCV");		
 		addDependency("OpenCV","com.googlecode.javacv","20111001");	
@@ -184,11 +200,17 @@ public class ServiceInfo implements Serializable{
 		addBase("ParallelPort");				
 		addDependency("ParallelPort","gnu.io.rxtx","2.1-7r2");		
 
+		//addBase("PICAXE"); // FIXME - Make it				
+		
 		addBase("PlayerStage");				
 		addDependency("PlayerStage","javaclient3.playerstage","3");		
 		
+		addBase("Propellor"); // FIXME - Make it
+		
 		addBase("RemoteAdapter");		
 
+		addBase("RobotPlatform");
+		
 		addBase("Roomba");		
 		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
 		
@@ -199,6 +221,9 @@ public class ServiceInfo implements Serializable{
 		addBase("Simbad");		
 		addDependency("Simbad","simbad.gui","1.4");	
 		addDependency("Simbad","javax.vecmath","1.5.1");	
+
+		addBase("Sphinx");		
+		// FIXME addDependency("Sphinx","com.sun.speech.freetts","1.2");	
 		
 		addBase("Speech");		
 		addDependency("Speech","com.sun.speech.freetts","1.2");	
@@ -207,44 +232,47 @@ public class ServiceInfo implements Serializable{
 		addDependency("Wii","wiiuse.wiimote","0.12b");	
 		
 		/////////////////////CATEGORIES////////////////////
-		addCategory  ("Arduino", "micro-controller");
+		addCategory  ("Arduino", "microcontroller");
+		addCategory  ("Propellor", "microcontroller");
 
+		addCategory  ("GeneticProgramming", "intelligence");
 		addCategory  ("FSM", "intelligence");
 
+		addCategory  ("Motor", "actuators");
+		addCategory  ("Servo", "actuators");
+		
 		addCategory  ("AudioCapture", "audio");
 		addCategory  ("AudioFile", "audio");
 		addCategory  ("Speech", "audio");
 		addCategory  ("JFugue", "audio");
 		
-		addCategory  ("ChumbyBot", "robots");
-		addCategory  ("Roomba", "robots");
-		addCategory  ("Magabot", "robots");
+		addCategory  ("Joystick", "controller");
+		addCategory  ("Wii", "controller");
 		
+		addCategory  ("Jython", "programming");
+		addCategory  ("GUIService", "programming");
+				
 		addCategory  ("RemoteAdapter", "network");
 		addCategory  ("HTTPClient", "network");
 		addCategory  ("Jibble", "network");
-	
-		addCategory  ("Jython", "programming");
-		addCategory  ("GUIService", "programming");
 
-		addCategory  ("OpenCV", "vision");
-		addCategory  ("IPCamera", "vision");
-
-		addCategory  ("Joystick", "controller");
+		addCategory  ("ChumbyBot", "robots");
+		addCategory  ("Roomba", "robots");
+		addCategory  ("Magabot", "robots");
+		addCategory  ("RobotPlatform", "robots");
 		
-		addCategory  ("Motor", "actuators");
-		addCategory  ("Servo", "actuators");
-
 		addCategory  ("Simbad", "simulator");
 		addCategory  ("PlayerStage", "simulator");
-		
+
 		addCategory  ("SensorMonitor", "sensors");
 
 		addCategory  ("Speech", "speech synthesis");
+		
 		addCategory  ("GoogleSTT", "speech recognition");
 		addCategory  ("Sphinx", "speech recognition");
 
-		addCategory  ("Wii", "controller");
+		addCategory  ("OpenCV", "vision");
+		addCategory  ("IPCamera", "vision");		
 		
 		//addCategory  ("Skype", "telerobotics");
 		//addCategory  ("GoogleAPI", "telerobotics"); **
@@ -344,8 +372,13 @@ public class ServiceInfo implements Serializable{
 		return sorted.toArray(new String[sorted.size()]);
 		//return dependencies.keySet().toArray(new String[dependencies.keySet().size()]);
 	}
-	
+
 	public static void addDependency (String shortName, String org, String version)
+	{
+		addDependency(shortName, org, version, true);
+	}
+	
+	public static void addDependency (String shortName, String org, String version, boolean released)
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
 		String module = org.substring(org.lastIndexOf(".")+1);		
@@ -366,7 +399,7 @@ public class ServiceInfo implements Serializable{
 		{
 			d = masterList.get(org);
 		} else {
-			d = new Dependency(org, module, version);
+			d = new Dependency(org, module, version, released);
 			masterList.put(org, d);
 		}
 		list.add(org);		
