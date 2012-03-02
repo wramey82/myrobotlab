@@ -64,9 +64,12 @@ public class RuntimeGUI extends ServiceGUI {
 
 	BasicArrowButton addServiceButton = null;
 	BasicArrowButton releaseServiceButton = null;
+	
+	// FIXME - put in as method of Style
 	private static final Color highlight = Color.decode("0x" + Style.highlight);
 	private static final Color foreground = Color.decode("0x" + Style.listForeground);
 	private static final Color background = Color.decode("0x" + Style.listBackground);
+	private static final Color disabled = Color.decode("0x" + Style.disabled);
 	
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>(); 
 	
@@ -167,13 +170,13 @@ public class RuntimeGUI extends ServiceGUI {
 				// FIXME
 				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
 				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName);
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			} else {
 				//namesAndClasses[i] = serviceName + " - " + shortClassName;
 				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName);
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, false);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			}
@@ -187,11 +190,42 @@ public class RuntimeGUI extends ServiceGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
+				
+				
+				if (ServiceInfo.hasUnfulfilledDependencies("org.myrobotlab.service." + newService))
+				{
+					// dependencies needed !!!
+					String msg = "<html>This Service has dependencies which are not yet loaded,<br>" +
+					"do you wish to download them now?";
+					
+					int result = JOptionPane.showConfirmDialog((Component) null, msg,
+					        "alert", JOptionPane.OK_CANCEL_OPTION);
+					if (result == JOptionPane.CANCEL_OPTION)
+					{
+						return;
+					}
+					
+					// FIXME - FIXME - FIXME 
+					// Test & Develop appropriately - ie - remove all lib references to the repo
+					// use the libraries directory !! - fill with a Ivy call !!! - you need to 
+					// work with ivy standalone to do so ...
+					// you will need to restart in order to use the newly downloaded Service
+					// would you like to restart now ?
+					// -- additionally have a download all Service dependencies to get it out of the way
+					// -- additionally a check for updates
+					// -- additionally a Service report (versions like drupal)
+					// -- additionally force a different configuration (like dev - bleeding edge)
+					// finish all "released" Services 
+					
+					
+				}
+				
 				JFrame frame = new JFrame();
 				frame.setTitle("add new service");
 				String name = JOptionPane.showInputDialog(frame,"new service name");
-				if (name != null) {
-					String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
+				
+				if (name != null) {					
 					myService.send(boundServiceName, "createAndStart", name, newService);
 					// FYI - this is an asynchronous request - to handle call back
 					// you must register for a "registered" event on the local or remote Runtime
@@ -207,7 +241,9 @@ public class RuntimeGUI extends ServiceGUI {
 	public ServiceWrapper registered (ServiceWrapper sw)
 	{
 		// FIXME - this will break when an unknown type comes
-		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, sw.service.getShortTypeName());
+		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, 
+				sw.service.getShortTypeName(),
+				(sw.host != null && sw.host.accessURL != null));
 		currentServicesModel.addElement(newServiceEntry);
 		nameToServiceEntry.put(sw.name, newServiceEntry);
 		//myService.loadTabPanels();
@@ -271,10 +307,12 @@ public class RuntimeGUI extends ServiceGUI {
 		public String name;
 		public String type;
 		public boolean loaded = false;
-		ServiceEntry(String name, String type)
+		public boolean isRemote = false;
+		ServiceEntry(String name, String type, boolean isRemote)
 		{
 			this.name = name;
 			this.type = type;
+			this.isRemote = isRemote;
 		}
 		
 		public String toString()
@@ -328,25 +366,26 @@ public class RuntimeGUI extends ServiceGUI {
 				int index, boolean isSelected, boolean cellHasFocus) {
 			ServiceEntry entry = (ServiceEntry) value;
 
-			if (ServiceInfo.hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type))
-			{
-				setText("<html><font color=#" + Style.disabled + ">" + entry.type
-						+ "</font></html>");
-			} else {
-				setText("<html><font color=#" + Style.base + ">" + entry.type
-						+ "</font></html>");
-			}
+			boolean available = !(ServiceInfo.hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type)); 
+
+			setText(entry.type);
 			
 			ImageIcon icon = ServiceGUI.getScaledIcon(ServiceGUI.getImage(
 					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
 			setIcon(icon);
 
-			if (isSelected) {
+			if (isSelected && available) {
 				setBackground(highlight);
 				setForeground(background);
-			} else {
+			} else if (!isSelected && available) {
 				setBackground(background);
 				setForeground(foreground);
+			} else if (isSelected && !available) {
+				setBackground(highlight);
+				setForeground(foreground);
+			} else if (!isSelected && !available) {
+				setBackground(disabled);
+				setForeground(background);
 			}
 
 			return this;
@@ -360,7 +399,7 @@ public class RuntimeGUI extends ServiceGUI {
 		ServiceEntry[] ses = new ServiceEntry[sscn.length];
 		for (int i = 0; i < ses.length; ++i)
 		{
-			possibleServicesModel.addElement(new ServiceEntry(null, sscn[i]));
+			possibleServicesModel.addElement(new ServiceEntry(null, sscn[i], false));
 		}
 
 	}

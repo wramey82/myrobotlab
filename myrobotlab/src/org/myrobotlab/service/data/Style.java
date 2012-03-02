@@ -17,7 +17,7 @@ public class Style {
 	public static String focus = "000000"; 
 	public static String problem = "000000"; 
 	public static String warning = "000000"; 
-	public static String disabled = "BBBBBB";
+	public static String disabled = "EEEEEE";
 		
 	public static String remoteColorTab = "007000";
 	public static String remoteFont = "FFFFFF";
