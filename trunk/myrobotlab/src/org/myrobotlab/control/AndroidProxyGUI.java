@@ -32,13 +32,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.service.DifferentialDrive;
+import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class AndroidProxyGUI extends ServiceGUI {
 	
 	// if is local - can get a reference (experimental)
-	DifferentialDrive localReference = null; 
+	RobotPlatform localReference = null; 
 
 	JLabel speed = new JLabel("0.0");
 
@@ -187,17 +187,17 @@ public class AndroidProxyGUI extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", DifferentialDrive.class);
+		sendNotifyRequest("publishState", "getState", RobotPlatform.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", DifferentialDrive.class);
+		removeNotifyRequest("publishState", "getState", RobotPlatform.class);
 	}
 	
 	// new state function begin ---------------	
 	// binding function TODO - do reflectively with default components?
-	public void getState(DifferentialDrive t)
+	public void getState(RobotPlatform t)
 	{
 		//dimensionX.setText(t.dimensionX.toString());
 		//dimensionY.setText(t.dimensionY.toString());

@@ -56,22 +56,12 @@ public class AudioFile extends Service {
 		super(n, AudioFile.class.getCanonicalName());
 	}
 	
-	public static Dependency[] getDependencies()
-	{
-		return new Dependency[]{
-				new Dependency("javazoom.jl.player","player","1.0.1"),
-				new Dependency("org.apache.log4j","log4j","1.2.14"),
-				new Dependency("org.simpleframework.xml","xml","2.5.3")
-		};
-	}	
-
 	@Override
 	public void loadDefaultConfiguration() {
 	}
 
 	public void play(String name) {
 		playFile("audioFile/" + name + ".mp3", false);
-		// playFile("audioFile/" + name + ".wav");
 	}
 	
 	public void playFileBlocking(String filename)

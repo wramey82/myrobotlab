@@ -35,7 +35,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.DifferentialDrive;
+import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Graphics;
 import org.myrobotlab.service.Motor;
@@ -55,7 +55,7 @@ public class Toy extends Service {
 	public Arduino arduino = new Arduino("arduino");
 	public Motor left = new Motor("left");
 	public Motor right = new Motor("right");
-	public DifferentialDrive platform = new DifferentialDrive("platform");	
+	public RobotPlatform platform = new RobotPlatform("platform");	
 	public GUIService gui = new GUIService("gui");
 	public OpenCV camera = new OpenCV("camera");
 	public Graphics graphics = new Graphics("graphics");
