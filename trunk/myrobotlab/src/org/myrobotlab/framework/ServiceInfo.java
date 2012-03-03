@@ -162,7 +162,8 @@ public class ServiceInfo implements Serializable{
 		addBase("GeneticProgramming");
 		addBase("GoogleSTT");		
 		addDependency("GoogleSTT","javaFlacEncoder.FLAC_FileEncoder","0.1");	
-		addDependency("GoogleSTT","org.tritonus.share.sampled.floatsamplebuffer","0.3.6");	
+		addDependency("GoogleSTT","org.tritonus.share.sampled.floatsamplebuffer","0.3.6");
+		addDependency("GoogleSTT","com.google.gson","1.7.1");		
 		addBase("Graphics");
 		addBase("GUIService");
 		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
@@ -223,10 +224,13 @@ public class ServiceInfo implements Serializable{
 		addDependency("Simbad","javax.vecmath","1.5.1");	
 
 		addBase("Sphinx");		
-		// FIXME addDependency("Sphinx","com.sun.speech.freetts","1.2");	
+		addDependency("Sphinx","javax.speech.recognition","1.0");	
+		addDependency("Sphinx","edu.cmu.sphinx","4-1.0beta6");	
 		
 		addBase("Speech");		
 		addDependency("Speech","com.sun.speech.freetts","1.2");	
+
+		addBase("TweedleBot");		
 
 		addBase("Wii");		
 		addDependency("Wii","wiiuse.wiimote","0.12b");	
@@ -260,6 +264,7 @@ public class ServiceInfo implements Serializable{
 		addCategory  ("Roomba", "robots");
 		addCategory  ("Magabot", "robots");
 		addCategory  ("RobotPlatform", "robots");
+		addCategory  ("TweedleBot", "robots");
 		
 		addCategory  ("Simbad", "simulator");
 		addCategory  ("PlayerStage", "simulator");

@@ -266,8 +266,6 @@ public class GUIServiceGUI extends ServiceGUI {
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);//.ElbowConnector
 		style.put(mxConstants.STYLE_STROKECOLOR, "0x" + Style.base);//.ElbowConnector
 		
-		
-		
 		// creating JComponent
 		if (graphComponent == null)
 		{
@@ -508,7 +506,7 @@ public class GUIServiceGUI extends ServiceGUI {
 				toolTip = "";
 			} else {
 				canonicalName = sw.get().getShortTypeName();
-				ret = serviceName + "\n" + sw.get().getShortTypeName();
+				ret = serviceName + "\n\n\n\n\n." ;//+ sw.get().getShortTypeName();
 				toolTip = sw.get().getToolTip();
 			}
 

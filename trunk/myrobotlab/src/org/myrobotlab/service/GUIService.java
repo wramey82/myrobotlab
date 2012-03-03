@@ -79,7 +79,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
@@ -826,7 +826,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		    JPanel messagePane = new JPanel();
 		    
 		    JLabel pic = new JLabel();
-			ImageIcon icon = Utils.getResourceIcon("mrl_logo_about_128.png");
+			ImageIcon icon = Util.getResourceIcon("mrl_logo_about_128.png");
 			if (icon != null)
 			{
 				pic.setIcon(icon);	

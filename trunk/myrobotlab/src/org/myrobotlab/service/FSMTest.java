@@ -31,7 +31,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.memory.Node;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -729,9 +729,9 @@ public class FSMTest extends Service {
 				new File("html/images/"+word).mkdirs();
 				
 				html.append("<img src=\"images/"+word+"/cropped_" + i + ".jpg\" />");
-				Utils.writeBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"/cameraFrame_" + i +".jpg");
+				Util.writeBufferedImage(kin.cameraFrame.getImage(), "html/images/"+word+"/cameraFrame_" + i +".jpg");
 				FileIO.writeBinary("html/images/"+word+"/boundingBox_"+i, kin.boundingBox);
-				Utils.writeBufferedImage(kin.cropped.getImage(), "html/images/"+word+"/cropped_" + i +".jpg");
+				Util.writeBufferedImage(kin.cropped.getImage(), "html/images/"+word+"/cropped_" + i +".jpg");
 				// TODO - masked/alpha - info.txt file to parse (db at some point) - index values - reference values
 				/*
 				Graphics g = bi.getGraphics();
@@ -777,7 +777,7 @@ public class FSMTest extends Service {
 				//Integer index = Integer.parseInt(index);
 				LOG.error(f.getAbsolutePath());
 				//SerializableImage si = (SerializableImage)FileIO.readBinary(f.getAbsolutePath());
-				SerializableImage si = new SerializableImage(Utils.readBufferedImage(f.getAbsolutePath()));
+				SerializableImage si = new SerializableImage(Util.readBufferedImage(f.getAbsolutePath()));
 				si.source = word; // TODO - what else? "filesystem" ? date?
 				if (si != null)
 				{

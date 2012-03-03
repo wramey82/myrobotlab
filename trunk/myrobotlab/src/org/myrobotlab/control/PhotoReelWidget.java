@@ -41,7 +41,7 @@ import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class PhotoReelWidget extends ServiceGUI {
@@ -139,7 +139,7 @@ public class PhotoReelWidget extends ServiceGUI {
 	public void init() 
 	{
 
-		ImageIcon icon = Utils.getResourceIcon("photoreel.1.png");
+		ImageIcon icon = Util.getResourceIcon("photoreel.1.png");
 		if (icon != null)
 		{
 			screen.setIcon(icon);	

@@ -33,7 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -62,7 +62,7 @@ public class Welcome extends ServiceGUI {
 		
 		gc.gridx = 0;
 		JLabel image = new JLabel();
-		image.setIcon(Utils.getResourceIcon("mrl_logo.gif"));
+		image.setIcon(Util.getResourceIcon("mrl_logo.gif"));
 		display.add(image);
 		
 		++gc.gridy;

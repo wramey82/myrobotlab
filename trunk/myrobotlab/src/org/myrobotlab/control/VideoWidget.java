@@ -50,7 +50,7 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.myrobotlab.service.Runtime;
@@ -127,7 +127,7 @@ public class VideoWidget extends ServiceGUI {
 			
 			myDisplay.setLayout(new GridBagLayout());
 
-			ImageIcon icon = Utils.getResourceIcon("mrl_logo.jpg");
+			ImageIcon icon = Util.getResourceIcon("mrl_logo.jpg");
 			if (icon != null)
 			{
 				screen.setIcon(icon);	

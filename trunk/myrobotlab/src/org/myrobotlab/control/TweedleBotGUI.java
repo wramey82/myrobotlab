@@ -35,7 +35,7 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class MyRobotGUI extends ServiceGUI {
+public class TweedleBotGUI extends ServiceGUI {
 	
 	// if is local - can get a reference (experimental)
 	RobotPlatform localReference = null; 
@@ -73,7 +73,7 @@ public class MyRobotGUI extends ServiceGUI {
 	JLabel inMotion = new JLabel("false");
 	
 
-	public MyRobotGUI(final String boundServiceName, final GUI myService) {
+	public TweedleBotGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
