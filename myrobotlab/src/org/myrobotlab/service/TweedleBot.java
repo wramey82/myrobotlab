@@ -73,10 +73,10 @@ import org.myrobotlab.service.interfaces.SensorData;
  *  
  *  when you get data corroberate it with what you have (saved info)
  *  
- *  
+ *  refactor with RobotPlatform !!!
  */
 
-public class MyRobot extends Service {
+public class TweedleBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
@@ -125,21 +125,38 @@ public class MyRobot extends Service {
 	
 	public Arduino arduino;
 
-	public final static Logger LOG = Logger.getLogger(MyRobot.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(TweedleBot.class.getCanonicalName());
 
-	public MyRobot(String n) {
+	public TweedleBot(String n) {
 		this(n, null);
 	}
 
-	public MyRobot(String n, String serviceDomain) {
-		super(n, MyRobot.class.getCanonicalName(), serviceDomain);
+	public TweedleBot(String n, String serviceDomain) {
+		super(n, TweedleBot.class.getCanonicalName(), serviceDomain);
+		
+		neck = new Servo(getName() + "Neck");
+		right = new Servo(getName() + "Right");
+		left = new Servo(getName() + "Left");
+		arduino = new Arduino(getName() + "BBB");
+		sensors = new SensorMonitor(getName() + "Sensors");
+		
+		this.startService();
+		sensors.startService();
+		neck.startService();
+		right.startService();
+		left.startService();
+		arduino.startService();
+				
+		neck.attach(arduino.getName(), neckPin);
+		right.attach(arduino.getName(), rightPin);
+		left.attach(arduino.getName(), leftPin);				
 	}
 	
 	@Override
 	public void loadDefaultConfiguration() {
 	}
 	
-	public MyRobot publishState(MyRobot t)
+	public TweedleBot publishState(TweedleBot t)
 	{
 		return t;
 	}
@@ -269,24 +286,7 @@ public class MyRobot extends Service {
 	
 	// fsm ------------------------------------
 	public void start() {
-		
-		neck = new Servo(getName() + "Neck");
-		right = new Servo(getName() + "Right");
-		left = new Servo(getName() + "Left");
-		arduino = new Arduino(getName() + "BBB");
-		sensors = new SensorMonitor(getName() + "Sensors");
-		
-		this.startService();
-		sensors.startService();
-		neck.startService();
-		right.startService();
-		left.startService();
-		arduino.startService();
-				
-		neck.attach(arduino.getName(), neckPin);
-		right.attach(arduino.getName(), rightPin);
-		left.attach(arduino.getName(), leftPin);
-
+	
 /*
 //		Graphics graphics = new Graphics("graphics");
 //		graphics.startService();
@@ -354,7 +354,7 @@ public class MyRobot extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		MyRobot dee = new MyRobot("dee");
+		TweedleBot dee = new TweedleBot("dee");
 		dee.start();
 	}
 

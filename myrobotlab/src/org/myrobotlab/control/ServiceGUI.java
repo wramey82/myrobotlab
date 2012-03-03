@@ -33,9 +33,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -43,12 +41,12 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.NotifyEntry;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -117,35 +115,9 @@ public abstract class ServiceGUI {
 		
 	}
 	
-    public static ImageIcon getScaledIcon(final Image image, final double scale)  
-    {  
-        ImageIcon scaledIcon = new ImageIcon(image)  
-        {  
-			private static final long serialVersionUID = 1L;
-
-			public int getIconWidth()  
-            {  
-                return (int)(image.getWidth(null) * scale);  
-            }  
-   
-            public int getIconHeight()  
-            {  
-                return (int)(image.getHeight(null) * scale);  
-            }  
-   
-            public void paintIcon(Component c, Graphics g, int x, int y)  
-            {  
-                g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);  
-            }  
-        };  
-        return scaledIcon;  
-    }  
-    
-    
-    
     public static JButton getButton(String name)
     {
-    	JButton b = new JButton(getScaledIcon(getImage(name), 0.50));
+    	JButton b = new JButton(Util.getScaledIcon(Util.getImage(name), 0.50));
     	b.setMargin(new Insets(0, 0, 0, 0));
 		b.setOpaque(false);
 		b.setContentAreaFilled(false);
@@ -189,51 +161,6 @@ public abstract class ServiceGUI {
 		//ConfigurationManager hostcfg = new ConfigurationManager(Service.getHostName(null));
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
-	}
-
-	protected static Image getImage(String path) 
-	{
-		return getImage(path, "unknown.png");
-	}
-	
-	protected static Image getImage(String path, String defaultImage) {
-		Image icon = null;
-		java.net.URL imgURL = ServiceGUI.class.getResource("/resource/" + path);
-		if (imgURL != null) {
-			try {
-				icon = ImageIO.read(imgURL);
-				return icon;
-			} catch (IOException e) {
-				Service.logException(e);
-			}			
-		}
-		
-		// trying default image 
-		imgURL = ServiceGUI.class.getResource("/resource/" + defaultImage);
-		if (imgURL != null) 
-		{
-			try {
-				icon = ImageIO.read(imgURL);
-				return icon;
-			} catch (IOException e) {
-				Service.logException(e);
-			}			
-		}
-
-		LOG.error("Couldn't find file: " + path + " or default " + defaultImage);
-		return null;
-
-	}	
-	protected static ImageIcon getImageIcon(String path) {
-		ImageIcon icon = null;
-		java.net.URL imgURL = ServiceGUI.class.getResource("/resource/" + path);
-		if (imgURL != null) {
-			icon = new ImageIcon(imgURL);
-			return icon;
-		} else {
-			LOG.error("Couldn't find file: " + path);
-			return null;
-		}
 	}
 
 	/*

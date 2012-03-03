@@ -53,6 +53,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
@@ -90,10 +91,6 @@ public class RuntimeGUI extends ServiceGUI {
 	}
 
 	public void init() {
-
-		JPanel input = new JPanel();
-		input.setLayout(new GridBagLayout());
-
 		gc.gridx = 0;
 		gc.gridy = 0;
 
@@ -106,7 +103,7 @@ public class RuntimeGUI extends ServiceGUI {
 		possibleServices.setFixedCellWidth(200);
 		
 		GridBagConstraints inputgc = new GridBagConstraints();
-		inputgc.anchor = GridBagConstraints.FIRST_LINE_START;
+//		inputgc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 		JScrollPane currentServicesScrollPane = new JScrollPane(currentServices);
 		JScrollPane possibleServicesScrollPane = new JScrollPane(possibleServices);
@@ -136,15 +133,30 @@ public class RuntimeGUI extends ServiceGUI {
 			filters.add(b, fgc);
 			++fgc.gridy;
 		}
-				
+		
+		JPanel input = new JPanel();
+		input.setLayout(new GridBagLayout());
+
+		inputgc.gridx = 0;
+		inputgc.gridy = 1;
 		input.add(filters, inputgc);
+		++inputgc.gridx;
+		inputgc.gridy = 0;
+		input.add(new JLabel("possible services"), inputgc);
+		inputgc.gridy = 1;
 		input.add(possibleServicesScrollPane, inputgc);
+		++inputgc.gridx;
 		input.add(getReleaseServiceButton(), inputgc);
+		++inputgc.gridx;
 		input.add(getAddServiceButton(), inputgc);
+		++inputgc.gridx;
+		inputgc.gridy = 0;
+		input.add(new JLabel("running services"), inputgc);
+		inputgc.gridy = 1;
 		input.add(currentServicesScrollPane, inputgc);
 
 		TitledBorder title;
-		title = BorderFactory.createTitledBorder("local services - current");
+		title = BorderFactory.createTitledBorder("services");
 		input.setBorder(title);
 
 		display.add(input, gc);
@@ -337,7 +349,7 @@ public class RuntimeGUI extends ServiceGUI {
 			setText("<html><font color=#" + Style.base + ">" + entry.name
 					+ "</font></html>");
 
-			ImageIcon icon = ServiceGUI.getScaledIcon(ServiceGUI.getImage(
+			ImageIcon icon = Util.getScaledIcon(Util.getImage(
 					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
 			setIcon(icon);
 
@@ -370,7 +382,7 @@ public class RuntimeGUI extends ServiceGUI {
 
 			setText(entry.type);
 			
-			ImageIcon icon = ServiceGUI.getScaledIcon(ServiceGUI.getImage(
+			ImageIcon icon = Util.getScaledIcon(Util.getImage(
 					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
 			setIcon(icon);
 

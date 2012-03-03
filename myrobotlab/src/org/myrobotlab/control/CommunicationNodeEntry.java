@@ -3,7 +3,7 @@ package org.myrobotlab.control;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import org.myrobotlab.image.Utils;
+import org.myrobotlab.image.Util;
 
 public class CommunicationNodeEntry extends JPanel {
 
@@ -14,7 +14,7 @@ public class CommunicationNodeEntry extends JPanel {
 
 	  public CommunicationNodeEntry(String host, String imagePath) {
 	    this.host = host;
-	    this.image = Utils.getResourceIcon("c0.png");
+	    this.image = Util.getResourceIcon("c0.png");
 	  }
 
 	  public String getTitle() {
