@@ -204,44 +204,7 @@ public abstract class Service implements Runnable, Serializable {
 		// over-ride process level with host file
 		if (!hostInitialized)
 		{
-			// ;.\libraries\x86\32\windows
-			System.setProperty("java.library.path", System.getProperty("java.library.path") + 
-					File.pathSeparator + 
-					"libraries" +File.separator + "native" +File.separator +
-					Runtime.getArch() + "." +
-					Runtime.getBitness() + "." +
-					Runtime.getOS()
-					);
-			
-			String libararyPath = System.getProperty("java.library.path");
-			String userDir = System.getProperty("user.dir");
-			
-			//cfgDir = userDir + File.separator + ".myrobotlab";
-
-			// http://developer.android.com/reference/java/lang/System.html
-			LOG.info("---------------normalize-------------------");
-			LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Runtime.getOS() + "]");
-			LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Runtime.getArch() + "]");
-			LOG.info("getBitness [" + Runtime.getBitness() + "]");
-			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Runtime.getVMName() + "]");
-						
-			LOG.info("---------------non-normalize---------------");						
-			LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
-			LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
-			LOG.info("java.home [" + System.getProperty("java.home") + "]");
-			LOG.info("os.version [" + System.getProperty("os.version") + "]");
-			LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
-			LOG.info("java.library.path [" + libararyPath + "]");
-			LOG.info("user.dir [" + userDir + "]");
-			
-			
-			// load root level configuration
-			ConfigurationManager rootcfg = new ConfigurationManager();
-			rootcfg.load(host + ".properties");
-			hostInitialized = true;
-			
-			// create local configuration directory
-			new File(cfgDir).mkdir();
+			initialize();
 		}
 		
 		// service instance level defaults
@@ -256,6 +219,49 @@ public abstract class Service implements Runnable, Serializable {
 		registerServices();// FIXME - deprecate - remove !
 		registerLocalService();
 
+	}
+	
+	public static void initialize()
+	{		
+		// ;.\libraries\x86\32\windows
+		System.setProperty("java.library.path", System.getProperty("java.library.path") + 
+				File.pathSeparator + 
+				"libraries" +File.separator + "native" +File.separator +
+				Runtime.getArch() + "." +
+				Runtime.getBitness() + "." +
+				Runtime.getOS()
+				);
+		
+		String libararyPath = System.getProperty("java.library.path");
+		String userDir = System.getProperty("user.dir");
+		
+		//cfgDir = userDir + File.separator + ".myrobotlab";
+
+		// http://developer.android.com/reference/java/lang/System.html
+		LOG.info("---------------normalize-------------------");
+		LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Runtime.getOS() + "]");
+		LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Runtime.getArch() + "]");
+		LOG.info("getBitness [" + Runtime.getBitness() + "]");
+		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Runtime.getVMName() + "]");
+					
+		LOG.info("---------------non-normalize---------------");						
+		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
+		LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
+		LOG.info("java.home [" + System.getProperty("java.home") + "]");
+		LOG.info("os.version [" + System.getProperty("os.version") + "]");
+		LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
+		LOG.info("java.library.path [" + libararyPath + "]");
+		LOG.info("user.dir [" + userDir + "]");
+		
+		
+		// load root level configuration
+		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME - deprecate
+		// rootcfg.load(host + ".properties");
+		hostInitialized = true;
+		
+		// create local configuration directory
+		new File(cfgDir).mkdir();
+		
 	}
 
 	public boolean isRunning() {
