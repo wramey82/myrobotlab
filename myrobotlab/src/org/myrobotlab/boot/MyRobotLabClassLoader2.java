@@ -28,7 +28,7 @@ import org.myrobotlab.cmdline.CMDLine;
  * The default behavior of the ClassLoader and most derivatives are in this order :
  * 	1. get parent to attempt to resolve class
  * 	2. resolve it your self
- * In trying the "simplest" solution of constructing a new URLClassLoader(new URL[]{url}, ServiceFactory.class.getClassLoader());
+ * In trying the "simplest" solution of constructing a new URLClassLoader(new URL[]{url}, Runtime.class.getClassLoader());
  * the "parent" classloader WILL RESOLVE the service request of classForName() HOWEVER there are implicit 
  * dependencies like gnu.io.IOPortListener which can only be resolved in the URLClassLoader
  * I "think" I can get around this by building up all the URLs for a new URLClassLoader
@@ -38,7 +38,7 @@ import org.myrobotlab.cmdline.CMDLine;
  * http:tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html
  * 
  * ("file:./libraries/jar/RXTXcomm.jar") or ("file:libraries/jar/RXTXcomm.jar") are appropriate
- * 	ClassLoader parent = ServiceFactory.class.getClassLoader();
+ * 	ClassLoader parent = Runtime.class.getClassLoader();
  * 	URLClassLoader loader = (URLClassLoader)ClassLoader.getSystemClassLoader(); 
  * 
  *  Check out network classloaders 

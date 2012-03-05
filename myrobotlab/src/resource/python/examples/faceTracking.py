@@ -2,7 +2,6 @@ from java.lang import String
 from java.lang import Class
 from org.myrobotlab.service import Runtime
 from org.myrobotlab.service import OpenCV
-from org.myrobotlab.service import GUIService
 from com.googlecode.javacv.cpp.opencv_core import CvPoint;
 from org.myrobotlab.service import OpenCV
 
@@ -14,14 +13,6 @@ opencv.startService()
 opencv.addFilter("PyramidDown1", "PyramidDown")
 # add the face detect filter
 opencv.addFilter("FaceDetect1", "FaceDetect")
-
-
-# get a handle on the GUIService - probably already created if your
-# using the editor
-gui = Runtime.create("gui","GUIService")
-
-# rebuild the gui since we have added a new OpenCV service
-gui.rebuild()
 
 # ----------------------------------
 # input

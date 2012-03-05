@@ -93,9 +93,9 @@ public class Jython extends Service {
 		// add self reference
 		// Python scripts can refer to this service as 'jython' regardless 
 		// of the actual name
-		String selfReferenceScript = "from org.myrobotlab.service import ServiceFactory\n"
+		String selfReferenceScript = "from org.myrobotlab.service import Runtime\n"
 				+ "from org.myrobotlab.service import Jython\n"
-				+ "jython = ServiceFactory.create(\"" + this.getName() + "\",\"Jython\")\n	";
+				+ "jython = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n	";
 		interp.exec(selfReferenceScript);
 		
 	}

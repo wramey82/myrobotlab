@@ -795,7 +795,7 @@ public class Arduino extends Service implements SerialPortEventListener,
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 	
-		//Arduino arduino = (Arduino) ServiceFactory.create("arduino", "Arduino");
+		//Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		//arduino.setPort("/dev/ttyS50");

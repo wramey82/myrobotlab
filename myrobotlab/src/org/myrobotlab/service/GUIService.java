@@ -100,7 +100,7 @@ import com.mxgraph.view.mxGraph;
  * Arduino arduino01 -> post message -> outbox -> outbound -> notifyList -> reference of sender? (NO) will not transport
  * across process boundry 
  * 
- * 		serviceGUI needs a ServiceFactory
+ * 		serviceGUI needs a Runtime
  * 		Arduino arduin-> post back (data) --> GUI - look up serviceGUI by senders name ServiceGUI->invoke(data)
  * 
  */
@@ -297,7 +297,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void addTab(String serviceName)
 	{
-		// ================= begin addTap(name) =============================
+		// ================= begin addTab(name) =============================
 		ServiceWrapper sw = Runtime.getService(serviceName);
 
 		// SW sent in registerServices - yet Service is null due to incompatible Service Types
@@ -773,7 +773,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			setLogLevel(action);
 		} else if ("connect".equals(action)) 
 		{
-			ConnectDialog dlg = new ConnectDialog(new JFrame(), "title", "message", this);
+			//ConnectDialog dlg = 
+			new ConnectDialog(new JFrame(), "title", "message", this);
 		} else if (LOGGING_APPENDER_NONE.equals(action)) 
 		{
 			removeAllAppenders();
@@ -1151,7 +1152,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		MyRobot dee = new MyRobot("dee");
 		dee.start();
 
-		ServiceFactory services = new ServiceFactory("services");
+		Runtime services = new Runtime("services");
 		services.startService();
 				
 		Jython jython = new Jython("jython");

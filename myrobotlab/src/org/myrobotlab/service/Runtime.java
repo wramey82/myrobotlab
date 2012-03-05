@@ -85,7 +85,7 @@ public class Runtime extends Service {
 	public final static String UNKNOWN	= "unknown"; 	
 	// ---- rte members end ------------------------------
 	
-	// ---- ServiceFactory members begin -----------------
+	// ---- Runtime members begin -----------------
 	public final static ServiceInfo info = ServiceInfo.getInstance();
 
 	@Element
@@ -100,7 +100,7 @@ public class Runtime extends Service {
 	public static String ivyFileName = "ivychain.xml";
 	
 	static Service gui = null;
-	// ---- ServiceFactory members end -----------------
+	// ---- Runtime members end -----------------
 
 	public final static Logger LOG = Logger.getLogger(Runtime.class.getCanonicalName());
 	private static Runtime INSTANCE = null;
@@ -914,7 +914,7 @@ public class Runtime extends Service {
 	}
 	// ---------------- callback events end   -------------	
 	
-	// ---------------- ServiceFactory begin --------------
+	// ---------------- Runtime begin --------------
 
 	static void help() {
 		System.out.println("Runtime " + version());
@@ -1359,5 +1359,5 @@ public class Runtime extends Service {
 		return null;
 	}
 
-	// ---------------- ServiceFactory end   --------------
+	// ---------------- Runtime end   --------------
 }

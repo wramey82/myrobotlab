@@ -106,7 +106,7 @@ public class Sphinx extends Service {
 	 * 
 	 * example:
 	 * 		SpeechRecognition.createGrammar ("ear", "stop | go | left | right | back");
-	 * 		ear = ServiceFactory.create("ear", "SpeechRecognition")
+	 * 		ear = Runtime.create("ear", "SpeechRecognition")
 	 * 
 	 * @param name - name of the Service which will be utilizing this grammar
 	 * @param grammar - grammar content 

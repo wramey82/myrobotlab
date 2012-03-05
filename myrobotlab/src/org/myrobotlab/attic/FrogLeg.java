@@ -66,7 +66,7 @@ public class FrogLeg extends Service {
 	// AudioFile mouth = new AudioFile("mouth");
 	Speech mouth = new Speech("mouth");
 	OpenCV camera = new OpenCV("camera");
-	// ServiceFactory ServiceFactory = new ServiceFactory("services");
+	// Runtime Runtime = new Runtime("services");
 	Servo hip = new Servo("hip");
 	Servo knee = new Servo("knee");
 	GeneticProgramming gp = new GeneticProgramming("gp");

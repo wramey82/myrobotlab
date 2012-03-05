@@ -216,7 +216,7 @@ public class ServiceInfo implements Serializable{
 		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
 		
 		addBase("SensorMonitor");		
-		addBase("ServiceFactory");		
+		//	addBase("Runtime");		
 		addBase("Servo");		
 
 		addBase("Simbad");		
@@ -301,7 +301,7 @@ public class ServiceInfo implements Serializable{
 	
 	
 	/**
-	 * function to return an array of dependencies for the ServiceFactory
+	 * function to return an array of dependencies for the Runtime
 	 * So that Ivy can download, cache, and manage all the appropriate 
 	 * dependencies for a Service.  TODO - make this function abstract and
 	 * force implementation.
