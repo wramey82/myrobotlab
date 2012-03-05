@@ -57,6 +57,8 @@
         description="compile the source " >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+		        <exclude name="org/myrobotlab/service/Android.java"/>
+		        <exclude name="org/myrobotlab/service/ArduinoBT.java"/>
 			<classpath refid="compile.classpath"/>
 		</javac>
 		<!-- copy resources -->
