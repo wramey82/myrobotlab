@@ -403,7 +403,7 @@ public class RemoteAdapter extends Service {
 		
 
 				
-//		ServiceFactory services = new ServiceFactory("services");
+//		Runtime services = new Runtime("services");
 //		services.startService();
 /*		
 		Arduino arduino = new Arduino("arduino");

@@ -84,8 +84,8 @@ import org.myrobotlab.cmdline.CMDLine;
 /*
 System.out.println("thread cls :" + Thread.currentThread().getContextClassLoader());
 System.out.println("system cls :" + ClassLoader.getSystemClassLoader());
-System.out.println("my cls :" + ServiceFactory.class.getClassLoader());
-System.out.println("my cls :" + ServiceFactory.class.getClassLoader().getParent());
+System.out.println("my cls :" + Runtime.class.getClassLoader());
+System.out.println("my cls :" + Runtime.class.getClassLoader().getParent());
 */
 
 public class MyRobotLabClassLoader extends URLClassLoader {

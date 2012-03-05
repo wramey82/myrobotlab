@@ -26,10 +26,6 @@ clock.startService()
 # Name it "log".
 log = Runtime.create("log","Logging")
 log.startService()
-# get handle on gui
-gui = Runtime.create("gui","GUIService")
-# rebuild the gui since we added two new services
-gui.rebuild()
 
 # ----------------------------------
 # input
@@ -54,7 +50,7 @@ def input():
 
 clock.setPulseDataString('new clock data !!')
 
-# send a data to the log service and the jython service
+# send a data to the log service and the jython service 
 # you should be able to see the data in the log gui or the jython console
 clock.notify("pulse", jython.name, "input", String().getClass()); 
 clock.notify("pulse", "log", "log", String().getClass());

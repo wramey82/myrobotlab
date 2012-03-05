@@ -304,7 +304,7 @@ public class HTTPClient extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		//HTTPClient http = (HTTPClient)ServiceFactory.create ("http", (Class<?>)HTTPClient.class);
+		//HTTPClient http = (HTTPClient)Runtime.create ("http", (Class<?>)HTTPClient.class);
 		HTTPData data = HTTPClient.get("http://localhost/");		
 		LOG.info(data);
 	}

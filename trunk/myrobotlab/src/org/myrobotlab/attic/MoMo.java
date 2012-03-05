@@ -66,7 +66,7 @@ public class MoMo extends Service {
 	// AudioFile mouth = new AudioFile("mouth");
 	Speech mouth = new Speech("mouth");
 	OpenCV camera = new OpenCV("camera");
-	// ServiceFactory ServiceFactory = new ServiceFactory("ServiceFactory");
+	// Runtime Runtime = new Runtime("Runtime");
 	// Servo shaker = new Servo("shaker");
 
 	Motor left = new Motor("left");
@@ -96,7 +96,7 @@ public class MoMo extends Service {
 		mouth.startService();
 		// remote.start();
 		camera.startService();
-		// ServiceFactory.start();
+		// Runtime.start();
 		gui.startService();
 		// ear.start();
 		// shaker.start();
