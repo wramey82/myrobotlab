@@ -484,6 +484,8 @@ public class Runtime extends Service {
 			addInclusiveExportFilterServiceType("SensorMonitor");
 			addInclusiveExportFilterServiceType("Clock");
 			addInclusiveExportFilterServiceType("Logging");
+			addInclusiveExportFilterServiceType("GUIService");
+			addInclusiveExportFilterServiceType("Runtime");
 		//}
 		
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled)
