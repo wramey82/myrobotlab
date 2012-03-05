@@ -33,7 +33,6 @@
 	<classpathentry kind="lib" path="thirdParty/lib/Joystick.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/jsapi.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/jsapi-1.0-base.jar"/>
-	<classpathentry kind="lib" path="thirdParty/lib/junit-4.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/mbrola.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/RM1_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar"/>
