@@ -136,7 +136,7 @@ public class RuntimeGUI extends ServiceGUI {
 		
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
-
+		inputgc.anchor = GridBagConstraints.NORTH;
 		inputgc.gridx = 0;
 		inputgc.gridy = 1;
 		input.add(filters, inputgc);

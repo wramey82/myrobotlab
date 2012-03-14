@@ -1,6 +1,6 @@
 from java.lang import String
 from org.myrobotlab.service import Speech
-from org.myrobotlab.service import SpeechRecognition
+from org.myrobotlab.service import Sphinx
 from org.myrobotlab.service import Runtime
 
 # This demo is a basic speech recognition script.
@@ -25,7 +25,7 @@ from org.myrobotlab.service import Runtime
 # platform additional JVM arguments might be necessary e.g. -Xmx256m
 
 # start an ear
-ear = Runtime.create("ear","SpeechRecognition")
+ear = Runtime.create("ear","Sphinx")
 # create the grammar you would like recognized
 # this must be done before the service is started
 ear.createGrammar("go | stop | left | right | back")

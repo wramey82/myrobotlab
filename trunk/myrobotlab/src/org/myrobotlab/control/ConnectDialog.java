@@ -25,7 +25,8 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	JButton cancel = new JButton("cancel");
 	Service myService;
 
-	public ConnectDialog(JFrame parent, String title, String message, Service s) {
+	
+	public ConnectDialog(JFrame parent, String title, String message, Service s, String defaultIP, String defaultPort) {
 		    super(parent, title, true);
 		    myService = s;
 		    if (parent != null) {
@@ -33,6 +34,16 @@ public class ConnectDialog extends JDialog implements ActionListener {
 		      Point p = parent.getLocation(); 
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		    }
+		    
+		    if (defaultIP != null)
+		    {
+		    	host = new JTextField(defaultIP, 10);
+		    }
+		    if (defaultPort != null)
+		    {
+		    	port = new JTextField(defaultPort, 10);
+		    }
+		    
 		    GridBagConstraints gc = new GridBagConstraints();
 		    JPanel connectInfo = new JPanel();
 		    connectInfo.setLayout(new GridBagLayout());
@@ -62,7 +73,7 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ConnectDialog dlg = new ConnectDialog(new JFrame(), "title", "message", null);
+		ConnectDialog dlg = new ConnectDialog(new JFrame(), "title", "message", null, "10.11.123.24", "6767");
 
 	}
 
