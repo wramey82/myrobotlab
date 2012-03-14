@@ -12,5 +12,7 @@
         <artifact name="javacv-windows-x86_64" type="jar" conf="x86.64.windows"/>
         <artifact name="javacv-linux-x86" type="jar" conf="x86.32.linux"/>
         <artifact name="javacv-linux-x86_64" type="jar" conf="x86.64.linux"/>
+        <artifact name="javacv-linux-x86" type="jar" conf="amd32.32.linux"/>
+        <artifact name="javacv-linux-x86_64" type="jar" conf="amd64.32.linux"/>
     </publications>
 </ivy-module>
