@@ -105,8 +105,8 @@ public class Sphinx extends Service {
 	 * createGrammar must be called before the Service starts if a new grammar is needed
 	 * 
 	 * example:
-	 * 		SpeechRecognition.createGrammar ("ear", "stop | go | left | right | back");
-	 * 		ear = Runtime.create("ear", "SpeechRecognition")
+	 * 		Sphinx.createGrammar ("ear", "stop | go | left | right | back");
+	 * 		ear = Runtime.create("ear", "Sphinx")
 	 * 
 	 * @param name - name of the Service which will be utilizing this grammar
 	 * @param grammar - grammar content 

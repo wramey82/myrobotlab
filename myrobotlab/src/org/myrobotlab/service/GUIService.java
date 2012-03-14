@@ -750,6 +750,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		//LOG.info("windowOpened");
 
 	}
+	
+	String lastHost = "127.0.0.1";
+	String lastPort = "6767";
 
 	// TODO - refactor names
 	@Override
@@ -773,8 +776,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			setLogLevel(action);
 		} else if ("connect".equals(action)) 
 		{
-			//ConnectDialog dlg = 
-			new ConnectDialog(new JFrame(), "title", "message", this);
+			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
+			lastHost = dlg.host.getText();
+			lastPort = dlg.port.getText();
 		} else if (LOGGING_APPENDER_NONE.equals(action)) 
 		{
 			removeAllAppenders();
@@ -782,7 +786,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
 			if (m.isSelected()) {
-				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this);
+				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
+				lastHost = dlg.host.getText();
+				lastPort = dlg.port.getText();
 				addAppender(LOGGING_APPENDER_SOCKET, dlg.host.getText(), dlg.port.getText());
 			} else {
 				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
