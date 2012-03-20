@@ -1174,6 +1174,14 @@ public class Runtime extends Service {
 	{
 		LOG.debug("getDependencies " + fullTypeName);
 		boolean ret = true;
+		
+		File ivysettings = new File(ivyFileName);
+		if (!ivysettings.exists())
+		{
+			LOG.warn(ivyFileName +  " does not exits - will not try to resolve dependencies");
+			return false;
+		}
+		
 		try {
 			// use Ivy standalone			
 			// Main.main(cmd.toArray(new String[cmd.size()]));
@@ -1309,12 +1317,10 @@ public class Runtime extends Service {
 			return sw.service;
 		}
 				
-		File ivysettings = new File(ivyFileName);
-		if (ivysettings.exists())
-		{
 			ServiceInfo.getInstance().load();
 
-			if (!getDependencies(fullTypeName))
+			// TODO - may need more details besides boolean
+			if (!getDependencies(fullTypeName)) 
 			{
 				LOG.error("failed dependencies");
 				return null;
@@ -1322,9 +1328,6 @@ public class Runtime extends Service {
 			
 			ServiceInfo.getInstance().save();
 			// TODO - if (Ivy2.newDependencies()) - schedule restart
-		} else {
-			LOG.debug(ivyFileName + " not available - will not manage dependencies");
-		}
 
 		try {
 			
