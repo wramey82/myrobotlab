@@ -171,6 +171,8 @@ public class ServiceInfo implements Serializable{
 
 		addBase("HTTPClient");
 		addDependency("HTTPClient","org.apache.commons.httpclient","3.1");	
+		addDependency("HTTPClient","org.apache.commons.codec","1.3");	
+		addDependency("HTTPClient","org.apache.commons.logging","1.1");	
 
 		addBase("IPCamera");		
 		

@@ -1323,7 +1323,7 @@ public class Runtime extends Service {
 			if (!getDependencies(fullTypeName)) 
 			{
 				LOG.error("failed dependencies");
-				return null;
+				//return null;
 			}
 			
 			ServiceInfo.getInstance().save();
