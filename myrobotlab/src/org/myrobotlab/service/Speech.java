@@ -375,7 +375,7 @@ public class Speech extends Service {
 		LOG.info(f + (f.exists() ? " is found " : " is missing "));
 
 		if (!f.exists()) {
-			// if the wav file does not exist fetch it from att site
+			// if the mp3 file does not exist fetch it from google
 			/*
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("voice", voiceName);
@@ -420,9 +420,9 @@ public class Speech extends Service {
 //		speech.setBackendType(BACKEND_TYPE_FREETTS);
 		speech.setBackendType(BACKEND_TYPE_GOOGLE);
 //		speech.setLanguage("fr");
-		speech.speak("it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about.");
-		speech.speak("hello! this is an attempt to generate inflection did it work?");
-		speech.speak("hello there. this is a long and detailed message");
+		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about.");
+		speech.speak("goodby! this is an attempt to generate inflection did it work?");
+		speech.speak("blah there. this is a long and detailed message");
 		speech.speak("1 2 3 4 5 6 7 8 9 10, i know how to count");
 		speech.speak("the time is 12:30");
 		speech.speak("oink oink att is good but not so good");
