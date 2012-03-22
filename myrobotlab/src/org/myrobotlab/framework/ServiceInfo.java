@@ -55,6 +55,7 @@ public class ServiceInfo implements Serializable{
 	
 	public void addBase(String shortServiceName, boolean released)
 	{
+		addDependency(shortServiceName,"org.myrobotlab","14.1");
 		addDependency(shortServiceName,"org.apache.log4j","1.2.14");
 		addDependency(shortServiceName,"org.simpleframework.xml","2.5.3");	
 	}
