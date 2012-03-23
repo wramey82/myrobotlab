@@ -1175,6 +1175,8 @@ public class Runtime extends Service {
 		LOG.debug("getDependencies " + fullTypeName);
 		boolean ret = true;
 		
+		ServiceInfo.getInstance().load();
+
 		File ivysettings = new File(ivyFileName);
 		if (!ivysettings.exists())
 		{
@@ -1261,6 +1263,7 @@ public class Runtime extends Service {
 			            	}
 			            } else {
 			            	dep.resolved = true;
+			    			ServiceInfo.getInstance().save();
 			            }
 					} catch (Exception e)
 					{
@@ -1317,7 +1320,6 @@ public class Runtime extends Service {
 			return sw.service;
 		}
 				
-			ServiceInfo.getInstance().load();
 
 			// TODO - may need more details besides boolean
 			if (!getDependencies(fullTypeName)) 
@@ -1326,7 +1328,6 @@ public class Runtime extends Service {
 				//return null;
 			}
 			
-			ServiceInfo.getInstance().save();
 			// TODO - if (Ivy2.newDependencies()) - schedule restart
 
 		try {
