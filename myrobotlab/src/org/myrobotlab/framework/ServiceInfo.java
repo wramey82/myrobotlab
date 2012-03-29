@@ -65,6 +65,11 @@ public class ServiceInfo implements Serializable{
 		Serializer serializer = new Persister();
 
 		try {
+			File cfgdir = new File(Service.getCFGDir());
+			if (!cfgdir.exists())
+			{
+				cfgdir.mkdirs();
+			}
 			File cfg = new File(Service.getCFGDir() + File.separator + "dependencies" + ".xml");
 			serializer.write(this, cfg);
 		} catch (Exception e) {
