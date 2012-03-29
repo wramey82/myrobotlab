@@ -28,11 +28,11 @@ import javax.swing.JLabel;
 
 import org.myrobotlab.service.interfaces.GUI;
 
-public class SpeechRecognitionGUI extends ServiceGUI {
+public class SphinxGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public SpeechRecognitionGUI(final String boundServiceName, final GUI myService) {
+	public SphinxGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
