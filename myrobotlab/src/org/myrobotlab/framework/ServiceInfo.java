@@ -78,6 +78,13 @@ public class ServiceInfo implements Serializable{
 		}
 		return true;
 	}
+
+	public boolean loadIvyCache()
+	{
+		boolean ret = false;
+		
+		return ret;
+	}
 	
 	public boolean load()
 	{		

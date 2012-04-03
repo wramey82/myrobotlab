@@ -1175,7 +1175,7 @@ public class Runtime extends Service {
 		LOG.debug("getDependencies " + fullTypeName);
 		boolean ret = true;
 		
-		ServiceInfo.getInstance().load();
+		ServiceInfo.getInstance().load();// FIXME - deprecate - normalize with ivy files
 
 		File ivysettings = new File(ivyFileName);
 		if (!ivysettings.exists())
