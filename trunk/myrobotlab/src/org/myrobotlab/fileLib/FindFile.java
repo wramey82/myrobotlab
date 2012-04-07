@@ -112,9 +112,11 @@ public final class FindFile  { //implements FilenameFilter
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		
+		// TODO - there was methods to do this already in java.io
+		List<File> files = FindFile.find(".\\.ivy\\.*\\.xml");
+	
 		//List<File> files = FindFile.find("\\.(?i:)(?:jpg|gif|doc|java)$");
-		List<File> files = FindFile.find(".*\\.java$");
+		//List<File> files = FindFile.find(".*\\.java$");
 		//List<File> files = FindFile.find(".*\\.svn$");
 
 
