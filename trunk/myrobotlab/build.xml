@@ -79,7 +79,7 @@
 		    <fileset dir="./haarcascades"/>
 		</copy>
 		
-		<!-- only dependencies for Runtime needed -->
+		<!-- only dependencies for ServiceFactory needed -->
 		<copy file="./thirdParty/lib/log4j-1.2.14.jar" todir="${dist}/${label}/libraries/jar"/>
 		<copy file="./thirdParty/lib/simple-xml-2.5.3.jar" todir="${dist}/${label}/libraries/jar"/>
 		<copy file="./thirdParty/lib/ivy.jar" todir="${dist}/${label}/libraries/jar"/>
