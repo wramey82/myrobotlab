@@ -19,8 +19,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 
 import org.apache.log4j.Level;
@@ -42,13 +40,6 @@ import org.myrobotlab.service.TestThrower;
  *         time base determined on speed of computer
  */
 
-// TODO - new up operators later - to test non-operator ServiceDirectory !!
-// TODO - test start run remove Service
-// TODO - decompose - use test cases which correspond to the Trac diagrams
-// TODO - test ServiceDirectory
-// TODO - test Configuration
-// TODO - add non hardware dependent services
-
 /*
  * Dependencies - 
  * All Systems	
@@ -68,33 +59,24 @@ public class ServiceTest {
 	public static void main(String args[]) {
 		org.junit.runner.JUnitCore.main("org.myrobotlab.test.junit.ServiceTest");
 	}
+	
+	String host = "localhost";
+	int port = 6767;
 
 	@Test
 	public final void blockingTest() {
 		org.apache.log4j.BasicConfigurator.configure();
+		//Logger.getRootLogger().setLevel(Level.ERROR);
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		//Logger.getRootLogger().setLevel(Level.FATAL); // no logging
 
-		LOG.debug("blockingTest begin-------------");
-
-		
-		try {
-			URL url = new URL("http://localhost/127.0.0.1:655325");
-			String h = url.getHost();
-			String z = url.getQuery();
-			int port = url.getPort();
-			LOG.info(h + " " + port);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		
+		LOG.debug("blockingTest begin-------------");		
 		
 		// create services
-		TestCatcher catcher = new TestCatcher("catcher01");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 		TestThrower thrower01 = new TestThrower("thrower01");
 
 		// start services
-		catcher.startService();
+		catcher01.startService();
 		thrower01.startService();
 
 		Object[] data = new Object[1];
@@ -106,23 +88,23 @@ public class ServiceTest {
 		stopwatch.start();
 		for (int i = 0; i < cnt; ++i) {
 			data[0] = new Integer(i);
-			ret = (Integer) thrower01.sendBlocking(catcher.getName(), "catchInteger", data);
+			ret = (Integer) thrower01.sendBlocking(catcher01.getName(), "catchInteger", data);
 			assertEquals(ret, i);
 		}
 		stopwatch.end();
 
 		// test results
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher.catchList.size());
+		LOG.info(catcher01.catchList.size());
 
-		Object o = (Object) thrower01.sendBlocking(catcher.getName(), "returnNull", null);
+		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", null);
 		assertEquals(null, o);
 		
 		// release all
 		Runtime.releaseAll();
 		
 		// testing robustness of releasing after releasing all
-		catcher.releaseService();
+		catcher01.releaseService();
 		thrower01.releaseService();
 
 		LOG.debug("blockingTest end-------------");
@@ -130,56 +112,55 @@ public class ServiceTest {
 
 	@Test
 	public final void testSingleThrow() {
-
 		LOG.debug("testSingleThrow begin-------------");
 
 		// create services
-		TestThrower thrower = new TestThrower("thrower02");
-		TestCatcher catcher = new TestCatcher("catcher02");
+		TestThrower thrower01 = new TestThrower("thrower02");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 
 		// start services
-		thrower.startService();
-		catcher.startService();
+		thrower01.startService();
+		catcher01.startService();
 
 		// set notify list
-		thrower.notify("throwInteger", "catcher02", "catchInteger", Integer.class);
+		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
 
 		// send 1 message
 		stopwatch.start();
 		int cnt = 100;
 		for (int i = 0; i < cnt; ++i) {
-			thrower.invoke("throwInteger", new Integer(7));
+			thrower01.invoke("throwInteger", new Integer(7));
 		}
 
-		catcher.waitForCatches(cnt, 1000);
+		catcher01.waitForCatches(cnt, 1000);
 		stopwatch.end();
 
 		// check results
 		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
-		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(7));
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(7));
 
-		catcher.catchList.clear();
+		catcher01.catchList.clear();
 
 		// send n messages
 		stopwatch.start();
 		cnt = 2;
 		for (int i = 0; i < cnt; ++i) {
-			thrower.invoke("throwInteger", new Integer(7));
+			thrower01.invoke("throwInteger", new Integer(7));
 		}
-		catcher.waitForCatches(cnt, 1000);
+		catcher01.waitForCatches(cnt, 1000);
 		stopwatch.end();
 
 		// check results
 		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
-		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(7));
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(7));
 
 		Runtime.releaseAll();
 		
@@ -192,52 +173,52 @@ public class ServiceTest {
 		LOG.debug("stressTest begin-------------");
 
 		// create services
-		TestThrower thrower = new TestThrower("thrower02");
-		TestCatcher catcher = new TestCatcher("catcher02");
+		TestThrower thrower01 = new TestThrower("thrower02");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 
 		// start services
-		thrower.startService();
-		catcher.startService();
+		thrower01.startService();
+		catcher01.startService();
 
 		// set notify list
-		thrower.notify("throwInteger", "catcher02", "catchInteger", Integer.class);
+		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
 
 		// send 1 message
 		stopwatch.start();
 		int cnt = 100;
 		for (int i = 0; i < cnt; ++i) {
-			thrower.invoke("throwInteger", new Integer(7));
+			thrower01.invoke("throwInteger", new Integer(7));
 		}
 
-		catcher.waitForCatches(cnt, 1000);
+		catcher01.waitForCatches(cnt, 1000);
 		stopwatch.end();
 
 		// check results
 		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
-		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(7));
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(7));
 
-		catcher.catchList.clear();
+		catcher01.catchList.clear();
 
 		// send n messages
 		stopwatch.start();
 		cnt = 2;
 		for (int i = 0; i < cnt; ++i) {
-			thrower.invoke("throwInteger", new Integer(7));
+			thrower01.invoke("throwInteger", new Integer(7));
 		}
-		catcher.waitForCatches(cnt, 1000);
+		catcher01.waitForCatches(cnt, 1000);
 		stopwatch.end();
 
 		// check results
 		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
-		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(7));
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(7));
 
 		Runtime.releaseAll();
 		
@@ -252,15 +233,15 @@ public class ServiceTest {
 
 		// create services
 		TestThrower thrower01 = new TestThrower("thrower03");
-		TestCatcher catcher01 = new TestCatcher("catcher04");
-		TestCatcher catcher02 = new TestCatcher("catcher05");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
+		TestCatcher catcher02 = new TestCatcher("catcher02");
 
 		thrower01.startService();
 		catcher01.startService();
 		catcher02.startService();
 
-		thrower01.notify("throwInteger", "catcher04", "catchInteger",Integer.class);
-		thrower01.notify("throwInteger", "catcher05", "catchInteger",Integer.class);
+		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
+		thrower01.notify("throwInteger", "catcher02", "catchInteger",Integer.class);
 
 		// send n messages
 		stopwatch.start();
@@ -341,18 +322,16 @@ public class ServiceTest {
 
 	@Test
 	public final void remoteThrow() {
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
 		LOG.debug("remoteThrow begin-------------");
 
-		// FIXME !!!
-		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:0");
-		//RemoteAdapter remote01 = new RemoteAdapter("remote01","http://0.0.0.0:6767");
-		//TestCatcher catcher = new TestCatcher("catcher01","http://0.0.0.0:6767");
-		RemoteAdapter remote01 = new RemoteAdapter("remote01");
-		TestCatcher catcher = new TestCatcher("catcher01");
-		remote01.servicePort = 6767;
-		
+		TestThrower thrower01 = new TestThrower("thrower01");
+		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://" + host + ":" + port);
+		TestCatcher catcher01 = new TestCatcher("catcher01", "http://" + host + ":" +port);
+				
 		remote01.startService();
-		catcher.startService();
+		catcher01.startService();
 		thrower01.startService();
 
 		// set notify list
@@ -367,14 +346,14 @@ public class ServiceTest {
 		for (int i = 0; i < cnt; ++i) {
 			thrower01.invoke("throwInteger", param1);
 		}
-		catcher.waitForCatches(cnt, 100);
+		catcher01.waitForCatches(cnt, 100);
 		stopwatch.end();
 
 		// test results
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		assertEquals(catcher.catchList.size(), cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(1));
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(1));
 
 		// set new notifies - different functions
 		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
@@ -387,42 +366,127 @@ public class ServiceTest {
 		thrower01.invoke("highPitchInteger", param1);
 		thrower01.invoke("noPitchInteger", param1);
 		thrower01.invoke("lowPitchInteger", param1);
-		LOG.info(catcher.lowCatchList.size());
-		catcher.waitForLowCatches(1, 100);
-		catcher.waitForCatches(2, 100);
+		LOG.info(catcher01.lowCatchList.size());
+		catcher01.waitForLowCatches(1, 100);
+		catcher01.waitForCatches(2, 100);
 		stopwatch.end();
 
 		// check results
 		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher.lowCatchList.size());
-		assertEquals(catcher.lowCatchList.size(), 1);
+		LOG.info(catcher01.lowCatchList.size());
+		assertEquals(catcher01.lowCatchList.size(), 1);
 
 		// send messages
 		stopwatch.start();
 		thrower01.invoke("noPitchInteger", param1);
-		catcher.waitForCatches(5, 100);
+		catcher01.waitForCatches(5, 100);
 		stopwatch.end();
 
 		// check results
 		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher.catchList.size());
-		// assertEquals(catcher.catchList.size(), 5);
+		LOG.info(catcher01.catchList.size());
+		// assertEquals(catcher01.catchList.size(), 5);
 		
 		Runtime.releaseAll();
 
 		LOG.debug("remoteThrow end-------------");
 	}
+	
+	@Test
+	public final void clientAPI() {
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		LOG.debug("clientAPI begin-------------");
+
+		TestThrower thrower01 = new TestThrower("thrower01");
+		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://" + host + ":" + port);
+		TestCatcher catcher01 = new TestCatcher("catcher01", "http://" + host + ":" +port);		
+				
+		remote01.startService();
+		catcher01.startService();
+		thrower01.startService();
+
+		LOG.debug("check sendUDPMSG sending from RA Client API to RA service");		
+		remote01.sendUDPMSG(host, port, "catcher01", "catchInteger", 5);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 1);
+		catcher01.catchList.clear();
+
+		LOG.debug("check sendUDPMSG sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
+		remote01.sendUDPMSG(host, port, "catcher01", "bothHandsCatchInteger", 8, 9);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 2);
+		
+				
+		// set notify list
+		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
+
+		// prepare data
+		Integer param1 = new Integer(1);
+		int cnt = 100;
+
+		// send messages
+		stopwatch.start();
+		for (int i = 0; i < cnt; ++i) {
+			thrower01.invoke("throwInteger", param1);
+		}
+		catcher01.waitForCatches(cnt, 100);
+		stopwatch.end();
+
+		// test results
+		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		assertEquals(catcher01.catchList.size(), cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
+		assertEquals(catcher01.catchList.get(0), new Integer(1));
+
+		// set new notifies - different functions
+		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
+		thrower01.notify("highPitchInteger", "catcher01", "catchInteger", Integer.class);
+		thrower01.notify("noPitchInteger", "catcher01", "catchInteger",
+				Integer.class);
+
+		// send messages
+		stopwatch.start();
+		thrower01.invoke("highPitchInteger", param1);
+		thrower01.invoke("noPitchInteger", param1);
+		thrower01.invoke("lowPitchInteger", param1);
+		LOG.info(catcher01.lowCatchList.size());
+		catcher01.waitForLowCatches(1, 100);
+		catcher01.waitForCatches(2, 100);
+		stopwatch.end();
+
+		// check results
+		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
+		LOG.info(catcher01.lowCatchList.size());
+		assertEquals(catcher01.lowCatchList.size(), 1);
+
+		// send messages
+		stopwatch.start();
+		thrower01.invoke("noPitchInteger", param1);
+		catcher01.waitForCatches(5, 100);
+		stopwatch.end();
+
+		// check results
+		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
+		LOG.info(catcher01.catchList.size());
+		// assertEquals(catcher01.catchList.size(), 5);
+		
+		Runtime.releaseAll();
+
+		LOG.debug("clientAPI end-------------");
+	}
+
 
 	@Test
 	public final void bothHandsCatchIntegerTest() {
 		LOG.debug("bothHandsCatchInteger begin-------------");
 
 		// create services
-		TestCatcher catcher = new TestCatcher("catcher01");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 
 		// start services
-		catcher.startService();
-		LOG.info(catcher.catchList.size());
+		catcher01.startService();
+		LOG.info(catcher01.catchList.size());
 
 		// set notify list
 
@@ -434,21 +498,21 @@ public class ServiceTest {
 		// send messages
 		stopwatch.start();
 		for (int i = 0; i < cnt; ++i) {
-			catcher.invoke("bothHandsCatchInteger", param1, param2);
+			catcher01.invoke("bothHandsCatchInteger", param1, param2);
 		}
-		catcher.waitForCatches(2 * cnt, 100);
+		catcher01.waitForCatches(2 * cnt, 100);
 		stopwatch.end();
 
 		// test results
 		LOG
 				.info(cnt + " messages sent in " + stopwatch.elapsedMillis()
 						+ " ms");
-		LOG.info(catcher.catchList.size());
-		assertEquals(catcher.catchList.size(), (2 * cnt));
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName()
+		LOG.info(catcher01.catchList.size());
+		assertEquals(catcher01.catchList.size(), (2 * cnt));
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName()
 				.compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(1));
-		assertEquals(catcher.catchList.get(1), new Integer(2));
+		assertEquals(catcher01.catchList.get(0), new Integer(1));
+		assertEquals(catcher01.catchList.get(1), new Integer(2));
 
 		Runtime.releaseAll();
 
@@ -467,14 +531,14 @@ public class ServiceTest {
 		catchercfg.clear();
 
 		// create services
-		// create the test thrower on a different host
+		// create the test thrower01 on a different host
 		TestThrower thrower01 = new TestThrower("thrower01", "localhost");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");
-		TestCatcher catcher = new TestCatcher("catcher01");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 		GUIService gui01 = new GUIService("gui01");
 		remote01.setCFG("servicePort", "6565");
 
-		// manually setting an entry for the catcher in thrower's config
+		// manually setting an entry for the catcher01 in thrower01's config
 		ServiceEntry se = new ServiceEntry();
 		se.host = "localhost";
 		se.lastModified = new Date();
@@ -487,7 +551,7 @@ public class ServiceTest {
 
 		// start services
 		remote01.startService();
-		catcher.startService();
+		catcher01.startService();
 		thrower01.startService();
 		gui01.startService();
 		// gui01.display();
@@ -509,16 +573,16 @@ public class ServiceTest {
 			thrower01
 					.send("catcher01", "bothHandsCatchInteger", param1, param2);
 		}
-		catcher.waitForCatches(2 * cnt, 100);
+		catcher01.waitForCatches(2 * cnt, 100);
 		stopwatch.end();
 
 		// test results
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher.catchList.size());
-		assertEquals(catcher.catchList.size(), 2 * cnt);
-		assertEquals(catcher.catchList.get(0).getClass().getCanonicalName()
+		LOG.info(catcher01.catchList.size());
+		assertEquals(catcher01.catchList.size(), 2 * cnt);
+		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName()
 				.compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher.catchList.get(0), new Integer(1));
+		assertEquals(catcher01.catchList.get(0), new Integer(1));
 
 		// check results
 		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
@@ -534,9 +598,9 @@ public class ServiceTest {
 		// instance of MRL - creating them here is only for demonstrative 
 		// purposes
 		RemoteAdapter remote = new RemoteAdapter("remote");
-		TestCatcher catcher = new TestCatcher("catcher01");
+		TestCatcher catcher01 = new TestCatcher("catcher01");
 		remote.startService();
-		catcher.startService();
+		catcher01.startService();
 		
 		// begin client sending status message (or any message for that matter)
 		// create message
