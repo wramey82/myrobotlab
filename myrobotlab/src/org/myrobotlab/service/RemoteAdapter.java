@@ -418,6 +418,11 @@ public class RemoteAdapter extends Service {
 	
 	// use public void Service.send(String name, String method, Object... data)
 	/******************* Client API End ************************************/	
+	
+	public void setUDPPort (int port)
+	{
+		
+	}
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
