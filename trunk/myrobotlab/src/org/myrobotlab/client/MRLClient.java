@@ -154,10 +154,6 @@ public class MRLClient implements Runnable {
 	    pinData.value = 500;
        //pinData.value = (int) PhysicsCar_use_For_Testing.compVal;
 		
-		
-	   
-	   
-	   
 	   // the sensor monitor will need a setup call - to add trace data
 	    /*
 		MRLClient.sendMessage("sensors", "addTraceData",
