@@ -131,6 +131,13 @@ public class Runtime extends Service {
 		}
 		return INSTANCE;		
 	}
+
+	// FYI - if stopServices deos not remove INSTANCE - it is not re-entrant in junit tests
+	@Override
+	public void stopService() {
+		super.stopService();
+		INSTANCE = null;
+	}	
 	
 	@Override
 	public void loadDefaultConfiguration() {
@@ -256,9 +263,9 @@ public class Runtime extends Service {
 	// TODO more aptly named registerLocal(Service s) ?
 	// FIXME - getState publish setState need to reconcile with 
 	// these definitions
-	public static synchronized Service register(Service s)
+	public static synchronized Service register(Service s, URL url)
 	{
-		URL url = null; // LOCAL SERVICE !!!
+		//URL url = null; // LOCAL SERVICE !!!
 		
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url))
@@ -1363,5 +1370,7 @@ public class Runtime extends Service {
 		return null;
 	}
 
+	
 	// ---------------- Runtime end   --------------
+	
 }

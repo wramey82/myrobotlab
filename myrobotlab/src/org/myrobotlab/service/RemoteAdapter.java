@@ -26,8 +26,10 @@
 package org.myrobotlab.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -37,10 +39,11 @@ import java.net.SocketException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.interfaces.MRLMSGReciever;
 
 /***
  * 
@@ -65,6 +68,8 @@ public class RemoteAdapter extends Service {
 	transient UDPListener udpListener = null;
 	transient UDPStringListener udpStringListener = null;
 
+	MRLMSGReciever mrlMsgReciever = null;
+	
 	InetAddress serverAddress = null;
 	
 	// FIXME - all port & ip data needs to be only in the threads
@@ -122,7 +127,7 @@ public class RemoteAdapter extends Service {
 			if (servicePort > 0) {
 				try {
 
-					serverSocket = new ServerSocket(servicePort,0, serverAddress);
+					serverSocket = new ServerSocket(servicePort, 0, serverAddress);
 					
 					LOG.info(getName() + " TCPListener listening on "
 							+ serverSocket.getLocalSocketAddress());
@@ -209,18 +214,10 @@ public class RemoteAdapter extends Service {
 					// create a string message and send it
 				}
 
-			} catch (SocketException e) {
-				logException(e);
-				LOG.error("could not listen");
-				return;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				logException(e);
+			} catch (Exception e) {
+				LOG.error("UDPStringListener could not listen");
+				Service.logException(e);
 			}
-
-			/*
-			 * while (isRunning) { socket.receive(p); }
-			 */
 		}
 	}
 
@@ -273,17 +270,16 @@ public class RemoteAdapter extends Service {
 							if (msg.method.compareTo("registerServices") == 0) 
 							{
 								comm.addClient(socket, dgram.getAddress(), dgram.getPort());
-								//registerServices(dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 								invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
-								// FIXME - no retObject on invoke - how to generate the event ???
-								// getting clients address and port
-								//getOutbox().add(msg);
-								//msg.getName()=myService.getName();
-								//getInbox().add(msg);
-								
 								continue;
 							}
 
+							// client API
+							if (mrlMsgReciever != null)
+							{
+								mrlMsgReciever.receive(msg);
+								continue;
+							}
 							
 							if (msg.getName().equals(getName()))
 							{
@@ -300,20 +296,12 @@ public class RemoteAdapter extends Service {
 					dgram.setLength(b.length); // must reset length field!
 					b_in.reset(); // reset so next read is from start of byte[]
 									// again
-				}
+				} // while isRunning
 
-			} catch (SocketException e) {
-				logException(e);
-				LOG.error("could not listen");
-				return;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				logException(e);
+			} catch (Exception e) {
+				LOG.error("UDPListener could not listen");
+				Service.logException(e);
 			}
-
-			/*
-			 * while (isRunning) { socket.receive(p); }
-			 */
 		}
 	}
 		
@@ -366,22 +354,6 @@ public class RemoteAdapter extends Service {
 
 	}
 
-	// FIXME - deprecate ???  Is it used? 
-	// TODO - should Service even have these ??? - should be an Interface !!
-	// @Override	
-	public void sendServiceDirectoryUpdate(String remoteHost, int remotePort,
-			String localHost, int localPort) {
-		LOG.info(getName() + " sendServiceDirectoryUpdate from " + localHost + ":"
-				+ localPort + " --> " + remoteHost + ":" + remotePort);
-		ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-		
-		Message msg = createMessage("", "registerServices", sdu);
-		msg.msgType = "S"; // Service / System / Process level message - a
-							// message which can be processed by any service
-							// regardless of name
-		out(msg);
-	}
-
 	public void disconnectAll() {
 		cm.getComm().disconnectAll();
 	}
@@ -390,31 +362,83 @@ public class RemoteAdapter extends Service {
 	public String getToolTip() {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
+	
+	static public String help() {
+		return "java -jar MRLClient.jar -host [localhost] -port [6767] -service [myService] -method [doIt] -data \"data1\" \"data2\" \"data3\"... \n"
+				+ "host: the name or ip of the instance of MyRobotLab which the message should be sent."
+				+ "port: the port number which the foreign MyRobotLab is listening to."
+				+ "service: the Service the message is to be sent."
+				+ "method: the method to be invoked on the Service"
+				+ "data: the method's parameters."
+				;
+		
+	}
+	
+	/******************* Client API Begin **********************************/
+	
+	
+	public void register (String host, int port, MRLMSGReciever client)
+	{
+		sendServiceDirectoryUpdate(null, null, null, host, port, null);
+	}
+	
+	public boolean sendUDPMSG (String host, int port, String serviceName, String method, Object ... data)
+	{
+		Message msg = new Message();
+		msg.sender = this.getName();
+		msg.method = method;
+		msg.name = serviceName;
+		msg.data = data;
+		
+		// send it
+		try {
+
+			DatagramSocket socket = new DatagramSocket();
+			ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(b_out);
+
+			oos.writeObject(msg);
+			oos.flush();
+			byte[] b = b_out.toByteArray();
+
+			DatagramPacket packet = new DatagramPacket(b, b.length,
+					InetAddress.getByName(host), port);
+
+			socket.send(packet);
+			oos.reset();
+
+		} catch (Exception e) {
+			LOG.error("threw [" + e.getMessage() + "]");
+			return false;
+		}
+
+		return true;
+		
+	}
+	
+	// use public void Service.send(String name, String method, Object... data)
+	/******************* Client API End ************************************/	
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		Logging log = new Logging("log");
-		log.startService();
-		
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
-		
-
+		CMDLine cmdline = new CMDLine();
+		cmdline.splitLine(args);
 				
-//		Runtime services = new Runtime("services");
-//		services.startService();
-/*		
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-*/
-//		Logging log = new Logging("log");
-//		log.startService();
-/*				
-		GUIService gui = new GUIService("gui3");
-		gui.startService();
-		gui.display();
-*/		
-	}	
+		String clientServiceName = cmdline.getSafeArgument("-name", 0, "client");
+		
+		// modes of operation
+		// command line - single command lind which sends a message 
+		// to mrl - this does not require the service to start
+		// just sends a quick message into a running mrl instance
+		// includes -file - to send a file as the message (possibly a serialized binary object)
+		
+		// simple send command 
+		
+		// full service
+				
+		RemoteAdapter client = new RemoteAdapter(clientServiceName);
+		client.startService();
+	}		
 }

@@ -217,7 +217,7 @@ public abstract class Service implements Runnable, Serializable {
 		cm = new CommunicationManager(this);
 
 		registerServices();// FIXME - deprecate - remove !
-		registerLocalService();
+		registerLocalService(url);
 
 	}
 	
@@ -1096,9 +1096,8 @@ public abstract class Service implements Runnable, Serializable {
 	 * parameters and invokes that method at its destination.
 	 */
 
-	// BOXING - BEGIN --------------------------------------
 	
-	// this send forces remote connect - for registering services 
+	// this send forces remote connect - for registering services	
 	public void send(URL url, String method, Object param1)
 	{
 		Object[] params = new Object[1];
@@ -1107,52 +1106,17 @@ public abstract class Service implements Runnable, Serializable {
 		outbox.getCommunicationManager().send(url, msg);
 	}
 	
-	// TODO - remove create variable arg list
-	public void send(String name, String method, Object param1, Object param2,
-			Object param3, Object param4) {
-		Object[] params = new Object[4];
-		params[0] = param1;
-		params[1] = param2;
-		params[2] = param3;
-		params[3] = param4;
-		Message msg = createMessage(name, method, params);
-		msg.sender = this.getName();
-		outbox.add(msg);
-	}
-	
-	public void send(String name, String method, Object param1, Object param2,
-			Object param3) {
-		Object[] params = new Object[3];
-		params[0] = param1;
-		params[1] = param2;
-		params[2] = param3;
-		Message msg = createMessage(name, method, params);
-		msg.sender = this.getName();
-		outbox.add(msg);
-	}
+	// BOXING - BEGIN --------------------------------------
 
+	// 0?
 	public void send(String name, String method) {
 		Message msg = createMessage(name, method, null);
 		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
-	public void send(String name, String method, Object param1) {
-		Message msg = createMessage(name, method, param1);
-		msg.sender = this.getName();
-		outbox.add(msg);
-	}
-
-	public void send(String name, String method, Object param1, Object param2) {
-		Object[] params = new Object[2];
-		params[0] = param1;
-		params[1] = param2;
-		Message msg = createMessage(name, method, params);
-		msg.sender = this.getName();
-		outbox.add(msg);
-	}
-
-	public void send(String name, String method, Object[] data) {
+	// boxing - the right way - thank you Java 5
+	public void send(String name, String method, Object... data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
 		outbox.add(msg);
@@ -1408,6 +1372,7 @@ public abstract class Service implements Runnable, Serializable {
 	}
 	
 	/**
+	 * Inbound
 	 * registerServices is the method initially called to contact a remote 
 	 * process.  Often is will be a GUI sending this request over the wire
 	 * to be received in another process by a RemoteAdapter. 
@@ -1463,8 +1428,8 @@ public abstract class Service implements Runnable, Serializable {
 	 * FIXME - registerLocalService() - calls RuntimeEnvironment(null, this)
 	 * @param host always null for local service
 	 */
-	public synchronized void registerLocalService() {
-		Runtime.register(this); // problem with this in it does not broadcast
+	public synchronized void registerLocalService(URL url) {
+		Runtime.register(this, url); // problem with this in it does not broadcast
 	}
 	
 	// TODO - DEPRICATE !!!!
@@ -1535,6 +1500,11 @@ public abstract class Service implements Runnable, Serializable {
 	}
 
 
+	/**
+	 * Outbound
+	 * sendServiceDirectoryUpdate - initial request to connect and register services with a 
+	 * remote system
+	 */
 	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
 			int port, ServiceDirectoryUpdate sdu) {
 		LOG.info(name + " sendServiceDirectoryUpdate ");
