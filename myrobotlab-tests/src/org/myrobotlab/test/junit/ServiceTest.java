@@ -417,60 +417,6 @@ public class ServiceTest {
 		catcher01.waitForCatches(1, 100);
 		assertEquals(catcher01.catchList.size(), 2);
 		
-				
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
-
-		// prepare data
-		Integer param1 = new Integer(1);
-		int cnt = 100;
-
-		// send messages
-		stopwatch.start();
-		for (int i = 0; i < cnt; ++i) {
-			thrower01.invoke("throwInteger", param1);
-		}
-		catcher01.waitForCatches(cnt, 100);
-		stopwatch.end();
-
-		// test results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		assertEquals(catcher01.catchList.size(), cnt);
-		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
-		assertEquals(catcher01.catchList.get(0), new Integer(1));
-
-		// set new notifies - different functions
-		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
-		thrower01.notify("highPitchInteger", "catcher01", "catchInteger", Integer.class);
-		thrower01.notify("noPitchInteger", "catcher01", "catchInteger",
-				Integer.class);
-
-		// send messages
-		stopwatch.start();
-		thrower01.invoke("highPitchInteger", param1);
-		thrower01.invoke("noPitchInteger", param1);
-		thrower01.invoke("lowPitchInteger", param1);
-		LOG.info(catcher01.lowCatchList.size());
-		catcher01.waitForLowCatches(1, 100);
-		catcher01.waitForCatches(2, 100);
-		stopwatch.end();
-
-		// check results
-		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.lowCatchList.size());
-		assertEquals(catcher01.lowCatchList.size(), 1);
-
-		// send messages
-		stopwatch.start();
-		thrower01.invoke("noPitchInteger", param1);
-		catcher01.waitForCatches(5, 100);
-		stopwatch.end();
-
-		// check results
-		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.catchList.size());
-		// assertEquals(catcher01.catchList.size(), 5);
-		
 		Runtime.releaseAll();
 
 		LOG.debug("clientAPI end-------------");
