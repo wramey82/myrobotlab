@@ -26,22 +26,24 @@
 package org.myrobotlab.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
+import java.net.URL;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.MRLMSGReciever;
 
@@ -73,7 +75,9 @@ public class RemoteAdapter extends Service {
 	InetAddress serverAddress = null;
 	
 	// FIXME - all port & ip data needs to be only in the threads
-	public int servicePort = 6767;
+	public int TCPPort = 6767;
+	public int UDPPort = 6767;
+	public int UDPStringPort = 6668;
 	public String serverIP = "0.0.0.0";
 	
 	public RemoteAdapter(String n) {
@@ -124,10 +128,10 @@ public class RemoteAdapter extends Service {
 		}
 				
 		public void run() {
-			if (servicePort > 0) {
+			if (TCPPort > 0) {
 				try {
 
-					serverSocket = new ServerSocket(servicePort, 0, serverAddress);
+					serverSocket = new ServerSocket(TCPPort, 0, serverAddress);
 					
 					LOG.info(getName() + " TCPListener listening on "
 							+ serverSocket.getLocalSocketAddress());
@@ -158,8 +162,8 @@ public class RemoteAdapter extends Service {
 					serverSocket.close();
 				} catch (IOException e) {
 					LOG.error("Could not listen on requested ["
-							+ servicePort + "]");
-					servicePort = 0;
+							+ TCPPort + "]");
+					TCPPort = 0;
 				}
 			} else {
 				LOG.error("servicePort is <= 0 - terminating");
@@ -194,7 +198,7 @@ public class RemoteAdapter extends Service {
 
 
 			try {
-				socket = new DatagramSocket(6668);
+				socket = new DatagramSocket(UDPStringPort);
 				
 				LOG.info(getName() + " UDPStringListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
@@ -242,7 +246,7 @@ public class RemoteAdapter extends Service {
 		public void run() {
 
 			try {
-				socket = new DatagramSocket(servicePort);
+				socket = new DatagramSocket(UDPPort);
 
 				LOG.info(getName() + " UDPListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
@@ -307,16 +311,21 @@ public class RemoteAdapter extends Service {
 		
 	@Override
 	public void startService() {
-		// TODO - block until isReady on the ServerSocket
+		// FIXME - block until isReady on the ServerSocket
 		if (!isRunning())
 		{
 			super.startService();
+			/* FIXME No longer support auto-listening with TCP or UDPStrings
+			 * this needs to refined such that you can explicitly set the listening type/protocol
+			 * additionally there should be a explicit setting to do outbound communication
+			 * or set outbound type/protocol based on a datatype mapping
 			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
 			tcpListener.start();
-			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
-			udpListener.start();
 			udpStringListener = new UDPStringListener(getName() + "_udpStringListener", this);
 			udpStringListener.start();
+			*/
+			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
+			udpListener.start();
 		} else {
 			LOG.warn("RemoteAdapter " + getName() + " is already started");
 		}
@@ -376,12 +385,102 @@ public class RemoteAdapter extends Service {
 	
 	/******************* Client API Begin **********************************/
 	
-	
-	public void register (String host, int port, MRLMSGReciever client)
+	/**
+	 * Registers message routing to flow from a remote MRL instance to a
+	 * MRLMSGReciever
+	 * 
+	 * @param host - remote MRL's host name or ip
+	 * @param port - remote MRL's listening port
+	 * @param client - the message receiver which will be getting messages
+	 */
+	public void registerForMsgs(String host, int port, MRLMSGReciever client)
 	{
+		mrlMsgReciever = client;
+		
+		// FIXME FIXME FIXME - 
+		// when the SDU is de-serialize it will explode for all the unknown Service types
+		// work-around would be a new serviceDirectoryUpdate which has no type info ???
+		// registering with remote instance of MRL
 		sendServiceDirectoryUpdate(null, null, null, host, port, null);
+		
+		// FIXME - very cheesy vs. blocking
 	}
 	
+	/**
+	 * Subscribes to a remote MRL service method.  When the method is called on the remote system an event
+	 * message with return data is sent.  It is necessary to registerForServices before subscribing.
+	 * 
+	 * @param outMethod - the name of the remote method to hook/subscribe to
+	 * @param serviceName - service name of the remote service
+	 * @param inMethod - inMethod can be used as an identifier
+	 * @param paramTypes
+	 */
+	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?> ... paramTypes) {
+		NotifyEntry ne = new NotifyEntry(outMethod, this.getName(), inMethod, paramTypes);
+		send(serviceName, "notify", ne);
+	}
+	
+	/**
+	 * Registers remote service to a host and port. Used in client API to register
+	 * a remote MRL instance's service.  After this is done messages can be sent
+	 * to the service using basic "Service.send" command. This method is typically
+	 * only used if messages are ONLY to be sent to MRL and not received.  If they
+	 * are to be sent AND received the preferred registration is registerForMSGs, 
+	 * which allows messages to be sent and received.
+	 * 
+	 * @param host - remote MRL's host name or ip
+	 * @param port - remote MRL's listening port
+	 * @param serviceName - name of remote service
+	 * @return
+	 */
+	public boolean register(String host, int port, String serviceName)
+	{
+		try {
+			url = new URL("http://" + host + ":" + port);
+		} catch (MalformedURLException e) {
+			Service.logException(e);
+			return false;
+		}
+
+		// FIXME - "more info" should win update - logic in Runtime which allows
+		// more info regarding a Service to update the registry.  Services which
+		// share the same domain could be hammered by this registration
+		// since we only have a url & port name - if they are in the same process
+		// you could nullify the service pointer in the ServiceWrapper
+		ServiceWrapper sw = Runtime.getService(serviceName);
+		if (sw != null)
+		{
+			LOG.warn("request to register " + serviceName + " which is already registered");
+		} else {
+			// FIXME - asking for a legitimate registry from running system
+			// this will be more complex in that it requires a call-back
+			// additionally - it seems overkill for just sending messages
+			sendServiceDirectoryUpdate(null, null, null, host, port, null);
+		}
+		
+		return true;
+		
+	}
+	
+	/*
+	public boolean send(String host, int port, String serviceName, String method, Object ... data)
+	{
+		URL url;
+		try {
+			url = new URL("http://" + host + ":" + port);
+		} catch (MalformedURLException e) {
+			Service.logException(e);
+			return false;
+		}
+		ServiceEnvironment se = new ServiceEnvironment(url);
+		ServiceWrapper sw = new ServiceWrapper(serviceName, null, se);
+		Runtime.register(url, se);
+		send(serviceName, method, data);
+		return true;
+	}
+	*/
+	
+	/*
 	public boolean sendUDPMSG (String host, int port, String serviceName, String method, Object ... data)
 	{
 		Message msg = new Message();
@@ -415,15 +514,25 @@ public class RemoteAdapter extends Service {
 		return true;
 		
 	}
-	
+	*/
 	// use public void Service.send(String name, String method, Object... data)
 	/******************* Client API End ************************************/	
 	
 	public void setUDPPort (int port)
-	{
-		
+	{		
+		UDPPort = port;
 	}
 
+	public void setTCPPort (int port)
+	{
+		TCPPort = port;
+	}
+
+	public void setUDPStringPort (int port)
+	{
+		UDPStringPort = port;
+	}
+	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);

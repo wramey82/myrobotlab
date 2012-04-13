@@ -36,15 +36,21 @@ public class ServiceDirectoryUpdate implements Serializable {
 	public final static Logger LOG = Logger.getLogger(ServiceDirectoryUpdate.class);
 
 	public int ID;
-	/*
-	public String login;
-	public String password;
-	public String hostname; // globally unique name of an instance of some
-	*/
-	public URL url;
+	public URL url; 
+	/**
+	 * URL built by process which accepted the communication endpoint. The
+	 * receiving communication adapter provides the information to build this
+	 * URL
+	 */
 	public URL remoteURL;
-	public String type; // TODO enums - INIT | RECONNECT
+	/**
+	 * unused
+	 */
+	public String type;
 	public int servicePort;
+	/**
+	 * The list of services to be registered on the targe MRL instance.
+	 */
 	public ServiceEnvironment serviceEnvironment;
 	public ArrayList<Property> propertyList; // operator name the sdu came from
 

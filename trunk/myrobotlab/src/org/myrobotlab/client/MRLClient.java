@@ -1,205 +1,315 @@
 package org.myrobotlab.client;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.service.RemoteAdapter;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.framework.ServiceDirectoryUpdate;
+import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.framework.ServiceWrapper;
 
-public class MRLClient implements Runnable {
+/**
+ * MRLClient
+ * class used to interface with a remote running instance or MyRobotLab.  The instance of MRL
+ * must be running a RemoteAdapter service.  This class can send and recieve messages
+ * from the MRL instance using only a few methods.  
+ * The following code is an example of creating a client, registering a MRL instance,
+ * sending a subscribe message to a TestCatcher service named "catcher01".
+ * Whenever catcher01's catchInteger method is invoked a message will be sent back
+ * to the MRL client.  And finally a "send" which sends a message to trigger the callback
+ * event.
+ * 
+ * 		MRLClient api = new MRLClient();
+ * 		Receiver client = new Receiver();
+ *
+ *		api.register("localhost", 6767, client);
+ *		api.subscribe("catchInteger", "catcher01", "myMsg", Integer.TYPE);
+ *		api.send("catcher01", "catchInteger", 5);
+ *
+ */
+public class MRLClient implements Receiver {
 
 	public final static Logger LOG = Logger.getLogger(MRLClient.class.getCanonicalName());
+	DatagramSocket socket = null;
+	UDPListener listener = null;
 
-	private String host 			= "localhost";
-	private int port 				= 6767;
-	private String serviceName 		= "myService";
-	private String method			= "doIt";
-	private Object[] data 			= null;
+	// global
+	String host = null;
+	int port = -1;
 	
-	// TODO - specify protocol and transport TCP UDP SOAP XML Native etc
-	
+	// inbound
+	byte[] inBuffer = new byte[65535]; // datagram max size
+	ByteArrayInputStream inByteStream = null;
+	DatagramPacket inDataGram = null;
+	Receiver client = null;
+
+	// out bound
+	ByteArrayOutputStream outByteStream = null;
+	ObjectOutputStream outObjectStream = null;
+
 	/**
+	 * method which registers with a running MRL instance.  It does this by sending a service
+	 * directory update to the MRL's RemoteAdapter.  From MRL's perspective it will appear
+	 * as if this is another MRL instance with a single service.  The bogus service name
+	 * is controlled by overriding Receiver.getMyName()
 	 * 
-	 * The method to send a message from an application to a running instance of MyRobotLab.
-	 * TODO - examples
+	 * Once a MRLClient registers is may send messages and subscribe to events.
 	 * 
-	 * @param host - hostname or ip of computer which is running a MyRobotLab instance
-	 * @param port - port which the MyRobotLab instance is listening too
-	 * @param serviceName - destination service name
-	 * @param method - method to invoke
-	 * @param params - parameters
+	 * @param host - target host or ip of the running MRL instance's RemoteAdapter
+	 * @param port - target port of the RemoteAdapter
+	 * @param client - call back interface to recieve messages
 	 * @return
 	 */
-	final public boolean sendMessage(final String host, final int port,
-			final String serviceName, final String method, final Object... data) 
-	{
-		// caching data
-		this.host = host;
-		this.port = port;
-		this.serviceName = serviceName;
-		this.method = method;
-		this.data = data;
+	final public boolean register(String host, int port, Receiver client) {
 		
-		return sendMessage();		
+		if (host == null || port < -1)
+		{
+			LOG.error("host and port need to be set for registering");
+			return false;
+		}
+		
+		// check if client is correct
+		if (client.getMyName() == null) {
+			LOG.error("client must return a non null String in \"getMyName\"");
+			return false;
+		}
+
+		this.host = host;
+		this.port = port;		
+		this.client = client;
+		socket = getSocket();
+		
+		try {
+			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
+			sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
+			// pushing bogus Service with name into SDU
+			ServiceWrapper sw = new ServiceWrapper(client.getMyName(), null,
+					sdu.serviceEnvironment);
+			sdu.serviceEnvironment.serviceDirectory.put(client.getMyName(), sw);
+
+			send(null, "registerServices", sdu);
+
+			// start listening on the new socket
+			listener = new UDPListener("udp_" + host + "_" + port);
+			listener.start(); 
+					
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+			return false;
+		}
+
+		return true;
 	}
 
-	public boolean sendMessage(String serviceName, String method,
-			Object... params) {
-		return sendMessage(host, port, serviceName, method, params);
-	}
-
-	public boolean sendMessage(String method, Object... params) 
-	{
-		return sendMessage(host, port, serviceName, method, params);
-	}		
-	
 	/**
+	 * method to send a messages to a running MRL instances. @see register(String, int, Receiver) must
+	 * be called before "send" can be used.
+	 * 
+	 * @param name - name of the service to receive the message (message destination)
+	 * @param method - method to invoke
+	 * @param data - parameter data for the method
 	 * @return
 	 */
-	final public boolean sendMessage()
-	{
-		// create message - status or control
+	final synchronized public boolean send(String name, String method, Object... data) {
+		
 		Message msg = new Message();
-		msg.name = serviceName;
+		msg.name = name;
 		msg.method = method;
-		msg.sender = "MRLClient"; // TODO variable
-		msg.sendingMethod = "sendMessage"; // TODO variable
+		msg.sender = getMyName(); 
+		msg.sendingMethod = "send";
 		msg.data = data;
 
 		// send it
 		try {
+			// ObjectStreams must be recreated
+			outByteStream.reset();
+			outObjectStream = new ObjectOutputStream(outByteStream); 
+			outObjectStream.writeObject(msg);
+			outObjectStream.flush();
+			byte[] b = outByteStream.toByteArray();
 
-			DatagramSocket socket = new DatagramSocket();
-			ByteArrayOutputStream b_out = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(b_out);
+			DatagramPacket packet = new DatagramPacket(b, b.length, InetAddress.getByName(host), port);
 
-			oos.writeObject(msg);
-			oos.flush();
-			byte[] b = b_out.toByteArray();
-
-			DatagramPacket packet = new DatagramPacket(b, b.length,
-					InetAddress.getByName(host), port);
-
+			if (socket == null)
+			{
+				LOG.error("socket is null... can not send messages");
+				return false;
+			}
 			socket.send(packet);
-			oos.reset();
 
 		} catch (Exception e) {
 			LOG.error("threw [" + e.getMessage() + "]");
 			return false;
 		}
-
 		return true;
-		
-	}	
+	}
 	
-	// TODO remove notify request - change to addListener / removeListener
-	// TODO - change name to addListenerRequest
-	// TODO - removeListenerRequest
-	public boolean sendNotifyRequest(String host, int port,
-			String serviceName, String outMethod, String name, String inMethod,
-			Class<?>[] paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, name, inMethod, paramTypes);
-		return sendMessage(host, port, serviceName, "notify",
-				new Object[] { ne });
+	/**
+	 * method to initialize the necessary data components for UDP communication
+	 */
+	private DatagramSocket getSocket()
+	{		
+		try {
+			socket = new DatagramSocket();
+			// inbound
+			inByteStream = new ByteArrayInputStream(inBuffer);
+			inDataGram = new DatagramPacket(inBuffer, inBuffer.length);
+	
+			// outbound
+			outByteStream = new ByteArrayOutputStream();
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
+
+		return socket;
 	}
 
-	public boolean sendNotifyRequest(String serviceName,
-			String outMethod, String name, String inMethod,
-			Class<?>[] paramTypes) {
-		return sendNotifyRequest("localhost", 6767, serviceName, outMethod,
-				name, inMethod, paramTypes);
+	class UDPListener extends Thread {
+		
+		boolean isRunning = false;
+
+		public UDPListener(String n) {
+			super(n);
+		}
+
+		public void shutdown() {
+			if ((socket != null) && (!socket.isClosed())) {
+				socket.close();
+				socket = null;
+			}
+			
+			isRunning = false;
+			listener.interrupt();
+			listener = null;
+		}
+
+		public void run() {
+
+			try {
+				LOG.info(getName() + " UDPListener listening on "
+						+ socket.getLocalAddress() + ":"
+						+ socket.getLocalPort());
+
+				isRunning = true;
+
+				while (isRunning) {
+					socket.receive(inDataGram); // blocks
+					ObjectInputStream o_in = new ObjectInputStream(inByteStream);
+					try {
+						Message msg = (Message) o_in.readObject();
+						// must reset length field!
+						inDataGram.setLength(inBuffer.length); 
+						// reset so next read is from start of byte[] again
+						inByteStream.reset(); 
+
+						if (msg == null) {
+							LOG.error("UDP null message");
+						} else {
+
+							// client API
+							if (client != null) {
+								client.receive(msg);
+							}
+						}
+
+					} catch (ClassNotFoundException e) {
+						LOG.error("ClassNotFoundException - possible unknown class send from MRL instance");
+						LOG.error(e.getMessage());
+					}
+					inDataGram.setLength(inBuffer.length); // must reset length
+															// field!
+					inByteStream.reset(); // reset so next read is from start of
+											// byte[]
+					// again
+				} // while isRunning
+
+			} catch (Exception e) {
+				LOG.error("UDPListener could not listen");
+			}
+		}
 	}
 
-	private volatile Thread flag;
-
-	public void stop() {
-		flag = null;
+	/**
+	 * Subscribes to a remote MRL service method. When the method is called on
+	 * the remote system an event message with return data is sent. It is
+	 * necessary to registerForServices before subscribing.
+	 * 
+	 * @param outMethod - the name of the remote method to hook/subscribe to
+	 * @param serviceName - service name of the remote service
+	 * @param inMethod - inMethod can be used as an identifier
+	 * @param paramTypes
+	 */
+	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
+		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+				paramTypes);
+		send(serviceName, "notify", ne);
 	}
 
-	public void run() {
-		Thread thisThread = Thread.currentThread();
-		flag = thisThread;
+	public void unsubscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
+		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+				paramTypes);
+		send(serviceName, "remoteNotify", ne);
+	}
+	
+	@Override
+	public void receive(Message msg) {
+		LOG.info("received " + msg);
+	}
+
+	@Override
+	public String getMyName() {
+		return "mrlClient";
+	}
+
+	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		// service creation
-		RemoteAdapter remote = new RemoteAdapter("remote");
-		remote.startService();
+		CMDLine cmdline = new CMDLine();
+		cmdline.splitLine(args);
 
-		Random dummyData = new Random();
-		PinData pinData = new PinData();
-
-
-		// set up a message route from sensors to the GUI
-		// this has nothing to do with the functionality of the SensorMonitor
-		// its just setting up graphics display - this could
-		// be done on the MRL side.. but I just decided to do it here
+		MRLClient client = new MRLClient();
 		
-		/*
-		MRLClient.sendNotifyRequest("sensors", "publishSensorData", "gui",
-				"inputSensorData", new Class<?>[] { PinData.class });
-		*/
-		pinData.pin = 2;
-		pinData.source = "mySource";
-		pinData.method = 17;
-	    pinData.value = 500;
-       //pinData.value = (int) PhysicsCar_use_For_Testing.compVal;
+		client.host = cmdline.getSafeArgument("-host", 0, "localhost");
+		client.port = Integer.parseInt(cmdline.getSafeArgument("-host", 0, "6767"));
+		String service = cmdline.getSafeArgument("-service", 0, "myService");
+		String method = cmdline.getSafeArgument("-method", 0, "doIt");
+		int paramCount = cmdline.getArgumentCount("-data");
 		
-	   // the sensor monitor will need a setup call - to add trace data
-	    /*
-		MRLClient.sendMessage("sensors", "addTraceData",
-				new Object[] { pinData });
-				*/
-
-		// now just send the data !
-		//for (int i = 0; i < 1000; ++i) {
-		while (flag == thisThread) {
-	
-		//pinData.value += (2 - dummyData.nextInt(4));
-			//pinData.value = map((int) MRL_PhysicsCar_Threads.compVal, -180, 180, 50, 550);
-			/*
-			MRLClient.sendMessage("sensors", "sensorInput",
-					new Object[] { pinData });
-					*/
-			System.out.println("++++++++++++++++++ RIGHT HERE +++++++++++++++++++");
-			//System.out.println( PhysicsCar_use_For_Testing.compVal);
-			System.out.println( pinData.value);
+		Object[] data = new Object[paramCount];
+		
+		for (int i = 0; i < paramCount; ++i)
+		{
 			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				 e.printStackTrace();
+				Integer d = Integer.parseInt(cmdline.getSafeArgument("-data", i, ""));
+				data[i] = d;
+			} catch (Exception e) {
+				data[i] = cmdline.getSafeArgument("-data", i, "");
 			}
-		}//end while flag		
-		remote.releaseService();
-	}//end run			
-	
+		}
+		
+		client.register(client.host, client.port, client);
+		client.send(service, method, data);
+	}
+
 	static public String help() {
 		return "java -jar MRLClient.jar -host [localhost] -port [6767] -service [myService] -method [doIt] -data \"data1\" \"data2\" \"data3\"... \n"
 				+ "host: the name or ip of the instance of MyRobotLab which the message should be sent."
 				+ "port: the port number which the foreign MyRobotLab is listening to."
 				+ "service: the Service the message is to be sent."
 				+ "method: the method to be invoked on the Service"
-				+ "data: the method's parameters."
-				;
-		
-	}
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
-		
-		CMDLine cmdline = new CMDLine();
-		cmdline.splitLine(args);
-		
+				+ "data: the method's parameters.";
+
 	}
 	
-}//end class
+}

@@ -252,9 +252,15 @@ public class RuntimeGUI extends ServiceGUI {
 	
 	public ServiceWrapper registered (ServiceWrapper sw)
 	{
-		// FIXME - this will break when an unknown type comes
+		String typeName;
+		if (sw.service == null)
+		{
+			typeName = "unknown";
+		} else {
+			typeName = sw.service.getShortTypeName();
+		}
 		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, 
-				sw.service.getShortTypeName(),
+				typeName,
 				(sw.host != null && sw.host.accessURL != null));
 		currentServicesModel.addElement(newServiceEntry);
 		nameToServiceEntry.put(sw.name, newServiceEntry);

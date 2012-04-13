@@ -29,6 +29,6 @@ public class ServiceEnvironment implements Serializable {
 	{
 		this.accessURL = url;
 		serviceDirectory = new HashMap<String, ServiceWrapper>();
-		platform = Runtime.getPlatform();
+		platform = Platform.getPlatform();
 	}
 }

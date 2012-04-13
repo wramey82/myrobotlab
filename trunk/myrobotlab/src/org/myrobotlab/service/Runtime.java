@@ -2,7 +2,6 @@ package org.myrobotlab.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -73,16 +72,6 @@ public class Runtime extends Service {
 	
 	public static final String registered = "registered"; 
 	
-	// VM Names
-	public final static String DALVIK 	= "dalvik"; 
-	public final static String HOTSPOT 	= "hotspot"; 
-
-	// OS Names
-	public final static String LINUX 	= "linux"; 
-	public final static String MAC 		= "mac"; 
-	public final static String WINDOWS	= "windows"; 
-		
-	public final static String UNKNOWN	= "unknown"; 	
 	// ---- rte members end ------------------------------
 	
 	// ---- Runtime members begin -----------------
@@ -196,59 +185,7 @@ public class Runtime extends Service {
 	
 	//---------- Java Runtime wrapper functions end   --------
 	
-	//-------------pass through begin -------------------
-	public static Platform getPlatform()
-	{
-		return new Platform(getOS(), getArch(), getBitness(), getVMName());
-	}
-	
-	public static String getOS()
-	{
-		String os = System.getProperty("os.name").toLowerCase();
-		if ((os.indexOf( LINUX ) >= 0))
-		{
-			return LINUX;
-		} else if ((os.indexOf( MAC ) >= 0)) {
-			return MAC;			
-		} else if ((os.indexOf( "win" ) >= 0))
-		{
-			return WINDOWS;			
-		} else {
-			return UNKNOWN;
-		}		
-	}
-	
-	public static String getVMName()
-	{
-		String vmname = System.getProperty("java.vm.name").toLowerCase();
-		
-		if (vmname.equals(DALVIK))
-		{
-			return vmname;
-		} else {
-			return HOTSPOT;
-		}
-	}
-	
-	public static int getBitness()
-	{
-		return 32;
-	}
-	
-	/**
-	 * Returns only the bitness of the JRE
-	 * hooked here in-case we need to normalize
-	 * @return hardware architecture
-	 */
-	public static String getArch()
-	{
-		String arch = System.getProperty("os.arch").toLowerCase(); 
-		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch)){
-			arch = "x86"; // don't care at the moment
-		}
-		return arch;
-	}	
-	
+
 	
 	/**
 	 * ONLY CALLED BY registerServices2 ... would be a bug if called from 
@@ -724,11 +661,8 @@ public class Runtime extends Service {
 			
 			out.writeObject(registry);
 			out.writeObject(hideMethods);
-		} catch (FileNotFoundException e) {
-			LOG.error(Service.stackToString(e));
-			return false;
-		} catch (IOException e) {
-			LOG.error(Service.stackToString(e));
+		} catch (Exception e) {
+			Service.logException(e);
 			return false;
 		}
 		
@@ -749,8 +683,8 @@ public class Runtime extends Service {
 		       hideMethods = (HashMap<String, String>)in.readObject();
 		       in.close();
 
-	        } catch (Exception ex) {
-				LOG.error(Service.stackToString(ex));
+	        } catch (Exception e) {
+				Service.logException(e);
 				return false;
 			}
 	        
@@ -866,16 +800,6 @@ public class Runtime extends Service {
 		return local;
 	}
 	*/
-	public static boolean isMac() {
-		return getOS().equals(MAC);
-	}
-	public static boolean isLinux() {
-		return getOS().equals(LINUX);
-	}
-
-	public static boolean isWindows() {
-		return getOS().equals(WINDOWS);
-	}
 	
 	public static void requestRestart()
 	{
@@ -1100,7 +1024,7 @@ public class Runtime extends Service {
 				invokeCMDLine(cmdline);
 			}
 		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
+			Service.logException(e);
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e1) {
@@ -1227,9 +1151,9 @@ public class Runtime extends Service {
 					cmd.add(dep.version); 	// version
 					
 					cmd.add("-confs");
-					String confs = "runtime,"+Runtime.getArch()+"."+
-							Runtime.getBitness()+"." + 
-							Runtime.getOS();
+					String confs = "runtime,"+Platform.getArch()+"."+
+							Platform.getBitness()+"." + 
+							Platform.getOS();
 					cmd.add(confs);
 					
 					// show cmd params
@@ -1372,5 +1296,58 @@ public class Runtime extends Service {
 
 	
 	// ---------------- Runtime end   --------------
+	
+	public String dump()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("\nhosts:\n");
+		
+		Iterator<URL> hkeys = hosts.keySet().iterator();
+		while (hkeys.hasNext()) {
+			URL url = hkeys.next();
+			ServiceEnvironment se = hosts.get(url);
+			sb.append("\t");
+			sb.append(url);
+			if ((se.accessURL != url) && (!url.equals(se.accessURL))) {
+				sb.append(" key not equal to data ");
+				sb.append(se.accessURL);
+			}
+			sb.append("\n");
+			
+			// Service Environment
+			Iterator<String> it2 = se.serviceDirectory.keySet().iterator();
+			while (it2.hasNext())
+			{
+				String serviceName = it2.next();
+				ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+				sb.append("\t\t");
+				sb.append(serviceName);
+				if ((sw.name != sw.name) && (!serviceName.equals(sw.name))) {
+					sb.append(" key not equal to data ");
+					sb.append(sw.name);
+				}
+			
+				if ((sw.host.accessURL != url)&&(!sw.host.accessURL.equals(url)))
+				{
+					sb.append(" service wrapper host accessURL " + sw.host.accessURL + " not equal to " + url );
+				}
+				sb.append("\n");
+			}
+		}				
+		
+		sb.append("\nregistry:");
+		
+		Iterator<String> rkeys = registry.keySet().iterator();
+		while (rkeys.hasNext()) {
+			String serviceName = rkeys.next();
+			ServiceWrapper sw = registry.get(serviceName);
+			sb.append("\n");
+			sb.append(serviceName);
+			sb.append(" ");
+			sb.append(sw.host.accessURL);					
+		}
+		
+		return sb.toString();
+	}
 	
 }

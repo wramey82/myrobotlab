@@ -227,9 +227,9 @@ public abstract class Service implements Runnable, Serializable {
 		System.setProperty("java.library.path", System.getProperty("java.library.path") + 
 				File.pathSeparator + 
 				"libraries" +File.separator + "native" +File.separator +
-				Runtime.getArch() + "." +
-				Runtime.getBitness() + "." +
-				Runtime.getOS()
+				Platform.getArch() + "." +
+				Platform.getBitness() + "." +
+				Platform.getOS()
 				);
 		
 		String libararyPath = System.getProperty("java.library.path");
@@ -239,10 +239,10 @@ public abstract class Service implements Runnable, Serializable {
 
 		// http://developer.android.com/reference/java/lang/System.html
 		LOG.info("---------------normalize-------------------");
-		LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Runtime.getOS() + "]");
-		LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Runtime.getArch() + "]");
-		LOG.info("getBitness [" + Runtime.getBitness() + "]");
-		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Runtime.getVMName() + "]");
+		LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Platform.getOS() + "]");
+		LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Platform.getArch() + "]");
+		LOG.info("getBitness [" + Platform.getBitness() + "]");
+		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Platform.getVMName() + "]");
 					
 		LOG.info("---------------non-normalize---------------");						
 		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
@@ -785,6 +785,8 @@ public abstract class Service implements Runnable, Serializable {
 		notify(ne);
 	}
 
+	// FIXME - wrong way to do boxing use ...
+	
 	public void notify(String name, String outAndInMethod) {
 		notify(outAndInMethod, name, outAndInMethod, (Class<?>[])null);
 	}
@@ -1175,7 +1177,7 @@ public abstract class Service implements Runnable, Serializable {
 		formatter.setCalendar(cal);
 
 		msg.sender = this.getName();
-		if (msg.msgID.length() == 0) {
+		if (msg.msgID == null) {
 			msg.msgID = formatter.format(d);
 		}
 		msg.timeStamp = formatter.format(d);
@@ -1184,7 +1186,6 @@ public abstract class Service implements Runnable, Serializable {
 		}
 		msg.data = data;
 		msg.method = method;
-		msg.encoding = "NONE";// TODO - should be Option value
 
 		if (msg.getName().length() == 0) {
 			LOG.debug("create message " + host + "/*/" + msg.method + "#"
