@@ -27,6 +27,7 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
@@ -156,5 +157,19 @@ public class TestCatcher extends Service {
 	public String getToolTip() {
 		return "<html>service for junit tests</html>";
 	}
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		TestCatcher catcher01 = new TestCatcher("catcher01");
+		RemoteAdapter remote01 = new RemoteAdapter("remote01");
+		GUIService gui = new GUIService("gui");
 		
+		catcher01.startService();
+		remote01.startService();
+		gui.startService();
+		
+		gui.display();
+	}	
 }

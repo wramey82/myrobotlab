@@ -57,7 +57,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 	private static final long serialVersionUID = 1L;
 
-	/*
+	/**
 	 * A Service needs a CommunicatorManager to communicate to another service.
 	 * The manager can handle local (intra-process) communication - by using a
 	 * Service reference. Remote (inter-process) communication requires a
@@ -136,9 +136,6 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 				ByteArrayOutputStream b_out = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(b_out);
-				//ServiceWrapper sw = ((ServiceDirectoryUpdate)msg.data[0]).serviceEnvironment.serviceDirectory.get("clock");
-				//LOG.info(((ServiceDirectoryUpdate)msg.data[0]).serviceEnvironment.serviceDirectory.get("clock"));
-				//Clock c = (Clock)sw.service;
 				oos.writeObject(msg);
 				oos.flush();
 				byte[] b = b_out.toByteArray();
@@ -150,8 +147,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 							+ b.length + " !");
 				}
 
-				DatagramPacket packet = new DatagramPacket(b, b.length,
-						address, port);
+				DatagramPacket packet = new DatagramPacket(b, b.length, address, port);
 				socket.send(packet);
 
 				oos.reset();
@@ -207,16 +203,10 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 						myService.getInbox().add(msg);
 						
-					} catch (StreamCorruptedException e) {
+					} catch (Exception e) {
 						msg = null;
 						Service.logException(e);
-					} catch (ClassCastException e) {
-						msg = null;
-						Service.logException(e);
-					} catch (IOException e) {
-						msg = null;
-						Service.logException(e);
-					}
+					} 
 
 				}
 
@@ -224,15 +214,12 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				ois.close();
 				oos.close();
 
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LOG.error("UDPThread threw");
 				isRunning = false;
 				socket = null;
 				Service.logException(e);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				Service.logException(e);
-			}
+			} 
 		}// run
 
 		public DatagramSocket getSocket() {
