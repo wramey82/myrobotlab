@@ -34,6 +34,7 @@ import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
+import org.myrobotlab.test.ClientAPITester;
 
 /**
  * @author GroG TODO - timing based and NON timing based testing TODO - global
@@ -62,53 +63,63 @@ public class ServiceTest {
 	
 	String host = "localhost";
 	int port = 6767;
-
+	
 	@Test
-	public final void blockingTest() {
+	public final void clientAPI() {
 		org.apache.log4j.BasicConfigurator.configure();
 		//Logger.getRootLogger().setLevel(Level.ERROR);
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LOG.debug("clientAPI begin-------------");
 
-		LOG.debug("blockingTest begin-------------");		
 		
-		// create services
-		TestCatcher catcher01 = new TestCatcher("catcher01");
-		TestThrower thrower01 = new TestThrower("thrower01");
-
-		// start services
+		// setting 2 services in different Service Environment
+		// all communication which does not have the Service Environment
+		// will be done using remote communication (UDP)
+		// FIXME - the Runtime will still come in as LOCAL !!!!
+		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://localhost:6767");
+		TestCatcher catcher01 = new TestCatcher("catcher01", "http://localhost:6767");		
+		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:6767");		
+		LOG.info(Runtime.getInstance().dump());
+		
+		remote01.startService();
 		catcher01.startService();
 		thrower01.startService();
-
-		Object[] data = new Object[1];
-
-		int ret = 0;
-		int cnt = 100;
 		
-		// send messages
-		stopwatch.start();
-		for (int i = 0; i < cnt; ++i) {
-			data[0] = new Integer(i);
-			ret = (Integer) thrower01.sendBlocking(catcher01.getName(), "catchInteger", data);
-			assertEquals(ret, i);
-		}
-		stopwatch.end();
-
-		// test results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.catchList.size());
-
-		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", null);
-		assertEquals(null, o);
+		// set notify list
+		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
+		thrower01.invoke("throwInteger", new Integer(7));
 		
-		// release all
+		// creating a client which uses the remote API to communicate with MRL
+		ClientAPITester client  = new ClientAPITester();
+		client.init();
+		LOG.info(Runtime.getInstance().dump());
+		client.test1();
+		// check results
+		client.test2();
+		// check results
+
+
+		LOG.debug("check sending from RA Client API to RA service");		
+		remote01.send("catcher01", "catchInteger", 5);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 1);
+		catcher01.catchList.clear();
+
+		LOG.debug("check sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
+		remote01.send("catcher01", "bothHandsCatchInteger", 8, 9);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 2);
+		catcher01.catchList.clear();
+
+
+		// waiting for clients throws 
+		catcher01.waitForCatches(3, 100);
+		
 		Runtime.releaseAll();
-		
-		// testing robustness of releasing after releasing all
-		catcher01.releaseService();
-		thrower01.releaseService();
 
-		LOG.debug("blockingTest end-------------");
+		LOG.debug("clientAPI end-------------");
 	}
+	
 
 	@Test
 	public final void testSingleThrow() {
@@ -225,6 +236,57 @@ public class ServiceTest {
 		LOG.debug("testSingleThrow end-------------");
 	}
 	
+
+	
+
+	@Test
+	public final void blockingTest() {
+		org.apache.log4j.BasicConfigurator.configure();
+		//Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		LOG.debug("blockingTest begin-------------");		
+		
+		// create services
+		TestCatcher catcher01 = new TestCatcher("catcher01");
+		TestThrower thrower01 = new TestThrower("thrower01");
+
+		// start services
+		catcher01.startService();
+		thrower01.startService();
+
+		Object[] data = new Object[1];
+
+		int ret = 0;
+		int cnt = 100;
+		
+		// send messages
+		stopwatch.start();
+		for (int i = 0; i < cnt; ++i) {
+			data[0] = new Integer(i);
+			ret = (Integer) thrower01.sendBlocking(catcher01.getName(), "catchInteger", data);
+			assertEquals(ret, i);
+		}
+		stopwatch.end();
+
+		// test results
+		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		LOG.info(catcher01.catchList.size());
+
+		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", null);
+		assertEquals(null, o);
+		
+		// release all
+		Runtime.releaseAll();
+		
+		// testing robustness of releasing after releasing all
+		catcher01.releaseService();
+		thrower01.releaseService();
+
+		LOG.debug("blockingTest end-------------");
+	}
+	
+	
 	// http://supportweb.cs.bham.ac.uk/documentation/tutorials/docsystem/build/tutorials/junit/junit.html
 
 	@Test
@@ -334,6 +396,7 @@ public class ServiceTest {
 		catcher01.startService();
 		thrower01.startService();
 
+		
 		// set notify list
 		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
 
@@ -392,36 +455,7 @@ public class ServiceTest {
 		LOG.debug("remoteThrow end-------------");
 	}
 	
-	@Test
-	public final void clientAPI() {
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		LOG.debug("clientAPI begin-------------");
-
-		TestThrower thrower01 = new TestThrower("thrower01");
-		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://" + host + ":" + port);
-		TestCatcher catcher01 = new TestCatcher("catcher01", "http://" + host + ":" +port);		
-				
-		remote01.startService();
-		catcher01.startService();
-		thrower01.startService();
-
-		LOG.debug("check sendUDPMSG sending from RA Client API to RA service");		
-		remote01.sendUDPMSG(host, port, "catcher01", "catchInteger", 5);
-		catcher01.waitForCatches(1, 100);
-		assertEquals(catcher01.catchList.size(), 1);
-		catcher01.catchList.clear();
-
-		LOG.debug("check sendUDPMSG sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
-		remote01.sendUDPMSG(host, port, "catcher01", "bothHandsCatchInteger", 8, 9);
-		catcher01.waitForCatches(1, 100);
-		assertEquals(catcher01.catchList.size(), 2);
-		
-		Runtime.releaseAll();
-
-		LOG.debug("clientAPI end-------------");
-	}
-
+	
 
 	@Test
 	public final void bothHandsCatchIntegerTest() {
