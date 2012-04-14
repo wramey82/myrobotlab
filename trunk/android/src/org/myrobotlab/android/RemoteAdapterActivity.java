@@ -12,7 +12,7 @@ public class RemoteAdapterActivity extends ServiceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.remoteadapter);
         myService = (RemoteAdapter)sw.service;   
-        setText(R.id.udpdata, myService.servicePort);
+        setText(R.id.udpdata, myService.UDPPort);
     }
 
 	@Override
