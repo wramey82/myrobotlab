@@ -33,6 +33,7 @@ import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Style;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 
 /**
@@ -88,7 +89,7 @@ public class Runtime extends Service {
 	@Element
 	public static String ivyFileName = "ivychain.xml";
 	
-	static Service gui = null;
+	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
 	public final static Logger LOG = Logger.getLogger(Runtime.class.getCanonicalName());
@@ -107,6 +108,7 @@ public class Runtime extends Service {
 		startService();
 	}
 	
+	// TODO - put this method in ServiceInterface
 	public static boolean isRuntime(Service newService)
 	{
 		return newService.getClass().equals(Runtime.class);
@@ -444,11 +446,12 @@ public class Runtime extends Service {
 		while (it.hasNext()) {
 			String name = it.next();
 			ServiceWrapper sw = local.serviceDirectory.get(name); 
-			Service s = sw.service;
-			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(s.getClass().getCanonicalName())) {
-				LOG.debug("adding " + name + " " + s.getClass().getCanonicalName() + " to export ");
+			//Service s = (Service)sw.get(); 
+			//s.getClass()
+			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(sw.getServiceType())) {
+				LOG.debug("adding " + name + " " + sw.getServiceType() + " to export ");
 				// create new structure - otherwise it won't be correctly filtered
-				ServiceWrapper sw2 = new ServiceWrapper(name, s ,export);
+				ServiceWrapper sw2 = new ServiceWrapper(name, sw.get() ,export);
 				export.serviceDirectory.put(name, sw2);
 			} else {
 				LOG.debug("adding " + name + " with name info only");
@@ -517,8 +520,8 @@ public class Runtime extends Service {
 		ServiceWrapper sw = getService(url, name);
 		if (sw != null)
 		{
-			if (sw.service != null) {
-				sw.service.stopService(); //FIXME send message to stop ??? wait for callback?
+			if (sw.isValid()) {
+				sw.get().stopService(); //FIXME send message to stop ??? wait for callback?
 				registry.remove(name);
 				ServiceEnvironment se = hosts.get(url);
 				INSTANCE.invoke("released", se.serviceDirectory.get(name));
@@ -732,12 +735,13 @@ public class Runtime extends Service {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = registry.get(serviceName);
-			sb.append("<service name=\""+sw.service.getName()+"\" serviceEnironment=\""+ sw.getAccessURL() +"\">");
-			Iterator<String> nit = sw.service.getOutbox().notifyList.keySet().iterator();
+			sb.append("<service name=\""+ sw.getName()+"\" serviceEnironment=\""+ sw.getAccessURL() +"\">");
+			Iterator<String> nit = sw.getNotifyListKeySet().iterator();
+			
 			while (nit.hasNext()) {
 				String n = nit.next();
 				sb.append("<notify map=\""+n+"\">");
-				ArrayList<NotifyEntry> nes = sw.service.getOutbox().notifyList.get(n);
+				ArrayList<NotifyEntry> nes = sw.getNotifyList(n);
 				for (int i = 0; i < nes.size(); ++i)
 				{
 					NotifyEntry ne = nes.get(i);
@@ -893,7 +897,7 @@ public class Runtime extends Service {
 
 				String name = cmdline.getSafeArgument("-service", i, "");
 				String type = cmdline.getSafeArgument("-service", i + 1, "");
-				Service s = Runtime.create(name, type);
+				ServiceInterface s = Runtime.create(name, type);
 				
 				if (s != null)
 				{
@@ -1035,9 +1039,9 @@ public class Runtime extends Service {
 	}
 
 	
-	static public Service createAndStart (String name, String type)
+	static public ServiceInterface createAndStart (String name, String type)
 	{
-		Service s = create(name, type);
+		ServiceInterface s = create(name, type);
 		if (s == null)
 		{
 			LOG.error("cannot start service " + name);
@@ -1048,7 +1052,7 @@ public class Runtime extends Service {
 	}
 	
 
-	static public synchronized Service create(String name, String type) {
+	static public synchronized ServiceInterface create(String name, String type) {
 		return create(name, "org.myrobotlab.service.", type);
 	}
 
@@ -1058,7 +1062,7 @@ public class Runtime extends Service {
 	 * @param type - type of Service
 	 * @return
 	 */
-	static public synchronized Service create(String name, String pkgName,
+	static public synchronized ServiceInterface create(String name, String pkgName,
 			String type) {
 		try {
 			LOG.debug("Runtime.create - Class.forName");
@@ -1237,7 +1241,7 @@ public class Runtime extends Service {
 	 * @param cls
 	 * @return
 	 */
-	static public synchronized Service createService(String name, String fullTypeName) {
+	static public synchronized ServiceInterface createService(String name, String fullTypeName) {
 		LOG.debug("Runtime.createService");
 		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) //|| !cls.isInstance(Service.class)) \
 		{

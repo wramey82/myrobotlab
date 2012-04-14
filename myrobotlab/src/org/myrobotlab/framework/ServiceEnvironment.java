@@ -3,7 +3,6 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
-import org.myrobotlab.service.Runtime;
 
 /**
  * ServiceEnvironment represents a instance of MRL

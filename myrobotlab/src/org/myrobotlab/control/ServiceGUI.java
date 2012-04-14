@@ -93,11 +93,11 @@ public abstract class ServiceGUI {
 
 			ServiceWrapper sw = Runtime.getService(boundServiceName);
 			if (sw != null){
-				Service s = sw.service;
-				if (s != null){
-					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + s.getShortTypeName());
+				//Service s = sw.service;
+				//if (s != null){
+					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.get().getShortTypeName());
 					return;
-				}
+				//}
 			}
 			LOG.error(boundServiceName + " service not found for help request");
 		}

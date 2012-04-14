@@ -83,6 +83,7 @@ import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -518,7 +519,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	{
 		ServiceGUI gui = null;
 		JPanel tpanel = new JPanel();
-		Service se = sw.get();
+		ServiceInterface se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
 		if (gui != null) {
@@ -706,7 +707,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			ServiceWrapper sw = services.get(serviceName);
 
 			//Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
-			Service service = sw.get();
+			ServiceInterface service = sw.get();
 
 			if (serviceName.compareTo(this.getName()) == 0) {
 				LOG.info("momentarily skipping " + this.getName() + "....");
