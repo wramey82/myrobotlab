@@ -47,11 +47,11 @@ import javax.swing.JPanel;
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.w3c.dom.Document;
 
 import com.mxgraph.io.mxCellCodec;
@@ -507,7 +507,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			} else {
 				canonicalName = sw.get().getShortTypeName();
 				ret = serviceName + "\n\n\n\n\n." ;//+ sw.get().getShortTypeName();
-				toolTip = sw.get().getToolTip();
+				toolTip = sw.getToolTip();
 			}
 
 			String blockColor = null;
@@ -582,13 +582,14 @@ public class GUIServiceGUI extends ServiceGUI {
 			String serviceName = it.next();
 
 			//if (sw.localServiceHandle != null) {
-				Service s = Runtime.getService(serviceName).get();
-				if (s != null)
+				//Service s = Runtime.getService(serviceName).get();
+				ServiceInterface s  = Runtime.getService(serviceName).get();
+ 				if (s != null)
 				{
-					HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;
-					Iterator<String> ri = s.getOutbox().notifyList.keySet().iterator();
+					//HashMap<String, ArrayList<NotifyEntry>> notifyList = s.getOutbox().notifyList;
+					Iterator<String> ri = s.getNotifyListKeySet().iterator();
 					while (ri.hasNext()) {
-						ArrayList<NotifyEntry> nl = notifyList.get(ri.next());
+						ArrayList<NotifyEntry> nl = s.getNotifyList(ri.next());
 						for (int i = 0; i < nl.size(); ++i) {
 							NotifyEntry ne = nl.get(i);
 	

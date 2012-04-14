@@ -26,8 +26,6 @@
 package org.myrobotlab.framework;
 
 import java.io.File;
-import org.myrobotlab.service.Runtime;
-
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -46,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Appender;
@@ -57,9 +56,11 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.net.CommunicationManager;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -77,7 +78,7 @@ import org.simpleframework.xml.core.Persister;
  *      simpleframework - basic configuration
  *  
  */
-public abstract class Service implements Runnable, Serializable {
+public abstract class Service implements Runnable, Serializable, ServiceInterface {
 
 	// TODO - UNDERSTAND THAT host:port IS THE KEY !! - IT IS A COMBONATIONAL
 	// KEY :0 WORKS IN PROCESS OUT OF
@@ -461,6 +462,7 @@ public abstract class Service implements Runnable, Serializable {
 
 	abstract public void loadDefaultConfiguration();
 
+	// FIXME - remove - this is silly
 	public void pause(int millis) {
 		try {
 			Thread.sleep(millis);
@@ -1728,5 +1730,17 @@ public abstract class Service implements Runnable, Serializable {
 	{
 		return cfgDir;
 	}
+	
+	public Set<String> getNotifyListKeySet()
+	{
+		return getOutbox().notifyList.keySet();
+	}
+	
+	public ArrayList<NotifyEntry> getNotifyList(String key)
+	{
+		// TODO refactor Outbox inteface
+		return getOutbox().notifyList.get(key);
+	}
+
 	
 }
