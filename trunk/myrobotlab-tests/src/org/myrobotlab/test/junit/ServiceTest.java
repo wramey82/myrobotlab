@@ -34,6 +34,7 @@ import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.test.ClientAPITester;
 
 /**
@@ -64,65 +65,12 @@ public class ServiceTest {
 	String host = "localhost";
 	int port = 6767;
 	
-	@Test
-	public final void clientAPI() {
-		org.apache.log4j.BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.ERROR);
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-		LOG.debug("clientAPI begin-------------");
-
-		
-		// setting 2 services in different Service Environment
-		// all communication which does not have the Service Environment
-		// will be done using remote communication (UDP)
-		// FIXME - the Runtime will still come in as LOCAL !!!!
-		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://localhost:6767");
-		TestCatcher catcher01 = new TestCatcher("catcher01", "http://localhost:6767");		
-		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:6767");		
-		LOG.info(Runtime.getInstance().dump());
-		
-		remote01.startService();
-		catcher01.startService();
-		thrower01.startService();
-		
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
-		thrower01.invoke("throwInteger", new Integer(7));
-		
-		// creating a client which uses the remote API to communicate with MRL
-		ClientAPITester client  = new ClientAPITester();
-		client.init();
-		LOG.info(Runtime.getInstance().dump());
-		client.test1();
-		// check results
-		client.test2();
-		// check results
-
-
-		LOG.debug("check sending from RA Client API to RA service");		
-		remote01.send("catcher01", "catchInteger", 5);
-		catcher01.waitForCatches(1, 100);
-		assertEquals(catcher01.catchList.size(), 1);
-		catcher01.catchList.clear();
-
-		LOG.debug("check sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
-		remote01.send("catcher01", "bothHandsCatchInteger", 8, 9);
-		catcher01.waitForCatches(1, 100);
-		assertEquals(catcher01.catchList.size(), 2);
-		catcher01.catchList.clear();
-
-
-		// waiting for clients throws 
-		catcher01.waitForCatches(3, 100);
-		
-		Runtime.releaseAll();
-
-		LOG.debug("clientAPI end-------------");
-	}
-	
 
 	@Test
 	public final void testSingleThrow() {
+		org.apache.log4j.BasicConfigurator.configure();
+		//Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 		LOG.debug("testSingleThrow begin-------------");
 
 		// create services
@@ -622,7 +570,7 @@ public class ServiceTest {
 		for (int i=0;i < serviceNames.length; ++i)
 		{
 			
-			Service s = Runtime.create(serviceNames[i], i + "");
+			ServiceInterface s = Runtime.create(serviceNames[i], i + "");
 			
 			if (i == 29)
 			{
@@ -666,6 +614,64 @@ public class ServiceTest {
 		Runtime.releaseAll();
 		LOG.debug("doubleHandedRemoteThrow end-------------");
 	}
+	
+	@Test
+	public final void clientAPI() {
+		org.apache.log4j.BasicConfigurator.configure();
+		//Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LOG.debug("clientAPI begin-------------");
+
+		
+		// setting 2 services in different Service Environment
+		// all communication which does not have the Service Environment
+		// will be done using remote communication (UDP)
+		// FIXME - the Runtime will still come in as LOCAL !!!!
+		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://localhost:6767");
+		TestCatcher catcher01 = new TestCatcher("catcher01", "http://localhost:6767");		
+		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:6767");		
+		LOG.info(Runtime.getInstance().dump());
+		
+		remote01.startService();
+		catcher01.startService();
+		thrower01.startService();
+		
+		// set notify list
+		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
+		thrower01.invoke("throwInteger", new Integer(7));
+		
+		// creating a client which uses the remote API to communicate with MRL
+		ClientAPITester client  = new ClientAPITester();
+		client.init();
+		LOG.info(Runtime.getInstance().dump());
+		client.test1();
+		// check results
+		client.test2();
+		// check results
+
+
+		LOG.debug("check sending from RA Client API to RA service");		
+		remote01.send("catcher01", "catchInteger", 5);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 1);
+		catcher01.catchList.clear();
+
+		LOG.debug("check sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
+		remote01.send("catcher01", "bothHandsCatchInteger", 8, 9);
+		catcher01.waitForCatches(1, 100);
+		assertEquals(catcher01.catchList.size(), 2);
+		catcher01.catchList.clear();
+
+
+		// waiting for clients throws 
+		catcher01.waitForCatches(3, 100);
+		
+		Runtime.releaseAll();
+
+		LOG.debug("clientAPI end-------------");
+	}
+	
+
 	
 	@Test
 	public void cleanUp ()
