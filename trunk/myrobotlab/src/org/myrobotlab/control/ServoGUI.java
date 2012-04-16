@@ -212,7 +212,7 @@ public class ServoGUI extends ServiceGUI {
 						.getSelectedItem().toString(), pin.getSelectedItem());
 			} else {
 				setText("attach");
-				myService.send(boundServiceName, "detach", null);
+				myService.send(boundServiceName, "detach", (Object[])null);
 			}
 		}
 	}

@@ -34,26 +34,14 @@
  * 
  */
 
+#include <Servo.h>
+
 // TODO - determine details of Arduino conflicts between NewSoftSerial, VirtualWire, Servo, & SoftwareServo
 
-unsigned char ide_workaround = 0; // workaround fix for Arduino's buggy preprocessor - to process #ifdef includes
-
-#define SERVO_ENABLED = 1
-
-
-#ifdef SERVO_ENABLED
-#include <Servo.h> //conflicts with NewSoftSerial
-#endif
-
+//#include <Servo.h> //conflicts with NewSoftSerial
 //#include <SoftwareServo.h> // does not remove pwm from pin 9 & 10, but does conflict with NewSoftSerial
 //#include <ServoTimer2.h>  // the servo timer library
 //#include <Servo2.h>  // still another servo library
-
-#ifdef VIRTUAL_WIRE_ENABLED
-//#include <VirtualWire.h> 
-#endif
-
-//#include <NewSoftSerial.h>
 
 #define DIGITAL_WRITE        0 
 #define DIGITAL_VALUE        1 
@@ -97,32 +85,10 @@ int lastAnalogInputValue[4];   		// array of last input values
 unsigned long retULValue;  
 int prescalerVal = 0;
 
-// communication types
-#define HARDWARE_SERIAL 0
-#define WIICOM 1
-#define VIRTUAL_WIRE 2
-#define NEW_SOFT_SERIAL 3
-
-int serialCommType = HARDWARE_SERIAL;
-
 // for wiicom
 int strobeState = 0;
 boolean readySteady = false;
 
-#define LED1 2 // strobe 
-#define LED2 4
-#define LED3 7
-#define LED4 8
-
-
-#ifdef   VIRTUAL_WIRE_ENABLED
-uint8_t buf[VW_MAX_MESSAGE_LEN];
-uint8_t buflen = 6;
-#endif
-
-
-// for new soft serial
-//NewSoftSerial irSerial(2, 3);
 
 
 void setup() {
@@ -143,21 +109,6 @@ void setup() {
 #define MIN_PULSE_WIDTH 544     // the shortest pulse sent to a servo  
 #define MAX_PULSE_WIDTH 2400     // the longest pulse sent to a servo 
 
-  if (serialCommType == WIICOM)
-  {
-    pinMode(LED1, INPUT); 
-    pinMode(LED2, INPUT); 
-    pinMode(LED3, INPUT); 
-    pinMode(LED4, INPUT); 
-  } else if (serialCommType == VIRTUAL_WIRE)  
-  {
-
-#ifdef   VIRTUAL_WIRE_ENABLED
-    vw_set_ptt_inverted(true); // Required for RX Link Module
-    vw_setup(2000);            // Bits per sec
-    vw_set_rx_pin(8);          //TODO configurable
-    vw_rx_start();             // Start the receiver 
-#endif
 
   // TODO - what a mess - have to set these low cause the 754410 seems to want to go full speed when enable is high impedence
 //    pinMode(3, OUTPUT);
@@ -178,10 +129,6 @@ void setup() {
   servos[1].write(90);    
 */  
     
-  } else if (serialCommType == NEW_SOFT_SERIAL)  
-  {
-    //irSerial.begin(2400); // IR
-  }
   
   
 }
@@ -258,8 +205,6 @@ void removeAndShift (int array [], int& len, int removeValue)
 
 boolean getCommand ()
 {
-  if (serialCommType == HARDWARE_SERIAL)
-  { 
     // handle serial data begin 
     if (Serial.available() > 0)
     {
@@ -275,154 +220,6 @@ boolean getCommand ()
     } // if Serial.available
   
     
-  } else if (serialCommType == WIICOM){
-    
-    if (strobeState != digitalRead(LED1))
-    {
-      
-      // strobed - data ready
-      strobeState = digitalRead(LED1);
-
-      newByte <<= 1;
-      newByte = newByte + digitalRead(LED2);
-      newByte <<= 1;
-      newByte = newByte + digitalRead(LED3);
-      if (nibbleCount < 2)    
-      {
-         newByte <<= 1;
-         newByte = newByte + digitalRead(LED4);
-      }    
-    
-      ++nibbleCount;
-
-/* must comment out debugging - if using serial for control */
-Serial.print(nibbleCount);
-Serial.print("-");
-Serial.print(newByte, HEX);
-Serial.print("\n");
-
-      // the wiimote flashes its led when first searching for a connection
-      // this can be a little problematic - so we take care of it here
-      if (!readySteady) 
-      {
-        if (newByte == 0x00 || newByte == 0x07)
-            {
-              nibbleCount=0;
-              newByte = 0;
-//Serial.print("disregarding\n");
-              return false;
-            } else {
-Serial.print("first nibble\n");
-              readySteady = true;
-            }
-      }
-
-      
-      if (nibbleCount > 2)
-      {
-        nibbleCount = 0;
-        ioCommand[byteCount] = newByte;
-        ++byteCount;
-        newByte = 0;
-  
-/* must comment out debugging - if using serial for control */
-        Serial.print(newByte, HEX);
-        Serial.print("|");
-        Serial.print("bc ");
-        Serial.print(byteCount);
-  
-        if (byteCount > 2)
-        {
-          return true;
-        }
-        
-        
-      } // if nibbleCount > 2
-      
-    } // if strobeState
-
-    
-  } else if (serialCommType == VIRTUAL_WIRE)
-  {
-    
-    // 4 byte bi-directional
-    
-    // first byte is bot id - if your too dumb to get different frequencies (like i was)
-// ---- uncomment for vw support
-
-#ifdef VIRTUAL_WIRE_ENABLED
-    if (vw_get_message(buf, &buflen)) // check to see if anything has been received
-    {
-            
-        int i;
-        for (i = 0; i < buflen; i++)
-        {
-            ioCommand[i] = buf[i];
-        }
-
-
-Serial.print(buflen, HEX);          
-Serial.print("c[");          
-Serial.print(ioCommand[0],HEX);
-Serial.print("|");          
-Serial.print(ioCommand[1],HEX);
-Serial.print("|");          
-Serial.print(ioCommand[2],HEX);
-Serial.print("]\n");          
-
-        
-        if (ioCommand[0] > 16 || ioCommand[1] == 2)
-        {
-          return false;
-        }
-        
-        return true;
-      }    
-#endif      
-      
-  } else if (serialCommType == NEW_SOFT_SERIAL)
-  {
-    
-    // for IR - so much crap on the line and at only 2400 baud - yuk
-    // handle serial data begin 
-/*    
-    if (irSerial.available ())
-    {
-      
-      // read the incoming byte:
-      newByte = irSerial.read();
-
-      // error checking - lots and lots and lots of garbage
-      // let by only the few commands allowed
-      if ((byteCount == 0 && newByte > 16))
-      {
-        Serial.print(byteCount, HEX);
-        Serial.print(" ");          
-        Serial.print(newByte, HEX);
-        Serial.print(" error\n");          
-        byteCount = 0; // throw message away
-        return false; 
-      }
-      
-      ioCommand[byteCount] = newByte;
-      ++byteCount;
-
-      if (byteCount > 2)
-      {
-Serial.print("c[");          
-Serial.print(ioCommand[0],HEX);
-Serial.print("|");          
-Serial.print(ioCommand[1],HEX);
-Serial.print("|");          
-Serial.print(ioCommand[2],HEX);
-Serial.print("]\n");          
-        
-        return true;
-      }
-    } // if Serial.available      
-    
-*/      
-  }// serialCommType
   
   return false;
   

@@ -113,7 +113,7 @@ public final class FindFile  { //implements FilenameFilter
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		// TODO - there was methods to do this already in java.io
-		List<File> files = FindFile.find(".\\.ivy\\.*\\.xml");
+		List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
 	
 		//List<File> files = FindFile.find("\\.(?i:)(?:jpg|gif|doc|java)$");
 		//List<File> files = FindFile.find(".*\\.java$");
@@ -122,7 +122,10 @@ public final class FindFile  { //implements FilenameFilter
 
 		// print out all file names, in the the order of File.compareTo()
 		for (File file : files) {
-			System.out.println(file);
+			String name = file.getName();
+			name = name.substring(name.indexOf("-")+1);
+			name = name.substring(0, name.indexOf("-"));
+			System.out.println(name);
 		}
 	}
 	class RegexFilter implements FilenameFilter {
