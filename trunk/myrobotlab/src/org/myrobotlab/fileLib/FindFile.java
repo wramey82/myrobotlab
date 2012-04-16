@@ -115,7 +115,7 @@ public final class FindFile  { //implements FilenameFilter
 		// TODO - there was methods to do this already in java.io
 		List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
 	
-		//List<File> files = FindFile.find("\\.(?i:)(?:jpg|gif|doc|java)$");
+		//List<File> files = FindFile.find("\\.(?i:)(?:xml)$");
 		//List<File> files = FindFile.find(".*\\.java$");
 		//List<File> files = FindFile.find(".*\\.svn$");
 
@@ -143,21 +143,5 @@ public final class FindFile  { //implements FilenameFilter
 	
 	// TODO - extention filter
 	// TODO - simple astrix filter
-	
-	/*
-	@Override
-	public boolean accept(File directory, String filename) {
-		   boolean fileOK = true;
-
-		    if (name != null) {
-		      fileOK &= filename.startsWith(name);
-		    }
-
-		    if (extension != null) {
-		      fileOK &= filename.endsWith('.' + extension);
-		    }
-		    return fileOK;
-	}
-	*/
 
 }
