@@ -359,30 +359,5 @@
          </list>
       </dependsOn>
    </serviceType>
-
-   <categories string="org.myrobotlab.service.ChumbyBot">
-      <category>
-         <include>robots</include>
-      </category>
-   </categories>
-   <categories string="org.myrobotlab.service.Magabot">
-      <category>
-         <include>robots</include>
-      </category>
-   </categories>
-   <categories string="org.myrobotlab.service.RobotPlatform">
-      <category>
-         <include>robots</include>
-      </category>
-   </categories>
-   <categories string="org.myrobotlab.service.Roomba">
-      <category>
-         <include>robots</include>
-      </category>
-   </categories>
-   <categories string="org.myrobotlab.service.TweedleBot">
-      <category>
-         <include>robots</include>
-      </category>
-   </categories>
+   <categories/>
 </serviceData>
