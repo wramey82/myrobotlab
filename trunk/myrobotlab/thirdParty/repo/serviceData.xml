@@ -359,6 +359,149 @@
          </list>
       </dependsOn>
    </serviceType>
-   <categories>
+   <categories string="org.myrobotlab.service.Arduino">
+      <category>
+         <include>microcontroller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AudioCapture">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AudioFile">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.ChumbyBot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.FSM">
+      <category>
+         <include>intelligence</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GUIService">
+      <category>
+         <include>programming</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GeneticProgramming">
+      <category>
+         <include>intelligence</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GoogleSTT">
+      <category>
+         <include>speech recognition</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.HTTPClient">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.IPCamera">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.JFugue">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Jibble">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Joystick">
+      <category>
+         <include>controller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Jython">
+      <category>
+         <include>programming</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Magabot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Motor">
+      <category>
+         <include>actuators</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.OpenCV">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.PlayerStage">
+      <category>
+         <include>simulator</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Propellor">
+      <category>
+         <include>microcontroller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.RemoteAdapter">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.RobotPlatform">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Roomba">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.SensorMonitor">
+      <category>
+         <include>sensors</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Servo">
+      <category>
+         <include>actuators</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Simbad">
+      <category>
+         <include>simulator</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Speech">
+      <category>
+         <include>speech synthesis</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Sphinx">
+      <category>
+         <include>speech recognition</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.TweedleBot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Wii">
+      <category>
+         <include>controller</include>
+      </category>
    </categories>
 </serviceData>
