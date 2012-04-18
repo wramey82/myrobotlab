@@ -359,5 +359,6 @@
          </list>
       </dependsOn>
    </serviceType>
-   <categories/>
+   <categories>
+   </categories>
 </serviceData>
