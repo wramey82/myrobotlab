@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+	<info organisation="org.myrobotlab" module="myrobotlab-caller" revision="working" status="release" publication="20120419054107" default="true"/>
+	<configurations>
+		<conf name="default" visibility="public"/>
+	</configurations>
+	<publications>
+		<artifact name="myrobotlab-caller" type="jar" ext="jar" conf="default"/>
+	</publications>
+	<dependencies>
+		<dependency org="org.myrobotlab" name="myrobotlab" rev="latest.integration" conf="default->runtime,x86.32.windows"/>
+	</dependencies>
+</ivy-module>
