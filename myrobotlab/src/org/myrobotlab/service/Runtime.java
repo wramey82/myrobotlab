@@ -1,6 +1,5 @@
 package org.myrobotlab.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,21 +12,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
-import org.apache.ivy.Main;
-import org.apache.ivy.core.report.ResolveReport;
-import org.apache.ivy.util.cli.CommandLineParser;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Dependency;
-import org.myrobotlab.framework.Ivy2;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
@@ -76,7 +68,7 @@ public class Runtime extends Service {
 	// ---- rte members end ------------------------------
 	
 	// ---- Runtime members begin -----------------
-	public final static ServiceInfo info = ServiceInfo.getInstance();
+	public final static ServiceInfo serviceInfo = ServiceInfo.getInstance();
 
 	@Element
 	public String proxyHost;
@@ -86,8 +78,6 @@ public class Runtime extends Service {
 	public String proxyUserName;
 	@Element
 	public String proxyPassword;
-	@Element
-	public static String ivyFileName = "ivychain.xml";
 	
 	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
@@ -104,6 +94,9 @@ public class Runtime extends Service {
 		hideMethods.put("run", null);
 		hideMethods.put("access$0", null);
 
+		// load the current set of possible service
+		serviceInfo.load();
+		
 		// starting this
 		startService();
 	}
@@ -934,7 +927,7 @@ public class Runtime extends Service {
 	}
 	
 	static public String[] getServiceShortClassNames(String filter) {
-		return ServiceInfo.getShortClassNames(filter);
+		return ServiceInfo.getInstance().getShortClassNames(filter);
 	}
 
 	
@@ -1079,151 +1072,38 @@ public class Runtime extends Service {
 
 	
 	/**
-	 * update - force Ivy to check for all dependencies of all possible
+	 * update - force system to check for all dependencies of all possible
 	 * Services - Ivy will attempt to check & fufill dependencies by downloading
 	 * jars from the repo 
 	 */
 	static public void update()
 	{
-		  Iterator<String> it = ServiceInfo.getKeySet().iterator();
-		  while (it.hasNext()) {
-		        String s = it.next();
-		        getDependencies(s);
-		    }
-		  // FIXME - generate Ivy xml file
-		  // LOG.error(dependencyCommandLine);
-		  // TODO if (Ivy2.hasNewDependencies()) - schedule restart
-	}
-	
-	//public static String dependencyCommandLine = "";	
-	//public static boolean debug = false;
-	//FIXME - generate Ivy file !!!!!!
-	
-	
-	/** 
-	 * gets the dependencies of a Service using Ivy
-	 * interfaces with Ivy using its command parameters
-	 * @param fullTypeName
-	 */
-	static public boolean getDependencies(String fullTypeName)
-	{
-		LOG.debug("getDependencies " + fullTypeName);
-		boolean ret = true;
 		
-		ServiceInfo.getInstance().load();// FIXME - deprecate - normalize with ivy files
-
-		File ivysettings = new File(ivyFileName);
-		if (!ivysettings.exists())
+		boolean getNewRepoData = true;
+		
+		// TODO - have it return list of data objects "errors" so 
+		// events can be generated
+		serviceInfo.clearErrors();
+		
+		if (getNewRepoData) 
+			serviceInfo.getRepoServiceData();
+		
+		if (!serviceInfo.hasErrors())
 		{
-			LOG.warn(ivyFileName +  " does not exits - will not try to resolve dependencies");
-			return false;
+			serviceInfo.update();
+			if (!serviceInfo.hasErrors())
+			{
+				return;// true !
+			}
 		}
 		
-		try {
-			// use Ivy standalone			
-			// Main.main(cmd.toArray(new String[cmd.size()]));
-			// Method getDependencies = cls.getMethod("getDependencies");
-			// Programmatic use of Ivy
-			// https://cwiki.apache.org/IVY/programmatic-use-of-ivy.html
-			ArrayList<Dependency> d = ServiceInfo.getDependencies(fullTypeName);
-
-			if (d != null)
-			{
-				LOG.info(fullTypeName + " found " + d.size() + " dependencies");
-				for (int i=0; i < d.size(); ++i)
-				{					
-					Dependency dep = d.get(i);					
-					
-					ArrayList<String> cmd = new ArrayList<String>();
-					
-					cmd.add("-cache");
-					cmd.add(".ivy");
-	
-					cmd.add("-retrieve");
-					cmd.add("libraries/[type]/[artifact].[ext]");
-	
-					cmd.add("-settings");
-					//cmd.add("ivysettings.xml");
-					cmd.add(ivyFileName);
-	
-					//cmd.add("-cachepath");
-					//cmd.add("cachefile.txt");					
-					
-					cmd.add("-dependency");
-					cmd.add(dep.organisation); // org
-					cmd.add(dep.module); 		// module		
-					cmd.add(dep.version); 	// version
-					
-					cmd.add("-confs");
-					String confs = "runtime,"+Platform.getArch()+"."+
-							Platform.getBitness()+"." + 
-							Platform.getOS();
-					cmd.add(confs);
-					
-					// show cmd params
-					StringBuilder sb = new StringBuilder();
-					for (int k = 0; k < cmd.size(); ++k)
-					{
-						sb.append(cmd.get(k));
-						sb.append(" ");
-					}
-					
-					// FIXME - generate Ivy xml file
-					//dependencyCommandLine += sb.toString() + "\n"; 
-					LOG.info(sb.toString());
-					//debug = true;
-					//if (debug) continue;
-
-					
-					CommandLineParser parser = Main.getParser();
-					
-					try {
-						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
-						ResolveReport report = Ivy2.getReport();
-			            if (report.hasError()) {
-			            	ret = false;
-			            	dep.resolved = false;
-			                // System.exit(1);
-			            	LOG.error("Ivy resolve error");
-			            	// invoke Dependency Error - 
-			            	List<String> l = report.getAllProblemMessages();
-			            	for (int j = 0; j < l.size(); ++j)
-			            	{
-				            	
-				    			if (INSTANCE != null)
-				    			{
-				    				INSTANCE.invoke("failedDependency", l.get(j));
-				    			}
-			            		LOG.error(l.get(j));
-			            	}
-			            } else {
-			            	dep.resolved = true;
-			    			ServiceInfo.getInstance().save();
-			            }
-					} catch (Exception e)
-					{
-						logException(e);
-					}
-					
-					// local config - 
-					
-					// if the Service is downloaded we have to dynamically 
-					// load the classes - if we are not going to restart
-					// http://tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html
-				}
-			} else {
-				if (d == null)
-				{
-					LOG.info(fullTypeName + " returned no dependencies");
-				}
-			}
-		} catch (Exception e) {
-			Service.logException(e);
-			ret = false;
-		}		
-		
-		return ret;
+		ArrayList<String> errors = serviceInfo.getErrors();
+		for (int i = 0; i < errors.size(); ++i)
+		{
+			LOG.error(errors.get(i));
+		}
 	}
+	
 	
 	/**
 	 * publishing point of Ivy sub system - sends even failedDependency when the
@@ -1255,36 +1135,19 @@ public class Runtime extends Service {
 			return sw.service;
 		}
 				
-
-			// TODO - may need more details besides boolean
-			if (!getDependencies(fullTypeName)) 
-			{
-				LOG.error("failed dependencies");
-				//return null;
-			}
-			
-			// TODO - if (Ivy2.newDependencies()) - schedule restart
-
 		try {
 			
 			// TODO - determine if there have been new classes added from ivy			
 			LOG.debug("ABOUT TO LOAD CLASS");
 
-			// MyRobotLabClassLoader loader = (MyRobotLabClassLoader)ClassLoader.getSystemClassLoader(); 
-			// loader.addURL((new File("libraries/jar/RXTXcomm.jar").toURI().toURL()));
-			// ClassLoader Info
 			LOG.info("loader for this class " + Runtime.class.getClassLoader().getClass().getCanonicalName());
 			LOG.info("parent " + Runtime.class.getClassLoader().getParent().getClass().getCanonicalName());
 			LOG.info("system class loader " + ClassLoader.getSystemClassLoader());
 			LOG.info("parent should be null" + ClassLoader.getSystemClassLoader().getParent().getClass().getCanonicalName());
 			LOG.info("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
 			LOG.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
-			//MyRobotLabClassLoader loader = (MyRobotLabClassLoader) = Thread.currentThread().getContextClassLoader();
 			LOG.info("refreshing classloader");
-			//MyRobotLabClassLoader.refresh();
-//			Class<?> cls = Class.forName(fullTypeName);
-//			Class<?> cls = MyRobotLabClassLoader.getClassLoader().loadClass(fullTypeName);
-//			Class<?> cls = Runtime.class.getClassLoader().loadClass(fullTypeName);
+
 			Class<?> cls = Class.forName(fullTypeName);
  			Constructor<?> constructor = cls.getConstructor(new Class[] { String.class });
 

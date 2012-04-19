@@ -67,17 +67,6 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 
-/*
- * 
- * 
- * reference : brightening or darkening an image
- * http://exampledepot.com/egs/java.awt.image/Bright.html
- * TODO - put all image utils in ... duh ... image/Utils :P
- * 
- * 
- */
-
-
 public class GUIServiceGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;

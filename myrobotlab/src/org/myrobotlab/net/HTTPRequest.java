@@ -672,9 +672,9 @@ public class HTTPRequest {
 		// URLConnection uc = url.openConnection();
 		String contentType = connection.getContentType();
 		int contentLength = connection.getContentLength();
-		if (contentType.startsWith("text/") || contentLength == -1) {
-			LOG.error("This is not a binary file.");
-		}
+
+		LOG.info("contentType " + contentType + " contentLength " + contentLength);
+
 		InputStream raw;
 		byte[] data = null;
 		try {
@@ -704,6 +704,8 @@ public class HTTPRequest {
 		 * String filename = u.getFile().substring(filename.lastIndexOf('/') +
 		 * 1);
 		 */
+		
+		/*
 		FileOutputStream out;
 		try {
 			out = new FileOutputStream("hello.mp3");
@@ -714,12 +716,25 @@ public class HTTPRequest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 
 		return data;
+	}
+	
+	public String getString()
+	{
+		byte[] b = getBinary();
+		if (b != null)
+			return new String(b);
+		
+		return null;
 	}
 
 	public static void main(String[] args) throws Exception {
 		
+		HTTPRequest http = new HTTPRequest("http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/");
+		String s = http.getString();
+		LOG.info(s);
 		
 		
 		String language = "en";
@@ -741,6 +756,7 @@ public class HTTPRequest {
 		
 		HTTPRequest request = new HTTPRequest(uri.toURL());
 		request.getBinary();
+		
 	}
 
 }

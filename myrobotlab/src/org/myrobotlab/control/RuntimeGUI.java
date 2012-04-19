@@ -51,6 +51,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Platform;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
@@ -125,7 +127,7 @@ public class RuntimeGUI extends ServiceGUI {
 		filters.add(nofilter, fgc);
 		++fgc.gridy;
 		
-		String[] cats = ServiceInfo.getUniqueCategoryNames();
+		String[] cats = ServiceInfo.getInstance().getUniqueCategoryNames();
 		for (int j = 0; j < cats.length ; ++j)
 		{
 			JButton b = new JButton(cats[j]);
@@ -179,9 +181,6 @@ public class RuntimeGUI extends ServiceGUI {
 			String shortClassName = sw.service.getShortTypeName();
 			if (sw.host != null && sw.host.accessURL != null)
 			{
-				// FIXME
-				//namesAndClasses[i] = serviceName + " - " + shortClassName + " - " + sw.host.accessURL.getHost() ;
-				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
 				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
@@ -204,8 +203,9 @@ public class RuntimeGUI extends ServiceGUI {
 
 				String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
 				
-				
-				if (ServiceInfo.hasUnfulfilledDependencies("org.myrobotlab.service." + newService))
+				ServiceInfo serviceInfo = ServiceInfo.getInstance();
+				String fullTypeName = "org.myrobotlab.service." + newService;
+				if (serviceInfo.hasUnfulfilledDependencies(fullTypeName))
 				{
 					// dependencies needed !!!
 					String msg = "<html>This Service has dependencies which are not yet loaded,<br>" +
@@ -218,18 +218,32 @@ public class RuntimeGUI extends ServiceGUI {
 						return;
 					}
 					
-					// FIXME - FIXME - FIXME 
-					// Test & Develop appropriately - ie - remove all lib references to the repo
-					// use the libraries directory !! - fill with a Ivy call !!! - you need to 
-					// work with ivy standalone to do so ...
-					// you will need to restart in order to use the newly downloaded Service
-					// would you like to restart now ?
-					// -- additionally have a download all Service dependencies to get it out of the way
-					// -- additionally a check for updates
-					// -- additionally a Service report (versions like drupal)
-					// -- additionally force a different configuration (like dev - bleeding edge)
-					// finish all "released" Services 
-					
+					// FIXME - FIXME - FIXME - Drupal like status report
+					serviceInfo.resolve(fullTypeName);
+					// FIXME - restart dialog
+					JFrame frame = new JFrame();
+					int ret = JOptionPane.showConfirmDialog(frame, "<html>New components have been added,<br>"+
+					" it is necessary to restart in order to use them.</html>", "restart", JOptionPane.YES_NO_OPTION);
+					if (ret == JOptionPane.OK_OPTION)
+					{
+						LOG.info("restarting");
+						Runtime.releaseAll();
+						try {
+							if (Platform.isWindows())
+							{
+								java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+							} else {
+								java.lang.Runtime.getRuntime().exec("myrobotlab.sh");							
+							}
+						} catch (Exception ex)
+						{
+							Service.logException(ex	);
+						}
+						System.exit(0);
+					} else {
+						LOG.info("chose not to restart");
+						return;
+					}
 					
 				}
 				
@@ -384,7 +398,7 @@ public class RuntimeGUI extends ServiceGUI {
 				int index, boolean isSelected, boolean cellHasFocus) {
 			ServiceEntry entry = (ServiceEntry) value;
 
-			boolean available = !(ServiceInfo.hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type)); 
+			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type)); 
 
 			setText(entry.type);
 			
