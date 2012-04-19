@@ -164,12 +164,12 @@ public class TestCatcher extends Service {
 
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");
-		GUIService gui = new GUIService("gui");
+		//GUIService gui = new GUIService("gui");
 		
 		catcher01.startService();
 		remote01.startService();
-		gui.startService();
+		//gui.startService();
 		
-		gui.display();
+		//gui.display();
 	}	
 }
