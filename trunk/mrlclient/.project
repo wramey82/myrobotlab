@@ -18,12 +18,12 @@
 		<link>
 			<name>framework</name>
 			<type>2</type>
-			<location>C:/mrl/myrobotlab/src</location>
+			<location>WORKSPACE_LOC/myrobotlab/src</location>
 		</link>
 		<link>
 			<name>org</name>
 			<type>2</type>
-			<location>C:/mrl/myrobotlab/src/org</location>
+			<location>WORKSPACE_LOC/myrobotlab/src/org</location>
 		</link>
 	</linkedResources>
 </projectDescription>
