@@ -1,65 +1,83 @@
 package org.myrobotlab.framework;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.apache.ivy.Main;
+import org.apache.ivy.core.report.ResolveReport;
+import org.apache.ivy.util.cli.CommandLineParser;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.simpleframework.xml.ElementMap;
-import org.simpleframework.xml.Root;
+import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.fileLib.FindFile;
+import org.myrobotlab.framework.ServiceData.CategoryList;
+import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-@Root
+// TODO - command line refresh - repo management & configuration options "latest" etc
+
 public class ServiceInfo implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
+	private String ivyFileName = "ivychain.xml";
 	public final static Logger LOG = Logger.getLogger(ServiceInfo.class.toString());
-
-	/**
-	 * list of relationships from Service to dependency key. 
-	 * Dependency information is stored in a normalized (HashMap) list of Service types
-	 * Each Service type can have a list of dependencies (many to many). 
-	 * The relationships can be many to many but the actual dependencies have to be 
-	 * normalized
-	 */
-	@ElementMap(entry="serviceType", value="dependsOn", attribute=true, inline=true)
-	private static HashMap<String, DependencyList> dependencies = new HashMap<String, DependencyList>();
-	/**
-	 * master list of dependencies 
-	 */
-	@ElementMap(entry="org", value="dependency", attribute=true, inline=true)
-	private static HashMap<String, Dependency> masterList = new HashMap<String, Dependency>(); 
+	
+	private ServiceData serviceData = new ServiceData();
+	private ArrayList<String> errors = new ArrayList<String>(); 
+	
+	private static ServiceInfo instance = null;	
 		
-	//private static HashMap<String, ArrayList<Dependency>> dependencies = new HashMap<String, ArrayList<Dependency>>();
-	private static HashMap<String, ArrayList<String>> categories = new HashMap<String, ArrayList<String>>();
-	private static ServiceInfo instance = null;
-	
-	// TODO - command line refresh - repo management & configuration options "latest" etc
-	static public Set<String> getKeySet()
+	private ServiceInfo()
 	{
-		return dependencies.keySet();
-	}
-
-	// TODO - think of cleaning all dependencies from Service.java ???
-	// it would be a "good thing" :)
-	public void addBase(String shortServiceName)
-	{
-		addBase(shortServiceName, true);
 	}
 	
-	public void addBase(String shortServiceName, boolean released)
+	/**
+	 * static info - share it with a singleton
+	 * @return
+	 */
+	public static  ServiceInfo getInstance()
 	{
-		addDependency(shortServiceName,"org.myrobotlab","14.1");
-		addDependency(shortServiceName,"org.apache.log4j","1.2.14");
-		addDependency(shortServiceName,"org.simpleframework.xml","2.5.3");	
+		if (instance == null)
+		{
+			instance = new ServiceInfo();
+		}
+		return instance;
 	}
 	
+	public void clearErrors()
+	{
+		errors.clear();
+	}
+	
+	public boolean hasErrors()
+	{
+		return errors.size() > 0;
+	}
+	
+	public ArrayList<String> getErrors()
+	{
+		return errors;
+	}
+	
+	public Set<String> getKeySet()
+	{
+		return serviceData.serviceInfo.keySet();
+	}
+		
+	/**
+	 * default save saves the memory serviceData to .myrobotlab/serviceData.xml
+	 */
 	public boolean save()
 	{
 		Serializer serializer = new Persister();
@@ -70,30 +88,76 @@ public class ServiceInfo implements Serializable{
 			{
 				cfgdir.mkdirs();
 			}
-			File cfg = new File(Service.getCFGDir() + File.separator + "dependencies" + ".xml");
-			serializer.write(this, cfg);
+			File cfg = new File(Service.getCFGDir() + File.separator + "serviceData.xml");
+			serializer.write(serviceData, cfg);
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
 		return true;
 	}
-
-	public boolean loadIvyCache()
+	
+	/**
+	 * this method looks in the .ivy cache directory for resolved dependencies
+	 * and builds a master map of third party libs which are on the local system
+	 */
+	public boolean loadLocalResolvedDependencies()
 	{
 		boolean ret = false;
 		
+		// clear local resolved serviceInfo
+		serviceData.thirdPartyLibs.clear();
+		
+		// load .ivy cache		
+		try {
+									
+			List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
+			
+			for (File file : files) {
+				String org = file.getName();
+				org = org.substring(org.indexOf("-")+1);
+				org = org.substring(0, org.indexOf("-"));
+				
+				String module = org.substring(org.lastIndexOf(".")+1);
+				
+				String contents = FileIO.fileToString(file.getPath());
+				
+				// hack - more cheesy parsing
+				String version = contents.substring(contents.indexOf("rev=\"")+5); 
+				version = version.substring(0, version.indexOf("\""));
+				LOG.info("adding dependency " + org + " " + version + " to local master list");
+				Dependency d = new Dependency(org, module, version, false);
+				d.released = true;
+				d.resolved = true;
+				serviceData.thirdPartyLibs.put(org, d);
+			}			
+			
+		} catch (FileNotFoundException e) {
+			Service.logException(e);
+			return false;
+		}
+
 		return ret;
 	}
 	
+	/**
+	 * default load, loads both the serviceData.xml file and the local
+	 * .ivy cache into memory.
+	 */
 	public boolean load()
-	{		
-		return load(null, "dependencies.xml");
+	{
+		boolean ret = loadServiceDataXML();
+		ret &= loadLocalResolvedDependencies();
+		return ret;
 	}
 	
-	public boolean load(Object o, String inCfgFileName)
+	public boolean loadServiceDataXML()
+	{		
+		return loadXML(serviceData, "serviceData.xml");
+	}
+	
+	public boolean loadXML(Object o, String inCfgFileName)
 	{
-		// TODO - normalize - Service.load(this, "dependencies");
 		String filename = null;
 		if (inCfgFileName == null)
 		{
@@ -121,260 +185,52 @@ public class ServiceInfo implements Serializable{
 	}
 
 	
-	public static boolean hasUnfulfilledDependencies(String fullServiceName)
+	public boolean hasUnfulfilledDependencies(String fullServiceName)
 	{
 		boolean ret = false;
 		
-		// no dependencies
-		if (!dependencies.containsKey(fullServiceName))
+		// no serviceInfo
+		if (!serviceData.serviceInfo.containsKey(fullServiceName))
 		{
 			LOG.error("need full service name ... got " + fullServiceName);
 			return false;
 		}
 		
-		DependencyList d = dependencies.get(fullServiceName);
+		DependencyList d = serviceData.serviceInfo.get(fullServiceName);
 		for (int i = 0; i < d.size(); ++i)
 		{
-			if (masterList.containsKey(d.get(i)))
+			if (serviceData.thirdPartyLibs.containsKey(d.get(i)))
 			{
-				Dependency dep = masterList.get(d.get(i));
+				Dependency dep = serviceData.thirdPartyLibs.get(d.get(i));
 				if (!dep.resolved)
 				{
 					return true;
 				}
 			} else {
-				LOG.error(d.get(i) + " can not be found in masterList !!! broken index");
+				LOG.error(d.get(i) + " can not be found in thirdPartyLibs !!! broken index");
+				return true;
 			}			
 		}
 		
 		
 		return ret;
 	}
-	
-	private ServiceInfo()
-	{
-
-		// FIXME - set dependencies - but a flag to repress showing !!
-		addBase("AFMotorShield");
-		addBase("Arduino");
-		addDependency("Arduino","gnu.io.rxtx","2.1-7r2");		
-
-		addBase("Arm");		
-		addBase("AudioCapture");		
-		addBase("AudioFile");
-		addDependency("AudioFile","javazoom.jl.player","1.0.1");
-
-		addBase("ChessGame");
-		addDependency("ChessGame","org.op.chess","1.0.0");	
-				
-		//addBase("ChumbyBot");
-		addBase("Clock");
-		addBase("FaceTracking");
-		addBase("FSM");
-		addBase("FSMTest");
-		addBase("GeneticProgramming");
-		addBase("GoogleSTT");		
-		addDependency("GoogleSTT","javaFlacEncoder.FLAC_FileEncoder","0.1");	
-		addDependency("GoogleSTT","org.tritonus.share.sampled.floatsamplebuffer","0.3.6");
-		addDependency("GoogleSTT","com.google.gson","1.7.1");		
-		addBase("Graphics");
-		addBase("GUIService");
-		addDependency("GUIService","com.mxgraph.jgraph","1.6.1.2");	
-		addDependency("GUIService","org.fife.rsyntaxtextarea","1.5.2");	
-
-		addBase("HTTPClient");
-		addDependency("HTTPClient","org.apache.commons.httpclient","3.1");	
-		addDependency("HTTPClient","org.apache.commons.codec","1.3");	
-		addDependency("HTTPClient","org.apache.commons.logging","1.1");	
-
-		addBase("IPCamera");		
 		
-		addBase("JFugue");		
-		addDependency("JFugue","org.jfugue.music","4.0.3");	
-
-		addBase("Jibble");
-		addDependency("Jibble","org.jibble.simplewebserver","1.0");	
-
-		addBase("Joystick");		
-		addDependency("Joystick","com.centralnexus.joystick","0.7");	
-		
-		addBase("Jython");		
-		addDependency("Jython","org.python.core","2.5.2");	
-
-		addBase("Keyboard");		
-		addBase("Logging");		
-		//addBase("MagaBot");		
-		addBase("Motor");		
-		//addBase("MyRobot");		
-		// TODO - addBase("MSR4") - radioshack micro-controller
-
-		addBase("OpenCV");		
-		addDependency("OpenCV","com.googlecode.javacv","20111001");	
-		addDependency("OpenCV","net.sourceforge.opencv","2.3.1a");	
-		addDependency("OpenCV","com.sun.jna","3.2.2");	
-
-		addBase("ParallelPort");				
-		addDependency("ParallelPort","gnu.io.rxtx","2.1-7r2");		
-
-		//addBase("PICAXE"); // FIXME - Make it				
-		
-		addBase("PlayerStage");				
-		addDependency("PlayerStage","javaclient3.playerstage","3");		
-		
-		addBase("Propellor"); // FIXME - Make it
-		
-		addBase("RemoteAdapter");		
-
-		addBase("RobotPlatform");
-		
-		addBase("Roomba");		
-		addDependency("Roomba","gnu.io.rxtx","2.1-7r2");
-		
-		addBase("SensorMonitor");		
-		//	addBase("Runtime");		
-		addBase("Servo");		
-
-		addBase("Simbad");		
-		addDependency("Simbad","simbad.gui","1.4");	
-		addDependency("Simbad","javax.vecmath","1.5.1");	
-
-		addBase("Sphinx");		
-		addDependency("Sphinx","javax.speech.recognition","1.0");	
-		addDependency("Sphinx","edu.cmu.sphinx","4-1.0beta6");	
-		
-		addBase("Speech");		
-		addDependency("Speech","com.sun.speech.freetts","1.2");	
-
-		addBase("TweedleBot");		
-
-		addBase("Wii");		
-		addDependency("Wii","wiiuse.wiimote","0.12b");	
-		
-		/////////////////////CATEGORIES////////////////////
-		addCategory  ("Arduino", "microcontroller");
-		addCategory  ("Propellor", "microcontroller");
-
-		addCategory  ("GeneticProgramming", "intelligence");
-		addCategory  ("FSM", "intelligence");
-
-		addCategory  ("Motor", "actuators");
-		addCategory  ("Servo", "actuators");
-		
-		addCategory  ("AudioCapture", "audio");
-		addCategory  ("AudioFile", "audio");
-		addCategory  ("Speech", "audio");
-		addCategory  ("JFugue", "audio");
-		
-		addCategory  ("Joystick", "controller");
-		addCategory  ("Wii", "controller");
-		
-		addCategory  ("Jython", "programming");
-		addCategory  ("GUIService", "programming");
-				
-		addCategory  ("RemoteAdapter", "network");
-		addCategory  ("HTTPClient", "network");
-		addCategory  ("Jibble", "network");
-
-		addCategory  ("ChumbyBot", "robots");
-		addCategory  ("Roomba", "robots");
-		addCategory  ("Magabot", "robots");
-		addCategory  ("RobotPlatform", "robots");
-		addCategory  ("TweedleBot", "robots");
-		
-		addCategory  ("Simbad", "simulator");
-		addCategory  ("PlayerStage", "simulator");
-
-		addCategory  ("SensorMonitor", "sensors");
-
-		addCategory  ("Speech", "speech synthesis");
-		
-		addCategory  ("GoogleSTT", "speech recognition");
-		addCategory  ("Sphinx", "speech recognition");
-
-		addCategory  ("OpenCV", "vision");
-		addCategory  ("IPCamera", "vision");		
-		
-		//addCategory  ("Skype", "telerobotics");
-		//addCategory  ("GoogleAPI", "telerobotics"); **
-		//addCategory  ("GoogleGoggles", "telerobotics"); **
-		
-		//addCategory  ("WiiDAR", "navigation");
-		//addCategory  ("SLAM", "navigation");
-		
-		//addCategory  ("ROS", "interoperability");
-		//addCategory  ("Processing", "interoperability");
-		
-		//addCategory  ("GeneticProgramming", "AI");
-		//addCategory  ("NeuralNetwork", "AI");
-		//addCategory  ("FSM", "AI");
-		
-		
-		// addCategory  ("", "misc"); all which aren't defined
-		// all
-		
-	}
-	
-	
-	/**
-	 * function to return an array of dependencies for the Runtime
-	 * So that Ivy can download, cache, and manage all the appropriate 
-	 * dependencies for a Service.  TODO - make this function abstract and
-	 * force implementation.
-	 * 
-	 * @return Array of dependencies to be retrieved from the repo
-	 */
-	public static ArrayList<Dependency> getDependencies (String fullname)
-	{
-		if (dependencies.containsKey(fullname))
-		{
-			DependencyList d = dependencies.get(fullname);
-			ArrayList<Dependency> ret = new ArrayList<Dependency>(); 
-			for (int i = 0; i < d.size(); ++i)
-			{
-				String org = d.get(i);
-				if (masterList.containsKey(org))
-				{
-					ret.add(masterList.get(d.get(i)));
-				} else {
-					LOG.error(org + " dependency not found in masterList !!!");
-				}
-			}
-			
-			return ret;
-		}
-		
-		return null;
-	}
-	
-	
-	/**
-	 * static info - share it with a singleton
-	 * @return
-	 */
-	public static  ServiceInfo getInstance()
-	{
-		if (instance == null)
-		{
-			instance = new ServiceInfo();
-		}
-		return instance;
-	}
-
-	public static String[] getShortClassNames()
+	public String[] getShortClassNames()
 	{
 		return getShortClassNames(null);
 	}	
 	
-	public static String[] getShortClassNames(String filter)
+	public String[] getShortClassNames(String filter)
 	{
 		ArrayList<String> sorted = new ArrayList<String>();
 		
-		Iterator<String> it = dependencies.keySet().iterator();
+		Iterator<String> it = serviceData.serviceInfo.keySet().iterator();
 		while (it.hasNext()) {
 			String sn = it.next();
 			if (filter != null)
 			{
-				ArrayList<String> cats = categories.get(sn);
+				ServiceData.CategoryList cats = serviceData.categories.get(sn);
 				if (cats != null) {
 					for (int i = 0; i < cats.size(); ++i)
 					{
@@ -390,63 +246,49 @@ public class ServiceInfo implements Serializable{
 		}
 		Collections.sort(sorted);
 		return sorted.toArray(new String[sorted.size()]);
-		//return dependencies.keySet().toArray(new String[dependencies.keySet().size()]);
+		//return serviceInfo.keySet().toArray(new String[serviceInfo.keySet().size()]);
 	}
 
-	public static void addDependency (String shortName, String org, String version)
+	public void addDependency (String shortName, String org, String version)
 	{
 		addDependency(shortName, org, version, true);
 	}
 	
-	public static void addDependency (String shortName, String org, String version, boolean released)
+	public void addDependency (String shortName, String org, String version, boolean released)
 	{
 		String fullname = "org.myrobotlab.service." + shortName;
 		String module = org.substring(org.lastIndexOf(".")+1);		
 
 		DependencyList list = null;
-		if (dependencies.containsKey(fullname))
+		if (serviceData.serviceInfo.containsKey(fullname))
 		{
-			list =  dependencies.get(fullname);
+			list =  serviceData.serviceInfo.get(fullname);
 		} else {
 			list = new DependencyList();
-			dependencies.put(fullname, list);
+			serviceData.serviceInfo.put(fullname, list);
 		}
 		
 		// check to see if it is in the master list
 		// if not add it
 		Dependency d = null;
-		if (masterList.containsKey(org))
+		if (serviceData.thirdPartyLibs.containsKey(org))
 		{
-			d = masterList.get(org);
+			d = serviceData.thirdPartyLibs.get(org);
 		} else {
 			d = new Dependency(org, module, version, released);
-			masterList.put(org, d);
+			serviceData.thirdPartyLibs.put(org, d);
 		}
 		list.add(org);		
 	}
 	
-	public static void addCategory(String shortName, String category)
-	{
-		String fullname = "org.myrobotlab.service." + shortName;
-		ArrayList<String>list = null;
-		if (categories.containsKey(shortName))
-		{
-			
-			list =  categories.get(fullname);
-		} else {
-			list = new ArrayList<String>();
-			categories.put(fullname, list);
-		}
-		list.add(category);	
-	}
-	public static String[] getUniqueCategoryNames ()
+	public String[] getUniqueCategoryNames ()
 	{
 		ArrayList<String> sorted = new ArrayList<String>();
 		HashMap<String,String> normal = new HashMap<String,String>();
-		Iterator<String> it = categories.keySet().iterator();
+		Iterator<String> it = serviceData.categories.keySet().iterator();
 		while (it.hasNext()) {
 			String sn = it.next();
-			ArrayList<String> al = categories.get(sn);
+			ServiceData.CategoryList al = serviceData.categories.get(sn);
 			for (int i = 0; i < al.size(); ++i)
 			{
 				normal.put(al.get(i), null);
@@ -462,4 +304,265 @@ public class ServiceInfo implements Serializable{
 		Collections.sort(sorted);
 		return sorted.toArray(new String[sorted.size()]);		
 	}
+
+	public boolean getRepoServiceData() {
+		try {
+			HTTPRequest http = new HTTPRequest("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
+			String s = http.getString();
+			if (s != null){
+				FileIO.stringToFile(Service.getCFGDir() + File.separator + "serviceData.xml", s);
+				return true;
+			}
+		} catch (Exception e) {
+			Service.logException(e);
+			errors.add(e.getMessage());
+		}
+		return false;
+	}
+
+	// TODO - implement and remove from Runtime
+	public void determineInstalledServices()
+	{
+		
+	}
+	
+	
+	public void addCategory(String shortName, String category)
+	{
+		// TODO - bury all this in ServiceData
+		if (serviceData.categories == null)
+		{
+			serviceData.categories = new TreeMap<String, CategoryList>();
+		}
+		
+		String fullname = "org.myrobotlab.service." + shortName;
+		//ArrayList<String>list = null;
+		ServiceData.CategoryList list = null;
+		if (serviceData.categories.containsKey(shortName))
+		{
+			
+			list =  serviceData.categories.get(fullname);
+		} else {
+			list = new ServiceData.CategoryList();
+			serviceData.categories.put(fullname, list);
+		}
+		list.services.add(category);	
+	}
+
+	public boolean isServiceInstalled(String name)
+	{
+		//if ()
+		return false;
+	}
+	
+	
+	/** 
+	 * gets thirdPartyLibs of a Service using Ivy
+	 * interfaces with Ivy using its command parameters
+	 * @param fullTypeName
+	 */
+	// TODO - interface to Ivy2 needs to be put into ServiceInfo
+	public boolean resolve(String fullTypeName)
+	{
+		LOG.debug("getDependencies " + fullTypeName);
+		boolean ret = true;
+
+		File ivysettings = new File(ivyFileName);
+		if (!ivysettings.exists())
+		{
+			LOG.warn(ivyFileName +  " does not exits - will not try to resolve dependencies");
+			return false;
+		}
+		
+		try {
+
+			ArrayList<String> d = getRequiredDependencies(fullTypeName);
+
+			if (d != null)
+			{
+				LOG.info(fullTypeName + " found " + d.size() + " needed dependencies");
+				for (int i=0; i < d.size(); ++i)
+				{					
+					String dep = d.get(i);					
+					
+					ArrayList<String> cmd = new ArrayList<String>();
+					
+					cmd.add("-cache");
+					cmd.add(".ivy");
+	
+					cmd.add("-retrieve");
+					cmd.add("libraries/[type]/[artifact].[ext]");
+	
+					cmd.add("-settings");
+					//cmd.add("ivysettings.xml");
+					cmd.add(ivyFileName);
+	
+					//cmd.add("-cachepath");
+					//cmd.add("cachefile.txt");					
+					
+					cmd.add("-dependency");
+					cmd.add(dep); // org
+					String module = dep.substring(dep.lastIndexOf(".")+1);
+					cmd.add(module); 		// module		
+					//cmd.add(dep.version); 	// version
+					cmd.add("latest.integration");
+					
+					cmd.add("-confs");
+					String confs = "runtime,"+Platform.getArch()+"."+
+							Platform.getBitness()+"." + 
+							Platform.getOS();
+					cmd.add(confs);
+					
+					// show cmd params
+					StringBuilder sb = new StringBuilder();
+					for (int k = 0; k < cmd.size(); ++k)
+					{
+						sb.append(cmd.get(k));
+						sb.append(" ");
+					}
+					
+					// FIXME - generate Ivy xml file
+					//dependencyCommandLine += sb.toString() + "\n"; 
+					LOG.info(sb.toString());
+					//debug = true;
+					//if (debug) continue;
+
+					
+					CommandLineParser parser = Main.getParser();
+					
+					try {
+						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+						ResolveReport report = Ivy2.getReport();
+			            if (report.hasError()) {
+			            	ret = false;
+			            	//dep.resolved = false; - not needed since it will not be in cache
+			                // System.exit(1);
+			            	LOG.error("Ivy resolve error");
+			            	// invoke Dependency Error - 
+			            	List<String> l = report.getAllProblemMessages();
+			            	for (int j = 0; j < l.size(); ++j)
+			            	{
+			            		/* TODO - interface for generating events ???
+				            	
+				    			if (INSTANCE != null)
+				    			{
+				    				INSTANCE.invoke("failedDependency", l.get(j));
+				    			}
+				    			*/
+			            		LOG.error(l.get(j));
+			            	}
+			            } else {
+			            	//dep.resolved = true;
+			    			//save();
+			            }
+					} catch (Exception e)
+					{
+						Service.logException(e);
+					}
+					
+					// local config - 
+					
+					// if the Service is downloaded we have to dynamically 
+					// load the classes - if we are not going to restart
+					// http://tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html
+				}
+			} else {
+				if (d == null)
+				{
+					LOG.info(fullTypeName + " returned no dependencies");
+				}
+			}
+		} catch (Exception e) {
+			Service.logException(e);
+			ret = false;
+		}		
+		
+		return ret;
+	}
+
+	/**
+	 * function to return an array of serviceInfo for the Runtime
+	 * So that Ivy can download, cache, and manage all the appropriate 
+	 * serviceInfo for a Service.  TODO - make this function abstract and
+	 * force implementation.
+	 * 
+	 * @return Array of serviceInfo to be retrieved from the repo
+	 */
+	public ArrayList<String> getRequiredDependencies (String fullname)
+	{
+		if (serviceData.serviceInfo.containsKey(fullname))
+		{
+			DependencyList d = serviceData.serviceInfo.get(fullname);
+			ArrayList<String> ret = new ArrayList<String>(); 
+			for (int i = 0; i < d.size(); ++i)
+			{
+				String org = d.get(i);
+				if (serviceData.thirdPartyLibs.containsKey(org))
+				{
+					LOG.info(org + " already in cache - skipping");
+				} else {
+					LOG.error(org + " required - will need to resolve");
+					ret.add(org);
+				}
+			}
+			
+			return ret;
+		}
+		
+		return null;
+	}
+
+	public boolean update() {
+
+		// load up the serviceData.xml and .ivy cache
+		// NOTE - it is the responsibility of some other system
+		// to call getRepoServiceData - if a new service & categories
+		// definition is wanted
+		load();
+
+		Iterator<String> it = getKeySet().iterator();
+		while (it.hasNext()) {
+			String s = it.next();
+			resolve(s);
+		}
+
+		// TODO - return list object - for event processing on caller
+		// TODO - re-check local after processing Ivy - so new Services can be
+		// loaded or
+		// after reboot -
+		return false;
+	}
+	
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		try {
+			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+			java.lang.Runtime.getRuntime().exec("myrobotlab.sh");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		boolean update = true;
+		ServiceInfo info = ServiceInfo.getInstance();
+		
+		// attempt to get latest from repo if requested
+		if (update)
+		{
+			info.getRepoServiceData();
+		}	
+
+		// load the possibly recent serviceData
+		info.loadServiceDataXML(); // 
+		
+		// add the local ivy cache - TODO - rename to thirdPartyLibs
+		info.loadLocalResolvedDependencies();
+
+		// TODO - verify all keys !
+		//info.save();
+	}
+
+
 }

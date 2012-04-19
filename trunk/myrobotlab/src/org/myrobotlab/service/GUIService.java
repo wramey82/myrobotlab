@@ -762,7 +762,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if ("save".equals(action))
 		{
 			Runtime.save("myrobotlab.mrl");
-		} else if ("check now".equals(action))
+		} else if ("update all now".equals(action))
 		{
 			Runtime.update();
 		} else if ("load".equals(action)) 
@@ -1127,7 +1127,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	    system.add(m);
 	    
-			mi = new JMenuItem("check now");
+			mi = new JMenuItem("update all now");
 		    mi.addActionListener(this);
 		    m.add(mi);
 
