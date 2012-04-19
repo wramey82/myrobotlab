@@ -207,7 +207,7 @@ public class ServiceInfo implements Serializable{
 					return true;
 				}
 			} else {
-				LOG.error(d.get(i) + " can not be found in thirdPartyLibs !!! broken index");
+				LOG.info(fullServiceName + " dependency " + d.get(i) + " can not currently be found in thirdPartyLibs");
 				return true;
 			}			
 		}
