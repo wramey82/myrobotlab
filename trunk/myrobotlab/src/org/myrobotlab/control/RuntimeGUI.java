@@ -233,7 +233,7 @@ public class RuntimeGUI extends ServiceGUI {
 							{
 								java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
 							} else {
-								java.lang.Runtime.getRuntime().exec("myrobotlab.sh");							
+								java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");							
 							}
 						} catch (Exception ex)
 						{
