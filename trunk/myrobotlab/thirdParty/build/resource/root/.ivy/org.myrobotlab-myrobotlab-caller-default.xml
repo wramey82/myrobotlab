@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="org.myrobotlab"
+		module="myrobotlab-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20120419054107"/>
+	<dependencies>
+		<module organisation="org.myrobotlab" name="myrobotlab">
+			<revision name="14.2" status="release" pubdate="20120418184013" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="runtime, x86.32.windows" position="0">
+				<metadata-artifact status="successful" details="" size="450" time="203" location="C:\mrl\myrobotlab\.ivy\org.myrobotlab\myrobotlab\ivy-14.2.xml" searched="true" original-local-location="C:\mrl\myrobotlab\.ivy\org.myrobotlab\myrobotlab\ivy-14.2.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.myrobotlab/myrobotlab/14.2/ivy.xml"/>
+				<caller organisation="org.myrobotlab" name="myrobotlab-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+					<artifact name="myrobotlab" type="jar" ext="jar" status="successful" details="" size="1368297" time="8531" location="C:\mrl\myrobotlab\.ivy\org.myrobotlab\myrobotlab\jars\myrobotlab-14.2.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.myrobotlab/myrobotlab/14.2/myrobotlab.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
