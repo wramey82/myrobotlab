@@ -29,6 +29,8 @@ import org.myrobotlab.framework.ServiceWrapper;
  * to the MRL client.  And finally a "send" which sends a message to trigger the callback
  * event.
  * 
+ * Example Code:
+ * 
  * 		MRLClient api = new MRLClient();
  * 		Receiver client = new Receiver();
  *
@@ -121,6 +123,8 @@ public class MRLClient implements Receiver {
 	 * @return
 	 */
 	final synchronized public boolean send(String name, String method, Object... data) {
+		
+		LOG.debug("sending message to " + name + "." + method + "()" );
 		
 		Message msg = new Message();
 		msg.name = name;
@@ -278,7 +282,21 @@ public class MRLClient implements Receiver {
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
-		MRLClient client = new MRLClient();
+		if (cmdline.hasSwitch("-test")){
+			test();
+			return;
+		}
+		
+		/*
+		MRLClient api = new MRLClient();
+  		//Receiver client = new Receiver();
+ 
+ 		api.register("localhost", 6767, api);
+ 		api.subscribe("catchInteger", "catcher01", "myMsg", Integer.TYPE);
+ 		api.send("catcher01", "catchInteger", 5);
+		*/
+		
+		MRLClient client = new MRLClient();		
 		
 		client.host = cmdline.getSafeArgument("-host", 0, "localhost");
 		client.port = Integer.parseInt(cmdline.getSafeArgument("-host", 0, "6767"));
@@ -300,8 +318,20 @@ public class MRLClient implements Receiver {
 		
 		client.register(client.host, client.port, client);
 		client.send(service, method, data);
+		LOG.debug("CTRL-C to quit");
+
 	}
 
+	static public void test()
+	{
+		MRLClient client = new MRLClient();
+		client.register("localhost", 6767, client);
+		client.send("catcher01", "catchInteger", 3);
+		client.subscribe("catchInteger", "catcher01", "catchInteger", Integer.TYPE);
+		client.send("catcher01", "catchInteger", 5);
+		LOG.debug("CTRL-C to quit");
+	}
+	
 	static public String help() {
 		return "java -jar MRLClient.jar -host [localhost] -port [6767] -service [myService] -method [doIt] -data \"data1\" \"data2\" \"data3\"... \n"
 				+ "host: the name or ip of the instance of MyRobotLab which the message should be sent."
