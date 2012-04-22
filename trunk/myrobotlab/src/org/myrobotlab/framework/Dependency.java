@@ -26,4 +26,13 @@ public class Dependency {
 		this.version 		= version;
 		this.released 		= released;
 	}
+	
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.organisation);
+		sb.append(" ");
+		sb.append(this.version);
+		return sb.toString();
+	}
 }

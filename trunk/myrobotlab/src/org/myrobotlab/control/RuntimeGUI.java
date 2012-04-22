@@ -219,8 +219,9 @@ public class RuntimeGUI extends ServiceGUI {
 					}
 					
 					// FIXME - FIXME - FIXME - Drupal like status report
+					// this has unresolved depenendencies to begin with
+					// so "checking for updates is not necessary" ?
 					serviceInfo.resolve(fullTypeName);
-					// FIXME - restart dialog
 					JFrame frame = new JFrame();
 					int ret = JOptionPane.showConfirmDialog(frame, "<html>New components have been added,<br>"+
 					" it is necessary to restart in order to use them.</html>", "restart", JOptionPane.YES_NO_OPTION);
@@ -321,6 +322,7 @@ public class RuntimeGUI extends ServiceGUI {
 		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
 		sendNotifyRequest("released", "released", ServiceWrapper.class);
 		sendNotifyRequest("failedDependency", "failedDependency", String.class);
+		sendNotifyRequest("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 	}
 
 	@Override
@@ -328,7 +330,10 @@ public class RuntimeGUI extends ServiceGUI {
 		removeNotifyRequest("registered", "registered", ServiceWrapper.class);
 		removeNotifyRequest("released", "released", ServiceWrapper.class);
 		removeNotifyRequest("failedDependency", "failedDependency", String.class);
+		removeNotifyRequest("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 	}
+	
+
 	
 	public void failedDependency (String dep)
 	{
@@ -364,6 +369,7 @@ public class RuntimeGUI extends ServiceGUI {
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
+			LOG.info("getListCellRendererComponent - begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
 			setText("<html><font color=#" + Style.base + ">" + entry.name
@@ -381,6 +387,7 @@ public class RuntimeGUI extends ServiceGUI {
 				setForeground(foreground);
 			}
 
+			LOG.info("getListCellRendererComponent - end");
 			return this;
 		}
 	}
@@ -396,11 +403,14 @@ public class RuntimeGUI extends ServiceGUI {
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
+			
+			LOG.info("getListCellRendererComponent begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
-			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type)); 
+//			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type));
+			boolean available = true;
 
-			setText(entry.type);
+			setText(entry.type + " installed");
 			
 			ImageIcon icon = Util.getScaledIcon(Util.getImage(
 					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
@@ -420,20 +430,45 @@ public class RuntimeGUI extends ServiceGUI {
 				setForeground(background);
 			}
 
+			LOG.info("getListCellRendererComponent end");			
 			return this;
 		}
 	}
 
 	public void getPossibleServices(String filter)
 	{
+		
+		
+		
 		possibleServicesModel.clear();
+		/*
+		//possibleServicesModel.removeListDataListener(l)
+		
+		possibleServicesModel = new DefaultListModel();
+		possibleServices.
+		*/
+		
+		
 		String[] sscn = Runtime.getServiceShortClassNames(filter);
 		ServiceEntry[] ses = new ServiceEntry[sscn.length];
-		for (int i = 0; i < ses.length; ++i)
+		int i;
+		ServiceEntry se = null;
+		for (i = 0; i < ses.length; ++i)
 		{
-			possibleServicesModel.addElement(new ServiceEntry(null, sscn[i], false));
+			LOG.info(i);
+			se = new ServiceEntry(null, sscn[i], false);
+			possibleServicesModel.addElement(se);
 		}
-
+		
+		//possibleServicesModel.copyInto(ses);
+		// FIXME - a new AWT Thread is spawned off to do the rendering
+		// if the thread goes out of method scope before the renderer is done
+		// it's not rendered AND possibly the index breaks
+		//possibleServicesRenderer.invalidate();
+		//possibleServices.firePropertyChange(propertyName, oldValue, newValue)
+		//possibleServices.invalidate();
+		possibleServicesModel.addElement(se);
+		LOG.info("here");
 	}
 		
 	class FilterListener implements ActionListener
@@ -450,4 +485,11 @@ public class RuntimeGUI extends ServiceGUI {
 		}
 		
 	}
+	
+	public ServiceInfo proposedUpdates (ServiceInfo si)
+	{
+		getPossibleServices(null);
+		return si;
+	}	
+	
 }
