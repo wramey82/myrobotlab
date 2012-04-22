@@ -112,10 +112,7 @@ public class FileIO {
 			LOG.error("could not locate resource " + filename);
 		}
 	    DataInputStream input = new DataInputStream (isr);
-
 	    String stringData = null;
-	    //long longData;
-	    //double doubleData;
 
 	    byte b[] = new byte[1024];
 	    try
@@ -124,9 +121,6 @@ public class FileIO {
 	      {
 	    	input.readFully(b);
 	        stringData = input.readUTF();
-	        //longData = input.readLong();
-	        //doubleData = input.readDouble();
-	        //LOG.info(stringData + "  " + longData + "  " + doubleData);
 	      }
 	    }
 	    catch (EOFException e)
@@ -135,9 +129,7 @@ public class FileIO {
 	    }
 	    catch (Exception e)
 	    {
-	      System.out.println (e.getMessage());
-	      e.printStackTrace();
-	      System.exit(0);
+	    	Service.logException(e);
 	    }
 	    finally
 	    {

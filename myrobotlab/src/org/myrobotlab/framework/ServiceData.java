@@ -23,7 +23,7 @@ public class ServiceData {
 	 * normalized
 	 */
 	@ElementMap(entry="serviceType", value="dependsOn", attribute=true, inline=true, required=false)
-	public TreeMap<String, DependencyList> serviceInfo = new TreeMap<String, DependencyList>();
+	public TreeMap<String, ServiceDescriptor> serviceInfo = new TreeMap<String, ServiceDescriptor>();
 	/**
 	 * master list of serviceInfo 
 	 */

@@ -95,7 +95,7 @@ public class Runtime extends Service {
 		hideMethods.put("access$0", null);
 
 		// load the current set of possible service
-		serviceInfo.load();
+		serviceInfo.getLocalServiceData();
 		
 		// starting this
 		startService();
@@ -1015,7 +1015,7 @@ public class Runtime extends Service {
 			if (cmdline.containsKey("-update"))
 			{
 				// force all updates
-				update();
+				updateAll();
 				return;
 			} else {
 				invokeCMDLine(cmdline);
@@ -1076,7 +1076,7 @@ public class Runtime extends Service {
 	 * Services - Ivy will attempt to check & fufill dependencies by downloading
 	 * jars from the repo 
 	 */
-	static public void update()
+	static public void updateAll()
 	{
 		
 		boolean getNewRepoData = true;
@@ -1085,8 +1085,9 @@ public class Runtime extends Service {
 		// events can be generated
 		serviceInfo.clearErrors();
 		
+		// FIXME - not needed - set defaults [update all = true]
 		if (getNewRepoData) 
-			serviceInfo.getRepoServiceData();
+			serviceInfo.getRepoServiceData("serviceData.xml");
 		
 		if (!serviceInfo.hasErrors())
 		{
@@ -1215,6 +1216,40 @@ public class Runtime extends Service {
 		}
 		
 		return sb.toString();
+	}
+
+	/**
+	 * this method attempts to connect to the repo
+	 * and populate information regarding the latest ServiceDescriptors
+	 * and their latest dependencies
+	 */
+	public static void checkForUpdates() {
+		/*
+		
+		//serviceInfo.getRepoServiceData();
+		// get local data 
+		serviceInfo.getLocalServiceData();
+				
+		// get remote data
+		serviceInfo.getRepoData();
+		*/
+		// notify ready for updates
+		INSTANCE.invoke("proposedUpdates", serviceInfo);
+	}
+	
+	/**
+	 * this method is an event notifier
+	 * that there were updates found
+	 */
+	public ServiceInfo proposedUpdates(ServiceInfo si)
+	{
+		return si;
+	}
+	
+	public static void installLatestAll() {
+		
+		//serviceInfo.getRepoServiceData();
+		
 	}
 	
 }

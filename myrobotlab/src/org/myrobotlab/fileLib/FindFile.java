@@ -79,12 +79,12 @@ public final class FindFile  { //implements FilenameFilter
 			}
 			
 			if (!file.isFile() && recurse) {
-				LOG.info("decending into " + file.getName());
+				LOG.debug("decending into " + file.getName());
 				List<File> deeperList = process(file, criteria, recurse, includeDirsInResult);
 				result.addAll(deeperList);
 			}
 
-			LOG.info(out.toString());
+			LOG.debug(out.toString());
 		}
 		return result;
 	}

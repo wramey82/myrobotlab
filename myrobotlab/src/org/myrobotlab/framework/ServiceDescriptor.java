@@ -16,25 +16,38 @@ import org.simpleframework.xml.ElementList;
  * would be something to avoid anyway (complexities of cross-versions - jar hell)
  *
  */
-public class DependencyList implements Serializable {
+public class ServiceDescriptor implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	@ElementList(name="list")
-	private ArrayList<String> list = new ArrayList<String>(); 
 	
-	public void add(String org)
+	public String state = "dev";
+	
+	@ElementList(name="list")
+	private ArrayList<String> dependencyList = new ArrayList<String>(); 
+	
+	public ServiceDescriptor()
 	{
-		list.add(org);
+		
+	}
+	
+	public ServiceDescriptor(String state)
+	{
+		this.state = state;
+	}
+	
+	public void addDependency(String org)
+	{
+		dependencyList.add(org);
 	}
 	
 	public int size()
 	{
-		return list.size();
+		return dependencyList.size();
 	}
 	
 	public String get(int index)
 	{
-		return list.get(index);
+		return dependencyList.get(index);
 	}
 	
 }

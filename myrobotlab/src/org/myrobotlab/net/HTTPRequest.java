@@ -92,6 +92,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public HTTPRequest(URLConnection connection) throws IOException {
+		LOG.info("http request for " + connection.getURL());
 		this.connection = connection;
 		connection.setDoOutput(true);
 	}
