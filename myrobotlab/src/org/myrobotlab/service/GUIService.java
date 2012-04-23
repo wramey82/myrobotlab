@@ -765,7 +765,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		} else if ("check for updates".equals(action))
 		{
 			Runtime.checkForUpdates();
-		} else if ("update all now".equals(action))
+		} else if ("update all".equals(action))
 		{
 			Runtime.updateAll();
 		} else if ("load".equals(action)) 
@@ -1130,13 +1130,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	    system.add(m);
 	    
-			mi = new JMenuItem("update all now");
-		    mi.addActionListener(this);
-		    m.add(mi);
+		mi = new JMenuItem("check for updates");
+	    mi.addActionListener(this);
+	    m.add(mi);
 
-			mi = new JMenuItem("check for updates");
-		    mi.addActionListener(this);
-		    m.add(mi);
+	    mi = new JMenuItem("update all");
+		mi.addActionListener(this);
+		m.add(mi);
+
+	    mi = new JMenuItem("install all");
+		mi.addActionListener(this);
+		m.add(mi);
 		    	    
 	    menuBar.add(system);
 	    

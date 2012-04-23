@@ -185,7 +185,7 @@ public class ServiceInfo implements Serializable{
 	public boolean hasUnfulfilledDependencies(String fullServiceName)
 	{
 		boolean ret = false;
-		LOG.info("inspecting " + fullServiceName + " for unfulfilled dependencies");
+		LOG.debug("inspecting " + fullServiceName + " for unfulfilled dependencies");
 		
 		// no serviceInfo
 		if (!serviceData.serviceInfo.containsKey(fullServiceName))
@@ -202,16 +202,16 @@ public class ServiceInfo implements Serializable{
 				Dependency dep = serviceData.thirdPartyLibs.get(d.get(i));
 				if (!dep.resolved)
 				{
-					LOG.info("hasUnfulfilledDependencies exit true");
+					LOG.debug("hasUnfulfilledDependencies exit true");
 					return true;
 				}
 			} else {
-				LOG.info(d.get(i) + " can not be found in current thirdPartyLibs");
-				LOG.info("hasUnfulfilledDependencies exit true");
+				LOG.debug(d.get(i) + " can not be found in current thirdPartyLibs");
+				LOG.debug("hasUnfulfilledDependencies exit true");
 				return true;
 			}			
 		}
-		LOG.info("hasUnfulfilledDependencies exit " + ret);		
+		LOG.debug("hasUnfulfilledDependencies exit " + ret);		
 		return ret;
 	}
 		

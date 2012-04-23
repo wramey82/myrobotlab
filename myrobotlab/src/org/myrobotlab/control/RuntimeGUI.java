@@ -47,6 +47,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -57,7 +58,6 @@ import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeGUI extends ServiceGUI {
@@ -69,10 +69,14 @@ public class RuntimeGUI extends ServiceGUI {
 	BasicArrowButton releaseServiceButton = null;
 	
 	// FIXME - put in as method of Style
+	/*
 	private static final Color highlight = Color.decode("0x" + Style.highlight);
 	private static final Color foreground = Color.decode("0x" + Style.listForeground);
 	private static final Color background = Color.decode("0x" + Style.listBackground);
 	private static final Color disabled = Color.decode("0x" + Style.disabled);
+	private static final Color possibleServicesLatest = Color.decode("0x" + Style.possibleServicesLatest);
+	*/
+	
 	
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>(); 
 	
@@ -380,11 +384,11 @@ public class RuntimeGUI extends ServiceGUI {
 			setIcon(icon);
 
 			if (isSelected) {
-				setBackground(highlight);
-				setForeground(background);
+				setBackground(Style.highlight);
+				setForeground(Style.background);
 			} else {
-				setBackground(background);
-				setForeground(foreground);
+				setBackground(Style.background);
+				setForeground(Style.foreground);
 			}
 
 			LOG.info("getListCellRendererComponent - end");
@@ -404,51 +408,36 @@ public class RuntimeGUI extends ServiceGUI {
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			
-			LOG.info("getListCellRendererComponent begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
-//			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type));
-			boolean available = true;
+			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type));
 
-			setText(entry.type + " installed");
+			setText(entry.type);
 			
 			ImageIcon icon = Util.getScaledIcon(Util.getImage(
 					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
 			setIcon(icon);
 
-			if (isSelected && available) {
-				setBackground(highlight);
-				setForeground(background);
-			} else if (!isSelected && available) {
-				setBackground(background);
-				setForeground(foreground);
-			} else if (isSelected && !available) {
-				setBackground(highlight);
-				setForeground(foreground);
-			} else if (!isSelected && !available) {
-				setBackground(disabled);
-				setForeground(background);
-			}
+			setForeground(Style.foreground);
+			setBackground(Style.possibleServicesLatest);
+			
+			if (!available) {
+				setBackground(Style.possibleServicesNotInstalled);
+			} 
 
-			LOG.info("getListCellRendererComponent end");			
+			if (isSelected && available) {
+				setBackground(Style.highlight);
+				setForeground(Style.background);
+			}
+			
 			return this;
 		}
 	}
 
 	public void getPossibleServices(String filter)
-	{
-		
-		
-		
+	{		
 		possibleServicesModel.clear();
-		/*
-		//possibleServicesModel.removeListDataListener(l)
-		
-		possibleServicesModel = new DefaultListModel();
-		possibleServices.
-		*/
-		
-		
+			
 		String[] sscn = Runtime.getServiceShortClassNames(filter);
 		ServiceEntry[] ses = new ServiceEntry[sscn.length];
 		int i;
@@ -460,17 +449,44 @@ public class RuntimeGUI extends ServiceGUI {
 			possibleServicesModel.addElement(se);
 		}
 		
-		//possibleServicesModel.copyInto(ses);
 		// FIXME - a new AWT Thread is spawned off to do the rendering
-		// if the thread goes out of method scope before the renderer is done
-		// it's not rendered AND possibly the index breaks
-		//possibleServicesRenderer.invalidate();
-		//possibleServices.firePropertyChange(propertyName, oldValue, newValue)
-		//possibleServices.invalidate();
-		possibleServicesModel.addElement(se);
-		LOG.info("here");
 	}
+
+	
+	/**
+	 * duplicate of getPossibleServices - but since Swing is not
+	 * thread-safe we need to wrap the swing calls into a runnable
+	 * and post them ! 
+	 * http://stackoverflow.com/questions/4547113/jlist-setlistdata-threading-issues
+	 * Thank you Robert & Stack-overflow for something which I was
+	 * tearing my hair out for a day !!!
+	 */
+	public void getPossibleServicesThreadSafe(String filter)
+	{		
 		
+		Runnable worker = new Runnable(){
+			public void run(){
+				possibleServicesModel.clear();
+				
+				String[] sscn = Runtime.getServiceShortClassNames(null);
+				ServiceEntry[] ses = new ServiceEntry[sscn.length];
+				int i;
+				ServiceEntry se = null;
+				for (i = 0; i < ses.length; ++i)
+				{
+					LOG.info(i);
+					se = new ServiceEntry(null, sscn[i], false);
+					possibleServicesModel.addElement(se);
+				}
+			}
+		};
+		
+		SwingUtilities.invokeLater(worker);
+
+		// FIXME - a new AWT Thread is spawned off to do the rendering
+	}	
+	
+	
 	class FilterListener implements ActionListener
 	{
 		@Override
@@ -486,9 +502,15 @@ public class RuntimeGUI extends ServiceGUI {
 		
 	}
 	
+	/**
+	 * event method which is called when a "check for updates"
+	 * request has new ServiceInfo data from the repo
+	 * @param si
+	 * @return
+	 */
 	public ServiceInfo proposedUpdates (ServiceInfo si)
 	{
-		getPossibleServices(null);
+		getPossibleServicesThreadSafe(null);
 		return si;
 	}	
 	

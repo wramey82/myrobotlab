@@ -24,14 +24,13 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 
 /**
  * 
  * Runtime is responsible for the creation and removal of all Services
- * and the associated static registries 
+ * and the associated static regestries 
  * It maintains state information regarding possible & running local Services
  * It maintains state information regarding foreign Runtimes
  * It is a singleton and should be the only service of Runtime running in a
@@ -46,7 +45,6 @@ public class Runtime extends Service {
 
 	private static final long serialVersionUID = 1L;
 	
-	static public Style style = new Style();
 	
 	// ---- rte members begin ----------------------------
 	static private HashMap<URL, ServiceEnvironment> hosts = new HashMap<URL, ServiceEnvironment>();	;
