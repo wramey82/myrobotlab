@@ -37,6 +37,8 @@ public class ServiceInfo implements Serializable{
 	private ServiceData serviceDataFromRepo = new ServiceData();
 	private ArrayList<String> errors = new ArrayList<String>(); 
 	
+	private String settings = "latest.integration";
+	
 	private static ServiceInfo instance = null;	
 		
 	private ServiceInfo()
@@ -121,11 +123,17 @@ public class ServiceInfo implements Serializable{
 				
 				String module = org.substring(org.lastIndexOf(".")+1);
 				
-				String contents = FileIO.fileToString(file.getPath());
+				//String contents = FileIO.fileToString(file.getPath());
 				
+				String versionFile = FileIO.fileToString(".ivy/" + org + "/" + module + "/ivydata-" + settings + ".properties");
+				
+				String version = null;
 				// hack - more cheesy parsing
-				String version = contents.substring(contents.indexOf("rev=\"")+5); 
-				version = version.substring(0, version.indexOf("\""));
+				if (versionFile != null && versionFile.length() > 18) 
+				{
+					version = versionFile.substring(versionFile.indexOf("resolved.revision=")+18); 
+					version = version.substring(0,version.indexOf("\r\n")); 
+				}
 				LOG.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
 				Dependency d = new Dependency(org, module, version, false);
 				d.released = true;
@@ -410,7 +418,7 @@ public class ServiceInfo implements Serializable{
 					String module = dep.substring(dep.lastIndexOf(".")+1);
 					cmd.add(module); 		// module		
 					//cmd.add(dep.version); 	// version
-					cmd.add("latest.integration");
+					cmd.add(settings);
 					
 					cmd.add("-confs");
 					String confs = "runtime,"+Platform.getArch()+"."+
@@ -423,7 +431,7 @@ public class ServiceInfo implements Serializable{
 					for (int k = 0; k < cmd.size(); ++k)
 					{
 						sb.append(cmd.get(k));
-						sb.append(" ");
+						sb.append(" ");	
 					}
 					
 					// FIXME - generate Ivy xml file
@@ -540,16 +548,26 @@ public class ServiceInfo implements Serializable{
 		// FIXME - display report !
 		
 		// retrieve updates
+		/*
 		it = getKeySet().iterator();
 		while (it.hasNext()) {
 			String s = it.next();
 			resolve(s);
 		}
+		*/
 		
 		// TODO - return list object - for event processing on caller
 		// TODO - re-check local after processing Ivy - so new Services can be
 		// loaded or
 		// after reboot -
+		return false;
+	}
+	
+	public boolean update (String fullTypeName)
+	{
+		getLocalServiceData();
+
+		resolve(fullTypeName);
 		return false;
 	}
 
@@ -612,6 +630,42 @@ public class ServiceInfo implements Serializable{
 		save(serviceDataFromRepo, "serviceData.repo.processed.xml");
 		
 		return ret;
+	}
+	
+	/**
+	 * can only be called after getting data from the repo
+	 * will return the first upgradable Dependency from a service
+	 * 
+	 * @param fullServiceType
+	 * @return
+	 */
+	public ArrayList<Dependency> checkForUpgrade(String fullServiceType)
+	{
+		// look through Service's dependencies and see if 
+		// a newer one is avilable from the repo
+		
+		ServiceDescriptor local    = serviceData.serviceInfo.get(fullServiceType);
+		ServiceDescriptor fromRepo = serviceDataFromRepo.serviceInfo.get(fullServiceType);
+		
+		ArrayList<Dependency> deps = new ArrayList<Dependency>();
+		
+		if (fromRepo != null)
+		{
+			for (int i = 0; i < fromRepo.size(); ++i)
+			{
+				String dependencyName = fromRepo.get(i);
+				Dependency localDep = serviceData.thirdPartyLibs.get(dependencyName);
+				Dependency repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
+				
+				//if (localDep == null || !localDep.version.equals(repoDep.version))
+				if (localDep != null && !localDep.version.equals(repoDep.version))
+				{
+					deps.add(repoDep);
+				}
+			}
+		}
+
+		return deps;		
 	}
 	
 	public static void main(String[] args) {

@@ -26,7 +26,6 @@
 package org.myrobotlab.service;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -74,6 +73,7 @@ import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
+import org.myrobotlab.control.Style;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
@@ -81,7 +81,6 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IPAndPort;
-import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 
@@ -128,12 +127,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
-
-	public String remoteColorTab = "0x" + Style.remoteColorTab;
-	public String remoteFont = "0x" + Style.remoteFont;
 	
 	String selectedTabTitle = null;
-
 	
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
@@ -155,23 +150,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 	
-	/**
-	 * implemented as all other msgs - the RuntimeGUI will 
-	 * call loadTabbed - when IT gets a registered !!!!
-	 * call back from Runtime - Service registering event
-	 * sent when a service has successfully registered
-	 * @param newService
-	 */
-	/*
-	public void registered (String newService)
-	{
-		loadTabPanels();
-	}
-	*/
-	/* (non-Javadoc)
-	 * @see org.myrobotlab.framework.Service#hasDisplay()
-	 * returns true, since this Service manages the Swing display
-	 */
 	public boolean hasDisplay()
 	{
 		return true;
@@ -181,13 +159,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-
-	//public HashMap<String, Integer> customWidgetPrefs = new HashMap<String, Integer>(); 
 	
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
 	}
-
 
 	public boolean preProcessHook(Message m)
 	{
@@ -244,35 +219,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		return null;
 	}	
-
-	/*
-	 RELEASED
-	 REGISTERED
-	 ROUTEREMOVED
-	 ROUTEADDED
-	 
-	 NEEDS A GUICHANGED EVENT - FOR WHENEVER ADDTAB OR REMOVETAB ARE CALLED !!!
-	 A PRE-GUI Flag
-	 and a CREATEGUI Event
-	 
-	 or a NEEDBlockRefresh
-	 
-	 			ServiceWrapper wrapper = services.get(serviceName);
-			// if you find a local gui
-			if (wrapper.host == null && 
-					wrapper.service != null && 
-					wrapper.service.hasDisplay())
-			{
-				localGUI = 
-			}
-	 
-	 */
-	boolean hasInit = false;
 	
 	public void buildTabPanels()
 	{
-		// add the wecome screen
-		// FIXME - possible problem loading a non-Service ServiceGUI
+		// add the welcome screen
 		if (!serviceGUIMap.containsKey("welcome")) 
 		{
 			welcome = new Welcome("",this); 
@@ -292,8 +242,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			addTab(serviceName);
 		}				
 		frame.pack();
-		//tabs.setSelectedIndex(0);
-		
 	}
 	
 	public void addTab(String serviceName)
@@ -327,8 +275,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			++index;
 			if (sw.getAccessURL() != null) {
-				tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
-				tabs.setForegroundAt(index, Color.decode(remoteFont));
+				tabs.setBackgroundAt(index, Style.remoteColorTab);
+				tabs.setForegroundAt(index, Style.remoteFont);
 			}
 		}
 
@@ -457,8 +405,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			{
 				++index;
 				if (sw.getAccessURL() != null) {
-					tabs.setBackgroundAt(index, Color.decode(remoteColorTab));
-					tabs.setForegroundAt(index, Color.decode(remoteFont));
+					tabs.setBackgroundAt(index, Style.remoteColorTab);
+					tabs.setForegroundAt(index, Style.remoteFont);
 				}
 
 			}
@@ -490,8 +438,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 				
 		frame.pack();
-		//tabs.setSelectedIndex(0);
-		
+
 		return tabs;
 
 	}
@@ -529,7 +476,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			gui.attachGUI();
 			tpanel.add(gui.widgetFrame); 
 			tabs.addTab(serviceName, tpanel);
-//			customWidgetPrefs.put(se.getName(), GUI.WIDGET_PREF_TABBED);
 
 		} else {
 			LOG.warn("could not construct a " + guiClass + " object");
@@ -615,12 +561,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
                 								JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	    frame.add(sp);
 	    
-		//loadTabPanels();
 	    buildTabPanels();
 		panel.add(tabs, gc);
 
-		// TODO - catch appropriate missing resource
-		// set the top left icon of the JFrame
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
@@ -637,7 +580,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
                 try {
-                        desktop.browse(uri);
+                	desktop.browse(uri);
                 } catch (IOException e) {
                         // TODO: error handling
                 }
@@ -681,32 +624,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowClosing(WindowEvent e) {
-		/*
-		 * TODO - at some point offer possiblities of only shutting the gui down
-		 * at the moment - assume all services should be shut down.
-		 */
-		/*
-		 * //
-		 * http://download.oracle.com/javase/tutorial/uiswing/components/dialog
-		 * .html LOG.info("windowClosing"); JFrame frame = new JFrame();
-		 * frame.setTitle("closing gui"); JOptionPane.showInputDialog(frame,
-		 * "new service name");
-		 */
 
-		// shut down all local services
-		//HashMap<String, ServiceEntry> services = hostcfg.getServiceMap();
-		
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry(); 
 
-		//ServiceEnvironment servEnv = Runtime.getLocalServices();
-		//HashMap<String, ServiceWrapper> services = servEnv.serviceDirectory;
-		
 		Iterator<String> it = services.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
 
-			//Service local = (Service) hostcfg.getLocalServiceHandle(serviceName);
 			ServiceInterface service = sw.get();
 
 			if (serviceName.compareTo(this.getName()) == 0) {
@@ -810,8 +735,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Runtime.load("myrobotlab.mrl");
 		
 		Runtime.startLocalServices();
-		// Execute when button is pressed // TODO send - message
-
 	}
 	
 	public void about()
@@ -832,8 +755,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		      Point p = parent.getLocation(); 
 		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		    }
-		    //GridBagConstraints gc = new GridBagConstraints();
-		    //JPanel messagePane = new JPanel(new GridBagLayout());
+
 		    JPanel messagePane = new JPanel();
 		    
 		    JLabel pic = new JLabel();
@@ -999,12 +921,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void setPeriod1(String s) {
 		guiServiceGUI.period1.setText(s);		
 	}
-/*
-	@Override
-	public HashMap<String, Integer> getCustomWidgetPrefs() {
-		return customWidgetPrefs;
-	}
-*/
+
 	@Override
 	public String getGraphXML() {
 		return graphXML;
