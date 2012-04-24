@@ -2,16 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
 <ivy-report version="1.0">
 	<info
-		organisation="org.myrobotlab"
-		module="myrobotlab-caller"
+		organisation="com.mxgraph.jgraph"
+		module="jgraph-caller"
 		revision="working"
 		conf="default"
 		confs="default"
-		date="20120424130911"/>
+		date="20120424130926"/>
 	<dependencies>
-		<module organisation="org.myrobotlab" name="myrobotlab">
+		<module organisation="com.mxgraph.jgraph" name="jgraph">
 			<revision name="latest.integration" error="not found" downloaded="false" searched="false" conf="runtime, x86.32.windows" position="-1">
-				<caller organisation="org.myrobotlab" name="myrobotlab-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<caller organisation="com.mxgraph.jgraph" name="jgraph-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
 				<artifacts>
 				</artifacts>
 			</revision>
