@@ -3,7 +3,9 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
 /**
  * list of relations from a Service type to a Dependency key
@@ -16,18 +18,19 @@ import org.simpleframework.xml.ElementList;
  * would be something to avoid anyway (complexities of cross-versions - jar hell)
  *
  */
+@Root(name="serviceDescriptor")
 public class ServiceDescriptor implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@Attribute(required=false)
 	public String state = "dev";
 	
 	@ElementList(name="list")
 	private ArrayList<String> dependencyList = new ArrayList<String>(); 
 	
 	public ServiceDescriptor()
-	{
-		
+	{		
 	}
 	
 	public ServiceDescriptor(String state)
@@ -49,5 +52,6 @@ public class ServiceDescriptor implements Serializable {
 	{
 		return dependencyList.get(index);
 	}
+		
 	
 }

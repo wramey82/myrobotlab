@@ -25,12 +25,15 @@
 
 package org.myrobotlab.control;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,55 +46,82 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JToolTip;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Dependency;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class RuntimeGUI extends ServiceGUI {
+public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
-	public final static Logger LOG = Logger.getLogger(RuntimeGUI.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(RuntimeGUI.class
+			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	BasicArrowButton addServiceButton = null;
 	BasicArrowButton releaseServiceButton = null;
-	
-	// FIXME - put in as method of Style
-	/*
-	private static final Color highlight = Color.decode("0x" + Style.highlight);
-	private static final Color foreground = Color.decode("0x" + Style.listForeground);
-	private static final Color background = Color.decode("0x" + Style.listBackground);
-	private static final Color disabled = Color.decode("0x" + Style.disabled);
-	private static final Color possibleServicesLatest = Color.decode("0x" + Style.possibleServicesLatest);
-	*/
-	
-	
-	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>(); 
-	
-	DefaultListModel possibleServicesModel = new DefaultListModel();
-	DefaultListModel currentServicesModel = new DefaultListModel();
 
-	JList possibleServices = new JList(possibleServicesModel);
-	JList currentServices  = new JList(currentServicesModel);
+	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>();
+
+	int popupRow = 0; 
 	
-	PossibleServicesRenderer possibleServicesRenderer = new PossibleServicesRenderer();
+	DefaultListModel currentServicesModel = new DefaultListModel();
+	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+	    public boolean isCellEditable(int row, int column) {
+	    return false;
+	    }
+	};
+	CellRenderer cellRenderer = new CellRenderer();
+	JTable possibleServices = new JTable(possibleServicesModel)
+    {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public JToolTip createToolTip() {
+			JToolTip tooltip = super.createToolTip();
+			//tooltip.setFont(tooltip.getFont().deriveFont(Font. BOLD, 32));
+			//tooltip.setForeground(Style.foreground);
+			//tooltip.setBackground(Style.background);
+			//tooltip.setOpaque(false);
+			return tooltip;
+		}		
+		
+		
+        // column returns content type 
+		public Class<?> getColumnClass(int column)
+        {
+            return getValueAt(0, column).getClass();
+        }
+    };
+	JList currentServices = new JList(currentServicesModel);
 	CurrentServicesRenderer currentServicesRenderer = new CurrentServicesRenderer();
-	
 	FilterListener filterListener = new FilterListener();
+	JPopupMenu popup = new JPopupMenu();
 	
-	// TODO - widgetize the "possible services" list
 	public RuntimeGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -100,46 +130,101 @@ public class RuntimeGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		getPossibleServices(null);		
 		getCurrentServices();
 
 		currentServices.setCellRenderer(currentServicesRenderer);
 
 		currentServices.setFixedCellWidth(200);
-		possibleServices.setFixedCellWidth(200);
+		possibleServicesModel.addColumn("");
+		possibleServicesModel.addColumn("");
+		possibleServices.setRowHeight(24);
+		//possibleServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);		
+		//possibleServices.setShowHorizontalLines(false);
+		//possibleServices.setShowVerticalLines(false);
+		possibleServices.setIntercellSpacing(new Dimension(0, 0));
+		possibleServices.setShowGrid(false);
+
+		//possibleServices.setGridColor(Style.possibleServicesStable);
+		//possibleServices.setGridColor(Style.possibleServicesDev);
+		possibleServices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		TableColumn col = possibleServices.getColumnModel().getColumn(0);
+		col.setPreferredWidth(150);
+		possibleServices.setPreferredScrollableViewportSize(new Dimension(300, 480));
+		// set map to determine what types get rendered
+		possibleServices.setDefaultRenderer(ImageIcon.class, cellRenderer);
+		possibleServices.setDefaultRenderer(ServiceEntry.class, cellRenderer);
+		possibleServices.setDefaultRenderer(String.class, cellRenderer);
 		
+		/*
+		possibleServices.setCellSelectionEnabled(false);
+		possibleServices.setColumnSelectionAllowed(false);
+		possibleServices.setRowSelectionAllowed(true);
+		possibleServices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		*/
+
+		possibleServices.addMouseListener( new MouseAdapter()
+		{
+		    public void mouseReleased(MouseEvent e)
+		    {
+		        if (e.isPopupTrigger())
+		        {
+		            JTable source = (JTable)e.getSource();
+		            popupRow = source.rowAtPoint( e.getPoint() );
+		            int column = source.columnAtPoint( e.getPoint() );
+
+		            if (! source.isRowSelected(popupRow))
+		                source.changeSelection(popupRow, column, false, false);
+
+		            popup.show(e.getComponent(), e.getX(), e.getY());
+		        }
+		    }
+		});
+		
+		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
+		menuItem.setActionCommand("info");
+		menuItem.addActionListener(this);
+		popup.add(menuItem);
+		
+		menuItem = new JMenuItem("install");
+		menuItem.addActionListener(this);
+		//menuItem.setVisible(false);
+		popup.add(menuItem);
+		
+		menuItem = new JMenuItem("upgrade");
+		menuItem.addActionListener(this);
+		menuItem.setVisible(false);
+		popup.add(menuItem);
+		
+		getPossibleServicesThreadSafe(null);
+
 		GridBagConstraints inputgc = new GridBagConstraints();
-//		inputgc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 		JScrollPane currentServicesScrollPane = new JScrollPane(currentServices);
 		JScrollPane possibleServicesScrollPane = new JScrollPane(possibleServices);
 
 		currentServices.setVisibleRowCount(20);
-		possibleServices.setVisibleRowCount(20);
-		
-		possibleServices.setCellRenderer(possibleServicesRenderer);
-		
+
 		// make category filter buttons
 		JPanel filters = new JPanel(new GridBagLayout());
 		GridBagConstraints fgc = new GridBagConstraints();
 		++fgc.gridy;
 		fgc.fill = GridBagConstraints.HORIZONTAL;
-		filters.add(new JLabel("category filters"), fgc);		
+		filters.add(new JLabel("category filters"), fgc);
 		++fgc.gridy;
 		JButton nofilter = new JButton("all");
 		nofilter.addActionListener(filterListener);
 		filters.add(nofilter, fgc);
 		++fgc.gridy;
-		
+
 		String[] cats = ServiceInfo.getInstance().getUniqueCategoryNames();
-		for (int j = 0; j < cats.length ; ++j)
-		{
+		for (int j = 0; j < cats.length; ++j) {
 			JButton b = new JButton(cats[j]);
 			b.addActionListener(filterListener);
 			filters.add(b, fgc);
 			++fgc.gridy;
 		}
-		
+
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
 		inputgc.anchor = GridBagConstraints.NORTH;
@@ -150,6 +235,7 @@ public class RuntimeGUI extends ServiceGUI {
 		inputgc.gridy = 0;
 		input.add(new JLabel("possible services"), inputgc);
 		inputgc.gridy = 1;
+		//possibleServicesScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		input.add(possibleServicesScrollPane, inputgc);
 		++inputgc.gridx;
 		input.add(getReleaseServiceButton(), inputgc);
@@ -166,13 +252,12 @@ public class RuntimeGUI extends ServiceGUI {
 		input.setBorder(title);
 
 		display.add(input, gc);
-		
+
 		++gc.gridy;
 		gc.gridx = 0;
 	}
-	
-	public void getCurrentServices ()
-	{
+
+	public void getCurrentServices() {
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
 
 		Map<String, ServiceWrapper> sortedMap = null;
@@ -183,15 +268,17 @@ public class RuntimeGUI extends ServiceGUI {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
 			String shortClassName = sw.service.getShortTypeName();
-			if (sw.host != null && sw.host.accessURL != null)
-			{
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
+			if (sw.host != null && sw.host.accessURL != null) {
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName,
+						true);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			} else {
-				//namesAndClasses[i] = serviceName + " - " + shortClassName;
-				//namesAndClasses[i] = new ServiceEntry(serviceName, shortClassName);
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, false);
+				// namesAndClasses[i] = serviceName + " - " + shortClassName;
+				// namesAndClasses[i] = new ServiceEntry(serviceName,
+				// shortClassName);
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName,
+						false);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			}
@@ -205,61 +292,72 @@ public class RuntimeGUI extends ServiceGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				String newService = ((ServiceEntry) possibleServices.getSelectedValue()).toString();
-				
+				// String newService = ((ServiceEntry)
+				// possibleServices.getse.getLeadSelectionIndex()).toString();
+
+				int selectedRow = possibleServices.getSelectedRow();
+
+				String newService = ((ServiceEntry) possibleServices
+						.getValueAt(selectedRow, 0)).toString();
 				ServiceInfo serviceInfo = ServiceInfo.getInstance();
 				String fullTypeName = "org.myrobotlab.service." + newService;
-				if (serviceInfo.hasUnfulfilledDependencies(fullTypeName))
-				{
+				if (serviceInfo.hasUnfulfilledDependencies(fullTypeName)) {
 					// dependencies needed !!!
-					String msg = "<html>This Service has dependencies which are not yet loaded,<br>" +
-					"do you wish to download them now?";
-					
-					int result = JOptionPane.showConfirmDialog((Component) null, msg,
-					        "alert", JOptionPane.OK_CANCEL_OPTION);
-					if (result == JOptionPane.CANCEL_OPTION)
-					{
+					String msg = "<html>This Service has dependencies which are not yet loaded,<br>"
+							+ "do you wish to download them now?";
+
+					int result = JOptionPane.showConfirmDialog(
+							(Component) null, msg, "alert",
+							JOptionPane.OK_CANCEL_OPTION);
+					if (result == JOptionPane.CANCEL_OPTION) {
 						return;
 					}
-					
+
 					// FIXME - FIXME - FIXME - Drupal like status report
 					// this has unresolved depenendencies to begin with
 					// so "checking for updates is not necessary" ?
 					serviceInfo.resolve(fullTypeName);
 					JFrame frame = new JFrame();
-					int ret = JOptionPane.showConfirmDialog(frame, "<html>New components have been added,<br>"+
-					" it is necessary to restart in order to use them.</html>", "restart", JOptionPane.YES_NO_OPTION);
-					if (ret == JOptionPane.OK_OPTION)
-					{
+					int ret = JOptionPane
+							.showConfirmDialog(
+									frame,
+									"<html>New components have been added,<br>"
+											+ " it is necessary to restart in order to use them.</html>",
+									"restart", JOptionPane.YES_NO_OPTION);
+					if (ret == JOptionPane.OK_OPTION) {
 						LOG.info("restarting");
 						Runtime.releaseAll();
 						try {
-							if (Platform.isWindows())
-							{
-								java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+							if (Platform.isWindows()) {
+								java.lang.Runtime.getRuntime().exec(
+										"cmd /c start myrobotlab.bat");
 							} else {
-								java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");							
+								java.lang.Runtime.getRuntime().exec(
+										"./myrobotlab.sh");
 							}
-						} catch (Exception ex)
-						{
-							Service.logException(ex	);
+						} catch (Exception ex) {
+							Service.logException(ex);
 						}
 						System.exit(0);
 					} else {
 						LOG.info("chose not to restart");
 						return;
 					}
-					
+
 				}
-				
+
 				JFrame frame = new JFrame();
 				frame.setTitle("add new service");
-				String name = JOptionPane.showInputDialog(frame,"new service name");
-				
-				if (name != null) {					
-					myService.send(boundServiceName, "createAndStart", name, newService);
-					// FYI - this is an asynchronous request - to handle call back
-					// you must register for a "registered" event on the local or remote Runtime
+				String name = JOptionPane.showInputDialog(frame,
+						"new service name");
+
+				if (name != null) {
+					myService.send(boundServiceName, "createAndStart", name,
+							newService);
+					// FYI - this is an asynchronous request - to handle call
+					// back
+					// you must register for a "registered" event on the local
+					// or remote Runtime
 				}
 
 			}
@@ -268,42 +366,36 @@ public class RuntimeGUI extends ServiceGUI {
 
 		return addServiceButton;
 	}
-	
-	public ServiceWrapper registered (ServiceWrapper sw)
-	{
+
+	public ServiceWrapper registered(ServiceWrapper sw) {
 		String typeName;
-		if (sw.service == null)
-		{
+		if (sw.service == null) {
 			typeName = "unknown";
 		} else {
 			typeName = sw.service.getShortTypeName();
 		}
-		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, 
-				typeName,
+		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, typeName,
 				(sw.host != null && sw.host.accessURL != null));
 		currentServicesModel.addElement(newServiceEntry);
 		nameToServiceEntry.put(sw.name, newServiceEntry);
-		//myService.loadTabPanels();
 		myService.addTab(sw.name);
 		return sw;
 	}
 
-	public ServiceWrapper released (ServiceWrapper sw)
-	{
+	public ServiceWrapper released(ServiceWrapper sw) {
 		// FIXME - bug if index is moved before call back is processed
-		//ServiceEntry selected = (ServiceEntry) currentServices.getSelectedValue();
-		//ServiceEntry newServiceEntry = new ServiceEntry(newServiceName, selected.type);
+
 		myService.removeTab(sw.name);// FIXME will bust when service == null
-		if (nameToServiceEntry.containsKey(sw.name))
-		{
+		if (nameToServiceEntry.containsKey(sw.name)) {
 			currentServicesModel.removeElement(nameToServiceEntry.get(sw.name));
 		} else {
-			LOG.error(sw.name + " released event - but could not find in currentServiceModel");
+			LOG.error(sw.name
+					+ " released event - but could not find in currentServiceModel");
 		}
-		//myService.loadTabPanels();
+		// myService.loadTabPanels();
 		return sw;
 	}
-	
+
 	public JButton getReleaseServiceButton() {
 		releaseServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
 		releaseServiceButton.addActionListener(new ActionListener() {
@@ -311,9 +403,7 @@ public class RuntimeGUI extends ServiceGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ServiceEntry oldService = (ServiceEntry) currentServices.getSelectedValue();
-				//currentServicesModel.removeElement(oldService); // FIXME - callback from releaseService !!!!
 				myService.send(boundServiceName, "releaseService", oldService.name);
-				//myService.loadTabPanels(); // FIXME - callback from releaseService !!!!
 			}
 
 		});
@@ -326,7 +416,8 @@ public class RuntimeGUI extends ServiceGUI {
 		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
 		sendNotifyRequest("released", "released", ServiceWrapper.class);
 		sendNotifyRequest("failedDependency", "failedDependency", String.class);
-		sendNotifyRequest("proposedUpdates", "proposedUpdates", ServiceInfo.class);
+		sendNotifyRequest("proposedUpdates", "proposedUpdates",
+				ServiceInfo.class);
 	}
 
 	@Override
@@ -336,28 +427,26 @@ public class RuntimeGUI extends ServiceGUI {
 		removeNotifyRequest("failedDependency", "failedDependency", String.class);
 		removeNotifyRequest("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 	}
-	
 
-	
-	public void failedDependency (String dep)
-	{
-		JOptionPane.showMessageDialog(null, "<html>Unable to load Service...<br>" + dep + "</html>", "Error", JOptionPane.ERROR_MESSAGE);
+	public void failedDependency(String dep) {
+		JOptionPane.showMessageDialog(null,
+				"<html>Unable to load Service...<br>" + dep + "</html>",
+				"Error", JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	class ServiceEntry {
 		public String name;
 		public String type;
 		public boolean loaded = false;
 		public boolean isRemote = false;
-		ServiceEntry(String name, String type, boolean isRemote)
-		{
+
+		ServiceEntry(String name, String type, boolean isRemote) {
 			this.name = name;
 			this.type = type;
 			this.isRemote = isRemote;
 		}
-		
-		public String toString()
-		{
+
+		public String toString() {
 			return type;
 		}
 	}
@@ -395,123 +484,239 @@ public class RuntimeGUI extends ServiceGUI {
 			return this;
 		}
 	}
-	
-	class PossibleServicesRenderer extends JLabel implements ListCellRenderer {
 
-		private static final long serialVersionUID = 1L;
+	/*
+	 * class PossibleServicesRenderer extends JLabel implements ListCellRenderer
+	 * {
+	 * 
+	 * private static final long serialVersionUID = 1L;
+	 * 
+	 * public PossibleServicesRenderer() { setOpaque(true); setIconTextGap(12);
+	 * }
+	 * 
+	 * public Component getListCellRendererComponent(JList list, Object value,
+	 * int index, boolean isSelected, boolean cellHasFocus) {
+	 * 
+	 * ServiceEntry entry = (ServiceEntry) value;
+	 * 
+	 * boolean available =
+	 * !(ServiceInfo.getInstance().hasUnfulfilledDependencies
+	 * ("org.myrobotlab.service." + entry.type));
+	 * 
+	 * setText(entry.type);
+	 * 
+	 * ImageIcon icon = Util.getScaledIcon(Util.getImage( (entry.type +
+	 * ".png").toLowerCase(), "unknown.png"), 0.50); setIcon(icon);
+	 * 
+	 * setForeground(Style.foreground);
+	 * setBackground(Style.possibleServicesLatest);
+	 * 
+	 * if (!available) { setBackground(Style.possibleServicesNotInstalled); }
+	 * 
+	 * if (isSelected && available) { setBackground(Style.highlight);
+	 * setForeground(Style.background); }
+	 * 
+	 * return this; } }
+	 */
+	/*
+	 * public void getPossibleServices(String filter) { for (int i = 0; i <
+	 * possibleServicesModel.getRowCount(); ++i) {
+	 * possibleServicesModel.removeRow(i); }
+	 * 
+	 * String[] sscn = Runtime.getServiceShortClassNames(filter); ServiceEntry[]
+	 * ses = new ServiceEntry[sscn.length]; int i; ServiceEntry se = null; for
+	 * (i = 0; i < ses.length; ++i) { LOG.info(i); se = new ServiceEntry(null,
+	 * sscn[i], false); possibleServicesModel.addRow(new Object[]{se});
+	 * //possibleServicesModel.addRow(new Object[]{"hello","blah"});
+	 * possibleServicesModel.fireTableDataChanged(); }
+	 * 
+	 * // FIXME - a new AWT Thread is spawned off to do the rendering }
+	 */
+	/**
+	 * duplicate of getPossibleServices - but since Swing is not thread-safe we
+	 * need to wrap the swing calls into a runnable and post them !
+	 * http://stackoverflow
+	 * .com/questions/4547113/jlist-setlistdata-threading-issues Thank you
+	 * Robert & Stack-overflow for something which I was tearing my hair out for
+	 * a day !!!
+	 */
+	public void getPossibleServicesThreadSafe(String filter) {
+		Runnable worker = new PossibleServicesRunnable(filter);
+		SwingUtilities.invokeLater(worker);
+		// FIXME - a new AWT Thread is spawned off to do the rendering
+	}
 
-		public PossibleServicesRenderer() {
-			setOpaque(true);
-			setIconTextGap(12);
+	class PossibleServicesRunnable implements Runnable {
+		private String filter;
+
+		public PossibleServicesRunnable(String filter) {
+			this.filter = filter;
 		}
 
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
-			
-			ServiceEntry entry = (ServiceEntry) value;
+		public void run() {
 
-			boolean available = !(ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type));
-
-			setText(entry.type);
-			
-			ImageIcon icon = Util.getScaledIcon(Util.getImage(
-					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
-			setIcon(icon);
-
-			setForeground(Style.foreground);
-			setBackground(Style.possibleServicesLatest);
-			
-			if (!available) {
-				setBackground(Style.possibleServicesNotInstalled);
-			} 
-
-			if (isSelected && available) {
-				setBackground(Style.highlight);
-				setForeground(Style.background);
+			for (int i = possibleServicesModel.getRowCount(); i > 0; --i) {
+				possibleServicesModel.removeRow(i - 1);
+				// possibleServicesModel.fireTableDataChanged();
+				// possibleServices.revalidate();
 			}
+
+			possibleServicesModel.getRowCount();
+
+			String[] sscn = Runtime.getServiceShortClassNames(filter);
+			ServiceEntry[] ses = new ServiceEntry[sscn.length];
+			ServiceEntry se = null;
+
+			for (int i = 0; i < ses.length; ++i) {
+				LOG.info(i);
+				se = new ServiceEntry(null, sscn[i], false);
+
+				possibleServicesModel.addRow(new Object[] {se,""});
+			}
+
+			possibleServicesModel.fireTableDataChanged();
+			possibleServices.invalidate();
+		}
+
+	}
+
+	class CellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 1L;
+		
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean selected, boolean focused, int row,
+				int column) {
+
+			//Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			//setBorder(BorderFactory.createEmptyBorder());
+			LOG.info(value.getClass().getCanonicalName());
+			
+			setEnabled(table == null || table.isEnabled()); 
+			ServiceInfo info = ServiceInfo.getInstance();
+			ServiceEntry entry = (ServiceEntry)table.getValueAt(row, 0);
+			// FIXME - "org.myrobotlab.service." +  is not allowed "anywhere" - cept in overloaded methods
+			boolean available = !(info.hasUnfulfilledDependencies ("org.myrobotlab.service." + entry.type));
+			boolean upgradeAvailable = false;
+			
+			String upgradeString = "<html><h6>upgrade<br>";
+			ArrayList<Dependency> deps = info.checkForUpgrade("org.myrobotlab.service." + entry.type);
+			if (deps.size() > 0)
+			{
+				upgradeAvailable = true;
+				for (int i=0; i < deps.size(); ++i)
+				{
+					upgradeString += deps.get(i).module + " " + deps.get(i).version;
+					
+					if (i < deps.size() -1)
+					{
+						upgradeString += "<br>";
+					}
+					
+				}
+				upgradeString += "</h6></html>";
+			}
+			
+			if (value.getClass().equals(ServiceEntry.class))
+			{
+				setHorizontalAlignment(JLabel.LEFT);
+				setIcon(Util.getScaledIcon(Util.getImage( (entry.type +
+						 ".png").toLowerCase(), "unknown.png"), 0.50));
+				setText(entry.type);
+				//setToolTipText("<html><body bgcolor=\"#E6E6FA\">" + entry.type+ " <a href=\"http://myrobotlab.org\">blah</a></body></html>");
+				
+			} else if (value.getClass().equals(String.class))  {
+				setIcon(null);
+				setHorizontalAlignment(JLabel.RIGHT);
+
+				if (!available)
+				{
+					setText("<html><h6>not<br>installed&nbsp;</h6></html>");
+				} else {
+					if (upgradeAvailable)
+					{
+						setText(upgradeString);
+					} else {
+						setText("<html><h6>latest&nbsp;</h6></html>");
+					}
+				}				
+
+			} else {
+				LOG.error("unknown class");
+			}
+					
+			if (possibleServices.isRowSelected(row)) { 
+				setBackground(Style.highlight);
+				setForeground(Style.background); 
+			 } else {
+			
+				if (!available) {
+					setForeground(Style.foreground);
+					setBackground(Style.possibleServicesNotInstalled); 
+				} else {
+					if (upgradeAvailable)
+					{
+						//Component c = super.getTableCellRendererComponent(table, value, selected, focused, row, column-1);
+						//c.setForeground(Style.foreground);
+						//c.setForeground(Style.possibleServicesUpdate);
+						setForeground(Style.foreground);
+						setBackground(Style.possibleServicesUpdate);						
+					} else {
+						setForeground(Style.foreground);
+						setBackground(Style.possibleServicesStable);
+					}
+				}
+			 }
+			
+
+
+			//setBorder(BorderFactory.createEmptyBorder());
 			
 			return this;
 		}
 	}
-
-	public void getPossibleServices(String filter)
-	{		
-		possibleServicesModel.clear();
-			
-		String[] sscn = Runtime.getServiceShortClassNames(filter);
-		ServiceEntry[] ses = new ServiceEntry[sscn.length];
-		int i;
-		ServiceEntry se = null;
-		for (i = 0; i < ses.length; ++i)
-		{
-			LOG.info(i);
-			se = new ServiceEntry(null, sscn[i], false);
-			possibleServicesModel.addElement(se);
-		}
-		
-		// FIXME - a new AWT Thread is spawned off to do the rendering
-	}
-
 	
-	/**
-	 * duplicate of getPossibleServices - but since Swing is not
-	 * thread-safe we need to wrap the swing calls into a runnable
-	 * and post them ! 
-	 * http://stackoverflow.com/questions/4547113/jlist-setlistdata-threading-issues
-	 * Thank you Robert & Stack-overflow for something which I was
-	 * tearing my hair out for a day !!!
-	 */
-	public void getPossibleServicesThreadSafe(String filter)
-	{		
-		
-		Runnable worker = new Runnable(){
-			public void run(){
-				possibleServicesModel.clear();
-				
-				String[] sscn = Runtime.getServiceShortClassNames(null);
-				ServiceEntry[] ses = new ServiceEntry[sscn.length];
-				int i;
-				ServiceEntry se = null;
-				for (i = 0; i < ses.length; ++i)
-				{
-					LOG.info(i);
-					se = new ServiceEntry(null, sscn[i], false);
-					possibleServicesModel.addElement(se);
-				}
-			}
-		};
-		
-		SwingUtilities.invokeLater(worker);
-
-		// FIXME - a new AWT Thread is spawned off to do the rendering
-	}	
-	
-	
-	class FilterListener implements ActionListener
-	{
+	class FilterListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent cmd) {
 			LOG.info(cmd.getActionCommand());
-			if ("all".equals(cmd.getActionCommand()))
-			{
-				getPossibleServices(null);
+			if ("all".equals(cmd.getActionCommand())) {
+				getPossibleServicesThreadSafe(null);
 			} else {
-				getPossibleServices(cmd.getActionCommand());
+				getPossibleServicesThreadSafe(cmd.getActionCommand());
 			}
 		}
-		
+
 	}
-	
+
 	/**
-	 * event method which is called when a "check for updates"
-	 * request has new ServiceInfo data from the repo
+	 * event method which is called when a "check for updates" request has new
+	 * ServiceInfo data from the repo
+	 * 
 	 * @param si
 	 * @return
 	 */
-	public ServiceInfo proposedUpdates (ServiceInfo si)
-	{
+	public ServiceInfo proposedUpdates(ServiceInfo si) {
 		getPossibleServicesThreadSafe(null);
 		return si;
-	}	
-	
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
+		if ("info".equals(event.getActionCommand()))
+		{
+			BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + c.type);
+			
+		} else if ("install".equals(event.getActionCommand()))
+		{
+			//
+			ServiceInfo.getInstance().update("org.myrobotlab.service." + c.type);
+			//Runtime.getInstance().updateAll();
+		}  
+		
+		//BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/");
+	}
+
 }

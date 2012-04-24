@@ -1222,7 +1222,7 @@ public class Runtime extends Service {
 	 * and their latest dependencies
 	 */
 	public static void checkForUpdates() {
-		/*
+		
 		
 		//serviceInfo.getRepoServiceData();
 		// get local data 
@@ -1230,7 +1230,7 @@ public class Runtime extends Service {
 				
 		// get remote data
 		serviceInfo.getRepoData();
-		*/
+		
 		// notify ready for updates
 		INSTANCE.invoke("proposedUpdates", serviceInfo);
 	}
