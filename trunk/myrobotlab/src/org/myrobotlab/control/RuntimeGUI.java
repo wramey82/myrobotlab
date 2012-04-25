@@ -166,31 +166,55 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		possibleServices.addMouseListener( new MouseAdapter()
 		{
+			// isPopupTrigger over OSs - use masks
 		    public void mouseReleased(MouseEvent e)
 		    {
-		        if (e.isPopupTrigger())
+	            LOG.debug("mouseReleased");
+		    	
+		    	if (SwingUtilities.isRightMouseButton(e)) {
+		            LOG.debug("mouseReleased - right");
+		    		popUpTrigger(e);
+		    	}
+		    }
+		    
+			// works on linux & mac
+		    /*
+		    public void mousePressed(MouseEvent e)
+		    {
+		        if (SwingUtilities.isRightMouseButton(e)) {
+		            System.out.println("mousePressed - right");
+		          }
+		    	LOG.error("h1");
+		    	if (e.isPopupTrigger())
 		        {
-		            JTable source = (JTable)e.getSource();
-		            popupRow = source.rowAtPoint( e.getPoint() );
-		            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
-		            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
-		            {
-		            	installMenuItem.setVisible(true);		            	
-		            } else {
-		            	installMenuItem.setVisible(false);
-		            }
-		            /*
-		            if (c.installed)
-		            installMenuItem.
-		            */
-		            int column = source.columnAtPoint( e.getPoint() );
-
-		            if (! source.isRowSelected(popupRow))
-		                source.changeSelection(popupRow, column, false, false);
-
-		            popup.show(e.getComponent(), e.getX(), e.getY());
+			    	LOG.error("h2");
+		    		popUpTrigger(e);
 		        }
 		    }
+		    */
+
+		    public void popUpTrigger(MouseEvent e)
+		    {
+		    	LOG.error("******************popUpTrigger*********************");
+	            JTable source = (JTable)e.getSource();
+	            popupRow = source.rowAtPoint( e.getPoint() );
+	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
+	            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
+	            {
+	            	installMenuItem.setVisible(true);		            	
+	            } else {
+	            	installMenuItem.setVisible(false);
+	            }
+
+	            int column = source.columnAtPoint( e.getPoint() );
+
+	            if (! source.isRowSelected(popupRow))
+	                source.changeSelection(popupRow, column, false, false);
+
+	            popup.show(e.getComponent(), e.getX(), e.getY());
+		    	
+		    }
+		    
 		});
 		
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
@@ -199,7 +223,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		popup.add(menuItem);
 		
 		installMenuItem = new JMenuItem("install");
-		menuItem.addActionListener(this);
+		installMenuItem.addActionListener(this);
 		//menuItem.setVisible(false);
 		popup.add(installMenuItem);
 /*		
