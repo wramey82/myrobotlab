@@ -132,7 +132,12 @@ public class ServiceInfo implements Serializable{
 				if (versionFile != null && versionFile.length() > 18) 
 				{
 					version = versionFile.substring(versionFile.indexOf("resolved.revision=")+18); 
-					version = version.substring(0,version.indexOf("\r\n")); 
+					int endPos = version.indexOf("\n");
+					if (endPos > -1)
+						version = version.substring(0, endPos);
+					else 
+						version="0";
+					//version = version.substring(0,version.indexOf("\r\n")); 
 				}
 				LOG.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
 				Dependency d = new Dependency(org, module, version, false);
