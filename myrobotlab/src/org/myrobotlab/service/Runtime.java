@@ -1235,6 +1235,25 @@ public class Runtime extends Service {
 		INSTANCE.invoke("proposedUpdates", serviceInfo);
 	}
 	
+	/*
+	public class Asynch implements Runnable
+	{
+		String method = null;
+		
+		public Asynch (String method)
+		{
+			this.method = method;
+		}
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	};
+	*/
+	
 	/**
 	 * this method is an event notifier
 	 * that there were updates found

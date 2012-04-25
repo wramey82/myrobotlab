@@ -515,8 +515,8 @@ public class ServiceInfo implements Serializable{
 					LOG.info(org + " already in cache - skipping");
 				} else {
 					LOG.error(org + " required - will need to resolve");
-					ret.add(org);
 				}
+				ret.add(org);
 			}
 			
 			return ret;
