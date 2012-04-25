@@ -85,6 +85,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>();
 
 	int popupRow = 0; 
+	JMenuItem installMenuItem = null;
 	
 	DefaultListModel currentServicesModel = new DefaultListModel();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
@@ -171,6 +172,17 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		        {
 		            JTable source = (JTable)e.getSource();
 		            popupRow = source.rowAtPoint( e.getPoint() );
+		            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
+		            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
+		            {
+		            	installMenuItem.setVisible(true);		            	
+		            } else {
+		            	installMenuItem.setVisible(false);
+		            }
+		            /*
+		            if (c.installed)
+		            installMenuItem.
+		            */
 		            int column = source.columnAtPoint( e.getPoint() );
 
 		            if (! source.isRowSelected(popupRow))
@@ -186,15 +198,16 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
 		
-		menuItem = new JMenuItem("install");
+		installMenuItem = new JMenuItem("install");
 		menuItem.addActionListener(this);
 		//menuItem.setVisible(false);
-		popup.add(menuItem);
-		
+		popup.add(installMenuItem);
+/*		
 		menuItem = new JMenuItem("upgrade");
 		menuItem.addActionListener(this);
 		menuItem.setVisible(false);
 		popup.add(menuItem);
+*/		
 		
 		getPossibleServicesThreadSafe(null);
 
