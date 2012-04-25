@@ -9,11 +9,11 @@ import java.awt.Color;
  */
 public class Style {
 
-	public static Color base = Color.decode("0x" + "004400");
-	public static Color background = Color.decode("0x" + "FFFFFF"); 
-	public static Color foreground = Color.decode("0x" + "222222");
-	public static Color highlight = Color.decode("0x" + "00EE22");
+	public static Color base = Color.decode("0x" + "00B270");  // green
+	public static Color background = Color.decode("0x" + "00B270"); 
+	public static Color foreground = Color.decode("0x" + "222222"); // near black
 
+	public static Color listHighlight = Color.decode("0x" + "00EE22"); // bright green
 	public static Color listForeground = Color.decode("0x" + "222222");
 	public static Color listBackground = Color.decode("0x" + "FFFFFF");
 		

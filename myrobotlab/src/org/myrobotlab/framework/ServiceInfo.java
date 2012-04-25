@@ -663,6 +663,11 @@ public class ServiceInfo implements Serializable{
 				Dependency repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
 				
 				//if (localDep == null || !localDep.version.equals(repoDep.version))
+				if (localDep == null || repoDep == null || localDep.version == null)
+				{
+					LOG.info("null");
+				}
+				
 				if (localDep != null && !localDep.version.equals(repoDep.version))
 				{
 					deps.add(repoDep);

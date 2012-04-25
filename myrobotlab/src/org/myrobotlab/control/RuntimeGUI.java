@@ -502,7 +502,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			LOG.info("getListCellRendererComponent - begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
-			setText("<html><font color=#" + Style.base + ">" + entry.name
+			setText("<html><font color=#" + Style.listBackground + ">" + entry.name
 					+ "</font></html>");
 
 			ImageIcon icon = Util.getScaledIcon(Util.getImage(
@@ -510,11 +510,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			setIcon(icon);
 
 			if (isSelected) {
-				setBackground(Style.highlight);
-				setForeground(Style.background);
+				setBackground(Style.listHighlight);
+				setForeground(Style.listBackground);
 			} else {
-				setBackground(Style.background);
-				setForeground(Style.foreground);
+				setBackground(Style.listBackground);
+				setForeground(Style.listForeground);
 			}
 
 			LOG.info("getListCellRendererComponent - end");
@@ -684,12 +684,12 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			}
 					
 			if (possibleServices.isRowSelected(row)) { 
-				setBackground(Style.highlight);
-				setForeground(Style.background); 
+				setBackground(Style.listHighlight);
+				setForeground(Style.listForeground); 
 			 } else {
 			
 				if (!available) {
-					setForeground(Style.foreground);
+					setForeground(Style.listForeground);
 					setBackground(Style.possibleServicesNotInstalled); 
 				} else {
 					if (upgradeAvailable)
@@ -697,10 +697,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 						//Component c = super.getTableCellRendererComponent(table, value, selected, focused, row, column-1);
 						//c.setForeground(Style.foreground);
 						//c.setForeground(Style.possibleServicesUpdate);
-						setForeground(Style.foreground);
+						setForeground(Style.listForeground);
 						setBackground(Style.possibleServicesUpdate);						
 					} else {
-						setForeground(Style.foreground);
+						setForeground(Style.listForeground);
 						setBackground(Style.possibleServicesStable);
 					}
 				}

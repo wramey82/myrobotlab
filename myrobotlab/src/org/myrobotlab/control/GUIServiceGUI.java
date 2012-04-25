@@ -252,7 +252,7 @@ public class GUIServiceGUI extends ServiceGUI {
 		// Sets the default edge style
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);//.ElbowConnector
-		style.put(mxConstants.STYLE_STROKECOLOR, "0x" + Style.base);//.ElbowConnector
+		style.put(mxConstants.STYLE_STROKECOLOR, "black");//.ElbowConnector
 		
 		// creating JComponent
 		if (graphComponent == null)
@@ -499,11 +499,12 @@ public class GUIServiceGUI extends ServiceGUI {
 			}
 
 			String blockColor = null;
+			
 			if (sw.host.accessURL == null)
 			{
-				blockColor = "0x" + Style.background; // FIXME - get from Runtime.System colors !!!
+				blockColor = mxUtils.getHexColorString(Style.background);
 			} else {
-				blockColor = "0x" + Style.remoteBackground;
+				blockColor = mxUtils.getHexColorString(Style.remoteBackground);
 			}
 			
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, 
