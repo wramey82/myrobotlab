@@ -40,13 +40,11 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/1.5.2/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.jfugue.music/music/4.0.3/jfugue-4.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.jibble.simplewebserver/simplewebserver/1.0/SimpleWebServer.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.myrobotlab/myrobotlab/14.1/myrobotlab.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.myrobotlab/myrobotlab/14.2/myrobotlab.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.op.chess/chess/1.0.0/ChessBoard.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.python.core/core/2.5.2/jython.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.simpleframework.xml/xml/2.5.3/simple-xml-2.5.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.tritonus.share.sampled.floatsamplebuffer/floatsamplebuffer/0.3.6/tritonus_share-0.3.6.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/simbad.gui/gui/1.4/simbad-1.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/wiiuse.wiimote/wiimote/0.12b/wiiusej.jar"/>
-<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
