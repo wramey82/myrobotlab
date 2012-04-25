@@ -49,7 +49,6 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.data.Style;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.w3c.dom.Document;
