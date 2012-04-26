@@ -233,6 +233,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	/**
+	 * 
+	 * FIXME - should be called "displayPorts"
+	 * 
 	 * setPorts is called by getState - which is called when the Arduino changes
 	 * port state is NOT called by the GUI component
 	 * 
