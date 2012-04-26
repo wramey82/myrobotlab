@@ -1070,6 +1070,12 @@ public class Runtime extends Service {
 
 	
 	/**
+	 * FIXME - deprecate - require calling code to implement loop - support only
+	 * the single update(fullTypeName) - that way calling code can handle
+	 * detailed info such as reporting to gui/console which components are being
+	 * updated and which have errors in the update process.  Will need a list of all
+	 * or filtered  ArrayList<fullTypeName>
+	 * 
 	 * update - force system to check for all dependencies of all possible
 	 * Services - Ivy will attempt to check & fufill dependencies by downloading
 	 * jars from the repo 
