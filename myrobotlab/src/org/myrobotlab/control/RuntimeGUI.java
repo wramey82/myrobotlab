@@ -219,11 +219,13 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
+		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
 		
 		installMenuItem = new JMenuItem("install");
 		installMenuItem.addActionListener(this);
+		installMenuItem.setIcon(Util.getScaledIcon(Util.getImage("install.png"), 0.50));
 		//menuItem.setVisible(false);
 		popup.add(installMenuItem);
 /*		

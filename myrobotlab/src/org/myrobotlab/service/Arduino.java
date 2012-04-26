@@ -74,9 +74,9 @@ public class Arduino extends Service implements SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
 	
 	private static final long serialVersionUID = 1L;
-
 	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
 
+	// FIXME - make interface and add the capability of Android Bluetooth as serial port
 	// non serializable serial object
 	transient SerialPort serialPort;
 	transient InputStream inputStream;
@@ -890,7 +890,11 @@ public class Arduino extends Service implements SerialPortEventListener,
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-	
+			
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
+
+		
 		//Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
 		//arduino.setPort("/dev/ttyS50");
 /*		
@@ -915,8 +919,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 		servo01.startService();
 */
 		
-		Jython jython = new Jython("jython");
-		jython.startService();
+//		Jython jython = new Jython("jython");
+//		jython.startService();
 		
 		GUIService gui = new GUIService("lapgui");
 		gui.startService();

@@ -25,12 +25,10 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -38,25 +36,24 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IOData;
 
 public class Pin extends JPanel {
 
-	public final static Logger LOG = Logger.getLogger(Pin.class
-			.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Pin.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
-	String name = "";
-	Integer pinNumber = new Integer(0);
+	public final String boundServiceName;
+	public final int pinNumber;
 	JLabel pinLabel = null;
-	DigitalButton onOffButton = null;
-	JSlider analogSlider = null;
-	JLabel dataLabel = null;
+	public DigitalButton onOff = null;
+	public DigitalButton inOut = null;
+	public JSlider analogSlider = null;
+	public JLabel analogData = null;
 	boolean isAnalog = false;
-	Service myService = null;
+	public final Service myService;
 	JComboBox analogDigital = null;
-	JComboBox inputOutput = null;
 	JLabel counter = null;
 
 	public static final int HIGH = 0x1;
@@ -68,76 +65,88 @@ public class Pin extends JPanel {
 		ANALOG, DIGITAL
 	};
 
-	public Pin(String name, int pinNumber, boolean isAnalog) {
+	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isAnalog) {
 		super();
-		this.name = name;
+		this.boundServiceName = boundServiceName;
 		this.isAnalog = isAnalog;
 		this.pinNumber = pinNumber;
-		initialize();
-	}
-
-	public Pin() {
-		this("", 0, false);
-	}
-
-	private void initialize() {
-		// this.setSize(453, 62);
+		this.myService = myService;
+	
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints gc = new GridBagConstraints();
-		gc.weightx = 1.0;
-		gc.weighty = 1.0;
-		gc.fill = GridBagConstraints.HORIZONTAL;
-		gc.anchor = GridBagConstraints.EAST;
+		//gc.weightx = 1.0;
+		//gc.weighty = 1.0;
+		//gc.fill = GridBagConstraints.HORIZONTAL;
+		gc.anchor = GridBagConstraints.WEST;
 
 		pinLabel = new JLabel("pin " + pinNumber);
+		pinLabel.setPreferredSize(new Dimension(40,13));
 
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		this.add(pinLabel, gc);
+		add(pinLabel, gc);
 		++gc.gridx;
 
-		inputOutput = new InputOutput(this);
-		this.add(inputOutput, gc);
+		inOut = new DigitalButton(pinNumber, 
+				Util.getScaledIcon(Util.getImage("square_out.png"), 0.50),
+				Util.getScaledIcon(Util.getImage("square_in.png"), 0.50),
+				"INOUT");
+		
+		gc.anchor = GridBagConstraints.EAST;
+		add(inOut, gc);
 		++gc.gridx;
 
-		onOffButton = new DigitalButton(this);
-		this.add(onOffButton, gc);
+		onOff = new DigitalButton(pinNumber, 
+				Util.getScaledIcon(Util.getImage("grey.png"), 0.50),
+				Util.getScaledIcon(Util.getImage("green.png"), 0.50),
+				"ONOFF");
+		
+		add(onOff, gc);
+		
 		if (isAnalog) {
+			/*
 			++gc.gridx;
 			analogDigital = new AnalogDigital(this);
 			this.add(analogDigital, gc);
+			*/
 			++gc.gridy;
+			gc.gridwidth = 5;
 			gc.gridx = 0;
 
-			this.add(getAnalogValue(), gc);
+			this.add(getAnalogSlider(), gc);
 
-			onOffButton.setText("On");
+			//onOff.setText("On");
 		}
 
+		gc.gridwidth = 1;
 		++gc.gridx;
-		this.add(new JLabel(" "));
-		++gc.gridx;
-		dataLabel = new JLabel("0");
-		this.add(dataLabel, gc);
-		++gc.gridx;
-		counter = new JLabel("0");
-		this.add(counter, gc);
-
+		add(new JLabel(" "));
+		
+		if (isAnalog)
+		{
+			++gc.gridx;
+			analogData = new JLabel("0");
+			add(analogData, gc);
+		}
+		//++gc.gridx;
+		//counter = new JLabel("0");
+		//add(counter, gc);
+		
 	}
 
-	private JSlider getAnalogValue() {
+	private JSlider getAnalogSlider() {
 		if (analogSlider == null) {
 			analogSlider = new JSlider(0, 255, 0);
 			analogSlider.addChangeListener(new ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
-					dataLabel.setText("" + analogSlider.getValue());
+					analogData.setText("" + analogSlider.getValue());
 					IOData io = new IOData();
 					io.address = pinNumber;
 					io.value = analogSlider.getValue();
 					if (myService != null) {
-						myService.send(name, "analogWrite", io);
+						myService.send(boundServiceName, "analogWrite", io);
 					} else {
 						LOG.error("can not send message myService is null");
 					}
@@ -148,30 +157,9 @@ public class Pin extends JPanel {
 		return analogSlider;
 	}
 
-	public String getServiceName() {
-		return name;
-	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Integer getPinNumber() {
-		return pinNumber;
-	}
-
-	public void setPinNumber(Integer pinNumber) {
-		this.pinNumber = pinNumber;
-	}
-
-	public Service getService() {
-		return myService;
-	}
-
-	public void setService(Service myService) {
-		this.myService = myService;
-	}
-
+	// FIXME - generalize & remove from inner definition
+	/*
 	private static class DigitalButton extends JButton implements
 			ActionListener {
 		private static final long serialVersionUID = 1L;
@@ -179,21 +167,31 @@ public class Pin extends JPanel {
 
 		public DigitalButton(Pin pin) {
 			super();
+			
+			// image button properties
+			setOpaque(false);
+			setBorderPainted(false);
+			setContentAreaFilled(false);
+			
 			this.pin = pin;
-			setText("Off");
+			setIcon(Util.getScaledIcon(Util.getImage("grey.png"), 0.50));
 			addActionListener(this);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (getText().equals("On")) {
-				setText("Off");
+			String cmd = e.getActionCommand();
+			if (cmd.equals("On")) {
+				//setText("Off");
+				//setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
+				setIcon(Util.getScaledIcon(Util.getImage("grey.png"), 0.50));
 				IOData io = new IOData();
 				io.address = pin.getPinNumber();
 				io.value = 0;
 				pin.getService().send(pin.getServiceName(), "digitalWrite", io);
 			} else {
-				setText("On");
+				//setText("On");
+				setIcon(Util.getScaledIcon(Util.getImage("green.png"), 0.50));
 				IOData io = new IOData();
 				io.address = pin.getPinNumber();
 				io.value = 1;
@@ -201,7 +199,8 @@ public class Pin extends JPanel {
 			}
 		}
 	}
-
+	*/
+	/*
 	private static class AnalogDigital extends JComboBox implements
 			ActionListener {
 		private static final long serialVersionUID = 1L;
@@ -217,16 +216,17 @@ public class Pin extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			if (getSelectedIndex() == 1) {
 				pin.analogSlider.setVisible(false);
-				pin.dataLabel.setVisible(false);
-				pin.onOffButton.setText("Off");
+				pin.analogData.setVisible(false);
+				pin.onOff.setActionCommand("Off");
 			} else {
-				pin.onOffButton.setText("On");
+				pin.onOff.setActionCommand("On");
 				pin.analogSlider.setVisible(true);
-				pin.dataLabel.setVisible(true);
+				pin.analogData.setVisible(true);
 			}
 		}
 	}
-
+*/
+	/*
 	private static class InputOutput extends JComboBox implements
 			ActionListener {
 		private static final long serialVersionUID = 1L;
@@ -243,23 +243,19 @@ public class Pin extends JPanel {
 			if (getSelectedIndex() == 0) {
 				LOG.info("OUTPUT");
 				IOData io = new IOData();
-				io.address = pin.getPinNumber();
+				io.address = pin.pinNumber;
 				io.value = OUTPUT;
-				pin.myService.send(pin.getName(), "pinMode", io); // TODO - default
-																// arduino is ??
-																// OUTPUT??
-				pin.myService.send(pin.getName(), "digitalReadPollStop", pin
-						.getPinNumber());
+				pin.myService.send(pin.boundServiceName, "pinMode", io); 
+				pin.myService.send(pin.boundServiceName, "digitalReadPollStop", pin.pinNumber);
 			} else {
 				LOG.info("INPUT");
 				IOData io = new IOData();
-				io.address = pin.getPinNumber();
+				io.address = pin.pinNumber;
 				io.value = INPUT;
-				pin.myService.send(pin.getName(), "pinMode", io);
-				pin.myService.send(pin.getName(), "digitalReadPollStart", pin
-						.getPinNumber());
+				pin.myService.send(pin.boundServiceName, "pinMode", io);
+				pin.myService.send(pin.boundServiceName, "digitalReadPollStart", pin.pinNumber);
 			}
 		}
 	}
-
+*/
 }
