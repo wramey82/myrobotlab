@@ -47,12 +47,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
+public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(PlayerGUI.class
+	public final static Logger LOG = Logger.getLogger(SoccerGameGUI.class
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
@@ -82,7 +81,7 @@ public class PlayerGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public PlayerGUI(final String boundServiceName, final GUI myService) {
+	public SoccerGameGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	

@@ -39,9 +39,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
@@ -69,7 +71,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myArduino = (Arduino) Runtime.getService(boundServiceName).service;
+		// NOT the way to do it since a call to getState over remote will
+		// serialize a new state of Arduino and send it as a parameter
+		// below would be stale data
+		//myArduino = (Arduino) Runtime.getService(boundServiceName).service;
 	}
 	
 	/**
@@ -78,10 +83,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	HashMap<String, Component> components = new HashMap<String, Component>();
 
 	static final long serialVersionUID = 1L;
-	final String type = "Diecimila";
-	JIntegerField rawReadMsgLength = new JIntegerField(4);
-//	ActionListener portActionListener = null;
-//	ActionListener baudActionListener = null;
+
 	ArrayList<Pin> pinList = null;
 	JComboBox types = new JComboBox(new String[] { "Duemilanove", "Mega" });
 	JComboBox ttyPort = new JComboBox(new String[] { "" });
@@ -100,18 +102,44 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 */
 	JComboBox PWMRate3 = new JComboBox(new String[] { "31", "125", "500", "4000", "32000" });
 
+	JIntegerField rawReadMsgLength = new JIntegerField(4);
+	JCheckBox rawReadMessage = new JCheckBox();	
+	
+	/**
+	 * creates an array of graphical pin objects for a particular Arduino board
+	 * @return
+	 */
 	public ArrayList<Pin> makePins() {
 		ArrayList<Pin> pins = new ArrayList<Pin>();
 		for (int i = 0; i < 14; ++i) {
 			Pin p = null;
-			if (type.compareTo("Diecimila") == 0
-					&& ((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
-				p = new Pin(myService, boundServiceName, i, true);
+			String type = (String)types.getSelectedItem();
+			if ("Duemilanove".equals(type))
+			{
+				if  (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
+					p = new Pin(myService, boundServiceName, i, true);
+				} else {
+					p = new Pin(myService, boundServiceName, i, false);
+				}
+				
+				// set initial icon states of buttons
+				p.inOut.setIcon(Util.getScaledIcon(Util.getImage("square_unknown.png"), 0.50));
+				p.onOff.setIcon(Util.getScaledIcon(Util.getImage("grey.png"), 0.50));
+				p.inOut.setActionCommand("");
+				p.onOff.setActionCommand("OFF");
+				
 			} else {
-				p = new Pin(myService, boundServiceName, i, false);
+				LOG.error("dont know how to make pins for a " + type);
 			}
 
-			pins.add(p);
+			if (p != null)
+			{
+				// set up the listeners
+				p.onOff.addActionListener(this);
+				p.inOut.addActionListener(this);
+				
+				pins.add(p);
+			}
 		}
 		return pins;
 	}
@@ -164,7 +192,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		gc1.gridx = 0;
 		pinList = makePins();
 
-		JCheckBox rawReadMessage = new JCheckBox();
 		rawReadMessage.addItemListener(this);
 		rawReadMsgLength = new JIntegerField();
 		rawReadMsgLength.setInt(4);
@@ -179,6 +206,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		typePanel.add(new JLabel(" msg length "), gc1);
 		++gc1.gridx;
 		typePanel.add(rawReadMsgLength, gc1);
+		
+		// TODO - want to deprecate
+		rawReadMsgLength.setVisible(false);
+		rawReadMessage.setVisible(false);
 
 		// typePanel end ------------------------------------------
 		display.add(typePanel, gc);
@@ -213,7 +244,13 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	}
 
-	public void setDataLabel(PinData p) {
+	/**
+	 * FIXME - needs to add a route on AttachGUI
+	 * and publish from the Arduino service when applicable (when polling)
+	 * 
+	 * @param p - PinData from serial reads
+	 */
+	public void readData(PinData p) {
 		LOG.info("ArduinoGUI setDataLabel " + p);
 		Pin pin = pinList.get(p.pin);
 		pin.analogData.setText(new Integer(p.value).toString());
@@ -222,19 +259,19 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		pin.counter.setText((d).toString());
 	}
 
-	public void getState(Arduino a) {
-		if (a != null) {
-			setPorts(a.portNames);
+	public void getState(Arduino myArduino) {
+		if (myArduino != null) {
+			setPorts(myArduino.portNames);
+			baudRate.removeActionListener(this);
+			baudRate.setSelectedItem(myArduino.getBaudRate());
+			baudRate.addActionListener(this);
 		}
 
-		baudRate.removeActionListener(this);
-		baudRate.setSelectedItem(myArduino.getBaudRate());
-		baudRate.addActionListener(this);
 	}
 
 	/**
 	 * 
-	 * FIXME - should be called "displayPorts"
+	 * FIXME - should be called "displayPorts" or "refreshSystemPorts"
 	 * 
 	 * setPorts is called by getState - which is called when the Arduino changes
 	 * port state is NOT called by the GUI component
@@ -276,24 +313,75 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	@Override
 	public void itemStateChanged(ItemEvent item) {
-		// called when the button is pressed
-		JCheckBox cb = (JCheckBox) item.getSource();
-		// Determine status
-		boolean isSel = cb.isSelected();
-		if (isSel) {
-			myService.send(boundServiceName, "setRawReadMsg", true);
-			myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
-			rawReadMsgLength.setEnabled(false);
-		} else {
-			myService.send(boundServiceName, "setRawReadMsg", false);
-			myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
-			rawReadMsgLength.setEnabled(true);
+		{
+			// called when the button is pressed
+			JCheckBox cb = (JCheckBox) item.getSource();
+			// Determine status
+			boolean isSel = cb.isSelected();
+			if (isSel) {
+				myService.send(boundServiceName, "setRawReadMsg", true);
+				myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+				rawReadMsgLength.setEnabled(false);
+			} else {
+				myService.send(boundServiceName, "setRawReadMsg", false);
+				myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+				rawReadMsgLength.setEnabled(true);
+			}
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		String cmd = e.getActionCommand(); 
 		Component c = (Component) e.getSource();
+
+		// buttons
+		if (DigitalButton.class == o.getClass())
+		{			
+			DigitalButton b = (DigitalButton)o;
+			IOData io = new IOData();
+			io.address = ((Pin)b.parent).pinNumber;
+
+			if (b.type == Pin.ONOFF)
+			{
+				if ("OFF".equals(cmd)){
+					// now on
+					io.value = Pin.HIGH;
+					myService.send(boundServiceName, "digitalWrite", io);
+					b.setIcon(b.onIcon);
+					b.setActionCommand("ON");
+				} else {
+					// now off
+					io.value = Pin.HIGH;
+					myService.send(boundServiceName, "digitalWrite", io);
+					b.setIcon(b.offIcon);						
+					b.setActionCommand("OFF");
+				}
+				
+			} else if (b.type == Pin.INPUTOUTPUT)
+			{
+				if ("OUTPUT".equals(cmd))
+				{
+					// is now input
+					io.value = Pin.INPUT;
+					myService.send(boundServiceName, "pinMode", io); 
+					myService.send(boundServiceName, "digitalReadPollStart", io.address);
+					b.setIcon(b.onIcon);						
+					b.setActionCommand("INPUT");					
+				} else {
+					// is now output
+					io.value = Pin.OUTPUT;
+					myService.send(boundServiceName, "pinMode", io); 
+					myService.send(boundServiceName, "digitalReadPollStop", io.address);
+					b.setIcon(b.offIcon);						
+					b.setActionCommand("OUTPUT");
+				}
+			}
+			LOG.info("DigitalButton");
+		}  		
+		
+		// ports & timers
 		if (c == ttyPort)
 		{
 			JComboBox cb = (JComboBox)c;
@@ -315,9 +403,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			LOG.info("type change");
 			JComboBox cb = (JComboBox) e.getSource();
 			String newType = (String)cb.getSelectedItem();
+			// ----------- TODO ---------------------
+			// MEGA Type switching
 
 		}
 		
 	}
+
 
 }
