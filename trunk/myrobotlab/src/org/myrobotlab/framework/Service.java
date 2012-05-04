@@ -537,7 +537,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (!preProcessHook(m)) {continue;}
 				
 				Object ret = invoke(m);
-				if (m.status.compareTo(Message.BLOCKING) == 0) {
+				if (Message.BLOCKING.equals(m.status)) {
 					// create new message reverse sender and name
 					// set to same msg id
 					Message msg = createMessage(m.sender, m.method, ret);

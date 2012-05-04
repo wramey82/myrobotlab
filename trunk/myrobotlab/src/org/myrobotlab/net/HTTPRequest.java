@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
@@ -37,7 +37,14 @@ import org.myrobotlab.framework.Service;
  *          http://www.javabeat.net/tips/36-file-upload-and-download-
  *          using-java.html http://www.java2s.com/Code/Java/File-Input-Output/
  *          ComparingBufferedandUnbufferedWritingPerformance.htm
+ *          
+ *          The big beautiful kahuna from stack overflow
+ *          http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
+ *          
+ *          
  */
+
+
 public class HTTPRequest {
 	public final static Logger LOG = Logger.getLogger(HTTPRequest.class
 			.getCanonicalName());
@@ -46,6 +53,10 @@ public class HTTPRequest {
 	OutputStream osstr = null;
 	BufferedOutputStream os = null;
 	Map<String, String> cookies = new HashMap<String, String>();
+	
+	String boundary = "---------------------------";
+
+	String error = null;
 
 	protected void connect() throws IOException {
 		if (os == null)
@@ -76,7 +87,6 @@ public class HTTPRequest {
 		newline();
 	}
 
-	String boundary = "---------------------------";
 
 	private void boundary() throws IOException {
 		write("--");
@@ -671,6 +681,8 @@ public class HTTPRequest {
 	public byte[] getBinary() {
 		// URL u = new URL("http://www.java2s.com/binary.dat");
 		// URLConnection uc = url.openConnection();
+		error = null;
+		
 		String contentType = connection.getContentType();
 		int contentLength = connection.getContentLength();
 
@@ -697,8 +709,8 @@ public class HTTPRequest {
 						+ " bytes; Expected " + contentLength + " bytes");
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Service.logException(e1);
+			error = e1.getMessage();
 		}
 
 		/*
@@ -733,6 +745,10 @@ public class HTTPRequest {
 
 	public static void main(String[] args) throws Exception {
 		
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		
 		HTTPRequest http = new HTTPRequest("http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/");
 		String s = http.getString();
 		LOG.info(s);
@@ -758,6 +774,16 @@ public class HTTPRequest {
 		HTTPRequest request = new HTTPRequest(uri.toURL());
 		request.getBinary();
 		
+	}
+	
+	public boolean hasError()
+	{
+		return error != null;
+	}
+	
+	public String getError()
+	{
+		return error;
 	}
 
 }

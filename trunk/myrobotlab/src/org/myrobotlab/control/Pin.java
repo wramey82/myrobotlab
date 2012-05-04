@@ -46,24 +46,28 @@ public class Pin extends JPanel {
 	static final long serialVersionUID = 1L;
 	public final String boundServiceName;
 	public final int pinNumber;
-	JLabel pinLabel = null;
-	public DigitalButton onOff = null;
+
 	public DigitalButton inOut = null;
+	public DigitalButton onOff = null;
 	public JSlider analogSlider = null;
+
+	JLabel pinLabel = null;
 	public JLabel analogData = null;
+	
 	boolean isAnalog = false;
 	public final Service myService;
 	JComboBox analogDigital = null;
 	JLabel counter = null;
-
+	
+	// types of DigitalButtons
+	public final static int ONOFF = 0;
+	public final static int INPUTOUTPUT = 1;
+	
+	// values 
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
 	public static final int OUTPUT = 0x1;
 	public static final int INPUT = 0x0;
-
-	public enum PinType {
-		ANALOG, DIGITAL
-	};
 
 	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isAnalog) {
 		super();
@@ -88,20 +92,20 @@ public class Pin extends JPanel {
 
 		add(pinLabel, gc);
 		++gc.gridx;
-
-		inOut = new DigitalButton(pinNumber, 
+		
+		inOut = new DigitalButton(this, 
 				Util.getScaledIcon(Util.getImage("square_out.png"), 0.50),
 				Util.getScaledIcon(Util.getImage("square_in.png"), 0.50),
-				"INOUT");
+				INPUTOUTPUT);
 		
 		gc.anchor = GridBagConstraints.EAST;
 		add(inOut, gc);
 		++gc.gridx;
 
-		onOff = new DigitalButton(pinNumber, 
+		onOff = new DigitalButton(this, 
 				Util.getScaledIcon(Util.getImage("grey.png"), 0.50),
 				Util.getScaledIcon(Util.getImage("green.png"), 0.50),
-				"ONOFF");
+				ONOFF);
 		
 		add(onOff, gc);
 		
@@ -200,32 +204,7 @@ public class Pin extends JPanel {
 		}
 	}
 	*/
-	/*
-	private static class AnalogDigital extends JComboBox implements
-			ActionListener {
-		private static final long serialVersionUID = 1L;
-		Pin pin = null;
 
-		public AnalogDigital(Pin pin) {
-			super(new String[] { "analog", "digital" });
-			this.pin = pin;
-			addActionListener(this);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (getSelectedIndex() == 1) {
-				pin.analogSlider.setVisible(false);
-				pin.analogData.setVisible(false);
-				pin.onOff.setActionCommand("Off");
-			} else {
-				pin.onOff.setActionCommand("On");
-				pin.analogSlider.setVisible(true);
-				pin.analogData.setVisible(true);
-			}
-		}
-	}
-*/
 	/*
 	private static class InputOutput extends JComboBox implements
 			ActionListener {

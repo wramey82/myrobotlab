@@ -4,14 +4,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-public class Jibble extends Service {
+public class Red5 extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Jibble.class.getCanonicalName());
+	public final static Logger LOG = Logger.getLogger(Red5.class.getCanonicalName());
 
-	public Jibble(String n) {
-		super(n, Jibble.class.getCanonicalName());
+	public Red5(String n) {
+		super(n, Red5.class.getCanonicalName());
 	}
 	
 	@Override
@@ -21,19 +21,20 @@ public class Jibble extends Service {
 	
 	@Override
 	public String getToolTip() {
-		return "used as a general template";
+		return "Red5 video/audio streaming service";
 	}
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		
-		Jibble template = new Jibble("template");
+		Red5 template = new Red5("template");
 		template.startService();
-		
+		/*
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		*/
 	}
 
 

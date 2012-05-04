@@ -164,7 +164,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Jibble">
+   <serviceType string="org.myrobotlab.service.WebServer">
       <dependsOn>
          <list>
             <string>org.myrobotlab</string>
@@ -414,7 +414,7 @@
          <include>audio</include>
       </category>
    </categories>
-   <categories string="org.myrobotlab.service.Jibble">
+   <categories string="org.myrobotlab.service.WebServer">
       <category>
          <include>network</include>
       </category>

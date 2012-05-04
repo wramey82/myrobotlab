@@ -67,7 +67,9 @@ public class Message implements Serializable {
 	 */
 	public ArrayList<RoutingEntry> historyList;
 	/**
-	 * status is currently not used (for future use)
+	 * status is currently used for BLOCKING message calls
+	 * the current valid state it can be in is null | BLOCKING | RETURN
+	 * FIXME - this should be msgType not status
 	 */
 	public String status;
 	public String msgType; // Broadcast|Blocking|Blocking Return - deprecated
@@ -91,8 +93,6 @@ public class Message implements Serializable {
 		sender = new String();
 		sendingMethod = new String();
 		historyList = new ArrayList<RoutingEntry>();
-		status = new String(); // TODO - optimization - leave as null
-		msgType = new String();
 		method = new String();
 	}
 
@@ -118,15 +118,20 @@ public class Message implements Serializable {
 			return "null";
 		}
 
-		String ret = "";
+		StringBuffer ret = new StringBuffer();
 		for (int i = 0; i < data.length; ++i) {
-			ret += data[i].getClass().getCanonicalName();
-			if (data.length != i + 1) {
-				ret += ",";
+			if (data[i] != null)
+			{
+				ret.append(data[i].getClass().getCanonicalName());
+				if (data.length != i + 1) {
+					ret.append(",");
+				}
+			} else {
+				ret.append("null");
 			}
 
 		}
-		return ret;
+		return ret.toString();
 
 	}
 
@@ -147,7 +152,7 @@ public class Message implements Serializable {
 		ret.append("\"name\":" + "\"" + name + "\"");
 		ret.append("\"sender\":" + "\"" + sender + "\"");
 		ret.append("\"sendingMethod\":" + "\"" + sendingMethod + "\"");
-		ret.append("\"historyList\":" + "\"" + historyList.toString() + "\"");
+		//ret.append("\"historyList\":" + "\"" + historyList.toString() + "\"");
 		ret.append("\"status\":" + "\"" + status + "\"");
 		ret.append("\"msgType\":" + "\"" + msgType + "\"");
 		ret.append("\"method\":" + "\"" + method + "\"");

@@ -215,6 +215,15 @@ public class FileIO {
 	    	return null;
 	    }		
 	}
+	
+	
+	static public String streamToString(InputStream is) {
+	    try {
+	        return new java.util.Scanner(is).useDelimiter("\\A").next();
+	    } catch (java.util.NoSuchElementException e) {
+	        return "";
+	    }
+	}
 		
 }
 
