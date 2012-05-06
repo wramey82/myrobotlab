@@ -7,12 +7,16 @@
 		revision="working"
 		conf="default"
 		confs="default"
-		date="20120424130926"/>
+		date="20120506071423"/>
 	<dependencies>
 		<module organisation="org.fife.rsyntaxtextarea" name="rsyntaxtextarea">
-			<revision name="latest.integration" error="not found" downloaded="false" searched="false" conf="runtime, x86.32.windows" position="-1">
+			<revision name="1.5.2" status="release" pubdate="20120225064830" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="arm.32.linux, x86.32.linux, x86.64.linux, *, runtime, x86.32.windows, public, x86.64.windows, amd64.32.linux, x86.32.mac" position="0">
+				<metadata-artifact status="successful" details="" size="469" time="828" location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\org.fife.rsyntaxtextarea\rsyntaxtextarea\ivy-1.5.2.xml" searched="true" original-local-location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\org.fife.rsyntaxtextarea\rsyntaxtextarea\ivy-1.5.2.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/1.5.2/ivy.xml"/>
 				<caller organisation="org.fife.rsyntaxtextarea" name="rsyntaxtextarea-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
 				<artifacts>
+					<artifact name="rsyntaxtextarea" type="jar" ext="jar" status="successful" details="" size="660880" time="4000" location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\org.fife.rsyntaxtextarea\rsyntaxtextarea\jars\rsyntaxtextarea-1.5.2.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/1.5.2/rsyntaxtextarea.jar"/>
+					</artifact>
 				</artifacts>
 			</revision>
 		</module>
