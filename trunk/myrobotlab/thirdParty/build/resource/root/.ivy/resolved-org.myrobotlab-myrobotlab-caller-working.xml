@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0">
-	<info organisation="org.myrobotlab" module="myrobotlab-caller" revision="working" status="release" publication="20120424130911" default="true"/>
+	<info organisation="org.myrobotlab" module="myrobotlab-caller" revision="working" status="release" publication="20120505115152" default="true"/>
 	<configurations>
 		<conf name="default" visibility="public"/>
 	</configurations>

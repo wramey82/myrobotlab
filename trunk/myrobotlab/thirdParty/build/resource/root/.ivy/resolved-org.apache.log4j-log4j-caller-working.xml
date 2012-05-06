@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0">
-	<info organisation="org.apache.log4j" module="log4j-caller" revision="working" status="release" publication="20120424130926" default="true"/>
+	<info organisation="org.apache.log4j" module="log4j-caller" revision="working" status="release" publication="20120505115215" default="true"/>
 	<configurations>
 		<conf name="default" visibility="public"/>
 	</configurations>
