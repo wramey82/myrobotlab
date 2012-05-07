@@ -317,7 +317,8 @@ public class Arduino extends Service implements SerialPortEventListener,
 	 * attach a servo to a pin
 	 * @see org.myrobotlab.service.interfaces.ServoController#servoAttach(java.lang.Integer)
 	 */
-	public boolean servoAttach(Integer pin) { if (serialPort == null) {
+	public boolean servoAttach(Integer pin) { 
+		if (serialPort == null) {
 			LOG.error("could not attach servo to pin " + pin
 					+ " serial port in null - not initialized?");
 			return false;

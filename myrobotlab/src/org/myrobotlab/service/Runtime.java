@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -1273,6 +1274,28 @@ public class Runtime extends Service {
 		
 		//serviceInfo.getRepoServiceData();
 		
+	}
+	
+	public void update (String fullTypeName)
+	{
+		ServiceInfo.getInstance().update(fullTypeName);	
+	}
+	
+	// published events
+	public String resolveBegin (String className)
+	{
+		return className;
+	}
+	public List<String> resolveError (List<String> errors)
+	{
+		return errors;
+	}
+	public String resolveSuccess (String className)
+	{
+		return className;
+	}
+	public void resolveEnd ()
+	{
 	}
 	
 }

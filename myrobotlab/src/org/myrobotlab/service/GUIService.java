@@ -1094,8 +1094,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		//Jython jython = new Jython("jython");
 		//jython.startService();
 		
-		Clock clock = new Clock("clock");
-		clock.startService();
+		//Clock clock = new Clock("clock");
+		//clock.startService();
+		
+		//Arduino arduino = new Arduino("arduino")
 		
 		GUIService gui2 = new GUIService("gui2");
 		gui2.startService();
