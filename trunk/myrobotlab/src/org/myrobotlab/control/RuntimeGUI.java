@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -43,6 +44,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -326,82 +328,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
-		addServiceButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				// String newService = ((ServiceEntry)
-				// possibleServices.getse.getLeadSelectionIndex()).toString();
-
-				int selectedRow = possibleServices.getSelectedRow();
-
-				String newService = ((ServiceEntry) possibleServices
-						.getValueAt(selectedRow, 0)).toString();
-				ServiceInfo serviceInfo = ServiceInfo.getInstance();
-				String fullTypeName = "org.myrobotlab.service." + newService;
-				if (serviceInfo.hasUnfulfilledDependencies(fullTypeName)) {
-					// dependencies needed !!!
-					String msg = "<html>This Service has dependencies which are not yet loaded,<br>"
-							+ "do you wish to download them now?";
-
-					int result = JOptionPane.showConfirmDialog(
-							(Component) null, msg, "alert",
-							JOptionPane.OK_CANCEL_OPTION);
-					if (result == JOptionPane.CANCEL_OPTION) {
-						return;
-					}
-
-					// FIXME - FIXME - FIXME - Drupal like status report
-					// this has unresolved depenendencies to begin with
-					// so "checking for updates is not necessary" ?
-					serviceInfo.resolve(fullTypeName);
-					JFrame frame = new JFrame();
-					int ret = JOptionPane
-							.showConfirmDialog(
-									frame,
-									"<html>New components have been added,<br>"
-											+ " it is necessary to restart in order to use them.</html>",
-									"restart", JOptionPane.YES_NO_OPTION);
-					if (ret == JOptionPane.OK_OPTION) {
-						LOG.info("restarting");
-						Runtime.releaseAll();
-						try {
-							if (Platform.isWindows()) {
-								java.lang.Runtime.getRuntime().exec(
-										"cmd /c start myrobotlab.bat");
-							} else {
-								java.lang.Runtime.getRuntime().exec(
-										"./myrobotlab.sh");
-							}
-						} catch (Exception ex) {
-							Service.logException(ex);
-						}
-						System.exit(0);
-					} else {
-						LOG.info("chose not to restart");
-						return;
-					}
-
-				}
-
-				JFrame frame = new JFrame();
-				frame.setTitle("add new service");
-				String name = JOptionPane.showInputDialog(frame,
-						"new service name");
-
-				if (name != null) {
-					myService.send(boundServiceName, "createAndStart", name,
-							newService);
-					// FYI - this is an asynchronous request - to handle call
-					// back
-					// you must register for a "registered" event on the local
-					// or remote Runtime
-				}
-
-			}
-
-		});
+		addServiceButton.setActionCommand("installx");
+		addServiceButton.addActionListener(this);
 
 		return addServiceButton;
 	}
@@ -450,8 +378,14 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		return releaseServiceButton;
 	}
 
+	
 	@Override
 	public void attachGUI() {
+		sendNotifyRequest("resolveSuccess", "resolveSuccess", String.class);
+		sendNotifyRequest("resolveError", "resolveError", String.class);
+		sendNotifyRequest("resolveBegin", "resolveBegin", String.class);
+		sendNotifyRequest("resolveEnd", "resolveEnd");
+		
 		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
 		sendNotifyRequest("released", "released", ServiceWrapper.class);
 		sendNotifyRequest("failedDependency", "failedDependency", String.class);
@@ -461,6 +395,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 	@Override
 	public void detachGUI() {
+		removeNotifyRequest("resolveSuccess", "resolveSuccess", String.class);
+		removeNotifyRequest("resolveError", "resolveError", String.class);
+		removeNotifyRequest("resolveBegin", "resolveBegin", String.class);
+		removeNotifyRequest("resolveEnd", "resolveEnd");
+		
 		removeNotifyRequest("registered", "registered", ServiceWrapper.class);
 		removeNotifyRequest("released", "released", ServiceWrapper.class);
 		removeNotifyRequest("failedDependency", "failedDependency", String.class);
@@ -524,55 +463,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		}
 	}
 
-	/*
-	 * class PossibleServicesRenderer extends JLabel implements ListCellRenderer
-	 * {
-	 * 
-	 * private static final long serialVersionUID = 1L;
-	 * 
-	 * public PossibleServicesRenderer() { setOpaque(true); setIconTextGap(12);
-	 * }
-	 * 
-	 * public Component getListCellRendererComponent(JList list, Object value,
-	 * int index, boolean isSelected, boolean cellHasFocus) {
-	 * 
-	 * ServiceEntry entry = (ServiceEntry) value;
-	 * 
-	 * boolean available =
-	 * !(ServiceInfo.getInstance().hasUnfulfilledDependencies
-	 * ("org.myrobotlab.service." + entry.type));
-	 * 
-	 * setText(entry.type);
-	 * 
-	 * ImageIcon icon = Util.getScaledIcon(Util.getImage( (entry.type +
-	 * ".png").toLowerCase(), "unknown.png"), 0.50); setIcon(icon);
-	 * 
-	 * setForeground(Style.foreground);
-	 * setBackground(Style.possibleServicesLatest);
-	 * 
-	 * if (!available) { setBackground(Style.possibleServicesNotInstalled); }
-	 * 
-	 * if (isSelected && available) { setBackground(Style.highlight);
-	 * setForeground(Style.background); }
-	 * 
-	 * return this; } }
-	 */
-	/*
-	 * public void getPossibleServices(String filter) { for (int i = 0; i <
-	 * possibleServicesModel.getRowCount(); ++i) {
-	 * possibleServicesModel.removeRow(i); }
-	 * 
-	 * String[] sscn = Runtime.getServiceShortClassNames(filter); ServiceEntry[]
-	 * ses = new ServiceEntry[sscn.length]; int i; ServiceEntry se = null; for
-	 * (i = 0; i < ses.length; ++i) { LOG.info(i); se = new ServiceEntry(null,
-	 * sscn[i], false); possibleServicesModel.addRow(new Object[]{se});
-	 * //possibleServicesModel.addRow(new Object[]{"hello","blah"});
-	 * possibleServicesModel.fireTableDataChanged(); }
-	 * 
-	 * // FIXME - a new AWT Thread is spawned off to do the rendering }
-	 */
+
 	/**
-	 * duplicate of getPossibleServices - but since Swing is not thread-safe we
+	 * Swing is not thread-safe we
 	 * need to wrap the swing calls into a runnable and post them !
 	 * http://stackoverflow
 	 * .com/questions/4547113/jlist-setlistdata-threading-issues Thank you
@@ -581,8 +474,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	 */
 	public void getPossibleServicesThreadSafe(String filter) {
 		Runnable worker = new PossibleServicesRunnable(filter);
+		// FIXED - a new AWT Thread is spawned off to do the rendering
 		SwingUtilities.invokeLater(worker);
-		// FIXME - a new AWT Thread is spawned off to do the rendering
 	}
 
 	class PossibleServicesRunnable implements Runnable {
@@ -596,8 +489,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 			for (int i = possibleServicesModel.getRowCount(); i > 0; --i) {
 				possibleServicesModel.removeRow(i - 1);
-				// possibleServicesModel.fireTableDataChanged();
-				// possibleServices.revalidate();
 			}
 
 			possibleServicesModel.getRowCount();
@@ -748,14 +639,90 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		{
 			BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + c.type);
 			
-		} else if ("install".equals(event.getActionCommand()))
+		}  else if ("install".equals(event.getActionCommand()))
 		{
-			//
-			ServiceInfo.getInstance().update("org.myrobotlab.service." + c.type);
-			//Runtime.getInstance().updateAll();
-		}  
+			int selectedRow = possibleServices.getSelectedRow();
+
+			String newService = ((ServiceEntry) possibleServices.getValueAt(selectedRow, 0)).toString();
+			ServiceInfo serviceInfo = ServiceInfo.getInstance();
+			String fullTypeName = "org.myrobotlab.service." + newService;
+			if (serviceInfo.hasUnfulfilledDependencies(fullTypeName)) {
+				// dependencies needed !!!
+				String msg = "<html>This Service has dependencies which are not yet loaded,<br>"
+						+ "do you wish to download them now?";
+
+				int result = JOptionPane.showConfirmDialog(
+						(Component) null, msg, "alert",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (result == JOptionPane.CANCEL_OPTION) {
+					return;
+				}
+
+				//serviceInfo.resolve(fullTypeName);
+				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);		
+				
+				JFrame frame = new JFrame();
+				int ret = JOptionPane
+						.showConfirmDialog(
+								frame,
+								"<html>New components have been added,<br>"
+										+ " it is necessary to restart in order to use them.</html>",
+								"restart", JOptionPane.YES_NO_OPTION);
+				if (ret == JOptionPane.OK_OPTION) {
+					LOG.info("restarting");
+					Runtime.releaseAll();
+					try {
+						if (Platform.isWindows()) {
+							java.lang.Runtime.getRuntime().exec(
+									"cmd /c start myrobotlab.bat");
+						} else {
+							java.lang.Runtime.getRuntime().exec(
+									"./myrobotlab.sh");
+						}
+					} catch (Exception ex) {
+						Service.logException(ex);
+					}
+					System.exit(0);
+				} else {
+					LOG.info("chose not to restart");
+					return;
+				}
+
+			}
+
+			JFrame frame = new JFrame();
+			frame.setTitle("add new service");
+			String name = JOptionPane.showInputDialog(frame,
+					"new service name");
+
+			if (name != null) {
+				myService.send(boundServiceName, "createAndStart", name,
+						newService);
+				// FYI - this is an asynchronous request - to handle call
+				// back
+				// you must register for a "registered" event on the local
+				// or remote Runtime
+			}
+
+		}
+		
 		
 		//BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/");
 	}
-
+	
+	JDialog updateDialog = null;
+	public String resolveBegin (String className)
+	{
+		JOptionPane.showMessageDialog(myService.getFrame(), "installing " + className);
+		//updateDialog = new JDialog();
+		return className;
+	}
+	public List<String> resolveError (List<String> errors)
+	{
+		return errors;
+	}
+	public String resolveSuccess (String className)
+	{
+		return className;
+	}
 }

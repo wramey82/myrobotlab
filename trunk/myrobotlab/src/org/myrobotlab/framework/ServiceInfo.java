@@ -40,9 +40,11 @@ public class ServiceInfo implements Serializable{
 	private String settings = "latest.integration";
 	
 	private static ServiceInfo instance = null;	
+	//private org.myrobotlab.service.Runtime runtime = null;
 		
 	private ServiceInfo()
 	{
+		//runtime = org.myrobotlab.service.Runtime.getInstance();
 	}
 	
 	/**
@@ -381,6 +383,7 @@ public class ServiceInfo implements Serializable{
 	{
 		LOG.debug("getDependencies " + fullTypeName);
 		boolean ret = true;
+		org.myrobotlab.service.Runtime runtime = org.myrobotlab.service.Runtime.getInstance();
 
 		File ivysettings = new File(ivyFileName);
 		if (!ivysettings.exists())
@@ -449,8 +452,11 @@ public class ServiceInfo implements Serializable{
 					CommandLineParser parser = Main.getParser();
 					
 					try {
+						// FIXME - event which triggers resolving dependencies - "name" - with progress bar
+						runtime.invoke("resolveBegin",module);
 						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
 						ResolveReport report = Ivy2.getReport();
+						// FIXME - event - error or completed dialog
 			            if (report.hasError()) {
 			            	ret = false;
 			            	//dep.resolved = false; - not needed since it will not be in cache
@@ -458,6 +464,7 @@ public class ServiceInfo implements Serializable{
 			            	LOG.error("Ivy resolve error");
 			            	// invoke Dependency Error - 
 			            	List<String> l = report.getAllProblemMessages();
+			            	runtime.invoke("resolveError",l);
 			            	for (int j = 0; j < l.size(); ++j)
 			            	{
 			            		/* TODO - interface for generating events ???
@@ -470,6 +477,7 @@ public class ServiceInfo implements Serializable{
 			            		LOG.error(l.get(j));
 			            	}
 			            } else {
+			            	runtime.invoke("resolveSuccess",module);
 			            	//dep.resolved = true;
 			    			//save();
 			            }
@@ -494,7 +502,9 @@ public class ServiceInfo implements Serializable{
 			Service.logException(e);
 			ret = false;
 		}		
-		
+
+		runtime.invoke("resolveEnd");
+
 		return ret;
 	}
 
