@@ -1,4 +1,4 @@
-package org.myrobotlab.boot;
+package org.myrobotlab.attic;
 /*
  * Copyright 2002 Sun Microsystems, Inc. All rights reserved.
  * 

@@ -134,7 +134,7 @@ public class ServiceInfo implements Serializable{
 				if (versionFile != null && versionFile.length() > 18) 
 				{
 					version = versionFile.substring(versionFile.indexOf("resolved.revision=")+18); 
-					int endPos = version.indexOf("\n");
+					int endPos = version.indexOf("\r");
 					if (endPos > -1)
 						version = version.substring(0, endPos);
 					else 
@@ -143,8 +143,16 @@ public class ServiceInfo implements Serializable{
 				}
 				LOG.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
 				Dependency d = new Dependency(org, module, version, false);
-				d.released = true;
-				d.resolved = true;
+				
+				File componentsDir = new File(".ivy/" + org);
+				if (componentsDir.exists())
+				{				
+					d.released = true;
+					d.resolved = true;
+				} else {
+					d.released = false;
+					d.resolved = false;
+				}
 				serviceData.thirdPartyLibs.put(org, d);
 			}			
 			
@@ -678,7 +686,7 @@ public class ServiceInfo implements Serializable{
 					LOG.info("null");
 				}
 				
-				if (localDep != null && !localDep.version.equals(repoDep.version))
+				if (localDep != null && localDep.version != null && !localDep.version.equals(repoDep.version))
 				{
 					deps.add(repoDep);
 				}

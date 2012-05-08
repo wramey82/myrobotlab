@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.StopWatch;
 
 public class TestCatcher extends Service {
 
@@ -117,22 +118,37 @@ public class TestCatcher extends Service {
 		return count;
 	}
 
-	public void waitForCatches(int numberOfCatches, int maxWaitTimeMilli) {
+	public int waitForCatches(int numberOfCatches, int maxWaitTimeMilli) {
 		LOG.info(getName() + ".waitForCatches waiting for " + numberOfCatches
 				+ " currently " + catchList.size());
+
+		StopWatch stopwatch = new StopWatch();
 		synchronized (catchList) {
-			while (catchList.size() < numberOfCatches) {
+			if (catchList.size() < numberOfCatches) {
 				try {
-					catchList.wait(maxWaitTimeMilli);
+					stopwatch.start(); // starting clock
+					while (catchList.size() < numberOfCatches)
+					{
+						catchList.wait(maxWaitTimeMilli); // wait up to the max time
+						stopwatch.end(); // sample time - 	
+						if (stopwatch.elapsedMillis() > maxWaitTimeMilli)
+						{
+							LOG.error("waited for " + maxWaitTimeMilli + "ms and still only " + catchList.size() + " out of " + numberOfCatches);							
+							return catchList.size();
+						}
+					} 
+										
+					LOG.info("caught " + catchList.size() + " out of " + numberOfCatches);
+					return numberOfCatches;
+					
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					LOG.error("waitForCatches " + numberOfCatches
 							+ " interrupted");
-					// logException(e);
+					// logException(e); - removed for Android
 				}
 			}
 		}
-
+		return catchList.size();
 	}
 
 	public void waitForLowCatches(int numberOfCatches, int maxWaitTimeMilli) {

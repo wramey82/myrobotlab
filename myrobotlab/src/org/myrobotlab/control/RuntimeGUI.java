@@ -81,13 +81,13 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
-	BasicArrowButton addServiceButton = null;
-	BasicArrowButton releaseServiceButton = null;
-
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>();
 
 	int popupRow = 0; 
+	
 	JMenuItem installMenuItem = null;
+	JMenuItem startMenuItem = null;
+	JMenuItem upgradeMenuItem = null;
 	
 	DefaultListModel currentServicesModel = new DefaultListModel();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
@@ -204,8 +204,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
 	            {
 	            	installMenuItem.setVisible(true);		            	
+	            	startMenuItem.setVisible(false);		            	
 	            } else {
 	            	installMenuItem.setVisible(false);
+	            	startMenuItem.setVisible(true);		            	
 	            }
 
 	            int column = source.columnAtPoint( e.getPoint() );
@@ -230,6 +232,20 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		installMenuItem.setIcon(Util.getScaledIcon(Util.getImage("install.png"), 0.50));
 		//menuItem.setVisible(false);
 		popup.add(installMenuItem);
+
+		startMenuItem = new JMenuItem("start");
+		startMenuItem.addActionListener(this);
+		startMenuItem.setIcon(Util.getScaledIcon(Util.getImage("start.png"), 0.50));
+		//menuItem.setVisible(false);
+		popup.add(startMenuItem);
+		
+		upgradeMenuItem = new JMenuItem("start");
+		upgradeMenuItem.addActionListener(this);
+		upgradeMenuItem.setIcon(Util.getScaledIcon(Util.getImage("upgrade.png"), 0.50));
+		//menuItem.setVisible(false);
+		popup.add(upgradeMenuItem);
+		
+		
 /*		
 		menuItem = new JMenuItem("upgrade");
 		menuItem.addActionListener(this);
@@ -279,9 +295,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		//possibleServicesScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		input.add(possibleServicesScrollPane, inputgc);
 		++inputgc.gridx;
-		input.add(getReleaseServiceButton(), inputgc);
+		//input.add(getReleaseServiceButton(), inputgc);
 		++inputgc.gridx;
-		input.add(getAddServiceButton(), inputgc);
+		//input.add(getAddServiceButton(), inputgc);
 		++inputgc.gridx;
 		inputgc.gridy = 0;
 		input.add(new JLabel("running services"), inputgc);
@@ -326,13 +342,16 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		}
 	}
 
+	
+	/*
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
-		addServiceButton.setActionCommand("installx");
+		addServiceButton.setActionCommand("install");
 		addServiceButton.addActionListener(this);
 
 		return addServiceButton;
 	}
+	*/
 
 	public ServiceWrapper registered(ServiceWrapper sw) {
 		String typeName;
@@ -363,6 +382,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		return sw;
 	}
 
+	/*
 	public JButton getReleaseServiceButton() {
 		releaseServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
 		releaseServiceButton.addActionListener(new ActionListener() {
@@ -377,7 +397,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		return releaseServiceButton;
 	}
-
+	*/
 	
 	@Override
 	public void attachGUI() {
@@ -558,7 +578,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				
 			} else if (value.getClass().equals(String.class))  {
 				setIcon(null);
-				setHorizontalAlignment(JLabel.RIGHT);
+				setHorizontalAlignment(JLabel.LEFT);
 
 				if (!available)
 				{
@@ -635,11 +655,12 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
-		if ("info".equals(event.getActionCommand()))
+		String cmd = event.getActionCommand();
+		if ("info".equals(cmd))
 		{
 			BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + c.type);
 			
-		}  else if ("install".equals(event.getActionCommand()))
+		}  else if ("install".equals(cmd))
 		{
 			int selectedRow = possibleServices.getSelectedRow();
 
@@ -650,7 +671,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				// dependencies needed !!!
 				String msg = "<html>This Service has dependencies which are not yet loaded,<br>"
 						+ "do you wish to download them now?";
-
+				JOptionPane.setRootFrame(myService.getFrame());
 				int result = JOptionPane.showConfirmDialog(
 						(Component) null, msg, "alert",
 						JOptionPane.OK_CANCEL_OPTION);
@@ -658,71 +679,114 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 					return;
 				}
 
-				//serviceInfo.resolve(fullTypeName);
-				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);		
-				
-				JFrame frame = new JFrame();
-				int ret = JOptionPane
-						.showConfirmDialog(
-								frame,
-								"<html>New components have been added,<br>"
-										+ " it is necessary to restart in order to use them.</html>",
-								"restart", JOptionPane.YES_NO_OPTION);
-				if (ret == JOptionPane.OK_OPTION) {
-					LOG.info("restarting");
-					Runtime.releaseAll();
-					try {
-						if (Platform.isWindows()) {
-							java.lang.Runtime.getRuntime().exec(
-									"cmd /c start myrobotlab.bat");
-						} else {
-							java.lang.Runtime.getRuntime().exec(
-									"./myrobotlab.sh");
-						}
-					} catch (Exception ex) {
-						Service.logException(ex);
-					}
-					System.exit(0);
-				} else {
-					LOG.info("chose not to restart");
-					return;
-				}
-
+				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);						
+			} else {
+				// no unfulfilled dependencies - good to go
+				addNewService(newService);
 			}
 
-			JFrame frame = new JFrame();
-			frame.setTitle("add new service");
-			String name = JOptionPane.showInputDialog(frame,
-					"new service name");
-
-			if (name != null) {
-				myService.send(boundServiceName, "createAndStart", name,
-						newService);
-				// FYI - this is an asynchronous request - to handle call
-				// back
-				// you must register for a "registered" event on the local
-				// or remote Runtime
-			}
-
+		} else if ("start".equals(cmd)) {
+			int selectedRow = possibleServices.getSelectedRow();
+			String newService = ((ServiceEntry) possibleServices.getValueAt(selectedRow, 0)).toString();
+			addNewService(newService);
+		} else {
+			LOG.error("unknown command " + cmd);
 		}
 		
-		
-		//BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/");
+		// end actionCmd
+
+	}
+	
+	ProgressDialog progressDialog = null;
+	
+	public void addNewService(String newService)
+	{
+		JFrame frame = new JFrame();
+		frame.setTitle("add new service");
+		String name = JOptionPane.showInputDialog(frame,
+				"new service name");
+
+		if (name != null && name.length() > 0) {
+			myService.send(boundServiceName, "createAndStart", name,
+					newService);
+
+		}
 	}
 	
 	JDialog updateDialog = null;
-	public String resolveBegin (String className)
+	List<String> resolveErrors = null;
+
+	public String resolveBegin (String className) // per dependency module
 	{
-		JOptionPane.showMessageDialog(myService.getFrame(), "installing " + className);
-		//updateDialog = new JDialog();
+		// FIXME - start dialog - warn previously internet connection necessary
+		// no proxy
+		if (progressDialog == null)
+		{
+			progressDialog = new ProgressDialog(myService.getFrame());
+		}
+		
+		resolveErrors = null;
+		progressDialog.addInfo("checking for latest version of " + className);
+		progressDialog.addInfo("attempting to retrieve " + className + " info");
+
 		return className;
 	}
+	
+	
 	public List<String> resolveError (List<String> errors)
 	{
-		return errors;
+		// FIXME - dialog - there are errors which - cancel? or terminate
+		resolveErrors = errors;
+		progressDialog.addInfo("ERROR - " + errors);
+		JOptionPane.showMessageDialog(myService.getFrame(), "could not resolve", "error " + errors, JOptionPane.ERROR_MESSAGE);
+		return resolveErrors;
 	}
+	
 	public String resolveSuccess (String className)
 	{
+		progressDialog.addInfo("installed " + className);
 		return className;
 	}
+	
+	public void resolveEnd ()
+	{
+		progressDialog.addInfo("finished installing components ");
+		progressDialog.setVisible(false);
+		progressDialog.dispose();
+
+		if (resolveErrors != null)
+		{
+			LOG.info("there were errors");
+		} else {
+			LOG.info("new components - restart?");
+			JFrame frame = new JFrame();
+			int ret = JOptionPane
+					.showConfirmDialog(
+							frame,
+							"<html>New components have been added,<br>"
+									+ " it is necessary to restart in order to use them.</html>",
+							"restart", JOptionPane.YES_NO_OPTION);
+			if (ret == JOptionPane.OK_OPTION) {
+				LOG.info("restarting");
+				Runtime.releaseAll();
+				try {
+					if (Platform.isWindows()) {
+						java.lang.Runtime.getRuntime().exec(
+								"cmd /c start myrobotlab.bat");
+					} else {
+						java.lang.Runtime.getRuntime().exec(
+								"./myrobotlab.sh");
+					}
+				} catch (Exception ex) {
+					Service.logException(ex);
+				}
+				System.exit(0);
+			} else {
+				LOG.info("chose not to restart");
+				return;
+			}
+
+		}
+	}
+
 }

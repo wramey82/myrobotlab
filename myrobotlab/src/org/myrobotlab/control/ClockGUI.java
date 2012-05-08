@@ -75,10 +75,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		}
 	};
 
-
-	// TODO - Object? can this be buried and managed reflectively?
-//	Clock myBoundService = null;
-
 	public void init() {
 		
 		gc.gridx = 0;

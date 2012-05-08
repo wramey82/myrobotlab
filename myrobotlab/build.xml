@@ -11,7 +11,7 @@
 	resolution or mrl - update (name)
 -->
 
-<project name="myrobotlab" default="dist" basedir=".">
+<project name="myrobotlab" default="report" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
@@ -21,7 +21,9 @@
 	<property name="dist" location="dist" />
 	<property name="report.dir" location="report" />
 	<property name="resource.root" location="./thirdParty/build/resource/root" />
-	<property name="thirdParty.lib" location="./thirdParty/lib" />
+	<property name="libraries.jar" location="./libraries/jar" />
+	<property name="junit.jar" location="../myrobotlab-tests/thirdParty/lib" />
+	<property name="junit.src" location="../myrobotlab-tests/src" />
 	<property name="thirdParty.build" location="./thirdParty/build" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 
@@ -31,6 +33,15 @@
 		</fileset>
 	</path>
 
+	<path id="compile.classpath.junit">
+		<fileset dir="./thirdParty/repo">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="../myrobotlab-tests/thirdParty/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
 	<target name="init">
 		<tstamp />
 		<!-- Create the time stamp -->
@@ -55,7 +66,7 @@
 	</target>
 
 	<target name="compile" depends="init" description="compile the source ">
-		<!-- Compile the java code from ${src} into ${build} -->
+		<!-- compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
 			<exclude name="org/myrobotlab/service/Android.java" />
 			<exclude name="org/myrobotlab/service/ArduinoBT.java" />
@@ -73,8 +84,8 @@
 			<fileset dir="${resource.root}" />
 		</copy>
 
-		<copy file="./thirdParty/repo/serviceData.xml" todir="${dist}/${label}/.myrobotlab"/>
-		
+		<copy file="./thirdParty/repo/serviceData.xml" todir="${dist}/${label}/.myrobotlab" />
+
 		<!-- FIXME - use Ivy to get the files there ! filebase or url resolver -->
 
 	</target>
@@ -83,30 +94,7 @@
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist}/${label}" />
-		<mkdir dir="${dist}/${label}/bin" />
 
-		<mkdir dir="${dist}/${label}/libraries" />
-		<mkdir dir="${dist}/${label}/libraries/jar" />
-
-		<!-- garbage
-		<jar jarfile="${dist}/${label}/boot.jar" basedir="${build}"
-			includes="org/myrobotlab/boot/MyRobotLabClassLoader.class,
-			org/myrobotlab/cmdline/CcmdParam.class,
-			org/myrobotlab/cmdline/CMDLine.class">
-			<manifest>
-				<attribute name="Built-By" value="${user.name}"/>
-				<section name="compile">
-					<attribute name="Main-Class" value="org.myrobotlab.bootloader.MyRobotLabClassLoader"/>
-					<attribute name="Specification-Title" value="myrobotlab"/>
-					<attribute name="Specification-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
-					<attribute name="Specification-Vendor" value="myrobotlab"/>
-					<attribute name="Implementation-Title" value="myrobotlab"/>
-					<attribute name="Implementation-Version" value="${repository.revision} ${DSTAMP} ${TSTAMP}"/>
-					<attribute name="Implementation-Vendor" value="myrobotlab.org"/>
-				</section>
-			</manifest>			
-		</jar>
-		-->
 		<!-- Put everything in ${build} into the myrobotlab-${DSTAMP}.jar file -->
 		<jar jarfile="${dist}/${label}/libraries/jar/myrobotlab.jar" basedir="${build}">
 			<!-- excludes="org/myrobotlab/boot/" -->
@@ -125,7 +113,7 @@
 		</jar>
 	</target>
 
-	<!-- TODO - make command line update work -->
+	<!-- scp updates -->
 	<target name="scp.maahr" depends="dist">
 		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
 		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
@@ -138,46 +126,7 @@
 		<delete dir="${dist}" />
 	</target>
 
-	<!--
-	<property name="report"  value="${build}/junitreport"/>
-	<property name="application"  value="${dist}/${label}/libraries/jar/myrobotlab.jar"/>
-	
-	<target name="junit" depends="dist">
-	        <mkdir dir="${report}"/>
-	        <junit printsummary="yes">
-	            <classpath>
-	                <path refid="compile.classpath"/>
-	                <path refid="application"/>
-	            	</classpath>
-	            
-	            <formatter type="xml"/>
-	            
-	            <batchtest fork="yes" todir="${report}">
-	                <fileset dir="${src}" includes="*Test.java"/>
-	            </batchtest>
-	        </junit>
-	    </target -->
-	<!--
-	<target name="junit" depends="dist">
-	<property name="testclass" value="junitTest.HelloWorldTest"/>
-	<java classname="junit.textui.TestRunner">
-	<arg value="${testclass}"/>
-	<classpath>
-		<fileset dir="C:/JDeveloper"/>
-		<includes path="**/*.jar" />
-	</classpath>
-	</java>
-	</target>
-
-	 <target name="junitreport" depends="junit">
-	        <junitreport todir="${report}">
-	            <fileset dir="${report}" includes="TEST-*.xml"/>
-	            <report todir="${report}"/>
-	        </junitreport>
-	 </target>
--->
-
-	<target name="uploadJar" depends="junit" description="upload to google code">
+	<target name="upload" depends="junit" description="upload to google code">
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
 		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload" />
@@ -185,13 +134,19 @@
 	</target>
 
 	<target name="junit" depends="dist">
+		<!-- FIXME - copy over serviceData.xml & ivy repo - root?  -->
+		<!-- compile tests -->
+		<javac srcdir="${junit.src}" destdir="${build}" includeantruntime="false">
+			<classpath refid="compile.classpath.junit" />
+		</javac>
+
 		<mkdir dir="${report.dir}" />
-		<junit printsummary="yes">
+		<junit printsummary="yes" showoutput="yes">
 			<classpath>
-				<fileset dir="${thirdParty.repo}">
+				<fileset dir="${libraries.jar}">
 					<include name="**/*.jar" />
 				</fileset>
-				<pathelement path="${thirdParty.lib}/junit-4.4.jar" />
+				<pathelement path="${junit.jar}/junit-4.4.jar" />
 				<!-- pathelement path="${dist}/${label}/libraries/jar/myrobotlab.jar"/ -->
 				<pathelement location="${build}" />
 			</classpath>
@@ -199,12 +154,12 @@
 			<formatter type="xml" />
 
 			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${src}" includes="**/junit/*Test.java" />
+				<fileset dir="${junit.src}" includes="**/junit/*Test.java" />
 			</batchtest>
 		</junit>
 	</target>
 
-	<target name="junitreport" depends="junit">
+	<target name="report" depends="junit">
 		<junitreport>
 			<fileset dir="${report.dir}" includes="TEST-*.xml" />
 			<report todir="${report.dir}" format="noframes">
@@ -214,14 +169,15 @@
 
 	<!-- thankfully created in Eclipse -->
 	<target name="javadoc">
-		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
+		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
+			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
+			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
 			<classpath>
-				<fileset dir="./thirdParty/lib">
+				<fileset dir="./libraries/jar">
 					<include name="*.jar" />
 				</fileset>
 			</classpath>
 		</javadoc>
-
 	</target>
 
 	<!-- TODO - upload javadoc, check in javadoc? -->

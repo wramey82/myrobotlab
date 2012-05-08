@@ -1,4 +1,4 @@
-package org.myrobotlab.boot;
+package org.myrobotlab.attic;
 
 import java.io.File;
 import java.lang.reflect.Method;
