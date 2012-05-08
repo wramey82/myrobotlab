@@ -42,7 +42,6 @@ import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.MRLMSGReciever;
@@ -326,6 +325,8 @@ public class RemoteAdapter extends Service {
 			*/
 			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
 			udpListener.start();
+			// block until actually listening 
+			
 		} else {
 			LOG.warn("RemoteAdapter " + getName() + " is already started");
 		}

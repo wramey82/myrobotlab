@@ -39,6 +39,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Arduino;
@@ -69,10 +70,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		// NOT the way to do it since a call to getState over remote will
-		// serialize a new state of Arduino and send it as a parameter
-		// below would be stale data
-		//myArduino = (Arduino) Runtime.getService(boundServiceName).service;
 	}
 	
 	/**
@@ -82,6 +79,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	static final long serialVersionUID = 1L;
 
+	JTabbedPane tabs = new JTabbedPane();
+	
 	ArrayList<Pin> pinList = null;
 	JComboBox types = new JComboBox(new String[] { "Duemilanove", "Mega" });
 	JComboBox ttyPort = new JComboBox(new String[] { "" });
@@ -144,10 +143,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	public void init() {
 
-		// typePanel begin ---------------------------------
+		JPanel pinPanel = new JPanel(new GridBagLayout());
+		
+		// typePanel begin ---------------------------------		
 		JPanel typePanel = new JPanel(new GridBagLayout());
 		GridBagConstraints gc1 = new GridBagConstraints();
-
+		
 		gc1.anchor = GridBagConstraints.WEST;
 
 		gc1.gridx = 0;
@@ -190,6 +191,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		gc1.gridx = 0;
 		pinList = makePins();
 
+		/*
 		rawReadMessage.addItemListener(this);
 		rawReadMsgLength = new JIntegerField();
 		rawReadMsgLength.setInt(4);
@@ -208,9 +210,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// TODO - want to deprecate
 		rawReadMsgLength.setVisible(false);
 		rawReadMessage.setVisible(false);
+		*/
 
 		// typePanel end ------------------------------------------
-		display.add(typePanel, gc);
+		//display.add(typePanel, gc);
+		pinPanel.add(typePanel, gc);
 		++gc.gridy;
 
 		// outPinPanel begin -----------------------------------------
@@ -222,7 +226,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			++gc1.gridy;
 			outPinPanel.add(pinList.get(i), gc1);
 		}
-		display.add(outPinPanel, gc);
+		//display.add(outPinPanel, gc);
+		pinPanel.add(outPinPanel, gc);
 		// outPinPanel end -----------------------------------------
 
 		ttyPort.setName	("ttyPort");
@@ -240,6 +245,16 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		ttyPort.addActionListener(this);
 		baudRate.addActionListener(this);
 
+		tabs.setTabPlacement(JTabbedPane.RIGHT);
+		tabs.addTab("digital", pinPanel);
+		
+		tabs.addTab("oscope", new JLabel("hello"));
+		
+		tabs.addTab("config", new JLabel("hello"));
+		tabs.addTab("editor", new JLabel("hello"));
+		
+		display.add(tabs);
+		
 	}
 
 	/**
