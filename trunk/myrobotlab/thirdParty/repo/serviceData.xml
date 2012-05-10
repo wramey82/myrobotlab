@@ -290,6 +290,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Scheduler">
+      <dependsOn>
+         <list>
+            <string>org.myrobotlab</string>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.quartz</string>
+            <string>org.slf4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.SensorMonitor">
       <dependsOn>
          <list>
@@ -372,6 +383,11 @@
    <categories string="org.myrobotlab.service.AudioFile">
       <category>
          <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Clock">
+      <category>
+         <include>timers</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.ChumbyBot">
@@ -467,6 +483,11 @@
    <categories string="org.myrobotlab.service.Roomba">
       <category>
          <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Scheduler">
+      <category>
+         <include>timers</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.SensorMonitor">
