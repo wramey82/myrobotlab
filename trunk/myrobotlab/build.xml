@@ -11,7 +11,7 @@
 	resolution or mrl - update (name)
 -->
 
-<project name="myrobotlab" default="report" basedir=".">
+<project name="myrobotlab" default="dist" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
@@ -27,12 +27,14 @@
 	<property name="thirdParty.build" location="./thirdParty/build" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 
+	<!-- class path for build -->
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/repo">
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
 
+	<!-- class path for testing -->
 	<path id="compile.classpath.junit">
 		<fileset dir="./thirdParty/repo">
 			<include name="**/*.jar" />
@@ -135,13 +137,23 @@
 
 	<target name="junit" depends="dist">
 		<!-- FIXME - copy over serviceData.xml & ivy repo - root?  -->
+
+		<copy todir="${build}/resource">
+			<fileset dir="${src}/resource" />
+		</copy>
+		
 		<!-- compile tests -->
 		<javac srcdir="${junit.src}" destdir="${build}" includeantruntime="false">
-			<classpath refid="compile.classpath.junit" />
+			<classpath>
+				<fileset dir="${dist}/${label}/libraries/jar">
+							<include name="myrobotlab.jar" />
+				</fileset>
+				<path refid="compile.classpath.junit" />
+			</classpath>
 		</javac>
 
 		<mkdir dir="${report.dir}" />
-		<junit printsummary="yes" showoutput="yes">
+		<junit printsummary="yes" > 
 			<classpath>
 				<fileset dir="${libraries.jar}">
 					<include name="**/*.jar" />
@@ -160,7 +172,7 @@
 	</target>
 
 	<target name="report" depends="junit">
-		<junitreport>
+		<junitreport todir="${report.dir}">
 			<fileset dir="${report.dir}" includes="TEST-*.xml" />
 			<report todir="${report.dir}" format="noframes">
 			</report>
