@@ -51,6 +51,12 @@ public class SerializableImage implements Serializable {
 		setImage(im);
 	}
 
+	public SerializableImage(BufferedImage im, String source) {
+		this();
+		this.source = source; 
+		setImage(im);
+	}
+	
 	public BufferedImage getImage() {
 		return image;
 	}

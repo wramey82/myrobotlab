@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,28 +41,35 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IOData;
 
-public class Pin extends JPanel {
+public class Pin {
 
 	public final static Logger LOG = Logger.getLogger(Pin.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
+	
 	public final String boundServiceName;
+	
 	public final int pinNumber;
+	boolean isAnalog = false;
+	boolean isPWM = false;
+	JLabel counter = null;
 
 	public DigitalButton inOut = null;
 	public DigitalButton onOff = null;
-	public JSlider analogSlider = null;
+	public DigitalButton activeInActive = null;
+	public DigitalButton trace = null;
+
+	public JSlider pwmSlider = null;
 
 	JLabel pinLabel = null;
-	public JLabel analogData = null;
+	public JLabel data = null;
 	
-	boolean isAnalog = false;
 	public final Service myService;
-	JComboBox analogDigital = null;
-	JLabel counter = null;
 	
 	// types of DigitalButtons
-	public final static int ONOFF = 0;
-	public final static int INPUTOUTPUT = 1;
+	public final static int TYPE_ONOFF = 0;
+	public final static int TYPE_INOUT = 1;
+	public final static int TYPE_ACTIVEINACTIVE = 2;
+	public final static int TYPE_TRACE = 3;
 	
 	// values 
 	public static final int HIGH = 0x1;
@@ -69,86 +77,61 @@ public class Pin extends JPanel {
 	public static final int OUTPUT = 0x1;
 	public static final int INPUT = 0x0;
 
-	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isAnalog) {
+	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog) {
 		super();
 		this.boundServiceName = boundServiceName;
 		this.isAnalog = isAnalog;
+		this.isPWM = isPWM;
 		this.pinNumber = pinNumber;
 		this.myService = myService;
 	
-		this.setLayout(new GridBagLayout());
-
-		GridBagConstraints gc = new GridBagConstraints();
-		//gc.weightx = 1.0;
-		//gc.weighty = 1.0;
-		//gc.fill = GridBagConstraints.HORIZONTAL;
-		gc.anchor = GridBagConstraints.WEST;
-
+		data = new JLabel("0");
+		
 		pinLabel = new JLabel("pin " + pinNumber);
-		pinLabel.setPreferredSize(new Dimension(40,13));
-
-		gc.gridx = 0;
-		gc.gridy = 0;
-
-		add(pinLabel, gc);
-		++gc.gridx;
+		pinLabel.setPreferredSize(new Dimension(40,13));		
 		
-		inOut = new DigitalButton(this, 
-				Util.getScaledIcon(Util.getImage("square_out.png"), 0.50),
-				Util.getScaledIcon(Util.getImage("square_in.png"), 0.50),
-				INPUTOUTPUT);
+		inOut = new  DigitalButton(this, 
+				"out",  Color.decode("0x418dd9"), Color.white, 
+				"in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);						
 		
-		gc.anchor = GridBagConstraints.EAST;
-		add(inOut, gc);
-		++gc.gridx;
-
-		onOff = new DigitalButton(this, 
-				Util.getScaledIcon(Util.getImage("grey.png"), 0.50),
-				Util.getScaledIcon(Util.getImage("green.png"), 0.50),
-				ONOFF);
+		onOff = new  DigitalButton(this, 
+				"off",  Color.gray, Color.white, 
+				"on", Color.green, Color.black, TYPE_ONOFF);
 		
-		add(onOff, gc);
-		
-		if (isAnalog) {
-			/*
-			++gc.gridx;
-			analogDigital = new AnalogDigital(this);
-			this.add(analogDigital, gc);
-			*/
-			++gc.gridy;
-			gc.gridwidth = 5;
-			gc.gridx = 0;
+		activeInActive = new  DigitalButton(this, 
+				"inactive",  Color.decode("0x418dd9"), Color.white, 
+				"active", Color.red, Color.white, TYPE_ACTIVEINACTIVE);
 
-			this.add(getAnalogSlider(), gc);
-
-			//onOff.setText("On");
-		}
-
-		gc.gridwidth = 1;
-		++gc.gridx;
-		add(new JLabel(" "));
-		
 		if (isAnalog)
 		{
-			++gc.gridx;
-			analogData = new JLabel("0");
-			add(analogData, gc);
+			trace = new  DigitalButton(this, 
+					"A"+ (pinNumber), "offTrace",  Color.decode("0x418dd9"), Color.white, 
+					"A"+ (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
+		} else {
+			trace = new  DigitalButton(this, 
+					"D"+ (pinNumber), "offTrace", Color.decode("0x418dd9"), Color.white, 
+					"D"+ (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
+			
 		}
-		//++gc.gridx;
-		//counter = new JLabel("0");
-		//add(counter, gc);
+		
+		if (isPWM)
+		{
+			pwmSlider = getPWMSlider();
+		}
 		
 	}
 
-	private JSlider getAnalogSlider() {
-		if (analogSlider == null) {
-			analogSlider = new JSlider(0, 255, 0);
-			analogSlider.addChangeListener(new ChangeListener() {
+	// TODO - remove
+	private JSlider getPWMSlider() {
+		if (pwmSlider == null) {
+			pwmSlider = new JSlider(0, 255, 0);
+			pwmSlider.setOpaque(false);
+			pwmSlider.addChangeListener(new ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
-					analogData.setText("" + analogSlider.getValue());
+					data.setText("" + pwmSlider.getValue());
 					IOData io = new IOData();
 					io.address = pinNumber;
-					io.value = analogSlider.getValue();
+					io.value = pwmSlider.getValue();
 					if (myService != null) {
 						myService.send(boundServiceName, "analogWrite", io);
 					} else {
@@ -158,7 +141,7 @@ public class Pin extends JPanel {
 			});
 
 		}
-		return analogSlider;
+		return pwmSlider;
 	}
 
 
