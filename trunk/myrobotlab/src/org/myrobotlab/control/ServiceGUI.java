@@ -53,6 +53,10 @@ public abstract class ServiceGUI {
 
 	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
+	// FIXME - Why a GUI interface - Swing will be swing
+	// FIXME - cheesy - have resizer in GUIService too because its a lame updating the interface all the time
+	//final static public ComponentResizer resizer = new ComponentResizer();
+	
 	public final String boundServiceName;
 	final GUI myService;
 
@@ -216,7 +220,7 @@ public abstract class ServiceGUI {
 		myService.send(boundServiceName, "removeNotify", ne);
 
 	}
-
+	
 	public abstract void attachGUI();
 
 	public abstract void detachGUI();

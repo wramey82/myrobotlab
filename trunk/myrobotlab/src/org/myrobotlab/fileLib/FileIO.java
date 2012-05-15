@@ -52,18 +52,18 @@ public class FileIO {
 
 	public final static Logger LOG = Logger.getLogger(FileIO.class.getCanonicalName());
 
-	public final static String fileToString(String filename) {
+	public final static String fileToString(File file) {
 		String result = null;
 		DataInputStream in = null;
 
 		try {
-			File f = new File(filename);
-			byte[] buffer = new byte[(int) f.length()];
-			in = new DataInputStream(new FileInputStream(f));
+			//File f = new File(filename);
+			byte[] buffer = new byte[(int) file.length()];
+			in = new DataInputStream(new FileInputStream(file));
 			in.readFully(buffer);
 			result = new String(buffer);
 		} catch (IOException e) {
-			LOG.error("could not open filename " + filename);
+			LOG.error("could not open filename " + file.getName());
 		} finally {
 			try {
 				if (in != null)
@@ -74,6 +74,10 @@ public class FileIO {
 			}
 		}
 		return result;
+	}	
+	
+	public final static String fileToString(String filename) {
+		return fileToString(new File(filename));
 	}
 
 	public static void stringToFile(String filename, String data)

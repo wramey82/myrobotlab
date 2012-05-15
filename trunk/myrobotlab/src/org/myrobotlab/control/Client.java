@@ -124,7 +124,7 @@ public class Client extends JApplet {
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
 			jContentPane = new JPanel();
-			jContentPane.add(guiService.panel);
+			jContentPane.add(guiService.tabs);
 		}
 		return jContentPane;
 	}

@@ -59,225 +59,9 @@ public class VideoWidget extends ServiceGUI {
 
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
-	boolean allowFork = true;
+	boolean allowFork = false;
 	JComboBox localSources = null;
 	
-	// TODO - too big for inner class
-	public class VideoDisplayPanel
-	{
-		VideoWidget parent;
-		String boundFilterName;
- 
-		JPanel myDisplay = new JPanel();
-		JComboBox sources = new JComboBox();
-		JLabel screen = new JLabel();
-		JLabel mouseInfo = new JLabel("mouse x y");
-		JLabel resolutionInfo = new JLabel("width x height");
-		JLabel deltaTime = new JLabel("0");
-
-		JButton attach = new JButton("attach");
-		JButton fork = new JButton("fork");
-		JLabel sourceNameLabel = new JLabel("");
-		public JLabel extraDataLabel = new JLabel("");
-
-		public SerializableImage lastImage = null;
-		public ImageIcon lastIcon = new ImageIcon();
-		public ImageIcon myIcon = new ImageIcon();
-		public VideoMouseListener vml = new VideoMouseListener();
-		
-		public int lastImageWidth = 0;
-		
-		public class VideoMouseListener implements MouseListener {
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
-				Object[] d = new Object[1];
-				d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not OpenCV specific
-				myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", d); 
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// mouseInfo.setText("entered");
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// mouseInfo.setText("exit");
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// mouseInfo.setText("pressed");
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// mouseInfo.setText("release");
-			}
-
-		}
-
-		VideoDisplayPanel(String boundFilterName, VideoWidget p)
-		{
-			this.parent = p;
-			this.boundFilterName = boundFilterName;	// TODO - boundSourceName - not OpenCV specific		
-			
-			myDisplay.setLayout(new GridBagLayout());
-
-			ImageIcon icon = Util.getResourceIcon("mrl_logo.jpg");
-			if (icon != null)
-			{
-				screen.setIcon(icon);	
-			}
-
-			GridBagConstraints gc = new GridBagConstraints();
-
-			screen.addMouseListener(vml);
-			myIcon.setImageObserver(screen); // Good(necessary) Optimization
-
-			TitledBorder title;
-			title = BorderFactory.createTitledBorder(boundServiceName + " " + boundFilterName + " video widget");
-			myDisplay.setBorder(title);
-
-			gc.gridx = 0;
-			gc.gridy = 0;
-			// gc.anchor = GridBagConstraints.BOTH;
-			// myDisplay.add(new JLabel(boundServiceName), gc);
-			// ++gc.gridy;
-			localSources = getServices(null);
-			myDisplay.add(localSources, gc);
-
-			++gc.gridx;
-			fork.addActionListener(new ButtonListener());
-			myDisplay.add(fork, gc);
-			
-			++gc.gridx;
-			myDisplay.add(sources, gc);
-			
-			++gc.gridx;
-			attach.addActionListener(new ButtonListener());
-			myDisplay.add(attach, gc);
-
-			
-			gc.gridx = 0;
-			gc.gridwidth = 5;
-			++gc.gridy;
-			myDisplay.add(screen, gc);
-			
-			// add the sub-text components
-			gc.gridwidth = 1;
-			++gc.gridy;
-			myDisplay.add(mouseInfo, gc);
-			++gc.gridx;
-			myDisplay.add(resolutionInfo, gc);
-			++gc.gridy;
-			myDisplay.add(deltaTime, gc);
-			
-			gc.gridx = 0;
-			++gc.gridy;
-			gc.gridwidth = 5;
-			myDisplay.add(sourceNameLabel, gc);		
-
-			gc.gridx = 0;
-			++gc.gridy;
-			gc.gridwidth = 5;
-			myDisplay.add(extraDataLabel, gc);		
-			
-		}
-		
-		public void displayFrame(SerializableImage img) {
-			
-			/* got new frame - check if a screen exists for it
-			 * or if i'm in single screen mode
-			 * 
-			 * img.source is the name of the bound filter
-			 */
-			 
-			if (parent.allowFork && !displays.containsKey(img.source)) {
-//				screens.put(img.source, new JLabel());
-				parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
-				getSources();
-			}
-
-			if (lastImage != null) {
-				screen.setIcon(lastIcon);
-			}
-			
-			if (!sourceNameLabel.getText().equals(img.source))
-			{
-				sourceNameLabel.setText(img.source);
-			}
-			
-			myIcon.setImage(img.getImage());
-			screen.setIcon(myIcon);
-			// screen.repaint(); - was in other function - performance hit remove if works in GraphicServiceGUI
-			if (lastImage != null) {
-				if (img.timestamp != null)
-					deltaTime.setText(""
-							+ (img.timestamp.getTime() - lastImage.timestamp.getTime()));
-			}
-			lastImage = img;
-			lastIcon.setImage(img.getImage());
-
-			if (exports.size() > 0) {
-				for (int i = 0; i < exports.size(); ++i) {
-//					exports.get(i).displayFrame(filterName, img); FIXME
-				}
-			}
-			
-			// resize gui if necessary
-			if (lastImageWidth != img.getImage().getWidth())
-			{
-				screen.invalidate();
-				myService.pack();
-				lastImageWidth = img.getImage().getWidth();
-				resolutionInfo.setText(" " + lastImageWidth + " x " + img.getImage().getHeight());
-			}
-
-			img = null;
-
-		}
-
-		public void getSources()
-		{
-
-			Map<String, VideoDisplayPanel> sortedMap = new TreeMap<String, VideoDisplayPanel>(displays);
-			Iterator<String> it = sortedMap.keySet().iterator();
-
-			sources.removeAllItems();
-			
-			// String [] namesAndClasses = new String[sortedMap.size()];
-			while (it.hasNext()) {
-				String serviceName = it.next();
-				sources.addItem(serviceName);
-			}
-		}
-
-		class ButtonListener implements ActionListener {
-			ButtonListener() {
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				String id = ((JButton)e.getSource()).getText(); 
-				if (id.equals("attach"))
-				{
-					attachLocalGUI();
-				} else if (id.equals("fork")) {
-					String filter = (String)sources.getSelectedItem();
-					parent.addVideoDisplayPanel(filter);
-					myService.send(boundServiceName, "fork", filter); 
-
-				} else {
-					LOG.error("unhandled button event - " + id);
-				}
-			}
-		}
-		
-		
-	} // VideoDisplayPanel
 
 	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork)
 	{
@@ -351,20 +135,26 @@ public class VideoWidget extends ServiceGUI {
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
+		init(null);
+	}
+	
+	public void init(ImageIcon icon)
+	{
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(boundServiceName + " " + " video widget");
 		display.setBorder(title);
 		
-		addVideoDisplayPanel("output"); // create initial display "output"
-//		screens.put("output", new JLabel("output"));
-		//addVideoDisplayPanel("shoe"); // create initial display "output"
-		//gc.gridx = 40;
-		//display.add(new JLabel("blah blah blah"), gc);
+		addVideoDisplayPanel("output"); 
 	}
-
+	
 	public VideoDisplayPanel addVideoDisplayPanel(String source)
 	{
+		return addVideoDisplayPanel(source, null);
+	}
+
+	public VideoDisplayPanel addVideoDisplayPanel(String source, ImageIcon icon)
+	{
+		// FIXME FIXME FIXME - should be FlowLayout No?
 		
 		if (videoDisplayXPos%2 == 0)
 		{
@@ -375,7 +165,7 @@ public class VideoWidget extends ServiceGUI {
 		gc.gridx = videoDisplayXPos;
 		gc.gridy = videoDisplayYPos;
 
-		VideoDisplayPanel vp = new VideoDisplayPanel(source, this);
+		VideoDisplayPanel vp = new VideoDisplayPanel(source, this,myService, boundServiceName);
 		
 		// add it to the map of displays
 		displays.put(source, vp);		
