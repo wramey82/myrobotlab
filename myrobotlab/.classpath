@@ -46,5 +46,8 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.tritonus.share.sampled.floatsamplebuffer/floatsamplebuffer/0.3.6/tritonus_share-0.3.6.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/simbad.gui/gui/1.4/simbad-1.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/wiiuse.wiimote/wiimote/0.12b/wiiusej.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.quartz/quartz/2.1.5/quartz-2.1.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
