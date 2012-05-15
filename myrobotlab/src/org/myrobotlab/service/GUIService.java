@@ -26,8 +26,12 @@
 package org.myrobotlab.service;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Point;
@@ -47,8 +51,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -64,8 +70,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JWindow;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -116,7 +122,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public transient JFrame frame = null;
 
 	public transient JTabbedPane tabs = new JTabbedPane();
-	public transient JPanel panel = new JPanel();
+//	public transient JPanel panel = new JPanel();
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
@@ -462,6 +468,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param sw
 	 * @return
 	 */
+	
+//	public ComponentResizer resizer = new ComponentResizer();
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw)
 	{
 		ServiceGUI gui = null;
@@ -474,6 +482,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.put(serviceName, gui);
 			tabPanelMap.put(serviceName, tpanel);
 			gui.attachGUI();
+
+/*			
+			resizer.registerComponent(gui.widgetFrame);
+			resizer.registerComponent(gui.display);
+*/			
+/*			
+			List<Component> comps = getAllComponents(gui.widgetFrame);
+			for (Component comp: comps)
+			{
+				resizer.registerComponent(comp);	
+			}
+*/
+			
 			tpanel.add(gui.widgetFrame); 
 			tabs.addTab(serviceName, tpanel);
 
@@ -484,6 +505,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return gui;
 	}
 	
+	public static List<Component> getAllComponents(final Container c) {
+	    Component[] comps = c.getComponents();
+	    List<Component> compList = new ArrayList<Component>();
+	    for (Component comp : comps) {
+	        compList.add(comp);
+	        if (comp instanceof Container)
+	            compList.addAll(getAllComponents((Container) comp));
+	    }
+	    return compList;
+	}
 	
 	/**
 	 * Move Service panel into a JFrame
@@ -548,22 +579,38 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         	myFrame.dispose();
         }		
 	}
-
+	
 	public void display() {
+		// reentrant 
+		if (frame != null)
+		{
+			frame.dispose();
+			frame = null;
+		}
+		
+		if (frame == null)
+		{
+			frame = new JFrame();
+		}
 		
 		gc = new GridBagConstraints();
 		
-		frame = new JFrame();
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + getName());
 		
+		/*
 		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 								JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	    frame.add(sp);
+	    */
 	    
 	    buildTabPanels();
-		panel.add(tabs, gc);
+//		panel.add(tabs, gc);
 
+		// alternate "reduced"
+		frame.add(tabs);
+		
+		
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
@@ -575,6 +622,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.pack();
 
 	}
+	
 
 	private static void open(URI uri) {
         if (Desktop.isDesktopSupported()) {
@@ -680,53 +728,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	String lastHost = "127.0.0.1";
 	String lastPort = "6767";
 
-	// TODO - refactor names
-	@Override
-	public void actionPerformed(ActionEvent ae) {
-		String action = ae.getActionCommand();
-		if ("save".equals(action))
-		{
-			Runtime.save("myrobotlab.mrl");
-		} else if ("check for updates".equals(action))
-		{
-			Runtime runtime = Runtime.getInstance();
-			send(runtime.getName(), "checkForUpdates");
-		} else if ("update all".equals(action))
-		{
-			Runtime.updateAll();
-		} else if ("load".equals(action)) 
-		{
-			loadRuntime();
-		} else if (LOG_LEVEL_DEBUG.equals(action) || 
-				LOG_LEVEL_INFO.equals(action) ||
-				LOG_LEVEL_WARN.equals(action) ||
-				LOG_LEVEL_ERROR.equals(action) ||
-				LOG_LEVEL_FATAL.equals(action))
-		{
-			setLogLevel(action);
-		} else if ("connect".equals(action)) 
-		{
-			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
-			lastHost = dlg.host.getText();
-			lastPort = dlg.port.getText();
-		} else if (LOGGING_APPENDER_NONE.equals(action)) 
-		{
-			removeAllAppenders();
-		} else if (LOGGING_APPENDER_SOCKET.equals(action)) 
-		{
-			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
-			if (m.isSelected()) {
-				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
-				lastHost = dlg.host.getText();
-				lastPort = dlg.port.getText();
-				addAppender(LOGGING_APPENDER_SOCKET, dlg.host.getText(), dlg.port.getText());
-			} else {
-				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
-			}
-		} else {
-			invoke(action);
-		}
-	}
+
 	
 	public void loadRuntime()
 	{
@@ -1061,6 +1063,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		m.add(mi);
 		    	    
 	    menuBar.add(system);
+
+	    
+		JMenu view = new JMenu("view");
+	    JMenuItem fullscreen = new JMenuItem("fullscreen");
+	    fullscreen.addActionListener(this);
+	    view.add(fullscreen);
+	    JMenuItem leavefullscreen = new JMenuItem("leave fullscreen");
+	    fullscreen.addActionListener(this);
+	    view.add(leavefullscreen);
+	    menuBar.add(view);
 	    
 		JMenu help = new JMenu("help");
 	    JMenuItem about = new JMenuItem("about");
@@ -1071,6 +1083,55 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return menuBar;
 	}
 	
+	@Override
+	public void actionPerformed(ActionEvent ae) {
+		String cmd = ae.getActionCommand();
+		if ("save".equals(cmd))
+		{
+			Runtime.save("myrobotlab.mrl");
+		} else if ("check for updates".equals(cmd))
+		{
+			Runtime runtime = Runtime.getInstance();
+			send(runtime.getName(), "checkForUpdates");
+		} else if ("update all".equals(cmd))
+		{
+			Runtime.updateAll();
+		} else if ("load".equals(cmd)) 
+		{
+			loadRuntime();
+		} else if (LOG_LEVEL_DEBUG.equals(cmd) || 
+				LOG_LEVEL_INFO.equals(cmd) ||
+				LOG_LEVEL_WARN.equals(cmd) ||
+				LOG_LEVEL_ERROR.equals(cmd) ||
+				LOG_LEVEL_FATAL.equals(cmd))
+		{
+			setLogLevel(cmd);
+		} else if ("connect".equals(cmd)) 
+		{
+			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
+			lastHost = dlg.host.getText();
+			lastPort = dlg.port.getText();
+		} else if (LOGGING_APPENDER_NONE.equals(cmd)) 
+		{
+			removeAllAppenders();
+		} else if (LOGGING_APPENDER_SOCKET.equals(cmd)) 
+		{
+			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
+			if (m.isSelected()) {
+				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
+				lastHost = dlg.host.getText();
+				lastPort = dlg.port.getText();
+				addAppender(LOGGING_APPENDER_SOCKET, dlg.host.getText(), dlg.port.getText());
+			} else {
+				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
+			}
+		} else if ("leave fullscreen".equals(cmd)) 
+		{
+			display();
+		} else {
+			invoke(cmd);
+		}
+	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
