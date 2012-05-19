@@ -22,16 +22,13 @@
 
 package org.myrobotlab.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.Port;
-import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.SerialPort;
+import org.myrobotlab.serial.SerialService;
 
 /**
  * AdaFruit Motor Shield Controller Service
@@ -39,7 +36,7 @@ import org.myrobotlab.service.interfaces.SerialPort;
  * @author greg
  * 
  */
-public class AFMotorShield extends Service implements SerialPort {
+public class AFMotorShield extends Service implements SerialService {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -63,12 +60,6 @@ public class AFMotorShield extends Service implements SerialPort {
 	@Override
 	public String getToolTip() {
 		return "AF Motor Shield Service";
-	}
-
-	@Override
-	public String readSerial(byte[] s) {
-
-		return null;
 	}
 
 	@Override

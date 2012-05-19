@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.Port;
-import org.myrobotlab.service.interfaces.SerialPort;
+import org.myrobotlab.serial.SerialService;
 
 /**
  * The abstract base for all Roomba communications.
@@ -67,7 +67,7 @@ import org.myrobotlab.service.interfaces.SerialPort;
  * @author Tod E. Kurt
  * 
  */
-public class Roomba extends Service implements SerialPort {
+public class Roomba extends Service implements SerialService {
 	/** version of the library */
 	static public final String VERSION = "0.96";
 
@@ -132,12 +132,6 @@ public class Roomba extends Service implements SerialPort {
 	@Override
 	public String getToolTip() {
 		return "Roomba Service";
-	}
-
-	@Override
-	public String readSerial(byte[] s) {
-
-		return null;
 	}
 
 	@Override

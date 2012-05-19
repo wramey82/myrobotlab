@@ -119,11 +119,11 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		gc.gridx = 0;
 		gc.gridy = 0;
-		gc.gridwidth = 2;
+		//gc.gridwidth = 2;
 		display.add(newRoute, gc);
-		gc.gridwidth = 1;
+		//gc.gridwidth = 1;
 
-		++gc.gridy;
+		++gc.gridx;
 		// begin graph view buttons
 		JPanel filters = new JPanel(new GridBagLayout());
 		GridBagConstraints fgc = new GridBagConstraints();
@@ -134,7 +134,9 @@ public class GUIServiceGUI extends ServiceGUI {
 		++fgc.gridy;
 		filters.add(showRoutesButton, fgc);
 		display.add(filters, gc);
-		++gc.gridx;
+		++gc.gridy;
+		gc.gridx = 0;
+		gc.gridwidth = 2;
 
 		graphPanel.setVisible(true);
 		display.add(graphPanel, gc);
@@ -240,12 +242,15 @@ public class GUIServiceGUI extends ServiceGUI {
 		graph.setMinimumGraphSize(new mxRectangle(0, 0, 600, 400));
 
 		// Sets the default edge style
+		// list of styles - http://libjgraphx-java.sourcearchive.com/documentation/1.7.0.7/classcom_1_1mxgraph_1_1util_1_1mxConstants.html
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);// .ElbowConnector
 		style.put(mxConstants.STYLE_STROKECOLOR, "black");// .ElbowConnector
+		style.put(mxConstants.STYLE_EDITABLE, "0");// .ElbowConnector
+		style.put(mxConstants.STYLE_MOVABLE, "0");// .ElbowConnector
 
 		// creating JComponent
-		if (graphComponent == null) {
+		if (graphComponent == null) {	
 			graphComponent = new mxGraphComponent(graph);
 			graphPanel.add(graphComponent);
 			// graphComponent.addKeyListener(this);
@@ -548,7 +553,10 @@ public class GUIServiceGUI extends ServiceGUI {
 						// methodString);
 						// graph.getChildVertices(arg0)parent.
 						// graph.getChildVertices(graph.getDefaultParent());
-						mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod),
+/*						mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(ne.outMethod	, ne.paramTypes, ne.inMethod),
+								serviceCells.get(s.getName()), serviceCells.get(ne.name));
+*/								
+						mxCell c = (mxCell)graph.insertEdge(parent, null, "",
 								serviceCells.get(s.getName()), serviceCells.get(ne.name));
 											
 						//mxGeometry g = c.getGeometry();

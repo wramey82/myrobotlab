@@ -25,13 +25,9 @@
 
 package org.myrobotlab.service;
 
-import gnu.io.CommDriver;
-import gnu.io.CommPortIdentifier;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.WiiDriver;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.WiiDAR.Point;
 import org.myrobotlab.service.data.PinData;
@@ -64,8 +60,10 @@ public class WiiBot extends Service {
 		arduino = new Arduino("arduino");
 
 		// adding wiicom as an option
+		/*
 		Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
 				(CommDriver) new WiiDriver(wii));
+				*/
 
 		gui.startService();
 		wiidar.servo = servo;

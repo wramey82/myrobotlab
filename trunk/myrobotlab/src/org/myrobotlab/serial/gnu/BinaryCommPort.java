@@ -24,7 +24,7 @@
  * */
 
 
-package org.myrobotlab.serial;
+package org.myrobotlab.serial.gnu;
 
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEventListener;
