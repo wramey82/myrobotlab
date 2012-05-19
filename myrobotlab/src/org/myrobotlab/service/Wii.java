@@ -25,8 +25,6 @@
 
 package org.myrobotlab.service;
 
-import gnu.io.CommDriver;
-import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
@@ -35,8 +33,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.BinaryCommPort.LineDriver;
-import org.myrobotlab.serial.WiiDriver;
+import org.myrobotlab.serial.gnu.BinaryCommPort.LineDriver;
 
 import wiiusej.WiiUseApiManager;
 import wiiusej.Wiimote;
@@ -326,8 +323,10 @@ public class Wii extends Service implements WiimoteListener,
 
 
 		// add the port as a possible option for the Arduino
+		/*
 		Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
 				(CommDriver) new WiiDriver(wii));
+				*/
 		/*
 		 * try { portId = CommPortIdentifier.getPortIdentifier("wiicom"); }
 		 * catch (NoSuchPortException e1) { // TODO Auto-generated catch block

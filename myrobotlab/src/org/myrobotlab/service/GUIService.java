@@ -737,7 +737,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// load runtime
 		Runtime.load("myrobotlab.mrl");
 		
-		Runtime.startLocalServices();
+		Runtime.startLocalServices(); // FIXME - gui will not re-activate - removed for Android?
 	}
 	
 	public void about()
@@ -969,8 +969,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    
 		// --- system ----
 		JMenu system = new JMenu("system");
-	    
-		JMenuItem mi = new JMenuItem("save");
+		JMenuItem mi;
+		
+		/*
+		mi = new JMenuItem("save");
 	    mi.addActionListener(this);
 	    system.add(mi);
 
@@ -985,6 +987,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		mi = new JMenuItem("refresh");
 	    mi.addActionListener(this);
 	    system.add(mi);	    
+	    */
 
 		mi = new JMenuItem("connect");
 	    mi.addActionListener(this);

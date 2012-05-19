@@ -1584,39 +1584,65 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * dynamically set the logging level
 	 * @param level DEBUG | INFO | WARN | ERROR | FATAL
 	 */
-	public static void setLogLevel(String level) {
-		LOG.debug("setLogLevel " + level);
+	public final static void setLogLevel(String level)
+	{
+		setLogLevel(null, level);
+	}
+	/**
+	 * @param level string input controls logging level
+	 */
+	public final static void setLogLevel(String object, String level)
+	{
+		LOG.debug("setLogLevel " + object + " " + level);
+		Logger logger;
+		if (object == null || object.length() == 0)
+		{
+			logger = Logger.getRootLogger();
+		} else {
+			logger = Logger.getLogger(object);			
+		}
+
 		if ((LOG_LEVEL_INFO).equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.INFO);
+			logger.setLevel(Level.INFO);
 		} else
 		if ((LOG_LEVEL_WARN).equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.WARN);
+			logger.setLevel(Level.WARN);
 		} else 
 		if ((LOG_LEVEL_ERROR).equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.ERROR);
+			logger.setLevel(Level.ERROR);
 		} else
 		if ((LOG_LEVEL_FATAL).equalsIgnoreCase(level)) {
-			Logger.getRootLogger().setLevel(Level.FATAL);
+			logger.setLevel(Level.FATAL);
 		} else {
-			Logger.getRootLogger().setLevel(Level.DEBUG);
+			logger.setLevel(Level.DEBUG);
 		}
-	}
-	
-	public static String getLogLevel()
-	{
-		if (Logger.getRootLogger().getLevel() == Level.INFO)
+
+	}	
+		
+	public static String getLogLevel(String object)
+	{		
+		LOG.debug("getLogLevel " + object);
+		Logger logger;
+		if (object == null || object.length() == 0)
+		{
+			logger = Logger.getRootLogger();
+		} else {
+			logger = Logger.getLogger(object);			
+		}
+		
+		if (logger.getLevel() == Level.INFO)
 		{
 			return LOG_LEVEL_INFO;
-		} else if (Logger.getRootLogger().getLevel() == Level.WARN)
+		} else if (logger.getLevel() == Level.WARN)
 		{
 			return LOG_LEVEL_WARN;			
-		} else if (Logger.getRootLogger().getLevel() == Level.ERROR)
+		} else if (logger.getLevel() == Level.ERROR)
 		{
 			return LOG_LEVEL_ERROR;			
-		} else if (Logger.getRootLogger().getLevel() == Level.FATAL)
+		} else if (logger.getLevel() == Level.FATAL)
 		{
 			return LOG_LEVEL_FATAL;			
-		} else if (Logger.getRootLogger().getLevel() == Level.DEBUG)
+		} else if (logger.getLevel() == Level.DEBUG)
 		{
 			return LOG_LEVEL_DEBUG;			
 		}

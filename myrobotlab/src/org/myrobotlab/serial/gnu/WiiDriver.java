@@ -24,30 +24,29 @@
  * */
 
 
-package org.myrobotlab.serial;
+package org.myrobotlab.serial.gnu;
 
 import gnu.io.CommDriver;
 import gnu.io.CommPort;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.serial.BinaryCommPort.LineDriver;
+import org.myrobotlab.service.Wii;
 
-public class BinaryDriver implements CommDriver {
+public class WiiDriver implements CommDriver {
 
-	public final static Logger LOG = Logger.getLogger(BinaryDriver.class
-			.getCanonicalName());
-	private BinaryCommPort bcp;
+	public final static Logger LOG = Logger.getLogger(WiiDriver.class.getCanonicalName());
+	private WiiCommPort wiiport;
 
-	public BinaryDriver(LineDriver ld) {
-		bcp = new BinaryCommPort();
-		bcp.setLineDriver(ld);
+	public WiiDriver(Wii wii) {
+		wiiport = new WiiCommPort();
+		wiiport.setWii(wii);
 	}
 
 	// @Override - only in Java 1.6
 	public CommPort getCommPort(String arg0, int arg1) {
 		LOG.info("getCommPort");
 
-		return bcp;
+		return wiiport;
 	}
 
 	// @Override - only in Java 1.6

@@ -65,6 +65,8 @@ import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
 
+import processing.app.Base;
+
 /**
  * Arduino Diecimila http://www.arduino.cc/en/Main/ArduinoBoardDiecimila Serial:
  * 0 (RX) and 1 (TX). Used to receive (RX) and transmit (TX) TTL serial data.
@@ -142,7 +144,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 */
 	RSyntaxTextArea editor = new RSyntaxTextArea();
 	RTextScrollPane editorScrollPane = null;
-	DigitalButton fullscreenButton = null;
+	//DigitalButton fullscreenButton = null;
 	DigitalButton uploadButton = null;
 	JPanel editorPanel = null;
 	GridBagConstraints epgc = new GridBagConstraints();
@@ -370,7 +372,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		epgc = new GridBagConstraints();
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-		
+/*		
 		fullscreenButton = new DigitalButton(this, 
 				"fullscreen",  Color.decode("0x418dd9"), Color.white, 
 				"leave fullscreen", Color.red, Color.white, 7);
@@ -379,7 +381,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				"upload", Color.red, Color.white, 7);
 		
 		fullscreenButton.addActionListener(this);
-		uploadButton.addActionListener(this);
+*/		
+//		uploadButton.addActionListener(this);
 		
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
 		editorScrollPane = new RTextScrollPane(editor);
@@ -396,16 +399,21 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		epgc.anchor = GridBagConstraints.WEST;
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-		editorPanel.add(fullscreenButton,epgc);
+//		editorPanel.add(fullscreenButton,epgc);
 		
-		++epgc.gridx;
-		editorPanel.add(uploadButton,epgc);
+//		++epgc.gridx;
+//		editorPanel.add(uploadButton,epgc);
 		
 		// leave where scroll pain needs to be
-		epgc.gridy = 1;
-		epgc.gridx = 0;
-		epgc.gridwidth = 10;
-		editorPanel.add(editorScrollPane,epgc);
+//		epgc.gridy = 1;
+//		epgc.gridx = 0;
+//		epgc.gridwidth = 10;
+		
+		//editorPanel.add(editorScrollPane,epgc);
+		
+		Base.main(myService.getFrame());
+		Base.handleActivated(Base.editor);
+		editorPanel.add(Base.editor,epgc);
 		
 		// ------editor tab end ----------------
 		
@@ -515,7 +523,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		if (DigitalButton.class == o.getClass())
 		{			
 			DigitalButton b = (DigitalButton)o;
-			
+/*			
 			if (fullscreenButton == c)
 			{
 				if ("fullscreen".equals(cmd))
@@ -538,7 +546,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					return;
 				} 
 			}
-			
+*/			
 			if (uploadButton == c)
 			{
 				uploadButton.toggle();
