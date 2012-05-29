@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.ivy.Main;
+import org.apache.ivy.core.report.ArtifactDownloadReport;
 import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.util.cli.CommandLineParser;
 import org.apache.log4j.Level;
@@ -271,40 +272,6 @@ public class ServiceInfo implements Serializable{
 		//return serviceInfo.keySet().toArray(new String[serviceInfo.keySet().size()]);
 	}
 
-	/*
-	public void addDependency (String shortName, String org, String version)
-	{
-		addDependency(shortName, org, version, true);
-	}
-	
-	public void addDependency (String shortName, String org, String version, boolean released)
-	{
-		String fullname = "org.myrobotlab.service." + shortName;
-		String module = org.substring(org.lastIndexOf(".")+1);		
-
-		ServiceDescriptor list = null;
-		if (serviceData.serviceInfo.containsKey(fullname))
-		{
-			list =  serviceData.serviceInfo.get(fullname);
-		} else {
-			list = new ServiceDescriptor();
-			serviceData.serviceInfo.put(fullname, list);
-		}
-		
-		// check to see if it is in the master list
-		// if not add it
-		Dependency d = null;
-		if (serviceData.thirdPartyLibs.containsKey(org))
-		{
-			d = serviceData.thirdPartyLibs.get(org);
-		} else {
-			d = new Dependency(org, module, version, released);
-			serviceData.thirdPartyLibs.put(org, d);
-		}
-		list.addDependency(org);		
-	}
-	*/
-	
 	public String[] getUniqueCategoryNames ()
 	{
 		ArrayList<String> sorted = new ArrayList<String>();
@@ -344,12 +311,6 @@ public class ServiceInfo implements Serializable{
 		return false;
 	}
 
-	// TODO - implement and remove from Runtime
-	public void determineInstalledServices()
-	{
-		
-	}
-	
 	
 	public void addCategory(String shortName, String category)
 	{
@@ -371,12 +332,6 @@ public class ServiceInfo implements Serializable{
 			serviceData.categories.put(fullname, list);
 		}
 		list.services.add(category);	
-	}
-
-	public boolean isServiceInstalled(String name)
-	{
-		//if ()
-		return false;
 	}
 	
 	
@@ -464,6 +419,12 @@ public class ServiceInfo implements Serializable{
 						runtime.invoke("resolveBegin",module);
 						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
 						ResolveReport report = Ivy2.getReport();
+		            	ArtifactDownloadReport[] artifacts =  report.getAllArtifactsReports();
+		            	for (int j = 0; j < artifacts.length; ++j)
+		            	{
+		            		LOG.info(artifacts[j]);
+		            	}
+
 						// FIXME - event - error or completed dialog
 			            if (report.hasError()) {
 			            	ret = false;
@@ -585,19 +546,10 @@ public class ServiceInfo implements Serializable{
 		// after reboot -
 		return false;
 	}
-	
-	public boolean update (String fullTypeName)
-	{
-		getLocalServiceData();
-
-		resolve(fullTypeName);
-		return false;
-	}
 
 	public Dependency getRepoLatestDependencies(String org) {
 		
 		String module = org.substring(org.lastIndexOf(".")+1);
-		
 		try {
 			HTTPRequest http = new HTTPRequest("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/" + org + "/" + module+ "/");
 			String s = http.getString();
@@ -607,7 +559,10 @@ public class ServiceInfo implements Serializable{
 				// to start the pos
 				String latestVersion = s.substring(s.lastIndexOf("<li><a href=\"") + 13);
 				latestVersion = latestVersion.substring(0, latestVersion.indexOf("/\">"));
-				return new Dependency(org, module, latestVersion, true);
+				if (!"..".equals(latestVersion))
+				{
+					return new Dependency(org, module, latestVersion, true);
+				}
 				//---- end fragile & ugly parsing -----
 			}
 		} catch (Exception e) {
@@ -667,10 +622,15 @@ public class ServiceInfo implements Serializable{
 		// look through Service's dependencies and see if 
 		// a newer one is avilable from the repo
 		
-		ServiceDescriptor local    = serviceData.serviceInfo.get(fullServiceType);
+		//ServiceDescriptor local    = serviceData.serviceInfo.get(fullServiceType);
 		ServiceDescriptor fromRepo = serviceDataFromRepo.serviceInfo.get(fullServiceType);
 		
 		ArrayList<Dependency> deps = new ArrayList<Dependency>();
+		
+		if (fullServiceType.equals("org.myrobotlab.service.Arduino"))
+		{
+			LOG.info("here");
+		}
 		
 		if (fromRepo != null)
 		{
@@ -680,13 +640,13 @@ public class ServiceInfo implements Serializable{
 				Dependency localDep = serviceData.thirdPartyLibs.get(dependencyName);
 				Dependency repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
 				
-				//if (localDep == null || !localDep.version.equals(repoDep.version))
 				if (localDep == null || repoDep == null || localDep.version == null)
 				{
 					LOG.info("null");
 				}
 				
-				if (localDep != null && localDep.version != null && !localDep.version.equals(repoDep.version))
+				if ((localDep == null) || // new dependency on repo
+						localDep != null && localDep.version != null && !localDep.version.equals(repoDep.version))
 				{
 					deps.add(repoDep);
 				}

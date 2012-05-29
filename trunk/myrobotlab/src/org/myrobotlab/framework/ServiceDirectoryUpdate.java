@@ -29,11 +29,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 public class ServiceDirectoryUpdate implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(ServiceDirectoryUpdate.class);
 
 	public int ID;
 	public URL url; 
@@ -52,6 +49,5 @@ public class ServiceDirectoryUpdate implements Serializable {
 	 * The list of services to be registered on the targe MRL instance.
 	 */
 	public ServiceEnvironment serviceEnvironment;
-	public ArrayList<Property> propertyList; // operator name the sdu came from
 
 }
