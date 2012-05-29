@@ -1,22 +1,10 @@
 package org.myrobotlab.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.lang.reflect.Constructor;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
-import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
 
 /**
  * MRLClient
@@ -41,78 +29,83 @@ import org.myrobotlab.framework.ServiceWrapper;
  */
 public class MRLClient implements Receiver {
 
-	public final static Logger LOG = Logger.getLogger(MRLClient.class.getCanonicalName());
-	DatagramSocket socket = null;
-	UDPListener listener = null;
-
+	String name;
+	Communicator listener = null;
+	
+	public final static String COMMUNICATION_TYPE_UDP = "org.myrobotlab.client.CommObjectStreamOverUDP";
+	public final static String COMMUNICATION_TYPE_TCP = "org.myrobotlab.client.CommObjectStreamOverTCP";
+	
 	// global
 	String host = null;
 	int port = -1;
+ 	
+	public static boolean debug = false;
+
+	public MRLClient(String name)
+	{
+		this(name, COMMUNICATION_TYPE_UDP);
+	}
 	
-	// inbound
-	byte[] inBuffer = new byte[65535]; // datagram max size
-	ByteArrayInputStream inByteStream = null;
-	DatagramPacket inDataGram = null;
-	Receiver client = null;
+	public MRLClient(String name, String communicationType)
+	{
+		this.name = name;
+		this.listener = getCommunicator(communicationType, name);
+	}
+	
+	
+	/**
+	 * CommunicatorObjectFactory - should be interface
+	 * 
+	 * @param type - type name to create
+	 * @return
+	 */
+	public static Communicator getCommunicator(String type, String name)
+	{
+		Object params[] = null;
+		if (name != null) {
+			params = new Object[1];
+			params[0] = name;
+		}
 
-	// out bound
-	ByteArrayOutputStream outByteStream = null;
-	ObjectOutputStream outObjectStream = null;
+		Class<?> c;
+		try {
+			c = Class.forName(type);
+			Constructor<?> mc = c.getConstructor(new Class[] { name.getClass() });
+			return (Communicator) mc.newInstance(params); // Dynamically instantiate it
 
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return null;
+	}
+	
 	/**
 	 * method which registers with a running MRL instance.  It does this by sending a service
 	 * directory update to the MRL's RemoteAdapter.  From MRL's perspective it will appear
 	 * as if this is another MRL instance with a single service.  The bogus service name
-	 * is controlled by overriding Receiver.getMyName()
+	 * is controlled by overriding Receiver.getName()
 	 * 
 	 * Once a MRLClient registers is may send messages and subscribe to events.
 	 * 
 	 * @param host - target host or ip of the running MRL instance's RemoteAdapter
 	 * @param port - target port of the RemoteAdapter
-	 * @param client - call back interface to recieve messages
+	 * @param client - call back interface to receive messages
 	 * @return
 	 */
 	final public boolean register(String host, int port, Receiver client) {
-		
-		if (host == null || port < -1)
+		if (host == null || host.length() == 0 || port < 0)
 		{
-			LOG.error("host and port need to be set for registering");
+			System.out.println("host and port need to be set for registering");
 			return false;
 		}
 		
-		// check if client is correct
-		if (client.getMyName() == null) {
-			LOG.error("client must return a non null String in \"getMyName\"");
-			return false;
-		}
-
 		this.host = host;
 		this.port = port;		
-		this.client = client;
-		socket = getSocket();
-		
-		try {
-			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-			sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
-			// pushing bogus Service with name into SDU
-			ServiceWrapper sw = new ServiceWrapper(client.getMyName(), null,
-					sdu.serviceEnvironment);
-			sdu.serviceEnvironment.serviceDirectory.put(client.getMyName(), sw);
 
-			send(null, "registerServices", sdu);
-
-			// start listening on the new socket
-			listener = new UDPListener("udp_" + host + "_" + port);
-			listener.start(); 
-					
-		} catch (Exception e) {
-			LOG.error(e.getMessage());
-			return false;
-		}
-
-		return true;
+		return listener.register(host, port, client);
 	}
 
+	
 	/**
 	 * method to send a messages to a running MRL instances. @see register(String, int, Receiver) must
 	 * be called before "send" can be used.
@@ -122,127 +115,11 @@ public class MRLClient implements Receiver {
 	 * @param data - parameter data for the method
 	 * @return
 	 */
-	final synchronized public boolean send(String name, String method, Object... data) {
-		
-		LOG.debug("sending message to " + name + "." + method + "()" );
-		
-		Message msg = new Message();
-		msg.name = name;
-		msg.method = method;
-		msg.sender = getMyName(); 
-		msg.sendingMethod = "send";
-		msg.data = data;
-
-		// send it
-		try {
-			// ObjectStreams must be recreated
-			outByteStream.reset();
-			outObjectStream = new ObjectOutputStream(outByteStream); 
-			outObjectStream.writeObject(msg);
-			outObjectStream.flush();
-			byte[] b = outByteStream.toByteArray();
-
-			DatagramPacket packet = new DatagramPacket(b, b.length, InetAddress.getByName(host), port);
-
-			if (socket == null)
-			{
-				LOG.error("socket is null... can not send messages");
-				return false;
-			}
-			socket.send(packet);
-
-		} catch (Exception e) {
-			LOG.error("threw [" + e.getMessage() + "]");
-			return false;
-		}
-		return true;
+	final synchronized public boolean send(String name, String method, Object... data) 
+	{
+		return listener.send(name, method, "send", data);
 	}
 	
-	/**
-	 * method to initialize the necessary data components for UDP communication
-	 */
-	private DatagramSocket getSocket()
-	{		
-		try {
-			socket = new DatagramSocket();
-			// inbound
-			inByteStream = new ByteArrayInputStream(inBuffer);
-			inDataGram = new DatagramPacket(inBuffer, inBuffer.length);
-	
-			// outbound
-			outByteStream = new ByteArrayOutputStream();
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-
-		return socket;
-	}
-
-	class UDPListener extends Thread {
-		
-		boolean isRunning = false;
-
-		public UDPListener(String n) {
-			super(n);
-		}
-
-		public void shutdown() {
-			if ((socket != null) && (!socket.isClosed())) {
-				socket.close();
-				socket = null;
-			}
-			
-			isRunning = false;
-			listener.interrupt();
-			listener = null;
-		}
-
-		public void run() {
-
-			try {
-				LOG.info(getName() + " UDPListener listening on "
-						+ socket.getLocalAddress() + ":"
-						+ socket.getLocalPort());
-
-				isRunning = true;
-
-				while (isRunning) {
-					socket.receive(inDataGram); // blocks
-					ObjectInputStream o_in = new ObjectInputStream(inByteStream);
-					try {
-						Message msg = (Message) o_in.readObject();
-						// must reset length field!
-						inDataGram.setLength(inBuffer.length); 
-						// reset so next read is from start of byte[] again
-						inByteStream.reset(); 
-
-						if (msg == null) {
-							LOG.error("UDP null message");
-						} else {
-
-							// client API
-							if (client != null) {
-								client.receive(msg);
-							}
-						}
-
-					} catch (ClassNotFoundException e) {
-						LOG.error("ClassNotFoundException - possible unknown class send from MRL instance");
-						LOG.error(e.getMessage());
-					}
-					inDataGram.setLength(inBuffer.length); // must reset length
-															// field!
-					inByteStream.reset(); // reset so next read is from start of
-											// byte[]
-					// again
-				} // while isRunning
-
-			} catch (Exception e) {
-				LOG.error("UDPListener could not listen");
-			}
-		}
-	}
-
 	/**
 	 * Subscribes to a remote MRL service method. When the method is called on
 	 * the remote system an event message with return data is sent. It is
@@ -254,30 +131,27 @@ public class MRLClient implements Receiver {
 	 * @param paramTypes
 	 */
 	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+		NotifyEntry ne = new NotifyEntry(outMethod, getName(), inMethod,
 				paramTypes);
 		send(serviceName, "notify", ne);
 	}
 
 	public void unsubscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+		NotifyEntry ne = new NotifyEntry(outMethod, getName(), inMethod,
 				paramTypes);
 		send(serviceName, "remoteNotify", ne);
 	}
 	
 	@Override
 	public void receive(Message msg) {
-		LOG.info("received " + msg);
+		System.out.println("received " + msg);
 	}
 
-	@Override
-	public String getMyName() {
-		return "mrlClient";
+	public String getName() {
+		return name;
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
@@ -296,7 +170,7 @@ public class MRLClient implements Receiver {
  		api.send("catcher01", "catchInteger", 5);
 		*/
 		
-		MRLClient client = new MRLClient();		
+		MRLClient client = new MRLClient("MRLClient");		
 		
 		client.host = cmdline.getSafeArgument("-host", 0, "localhost");
 		client.port = Integer.parseInt(cmdline.getSafeArgument("-host", 0, "6767"));
@@ -318,18 +192,19 @@ public class MRLClient implements Receiver {
 		
 		client.register(client.host, client.port, client);
 		client.send(service, method, data);
-		LOG.debug("CTRL-C to quit");
+		if (debug)
+			System.out.println("CTRL-C to quit");
 
 	}
 
 	static public void test()
 	{
-		MRLClient client = new MRLClient();
+		MRLClient client = new MRLClient("MRLClient");
 		client.register("localhost", 6767, client);
 		client.send("catcher01", "catchInteger", 3);
 		client.subscribe("catchInteger", "catcher01", "catchInteger", Integer.TYPE);
 		client.send("catcher01", "catchInteger", 5);
-		LOG.debug("CTRL-C to quit");
+		System.out.println("CTRL-C to quit");
 	}
 	
 	static public String help() {
