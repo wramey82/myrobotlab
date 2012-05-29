@@ -40,7 +40,6 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -56,10 +55,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.NotifyEntry;
-
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
@@ -67,13 +65,17 @@ import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.SensorData;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-public class SensorMonitorGUI extends ServiceGUI implements
-		ListSelectionListener, VideoGUISource {
+/**
+ * @author Gro-G Display data sent to the SensorMonitor service.
+ * 
+ *         TODO - auto-sizing based on min/max values - sizes screen
+ * 
+ */
+public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(SensorMonitorGUI.class.toString());
 
-	// TODO - calcuations and data SHOULD NOT be in this GUI panel !!! 
 	JList traces;
 	JList alerts;
 
@@ -103,7 +105,8 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	int red[] = new int[DATA_WIDTH];
 	int redIndex = 0;
-	
+	int clearX = 0;
+
 	SensorMonitor myBoundService = null;
 	// trace data is owned by the GUI
 	HashMap<String, TraceData> traceData = new HashMap<String, TraceData>();
@@ -124,43 +127,38 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		int sum = 0;
 		int mean = 0;
 	}
-	
-	class AlertDialog extends JDialog 
-	{
+
+	class AlertDialog extends JDialog {
 		private static final long serialVersionUID = 1L;
 		public JTextField name = new JTextField(15);
 		public JIntegerField threshold = new JIntegerField(15);
-		//public JTextField type = new JTextField(15);
-		//public JTextField direction = new JTextField(15);
 		public JButton add = new JButton("add");
 		public JButton cancel = new JButton("cancel");
-		
+
 		public String action = null;
-		
+
 		class AlertButtonListener implements ActionListener {
 			AlertDialog myDialog = null;
 
-			public AlertButtonListener(AlertDialog d)
-			{
+			public AlertButtonListener(AlertDialog d) {
 				myDialog = d;
 			}
-			
+
 			public void actionPerformed(ActionEvent e) {
 				action = e.getActionCommand();
 				myDialog.dispose();
-			  }
+			}
 		}
-		
-		AlertDialog()
-		{
+
+		AlertDialog() {
 			super(myService.getFrame(), "Alert Dialog", true);
-			
+
 			add.setActionCommand("add");
 			cancel.setActionCommand("cancel");
 			AlertButtonListener a = new AlertButtonListener(this);
 			add.addActionListener(a);
 			cancel.addActionListener(a);
-			
+
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
 			gc.gridx = 0;
@@ -184,44 +182,21 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			panel.add(cancel, gc);
 			++gc.gridy;
 			gc.gridx = 0;
-			
-			
-			/*
-			++gc.gridy;
-			gc.gridx = 0;
-			panel.add(new JLabel("direction : "), gc);
-			++gc.gridx;
-			panel.add(direction, gc);
-			++gc.gridy;
-			gc.gridx = 0;
-			*/
-			
+
 			getContentPane().add(panel);
-		    pack(); 
-		    setVisible(true);
+			pack();
+			setVisible(true);
 
 		}
-		
-		
-		
+
 	}
 
 	public SensorMonitorGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
-	class SensorAlertThread implements Runnable {
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-
 	public void init() {
-		
+
 		video = new VideoWidget(boundServiceName, myService);
 		video.init();
 		addTrace.addActionListener(new AddTraceListener());
@@ -229,8 +204,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		addAlert.addActionListener(new AddAlertListener());
 		removeAlert.addActionListener(new RemoveAlertListener());
 
-		sensorImage = new BufferedImage(DATA_WIDTH, DATA_HEIGHT,
-				BufferedImage.TYPE_INT_RGB);
+		sensorImage = new BufferedImage(DATA_WIDTH, DATA_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		g = sensorImage.getGraphics();
 
 		traces = new JList(traceListModel);
@@ -269,7 +243,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		traceController = new JComboBox(v);
 		trace.add(traceController, gc);
 
-		// TODO - pin config is based on Arduino D.
+		// TODO - lame, pin config is based on Arduino D.
 		Vector<Integer> p = new Vector<Integer>();
 		p.addElement(0);
 		p.addElement(1);
@@ -351,19 +325,6 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	}
 
-	// TODO - globalize - or put in GUIService
-	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
-		if (imgURL != null) {
-			return new ImageIcon(imgURL, description);
-		} else {
-			System.err.println("Couldn't find file: " + path);
-			return null;
-		}
-	}
-
-	boolean isTracing = false;
-
 	class AddTraceListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -374,10 +335,9 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			String controllerName = (String) traceController.getSelectedItem();
 			Color color = new Color(rand.nextInt(16777215));
 
-			traceListModel.addElement("<html><body><font color=\""
-					+ Integer.toHexString(color.getRGB() & 0x00ffffff) + "\"> "
-					+ controllerName + " " + tracePin.getSelectedItem() + " "
-					+ label + " </font></body></html>");
+			traceListModel.addElement("<html><body><font color=\"" + Integer.toHexString(color.getRGB() & 0x00ffffff)
+					+ "\"> " + controllerName + " " + tracePin.getSelectedItem() + " " + label
+					+ " </font></body></html>");
 
 			// add the data to the array
 			TraceData t = new TraceData();
@@ -390,34 +350,27 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			// notify Arduino pin -> SensorMonitor
 			// notify Sensor -> GUIService
 
-			//if (!isTracing) {
-				// Notification Arduino ------> SensorMonitor
-				NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin,
-						boundServiceName,
-						"sensorInput", // TODO SensorMonitor.SensorInput
-						new Class[]{PinData.class}
-						);
+			// if (!isTracing) {
+			// Notification Arduino ------> SensorMonitor
+			// this creates a message path from an Arduino to the SensorMonitor
+			NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin, boundServiceName, "sensorInput",
+					new Class[] { PinData.class });
 
-				myService.send(controllerName, "notify", notifyEntry);
+			myService.send(controllerName, "notify", notifyEntry);
 
-				// Notification SensorMonitor ------> GUIService
-				sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
-
-				// send input for digital pin
-				// send begin analog / digital polling for pin
-				isTracing = true;
-
-			//}
-
-			myService.send(controllerName, "analogReadPollingStart",
-					(Integer) tracePin.getSelectedItem());
+			// Notification SensorMonitor ------> GUIService
+			sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
+																						// already
+																						// in
+																						// attachGUI
+			// this tells the Arduino to begin analog reads
+			myService.send(controllerName, "analogReadPollingStart", (Integer) tracePin.getSelectedItem());
 
 		}
 
 	}
 
-	public PinData addTraceData (PinData pinData)
-	{
+	public PinData addTraceData(PinData pinData) {
 		// add the data to the array
 		TraceData t = new TraceData();
 		t.label = pinData.source;
@@ -427,7 +380,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		traceData.put(SensorMonitor.makeKey(pinData.source, t.pin), t);
 		return pinData;
 	}
-	
+
 	public class RemoveTraceListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String name = (String) traces.getSelectedValue();
@@ -449,24 +402,23 @@ public class SensorMonitorGUI extends ServiceGUI implements
 			// TODO Auto-generated method stub
 			JFrame frame = new JFrame();
 			frame.setTitle("add new filter");
-			//String name = JOptionPane.showInputDialog(frame, "new alert name");
+			// String name = JOptionPane.showInputDialog(frame,
+			// "new alert name");
 
-			
 			AlertDialog alertDlg = new AlertDialog();
-			if (alertDlg.action.equals("add"))
-			{
-				alertListModel.addElement(alertDlg.name.getText() + " " + alertPin.getSelectedItem() + " " + alertDlg.threshold.getInt()); 
+			if (alertDlg.action.equals("add")) {
+				alertListModel.addElement(alertDlg.name.getText() + " " + alertPin.getSelectedItem() + " "
+						+ alertDlg.threshold.getInt());
 				// this has to be pushed to service
 				PinAlert alert = new PinAlert();
 				alert.name = alertDlg.name.getText();
 				alert.pinData = new PinData();
 				alert.pinData.source = alertController.getSelectedItem().toString();
-				alert.pinData.pin = (Integer)alertPin.getSelectedItem();
+				alert.pinData.pin = (Integer) alertPin.getSelectedItem();
 				alert.threshold = alertDlg.threshold.getInt();
 				myService.send(boundServiceName, "addAlert", alert);
 				// add line ! with name ! & color !
 			}
-
 
 		}
 
@@ -482,96 +434,80 @@ public class SensorMonitorGUI extends ServiceGUI implements
 
 	}
 
-	// TODO - com....Sensor interface
-	public void displayFrame(SerializableImage img) {
-		video.displayFrame(img);
-	}
-
-	/*
-	 * inputSensorData - where published data comes in !
+	/**
+	 * method which displays the data published by the SensorMonitor on the
+	 * video widget
+	 * 
+	 * @param pinData
 	 */
-
-	int clearX = 0;
-
 	public void inputSensorData(PinData pinData) {
 		// update trace array & alert array if applicable
-		//myService.logTime("start");
+		// myService.logTime("start");
 		String key = SensorMonitor.makeKey(pinData);
-		
-		if (traceData.containsKey(key)) {
-			TraceData t = traceData.get(key);
-			t.index++;
-			t.data[t.index] = pinData.value;
-			++t.total;
-			t.sum += pinData.value;
-			t.mean = t.sum/t.total;
 
+		if (!traceData.containsKey(key)) {
+			addTraceData(pinData);
+		}
+		TraceData t = traceData.get(key);
+		t.index++;
+		t.data[t.index] = pinData.value;
+		++t.total;
+		t.sum += pinData.value;
+		t.mean = t.sum / t.total;
+
+		g.setColor(t.color);
+		// g.drawRect(20, t.pin * 15 + 5, 200, 15);
+		g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pinData.value / 2);
+
+		// computer min max and mean
+		// if different then blank & post to screen
+		if (pinData.value > t.max)
+			t.max = pinData.value;
+		if (pinData.value < t.min)
+			t.min = pinData.value;
+
+		// g.drawString(t.label + " min " + t.min + " max " + t.max +
+		// " mean " + t.mean, 20, t.pin * 15 + 20);
+
+		if (t.index < DATA_WIDTH - 1) {
+			clearX = t.index + 1;
+			// g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
+			// DATA_HEIGHT - t.data[clearX]/2);
+		} else {
+			t.index = 0;
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT);
+			g.setColor(Color.GRAY);
+			g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1, DATA_HEIGHT - 25);
+			g.drawString("50", 10, DATA_HEIGHT - 25);
+			g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1, DATA_HEIGHT - 50);
+			g.drawString("100", 10, DATA_HEIGHT - 50);
+			g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1, DATA_HEIGHT - 100);
+			g.drawString("200", 10, DATA_HEIGHT - 100);
+			g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1, DATA_HEIGHT - 200);
+			g.drawString("400", 10, DATA_HEIGHT - 200);
+			g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1, DATA_HEIGHT - 300);
+			g.drawString("600", 10, DATA_HEIGHT - 300);
+			g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1, DATA_HEIGHT - 400);
+			g.drawString("800", 10, DATA_HEIGHT - 400);
+
+			g.setColor(Color.BLACK);
+			g.fillRect(20, t.pin * 15 + 5, 200, 15);
 			g.setColor(t.color);
-			// g.drawRect(20, t.pin * 15 + 5, 200, 15);
-			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index,
-					DATA_HEIGHT - pinData.value / 2);
-
-			// computer min max and mean
-			// if different then blank & post to screen
-			if (pinData.value > t.max)
-				t.max = pinData.value;
-			if (pinData.value < t.min)
-				t.min = pinData.value;
-
-			// g.drawString(t.label + " min " + t.min + " max " + t.max +
-			// " mean " + t.mean, 20, t.pin * 15 + 20);
-
-			if (t.index < DATA_WIDTH - 1) {
-				clearX = t.index + 1;
-				// g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
-				// DATA_HEIGHT - t.data[clearX]/2);
-			} else {
-				t.index = 0;
-				g.setColor(Color.BLACK);
-				g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT);
-				g.setColor(Color.GRAY);
-				g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1,
-						DATA_HEIGHT - 25);
-				g.drawString("50", 10, DATA_HEIGHT - 25);
-				g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1,
-						DATA_HEIGHT - 50);
-				g.drawString("100", 10, DATA_HEIGHT - 50);
-				g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1,
-						DATA_HEIGHT - 100);
-				g.drawString("200", 10, DATA_HEIGHT - 100);
-				g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1,
-						DATA_HEIGHT - 200);
-				g.drawString("400", 10, DATA_HEIGHT - 200);
-				g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1,
-						DATA_HEIGHT - 300);
-				g.drawString("600", 10, DATA_HEIGHT - 300);
-				g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1,
-						DATA_HEIGHT - 400);
-				g.drawString("800", 10, DATA_HEIGHT - 400);
-
-				g.setColor(Color.BLACK);
-				g.fillRect(20, t.pin * 15 + 5, 200, 15);
-				g.setColor(t.color);
-				g.drawString(" min " + t.min + " max " + t.max + " mean "
-						+ t.mean + " total " + t.total + " sum " + t.sum, 20, t.pin * 15 + 20);
-				
-				
-
-			}
-			//myService.logTime("afterdraw");
-
-			video.displayFrame(sensorImage);
-			//myService.logTime("aftercam");
+			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum,
+					20, t.pin * 15 + 20);
 
 		}
-	}
+		// myService.logTime("afterdraw");
 
+		video.displayFrame(sensorImage);
+		// myService.logTime("aftercam");
+	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 
-		if (e.getValueIsAdjusting() == false
-				&& traces.getSelectedValue() != null) {
+		if (e.getValueIsAdjusting() == false && traces.getSelectedValue() != null) {
 			// myService.send(boundServiceName, "setDisplayFilter",
 			// traces.getSelectedValue());
 		}
@@ -587,8 +523,7 @@ public class SensorMonitorGUI extends ServiceGUI implements
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
+						System.out.println("Double-clicked on: " + o.toString());
 					}
 				}
 			}
@@ -606,10 +541,10 @@ public class SensorMonitorGUI extends ServiceGUI implements
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		// TODO - bury in GUI Framework?
-		// set the route
 		sendNotifyRequest("publishState", "getState", SensorMonitor.class);
 		sendNotifyRequest("addTraceData", "addTraceData", PinData.class);
+		sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
+
 		// fire the update
 		myService.send(boundServiceName, "publishState");
 	}
@@ -619,11 +554,11 @@ public class SensorMonitorGUI extends ServiceGUI implements
 		video.detachGUI();
 		removeNotifyRequest("publishState", "getState", SensorMonitor.class);
 		removeNotifyRequest("addTraceData", "addTraceData", PinData.class);
+		removeNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
 	}
-	
-	public void getState(SensorMonitor service)
-	{
+
+	public void getState(SensorMonitor service) {
 		myBoundService = service;
-	}	
-	
+	}
+
 }

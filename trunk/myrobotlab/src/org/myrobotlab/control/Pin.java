@@ -63,6 +63,7 @@ public class Pin {
 	JLabel pinLabel = null;
 	public JLabel data = null;
 	
+	boolean isVertical = false;
 	public final Service myService;
 	
 	// types of DigitalButtons
@@ -77,31 +78,48 @@ public class Pin {
 	public static final int OUTPUT = 0x1;
 	public static final int INPUT = 0x0;
 
-	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog) {
-		super();
+	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog, boolean isVertical) {
 		this.boundServiceName = boundServiceName;
 		this.isAnalog = isAnalog;
 		this.isPWM = isPWM;
 		this.pinNumber = pinNumber;
 		this.myService = myService;
+		this.isVertical = isVertical;
 	
 		data = new JLabel("0");
 		
 		pinLabel = new JLabel("pin " + pinNumber);
 		pinLabel.setPreferredSize(new Dimension(40,13));		
 		
-		inOut = new  DigitalButton(this, 
-				"out",  Color.decode("0x418dd9"), Color.white, 
-				"in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);						
-		
-		onOff = new  DigitalButton(this, 
-				"off",  Color.gray, Color.white, 
-				"on", Color.green, Color.black, TYPE_ONOFF);
-		
-		activeInActive = new  DigitalButton(this, 
-				"inactive",  Color.decode("0x418dd9"), Color.white, 
-				"active", Color.red, Color.white, TYPE_ACTIVEINACTIVE);
-
+		if (!isVertical) {
+			inOut = new  DigitalButton(this, 
+					pinNumber+"",  Color.decode("0x418dd9"), Color.white, 
+					"in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);						
+			
+			onOff = new  DigitalButton(this, 
+					"off",  Color.gray, Color.white, 
+					"on", Color.green, Color.black, TYPE_ONOFF);
+			
+			activeInActive = new  DigitalButton(this, 
+					"inactive",  Color.decode("0x418dd9"), Color.white, 
+					"active", Color.red, Color.white, TYPE_ACTIVEINACTIVE);
+		} else {
+			inOut = new  DigitalButton(this, 
+					"out", Util.getImageIcon("out.png"),
+					"in", Util.getImageIcon("in.png"),
+					TYPE_INOUT);						
+			
+			onOff = new  DigitalButton(this, 
+					"off", Util.getImageIcon("off.png"),
+					"on", Util.getImageIcon("on.png"),
+					TYPE_ONOFF);
+			
+			activeInActive = new  DigitalButton(this, 
+					"inactive", Util.getImageIcon("inactive.png"),
+					"active", Util.getImageIcon("active.png"),
+					TYPE_ACTIVEINACTIVE);
+			
+		}
 		if (isAnalog)
 		{
 			trace = new  DigitalButton(this, 
@@ -124,7 +142,8 @@ public class Pin {
 	// TODO - remove
 	private JSlider getPWMSlider() {
 		if (pwmSlider == null) {
-			pwmSlider = new JSlider(0, 255, 0);
+			int orientation = (isVertical)?JSlider.VERTICAL:JSlider.HORIZONTAL;
+			pwmSlider = new JSlider(orientation, 0, 255, 0);
 			pwmSlider.setOpaque(false);
 			pwmSlider.addChangeListener(new ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
