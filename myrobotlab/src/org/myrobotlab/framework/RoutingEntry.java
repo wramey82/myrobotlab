@@ -28,11 +28,8 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
 public class RoutingEntry implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(RoutingEntry.class);
 
 	public int ID;
 	public String name; // routing name - any service which recieves a message

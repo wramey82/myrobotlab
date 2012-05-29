@@ -28,8 +28,6 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 /**
  * @author grperry
  *
@@ -38,7 +36,6 @@ public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BLOCKING = "B";
 	public final static String RETURN = "R";
-	public final static Logger LOG = Logger.getLogger(Message.class);
 
 	/**
 	 * unique identifier for this message - TODO remove

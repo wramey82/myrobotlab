@@ -28,11 +28,8 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
-
 public final class NotifyEntry implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(NotifyEntry.class);
 
 	public String outMethod; // the keyed out method
 	public String name; // globally unique name of Service a Message will be

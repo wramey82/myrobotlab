@@ -59,6 +59,14 @@ public class ServiceWrapper implements Serializable {
 			return "unknown";
 	}
 	
+	public String getShortTypeName() {
+		String serviceClassName = getServiceType();
+		if (serviceClassName.lastIndexOf(".") != -1)
+			return serviceClassName.substring(serviceClassName.lastIndexOf(".")+1);
+		else 
+			return serviceClassName;
+	}
+	
 	public ServiceInterface get()
 	{
 		return service;
