@@ -59,7 +59,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -203,11 +202,22 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
 	            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
 	            {
+	            	// need to install it
 	            	installMenuItem.setVisible(true);		            	
-	            	startMenuItem.setVisible(false);		            	
+	            	startMenuItem.setVisible(false);
+	            	upgradeMenuItem.setVisible(false);
 	            } else {
+	            	// have it
 	            	installMenuItem.setVisible(false);
-	            	startMenuItem.setVisible(true);		            	
+	            	startMenuItem.setVisible(true);
+	            	if (ServiceInfo.getInstance().checkForUpgrade("org.myrobotlab.service." + c.type).size() > 0)
+	            	{
+	            		// has dependencies which can be upgraded
+		            	upgradeMenuItem.setVisible(true);
+	            	} else {
+	            		// no upgrade available
+		            	upgradeMenuItem.setVisible(false);
+	            	}
 	            }
 
 	            int column = source.columnAtPoint( e.getPoint() );
@@ -239,7 +249,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		//menuItem.setVisible(false);
 		popup.add(startMenuItem);
 		
-		upgradeMenuItem = new JMenuItem("start");
+		upgradeMenuItem = new JMenuItem("upgrade");
 		upgradeMenuItem.addActionListener(this);
 		upgradeMenuItem.setIcon(Util.getScaledIcon(Util.getImage("upgrade.png"), 0.50));
 		//menuItem.setVisible(false);
@@ -541,7 +551,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 			//Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			//setBorder(BorderFactory.createEmptyBorder());
-			LOG.info(value.getClass().getCanonicalName());
+			//LOG.info(value.getClass().getCanonicalName());
 			
 			setEnabled(table == null || table.isEnabled()); 
 			ServiceInfo info = ServiceInfo.getInstance();
@@ -689,6 +699,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			int selectedRow = possibleServices.getSelectedRow();
 			String newService = ((ServiceEntry) possibleServices.getValueAt(selectedRow, 0)).toString();
 			addNewService(newService);
+		} else if ("upgrade".equals(cmd)) {
+			myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);						
 		} else {
 			LOG.error("unknown command " + cmd);
 		}
@@ -723,6 +735,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		if (progressDialog == null)
 		{
 			progressDialog = new ProgressDialog(myService.getFrame());
+			progressDialog.setVisible(true);
 		}
 		
 		resolveErrors = null;
@@ -735,6 +748,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	
 	public List<String> resolveError (List<String> errors)
 	{
+		if (progressDialog == null)
+		{
+			progressDialog = new ProgressDialog(myService.getFrame());
+		}
 		// FIXME - dialog - there are errors which - cancel? or terminate
 		resolveErrors = errors;
 		progressDialog.addInfo("ERROR - " + errors);
@@ -751,8 +768,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	public void resolveEnd ()
 	{
 		progressDialog.addInfo("finished installing components ");
-		progressDialog.setVisible(false);
-		progressDialog.dispose();
+//		progressDialog.setVisible(false);
+//		progressDialog.dispose();  FIXME - needs an "OK" to terminate
 
 		if (resolveErrors != null)
 		{

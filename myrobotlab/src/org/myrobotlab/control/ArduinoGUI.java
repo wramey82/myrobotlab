@@ -31,8 +31,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -42,7 +40,6 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -54,18 +51,18 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.plaf.ButtonUI;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.myrobotlab.arduino.Base;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
-
-import processing.app.Base;
 
 /**
  * Arduino Diecimila http://www.arduino.cc/en/Main/ArduinoBoardDiecimila Serial:
@@ -91,7 +88,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	/**
 	 * component array - to access all components by name
 	 */
@@ -100,9 +97,18 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	static final long serialVersionUID = 1L;
 
 	JTabbedPane tabs = new JTabbedPane();
-	
+
 	/*
-	 * ---------- Config begin   -------------------------
+	 * ---------- Pins begin -------------------------
+	 */
+
+	JLayeredPane imageMap;
+	/*
+	 * ---------- Pins end -------------------------
+	 */
+
+	/*
+	 * ---------- Config begin -------------------------
 	 */
 	ArrayList<Pin> pinList = null;
 	JComboBox types = new JComboBox(new String[] { "Duemilanove", "Mega" });
@@ -123,11 +129,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	JComboBox PWMRate3 = new JComboBox(new String[] { "31", "125", "500", "4000", "32000" });
 
 	JIntegerField rawReadMsgLength = new JIntegerField(4);
-	JCheckBox rawReadMessage = new JCheckBox();	
+	JCheckBox rawReadMessage = new JCheckBox();
 	/*
-	 * ---------- Config end   -------------------------
+	 * ---------- Config end -------------------------
 	 */
-	
 
 	/*
 	 * ---------- Oscope begin -------------------------
@@ -136,7 +141,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	Graphics g = null;
 	VideoWidget oscope = null;
 	/*
-	 * ---------- Oscope end   -------------------------
+	 * ---------- Oscope end -------------------------
 	 */
 
 	/*
@@ -144,70 +149,27 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 */
 	RSyntaxTextArea editor = new RSyntaxTextArea();
 	RTextScrollPane editorScrollPane = null;
-	//DigitalButton fullscreenButton = null;
+	// DigitalButton fullscreenButton = null;
 	DigitalButton uploadButton = null;
 	JPanel editorPanel = null;
 	GridBagConstraints epgc = new GridBagConstraints();
+
 	/*
 	 * ---------- Editor begin -------------------------
 	 */
 
-	
-	/**
-	 * creates an array of graphical pin objects for a particular Arduino board
-	 * @return
-	 */
-	public ArrayList<Pin> makePins() {
-		ArrayList<Pin> pins = new ArrayList<Pin>();
-		for (int i = 0; i < 20; ++i) {
-			Pin p = null;
-			String type = (String)types.getSelectedItem();
-			if ("Duemilanove".equals(type))
-			{
-				if (i < 14)
-				{
-					if  (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
-						p = new Pin(myService, boundServiceName, i, true, false);
-					} else {
-						p = new Pin(myService, boundServiceName, i, false, false);
-					}
-				} else {
-					p = new Pin(myService, boundServiceName, i, false, true);
-				}
-
-			} else {
-				LOG.error("dont know how to make pins for a " + type);
-			}
-
-			if (p != null)
-			{
-				// set up the listeners
-				p.onOff.addActionListener(this);
-				p.inOut.addActionListener(this);
-				p.activeInActive.addActionListener(this);
-				p.trace.addActionListener(this);
-				//p.inOut2.addActionListener(this);
-				
-				pins.add(p);
-			}
-		}
-		return pins;
-	}
-
 	public void init() {
 
-		// ---------------- tabs begin ----------------------		
-		Dimension size = new Dimension(640, 380);
+		// ---------------- tabs begin ----------------------
+		Dimension size = new Dimension(620, 442);
 		tabs.setTabPlacement(JTabbedPane.RIGHT);
-		//tabs.setBackground(Color.decode("0x0a4b5e"));
-		
-		// ---------------- tabs begin ----------------------		
-		// --------- configPanel begin ----------------------	
-		JPanel main = new JPanel();
-		main.setPreferredSize(size);
+		// tabs.setBackground(Color.decode("0x0a4b5e"));
+
+		// ---------------- tabs begin ----------------------
+		// --------- configPanel begin ----------------------
 		JPanel configPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints cpgc = new GridBagConstraints();
-		
+
 		cpgc.anchor = GridBagConstraints.WEST;
 
 		cpgc.gridx = 0;
@@ -249,8 +211,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		++cpgc.gridy;
 		cpgc.gridx = 0;
 
-		ttyPort.setName	("ttyPort");
-		types.setName	("types");
+		ttyPort.setName("ttyPort");
+		types.setName("types");
 		baudRate.setName("baudRate");
 		PWMRate1.setName("PWMRate1");
 		PWMRate2.setName("PWMRate2");
@@ -264,79 +226,42 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		ttyPort.addActionListener(this);
 		baudRate.addActionListener(this);
 
-		main.add(configPanel);
-		// --------- configPanel end ----------------------		
-		// --------- pinPanel begin -----------------------	
+		// --------- configPanel end ----------------------
+		// --------- pinPanel begin -----------------------
 		// FIXME - board type specific
-		JLayeredPane imageMap = new JLayeredPane();
+		imageMap = new JLayeredPane();
 		imageMap.setPreferredSize(size);
-
-		// set correct arduino image
-		JLabel image = new JLabel();
-		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/arduino.duemilanove.200.pins.png");
-		image.setIcon(dPic);
-		Dimension s = image.getPreferredSize();
-		image.setBounds(0, 0, s.width, s.height);
-		imageMap.add(image, new Integer(1));
-				
-		// overlay pin buttons
-		pinList = makePins();
-		for (int i = 2; i < pinList.size(); ++i) {
-
-			Pin p = pinList.get(i);
-			if (i < 14)
-			{	// digital pins -----------------
-				int yOffSet = 0;
-				if (i > 7) yOffSet = 18; // skip pin
-				p.inOut.setBounds(406, 297 - 18 * i - yOffSet, 30, 15);			
-				imageMap.add(p.inOut, new Integer(2));
-				p.onOff.setBounds(436, 297 - 18 * i - yOffSet, 30, 15);			
-				imageMap.add(p.onOff, new Integer(2));
-				
-				if (p.isPWM)
-				{
-					p.pwmSlider.setBounds(256, 297 - 18 * i - yOffSet, 90, 15);
-					imageMap.add(p.pwmSlider, new Integer(2));
-					p.data.setBounds(232, 297 - 18 * i - yOffSet, 32, 15);
-					p.data.setForeground(Color.white);
-					p.data.setBackground(Color.decode("0x0f7391"));
-					p.data.setOpaque(true);
-					imageMap.add(p.data, new Integer(2));	
-				}
-			} else {
-				// analog pins -----------------
-				p.activeInActive.setBounds(11, 208 - 18 * (14-i), 48, 15);			
-				imageMap.add(p.activeInActive, new Integer(2));	
-				p.data.setBounds(116, 205 - 18 * (14-i), 32, 18);
-				p.data.setForeground(Color.white);
-				p.data.setBackground(Color.decode("0x0f7391"));
-				p.data.setOpaque(true);
-				imageMap.add(p.data, new Integer(2));	
-			}
+		String type = (String) types.getSelectedItem();
+		type = "Mega";
+		if ("Duemilanove".equals(type)) {
+			displayDuemilanove();
+		} else if ("Mega".equals(type)) {
+			displayMega();
+		} else {
+			LOG.error("don't know how to display " + type);
 		}
-
 		// ------digital pins tab end ------------
 
 		// ------oscope tab begin ----------------
 		JPanel oscopePanel = new JPanel(new GridBagLayout());
 		GridBagConstraints opgc = new GridBagConstraints();
-		
+
 		JPanel tracePanel = new JPanel(new GridBagLayout());
 
 		opgc.fill = GridBagConstraints.HORIZONTAL;
 		opgc.gridx = 0;
 		opgc.gridy = 0;
-		//opgc.anchor = GridBagConstraints.WEST;
-		
-		//Color gradient = new Color();
+		// opgc.anchor = GridBagConstraints.WEST;
+
+		// Color gradient = new Color();
 		int red = 0x00;
 		int gre = 0x16;
 		int blu = 0x16;
-		
-		for (int i = 0; i < pinList.size(); ++i) {
+
+		// pinList.size() mega 60 deuo 20
+		for (int i = 0; i < 20; ++i) {
 			Pin p = pinList.get(i);
-			if (i < 14)
-			{	// digital pins -----------------
+			if (i < 14) { // digital pins -----------------
 				p.trace.setText("D " + (i));
 				p.trace.onText = "D " + (i);
 				p.trace.offText = "D " + (i);
@@ -347,21 +272,23 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				p.trace.offText = "A " + (i - 14);
 			}
 			tracePanel.add(p.trace, opgc);
-			p.trace.setBackground(new Color(red,gre,blu));
-			p.trace.offBGColor = new Color(red,gre,blu);
-			gre+=12;blu+=12;
+			p.trace.setBackground(new Color(red, gre, blu));
+			p.trace.offBGColor = new Color(red, gre, blu);
+			gre += 12;
+			blu += 12;
 			++opgc.gridy;
 		}
-		
+
 		opgc.gridx = 0;
 		opgc.gridy = 0;
 
 		oscope = new VideoWidget(boundServiceName, myService, false);
 		oscope.init();
-		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
+		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB),
+				"output");
 		g = sensorImage.getImage().getGraphics();
 		oscope.displayFrame(sensorImage);
-		
+
 		oscopePanel.add(tracePanel, opgc);
 		++opgc.gridx;
 		oscopePanel.add(oscope.display, opgc);
@@ -372,64 +299,72 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		epgc = new GridBagConstraints();
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-/*		
-		fullscreenButton = new DigitalButton(this, 
-				"fullscreen",  Color.decode("0x418dd9"), Color.white, 
-				"leave fullscreen", Color.red, Color.white, 7);
-		uploadButton = new DigitalButton(this, 
-				"upload",  Color.decode("0x418dd9"), Color.white, 
-				"upload", Color.red, Color.white, 7);
-		
-		fullscreenButton.addActionListener(this);
-*/		
-//		uploadButton.addActionListener(this);
-		
+		/*
+		 * fullscreenButton = new DigitalButton(this, "fullscreen",
+		 * Color.decode("0x418dd9"), Color.white, "leave fullscreen", Color.red,
+		 * Color.white, 7); uploadButton = new DigitalButton(this, "upload",
+		 * Color.decode("0x418dd9"), Color.white, "upload", Color.red,
+		 * Color.white, 7);
+		 * 
+		 * fullscreenButton.addActionListener(this);
+		 */
+		// uploadButton.addActionListener(this);
+
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
 		editorScrollPane = new RTextScrollPane(editor);
 		editorScrollPane.setPreferredSize(new Dimension(size.width, size.height));
 
-/*		
-		resizer.registerComponent(editor);
-		resizer.registerComponent(editorScrollPane);
-		resizer.registerComponent(editorPanel);
-		resizer.registerComponent(tabs);
-*/		
-		//xx
-		//editorPanel.setPreferredSize(new Dimension(size.width, size.height));
+		/*
+		 * resizer.registerComponent(editor);
+		 * resizer.registerComponent(editorScrollPane);
+		 * resizer.registerComponent(editorPanel);
+		 * resizer.registerComponent(tabs);
+		 */
+		// editorPanel.setPreferredSize(new Dimension(size.width, size.height));
 		epgc.anchor = GridBagConstraints.WEST;
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-//		editorPanel.add(fullscreenButton,epgc);
-		
-//		++epgc.gridx;
-//		editorPanel.add(uploadButton,epgc);
-		
+		// editorPanel.add(fullscreenButton,epgc);
+
+		// ++epgc.gridx;
+		// editorPanel.add(uploadButton,epgc);
+
 		// leave where scroll pain needs to be
-//		epgc.gridy = 1;
-//		epgc.gridx = 0;
-//		epgc.gridwidth = 10;
-		
-		//editorPanel.add(editorScrollPane,epgc);
-		
+		// epgc.gridy = 1;
+		// epgc.gridx = 0;
+		// epgc.gridwidth = 10;
+
+		// editorPanel.add(editorScrollPane,epgc);
+
 		Base.main(myService.getFrame());
 		Base.handleActivated(Base.editor);
-		editorPanel.add(Base.editor,epgc);
-		
+		// editorPanel.add(Base.editor,epgc);
+
 		// ------editor tab end ----------------
-		
+
+		JFrame top = myService.getFrame();
 		tabs.addTab("pins", imageMap);
-		tabs.addTab("config", main);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+		tabs.addTab("config", configPanel);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, configPanel, boundServiceName,
+				"config"));
 		tabs.addTab("oscope", oscopePanel);
-		tabs.addTab("editor", editorPanel);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, oscopePanel, boundServiceName,
+				"oscope"));
+		tabs.addTab("editor", Base.editor);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, Base.editor, boundServiceName,
+				"editor"));
+
 		display.add(tabs);
-		
+
 	}
 
 	/**
-	 * FIXME - needs to add a route on AttachGUI
-	 * and publish from the Arduino service when applicable (when polling)
+	 * FIXME - needs to add a route on AttachGUI and publish from the Arduino
+	 * service when applicable (when polling)
 	 * 
-	 * @param p - PinData from serial reads
+	 * @param p
+	 *            - PinData from serial reads
 	 */
 	public void readData(PinData p) {
 		LOG.info("ArduinoGUI setDataLabel " + p);
@@ -478,19 +413,35 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			ttyPort.setSelectedItem(myArduino.getPortName());
 			ttyPort.addActionListener(this);
 		}
-
 	}
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishPin", "publishPin", PinData.class); // TODO - FIXME - sendNotifyRequest should handle single in/out method
+		sendNotifyRequest("publishPin", "publishPin", PinData.class); // TODO -
+																		// FIXME
+																		// -
+																		// sendNotifyRequest
+																		// should
+																		// handle
+																		// single
+																		// in/out
+																		// method
 		sendNotifyRequest("publishState", "getState", Arduino.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishPin", "publishPin", PinData.class); // TODO - FIXME - sendNotifyRequest should handle single in/out method
+		removeNotifyRequest("publishPin", "publishPin", PinData.class); // TODO
+																		// -
+																		// FIXME
+																		// -
+																		// sendNotifyRequest
+																		// should
+																		// handle
+																		// single
+																		// in/out
+																		// method
 		removeNotifyRequest("publishState", "getState", Arduino.class);
 	}
 
@@ -516,55 +467,41 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		String cmd = e.getActionCommand(); 
+		String cmd = e.getActionCommand();
 		Component c = (Component) e.getSource();
-		
+
 		// buttons
-		if (DigitalButton.class == o.getClass())
-		{			
-			DigitalButton b = (DigitalButton)o;
-/*			
-			if (fullscreenButton == c)
-			{
-				if ("fullscreen".equals(cmd))
-				{
-					JFrame full = new JFrame();
-					// icon
-					URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
-					Toolkit kit = Toolkit.getDefaultToolkit();
-					Image img = kit.createImage(url);
-					full.setIconImage(img);					
-					
-					full.setExtendedState(JFrame.MAXIMIZED_BOTH);
-					
-					editorPanel.remove(editorScrollPane);
-					full.getContentPane().add(editorScrollPane);
-					//full.pack();
-					full.setVisible(true);
-					full.addWindowListener(this);
-					myService.pack();
-					return;
-				} 
-			}
-*/			
-			if (uploadButton == c)
-			{
+		if (DigitalButton.class == o.getClass()) {
+			DigitalButton b = (DigitalButton) o;
+			/*
+			 * if (fullscreenButton == c) { if ("fullscreen".equals(cmd)) {
+			 * JFrame full = new JFrame(); // icon URL url =
+			 * getClass().getResource("/resource/mrl_logo_36_36.png"); Toolkit
+			 * kit = Toolkit.getDefaultToolkit(); Image img =
+			 * kit.createImage(url); full.setIconImage(img);
+			 * 
+			 * full.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			 * 
+			 * editorPanel.remove(editorScrollPane);
+			 * full.getContentPane().add(editorScrollPane); //full.pack();
+			 * full.setVisible(true); full.addWindowListener(this);
+			 * myService.pack(); return; } }
+			 */
+			if (uploadButton == c) {
 				uploadButton.toggle();
 				return;
 			}
-			
+
 			IOData io = new IOData();
 			Pin pin = null;
-			
-			if (b.parent != null)
-			{
-				io.address = ((Pin)b.parent).pinNumber; // TODO - optimize
-				 pin = ((Pin)b.parent);
+
+			if (b.parent != null) {
+				io.address = ((Pin) b.parent).pinNumber; // TODO - optimize
+				pin = ((Pin) b.parent);
 			}
 
-			if (b.type == Pin.TYPE_ONOFF)
-			{
-				if ("off".equals(cmd)){
+			if (b.type == Pin.TYPE_ONOFF) {
+				if ("off".equals(cmd)) {
 					// now on
 					io.value = Pin.HIGH;
 					myService.send(boundServiceName, "digitalWrite", io);
@@ -575,27 +512,23 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					myService.send(boundServiceName, "digitalWrite", io);
 					b.toggle();
 				}
-				
-			} else if (b.type == Pin.TYPE_INOUT)
-			{
-				if ("OUTPUT".equals(cmd))
-				{
+
+			} else if (b.type == Pin.TYPE_INOUT) {
+				if ("OUTPUT".equals(cmd)) {
 					// is now input
 					io.value = Pin.INPUT;
-					myService.send(boundServiceName, "pinMode", io); 
+					myService.send(boundServiceName, "pinMode", io);
 					myService.send(boundServiceName, "digitalReadPollStart", io.address);
 					b.toggle();
 				} else {
 					// is now output
 					io.value = Pin.OUTPUT;
-					myService.send(boundServiceName, "pinMode", io); 
+					myService.send(boundServiceName, "pinMode", io);
 					myService.send(boundServiceName, "digitalReadPollStop", io.address);
 					b.toggle();
 				}
-			} else if (b.type == Pin.TYPE_ACTIVEINACTIVE)
-			{
-				if ("active".equals(cmd))
-				{
+			} else if (b.type == Pin.TYPE_ACTIVEINACTIVE) {
+				if ("active".equals(cmd)) {
 					// now inactive
 					myService.send(boundServiceName, "analogReadPollingStop", io.address);
 					b.toggle();
@@ -604,94 +537,85 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					myService.send(boundServiceName, "analogReadPollingStart", io.address);
 					b.toggle();
 				}
-			} else if (b.type == Pin.TYPE_TRACE)
-			{
-				if (b.isOn)
-				{
+			} else if (b.type == Pin.TYPE_TRACE) {
+				if (b.isOn) {
 					// now off
 
 					// if pin is analog && off - switch it on
-					if (pin.isAnalog)
-					{
-						if (pin.activeInActive.isOn)
-						{
+					if (pin.isAnalog) {
+						if (pin.activeInActive.isOn) {
 							myService.send(boundServiceName, "analogReadPollingStop", io.address);
 							pin.activeInActive.setOff();
 						}
-						
+
 					}
 
 					b.toggle();
 				} else {
-					
+
 					// if pin is digital and on - turn off
-					if (pin.onOff.isOn && !pin.isAnalog)
-					{
+					if (pin.onOff.isOn && !pin.isAnalog) {
 						io.value = Pin.LOW;
 						myService.send(boundServiceName, "digitalWrite", io);
-						pin.onOff.toggle();		
+						pin.onOff.toggle();
 					}
-					
+
 					// if pin is digital - make sure pinmode is input
-					if (!pin.inOut.isOn && !pin.isAnalog)
-					{
+					if (!pin.inOut.isOn && !pin.isAnalog) {
 						io.value = Pin.INPUT;
-						myService.send(boundServiceName, "pinMode", io); 
+						myService.send(boundServiceName, "pinMode", io);
 						myService.send(boundServiceName, "digitalReadPollStart", io.address);
 						pin.inOut.toggle();
 					}
-					
+
 					// if pin is analog && off - switch it on
-					if (pin.isAnalog)
-					{
-						if (!pin.activeInActive.isOn)
-						{
+					if (pin.isAnalog) {
+						if (!pin.activeInActive.isOn) {
 							myService.send(boundServiceName, "analogReadPollingStart", io.address);
 							pin.activeInActive.setOn();
 						}
-						
+
 					}
-					
-					//myService.send(boundServiceName, "analogReadPollingStart", io.address);
+
+					// myService.send(boundServiceName,
+					// "analogReadPollingStart", io.address);
 					b.toggle();
 				}
 			} else {
 				LOG.error("unknown pin type " + b.type);
 			}
-			
+
 			LOG.info("DigitalButton");
-		}  		
-		
+		}
+
 		// ports & timers
-		if (c == ttyPort)
-		{
-			JComboBox cb = (JComboBox)c;
+		if (c == ttyPort) {
+			JComboBox cb = (JComboBox) c;
 			String newPort = (String) cb.getSelectedItem();
 			myService.send(boundServiceName, "setPort", newPort);
 		} else if (c == baudRate) {
-			JComboBox cb = (JComboBox)c;
+			JComboBox cb = (JComboBox) c;
 			Integer newBaud = (Integer) cb.getSelectedItem();
 			myService.send(boundServiceName, "setBaud", newBaud);
 		} else if (c == PWMRate1 || c == PWMRate2 || c == PWMRate3) {
 			JComboBox cb = (JComboBox) e.getSource();
 			Integer newFrequency = Integer.parseInt((String) cb.getSelectedItem());
 			IOData io = new IOData();
-			int timerAddr = (c == PWMRate1)?Arduino.TCCR0B:((c == PWMRate2)?Arduino.TCCR0B:Arduino.TCCR2B);
+			int timerAddr = (c == PWMRate1) ? Arduino.TCCR0B : ((c == PWMRate2) ? Arduino.TCCR0B : Arduino.TCCR2B);
 			io.address = timerAddr;
 			io.value = newFrequency;
 			myService.send(boundServiceName, "setPWMFrequency", io);
 		} else if (c == types) {
 			LOG.info("type change");
 			JComboBox cb = (JComboBox) e.getSource();
-			String newType = (String)cb.getSelectedItem();
+			String newType = (String) cb.getSelectedItem();
 			// ----------- TODO ---------------------
 			// MEGA Type switching
 
 		}
-		
 
-		
 	}
+
 	class TraceData {
 		Color color = null;
 		String label;
@@ -711,27 +635,24 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	HashMap<Integer, TraceData> traceData = new HashMap<Integer, TraceData>();
 	int clearX = 0;
 
-	public void publishPin(PinData pin)
-	{
-		if (!traceData.containsKey(pin.pin))
-		{ 
+	public void publishPin(PinData pin) {
+		if (!traceData.containsKey(pin.pin)) {
 			TraceData td = new TraceData();
-			//td.color = Color.decode("0x0f7391");
+			// td.color = Color.decode("0x0f7391");
 			td.color = pinList.get(pin.pin).trace.offBGColor;
 			traceData.put(pin.pin, td);
-		} 
-		
+		}
+
 		TraceData t = traceData.get(pin.pin);
 		t.index++;
 		t.data[t.index] = pin.value;
 		++t.total;
 		t.sum += pin.value;
-		t.mean = t.sum/t.total;
+		t.mean = t.sum / t.total;
 
 		g.setColor(t.color);
 		// g.drawRect(20, t.pin * 15 + 5, 200, 15);
-		g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index,
-				DATA_HEIGHT - pin.value / 2);
+		g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
 
 		// computer min max and mean
 		// if different then blank & post to screen
@@ -749,46 +670,40 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT);
 			g.setColor(Color.GRAY);
-			g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1,
-					DATA_HEIGHT - 25);
+			g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1, DATA_HEIGHT - 25);
 			g.drawString("50", 10, DATA_HEIGHT - 25);
-			g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1,
-					DATA_HEIGHT - 50);
+			g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1, DATA_HEIGHT - 50);
 			g.drawString("100", 10, DATA_HEIGHT - 50);
-			g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1,
-					DATA_HEIGHT - 100);
+			g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1, DATA_HEIGHT - 100);
 			g.drawString("200", 10, DATA_HEIGHT - 100);
-			g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1,
-					DATA_HEIGHT - 200);
+			g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1, DATA_HEIGHT - 200);
 			g.drawString("400", 10, DATA_HEIGHT - 200);
-			g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1,
-					DATA_HEIGHT - 300);
+			g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1, DATA_HEIGHT - 300);
 			g.drawString("600", 10, DATA_HEIGHT - 300);
-			g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1,
-					DATA_HEIGHT - 400);
+			g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1, DATA_HEIGHT - 400);
 			g.drawString("800", 10, DATA_HEIGHT - 400);
 
 			g.setColor(Color.BLACK);
 			g.fillRect(20, t.pin * 15 + 5, 200, 15);
 			g.setColor(t.color);
-			g.drawString(" min " + t.min + " max " + t.max + " mean "
-					+ t.mean + " total " + t.total + " sum " + t.sum, 20, t.pin * 15 + 20);
+			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum,
+					20, t.pin * 15 + 20);
 
 		}
-		
+
 		oscope.displayFrame(sensorImage);
 	}
 
 	@Override
 	public void windowActivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowClosed(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -799,80 +714,219 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	/**
+	 * Spew the contents of a String object out to a file.
+	 */
+	static public void saveFile(String str, File file) throws IOException {
+		File temp = File.createTempFile(file.getName(), null, file.getParentFile());
+		// PApplet.saveStrings(temp, new String[] { str }); FIXME
+		if (file.exists()) {
+			boolean result = file.delete();
+			if (!result) {
+				throw new IOException("Could not remove old version of " + file.getAbsolutePath());
+			}
+		}
+		boolean result = temp.renameTo(file);
+		if (!result) {
+			throw new IOException("Could not replace " + file.getAbsolutePath());
+		}
+	}
+
+	/**
+	 * Get the number of lines in a file by counting the number of newline
+	 * characters inside a String (and adding 1).
+	 */
+	static public int countLines(String what) {
+		int count = 1;
+		for (char c : what.toCharArray()) {
+			if (c == '\n')
+				count++;
+		}
+		return count;
+	}
+
+	public void displayMega() {
+		pinList = new ArrayList<Pin>();
+
+		// set correct arduino image
+		JLabel image = new JLabel();
+
+		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/mega.200.pins.png");
+		image.setIcon(dPic);
+		Dimension s = image.getPreferredSize();
+		image.setBounds(0, 0, s.width, s.height);
+		imageMap.add(image, new Integer(1));
+
+		for (int i = 0; i < 70; ++i) {
+
+			Pin p = null;
+	
+			if (i > 1 && i < 14) { // pwm pins -----------------
+				p = new Pin(myService, boundServiceName, i, true, false, true);
+				int xOffSet = 0;
+				if (i > 7)
+					xOffSet = 18; // skip pin
+				p.inOut.setBounds(252 - 18 * i - xOffSet, 30, 15, 30);
+				imageMap.add(p.inOut, new Integer(2));
+				p.onOff.setBounds(252 - 18 * i - xOffSet, 0, 15, 30);
+				// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
+				imageMap.add(p.onOff, new Integer(2));
+
+				if (p.isPWM) {
+					p.pwmSlider.setBounds(252 - 18 * i - xOffSet, 75, 15, 90);
+					imageMap.add(p.pwmSlider, new Integer(2));
+					p.data.setBounds(252  - 18 * i - xOffSet, 180, 32, 15);
+					p.data.setForeground(Color.white);
+					p.data.setBackground(Color.decode("0x0f7391"));
+					p.data.setOpaque(true);
+					imageMap.add(p.data, new Integer(2));
+				}
+			} else if (i < 54 && i > 21) {
+				// digital pin racks
+				p = new Pin(myService, boundServiceName, i, false, false, false);
+
+				if (i != 23 && i != 25 && i != 27 && i != 29)
+				{
+					if ((i%2 == 0))
+					{
+						// first rack of digital pins
+						p.inOut.setBounds(472, 55 + 9 * (i - 21), 30, 15);
+						imageMap.add(p.inOut, new Integer(2));
+						p.onOff.setBounds(502, 55 + 9 * (i - 21), 30, 15);
+						// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
+						imageMap.add(p.onOff, new Integer(2));
+					} else {
+						// second rack of digital pins
+						p.inOut.setBounds(567, 45 + 9 * (i - 21), 30, 15);
+						imageMap.add(p.inOut, new Integer(2));
+						p.onOff.setBounds(597, 45 + 9 * (i - 21), 30, 15);
+						// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
+						imageMap.add(p.onOff, new Integer(2));					
+					}
+				}
+
+			} else if (i > 53) {
+				p = new Pin(myService, boundServiceName, i, false, true, true);
+				// analog pins -----------------
+				int xOffSet = 0;
+				if (i > 61)
+					xOffSet = 18; // skip pin
+				p.activeInActive.setBounds(128 + 18 * (i - 52) + xOffSet, 392, 15, 48);
+				imageMap.add(p.activeInActive, new Integer(2));
+				/* bag data at the moment - go look at the Oscope
+				p.data.setBounds(208 + 18 * (i - 52) + xOffSet, 260, 32, 18);
+				p.data.setForeground(Color.white);
+				p.data.setBackground(Color.decode("0x0f7391"));
+				p.data.setOpaque(true);
+				imageMap.add(p.data, new Integer(2));
+				*/
+			} else {
+				p = new Pin(myService, boundServiceName, i, false, false, false);
+			}
+			
+			// set up the listeners
+			p.onOff.addActionListener(this);
+			p.inOut.addActionListener(this);
+			p.activeInActive.addActionListener(this);
+			p.trace.addActionListener(this);
+			// p.inOut2.addActionListener(this);
+
+			pinList.add(p);
+
+		}
+
 	}
 
 
-	  /**
-	   * Spew the contents of a String object out to a file.
-	   */
-	  static public void saveFile(String str, File file) throws IOException {
-	    File temp = File.createTempFile(file.getName(), null, file.getParentFile());
-	    //PApplet.saveStrings(temp, new String[] { str }); FIXME
-	    if (file.exists()) {
-	      boolean result = file.delete();
-	      if (!result) {
-	        throw new IOException("Could not remove old version of " +
-	                              file.getAbsolutePath());
-	    }
-	  }
-	    boolean result = temp.renameTo(file);
-	    if (!result) {
-	      throw new IOException("Could not replace " +
-	                            file.getAbsolutePath());
-	    }
-	  }
-	
-	  /**
-	   * Get the number of lines in a file by counting the number of newline
-	   * characters inside a String (and adding 1).
-	   */
-	  static public int countLines(String what) {
-	    int count = 1;
-	    for (char c : what.toCharArray()) {
-	      if (c == '\n') count++;
-	    }
-	    return count;
-	  }
-	
+	public void displayDuemilanove() {
+		pinList = new ArrayList<Pin>();
+
+		// set correct arduino image
+		JLabel image = new JLabel();
+
+		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/arduino.duemilanove.200.pins.png");
+		image.setIcon(dPic);
+		Dimension s = image.getPreferredSize();
+		image.setBounds(0, 0, s.width, s.height);
+		imageMap.add(image, new Integer(1));
+
+		for (int i = 0; i < 20; ++i) {
+
+			Pin p = null;
+			if (i < 14) {
+				if (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
+					p = new Pin(myService, boundServiceName, i, true, false, false);
+				} else {
+					p = new Pin(myService, boundServiceName, i, false, false, false);
+				}
+			} else {
+				p = new Pin(myService, boundServiceName, i, false, true, false);
+			}
+
+			// set up the listeners
+			p.onOff.addActionListener(this);
+			p.inOut.addActionListener(this);
+			p.activeInActive.addActionListener(this);
+			p.trace.addActionListener(this);
+			// p.inOut2.addActionListener(this);
+
+			pinList.add(p);
+
+			if (i < 2) {
+				continue;
+			}
+			if (i < 14) { // digital pins -----------------
+				int yOffSet = 0;
+				if (i > 7)
+					yOffSet = 18; // skip pin
+				p.inOut.setBounds(406, 297 - 18 * i - yOffSet, 30, 15);
+				imageMap.add(p.inOut, new Integer(2));
+				p.onOff.setBounds(436, 297 - 18 * i - yOffSet, 30, 15);
+				// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
+				imageMap.add(p.onOff, new Integer(2));
+
+				if (p.isPWM) {
+					p.pwmSlider.setBounds(256, 297 - 18 * i - yOffSet, 90, 15);
+					imageMap.add(p.pwmSlider, new Integer(2));
+					p.data.setBounds(232, 297 - 18 * i - yOffSet, 32, 15);
+					p.data.setForeground(Color.white);
+					p.data.setBackground(Color.decode("0x0f7391"));
+					p.data.setOpaque(true);
+					imageMap.add(p.data, new Integer(2));
+				}
+			} else {
+				// analog pins -----------------
+				p.activeInActive.setBounds(11, 208 - 18 * (14 - i), 48, 15);
+				imageMap.add(p.activeInActive, new Integer(2));
+				p.data.setBounds(116, 205 - 18 * (14 - i), 32, 18);
+				p.data.setForeground(Color.white);
+				p.data.setBackground(Color.decode("0x0f7391"));
+				p.data.setOpaque(true);
+				imageMap.add(p.data, new Integer(2));
+			}
+		}
+
+	}
+
 }
-
-
-/*
-rawReadMessage.addItemListener(this);
-rawReadMsgLength = new JIntegerField();
-rawReadMsgLength.setInt(4);
-rawReadMsgLength.setEnabled(true);
-
-rawReadMessage.setText(" read raw ");
-
-cpgc.gridx = 0;
-++cpgc.gridy;
-configPanel.add(rawReadMessage, cpgc);
-++cpgc.gridx;
-configPanel.add(new JLabel(" msg length "), cpgc);
-++cpgc.gridx;
-configPanel.add(rawReadMsgLength, cpgc);
-
-// TODO - want to deprecate
-rawReadMsgLength.setVisible(false);
-rawReadMessage.setVisible(false);
-*/

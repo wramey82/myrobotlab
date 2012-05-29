@@ -25,35 +25,27 @@
 
 package org.myrobotlab.control;
 
-import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.net.BareBonesBrowserLaunch;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
 
 	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
-	// FIXME - Why a GUI interface - Swing will be swing
+	// FIXME - Why a GUI interface - Swing will be Swing (too much abstraction)
 	// FIXME - cheesy - have resizer in GUIService too because its a lame updating the interface all the time
 	//final static public ComponentResizer resizer = new ComponentResizer();
 	
@@ -64,16 +56,11 @@ public abstract class ServiceGUI {
 	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
 	public int myIndex = -1; 
 
-	// TODO - do not grab widgetFrame directly - ask for widgetDisplay()
 
-	public JPanel widgetFrame = new JPanel(); // outside panel which looks like
+	private JPanel widgetFrame = new JPanel(); // outside panel which looks like
 												// a closeble widget - contains
 												// close/detach button & title
-	public JPanel menu = new JPanel();
 	public JPanel display = new JPanel();
-	public JButton detachButton = null;
-	JButton releaseServiceButton = null;
-	JButton help = null;
 	
 	public abstract void init();	
 
@@ -89,36 +76,6 @@ public abstract class ServiceGUI {
 		
 	}
 
-	public class HelpListener implements ActionListener
-	{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-
-			ServiceWrapper sw = Runtime.getService(boundServiceName);
-			if (sw != null){
-				//Service s = sw.service;
-				//if (s != null){
-					BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.get().getShortTypeName());
-					return;
-				//}
-			}
-			LOG.error(boundServiceName + " service not found for help request");
-		}
-		
-	}
-	
-	public class ReleaseServiceListener implements ActionListener
-	{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-
-			Runtime.release(boundServiceName); // FYI - local only			
-		}
-		
-	}
-	
     public static JButton getButton(String name)
     {
     	JButton b = new JButton(Util.getScaledIcon(Util.getImage(name), 0.50));
@@ -133,18 +90,6 @@ public abstract class ServiceGUI {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
 
-		detachButton = getButton("detach.png");
-		releaseServiceButton = getButton("release.png");
-		help = getButton("help.png");
-		
-		menu.add(releaseServiceButton);
-		menu.add(detachButton);
-		menu.add(help);
-			
-		detachButton.addActionListener(new DetachListener());
-		releaseServiceButton.addActionListener(new ReleaseServiceListener());
-		help.addActionListener(new HelpListener());
-
 		BevelBorder widgetTitle;
 		widgetTitle = (BevelBorder) BorderFactory
 				.createBevelBorder(BevelBorder.RAISED);
@@ -156,8 +101,6 @@ public abstract class ServiceGUI {
 		// place menu
 		gc.gridx = 0;
 		gc.gridy = 0;
-		widgetFrame.add(menu, gc);
-		++gc.gridy;
 		widgetFrame.add(display, gc);
 
 		display.setLayout(new GridBagLayout());
@@ -165,6 +108,12 @@ public abstract class ServiceGUI {
 		//ConfigurationManager hostcfg = new ConfigurationManager(Service.getHostName(null));
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
+	}
+	
+	public JPanel getDisplay()
+	{
+		return display;
+		//return widgetFrame;
 	}
 
 	/*
