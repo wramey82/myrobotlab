@@ -188,7 +188,7 @@ public class Jython extends Service {
 		msgHandle.append(msg.sender);
 		msgHandle.append("_");
 		msgHandle.append(msg.sendingMethod);
-		
+		LOG.debug("calling " + msgHandle);
 		interp.set(msgHandle.toString(), msg);
 		interp.exec(msg.method + "()");
 		

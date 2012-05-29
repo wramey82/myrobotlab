@@ -46,6 +46,12 @@ public class PinData implements Serializable {
 
 	public PinData() {
 	}
+	public PinData(int pin, int method, int value, String source) {
+		this.pin = pin;
+		this.method = method;
+		this.value = value;
+		this.source = source;
+	}
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();

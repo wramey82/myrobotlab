@@ -26,9 +26,11 @@
 package org.myrobotlab.service;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
@@ -68,10 +70,29 @@ public class SensorMonitor extends Service {
 		alerts.put(makeKey(source, targetPin), pa);
 		alerts_nameIndex.put(name, pa);
 	}
-
-	// TODO - an Attach for the ArduinoGUI - so not "automatic" pinRead
-	// read pinData notify -> checkSensorData
-	// add new PinAlert -> when pin 4 > 35
+	
+	public boolean preProcessHook(Message m)
+	{
+		if (m.method.equals("input"))
+		{
+			if (m.data.length != 1)
+			{
+				LOG.error("where's my data");
+				return false;
+			}
+			
+			Object data = m.data[0];
+			if (data instanceof Float)
+			{
+				PinData pinData = new PinData(0, 0,((Float)data).intValue(), m.sender);
+				sensorInput(pinData);
+			}
+			
+			return false;
+		}
+		return true;
+	}
+	
 
 	final static public String makeKey(PinData pinData)
 	{
@@ -90,32 +111,20 @@ public class SensorMonitor extends Service {
 	
 	// sensorInput - an input point for sensor info
 
+	/**
+	 * sensorInput is the destination of sensor data
+	 * all types will funnel into a pinData type - this is used
+	 * to standardize and simplify the display.  Additionally, the
+	 * source can be attached so that trace lines can be identified
+	 * @param pinData
+	 */
 	public void sensorInput(PinData pinData) {
-		// spin through alerts
-		// if map(pin).hasKey()
-		// for each rule check
-
 		String key = makeKey(pinData);
 		
 		if (alerts.containsKey(key))
 		{
 			PinAlert alert = alerts.get(key);
-			/*
-			// transition across boundary -- begin
-			if (pinData.pin == alert.targetPin && pinData.value < alert.min
-					&& alert.state == PinAlert.STATE_HIGH) {
-				publish = true;
-				alert.state = PinAlert.STATE_LOW;
-			}
 
-			if (pinData.value > alert.max && alert.state == PinAlert.STATE_LOW) {
-				publish = true;
-				alert.state = PinAlert.STATE_HIGH;
-			}
-			// transition across boundary -- end
-			 * 
-			 */
-			// time
 			if (alert.threshold < pinData.value)
 			{
 				alert.pinData = pinData;
@@ -130,11 +139,7 @@ public class SensorMonitor extends Service {
 			lastValue.put(key, pinData);
 		}
 		
-		PinData last = lastValue.get(key);
-		last.value = pinData.value;
-		//last.pin = pinData.pin;
-		//last.function = pinData.function;
-		//last.source = pinData.source;
+		lastValue.get(key).value = pinData.value;
 		
 		invoke("publishSensorData", pinData);
 
@@ -189,59 +194,33 @@ public class SensorMonitor extends Service {
 	{
 		return pinData;
 	}
-	
+
 	public static void main(String[] args) throws InterruptedException {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		SensorMonitor sm = new SensorMonitor("sensors");
-		/*
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-		*/
-		//Arduino arduino1 = new Arduino("arduino1");
-		//RemoteAdapter remote = new RemoteAdapter("remote");
-		//Speech speech = new Speech("speech");
-		//sm.speech = speech;
-		//arduino.startService();
-		//arduino1.startService();
-		//remote.startService();
-		//speech.startService();
 		sm.startService();
-
+		
 		/*
-		Servo neck = new Servo("neck");
-		neck.startService();
-		neck.attach("arduino", 4);
-
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 		*/
 		
-		/*
-		neck.moveTo(179);
-		neck.moveTo(0);
-		neck.moveTo(160);
-		neck.moveTo(90);
-		neck.moveTo(0);
-		
-		for (int j = 0; j < 30; ++j)
+		Random rand = new Random();
+		for (int i = 0; i < 10000; ++i)
 		{
-			int i;
-			for (i = 0; i < 160; i+=10)
-			{
-				neck.moveTo(i);
-				Thread.sleep(300);
-			}
-			for (i = 160; i > 0; i-=10)
-			{
-				neck.moveTo(i);
-				Thread.sleep(300);
-			}
+			Message msg = new Message();
+			msg.name="sensors";
+			msg.sender="SEAR";
+			msg.method="input";
+			Float[] gps = new Float[]{rand.nextFloat()*200, rand.nextFloat()*200, rand.nextFloat()*200};
+			msg.data = new Object[]{gps};
+			//msg.data = new Object[]{rand.nextFloat()*200};
+			sm.in(msg);
 		}
 
-		*/
 	}	
 }
