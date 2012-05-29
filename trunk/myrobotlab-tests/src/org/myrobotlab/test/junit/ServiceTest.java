@@ -367,8 +367,6 @@ public class ServiceTest {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-
 			thrower01.invoke("throwInteger", param1);
 		}
 		LOG.warn("waiting for " + cnt + " catcher has " + catcher01.catchList.size());
