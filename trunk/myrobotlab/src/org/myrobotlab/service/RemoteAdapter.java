@@ -28,9 +28,9 @@ package org.myrobotlab.service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,7 +38,6 @@ import java.net.URL;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
@@ -48,13 +47,17 @@ import org.myrobotlab.service.interfaces.MRLMSGReciever;
 
 /***
  * 
- * @author grog
+ * @author Gro-G
  * 
  *         This is a service which allows foreign clients to connect. It
  *         maintains a list of currently connected clients. Most of the
  *         communication details are left up to a configurable Communicator and
  *         Serializer. At this point the RemoteAdapter has the ability to
  *         filter, block, or re-route any inbound messages.
+ *         
+ *         TODO - refactor the MRLClient comm devices back in
+ *         TODO - optimize communication blocks - such that new objects don't need to be
+ *         re-created on each message
  * 
  */
 
@@ -70,9 +73,7 @@ public class RemoteAdapter extends Service {
 	transient UDPStringListener udpStringListener = null;
 
 	MRLMSGReciever mrlMsgReciever = null;
-	
-	InetAddress serverAddress = null;
-	
+		
 	// FIXME - all port & ip data needs to be only in the threads
 	public int TCPPort = 6767;
 	public int UDPPort = 6767;
@@ -106,6 +107,8 @@ public class RemoteAdapter extends Service {
 	class TCPListener extends Thread {
 		RemoteAdapter myService = null;
 		transient ServerSocket serverSocket = null; 
+		ObjectOutputStream out;
+		ObjectInputStream in;
 
 		public TCPListener (String n, RemoteAdapter s)
 		{
@@ -124,37 +127,50 @@ public class RemoteAdapter extends Service {
 					logException(e);
 				}
 			}
+			serverSocket = null;
 		}
 				
 		public void run() {
 			if (TCPPort > 0) {
 				try {
 
-					serverSocket = new ServerSocket(TCPPort, 0, serverAddress);
+					serverSocket = new ServerSocket(TCPPort, 10);
 					
 					LOG.info(getName() + " TCPListener listening on "
 							+ serverSocket.getLocalSocketAddress());
-
+					
+					Socket clientSocket = serverSocket.accept();
+					Communicator comm = (Communicator) cm.getComm();
+					LOG.info("new connection [" + clientSocket.getRemoteSocketAddress() + "]");
+					
+					out = new ObjectOutputStream(clientSocket.getOutputStream());
+					out.flush();
+					in = new ObjectInputStream(clientSocket.getInputStream());					
+					
 					while (isRunning()) {
-						Socket clientSocket = serverSocket.accept();
-						Communicator comm = (Communicator) cm.getComm();
-						LOG.info("new connection ["
-								+ clientSocket.getRemoteSocketAddress() + "]");
-						comm.addClient(clientSocket);
-						// starting new thread to read/listen on inbox
-						// TODO - threadpool IOCompletionPorts
-						// CommunicatorTCP nt = new CommunicatorTCP(this); //
-						// TODO - finish this cause it probably won't work
-						// nt.start();
 
-						// you can't add to the client list until AFTER you
-						// receive your first message - preferably a SDU
-						/*
-						 * IF YOU MANAGE WITH THE KEY OF REMOTE ADDRESS YOU CAN
-						 * !
-						 */
-						/*
-					*/
+						Message msg = (Message)in.readObject();
+						
+						if ("registerServices".equals(msg.method)) 
+						{
+							comm.addClient(clientSocket);
+							invoke("registerServices", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort(), msg);
+							continue;
+						}
+
+						
+						// client API
+						if (mrlMsgReciever != null)
+						{
+							mrlMsgReciever.receive(msg);
+							continue;
+						}						
+						if (msg.getName().equals(getName()))
+						{
+							getInbox().add(msg);
+						} else {
+							getOutbox().add(msg);
+						}
 
 					}
 
@@ -163,6 +179,9 @@ public class RemoteAdapter extends Service {
 					LOG.error("Could not listen on requested ["
 							+ TCPPort + "]");
 					TCPPort = 0;
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			} else {
 				LOG.error("servicePort is <= 0 - terminating");
@@ -224,7 +243,7 @@ public class RemoteAdapter extends Service {
 		}
 	}
 
-	class UDPListener extends Thread { // TODO refactor and derive
+	class UDPListener extends Thread { 
 
 		DatagramSocket socket = null;
 		RemoteAdapter myService = null;
@@ -259,37 +278,33 @@ public class RemoteAdapter extends Service {
 				comm.setIsUDPListening(true);
 
 				while (isRunning()) {
-					socket.receive(dgram); // blocks
-					ObjectInputStream o_in = new ObjectInputStream(b_in);
+					socket.receive(dgram); // receives all datagrams
+					ObjectInputStream o_in = new ObjectInputStream(b_in); // FIXME - not well optimized - should be cached (same on the receiver)
 					try {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset(); // reset so next read is from start of byte[] again
 
-						if (msg == null) {
-							LOG.error("UDP null message");
+
+						if ("registerServices".equals(msg.method)) 
+						{
+							comm.addClient(socket, dgram.getAddress(), dgram.getPort());
+							invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+							continue;
+						}
+
+						// client API
+						if (mrlMsgReciever != null)
+						{
+							mrlMsgReciever.receive(msg);
+							continue;
+						}
+						
+						if (msg.getName().equals(getName()))
+						{
+							getInbox().add(msg);
 						} else {
-
-							if (msg.method.compareTo("registerServices") == 0) 
-							{
-								comm.addClient(socket, dgram.getAddress(), dgram.getPort());
-								invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
-								continue;
-							}
-
-							// client API
-							if (mrlMsgReciever != null)
-							{
-								mrlMsgReciever.receive(msg);
-								continue;
-							}
-							
-							if (msg.getName().equals(getName()))
-							{
-								getInbox().add(msg);
-							} else {
-								getOutbox().add(msg);
-							}
+							getOutbox().add(msg);
 						}
 
 					} catch (ClassNotFoundException e) {
@@ -318,13 +333,13 @@ public class RemoteAdapter extends Service {
 			 * this needs to refined such that you can explicitly set the listening type/protocol
 			 * additionally there should be a explicit setting to do outbound communication
 			 * or set outbound type/protocol based on a datatype mapping
-			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
-			tcpListener.start();
 			udpStringListener = new UDPStringListener(getName() + "_udpStringListener", this);
 			udpStringListener.start();
 			*/
 			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
 			udpListener.start();
+			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
+			tcpListener.start();
 			// block until actually listening 
 			
 		} else {
@@ -538,10 +553,6 @@ public class RemoteAdapter extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		CMDLine cmdline = new CMDLine();
-		cmdline.splitLine(args);
-				
-		String clientServiceName = cmdline.getSafeArgument("-name", 0, "client");
 		
 		// modes of operation
 		// command line - single command lind which sends a message 
@@ -552,8 +563,18 @@ public class RemoteAdapter extends Service {
 		// simple send command 
 		
 		// full service
+		Logging logger = new Logging("logger");
+		logger.startService();
 				
-		RemoteAdapter client = new RemoteAdapter(clientServiceName);
+		RemoteAdapter client = new RemoteAdapter("remote");
 		client.startService();
+		
+		TestCatcher catcher = new TestCatcher("catcher");
+		catcher.startService();
+		/*
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		*/
 	}		
 }

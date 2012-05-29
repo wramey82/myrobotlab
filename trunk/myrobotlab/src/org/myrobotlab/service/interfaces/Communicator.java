@@ -34,8 +34,6 @@ import org.myrobotlab.framework.Message;
 
 public abstract class Communicator {
 
-	// TODO static public Communicator getCommunicator (String name, String
-	// classType);??
 	public abstract void send(final URL url, final Message msg); // TODO - manage throws
 
 	public abstract void stopService();
@@ -44,15 +42,8 @@ public abstract class Communicator {
 
 	public abstract void addClient(Socket socket);
 
-	//public abstract void addClient(DatagramSocket dgram);
-
 	public abstract void addClient(DatagramSocket s, InetAddress address, int port);
 
 	public abstract void setIsUDPListening(boolean set);
-
-	/*
-	 * public abstract OutputStream getOutputStream(); public abstract
-	 * InputStream getInputStream();
-	 */
 
 }

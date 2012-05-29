@@ -80,6 +80,7 @@ import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.Style;
+import org.myrobotlab.control.TabControl;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
@@ -109,6 +110,8 @@ import com.mxgraph.view.mxGraph;
  * 		serviceGUI needs a Runtime
  * 		Arduino arduin-> post back (data) --> GUI - look up serviceGUI by senders name ServiceGUI->invoke(data)
  * 
+ * References :
+ * http://www.scribd.com/doc/13122112/Java6-Rules-Adding-Components-To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
  */
 
 public class GUIService extends GUI implements WindowListener, ActionListener, Serializable {
@@ -234,6 +237,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			welcome = new Welcome("",this); 
 			welcome.init();
 			tabs.addTab("Welcome", welcome.display);
+			tabs.setTabComponentAt(0, new JLabel("Welcome"));
 			serviceGUIMap.put("welcome", welcome);
 		}
 
@@ -363,6 +367,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			welcome = new Welcome("",this); 
 			welcome.init();
 			tabs.addTab("Welcome", welcome.display);
+			tabs.setTabComponentAt(0, new JLabel("Welcome"));
 			serviceGUIMap.put("welcome", welcome);
 		}
 
@@ -495,8 +500,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			}
 */
 			
-			tpanel.add(gui.widgetFrame); 
+			tpanel.add(gui.getDisplay()); 
 			tabs.addTab(serviceName, tpanel);
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, tpanel, serviceName));
 
 		} else {
 			LOG.warn("could not construct a " + guiClass + " object");
@@ -519,6 +525,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	/**
 	 * Move Service panel into a JFrame
 	 * @param boundServiceName
+	 * 
+	 * TODO - move completely into TabControl
 	 */
 	public void undockPanel(String boundServiceName)
 	{
@@ -532,10 +540,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		undocked.setIconImage(img);					
 		
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-		sg.detachButton.setVisible(false);
-	    tabs.remove(sg.widgetFrame.getParent()); // FIXME - memory leak tpanel parent is not disposed - put tpanel in widget
+//		sg.detachButton.setVisible(false);
+	    tabs.remove(sg.getDisplay().getParent()); // FIXME - memory leak tpanel parent is not disposed - put tpanel in widget
 
-		undocked.getContentPane().add(sg.widgetFrame);
+		undocked.getContentPane().add(sg.getDisplay());
 		undocked.pack();
 		undocked.setVisible(true);
 		undocked.setTitle(boundServiceName);
@@ -553,10 +561,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// add a single tabbed panel
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
 		JPanel tpanel = new JPanel();
-		tpanel.add(sg.widgetFrame);
-		sg.detachButton.setVisible(true);
+		tpanel.add(sg.getDisplay());
+		//sg.detachButton.setVisible(true);
 		tabs.add(boundServiceName, tpanel);		
-		
+		//tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, boundServiceName));
+
 		frame.pack();
 	}
 	

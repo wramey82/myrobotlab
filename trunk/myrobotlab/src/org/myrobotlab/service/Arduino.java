@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -77,14 +76,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	private static final long serialVersionUID = 1L;
 	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
 
-	// FIXME - make interface and add the capability of Android Bluetooth as
-	// serial port
-	// non serializable serial object
+	// FIXME - Add Android BlueTooth as possible Serial Device - remove ArduinoBT
 	transient SerialDevice serialPort;
 	transient InputStream inputStream;
 	transient OutputStream outputStream;
-	// transient static HashMap<String, CommDriver> customPorts = new
-	// HashMap<String, CommDriver>();
 
 	@Element
 	String portName = "";
@@ -134,6 +129,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>();
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>();
+	
+	// serial device factory
+	
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -143,14 +141,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
-		// get ports - return array of strings
-		// set port? / init port
-		// detach port
-
-		load(); // attempt to load config
+		load(); // attempt to load last configuration saved
 
 		// attempt to get serial port based on there only being 1
-		// or based on previous config
+		// or based on previous configuration
 
 		// if there is only 1 port - attempt to initialize it
 		portNames = getPorts();

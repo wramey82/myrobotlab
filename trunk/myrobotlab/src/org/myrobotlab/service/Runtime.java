@@ -1239,7 +1239,7 @@ public class Runtime extends Service {
 		serviceInfo.getRepoData();
 		
 		// notify ready for updates
-		INSTANCE.invoke("proposedUpdates", serviceInfo);
+		getInstance().invoke("proposedUpdates", serviceInfo);			
 	}
 	
 	/**
@@ -1259,7 +1259,10 @@ public class Runtime extends Service {
 	
 	public void update (String fullTypeName)
 	{
-		ServiceInfo.getInstance().update(fullTypeName);	
+		ServiceInfo.getInstance().getLocalServiceData();
+
+		ServiceInfo.getInstance().resolve(fullTypeName);
+
 	}
 	
 	// published events
