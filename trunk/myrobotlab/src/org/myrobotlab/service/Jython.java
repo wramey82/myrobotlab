@@ -139,7 +139,12 @@ public class Jython extends Service {
 		{
 			script = code;
 		}
-		interp.exec(code);
+		try {
+			interp.exec(code);
+		} catch (Exception e)
+		{
+			Service.logException(e);
+		}
 	}
 	
 	public String getScript()

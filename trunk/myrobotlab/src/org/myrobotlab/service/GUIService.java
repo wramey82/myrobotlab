@@ -1076,15 +1076,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		    	    
 	    menuBar.add(system);
 
-	    
+	    /*
 		JMenu view = new JMenu("view");
-	    JMenuItem fullscreen = new JMenuItem("fullscreen");
+	    JMenuItem fullscreen = new JMenuItem("explode");
 	    fullscreen.addActionListener(this);
 	    view.add(fullscreen);
 	    JMenuItem leavefullscreen = new JMenuItem("leave fullscreen");
 	    fullscreen.addActionListener(this);
 	    view.add(leavefullscreen);
 	    menuBar.add(view);
+	    */
 	    
 		JMenu help = new JMenu("help");
 	    JMenuItem about = new JMenuItem("about");
@@ -1137,9 +1138,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			} else {
 				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
 			}
-		} else if ("leave fullscreen".equals(cmd)) 
+		} else if ("explode".equals(cmd)) 
 		{
-			display();
+			//display();
 		} else {
 			invoke(cmd);
 		}

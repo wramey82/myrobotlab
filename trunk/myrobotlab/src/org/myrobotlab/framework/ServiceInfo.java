@@ -1,16 +1,22 @@
 package org.myrobotlab.framework;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
@@ -390,9 +396,6 @@ public class ServiceInfo implements Serializable {
 
 					ResolveReport report = Ivy2.getReport();
 					ArtifactDownloadReport[] artifacts = report.getAllArtifactsReports();
-					for (int j = 0; j < artifacts.length; ++j) {
-						LOG.info(artifacts[j]);
-					}
 
 					if (report.hasError()) {
 						ret = false;
@@ -404,6 +407,17 @@ public class ServiceInfo implements Serializable {
 						}
 					} else {
 						runtime.invoke("resolveSuccess", module);
+						for (int j = 0; j < artifacts.length; ++j) {
+							ArtifactDownloadReport artifact = artifacts[j];
+							if (artifact.getExt().equals("zip"))
+							{
+								String filename = "libraries" + File.separator + "zip" + File.separator + 
+										artifact.getName() + ".zip";
+								FileIO.unzip(filename, "./");
+							}
+							LOG.info(artifacts[j]);
+						}
+
 						// dep.resolved = true;
 						// save();
 					}
@@ -429,6 +443,7 @@ public class ServiceInfo implements Serializable {
 		return ret;
 	}
 
+	
 	/**
 	 * function to return an array of serviceInfo for the Runtime So that Ivy
 	 * can download, cache, and manage all the appropriate serviceInfo for a
