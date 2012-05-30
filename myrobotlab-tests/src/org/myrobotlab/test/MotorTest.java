@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 public class MotorTest {
 
-	public final static Logger LOG = Logger.getLogger(MotorTest.class
+	public final static Logger log = Logger.getLogger(MotorTest.class
 			.getCanonicalName());
 
 	public static void main(String[] args) throws InterruptedException {

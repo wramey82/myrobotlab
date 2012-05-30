@@ -42,11 +42,11 @@ public class FrogLegApplet extends Applet {
 	private static final long serialVersionUID = 1L;
 	public GUIService gui = null;
 
-	public final static Logger LOG = Logger.getLogger(FrogLegApplet.class
+	public final static Logger log = Logger.getLogger(FrogLegApplet.class
 			.getCanonicalName());
 
 	public void init() {
-		LOG.error("init");
+		log.error("init");
 		ConfigurationManager cfg = new ConfigurationManager();
 		cfg.clear();
 
@@ -54,7 +54,7 @@ public class FrogLegApplet extends Applet {
 
 	@SuppressWarnings("unchecked")
 	public void start() {
-		LOG.error("start");
+		log.error("start");
 
 		Random rand = new Random();
 		gui = new GUIService("gui" + rand.nextInt());
@@ -86,7 +86,7 @@ public class FrogLegApplet extends Applet {
 
 	public void stop() {
 
-		LOG.error("stop");
+		log.error("stop");
 
 		gui.getOutbox().getCommunicationManager().getComm().stopService();
 		gui.stopService();
@@ -96,7 +96,7 @@ public class FrogLegApplet extends Applet {
 
 	public void destroy() {
 		// clean up
-		LOG.error("destroy");
+		log.error("destroy");
 
 	}
 

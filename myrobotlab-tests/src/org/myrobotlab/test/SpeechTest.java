@@ -35,9 +35,9 @@ public class SpeechTest {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		Outbox.LOG.setLevel(Level.ERROR);
-		Inbox.LOG.setLevel(Level.ERROR);
-		Service.LOG.setLevel(Level.ERROR);
+		Outbox.log.setLevel(Level.ERROR);
+		Inbox.log.setLevel(Level.ERROR);
+		Service.log.setLevel(Level.ERROR);
 
 		// Clock clock = new Clock("clock01");
 

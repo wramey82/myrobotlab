@@ -11,7 +11,7 @@ import org.myrobotlab.service.interfaces.MRLMSGReciever;
  */
 public class ClientAPITester implements MRLMSGReciever {
 
-	public final static Logger LOG = Logger.getLogger(ClientAPITester.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ClientAPITester.class.getCanonicalName());
 
 	RemoteAdapter api = null;
 	
@@ -71,7 +71,7 @@ public class ClientAPITester implements MRLMSGReciever {
 	@Override
 	public void receive(Message msg) {
 
-		LOG.info("***** recieved msg " + msg + " *******");
+		log.info("***** recieved msg " + msg + " *******");
 		// echo the msg back as data
 		//api.send("localhost", 6767, "catcher01", "catchMsg", msg);
 	}

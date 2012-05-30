@@ -54,7 +54,7 @@ import org.myrobotlab.test.ClientAPITester;
 
 public class ServiceTest {
 
-	public final static Logger LOG = Logger.getLogger(ServiceTest.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ServiceTest.class.getCanonicalName());
 	
 	final static StopWatch stopwatch = new StopWatch();
 
@@ -70,7 +70,7 @@ public class ServiceTest {
 	public final void testSingleThrow() {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		LOG.warn("testSingleThrow begin-------------");
+		log.warn("testSingleThrow begin-------------");
 
 		// create services
 		TestThrower thrower01 = new TestThrower("thrower02");
@@ -94,7 +94,7 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// check results
-		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
+		log.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
 		assertEquals(cnt, catcher01.catchList.size());
@@ -113,7 +113,7 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// check results
-		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
+		log.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
 		assertEquals(catcher01.catchList.size(), cnt);
@@ -122,13 +122,13 @@ public class ServiceTest {
 
 		Runtime.releaseAll();
 		
-		LOG.warn("testSingleThrow end-------------");
+		log.warn("testSingleThrow end-------------");
 	}
 
 	@Test
 	public final void stressTest() {
 
-		LOG.warn("stressTest begin-------------");
+		log.warn("stressTest begin-------------");
 
 		// create services
 		TestThrower thrower01 = new TestThrower("thrower02");
@@ -152,7 +152,7 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// check results
-		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
+		log.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
 		assertEquals(cnt, catcher01.catchList.size());
@@ -171,7 +171,7 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// check results
-		LOG.info(cnt + " message sent in " + stopwatch.elapsedMillis()
+		log.info(cnt + " message sent in " + stopwatch.elapsedMillis()
 				+ " ms avg 1 msg per "
 				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
 		assertEquals(catcher01.catchList.size(), cnt);
@@ -180,7 +180,7 @@ public class ServiceTest {
 
 		Runtime.releaseAll();
 		
-		LOG.warn("stressTest end-------------");
+		log.warn("stressTest end-------------");
 	}
 	
 
@@ -188,7 +188,7 @@ public class ServiceTest {
 
 	@Test
 	public final void blockingTest() {
-		LOG.warn("blockingTest begin-------------");		
+		log.warn("blockingTest begin-------------");		
 		
 		// create services
 		TestCatcher catcher01 = new TestCatcher("catcher01");
@@ -213,8 +213,8 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// test results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.catchList.size());
+		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(catcher01.catchList.size());
 
 		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", null);
 		assertEquals(null, o);
@@ -226,7 +226,7 @@ public class ServiceTest {
 		catcher01.releaseService();
 		thrower01.releaseService();
 
-		LOG.warn("blockingTest end-------------");
+		log.warn("blockingTest end-------------");
 	}
 	
 	
@@ -234,7 +234,7 @@ public class ServiceTest {
 
 	@Test
 	public final void testDoubleNotifyMessage() {
-		LOG.warn("testDoubleNotifyMessage begin-------------");
+		log.warn("testDoubleNotifyMessage begin-------------");
 
 		// create services
 		TestThrower thrower01 = new TestThrower("thrower03");
@@ -263,13 +263,13 @@ public class ServiceTest {
 		
 		Runtime.releaseAll();
 		
-		LOG.warn("testDoubleNotifyMessage end-------------");
+		log.warn("testDoubleNotifyMessage end-------------");
 	}
 
 	// http://supportweb.cs.bham.ac.uk/documentation/tutorials/docsystem/build/tutorials/junit/junit.html
 	@Test
 	public final void testNullAndEmptyParamNotify() {
-		LOG.warn("testNullAndEmptyParamNotify begin-------------");
+		log.warn("testNullAndEmptyParamNotify begin-------------");
 
 		// create services
 		TestThrower thrower01 = new TestThrower("thrower01");
@@ -292,13 +292,13 @@ public class ServiceTest {
 		assertEquals(cnt, catcher01.catchList.size());
 		
 		Runtime.releaseAll();
-		LOG.warn("testNullAndEmptyParamNotify end-------------");
+		log.warn("testNullAndEmptyParamNotify end-------------");
 
 	}
 
 	@Test
 	public final void testRemoveNotify() {
-		LOG.warn("testRemoveNotify begin-------------");
+		log.warn("testRemoveNotify begin-------------");
 
 		// create services
 		ConfigurationManager cfg = new ConfigurationManager();
@@ -325,12 +325,12 @@ public class ServiceTest {
 
 		Runtime.releaseAll();
 
-		LOG.warn("testRemoveNotify begin-------------");
+		log.warn("testRemoveNotify begin-------------");
 	}
 
 	@Test
 	public final void remoteThrow() {
-		LOG.warn("remoteThrow begin-------------");
+		log.warn("remoteThrow begin-------------");
 		//Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 		TestThrower thrower01 = new TestThrower("thrower01");
@@ -369,12 +369,12 @@ public class ServiceTest {
 			}
 			thrower01.invoke("throwInteger", param1);
 		}
-		LOG.warn("waiting for " + cnt + " catcher has " + catcher01.catchList.size());
+		log.warn("waiting for " + cnt + " catcher has " + catcher01.catchList.size());
 		assertEquals(cnt, catcher01.waitForCatches(cnt, 100));
 		stopwatch.end();
 
 		// test results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo(Integer.class.getCanonicalName()), 0);
 		assertEquals(catcher01.catchList.get(0), new Integer(1));
 
@@ -389,14 +389,14 @@ public class ServiceTest {
 		thrower01.invoke("highPitchInteger", param1);
 		thrower01.invoke("noPitchInteger", param1);
 		thrower01.invoke("lowPitchInteger", param1);
-		LOG.info(catcher01.lowCatchList.size());
+		log.info(catcher01.lowCatchList.size());
 		catcher01.waitForLowCatches(1, 100);
 		catcher01.waitForCatches(2, 100);
 		stopwatch.end();
 
 		// check results
-		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.lowCatchList.size());
+		log.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(catcher01.lowCatchList.size());
 		assertEquals(catcher01.lowCatchList.size(), 1);
 
 		// send messages
@@ -406,27 +406,27 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// check results
-		LOG.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.catchList.size());
+		log.info(" messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(catcher01.catchList.size());
 		// assertEquals(catcher01.catchList.size(), 5);
 		
 		Runtime.releaseAll();
 
-		LOG.warn("remoteThrow end-------------");
+		log.warn("remoteThrow end-------------");
 	}
 	
 	
 
 	@Test
 	public final void bothHandsCatchIntegerTest() {
-		LOG.warn("bothHandsCatchInteger begin-------------");
+		log.warn("bothHandsCatchInteger begin-------------");
 
 		// create services
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 
 		// start services
 		catcher01.startService();
-		LOG.info(catcher01.catchList.size());
+		log.info(catcher01.catchList.size());
 
 		// set notify list
 
@@ -444,10 +444,10 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// test results
-		LOG
+		log
 				.info(cnt + " messages sent in " + stopwatch.elapsedMillis()
 						+ " ms");
-		LOG.info(catcher01.catchList.size());
+		log.info(catcher01.catchList.size());
 		assertEquals(catcher01.catchList.size(), (2 * cnt));
 		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName()
 				.compareTo("java.lang.Integer"), 0);
@@ -456,13 +456,13 @@ public class ServiceTest {
 
 		Runtime.releaseAll();
 
-		LOG.warn("bothHandsCatchIntegerTest end-------------");
+		log.warn("bothHandsCatchIntegerTest end-------------");
 	}
 
 
 	@Test
 	public final void doubleHandedRemoteThrow() {
-		LOG.warn("doubleHandedRemoteThrow begin-------------");
+		log.warn("doubleHandedRemoteThrow begin-------------");
 
 		// clear globals
 		ConfigurationManager catchercfg = new ConfigurationManager(Service
@@ -517,24 +517,24 @@ public class ServiceTest {
 		stopwatch.end();
 
 		// test results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
-		LOG.info(catcher01.catchList.size());
+		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(catcher01.catchList.size());
 		assertEquals(2 * cnt, catcher01.catchList.size());
 		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName()
 				.compareTo("java.lang.Integer"), 0);
 		assertEquals(catcher01.catchList.get(0), new Integer(1));
 
 		// check results
-		LOG.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
+		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		
 		Runtime.releaseAll();
-		LOG.warn("doubleHandedRemoteThrow end-------------");
+		log.warn("doubleHandedRemoteThrow end-------------");
 	}
 
 	@Test
 	public final void remoteInterfaceTest ()
 	{
-		LOG.warn("remoteInterfaceTest begin-------------");
+		log.warn("remoteInterfaceTest begin-------------");
 		// The following services would be running in a remote
 		// instance of MRL - creating them here is only for demonstrative 
 		// purposes
@@ -569,17 +569,17 @@ public class ServiceTest {
 			oos.reset();
 
 		} catch (Exception e) {
-			LOG.warn("threw [" + e.getMessage() + "]");
+			log.warn("threw [" + e.getMessage() + "]");
 		}		
 		
-		LOG.warn("remoteInterfaceTest end-------------");
+		log.warn("remoteInterfaceTest end-------------");
 		
 	}
 
 	
 	@Test
 	public final void serialize() {
-		LOG.warn("serializing begin--------------------");
+		log.warn("serializing begin--------------------");
 		String[] serviceNames = Runtime.getServiceShortClassNames();
 		
 		for (int i=0;i < serviceNames.length; ++i)
@@ -589,9 +589,9 @@ public class ServiceTest {
 			
 			if (i == 29)
 			{
-				LOG.info("here");
+				log.info("here");
 			}
-			LOG.info("serializing " + serviceNames[i]);
+			log.info("serializing " + serviceNames[i]);
 			FileOutputStream fos = null;
 			ObjectOutputStream out = null;
 			try
@@ -621,18 +621,18 @@ public class ServiceTest {
 			       s.releaseService();
 			} catch (Exception e)
 			{
-				LOG.warn(e.getMessage());
-				LOG.warn(Service.stackToString(e));
+				log.warn(e.getMessage());
+				log.warn(Service.stackToString(e));
 			} 
 		}
 						
 		Runtime.releaseAll();
-		LOG.warn("serializing end--------------------");	
+		log.warn("serializing end--------------------");	
 	}
 	
 	@Test
 	public final void clientAPI() {
-		LOG.warn("clientAPI begin-------------");
+		log.warn("clientAPI begin-------------");
 
 		
 		// setting 2 services in different Service Environment
@@ -642,7 +642,7 @@ public class ServiceTest {
 		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://localhost:6767");
 		TestCatcher catcher01 = new TestCatcher("catcher01", "http://localhost:6767");		
 		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:6767");		
-		LOG.info(Runtime.getInstance().dump());
+		log.info(Runtime.getInstance().dump());
 		
 		remote01.startService();
 		catcher01.startService();
@@ -655,20 +655,20 @@ public class ServiceTest {
 		// creating a client which uses the remote API to communicate with MRL
 		ClientAPITester client  = new ClientAPITester();
 		client.init();
-		//LOG.info(Runtime.getInstance().dump());
+		//log.info(Runtime.getInstance().dump());
 		client.test1();
 		// check results
 		client.test2();
 		// check results
 
 
-		LOG.debug("check sending from RA Client API to RA service");		
+		log.debug("check sending from RA Client API to RA service");		
 		remote01.send("catcher01", "catchInteger", 5);
 		catcher01.waitForCatches(8, 2000);
 		assertEquals(8, catcher01.catchList.size());
 		catcher01.catchList.clear();
 
-		LOG.debug("check sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
+		log.debug("check sending from RA Client API to RA service (bothHandsCatchInteger -double parameter)");		
 		remote01.send("catcher01", "bothHandsCatchInteger", 8, 9);
 		catcher01.waitForCatches(1, 100);
 		assertEquals(catcher01.catchList.size(), 2);
@@ -676,7 +676,7 @@ public class ServiceTest {
 		
 		Runtime.releaseAll();
 
-		LOG.warn("clientAPI end-------------");
+		log.warn("clientAPI end-------------");
 	}
 	
 
@@ -684,7 +684,7 @@ public class ServiceTest {
 	@Test
 	public void cleanUp ()
 	{
-		LOG.warn("cleanUp begin-------------");
+		log.warn("cleanUp begin-------------");
 		try {
 			// wait a second for all 
 			// listening network sockets to close
@@ -702,7 +702,7 @@ public class ServiceTest {
 			e.printStackTrace();
 		} 
 		
-		LOG.warn("cleanUp end-------------");
+		log.warn("cleanUp end-------------");
 	}
 	
 }
