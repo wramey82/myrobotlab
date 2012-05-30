@@ -767,14 +767,16 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	
 	public void resolveEnd ()
 	{
-		progressDialog.addInfo("finished installing components ");
+		progressDialog.addInfo("finished processing updates ");
 //		progressDialog.setVisible(false);
 //		progressDialog.dispose();  FIXME - needs an "OK" to terminate
 
 		if (resolveErrors != null)
 		{
 			LOG.info("there were errors");
+			progressDialog.addErrorInfo("there were errors " + resolveErrors);
 		} else {
+			progressDialog.finished();
 			LOG.info("new components - restart?");
 			JFrame frame = new JFrame();
 			int ret = JOptionPane

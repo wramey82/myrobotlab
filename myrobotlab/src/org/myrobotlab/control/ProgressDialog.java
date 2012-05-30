@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.DefaultCaret;
 
 import org.myrobotlab.image.Util;
 
@@ -42,6 +43,8 @@ public class ProgressDialog extends JDialog {
 		reportArea.setBackground(SystemColor.control);
 		
 		scrollPane = new JScrollPane(reportArea);
+		DefaultCaret caret = (DefaultCaret)reportArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
 		getContentPane().add(scrollPane, BorderLayout.SOUTH);	
 	    setSize(320, 240);
