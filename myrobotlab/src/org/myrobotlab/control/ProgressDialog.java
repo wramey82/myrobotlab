@@ -11,25 +11,30 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.myrobotlab.image.Util;
+
 public class ProgressDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private String data = "";
 	private JTextArea reportArea = null;
 	JScrollPane scrollPane = null;
-
+	JLabel spinner = null;
+	JLabel downloadText = null;
+	boolean hasError = false;
+	
 	public ProgressDialog(JFrame frame) {
 		super(frame, "new components");
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
 		
-		JLabel lblNewLabel = new JLabel();
-		panel.add(lblNewLabel);
-		lblNewLabel.setIcon(new ImageIcon(ProgressDialog.class.getResource("/resource/progressBar.gif")));
+		spinner = new JLabel();
+		panel.add(spinner);
+		spinner.setIcon(new ImageIcon(ProgressDialog.class.getResource("/resource/progressBar.gif")));
 		
-		JLabel lblDownloadingNewComponents = new JLabel("Downloading new components");
-		panel.add(lblDownloadingNewComponents);
+		downloadText = new JLabel("Downloading new components");
+		panel.add(downloadText);
 		
 		reportArea = new JTextArea("details", 5, 10);
 		reportArea.setLineWrap(true);
@@ -38,7 +43,7 @@ public class ProgressDialog extends JDialog {
 		
 		scrollPane = new JScrollPane(reportArea);
 		
-		getContentPane().add(reportArea, BorderLayout.SOUTH);	
+		getContentPane().add(scrollPane, BorderLayout.SOUTH);	
 	    setSize(320, 240);
 	    setLocationRelativeTo(frame);
 	}
@@ -47,6 +52,22 @@ public class ProgressDialog extends JDialog {
 	{
 		data += "\n" + info;
 		reportArea.setText(data);
+	}
+	
+	public void addErrorInfo(String error)
+	{
+		hasError = true;
+		spinner.setIcon(Util.getImageIcon("error.png"));
+		addInfo(error);
+	}
+	
+	public void finished()
+	{
+		if (!hasError)
+		{
+			spinner.setIcon(Util.getImageIcon("success.png"));
+		}
+		downloadText.setText("finished");
 	}
 
 	/**
