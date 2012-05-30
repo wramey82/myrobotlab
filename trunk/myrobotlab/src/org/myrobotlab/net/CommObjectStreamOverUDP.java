@@ -68,7 +68,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	 * (myService) to the endpoint
 	 */
 
-	public final static Logger LOG = Logger.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
 
 	boolean isRunning = false;
 
@@ -111,7 +111,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			String host = url.getHost();
 			int port = url.getPort();
 			
-			LOG.info("sending udp msg to " + host + ":" +port + "/" + msg.getName());
+			log.info("sending udp msg to " + host + ":" +port + "/" + msg.getName());
 
 			if (socket == null) {
 				socket = new DatagramSocket(); // here is a "random port"
@@ -132,10 +132,10 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				oos.flush();
 				byte[] b = b_out.toByteArray();
 
-				LOG.info("send " + msg.getParameterSignature());
+				log.info("send " + msg.getParameterSignature());
 
 				if (b.length > 65535) {
-					LOG.error("udp datagram can not exceed 65535 msg size is "
+					log.error("udp datagram can not exceed 65535 msg size is "
 							+ b.length + " !");
 				}
 
@@ -145,7 +145,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				oos.reset();
 
 			} catch (NotSerializableException e) {
-				LOG.error("could not serialize [" + e.getMessage() + "]");
+				log.error("could not serialize [" + e.getMessage() + "]");
 			}
 		}
 
@@ -171,7 +171,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						msg = (Message) o;
 
 						if (msg == null) {
-							LOG.error(myService.getName()
+							log.error(myService.getName()
 											+ " UDP Datagram corrupt from "
 											+ socket.getInetAddress() + ":"
 											+ socket.getPort()
@@ -203,7 +203,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				oos.close();
 
 			} catch (Exception e) {
-				LOG.error("UDPThread threw");
+				log.error("UDPThread threw");
 				isRunning = false;
 				socket = null;
 				Service.logException(e);
@@ -243,7 +243,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			phone.udp.send(url, msg);
 
 		} catch (ConfigurationManager.CFGError e) {
-			LOG.error("error could not find Service Entry in " + myService.getName()
+			log.error("error could not find Service Entry in " + myService.getName()
 					+ " for " + msg.getName() + "/" + msg.method);
 			return;
 		} catch (IOException e) {
@@ -258,7 +258,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	// listeners notified
 
 	public void addClient(Socket socket) {
-		LOG.info("adding tcp client ");
+		log.info("adding tcp client ");
 
 		InetSocketAddress remoteAddr = (InetSocketAddress) socket
 				.getRemoteSocketAddress();
@@ -284,12 +284,12 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			phone.udp = new UDPThread(s, address, port);
 
 			if (!clientList.containsKey(url))
-			{	LOG.debug("adding client " + url);
+			{	log.debug("adding client " + url);
 				clientList.put(url, phone);
 			}
 
 		} catch (MalformedURLException e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 			return;
 		}
 

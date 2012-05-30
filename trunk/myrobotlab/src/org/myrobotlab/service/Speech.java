@@ -69,7 +69,7 @@ public class Speech extends Service {
 	 */
 	
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Speech.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Speech.class.getCanonicalName());
 	
 	// TODO - seperate all of the var into appropriate parts - ie Global ATT Google FreeTTS
 	
@@ -94,7 +94,7 @@ public class Speech extends Service {
 	
 	public Speech(String n) {
 		super(n, Speech.class.getCanonicalName());
-		LOG.info("Using voice: " + voiceName);
+		log.info("Using voice: " + voiceName);
 		
 		googleLanguageMap.put("english", "en");
 		googleLanguageMap.put("danish", "da");
@@ -113,7 +113,7 @@ public class Speech extends Service {
 	@SuppressWarnings("unused")
 	public synchronized Boolean isSpeaking(Boolean b)
 	{
-		LOG.error("isSpeaking " + b);
+		log.error("isSpeaking " + b);
 		isSpeaking = b;
 		return isSpeaking;
 	}
@@ -133,7 +133,7 @@ public class Speech extends Service {
 		{
 			frontendType = FrontendType.MULTI;
 		} else {
-			LOG.error("type " + t + " not supported");
+			log.error("type " + t + " not supported");
 		}
 	}
 
@@ -154,20 +154,20 @@ public class Speech extends Service {
 		{
 			backendType = BackendType.GOOGLE;
 		} else {
-			LOG.error("type " + t + " not supported");
+			log.error("type " + t + " not supported");
 		}
 	}
 	
 	// get list of voices from back-end
 	public ArrayList<String> listAllVoices() {
-		LOG.info("All voices available:");
+		log.info("All voices available:");
 		ArrayList<String> voiceList = new ArrayList<String>();
 		if (backendType == BackendType.FREETTS)
 		{
 			VoiceManager voiceManager = VoiceManager.getInstance();
 			Voice[] voices = voiceManager.getVoices();
 			for (int i = 0; i < voices.length; i++) {
-				LOG.info("    " + voices[i].getName() + " ("
+				log.info("    " + voices[i].getName() + " ("
 						+ voices[i].getDomain() + " domain)");
 				voiceList.add(voices[i].getName());
 			}
@@ -183,7 +183,7 @@ public class Speech extends Service {
 			voiceList.add("audrey");
 			
 		} else {
-			LOG.error("voice backendType " + backendType + " not supported");
+			log.error("voice backendType " + backendType + " not supported");
 		}
 		
 		return voiceList;
@@ -223,14 +223,14 @@ public class Speech extends Service {
 		
 		if (backendType == BackendType.ATT) {
 			// in(createMessage(name, "speakATT", toSpeak));
-			LOG.error("no longer supported as per the deathstar's liscense agreement");
+			log.error("no longer supported as per the deathstar's liscense agreement");
 		} else if (backendType == BackendType.FREETTS) { // festival tts
 			// speakFreeTTS(toSpeak);
 			in(createMessage(getName(), "speakFreeTTS", toSpeak));
 		} else if (backendType == BackendType.GOOGLE) { // festival tts
 			in(createMessage(getName(), "speakGoogle", toSpeak));
 		} else {
-			LOG.error("back-end speech backendType " + backendType + " not supported ");
+			log.error("back-end speech backendType " + backendType + " not supported ");
 		}
 
 		return true;
@@ -248,7 +248,7 @@ public class Speech extends Service {
 		{
 			boolean success = (new File("audioFile/att/" + voiceName)).mkdirs();
 		    if (!success) {
-		      LOG.debug("could not create directory: audioFile/att/" + voiceName);
+		      log.debug("could not create directory: audioFile/att/" + voiceName);
 		    } else {
 		    	fileCacheInitialized = true;
 		    }
@@ -256,7 +256,7 @@ public class Speech extends Service {
 		
 		String audioFile = "audioFile/att/" + voiceName + "/" + toSpeak + ".wav";
 		File f = new File(audioFile);
-		LOG.info(f + (f.exists() ? " is found " : " is missing "));
+		log.info(f + (f.exists() ? " is found " : " is missing "));
 
 		if (!f.exists()) {
 			// if the wav file does not exist fetch it from att site
@@ -305,16 +305,16 @@ public class Speech extends Service {
 			VoiceManager voiceManager = VoiceManager.getInstance();
 			Voice[] possibleVoices = voiceManager.getVoices();
 			
-			LOG.error("possible voices");
+			log.error("possible voices");
 			for (int i = 0; i < possibleVoices.length; ++i)
 			{
-				LOG.error(possibleVoices[i].getName());				
+				log.error(possibleVoices[i].getName());				
 			}
 			voiceName = "kevin16";
 			myVoice = voiceManager.getVoice(voiceName);
 
 			if (myVoice == null) {
-				LOG.error("Cannot find a voice named " + voiceName
+				log.error("Cannot find a voice named " + voiceName
 						+ ".  Please specify a different voice.");
 			} else {
 				initialized = true;
@@ -324,10 +324,10 @@ public class Speech extends Service {
 		try {
 			// TODO - do pre-speak not here	if (!myVoice.isLoaded())
 			myVoice.allocate();
-		LOG.info("voice allocated");
+		log.info("voice allocated");
 		} catch (Exception e)
 		{
-			LOG.error(e);
+			log.error(e);
 		}
 
 		if (initialized) {
@@ -335,7 +335,7 @@ public class Speech extends Service {
 			myVoice.speak(toSpeak);
 			invoke("isSpeaking", false);
 		} else {
-			LOG.error("can not speak - uninitialized");
+			log.error("can not speak - uninitialized");
 		}
 		
 	}
@@ -364,7 +364,7 @@ public class Speech extends Service {
 		{
 			boolean success = (new File("audioFile/google/" + language + "/" + voiceName)).mkdirs();
 		    if (!success) {
-		      LOG.debug("could not create directory: audioFile/google/" + language + "/" + voiceName);
+		      log.debug("could not create directory: audioFile/google/" + language + "/" + voiceName);
 		    } else {
 		    	fileCacheInitialized = true;
 		    }
@@ -372,7 +372,7 @@ public class Speech extends Service {
 		
 		String audioFile = "audioFile/google/" + language + "/" + voiceName + "/" + toSpeak + ".mp3";
 		File f = new File(audioFile);
-		LOG.info(f + (f.exists() ? " is found " : " is missing "));
+		log.info(f + (f.exists() ? " is found " : " is missing "));
 
 		if (!f.exists()) {
 			// if the mp3 file does not exist fetch it from google
@@ -389,7 +389,7 @@ public class Speech extends Service {
 			
 			try {
 				URI uri = new URI ("http", null, "translate.google.com", 80, "/translate_tts", "tl="+language+"&q=" + toSpeak, null);
-				LOG.error(uri.toASCIIString());
+				log.error(uri.toASCIIString());
 				HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
 				
 				FileOutputStream fos = new FileOutputStream(audioFile);

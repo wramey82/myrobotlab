@@ -45,7 +45,7 @@ import org.myrobotlab.service.interfaces.GUI;
 //public class ServoWidget extends JPanel {
 public class ServoWidget extends ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(ServoWidget.class
+	public final static Logger log = Logger.getLogger(ServoWidget.class
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
@@ -109,7 +109,7 @@ public class ServoWidget extends ServiceGUI {
 						myService.send(boundServiceName, "moveTo", new Integer(
 								slider.getValue()));
 					} else {
-						LOG.error("can not send message myService is null");
+						log.error("can not send message myService is null");
 					}
 				}
 			});

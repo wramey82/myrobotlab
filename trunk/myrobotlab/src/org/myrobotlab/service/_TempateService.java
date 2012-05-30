@@ -8,7 +8,7 @@ public class _TempateService extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(_TempateService.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(_TempateService.class.getCanonicalName());
 
 	public _TempateService(String n) {
 		super(n, _TempateService.class.getCanonicalName());

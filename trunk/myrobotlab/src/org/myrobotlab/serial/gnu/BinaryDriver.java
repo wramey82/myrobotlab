@@ -34,7 +34,7 @@ import org.myrobotlab.serial.gnu.BinaryCommPort.LineDriver;
 
 public class BinaryDriver implements CommDriver {
 
-	public final static Logger LOG = Logger.getLogger(BinaryDriver.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(BinaryDriver.class.getCanonicalName());
 	private BinaryCommPort bcp;
 
 	public BinaryDriver(LineDriver ld) {
@@ -44,14 +44,14 @@ public class BinaryDriver implements CommDriver {
 
 	// @Override - only in Java 1.6
 	public CommPort getCommPort(String arg0, int arg1) {
-		LOG.info("getCommPort");
+		log.info("getCommPort");
 
 		return bcp;
 	}
 
 	// @Override - only in Java 1.6
 	public void initialize() {
-		LOG.info("BinaryDriver.initialize");
+		log.info("BinaryDriver.initialize");
 	}
 
 }

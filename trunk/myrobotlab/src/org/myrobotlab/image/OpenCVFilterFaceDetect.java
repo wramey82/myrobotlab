@@ -79,7 +79,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 
 	IplImage buffer = null;
@@ -159,7 +159,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 			
 			if (cascade == null) {
-				LOG.error("Could not load classifier cascade");
+				log.error("Could not load classifier cascade");
 				return img;
 			}
 		}

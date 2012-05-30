@@ -37,7 +37,7 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterOutput.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterOutput.class
 			.getCanonicalName());
 
 	// display related

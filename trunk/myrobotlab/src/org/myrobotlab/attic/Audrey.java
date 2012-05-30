@@ -47,7 +47,7 @@ import org.myrobotlab.service.OpenCV.Polygon;
 
 public class Audrey extends Service {
 
-	public final static Logger LOG = Logger.getLogger(Audrey.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Audrey.class.getCanonicalName());
 
 	//RemoteAdapter remote = new RemoteAdapter("remote");
 	//Servo servo = new Servo("servo");
@@ -141,7 +141,7 @@ public class Audrey extends Service {
 	public void foundYellowBlocks (ArrayList<Polygon> p)
 	{
 		// increment blocks
-		LOG.info(p);
+		log.info(p);
 	}	
 	// Override - 
 	//public void foundYellowBlocks()

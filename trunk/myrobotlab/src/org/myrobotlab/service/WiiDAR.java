@@ -38,7 +38,7 @@ import org.myrobotlab.service.data.PinData;
 public class WiiDAR extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(WiiDAR.class
+	public final static Logger log = Logger.getLogger(WiiDAR.class
 			.getCanonicalName());
 
 	// TODO - possibly initialize - must contend with gui as well as arduino wii
@@ -274,7 +274,7 @@ public class WiiDAR extends Service {
 	public PinData publishPin(PinData pd) {
 		++cnt;
 		lastEncoderData = pd;
-		//LOG.error("pin v " + pd.value + " " + cnt + " " + pd.time);
+		//log.error("pin v " + pd.value + " " + cnt + " " + pd.time);
 		return pd;
 	}
 
@@ -428,7 +428,7 @@ public class WiiDAR extends Service {
 							p.z = computeDepth(p.ir); // change to double?
 						}
 
-						// LOG.error(p.servoPos + " " + p.z);
+						// log.error(p.servoPos + " " + p.z);
 						points.add(p);
 						invoke("publishSinglePoint", new Point(p));
 					}

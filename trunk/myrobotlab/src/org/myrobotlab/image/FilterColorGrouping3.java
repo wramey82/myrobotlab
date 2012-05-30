@@ -63,7 +63,7 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 		super(service, name);
 	}
 
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(FilterColorGrouping3.class.getCanonicalName());
 
 	ConfigurationManager cfg;
@@ -184,16 +184,16 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 										// to blue
 
 				/*
-				 * if (lastColor != colorInt) { LOG.info("group size " +
+				 * if (lastColor != colorInt) { log.info("group size " +
 				 * groupList.size() + " @ (" + x + "," + y + ") color red " +
 				 * ((colorInt >> 16) & 0xFF) + " green " + ((colorInt >> 8) &
 				 * 0xFF) + " blue " + ((colorInt) & 0xFF)); for (int i = 0; i <
 				 * groupList.size(); ++i) { Group group = groupList.get(i);
-				 * LOG.info("number " + group.number); LOG.info("color red " +
+				 * log.info("number " + group.number); log.info("color red " +
 				 * ((group.intColor >> 16) & 0xFF) + " green " +
 				 * ((group.intColor >> 8) & 0xFF) + " blue " + ((group.intColor)
-				 * & 0xFF)); LOG.info("bounding box " + group.boundingBox);
-				 * LOG.info("points " +group.points.size()); }
+				 * & 0xFF)); log.info("bounding box " + group.boundingBox);
+				 * log.info("points " +group.points.size()); }
 				 * 
 				 * }
 				 */
@@ -448,14 +448,14 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 		} // y
 
 		Graphics2D g = output.createGraphics();
-		LOG.info(groupList.size());
+		log.info(groupList.size());
 		for (int i = 0; i < groupList.size(); ++i) {
 			Group group = groupList.get(i);
 			/*
-			 * LOG.info("number " + group.number); LOG.info("color red " +
+			 * log.info("number " + group.number); log.info("color red " +
 			 * ((group.intColor >> 16) & 0xFF) + " green " + ((group.intColor >>
 			 * 8) & 0xFF) + " blue " + ((group.intColor) & 0xFF));
-			 * LOG.info("bounding box " + group.boundingBox); LOG.info("points "
+			 * log.info("bounding box " + group.boundingBox); log.info("points "
 			 * +group.points.size());
 			 */
 			g.setColor(Color.yellow);

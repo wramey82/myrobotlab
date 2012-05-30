@@ -38,7 +38,7 @@ import org.myrobotlab.service.interfaces.SensorData;
 public class WiiBot extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(WiiBot.class
+	public final static Logger log = Logger.getLogger(WiiBot.class
 			.getCanonicalName());
 
 	Arduino arduino = null;
@@ -115,13 +115,13 @@ public class WiiBot extends Service {
 	// TODO - seperate left and right direction
 
 	public void keyPressed(Integer i) {
-		LOG.warn("keyPressed " + i);
+		log.warn("keyPressed " + i);
 		if (i == 38) // up arrow
 		{
 			speedRight += 10;
 			speedLeft += 10;
 
-			LOG.warn("up speed" + speedLeft + " " + speedRight);
+			log.warn("up speed" + speedLeft + " " + speedRight);
 
 			if (speedRight > 0 || speedLeft > 0) {
 				arduino.digitalWrite(13, 0);
@@ -131,7 +131,7 @@ public class WiiBot extends Service {
 			arduino.analogWrite(6, speedLeft);
 		} else if (i == 32) // space
 		{
-			LOG.warn("space" + speedLeft + " " + speedRight);
+			log.warn("space" + speedLeft + " " + speedRight);
 
 			speedRight = 0;
 			speedLeft = 0;
@@ -146,7 +146,7 @@ public class WiiBot extends Service {
 			speedRight -= 10;
 			speedLeft -= 10;
 
-			LOG.warn("down speed" + speedLeft + " " + speedRight);
+			log.warn("down speed" + speedLeft + " " + speedRight);
 
 			if (speedRight < 0 || speedLeft < 0) {
 				arduino.digitalWrite(13, 1);
@@ -159,7 +159,7 @@ public class WiiBot extends Service {
 		{
 			speedLeft += 10;
 
-			LOG.warn("right speed" + speedLeft + " " + speedRight);
+			log.warn("right speed" + speedLeft + " " + speedRight);
 
 			if (speedLeft > 0) {
 				arduino.digitalWrite(13, 0);
@@ -170,7 +170,7 @@ public class WiiBot extends Service {
 		{
 			speedRight += 10;
 
-			LOG.warn("left speed" + speedLeft + " " + speedRight);
+			log.warn("left speed" + speedLeft + " " + speedRight);
 
 			if (speedRight > 0) {
 				arduino.digitalWrite(13, 0);

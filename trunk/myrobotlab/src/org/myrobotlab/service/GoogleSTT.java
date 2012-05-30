@@ -66,7 +66,7 @@ import org.tritonus.share.sampled.FloatSampleBuffer;
 
 public class GoogleSTT extends Service {
 
-	public final static Logger LOG = Logger.getLogger(GoogleSTT.class
+	public final static Logger log = Logger.getLogger(GoogleSTT.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -126,12 +126,12 @@ public class GoogleSTT extends Service {
 	public void captureAudio() {
 		try {
 			audioFormat = getAudioFormat();
-			LOG.info("sample rate         " + sampleRate);
-			LOG.info("channels            " + channels);
-			LOG.info("sample size in bits " + sampleSizeInBits);
-			LOG.info("signed              " + signed);
-			LOG.info("bigEndian           " + bigEndian);
-			LOG.info("data rate is " + sampleRate * sampleSizeInBits / 8
+			log.info("sample rate         " + sampleRate);
+			log.info("channels            " + channels);
+			log.info("sample size in bits " + sampleSizeInBits);
+			log.info("signed              " + signed);
+			log.info("bigEndian           " + bigEndian);
+			log.info("data rate is " + sampleRate * sampleSizeInBits / 8
 					+ " bytes per second");
 			// create a data line with parameters
 			DataLine.Info dataLineInfo = new DataLine.Info(
@@ -150,7 +150,7 @@ public class GoogleSTT extends Service {
 			captureThread = new CaptureThread(this);
 			captureThread.start();
 		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 		}
 	}
 
@@ -197,14 +197,14 @@ public class GoogleSTT extends Service {
 							isListening.wait();
 						}
 					} catch (InterruptedException ex) {
-						LOG.debug("capture thread interrupted");
+						log.debug("capture thread interrupted");
 						return;
 					}
 				}
 
 				int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine.getFormat());
 				rawBytes = new byte[byteBufferSize];// TODO - create buffer here ?
-				LOG.info("starting capture with " + bufferSize
+				log.info("starting capture with " + bufferSize
 						+ " buffer size and " + byteBufferSize
 						+ " byte buffer length");
 				byteArrayOutputStream = new ByteArrayOutputStream();
@@ -222,7 +222,7 @@ public class GoogleSTT extends Service {
 
 						rms = level(buffer.getChannel(0)); // cheezy
 						if (rms > rmsThreshold) {
-							LOG.info("rms " + rms + " will begin recording ");
+							log.info("rms " + rms + " will begin recording ");
 							isCapturing = true;
 							captureStartTimeMS = System.currentTimeMillis();
 						}
@@ -254,7 +254,7 @@ public class GoogleSTT extends Service {
 					stopCapture = false;
 
 				} catch (Exception e) {
-					LOG.error(Service.stackToString(e));
+					log.error(Service.stackToString(e));
 				}
 
 			}// while (isRunning)

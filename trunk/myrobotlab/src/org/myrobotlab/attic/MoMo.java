@@ -50,7 +50,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 public class MoMo extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(MoMo.class
+	public final static Logger log = Logger.getLogger(MoMo.class
 			.getCanonicalName());
 
 	public final static int IR_PIN = 1;
@@ -234,7 +234,7 @@ public class MoMo extends Service {
 	}
 
 	public void findFloor(ColoredPoint[] points) {
-		LOG.info("here");
+		log.info("here");
 
 		if (points[0].getRed() != 128 && points[0].getGreen() != 0
 				&& points[0].getBlue() != 0) {
@@ -308,23 +308,23 @@ public class MoMo extends Service {
 		if (centerX > currentX) {
 			// left.incrementPower(-0.01f);
 			// right.incrementPower(0.01f);
-			LOG.error("correct Left");
+			log.error("correct Left");
 			left.move(-xPower);
 			right.move(xPower);
 		} else if (centerX < currentX) {
 			// left.incrementPower(0.01f);
 			// right.incrementPower(-0.01f);
-			LOG.error("correct Left");
+			log.error("correct Left");
 			left.move(xPower);
 			right.move(-xPower);
 
 		} else {
-			LOG.error("*****LOCKED*****");
+			log.error("*****LOCKED*****");
 			left.stop();
 			right.stop();
 		}
 		oldPoints = points;
-		//LOG.error("left " + left.getPower() + " right " + right.getPower());
+		//log.error("left " + left.getPower() + " right " + right.getPower());
 	}
 
 	public void watchForMovement() {
@@ -395,11 +395,11 @@ public class MoMo extends Service {
 	}
 
 	public void trackPoints(CvPoint2D32f[] points) {
-		LOG.error(points[0]);
+		log.error(points[0]);
 	}
 
 	public void samplePoints(CvPoint2D32f[] points) {
-		LOG.warn(points[0]);
+		log.warn(points[0]);
 	}
 
 	boolean beginSampled = false;
@@ -437,7 +437,7 @@ public class MoMo extends Service {
 					+ x0[i].x + ", " + x0[i].y + ", "
 					+ (30 - (x1[i].x - x0[i].x)) + "]\n";
 		}
-		LOG.error(ret);
+		log.error(ret);
 	}
 
 	public void keyCommand(String cmd) {
@@ -504,7 +504,7 @@ public class MoMo extends Service {
 
 		String ret = "\n";
 
-		LOG.error(points.size());
+		log.error(points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {
@@ -553,7 +553,7 @@ public class MoMo extends Service {
 					.speak("impact is eminant. automatic override in progress. dammit where are my wheels.");
 		}
 		// mouth.speak("hello");
-		// LOG.error("hello");
+		// log.error("hello");
 		// right.stopAndLock();
 		// left.stopAndLock();
 	}

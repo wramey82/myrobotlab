@@ -38,7 +38,7 @@ public class ServiceInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String ivyFileName = "ivychain.xml";
-	public final static Logger LOG = Logger.getLogger(ServiceInfo.class.toString());
+	public final static Logger log = Logger.getLogger(ServiceInfo.class.toString());
 
 	private ServiceData serviceData = new ServiceData();
 	private ServiceData serviceDataFromRepo = new ServiceData();
@@ -140,7 +140,7 @@ public class ServiceInfo implements Serializable {
 						version = "0";
 					// version = version.substring(0,version.indexOf("\r\n"));
 				}
-				LOG.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
+				log.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
 				Dependency d = new Dependency(org, module, version, false);
 
 				File componentsDir = new File(".ivy/" + org);
@@ -189,7 +189,7 @@ public class ServiceInfo implements Serializable {
 			if (cfg.exists()) {
 				serializer.read(o, cfg);
 			} else {
-				LOG.warn("cfg file " + filename + " does not exist");
+				log.warn("cfg file " + filename + " does not exist");
 			}
 		} catch (Exception e) {
 			Service.logException(e);
@@ -200,11 +200,11 @@ public class ServiceInfo implements Serializable {
 
 	public boolean hasUnfulfilledDependencies(String fullServiceName) {
 		boolean ret = false;
-		LOG.debug("inspecting " + fullServiceName + " for unfulfilled dependencies");
+		log.debug("inspecting " + fullServiceName + " for unfulfilled dependencies");
 
 		// no serviceInfo
 		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
-			LOG.error("need full service name ... got " + fullServiceName);
+			log.error("need full service name ... got " + fullServiceName);
 			return false;
 		}
 
@@ -213,16 +213,16 @@ public class ServiceInfo implements Serializable {
 			if (serviceData.thirdPartyLibs.containsKey(d.get(i))) {
 				Dependency dep = serviceData.thirdPartyLibs.get(d.get(i));
 				if (!dep.resolved) {
-					LOG.debug("hasUnfulfilledDependencies exit true");
+					log.debug("hasUnfulfilledDependencies exit true");
 					return true;
 				}
 			} else {
-				LOG.debug(d.get(i) + " can not be found in current thirdPartyLibs");
-				LOG.debug("hasUnfulfilledDependencies exit true");
+				log.debug(d.get(i) + " can not be found in current thirdPartyLibs");
+				log.debug("hasUnfulfilledDependencies exit true");
 				return true;
 			}
 		}
-		LOG.debug("hasUnfulfilledDependencies exit " + ret);
+		log.debug("hasUnfulfilledDependencies exit " + ret);
 		return ret;
 	}
 
@@ -321,13 +321,13 @@ public class ServiceInfo implements Serializable {
 	// TODO - interface to Ivy2 needs to be put into ServiceInfo
 	// resolve here "means" retrieve
 	public boolean resolve(String fullTypeName) {
-		LOG.debug("getDependencies " + fullTypeName);
+		log.debug("getDependencies " + fullTypeName);
 		boolean ret = true;
 		org.myrobotlab.service.Runtime runtime = org.myrobotlab.service.Runtime.getInstance();
 
 		File ivysettings = new File(ivyFileName);
 		if (!ivysettings.exists()) {
-			LOG.warn(ivyFileName + " does not exits - will not try to resolve dependencies");
+			log.warn(ivyFileName + " does not exits - will not try to resolve dependencies");
 			return false;
 		}
 
@@ -336,7 +336,7 @@ public class ServiceInfo implements Serializable {
 			ArrayList<String> d = getRequiredDependencies(fullTypeName);
 
 			if (d != null) {
-				LOG.info(fullTypeName + " found " + d.size() + " needed dependencies");
+				log.info(fullTypeName + " found " + d.size() + " needed dependencies");
 				for (int i = 0; i < d.size(); ++i) {
 					// java -jar libraries\jar\ivy.jar -cache .ivy -settings
 					// ivychain.xml -dependency org.myrobotlab myrobotlab
@@ -383,7 +383,7 @@ public class ServiceInfo implements Serializable {
 					}
 
 					// TODO - generate a valid Ivy xml file
-					LOG.info("Ivy2.run " + sb.toString());
+					log.info("Ivy2.run " + sb.toString());
 
 					CommandLineParser parser = Main.getParser();
 
@@ -399,11 +399,11 @@ public class ServiceInfo implements Serializable {
 
 					if (report.hasError()) {
 						ret = false;
-						LOG.error("Ivy resolve error");
+						log.error("Ivy resolve error");
 						List<String> l = report.getAllProblemMessages();
 						runtime.invoke("resolveError", l);
 						for (int j = 0; j < l.size(); ++j) {
-							LOG.error(l.get(j));
+							log.error(l.get(j));
 						}
 					} else {
 						runtime.invoke("resolveSuccess", module);
@@ -415,7 +415,7 @@ public class ServiceInfo implements Serializable {
 										artifact.getName() + ".zip";
 								FileIO.unzip(filename, "./");
 							}
-							LOG.info(artifacts[j]);
+							log.info(artifacts[j]);
 						}
 
 						// dep.resolved = true;
@@ -430,7 +430,7 @@ public class ServiceInfo implements Serializable {
 				}
 			} else {
 				if (d == null) {
-					LOG.info(fullTypeName + " returned no dependencies");
+					log.info(fullTypeName + " returned no dependencies");
 				}
 			}
 		} catch (Exception e) {
@@ -473,8 +473,8 @@ public class ServiceInfo implements Serializable {
 				String org = d.get(i);
 				/*
 				 * if (serviceData.thirdPartyLibs.containsKey(org)) {
-				 * LOG.info(org + " already in cache - skipping"); } else {
-				 * LOG.error(org + " required - will need to resolve"); }
+				 * log.info(org + " already in cache - skipping"); } else {
+				 * log.error(org + " required - will need to resolve"); }
 				 */
 				ret.add(org);
 			}
@@ -597,7 +597,7 @@ public class ServiceInfo implements Serializable {
 		ArrayList<Dependency> deps = new ArrayList<Dependency>();
 
 		if (fullServiceType.equals("org.myrobotlab.service.Arduino")) {
-			LOG.info("here");
+			log.info("here");
 		}
 
 		if (fromRepo != null) {
@@ -607,7 +607,7 @@ public class ServiceInfo implements Serializable {
 				Dependency repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
 
 				if (localDep == null || repoDep == null || localDep.version == null) {
-					LOG.info("null");
+					log.info("null");
 				}
 
 				if ((localDep == null) || // new dependency on repo
@@ -643,10 +643,10 @@ public class ServiceInfo implements Serializable {
 
 		// perform actions
 
-		LOG.info(info.getRepoLatestDependencies("org.myrobotlab"));
-		LOG.info(info.getRepoLatestDependencies("org.apache.log4j"));
-		LOG.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
-		LOG.info(info.getRepoLatestDependencies("org.apache.ivy"));
+		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
+		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
+		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
+		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
 
 		try {
 			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");

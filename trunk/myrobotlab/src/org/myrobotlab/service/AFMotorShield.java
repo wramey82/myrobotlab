@@ -42,7 +42,7 @@ public class AFMotorShield extends Service implements SerialService {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(AFMotorShield.class
+	public final static Logger log = Logger.getLogger(AFMotorShield.class
 			.getCanonicalName());
 
 	Port serial;
@@ -168,7 +168,7 @@ public class AFMotorShield extends Service implements SerialService {
 	
 	public void servoWrite(int servoNum, int angle) {
 
-		LOG.info("servoWrite (" + servoNum + "," + angle + ")");
+		log.info("servoWrite (" + servoNum + "," + angle + ")");
 
 		serial.serialSend(SERVO_WRITE, servoNum, angle);
 

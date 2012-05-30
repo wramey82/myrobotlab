@@ -11,7 +11,7 @@ public class ChumbyBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(ChumbyBot.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ChumbyBot.class.getCanonicalName());
 
 	OpenCV camera = new OpenCV("camera");
 	Servo servo = new Servo("pan");

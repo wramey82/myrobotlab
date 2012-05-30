@@ -49,7 +49,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SLAMGUI.class.toString());
+	public final static Logger log = Logger.getLogger(SLAMGUI.class.toString());
 
 	VideoWidget video = null;
 	Graphics g = null;

@@ -40,7 +40,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 @Root
 public abstract class OpenCVFilter implements Serializable{
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilter.class.toString());
+	public final static Logger log = Logger.getLogger(OpenCVFilter.class.toString());
 
 	private static final long serialVersionUID = 1L;
 	ConfigurationManager cfg = null; // TODO - remove
@@ -84,7 +84,7 @@ public abstract class OpenCVFilter implements Serializable{
 		{
 			return (IplImage)storage.get(name);
 		}
-		LOG.error("request for " + name + " IplImage in storage - not found");
+		log.error("request for " + name + " IplImage in storage - not found");
 		return null;
 	}
 

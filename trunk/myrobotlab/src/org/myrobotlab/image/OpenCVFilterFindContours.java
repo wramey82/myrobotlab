@@ -64,7 +64,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
 
 	// TODO - CONSIDER NOT Publishing OpenCV.Polygon but Publish CvSeq instead
 	
@@ -130,7 +130,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		// TODO static global class shared between filters ????
@@ -156,7 +156,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		// new cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 		// old cvFindContours(gray, cvStorage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
 
-		// LOG.error("getStructure");
+		// log.error("getStructure");
 		CvSeq contour = contourPointer;
 		int cnt = 0;
 
@@ -165,14 +165,14 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		while (contour != null && !contour.isNull()) {			
 			if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
 
-				// LOG.error("cvApproxPoly");
+				// log.error("cvApproxPoly");
 
 				// TODO - why not enabled?
 				// float area = cvContourArea( contour.getPointer(),
 				// CV_WHOLE_SEQ, 0);
 				// points.readField(INPUT_IMAGE_NAME);
 
-				// LOG.error("cvDrawContours");
+				// log.error("cvDrawContours");
 				// draw the polygon
 
 				// mark centeroid
@@ -261,7 +261,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		myService.invoke("publish", (Object) polygons);
 
 		cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
-		// LOG.error("x");
+		// log.error("x");
 		cvClearMemStorage(cvStorage);
 		return display;
 	}

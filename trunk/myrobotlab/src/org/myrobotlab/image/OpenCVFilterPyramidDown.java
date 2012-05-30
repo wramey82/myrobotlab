@@ -43,7 +43,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	BufferedImage frameBuffer = null;
@@ -109,7 +109,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 		
 

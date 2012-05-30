@@ -47,7 +47,7 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
 
 	IplImage buffer = null;

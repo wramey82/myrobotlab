@@ -44,7 +44,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(WiiGUI.class.toString());
+	public final static Logger log = Logger.getLogger(WiiGUI.class.toString());
 
 	VideoWidget video0 = null;
 	Graphics cam = null;

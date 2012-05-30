@@ -38,7 +38,7 @@ import org.myrobotlab.service.data.PinData;
 public class SensorMonitor extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SensorMonitor.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SensorMonitor.class.getCanonicalName());
 
 	public HashMap<String, PinAlert> alerts = new HashMap<String, PinAlert>();
 	public HashMap<String, PinAlert> alerts_nameIndex = new HashMap<String, PinAlert>();
@@ -57,7 +57,7 @@ public class SensorMonitor extends Service {
 	public final void addAlert(PinAlert alert) {
 		if (alert.pinData.source == null)
 		{
-			LOG.error("addAlert adding alert with no source controller - will be based on pin only ! " + alert.pinData.pin);
+			log.error("addAlert adding alert with no source controller - will be based on pin only ! " + alert.pinData.pin);
 		}
 		alerts.put(makeKey(alert.pinData), alert);
 		alerts_nameIndex.put(alert.name, alert);
@@ -77,7 +77,7 @@ public class SensorMonitor extends Service {
 		{
 			if (m.data.length != 1)
 			{
-				LOG.error("where's my data");
+				log.error("where's my data");
 				return false;
 			}
 			
@@ -152,7 +152,7 @@ public class SensorMonitor extends Service {
 		{
 			return lastValue.get(key).value;
 		}
-		LOG.error("getLastValue for pin " + key + " does not exist");
+		log.error("getLastValue for pin " + key + " does not exist");
 		return -1;
 	}
 	
@@ -163,7 +163,7 @@ public class SensorMonitor extends Service {
 			alerts.remove(name);
 			alerts_nameIndex.remove(name);
 		} else {
-			LOG.error("remoteAlert " + name + " not found");
+			log.error("remoteAlert " + name + " not found");
 		}
 		
 	}

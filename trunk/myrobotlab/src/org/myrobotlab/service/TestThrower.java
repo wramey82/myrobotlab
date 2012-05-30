@@ -33,7 +33,7 @@ import org.myrobotlab.framework.Service;
 public class TestThrower extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(TestThrower.class
+	public final static Logger log = Logger.getLogger(TestThrower.class
 			.getCanonicalName());
 	public int cnt = 0;
 	public int pulseLimit = 20;
@@ -59,7 +59,7 @@ public class TestThrower extends Service {
 	}
 
 	public Integer catchInteger(Integer count) {
-		LOG.info("***THROWER CATCH*** catchInteger " + count);
+		log.info("***THROWER CATCH*** catchInteger " + count);
 		synchronized (catchList) {
 			catchList.add(count);
 			catchList.notify();
@@ -68,29 +68,29 @@ public class TestThrower extends Service {
 	}
 
 	public void throwNothing() {
-		LOG.info("throwNothing");
+		log.info("throwNothing");
 	}
 
 	public Integer throwInteger(Integer count) {
-		LOG.info("throwInteger " + count);
+		log.info("throwInteger " + count);
 		return count;
 	}
 
 	public Integer highPitchInteger(Integer count) {
 		++pitchCnt;
-		LOG.info("highPitchInteger " + pitchCnt);
+		log.info("highPitchInteger " + pitchCnt);
 		return count;
 	}
 
 	public Integer lowPitchInteger(Integer count) {
 		++pitchCnt;
-		LOG.info("lowPitchInteger " + pitchCnt);
+		log.info("lowPitchInteger " + pitchCnt);
 		return count;
 	}
 
 	public Integer noPitchInteger(Integer count) {
 		++pitchCnt;
-		LOG.info("noPitchInteger null ");
+		log.info("noPitchInteger null ");
 		return 0;
 	}
 

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 public class MethodEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(ConfigurationManager.class.toString());
+	public final static Logger log = Logger.getLogger(ConfigurationManager.class.toString());
 
 	public String name;
 	public Class<?> returnType;
@@ -69,7 +69,7 @@ public class MethodEntry implements Serializable {
 				me.parameterTypes = new Class[params.length];
 				for (int i = 0; i < params.length; ++i)
 				{
-					//LOG.info(params[i]);
+					//log.info(params[i]);
 					String param = params[i];
 					if (StringToPrimitiveType.containsKey(param))
 					{
@@ -77,7 +77,7 @@ public class MethodEntry implements Serializable {
 					} else {
 						me.parameterTypes[i] = Class.forName(params[i]);
 					}
-					//LOG.info(c);
+					//log.info(c);
 				}
 			}
 			

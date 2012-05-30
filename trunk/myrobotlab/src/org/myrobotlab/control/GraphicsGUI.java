@@ -54,7 +54,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(GraphicsGUI.class.toString());
+	public final static Logger log = Logger.getLogger(GraphicsGUI.class.toString());
 
 	VideoWidget video = null;
 	BufferedImage graph = null;

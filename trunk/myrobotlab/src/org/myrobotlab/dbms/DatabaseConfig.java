@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 public class DatabaseConfig {
 	// @SuppressWarnings("serial")
-	private final static Logger LOG = Logger.getLogger(DatabaseConfig.class);
+	private final static Logger log = Logger.getLogger(DatabaseConfig.class);
 
 	public int ID;
 	public String URL_; // The full URL for the JDBC connection
@@ -113,9 +113,9 @@ public class DatabaseConfig {
 	};
 
 	public static String name() {
-		if (LOG.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			StringBuilder logString = new StringBuilder("DatabaseConfig.getName()()");
-			LOG.debug(logString);
+			log.debug(logString);
 		} // if
 
 		String ret = new String("DatabaseConfig");

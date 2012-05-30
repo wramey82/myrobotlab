@@ -25,7 +25,7 @@ public class Android extends Service implements SensorEventListener {
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	private Context context;
-	public final static Logger LOG = Logger.getLogger(Android.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Android.class.getCanonicalName());
 	
 
 	public Android(String n) {
@@ -56,7 +56,7 @@ public class Android extends Service implements SensorEventListener {
 	
 	public String registered (String n)
 	{
-		LOG.info("got registered event " + n);
+		log.info("got registered event " + n);
 		return n;
 	}
 	
@@ -132,7 +132,7 @@ public class Android extends Service implements SensorEventListener {
 				}
 				*/
 				color = !color;
-				LOG.info("color " + color);
+				log.info("color " + color);
 			}
 
 		}

@@ -41,7 +41,7 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterPyramidUp.class.getCanonicalName());
 
 	IplImage dst = null;
@@ -75,7 +75,7 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		if (dst == null) {

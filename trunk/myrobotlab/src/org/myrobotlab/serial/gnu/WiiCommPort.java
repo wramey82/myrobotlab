@@ -49,7 +49,7 @@ import org.myrobotlab.service.Wii;
 
 public class WiiCommPort extends SerialPort {
 
-	public final static Logger LOG = Logger.getLogger(WiiCommPort.class
+	public final static Logger log = Logger.getLogger(WiiCommPort.class
 			.getCanonicalName());
 
 	private Wii wii = null;
@@ -90,32 +90,32 @@ public class WiiCommPort extends SerialPort {
 	public void addEventListener(SerialPortEventListener arg0)
 			throws TooManyListenersException {
 		// TODO Auto-generated method stub
-		LOG.info("addEventListener");
+		log.info("addEventListener");
 	}
 
 	@Override
 	public int getBaudBase() throws UnsupportedCommOperationException,
 			IOException {
-		LOG.info("getBaudBase");
+		log.info("getBaudBase");
 		// TODO ????????
 		return 9600;
 	}
 
 	@Override
 	public int getBaudRate() {
-		LOG.info("getBaudRate");
+		log.info("getBaudRate");
 		return 9600;
 	}
 
 	@Override
 	public boolean getCallOutHangup() throws UnsupportedCommOperationException {
-		LOG.info("getCallOutHangup");
+		log.info("getCallOutHangup");
 		return false;
 	}
 
 	@Override
 	public int getDataBits() {
-		LOG.info("getDataBits");
+		log.info("getDataBits");
 		return SerialPort.DATABITS_8;
 	}
 

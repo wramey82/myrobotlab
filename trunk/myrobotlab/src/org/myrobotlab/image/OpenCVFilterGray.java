@@ -43,7 +43,7 @@ public class OpenCVFilterGray extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterGray.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterGray.class.getCanonicalName());
 
 	IplImage gray = null;
 	IplImage color = null;

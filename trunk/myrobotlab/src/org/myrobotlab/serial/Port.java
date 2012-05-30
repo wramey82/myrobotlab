@@ -22,7 +22,7 @@ import org.simpleframework.xml.Element;
 
 public class Port implements SerialPortEventListener {
 
-	public final static Logger LOG = Logger.getLogger(Port.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Port.class.getCanonicalName());
 	
 	protected Service myService = null;
 
@@ -91,7 +91,7 @@ public class Port implements SerialPortEventListener {
 		cfgFileName = myService.getName() + ".serial.xml";
 		if (!myService.load(this, cfgFileName))
 		{
-			LOG.info("no " + cfgFileName + " configuration for port");
+			log.info("no " + cfgFileName + " configuration for port");
 		}
 		
 		
@@ -100,23 +100,23 @@ public class Port implements SerialPortEventListener {
 		
 		// if there is only 1 port - attempt to initialize it
 		portNames = getPorts();
-		LOG.info("number of ports " + portNames.size());
+		log.info("number of ports " + portNames.size());
 		for (int j = 0; j < portNames.size(); ++j) {
-			LOG.info(portNames.get(j));
+			log.info(portNames.get(j));
 		}
 
 		if (portNames.size() == 1) { // heavy handed?
-			LOG.info("only one serial port " + portNames.get(0));
+			log.info("only one serial port " + portNames.get(0));
 			setPort(portNames.get(0));
 		} else if (portNames.size() > 1) {
 			if (portName != null && portName.length() > 0) {
-				LOG.info("more than one port - last serial port is "
+				log.info("more than one port - last serial port is "
 						+ portName);
 				setPort(portName);
 			} else {
 				// idea - auto discovery attempting to auto-load arduinoSerial.pde
-				LOG.warn("more than one port or no ports, and last serial port not set");
-				LOG.warn("need user input to select from " + portNames.size()
+				log.warn("more than one port or no ports, and last serial port not set");
+				log.warn("need user input to select from " + portNames.size()
 						+ " possibilities ");
 			}
 		}
@@ -151,7 +151,7 @@ public class Port implements SerialPortEventListener {
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
 			String inPortName = portId.getName();
-			LOG.info(inPortName);
+			log.info(inPortName);
 			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
 				ports.add(inPortName);
 			}
@@ -200,21 +200,21 @@ public class Port implements SerialPortEventListener {
 	 * by uucp:uucp
 	 */
 	public synchronized void serialSend(int function, int param1, int param2) {
-		LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 "
+		log.info("serialSend fn " + function + " p1 " + param1 + " p2 "
 				+ param2);
 		try {
 			outputStream.write(function);
 			outputStream.write(param1);
 			outputStream.write(param2); // 0 - 180
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 
 	}
 
 	@ToolTip("sends an array of data to the serial port which an Port is attached to")
 	public void serialSend(String data) {
-		LOG.error("serialSend [" + data + "]");
+		log.error("serialSend [" + data + "]");
 		serialSend(data.getBytes());
 	}
 
@@ -237,24 +237,24 @@ public class Port implements SerialPortEventListener {
 		try {			
 			outputStream.write((byte)data);
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 	}
 	
 	
 	public synchronized void serialSend(int[] data) {
 		try {
-			if (LOG.isDebugEnabled())
+			if (log.isDebugEnabled())
 			{
 				for (int i = 0; i < data.length; ++i) {
-					LOG.debug(data[i]);
+					log.debug(data[i]);
 				}
 			}
 			for (int i = 0; i < data.length; ++i) {
 				outputStream.write((byte)data[i]);
 			}
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 	}
 	
@@ -264,7 +264,7 @@ public class Port implements SerialPortEventListener {
 				outputStream.write(data[i]);
 			}
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 	}
 
@@ -281,7 +281,7 @@ public class Port implements SerialPortEventListener {
 	  }
 	  	
 	public void releaseSerialPort() {
-		LOG.debug("releaseSerialPort");
+		log.debug("releaseSerialPort");
 	    try {
 	        // do io streams need to be closed first?
 	        if (inputStream != null) inputStream.close();
@@ -308,10 +308,10 @@ public class Port implements SerialPortEventListener {
 	      
 	      if (serialPort != null)
 	      {
-	    	  LOG.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
+	    	  log.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
 	    	  serialPort.removeEventListener();
 	    	  serialPort.close();
-	    	  LOG.error("WARNING - Hurray! successfully closed Yay!");
+	    	  log.error("WARNING - Hurray! successfully closed Yay!");
 	      }
 	      
 	      try {
@@ -322,7 +322,7 @@ public class Port implements SerialPortEventListener {
 	        e.printStackTrace();
 	      }
 
-	    LOG.info("released port");
+	    log.info("released port");
 	}
 
 	/**
@@ -347,7 +347,7 @@ public class Port implements SerialPortEventListener {
 		stopBits = inStopBits;
 		parity = inParity;
 		
-		LOG.debug("setPort requesting [" + inPortName + "]");
+		log.debug("setPort requesting [" + inPortName + "]");
 
 		if (serialPort != null) 
 		{
@@ -356,7 +356,7 @@ public class Port implements SerialPortEventListener {
 		
 		if (inPortName == null || inPortName.length() == 0)
 		{
-			LOG.info("setting serial to nothing");
+			log.info("setting serial to nothing");
 			return true;
 		}
 
@@ -377,11 +377,11 @@ public class Port implements SerialPortEventListener {
 			while (portList.hasMoreElements()) {
 				portId = (CommPortIdentifier) portList.nextElement();
 
-				LOG.debug("checking port " + portId.getName());
+				log.debug("checking port " + portId.getName());
 				if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-					LOG.debug("is serial");
+					log.debug("is serial");
 					if (portId.getName().equals(inPortName)) {
-						LOG.debug("matches " + inPortName);
+						log.debug("matches " + inPortName);
 						// System.out.println("looking for "+iname);
 						serialPort = (SerialPort) portId.open("robot overlords", 2000);
 						inputStream = serialPort.getInputStream();
@@ -408,7 +408,7 @@ public class Port implements SerialPortEventListener {
 						// portName = serialPort.getName(); BUG - serialPort.getName != the name which is requested
 						// Windows you ask for "COM1" but when you ask for it back you get "/.//COM1"
 						portName = inPortName;
-						LOG.debug("opened " + getPortString());
+						log.debug("opened " + getPortString());
 						myService.save(this, cfgFileName); // successfully bound to port - saving
 						//broadcastState(); // state has changed let everyone know
 						break;
@@ -421,11 +421,11 @@ public class Port implements SerialPortEventListener {
 		}
 
 		if (serialPort == null) {
-			LOG.error(inPortName + " serialPort is null - bad init?");
+			log.error(inPortName + " serialPort is null - bad init?");
 			return false;
 		}
 
-		LOG.info(inPortName + " ready");
+		log.info(inPortName + " ready");
 		return true;
 	}
 
@@ -452,7 +452,7 @@ public class Port implements SerialPortEventListener {
 	{
 		if (serialPort == null)
 		{
-			LOG.error("setBaudBase - serialPort is null");
+			log.error("setBaudBase - serialPort is null");
 			return false;
 		}
 		try {
@@ -477,7 +477,7 @@ public class Port implements SerialPortEventListener {
 	{
 		if (serialPort == null)
 		{
-			LOG.error("setSerialPortParams - serialPort is null");
+			log.error("setSerialPortParams - serialPort is null");
 			return false;
 		}
 		
@@ -559,7 +559,7 @@ public class Port implements SerialPortEventListener {
 					++numBytes;
 					// totalBytes += numBytes;
 
-					// LOG.info("read " + numBytes + " target msg length " +
+					// log.info("read " + numBytes + " target msg length " +
 					// rawReadMsgLength);
 
 					if (numBytes == rawReadMsgLength) {
@@ -568,13 +568,13 @@ public class Port implements SerialPortEventListener {
 						 * (int i = 0; i < rawReadMsgLength; ++i) {
 						 * b.append(msg[i] + " "); }
 						 * 
-						 * LOG.error("msg" + b.toString());
+						 * log.error("msg" + b.toString());
 						 */
 						totalBytes += numBytes;
 
 						// raw protocol
 						String s = new String(msg);
-						LOG.info(s);
+						log.info(s);
 						myService.invoke("readSerial", msg);
 						//myService.invoke("readSerialMessage", s);
 

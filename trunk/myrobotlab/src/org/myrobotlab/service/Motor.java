@@ -56,7 +56,7 @@ public class Motor extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Motor.class.toString());
+	public final static Logger log = Logger.getLogger(Motor.class.toString());
 
 	boolean isAttached = false;
 	
@@ -138,7 +138,7 @@ public class Motor extends Service {
 	public void incrementPower(float increment) {
 		if (power + increment > maxPower || power + increment < -maxPower) 
 		{
-			LOG.error("power " + power + " out of bounds with increment "+ increment);
+			log.error("power " + power + " out of bounds with increment "+ increment);
 			return;
 		}
 		power += increment;
@@ -155,8 +155,8 @@ public class Motor extends Service {
 			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD); 
 		}
 
-		//LOG.error("direction " + ((newPowerLevel > 0) ? "FORWARD" : "BACKWARD"));
-		LOG.error(getName() + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
+		//log.error("direction " + ((newPowerLevel > 0) ? "FORWARD" : "BACKWARD"));
+		log.error(getName() + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
 		// FIXME - MotorController needs a "scalePWM" which takes a float - the controller
 		// then maps it to what would be appropriate - in Arduino 0-255 - remove "powerMultiplier"
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (newPowerLevel * powerMultiplier)));
@@ -168,7 +168,7 @@ public class Motor extends Service {
 	public void setMaxPower(float max) {
 		if (maxPower > 1 || maxPower < 0)
 		{
-			LOG.error("max power must be between 0.0 and 0.1");
+			log.error("max power must be between 0.0 and 0.1");
 			return;
 		}
 		maxPower = max;
@@ -181,17 +181,17 @@ public class Motor extends Service {
 	}
 
 	public void unLock() {
-		LOG.info("unLock");
+		log.info("unLock");
 		locked = false;
 	}
 
 	public void lock() {
-		LOG.info("lock");
+		log.info("lock");
 		locked = true;
 	}
 
 	public void stopAndLock() {
-		LOG.info("stopAndLock");
+		log.info("stopAndLock");
 		move(0);
 		lock();
 	}
@@ -233,7 +233,7 @@ public class Motor extends Service {
 						inMotion = false;
 						
 					} catch (InterruptedException e) {
-						LOG.warn("duration thread interrupted");
+						log.warn("duration thread interrupted");
 					}
 				}
 			}
@@ -260,7 +260,7 @@ public class Motor extends Service {
 			} else {
 				if (inMotion)
 				{
-					LOG.error("duration is busy with another move" + durationThread.duration);
+					log.error("duration is busy with another move" + durationThread.duration);
 				} else {
 				 	synchronized (lock) {
 						durationThread.power = power;
@@ -466,7 +466,7 @@ int encoderPin = 0; // TODO - put in Encoder class
 		
 		if (power > maxPower || power < -maxPower) 
 		{
-			LOG.error(power + " power out of bounds - max power is "+ maxPower);
+			log.error(power + " power out of bounds - max power is "+ maxPower);
 			return;
 		}
 		

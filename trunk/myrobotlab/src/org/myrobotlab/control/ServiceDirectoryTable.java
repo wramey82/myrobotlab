@@ -42,7 +42,7 @@ import org.myrobotlab.framework.ConfigurationManager;
 public class ServiceDirectoryTable extends JPanel {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(ServiceDirectoryTable.class.getCanonicalName()); // @jve:decl-index=0:
 	JTable serviceTable = null;
 	JButton refresh = null;

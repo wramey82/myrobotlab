@@ -49,7 +49,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(IPCameraGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(IPCameraGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	VideoWidget video0;
@@ -70,7 +70,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 	public class DirectionEventListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-			LOG.info(ae);
+			log.info(ae);
 			if ("n".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
 			} else if ("ne".equals(ae.getActionCommand())) {
@@ -193,11 +193,11 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
-			// LOG.error("Released" + keyEvent);
+			// log.error("Released" + keyEvent);
 		}
 
 		public void keyTyped(KeyEvent keyEvent) {
-			// LOG.error("Typed" + keyEvent);
+			// log.error("Typed" + keyEvent);
 		}
 
 	};

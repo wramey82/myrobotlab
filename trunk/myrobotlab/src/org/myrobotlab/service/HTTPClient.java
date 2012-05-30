@@ -49,7 +49,7 @@ import org.myrobotlab.framework.Service;
  */
 public class HTTPClient extends Service {
 
-	public final static Logger LOG = Logger.getLogger(HTTPClient.class
+	public final static Logger log = Logger.getLogger(HTTPClient.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -143,8 +143,8 @@ public class HTTPClient extends Service {
 			Cookie[] cookies = data.client.getState().getCookies();
 			for (int i = 0; i < cookies.length; ++i)
 			{
-				LOG.info(cookies[i].toExternalForm());
-				LOG.info(cookies[i].getValue());
+				log.info(cookies[i].toExternalForm());
+				log.info(cookies[i].getValue());
 			}
 						
 			//p.execute(data.client.getState(), data.client.getHttpConnectionManager().get)
@@ -203,7 +203,7 @@ public class HTTPClient extends Service {
 			data.statusCode = data.client.executeMethod(g);
 			
 			if (data.statusCode != HttpStatus.SC_OK) {
-				LOG.error("Method failed: " + g.getStatusLine());
+				log.error("Method failed: " + g.getStatusLine());
 			}
 
 		} catch (HttpException e) {
@@ -306,7 +306,7 @@ public class HTTPClient extends Service {
 
 		//HTTPClient http = (HTTPClient)Runtime.create ("http", (Class<?>)HTTPClient.class);
 		HTTPData data = HTTPClient.get("http://localhost/");		
-		LOG.info(data);
+		log.info(data);
 	}
 	
 	

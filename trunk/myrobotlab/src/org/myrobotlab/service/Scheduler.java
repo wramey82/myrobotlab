@@ -46,7 +46,7 @@ public class Scheduler extends Service {
 
 	org.quartz.Scheduler scheduler = null;
 
-	public final static Logger LOG = Logger.getLogger(Scheduler.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Scheduler.class.getCanonicalName());
 	
 	String group = "group1";
 
@@ -86,7 +86,7 @@ public class Scheduler extends Service {
 					.usingJobData(jdm)
 					.build(); // default group
 
-			LOG.info("------- Initialization Complete -----------");
+			log.info("------- Initialization Complete -----------");
 
 			// computer a time that is on the next round minute
 			
@@ -193,7 +193,7 @@ public class Scheduler extends Service {
 			GroupMatcher<TriggerKey> groupMatcher = GroupMatcher.groupEquals(group);
 			Set<TriggerKey> keys = scheduler.getTriggerKeys(groupMatcher);
 			for (TriggerKey key : keys) {
-				LOG.info("Removing trigger: " + key);
+				log.info("Removing trigger: " + key);
 			}
 			return keys;
 		} catch (SchedulerException e) {
@@ -297,12 +297,12 @@ public class Scheduler extends Service {
 		sched.startScheduler();
 		sched.scheduleSimpleJob(jobName, triggerName, "0/10 * * * * ?");
 		
-		LOG.info(sched.getJobDetail("hello"));
+		log.info(sched.getJobDetail("hello"));
 		
 		List<String> groups = sched.getJobGroupNames();
 		for (int i = 0; i < groups.size(); ++i)
 		{
-			LOG.info(groups.get(i));
+			log.info(groups.get(i));
 		}
 		
 		Hashtable env = new Hashtable();
@@ -317,7 +317,7 @@ public class Scheduler extends Service {
 		}
 		
 		List<TriggerKey> triggersInGroup = sched.getAllTriggerKeys();
-		LOG.info(triggersInGroup.size());
+		log.info(triggersInGroup.size());
 		
 		//sched.stopScheduler();
 		//sched.stopService();

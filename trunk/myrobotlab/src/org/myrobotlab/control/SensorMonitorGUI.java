@@ -74,7 +74,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SensorMonitorGUI.class.toString());
+	public final static Logger log = Logger.getLogger(SensorMonitorGUI.class.toString());
 
 	JList traces;
 	JList alerts;

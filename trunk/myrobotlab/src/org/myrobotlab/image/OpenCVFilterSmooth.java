@@ -42,7 +42,7 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterSmooth.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterSmooth.class
 			.getCanonicalName());
 
 	IplImage buffer = null;

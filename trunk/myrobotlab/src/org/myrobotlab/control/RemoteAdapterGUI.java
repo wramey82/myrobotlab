@@ -77,7 +77,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	public void updateNodeList()
 	{
 		HashMap<URL, ServiceEnvironment> services = Runtime.getServiceEnvironments();
-		LOG.info("service count " + Runtime.getRegistry().size());
+		log.info("service count " + Runtime.getRegistry().size());
 				
 		Iterator<URL> it = services.keySet().iterator();
 		

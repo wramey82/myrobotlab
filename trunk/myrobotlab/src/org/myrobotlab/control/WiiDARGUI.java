@@ -53,7 +53,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(WiiDARGUI.class.toString());
+	public final static Logger log = Logger.getLogger(WiiDARGUI.class.toString());
 
 	VideoWidget screen = null;
 
@@ -284,7 +284,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 			screen.displayFrame(graphImage);
 
 		} else {
-			LOG.error("points null");
+			log.error("points null");
 		}
 
 	}

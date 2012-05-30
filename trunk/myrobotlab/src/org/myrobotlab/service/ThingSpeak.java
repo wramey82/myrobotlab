@@ -8,7 +8,7 @@ public class ThingSpeak extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(ThingSpeak.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ThingSpeak.class.getCanonicalName());
 
 	public ThingSpeak(String n) {
 		super(n, ThingSpeak.class.getCanonicalName());

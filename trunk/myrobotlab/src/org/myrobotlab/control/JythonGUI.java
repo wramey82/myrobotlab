@@ -79,7 +79,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			LOG.debug("EditorActionListener.actionPerformed " + arg0);
+			log.debug("EditorActionListener.actionPerformed " + arg0);
 			JMenuItem m = (JMenuItem) arg0.getSource();
 			if (m.getText().equals("save")) {
 				save();

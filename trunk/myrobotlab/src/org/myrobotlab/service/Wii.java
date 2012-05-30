@@ -59,7 +59,7 @@ public class Wii extends Service implements WiimoteListener,
 	SerialPortEventListener, LineDriver {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Wii.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Wii.class.getCanonicalName());
 
 	Wiimote[] wiimotes = null;
 	Wiimote wiimote = null;
@@ -90,7 +90,7 @@ public class Wii extends Service implements WiimoteListener,
 
 	// TODO - support shutdown()
 	public void onButtonsEvent(WiimoteButtonsEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 		// if (arg0.isButtonAPressed()){
 		// WiiUseApiManager.shutdown();
 		// }
@@ -114,28 +114,28 @@ public class Wii extends Service implements WiimoteListener,
 
 	// button publishing/event hooks begin -------
 	public void onButtonDownJustPressed() {
-		LOG.info("buttonDownJustPressed");
+		log.info("buttonDownJustPressed");
 	}
 
 	public void onButtonUpJustPressed() {
-		LOG.info("onButtonUpJustPressed");
+		log.info("onButtonUpJustPressed");
 	}
 
 	public void onButtonLeftJustPressed() {
-		LOG.info("onButtonLeftJustPressed");
+		log.info("onButtonLeftJustPressed");
 	}
 
 	public void onButtonRightJustPressed() {
-		LOG.info("onButtonRightJustPressed");
+		log.info("onButtonRightJustPressed");
 	}
 
 	// button publishing/event hooks end -------
 
 	public void onIrEvent(IREvent arg0) {
-		// LOG.debug(arg0);
+		// log.debug(arg0);
 		++cnt;
 		if (cnt % 100 == 0) {
-			LOG.error(cnt);
+			log.error(cnt);
 		}
 		IRData ir = new IRData(System.currentTimeMillis(), arg0);
 		// t.add(ir);
@@ -147,27 +147,27 @@ public class Wii extends Service implements WiimoteListener,
 	}
 
 	public void onMotionSensingEvent(MotionSensingEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public void onExpansionEvent(ExpansionEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public void onStatusEvent(StatusEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public void onDisconnectionEvent(DisconnectionEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public void onNunchukInsertedEvent(NunchukInsertedEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public void onNunchukRemovedEvent(NunchukRemovedEvent arg0) {
-		LOG.debug(arg0);
+		log.debug(arg0);
 	}
 
 	public Wiimote[] getWiimotes() {
@@ -252,8 +252,8 @@ public class Wii extends Service implements WiimoteListener,
 		// synced
 
 		if (wiimote == null) {
-			LOG.error("wii is not connected - can not initialize");
-			LOG
+			log.error("wii is not connected - can not initialize");
+			log
 					.error("please press the (1) & (2) buttons of the wii - and re-run program while lights are flashing");
 			return false;
 		}
@@ -286,7 +286,7 @@ public class Wii extends Service implements WiimoteListener,
 
 			serialInitialized = true;
 		} else {
-			LOG.warn("wii serial already initialized");
+			log.warn("wii serial already initialized");
 		}
 
 		return true;
@@ -354,7 +354,7 @@ public class Wii extends Service implements WiimoteListener,
 	@Override
 	public void serialEvent(SerialPortEvent arg0) {
 		// TODO Auto-generated method stub
-		LOG.info("serialEvent - YAY!");
+		log.info("serialEvent - YAY!");
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import org.myrobotlab.serial.SerialDeviceIdentifier;
 
 public class SerialDeviceIdentifierGNU  implements SerialDeviceIdentifier {
 
-	public final static Logger LOG = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
 	private CommPortIdentifier commPort;
 	
 
@@ -33,7 +33,7 @@ public class SerialDeviceIdentifierGNU  implements SerialDeviceIdentifier {
 		while (portList.hasMoreElements()) {
 			portId = (CommPortIdentifier) portList.nextElement();
 			String inPortName = portId.getName();
-			LOG.info(inPortName);
+			log.info(inPortName);
 			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
 				ret.add(new SerialDeviceIdentifierGNU(portId));
 			}

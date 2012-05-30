@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 public class IOData implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(IOData.class);
+	public final static Logger log = Logger.getLogger(IOData.class);
 
 	public int address;
 	public int value;

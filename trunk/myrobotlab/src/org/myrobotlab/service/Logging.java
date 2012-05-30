@@ -33,7 +33,7 @@ import org.myrobotlab.framework.Service;
 public class Logging extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Logging.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Logging.class.getCanonicalName());
 	
 	/*
 	 * TODO - allow options to record and playback message log - serialize to disk etc
@@ -53,7 +53,7 @@ public class Logging extends Service {
 	
 	public Message log (Message m)
 	{
-		LOG.info("log message from " + m.sender + "." + m.data); // TODO - remove for debug only
+		log.info("log message from " + m.sender + "." + m.data); // TODO - remove for debug only
 		return m;
 	}
 	

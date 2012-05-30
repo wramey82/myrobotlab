@@ -44,7 +44,7 @@ import org.myrobotlab.framework.Service;
  */
 public class GP extends Observable implements Runnable {
 
-	public final static Logger LOG = Logger.getLogger(GP.class
+	public final static Logger log = Logger.getLogger(GP.class
 			.getCanonicalName());
 
 	public Number populationSize;
@@ -170,7 +170,7 @@ public class GP extends Observable implements Runnable {
 		thread.setPriority(Thread.NORM_PRIORITY - 1);
 		thread.start();
 		state = STARTED;
-		LOG.info("STARTED");
+		log.info("STARTED");
 		notifyObservers(new GPMessageStateChanged(state, ""));
 	}
 
@@ -180,7 +180,7 @@ public class GP extends Observable implements Runnable {
 	public synchronized void suspend() {
 		if (thread != null && thread.isAlive()) {
 			state = SUSPENDED;
-			LOG.info("SUSPENDED");
+			log.info("SUSPENDED");
 			notifyObservers(new GPMessageStateChanged(state, ""));
 			thread.suspend();
 		}
@@ -193,7 +193,7 @@ public class GP extends Observable implements Runnable {
 		if (thread != null && thread.isAlive()) {
 			thread.resume();
 			state = RESUMED;
-			LOG.info("RESUMED");
+			log.info("RESUMED");
 			notifyObservers(new GPMessageStateChanged(state, ""));
 		}
 	}
@@ -207,7 +207,7 @@ public class GP extends Observable implements Runnable {
 		// never be executed.
 		if (thread != null && thread.isAlive()) {
 			state = STOPPED;
-			LOG.info("STOPPED");
+			log.info("STOPPED");
 			notifyObservers(new GPMessageStateChanged(state, ""));
 			thread.stop();
 		}
@@ -219,7 +219,7 @@ public class GP extends Observable implements Runnable {
 	 * GP algorithm crashes unexpectedly.
 	 */
 	public synchronized void crash() {
-		LOG.info("CRASH " + currentGeneration);
+		log.info("CRASH " + currentGeneration);
 		if (thread != null && thread.isAlive()) {
 			state = STOPPED;
 			notifyObservers(new GPMessageStateChanged(state,
@@ -253,7 +253,7 @@ public class GP extends Observable implements Runnable {
 	 * and stop() methods to pause the GP while its applet is not visible.
 	 */
 	public synchronized void freeze() {
-		LOG.info("FREEZE " + currentGeneration);
+		log.info("FREEZE " + currentGeneration);
 		oldState = getState();
 		if (thread != null && thread.isAlive()
 				&& (oldState == STARTED || oldState == RESUMED)) { // i.e.
@@ -270,7 +270,7 @@ public class GP extends Observable implements Runnable {
 	 * and stop() methods to pause the GP while its applet is not visible.
 	 */
 	public synchronized void thaw() {
-		LOG.info("THAW " + currentGeneration);
+		log.info("THAW " + currentGeneration);
 		if (thread != null && thread.isAlive()
 				&& (oldState == STARTED || oldState == RESUMED)) {
 			thread.resume();
@@ -282,7 +282,7 @@ public class GP extends Observable implements Runnable {
 	 */
 	Terminal chooseFromTerminalSet() {
 		Terminal choice;
-		LOG.info("chooseFromTerminalSet " + currentGeneration);
+		log.info("chooseFromTerminalSet " + currentGeneration);
 		try {
 			int index = random.nextInt(terminalSet.countSelections());
 			Class cls = ((ProgramChoice) terminalSet.getSelectedItem(index))
@@ -299,7 +299,7 @@ public class GP extends Observable implements Runnable {
 	 */
 	void createArgumentsForFunction(Function function, int allowableDepth,
 			boolean fullP) {
-		LOG.info("createArgumentsForFunction " + currentGeneration);
+		log.info("createArgumentsForFunction " + currentGeneration);
 
 		for (int i = 0; i < function.arg.length; i++) {
 			function.arg[i] = createIndividualProgram(allowableDepth, false,
@@ -328,7 +328,7 @@ public class GP extends Observable implements Runnable {
 		int choice;
 		Function function;
 
-		// LOG.warn("createIndividualProgram " + currentGeneration);
+		// log.warn("createIndividualProgram " + currentGeneration);
 
 		if (allowableDepth <= 0) {
 			// We've reached maxdepth, so just pack a terminal.
@@ -346,7 +346,7 @@ public class GP extends Observable implements Runnable {
 					function = (Function) mc.newInstance(myService);
 
 				} catch (Exception e) {
-					LOG.error(e);
+					log.error(e);
 					function = null;
 				}
 				createArgumentsForFunction(function, allowableDepth - 1, fullP);
@@ -391,7 +391,7 @@ public class GP extends Observable implements Runnable {
 	 */
 	void createPopulation() {
 
-		LOG.warn("createPopulation " + currentGeneration);
+		log.warn("createPopulation " + currentGeneration);
 
 		int allowableDepth;
 		boolean fullP;
@@ -529,7 +529,7 @@ public class GP extends Observable implements Runnable {
 		// Make sure that the new individuals aren't too big.
 		validateCrossover(male, female, offspring);
 
-		// LOG.warn("returning offspring " + currentGeneration);
+		// log.warn("returning offspring " + currentGeneration);
 
 		return offspring;
 	}
@@ -585,7 +585,7 @@ public class GP extends Observable implements Runnable {
 	 * @return a mutated copy of the original program
 	 */
 	Program mutate(Program program) {
-		// LOG.warn("mutate " + currentGeneration);
+		// log.warn("mutate " + currentGeneration);
 
 		// Pick the mutation point.
 		int mutationPoint = random.nextInt(program.countNodes());
@@ -612,7 +612,7 @@ public class GP extends Observable implements Runnable {
 	 * individuals into the old ones.
 	 */
 	void breedNewPopulation() {
-		LOG.warn("breedNewPopulation " + currentGeneration);
+		log.warn("breedNewPopulation " + currentGeneration);
 
 		Program[] newPrograms;
 		double fraction;
@@ -669,7 +669,7 @@ public class GP extends Observable implements Runnable {
 	 * Clean out the statistics in each individual in the population.
 	 */
 	void zeroizeFitnessMeasuresOfPopulation() {
-		LOG.info("zeroizeFitnessMeasuresOfPopulation " + currentGeneration);
+		log.info("zeroizeFitnessMeasuresOfPopulation " + currentGeneration);
 
 		for (int i = 0; i < population.length; i++) {
 			population[i].standardizedFitness = 0.0;
@@ -684,13 +684,13 @@ public class GP extends Observable implements Runnable {
 	 * fitness and hits.
 	 */
 	void evaluateFitnessOfPopulation() {
-		LOG.warn("evaluateFitnessOfPopulation " + currentGeneration
+		log.warn("evaluateFitnessOfPopulation " + currentGeneration
 				+ " population length " + population.length);
 
 		for (int i = 0; i < population.length; i++) {
 			fitnessFunction(population[i], i); // TODO - Over-rideable fitness
 												// function
-			// LOG.warn(population[i].program);
+			// log.warn(population[i].program);
 		}
 
 	}
@@ -700,7 +700,7 @@ public class GP extends Observable implements Runnable {
 	 * population.
 	 */
 	void normalizeFitnessOfPopulation() {
-		LOG.warn("normalizeFitnessOfPopulation " + currentGeneration);
+		log.warn("normalizeFitnessOfPopulation " + currentGeneration);
 
 		double sumOfAdjustedFitnesses = 0.0;
 		for (int i = 0; i < population.length; i++) {
@@ -709,14 +709,14 @@ public class GP extends Observable implements Runnable {
 			// Add up the adjusted fitnesses so that we can normalize them.
 			sumOfAdjustedFitnesses = sumOfAdjustedFitnesses
 					+ population[i].adjustedFitness;
-			LOG.warn(i + " " + population[i].adjustedFitness);
+			log.warn(i + " " + population[i].adjustedFitness);
 		}
-		LOG.warn("normalized ----");
+		log.warn("normalized ----");
 		// Loop through population normalizing the adjusted fitness.
 		for (int i = 0; i < population.length; i++) {
 			population[i].normalizedFitness = population[i].adjustedFitness
 					/ sumOfAdjustedFitnesses;
-			LOG.warn(i + " " + population[i].normalizedFitness);
+			log.warn(i + " " + population[i].normalizedFitness);
 		}
 	}
 
@@ -725,7 +725,7 @@ public class GP extends Observable implements Runnable {
 	 * order of normalized fitness.
 	 */
 	private void sort(int low, int high) {
-		// LOG.info("sort " + currentGeneration);
+		// log.info("sort " + currentGeneration);
 
 		int index1, index2;
 		double pivot;
@@ -762,12 +762,12 @@ public class GP extends Observable implements Runnable {
 	 * array is destructively modified.
 	 */
 	void sortPopulationByFitness() {
-		LOG.info("sortPopulationByFitness " + currentGeneration);
+		log.info("sortPopulationByFitness " + currentGeneration);
 
 		sort(0, population.length - 1);
 
 		for (int i = 0; i < population.length; i++) {
-			LOG.warn(i + " " + population[i].normalizedFitness);
+			log.warn(i + " " + population[i].normalizedFitness);
 		}
 
 	}
@@ -778,7 +778,7 @@ public class GP extends Observable implements Runnable {
 	 * been evaluated and supplies the test cases.
 	 */
 	void fitnessFunction(Individual ind, int individualNr) {
-		// LOG.warn("fitnessFunction " + currentGeneration + " individual " +
+		// log.warn("fitnessFunction " + currentGeneration + " individual " +
 		// ind);
 
 		double rawFitness = 0.0;
@@ -786,7 +786,7 @@ public class GP extends Observable implements Runnable {
 		RealPoint[] testCases = new RealPoint[fitnessCases.get().length];
 		RealPoint valueFromProgram = null;
 
-		LOG.warn("ind " + ind.program.toString(0));
+		log.warn("ind " + ind.program.toString(0));
 		initializeState();
 		for (int index = 0; index < fitnessCases.get().length; index++) { // fitness
 																			// cases
@@ -814,12 +814,12 @@ public class GP extends Observable implements Runnable {
 			// Rectangle r = new Rectangle(30,30,10,10);
 			valueFromProgram = new RealPoint(r.x + r.width / 2, r.y + r.height
 					/ 2);
-			// LOG.error(valueFromProgram);
+			// log.error(valueFromProgram);
 			double deltaX = valueFromProgram.x - x;
 			double deltaY = valueFromProgram.y - y;
 			double difference = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 			rawFitness = rawFitness + difference;
-			LOG.error("input " + x + " " + valueFromProgram.x + ","
+			log.error("input " + x + " " + valueFromProgram.x + ","
 					+ valueFromProgram.y + " d " + (int) difference);
 			// if (difference < 0.01) {
 			if (difference < 10) {
@@ -828,7 +828,7 @@ public class GP extends Observable implements Runnable {
 			// testCases[index] = new RealPoint(x, valueFromProgram);
 			testCases[index] = valueFromProgram;
 		}
-		// LOG.warn("ind " + ind.program.toString(0));
+		// log.warn("ind " + ind.program.toString(0));
 		try {
 			outfile.write(individualNr + " " + (int) valueFromProgram.x + ","
 					+ (int) valueFromProgram.y + " " + rawFitness + "\n");
@@ -841,7 +841,7 @@ public class GP extends Observable implements Runnable {
 				ind.standardizedFitness, rawFitness));
 
 		ind.standardizedFitness = rawFitness;
-		LOG.warn("generation " + currentGeneration + " individualNr "
+		log.warn("generation " + currentGeneration + " individualNr "
 				+ individualNr);
 
 		// notifyObservers(new GPMessageEvaluatingIndividual(
@@ -899,7 +899,7 @@ public class GP extends Observable implements Runnable {
 	 * @returns <code>true</code> if the GP algorithm should terminate
 	 */
 	boolean terminationPredicate() {
-		LOG.info("terminationPredicate " + currentGeneration);
+		log.info("terminationPredicate " + currentGeneration);
 		return currentGeneration >= MAX_GENERATIONS;
 	}
 
@@ -910,7 +910,7 @@ public class GP extends Observable implements Runnable {
 	 * generation to the next.
 	 */
 	void evolve() {
-		LOG.warn("EVOLVE ! " + currentGeneration);
+		log.warn("EVOLVE ! " + currentGeneration);
 
 		try {
 			outfile = new FileWriter("data.txt");
@@ -957,7 +957,7 @@ public class GP extends Observable implements Runnable {
 					testCases[i] = valueFromProgram;
 				}
 
-				LOG.warn(bestOfRunIndividual.program.toString(0));
+				log.warn(bestOfRunIndividual.program.toString(0));
 
 				// TODO deprecate all notify Observers - change to publish
 				// message
@@ -979,12 +979,12 @@ public class GP extends Observable implements Runnable {
 				fitness[i] = population[i].adjustedFitness;
 			}
 
-			LOG.error("fitness " + fitness);
+			log.error("fitness " + fitness);
 			notifyObservers(new GPMessageEvaluatingPopulation(
 					currentGeneration, fitness));
 
 			currentGeneration++;
-			// LOG.info()
+			// log.info()
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1000,7 +1000,7 @@ public class GP extends Observable implements Runnable {
 		// All we need to do is count along the population from the
 		// beginning adding up the fitness until we get past the
 		// specified point:
-		LOG.info("findFitnessProportionateIndividual " + currentGeneration);
+		log.info("findFitnessProportionateIndividual " + currentGeneration);
 
 		int indexOfSelectedIndividual;
 		double sumOfFitness = 0.0;
@@ -1024,7 +1024,7 @@ public class GP extends Observable implements Runnable {
 	 */
 	Individual findIndividualUsingTournamentSelection() {
 
-		LOG.info("findIndividualUsingTournamentSelection " + currentGeneration);
+		log.info("findIndividualUsingTournamentSelection " + currentGeneration);
 
 		int TournamentSize = Math.min(population.length, 7);
 
@@ -1052,7 +1052,7 @@ public class GP extends Observable implements Runnable {
 	 *         selection method.
 	 */
 	Individual findIndividual() {
-		LOG.info("findIndividual " + currentGeneration);
+		log.info("findIndividual " + currentGeneration);
 
 		Individual ind = null;
 		switch (((MethodOfSelection) methodOfSelection.getSelection())
@@ -1071,7 +1071,7 @@ public class GP extends Observable implements Runnable {
 	 * @return some initial fitness cases, in text form, as pairs of x-y values
 	 */
 	String makeDefaultFitnessCases() {
-		LOG.info("makeDefaultFitnessCases " + currentGeneration);
+		log.info("makeDefaultFitnessCases " + currentGeneration);
 
 		// int NrOfFitnessCases = 20;
 		//int NrOfFitnessCases = 4;
@@ -1100,7 +1100,7 @@ public class GP extends Observable implements Runnable {
 	 * start() method.
 	 */
 	public void run() {
-		LOG.info("run " + currentGeneration);
+		log.info("run " + currentGeneration);
 
 		// Prime the random generator with the same seed for each run,
 		// so that we get reproducible results:
@@ -1143,7 +1143,7 @@ public class GP extends Observable implements Runnable {
 	 *         children. If the subtree is not found, the function returns null.
 	 */
 	TreeHook getSubtree(Program tree, int index, Condition cond) {
-		LOG.info("getSubtree " + currentGeneration);
+		log.info("getSubtree " + currentGeneration);
 
 		// Hack: I need a global counter across the recursive calls to Walk().
 		// In a Wirthian language, a VAR parameter would be fine.
@@ -1157,7 +1157,7 @@ public class GP extends Observable implements Runnable {
 	*/
 	private TreeHook Walk(Program tree, int[] count, Condition cond,
 			Function parent, int childIndex) {
-		LOG.info("Walk " + currentGeneration);
+		log.info("Walk " + currentGeneration);
 
 		if (cond.test(tree) && count[0] == 0) {
 			return new TreeHook(tree, parent, childIndex);

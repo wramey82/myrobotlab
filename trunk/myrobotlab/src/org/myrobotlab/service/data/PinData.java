@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 public class PinData implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(PinData.class);
+	public final static Logger log = Logger.getLogger(PinData.class);
 
 	public final static int TYPE_DIGITAL 		= 0x0;
 	public final static int TYPE_ANALOG 		= 0x1;

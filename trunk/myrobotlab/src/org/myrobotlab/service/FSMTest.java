@@ -47,7 +47,7 @@ public class FSMTest extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(FSMTest.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FSMTest.class.getCanonicalName());
 
 	// Context related
 	String context = null; 			// current context identifier
@@ -142,7 +142,7 @@ public class FSMTest extends Service {
 	public void isSpeaking (Boolean speaking)
 	{
 		isSpeaking = speaking;
-		LOG.error("isSpeaking" + speaking);
+		log.error("isSpeaking" + speaking);
 	}
 
 	/*
@@ -309,7 +309,7 @@ public class FSMTest extends Service {
 	{
 		if (isSpeaking)
 		{
-			LOG.error("heard " + data + ", but I am speaking - not going to act on this");
+			log.error("heard " + data + ", but I am speaking - not going to act on this");
 			return;
 		}
 		
@@ -357,9 +357,9 @@ public class FSMTest extends Service {
 
 			speech.speak("i will associate this with " + data);
 			Node n = memory.get(UNKNOWN);
-			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
+			log.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
-			LOG.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
+			log.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n.word = data;
 			if (!memory.containsKey(n.word))
 			{
@@ -416,7 +416,7 @@ public class FSMTest extends Service {
 	}
 
 	public synchronized void publish(ArrayList<KinectImageNode> p) {
-		LOG.error("found " + p.size() + " contextImageDataObjects");
+		log.error("found " + p.size() + " contextImageDataObjects");
 		filter.publishNodes = false;
 		
 		// replacing all with current set - in future "unknown" objects can be concatenated
@@ -465,8 +465,8 @@ public class FSMTest extends Service {
 		// run through - find best match - TODO - many other algorithms and techniques
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(UNKNOWN);
-		LOG.error( unknown.imageData.get(0).cvBoundingBox);
-		LOG.error( unknown.imageData.get(0).boundingBox);
+		log.error( unknown.imageData.get(0).cvBoundingBox);
+		log.error( unknown.imageData.get(0).boundingBox);
 		int bestFit = 1000;
 		int fit = 0;
 		String bestFitName = null;
@@ -491,7 +491,7 @@ public class FSMTest extends Service {
 		}
 
 
-		LOG.error("bestFit" + bestFit);
+		log.error("bestFit" + bestFit);
 		
 		if (bestFit < 100)
 		{
@@ -539,7 +539,7 @@ public class FSMTest extends Service {
 		
 		int bestFit = Integer.MAX_VALUE;
 		
-		LOG.error("searching through " + toSearch.imageData.size() + " " + toSearch.word + " images ");
+		log.error("searching through " + toSearch.imageData.size() + " " + toSearch.word + " images ");
 		// iterate through the list of known templates
 		for (int i = 0; i < toSearch.imageData.size(); ++i)
 		{
@@ -610,10 +610,10 @@ public class FSMTest extends Service {
 				bestFit = matchRatio;
 				index = i;
 			}
-			LOG.error("image " + i + " match ratio " + matchRatio);
+			log.error("image " + i + " match ratio " + matchRatio);
 		}
 
-		LOG.error("bestFit=" + bestFit);
+		log.error("bestFit=" + bestFit);
 		return bestFit;
 	}
 	
@@ -623,7 +623,7 @@ public class FSMTest extends Service {
 	 */
 	// -------------- CALLBACKS BEGIN -------------------------
 	public CvPoint publish(CvPoint p) {
-		LOG.info("got point " + p);
+		log.info("got point " + p);
 		return p;
 	}	
 
@@ -668,7 +668,7 @@ public class FSMTest extends Service {
 	}	
 
 	public IplImage publishMatchResult(IplImage o) {
-		LOG.info("publishMatchResult" + o);
+		log.info("publishMatchResult" + o);
 		return o;
 	}	
 	
@@ -775,7 +775,7 @@ public class FSMTest extends Service {
 				String index = f.getName().substring(f.getName().lastIndexOf("_") + 1,f.getName().indexOf(".jpg"));
 				String word = path.substring(path.lastIndexOf(File.separatorChar)+1);
 				//Integer index = Integer.parseInt(index);
-				LOG.error(f.getAbsolutePath());
+				log.error(f.getAbsolutePath());
 				//SerializableImage si = (SerializableImage)FileIO.readBinary(f.getAbsolutePath());
 				SerializableImage si = new SerializableImage(Util.readBufferedImage(f.getAbsolutePath()));
 				si.source = word; // TODO - what else? "filesystem" ? date?

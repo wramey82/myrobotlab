@@ -50,7 +50,7 @@ import org.myrobotlab.service.data.IPAndPort;
 public class SoccerGame extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(SoccerGame.class
+	public final static Logger log = Logger.getLogger(SoccerGame.class
 			.getCanonicalName());
 
 	RemoteAdapter remote = new RemoteAdapter("remote");
@@ -99,7 +99,7 @@ public class SoccerGame extends Service {
 		Object[] param = new Object[1];
 		param[0] = "<html><body><font color=\"red\">" + text
 				+ "</font></body></html>";
-		LOG.error(text);
+		log.error(text);
 		return param;
 	}
 
@@ -107,7 +107,7 @@ public class SoccerGame extends Service {
 		Object[] param = new Object[1];
 		param[0] = "<html><body><font color=\"green\">" + text
 				+ "</font></body></html>";
-		LOG.error(text);
+		log.error(text);
 		return param;
 	}
 
@@ -149,7 +149,7 @@ public class SoccerGame extends Service {
 		Enumeration<?> e = security.propertyNames();
 
 		for (; e.hasMoreElements();) {
-			LOG.info(e.nextElement());
+			log.info(e.nextElement());
 		}
 		// security end -----------------------
 
@@ -182,7 +182,7 @@ public class SoccerGame extends Service {
 
 	// new player association request // registerServices
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		LOG.info(getName() + " new soccer player request ! " + sdu);
+		log.info(getName() + " new soccer player request ! " + sdu);
 
 		Player newPlayer = null;
 
@@ -194,7 +194,7 @@ public class SoccerGame extends Service {
 				//newPlayer.IPAddress = sdu.remoteHostname;
 				//newPlayer.port = sdu.remoteServicePort;
 				newPlayer.isConnected = true;
-				//LOG.info(sdu.remoteHostname + " has been assigned player0" + i);
+				//log.info(sdu.remoteHostname + " has been assigned player0" + i);
 				break;
 				// time for player reset
 			}
@@ -217,7 +217,7 @@ public class SoccerGame extends Service {
 		String login = "";
 		/*
 		String login = sdu.login;
-		LOG.info("login request from " + login + " @ " + sdu.remoteHostname
+		log.info("login request from " + login + " @ " + sdu.remoteHostname
 				+ ":" + sdu.remoteServicePort);
 				*/
 
@@ -241,7 +241,7 @@ public class SoccerGame extends Service {
 		 * if (!security.containsKey(sdu.login) || ((String)
 		 * security.get(sdu.login)).compareTo(sdu.password) != 0) {
 		 * send(client.getName(), "setRemoteConnectionStatus", makeHTMLErrorParam
-		 * ("login " + sdu.login + "failed")); LOG.error("login " + sdu.login +
+		 * ("login " + sdu.login + "failed")); log.error("login " + sdu.login +
 		 * "/" + sdu.password + "failed"); return; }
 		 */
 
@@ -333,7 +333,7 @@ public class SoccerGame extends Service {
 		// newPlayer.setLogin(login);
 		newPlayer.login = login; // MUST DO IT THIS WAY - MUST WAIT FOR REMOTE
 									// GUI TO INITIALIZE
-		LOG.info("blue team size " + blueTeam + "red team size " + redTeam);
+		log.info("blue team size " + blueTeam + "red team size " + redTeam);
 		if (blueTeam < redTeam) {
 			++blueTeam;
 			newPlayer.team = "blue";
@@ -351,13 +351,13 @@ public class SoccerGame extends Service {
 	}
 
 	public void announce(String msg) {
-		LOG.error(msg);
+		log.error(msg);
 		announcer.speak(msg);
 		broadCastMsgToPlayers("addLogEntry", msg);
 	}
 
 	public void removePlayerFromPlay(Player p) {
-		LOG.error("removing " + p.login + " from the game");
+		log.error("removing " + p.login + " from the game");
 		if (p.team.compareTo("red") == 0) {
 			--redTeam;
 		} else if (p.team.compareTo("blue") == 0) {
@@ -382,15 +382,15 @@ public class SoccerGame extends Service {
 		// reduce team
 		// update others
 
-		LOG.error("connection broke - " + conn.IPAddress + ":" + conn.port);
-		LOG.error("connection broke - removing " + conn.IPAddress + ":"
+		log.error("connection broke - " + conn.IPAddress + ":" + conn.port);
+		log.error("connection broke - removing " + conn.IPAddress + ":"
 				+ conn.port);
 
 		hostcfg.removeServiceEntries(conn.IPAddress, conn.port);
 
 		for (int i = 0; i < players.size(); ++i) {
 			Player p = players.get(i);
-			LOG.info(p.login + " @ " + p.IPAddress + ":" + p.port);
+			log.info(p.login + " @ " + p.IPAddress + ":" + p.port);
 			// if (p != null && p.IPAddress == null || p != null &&
 			// p.IPAddress.compareTo(conn.IPAddress) == 0 && p.port ==
 			// conn.port)

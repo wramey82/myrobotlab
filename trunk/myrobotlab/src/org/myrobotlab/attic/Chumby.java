@@ -9,7 +9,7 @@ public class Chumby extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Chumby.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Chumby.class.getCanonicalName());
 
 	public Chumby(String n) {
 		super(n, Chumby.class.getCanonicalName());

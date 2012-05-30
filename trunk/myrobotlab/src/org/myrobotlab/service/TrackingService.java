@@ -37,7 +37,7 @@ public class TrackingService extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(TrackingService.class
+	public final static Logger log = Logger.getLogger(TrackingService.class
 			.getCanonicalName());
 
 	// TODO center vs - lock
@@ -112,12 +112,12 @@ public class TrackingService extends Service {
 	}
 
 	final static public Integer correctX(Integer f) {
-		LOG.info("correctX " + f);
+		log.info("correctX " + f);
 		return f;
 	}
 
 	final static public Integer correctY(Integer f) {
-		LOG.info("correctY " + f);
+		log.info("correctY " + f);
 		return f;
 	}
 
@@ -150,7 +150,7 @@ public class TrackingService extends Service {
 		{
 			targetPoint = new CvPoint2D32f(160, 120);
 		}
-		LOG.info("trackPointX " + x);
+		log.info("trackPointX " + x);
 		XCorrection = (x - targetPoint.x()) * XMultiplier;
 		if (tracking && (x < deadzone.x || x > deadzone.x + deadzone.width)) {
 			invoke("correctX", (int) XCorrection);
@@ -160,7 +160,7 @@ public class TrackingService extends Service {
 
 	final public void trackY(Integer y) {
 		YMultiplier = (float) -0.12;
-		LOG.info("trackPointY " + y);
+		log.info("trackPointY " + y);
 		YCorrection = (y - targetPoint.y()) * YMultiplier;
 		if (tracking && (y < deadzone.y || y > deadzone.y + deadzone.width)) {
 			invoke("correctY", (int) YCorrection);

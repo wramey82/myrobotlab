@@ -65,7 +65,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	 * (myService) to the endpoint
 	 */
 
-	public final static Logger LOG = Logger.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 
 	boolean isRunning = false;
 
@@ -102,7 +102,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				this.start(); // starting listener
 			} catch (IOException e) {
 				Service.logException(e);
-				LOG.error("could not create streams from socket");
+				log.error("could not create streams from socket");
 			}
 
 		}
@@ -137,9 +137,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					}
 					if (msg == null) {
 						// TODO
-						LOG.error(myService.getName()
+						log.error(myService.getName()
 								+ " null message - will continue to listen");
-						LOG.error("disconnecting " + socket.getInetAddress()
+						log.error("disconnecting " + socket.getInetAddress()
 								+ ":" + socket.getPort());
 						socket.close();
 						socket = null; // stream corrupted exception does not
@@ -160,7 +160,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				oos.close();
 
 			} catch (IOException e) {
-				LOG.error("TCPThread threw");
+				log.error("TCPThread threw");
 				isRunning = false;
 				socket = null;
 				Service.logException(e);
@@ -218,7 +218,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	// listeners notified
 
 	public void addClient(Socket socket) {
-		LOG.info("adding tcp client ");
+		log.info("adding tcp client ");
 
 		InetSocketAddress remoteAddr = (InetSocketAddress) socket
 				.getRemoteSocketAddress();
@@ -250,12 +250,12 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			// phone.udp.start(); REMOTE ADAPTER ONLY ADDS THESE - if we already
 			// have a UDP listener we dont want another
 			if (!clientList.containsKey(url))
-			{	LOG.debug("adding client " + url);
+			{	log.debug("adding client " + url);
 				clientList.put(url, phone);
 			}
 
 		} catch (MalformedURLException e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 			return;
 		}
 

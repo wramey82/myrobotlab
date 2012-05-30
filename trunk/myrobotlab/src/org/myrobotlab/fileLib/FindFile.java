@@ -21,7 +21,7 @@ public final class FindFile  { //implements FilenameFilter
 	private Pattern pattern = null;
 	*/
 
-	public final static Logger LOG = Logger.getLogger(FindFile.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FindFile.class.getCanonicalName());
 
 	public static List<File> find(String criteria)throws FileNotFoundException {
 		return find(null, criteria, true, false);
@@ -55,7 +55,7 @@ public final class FindFile  { //implements FilenameFilter
 		List<File> result = new ArrayList<File>();
 		File[] filesAndDirs = rootPath.listFiles();
 		List<File> filesDirs = Arrays.asList(filesAndDirs);
-		LOG.info("looking at path " + rootPath + " has " + filesDirs.size() + " files");
+		log.info("looking at path " + rootPath + " has " + filesDirs.size() + " files");
 		for (File file : filesDirs) {
 
 			StringBuffer out = new StringBuffer();
@@ -79,12 +79,12 @@ public final class FindFile  { //implements FilenameFilter
 			}
 			
 			if (!file.isFile() && recurse) {
-				LOG.debug("decending into " + file.getName());
+				log.debug("decending into " + file.getName());
 				List<File> deeperList = process(file, criteria, recurse, includeDirsInResult);
 				result.addAll(deeperList);
 			}
 
-			LOG.debug(out.toString());
+			log.debug(out.toString());
 		}
 		return result;
 	}

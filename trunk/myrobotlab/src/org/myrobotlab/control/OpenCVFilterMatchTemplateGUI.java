@@ -47,24 +47,24 @@ public class OpenCVFilterMatchTemplateGUI extends OpenCVFilterGUI {
 
 	// @Override
 	public void attachGUI() {
-		LOG.debug("attachGUI");
+		log.debug("attachGUI");
 
 	}
 
 	// @Override
 	public void detachGUI() {
-		LOG.debug("detachGUI");
+		log.debug("detachGUI");
 
 	}
 
 	public JPanel getDisplay() {
-		LOG.debug("display");
+		log.debug("display");
 		return display;
 
 	}
 
 	public void apply() {
-		LOG.debug("apply");
+		log.debug("apply");
 
 	}
 

@@ -51,7 +51,7 @@ import org.myrobotlab.service.Runtime;
 
 public class GUIServiceOutMethodDialog extends JDialog  implements ActionListener  {
 	
-	public final static Logger LOG = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
 	
 	private static final long serialVersionUID = 1L;
 
@@ -130,7 +130,7 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 	public void actionPerformed(ActionEvent e) {
 		JComboBox cb = (JComboBox)e.getSource();
         String method = (String)cb.getSelectedItem();
-        LOG.error(method);
+        log.error(method);
         myService.setSrcServiceName(v.name);
         myService.setPeriod0(".");
         myService.setSrcMethodName(method);
@@ -166,7 +166,7 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		        	Method m = null; 
 		        	if (md.methodEntry.parameterTypes == null)
 		        	{
-		        		LOG.info("paramterType is null");
+		        		log.info("paramterType is null");
 		        		m = c.getMethod(md.methodEntry.name);
 		        	} else {
 		        		m = c.getMethod(md.methodEntry.name, md.methodEntry.parameterTypes);
@@ -181,7 +181,7 @@ public class GUIServiceOutMethodDialog extends JDialog  implements ActionListene
 		        	//System.out.println(anno.stringValue() + " " + anno.intValue());
 	        	} catch (Exception e){
 	        		list.setToolTipText("method or class not available");
-	        		LOG.error(e);
+	        		log.error(e);
 	        	} 
   	        	
   	        	

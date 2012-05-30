@@ -42,7 +42,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class WiiBotGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(WiiBotGUI.class
+	public final static Logger log = Logger.getLogger(WiiBotGUI.class
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 

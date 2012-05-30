@@ -72,7 +72,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
 
 	// various tracking parameters (in seconds)

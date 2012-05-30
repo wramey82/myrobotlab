@@ -42,7 +42,7 @@ public class OpenCVFilterErode extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterErode.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterErode.class
 			.getCanonicalName());
 
 	IplImage buffer = null;
@@ -106,7 +106,7 @@ public class OpenCVFilterErode extends OpenCVFilter {
 		 * cvGetSize(image), 8, 3 ); } }
 		 */
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		buffer = image;

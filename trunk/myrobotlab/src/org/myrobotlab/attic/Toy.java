@@ -50,7 +50,7 @@ public class Toy extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Toy.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Toy.class.getCanonicalName());
 
 	public Arduino arduino = new Arduino("arduino");
 	public Motor left = new Motor("left");
@@ -100,7 +100,7 @@ public class Toy extends Service {
 					{
 						findThingy(thingiesToLookFor.get(i));
 						synchronized (foundLock) {
-							LOG.error("waiting for things to look for ");
+							log.error("waiting for things to look for ");
 							foundLock.wait(5000); // wait for a second or found
 						}					
 						clearFilters();
@@ -389,7 +389,7 @@ public class Toy extends Service {
 			// TODO verify dimensions angle and lengths
 			
 		} else {
-			LOG.warn("expecting 3 tracking points " + trackingPoints.length);			
+			log.warn("expecting 3 tracking points " + trackingPoints.length);			
 		}
 		
 		graphics.refreshDisplay();
@@ -403,7 +403,7 @@ public class Toy extends Service {
 	
 	public void findThingy (String thingy, int hueMin, int hueMax, int saturationMin, int saturationMax, int valueMin, int valueMax, int minArea, int maxArea)
 	{
-		LOG.error("looking for " + thingy);
+		log.error("looking for " + thingy);
 		// set the name and color globally - then try a search
 		// if the search is successful the name and color will be associated with the target(s) found
 		currentlyLookingForName = thingy;
@@ -459,7 +459,7 @@ public class Toy extends Service {
 	{
 		graphics.setColor(currentlyLookingForColorAvg); // hmm avgColor
 
-		//LOG.error("found " + polygons.size() + " " + currentlyLookingForName);
+		//log.error("found " + polygons.size() + " " + currentlyLookingForName);
 		
 		for (int i = 0; i < polygons.size(); ++i)
 		{
@@ -488,7 +488,7 @@ public class Toy extends Service {
 		{
 			// if i found something - let the finder know
 			synchronized (foundLock) {
-				LOG.error(Thread.currentThread().getName() + " found " + polygons.size() + " " + currentlyLookingForName);
+				log.error(Thread.currentThread().getName() + " found " + polygons.size() + " " + currentlyLookingForName);
 				foundLock.notifyAll();
 			}
 			
@@ -563,7 +563,7 @@ public class Toy extends Service {
 	
 	public void displayTargets()
 	{
-		LOG.error("display " + targets.size() + " targets");
+		log.error("display " + targets.size() + " targets");
 		Iterator<String> it = targets.keySet().iterator();
 		graphics.setColor(Color.green);
 		while (it.hasNext()) {
@@ -743,7 +743,7 @@ public class Toy extends Service {
 			break;
 			
 			default:
-				LOG.error("unknown cmd " + cmd);
+				log.error("unknown cmd " + cmd);
 				break;
 				
 		}

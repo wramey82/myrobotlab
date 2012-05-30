@@ -40,7 +40,7 @@ import org.myrobotlab.service.Runtime;
 public class CommunicationManager  implements Serializable, CommunicationInterface{
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(CommunicationManager.class.toString());
+	public final static Logger log = Logger.getLogger(CommunicationManager.class.toString());
 	Service myService = null;
 	Outbox outbox = null;
 
@@ -52,7 +52,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		this.outbox = myService.getOutbox();
 
 		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverUDP";
-		LOG.info("instanciating a " + communicatorClass);
+		log.info("instanciating a " + communicatorClass);
 		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 
 		outbox.setCommunicationManager(this);
@@ -70,16 +70,16 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		ServiceWrapper sw = Runtime.getService(msg.getName());
 		if (sw == null)
 		{
-			LOG.error(msg.getName() + " service does not exist - should clean up " + msg.sender );
+			log.error(msg.getName() + " service does not exist - should clean up " + msg.sender );
 			return;
 		}
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))
 		{
-			LOG.debug("sending local");
+			log.debug("sending local");
 			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
 			sw.get().in(m);			
 		} else {
-			LOG.debug("sending " + msg.method + " remote");
+			log.debug("sending " + msg.method + " remote");
 			getComm().send(sw.host.accessURL, msg);			
 		}
 	}

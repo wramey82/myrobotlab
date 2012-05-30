@@ -19,7 +19,7 @@ import org.myrobotlab.service.Arduino;
  */
 public class SerialDeviceFactory implements SerialDeviceEventListener {
 
-	public final static Logger LOG = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
 	final public static String TYPE_GNU = "org.myrobotlab.serial.gnu";
 	final public static String TYPE_ANDROID_BLUETOOTH = "org.myrobotlab.serial.gnu";
@@ -36,7 +36,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 			} else if (TYPE_ANDROID_BLUETOOTH.equals(type)) {
 				Class.forName(type);
 			} else {
-				LOG.error(type + " not found");
+				log.error(type + " not found");
 			}
 
 		} catch (Exception e) {
@@ -47,7 +47,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
-		LOG.info(event.getEventType());
+		log.info(event.getEventType());
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
@@ -65,7 +65,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 		for (int i = 0; i < devices.size(); ++i)
 		{
 			SerialDeviceIdentifier sdi = devices.get(i);
-			LOG.info(sdi);
+			log.info(sdi);
 			if (sdi.getName().equals("COM9"))
 			{
 				try {
@@ -78,7 +78,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 
 					//out.write(new byte[]{0,1,0,1});
 				} catch (Exception e) {
-					LOG.error(e.getMessage());
+					log.error(e.getMessage());
 				}
 			}
 		}

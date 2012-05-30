@@ -76,7 +76,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
-	public final static Logger LOG = Logger.getLogger(RuntimeGUI.class
+	public final static Logger log = Logger.getLogger(RuntimeGUI.class
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
@@ -170,10 +170,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			// isPopupTrigger over OSs - use masks
 		    public void mouseReleased(MouseEvent e)
 		    {
-	            LOG.debug("mouseReleased");
+	            log.debug("mouseReleased");
 		    	
 		    	if (SwingUtilities.isRightMouseButton(e)) {
-		            LOG.debug("mouseReleased - right");
+		            log.debug("mouseReleased - right");
 		    		popUpTrigger(e);
 		    	}
 		    }
@@ -185,10 +185,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		        if (SwingUtilities.isRightMouseButton(e)) {
 		            System.out.println("mousePressed - right");
 		          }
-		    	LOG.error("h1");
+		    	log.error("h1");
 		    	if (e.isPopupTrigger())
 		        {
-			    	LOG.error("h2");
+			    	log.error("h2");
 		    		popUpTrigger(e);
 		        }
 		    }
@@ -196,7 +196,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		    public void popUpTrigger(MouseEvent e)
 		    {
-		    	LOG.error("******************popUpTrigger*********************");
+		    	log.error("******************popUpTrigger*********************");
 	            JTable source = (JTable)e.getSource();
 	            popupRow = source.rowAtPoint( e.getPoint() );
 	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
@@ -385,7 +385,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		if (nameToServiceEntry.containsKey(sw.name)) {
 			currentServicesModel.removeElement(nameToServiceEntry.get(sw.name));
 		} else {
-			LOG.error(sw.name
+			log.error(sw.name
 					+ " released event - but could not find in currentServiceModel");
 		}
 		// myService.loadTabPanels();
@@ -470,7 +470,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
-			LOG.info("getListCellRendererComponent - begin");
+			log.info("getListCellRendererComponent - begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
 			setText("<html><font color=#" + Style.listBackground + ">" + entry.name
@@ -488,7 +488,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				setForeground(Style.listForeground);
 			}
 
-			LOG.info("getListCellRendererComponent - end");
+			log.info("getListCellRendererComponent - end");
 			return this;
 		}
 	}
@@ -528,7 +528,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			ServiceEntry se = null;
 
 			for (int i = 0; i < ses.length; ++i) {
-				LOG.info(i);
+				log.info(i);
 				se = new ServiceEntry(null, sscn[i], false);
 
 				possibleServicesModel.addRow(new Object[] {se,""});
@@ -551,7 +551,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 			//Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			//setBorder(BorderFactory.createEmptyBorder());
-			//LOG.info(value.getClass().getCanonicalName());
+			//log.info(value.getClass().getCanonicalName());
 			
 			setEnabled(table == null || table.isEnabled()); 
 			ServiceInfo info = ServiceInfo.getInstance();
@@ -603,7 +603,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				}				
 
 			} else {
-				LOG.error("unknown class");
+				log.error("unknown class");
 			}
 					
 			if (possibleServices.isRowSelected(row)) { 
@@ -640,7 +640,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	class FilterListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent cmd) {
-			LOG.info(cmd.getActionCommand());
+			log.info(cmd.getActionCommand());
 			if ("all".equals(cmd.getActionCommand())) {
 				getPossibleServicesThreadSafe(null);
 			} else {
@@ -702,7 +702,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		} else if ("upgrade".equals(cmd)) {
 			myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);						
 		} else {
-			LOG.error("unknown command " + cmd);
+			log.error("unknown command " + cmd);
 		}
 		
 		// end actionCmd
@@ -773,11 +773,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		if (resolveErrors != null)
 		{
-			LOG.info("there were errors");
+			log.info("there were errors");
 			progressDialog.addErrorInfo("there were errors " + resolveErrors);
 		} else {
 			progressDialog.finished();
-			LOG.info("new components - restart?");
+			log.info("new components - restart?");
 			JFrame frame = new JFrame();
 			int ret = JOptionPane
 					.showConfirmDialog(
@@ -786,7 +786,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 									+ " it is necessary to restart in order to use them.</html>",
 							"restart", JOptionPane.YES_NO_OPTION);
 			if (ret == JOptionPane.OK_OPTION) {
-				LOG.info("restarting");
+				log.info("restarting");
 				Runtime.releaseAll();
 				try {
 					if (Platform.isWindows()) {
@@ -801,7 +801,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				}
 				System.exit(0);
 			} else {
-				LOG.info("chose not to restart");
+				log.info("chose not to restart");
 				return;
 			}
 

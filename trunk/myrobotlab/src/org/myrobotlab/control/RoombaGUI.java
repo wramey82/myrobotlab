@@ -46,7 +46,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(RoombaGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RoombaGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	private Roomba myRoomba = null;
@@ -68,7 +68,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 	  }
 
 	  public void actionPerformed(ActionEvent e) {
-		  LOG.info(e.getActionCommand());
+		  log.info(e.getActionCommand());
 		  myService.send(boundServiceName, e.getActionCommand());
 	  }
 	}
@@ -131,11 +131,11 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
-			// LOG.error("Released" + keyEvent);
+			// log.error("Released" + keyEvent);
 		}
 
 		public void keyTyped(KeyEvent keyEvent) {
-			// LOG.error("Typed" + keyEvent);
+			// log.error("Typed" + keyEvent);
 		}
 
 		private void printIt(String title, KeyEvent keyEvent) {
@@ -167,7 +167,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 		// ttyPort.removeAllItems();
 		for (int i = 0; i < p.size(); ++i) {
 			String n = p.get(i);
-			LOG.info(n);
+			log.info(n);
 			ttyPort.addItem(n);
 		}
 

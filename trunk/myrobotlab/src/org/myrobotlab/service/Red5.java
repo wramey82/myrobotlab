@@ -8,7 +8,7 @@ public class Red5 extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Red5.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Red5.class.getCanonicalName());
 
 	public Red5(String n) {
 		super(n, Red5.class.getCanonicalName());

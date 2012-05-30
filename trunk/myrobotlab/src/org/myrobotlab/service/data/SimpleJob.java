@@ -12,7 +12,7 @@ import org.quartz.JobExecutionException;
 public class SimpleJob implements Job {
 
     //private static org.slf4j.Logger _log = LoggerFactory.getLogger(SimpleJob.class);
-	public final static Logger LOG = Logger.getLogger(SimpleJob.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SimpleJob.class.getCanonicalName());
 
     /**
      * <p>
@@ -38,15 +38,15 @@ public class SimpleJob implements Job {
      */
     public void execute(JobExecutionContext context)
         throws JobExecutionException {
-        LOG.info("*******************************Hello World!********************************* - " + new Date());
+        log.info("*******************************Hello World!********************************* - " + new Date());
         /*
     	try {
 
 	        // Say Hello to the World and display the date/time
-	        LOG.info("Hello World! - " + new Date());
+	        log.info("Hello World! - " + new Date());
 	    	String[] params = new String[]{"/b"};
 			Process process = Runtime.getRuntime().exec("dir", params);
-			LOG.info("process exit value " + process.exitValue());
+			log.info("process exit value " + process.exitValue());
 
     	} catch (IOException e) {
 			e.printStackTrace();

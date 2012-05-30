@@ -39,7 +39,7 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterDilate.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterDilate.class
 			.getCanonicalName());
 
 	public OpenCVFilterDilate(OpenCV service, String name) {

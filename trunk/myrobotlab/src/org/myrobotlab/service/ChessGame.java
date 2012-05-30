@@ -33,7 +33,7 @@ import org.myrobotlab.framework.Service;
 
 public class ChessGame extends Service {
 
-	public final static Logger LOG = Logger.getLogger(ChessGame.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ChessGame.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 
@@ -132,7 +132,7 @@ public class ChessGame extends Service {
 		      columnLetter='h';
 		    }
 		    
-		    LOG.debug("" + columnLetter + " row " + row);
+		    log.debug("" + columnLetter + " row " + row);
 		    hmoveMsg += (""+columnLetter) + row; 
 		    
 		    /*
@@ -143,7 +143,7 @@ public class ChessGame extends Service {
 		    */
 		    
 		    if(pressedAmount==3){
-		    	LOG.debug("sending to inputMove from touchOSC " + hmoveMsg);
+		    	log.debug("sending to inputMove from touchOSC " + hmoveMsg);
 		    	invoke("inputMove", hmoveMsg);
 		    	hmoveMsg = "";
 		    }
@@ -160,7 +160,7 @@ public class ChessGame extends Service {
 	public String makeMove(HMove m, String code)
 	{
 		String t = m.toString();
-		LOG.info(t);
+		log.info(t);
 
 		if (t.length() == 6)
 		{
@@ -172,7 +172,7 @@ public class ChessGame extends Service {
 		t = "x" + t + code + "z";
 		t = t.toLowerCase(); 
 		
-		LOG.info(t);
+		log.info(t);
 		
 		return t;
 	}
@@ -185,7 +185,7 @@ public class ChessGame extends Service {
 	
 	public String inputMove (String s)
 	{
-		LOG.debug("inputMove " + s);
+		log.debug("inputMove " + s);
 		return s;
 	}
 	
@@ -199,7 +199,7 @@ public class ChessGame extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		LOG.info(ChessGameGUI.cleanMove("a2-a3q"));		
+		log.info(ChessGameGUI.cleanMove("a2-a3q"));		
 		
 		ChessGame chess1 = new ChessGame("chess1");
 		chess1.startService();

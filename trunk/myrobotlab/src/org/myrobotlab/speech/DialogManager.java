@@ -48,7 +48,7 @@ import edu.cmu.sphinx.util.props.S4Component;
  */
 public class DialogManager implements Configurable {
 
-	public final static Logger LOG = Logger.getLogger(DialogManager.class
+	public final static Logger log = Logger.getLogger(DialogManager.class
 			.toString());
 
 	/**
@@ -116,7 +116,7 @@ public class DialogManager implements Configurable {
 			g.close();
 
 		} catch (IOException e) {
-			//LOG.error("could not create grammar file service.gram");
+			//log.error("could not create grammar file service.gram");
 			e.printStackTrace();
 			return;
 		}
@@ -153,7 +153,7 @@ public class DialogManager implements Configurable {
 				mString = mString.replace(" ", "|\n");
 				mString = mString.substring(0, mString.length() - 2);
 				mString += ";";
-				LOG.info(mString);
+				log.info(mString);
 				g.write(mString);
 				g.flush();
 				g.close();

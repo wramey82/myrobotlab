@@ -118,7 +118,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(GUIService.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
 
 	public String graphXML = "";
 	
@@ -182,7 +182,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
 		if (sg == null) {
-			LOG.error("attempting to update sub-gui - sender "
+			log.error("attempting to update sub-gui - sender "
 					+ m.sender + " not available in map " + getName());
 		} else {
 			invoke(serviceGUIMap.get(m.sender), m.method, m.data);
@@ -242,7 +242,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		LOG.info("service count " + Runtime.getRegistry().size());
+		log.info("service count " + Runtime.getRegistry().size());
 		
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -263,7 +263,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
 		if (sw.get() == null)
 		{
-			LOG.error(serviceName + " does not have a valid Service - not exported ???");
+			log.error(serviceName + " does not have a valid Service - not exported ???");
 			return;
 		}
 		
@@ -274,7 +274,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		if (serviceGUIMap.containsKey(sw.name))
 		{
-			LOG.debug("not creating " + sw.name + " gui - it already exists");
+			log.debug("not creating " + sw.name + " gui - it already exists");
 			return;
 		}
 		
@@ -300,7 +300,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void removeTab(String name)
 	{
-		LOG.info(serviceGUIMap.size());
+		log.info(serviceGUIMap.size());
 		
 		// detaching & removing the ServiceGUI
 		ServiceGUI sg = serviceGUIMap.get(name);
@@ -308,7 +308,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			sg.detachGUI();
 		} else {
-			LOG.error(name + " was not in the serviceGUIMap - unable to preform detach");
+			log.error(name + " was not in the serviceGUIMap - unable to preform detach");
 		}
 		
 		// removing the tab
@@ -319,9 +319,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.remove(name);
 			tabPanelMap.remove(name);
 
-			LOG.info(serviceGUIMap.size());
+			log.info(serviceGUIMap.size());
 		} else {
-			LOG.error("can not removeTab " + name);
+			log.error("can not removeTab " + name);
 		}
 		
 		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
@@ -349,7 +349,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		
 		
-		LOG.debug("loadTabPanels");
+		log.debug("loadTabPanels");
 		
 		
 		// detach from Services, if panels are currently attached
@@ -372,7 +372,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		LOG.info("service count " + Runtime.getRegistry().size());
+		log.info("service count " + Runtime.getRegistry().size());
 		
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
@@ -389,7 +389,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
 			if (sw.get() == null)
 			{
-				LOG.error(serviceName + " does not have a valid Service - not exported ???");
+				log.error(serviceName + " does not have a valid Service - not exported ???");
 				continue;
 			}
 			
@@ -400,14 +400,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 			if (sw.get().getName().equals(getName())) {
 				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
-				LOG.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
+				log.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
 				createGUIServiceGUI = true;
 				continue;
 			}
 
 			if (serviceGUIMap.containsKey(sw.name))
 			{
-				LOG.debug("not creating " + sw.name + " gui - it already exists");
+				log.debug("not creating " + sw.name + " gui - it already exists");
 				continue;
 			}
 			
@@ -457,7 +457,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		
 	public synchronized void removeAllTabPanels()
 	{
-		LOG.info("tab count" + tabs.getTabCount());
+		log.info("tab count" + tabs.getTabCount());
 		while (tabs.getTabCount() > 0)
 		{
 		    tabs.remove(0);
@@ -505,7 +505,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, tpanel, serviceName));
 
 		} else {
-			LOG.warn("could not construct a " + guiClass + " object");
+			log.warn("could not construct a " + guiClass + " object");
 		}
 
 		return gui;
@@ -652,7 +652,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	public void guiUpdated() {
-		LOG.info("guiUpdated");
+		log.info("guiUpdated");
 	}
 
 	public String setRemoteConnectionStatus(String state) {
@@ -671,12 +671,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowActivated(WindowEvent e) {
-		//LOG.info("windowActivated");
+		//log.info("windowActivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowClosed(WindowEvent e) {
-		//LOG.info("windowClosed");
+		//log.info("windowClosed");
 	}
 
 	// @Override - only in Java 1.6
@@ -692,22 +692,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			ServiceInterface service = sw.get();
 
 			if (serviceName.compareTo(this.getName()) == 0) {
-				LOG.info("momentarily skipping " + this.getName() + "....");
+				log.info("momentarily skipping " + this.getName() + "....");
 				continue;
 			}
 
 			if (service != null) {
-				LOG.info("shutting down " + serviceName);
+				log.info("shutting down " + serviceName);
 				service.stopService();
 			} else {
-				LOG.info("skipping remote service " + serviceName);
+				log.info("skipping remote service " + serviceName);
 
 			}
 
 		}
 
 		// shut self down
-		LOG.info("shutting down GUIService");				
+		log.info("shutting down GUIService");				
 		this.stopService();
 		// the big hammer - TODO - close gui - allow all other services to continue
 		System.exit(1); // is this correct? - or should the gui load off a different thread?
@@ -715,22 +715,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowDeactivated(WindowEvent e) {
-		//LOG.info("windowDeactivated");
+		//log.info("windowDeactivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowDeiconified(WindowEvent e) {
-		//LOG.info("windowDeiconified");
+		//log.info("windowDeiconified");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowIconified(WindowEvent e) {
-		//LOG.info("windowActivated");
+		//log.info("windowActivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowOpened(WindowEvent e) {
-		//LOG.info("windowOpened");
+		//log.info("windowOpened");
 
 	}
 	

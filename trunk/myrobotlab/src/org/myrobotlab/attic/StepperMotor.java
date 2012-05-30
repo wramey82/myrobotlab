@@ -31,7 +31,7 @@ import org.myrobotlab.framework.Service;
 public class StepperMotor extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(StepperMotor.class
+	public final static Logger log = Logger.getLogger(StepperMotor.class
 			.getCanonicalName());
 	public final static String DIRECTION_CCW = "CCW"; // TODO - should this be
 														// in config?
@@ -48,23 +48,23 @@ public class StepperMotor extends Service {
 	}
 
 	public void goCW() {
-		LOG.debug("goCW");
+		log.debug("goCW");
 	}
 
 	public void goCW(int step) {
-		LOG.debug("goCW");
+		log.debug("goCW");
 	}
 
 	public void goCCW(int step) {
-		LOG.debug("goCCW");
+		log.debug("goCCW");
 	}
 
 	public void goCCW() {
-		LOG.debug("goCCW");
+		log.debug("goCCW");
 	}
 
 	public void stopMotor() {
-		LOG.debug("stopMotor");
+		log.debug("stopMotor");
 	}
 
 	@Override

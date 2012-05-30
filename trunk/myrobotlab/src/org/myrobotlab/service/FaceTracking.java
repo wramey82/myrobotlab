@@ -37,7 +37,7 @@ public class FaceTracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(FaceTracking.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FaceTracking.class.getCanonicalName());
 
 	/*
 	 *  TODO - dead zone - scan / search
@@ -161,25 +161,25 @@ public class FaceTracking extends Service {
 		int correctX = (int)xpid.Output;
 		int correctY = (int)ypid.Output;
 		
-		//LOG.error(point.x() + "," + point.y() + " correct x " + correctX + " correct y " + correctY);
+		//log.error(point.x() + "," + point.y() + " correct x " + correctX + " correct y " + correctY);
 		
 		if (correctX == 0 && correctY == 0)
 		{
 			if (state == null)
 			{
 				// I found my num num			
-				LOG.error("I found my num num");
+				log.error("I found my num num");
 				speak("I found my num num");
 				state = "foundSomethingNew";
 			} else if (!"centered".equals(state)){
-				LOG.error("I'm hooked up, num num num");
+				log.error("I'm hooked up, num num num");
 				speak("I got my num num");
 			}
 			state = "centered";
 		} else {		
 			if (!"tracking".equals(state))
 			{
-				LOG.error("I wan't dat");
+				log.error("I wan't dat");
 				speak("I wan't dat");
 
 			}
@@ -193,12 +193,12 @@ public class FaceTracking extends Service {
 	{
 		if (b == true)
 		{
-			LOG.error("num num - I' gonna get it");
+			log.error("num num - I' gonna get it");
 			speak("I'm gonna get my num num");
 		} else {
 			//if (!"lostTracking".equals(state))
 			// wah wah - search routine
-			LOG.error("wah wah - where is it?"); 
+			log.error("wah wah - where is it?"); 
 			speak("boo who who - where is my num num?");
 			state = "lostTracking";
 		}

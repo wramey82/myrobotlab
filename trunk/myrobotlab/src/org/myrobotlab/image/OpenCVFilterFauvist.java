@@ -45,7 +45,7 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterFauvist.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterFauvist.class
 			.getCanonicalName());
 
 	IplImage gray = null;
@@ -86,7 +86,7 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		if (gray == null) {

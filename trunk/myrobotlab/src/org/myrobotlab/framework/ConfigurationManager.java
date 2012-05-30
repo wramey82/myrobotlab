@@ -121,7 +121,7 @@ import org.apache.log4j.Logger;
 public class ConfigurationManager implements Serializable {
 	static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(ConfigurationManager.class.toString());
+	public final static Logger log = Logger.getLogger(ConfigurationManager.class.toString());
 	public final static String PATH_DELIMETER = "/";
 	public final static String ELEMENT_DELIMETER = ",";
 
@@ -158,12 +158,12 @@ public class ConfigurationManager implements Serializable {
 	public ConfigurationManager(String host, String serviceName) {
 		if (host == null || host == "") {
 			host = "";
-			// LOG.warn("setting host to \"\" is not recommended");
+			// log.warn("setting host to \"\" is not recommended");
 		}
 
 		if (serviceName == null || serviceName == "") {
 			serviceName = "";
-			// LOG.warn("setting serviceName to \"\" is not recommended");
+			// log.warn("setting serviceName to \"\" is not recommended");
 		}
 
 		this.host = host;
@@ -352,7 +352,7 @@ public class ConfigurationManager implements Serializable {
 	public String get(final String path) {
 		String v = (String) get(path, (Object) null);
 		if (v == null) {
-			LOG.error("configuration error - deprecate !");
+			log.error("configuration error - deprecate !");
 			throw new CFGError("String " + path + " not set");
 		}
 		return v;
@@ -625,9 +625,9 @@ public class ConfigurationManager implements Serializable {
 			 */
 
 		} catch (FileNotFoundException e) {
-			LOG.warn("file " + filename + " not found");
+			log.warn("file " + filename + " not found");
 		} catch (IOException e) {
-			LOG.warn("IOException on " + filename);
+			log.warn("IOException on " + filename);
 		}
 
 	}

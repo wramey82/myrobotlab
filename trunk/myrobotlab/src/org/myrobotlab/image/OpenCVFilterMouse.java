@@ -57,7 +57,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterMouse.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterMouse.class
 			.getCanonicalName());
 
 	int stepSize = 1;
@@ -134,7 +134,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		// path.clear();
@@ -181,7 +181,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 		myService.invoke("publish", (Object) path);
 
-		LOG.error(path.size());
+		log.error(path.size());
 		return image;
 	}
 
@@ -365,7 +365,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 					break;
 
 				default: {
-					LOG.error("invalid direction " + lastWall);
+					log.error("invalid direction " + lastWall);
 				}
 
 				} // switch
@@ -463,7 +463,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 					break;
 
 				default: {
-					LOG.error("invalid direction " + lastWall);
+					log.error("invalid direction " + lastWall);
 				}
 
 				} // switch

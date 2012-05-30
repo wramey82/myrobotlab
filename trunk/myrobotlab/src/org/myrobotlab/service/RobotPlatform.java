@@ -141,7 +141,7 @@ public class RobotPlatform extends Service {
 	 * 
 	 */
 
-	public final static Logger LOG = Logger.getLogger(RobotPlatform.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RobotPlatform.class.getCanonicalName());
 
 	public RobotPlatform(String n) {
 		this(n, null);
@@ -258,7 +258,7 @@ public class RobotPlatform extends Service {
 						
 						
 					} catch (InterruptedException e) {
-						LOG.warn("duration thread interrupted");
+						log.warn("duration thread interrupted");
 					}
 					
 				
@@ -306,8 +306,8 @@ public class RobotPlatform extends Service {
 		left.stop();
 		endMotion = System.currentTimeMillis();
 		
-		LOG.error("hc? " + heading + " hc " + headingCurrent + " hl " + headingLast);
-		LOG.error("lagTime " + (endMotion - beginMotion));
+		log.error("hc? " + heading + " hc " + headingCurrent + " hl " + headingLast);
+		log.error("lagTime " + (endMotion - beginMotion));
 		*/
 
 		// attempt to go 10 degrees
@@ -325,7 +325,7 @@ public class RobotPlatform extends Service {
 			
 			endMotion = System.currentTimeMillis();
 
-			LOG.error("move time " + (endMotion - beginMotion));
+			log.error("move time " + (endMotion - beginMotion));
 		
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -337,7 +337,7 @@ public class RobotPlatform extends Service {
 		
 		/*
 		// ramp power up until change is seen in the feedback 
-		LOG.error("headingCurrent " + headingCurrent);
+		log.error("headingCurrent " + headingCurrent);
 		RampingThread ramping = new RampingThread(right, 10000, 0.0f, 0.5f, 0.02f);
 		ramping.start();
 		beginMotion = System.currentTimeMillis(); 
@@ -346,9 +346,9 @@ public class RobotPlatform extends Service {
 		endMotion = System.currentTimeMillis();
 		ramping.interrupt();
 		right.stop();		
-		LOG.error("min start power in 10 second interval + lag " + power + " headingCurrent " + headingCurrent + " headingLast " + headingLast + " retrieved heading " + heading);
+		log.error("min start power in 10 second interval + lag " + power + " headingCurrent " + headingCurrent + " headingLast " + headingLast + " retrieved heading " + heading);
 		ramping = null; // for gc
-		LOG.error("here");
+		log.error("here");
 		*/
 		
 		// take resulting power
@@ -473,10 +473,10 @@ public class RobotPlatform extends Service {
 				|| ((at < headingTarget) && (headingTarget < headingCurrent))
 				|| ((headingTarget < headingCurrent) && (headingCurrent < at))) 
 		{
-			LOG.error("turn right");
+			log.error("turn right");
 			directionTarget = Directions.RIGHT;
 		} else {
-			LOG.error("turn left");
+			log.error("turn left");
 			directionTarget = Directions.LEFT;
 		}
 

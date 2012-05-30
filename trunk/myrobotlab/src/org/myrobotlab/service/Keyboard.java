@@ -8,7 +8,7 @@ public class Keyboard extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Keyboard.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Keyboard.class.getCanonicalName());
 
 	public Keyboard(String n) {
 		super(n, Keyboard.class.getCanonicalName());

@@ -76,7 +76,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(OpenCVGUI.class.toString());
+	public final static Logger log = Logger.getLogger(OpenCVGUI.class.toString());
 	public String prefixPath = "com.googlecode.javacv.";
 
 	JButton connectButton = null;
@@ -292,7 +292,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			OpenCVFilterGUI gui = filters.get(filterData.name);
 			gui.setFilterData(filterData);
 		} else {
-			LOG.error(filterData.name + " does not contain a gui");
+			log.error(filterData.name + " does not contain a gui");
 		}
 	}
 	
@@ -411,7 +411,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
 				myOpenCV.cameraIndex = (Integer)cameraIndex.getSelectedItem();
 			} else {
-				LOG.error("input source is " + myOpenCV.inputSource);
+				log.error("input source is " + myOpenCV.inputSource);
 			}
 			
 			myService.send(boundServiceName, "setState", myOpenCV);
@@ -516,7 +516,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		// LOG.debug(e);
+		// log.debug(e);
 		if (!e.getValueIsAdjusting()) {
 			String filterName = (String) currentFilters.getSelectedValue();
 			if (filterName != null) {
@@ -631,7 +631,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			
 			
 		} else {
-			LOG.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
+			log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
 		}
 				
 		cameraIndex.setSelectedIndex(opencv.cameraIndex);

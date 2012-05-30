@@ -48,7 +48,7 @@ import org.myrobotlab.framework.Service;
 
 public class AudioCapture extends Service {
 
-	public final static Logger LOG = Logger.getLogger(AudioCapture.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(AudioCapture.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean stopCapture = false;
 	ByteArrayOutputStream byteArrayOutputStream;
@@ -108,7 +108,7 @@ public class AudioCapture extends Service {
 			Thread captureThread = new Thread(new CaptureThread());
 			captureThread.start();
 		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 		}// end catch
 	}// end captureAudio method
 
@@ -146,7 +146,7 @@ public class AudioCapture extends Service {
 				}// end while
 				byteArrayOutputStream.close();
 			} catch (Exception e) {
-				LOG.error(Service.stackToString(e));
+				log.error(Service.stackToString(e));
 			}// end catch
 		}// end run
 	}// end inner class CaptureThread
@@ -176,7 +176,7 @@ public class AudioCapture extends Service {
 				sourceDataLine.drain();
 				sourceDataLine.close();
 			} catch (Exception e) {
-				LOG.error(Service.stackToString(e));
+				log.error(Service.stackToString(e));
 			}// end catch
 		}// end run
 	}// end inner class PlayThread
@@ -213,7 +213,7 @@ public class AudioCapture extends Service {
 			Thread playThread = new Thread(new PlayThread());
 			playThread.start();
 		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 		}// end catch
 	}// end playAudio
 	

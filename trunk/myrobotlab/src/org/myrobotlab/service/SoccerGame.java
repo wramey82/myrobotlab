@@ -16,7 +16,7 @@ public class SoccerGame extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(SoccerGame.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SoccerGame.class.getCanonicalName());
 
 	public HashMap<String, Object> session = new HashMap<String, Object>(); 
 
@@ -61,7 +61,7 @@ public class SoccerGame extends Service {
 	// TODO - public exec (Message ? ) handler
 	public void logon (String name, String password)
 	{
-		LOG.info("logon " + name + " password " + password);
+		log.info("logon " + name + " password " + password);
 	}
 	
 	@Override

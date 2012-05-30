@@ -52,7 +52,7 @@ import org.myrobotlab.framework.Service;
 
 public class FileIO {
 
-	public final static Logger LOG = Logger.getLogger(FileIO.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FileIO.class.getCanonicalName());
 
 	public final static String fileToString(File file) {
 		String result = null;
@@ -65,7 +65,7 @@ public class FileIO {
 			in.readFully(buffer);
 			result = new String(buffer);
 		} catch (IOException e) {
-			LOG.error("could not open filename " + file.getName());
+			log.error("could not open filename " + file.getName());
 		} finally {
 			try {
 				if (in != null)
@@ -98,14 +98,14 @@ public class FileIO {
 			}
 			out.write(data);
 		} catch (Exception e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 		} finally {
 			try {
 				if (out != null) {
 					out.close();
 				}
 			} catch (IOException e) {
-				LOG.error(Service.stackToString(e));
+				log.error(Service.stackToString(e));
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public class FileIO {
 		InputStream isr = FileIO.class.getResourceAsStream("/resource/" + filename);
 		if (isr == null)
 		{
-			LOG.error("could not locate resource " + filename);
+			log.error("could not locate resource " + filename);
 		}
 	    DataInputStream input = new DataInputStream (isr);
 	    String stringData = null;
@@ -160,7 +160,7 @@ public class FileIO {
 			
 			if (is == null)
 			{
-				LOG.error("resource " + filename + " not found");
+				log.error("resource " + filename + " not found");
 				return null;
 			}
 				
@@ -174,7 +174,7 @@ public class FileIO {
 				str.append("\n");
 			}
 		} catch (IOException e) {
-			LOG.error("could not open filename /resource/" + filename);
+			log.error("could not open filename /resource/" + filename);
 		}
 
 		return str.toString();

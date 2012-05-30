@@ -27,7 +27,7 @@ import org.myrobotlab.service.interfaces.GUI;
 // TODO - too big for inner class
 public class VideoDisplayPanel
 {
-	public final static Logger LOG = Logger.getLogger(VideoDisplayPanel.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(VideoDisplayPanel.class.getCanonicalName());
 
 	VideoWidget parent;
 	String boundFilterName;
@@ -255,7 +255,7 @@ public class VideoDisplayPanel
 				myService.send(boundServiceName, "fork", filter); 
 
 			} else {
-				LOG.error("unhandled button event - " + id);
+				log.error("unhandled button event - " + id);
 			}
 		}
 	}

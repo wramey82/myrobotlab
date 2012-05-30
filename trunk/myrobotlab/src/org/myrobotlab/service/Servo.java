@@ -40,7 +40,7 @@ public class Servo extends Service implements
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Servo.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Servo.class.getCanonicalName());
 
 	boolean isAttached = false;
 
@@ -87,13 +87,13 @@ public class Servo extends Service implements
 	public boolean attach()
 	{
 		if (controllerName.length() == 0) {
-			LOG.error("can not attach, controller name is blank");
+			log.error("can not attach, controller name is blank");
 			return false;
 		}
 		
 		if (isAttached)
 		{
-			LOG.warn("servo " + getName() +  " is already attached - detach before re-attaching");
+			log.warn("servo " + getName() +  " is already attached - detach before re-attaching");
 			return false;
 		}
 
@@ -144,7 +144,7 @@ public class Servo extends Service implements
 
 	// callback from controller
 	public PinData publishPin(PinData p) {
-		LOG.info(p);
+		log.info(p);
 		setPos(p.value);
 		return p;
 	}
@@ -164,7 +164,7 @@ public class Servo extends Service implements
 	 * @return
 	 */
 	public Integer moveTo(Integer pos) {
-		LOG.info(getName() + " moveTo " + pos);
+		log.info(getName() + " moveTo " + pos);
 		send(controllerName, ServoController.servoWrite, pin, pos); 
 		this.pos = pos; 
 		// invoke("servoWrite", pos); TODO - consider
@@ -201,11 +201,11 @@ public class Servo extends Service implements
 		int p = pos + amount;
 		if (p < posMax && p > posMin) {
 			pos = p;
-			LOG.info("move" + pos);
+			log.info("move" + pos);
 			invoke("servoWrite", pos);
 
 		} else {
-			LOG.error("servo out of bounds pin " + pin + " pos " + pos + " amount " + amount);
+			log.error("servo out of bounds pin " + pin + " pos " + pos + " amount " + amount);
 		}
 
 		return pos;

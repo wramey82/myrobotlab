@@ -50,7 +50,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class FSMGUI extends ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(FSMGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FSMGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JList transitionStates;

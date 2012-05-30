@@ -38,7 +38,7 @@ public class FSM extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(FSM.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FSM.class.getCanonicalName());
 
 	
 	HashMap<String, EventData> transistionStates = new HashMap<String, EventData>();
