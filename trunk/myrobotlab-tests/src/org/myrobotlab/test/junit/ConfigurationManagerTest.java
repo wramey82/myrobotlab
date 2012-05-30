@@ -27,7 +27,7 @@ import org.myrobotlab.framework.ConfigurationManager.CFGError;
  * 
  */
 public class ConfigurationManagerTest {
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(ConfigurationManagerTest.class.getCanonicalName());
 
 	public class TestClass {
@@ -168,7 +168,7 @@ public class ConfigurationManagerTest {
 				"com.myrobot.framework.MyService", 333, new Date(), service, null);
 
 		ArrayList<ServiceEntry> sel = hostcfg.getLocalServiceEntries();
-		LOG.info(sel);
+		log.info(sel);
 		assertEquals(2, sel.size());
 
 	}
@@ -221,7 +221,7 @@ public class ConfigurationManagerTest {
 		assertEquals(cfg.get("test1"), "value1");
 		cfg.set("test1", "");
 		assertEquals(cfg.get("test1"), "");
-		LOG.info(cfg.size("test1"));
+		log.info(cfg.size("test1"));
 		assertEquals(cfg.size("test1"), 0);
 
 		// boolean test
@@ -247,7 +247,7 @@ public class ConfigurationManagerTest {
 		cfg.set("typeMap/SODHAR", "PilotGUI");
 
 		cfg.set("typeMap/type", "otherGarbage");
-		LOG.info(cfg.toString());
+		log.info(cfg.toString());
 
 		// map search
 		Set<String> keys = cfg.keySet("typeMap");
@@ -443,10 +443,10 @@ public class ConfigurationManagerTest {
 		cfg.set("branch0/branch1/branch2/branch3/v1", 1);
 		cfg.set("branch0/branch1/branch2/branch3/v2", 2);
 		cfg.set("branch0/branch1/branch2/branch3/v3", 3);
-		LOG.info(cfg.size()); // put in 1 branch with 4 leaves
+		log.info(cfg.size()); // put in 1 branch with 4 leaves
 		assertEquals(1, cfg.size());
 
-		LOG.info(cfg.size());
+		log.info(cfg.size());
 		assertEquals(1, cfg.size());
 
 		cfg.set("v5", 5); // setting the leaves on the root branch 1 root branch
@@ -459,11 +459,11 @@ public class ConfigurationManagerTest {
 									// v3=3, v1=1, v2=2}}
 
 		cfg.set("v8", 8); // adding the first leaf creates a new branch
-		LOG.info(cfg.size());
+		log.info(cfg.size());
 		// assertEquals(4, cfg.size());
 
 		cfg.set("branch0/branch1/branch2/branch3", 4);
-		LOG.info(cfg.size());
+		log.info(cfg.size());
 		assertEquals(4, cfg.size());
 
 	}
@@ -507,7 +507,7 @@ public class ConfigurationManagerTest {
 		try {
 			notset = cfg.get("noKeyWillReturnNull");
 		} catch (CFGError error) {
-			LOG.error(error);
+			log.error(error);
 			throwOnNotSet = true;
 		}
 		assertTrue(throwOnNotSet);
@@ -608,7 +608,7 @@ public class ConfigurationManagerTest {
 		assertEquals(cfg.get("test1", ""), "value1");
 		cfg.set("test1", "");
 		assertEquals(cfg.get("test1", null), "");
-		LOG.info(cfg.size("test1"));
+		log.info(cfg.size("test1"));
 		assertEquals(cfg.size("test1"), 0);
 
 		// boolean test
@@ -651,7 +651,7 @@ public class ConfigurationManagerTest {
 		Date d = new Date();
 		for (Iterator<String> it = cfg.keySet().iterator(); it.hasNext();) {
 			String name = (String) it.next();
-			LOG.info(cfg.get(name, null));
+			log.info(cfg.get(name, null));
 			cfg.set("host", "localhost");
 			cfg.set("servicePort", 6666);
 			cfg.set("name", name);
@@ -668,7 +668,7 @@ public class ConfigurationManagerTest {
 			assertEquals(6666, cfg.get("servicePort", 5555));
 			assertEquals(d, cfg.getDate("lastModified"));
 			assertEquals(null, cfg.get("class", null));
-			// LOG.info(cfg.get("lastModified"));
+			// log.info(cfg.get("lastModified"));
 		}
 		*/
 		
@@ -676,7 +676,7 @@ public class ConfigurationManagerTest {
 		cfg.get("host", "");
 		cfg.get("host", "notLocalhost");
 
-		// LOG.info(cfg);
+		// log.info(cfg);
 	}
 
 	/**
@@ -746,8 +746,8 @@ public class ConfigurationManagerTest {
 		Float f = (float) 2.35;
 		cfg.set("float", f);
 		float t = cfg.getFloat("float");
-		LOG.info(f.floatValue());
-		LOG.info(t);
+		log.info(f.floatValue());
+		log.info(t);
 		String a = "" + t;
 		String z = f.toString();
 		assertEquals(z, a);

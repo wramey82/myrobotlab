@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 
 public class DatagramServer extends Thread {
 
-	public final static Logger LOG = Logger.getLogger(DatagramServer.class
+	public final static Logger log = Logger.getLogger(DatagramServer.class
 			.getCanonicalName());
 
 	protected BufferedReader in = null;
@@ -71,7 +71,7 @@ public class DatagramServer extends Thread {
 		public void run() {
 			try {
 
-				LOG.info("starting DatagramThread processor ");
+				log.info("starting DatagramThread processor ");
 				byte[] videoFrame = new byte[65535];
 
 				while (isRunning) {
@@ -87,13 +87,13 @@ public class DatagramServer extends Thread {
 						// "port"
 						DatagramPacket packet = new DatagramPacket(videoFrame,
 								videoFrame.length, ap.address, ap.port);
-						LOG.info("sending videoFrame to " + ap);
+						log.info("sending videoFrame to " + ap);
 						socket.send(packet);
 						Thread.sleep(1000); // / LAME
 					}
 
 					if (clients.size() == 0) {
-						LOG.info("noone listening");
+						log.info("noone listening");
 						Thread.sleep(1000); // / LAME
 					}
 
@@ -117,7 +117,7 @@ public class DatagramServer extends Thread {
 			// start the sender
 			new DatagramThread().start();
 
-			LOG.info("starting listener");
+			log.info("starting listener");
 
 			while (isRunning) {
 				// receive request
@@ -128,7 +128,7 @@ public class DatagramServer extends Thread {
 						packet.getPort());
 				clients.put(ap.toString(), ap);
 
-				LOG.info(ap.toString() + " has requested a video feed (TCP)");
+				log.info(ap.toString() + " has requested a video feed (TCP)");
 			}
 
 		} catch (IOException e) {

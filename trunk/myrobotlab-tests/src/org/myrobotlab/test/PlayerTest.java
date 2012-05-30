@@ -31,7 +31,7 @@ import org.myrobotlab.service.GUIService;
 
 public class PlayerTest {
 
-	public final static Logger LOG = Logger.getLogger(PlayerTest.class
+	public final static Logger log = Logger.getLogger(PlayerTest.class
 			.getCanonicalName());
 
 	public static void main(String[] args) throws InterruptedException {

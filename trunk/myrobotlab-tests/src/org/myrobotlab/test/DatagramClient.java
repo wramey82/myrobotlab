@@ -42,7 +42,7 @@ public class DatagramClient extends Applet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(DatagramClient.class
+	public final static Logger log = Logger.getLogger(DatagramClient.class
 			.getCanonicalName());
 
 	public static void main(String[] args) throws IOException {
@@ -61,7 +61,7 @@ public class DatagramClient extends Applet {
 			InetAddress address = InetAddress.getByName("10.0.0.152");
 			DatagramPacket packet = new DatagramPacket(buf, buf.length,
 					address, 4445);
-			LOG.info("sending " + buf);
+			log.info("sending " + buf);
 			socket.send(packet);
 
 			boolean isRunning = true;
@@ -74,7 +74,7 @@ public class DatagramClient extends Applet {
 				// display response
 				String received = new String(packet.getData(), 0, packet
 						.getLength());
-				LOG.info("recv: " + received + "from "
+				log.info("recv: " + received + "from "
 						+ packet.getAddress().toString() + ":"
 						+ packet.getPort());
 			}
