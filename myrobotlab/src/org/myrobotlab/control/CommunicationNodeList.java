@@ -30,7 +30,7 @@ public class CommunicationNodeList extends JPanel {
 	    add(pane, BorderLayout.NORTH);
 	    //add(button, BorderLayout.SOUTH);
 	  }
-		public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
+		public final static Logger log = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 
 /*	  

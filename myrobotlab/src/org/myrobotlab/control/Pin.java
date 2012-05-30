@@ -43,7 +43,7 @@ import org.myrobotlab.service.data.IOData;
 
 public class Pin {
 
-	public final static Logger LOG = Logger.getLogger(Pin.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Pin.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 	
 	public final String boundServiceName;
@@ -154,7 +154,7 @@ public class Pin {
 					if (myService != null) {
 						myService.send(boundServiceName, "analogWrite", io);
 					} else {
-						LOG.error("can not send message myService is null");
+						log.error("can not send message myService is null");
 					}
 				}
 			});
@@ -222,14 +222,14 @@ public class Pin {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (getSelectedIndex() == 0) {
-				LOG.info("OUTPUT");
+				log.info("OUTPUT");
 				IOData io = new IOData();
 				io.address = pin.pinNumber;
 				io.value = OUTPUT;
 				pin.myService.send(pin.boundServiceName, "pinMode", io); 
 				pin.myService.send(pin.boundServiceName, "digitalReadPollStop", pin.pinNumber);
 			} else {
-				LOG.info("INPUT");
+				log.info("INPUT");
 				IOData io = new IOData();
 				io.address = pin.pinNumber;
 				io.value = INPUT;

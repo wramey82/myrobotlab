@@ -30,7 +30,7 @@ public class Simbad extends Service {
 	private static final long serialVersionUID = 1L;
 	//Simbad frame = new Simbad(new MyEnv() ,false);
 	 
-	public final static Logger LOG = Logger.getLogger(Simbad.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Simbad.class.getCanonicalName());
 
 	public static class MyEnv extends EnvironmentDescription {
 	    public MyEnv(){

@@ -41,7 +41,7 @@ import org.myrobotlab.service.interfaces.GUI;
  */
 public class TabControl extends JLabel implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(TabControl.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(TabControl.class.getCanonicalName());
 
 	JPopupMenu popup = new JPopupMenu();
 	JTabbedPane parent; 
@@ -145,10 +145,10 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	@Override
 	public void mouseReleased(MouseEvent e)
 	{
-        LOG.debug("mouseReleased");
+        log.debug("mouseReleased");
     	
     	if (SwingUtilities.isRightMouseButton(e)) {
-            LOG.debug("mouseReleased - right");
+            log.debug("mouseReleased - right");
     		popUpTrigger(e);
     	}
 	  dispatchMouseEvent(e);

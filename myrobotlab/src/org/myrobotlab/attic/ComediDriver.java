@@ -36,7 +36,7 @@ public class ComediDriver extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(ComediDriver.class);
+	public final static Logger log = Logger.getLogger(ComediDriver.class);
 
 	public ComediDriverConfig config;
 
@@ -51,11 +51,11 @@ public class ComediDriver extends Service {
 
 
 	public void foobar() {
-		LOG.warn("foobar");
+		log.warn("foobar");
 	}
 
 	public static void write(IOAddress io) {
-		LOG.info("write");
+		log.info("write");
 		jcomedidiowrite(io.subdevice, io.channel, io.data);
 	}
 
@@ -70,10 +70,10 @@ public class ComediDriver extends Service {
 		// 
 		String namedSequence = inNamedSequence.toString();
 
-		LOG.info("write");
-		LOG.info(config.sequenceMap_);
+		log.info("write");
+		log.info(config.sequenceMap_);
 		if (!config.sequenceMap_.containsKey(namedSequence)) {
-			LOG.error("repeat " + namedSequence
+			log.error("repeat " + namedSequence
 					+ " sequence was requested but " + namedSequence
 					+ " does not exist in config");
 			return;

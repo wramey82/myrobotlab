@@ -40,7 +40,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class Calibrator extends Service {
 
-	public final static Logger LOG = Logger.getLogger(Calibrator.class
+	public final static Logger log = Logger.getLogger(Calibrator.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -147,7 +147,7 @@ public class Calibrator extends Service {
 		sleep(1000); // stabalize
 
 		if (servoX == null || servoY == null || opencv == null) {
-			LOG.error("servoX servoY & opencv need to be set to calibrate");
+			log.error("servoX servoY & opencv need to be set to calibrate");
 		}
 
 		// auto configure
@@ -233,7 +233,7 @@ public class Calibrator extends Service {
 	}
 
 	public void moveAndCompare(String servoName, Integer pos) {
-		LOG.error("moving " + servoName + " " + pos);
+		log.error("moving " + servoName + " " + pos);
 
 		send(servoName, "moveTo", pos); // +1/-1
 
@@ -261,11 +261,11 @@ public class Calibrator extends Service {
 		for (int i = 0; i < current_features.length; ++i) {
 			CvPoint2D32f p0 = current_features[i];
 			CvPoint2D32f p1 = saved_features[i];
-			LOG.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
+			log.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
 					+ (int) p1.y() + " " + (int) (p0.x() - p1.x()) + " "
 					+ (int) (p0.y() - p1.y()));
 		}
-		LOG.info("done");
+		log.info("done");
 		displayResults();
 	}
 
@@ -296,7 +296,7 @@ public class Calibrator extends Service {
 			graphics.drawLine((int) p0.x() - 1, (int) p0.y(), (int) p0.x() + 1,
 					(int) p0.y());
 
-			// LOG.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
+			// log.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));
 		}
 		invoke("publishFrame", "cal", frameBuffer);

@@ -87,7 +87,7 @@ public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCV.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCV.class.getCanonicalName());
 
 	int frameIndex = 0;
 	int lastImageWidth = 0;
@@ -266,11 +266,11 @@ public class OpenCV extends Service {
 	 */
 	public void invokeFilterMethod(String filterName, String method,
 			Object[] params) {
-		// LOG.error("invokeFilterMethod here");
+		// log.error("invokeFilterMethod here");
 		if (filters.containsKey(filterName)) {
 			invoke(filters.get(filterName), method, params);
 		} else {
-			LOG.error("invokeFilterMethod " + filterName + " does not exist");
+			log.error("invokeFilterMethod " + filterName + " does not exist");
 		}
 
 	}
@@ -280,7 +280,7 @@ public class OpenCV extends Service {
 			Service.copyShallowFrom(filters.get(filterData.name),
 					filterData.filter);
 		} else {
-			LOG.error("setFilterData " + filterData.name + " does not exist");
+			log.error("setFilterData " + filterData.name + " does not exist");
 		}
 
 	}
@@ -300,7 +300,7 @@ public class OpenCV extends Service {
 		if (filters.containsKey(name)) {
 			return new FilterWrapper(name, filters.get(name));
 		} else {
-			LOG.error("setFilterData " + name + " does not exist");
+			log.error("setFilterData " + name + " does not exist");
 		}
 
 		return null;
@@ -310,14 +310,14 @@ public class OpenCV extends Service {
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
 		} else {
-			LOG.error("setFilterCFG " + filterName + " does not exist");
+			log.error("setFilterCFG " + filterName + " does not exist");
 		}
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Integer value) {
 		if (!filters.containsKey(filterName)) {
-			LOG.warn("setFilterCFG filter " + filterName
+			log.warn("setFilterCFG filter " + filterName
 					+ " does not currently exist");
 		}
 		return cfg.set(OpenCVFilter.FILTER_CFG_ROOT + filterName + "/"
@@ -328,7 +328,7 @@ public class OpenCV extends Service {
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
 		} else {
-			LOG.error("setFilterCFG " + filterName + " does not exist");
+			log.error("setFilterCFG " + filterName + " does not exist");
 		}
 		return null;
 	}
@@ -337,7 +337,7 @@ public class OpenCV extends Service {
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
 		} else {
-			LOG.error("setFilterCFG " + filterName + " does not exist");
+			log.error("setFilterCFG " + filterName + " does not exist");
 		}
 		return null;
 	}
@@ -360,7 +360,7 @@ public class OpenCV extends Service {
 		SimpleDateFormat sdf = new SimpleDateFormat();
 
 		public void start() {
-			LOG.info("starting capture");
+			log.info("starting capture");
 			sdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
 			sdf.applyPattern("dd MMM yyyy HH:mm:ss z");
 
@@ -369,7 +369,7 @@ public class OpenCV extends Service {
 		}
 
 		public void stop() {
-			LOG.debug("stopping capture");
+			log.debug("stopping capture");
 			capturing = false;
 			videoThread = null;
 		}
@@ -407,10 +407,10 @@ public class OpenCV extends Service {
 					grabber.setFormat(format);
 				}
 
-				LOG.error("using " + grabber.getClass().getCanonicalName());
+				log.error("using " + grabber.getClass().getCanonicalName());
 
 				if (grabber == null) {
-					LOG.error("no viable capture or frame grabber with input " + grabberType);
+					log.error("no viable capture or frame grabber with input " + grabberType);
 					stop();
 				}
 
@@ -444,7 +444,7 @@ public class OpenCV extends Service {
 					storage.put("input", frame);
 
 				} catch (Exception e) {
-					LOG.error(stackToString(e));
+					log.error(stackToString(e));
 				}
 
 				logTime("read");
@@ -531,7 +531,7 @@ public class OpenCV extends Service {
 						if (publishFrame) {
 							invoke("publishFrame", displayFilter, bi);
 						}
-						// LOG.error(" time");
+						// log.error(" time");
 						published = true;
 					}
 				}
@@ -545,7 +545,7 @@ public class OpenCV extends Service {
 				grabber.release();
 				grabber = null;
 			} catch (Exception e) {
-				LOG.error(stackToString(e));
+				log.error(stackToString(e));
 			}
 		}
 	}
@@ -789,7 +789,7 @@ public class OpenCV extends Service {
 		} else if (filters.containsKey(name)) {
 			return filters.get(name);
 		} else {
-			LOG.error("no filter with name " + name);
+			log.error("no filter with name " + name);
 			return null;
 		}
 	}

@@ -40,7 +40,7 @@ import org.myrobotlab.service.data.NameValuePair;
 public class CFGSlider extends JPanel {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(CFGSlider.class
+	public final static Logger log = Logger.getLogger(CFGSlider.class
 			.getCanonicalName());
 
 	String boundService;
@@ -80,7 +80,7 @@ public class CFGSlider extends JPanel {
 						myService.send(boundService, "setCFG", nvp);
 
 					} else {
-						LOG.error("can not send message myService is null");
+						log.error("can not send message myService is null");
 					}
 				}
 			});

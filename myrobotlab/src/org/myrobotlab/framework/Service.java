@@ -87,7 +87,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// this.getClass().getCanonicalName() + "/" + name;
 	
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Service.class.toString());
+	public final static Logger log = Logger.getLogger(Service.class.toString());
 	protected String host = null; // TODO - should be final??? helpful in testing??? TODO - put in RuntimeEnvironment???
 	@Element
 	private final String name;
@@ -180,7 +180,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			try {
 				url = new URL(inHost); // TODO - initialize once RuntimeEnvironment
 			} catch (MalformedURLException e) {
-				LOG.error(inHost + " not a valid URL");
+				log.error(inHost + " not a valid URL");
 			}
 		}
 		// determine host name
@@ -239,20 +239,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		//cfgDir = userDir + File.separator + ".myrobotlab";
 
 		// http://developer.android.com/reference/java/lang/System.html
-		LOG.info("---------------normalize-------------------");
-		LOG.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Platform.getOS() + "]");
-		LOG.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Platform.getArch() + "]");
-		LOG.info("getBitness [" + Platform.getBitness() + "]");
-		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Platform.getVMName() + "]");
+		log.info("---------------normalize-------------------");
+		log.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Platform.getOS() + "]");
+		log.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Platform.getArch() + "]");
+		log.info("getBitness [" + Platform.getBitness() + "]");
+		log.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Platform.getVMName() + "]");
 					
-		LOG.info("---------------non-normalize---------------");						
-		LOG.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
-		LOG.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
-		LOG.info("java.home [" + System.getProperty("java.home") + "]");
-		LOG.info("os.version [" + System.getProperty("os.version") + "]");
-		LOG.info("java.class.path [" + System.getProperty("java.class.path") + "]");
-		LOG.info("java.library.path [" + libararyPath + "]");
-		LOG.info("user.dir [" + userDir + "]");
+		log.info("---------------non-normalize---------------");						
+		log.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
+		log.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
+		log.info("java.home [" + System.getProperty("java.home") + "]");
+		log.info("os.version [" + System.getProperty("os.version") + "]");
+		log.info("java.class.path [" + System.getProperty("java.class.path") + "]");
+		log.info("java.library.path [" + libararyPath + "]");
+		log.info("user.dir [" + userDir + "]");
 		
 		
 		// load root level configuration
@@ -279,7 +279,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			startTimeMilliseconds = System.currentTimeMillis();
 		}
 		if (performanceTiming) {
-			LOG.error("performance clock :"
+			log.error("performance clock :"
 					+ (System.currentTimeMillis() - startTimeMilliseconds
 							+ " ms " + tag));
 		}
@@ -306,7 +306,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		sb.append(" ms ");
 		sb.append(tag);
 		
-		LOG.error(sb);		
+		log.error(sb);		
 	}
 	
 	/**
@@ -382,7 +382,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			if (cfg.exists()){
 				serializer.read(o, cfg);
 			} else {
-				LOG.info("cfg file "   + filename + " does not exist");
+				log.info("cfg file "   + filename + " does not exist");
 			}
 		} catch (Exception e) {
 			Service.logException(e);
@@ -500,7 +500,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			thisThread.start();
 			isRunning = true;
 		} else {
-			LOG.warn("startService request: service " + name + " is already running");
+			log.warn("startService request: service " + name + " is already running");
 		}
 	}
 
@@ -553,9 +553,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 		} catch (InterruptedException e) {
 			if (thisThread != null) {
-				LOG.warn(thisThread.getName());
+				log.warn(thisThread.getName());
 			}
-			LOG.warn("service INTERRUPTED ");
+			log.warn("service INTERRUPTED ");
 			isRunning = false;
 		}
 	}
@@ -641,11 +641,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			c = Class.forName(classname);
 			return c.newInstance(); // Dynamically instantiate it
 		} catch (ClassNotFoundException e) {
-			LOG.error(stackToString(e));
+			log.error(stackToString(e));
 		} catch (InstantiationException e) {
-			LOG.error(stackToString(e));
+			log.error(stackToString(e));
 		} catch (IllegalAccessException e) {
-			LOG.error(stackToString(e));
+			log.error(stackToString(e));
 		}
 		return null;
 	}
@@ -761,20 +761,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				NotifyEntry entry = nes.get(i);
 				if (entry.equals(ne))
 				{
-					LOG.warn("attempting to add duplicate NotifyEntry " + ne);
+					log.warn("attempting to add duplicate NotifyEntry " + ne);
 					found = true;
 					break;
 				}
 			}
 			if (!found)
 			{
-				LOG.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
+				log.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 				nes.add(ne);
 			}
 		} else {
 			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
 			nel.add(ne);
-			LOG.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
+			log.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
 			outbox.notifyList.put(ne.outMethod.toString(), nel);
 		}
 		
@@ -850,7 +850,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 		} else {
-			LOG.error("removeNotify requested " + serviceName + "." + outMethod
+			log.error("removeNotify requested " + serviceName + "." + outMethod
 					+ " to be removed - but does not exist");
 		}
 		
@@ -877,7 +877,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 		} else {
-			LOG.error("removeNotify requested " + ne
+			log.error("removeNotify requested " + ne
 					+ " to be removed - but does not exist");
 		}
 
@@ -888,7 +888,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Object retobj = null;
 
-		LOG.info("***" + name + " msgid " + msg.msgID + " invoking "
+		log.info("***" + name + " msgid " + msg.msgID + " invoking "
 				+ msg.method + " (" + msg.getParameterSignature() + ")***");
 
 		retobj = invoke(msg.method, msg.data);
@@ -970,7 +970,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			} else {
 				paramTypeString = "null";
 			}
-			LOG.debug("****invoking " + host + "/" + getClass().getCanonicalName()
+			log.debug("****invoking " + host + "/" + getClass().getCanonicalName()
 					+ "." + method + "(" + paramTypeString + ")****");
 		}
 
@@ -1016,7 +1016,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			out(method, retobj);
 
 		} catch (NoSuchMethodException e) {
-			LOG.warn(c.getCanonicalName() + "#" + method + " NoSuchMethodException - attempting upcasting");
+			log.warn(c.getCanonicalName() + "#" + method + " NoSuchMethodException - attempting upcasting");
 
 			// search for possible upcasting methods			
 			// scary ! resolution rules are undefined - first "found" first invoked ?!?
@@ -1025,7 +1025,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		    // http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
 			// TODO - optimize "setState" function since it is a framework method - do not go through the search !
 			Method[] allMethods = c.getMethods(); // ouch
-			LOG.warn("ouch! need to search through " + allMethods.length + " methods");
+			log.warn("ouch! need to search through " + allMethods.length + " methods");
 
 		    for (Method m : allMethods) 
 		    {
@@ -1048,9 +1048,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		 		{
 		 			//if (params[i].getClass().isAssignableFrom(pType[i].getClass()))
 			 		//if (pType[i].getClass().isAssignableFrom(params[i].getClass()))
-		 			LOG.info(pType[i].getClass().getClass().getCanonicalName());
-		 			LOG.info(pType[i].getClass().getCanonicalName());
-		 			LOG.info(params[i].getClass().getCanonicalName());
+		 			log.info(pType[i].getClass().getClass().getCanonicalName());
+		 			log.info(pType[i].getClass().getCanonicalName());
+		 			log.info(params[i].getClass().getCanonicalName());
 		 			
 		 			if (pType[i].getClass().isAssignableFrom(pType[i].getClass()))
 		 			{
@@ -1068,19 +1068,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		 		}
 		 		*/
 		 		try {
-		 			LOG.debug("found appropriate method");
+		 			log.debug("found appropriate method");
 		 			retobj = m.invoke(object, params);
 
 		 			// put return object onEvent
 					out(method, retobj);
 		 			return retobj; 
 				} catch (Exception e1) {
-					LOG.error("boom goes method " + m.getName());
+					log.error("boom goes method " + m.getName());
 					Service.logException(e1);
 				}
 			} 
 		    
-		    LOG.error("did not find method [" + method + "] with " + ((params==null)?"()":params.length) + " params");
+		    log.error("did not find method [" + method + "] with " + ((params==null)?"()":params.length) + " params");
 						
 		} catch (Exception e) {
 			Service.logException(e);
@@ -1136,7 +1136,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Object[] returnContainer = new Object[1];
 		/*
-		 * if (inbox.blockingList.contains(msg.msgID)) { LOG.error("DUPLICATE");
+		 * if (inbox.blockingList.contains(msg.msgID)) { log.error("DUPLICATE");
 		 * }
 		 */
 		inbox.blockingList.put(msg.msgID, returnContainer);
@@ -1190,10 +1190,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		msg.method = method;
 
 		if (msg.getName().length() == 0) {
-			LOG.debug("create message " + host + "/*/" + msg.method + "#"
+			log.debug("create message " + host + "/*/" + msg.method + "#"
 					+ msg.getParameterSignature());
 		} else {
-			LOG.debug("create message " + host + "/" + msg.getName() + "/"
+			log.debug("create message " + host + "/" + msg.getName() + "/"
 					+ msg.method + "#" + msg.getParameterSignature());
 		}
 		return msg;
@@ -1230,7 +1230,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			LOG.error("could not find host, host is null or empty !");
+			log.error("could not find host, host is null or empty !");
 		}
 
 		return "localhost"; // no network - still can't be null // chumby
@@ -1238,12 +1238,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	// connection publish points - begin ---------------
 	public IPAndPort noConnection(IPAndPort conn) {
-		LOG.error("could not connect to " + conn.IPAddress + ":" + conn.port);
+		log.error("could not connect to " + conn.IPAddress + ":" + conn.port);
 		return conn;
 	}
 
 	public IPAndPort connectionBroken(IPAndPort conn) {
-		LOG.error("the connection " + conn.IPAddress + ":" + conn.port
+		log.error("the connection " + conn.IPAddress + ":" + conn.port
 				+ " has been broken");
 		return conn;
 	}
@@ -1297,7 +1297,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 	 
 	public final static void logException(final Throwable e) {
-		LOG.error(stackToString(e));
+		log.error(stackToString(e));
 	}
 	
 	/*
@@ -1317,16 +1317,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				Field f = fields[j];
 
 				if (Modifier.isPublic(f.getModifiers())
-						&& !(f.getName().equals("LOG"))
+						&& !(f.getName().equals("log"))
 						&& !Modifier.isTransient(f.getModifiers())) {
 
 					Type t = f.getType();
 
-					// LOG.info(Modifier.toString(f.getModifiers()));
+					// log.info(Modifier.toString(f.getModifiers()));
 					// f.isAccessible()
 
 					
-					LOG.info("setting " + f.getName());
+					log.info("setting " + f.getName());
 					if (t.equals(java.lang.Boolean.TYPE)) {
 						targetClass.getDeclaredField(f.getName()).setBoolean(
 								target, f.getBoolean(source));
@@ -1352,13 +1352,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 						targetClass.getDeclaredField(f.getName()).setDouble(
 								target, f.getDouble(source));
 					} else {
-						LOG.info("setting reference to remote object " + f.getName());
+						log.info("setting reference to remote object " + f.getName());
 						targetClass.getDeclaredField(f.getName()).set(target,
 								f.get(source));
 					}
 
 				} else {
-					LOG.debug("skipping " + f.getName());
+					log.debug("skipping " + f.getName());
 				}
 				
 				
@@ -1408,7 +1408,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			sdu.url = url;
 			
 			sdu.serviceEnvironment.accessURL = sdu.remoteURL;			
-			LOG.info(name + " recieved service directory update from " + sdu.remoteURL);
+			log.info(name + " recieved service directory update from " + sdu.remoteURL);
 	
 			// if successfully registered with "new" Services - echo a registration back
 			if (Runtime.register(sdu.remoteURL, sdu.serviceEnvironment))
@@ -1437,7 +1437,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	// TODO - DEPRICATE !!!!
 	public synchronized void registerServices() {
-		LOG.debug(name + " registerServices");
+		log.debug(name + " registerServices");
 
 		try {
 
@@ -1472,7 +1472,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			for (int i = 0; i < interfaces.length; ++i) {
 				Class<?> interfc = interfaces[i];
 
-				LOG.info("adding interface "
+				log.info("adding interface "
 						+ interfc.getCanonicalName());
 
 				hostcfg.setInterface(host, name, interfc.getClass()
@@ -1510,7 +1510,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
 			int port, ServiceDirectoryUpdate sdu) {
-		LOG.info(name + " sendServiceDirectoryUpdate ");
+		log.info(name + " sendServiceDirectoryUpdate ");
 
 		StringBuffer urlstr = new StringBuffer();
 		
@@ -1542,7 +1542,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			remoteURL = new URL(urlstr.toString());
 		} catch (MalformedURLException e) {
-			LOG.error(Service.stackToString(e));
+			log.error(Service.stackToString(e));
 			return;
 		}
 		
@@ -1593,7 +1593,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public final static void setLogLevel(String object, String level)
 	{
-		LOG.debug("setLogLevel " + object + " " + level);
+		log.debug("setLogLevel " + object + " " + level);
 		Logger logger;
 		if (object == null || object.length() == 0)
 		{
@@ -1621,7 +1621,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		
 	public static String getLogLevel(String object)
 	{		
-		LOG.debug("getLogLevel " + object);
+		log.debug("getLogLevel " + object);
 		Logger logger;
 		if (object == null || object.length() == 0)
 		{
@@ -1703,7 +1703,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				appender = new RollingFileAppender(layout, userDir +  File.separator + "myrobotlab.log", false);
 				appender.setName(LOGGING_APPENDER_ROLLING_FILE);
 			} else {
-				LOG.error("attempting to add unkown type of Appender " + type);
+				log.error("attempting to add unkown type of Appender " + type);
 				return;
 			}
 			

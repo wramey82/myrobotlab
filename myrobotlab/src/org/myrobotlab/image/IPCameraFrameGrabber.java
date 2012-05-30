@@ -25,7 +25,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	 * 			  http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password
 	 * android ip cam  http://192.168.0.57:8080/videofeed
 	 */
-	public final static Logger LOG = Logger.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
 
 	private URL url;
 	private URLConnection connection;
@@ -38,7 +38,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		try {
 			url = new URL (urlstr);
 		} catch (MalformedURLException e) {
-			LOG.error(e);
+			log.error(e);
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	@Override
 	public void start() throws Exception {
 		
-		LOG.error("connecting to " + url);
+		log.error("connecting to " + url);
 		connection = url.openConnection();
 		headerfields = connection.getHeaderFields();
 		if (headerfields.containsKey("Content-Type"))
@@ -112,7 +112,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		}
 		// find embedded jpeg in stream
 		String subheader = sb.toString();
-		LOG.error(subheader);
+		log.error(subheader);
 		int contentLength = -1;
 		//if (boundryKey == null)
 		//{
@@ -121,7 +121,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 			int c1 = subheader.indexOf('\r',c0);
 			 c0 += 16;
 			 contentLength = Integer.parseInt(subheader.substring(c0,c1));
-			 LOG.info("Content-Length: " + contentLength);
+			 log.info("Content-Length: " + contentLength);
 		//} else {
 			
 		//}
@@ -143,7 +143,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		}
 		
 		baos.flush();
-		//LOG.info("wrote " + baos.size() + "," + total);
+		//log.info("wrote " + baos.size() + "," + total);
 		BufferedImage bi = ImageIO.read(new ByteArrayInputStream (baos.toByteArray()));
 		return bi;	
 	}

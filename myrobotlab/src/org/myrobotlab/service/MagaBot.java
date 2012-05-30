@@ -8,7 +8,7 @@ public class MagaBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(MagaBot.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(MagaBot.class.getCanonicalName());
 
 	public MagaBot(String n) {
 		super(n, MagaBot.class.getCanonicalName());

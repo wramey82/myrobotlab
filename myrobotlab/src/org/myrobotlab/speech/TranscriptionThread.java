@@ -32,7 +32,7 @@ import com.google.gson.Gson;
 
 public class TranscriptionThread extends Thread {
 
-	public final static Logger LOG = Logger.getLogger(GoogleSTT.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GoogleSTT.class.getCanonicalName());
 	
 	boolean running;
 

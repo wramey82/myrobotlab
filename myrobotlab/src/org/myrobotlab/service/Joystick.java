@@ -35,7 +35,7 @@ import com.centralnexus.input.JoystickListener;
 public class Joystick extends Service implements JoystickListener {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Joystick.class
+	public final static Logger log = Logger.getLogger(Joystick.class
 			.getCanonicalName());
 	public com.centralnexus.input.Joystick joy;
 	public final int MAX_AXES = 6;
@@ -62,7 +62,7 @@ public class Joystick extends Service implements JoystickListener {
 		super(n, Joystick.class.getCanonicalName());
 
 		try {
-			LOG
+			log
 					.info("number of joysticks reported "
 							+ com.centralnexus.input.Joystick.getNumDevices());
 			joy = com.centralnexus.input.Joystick.createInstance(0);
@@ -80,11 +80,11 @@ public class Joystick extends Service implements JoystickListener {
 			joy.addJoystickListener(this);
 
 		} catch (IOException e) {
-			LOG.error("joystick not found");
+			log.error("joystick not found");
 		} catch (Exception e) {
-			LOG.error("joystick not found" + e.getMessage());
+			log.error("joystick not found" + e.getMessage());
 		} catch (UnsatisfiedLinkError e) {
-			LOG.error("joystick binaries (.dll or .so) needed but not found"
+			log.error("joystick binaries (.dll or .so) needed but not found"
 					+ e.getMessage());
 		}
 
@@ -100,7 +100,7 @@ public class Joystick extends Service implements JoystickListener {
 
 	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
 	public void joystickAxisChanged(com.centralnexus.input.Joystick j) {
-		LOG.info(" axis jid " + j.getID() + " dz " + j.getDeadZone() + " r "
+		log.info(" axis jid " + j.getID() + " dz " + j.getDeadZone() + " r "
 				+ j.getR() + " u " + j.getU() + " v " + j.getV() + " x "
 				+ j.getX() + " y " + j.getY() + " z " + j.getZ());
 
@@ -128,28 +128,28 @@ public class Joystick extends Service implements JoystickListener {
 	 */
 
 	final static public void button1() {
-		LOG.info("button1");
+		log.info("button1");
 	}
 
 	final static public void button2() {
-		LOG.info("button2");
+		log.info("button2");
 	}
 
 	final static public void button3() {
-		LOG.info("button3");
+		log.info("button3");
 	}
 
 	final static public void button4() {
-		LOG.info("button4");
+		log.info("button4");
 	}
 
 	final static public int getAxisR(Integer f) {
-		LOG.info("getAxisR int " + f);
+		log.info("getAxisR int " + f);
 		return f;
 	}
 
 	final static public int getAxisZ(Integer f) {
-		LOG.info("getAxisZ int " + f);
+		log.info("getAxisZ int " + f);
 		return f;
 	}
 

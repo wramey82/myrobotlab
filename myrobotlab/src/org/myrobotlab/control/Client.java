@@ -42,7 +42,7 @@ import org.myrobotlab.service.GUIService;
 
 public class Client extends JApplet {
 
-	public final static Logger LOG = Logger.getRootLogger();
+	public final static Logger log = Logger.getRootLogger();
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -60,7 +60,7 @@ public class Client extends JApplet {
 	public void init() {
 		this.setSize(500, 600);
 		try {
-			LOG.setLevel(Level.WARN);
+			log.setLevel(Level.WARN);
 			// determine network details - can only accurately determine applet
 			// IP from server request
 			codeBaseHostAddress = getCodeBase().getHost();
@@ -84,10 +84,10 @@ public class Client extends JApplet {
 													// the ide
 			}
 
-			LOG.info("appletAddress [" + appletAddress + "]");
-			LOG.info("appletHostAddress [" + appletHostAddress + "]");
-			LOG.info("codeBaseHostAddress [" + codeBaseHostAddress + "]");
-			LOG.info("getCodeBase [" + getCodeBase() + "]");
+			log.info("appletAddress [" + appletAddress + "]");
+			log.info("appletHostAddress [" + appletHostAddress + "]");
+			log.info("codeBaseHostAddress [" + codeBaseHostAddress + "]");
+			log.info("getCodeBase [" + getCodeBase() + "]");
 
 			// Multicast Begin
 			// --------------------------------------------------
@@ -110,7 +110,7 @@ public class Client extends JApplet {
 			// Multicast End --------------------------------------------------
 
 		} catch (UnknownHostException e) {
-			LOG
+			log
 					.error("Couldn't get Internet appletAddress: Unknown appletHostAddress");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -201,7 +201,7 @@ public class MotorGUI extends ServiceGUI {
 			cw.setText(">>");
 			cw.addItemListener(new java.awt.event.ItemListener() {
 				public void itemStateChanged(java.awt.event.ItemEvent e) {
-					LOG.info("getCw changed state");
+					log.info("getCw changed state");
 					int state = e.getStateChange();
 					if (state == ItemEvent.SELECTED) {
 						System.out.println("CW ON");

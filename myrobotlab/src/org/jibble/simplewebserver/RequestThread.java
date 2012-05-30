@@ -53,7 +53,7 @@ import com.google.gson.Gson;
  */
 public class RequestThread extends Thread {
 
-	public final static Logger LOG = Logger.getLogger(RequestThread.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RequestThread.class.getCanonicalName());
 
 	WebServer myService;
 	private File _rootDir;
@@ -173,7 +173,7 @@ public class RequestThread extends Thread {
 
 			Message msg = null;
 			if (queryString != null) {
-				LOG.info(_socket.getInetAddress() + " " + _socket.getRemoteSocketAddress());
+				log.info(_socket.getInetAddress() + " " + _socket.getRemoteSocketAddress());
 				String msgstr = queryString.substring(4);
 				msgstr = URLDecoder.decode(msgstr, "UTF-8");
 				msg = gson.fromJson(msgstr, Message.class);
@@ -193,7 +193,7 @@ public class RequestThread extends Thread {
 					}
 				}
 
-				LOG.info(msg);
+				log.info(msg);
 				msg.historyList = new ArrayList<RoutingEntry>();
 				myService.getOutbox().add(msg);
 				String json = gson.toJson(msg);
@@ -267,7 +267,7 @@ public class RequestThread extends Thread {
 						 * Object[] data = new Object[2]; data[0]="name";
 						 * data[1]="password"; Message msg =
 						 * web.createMessage("sessionMgr", "logon", data);
-						 * String s = gson.toJson(msg); //LOG.info(s);
+						 * String s = gson.toJson(msg); //log.info(s);
 						 */
 
 						String json = "";
@@ -313,7 +313,7 @@ public class RequestThread extends Thread {
 
 			// drupal
 			if ("URL".equals(type)) {
-				LOG.info("logon for " + loginName);
+				log.info("logon for " + loginName);
 				// url get page - get token
 				HTTPRequest loginPage;
 				loginPage = new HTTPRequest("http://myrobotlab.org/authenticate.php?loginName=" + loginName

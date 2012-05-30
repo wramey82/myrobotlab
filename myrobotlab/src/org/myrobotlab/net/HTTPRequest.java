@@ -46,7 +46,7 @@ import org.myrobotlab.framework.Service;
 
 
 public class HTTPRequest {
-	public final static Logger LOG = Logger.getLogger(HTTPRequest.class
+	public final static Logger log = Logger.getLogger(HTTPRequest.class
 			.getCanonicalName());
 
 	URLConnection connection;
@@ -102,7 +102,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public HTTPRequest(URLConnection connection) throws IOException {
-		LOG.info("http request for " + connection.getURL());
+		log.info("http request for " + connection.getURL());
 		this.connection = connection;
 		connection.setDoOutput(true);
 	}
@@ -686,7 +686,7 @@ public class HTTPRequest {
 		String contentType = connection.getContentType();
 		int contentLength = connection.getContentLength();
 
-		LOG.info("contentType " + contentType + " contentLength " + contentLength);
+		log.info("contentType " + contentType + " contentLength " + contentLength);
 
 		InputStream raw;
 		byte[] data = null;
@@ -751,7 +751,7 @@ public class HTTPRequest {
 		
 		HTTPRequest http = new HTTPRequest("http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/");
 		String s = http.getString();
-		LOG.info(s);
+		log.info(s);
 		
 		
 		String language = "en";

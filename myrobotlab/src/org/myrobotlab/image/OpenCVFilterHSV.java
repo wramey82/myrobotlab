@@ -57,7 +57,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterHSV.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterHSV.class.getCanonicalName());
 
 	IplImage hsv = null;
 	IplImage hue = null;
@@ -125,7 +125,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	 * 
 	 * frameBuffer = hsv.getBufferedImage(); int rgb =
 	 * frameBuffer.getRGB(event.getX(), event.getY()); Color c = new Color(rgb);
-	 * // because of the BGR2HSV copy - it is now VSH LOG.error(event.getX() +
+	 * // because of the BGR2HSV copy - it is now VSH log.error(event.getX() +
 	 * "," + event.getY() + " h " + c.getBlue() + " s " + c.getGreen() + " v " +
 	 * c.getRed()); }
 	 */
@@ -146,7 +146,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		}
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		// CV_BGR2HSV_FULL - uses full 0-255 vs 0-180

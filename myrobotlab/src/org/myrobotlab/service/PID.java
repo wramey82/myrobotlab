@@ -32,7 +32,7 @@ import org.myrobotlab.framework.Service;
 public class PID extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(PID.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(PID.class.getCanonicalName());
 
 	double p = 0;
 	double i = 0;

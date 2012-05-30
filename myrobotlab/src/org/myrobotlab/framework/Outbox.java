@@ -45,7 +45,7 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
 public class Outbox implements Runnable, Serializable 
 {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Outbox.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Outbox.class.getCanonicalName());
 
 	Service myService = null;
 	LinkedList<Message> msgBox = new LinkedList<Message>();
@@ -104,17 +104,17 @@ public class Outbox implements Runnable, Serializable
 			synchronized (msgBox) {
 				try {
 					while (msgBox.size() == 0) {
-						LOG.debug("outbox run WAITING ");
+						log.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
 					}
 				} catch (InterruptedException ex) {
-					LOG.debug("outbox run INTERRUPTED ");
+					log.debug("outbox run INTERRUPTED ");
 					// msgBox.notifyAll();
 					isRunning = false;
 					continue;
 				}
 				msg = msgBox.removeLast();
-				LOG.debug("removed from msgBox size now " + msgBox.size());
+				log.debug("removed from msgBox size now " + msgBox.size());
 				msgBox.notifyAll();
 			}
 
@@ -125,7 +125,7 @@ public class Outbox implements Runnable, Serializable
 			if (msg.getName().length() > 0
 					&& myService.outboxMsgHandling.compareTo(Service.RELAY) == 0
 					|| "S".equals(msg.msgType)) {
-				LOG.info("configured to RELAY " + msg.getName());
+				log.info("configured to RELAY " + msg.getName());
 				comm.send(msg);
 
 			}
@@ -137,7 +137,7 @@ public class Outbox implements Runnable, Serializable
 				ArrayList<NotifyEntry> subList = notifyList.get(msg.sendingMethod); // Get the value for
 															// the sourceMethod
 				if (subList == null) {
-					LOG.info("no static route for " + msg.sender + "." + msg.sendingMethod); 
+					log.info("no static route for " + msg.sender + "." + msg.sendingMethod); 
 					// This will cause issues in broadcasts
 					continue;
 				}
@@ -157,7 +157,7 @@ public class Outbox implements Runnable, Serializable
 					comm.send(msg);
 				}
 			} else {
-				LOG.debug(msg.getName() + "/" + msg.method + "#"
+				log.debug(msg.getName() + "/" + msg.method + "#"
 						+ msg.getParameterSignature() + " notifyList is empty");
 				continue;
 			}
@@ -172,20 +172,20 @@ public class Outbox implements Runnable, Serializable
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
 				try {
-					LOG.debug("outbox enque msg WAITING ");
+					log.debug("outbox enque msg WAITING ");
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
-					LOG.debug("outbox add enque msg INTERRUPTED ");
+					log.debug("outbox add enque msg INTERRUPTED ");
 				}
 
 			// we warn if over 10 messages are in the queue - but we will still process them
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				LOG.warn(" outbox BUFFER OVERRUN size "
+				log.warn(" outbox BUFFER OVERRUN size "
 						+ msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			LOG.debug(" msgBox size " + msgBox.size()
+			log.debug(" msgBox size " + msgBox.size()
 					+ " msg [" + msg.method + "(" + msg.getParameterSignature()
 					+ ")]");
 			msgBox.notifyAll(); // must own the lock

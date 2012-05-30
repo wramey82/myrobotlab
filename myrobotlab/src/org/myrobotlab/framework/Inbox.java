@@ -36,7 +36,7 @@ public class Inbox implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Inbox.class
+	public final static Logger log = Logger.getLogger(Inbox.class
 			.getCanonicalName());
 
 	String name;
@@ -76,17 +76,17 @@ public class Inbox implements Serializable {
 		 */
 
 		Message msg = null;
-		LOG.debug("inbox getMsg just before synchronized");
+		log.debug("inbox getMsg just before synchronized");
 		synchronized (msgBox) {
 
 			while (msg == null) { // while no messages && no messages that are
 									// blocking
 				if (msgBox.size() == 0) {
-					LOG.debug("Inbox WAITING " + name);
+					log.debug("Inbox WAITING " + name);
 					msgBox.wait(); // must own the lock
 				} else {
 					msg = msgBox.removeLast();
-					LOG.debug("removed from msgBox size now " + msgBox.size()
+					log.debug("removed from msgBox size now " + msgBox.size()
 							+ " " + name);
 
 					// --- sendBlocking support begin --------------------
@@ -132,9 +132,9 @@ public class Inbox implements Serializable {
 	public void add(Message msg) {
 		// to prevent messaging infinite loops
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
-			LOG.error("*dumping duplicate message msgid " + name + "."
+			log.error("*dumping duplicate message msgid " + name + "."
 					+ msg.method + " " + msg.msgID);
-			LOG.error(msg.historyList);
+			log.error(msg.historyList);
 			return;
 		}
 
@@ -147,20 +147,20 @@ public class Inbox implements Serializable {
 			while (blocking && msgBox.size() == maxQueue) // queue "full"
 			{
 				try {
-					LOG.warn("inbox enque msg WAITING since inbox " + maxQueue
+					log.warn("inbox enque msg WAITING since inbox " + maxQueue
 							+ " is full" + name);
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
-					LOG.debug("inbox enque msg INTERRUPTED " + name);
+					log.debug("inbox enque msg INTERRUPTED " + name);
 				}
 			}
 
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				LOG.warn(name + " inbox BUFFER OVERRUN size " + msgBox.size());
+				log.warn(name + " inbox BUFFER OVERRUN size " + msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			LOG.debug("added to msgBox size now " + msgBox.size() + " " + name);
+			log.debug("added to msgBox size now " + msgBox.size() + " " + name);
 			msgBox.notifyAll(); // must own the lock
 		}
 

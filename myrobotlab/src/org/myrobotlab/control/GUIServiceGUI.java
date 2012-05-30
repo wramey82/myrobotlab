@@ -183,7 +183,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	}
 
 	public void buildGraph() {
-		LOG.info("buildGraph");
+		log.info("buildGraph");
 		// -------------------------BEGIN PURE JGRAPH
 		// ----------------------------
 
@@ -221,18 +221,18 @@ public class GUIServiceGUI extends ServiceGUI {
 
 			Object parent = graph.getDefaultParent();
 			Object services[] = graph.getChildVertices(parent);
-			LOG.info("serviceCount " + services.length);
+			log.info("serviceCount " + services.length);
 
 			for (int i = 0; i < services.length; ++i) {
 				// serviceCells
 				Object s = services[i];
-				LOG.info(s);
+				log.info(s);
 
 				mxCell m = (mxCell) services[i];
 				GUIServiceGraphVertex v = (GUIServiceGraphVertex) m.getValue();// zod
 																				// zod
 																				// zod
-				LOG.info(v.name);
+				log.info(v.name);
 				serviceCells.put(v.name, m);
 				// serviceCells.put(arg0, s.);
 			}
@@ -262,13 +262,13 @@ public class GUIServiceGUI extends ServiceGUI {
 				@Override
 				public void mouseMoved(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					LOG.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());
+					log.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());
 				}
 
 				@Override
 				public void mouseDragged(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					LOG.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());
+					log.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());
 				}
 			});
 
@@ -276,23 +276,23 @@ public class GUIServiceGUI extends ServiceGUI {
 
 				/*
 				 * protected void mouseLocationChanged(MouseEvent e) {
-				 * LOG.info(e.getX() + ", " + e.getY()); }
+				 * log.info(e.getX() + ", " + e.getY()); }
 				 * 
 				 * public void mouseDragged(MouseEvent e) { //
 				 * http://forum.jgraph
 				 * .com/questions/1343/mouse-coordinates-at-drop-event Object
 				 * cell = graphComponent.getCellAt(e.getX(), e.getY());
-				 * LOG.info(e.getX() + "," + e.getY()); }
+				 * log.info(e.getX() + "," + e.getY()); }
 				 */
 
 				public void mouseReleased(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					LOG.info("cell " + e.getX() + "," + e.getY());
+					log.info("cell " + e.getX() + "," + e.getY());
 					currentlySelectedCell = (mxCell) cell;
 
 					if (cell != null) {
 						mxCell m = (mxCell) cell;
-						LOG.info("cell=" + graph.getLabel(cell) + ", " + m.getId() + ", "
+						log.info("cell=" + graph.getLabel(cell) + ", " + m.getId() + ", "
 								+ graph.getLabel(m.getParent()));
 						if (m.isVertex()) {
 							// TODO - edges get filtered through here too - need
@@ -304,7 +304,7 @@ public class GUIServiceGUI extends ServiceGUI {
 								new GUIServiceInMethodDialog(myService, "in method", v);
 							}
 						} else if (m.isEdge()) {
-							LOG.error("isEdge");
+							log.error("isEdge");
 						}
 
 					}
@@ -448,7 +448,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	public void buildLocalServiceGraph() {
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		LOG.info("service count " + Runtime.getRegistry().size());
+		log.info("service count " + Runtime.getRegistry().size());
 
 		TreeMap<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -561,12 +561,12 @@ public class GUIServiceGUI extends ServiceGUI {
 											
 						//mxGeometry g = c.getGeometry();
 						//c.setGeometry(g);
-						LOG.info(c);
+						log.info(c);
 
 					}
 				}
 			} else {
-				LOG.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
+				log.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
 			}
 			// }
 
@@ -628,7 +628,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	/*
 	 * @Override public void mouseDragged(MouseEvent e) { // TODO Auto-generated
-	 * method stub LOG.info(e.getX() + "," + e.getY()); }
+	 * method stub log.info(e.getX() + "," + e.getY()); }
 	 * 
 	 * @Override public void mouseMoved(MouseEvent arg0) { // TODO
 	 * Auto-generated method stub
@@ -636,11 +636,11 @@ public class GUIServiceGUI extends ServiceGUI {
 	 * }
 	 */
 	/*
-	 * @Override public void keyTyped(KeyEvent e) { LOG.error("here"); }
+	 * @Override public void keyTyped(KeyEvent e) { log.error("here"); }
 	 * 
-	 * @Override public void keyReleased(KeyEvent e) { LOG.error("here"); }
+	 * @Override public void keyReleased(KeyEvent e) { log.error("here"); }
 	 * 
-	 * @Override public void keyPressed(KeyEvent e) { LOG.error("here"); }
+	 * @Override public void keyPressed(KeyEvent e) { log.error("here"); }
 	 */
 	// about begin
 

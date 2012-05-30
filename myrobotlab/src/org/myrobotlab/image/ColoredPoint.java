@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 public class ColoredPoint implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(ColoredPoint.class);
+	public final static Logger log = Logger.getLogger(ColoredPoint.class);
 
 	public int x;
 	public int y;

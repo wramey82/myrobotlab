@@ -39,7 +39,7 @@ import org.myrobotlab.framework.ServiceWrapper;
  */
 public class MRLClient implements Receiver {
 
-	public final static Logger LOG = Logger.getLogger(MRLClient.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(MRLClient.class.getCanonicalName());
 	DatagramSocket socket = null;
 	UDPListener listener = null;
 
@@ -74,13 +74,13 @@ public class MRLClient implements Receiver {
 		
 		if (host == null || port < -1)
 		{
-			LOG.error("host and port need to be set for registering");
+			log.error("host and port need to be set for registering");
 			return false;
 		}
 		
 		// check if client is correct
 		if (client.getMyName() == null) {
-			LOG.error("client must return a non null String in \"getMyName\"");
+			log.error("client must return a non null String in \"getMyName\"");
 			return false;
 		}
 
@@ -104,7 +104,7 @@ public class MRLClient implements Receiver {
 			listener.start(); 
 					
 		} catch (Exception e) {
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 			return false;
 		}
 
@@ -142,13 +142,13 @@ public class MRLClient implements Receiver {
 
 			if (socket == null)
 			{
-				LOG.error("socket is null... can not send messages");
+				log.error("socket is null... can not send messages");
 				return false;
 			}
 			socket.send(packet);
 
 		} catch (Exception e) {
-			LOG.error("threw [" + e.getMessage() + "]");
+			log.error("threw [" + e.getMessage() + "]");
 			return false;
 		}
 		return true;
@@ -168,7 +168,7 @@ public class MRLClient implements Receiver {
 			// outbound
 			outByteStream = new ByteArrayOutputStream();
 		} catch (IOException e) {
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 
 		return socket;
@@ -196,7 +196,7 @@ public class MRLClient implements Receiver {
 		public void run() {
 
 			try {
-				LOG.info(getName() + " UDPListener listening on "
+				log.info(getName() + " UDPListener listening on "
 						+ socket.getLocalAddress() + ":"
 						+ socket.getLocalPort());
 
@@ -213,7 +213,7 @@ public class MRLClient implements Receiver {
 						inByteStream.reset(); 
 
 						if (msg == null) {
-							LOG.error("UDP null message");
+							log.error("UDP null message");
 						} else {
 
 							// client API
@@ -223,8 +223,8 @@ public class MRLClient implements Receiver {
 						}
 
 					} catch (ClassNotFoundException e) {
-						LOG.error("ClassNotFoundException - possible unknown class send from MRL instance");
-						LOG.error(e.getMessage());
+						log.error("ClassNotFoundException - possible unknown class send from MRL instance");
+						log.error(e.getMessage());
 					}
 					inDataGram.setLength(inBuffer.length); // must reset length
 															// field!
@@ -234,7 +234,7 @@ public class MRLClient implements Receiver {
 				} // while isRunning
 
 			} catch (Exception e) {
-				LOG.error("UDPListener could not listen");
+				log.error("UDPListener could not listen");
 			}
 		}
 	}
@@ -263,7 +263,7 @@ public class MRLClient implements Receiver {
 	
 	@Override
 	public void receive(Message msg) {
-		LOG.info("received " + msg);
+		log.info("received " + msg);
 	}
 
 	@Override

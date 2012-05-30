@@ -43,7 +43,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ColoredThingyFinder extends Service {
 
-	public final static Logger LOG = Logger.getLogger(ColoredThingyFinder.class
+	public final static Logger log = Logger.getLogger(ColoredThingyFinder.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -260,11 +260,11 @@ public class ColoredThingyFinder extends Service {
 		for (int i = 0; i < current_features.length; ++i) {
 			CvPoint2D32f p0 = current_features[i];
 			CvPoint2D32f p1 = saved_features[i];
-			LOG.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
+			log.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
 					+ (int) p1.y() + " " + (int) (p0.x() - p1.x()) + " "
 					+ (int) (p0.y() - p1.y()));
 		}
-		LOG.info("done");
+		log.info("done");
 		displayResults();
 	}
 
@@ -295,7 +295,7 @@ public class ColoredThingyFinder extends Service {
 			graphics.drawLine((int) p0.x() - 1, (int) p0.y(), (int) p0.x() + 1,
 					(int) p0.y());
 
-			// LOG.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
+			// log.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));
 		}
 		invoke("publishFrame", "cal", frameBuffer);
@@ -303,7 +303,7 @@ public class ColoredThingyFinder extends Service {
 
 	public void sayWhatYouFound() {
 		if (opencv == null) {
-			LOG.error("opencv is required");
+			log.error("opencv is required");
 			return;
 		}
 		send(opencv, "setUseInput", "camera");

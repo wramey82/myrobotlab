@@ -75,7 +75,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
     public void showStatus (String msg)
     {
-    	LOG.info(msg);
+    	log.info(msg);
     }
 
     
@@ -199,9 +199,9 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         //HMove h1 = new HMove(5,3,2,4,5);
         /*
         Move m1 = new Move(5,8);
-        LOG.info(m1);
-    	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
-    	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());
+        log.info(m1);
+    	log.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
+    	log.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());
 		*/
         
         int promote = 0;
@@ -232,7 +232,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
             {
             	throw new PropertyVetoException("Illegal move", pce);
             } else {
-            	LOG.error("ILLEGAL MOVE");
+            	log.error("ILLEGAL MOVE");
             }
         }
         else {
@@ -271,7 +271,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
     private int getPos(String s)
     {
-    	LOG.info("getPos " + s);
+    	log.info("getPos " + s);
         String temp1 = "";
         temp1 += s.charAt(1);
         int num = Integer.parseInt(temp1); 
@@ -283,12 +283,12 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
         int from = m.getFrom();
         int to = m.getTo();
         String s = cleanMove(m.toString());
-        LOG.info(m + "  from " + from + "  to " + to);
-        LOG.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
+        log.info(m + "  from " + from + "  to " + to);
+        log.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
         
-        //LOG.info((int)s.charAt(0));
-        //LOG.info(testFrom);        
-        //LOG.info(m + " from " + testFrom + " to " + to);
+        //log.info((int)s.charAt(0));
+        //log.info(testFrom);        
+        //log.info(m + " from " + testFrom + " to " + to);
         if (publishEvent)
         {
         	myService.send(boundServiceName, "makeMove", m, "n");
@@ -424,11 +424,11 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
     public String inputMove(String m)
     {
-    	LOG.info(m);
+    	log.info(m);
         String s = cleanMove(m);
-    	LOG.info(s);
+    	log.info(s);
 
-        LOG.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
+        log.info(m + " pfrom " + getPos(s) + " pto " + getPos(s.substring(2)));
     	
     	org.op.chess.Move m2 = new org.op.chess.Move(getPos(s), getPos(s.substring(2))); 
     	try {
@@ -443,7 +443,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 
 	public static String cleanMove(String t)
 	{
-		LOG.info("cleanMove " + t);
+		log.info("cleanMove " + t);
 
 		// remove piece descriptor
 		if (t.length() > 5)
@@ -465,7 +465,7 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
 		
 		t = t.toLowerCase(); 
 				
-		LOG.info("cleanedMove " + t);
+		log.info("cleanedMove " + t);
 		return t;
 	}
     

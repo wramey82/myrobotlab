@@ -41,7 +41,7 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;

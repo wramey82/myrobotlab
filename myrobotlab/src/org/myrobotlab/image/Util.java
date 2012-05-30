@@ -93,7 +93,7 @@ public class Util {
 			}			
 		}
 
-		LOG.error("Couldn't find file: " + path + " or default " + defaultImage);
+		log.error("Couldn't find file: " + path + " or default " + defaultImage);
 		return null;
 
 	}	
@@ -104,7 +104,7 @@ public class Util {
 			icon = new ImageIcon(imgURL);
 			return icon;
 		} else {
-			LOG.error("Couldn't find file: " + path);
+			log.error("Couldn't find file: " + path);
 			return null;
 		}
 	}
@@ -140,7 +140,7 @@ public class Util {
 		try {
 			bi = ImageIO.read(Util.class.getResource("/resource/" + path));
 		} catch (IOException e) {
-			LOG.error("could not find image " + path);
+			log.error("could not find image " + path);
 			return null;
 		}
     	return bi;
@@ -253,7 +253,7 @@ public class Util {
 	 * & 0xff; System.out.println("argb: " + alpha + ", " + red + ", " + green +
 	 * ", " + blue); }
 	 */
-	public final static Logger LOG = Logger.getLogger(Util.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Util.class.getCanonicalName());
 
 	// static HashMap <int,>
 	// array [r][g][b]
@@ -482,7 +482,7 @@ public class Util {
 			icon = new ImageIcon(imgURL);
 			return icon;
 		} else {
-			LOG.error("Couldn't find file: " + path);
+			log.error("Couldn't find file: " + path);
 			return null;
 		}
 	}

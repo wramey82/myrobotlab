@@ -238,7 +238,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		} else if ("Mega".equals(type)) {
 			displayMega();
 		} else {
-			LOG.error("don't know how to display " + type);
+			log.error("don't know how to display " + type);
 		}
 		// ------digital pins tab end ------------
 
@@ -367,7 +367,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 *            - PinData from serial reads
 	 */
 	public void readData(PinData p) {
-		LOG.info("ArduinoGUI setDataLabel " + p);
+		log.info("ArduinoGUI setDataLabel " + p);
 		Pin pin = pinList.get(p.pin);
 		pin.data.setText(new Integer(p.value).toString());
 		Integer d = Integer.parseInt(pin.counter.getText());
@@ -401,7 +401,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// ttyPort.removeAllItems();
 		for (int i = 0; i < p.size(); ++i) {
 			String n = p.get(i);
-			LOG.info(n);
+			log.info(n);
 			ttyPort.addItem(n);
 		}
 
@@ -582,10 +582,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					b.toggle();
 				}
 			} else {
-				LOG.error("unknown pin type " + b.type);
+				log.error("unknown pin type " + b.type);
 			}
 
-			LOG.info("DigitalButton");
+			log.info("DigitalButton");
 		}
 
 		// ports & timers
@@ -606,7 +606,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			io.value = newFrequency;
 			myService.send(boundServiceName, "setPWMFrequency", io);
 		} else if (c == types) {
-			LOG.info("type change");
+			log.info("type change");
 			JComboBox cb = (JComboBox) e.getSource();
 			String newType = (String) cb.getSelectedItem();
 			// ----------- TODO ---------------------

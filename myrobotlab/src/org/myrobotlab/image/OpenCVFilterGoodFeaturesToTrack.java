@@ -50,7 +50,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterGoodFeaturesToTrack.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterGoodFeaturesToTrack.class.getCanonicalName());
 
 	IplImage grey = null;
 	IplImage eig = null;

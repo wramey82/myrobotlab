@@ -125,7 +125,7 @@ public class TweedleBot extends Service {
 	
 	public Arduino arduino;
 
-	public final static Logger LOG = Logger.getLogger(TweedleBot.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(TweedleBot.class.getCanonicalName());
 
 	public TweedleBot(String n) {
 		this(n, null);
@@ -339,7 +339,7 @@ public class TweedleBot extends Service {
 				stop();			
 			}
 			
-			LOG.info("here");
+			log.info("here");
 			
 			
 		} catch (InterruptedException e) {

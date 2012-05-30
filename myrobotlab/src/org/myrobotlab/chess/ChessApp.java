@@ -41,7 +41,7 @@ public final class ChessApp extends JApplet implements Constants,
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(ChessApp.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ChessApp.class.getCanonicalName());
 
     private Board board = new Board();
     private Search searcher = new Search();
@@ -56,7 +56,7 @@ public final class ChessApp extends JApplet implements Constants,
     
     public void showStatus (String msg)
     {
-    	LOG.info(msg);
+    	log.info(msg);
     }
 
     
@@ -162,8 +162,8 @@ public final class ChessApp extends JApplet implements Constants,
         org.op.chess.Move move = (org.op.chess.Move) pce.getNewValue();
         if (move == null) return;
         
-    	LOG.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
-    	LOG.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());        
+    	log.info("user move from " + move.getFrom() + " " + move.getToRow() + "," + move.getToCol());
+    	log.info("user move to " + move.getTo() + " " + move.getToRow() + "," + move.getToCol());        
         int promote = 0;
         int to = move.getTo(); int from = move.getFrom();
         if ((((to < 8) && (board.side == LIGHT)) || ((to > 55) && (board.side == DARK))) &&
@@ -222,7 +222,7 @@ public final class ChessApp extends JApplet implements Constants,
         int from = m.getFrom();
         int to = m.getTo();
                 
-        LOG.info("computer " + from + " " + to);
+        log.info("computer " + from + " " + to);
         if (m.promote != 0) {
             chessView.makeMoveWithPromote(m, m.promote, board.side != LIGHT);
         }

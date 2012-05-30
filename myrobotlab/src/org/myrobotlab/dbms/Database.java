@@ -38,7 +38,7 @@ public class Database {
 
 	private DatabaseConfig Config_ = new DatabaseConfig();
 
-	private final static Logger LOG = Logger.getLogger(Database.class);
+	private final static Logger log = Logger.getLogger(Database.class);
 
 	public String getConnectionUrl() {
 		if (Config_.RDBMSType.compareTo("MYSQL") == 0) // TODO enum here
@@ -97,11 +97,11 @@ public class Database {
 	public java.sql.Connection getConnection() {
 		try {
 			Class.forName(Config_.driverName);
-			LOG.info(getConnectionUrl());
+			log.info(getConnectionUrl());
 			Connection_ = java.sql.DriverManager.getConnection(
 					getConnectionUrl(), Config_.userName, Config_.Password_);
 		} catch (Exception e) {
-			LOG.error(getConnectionUrl());
+			log.error(getConnectionUrl());
 			e.printStackTrace();
 			System.out.println("Error Trace in getConnection() : "
 					+ e.getMessage());

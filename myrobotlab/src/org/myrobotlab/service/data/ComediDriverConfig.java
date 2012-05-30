@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 public class ComediDriverConfig implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(ComediDriverConfig.class);
+	public final static Logger log = Logger.getLogger(ComediDriverConfig.class);
 
 	public int ID;
 	public HashMap<String, IOSequence> sequenceMap_; // map of named sequences
@@ -68,10 +68,10 @@ public class ComediDriverConfig implements Serializable {
 	};
 
 	public static String name() {
-		if (LOG.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			StringBuilder logString = new StringBuilder(
 					"ComediDriverConfig.getName()()");
-			LOG.debug(logString);
+			log.debug(logString);
 		} // if
 
 		String ret = new String("ComediDriverConfig");

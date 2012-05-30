@@ -35,7 +35,7 @@ import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 
 public class GeneticProgramming extends Service {
 
-	public final static Logger LOG = Logger.getLogger(GeneticProgramming.class
+	public final static Logger log = Logger.getLogger(GeneticProgramming.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 

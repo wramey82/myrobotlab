@@ -50,7 +50,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
 
 	IplImage hsv = null;
@@ -103,7 +103,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 		frameBuffer = hsv.getBufferedImage();
 		int rgb = frameBuffer.getRGB(event.getX(), event.getY());
 		Color c = new Color(rgb);
-		LOG.error(event.getX() + "," + event.getY() + " h " + c.getRed()
+		log.error(event.getX() + "," + event.getY() + " h " + c.getRed()
 				+ " s " + c.getGreen() + " v " + c.getBlue());
 	}
 
@@ -148,7 +148,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 		hsv_max = cvScalar(38, 255, 255, 0);
 
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		// convert BGR to HSV

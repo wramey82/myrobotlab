@@ -74,7 +74,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		ServoController, MotorController {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Arduino.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 
 	// FIXME - Add Android BlueTooth as possible Serial Device - remove ArduinoBT
 	transient SerialDevice serialPort;
@@ -148,23 +148,23 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		// if there is only 1 port - attempt to initialize it
 		portNames = getPorts();
-		LOG.info("number of ports " + portNames.size());
+		log.info("number of ports " + portNames.size());
 		for (int j = 0; j < portNames.size(); ++j) {
-			LOG.info(portNames.get(j));
+			log.info(portNames.get(j));
 		}
 
 		if (portNames.size() == 1) { // heavy handed?
-			LOG.info("only one serial port " + portNames.get(0));
+			log.info("only one serial port " + portNames.get(0));
 			setPort(portNames.get(0));
 		} else if (portNames.size() > 1) {
 			if (portName != null && portName.length() > 0) {
-				LOG.info("more than one port - last serial port is " + portName);
+				log.info("more than one port - last serial port is " + portName);
 				setPort(portName);
 			} else {
 				// idea - auto discovery attempting to auto-load
 				// arduinoSerial.pde
-				LOG.warn("more than one port or no ports, and last serial port not set");
-				LOG.warn("need user input to select from " + portNames.size() + " possibilities ");
+				log.warn("more than one port or no ports, and last serial port not set");
+				log.warn("need user input to select from " + portNames.size() + " possibilities ");
 			}
 		}
 
@@ -193,7 +193,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		for (int i = 0; i < portList.size(); ++i) {
 			portId = portList.get(i);
 			String inPortName = portId.getName();
-			LOG.info(inPortName);
+			log.info(inPortName);
 			if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
 				ports.add(inPortName);
 			}
@@ -219,13 +219,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public synchronized void serialSend(int function, int param1, int param2) {
-		LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 " + param2);
+		log.info("serialSend fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
 			outputStream.write(function);
 			outputStream.write(param1);
 			outputStream.write(param2); // 0 - 180
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 
 	}
@@ -237,7 +237,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 */
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
 	public void serialSend(String data) {
-		LOG.error("serialSend [" + data + "]");
+		log.error("serialSend [" + data + "]");
 		serialSend(data.getBytes());
 	}
 
@@ -247,7 +247,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				outputStream.write(data[i]);
 			}
 		} catch (IOException e) {
-			LOG.error("serialSend " + e.getMessage());
+			log.error("serialSend " + e.getMessage());
 		}
 	}
 
@@ -303,15 +303,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 */
 	public boolean servoAttach(Integer pin) {
 		if (serialPort == null) {
-			LOG.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
+			log.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
 			return false;
 		}
 		// serialPort == null ??? make sure you chown it correctly !
-		LOG.info("servoAttach (" + pin + ") to " + serialPort.getName() + " function number " + SERVO_ATTACH);
+		log.info("servoAttach (" + pin + ") to " + serialPort.getName() + " function number " + SERVO_ATTACH);
 
 		/*
 		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin !=
-		 * 10 && pin != 11) { LOG.error(pin + " not valid for servo"); }
+		 * 10 && pin != 11) { log.error(pin + " not valid for servo"); }
 		 */
 
 		for (int i = 0; i < servosInUse.length; ++i) {
@@ -324,12 +324,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			}
 		}
 
-		LOG.error("servo " + pin + " attach failed - no idle servos");
+		log.error("servo " + pin + " attach failed - no idle servos");
 		return false;
 	}
 
 	public boolean servoDetach(Integer pin) {
-		LOG.info("servoDetach (" + pin + ") to " + serialPort.getName() + " function number " + SERVO_DETACH);
+		log.info("servoDetach (" + pin + ") to " + serialPort.getName() + " function number " + SERVO_DETACH);
 
 		if (pinToServo.containsKey(pin)) {
 			int removeIdx = pinToServo.get(pin);
@@ -339,7 +339,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return true;
 		}
 
-		LOG.error("servo " + pin + " detach failed - not found");
+		log.error("servo " + pin + " detach failed - not found");
 		return false;
 
 	}
@@ -356,15 +356,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// @Override - TODO - make interface - implements ServoController interface
 	public void servoWrite(Integer pin, Integer angle) {
 		if (serialPort == null) {
-			LOG.error("serialPort is NULL !");
+			log.error("serialPort is NULL !");
 			return;
 		}
 
-		LOG.info("servoWrite (" + pin + "," + angle + ") to " + serialPort.getName() + " function number "
+		log.info("servoWrite (" + pin + "," + angle + ") to " + serialPort.getName() + " function number "
 				+ SERVO_WRITE);
 
 		if (angle < SERVO_ANGLE_MIN || angle > SERVO_ANGLE_MAX) {
-			// LOG.error(pin + " angle " + angle + " request invalid");
+			// log.error(pin + " angle " + angle + " request invalid");
 			return;
 		}
 
@@ -384,7 +384,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public void releaseSerialPort() {
-		LOG.debug("releaseSerialPort");
+		log.debug("releaseSerialPort");
 		try {
 			// do io streams need to be closed first?
 			if (inputStream != null)
@@ -407,10 +407,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		 */
 
 		if (serialPort != null) {
-			LOG.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
+			log.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
 			serialPort.removeEventListener();
 			serialPort.close();
-			LOG.error("WARNING - Hurray! successfully closed Yay!");
+			log.error("WARNING - Hurray! successfully closed Yay!");
 		}
 
 		try {
@@ -421,18 +421,18 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			logException(e);
 		}
 
-		LOG.info("released port");
+		log.info("released port");
 	}
 
 	public boolean setPort(String inPortName) {
-		LOG.debug("setPort requesting [" + inPortName + "]");
+		log.debug("setPort requesting [" + inPortName + "]");
 
 		if (serialPort != null) {
 			releaseSerialPort();
 		}
 
 		if (inPortName == null || inPortName.length() == 0) {
-			LOG.info("setting serial to nothing");
+			log.info("setting serial to nothing");
 			return true;
 		}
 
@@ -444,11 +444,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			for (int i = 0; i < portList.size(); ++i) {
 				portId = portList.get(i);
 
-				LOG.debug("checking port " + portId.getName());
+				log.debug("checking port " + portId.getName());
 				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
-					LOG.debug("is serial");
+					log.debug("is serial");
 					if (portId.getName().equals(inPortName)) {
-						LOG.debug("matches " + inPortName);
+						log.debug("matches " + inPortName);
 						// System.out.println("looking for "+iname);
 						serialPort = (SerialDevice) portId.open("robot overlords", 2000);
 						inputStream = serialPort.getInputStream();
@@ -468,7 +468,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						// Windows you ask for "COM1" but when you ask for it
 						// back you get "/.//COM1"
 						portName = inPortName;
-						LOG.debug("opened " + getPortString());
+						log.debug("opened " + getPortString());
 						save(); // successfully bound to port - saving
 						broadcastState(); // state has changed let everyone know
 						break;
@@ -481,11 +481,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 
 		if (serialPort == null) {
-			LOG.error(inPortName + " serialPort is null - bad init?");
+			log.error(inPortName + " serialPort is null - bad init?");
 			return false;
 		}
 
-		LOG.info(inPortName + " ready");
+		log.info(inPortName + " ready");
 		return true;
 	}
 
@@ -507,7 +507,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public boolean setBaud(int baudRate) {
 		if (serialPort == null) {
-			LOG.error("setBaudBase - serialPort is null");
+			log.error("setBaudBase - serialPort is null");
 			return false;
 		}
 		try {
@@ -531,7 +531,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public boolean setSerialPortParams(int baudRate, int dataBits, int stopBits, int parity) {
 		if (serialPort == null) {
-			LOG.error("setSerialPortParams - serialPort is null");
+			log.error("setSerialPortParams - serialPort is null");
 			return false;
 		}
 
@@ -546,7 +546,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public void digitalReadPollStart(Integer address) {
 
-		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
+		log.info("digitalRead (" + address + ") to " + serialPort.getName());
 		serialSend(DIGITAL_READ_POLLING_START, address, 0);
 
 	}
@@ -556,7 +556,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public void digitalReadPollStop(Integer address) {
 
-		LOG.info("digitalRead (" + address + ") to " + serialPort.getName());
+		log.info("digitalRead (" + address + ") to " + serialPort.getName());
 		serialSend(DIGITAL_READ_POLLING_STOP, address, 0);
 
 	}
@@ -567,7 +567,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public void digitalWrite(Integer address, Integer value) {
-		LOG.info("digitalWrite (" + address + "," + value + ") to " + serialPort.getName() + " function number "
+		log.info("digitalWrite (" + address + "," + value + ") to " + serialPort.getName() + " function number "
 				+ DIGITAL_WRITE);
 		serialSend(DIGITAL_WRITE, address, value);
 	}
@@ -577,7 +577,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public void pinMode(Integer address, Integer value) {
-		LOG.info("pinMode (" + address + "," + value + ") to " + serialPort.getName() + " function number " + PINMODE);
+		log.info("pinMode (" + address + "," + value + ") to " + serialPort.getName() + " function number " + PINMODE);
 		serialSend(PINMODE, address, value);
 	}
 
@@ -587,13 +587,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public void analogWrite(Integer address, Integer value) {
-		LOG.info("analogWrite (" + address + "," + value + ") to " + serialPort.getName() + " function number "
+		log.info("analogWrite (" + address + "," + value + ") to " + serialPort.getName() + " function number "
 				+ ANALOG_WRITE);
 		serialSend(ANALOG_WRITE, address, value);
 	}
 
 	public PinData publishPin(PinData p) {
-		LOG.info(p);
+		log.info(p);
 		return p;
 	}
 
@@ -603,7 +603,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// e.g. pin 6 could be servo[0] - sending back we need to put pin back
 		// pin is actually servo index until this translation bleh
 		p.pin = servoToPin.get(p.pin);
-		LOG.info(p);
+		log.info(p);
 		return p;
 	}
 
@@ -677,7 +677,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			pinMode(PWMPin, PinState.OUTPUT);
 			pinMode(DIRPin, PinState.OUTPUT);
 		} else {
-			LOG.error("attempting to attach motor before serial connection to " + name + " Arduino is ready");
+			log.error("attempting to attach motor before serial connection to " + name + " Arduino is ready");
 		}
 
 	}
@@ -750,7 +750,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					++numBytes;
 					// totalBytes += numBytes;
 
-					// LOG.info("read " + numBytes + " target msg length " +
+					// log.info("read " + numBytes + " target msg length " +
 					// rawReadMsgLength);
 
 					if (numBytes == rawReadMsgLength) {
@@ -759,14 +759,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						 * (int i = 0; i < rawReadMsgLength; ++i) {
 						 * b.append(msg[i] + " "); }
 						 * 
-						 * LOG.error("msg" + b.toString());
+						 * log.error("msg" + b.toString());
 						 */
 
 						if (rawReadMsg) {
 							// raw protocol
 
 							String s = new String(msg);
-							LOG.info(s);
+							log.info(s);
 							invoke("readSerialMessage", s);
 						} else {
 

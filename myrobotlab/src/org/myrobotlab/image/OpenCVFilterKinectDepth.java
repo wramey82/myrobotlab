@@ -45,7 +45,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	transient IplImage src = null;
@@ -125,7 +125,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		// check for depth ! 1 ch 16 depth - if not format error & return
 		if (image.nChannels() != 1 || image.depth() != 16)
 		{
-			LOG.error("image is not a kinect depth image");
+			log.error("image is not a kinect depth image");
 			return image;
 		}
 		

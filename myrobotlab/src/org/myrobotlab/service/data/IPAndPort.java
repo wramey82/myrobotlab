@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 public class IPAndPort implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(IPAndPort.class);
+	public final static Logger log = Logger.getLogger(IPAndPort.class);
 
 	public String IPAddress; // address
 	public int port; // address

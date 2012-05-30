@@ -76,7 +76,7 @@ final public class Search {
                     sb.append(pv[0][j].toString());
                 }
                 //app.setPrincipalVariation(sb.toString());
-                //LOG.info(sb.toString());
+                //log.info(sb.toString());
 		if (x > 9000 || x < -9000)
                     break;
             }

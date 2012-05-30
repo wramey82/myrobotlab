@@ -8,7 +8,7 @@ public class Drupal extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Drupal.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Drupal.class.getCanonicalName());
 
 	public Drupal(String n) {
 		super(n, Drupal.class.getCanonicalName());

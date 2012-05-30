@@ -50,7 +50,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(GeneticProgrammingGUI.class.toString());
 
 	VideoWidget video = null;

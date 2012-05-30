@@ -15,7 +15,7 @@ public class Serializer extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Serializer.class
+	public final static Logger log = Logger.getLogger(Serializer.class
 			.getCanonicalName());
 
 	public Serializer(String n) {

@@ -51,7 +51,7 @@ import com.mxgraph.view.mxGraph;
 
 public class GUIServiceInMethodDialog extends JDialog  implements ActionListener  {
 	
-	public final static Logger LOG = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
 	
 	private static final long serialVersionUID = 1L;
 
@@ -122,12 +122,12 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 	public void actionPerformed(ActionEvent e) {
 		JComboBox cb = (JComboBox)e.getSource();
         String method = (String)cb.getSelectedItem();
-        LOG.error("method is " + method);
+        log.error("method is " + method);
         myService.setDstServiceName(v.name);
         myService.setPeriod0(".");
         myService.setDstMethodName(method);
         
-        LOG.info(e);
+        log.info(e);
         
         //myService.srcMethodName = method.split(regex)
         //myService.parameterList =
@@ -146,7 +146,7 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 					 null // this is not being filled in - TODO - fix parameter list
 					);
 			
-			LOG.error("NotifyEntry !!! " + ne);
+			log.error("NotifyEntry !!! " + ne);
 /*			
 			if (parameterType != null) {
 				ne.paramTypes = new Class[]{parameterType};

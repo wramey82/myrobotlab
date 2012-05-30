@@ -8,7 +8,7 @@ public class Skype extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Skype.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Skype.class.getCanonicalName());
 
 	public Skype(String n) {
 		super(n, Skype.class.getCanonicalName());

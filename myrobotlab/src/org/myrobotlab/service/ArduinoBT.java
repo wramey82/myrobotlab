@@ -74,7 +74,7 @@ import android.util.Log;
 public class ArduinoBT extends Service implements //SerialPortEventListener,
 		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
 	
-	public final static Logger LOG = Logger.getLogger(ArduinoBT.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ArduinoBT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	
 	// debugging
@@ -247,7 +247,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	 * by uucp:uucp
 	 */
 	public synchronized void serialSend(int function, int param1, int param2) {
-		LOG.info("serialSend fn " + function + " p1 " + param1 + " p2 "
+		log.info("serialSend fn " + function + " p1 " + param1 + " p2 "
 				+ param2);
 		// 3 byte Arduino Protocol
 		byte data[] = new byte[3];
@@ -259,13 +259,13 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		{
 			connectedThread.write(data);
 		} else {
-			LOG.error("currently not connected"); // FIXME at some point use a Service logger interface
+			log.error("currently not connected"); // FIXME at some point use a Service logger interface
 		}
 	}
 
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
 	public void serialSend(String data) {
-		LOG.error("serialSend [" + data + "]");
+		log.error("serialSend [" + data + "]");
 		serialSend(data.getBytes());
 	}
 
@@ -324,17 +324,17 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	public boolean servoAttach(Integer pin) { 
 		
 		if (deviceName == null) {
-			LOG.error("could not attach servo to pin " + pin
+			log.error("could not attach servo to pin " + pin
 					+ " serial port in null - not initialized?");
 			return false;
 		}
 		// deviceName == null ??? make sure you chown it correctly !
-		LOG.info("servoAttach (" + pin + ") to " + deviceName
+		log.info("servoAttach (" + pin + ") to " + deviceName
 				+ " function number " + SERVO_ATTACH);
 
 		/*
 		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin !=
-		 * 10 && pin != 11) { LOG.error(pin + " not valid for servo"); }
+		 * 10 && pin != 11) { log.error(pin + " not valid for servo"); }
 		 */
 
 		for (int i = 0; i < servosInUse.length; ++i) {
@@ -347,12 +347,12 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 			}
 		}
 
-		LOG.error("servo " + pin + " attach failed - no idle servos");
+		log.error("servo " + pin + " attach failed - no idle servos");
 		return false;
 	}
 
 	public boolean servoDetach(Integer pin) {
-		LOG.info("servoDetach (" + pin + ") to " + deviceName
+		log.info("servoDetach (" + pin + ") to " + deviceName
 				+ " function number " + SERVO_DETACH);
 
 		if (pinToServo.containsKey(pin)) {
@@ -363,7 +363,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 			return true;
 		}
 
-		LOG.error("servo " + pin + " detach failed - not found");
+		log.error("servo " + pin + " detach failed - not found");
 		return false;
 
 	}
@@ -385,11 +385,11 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 			return;
 		}
 
-		LOG.info("servoWrite (" + pin + "," + angle + ") to "
+		log.info("servoWrite (" + pin + "," + angle + ") to "
 				+ deviceName + " function number " + SERVO_WRITE);
 
 		if (angle < SERVO_ANGLE_MIN || angle > SERVO_ANGLE_MAX) {
-			// LOG.error(pin + " angle " + angle + " request invalid");
+			// log.error(pin + " angle " + angle + " request invalid");
 			return;
 		}
 
@@ -402,9 +402,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	// ---------------------- Serial Control Methods Begin ------------------
 
 	public void releaseSerialPort() {
-		LOG.debug("releaseSerialPort");
+		log.debug("releaseSerialPort");
 		stop();
-	    LOG.info("released port");
+	    log.info("released port");
 	}
 
 
@@ -417,7 +417,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	{
 		if (deviceName == null)
 		{
-			LOG.error("setBaudBase - deviceName is null");
+			log.error("setBaudBase - deviceName is null");
 			return false;
 		}
 		try {
@@ -443,7 +443,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	{
 		if (deviceName == null)
 		{
-			LOG.error("setSerialPortParams - deviceName is null");
+			log.error("setSerialPortParams - deviceName is null");
 			return false;
 		}
 		
@@ -460,7 +460,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	
 	public void digitalReadPollStart(Integer address) {
 
-		LOG.info("digitalRead (" + address + ") to " + deviceName);
+		log.info("digitalRead (" + address + ") to " + deviceName);
 		serialSend(DIGITAL_READ_POLLING_START, address, 0);
 
 	}
@@ -468,7 +468,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	// ---------------------- Protocol Methods Begin ------------------
 
 	public void digitalReadPollStop(Integer address) {
-		LOG.info("digitalRead (" + address + ") to " + deviceName);
+		log.info("digitalRead (" + address + ") to " + deviceName);
 		serialSend(DIGITAL_READ_POLLING_STOP, address, 0);
 	}
 
@@ -488,7 +488,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	public PinData publishPin(PinData p) {
-		LOG.info(p);
+		log.info(p);
 		return p;
 	}
 
@@ -551,7 +551,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 			pinMode(PWMPin, PinState.OUTPUT);
 			pinMode(DIRPin, PinState.OUTPUT);
 		} else {
-			LOG.error("attempting to attach motor before serial connection to "
+			log.error("attempting to attach motor before serial connection to "
 					+ name + " Arduino is ready");
 		}
 
@@ -863,7 +863,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     						if (rawReadMsg) {
 
     							String s = new String(msg);
-    							LOG.info(s);
+    							log.info(s);
     							invoke("readSerialMessage", s);
     						} else {
 

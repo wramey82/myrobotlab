@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 public class NameValuePair implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(NameValuePair.class);
+	public final static Logger log = Logger.getLogger(NameValuePair.class);
 
 	public int ID;
 	final public String name; // name

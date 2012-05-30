@@ -73,7 +73,7 @@ import org.apache.log4j.Logger;
  * Valid arguments can be obtained with the -? argument.
  */public class Ivy2 {
 
-	public final static Logger LOG = Logger.getLogger(Ivy2.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Ivy2.class.getCanonicalName());
 	 
     private static final int HELP_WIDTH = 80;
     private static ResolveReport report = null;
@@ -193,7 +193,7 @@ import org.apache.log4j.Logger;
             System.err.println(ex.getMessage());
             usage(parser, false);
             //System.exit(1);
-        	LOG.error("Ivy error");
+        	log.error("Ivy error");
             return;
         }
     }
@@ -284,11 +284,11 @@ import org.apache.log4j.Logger;
             report = ivy.resolve(ivyfile.toURI().toURL(), resolveOptions);
             if (report.hasError()) {
                 // System.exit(1);
-            	LOG.error("Ivy resolve error");
+            	log.error("Ivy resolve error");
             	List<String> l = report.getAllProblemMessages();
             	for (int i = 0; i < l.size(); ++i)
             	{
-            		LOG.error(l.get(i));
+            		log.error(l.get(i));
             	}
             }
             
@@ -312,7 +312,7 @@ import org.apache.log4j.Logger;
                         .setDestIvyPattern(ivyPattern)
                         .setArtifactFilter(FilterHelper.getArtifactTypeFilter(line.getOptionValues("types")))
                         .setMakeSymlinks(line.hasOption("symlink")));
-                LOG.info("ivy.retrieve returned " + ret);
+                log.info("ivy.retrieve returned " + ret);
             }
             if (line.hasOption("cachepath")) {
                 outputCachePath(ivy, cache, md, confs, line.getOptionValue("cachepath",

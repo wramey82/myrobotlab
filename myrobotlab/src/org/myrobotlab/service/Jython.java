@@ -53,7 +53,7 @@ public class Jython extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Jython.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Jython.class.getCanonicalName());
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 	transient PythonInterpreter interp = null;
 
@@ -67,7 +67,7 @@ public class Jython extends Service {
 		Method[] methods = this.getClass().getMethods();
 		for (int i = 0; i < methods.length; ++i)
 		{
-			LOG.info("will filter method " + methods[i].getName());
+			log.info("will filter method " + methods[i].getName());
 			commandMap.put(methods[i].getName(), null);
 		}
 	}
@@ -193,7 +193,7 @@ public class Jython extends Service {
 		msgHandle.append(msg.sender);
 		msgHandle.append("_");
 		msgHandle.append(msg.sendingMethod);
-		LOG.debug("calling " + msgHandle);
+		log.debug("calling " + msgHandle);
 		interp.set(msgHandle.toString(), msg);
 		interp.exec(msg.method + "()");
 		

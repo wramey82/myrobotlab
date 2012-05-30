@@ -36,7 +36,7 @@ public class WebServer extends Service {
 
     private HashMap<String, String> handler = new HashMap<String, String>();
 	
-	public final static Logger LOG = Logger.getLogger(WebServer.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(WebServer.class.getCanonicalName());
 
 	public WebServer(String n) {
 		super(n, WebServer.class.getCanonicalName());
@@ -59,7 +59,7 @@ public class WebServer extends Service {
 	
 	public void startWebServer(String root, int port)
 	{
-		LOG.info("starting web server " + root + " port " + port);
+		log.info("starting web server " + root + " port " + port);
 		//webServer = new SimpleWebServer(arg0, arg1);
 		try {
 			webServer = new SimpleWebServer(new File(root), port, this);
@@ -118,7 +118,7 @@ public class WebServer extends Service {
 		data[1]="password";
 		Message msg = web.createMessage("sessionMgr", "logon", data);
 		String s = gson.toJson(msg);
-		LOG.info(s);
+		log.info(s);
 		
 		
 		

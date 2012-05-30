@@ -184,7 +184,7 @@ public class VideoWidget extends ServiceGUI {
 	{
 		if (!displays.containsKey(source))
 		{
-			LOG.error("cannot remove VideoDisplayPanel " + source);
+			log.error("cannot remove VideoDisplayPanel " + source);
 			return;
 		}
 		
@@ -200,7 +200,7 @@ public class VideoWidget extends ServiceGUI {
 		Iterator<String> itr = displays.keySet().iterator();
 		while (itr.hasNext()) {
 			String n = itr.next();
-			LOG.error("removing " + n);
+			log.error("removing " + n);
 			//removeVideoDisplayPanel(n);
 			VideoDisplayPanel vdp = displays.get(n);
 			display.remove(vdp.myDisplay);

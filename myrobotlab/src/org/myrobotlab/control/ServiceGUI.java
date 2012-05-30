@@ -43,7 +43,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
 
-	public final static Logger LOG = Logger.getLogger(ServiceGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
 	// FIXME - Why a GUI interface - Swing will be Swing (too much abstraction)
 	// FIXME - cheesy - have resizer in GUIService too because its a lame updating the interface all the time
@@ -69,7 +69,7 @@ public abstract class ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			LOG.error("undock " + boundServiceName);
+			log.error("undock " + boundServiceName);
 			//releaseServiceButton.setVisible(false); - FIXME same functionality
 			myService.undockPanel(boundServiceName);
 		}

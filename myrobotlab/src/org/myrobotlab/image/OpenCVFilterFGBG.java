@@ -51,7 +51,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterFGBG.class
+	public final static Logger log = Logger.getLogger(OpenCVFilterFGBG.class
 			.getCanonicalName());
 
 	IplImage buffer = null;

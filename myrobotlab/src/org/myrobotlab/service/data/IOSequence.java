@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 public class IOSequence implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(IOSequence.class);
+	public final static Logger log = Logger.getLogger(IOSequence.class);
 
 	public int ID;
 	public ArrayList<IOSequenceEntry> sequenceList; // list of a IOAddress
@@ -66,9 +66,9 @@ public class IOSequence implements Serializable {
 	};
 
 	public static String name() {
-		if (LOG.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			StringBuilder logString = new StringBuilder("IOSequence.getName()()");
-			LOG.debug(logString);
+			log.debug(logString);
 		} // if
 
 		String ret = new String("IOSequence");

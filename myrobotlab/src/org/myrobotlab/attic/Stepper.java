@@ -51,7 +51,7 @@ public class Stepper extends Service {
 	 */
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Stepper.class.toString());
+	public final static Logger log = Logger.getLogger(Stepper.class.toString());
 
 	boolean isAttached = false;
 	
@@ -91,7 +91,7 @@ public class Stepper extends Service {
 	public void incrementPower(float increment) {
 		if (power + increment > maxPower || power + increment < -maxPower) 
 		{
-			LOG.error("power " + power + " out of bounds with increment "+ increment);
+			log.error("power " + power + " out of bounds with increment "+ increment);
 			return;
 		}
 		power += increment;
@@ -111,8 +111,8 @@ public class Stepper extends Service {
 			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD); 
 		}
 
-		//LOG.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
-		LOG.error(getName() + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
+		//log.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
+		log.error(getName() + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (power * powerMultiplier)));
 
 		this.power = power;
@@ -124,17 +124,17 @@ public class Stepper extends Service {
 	}
 
 	public void unLock() {
-		LOG.info("unLock");
+		log.info("unLock");
 		locked = false;
 	}
 
 	public void lock() {
-		LOG.info("lock");
+		log.info("lock");
 		locked = true;
 	}
 
 	public void stopAndLock() {
-		LOG.info("stopAndLock");
+		log.info("stopAndLock");
 		move(0);
 		lock();
 	}
@@ -320,7 +320,7 @@ int encoderPin = 0; // TODO - put in Encoder class
 		
 		if (power > maxPower || power < -maxPower) 
 		{
-			LOG.error(power + " power out of bounds - max power is "+ maxPower);
+			log.error(power + " power out of bounds - max power is "+ maxPower);
 			return;
 		}
 		

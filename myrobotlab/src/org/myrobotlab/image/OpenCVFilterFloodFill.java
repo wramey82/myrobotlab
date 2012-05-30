@@ -48,7 +48,7 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterFloodFill.class.getCanonicalName());
 
 	IplImage buffer = null;

@@ -40,7 +40,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterMask extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;	
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterMask.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterMask.class.getCanonicalName());
 	transient IplImage dst = null;
 	public String maskName = "";
 	

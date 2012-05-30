@@ -49,7 +49,7 @@ import org.myrobotlab.framework.Service;
 public class AudioFile extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(AudioFile.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(AudioFile.class.getCanonicalName());
 	Player player;
 
 	public AudioFile(String n) {
@@ -111,8 +111,8 @@ public class AudioFile extends Service {
 		}
 		
 		} catch (Exception e) {
-			LOG.error(e);
-			LOG.error("Problem playing file " + filename);
+			log.error(e);
+			log.error("Problem playing file " + filename);
 			return;
 		}
 
@@ -120,11 +120,11 @@ public class AudioFile extends Service {
 	}
 
 	public void started() {
-		LOG.info("started");
+		log.info("started");
 	}
 
 	public void stopped() {
-		LOG.info("stopped");
+		log.info("stopped");
 	}
 
 	/* BEGIN - TODO - reconcile - find how javazoom plays wave */

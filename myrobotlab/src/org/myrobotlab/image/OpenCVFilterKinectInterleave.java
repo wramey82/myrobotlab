@@ -44,7 +44,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterKinectInterleave.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterKinectInterleave.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	transient IplImage src = null;

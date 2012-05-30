@@ -48,7 +48,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterInRange extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterInRange.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterInRange.class.getCanonicalName());
 	// http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#Calculating_color_histograms
 
 	IplImage hsv = null;
@@ -132,7 +132,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 		frameBuffer = hsv.getBufferedImage();
 		int rgb = frameBuffer.getRGB(event.getX(), event.getY());
 		Color c = new Color(rgb);
-		LOG.error(event.getX() + "," + event.getY() + " h " + c.getRed()
+		log.error(event.getX() + "," + event.getY() + " h " + c.getRed()
 				+ " s " + c.getGreen() + " v " + c.getBlue());
 	}
 
@@ -161,7 +161,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 		useMask = useMask | (cfg.getBoolean("useHue")?1:0);
 		
 		if (image == null) {
-			LOG.error("image is null");
+			log.error("image is null");
 		}
 
 		// convert to more stable HSV
@@ -263,7 +263,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 				break;
 				
 			default:
-				LOG.error("unknown useMask " + useMask);
+				log.error("unknown useMask " + useMask);
 				break;
 		}
 		

@@ -51,7 +51,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(MoMoGUI.class
+	public final static Logger log = Logger.getLogger(MoMoGUI.class
 			.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
@@ -164,17 +164,17 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
-			// LOG.error("Released" + keyEvent);
+			// log.error("Released" + keyEvent);
 		}
 
 		public void keyTyped(KeyEvent keyEvent) {
-			// LOG.error("Typed" + keyEvent);
+			// log.error("Typed" + keyEvent);
 		}
 
 		private void printIt(String title, KeyEvent keyEvent) {
 			int keyCode = keyEvent.getKeyCode();
 			String keyText = KeyEvent.getKeyText(keyCode);
-			// LOG.error(title + " : " + keyText + " / " +
+			// log.error(title + " : " + keyText + " / " +
 			// keyEvent.getKeyChar());
 		}
 	};

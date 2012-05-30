@@ -35,7 +35,7 @@ import org.myrobotlab.framework.StopWatch;
 public class TestCatcher extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(TestCatcher.class
+	public final static Logger log = Logger.getLogger(TestCatcher.class
 			.getCanonicalName());
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();
 	public ArrayList<Integer> lowCatchList = new ArrayList<Integer>();
@@ -52,7 +52,7 @@ public class TestCatcher extends Service {
 	}
 
 	public void catchNothing() {
-		LOG.info("***CATCH*** catchNothing ");
+		log.info("***CATCH*** catchNothing ");
 		Integer c = 1;
 		synchronized (catchList) {
 			catchList.add(c);
@@ -66,7 +66,7 @@ public class TestCatcher extends Service {
 	}
 
 	public Integer catchInteger(Integer count) {
-		LOG.info("***CATCH*** catchInteger " + count);
+		log.info("***CATCH*** catchInteger " + count);
 		synchronized (catchList) {
 			catchList.add(count);
 			catchList.notify();
@@ -75,7 +75,7 @@ public class TestCatcher extends Service {
 	}
 
 	public Integer lowCatchInteger(Integer count) {
-		LOG.info("***CATCH*** lowCatchInteger " + count);
+		log.info("***CATCH*** lowCatchInteger " + count);
 		synchronized (lowCatchList) {
 			lowCatchList.add(count);
 			lowCatchList.notify();
@@ -85,9 +85,9 @@ public class TestCatcher extends Service {
 	}
 
 	public Integer bothHandsCatchInteger(Integer firstBall, Integer secondBall) {
-		LOG.info("***CATCH*** bothHandsCatchInteger " + firstBall + ","
+		log.info("***CATCH*** bothHandsCatchInteger " + firstBall + ","
 				+ secondBall);
-		LOG.info(catchList.size());
+		log.info(catchList.size());
 
 		synchronized (catchList) {
 			catchList.add(firstBall);
@@ -95,14 +95,14 @@ public class TestCatcher extends Service {
 			catchList.notify();
 		}
 
-		LOG.info("bothHandsCatchInteger " + firstBall + "," + secondBall);
-		LOG.info("bothHandsCatchInteger size " + catchList.size());
+		log.info("bothHandsCatchInteger " + firstBall + "," + secondBall);
+		log.info("bothHandsCatchInteger size " + catchList.size());
 
 		return catchList.size();
 	}
 
 	public Integer twoHandedPrimitiveCatchInt(int firstBall, int secondBall) {
-		LOG.info("***CATCH*** twoHandedPrimitiveCatchInt " + firstBall + ","
+		log.info("***CATCH*** twoHandedPrimitiveCatchInt " + firstBall + ","
 				+ secondBall);
 		synchronized (catchList) {
 			catchList.add(firstBall);
@@ -114,12 +114,12 @@ public class TestCatcher extends Service {
 	}
 
 	public Integer throwBack(Integer count) {
-		LOG.info("throwBack " + count);
+		log.info("throwBack " + count);
 		return count;
 	}
 
 	public int waitForCatches(int numberOfCatches, int maxWaitTimeMilli) {
-		LOG.info(getName() + ".waitForCatches waiting for " + numberOfCatches
+		log.info(getName() + ".waitForCatches waiting for " + numberOfCatches
 				+ " currently " + catchList.size());
 
 		StopWatch stopwatch = new StopWatch();
@@ -133,16 +133,16 @@ public class TestCatcher extends Service {
 						stopwatch.end(); // sample time - 	
 						if (stopwatch.elapsedMillis() > maxWaitTimeMilli)
 						{
-							LOG.error("waited for " + maxWaitTimeMilli + "ms and still only " + catchList.size() + " out of " + numberOfCatches);							
+							log.error("waited for " + maxWaitTimeMilli + "ms and still only " + catchList.size() + " out of " + numberOfCatches);							
 							return catchList.size();
 						}
 					} 
 										
-					LOG.info("caught " + catchList.size() + " out of " + numberOfCatches);
+					log.info("caught " + catchList.size() + " out of " + numberOfCatches);
 					return numberOfCatches;
 					
 				} catch (InterruptedException e) {
-					LOG.error("waitForCatches " + numberOfCatches
+					log.error("waitForCatches " + numberOfCatches
 							+ " interrupted");
 					// logException(e); - removed for Android
 				}
@@ -152,7 +152,7 @@ public class TestCatcher extends Service {
 	}
 
 	public void waitForLowCatches(int numberOfCatches, int maxWaitTimeMilli) {
-		LOG.info(getName() + ".waitForLowCatches waiting for " + numberOfCatches
+		log.info(getName() + ".waitForLowCatches waiting for " + numberOfCatches
 				+ " currently " + lowCatchList.size());
 		synchronized (lowCatchList) {
 			while (lowCatchList.size() < numberOfCatches) {
@@ -160,7 +160,7 @@ public class TestCatcher extends Service {
 					lowCatchList.wait(maxWaitTimeMilli);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					LOG.error("testObject1List " + numberOfCatches
+					log.error("testObject1List " + numberOfCatches
 							+ " interrupted");
 					// logException(e);
 				}

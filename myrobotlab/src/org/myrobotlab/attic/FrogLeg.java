@@ -54,7 +54,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class FrogLeg extends Service {
 
-	public final static Logger LOG = Logger.getLogger(FrogLeg.class
+	public final static Logger log = Logger.getLogger(FrogLeg.class
 			.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
@@ -250,11 +250,11 @@ public class FrogLeg extends Service {
 	}
 
 	public void trackPoints(CvPoint2D32f[] points) {
-		LOG.error(points[0]);
+		log.error(points[0]);
 	}
 
 	public void samplePoints(CvPoint2D32f[] points) {
-		LOG.warn(points[0]);
+		log.warn(points[0]);
 	}
 
 	boolean beginSampled = false;
@@ -308,7 +308,7 @@ public class FrogLeg extends Service {
 
 		String ret = "\n";
 
-		LOG.error(points.size());
+		log.error(points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {

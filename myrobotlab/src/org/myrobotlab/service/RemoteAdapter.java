@@ -64,7 +64,7 @@ import org.myrobotlab.service.interfaces.MRLMSGReciever;
 public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
 
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
@@ -136,12 +136,12 @@ public class RemoteAdapter extends Service {
 
 					serverSocket = new ServerSocket(TCPPort, 10);
 					
-					LOG.info(getName() + " TCPListener listening on "
+					log.info(getName() + " TCPListener listening on "
 							+ serverSocket.getLocalSocketAddress());
 					
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
-					LOG.info("new connection [" + clientSocket.getRemoteSocketAddress() + "]");
+					log.info("new connection [" + clientSocket.getRemoteSocketAddress() + "]");
 					
 					out = new ObjectOutputStream(clientSocket.getOutputStream());
 					out.flush();
@@ -176,7 +176,7 @@ public class RemoteAdapter extends Service {
 
 					serverSocket.close();
 				} catch (IOException e) {
-					LOG.error("Could not listen on requested ["
+					log.error("Could not listen on requested ["
 							+ TCPPort + "]");
 					TCPPort = 0;
 				} catch (ClassNotFoundException e) {
@@ -184,7 +184,7 @@ public class RemoteAdapter extends Service {
 					e.printStackTrace();
 				}
 			} else {
-				LOG.error("servicePort is <= 0 - terminating");
+				log.error("servicePort is <= 0 - terminating");
 			}
 
 		}
@@ -218,7 +218,7 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(UDPStringPort);
 				
-				LOG.info(getName() + " UDPStringListener listening on "
+				log.info(getName() + " UDPStringListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
 				
 				byte[] b = new byte[65535];
@@ -231,13 +231,13 @@ public class RemoteAdapter extends Service {
 					String data = new String(dgram.getData(), 0, dgram.getLength());
 					dgram.setLength(b.length); // must reset length field!
 
-					LOG.debug("udp data [" + data + "]");
+					log.debug("udp data [" + data + "]");
 					send(dst, fn, data);
 					// create a string message and send it
 				}
 
 			} catch (Exception e) {
-				LOG.error("UDPStringListener could not listen");
+				log.error("UDPStringListener could not listen");
 				Service.logException(e);
 			}
 		}
@@ -266,7 +266,7 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(UDPPort);
 
-				LOG.info(getName() + " UDPListener listening on "
+				log.info(getName() + " UDPListener listening on "
 						+ socket.getLocalAddress() + ":" + socket.getLocalPort());
 
 				Communicator comm = (Communicator) cm.getComm();
@@ -309,7 +309,7 @@ public class RemoteAdapter extends Service {
 
 					} catch (ClassNotFoundException e) {
 						logException(e);						
-						LOG.error("udp datagram dumping bad msg");
+						log.error("udp datagram dumping bad msg");
 					}
 					dgram.setLength(b.length); // must reset length field!
 					b_in.reset(); // reset so next read is from start of byte[]
@@ -317,7 +317,7 @@ public class RemoteAdapter extends Service {
 				} // while isRunning
 
 			} catch (Exception e) {
-				LOG.error("UDPListener could not listen");
+				log.error("UDPListener could not listen");
 				Service.logException(e);
 			}
 		}
@@ -343,7 +343,7 @@ public class RemoteAdapter extends Service {
 			// block until actually listening 
 			
 		} else {
-			LOG.warn("RemoteAdapter " + getName() + " is already started");
+			log.warn("RemoteAdapter " + getName() + " is already started");
 		}
 	}
 
@@ -466,7 +466,7 @@ public class RemoteAdapter extends Service {
 		ServiceWrapper sw = Runtime.getService(serviceName);
 		if (sw != null)
 		{
-			LOG.warn("request to register " + serviceName + " which is already registered");
+			log.warn("request to register " + serviceName + " which is already registered");
 		} else {
 			// FIXME - asking for a legitimate registry from running system
 			// this will be more complex in that it requires a call-back

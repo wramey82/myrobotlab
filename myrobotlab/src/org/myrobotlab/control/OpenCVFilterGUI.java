@@ -42,7 +42,7 @@ import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
 
 public abstract class OpenCVFilterGUI {
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());
 
 	final String name;
 	public JPanel display = new JPanel(new GridBagLayout());

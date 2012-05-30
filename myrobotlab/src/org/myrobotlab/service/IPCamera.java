@@ -30,7 +30,7 @@ public class IPCamera extends Service {
 
 	private boolean capturing = false;
 
-	public final static Logger LOG = Logger.getLogger(IPCamera.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(IPCamera.class.getCanonicalName());
 
 	public final static int FOSCAM_MOVE_UP 						= 0;
 	public final static int FOSCAM_MOVE_STOP_UP 				= 1;
@@ -60,9 +60,9 @@ public class IPCamera extends Service {
 				capturing = true;
 				while (capturing) {
 					BufferedImage bi = grabber.grabBufferedImage();
-					LOG.info("grabbed");
+					log.info("grabbed");
 					if (bi != null){
-						LOG.info("publishFrame");
+						log.info("publishFrame");
 						invoke("publishFrame", new Object[] { host,  bi });
 					}
 				}
@@ -92,7 +92,7 @@ public class IPCamera extends Service {
 
 	public String move(Integer param)
 	{
-		LOG.debug("move " + param);
+		log.debug("move " + param);
 		StringBuffer ret = new StringBuffer();
 		try {
 			// TODO - re-use connection optimization
@@ -154,7 +154,7 @@ public class IPCamera extends Service {
 		try {
 
 			URL url = new URL("http://" + host + "/get_status.cgi?user=" + user+ "&pwd=" + password);
-			LOG.debug("getStatus " + url);
+			log.debug("getStatus " + url);
 			URLConnection con = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -166,7 +166,7 @@ public class IPCamera extends Service {
 			}
 			in.close();
 			
-			LOG.debug(ret.indexOf("var id"));
+			log.debug(ret.indexOf("var id"));
 			
 			if (ret.indexOf("var id") != -1)
 			{

@@ -63,7 +63,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
 
 	IplImage image = null;
 	IplImage grey = null;
@@ -288,7 +288,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 			count = featurePointCount.getValue(); 
 			needTrackingPoints = false;
-			LOG.info("good features found " + featurePointCount.getValue() + " points");
+			log.info("good features found " + featurePointCount.getValue() + " points");
 
 		} else if (count > 0) // weird logic - but guarantees a swap after
 								// features are found

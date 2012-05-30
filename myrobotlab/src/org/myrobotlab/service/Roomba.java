@@ -112,7 +112,7 @@ public class Roomba extends Service implements SerialService {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Roomba.class
+	public final static Logger log = Logger.getLogger(Roomba.class
 			.getCanonicalName());
 
 	Port serial;
@@ -947,7 +947,7 @@ public class Roomba extends Service implements SerialService {
 	 */
 	public String sensorsAsString() {
 		String sd = "";
-		if (LOG.getLevel().equals(LogLevel.DEBUG)) {
+		if (log.getLevel().equals(LogLevel.DEBUG)) {
 			sd = "\n";
 			for (int i = 0; i < 26; i++)
 				sd += " " + hex(sensor_bytes[i]);
@@ -1376,8 +1376,8 @@ public class Roomba extends Service implements SerialService {
 		 * System.err.println("RoombaComm ("+System.currentTimeMillis()+"):"+
 		 * msg);
 		 */
-		if (LOG.isDebugEnabled())
-			LOG.debug(msg);
+		if (log.isDebugEnabled())
+			log.debug(msg);
 	}
 
 	/**

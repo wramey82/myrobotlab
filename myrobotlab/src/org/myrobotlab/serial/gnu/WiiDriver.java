@@ -34,7 +34,7 @@ import org.myrobotlab.service.Wii;
 
 public class WiiDriver implements CommDriver {
 
-	public final static Logger LOG = Logger.getLogger(WiiDriver.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(WiiDriver.class.getCanonicalName());
 	private WiiCommPort wiiport;
 
 	public WiiDriver(Wii wii) {
@@ -44,14 +44,14 @@ public class WiiDriver implements CommDriver {
 
 	// @Override - only in Java 1.6
 	public CommPort getCommPort(String arg0, int arg1) {
-		LOG.info("getCommPort");
+		log.info("getCommPort");
 
 		return wiiport;
 	}
 
 	// @Override - only in Java 1.6
 	public void initialize() {
-		LOG.info("BinaryDriver.initialize");
+		log.info("BinaryDriver.initialize");
 	}
 
 }

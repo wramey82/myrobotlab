@@ -60,7 +60,7 @@ import edu.cmu.sphinx.util.props.PropertyException;
 public class Sphinx extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Sphinx.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Sphinx.class.getCanonicalName());
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
@@ -178,7 +178,7 @@ public class Sphinx extends Service {
 	 */
 	void swapGrammar(String newGrammarName)
 			throws PropertyException, InstantiationException, IOException {
-	  LOG.debug("Swapping to grammar " + newGrammarName);
+	  log.debug("Swapping to grammar " + newGrammarName);
 	  Linguist linguist = (Linguist) cm.lookup("flatLinguist");
 	  linguist.deallocate();
 	  // TODO - bundle sphinx4-1.0beta6
@@ -216,24 +216,24 @@ public class Sphinx extends Service {
 
 			microphone = (Microphone) cm.lookup("microphone");
 			if (!microphone.startRecording()) {
-				LOG.error("Cannot start microphone.");
+				log.error("Cannot start microphone.");
 				recognizer.deallocate();
 			}
 
 			// loop the recognition until the program exits.
 			while (isRunning) {
 
-				LOG.error("listening");
+				log.error("listening");
 				invoke("listeningEvent");
 
 				Result result = recognizer.recognize();
 
-				//LOG.error(result.getBestPronunciationResult());
+				//log.error(result.getBestPronunciationResult());
 				if (result != null) {
 					String resultText = result.getBestFinalResultNoFiller();
 					if (resultText.length() > 0) {
 						invoke("recognized", resultText);
-						LOG.error("You said: " + resultText + '\n');
+						log.error("You said: " + resultText + '\n');
 					}
 					
 				} else {
@@ -244,7 +244,7 @@ public class Sphinx extends Service {
 						logException(e);
 					}
 					//invoke("unrecognizedSpeech");
-					LOG.error("I can't hear what you said.\n");
+					log.error("I can't hear what you said.\n");
 				}
 			}
 		}

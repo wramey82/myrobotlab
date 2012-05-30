@@ -39,7 +39,7 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final static Logger LOG = Logger
+	public final static Logger log = Logger
 			.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
 
 	public OpenCVFilterSetImageROI(OpenCV service, String name) {

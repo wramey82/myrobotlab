@@ -46,7 +46,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger LOG = Logger.getLogger(AFMotorShieldGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(AFMotorShieldGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	private AFMotorShield myAFMotorShield = null;
@@ -68,7 +68,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 	  }
 
 	  public void actionPerformed(ActionEvent e) {
-		  LOG.info(e.getActionCommand());
+		  log.info(e.getActionCommand());
 		  myService.send(boundServiceName, e.getActionCommand());
 	  }
 	}
@@ -131,11 +131,11 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
-			// LOG.error("Released" + keyEvent);
+			// log.error("Released" + keyEvent);
 		}
 
 		public void keyTyped(KeyEvent keyEvent) {
-			// LOG.error("Typed" + keyEvent);
+			// log.error("Typed" + keyEvent);
 		}
 
 		private void printIt(String title, KeyEvent keyEvent) {
@@ -167,7 +167,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 		// ttyPort.removeAllItems();
 		for (int i = 0; i < p.size(); ++i) {
 			String n = p.get(i);
-			LOG.info(n);
+			log.info(n);
 			ttyPort.addItem(n);
 		}
 

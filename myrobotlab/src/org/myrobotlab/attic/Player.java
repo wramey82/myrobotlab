@@ -35,7 +35,7 @@ import org.myrobotlab.service.data.IOData;
 public class Player extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Player.class
+	public final static Logger log = Logger.getLogger(Player.class
 			.getCanonicalName());
 	public String IPAddress = ""; // GUI's ip
 	public int port = 0; // GUI's port
@@ -226,11 +226,11 @@ public class Player extends Service {
 			}
 
 			default: {
-				LOG.error("playerCommand " + cmd);
+				log.error("playerCommand " + cmd);
 				break;
 			}
 			}
-			LOG.info(getName() + " " + cmd);
+			log.info(getName() + " " + cmd);
 			game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
 					+ "\">" + login + "</font> " + cmdString);
 		}
@@ -238,7 +238,7 @@ public class Player extends Service {
 	}
 
 	public String playerCommand(String cmd) {
-		LOG.info(getName() + " " + cmd);
+		log.info(getName() + " " + cmd);
 		game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
 				+ "\">" + login + "</font> " + cmd);
 		return cmd;
@@ -272,7 +272,7 @@ public class Player extends Service {
 	}
 
 	public void guiUpdated() {
-		LOG.info("guiUpdated");
+		log.info("guiUpdated");
 
 		// notification that GUI Update has occurred - gui is now functioning
 		// remotely

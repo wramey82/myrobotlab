@@ -47,7 +47,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(PICAXE.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(PICAXE.class.getCanonicalName());
 
 	// fields
 	public int interval = 1000;
@@ -91,7 +91,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 					Thread.sleep(interval);
 				}
 			} catch (InterruptedException e) {
-				LOG.info("PICAXEThread interrupt");
+				log.info("PICAXEThread interrupt");
 				isRunning = false;
 			}
 		}
@@ -124,7 +124,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	{
 		if (myPICAXE != null) 
 		{
-			LOG.info("stopping " + getName() + " myPICAXE");
+			log.info("stopping " + getName() + " myPICAXE");
 			myPICAXE.isRunning = false;
 			myPICAXE.thread.interrupt();
 			myPICAXE.thread = null;
@@ -152,7 +152,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 			pulseDataType = PulseDataType.integer;
 			
 		} else {
-			LOG.error("unknown type " + t);
+			log.error("unknown type " + t);
 		}
 	}
 	
@@ -165,7 +165,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	}
 	
 	public Integer pulse(Integer count) {
-		LOG.info("pulse " + count);
+		log.info("pulse " + count);
 		return count;
 	}
 
@@ -276,8 +276,8 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 		       
 		} catch (Exception e)
 		{
-			LOG.error(e.getMessage());
-			LOG.error(stackToString(e));
+			log.error(e.getMessage());
+			log.error(stackToString(e));
 		}
 
 		*/

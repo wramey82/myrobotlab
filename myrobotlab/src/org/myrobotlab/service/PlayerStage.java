@@ -48,7 +48,7 @@ public class PlayerStage extends Service {
 	
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(PlayerStage.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(PlayerStage.class.getCanonicalName());
 
 	public PlayerStage(String n) {
 		this(n, null);

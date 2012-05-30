@@ -71,7 +71,7 @@ import org.myrobotlab.cmdline.CMDLine;
 
 public class MyRobotLabClassLoader2 extends URLClassLoader {
 
-	//public final static Logger LOG = Logger.getLogger(MyRobotLabClassLoader.class.toString());
+	//public final static Logger log = Logger.getLogger(MyRobotLabClassLoader.class.toString());
 	ClassLoader parent;
 	private static MyRobotLabClassLoader2 instance;
 	

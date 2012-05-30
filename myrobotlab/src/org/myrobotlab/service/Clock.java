@@ -39,7 +39,7 @@ public class Clock extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger LOG = Logger.getLogger(Clock.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Clock.class.getCanonicalName());
 
 	// fields
 	@Element
@@ -92,7 +92,7 @@ public class Clock extends Service {
 					Thread.sleep(interval);
 				}
 			} catch (InterruptedException e) {
-				LOG.info("ClockThread interrupt");
+				log.info("ClockThread interrupt");
 				isClockRunning = false;
 			}
 		}
@@ -128,7 +128,7 @@ public class Clock extends Service {
 	{
 		if (myClock != null) 
 		{
-			LOG.info("stopping " + getName() + " myClock");
+			log.info("stopping " + getName() + " myClock");
 			myClock.thread.interrupt();
 			myClock.thread = null;
 			myClock = null;
@@ -158,7 +158,7 @@ public class Clock extends Service {
 			pulseDataType = PulseDataType.integer;
 			
 		} else {
-			LOG.error("unknown type " + t);
+			log.error("unknown type " + t);
 		}
 	}
 	
@@ -171,7 +171,7 @@ public class Clock extends Service {
 	}
 	
 	public Integer pulse(Integer count) {
-		LOG.info("pulse " + count);
+		log.info("pulse " + count);
 		return count;
 	}
 
@@ -232,7 +232,7 @@ public class Clock extends Service {
 		
 		try {
 			URI uri = new URI("mrl://192.168.0.1:5554");
-			LOG.info(uri);
+			log.info(uri);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -12,7 +12,7 @@ import org.myrobotlab.framework.Service;
 public class Proxy extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger LOG = Logger.getLogger(Proxy.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Proxy.class.getCanonicalName());
 	
 	private String mimicName = null;
 	private String mimicType = null;
