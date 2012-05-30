@@ -754,8 +754,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		}
 		// FIXME - dialog - there are errors which - cancel? or terminate
 		resolveErrors = errors;
-		progressDialog.addInfo("ERROR - " + errors);
-		JOptionPane.showMessageDialog(myService.getFrame(), "could not resolve", "error " + errors, JOptionPane.ERROR_MESSAGE);
+		progressDialog.addErrorInfo("ERROR - " + errors);
+		//JOptionPane.showMessageDialog(myService.getFrame(), "could not resolve", "error " + errors, JOptionPane.ERROR_MESSAGE);
 		return resolveErrors;
 	}
 	

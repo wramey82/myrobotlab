@@ -11,7 +11,7 @@
 	resolution or mrl - update (name)
 -->
 
-<project name="myrobotlab" default="dist" basedir=".">
+<project name="myrobotlab" default="junit" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->

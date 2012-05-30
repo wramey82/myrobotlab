@@ -477,61 +477,7 @@ public class RemoteAdapter extends Service {
 		return true;
 		
 	}
-	
-	/*
-	public boolean send(String host, int port, String serviceName, String method, Object ... data)
-	{
-		URL url;
-		try {
-			url = new URL("http://" + host + ":" + port);
-		} catch (MalformedURLException e) {
-			Service.logException(e);
-			return false;
-		}
-		ServiceEnvironment se = new ServiceEnvironment(url);
-		ServiceWrapper sw = new ServiceWrapper(serviceName, null, se);
-		Runtime.register(url, se);
-		send(serviceName, method, data);
-		return true;
-	}
-	*/
-	
-	/*
-	public boolean sendUDPMSG (String host, int port, String serviceName, String method, Object ... data)
-	{
-		Message msg = new Message();
-		msg.sender = this.getName();
-		msg.method = method;
-		msg.name = serviceName;
-		msg.data = data;
-		
-		// send it
-		try {
 
-			DatagramSocket socket = new DatagramSocket();
-			ByteArrayOutputStream b_out = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(b_out);
-
-			oos.writeObject(msg);
-			oos.flush();
-			byte[] b = b_out.toByteArray();
-
-			DatagramPacket packet = new DatagramPacket(b, b.length,
-					InetAddress.getByName(host), port);
-
-			socket.send(packet);
-			oos.reset();
-
-		} catch (Exception e) {
-			LOG.error("threw [" + e.getMessage() + "]");
-			return false;
-		}
-
-		return true;
-		
-	}
-	*/
-	// use public void Service.send(String name, String method, Object... data)
 	/******************* Client API End ************************************/	
 	
 	public void setUDPPort (int port)
