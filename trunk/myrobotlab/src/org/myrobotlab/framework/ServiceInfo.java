@@ -611,7 +611,7 @@ public class ServiceInfo implements Serializable {
 				}
 
 				if ((localDep == null) || // new dependency on repo
-						localDep != null && localDep.version != null && !localDep.version.equals(repoDep.version)) {
+						localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version)) {
 					deps.add(repoDep);
 				}
 			}

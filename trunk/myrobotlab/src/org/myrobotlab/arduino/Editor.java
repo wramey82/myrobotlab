@@ -83,12 +83,12 @@ import javax.swing.undo.UndoManager;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.RunnerListener;
-import org.myrobotlab.arduino.compiler.SerialException;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.arduino.proxy.PApplet;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceIdentifier;
+import org.myrobotlab.serial.SerialException;
 
 
 /**
@@ -951,7 +951,7 @@ public class Editor extends JPanel implements RunnerListener {
 
 	class SerialMenuListener implements ActionListener {
 		// public SerialMenuListener() { }
-
+// FIXME - send message to Arduino Service  !!!
 		public void actionPerformed(ActionEvent e) {
 			selectSerialPort(((JCheckBoxMenuItem) e.getSource()).getText());
 			base.onBoardOrPortChange();
@@ -2520,10 +2520,12 @@ public class Editor extends JPanel implements RunnerListener {
 	}
 
 	// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 	protected void onBoardOrPortChange() {
 		Map<String, String> boardPreferences = Base.getBoardPreferences();
-		lineStatus.setBoardName(boardPreferences.get("name"));
+		String boardName = boardPreferences.get("name");
+
+		Base.gui.getPinPanel();
+		lineStatus.setBoardName(boardName);
 		lineStatus.setSerialPort(Preferences.get("serial.port"));
 		lineStatus.repaint();
 	}

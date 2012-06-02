@@ -38,10 +38,10 @@ import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler;
 import org.myrobotlab.arduino.compiler.PdePreprocessor;
 import org.myrobotlab.arduino.compiler.RunnerException;
-import org.myrobotlab.arduino.compiler.SerialException;
 import org.myrobotlab.arduino.compiler.Sizer;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.serial.SerialException;
 
 
 

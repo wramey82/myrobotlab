@@ -745,7 +745,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				// msg length
 				// also need a byLength or byStopString - with options to remove
 				// delimiter
-				while ((newByte = inputStream.read()) >= 0) {
+				while (inputStream != null && (newByte = inputStream.read()) >= 0) {
 					msg[numBytes] = (byte) newByte;
 					++numBytes;
 					// totalBytes += numBytes;

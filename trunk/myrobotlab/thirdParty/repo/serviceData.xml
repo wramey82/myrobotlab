@@ -431,6 +431,11 @@
          <include>audio</include>
       </category>
    </categories>
+   <categories string="org.myrobotlab.service.WebServer">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
    <categories string="org.myrobotlab.service.Joystick">
       <category>
          <include>controller</include>

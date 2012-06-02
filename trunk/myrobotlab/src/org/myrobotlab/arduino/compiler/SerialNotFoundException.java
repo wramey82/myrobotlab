@@ -20,6 +20,8 @@
 
 package org.myrobotlab.arduino.compiler;
 
+import org.myrobotlab.serial.SerialException;
+
 
 public class SerialNotFoundException extends SerialException {
   public SerialNotFoundException() {

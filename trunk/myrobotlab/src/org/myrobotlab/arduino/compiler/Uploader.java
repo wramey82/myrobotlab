@@ -32,6 +32,9 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import org.myrobotlab.arduino.Preferences;
+import org.myrobotlab.serial.MessageConsumer;
+import org.myrobotlab.serial.Serial;
+import org.myrobotlab.serial.SerialException;
 
 
 

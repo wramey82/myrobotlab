@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import org.myrobotlab.arduino.Base;
+import org.myrobotlab.serial.MessageConsumer;
 
 
 

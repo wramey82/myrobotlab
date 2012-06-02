@@ -15,6 +15,7 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
          </list>
       </dependsOn>
    </serviceType>
@@ -161,16 +162,6 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.jfugue.music</string>
-         </list>
-      </dependsOn>
-   </serviceType>
-   <serviceType string="org.myrobotlab.service.WebServer">
-      <dependsOn>
-         <list>
-            <string>org.myrobotlab</string>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-            <string>org.jibble.simplewebserver</string>
          </list>
       </dependsOn>
    </serviceType>
@@ -349,6 +340,16 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.WebServer">
+      <dependsOn>
+         <list>
+            <string>org.myrobotlab</string>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.jibble.simplewebserver</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Wii">
       <dependsOn>
          <list>
@@ -372,6 +373,11 @@
    <categories string="org.myrobotlab.service.AudioFile">
       <category>
          <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Clock">
+      <category>
+         <include>timers</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.ChumbyBot">
@@ -497,6 +503,11 @@
    <categories string="org.myrobotlab.service.TweedleBot">
       <category>
          <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.WebServer">
+      <category>
+         <include>network</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.Wii">

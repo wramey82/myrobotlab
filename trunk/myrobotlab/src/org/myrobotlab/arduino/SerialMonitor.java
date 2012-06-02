@@ -45,10 +45,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
-import org.myrobotlab.arduino.compiler.MessageConsumer;
-import org.myrobotlab.arduino.compiler.Serial;
-import org.myrobotlab.arduino.compiler.SerialException;
 import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.serial.MessageConsumer;
+import org.myrobotlab.serial.Serial;
+import org.myrobotlab.serial.SerialException;
 
 
 

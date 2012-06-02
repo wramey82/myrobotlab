@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.myrobotlab.arduino.Base;
 import org.myrobotlab.arduino.Preferences;
+import org.myrobotlab.serial.SerialException;
 
 
 

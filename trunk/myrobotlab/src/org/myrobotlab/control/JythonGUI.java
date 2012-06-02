@@ -40,22 +40,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
-
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Jython;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class JythonGUI extends ServiceGUI implements ActionListener {
 
@@ -63,6 +66,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	RSyntaxTextArea editor = new RSyntaxTextArea();
 	RTextScrollPane scrollPane = null;
+	JSplitPane splitPane = null;
 	JButton exec = new JButton("exec");
 	JButton restart = new JButton("restart");
 	EditorActionListener menuListener = new EditorActionListener();
@@ -70,6 +74,11 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	Jython myJython = null;
 	// TODO - check for outside modification with lastmoddate
 	File currentFile = null;
+	
+	//JTextArea console = new JTextArea();
+	//JScrollPane consoleScroll = new JScrollPane(console);
+	
+	Console console = new Console();
 	
 	public JythonGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -306,10 +315,23 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		display.add(menuPanel, BorderLayout.PAGE_START);
 
 		display.setPreferredSize(new Dimension(800, 600));
-		display.add(scrollPane, BorderLayout.CENTER);
-
-		display.add(statusInfo, BorderLayout.PAGE_END);
+				
+/*		
 		
+		DefaultCaret caret = (DefaultCaret)console.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+*/
+/*		
+		JFrame blah = new JFrame();
+		blah.getContentPane().add(console.getScrollPane());
+		blah.setVisible(true);
+*/		
+				
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, console.getScrollPane());
+		//splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, new JScrollPane(new JTextArea()));
+		splitPane.setDividerLocation(450);
+		display.add(splitPane, BorderLayout.CENTER);
+		display.add(statusInfo, BorderLayout.PAGE_END);
 		
 		// TODO - LOOK GOOD STUFF! 
 		// FIXME - OTHER GUI's SHOULD DO THE SAME !
@@ -318,7 +340,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		if (myJython != null) {
 			editor.setText(myJython.getScript());
 		}
-
+		
 	}
 
 
