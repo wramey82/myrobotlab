@@ -24,7 +24,7 @@
  Severely hacked by Gro-G
  */
 
-package org.myrobotlab.arduino.compiler;
+package org.myrobotlab.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,11 +33,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import org.myrobotlab.arduino.Preferences;
-import org.myrobotlab.serial.SerialDevice;
-import org.myrobotlab.serial.SerialDeviceEvent;
-import org.myrobotlab.serial.SerialDeviceEventListener;
-import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialDeviceIdentifier;
+import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 
 
 
@@ -146,9 +142,6 @@ public class Serial implements SerialDeviceEventListener {
 		}
 	}
 
-	public void setup() {
-		// parent.registerCall(this, DISPOSE);
-	}
 
 	public void dispose() {
 		try {

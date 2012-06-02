@@ -18,10 +18,12 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package org.myrobotlab.arduino.compiler;
+package org.myrobotlab.serial;
 
 public class SerialException extends Exception {
-  public SerialException() {
+	private static final long serialVersionUID = 1L;
+
+public SerialException() {
     super();
   }
 

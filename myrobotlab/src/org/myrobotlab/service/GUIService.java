@@ -965,7 +965,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	{
 		JFrame j = new JFrame("Java Console");
 		j.setSize(500, 550);
-		Console c = new Console("blah");
+		Console c = new Console();
 		j.add(c.getScrollPane());
 		j.setVisible(true);		
 	}

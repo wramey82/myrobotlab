@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -83,8 +84,6 @@ import org.myrobotlab.service.interfaces.GUI;
  */
 public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener, WindowListener {
 
-	private Arduino myArduino = null;
-
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -111,8 +110,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * ---------- Config begin -------------------------
 	 */
 	ArrayList<Pin> pinList = null;
-	JComboBox types = new JComboBox(new String[] { "Duemilanove", "Mega" });
-	JComboBox ttyPort = new JComboBox(new String[] { "" });
+	//JComboBox boardType = new JComboBox(new String[] { "Duemilanove", "Mega" });
+	JComboBox serialDevice = new JComboBox(new String[] { "" });
 	JComboBox baudRate = new JComboBox(
 			new Integer[] { 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 57600, 115200 });
 	/**
@@ -147,12 +146,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	/*
 	 * ---------- Editor begin -------------------------
 	 */
-	RSyntaxTextArea editor = new RSyntaxTextArea();
-	RTextScrollPane editorScrollPane = null;
+	Base arduinoIDE; 
 	// DigitalButton fullscreenButton = null;
 	DigitalButton uploadButton = null;
 	JPanel editorPanel = null;
 	GridBagConstraints epgc = new GridBagConstraints();
+	Dimension size = new Dimension(620, 442);
 
 	/*
 	 * ---------- Editor begin -------------------------
@@ -161,9 +160,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public void init() {
 
 		// ---------------- tabs begin ----------------------
-		Dimension size = new Dimension(620, 442);
 		tabs.setTabPlacement(JTabbedPane.RIGHT);
-		// tabs.setBackground(Color.decode("0x0a4b5e"));
 
 		// ---------------- tabs begin ----------------------
 		// --------- configPanel begin ----------------------
@@ -177,7 +174,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		configPanel.add(new JLabel("type : "), cpgc);
 		++cpgc.gridx;
-		configPanel.add(types, cpgc);
+		//configPanel.add(boardType, cpgc);
 
 		++cpgc.gridx;
 		configPanel.add(new JLabel(" pwm 5 6 : "), cpgc);
@@ -195,7 +192,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		++cpgc.gridy;
 		configPanel.add(new JLabel("port : "), cpgc);
 		++cpgc.gridx;
-		configPanel.add(ttyPort, cpgc);
+		configPanel.add(serialDevice, cpgc);
 
 		++cpgc.gridx;
 		configPanel.add(new JLabel(" serial rate : "), cpgc);
@@ -211,8 +208,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		++cpgc.gridy;
 		cpgc.gridx = 0;
 
-		ttyPort.setName("ttyPort");
-		types.setName("types");
+		serialDevice.setName("serialDevice");
+		//boardType.setName("boardType");
 		baudRate.setName("baudRate");
 		PWMRate1.setName("PWMRate1");
 		PWMRate2.setName("PWMRate2");
@@ -222,24 +219,19 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		PWMRate2.addActionListener(this);
 		PWMRate3.addActionListener(this);
 
-		types.addActionListener(this);
-		ttyPort.addActionListener(this);
+		//boardType.addActionListener(this);
+		serialDevice.addActionListener(this);
 		baudRate.addActionListener(this);
 
 		// --------- configPanel end ----------------------
 		// --------- pinPanel begin -----------------------
-		// FIXME - board type specific
-		imageMap = new JLayeredPane();
-		imageMap.setPreferredSize(size);
-		String type = (String) types.getSelectedItem();
-		type = "Mega";
-		if ("Duemilanove".equals(type)) {
-			displayDuemilanove();
-		} else if ("Mega".equals(type)) {
-			displayMega();
-		} else {
-			log.error("don't know how to display " + type);
-		}
+		arduinoIDE = Base.getBase(this, myService.getFrame());
+		Base.handleActivated(Base.editor);
+
+		Map<String, String> boardPreferences = Base.getBoardPreferences();
+		String boardName = boardPreferences.get("name");
+
+		getPinPanel(); // FIXME - need preferences ?!?! 
 		// ------digital pins tab end ------------
 
 		// ------oscope tab begin ----------------
@@ -299,47 +291,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		epgc = new GridBagConstraints();
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-		/*
-		 * fullscreenButton = new DigitalButton(this, "fullscreen",
-		 * Color.decode("0x418dd9"), Color.white, "leave fullscreen", Color.red,
-		 * Color.white, 7); uploadButton = new DigitalButton(this, "upload",
-		 * Color.decode("0x418dd9"), Color.white, "upload", Color.red,
-		 * Color.white, 7);
-		 * 
-		 * fullscreenButton.addActionListener(this);
-		 */
-		// uploadButton.addActionListener(this);
-
-		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
-		editorScrollPane = new RTextScrollPane(editor);
-		editorScrollPane.setPreferredSize(new Dimension(size.width, size.height));
-
-		/*
-		 * resizer.registerComponent(editor);
-		 * resizer.registerComponent(editorScrollPane);
-		 * resizer.registerComponent(editorPanel);
-		 * resizer.registerComponent(tabs);
-		 */
-		// editorPanel.setPreferredSize(new Dimension(size.width, size.height));
 		epgc.anchor = GridBagConstraints.WEST;
 		epgc.gridx = 0;
 		epgc.gridy = 0;
-		// editorPanel.add(fullscreenButton,epgc);
-
-		// ++epgc.gridx;
-		// editorPanel.add(uploadButton,epgc);
-
-		// leave where scroll pain needs to be
-		// epgc.gridy = 1;
-		// epgc.gridx = 0;
-		// epgc.gridwidth = 10;
-
-		// editorPanel.add(editorScrollPane,epgc);
-
-		Base.main(myService.getFrame());
-		Base.handleActivated(Base.editor);
-		// editorPanel.add(Base.editor,epgc);
-
 		// ------editor tab end ----------------
 
 		JFrame top = myService.getFrame();
@@ -357,6 +311,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		display.add(tabs);
 
+	}
+	
+	public JLayeredPane getPinPanel()
+	{
+		Map<String, String> boardPreferences = Base.getBoardPreferences();
+		String boardName = boardPreferences.get("name");
+
+		if (boardName.contains("Mega"))
+		{
+			return getMegaPanel();
+		} else {
+			return getDuemilanovePanel();
+		}
+		
 	}
 
 	/**
@@ -378,6 +346,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public void getState(Arduino myArduino) {
 		if (myArduino != null) {
 			setPorts(myArduino.portNames);
+			
+			serialDevice.removeActionListener(this);
+			serialDevice.setSelectedItem(myArduino.getPortName());
+			serialDevice.addActionListener(this);
+			
 			baudRate.removeActionListener(this);
 			baudRate.setSelectedItem(myArduino.getBaudRate());
 			baudRate.addActionListener(this);
@@ -395,37 +368,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * @param p
 	 */
 	public void setPorts(ArrayList<String> p) {
-		// ttyPort.removeAllItems();
-
-		// ttyPort.addItem(""); // the null port
-		// ttyPort.removeAllItems();
+		// serialDevice.removeAllItems();
+		// serialDevice.addItem(""); // the null port
+		// serialDevice.removeAllItems();
 		for (int i = 0; i < p.size(); ++i) {
 			String n = p.get(i);
 			log.info(n);
-			ttyPort.addItem(n);
+			serialDevice.addItem(n);
 		}
 
-		if (myArduino != null) {
-			// remove and re-add the action listener
-			// because we don't want a recursive event
-			// when the Service changes the state
-			ttyPort.removeActionListener(this);
-			ttyPort.setSelectedItem(myArduino.getPortName());
-			ttyPort.addActionListener(this);
-		}
 	}
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishPin", "publishPin", PinData.class); // TODO -
-																		// FIXME
-																		// -
-																		// sendNotifyRequest
-																		// should
-																		// handle
-																		// single
-																		// in/out
-																		// method
+		sendNotifyRequest("publishPin", "publishPin", PinData.class); 
 		sendNotifyRequest("publishState", "getState", Arduino.class);
 		myService.send(boundServiceName, "publishState");
 	}
@@ -589,7 +545,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		}
 
 		// ports & timers
-		if (c == ttyPort) {
+		if (c == serialDevice) {
 			JComboBox cb = (JComboBox) c;
 			String newPort = (String) cb.getSelectedItem();
 			myService.send(boundServiceName, "setPort", newPort);
@@ -605,14 +561,18 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			io.address = timerAddr;
 			io.value = newFrequency;
 			myService.send(boundServiceName, "setPWMFrequency", io);
-		} else if (c == types) {
+		} 
+/*		
+		else if (c == boardType) {
 			log.info("type change");
 			JComboBox cb = (JComboBox) e.getSource();
 			String newType = (String) cb.getSelectedItem();
+			getPinPanel();
 			// ----------- TODO ---------------------
 			// MEGA Type switching
 
 		}
+*/		
 
 	}
 
@@ -708,7 +668,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
-		editorPanel.add(editorScrollPane, epgc);
+		//editorPanel.add(editorScrollPane, epgc);
 	}
 
 	@Override
@@ -766,8 +726,15 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		return count;
 	}
 
-	public void displayMega() {
+	public JLayeredPane getMegaPanel() {
+		
+		if (imageMap != null){
+			tabs.remove(imageMap);
+		}
+		
 		pinList = new ArrayList<Pin>();
+		imageMap = new JLayeredPane();
+		imageMap.setPreferredSize(size);
 
 		// set correct arduino image
 		JLabel image = new JLabel();
@@ -856,10 +823,22 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		}
 
+		JFrame top = myService.getFrame();
+		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+
+		return imageMap;
 	}
 
 
-	public void displayDuemilanove() {
+	public JLayeredPane getDuemilanovePanel() {
+
+		if (imageMap != null){
+			tabs.remove(imageMap);
+		}
+		
+		imageMap = new JLayeredPane();
+		imageMap.setPreferredSize(size);
 		pinList = new ArrayList<Pin>();
 
 		// set correct arduino image
@@ -926,7 +905,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				imageMap.add(p.data, new Integer(2));
 			}
 		}
-
+		
+		JFrame top = myService.getFrame();
+		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+		return imageMap;
 	}
 
 }

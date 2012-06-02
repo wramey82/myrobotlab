@@ -36,6 +36,7 @@ import org.myrobotlab.arduino.Preferences;
 import org.myrobotlab.arduino.Sketch;
 import org.myrobotlab.arduino.SketchCode;
 import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.serial.MessageConsumer;
 
 
 
