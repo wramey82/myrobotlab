@@ -65,6 +65,11 @@ public class Platform implements Serializable {
 		}
 	}
 	
+	public static boolean isDavlik()
+	{
+		return DALVIK.equals(getVMName());
+	}
+	
 	public static int getBitness()
 	{
 		return 32;

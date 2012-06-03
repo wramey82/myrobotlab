@@ -57,7 +57,7 @@ import javax.swing.plaf.ButtonUI;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.myrobotlab.arduino.Base;
+import org.myrobotlab.arduino.gui.Base;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.Arduino;

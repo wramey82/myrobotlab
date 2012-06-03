@@ -23,6 +23,8 @@
 
 package org.myrobotlab.arduino;
 
+import org.myrobotlab.arduino.gui.Editor;
+
 
 
 /**

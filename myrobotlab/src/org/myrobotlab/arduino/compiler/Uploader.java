@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.myrobotlab.arduino.Preferences;
+import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.serial.MessageConsumer;
 import org.myrobotlab.serial.Serial;
 import org.myrobotlab.serial.SerialException;
@@ -48,7 +48,7 @@ public abstract class Uploader implements MessageConsumer  {
   RunnerException exception;
   //PdePreferences preferences;
 
-  //Serial serialPort;
+  //SerialDevice serialPort;
   static InputStream serialInput;
   static OutputStream serialOutput;
   //int serial; // last byte of data received
@@ -66,6 +66,8 @@ public abstract class Uploader implements MessageConsumer  {
   protected void flushSerialBuffer() throws RunnerException, SerialException {
     // Cleanup the serial buffer
     try {
+    	// FIXME - preferences used inside of Serial()
+    	// need to seperate that from GUI
       Serial serialPort = new Serial();
       byte[] readBuffer;
       while(serialPort.available() > 0) {

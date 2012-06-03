@@ -7,13 +7,18 @@ import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.TooManyListenersException;
 
 import javax.swing.event.EventListenerList;
 
+import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
+import org.myrobotlab.serial.SerialDeviceFactory;
+import org.myrobotlab.serial.SerialDeviceIdentifier;
+import org.myrobotlab.serial.SerialException;
 import org.myrobotlab.serial.UnsupportedCommOperationException;
 
 /**
@@ -27,6 +32,14 @@ import org.myrobotlab.serial.UnsupportedCommOperationException;
 public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	private gnu.io.SerialPort port;
+	
+	private int rate;
+	private int parity;
+	private int databits;
+	private int stopbits;
+	InputStream input;
+	OutputStream output;
+	
     protected EventListenerList listenerList = new EventListenerList();
     
 	public SerialDeviceGNU(SerialPort port) {
@@ -445,5 +458,92 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
             }
         }
     }
+    
+	public void dispose() {
+		/*
+		try {
+			// do io streams need to be closed first?
+			if (input != null)
+				input.close();
+			if (output != null)
+				output.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		input = null;
+		output = null;
+		*/
+		
+		try {
+			if (port != null)
+				port.close(); // close the port
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		port = null;
+	}
+
+	public SerialDevice getSerialDevice(String iname, int irate, char iparity, int idatabits, float istopbits) throws SerialException {
+
+		this.rate = irate;
+
+		parity = SerialDevice.PARITY_NONE;
+		if (iparity == 'E')
+			parity = SerialDevice.PARITY_EVEN;
+		if (iparity == 'O')
+			parity = SerialDevice.PARITY_ODD;
+
+		this.databits = idatabits;
+
+		stopbits = SerialDevice.STOPBITS_1;
+		if (istopbits == 1.5f)
+			stopbits = SerialDevice.STOPBITS_1_5;
+		if (istopbits == 2)
+			stopbits = SerialDevice.STOPBITS_2;
+
+		try {
+			port = null;
+			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
+					.getDeviceIdentifiers(SerialDeviceFactory.TYPE_GNU);
+			for (int i = 0; i < portList.size(); ++i) {
+				SerialDeviceIdentifier portId = portList.get(i);
+				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+					// System.out.println("found " + portId.getName());
+					if (portId.getName().equals(iname)) {
+						// System.out.println("looking for "+iname);
+						port = (SerialPort) portId.open("serial madness", 2000);
+						input = port.getInputStream();
+						output = port.getOutputStream();
+						port.setSerialPortParams(rate, databits, stopbits, parity);
+						port.addEventListener(this);
+						port.notifyOnDataAvailable(true);
+						// System.out.println("opening, ready to roll");
+					}
+				}
+			}
+		} catch (Exception e) {
+			throw new SerialException("Error opening serial port '" + iname + "'." + e.getMessage(), e);
+			// FIXME - fix back with 2 exceptions
+			/*
+			 * throw new SerialException("Serial port '" + iname +
+			 * "' already in use.  Try quiting any programs that may be using it."
+			 * ); } catch (Exception e) { throw new
+			 * SerialException("Error opening serial port '" + iname + "'.", e);
+			 */
+			// //errorMessage("<init>", e);
+			// //exception = e;
+			// //e.printStackTrace();
+		}
+
+		if (port == null) {
+			throw new SerialNotFoundException("Serial port '" + iname
+					+ "' not found.  Did you select the right one from the Tools > Serial Port menu?");
+		}
+		
+		return this;
+	}
+
 
 }

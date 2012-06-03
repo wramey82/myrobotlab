@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.myrobotlab.arduino.Preferences;
-import org.myrobotlab.arduino.Sketch;
-import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.gui.Preferences;
+import org.myrobotlab.arduino.gui.Sketch;
 
 
 

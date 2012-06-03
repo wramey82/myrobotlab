@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.myrobotlab.arduino.Preferences;
+import org.myrobotlab.arduino.gui.Preferences;
 
 
 

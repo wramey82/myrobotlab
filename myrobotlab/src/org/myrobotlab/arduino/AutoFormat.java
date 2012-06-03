@@ -27,7 +27,9 @@ package org.myrobotlab.arduino;
 import java.io.CharArrayReader;
 import java.io.IOException;
 
-import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.arduino.gui.Editor;
+import org.myrobotlab.arduino.gui.Preferences;
+
 
 
 

@@ -439,8 +439,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		try {
 			SerialDeviceIdentifier portId;
 
-			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
-					.getDeviceIdentifiers(SerialDeviceFactory.TYPE_GNU);
+			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory.getDeviceIdentifiers();
 			for (int i = 0; i < portList.size(); ++i) {
 				portId = portList.get(i);
 

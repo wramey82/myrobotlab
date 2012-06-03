@@ -24,6 +24,15 @@
 
 package org.myrobotlab.arduino;
 
+import org.myrobotlab.arduino.gui.Base;
+import org.myrobotlab.arduino.gui.DefaultInputHandler;
+import org.myrobotlab.arduino.gui.InputHandler;
+import org.myrobotlab.arduino.gui.Preferences;
+import org.myrobotlab.arduino.gui.SyntaxDocument;
+import org.myrobotlab.arduino.gui.SyntaxStyle;
+import org.myrobotlab.arduino.gui.TextAreaDefaults;
+import org.myrobotlab.arduino.gui.Theme;
+
 
 
 public class PdeTextAreaDefaults extends TextAreaDefaults {

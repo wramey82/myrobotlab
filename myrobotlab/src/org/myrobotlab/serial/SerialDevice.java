@@ -188,6 +188,8 @@ public interface SerialDevice {
 			throws UnsupportedCommOperationException;
 	
 	//----------   gnu.io.SerialPort interface end ----------
-
+	public void dispose();
+	
+	//public SerialDevice getSerialDevice(String iname, int irate, char iparity, int idatabits, float istopbits) throws SerialException;
 
 }
