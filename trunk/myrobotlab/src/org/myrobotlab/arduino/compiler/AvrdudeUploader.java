@@ -32,8 +32,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.myrobotlab.arduino.Base;
-import org.myrobotlab.arduino.Preferences;
+import org.myrobotlab.arduino.gui.Base;
+import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.serial.SerialException;
 
 

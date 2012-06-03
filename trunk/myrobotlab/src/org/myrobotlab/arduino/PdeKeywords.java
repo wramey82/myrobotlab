@@ -31,6 +31,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
 
+import org.myrobotlab.arduino.gui.Base;
+import org.myrobotlab.arduino.gui.CTokenMarker;
+import org.myrobotlab.arduino.gui.KeywordMap;
+
 
 
 
@@ -87,7 +91,7 @@ public class PdeKeywords extends CTokenMarker {
       // in case there's any garbage on the line
       //if (line.trim().length() == 0) continue;
 
-      String pieces[] = org.myrobotlab.arduino.proxy.PApplet.split(line, '\t');
+      String pieces[] = org.myrobotlab.arduino.PApplet.split(line, '\t');
       if (pieces.length >= 2) {
         //int tab = line.indexOf('\t');
         // any line with no tab is ignored

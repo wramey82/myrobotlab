@@ -32,8 +32,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import org.myrobotlab.arduino.Preferences;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
+import org.myrobotlab.arduino.gui.Preferences;
 
 
 

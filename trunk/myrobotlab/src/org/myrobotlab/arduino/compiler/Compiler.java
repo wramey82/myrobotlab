@@ -31,11 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.myrobotlab.arduino.Base;
-import org.myrobotlab.arduino.Preferences;
-import org.myrobotlab.arduino.Sketch;
-import org.myrobotlab.arduino.SketchCode;
-import org.myrobotlab.arduino.proxy.PApplet;
+import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.gui.Base;
+import org.myrobotlab.arduino.gui.Preferences;
+import org.myrobotlab.arduino.gui.Sketch;
+import org.myrobotlab.arduino.gui.SketchCode;
 import org.myrobotlab.serial.MessageConsumer;
 
 

@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import org.myrobotlab.arduino.Base;
+import org.myrobotlab.arduino.gui.Base;
 import org.myrobotlab.serial.MessageConsumer;
 
 
