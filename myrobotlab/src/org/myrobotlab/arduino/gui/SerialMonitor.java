@@ -46,8 +46,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
 import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.Serial;
 import org.myrobotlab.serial.MessageConsumer;
-import org.myrobotlab.serial.Serial;
 import org.myrobotlab.serial.SerialException;
 
 

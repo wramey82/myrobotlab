@@ -35,6 +35,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -89,18 +91,29 @@ import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.RunnerListener;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.arduino.compiler.Uploader;
+import org.myrobotlab.control.ImageButton;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceIdentifier;
 import org.myrobotlab.serial.SerialException;
-
 
 /**
  * Main editor panel for the Processing Development Environment.
  */
 @SuppressWarnings("serial")
-public class Editor extends JPanel implements RunnerListener {
+public class Editor extends JPanel implements RunnerListener, ActionListener, KeyListener {
 
 	Base base;
+
+	ImageButton compileButton;
+	ImageButton uploadButton;
+	ImageButton connectButton;
+	ImageButton newButton;
+	ImageButton openButton;
+	ImageButton saveButton;
+	ImageButton fullscreenButton;
+	ImageButton monitorButton;
+
+	boolean shiftPressed = false;
 
 	// otherwise, if the window is resized with the message label
 	// set to blank, it's preferredSize() will be fukered
@@ -131,7 +144,8 @@ public class Editor extends JPanel implements RunnerListener {
 
 	int numTools = 0;
 
-	EditorToolbar toolbar;
+	// FIXME - dump this class !
+	//EditorToolbar toolbar;
 	// these menus are shared so that they needn't be rebuilt for all windows
 	// each time a sketch is created, renamed, or moved.
 	static JMenu toolbarMenu;
@@ -147,7 +161,7 @@ public class Editor extends JPanel implements RunnerListener {
 	static JMenu serialMenu;
 
 	static SerialMenuListener serialMenuListener;
-	static SerialMonitor serialMonitor;
+	static SerialMonitor monitor;
 
 	EditorHeader header;
 	EditorStatus status;
@@ -163,14 +177,11 @@ public class Editor extends JPanel implements RunnerListener {
 
 	EditorLineStatus lineStatus;
 
-	// JEditorPane editorPane;
-
 	JEditTextArea textarea;
 	EditorListener listener;
 
 	// runtime information and window placement
 	Point sketchWindowLocation;
-	// Runner runtime;
 
 	JMenuItem exportAppItem;
 	JMenuItem saveMenuItem;
@@ -193,82 +204,79 @@ public class Editor extends JPanel implements RunnerListener {
 	Runnable runHandler;
 	Runnable presentHandler;
 	Runnable stopHandler;
-	Runnable exportHandler;
+	Runnable uploadHandler;
 	Runnable exportAppHandler;
-	Container contentPain;
+	JPanel menuAndButtons = new JPanel(new BorderLayout()); // new BorderLayout()
+	//Container contentPain;
 
 	public Editor(Base ibase, String path, int[] location) {
-		// super("Arduino");
-		// contentPain = getContentPane();
-		contentPain = this;
 		this.base = ibase;
 		setPreferredSize(new Dimension(680, 480));
-		// Base.setIcon(this);
 
-		// Install default actions for Run, Present, etc.
 		resetHandlers();
 
-		// add listener to handle window close box hit event
-		/*
-		 * addWindowListener(new WindowAdapter() { public void
-		 * windowClosing(WindowEvent e) { base.handleClose(Editor.this); } });
-		 * // don't close the window when clicked, the app will take care // of
-		 * that via the handleQuitInternal() methods //
-		 * http://dev.processing.org/bugs/show_bug.cgi?id=440
-		 * setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		 * 
-		 * // When bringing a window to front, let the Base know
-		 * addWindowListener(new WindowAdapter() { public void
-		 * windowActivated(WindowEvent e) { // System.err.println("activate");
-		 * // not coming through base.handleActivated(Editor.this); // re-add
-		 * the sub-menus that are shared by all windows
-		 * fileMenu.insert(sketchbookMenu, 2); fileMenu.insert(examplesMenu, 3);
-		 * sketchMenu.insert(importMenu, 4); toolsMenu.insert(boardsMenu,
-		 * numTools); toolsMenu.insert(serialMenu, numTools + 1); }
-		 * 
-		 * // added for 1.0.5 //
-		 * http://dev.processing.org/bugs/show_bug.cgi?id=1260 public void
-		 * windowDeactivated(WindowEvent e) { //
-		 * System.err.println("deactivate"); // not coming through
-		 * fileMenu.remove(sketchbookMenu); fileMenu.remove(examplesMenu);
-		 * sketchMenu.remove(importMenu); toolsMenu.remove(boardsMenu);
-		 * toolsMenu.remove(serialMenu); } });
-		 */
-		// PdeKeywords keywords = new PdeKeywords();
-		// sketchbook = new Sketchbook(this);
-
-		if (serialMonitor == null) {
-			serialMonitor = new SerialMonitor(Preferences.get("serial.port"));
-			// serialMonitor.setIconImage(getIconImage()); ZOD
+		if (monitor == null) {
+			monitor = new SerialMonitor(Preferences.get("serial.port"));
+			// serialMonitor.setIconImage(getIconImage()); Gro-G
 		}
 
-		// For rev 0120, placing things inside a JPanel
-		contentPain.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 		pain = new JPanel();
 		pain.setLayout(new BorderLayout());
-		contentPain.add(pain, BorderLayout.CENTER);
+		add(pain, BorderLayout.CENTER);
 
 		buildMenuBar();
 
-		Box box = Box.createVerticalBox();
-		Box upper = Box.createVerticalBox();
 
 		if (toolbarMenu == null) {
 			toolbarMenu = new JMenu();
 			base.rebuildToolbarMenu(toolbarMenu);
 		}
-		toolbar = new EditorToolbar(this, toolbarMenu);
-		upper.add(toolbar);
 
-		header = new EditorHeader(this);
+		JPanel tbar = new JPanel();
+		//tbar.setPreferredSize(new Dimension (680, 15)); how'd this get broken?
+		// tbar.setMaximumSize(new Dimension (680, 15)); - this works unless size changes
+		//tbar.setSize(new Dimension (680, 15));
+
+		tbar.setBackground(new Color(0x006468));
+		//GridBagConstraints gc = new GridBagConstraints();
+
+		compileButton 	= new ImageButton("Arduino","compile", this);
+		uploadButton 	= new ImageButton("Arduino","upload", this);
+		connectButton 	= new ImageButton("Arduino","connect", this);
+		newButton 		= new ImageButton("Arduino","new", this);
+		openButton 		= new ImageButton("Arduino","open", this);
+		saveButton 		= new ImageButton("Arduino","save", this);
+		fullscreenButton= new ImageButton("Arduino","fullscreen", this);
+		monitorButton 	= new ImageButton("Arduino","monitor", this);
+
+		tbar.add(compileButton);
+		tbar.add(uploadButton);
+		tbar.add(connectButton);
+		tbar.add(newButton);
+		tbar.add(openButton);
+		tbar.add(saveButton);
+		tbar.add(fullscreenButton);
+		tbar.add(monitorButton);
+		
+		// ouch .. never dealt with boxes before
+		Box box = Box.createVerticalBox();
+		//JPanel box = new JPanel();
+		Box upper = Box.createVerticalBox();
+		//upper.setPreferredSize(new Dimension(680,15));
+		//JPanel upper = new JPanel();
+		//upper.setPreferredSize(new Dimension(680,15));
+		menuAndButtons.add(tbar, BorderLayout.CENTER);
+		pain.add(menuAndButtons, BorderLayout.NORTH);
+		//upper.add(tbar);
+
+		header = new EditorHeader(this); // um ... tab panes are nice ?
 		upper.add(header);
 
 		textarea = new JEditTextArea(new PdeTextAreaDefaults());
 		textarea.setRightClickPopup(new TextAreaPopup());
 		textarea.setHorizontalOffset(6);
 
-		// assemble console panel, consisting of status area and the console
-		// itself
 		consolePanel = new JPanel();
 		consolePanel.setLayout(new BorderLayout());
 
@@ -276,7 +284,6 @@ public class Editor extends JPanel implements RunnerListener {
 		consolePanel.add(status, BorderLayout.NORTH);
 
 		console = new EditorConsole(this);
-		// windows puts an ugly border on this guy
 		console.setBorder(null);
 		consolePanel.add(console, BorderLayout.CENTER);
 
@@ -292,71 +299,19 @@ public class Editor extends JPanel implements RunnerListener {
 		// if window increases in size, give all of increase to
 		// the textarea in the uppper pane
 		splitPane.setResizeWeight(1D);
-
-		// to fix ugliness.. normally macosx java 1.3 puts an
-		// ugly white border around this object, so turn it off.
 		splitPane.setBorder(null);
 
-		// the default size on windows is too small and kinda ugly
-		int dividerSize = Preferences.getInteger("editor.divider.size");
-		if (dividerSize != 0) {
-			splitPane.setDividerSize(dividerSize);
-		}
-
-		// splitPane.setMinimumSize(new Dimension(600, 400));
 		box.add(splitPane);
-
-		// hopefully these are no longer needed w/ swing
-		// (har har har.. that was wishful thinking)
 		listener = new EditorListener(this, textarea);
 		pain.add(box);
-
-		// get shift down/up events so we can show the alt version of toolbar
-		// buttons
-		textarea.addKeyListener(toolbar);
-
 		pain.setTransferHandler(new FileDropHandler());
-
-		// System.out.println("t1");
-
-		// Finish preparing Editor (formerly found in Base)
-		// pack();
-
-		// System.out.println("t2");
-
-		// Set the window bounds and the divider location before setting it
-		// visible
 		setPlacement(location);
-
-		// If the window is resized too small this will resize it again to the
-		// minimums. Adapted by Chris Lonnen from comments here:
-		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4320050
-		// as a fix for http://dev.processing.org/bugs/show_bug.cgi?id=25
-		final int minW = Preferences.getInteger("editor.window.width.min");
-		final int minH = Preferences.getInteger("editor.window.height.min");
-		addComponentListener(new java.awt.event.ComponentAdapter() {
-			public void componentResized(ComponentEvent event) {
-				// setSize((getWidth() < minW) ? minW : getWidth(),
-				// (getHeight() < minH) ? minH : getHeight());
-			}
-		});
-		// setSize(300,400);
-		// System.out.println("t3");
-
-		// Bring back the general options for the editor
 		applyPreferences();
-
-		// System.out.println("t4");
 
 		// Open the document that was passed in
 		boolean loaded = handleOpenInternal(path);
 		if (!loaded)
 			sketch = null;
-
-		// System.out.println("t5");
-
-		// All set, now show the window
-		// setVisible(true);
 	}
 
 	/**
@@ -447,19 +402,6 @@ public class Editor extends JPanel implements RunnerListener {
 	}
 
 	/**
-	 * Hack for #@#)$(* Mac OS X 10.2.
-	 * <p/>
-	 * This appears to only be required on OS X 10.2, and is not even being
-	 * called on later versions of OS X or Windows.
-	 */
-	// public Dimension getMinimumSize() {
-	// //System.out.println("getting minimum size");
-	// return new Dimension(500, 550);
-	// }
-
-	// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-	/**
 	 * Read and apply new values from the preferences, either because the app is
 	 * just starting up, or the user just finished messing with things in the
 	 * Preferences window.
@@ -518,7 +460,7 @@ public class Editor extends JPanel implements RunnerListener {
 		menubar.add(buildHelpMenu());
 		// setJMenuBar(menubar);
 		// contentPain.add(new JButton("HELLO THERE"), BorderLayout.NORTH);
-		pain.add(menubar, BorderLayout.NORTH);
+		menuAndButtons.add(menubar, BorderLayout.WEST);
 	}
 
 	JMenu viewMenu;
@@ -594,7 +536,7 @@ public class Editor extends JPanel implements RunnerListener {
 		item = newJMenuItem("Upload", 'U');
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				handleExport(false);
+				handleUpload(false);
 			}
 		});
 		fileMenu.add(item);
@@ -602,7 +544,7 @@ public class Editor extends JPanel implements RunnerListener {
 		item = newJMenuItemShift("Upload Using Programmer", 'U');
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				handleExport(true);
+				handleUpload(true);
 			}
 		});
 		fileMenu.add(item);
@@ -654,7 +596,7 @@ public class Editor extends JPanel implements RunnerListener {
 		item = newJMenuItem("Verify / Compile", 'R');
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				handleRun(false);
+				handleCompile(false);
 			}
 		});
 		sketchMenu.add(item);
@@ -713,7 +655,7 @@ public class Editor extends JPanel implements RunnerListener {
 		item = newJMenuItemShift("Serial Monitor", 'M');
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				handleSerial();
+				handleMonitor();
 			}
 		});
 		menu.add(item);
@@ -927,34 +869,21 @@ public class Editor extends JPanel implements RunnerListener {
 	protected JMenu addInternalTools(JMenu menu) {
 		JMenuItem item;
 
+		// FIXME - why dynamic class loading - the string is hard coded !?!
 		item = createToolMenuItem("org.myrobotlab.arduino.AutoFormat");
 		int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		item.setAccelerator(KeyStroke.getKeyStroke('T', modifiers));
 		menu.add(item);
 
-		// menu.add(createToolMenuItem("processing.app.tools.CreateFont"));
-		// menu.add(createToolMenuItem("processing.app.tools.ColorSelector"));
-		menu.add(createToolMenuItem("org.myrobotlab.arduino.Archiver"));
-		menu.add(createToolMenuItem("org.myrobotlab.arduino.FixEncoding"));
-
-		// // These are temporary entries while Android mode is being worked
-		// out.
-		// // The mode will not be in the tools menu, and won't involve a
-		// cmd-key
-		// if (!Base.RELEASE) {
-		// item =
-		// createToolMenuItem("processing.app.tools.android.AndroidTool");
-		// item.setAccelerator(KeyStroke.getKeyStroke('D', modifiers));
-		// menu.add(item);
-		// menu.add(createToolMenuItem("processing.app.tools.android.Reset"));
-		// }
+		menu.add(createToolMenuItem("org.myrobotlab.arduino.gui.Archiver"));
+		menu.add(createToolMenuItem("org.myrobotlab.arduino.gui.FixEncoding"));
 
 		return menu;
 	}
 
 	class SerialMenuListener implements ActionListener {
 		// public SerialMenuListener() { }
-// FIXME - send message to Arduino Service  !!!
+		// FIXME - send message to Arduino Service !!!
 		public void actionPerformed(ActionEvent e) {
 			selectSerialPort(((JCheckBoxMenuItem) e.getSource()).getText());
 			base.onBoardOrPortChange();
@@ -994,9 +923,9 @@ public class Editor extends JPanel implements RunnerListener {
 			selection.setState(true);
 		// System.out.println(item.getLabel());
 		Preferences.set("serial.port", name);
-		serialMonitor.closeSerialPort();
-		serialMonitor.setVisible(false);
-		serialMonitor = new SerialMonitor(Preferences.get("serial.port"));
+		monitor.closeSerialPort();
+		monitor.setVisible(false);
+		monitor = new SerialMonitor(Preferences.get("serial.port"));
 		// System.out.println("set to " + get("serial.port"));
 	}
 
@@ -1017,10 +946,6 @@ public class Editor extends JPanel implements RunnerListener {
 			for (int i = 0; i < portList.size(); ++i) {
 				SerialDeviceIdentifier commportidentifier = portList.get(i);
 
-				// SerialDeviceIdentifier commportidentifier =
-				// (SerialDeviceIdentifier)enumeration.nextElement();
-				// System.out.println("Found communication port: " +
-				// commportidentifier);
 				if (commportidentifier.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
 					// System.out.println("Adding port to serial port menu: " +
 					// commportidentifier);
@@ -1399,21 +1324,18 @@ public class Editor extends JPanel implements RunnerListener {
 	// setHandler("action name", Runnable);
 	// but for the time being, working out the kinks of how many things to
 	// abstract from the editor in this fashion.
-
-	public void setHandlers(Runnable runHandler, Runnable presentHandler, Runnable stopHandler, Runnable exportHandler,
-			Runnable exportAppHandler) {
-		this.runHandler = runHandler;
-		this.presentHandler = presentHandler;
-		this.stopHandler = stopHandler;
-		this.exportHandler = exportHandler;
-		this.exportAppHandler = exportAppHandler;
-	}
-
+	/*
+	 * more garbage public void setHandlers(Runnable runHandler, Runnable
+	 * presentHandler, Runnable stopHandler, Runnable exportHandler, Runnable
+	 * exportAppHandler) { this.runHandler = runHandler; this.presentHandler =
+	 * presentHandler; this.stopHandler = stopHandler; this.exportHandler =
+	 * exportHandler; this.exportAppHandler = exportAppHandler; }
+	 */
 	public void resetHandlers() {
 		runHandler = new DefaultRunHandler();
 		presentHandler = new DefaultPresentHandler();
 		stopHandler = new DefaultStopHandler();
-		exportHandler = new DefaultExportHandler();
+		uploadHandler = new DefaultUploadHandler();
 		exportAppHandler = new DefaultExportAppHandler();
 	}
 
@@ -1806,10 +1728,11 @@ public class Editor extends JPanel implements RunnerListener {
 	 * @param verbose
 	 *            Set true to run with verbose output.
 	 */
-	public void handleRun(final boolean verbose) {
+	public void handleCompile(final boolean verbose) {
 		internalCloseRunner();
 		running = true;
-		toolbar.activate(EditorToolbar.RUN);
+		//toolbar.activate(EditorToolbar.RUN);
+		compileButton.activate();
 		status.progress("Compiling sketch...");
 
 		// do this to advance/clear the terminal window / dos prompt / etc
@@ -1839,7 +1762,8 @@ public class Editor extends JPanel implements RunnerListener {
 			}
 
 			status.unprogress();
-			toolbar.deactivate(EditorToolbar.RUN);
+//			toolbar.deactivate(EditorToolbar.RUN);
+			compileButton.deactivate();
 		}
 	}
 
@@ -1856,7 +1780,8 @@ public class Editor extends JPanel implements RunnerListener {
 			}
 
 			status.unprogress();
-			toolbar.deactivate(EditorToolbar.RUN);
+			//toolbar.deactivate(EditorToolbar.RUN);			
+			compileButton.deactivate();
 		}
 	}
 
@@ -1891,11 +1816,11 @@ public class Editor extends JPanel implements RunnerListener {
 	 * Implements Sketch &rarr; Stop, or pressing Stop on the toolbar.
 	 */
 	public void handleStop() { // called by menu or buttons
-	// toolbar.activate(EditorToolbar.STOP);
+		// toolbar.activate(EditorToolbar.STOP);
 
 		internalCloseRunner();
 
-		toolbar.deactivate(EditorToolbar.RUN);
+		compileButton.deactivate();
 		// toolbar.deactivate(EditorToolbar.STOP);
 
 		// focus the PDE again after quitting presentation mode [toxi 030903]
@@ -1910,7 +1835,8 @@ public class Editor extends JPanel implements RunnerListener {
 	 */
 	public void internalRunnerClosed() {
 		running = false;
-		toolbar.deactivate(EditorToolbar.RUN);
+		//toolbar.deactivate(EditorToolbar.RUN);
+		compileButton.deactivate();
 	}
 
 	/**
@@ -2150,7 +2076,8 @@ public class Editor extends JPanel implements RunnerListener {
 	}
 
 	protected boolean handleSave2() {
-		toolbar.activate(EditorToolbar.SAVE);
+		//toolbar.activate(EditorToolbar.SAVE);
+		saveButton.activate();
 		statusNotice("Saving...");
 		boolean saved = false;
 		try {
@@ -2176,7 +2103,8 @@ public class Editor extends JPanel implements RunnerListener {
 			// this is used when another operation calls a save
 		}
 		// toolbar.clear();
-		toolbar.deactivate(EditorToolbar.SAVE);
+		//toolbar.deactivate(EditorToolbar.SAVE);
+		saveButton.deactivate();
 		return saved;
 	}
 
@@ -2184,7 +2112,8 @@ public class Editor extends JPanel implements RunnerListener {
 		// stopRunner(); // formerly from 0135
 		handleStop();
 
-		toolbar.activate(EditorToolbar.SAVE);
+		//toolbar.activate(EditorToolbar.SAVE);
+		saveButton.activate();
 
 		// SwingUtilities.invokeLater(new Runnable() {
 		// public void run() {
@@ -2206,7 +2135,8 @@ public class Editor extends JPanel implements RunnerListener {
 
 		} finally {
 			// make sure the toolbar button deactivates
-			toolbar.deactivate(EditorToolbar.SAVE);
+			//toolbar.deactivate(EditorToolbar.SAVE);
+			saveButton.deactivate();
 		}
 
 		return true;
@@ -2243,22 +2173,30 @@ public class Editor extends JPanel implements RunnerListener {
 	 * Made synchronized to (hopefully) avoid problems of people hitting export
 	 * twice, quickly, and horking things up.
 	 */
-	synchronized public void handleExport(final boolean usingProgrammer) {
+	synchronized public void handleUpload(final boolean usingProgrammer) {
 		// if (!handleExportCheckModified()) return;
-		toolbar.activate(EditorToolbar.EXPORT);
+		//toolbar.activate(EditorToolbar.EXPORT);
+		connectButton.deactivate();
+		uploadButton.activate();
 		console.clear();
 		status.progress("Uploading to I/O Board...");
 
-		new Thread(usingProgrammer ? exportAppHandler : exportHandler).start();
+		new Thread(usingProgrammer ? exportAppHandler : uploadHandler).start();
 	}
 
-	// DAM: in Arduino, this is upload
-	class DefaultExportHandler implements Runnable {
+	// DAM: in Arduino, this is upload - Gro-G should we call it that?
+	class DefaultUploadHandler implements Runnable {
 		public void run() {
 
 			try {
-				serialMonitor.closeSerialPort();
-				serialMonitor.setVisible(false);
+				monitor.closeSerialPort();
+
+				// Gro-G - close base - this is an asynchronous call
+				// but if the Arduino service is local - its very quick
+				base.gui.closeSerialDevice();
+
+				monitor.setVisible(false);
+				// Gro-G :
 
 				uploading = true;
 
@@ -2287,7 +2225,8 @@ public class Editor extends JPanel implements RunnerListener {
 			status.unprogress();
 			uploading = false;
 			// toolbar.clear();
-			toolbar.deactivate(EditorToolbar.EXPORT);
+			//toolbar.deactivate(EditorToolbar.EXPORT);
+			uploadButton.deactivate(); // TODO - autoconnect 
 		}
 	}
 
@@ -2296,8 +2235,8 @@ public class Editor extends JPanel implements RunnerListener {
 		public void run() {
 
 			try {
-				serialMonitor.closeSerialPort();
-				serialMonitor.setVisible(false);
+				monitor.closeSerialPort();
+				monitor.setVisible(false);
 
 				uploading = true;
 
@@ -2326,7 +2265,8 @@ public class Editor extends JPanel implements RunnerListener {
 			status.unprogress();
 			uploading = false;
 			// toolbar.clear();
-			toolbar.deactivate(EditorToolbar.EXPORT);
+			//toolbar.deactivate(EditorToolbar.EXPORT);
+			uploadButton.deactivate();
 		}
 	}
 
@@ -2358,13 +2298,13 @@ public class Editor extends JPanel implements RunnerListener {
 		return true;
 	}
 
-	public void handleSerial() {
+	public void handleMonitor() {
 		if (uploading)
 			return;
 
 		try {
-			serialMonitor.openSerialPort();
-			serialMonitor.setVisible(true);
+			monitor.openSerialPort();
+			monitor.setVisible(true);
 		} catch (SerialException e) {
 			statusError(e);
 		}
@@ -2451,7 +2391,8 @@ public class Editor extends JPanel implements RunnerListener {
 	public void statusError(String what) {
 		status.error(what);
 		// new Exception("deactivating RUN").printStackTrace();
-		toolbar.deactivate(EditorToolbar.RUN);
+		//toolbar.deactivate(EditorToolbar.RUN);
+		compileButton.deactivate();
 	}
 
 	/**
@@ -2527,7 +2468,7 @@ public class Editor extends JPanel implements RunnerListener {
 		Map<String, String> boardPreferences = Base.getBoardPreferences();
 		String boardName = boardPreferences.get("name");
 
-		Base.gui.getPinPanel();
+		base.gui.getPinPanel();
 		lineStatus.setBoardName(boardName);
 		lineStatus.setSerialPort(Preferences.get("serial.port"));
 		lineStatus.repaint();
@@ -2677,6 +2618,62 @@ public class Editor extends JPanel implements RunnerListener {
 			}
 			super.show(component, x, y);
 		}
+	}
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			shiftPressed = true;
+			repaint();
+		}
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			shiftPressed = false;
+			repaint();
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent action) {
+		// yep I like the container of the buttons to
+		// handle the implementation of their function..
+		// that's just me....
+		Component c = (Component) action.getSource();
+		if (c == compileButton) {
+			// handleExport(e.isShiftDown()) huh?
+			handleCompile(shiftPressed);
+		} else if (c == uploadButton) {
+			handleUpload(false);
+		} else if (c == newButton) {
+			if (shiftPressed) {
+				base.handleNew();
+			} else {
+				base.handleNewReplace();
+			}
+		} else if (c == openButton) {
+			JPopupMenu popup = toolbarMenu.getPopupMenu();
+		      popup.show(this, openButton.getX()+10, openButton.getY()+50);		
+		} else if (c == saveButton) {
+			handleSave(false);
+		} else if (c == monitorButton) {
+			handleMonitor();
+		} else if (c == connectButton) {
+			connectButton.activate();
+			//handleMonitor();
+		} else if (c == fullscreenButton) {
+			fullscreenButton.activate();
+			//handleMonitor();
+		}
+
 	}
 
 }

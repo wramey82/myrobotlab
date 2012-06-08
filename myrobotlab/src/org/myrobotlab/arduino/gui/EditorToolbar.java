@@ -19,6 +19,11 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+  GroG - Code Yucky Here... Are these menus trying to buttons or
+  buttons trying to be menus? Dudes.... setRolloverIcon has been around
+  since Java 1.1.6 ! 
+
 */
 
 package org.myrobotlab.arduino.gui;
@@ -329,7 +334,7 @@ public class EditorToolbar extends JComponent implements MouseInputListener, Key
 
     switch (sel) {
     case RUN:
-      editor.handleRun(false);
+      editor.handleCompile(false);
       break;
 
 //    case STOP:
@@ -354,11 +359,11 @@ public class EditorToolbar extends JComponent implements MouseInputListener, Key
       break;
 
     case EXPORT:
-      editor.handleExport(e.isShiftDown());
+      editor.handleUpload(e.isShiftDown());
       break;
 
     case SERIAL:
-      editor.handleSerial();
+      editor.handleMonitor();
       break;
     }
   }
