@@ -30,8 +30,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Point;
@@ -71,7 +69,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
-import javax.swing.JWindow;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -125,7 +122,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public transient JFrame frame = null;
 
 	public transient JTabbedPane tabs = new JTabbedPane();
-//	public transient JPanel panel = new JPanel();
 	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
@@ -607,16 +603,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.addWindowListener(this);
 		frame.setTitle("myrobotlab - " + getName());
 		
-		/*
-		JScrollPane sp = new JScrollPane (panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                								JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    frame.add(sp);
-	    */
-	    
 	    buildTabPanels();
-//		panel.add(tabs, gc);
 
-		// alternate "reduced"
 		frame.add(tabs);
 		
 		
@@ -968,6 +956,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Console c = new Console();
 		j.add(c.getScrollPane());
 		j.setVisible(true);		
+		c.startLogging();
 	}
 	
 	
