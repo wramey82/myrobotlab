@@ -144,11 +144,11 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 		}
 	};
 	
-	public void getState(AFMotorShield roomba)
+	public void getState(AFMotorShield shield)
 	{
-		if (roomba != null)
+		if (shield != null)
 		{
-			setPorts(roomba.getPorts());			
+			//setPorts(roomba.getDeviceNames());			
 		}
 	
 	}
@@ -177,7 +177,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 			// because we don't want a recursive event
 			// when the Service changes the state
 			ttyPort.removeActionListener(portActionListener);
-			ttyPort.setSelectedItem(myAFMotorShield.getPortName());
+			//ttyPort.setSelectedItem(myAFMotorShield.getPortName());
 			ttyPort.addActionListener(portActionListener);
 		}
 

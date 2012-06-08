@@ -1,5 +1,7 @@
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -17,14 +19,12 @@ public class LoggingGUI extends ServiceGUI {
 	}
 	
 	public void init() {
-		
-		gc.gridx = 0;
-		gc.gridy = 0;
+		display.setLayout(new BorderLayout());
 
 		log.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(log);
 		
-		display.add(scrollPane, gc);
+		display.add(scrollPane, BorderLayout.CENTER);
 	}
 
 	public void log (Message m)

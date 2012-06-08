@@ -27,18 +27,13 @@ package org.myrobotlab.control;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.NotifyEntry;
-import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -56,12 +51,8 @@ public abstract class ServiceGUI {
 	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
 	public int myIndex = -1; 
 
-
-	private JPanel widgetFrame = new JPanel(); // outside panel which looks like
-												// a closeble widget - contains
-												// close/detach button & title
 	public JPanel display = new JPanel();
-	
+
 	public abstract void init();	
 
 	public class DetachListener implements ActionListener
@@ -75,37 +66,22 @@ public abstract class ServiceGUI {
 		}
 		
 	}
-
-    public static JButton getButton(String name)
-    {
-    	JButton b = new JButton(Util.getScaledIcon(Util.getImage(name), 0.50));
-    	b.setMargin(new Insets(0, 0, 0, 0));
-		b.setOpaque(false);
-		b.setContentAreaFilled(false);
-		b.setBorderPainted(false);	
-    	return b;
-    }
 		
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
-
-		BevelBorder widgetTitle;
-		widgetTitle = (BevelBorder) BorderFactory
-				.createBevelBorder(BevelBorder.RAISED);
-		widgetFrame.setBorder(widgetTitle);
-		widgetFrame.setLayout(new GridBagLayout());
 
 		gc.anchor = GridBagConstraints.FIRST_LINE_END;
 
 		// place menu
 		gc.gridx = 0;
 		gc.gridy = 0;
-		widgetFrame.add(display, gc);
 
+		//resizer.registerComponent(display);
+		//resizer.registerComponent(widgetFrame);
+		
 		display.setLayout(new GridBagLayout());
 
-		//ConfigurationManager hostcfg = new ConfigurationManager(Service.getHostName(null));
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 	}
