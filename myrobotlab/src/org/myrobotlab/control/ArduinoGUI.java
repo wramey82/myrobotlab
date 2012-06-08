@@ -35,8 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -52,11 +50,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.plaf.ButtonUI;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.arduino.gui.Base;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
@@ -82,7 +76,7 @@ import org.myrobotlab.service.interfaces.GUI;
  * TODO - log serial data window
  * 
  */
-public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener, WindowListener {
+public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener {
 
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -388,16 +382,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishPin", "publishPin", PinData.class); // TODO
-																		// -
-																		// FIXME
-																		// -
-																		// sendNotifyRequest
-																		// should
-																		// handle
-																		// single
-																		// in/out
-																		// method
+		removeNotifyRequest("publishPin", "publishPin", PinData.class); 
 		removeNotifyRequest("publishState", "getState", Arduino.class);
 	}
 
@@ -576,6 +561,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	}
 
+	public void closeSerialDevice()
+	{
+		myService.send(boundServiceName, "closeSerialDevice");
+	}
+	
 	class TraceData {
 		Color color = null;
 		String label;
@@ -652,47 +642,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		}
 
 		oscope.displayFrame(sensorImage);
-	}
-
-	@Override
-	public void windowActivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowClosed(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowClosing(WindowEvent arg0) {
-		//editorPanel.add(editorScrollPane, epgc);
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowIconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowOpened(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**

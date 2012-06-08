@@ -124,7 +124,6 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		JMenuItem detachMenuItem = new JMenuItem("detach");
 		detachMenuItem.addActionListener(this);
 		detachMenuItem.setIcon(Util.getScaledIcon(Util.getImage("detach.png"), 0.50));
-		//menuItem.setVisible(false);
 		popup.add(detachMenuItem);
 		
 		addMouseListener(this);

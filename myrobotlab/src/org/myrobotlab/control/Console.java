@@ -17,7 +17,7 @@ public class Console extends AppenderSkeleton {
 	
 	public JTextArea textArea = null;
 	public JScrollPane scrollPane = null;
-	public boolean logging = false;
+	private boolean logging = false;
 	
 	public Console () { // TODO boolean JFrame or component 
 		textArea = new JTextArea();
@@ -28,6 +28,24 @@ public class Console extends AppenderSkeleton {
 		setName(Service.LOGGING_APPENDER_CONSOLE_GUI);
 		Logger.getRootLogger().addAppender(this);
 
+	}
+	
+	/**
+	 * to begin logging call this function
+	 * Logging must not begin before the GUI has finished drawing.
+	 * For some reason, if log entries are written to a JScrollPane before the gui has complted
+	 * the whole gui will tank
+	 * 
+	 * by default logging is off
+	 */
+	public void startLogging()
+	{
+		logging = true;
+	}
+
+	public void stopLogging()
+	{
+		logging = true;
 	}
 	
 	/**
