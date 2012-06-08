@@ -1,6 +1,5 @@
 package org.myrobotlab.serial;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -8,10 +7,9 @@ import java.util.ArrayList;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
-
-import org.myrobotlab.framework.Platform;
 
 /**
  * @author GroG
@@ -20,7 +18,7 @@ import org.myrobotlab.framework.Platform;
  *         serial device frameworks which are incompatible depending on platform
  *         specifics (eg. Android's bluetooth & gnu serial)
  */
-public class SerialDeviceFactory implements SerialDeviceEventListener {
+public class SerialDeviceFactory  {
 
 	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
@@ -53,13 +51,25 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 		}
 		return ret;
 	}
-
+	
+	/*
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
 		log.info(event.getEventType());
 	}
+	*/
+	public static ArrayList<String> getSerialDeviceNames()
+	{
+		ArrayList<String> ret = new ArrayList<String>();
+		ArrayList<SerialDeviceIdentifier> devices = getDeviceIdentifiers();
+		for (int i = 0; i < devices.size(); ++i)
+		{
+			ret.add(devices.get(i).getName());
+		}
+		return ret;
+	}
 	
-	public static void main(String[] args) throws ClassNotFoundException {
+	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
@@ -79,7 +89,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 			{
 				try {
 					SerialDevice device = sdi.open("robot overloads", i);
-					device.addEventListener(this);
+					//device.addEventListener(this);
 					OutputStream out = device.getOutputStream();
 					out.write(Arduino.ANALOG_READ_POLLING_START);
 					out.write(15);// ??? Is this right
@@ -93,7 +103,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 		}
 	}
 	
-	public SerialDevice getSerialDevice(String name, int rate, int parity, int databits, int stopbits) throws SerialException
+	static public SerialDevice getSerialDevice(String name, int rate, int parity, int databits, int stopbits) throws SerialException
 	{
 		SerialDevice port = null;
 		try {
@@ -107,7 +117,7 @@ public class SerialDeviceFactory implements SerialDeviceEventListener {
 						// System.out.println("looking for "+iname);
 						port = (SerialDevice) portId.open("serial madness", 2000);
 						port.setSerialPortParams(rate, databits, stopbits, parity);
-						port.addEventListener(this);
+						//port.addEventListener(this);
 						port.notifyOnDataAvailable(true);
 						// System.out.println("opening, ready to roll");
 					}

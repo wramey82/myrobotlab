@@ -24,24 +24,24 @@ import org.myrobotlab.serial.UnsupportedCommOperationException;
 /**
  * @author GroG
  * 
- * A silly but necessary wrapper class for gnu.io.SerialPort, since 
- * RXTXComm driver initializes loadlibrary in a static block and
- * the driver dynamically loaded is loaded with a hardcoded string :P
- *
+ *         A silly but necessary wrapper class for gnu.io.SerialPort, since
+ *         RXTXComm driver initializes loadlibrary in a static block and the
+ *         driver dynamically loaded is loaded with a hardcoded string :P
+ * 
  */
 public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	private gnu.io.SerialPort port;
-	
+
 	private int rate;
 	private int parity;
 	private int databits;
 	private int stopbits;
 	InputStream input;
 	OutputStream output;
-	
-    protected EventListenerList listenerList = new EventListenerList();
-    
+
+	protected EventListenerList listenerList = new EventListenerList();
+
 	public SerialDeviceGNU(SerialPort port) {
 		this.port = port;
 	}
@@ -140,7 +140,30 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public void close() {
-		port.close();
+		try {
+			// do io streams need to be closed first?
+			if (input != null)
+				input.close();
+			if (output != null)
+				output.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		/* what a f*ing mess rxtxbug */
+		/*
+		 * new Thread(){
+		 * 
+		 * @Override public void run(){ serialPort.removeEventListener();
+		 * serialPort.close(); serialPort = null; } }.start();
+		 */
+
+		input = null;
+		output = null;
+		if (port != null)
+			port.close();
+		port = null;
 	}
 
 	@Override
@@ -193,7 +216,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			port.setFlowControlMode(flowcontrol);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
-		}		
+		}
 	}
 
 	@Override
@@ -243,76 +266,77 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public void sendBreak(int duration) {
-		 port.sendBreak(duration);
+		port.sendBreak(duration);
 	}
 
 	@Override
 	public void addEventListener(SerialDeviceEventListener lsnr) throws TooManyListenersException {
-		 //proxy events
+		// proxy events
 		listenerList.add(SerialDeviceEventListener.class, lsnr);
-		port.addEventListener(this);	
+		port.addEventListener(this);
 	}
 
 	@Override
 	public void removeEventListener() {
-		 port.removeEventListener();
-		 // FIXME there are more removes which should be implemented
-		 //removeSerialDeviceEventListener  
+		if (port != null)
+			port.removeEventListener();
+		// FIXME there are more removes which should be implemented
+		// removeSerialDeviceEventListener
 	}
 
 	@Override
 	public void notifyOnDataAvailable(boolean enable) {
-		 port.notifyOnDataAvailable(enable);
+		port.notifyOnDataAvailable(enable);
 	}
 
 	@Override
 	public void notifyOnOutputEmpty(boolean enable) {
-		 port.notifyOnOutputEmpty(enable);
+		port.notifyOnOutputEmpty(enable);
 	}
 
 	@Override
 	public void notifyOnCTS(boolean enable) {
-		 port.notifyOnCTS(enable);
+		port.notifyOnCTS(enable);
 	}
 
 	@Override
 	public void notifyOnDSR(boolean enable) {
-		 port.notifyOnDSR(enable);
+		port.notifyOnDSR(enable);
 	}
 
 	@Override
 	public void notifyOnRingIndicator(boolean enable) {
-		 port.notifyOnRingIndicator(enable);
+		port.notifyOnRingIndicator(enable);
 	}
 
 	@Override
 	public void notifyOnCarrierDetect(boolean enable) {
-		 port.notifyOnCarrierDetect(enable);
+		port.notifyOnCarrierDetect(enable);
 	}
 
 	@Override
 	public void notifyOnOverrunError(boolean enable) {
-		 port.notifyOnOverrunError(enable);
+		port.notifyOnOverrunError(enable);
 	}
 
 	@Override
 	public void notifyOnParityError(boolean enable) {
-		 port.notifyOnParityError(enable);
+		port.notifyOnParityError(enable);
 	}
 
 	@Override
 	public void notifyOnFramingError(boolean enable) {
-		 port.notifyOnFramingError(enable);
+		port.notifyOnFramingError(enable);
 	}
 
 	@Override
 	public void notifyOnBreakInterrupt(boolean enable) {
-		 port.notifyOnBreakInterrupt(enable);
+		port.notifyOnBreakInterrupt(enable);
 	}
 
 	@Override
 	public byte getParityErrorChar() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.getParityErrorChar();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -321,7 +345,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setParityErrorChar(byte b) throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.setParityErrorChar(b);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -330,7 +354,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public byte getEndOfInputChar() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.getEndOfInputChar();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -339,7 +363,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setEndOfInputChar(byte b) throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.setEndOfInputChar(b);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -348,7 +372,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setUARTType(String type, boolean test) throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.setUARTType(type, test);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -357,7 +381,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public String getUARTType() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.getUARTType();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -366,7 +390,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setBaudBase(int BaudBase) throws UnsupportedCommOperationException, IOException {
-		 try {
+		try {
 			return port.setBaudBase(BaudBase);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -375,7 +399,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public int getBaudBase() throws UnsupportedCommOperationException, IOException {
-		 try {
+		try {
 			return port.getBaudBase();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -384,7 +408,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setDivisor(int Divisor) throws UnsupportedCommOperationException, IOException {
-		 try {
+		try {
 			return port.setDivisor(Divisor);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -393,7 +417,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public int getDivisor() throws UnsupportedCommOperationException, IOException {
-		 try {
+		try {
 			return port.getDivisor();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -402,7 +426,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setLowLatency() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.setLowLatency();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -411,7 +435,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean getLowLatency() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.getLowLatency();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -420,7 +444,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean setCallOutHangup(boolean NoHup) throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.setCallOutHangup(NoHup);
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -429,7 +453,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public boolean getCallOutHangup() throws UnsupportedCommOperationException {
-		 try {
+		try {
 			return port.getCallOutHangup();
 		} catch (gnu.io.UnsupportedCommOperationException e) {
 			throw new UnsupportedCommOperationException(e.getMessage());
@@ -438,54 +462,29 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public void serialEvent(SerialPortEvent spe) {
-		
+
 		fireSerialDeviceEvent(new SerialDeviceEvent(port, spe.getEventType(), spe.getOldValue(), spe.getNewValue()));
 	}
-	
-	   // This methods allows classes to unregister for MyEvents
-    public void removeSerialDeviceEventListener(SerialDeviceEventListener listener) {
-        listenerList.remove(SerialDeviceEventListener.class, listener);
-    }
-	
-	   // This private class is used to fire MyEvents
-    void fireSerialDeviceEvent(SerialDeviceEvent evt) {
-        Object[] listeners = listenerList.getListenerList();
-        // Each listener occupies two elements - the first is the listener class
-        // and the second is the listener instance
-        for (int i=0; i<listeners.length; i+=2) {
-            if (listeners[i]==SerialDeviceEventListener.class) {
-                ((SerialDeviceEventListener)listeners[i+1]).serialEvent(evt);
-            }
-        }
-    }
-    
-	public void dispose() {
-		/*
-		try {
-			// do io streams need to be closed first?
-			if (input != null)
-				input.close();
-			if (output != null)
-				output.close();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		input = null;
-		output = null;
-		*/
-		
-		try {
-			if (port != null)
-				port.close(); // close the port
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		port = null;
+	// This methods allows classes to unregister for MyEvents
+	public void removeSerialDeviceEventListener(SerialDeviceEventListener listener) {
+		listenerList.remove(SerialDeviceEventListener.class, listener);
 	}
 
-	public SerialDevice getSerialDevice(String iname, int irate, char iparity, int idatabits, float istopbits) throws SerialException {
+	// This private class is used to fire MyEvents
+	void fireSerialDeviceEvent(SerialDeviceEvent evt) {
+		Object[] listeners = listenerList.getListenerList();
+		// Each listener occupies two elements - the first is the listener class
+		// and the second is the listener instance
+		for (int i = 0; i < listeners.length; i += 2) {
+			if (listeners[i] == SerialDeviceEventListener.class) {
+				((SerialDeviceEventListener) listeners[i + 1]).serialEvent(evt);
+			}
+		}
+	}
+
+	public SerialDevice getSerialDevice(String iname, int irate, char iparity, int idatabits, float istopbits)
+			throws SerialException {
 
 		this.rate = irate;
 
@@ -541,9 +540,44 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			throw new SerialNotFoundException("Serial port '" + iname
 					+ "' not found.  Did you select the right one from the Tools > Serial Port menu?");
 		}
-		
+
 		return this;
 	}
 
+	@Override
+	public void write(int[] data) throws IOException {
+		for (int i = 0; i < data.length; ++i) {
+			output.write(data[i]);
+		}
+	}
+
+	@Override
+	public void write(byte[] data) throws IOException {
+		for (int i = 0; i < data.length; ++i) {
+			output.write(data[i]);
+		}
+	}
+
+	@Override
+	public void write(String data) throws IOException {
+		for (int i = 0; i < data.length(); ++i) {
+			output.write(data.charAt(i));
+		}
+	}
+
+	@Override
+	public void write(int data) throws IOException {
+		output.write(data);
+	}
+
+	@Override
+	public void write(byte data) throws IOException {
+		output.write(data);
+	}
+
+	@Override
+	public void write(char data) throws IOException {
+		output.write(data);
+	}
 
 }

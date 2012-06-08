@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Dependency;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.python.core.PySystemState;
@@ -62,6 +61,8 @@ public class Jython extends Service {
 	String msgHandlerScript  = null;
 	String script = null;
 	
+	boolean jythonConsoleInitialized = false;
+	
 	public Jython(String n) {
 		super(n, Jython.class.getCanonicalName());
 		Method[] methods = this.getClass().getMethods();
@@ -95,19 +96,27 @@ public class Jython extends Service {
 		// of the actual name
 		String selfReferenceScript = "from org.myrobotlab.service import Runtime\n"
 				+ "from org.myrobotlab.service import Jython\n"
-				+ "jython = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n	";
+				+ "jython = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n\n" // TODO - deprecate
+				+ "runtime = Runtime.getInstance()\n\n"
+				+ "myService = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n"
+				;
 		interp.exec(selfReferenceScript);
 		
 	}
 
-	public void console()
-	{
-		attachJythonConsole();
-	}
+	
+	/**
+	 * runs the jythonConsole.py script which creates a Jython Console object
+	 * and redirect stdout & stderr to published data - these are hooked by the 
+	 * GUI 
+	 */
 	public void attachJythonConsole()
 	{
-		String consoleScript = FileIO.getResourceFile("python/examples/jythonConsole.py");
-		exec(consoleScript, false);
+		if (!jythonConsoleInitialized)
+		{
+			String consoleScript = FileIO.getResourceFile("python/examples/jythonConsole.py");
+			exec(consoleScript, false);
+		}
 	}
 
 	
@@ -144,7 +153,16 @@ public class Jython extends Service {
 		} catch (Exception e)
 		{
 			Service.logException(e);
+		} finally {
+			invoke("finishedExecutingScript");
 		}
+	}
+	
+	/**
+	 * event method when script has finished executing
+	 */
+	public void finishedExecutingScript()
+	{
 	}
 	
 	public String getScript()
@@ -160,6 +178,11 @@ public class Jython extends Service {
 			interp = null;
 		}
 		
+	}
+	
+	public String publishStdOut(String data)
+	{
+		return data;
 	}
 
 	/**
