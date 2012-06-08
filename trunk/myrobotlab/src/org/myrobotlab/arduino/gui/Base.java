@@ -100,7 +100,6 @@ public class Base {
     platformIndices.put("macosx", PConstants.MACOSX);
     platformIndices.put("linux", PConstants.LINUX);
   }
-  //static Platform platform;
 
   static private boolean commandLine;
 
@@ -144,9 +143,10 @@ public class Base {
 //  ArrayList editors = Collections.synchronizedList(new ArrayList<Editor>());
   static public Editor activeEditor;
   static public Editor editor;
-  // FIXME - should not be static - for multiple Arduinos !!!
-  static public Frame parent; // MRL GUIService.getFrame()
-  static public ArduinoGUI gui;
+  
+  static public Frame parent; // MRL GUIService.getFrame() - it needs a handle to window
+  
+  public ArduinoGUI gui;
 
   
   static public Base getBase(ArduinoGUI gui, Frame parent) {
@@ -155,8 +155,6 @@ public class Base {
   
 
   static public Base getBase(ArduinoGUI gui, Frame parent, String args[]) {
-	  Base.parent = parent;
-	  Base.gui = gui;
     try {
       File versionFile = getContentFile("lib/version.txt");
       if (versionFile.exists()) {
@@ -183,7 +181,7 @@ public class Base {
     untitledFolder = createTempFolder("untitled");
     untitledFolder.deleteOnExit();
 
-    return new Base(args);
+    return new Base(gui, parent, args);
   }
 
 
@@ -210,9 +208,10 @@ public class Base {
   }
 
 
-  public Base(String[] args) {
-    //platform.init(this);
+  public Base(ArduinoGUI gui, Frame parent, String[] args) {
 
+	  this.gui = gui;
+	  
     // Get paths for the libraries and examples in the Processing folder
     //String workingDirectory = System.getProperty("user.dir");
     examplesFolder = getContentFile("examples");
@@ -691,7 +690,7 @@ public class Base {
 
       // This will store the sketch count as zero
       editors.remove(editor);
-      Editor.serialMonitor.closeSerialPort();
+      Editor.monitor.closeSerialPort();
       storeSketches();
 
       // Save out the current prefs state
@@ -718,7 +717,7 @@ public class Base {
     // If quit is canceled, this will be replaced anyway
     // by a later handleQuit() that is not canceled.
     storeSketches();
-    Editor.serialMonitor.closeSerialPort();
+    Editor.monitor.closeSerialPort();
 
     if (handleQuitEach()) {
       // make sure running sketches close before quitting
