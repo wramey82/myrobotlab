@@ -188,8 +188,17 @@ public interface SerialDevice {
 			throws UnsupportedCommOperationException;
 	
 	//----------   gnu.io.SerialPort interface end ----------
-	public void dispose();
+	//public void dispose();
+	//public boolean isReady();
 	
 	//public SerialDevice getSerialDevice(String iname, int irate, char iparity, int idatabits, float istopbits) throws SerialException;
+	
+	// write functions 
+	public abstract void write(int data) throws IOException;
+	public abstract void write(byte data) throws IOException;
+	public abstract void write(char data) throws IOException;
+	public abstract void write(int[] data) throws IOException;
+	public abstract void write(byte[] data) throws IOException;
+	public abstract void write(String data) throws IOException;
 
 }

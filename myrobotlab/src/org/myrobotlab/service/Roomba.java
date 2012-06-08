@@ -22,14 +22,18 @@
 
 package org.myrobotlab.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.Port;
+import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceFactory;
+import org.myrobotlab.serial.SerialException;
 import org.myrobotlab.serial.SerialService;
+import org.myrobotlab.serial.UnsupportedCommOperationException;
 
 /**
  * The abstract base for all Roomba communications.
@@ -115,11 +119,10 @@ public class Roomba extends Service implements SerialService {
 	public final static Logger log = Logger.getLogger(Roomba.class
 			.getCanonicalName());
 
-	Port serial;
+	SerialDevice serial;
 
 	public Roomba(String n) {
 		super(n, Roomba.class.getCanonicalName());
-		serial = new Port(this);
 		connected = false;
 		mode = MODE_UNKNOWN;
 	}
@@ -137,7 +140,12 @@ public class Roomba extends Service implements SerialService {
 	@Override
 	public boolean setSerialPortParams(int baud, int dataBits, int stopBits,
 			int parity) {
-		serial.setSerialPortParams(baud, dataBits, stopBits, parity);
+		try {
+			serial.setSerialPortParams(baud, dataBits, stopBits, parity);
+		} catch (UnsupportedCommOperationException e) {
+			logException(e);
+			return false;
+		}
 		return true;
 	}
 
@@ -155,6 +163,9 @@ public class Roomba extends Service implements SerialService {
 						Thread.sleep(sensorsUpdateTime);
 					}
 				} catch (InterruptedException ex) {
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}).start();
@@ -166,12 +177,10 @@ public class Roomba extends Service implements SerialService {
 	 * @return a list available portids, if applicable or empty set if no ports,
 	 *         or return null if list is not enumerable
 	 */
-	public String[] listPorts() {
-		return serial.getPorts().toArray(new String[serial.getPorts().size()]);
-	}
+
 
 	public ArrayList<String> getPorts() {
-		return serial.getPorts();
+		return SerialDeviceFactory.getSerialDeviceNames();
 	}
 
 	/**
@@ -180,19 +189,21 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @return true on successful connect, false otherwise
 	 */
-	public boolean connect(String portid) {
-		serial.setPort(portid, 57600, 8, 1, 0);
-		if (serial.isReady())
-			return true;
-		else
-			return false;
+	public boolean connect(String deviceName) {
+		try {
+			serial = SerialDeviceFactory.getSerialDevice(deviceName, 57600, 8, 1, 0);
+		} catch (SerialException e) {
+			 logException(e);
+			 return false;
+		}
+		return true;
 	}
 
 	/**
 	 * Disconnect from a port, clean up any memory in use
 	 */
 	public void disconnect() {
-		serial.releaseSerialPort();
+		serial.close();
 	}
 
 	/**
@@ -201,13 +212,10 @@ public class Roomba extends Service implements SerialService {
 	 * @param bytes
 	 *            byte array of ROI commands to send
 	 * @return true on successful send
+	 * @throws IOException 
 	 */
-	public boolean send(byte[] bytes) {
-		if (serial.isReady()) {
-			serial.serialSend(bytes);
-			return true;
-		}
-		return false;
+	public void send(byte[] bytes) throws IOException {
+		serial.write(bytes);
 	}
 
 	/**
@@ -217,13 +225,10 @@ public class Roomba extends Service implements SerialService {
 	 * @param b
 	 *            byte of an ROI command to send
 	 * @return true on successful send
+	 * @throws IOException 
 	 */
-	public boolean send(int b) {
-		if (serial.isReady()) {
-			serial.serialSend(b);
-			return true;
-		}
-		return false;
+	public void send(int b) throws IOException {
+		serial.write(b);
 	}
 
 	/**
@@ -241,10 +246,11 @@ public class Roomba extends Service implements SerialService {
 	 * measure of autonomous self-preservation if it encounters a cliff or is
 	 * picked up If that happens it goes into passive mode and must be
 	 * 'reset()'.
+	 * @throws IOException 
 	 * 
 	 * @see #reset()
 	 */
-	public void startup() {
+	public void startup() throws IOException {
 		logmsg("startup");
 		speed = defaultSpeed;
 		start();
@@ -254,11 +260,12 @@ public class Roomba extends Service implements SerialService {
 	 * Reset Roomba after a fault. This takes it out of whatever mode it was in
 	 * and puts it into safe mode. This command also syncs the object's sensor
 	 * state with the Roomba's by calling updateSensors()
+	 * @throws IOException 
 	 * 
 	 * @see #startup()
 	 * @see #updateSensors()
 	 */
-	public void reset() {
+	public void reset() throws IOException {
 		logmsg("reset");
 		stop();
 		startup();
@@ -266,15 +273,17 @@ public class Roomba extends Service implements SerialService {
 		updateSensors();
 	}
 
-	/** Send START command */
-	public void start() {
+	/** Send START command 
+	 * @throws IOException */
+	public void start() throws IOException {
 		logmsg("start");
 		mode = MODE_PASSIVE;
 		send(START);
 	}
 
-	/** Send CONTROL command */
-	public void control() {
+	/** Send CONTROL command 
+	 * @throws IOException */
+	public void control() throws IOException {
 		logmsg("control");
 		mode = MODE_SAFE;
 		send(CONTROL);
@@ -284,15 +293,17 @@ public class Roomba extends Service implements SerialService {
 		setLEDs(false, false, false, false, false, true, 128, 255);
 	}
 
-	/** Send SAFE command */
-	public void safe() {
+	/** Send SAFE command 
+	 * @throws IOException */
+	public void safe() throws IOException {
 		logmsg("safe");
 		mode = MODE_SAFE;
 		send(SAFE);
 	}
 
-	/** Send FULL command */
-	public void full() {
+	/** Send FULL command 
+	 * @throws IOException */
+	public void full() throws IOException {
 		logmsg("full");
 		mode = MODE_FULL;
 		send(FULL);
@@ -301,31 +312,35 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * Power off the Roomba. Once powered off, the only way to wake it is via
 	 * wakeup() (if implemented) or via a physically pressing the Power button
+	 * @throws IOException 
 	 * 
 	 * @see #wakeup()
 	 */
-	public void powerOff() {
+	public void powerOff() throws IOException {
 		logmsg("powerOff");
 		mode = MODE_UNKNOWN;
 		send(POWER);
 	}
 
-	/** Send the SPOT command */
-	public void spot() {
+	/** Send the SPOT command 
+	 * @throws IOException */
+	public void spot() throws IOException {
 		logmsg("spot");
 		mode = MODE_PASSIVE;
 		send(SPOT);
 	}
 
-	/** Send the CLEAN command */
-	public void clean() {
+	/** Send the CLEAN command 
+	 * @throws IOException */
+	public void clean() throws IOException {
 		logmsg("clean");
 		mode = MODE_PASSIVE;
 		send(CLEAN);
 	}
 
-	/** Send the max command */
-	public void max() {
+	/** Send the max command 
+	 * @throws IOException */
+	public void max() throws IOException {
 		logmsg("max");
 		mode = MODE_PASSIVE;
 		send(MAX);
@@ -339,8 +354,9 @@ public class Roomba extends Service implements SerialService {
 	 *            one of SENSORS_ALL, SENSORS_PHYSICAL, SENSORS_INTERNAL, or
 	 *            SENSORS_POWER, or for roomba 5xx, it is the sensor packet
 	 *            number (from the spec)
+	 * @throws IOException 
 	 */
-	public void sensors(int packetcode) {
+	public void sensors(int packetcode) throws IOException {
 		logmsg("sensors:" + packetcode);
 		switch (packetcode) {
 		case 0:
@@ -410,13 +426,14 @@ public class Roomba extends Service implements SerialService {
 		}
 
 		byte cmd[] = { (byte) SENSORS, (byte) packetcode };
-		send(cmd);
+		serial.write(cmd);
 	}
 
 	/**
 	 * get all sensor data
+	 * @throws IOException 
 	 */
-	public void sensors() {
+	public void sensors() throws IOException {
 		readRequestLength = 26;
 		sensors(SENSORS_ALL);
 	}
@@ -429,8 +446,9 @@ public class Roomba extends Service implements SerialService {
 	 * @param returnLen
 	 *            The number of bytes of data expected to be returned from
 	 *            roomba
+	 * @throws IOException 
 	 */
-	public void queryList(byte[] sensorList, int returnLen) {
+	public void queryList(byte[] sensorList, int returnLen) throws IOException {
 		int i = 0;
 
 		readRequestLength = returnLen;
@@ -473,8 +491,9 @@ public class Roomba extends Service implements SerialService {
 
 	/**
 	 * Stop Rooomba's motion. Sends drive(0,0)
+	 * @throws IOException 
 	 */
-	public void stop() {
+	public void stop() throws IOException {
 		logmsg("stop");
 		drive(0, 0);
 	}
@@ -496,8 +515,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param distance
 	 *            distance in millimeters, positive or negative
+	 * @throws IOException 
 	 */
-	public void goStraight(int distance) {
+	public void goStraight(int distance) throws IOException {
 		float pausetime = Math.abs(distance / speed); // mm/(mm/sec) = sec
 		if (distance > 0)
 			goStraightAt(speed);
@@ -510,8 +530,9 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * @param distance
 	 *            distance in millimeters, positive
+	 * @throws IOException 
 	 */
-	public void goForward(int distance) {
+	public void goForward(int distance) throws IOException {
 		if (distance < 0)
 			return;
 		goStraight(distance);
@@ -520,25 +541,27 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * @param distance
 	 *            distance in millimeters, positive
+	 * @throws IOException 
 	 */
-	public void goBackward(int distance) {
+	public void goBackward(int distance) throws IOException {
 		if (distance < 0)
 			return;
 		goStraight(-distance);
 	}
 
 	/**
+	 * @throws IOException 
      *
      */
-	public void turnLeft() {
+	public void turnLeft() throws IOException {
 		turn(129);
 	}
 
-	public void turnRight() {
+	public void turnRight() throws IOException {
 		turn(-129);
 	}
 
-	public void turn(int radius) {
+	public void turn(int radius) throws IOException {
 		drive(speed, radius);
 	}
 
@@ -548,8 +571,9 @@ public class Roomba extends Service implements SerialService {
 	 * @param angle
 	 *            angle in degrees, positive to spin left, negative to spin
 	 *            right
+	 * @throws IOException 
 	 */
-	public void spin(int angle) {
+	public void spin(int angle) throws IOException {
 		if (angle > 0)
 			spinLeft(angle);
 		else if (angle < 0)
@@ -561,8 +585,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param angle
 	 *            angle in degrees, positive
+	 * @throws IOException 
 	 */
-	public void spinRight(int angle) {
+	public void spinRight(int angle) throws IOException {
 		if (angle < 0)
 			return;
 		float pausetime = Math.abs(millimetersPerDegree * angle / speed);
@@ -576,8 +601,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param angle
 	 *            angle in degrees, positive
+	 * @throws IOException 
 	 */
-	public void spinLeft(int angle) {
+	public void spinLeft(int angle) throws IOException {
 		if (angle < 0)
 			return;
 		// float pausetime =
@@ -589,15 +615,17 @@ public class Roomba extends Service implements SerialService {
 
 	/**
 	 * Spin in place anti-clockwise, at the current speed
+	 * @throws IOException 
 	 */
-	public void spinLeft() {
+	public void spinLeft() throws IOException {
 		spinLeftAt(speed);
 	}
 
 	/**
 	 * Spin in place clockwise, at the current speed
+	 * @throws IOException 
 	 */
-	public void spinRight() {
+	public void spinRight() throws IOException {
 		spinRightAt(speed);
 	}
 
@@ -606,8 +634,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param aspeed
 	 *            speed to spin at
+	 * @throws IOException 
 	 */
-	public void spinLeftAt(int aspeed) {
+	public void spinLeftAt(int aspeed) throws IOException {
 		drive(aspeed, 1);
 	}
 
@@ -616,8 +645,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param aspeed
 	 *            speed to spin at, positive
+	 * @throws IOException 
 	 */
-	public void spinRightAt(int aspeed) {
+	public void spinRightAt(int aspeed) throws IOException {
 		drive(aspeed, -1);
 	}
 
@@ -631,8 +661,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param velocity
 	 *            velocity of motion in mm/sec
+	 * @throws IOException 
 	 */
-	public void goStraightAt(int velocity) {
+	public void goStraightAt(int velocity) throws IOException {
 		// System.out.println("goStraightAt: velocity:"+velocity);
 		if (velocity > 500)
 			velocity = 500;
@@ -643,22 +674,25 @@ public class Roomba extends Service implements SerialService {
 
 	/**
 	 * Go forward the current (positive) speed
+	 * @throws IOException 
 	 */
-	public void goForward() {
+	public void goForward() throws IOException {
 		goStraightAt(Math.abs(speed));
 	}
 
 	/**
 	 * Go backward at the current (negative) speed
+	 * @throws IOException 
 	 */
-	public void goBackward() {
+	public void goBackward() throws IOException {
 		goStraightAt(-Math.abs(speed));
 	}
 
 	/**
 	 * Go forward at a specified speed
+	 * @throws IOException 
 	 */
-	public void goForwardAt(int aspeed) {
+	public void goForwardAt(int aspeed) throws IOException {
 		if (aspeed < 0)
 			return;
 		goStraightAt(aspeed);
@@ -666,8 +700,9 @@ public class Roomba extends Service implements SerialService {
 
 	/**
 	 * Go backward at a specified speed
+	 * @throws IOException 
 	 */
-	public void goBackwardAt(int aspeed) {
+	public void goBackwardAt(int aspeed) throws IOException {
 		if (aspeed < 0)
 			return;
 		goStraightAt(-aspeed);
@@ -687,8 +722,9 @@ public class Roomba extends Service implements SerialService {
 	 *            backward
 	 * @param radius
 	 *            radius of turn in millimeters
+	 * @throws IOException 
 	 */
-	public void drive(int velocity, int radius) {
+	public void drive(int velocity, int radius) throws IOException {
 		byte cmd[] = { (byte) DRIVE, (byte) (velocity >>> 8),
 				(byte) (velocity & 0xff), (byte) (radius >>> 8),
 				(byte) (radius & 0xff) };
@@ -727,8 +763,9 @@ public class Roomba extends Service implements SerialService {
 	 *            a note number from 31 (G0) to 127 (G8)
 	 * @param duration
 	 *            duration of note in 1/64ths of a second
+	 * @throws IOException 
 	 */
-	public void playNote(int note, int duration) {
+	public void playNote(int note, int duration) throws IOException {
 		logmsg("playnote: " + note + ":" + duration);
 		byte cmd[] = { (byte) SONG, 3, 1, (byte) note, (byte) duration, // define
 																		// song
@@ -736,7 +773,7 @@ public class Roomba extends Service implements SerialService {
 		send(cmd);
 	}
 
-	public void playSong(int songnum) {
+	public void playSong(int songnum) throws IOException {
 		byte cmd[] = { (byte) PLAY, (byte) songnum };
 		send(cmd);
 	}
@@ -749,8 +786,9 @@ public class Roomba extends Service implements SerialService {
 	 * @param song
 	 *            array of songnotes, even entries are notenums, odd are
 	 *            duration of 1/6ths
+	 * @throws IOException 
 	 */
-	public void createSong(int songnum, int song[]) {
+	public void createSong(int songnum, int song[]) throws IOException {
 		int len = song.length;
 		int songlen = len / 2;
 		logmsg("createSong: songnum:" + songnum + ", songlen:" + songlen);
@@ -771,8 +809,9 @@ public class Roomba extends Service implements SerialService {
 	 *            number of song to define
 	 * @param song
 	 *            array of Notes
+	 * @throws IOException 
 	 */
-	public void createSong(int songnum, Note song[]) {
+	public void createSong(int songnum, Note song[]) throws IOException {
 		int songlen = song.length;
 		logmsg("createSong: songnum:" + songnum + ", songlen:" + songlen);
 		byte cmd[] = new byte[songlen + 3];
@@ -797,8 +836,9 @@ public class Roomba extends Service implements SerialService {
 	 *            vacuum motor on/off state
 	 * @param sidebrush
 	 *            sidebrush motor on/off state
+	 * @throws IOException 
 	 */
-	public void setMotors(boolean mainbrush, boolean vacuum, boolean sidebrush) {
+	public void setMotors(boolean mainbrush, boolean vacuum, boolean sidebrush) throws IOException {
 		byte cmd[] = {
 				(byte) MOTORS,
 				(byte) ((mainbrush ? 0x04 : 0) | (vacuum ? 0x02 : 0) | (sidebrush ? 0x01
@@ -809,10 +849,11 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * Turns on/off the various LEDs. Low-level command. FIXME: this is too
 	 * complex
+	 * @throws IOException 
 	 */
 	public void setLEDs(boolean status_green, boolean status_red, boolean spot,
 			boolean clean, boolean max, boolean dirt, int power_color,
-			int power_intensity) {
+			int power_intensity) throws IOException {
 		int v = (status_green ? 0x20 : 0) | (status_red ? 0x10 : 0)
 				| (spot ? 0x08 : 0) | (clean ? 0x04 : 0) | (max ? 0x02 : 0)
 				| (dirt ? 0x01 : 0);
@@ -822,7 +863,7 @@ public class Roomba extends Service implements SerialService {
 		send(cmd);
 	}
 
-	public void dock()
+	public void dock() throws IOException
 	{
 		byte cmd[] = { (byte) DOCK };
 		send(cmd);
@@ -833,8 +874,9 @@ public class Roomba extends Service implements SerialService {
 	 * 
 	 * @param state
 	 *            true to turn on vacuum function, false to turn it off
+	 * @throws IOException 
 	 */
-	public void vacuum(boolean state) {
+	public void vacuum(boolean state) throws IOException {
 		logmsg("vacuum: " + state);
 		setMotors(state, state, state);
 	}
@@ -1389,13 +1431,8 @@ public class Roomba extends Service implements SerialService {
 		throw new RuntimeException("Error inside Serial." + where + "()");
 	}
 
-	@Override
-	public boolean send(int[] data) {
-		if (serial.isReady()) {
-			serial.serialSend(data);
-			return true;
-		}
-		return false;
+	public void send(int[] data) throws IOException {
+		serial.write(data); // should be write
 	}
 
 	/*-------------------------RoombaComm End ---------------------------*/
@@ -1413,8 +1450,9 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * Update sensors. Block for up to 1000 ms waiting for update To use
 	 * non-blocking, call sensors() and then poll sensorsValid()
+	 * @throws IOException 
 	 */
-	public boolean updateSensors() {
+	public boolean updateSensors() throws IOException {
 		sensorsValid = false;
 		sensors();
 		for (int i = 0; i < 20; i++) {
@@ -1432,8 +1470,9 @@ public class Roomba extends Service implements SerialService {
 	/**
 	 * Update sensors. Block for up to 1000 ms waiting for update To use
 	 * non-blocking, call sensors() and then poll sensorsValid()
+	 * @throws IOException 
 	 */
-	public boolean updateSensors(int packetcode) {
+	public boolean updateSensors(int packetcode) throws IOException {
 		sensorsValid = false;
 		sensors(packetcode);
 		for (int i = 0; i < 20; i++) {
@@ -1459,7 +1498,7 @@ public class Roomba extends Service implements SerialService {
 
 	/*-------------------------RoombaCommSerial End ---------------------------*/
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
@@ -1548,7 +1587,7 @@ public class Roomba extends Service implements SerialService {
 	public String getPortName() {
 		if (serial != null)
 		{
-			return serial.getPortName();
+			return serial.getName();
 		}
 		
 		return null;

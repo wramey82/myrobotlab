@@ -474,14 +474,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw)
 	{
 		ServiceGUI gui = null;
-		JPanel tpanel = new JPanel();
+//		JPanel tpanel = new JPanel();
 		ServiceInterface se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
 		if (gui != null) {
 			gui.init();
 			serviceGUIMap.put(serviceName, gui);
-			tabPanelMap.put(serviceName, tpanel);
+			tabPanelMap.put(serviceName, gui.getDisplay());
 			gui.attachGUI();
 
 /*			
@@ -496,9 +496,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			}
 */
 			
-			tpanel.add(gui.getDisplay()); 
-			tabs.addTab(serviceName, tpanel);
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, tpanel, serviceName));
+//			tpanel.add(gui.getDisplay()); 
+			tabs.addTab(serviceName, gui.getDisplay());
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName));
 
 		} else {
 			log.warn("could not construct a " + guiClass + " object");
@@ -556,10 +556,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	{
 		// add a single tabbed panel
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-		JPanel tpanel = new JPanel();
-		tpanel.add(sg.getDisplay());
+//		JPanel tpanel = new JPanel();
+//		tpanel.add(sg.getDisplay());
 		//sg.detachButton.setVisible(true);
-		tabs.add(boundServiceName, tpanel);		
+		tabs.add(boundServiceName, sg.getDisplay());		
 		//tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, boundServiceName));
 
 		frame.pack();
