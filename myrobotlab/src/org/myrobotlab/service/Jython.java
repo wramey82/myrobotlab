@@ -232,11 +232,11 @@ public class Jython extends Service {
 		Jython jython = (Jython) Runtime.create("jython","Jython");
 		jython.startService();
 
-		/*
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-		*/
+		
 	}
 
 

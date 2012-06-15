@@ -104,7 +104,7 @@ public class Outbox implements Runnable, Serializable
 			synchronized (msgBox) {
 				try {
 					while (msgBox.size() == 0) {
-						log.debug("outbox run WAITING ");
+						//log.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
 					}
 				} catch (InterruptedException ex) {
@@ -172,7 +172,7 @@ public class Outbox implements Runnable, Serializable
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
 				try {
-					log.debug("outbox enque msg WAITING ");
+					//log.debug("outbox enque msg WAITING ");
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
 					log.debug("outbox add enque msg INTERRUPTED ");

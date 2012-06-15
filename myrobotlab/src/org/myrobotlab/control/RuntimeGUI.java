@@ -470,7 +470,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
-			log.info("getListCellRendererComponent - begin");
+			//log.info("getListCellRendererComponent - begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
 			setText("<html><font color=#" + Style.listBackground + ">" + entry.name
@@ -488,7 +488,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				setForeground(Style.listForeground);
 			}
 
-			log.info("getListCellRendererComponent - end");
+			//log.info("getListCellRendererComponent - end");
 			return this;
 		}
 	}

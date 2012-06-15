@@ -108,9 +108,6 @@ public abstract class ServiceGUI {
 	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
 	{
 		NotifyEntry ne = null;
-		//notifyEntry.getName() = myService.getName();
-		//notifyEntry.outMethod = outMethod;
-		//notifyEntry.inMethod = inMethod;
 		if (parameterType != null) {
 			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
 		} else {
