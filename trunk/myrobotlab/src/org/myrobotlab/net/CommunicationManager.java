@@ -78,8 +78,9 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 			log.debug("sending local");
 			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
 			sw.get().in(m);			
-		} else {
-			log.debug("sending " + msg.method + " remote");
+		} else {// TODO - test for loglevel
+			log.debug( msg.sender + "." + msg.sendingMethod + "->" + 
+					sw.host.accessURL + "/" + msg.name + "."+ msg.method + "(" + ((msg.data == null)?"":msg.data.length) + ")");
 			getComm().send(sw.host.accessURL, msg);			
 		}
 	}

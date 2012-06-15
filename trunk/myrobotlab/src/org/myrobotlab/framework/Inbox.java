@@ -82,12 +82,11 @@ public class Inbox implements Serializable {
 			while (msg == null) { // while no messages && no messages that are
 									// blocking
 				if (msgBox.size() == 0) {
-					log.debug("Inbox WAITING " + name);
+					//log.debug("Inbox WAITING " + name);
 					msgBox.wait(); // must own the lock
 				} else {
 					msg = msgBox.removeLast();
-					log.debug("removed from msgBox size now " + msgBox.size()
-							+ " " + name);
+					log.debug(name + ".msgBox -1 = " + msgBox.size());
 
 					// --- sendBlocking support begin --------------------
 					// TODO - possible safety check msg.status == Message.RETURN
@@ -147,8 +146,7 @@ public class Inbox implements Serializable {
 			while (blocking && msgBox.size() == maxQueue) // queue "full"
 			{
 				try {
-					log.warn("inbox enque msg WAITING since inbox " + maxQueue
-							+ " is full" + name);
+					//log.warn("inbox enque msg WAITING since inbox " + maxQueue + " is full" + name);
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
 					log.debug("inbox enque msg INTERRUPTED " + name);
@@ -160,7 +158,7 @@ public class Inbox implements Serializable {
 				log.warn(name + " inbox BUFFER OVERRUN size " + msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			log.debug("added to msgBox size now " + msgBox.size() + " " + name);
+			log.debug(name + ".msgBox +1 = " + msgBox.size());
 			msgBox.notifyAll(); // must own the lock
 		}
 

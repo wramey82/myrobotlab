@@ -431,7 +431,7 @@ public class RemoteAdapter extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		// modes of operation
 		// command line - single command lind which sends a message
@@ -447,7 +447,7 @@ public class RemoteAdapter extends Service {
 		jython.startService();
 */
 
-		RemoteAdapter remote = new RemoteAdapter("remote");
+		RemoteAdapter remote = new RemoteAdapter("remote0");
 		remote.startService();
 		
 		Logging logger = new Logging("log0");
@@ -457,11 +457,11 @@ public class RemoteAdapter extends Service {
 		Jython jython = new Jython("jython0");
 		jython.startService();
 		
-		/*
+		
 		GUIService gui = new GUIService("gui0");
 		gui.startService();
 		gui.display();
-		*/
+		
 					
 	}
 }

@@ -1066,6 +1066,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public void send(String name, String method, Object... data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
+		// All methods which are invoked will 
+		// get the correct sendingMethod
+		// here its hardcoded
+		msg.sendingMethod="send"; 
 		outbox.add(msg);
 	}
 
