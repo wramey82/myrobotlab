@@ -37,7 +37,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.logging/logging/1.1/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.ivy/ivy/2.0.0/ivy.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/1.5.2/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.jfugue.music/music/4.0.3/jfugue-4.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.jibble.simplewebserver/simplewebserver/1.0/SimpleWebServer.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.op.chess/chess/1.0.0/ChessBoard.jar"/>
@@ -49,5 +48,7 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.quartz/quartz/2.1.5/quartz-2.1.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/mrl/myrobotlab/thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.1/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="C:/mrl/myrobotlab/thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.0/autocomplete.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
