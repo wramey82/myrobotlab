@@ -3,19 +3,19 @@ package org.myrobotlab.test;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.RemoteAdapter;
-import org.myrobotlab.service.interfaces.MRLMSGReciever;
 
 /**
  * @author GRPERRY
  *
  */
-public class ClientAPITester implements MRLMSGReciever {
+public class ClientAPITester {
 
+	// FIXME - needs work - have to control a different process
+	
 	public final static Logger log = Logger.getLogger(ClientAPITester.class.getCanonicalName());
 
 	RemoteAdapter api = null;
-	
-	
+		
 	/**
 	 * Initialization of client api / remote adapter 
 	 */
@@ -68,7 +68,6 @@ public class ClientAPITester implements MRLMSGReciever {
 		api.send("catcher01", "catchInteger", 3);					
 	}
 	
-	@Override
 	public void receive(Message msg) {
 
 		log.info("***** recieved msg " + msg + " *******");
