@@ -42,6 +42,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JTextField;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 /**
@@ -220,7 +222,7 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
   
   public void unprogress()
   {
-    if (Preferences.getBoolean("editor.beep.compile")) {
+    if (Preferences2.getBoolean("editor.beep.compile")) {
       Toolkit.getDefaultToolkit().beep();
     }
     progressBar.setVisible(false);
@@ -298,22 +300,21 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
 
     g.setColor(fgcolor[mode]);
     g.setFont(font); // needs to be set each time on osx
-    g.drawString(message, Preferences.GUI_SMALL, (sizeH + ascent) / 2);
+    g.drawString(message, Preferences2.GUI_SMALL, (sizeH + ascent) / 2);
 
     screen.drawImage(offscreen, 0, 0, null);
   }
 
 
-  protected void setup() {
+  public void setup() {
     if (okButton == null) {
-      cancelButton = new JButton(Preferences.PROMPT_CANCEL);
-      okButton = new JButton(Preferences.PROMPT_OK);
+      cancelButton = new JButton(Preferences2.PROMPT_CANCEL);
+      okButton = new JButton(Preferences2.PROMPT_OK);
 
       cancelButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if (mode == EDIT) {
             unedit();
-            //editor.toolbar.clear();
           }
         }
       });
@@ -329,38 +330,20 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
         }
       });
 
-      // !@#(* aqua ui #($*(( that turtle-neck wearing #(** (#$@)(
-      // os9 seems to work if bg of component is set, but x still a bastard
       if (Base.isMacOS()) {
-        //yesButton.setBackground(bgcolor[EDIT]);
-        //noButton.setBackground(bgcolor[EDIT]);
         cancelButton.setBackground(bgcolor[EDIT]);
         okButton.setBackground(bgcolor[EDIT]);
       }
       setLayout(null);
 
-      /*
-      yesButton.addActionListener(this);
-      noButton.addActionListener(this);
-      cancelButton.addActionListener(this);
-      okButton.addActionListener(this);
-      */
-
-      //add(yesButton);
-      //add(noButton);
       add(cancelButton);
       add(okButton);
 
-      //yesButton.setVisible(false);
-      //noButton.setVisible(false);
       cancelButton.setVisible(false);
       okButton.setVisible(false);
 
       editField = new JTextField();
-      // disabling, was not in use
-      //editField.addActionListener(this);
 
-      //if (Base.platform != Base.MACOSX) {
       editField.addKeyListener(new KeyAdapter() {
         
           // Grab ESC with keyPressed, because it's not making it to keyTyped
@@ -459,8 +442,8 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
 
 
   protected void setButtonBounds() {
-    int top = (sizeH - Preferences.BUTTON_HEIGHT) / 2;
-    int eachButton = Preferences.GUI_SMALL + Preferences.BUTTON_WIDTH;
+    int top = (sizeH - Preferences2.BUTTON_HEIGHT) / 2;
+    int eachButton = Preferences2.GUI_SMALL + Preferences2.BUTTON_WIDTH;
 
     int cancelLeft = sizeW      - eachButton;
     int noLeft     = cancelLeft - eachButton;
@@ -472,18 +455,18 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
     okButton.setLocation(noLeft, top);
     progressBar.setLocation(noLeft, top);
 
-    //yesButton.setSize(Preferences.BUTTON_WIDTH, Preferences.BUTTON_HEIGHT);
-    //noButton.setSize(Preferences.BUTTON_WIDTH, Preferences.BUTTON_HEIGHT);
-    cancelButton.setSize(Preferences.BUTTON_WIDTH, Preferences.BUTTON_HEIGHT);
-    okButton.setSize(Preferences.BUTTON_WIDTH, Preferences.BUTTON_HEIGHT);
-    progressBar.setSize(2*Preferences.BUTTON_WIDTH, Preferences.BUTTON_HEIGHT); 
+    //yesButton.setSize(Preferences2.BUTTON_WIDTH, Preferences2.BUTTON_HEIGHT);
+    //noButton.setSize(Preferences2.BUTTON_WIDTH, Preferences2.BUTTON_HEIGHT);
+    cancelButton.setSize(Preferences2.BUTTON_WIDTH, Preferences2.BUTTON_HEIGHT);
+    okButton.setSize(Preferences2.BUTTON_WIDTH, Preferences2.BUTTON_HEIGHT);
+    progressBar.setSize(2*Preferences2.BUTTON_WIDTH, Preferences2.BUTTON_HEIGHT); 
 
     // edit field height is awkward, and very different between mac and pc,
     // so use at least the preferred height for now.
-    int editWidth = 2*Preferences.BUTTON_WIDTH;
+    int editWidth = 2*Preferences2.BUTTON_WIDTH;
     int editHeight = editField.getPreferredSize().height;
     int editTop = (1 + sizeH - editHeight) / 2;  // add 1 for ceil
-    editField.setBounds(yesLeft - Preferences.BUTTON_WIDTH, editTop,
+    editField.setBounds(yesLeft - Preferences2.BUTTON_WIDTH, editTop,
                         editWidth, editHeight);
     progressBar.setBounds(noLeft, editTop, editWidth, editHeight);
   }
@@ -494,11 +477,11 @@ public class EditorStatus extends JPanel /*implements ActionListener*/ {
   }
 
   public Dimension getMinimumSize() {
-    return new Dimension(300, Preferences.GRID_SIZE);
+    return new Dimension(300, Preferences2.GRID_SIZE);
   }
 
   public Dimension getMaximumSize() {
-    return new Dimension(3000, Preferences.GRID_SIZE);
+    return new Dimension(3000, Preferences2.GRID_SIZE);
   }
 
 

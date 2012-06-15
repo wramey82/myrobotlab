@@ -31,8 +31,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.myrobotlab.arduino.gui.Preferences;
-
 
 
 public class Target {
@@ -51,7 +49,7 @@ public class Target {
     try {
       if (boardsFile.exists()) {
         Map boardPreferences = new LinkedHashMap();
-        Preferences.load(new FileInputStream(boardsFile), boardPreferences);
+        Preferences2.load(new FileInputStream(boardsFile), boardPreferences);
         for (Object k : boardPreferences.keySet()) {
           String key = (String) k;
           String board = key.substring(0, key.indexOf('.'));
@@ -69,7 +67,7 @@ public class Target {
     try {
       if (programmersFile.exists()) {
         Map programmerPreferences = new LinkedHashMap();
-        Preferences.load(new FileInputStream(programmersFile), programmerPreferences);
+        Preferences2.load(new FileInputStream(programmersFile), programmerPreferences);
         for (Object k : programmerPreferences.keySet()) {
           String key = (String) k;
           String programmer = key.substring(0, key.indexOf('.'));

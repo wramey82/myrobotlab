@@ -262,13 +262,13 @@ public class GUIServiceGUI extends ServiceGUI {
 				@Override
 				public void mouseMoved(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					log.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());
+// too chatty 		log.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());
 				}
 
 				@Override
 				public void mouseDragged(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					log.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());
+// too chatty		log.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());
 				}
 			});
 
@@ -287,13 +287,13 @@ public class GUIServiceGUI extends ServiceGUI {
 
 				public void mouseReleased(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					log.info("cell " + e.getX() + "," + e.getY());
+// too chatty					log.info("cell " + e.getX() + "," + e.getY());
 					currentlySelectedCell = (mxCell) cell;
 
 					if (cell != null) {
 						mxCell m = (mxCell) cell;
-						log.info("cell=" + graph.getLabel(cell) + ", " + m.getId() + ", "
-								+ graph.getLabel(m.getParent()));
+// too chatty						log.info("cell=" + graph.getLabel(cell) + ", " + m.getId() + ", "
+//								+ graph.getLabel(m.getParent()));
 						if (m.isVertex()) {
 							// TODO - edges get filtered through here too - need
 							// to process - (String) type
@@ -561,7 +561,7 @@ public class GUIServiceGUI extends ServiceGUI {
 											
 						//mxGeometry g = c.getGeometry();
 						//c.setGeometry(g);
-						log.info(c);
+// too chatty						log.info(c);
 
 					}
 				}

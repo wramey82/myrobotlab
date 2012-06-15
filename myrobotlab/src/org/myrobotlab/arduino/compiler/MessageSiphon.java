@@ -35,7 +35,7 @@ import org.myrobotlab.serial.MessageConsumer;
  */
 public class MessageSiphon implements Runnable {
   BufferedReader streamReader;
-  Thread thread;
+  public Thread thread;
   MessageConsumer consumer;
 
 

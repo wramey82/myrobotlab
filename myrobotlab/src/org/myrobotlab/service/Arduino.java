@@ -25,15 +25,27 @@
 
 package org.myrobotlab.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.Sketch2;
+import org.myrobotlab.arduino.compiler.Compiler2;
+import org.myrobotlab.arduino.compiler.Preferences2;
+import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.serial.SerialDevice;
@@ -66,6 +78,8 @@ import org.simpleframework.xml.Root;
  * href="http://www.arduino.cc/playground/Main/RotaryEncoders">Rotary
  * Encoders</a>
  * 
+ * FIXME - Preference2, Preferences, the xml parameters, "board", type ALL need to be reconciled to one
+ * normalized value and container !
  * @author GroG
  */
 
@@ -75,11 +89,20 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
-
-	// FIXME - Add Android BlueTooth as possible Serial Device - remove ArduinoBT
+	public static final int REVISION = 100;
+	// FIXME - Add Android BlueTooth as possible Serial Device - remove
+	// ArduinoBT
 	transient SerialDevice serialDevice;
 	transient InputStream inputStream;
 	transient OutputStream outputStream;
+
+	static HashSet<File> libraries;
+
+	static boolean commandLine;
+	static public HashMap<String, Target> targetsTable;
+
+	static File buildFolder;
+	static public HashMap<String, File> importToLibraryTable;
 
 	@Element
 	String portName = "";
@@ -96,6 +119,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
 
+	public static final int INPUT = 0x0;
+	public static final int OUTPUT = 0x1;
+	
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
@@ -129,9 +155,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>();
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>();
-	
+
 	// serial device factory
-	
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -171,7 +196,89 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		for (int i = 0; i < servosInUse.length; ++i) {
 			servosInUse[i] = false;
 		}
+		
+		// from Base
+	    // run static initialization that grabs all the prefs
+	    Preferences2.init(null); // FIXME - remove from Base - "really" fix me remove Base
 
+
+		Preferences2.set("sketchbook.path", ".myrobotlab");
+		Preferences2.set("board", "mega2560"); // FIXME - get "real" board type
+		Preferences2.set("target", "arduino"); // FIXME - board type
+		
+		// FIXME - set on load() & change
+		Preferences2.set("serial.port", getPortName());
+		Preferences2.setInteger("serial.debug_rate", 57600);
+		Preferences2.set("serial.parity", "N"); // f'ing stupid, 
+		Preferences2.setInteger("serial.databits", 8);
+		Preferences2.setInteger("serial.stopbits", 1); // f'ing weird 1,1.5,2
+
+		// graphics related
+		//Preferences.setInteger("editor.tabs.size");
+		//(Preferences2.getBoolean("editor.keys.shift_backspace_is_delete")
+		//.getBoolean("editor.keys.alternative_cut_copy_paste")
+		//Preferences2.getFont("editor.font")
+		// Preferences.getBoolean("preproc.substitute_unicode")
+		Preferences2.setBoolean("upload.verbose", true);
+		
+/*		
+		Preferences2.set("serial.port", ), 
+		Preferences2.set("serial.debug_rate", )
+		Preferences2.set("serial.parity", ).charAt(0) // f'ing stupid, 
+		Preferences2.set("serial.databits", 
+		Preferences2.set(("serial.stopbits", )).floatValue()); // f'ing weird 1,1.5,2
+*/		
+
+		// Get paths for the libraries and examples in the Processing folder
+		// String workingDirectory = System.getProperty("user.dir");
+		File examplesFolder = getContentFile("examples");
+		File librariesFolder = getContentFile("libraries");
+		File toolsFolder = getContentFile("tools");
+
+		// Get the sketchbook path, and make sure it's set properly
+		String sketchbookPath = Preferences2.get("sketchbook.path");
+
+		try {
+
+			targetsTable = new HashMap<String, Target>();
+			loadHardware(getHardwareFolder());
+			loadHardware(getSketchbookHardwareFolder());
+			addLibraries(librariesFolder);
+			File sketchbookLibraries = getSketchbookLibrariesFolder();
+			addLibraries(sketchbookLibraries);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	protected void loadHardware(File folder) {
+		if (!folder.isDirectory())
+			return;
+
+		String list[] = folder.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				// skip .DS_Store files, .svn folders, etc
+				if (name.charAt(0) == '.')
+					return false;
+				if (name.equals("CVS"))
+					return false;
+				return (new File(dir, name).isDirectory());
+			}
+		});
+		// if a bad folder or something like that, this might come back null
+		if (list == null)
+			return;
+
+		// alphabetize list, since it's not always alpha order
+		// replaced hella slow bubble sort with this feller for 0093
+		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+
+		for (String target : list) {
+			File subfolder = new File(folder, target);
+			targetsTable.put(target, new Target(target, subfolder));
+		}
 	}
 
 	public String getPortName() {
@@ -398,7 +505,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		inputStream = null;
 		outputStream = null;
 
-
 		if (serialDevice != null) {
 			log.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
 			serialDevice.removeEventListener();
@@ -408,14 +514,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		// bury in rxtx
 		/*
-		try {
-			// if (serialPort != null) serialPort.close(); // close the port
-			Thread.sleep(300); // wait for thread to terminate
-
-		} catch (Exception e) {
-			logException(e);
-		}
-		*/
+		 * try { // if (serialPort != null) serialPort.close(); // close the
+		 * port Thread.sleep(300); // wait for thread to terminate
+		 * 
+		 * } catch (Exception e) { logException(e); }
+		 */
 
 		log.info("closed SerialDevice");
 	}
@@ -465,6 +568,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						portName = inPortName;
 						log.debug("opened " + getPortString());
 						save(); // successfully bound to port - saving
+						Preferences2.set("serial.port", portName);
 						broadcastState(); // state has changed let everyone know
 						break;
 
@@ -489,8 +593,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			try {
 				return portName
 						+ "/" // can't use serialPort.getName()
-						+ serialDevice.getBaudRate() + "/" + serialDevice.getDataBits() + "/" + serialDevice.getParity()
-						+ "/" + serialDevice.getStopBits();
+						+ serialDevice.getBaudRate() + "/" + serialDevice.getDataBits() + "/"
+						+ serialDevice.getParity() + "/" + serialDevice.getStopBits();
 			} catch (Exception e) {
 				Service.logException(e);
 				return null;
@@ -532,6 +636,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		try {
 			serialDevice.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+			log.info("setSerialPortParams " + baudRate + " " + dataBits + " " + stopBits + " " + parity);
 		} catch (UnsupportedCommOperationException e) {
 			Service.logException(e);
 		}
@@ -808,6 +913,368 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 	}
 
+	/**
+	 * publishing point for GUIs - when it is desirable to open a sketch in a
+	 * GUI which it "really" isn't but since I have not cleaved the GUI from the
+	 * Compiler & Uploader of Arduino's IDE - it will have to do for the moment
+	 * 
+	 * @param path
+	 *            - path of sketch
+	 */
+	public String openSketchInGUI(String path) {
+		return path;
+	}
+
+	/**
+	 * the preferred method of loading a sketch - at the moment it calls the
+	 * GUI's load - which is not desirable but will have to do at the moment
+	 * 
+	 * @param path
+	 */
+	public void openSketch(String path) {
+		invoke("openSketchInGUI", path);
+	}
+
+	/**
+	 * a publishing point to upload
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public boolean uploadSketchFromGUI(boolean useProgrammer) {
+		return useProgrammer;
+	}
+
+	public void uploadSketch(boolean useProgrammer) {
+		invoke("uploadSketchFromGUI", useProgrammer);
+	}
+
+
+	static public String getAvrBasePath() {
+		if (isLinux()) {
+			return ""; // avr tools are installed system-wide and in the path
+		} else {
+			return getHardwarePath() + File.separator + "tools" + File.separator + "avr" + File.separator + "bin"
+					+ File.separator;
+		}
+	}
+
+	static public String getHardwarePath() {
+		return getHardwareFolder().getAbsolutePath();
+	}
+
+	static public File getHardwareFolder() {
+		// calculate on the fly because it's needed by Preferences.init() to
+		// find
+		// the boards.txt and programmers.txt preferences files (which happens
+		// before the other folders / paths get cached).
+		return getContentFile("hardware");
+	}
+
+	static public File getContentFile(String name) {
+		String path = System.getProperty("user.dir");
+
+		// Get a path to somewhere inside the .app folder
+		if (isMacOS()) {
+			String javaroot = System.getProperty("javaroot");
+			if (javaroot != null) {
+				path = javaroot;
+			}
+		}
+
+		path += File.separator + "arduino";
+
+		File working = new File(path);
+		return new File(working, name);
+	}
+
+	public SerialDevice getInstance(String className) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * returns true if Processing is running on a Mac OS X machine.
+	 */
+	static public boolean isMacOS() {
+		// return PApplet.platform == PConstants.MACOSX;
+		return System.getProperty("os.name").indexOf("Mac") != -1;
+	}
+
+	/**
+	 * returns true if running on windows.
+	 */
+	static public boolean isWindows() {
+		// return PApplet.platform == PConstants.WINDOWS;
+		return System.getProperty("os.name").indexOf("Windows") != -1;
+	}
+
+	/**
+	 * true if running on linux.
+	 */
+	static public boolean isLinux() {
+		// return PApplet.platform == PConstants.LINUX;
+		return System.getProperty("os.name").indexOf("Linux") != -1;
+	}
+
+	static public Map<String, String> getBoardPreferences() {
+		Target target = getTarget();
+		if (target == null)
+			return new LinkedHashMap();
+		Map map = target.getBoards();
+		if (map == null)
+			return new LinkedHashMap();
+		map = (Map) map.get(Preferences2.get("board"));
+		if (map == null)
+			return new LinkedHashMap();
+		return map;
+	}
+
+	static public Target getTarget() {
+		return targetsTable.get(Preferences2.get("target"));
+	}
+
+	static public String getSketchbookLibrariesPath() {
+		return getSketchbookLibrariesFolder().getAbsolutePath();
+	}
+
+	static public File getSketchbookHardwareFolder() {
+		return new File(getSketchbookFolder(), "hardware");
+	}
+
+	protected File getDefaultSketchbookFolder() {
+		File sketchbookFolder = null;
+		try {
+			sketchbookFolder = new File("./.myrobotlab");// platform.getDefaultSketchbookFolder();
+		} catch (Exception e) {
+		}
+
+		// create the folder if it doesn't exist already
+		boolean result = true;
+		if (!sketchbookFolder.exists()) {
+			result = sketchbookFolder.mkdirs();
+		}
+
+		if (!result) {
+			showError("You forgot your sketchbook", "Arduino cannot run because it could not\n"
+					+ "create a folder to store your sketchbook.", null);
+		}
+
+		return sketchbookFolder;
+	}
+
+	static public String showError(String error, String desc, Exception e) {
+		return error;
+	}
+
+	static public File getSketchbookLibrariesFolder() {
+		return new File(getSketchbookFolder(), "libraries");
+	}
+
+	static public File getSketchbookFolder() {
+		return new File(Preferences2.get("sketchbook.path"));
+	}
+
+	static public File getBuildFolder() {
+		if (buildFolder == null) {
+			String buildPath = Preferences2.get("build.path");
+			if (buildPath != null) {
+				buildFolder = new File(buildPath);
+
+			} else {
+				// File folder = new File(getTempFolder(), "build");
+				// if (!folder.exists()) folder.mkdirs();
+				buildFolder = createTempFolder("build");
+				buildFolder.deleteOnExit();
+			}
+		}
+		return buildFolder;
+	}
+
+	static public File createTempFolder(String name) {
+		try {
+			File folder = File.createTempFile(name, null);
+			// String tempPath = ignored.getParent();
+			// return new File(tempPath);
+			folder.delete();
+			folder.mkdirs();
+			return folder;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	static public void removeDescendants(File dir) {
+		if (!dir.exists())
+			return;
+
+		String files[] = dir.list();
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].equals(".") || files[i].equals(".."))
+				continue;
+			File dead = new File(dir, files[i]);
+			if (!dead.isDirectory()) {
+				if (!Preferences2.getBoolean("compiler.save_build_files")) {
+					if (!dead.delete()) {
+						// temporarily disabled
+						System.err.println("Could not delete " + dead);
+					}
+				}
+			} else {
+				removeDir(dead);
+				// dead.delete();
+			}
+		}
+	}
+
+	/**
+	 * Remove all files in a directory and the directory itself.
+	 */
+	static public void removeDir(File dir) {
+		if (dir.exists()) {
+			removeDescendants(dir);
+			if (!dir.delete()) {
+				System.err.println("Could not delete " + dir);
+			}
+		}
+	}
+
+	/**
+	 * Return an InputStream for a file inside the Processing lib folder.
+	 */
+	static public InputStream getLibStream(String filename) throws IOException {
+		return new FileInputStream(new File(getContentFile("lib"), filename));
+	}
+
+	static public void saveFile(String str, File file) throws IOException {
+		File temp = File.createTempFile(file.getName(), null, file.getParentFile());
+		PApplet.saveStrings(temp, new String[] { str });
+		if (file.exists()) {
+			boolean result = file.delete();
+			if (!result) {
+				throw new IOException("Could not remove old version of " + file.getAbsolutePath());
+			}
+		}
+		boolean result = temp.renameTo(file);
+		if (!result) {
+			throw new IOException("Could not replace " + file.getAbsolutePath());
+		}
+	}
+
+	public static boolean isCommandLine() {
+		return commandLine;
+	}
+
+	static public File getSettingsFile(String filename) {
+		return new File(getSettingsFolder(), filename);
+	}
+
+	static public File getSettingsFolder() {
+		File settingsFolder = null;
+
+		String preferencesPath = Preferences2.get("settings.path");
+		if (preferencesPath != null) {
+			settingsFolder = new File(preferencesPath);
+
+		} else {
+			try {
+				settingsFolder = new File(".myrobotLab");// platform.getSettingsFolder();
+			} catch (Exception e) {
+				showError("Problem getting data folder", "Error getting the Arduino data folder.", e);
+			}
+		}
+
+		// create the folder if it doesn't exist already
+		if (!settingsFolder.exists()) {
+			if (!settingsFolder.mkdirs()) {
+				showError("Settings issues", "Arduino cannot run because it could not\n"
+						+ "create a folder to store your settings.", null);
+			}
+		}
+		return settingsFolder;
+	}
+
+	protected boolean addLibraries(File folder) throws IOException {
+		if (!folder.isDirectory())
+			return false;
+
+		String list[] = folder.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				// skip .DS_Store files, .svn folders, etc
+				if (name.charAt(0) == '.')
+					return false;
+				if (name.equals("CVS"))
+					return false;
+				return (new File(dir, name).isDirectory());
+			}
+		});
+		// if a bad folder or something like that, this might come back null
+		if (list == null)
+			return false;
+
+		// alphabetize list, since it's not always alpha order
+		// replaced hella slow bubble sort with this feller for 0093
+		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+
+		boolean ifound = false;
+
+	    // reset the set of libraries
+	    libraries = new HashSet<File>();
+	    // reset the table mapping imports to libraries
+	    importToLibraryTable = new HashMap<String, File>();
+
+	    
+		for (String potentialName : list) {
+			File subfolder = new File(folder, potentialName);
+			// File libraryFolder = new File(subfolder, "library");
+			// File libraryJar = new File(libraryFolder, potentialName +
+			// ".jar");
+			// // If a .jar file of the same prefix as the folder exists
+			// // inside the 'library' subfolder of the sketch
+			// if (libraryJar.exists()) {
+			String sanityCheck = Sketch2.sanitizeName(potentialName);
+			if (!sanityCheck.equals(potentialName)) {
+				String mess = "The library \"" + potentialName + "\" cannot be used.\n"
+						+ "Library names must contain only basic letters and numbers.\n"
+						+ "(ASCII only and no spaces, and it cannot start with a number)";
+				showMessage("Ignoring bad library name", mess);
+				continue;
+			}
+
+			String libraryName = potentialName;
+
+			libraries.add(subfolder);
+			String packages[] = Compiler2.headerListFromIncludePath(subfolder.getAbsolutePath());
+			for (String pkg : packages) {
+				importToLibraryTable.put(pkg, subfolder);
+			}
+
+			ifound = true;
+		}
+		return ifound;
+	}
+	
+	public String showMessage (String msg, String desc)
+	{
+		log.info("showMessage " + msg);
+		return msg;
+	}
+
+	Sketch2 currentSketch;
+	public void compileAndUploadSketch(String path) {
+		try {
+			currentSketch = new Sketch2(path, this);
+			currentSketch.exportApplet(false);
+			setPort(getPortName()); // reset port 
+			Thread.sleep(1000); // wait for hardware
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
@@ -815,6 +1282,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		arduino.compileAndUploadSketch("C:\\mrl\\myrobotlab\\.myrobotlab\\MRLComm\\MRLComm.ino");
+		arduino.pinMode(44, Arduino.OUTPUT);
+		arduino.digitalWrite(44, Arduino.HIGH);
+
+		
+		GUIService gui = new GUIService("lapgui");
+		gui.startService();
+		gui.display();
+
 
 		// Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
 		// arduino.setPort("/dev/ttyS50");
@@ -838,10 +1314,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// Jython jython = new Jython("jython");
 		// jython.startService();
 
-		GUIService gui = new GUIService("lapgui");
-		gui.startService();
-		gui.display();
-
 		/*
 		 * neck.attach("arduino", 9); neck.moveTo(10); neck.moveTo(90);
 		 * neck.moveTo(170); neck.moveTo(90); neck.moveTo(10); neck.moveTo(90);
@@ -859,10 +1331,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		 * left.detach(); right.detach(); }
 		 */
 	}
-
-	public SerialDevice getInstance(String className) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public SerialDevice getSerialDevice()
+	{
+		return serialDevice;
 	}
-
+	
 }

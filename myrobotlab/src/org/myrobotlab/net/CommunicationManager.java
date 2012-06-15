@@ -37,7 +37,7 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.Runtime;
 
-public class CommunicationManager  implements Serializable, CommunicationInterface{
+public class CommunicationManager  implements Serializable, CommunicationInterface {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(CommunicationManager.class.toString());
@@ -51,7 +51,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
 
-		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverUDP";
+		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverTCP";
 		log.info("instanciating a " + communicatorClass);
 		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 

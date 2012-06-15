@@ -21,6 +21,11 @@
  * 
  * Enjoy !
  * 
+ * References :
+ * 		http://www.javaspecialists.eu/archive/Issue088.html - details of ObjectOutputStream.reset()
+ * 		http://zerioh.tripod.com/ressources/sockets.html - example of Object serialization
+ * 		http://www.cafeaulait.org/slides/sd2003west/sockets/Java_Socket_Programming.html nice simple resource
+ * 
  * */
 
 package org.myrobotlab.net;
@@ -29,126 +34,69 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.Communicator;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * A Service needs a CommunicatorManager to communicate to another service.
-	 * The manager can handle local (intra-process) communication - by using a
-	 * Service reference. Remote (inter-process) communication requires a
-	 * Communicator. There is a global (static) map of
-	 * service names to endpoints - this is maintained here.
-	 * 
-	 * A thread is create for each new connection - its basically the "ear" Here
-	 * is what basically happens 1. a request comes in for a foreign ip/port -
-	 * msg.hostname:msg.servicePort != :0 2. the global clientList is checked -
-	 * if found - the endpoint is used 3. if not found - a new connection &
-	 * thread is created 4. messages coming from the remote endpoint are
-	 * extracted with the serializer and put into the inbox for processing by
-	 * the Service 5. outbound messages are sent directly from the Service
-	 * (myService) to the endpoint
-	 */
-
 	public final static Logger log = Logger.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
-
+	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
-
-	public static HashMap<URL, Remote> clientList = new HashMap<URL, Remote>();
-
+	static public transient HashMap<URL, TCPThread> clientList = new HashMap<URL, TCPThread>();
 	Service myService = null;
 
-	InetSocketAddress remoteAddr;
+	public class TCPThread extends Thread {
 
-	boolean isListening = false;
-	
-	public class Remote {
-		public transient TCPThread tcp = null;
-	}
-
-	public class TCPThread extends Thread { // implements Runnable? {
-
+		URL url;
 		transient Socket socket = null;
 
-		ObjectInputStream ois = null;
-		ObjectOutputStream oos = null;
-
-		public TCPThread() {
-			super(myService.getName() + "_TCPThread");
-		}
-
-		public TCPThread(Socket socket) {
-			// socket comes in already connected
-			this();
-			try {
+		ObjectInputStream in = null;
+		ObjectOutputStream out = null;
+		
+		public TCPThread(URL url, Socket socket) throws UnknownHostException, IOException {
+				this.url = url;
+				if (socket == null)
+				{
+					socket = new Socket(url.getHost(), url.getPort());
+				}
 				this.socket = socket;
-				oos = new ObjectOutputStream(socket.getOutputStream());
-				ois = new ObjectInputStream(socket.getInputStream());
+				out = new ObjectOutputStream(socket.getOutputStream());
+				//out.flush();// some flush before using :)
+				in = new ObjectInputStream(socket.getInputStream());
 				this.start(); // starting listener
-			} catch (IOException e) {
-				Service.logException(e);
-				log.error("could not create streams from socket");
-			}
+		}		
 
-		}
-		
-		synchronized public void send(final URL url, final Message msg) throws IOException {
-			// FIXME - implement
-		}
-		
 		// run / listen for more msgs
 		@Override
 		public void run() {
-
-			IPAndPort ip = null;
-
 			try {
-				isRunning = true; // this is GLOBAL !
+				isRunning = true;
 
-				if (socket != null) {
-					ip = new IPAndPort(socket.getInetAddress().toString(),
-							socket.getPort());
-				}
 				while (socket != null && isRunning) {
 
 					Message msg = null;
 
 					try {
-						Object o = ois.readObject();
+						Object o = in.readObject();
 						msg = (Message) o;
 					} catch (Exception e) {
 						msg = null;
 						Service.logException(e);
 					}
 					if (msg == null) {
-						// TODO
-						log.error(myService.getName()
-								+ " null message - will continue to listen");
-						log.error("disconnecting " + socket.getInetAddress()
-								+ ":" + socket.getPort());
-						socket.close();
-						socket = null; // stream corrupted exception does not
-										// recover TODO - remove from client
-										// list - rem
+						log.error("msg deserialized to null");
 					} else {
 						if (msg.method.equals("registerServices")) {
-							
-							myService.registerServices(remoteAddr.getAddress().toString(), remoteAddr.getPort(), msg);
+							// FIXME - the only reason this is pulled off the comm line here
+							// is initial registerServices do not usually come with a "name"
+							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
 							continue;
 						}
 						myService.getInbox().add(msg);
@@ -156,8 +104,8 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				}
 
 				// closing connections TODO - why wouldn't you close the others?
-				ois.close();
-				oos.close();
+				in.close();
+				out.close();
 
 			} catch (IOException e) {
 				log.error("TCPThread threw");
@@ -167,14 +115,21 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			}
 
 			// connection has been broken
-			// myService.connectionBroken(remoteIP, remotePort);
-			// myService.send("", "connectionBroken", remoteIP, remotePort);
-
-			myService.invoke("connectionBroken", ip);
+			// myService.invoke("connectionBroken", url); FIXME
 		}
 
 		public Socket getSocket() {
 			return socket;
+		}
+
+		public void send(URL url2, Message msg) {
+			try {
+				out.writeObject(msg);
+				out.flush();
+
+			} catch (Exception e) {
+				Service.logException(e);
+			}
 		}
 
 	} // TCP Thread
@@ -183,82 +138,39 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		this.myService = service;
 	}
 
-	// send udp or tcp or based on type
+	// send tcp
 	@Override
 	public void send(final URL url, final Message msg) {
 
-		Remote phone = null;
-
-		try {
-
-			if (clientList.containsKey(url)) {
-				phone = clientList.get(url);
-			} else {
-				phone = new Remote();
-				phone.tcp = new TCPThread();
+		TCPThread phone = null;
+		if (clientList.containsKey(url)) {
+			phone = clientList.get(url);
+		} else {
+			log.info("could not find url in client list attempting new connection ");
+			try {
+				phone = new TCPThread(url, null);
 				clientList.put(url, phone);
+			} catch (Exception e) {
+				Service.logException(e);
+				log.error("could not connect to " + url);
+				return;
 			}
-
-			if (phone.tcp == null) {
-				phone.tcp = new TCPThread();
-			}
-
-			// TODO - implement different modes of communication based on config or config + datatype
-			phone.tcp.send(url, msg);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Service.logException(e);
 		}
 
+		phone.send(url, msg);
 	}
 
-
-	// TODO - generate addClient event - so gui tabs can be refreshed or other
-	// listeners notified
-
-	public void addClient(Socket socket) {
-		log.info("adding tcp client ");
-
-		InetSocketAddress remoteAddr = (InetSocketAddress) socket
-				.getRemoteSocketAddress();
-		URL url;
-		try {
-			url = new URL("http://" + remoteAddr.getAddress().getHostAddress() + ":"
-					+ remoteAddr.getPort());
-		} catch (MalformedURLException e) {
-			Service.stackToString(e);
-			return;
-		}
-		Remote phone = new Remote();
-		phone.tcp = new TCPThread(socket);
-		clientList.put(url, phone);
-	}
-
-	
-	// TODO refactor - use URL instead or address and port - Is the DatagramSocket used?
-	public void addClient(Socket s, InetAddress address, int port) {
-		
-
-		//String key = address.getHostAddress() + ":" + port;
-		try {
-			URL url;
-			url = new URL("http://" + address.getHostAddress() + ":" + port);
-			Remote phone = new Remote();
-			//phone.tcp = new TCPThread(s, address, port);
-			phone.tcp = new TCPThread(s);//
-			// phone.udp.start(); REMOTE ADAPTER ONLY ADDS THESE - if we already
-			// have a UDP listener we dont want another
-			if (!clientList.containsKey(url))
-			{	log.debug("adding client " + url);
-				clientList.put(url, phone);
+	public void addClient(URL url, Object commData) {
+		if (!clientList.containsKey(url)) {
+			log.debug("adding client " + url);
+			try {
+				TCPThread tcp = new TCPThread(url, (Socket)commData);
+				clientList.put(url, tcp);
+			} catch (Exception e) {
+				Service.logException(e);
+				log.error("could not connect to " + url);				
 			}
-
-		} catch (MalformedURLException e) {
-			log.error(Service.stackToString(e));
-			return;
 		}
-
 	}
 
 	@Override
@@ -266,45 +178,16 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		// TODO Auto-generated method stub
 		if (clientList != null) {
 			for (int i = 0; i < clientList.size(); ++i) {
-				Remote r = clientList.get(i);
+				TCPThread r = clientList.get(i);
 				if (r != null) {
-					r.tcp.interrupt();
+					r.interrupt();
 				}
 				r = null;
 			}
 		}
 		clientList.clear();
-		clientList = new HashMap<URL, Remote>();
+		clientList = new HashMap<URL, TCPThread>();
 		isRunning = false;
 	}
-
-	@Override
-	public void disconnectAll() {
-		Iterator<URL> sgi = clientList.keySet().iterator();
-		while (sgi.hasNext()) {
-			URL accessURL = sgi.next();
-			Remote r = clientList.get(accessURL);
-			try {
-				if (r.tcp.socket != null)
-					r.tcp.socket.close();
-			} catch (IOException e) {
-				Service.logException(e);
-			}
-		}
-
-	}
-
-	// FIXME - deprecate
-	@Override
-	public void setIsUDPListening(boolean set) {
-		isListening = set;
-	}
-
-	@Override
-	public void addClient(DatagramSocket s, InetAddress address, int port) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 
 }

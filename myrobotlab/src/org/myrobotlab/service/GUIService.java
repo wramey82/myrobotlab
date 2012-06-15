@@ -1127,7 +1127,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			} else {
 				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
 			}
-		} else if ("explode".equals(cmd)) 
+		} else if (LOGGING_APPENDER_ROLLING_FILE.equals(cmd)) { 
+			addAppender(LOGGING_APPENDER_ROLLING_FILE);
+		} else if (LOGGING_APPENDER_NONE.equals(cmd)) { 
+			addAppender(LOGGING_APPENDER_NONE);
+	    } else if ("explode".equals(cmd)) 
 		{
 			//display();
 		} else {
@@ -1138,33 +1142,23 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		
-		/*
-		MyRobot dee = new MyRobot("dee");
-		dee.start();
 
-		Runtime services = new Runtime("services");
-		services.startService();
-				
-		Jython jython = new Jython("jython");
-		jython.startService();
-
-		Servo servo1 = new Servo("servo1");
-		servo1.startService();
-		*/
-
-		//Jython jython = new Jython("jython");
-		//jython.startService();
+/*		
+		Clock clock = new Clock("clock");
+		clock.startService();
+*/
+		Logging logger = new Logging("log1");
+		logger.startService();		
 		
-		//Clock clock = new Clock("clock");
-		//clock.startService();
-		
-		//Arduino arduino = new Arduino("arduino")
+		Jython jython = new Jython("jython1");
+		jython.startService();		
 		
 		GUIService gui2 = new GUIService("gui2");
 		gui2.startService();
 		gui2.display();
+		
+		// gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
+		gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
 		
 		
 	}

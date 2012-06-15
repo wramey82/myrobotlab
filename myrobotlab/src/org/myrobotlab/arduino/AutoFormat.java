@@ -27,8 +27,8 @@ package org.myrobotlab.arduino;
 import java.io.CharArrayReader;
 import java.io.IOException;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.gui.Editor;
-import org.myrobotlab.arduino.gui.Preferences;
 
 
 
@@ -441,7 +441,7 @@ public class AutoFormat implements Tool {
     // Adding an additional newline as a hack around other errors
     String originalText = editor.getText() + "\n";
     strOut = new StringBuffer();
-    indentValue = Preferences.getInteger("editor.tabs.size");
+    indentValue = Preferences2.getInteger("editor.tabs.size");
     indentChar = new String(" ");
 
     lineNumber = 0;

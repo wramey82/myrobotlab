@@ -4,7 +4,7 @@ import java.awt.Component;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultCaret;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
@@ -18,16 +18,13 @@ public class Console extends AppenderSkeleton {
 	public JTextArea textArea = null;
 	public JScrollPane scrollPane = null;
 	private boolean logging = false;
+	//public int maxBuffer = 100000;
 	
 	public Console () { // TODO boolean JFrame or component 
 		textArea = new JTextArea();
 		scrollPane = new JScrollPane(textArea);
-		
-		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
-		setLayout(layout);
-		setName(Service.LOGGING_APPENDER_CONSOLE_GUI);
-		Logger.getRootLogger().addAppender(this);
-
+		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 	
 	/**
@@ -40,12 +37,18 @@ public class Console extends AppenderSkeleton {
 	 */
 	public void startLogging()
 	{
+		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
+		setLayout(layout);
+		setName(Service.LOGGING_APPENDER_CONSOLE_GUI);
+		Logger.getRootLogger().addAppender(this);
+
 		logging = true;
 	}
 
 	public void stopLogging()
 	{
-		logging = true;
+		Logger.getRootLogger().removeAppender(this);
+		logging = false;
 	}
 	
 	/**
@@ -58,11 +61,17 @@ public class Console extends AppenderSkeleton {
 			final String message = this.layout.format(loggingEvent);
 	
 			// Append formatted message to textarea using the Swing Thread.
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
+//			SwingUtilities.invokeLater(new Runnable() {  WOW, this was a nasty bug !
+//				public void run() {
 						textArea.append(message);
-				}
-			});
+						/*
+						if (textArea.getText().length() > maxBuffer)
+						{
+							textArea.replaceRange("", 0, maxBuffer/10); // erase tenth 
+						}
+						*/
+//				}
+//			});
 		}
 	}
 	@Override

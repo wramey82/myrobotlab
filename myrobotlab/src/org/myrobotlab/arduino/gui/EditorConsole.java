@@ -46,6 +46,8 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 /**
@@ -89,7 +91,7 @@ public class EditorConsole extends JScrollPane {
   public EditorConsole(Editor editor) {
     this.editor = editor;
 
-    maxLineCount = Preferences.getInteger("console.length");
+    maxLineCount = Preferences2.getInteger("console.length");
 
     consoleDoc = new BufferedStyledDocument(10000, maxLineCount);
     consoleTextPane = new JTextPane(consoleDoc);
@@ -131,7 +133,7 @@ public class EditorConsole extends JScrollPane {
     // and size window accordingly
     FontMetrics metrics = this.getFontMetrics(font);
     int height = metrics.getAscent() + metrics.getDescent();
-    int lines = Preferences.getInteger("console.lines"); //, 4);
+    int lines = Preferences2.getInteger("console.lines"); //, 4);
     int sizeFudge = 6; //10; // unclear why this is necessary, but it is
     setPreferredSize(new Dimension(1024, (height * lines) + sizeFudge));
     setMinimumSize(new Dimension(1024, (height * 4) + sizeFudge));
@@ -147,13 +149,13 @@ public class EditorConsole extends JScrollPane {
       // needed for debugging or bug reporting.
       tempFolder = Base.createTempFolder("console");
       try {
-        String outFileName = Preferences.get("console.output.file");
+        String outFileName = Preferences2.get("console.output.file");
         if (outFileName != null) {
           outFile = new File(tempFolder, outFileName);
           stdoutFile = new FileOutputStream(outFile);
         }
 
-        String errFileName = Preferences.get("console.error.file");
+        String errFileName = Preferences2.get("console.error.file");
         if (errFileName != null) {
           errFile = new File(tempFolder, errFileName);
           stderrFile = new FileOutputStream(errFile);
@@ -166,7 +168,7 @@ public class EditorConsole extends JScrollPane {
       consoleOut = new PrintStream(new EditorConsoleStream(false));
       consoleErr = new PrintStream(new EditorConsoleStream(true));
     
-      if (Preferences.getBoolean("console")) {
+      if (Preferences2.getBoolean("console")) {
         try {
           System.setOut(consoleOut);
           System.setErr(consoleErr);

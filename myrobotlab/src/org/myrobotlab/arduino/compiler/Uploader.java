@@ -32,9 +32,9 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import org.myrobotlab.arduino.Serial;
-import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.serial.MessageConsumer;
 import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.service.Arduino;
 
 
 
@@ -45,17 +45,16 @@ public abstract class Uploader implements MessageConsumer  {
   static final String SUPER_BADNESS =
     "Compiler error, please submit this code to " + BUGS_URL;
 
+  Arduino myArduino;
   RunnerException exception;
-  //PdePreferences preferences;
 
-  //SerialDevice serialPort;
   static InputStream serialInput;
   static OutputStream serialOutput;
-  //int serial; // last byte of data received
   
   boolean verbose;
 
-  public Uploader() {
+  public Uploader(Arduino myArduino) {
+	  this.myArduino = myArduino;
   }
 
   public abstract boolean uploadUsingPreferences(String buildPath, String className, boolean usingProgrammer)
@@ -68,7 +67,7 @@ public abstract class Uploader implements MessageConsumer  {
     try {
     	// FIXME - preferences used inside of Serial()
     	// need to seperate that from GUI
-      Serial serialPort = new Serial();
+      Serial serialPort = new Serial(myArduino);
       byte[] readBuffer;
       while(serialPort.available() > 0) {
         readBuffer = serialPort.readBytes();
@@ -87,7 +86,7 @@ public abstract class Uploader implements MessageConsumer  {
       serialPort.setDTR(true);
       serialPort.setRTS(true);
       
-      serialPort.dispose();
+     serialPort.dispose(); //FIXME - open/close vs - just stay open?
     } catch (SerialNotFoundException e) {
       throw e;
     } catch(Exception e) {
@@ -110,7 +109,7 @@ public abstract class Uploader implements MessageConsumer  {
       String[] commandArray = new String[commandDownloader.size()];
       commandDownloader.toArray(commandArray);
       
-      if (verbose || Preferences.getBoolean("upload.verbose")) {
+      if (verbose || Preferences2.getBoolean("upload.verbose")) {
         for(int i = 0; i < commandArray.length; i++) {
           System.out.print(commandArray[i] + " ");
         }

@@ -25,9 +25,6 @@
 
 package org.myrobotlab.service.interfaces;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.net.URL;
 
 import org.myrobotlab.framework.Message;
@@ -36,14 +33,9 @@ public abstract class Communicator {
 
 	public abstract void send(final URL url, final Message msg); // TODO - manage throws
 
-	public abstract void stopService();
+	public abstract void stopService(); 
 
-	public abstract void disconnectAll();
+	public abstract void addClient(URL url, Object commData);
 
-	public abstract void addClient(Socket socket);
-
-	public abstract void addClient(DatagramSocket s, InetAddress address, int port);
-
-	public abstract void setIsUDPListening(boolean set);
 
 }

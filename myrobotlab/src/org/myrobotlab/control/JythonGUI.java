@@ -180,6 +180,13 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu.add(createMenuItem("magabotSpeechTest.py", "examples"));
 		examples.add(menu);
 		*/
+		menu = new JMenu("arduino");
+		menu.add(createMenuItem("arduinoBasic.py", "examples"));
+		menu.add(createMenuItem("arduinoInput.py", "examples"));
+		menu.add(createMenuItem("arduinoOutput.py", "examples"));
+		menu.add(createMenuItem("arduinoServo.py", "examples"));
+		examples.add(menu);
+
 		menu = new JMenu("basic");
 		menu.add(createMenuItem("createAService.py", "examples"));
 		menu.add(createMenuItem("basicPython.py", "examples"));
@@ -280,6 +287,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void detachGUI() {
+		javaConsole.stopLogging();
 		removeNotifyRequest("publishStdOut","getStdOut", String.class);		
 		removeNotifyRequest("finishedExecutingScript");
 		removeNotifyRequest("publishState", "getState", Jython.class);

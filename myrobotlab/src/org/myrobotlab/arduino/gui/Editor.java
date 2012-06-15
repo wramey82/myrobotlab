@@ -25,7 +25,6 @@ package org.myrobotlab.arduino.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -34,7 +33,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.print.PageFormat;
@@ -87,6 +85,7 @@ import org.myrobotlab.arduino.PdeKeywords;
 import org.myrobotlab.arduino.PdeTextAreaDefaults;
 import org.myrobotlab.arduino.Tool;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.RunnerListener;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
@@ -95,6 +94,7 @@ import org.myrobotlab.control.ImageButton;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceIdentifier;
 import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.service.Arduino;
 
 /**
  * Main editor panel for the Processing Development Environment.
@@ -102,7 +102,8 @@ import org.myrobotlab.serial.SerialException;
 @SuppressWarnings("serial")
 public class Editor extends JPanel implements RunnerListener, ActionListener, KeyListener {
 
-	Base base;
+	Arduino myArduino;
+	Base base;// FIXME remove
 
 	ImageButton compileButton;
 	ImageButton uploadButton;
@@ -164,7 +165,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 	static SerialMonitor monitor;
 
 	EditorHeader header;
-	EditorStatus status;
+	public EditorStatus status;
 	EditorConsole console;
 
 	JSplitPane splitPane;
@@ -209,14 +210,15 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 	JPanel menuAndButtons = new JPanel(new BorderLayout()); // new BorderLayout()
 	//Container contentPain;
 
-	public Editor(Base ibase, String path, int[] location) {
+	public Editor(Base ibase, Arduino myArduino, String path, int[] location) {
+		this.myArduino = myArduino;
 		this.base = ibase;
 		setPreferredSize(new Dimension(680, 480));
 
 		resetHandlers();
 
 		if (monitor == null) {
-			monitor = new SerialMonitor(Preferences.get("serial.port"));
+			monitor = new SerialMonitor(Preferences2.get("serial.port"), myArduino);
 			// serialMonitor.setIconImage(getIconImage()); Gro-G
 		}
 
@@ -404,12 +406,12 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 	/**
 	 * Read and apply new values from the preferences, either because the app is
 	 * just starting up, or the user just finished messing with things in the
-	 * Preferences window.
+	 * Preferences2 window.
 	 */
 	protected void applyPreferences() {
 
 		// apply the setting for 'use external editor'
-		boolean external = Preferences.getBoolean("editor.external");
+		boolean external = Preferences2.getBoolean("editor.external");
 
 		textarea.setEditable(!external);
 		saveMenuItem.setEnabled(!external);
@@ -426,14 +428,14 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		} else {
 			Color color = Theme.getColor("editor.bgcolor");
 			painter.setBackground(color);
-			boolean highlight = Preferences.getBoolean("editor.linehighlight");
+			boolean highlight = Preferences2.getBoolean("editor.linehighlight");
 			painter.setLineHighlightEnabled(highlight);
 			textarea.setCaretVisible(true);
 		}
 
 		// apply changes to the font size for the editor
 		// TextAreaPainter painter = textarea.getPainter();
-		painter.setFont(Preferences.getFont("editor.font"));
+//		painter.setFont(getFont());
 		// Font font = painter.getFont();
 		// textarea.getPainter().setFont(new Font("Courier", Font.PLAIN, 36));
 
@@ -571,13 +573,15 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		if (!Base.isMacOS()) {
 			fileMenu.addSeparator();
 
-			item = newJMenuItem("Preferences", ',');
+/*
+			item = newJMenuItem("Preferences2", ',');
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					base.handlePrefs();
 				}
 			});
 			fileMenu.add(item);
+*/			
 			/*
 			 * fileMenu.addSeparator();
 			 * 
@@ -922,17 +926,20 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		if (selection != null)
 			selection.setState(true);
 		// System.out.println(item.getLabel());
-		Preferences.set("serial.port", name);
+		Preferences2.set("serial.port", name);
 		monitor.closeSerialPort();
 		monitor.setVisible(false);
-		monitor = new SerialMonitor(Preferences.get("serial.port"));
+		monitor = new SerialMonitor(Preferences2.get("serial.port"), myArduino);
 		// System.out.println("set to " + get("serial.port"));
 	}
 
+	// FIXME - GROG - need to populate from list from Arduino service not SerialDevice
+	// directly
+	public HashMap<String, JCheckBoxMenuItem> serialCheckBoxMenuItems = new HashMap<String, JCheckBoxMenuItem>();
 	protected void populateSerialMenu() {
 		// getting list of ports
 
-		JMenuItem rbMenuItem;
+		JCheckBoxMenuItem rbMenuItem;
 
 		// System.out.println("Clearing serial port menu.");
 
@@ -950,10 +957,11 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 					// System.out.println("Adding port to serial port menu: " +
 					// commportidentifier);
 					String curr_port = commportidentifier.getName();
-					rbMenuItem = new JCheckBoxMenuItem(curr_port, curr_port.equals(Preferences.get("serial.port")));
+					rbMenuItem = new JCheckBoxMenuItem(curr_port, curr_port.equals(Preferences2.get("serial.port")));
 					rbMenuItem.addActionListener(serialMenuListener);
 					// serialGroup.add(rbMenuItem);
 					serialMenu.add(rbMenuItem);
+					serialCheckBoxMenuItems.put(curr_port, rbMenuItem);
 					empty = false;
 				}
 			}
@@ -1663,7 +1671,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 	}
 
 	protected void handleIndentOutdent(boolean indent) {
-		int tabSize = Preferences.getInteger("editor.tabs.size");
+		int tabSize = Preferences2.getInteger("editor.tabs.size");
 		String tabString = Editor.EMPTY.substring(0, tabSize);
 
 		startCompoundEdit();
@@ -1740,7 +1748,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 			System.out.println();
 
 		// clear the console on each run, unless the user doesn't want to
-		if (Preferences.getBoolean("console.auto_clear")) {
+		if (Preferences2.getBoolean("console.auto_clear")) {
 			console.clear();
 		}
 
@@ -2019,7 +2027,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		}
 
 		try {
-			sketch = new Sketch(this, path);
+			sketch = new Sketch(this, path, myArduino);
 		} catch (IOException e) {
 			Base.showWarning("Error", "Could not create the sketch.", e);
 			return false;
@@ -2033,7 +2041,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		// Store information on who's open and running
 		// (in case there's a crash or something that can't be recovered)
 		base.storeSketches();
-		Preferences.save();
+		Preferences2.save();
 
 		// opening was successful
 		return true;
@@ -2149,7 +2157,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 			names[i] = ((JCheckBoxMenuItem) serialMenu.getItem(i)).getText();
 		}
 
-		String result = (String) JOptionPane.showInputDialog(this, "Serial port " + Preferences.get("serial.port")
+		String result = (String) JOptionPane.showInputDialog(this, "Serial port " + Preferences2.get("serial.port")
 				+ " not found.\n" + "Retry the upload with another serial port?", "Serial port not found",
 				JOptionPane.PLAIN_MESSAGE, null, names, 0);
 		if (result == null)
@@ -2182,6 +2190,17 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		status.progress("Uploading to I/O Board...");
 
 		new Thread(usingProgrammer ? exportAppHandler : uploadHandler).start();
+	}
+	
+	synchronized public void handleBlockingUpload(final boolean usingProgrammer) {
+		// if (!handleExportCheckModified()) return;
+		//toolbar.activate(EditorToolbar.EXPORT);
+		connectButton.deactivate();
+		uploadButton.activate();
+		console.clear();
+		status.progress("Uploading to I/O Board...");
+
+		(usingProgrammer ? exportAppHandler : uploadHandler).run();
 	}
 
 	// DAM: in Arduino, this is upload - Gro-G should we call it that?
@@ -2316,7 +2335,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Uploader uploader = new AvrdudeUploader();
+					Uploader uploader = new AvrdudeUploader(myArduino);
 					if (uploader.burnBootloader()) {
 						statusNotice("Done burning bootloader.");
 					} else {
@@ -2470,7 +2489,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 
 		base.gui.getPinPanel();
 		lineStatus.setBoardName(boardName);
-		lineStatus.setSerialPort(Preferences.get("serial.port"));
+		lineStatus.setSerialPort(Preferences2.get("serial.port"));
 		lineStatus.repaint();
 	}
 

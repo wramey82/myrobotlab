@@ -67,8 +67,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.compiler.Compiler;
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.arduino.gui.compiler.Compiler;
 import org.myrobotlab.control.ArduinoGUI;
 
 
@@ -79,6 +80,9 @@ import org.myrobotlab.control.ArduinoGUI;
  * Primary role of this class is for platform identification and
  * general interaction with the system (launching URLs, loading
  * files and images, etc) that comes from that.
+ * 
+ * FIXME - remove and switch to the Arduino service
+ * 
  */
 public class Base {
   public static final int REVISION = 100;
@@ -104,7 +108,7 @@ public class Base {
   static private boolean commandLine;
 
   // A single instance of the preferences window
-  Preferences preferencesFrame;
+  //Preferences2 preferencesFrame;
 
   // set to true after the first time the menu is built.
   // so that the errors while building don't show up again.
@@ -141,8 +145,8 @@ public class Base {
   java.util.List<Editor> editors =
     Collections.synchronizedList(new ArrayList<Editor>());
 //  ArrayList editors = Collections.synchronizedList(new ArrayList<Editor>());
-  static public Editor activeEditor;
-  static public Editor editor;
+  public Editor activeEditor;
+  public Editor editor;
   
   static public Frame parent; // MRL GUIService.getFrame() - it needs a handle to window
   
@@ -172,7 +176,7 @@ public class Base {
     JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
     // run static initialization that grabs all the prefs
-    Preferences.init(null);
+    Preferences2.init(null);
 
     // setup the theme coloring fun
     Theme.init();
@@ -219,7 +223,7 @@ public class Base {
     toolsFolder = getContentFile("tools");
 
     // Get the sketchbook path, and make sure it's set properly
-    String sketchbookPath = Preferences.get("sketchbook.path");
+    String sketchbookPath = Preferences2.get("sketchbook.path");
 
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
@@ -239,7 +243,7 @@ public class Base {
     // If no path is set, get the default sketchbook folder for this platform
     if (sketchbookPath == null) {
       File defaultFolder = getDefaultSketchbookFolder();
-      Preferences.set("sketchbook.path", defaultFolder.getAbsolutePath());
+      Preferences2.set("sketchbook.path", defaultFolder.getAbsolutePath());
       if (!defaultFolder.exists()) {
         defaultFolder.mkdirs();
       }
@@ -279,7 +283,7 @@ public class Base {
 
     // check for updates NOT
     /*
-    if (Preferences.getBoolean("update.check")) {
+    if (Preferences2.getBoolean("update.check")) {
       new UpdateCheck(this);
     }
     */
@@ -298,19 +302,19 @@ public class Base {
     Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
     boolean windowPositionValid = true;
 
-    if (Preferences.get("last.screen.height") != null) {
+    if (Preferences2.get("last.screen.height") != null) {
       // if screen size has changed, the window coordinates no longer
       // make sense, so don't use them unless they're identical
-//      int screenW = Preferences.getInteger("last.screen.width");
+//      int screenW = Preferences2.getInteger("last.screen.width");
       int screenW = 300;
-      int screenH = Preferences.getInteger("last.screen.height");
+      int screenH = Preferences2.getInteger("last.screen.height");
 
       if ((screen.width != screenW) || (screen.height != screenH)) {
         windowPositionValid = false;
       }
       /*
-      int windowX = Preferences.getInteger("last.window.x");
-      int windowY = Preferences.getInteger("last.window.y");
+      int windowX = Preferences2.getInteger("last.window.x");
+      int windowY = Preferences2.getInteger("last.window.y");
       if ((windowX < 0) || (windowY < 0) ||
           (windowX > screenW) || (windowY > screenH)) {
         windowPositionValid = false;
@@ -324,13 +328,13 @@ public class Base {
     // If !windowPositionValid, then ignore the coordinates found for each.
 
     // Save the sketch path and window placement for each open sketch
-    int count = Preferences.getInteger("last.sketch.count");
+    int count = Preferences2.getInteger("last.sketch.count");
     int opened = 0;
     for (int i = 0; i < count; i++) {
-      String path = Preferences.get("last.sketch" + i + ".path");
+      String path = Preferences2.get("last.sketch" + i + ".path");
       int[] location;
       if (windowPositionValid) {
-        String locationStr = Preferences.get("last.sketch" + i + ".location");
+        String locationStr = Preferences2.get("last.sketch" + i + ".location");
         location = PApplet.parseInt(PApplet.split(locationStr, ','));
       } else {
         location = nextEditorLocation();
@@ -351,8 +355,8 @@ public class Base {
   protected void storeSketches() {
     // Save the width and height of the screen
     Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-    Preferences.setInteger("last.screen.width", screen.width);
-    Preferences.setInteger("last.screen.height", screen.height);
+    Preferences2.setInteger("last.screen.width", screen.width);
+    Preferences2.setInteger("last.screen.height", screen.height);
 
     String untitledPath = untitledFolder.getAbsolutePath();
 
@@ -366,14 +370,14 @@ public class Base {
           !editor.getSketch().isModified()) {
         continue;
       }
-      Preferences.set("last.sketch" + index + ".path", path);
+      Preferences2.set("last.sketch" + index + ".path", path);
 
       int[] location = editor.getPlacement();
       String locationStr = PApplet.join(PApplet.str(location), ",");
-      Preferences.set("last.sketch" + index + ".location", locationStr);
+      Preferences2.set("last.sketch" + index + ".location", locationStr);
       index++;
     }
-    Preferences.setInteger("last.sketch.count", index);
+    Preferences2.setInteger("last.sketch.count", index);
   }
 
 
@@ -385,7 +389,7 @@ public class Base {
     if (path.startsWith(untitledPath)) {
       path = "";
     }
-    Preferences.set("last.sketch" + index + ".path", path);
+    Preferences2.set("last.sketch" + index + ".path", path);
   }
 
 
@@ -398,18 +402,17 @@ public class Base {
   // changes to the focused and active Windows can be made. Developers must
   // never assume that this Window is the focused or active Window until this
   // Window receives a WINDOW_GAINED_FOCUS or WINDOW_ACTIVATED event.
-  static public void handleActivated(Editor whichEditor) {
+  public void handleActivated(Editor whichEditor) {
     activeEditor = whichEditor;
 
     // set the current window to be the console that's getting output
     EditorConsole.setEditor(activeEditor);
   }
 
-
   protected int[] nextEditorLocation() {
     Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-    int defaultWidth = Preferences.getInteger("editor.window.width.default");
-    int defaultHeight = Preferences.getInteger("editor.window.height.default");
+    int defaultWidth = Preferences2.getInteger("editor.window.width.default");
+    int defaultHeight = Preferences2.getInteger("editor.window.height.default");
 
     if (activeEditor == null) {
       // If no current active editor, use default placement
@@ -635,7 +638,7 @@ public class Base {
     }
 
  
-    editor = new Editor(this, path, location);
+    editor = new Editor(this, gui.myArduino, path, location);
 
     if (editor.getSketch() == null) {
       return null;  // Just walk away quietly
@@ -694,7 +697,7 @@ public class Base {
       storeSketches();
 
       // Save out the current prefs state
-      Preferences.save();
+      Preferences2.save();
 
       // Since this wasn't an actual Quit event, call System.exit()
       System.exit(0);
@@ -725,7 +728,7 @@ public class Base {
         editor.internalCloseRunner();
       }
       // Save out the current prefs state
-      Preferences.save();
+      Preferences2.save();
 
       if (!Base.isMacOS()) {
         // If this was fired from the menu or an AppleEvent (the Finder),
@@ -894,16 +897,16 @@ public class Base {
           new AbstractAction(target.getBoards().get(board).get("name")) {
             public void actionPerformed(ActionEvent actionevent) {
               //System.out.println("Switching to " + target + ":" + board);
-              Preferences.set("target", (String) getValue("target"));
-              Preferences.set("board", (String) getValue("board"));
+              Preferences2.set("target", (String) getValue("target"));
+              Preferences2.set("board", (String) getValue("board"));
               onBoardOrPortChange();
             }
           };
         action.putValue("target", target.getName());
         action.putValue("board", board);
         JMenuItem item = new JRadioButtonMenuItem(action);
-        if (target.getName().equals(Preferences.get("target")) &&
-            board.equals(Preferences.get("board"))) {
+        if (target.getName().equals(Preferences2.get("target")) &&
+            board.equals(Preferences2.get("board"))) {
           item.setSelected(true);
         }
         group.add(item);
@@ -923,14 +926,14 @@ public class Base {
           new AbstractAction(
             target.getProgrammers().get(programmer).get("name")) {
             public void actionPerformed(ActionEvent actionevent) {
-              Preferences.set("programmer", getValue("target") + ":" +
+              Preferences2.set("programmer", getValue("target") + ":" +
                                             getValue("programmer"));
             }
           };
         action.putValue("target", target.getName());
         action.putValue("programmer", programmer);
         JMenuItem item = new JRadioButtonMenuItem(action);
-        if (Preferences.get("programmer").equals(target.getName() + ":" +
+        if (Preferences2.get("programmer").equals(target.getName() + ":" +
                                                  programmer)) {
           item.setSelected(true);
         }
@@ -961,6 +964,7 @@ public class Base {
     //processing.core.PApplet.println("adding sketches " + folder.getAbsolutePath());
     //PApplet.println(list);
 
+    // FIXME remove all nameless ActionListeners
     ActionListener listener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           String path = e.getActionCommand();
@@ -986,7 +990,7 @@ public class Base {
       };
     // offers no speed improvement
     //menu.addActionListener(listener);
-
+      
     boolean ifound = false;
 
     for (int i = 0; i < list.length; i++) {
@@ -1146,12 +1150,14 @@ public class Base {
 
 
   /**
-   * Show the Preferences window.
+   * Show the Preferences2 window.
    */
+  /*
   public void handlePrefs() {
-    if (preferencesFrame == null) preferencesFrame = new Preferences();
+    if (preferencesFrame == null) preferencesFrame = new Preferences2();
     preferencesFrame.showFrame(activeEditor);
   }
+  */
 
 
   static public String getPlatformName() {
@@ -1226,7 +1232,7 @@ public class Base {
   static public File getSettingsFolder() {
     File settingsFolder = null;
 
-    String preferencesPath = Preferences.get("settings.path");
+    String preferencesPath = Preferences2.get("settings.path");
     if (preferencesPath != null) {
       settingsFolder = new File(preferencesPath);
 
@@ -1254,7 +1260,7 @@ public class Base {
   /**
    * Convenience method to get a File object for the specified filename inside
    * the settings folder.
-   * For now, only used by Preferences to get the preferences.txt file.
+   * For now, only used by Preferences2 to get the preferences.txt file.
    * @param filename A file inside the settings folder.
    * @return filename wrapped as a File object inside the settings folder
    */
@@ -1265,7 +1271,7 @@ public class Base {
 
   static public File getBuildFolder() {
     if (buildFolder == null) {
-      String buildPath = Preferences.get("build.path");
+      String buildPath = Preferences2.get("build.path");
       if (buildPath != null) {
         buildFolder = new File(buildPath);
 
@@ -1329,7 +1335,7 @@ public class Base {
 
 
   static public File getHardwareFolder() {
-    // calculate on the fly because it's needed by Preferences.init() to find
+    // calculate on the fly because it's needed by Preferences2.init() to find
     // the boards.txt and programmers.txt preferences files (which happens
     // before the other folders / paths get cached).
     return getContentFile("hardware");
@@ -1352,7 +1358,7 @@ public class Base {
   
   
   static public Target getTarget() {
-    return Base.targetsTable.get(Preferences.get("target"));
+    return Base.targetsTable.get(Preferences2.get("target"));
   }
   
   
@@ -1361,14 +1367,14 @@ public class Base {
     if (target == null) return new LinkedHashMap();
     Map map = target.getBoards();
     if (map == null) return new LinkedHashMap();
-    map = (Map) map.get(Preferences.get("board"));
+    map = (Map) map.get(Preferences2.get("board"));
     if (map == null) return new LinkedHashMap();
     return map;
   }
   
 
   static public File getSketchbookFolder() {
-    return new File(Preferences.get("sketchbook.path"));
+    return new File(Preferences2.get("sketchbook.path"));
   }
 
 
@@ -2065,7 +2071,7 @@ public class Base {
       if (files[i].equals(".") || files[i].equals("..")) continue;
       File dead = new File(dir, files[i]);
       if (!dead.isDirectory()) {
-        if (!Preferences.getBoolean("compiler.save_build_files")) {
+        if (!Preferences2.getBoolean("compiler.save_build_files")) {
           if (!dead.delete()) {
             // temporarily disabled
             System.err.println("Could not delete " + dead);

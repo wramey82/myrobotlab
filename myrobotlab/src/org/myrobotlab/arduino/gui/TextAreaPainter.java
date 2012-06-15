@@ -32,6 +32,7 @@ import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 
 import org.myrobotlab.arduino.Token;
+import org.myrobotlab.arduino.compiler.Preferences2;
 
 
 
@@ -74,7 +75,7 @@ implements TabExpander, Printable
     setForeground(defaults.fgcolor);
     setBackground(defaults.bgcolor);
 
-    antialias = Preferences.getBoolean("editor.antialias");
+    antialias = Preferences2.getBoolean("editor.antialias");
 
     blockCaret = defaults.blockCaret;
     styles = defaults.styles;

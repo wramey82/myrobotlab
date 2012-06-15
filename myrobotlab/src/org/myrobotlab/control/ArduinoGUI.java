@@ -85,6 +85,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	/**
 	 * component array - to access all components by name
 	 */
+	public Arduino myArduino;
 	HashMap<String, Component> components = new HashMap<String, Component>();
 
 	static final long serialVersionUID = 1L;
@@ -220,7 +221,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// --------- configPanel end ----------------------
 		// --------- pinPanel begin -----------------------
 		arduinoIDE = Base.getBase(this, myService.getFrame());
-		Base.handleActivated(Base.editor);
+		arduinoIDE.handleActivated(arduinoIDE.editor);
 
 		Map<String, String> boardPreferences = Base.getBoardPreferences();
 		String boardName = boardPreferences.get("name");
@@ -299,11 +300,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		tabs.addTab("oscope", oscopePanel);
 		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, oscopePanel, boundServiceName,
 				"oscope"));
-		tabs.addTab("editor", Base.editor);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, Base.editor, boundServiceName,
+		tabs.addTab("editor", arduinoIDE.editor);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, arduinoIDE.editor, boundServiceName,
 				"editor"));
 
 		display.add(tabs);
+		
+		// arduinoIDE editor status setup FIXME - lame
+		arduinoIDE.editor.status.setup();
 
 	}
 	
@@ -337,8 +341,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		pin.counter.setText((d).toString());
 	}
 
-	public void getState(Arduino myArduino) {
-		if (myArduino != null) {
+	public void getState(Arduino data) {
+		if (data != null) {
+			myArduino = data;
 			setPorts(myArduino.portNames);
 			
 			serialDevice.removeActionListener(this);
@@ -348,9 +353,22 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			baudRate.removeActionListener(this);
 			baudRate.setSelectedItem(myArduino.getBaudRate());
 			baudRate.addActionListener(this);
+			
+			// TODO - iterate through others and unselect them
+			// FIXME  - do we need to remove action listeners?
+			log.info(arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).isSelected());
+			arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).setSelected(true);
+			arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).doClick();
+			
 		}
 
 	}
+	
+	public void openSketchInGUI(String path)
+	{
+		arduinoIDE.handleOpenReplace(path);
+	}
+	
 
 	/**
 	 * 
@@ -372,11 +390,19 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		}
 
 	}
+	public void uploadSketchFromGUI (Boolean b)
+	{
+		//arduinoIDE.editor.handleUpload(b);
+		arduinoIDE.editor.handleBlockingUpload(b);
+	}
 
 	@Override
 	public void attachGUI() {
 		sendNotifyRequest("publishPin", "publishPin", PinData.class); 
 		sendNotifyRequest("publishState", "getState", Arduino.class);
+		sendNotifyRequest("openSketchInGUI", "openSketchInGUI", String.class);
+		sendNotifyRequest("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
+		
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -384,6 +410,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public void detachGUI() {
 		removeNotifyRequest("publishPin", "publishPin", PinData.class); 
 		removeNotifyRequest("publishState", "getState", Arduino.class);
+		removeNotifyRequest("openSketchInGUI", "openSketchInGUI", String.class);
+		removeNotifyRequest("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
 	}
 
 	@Override
