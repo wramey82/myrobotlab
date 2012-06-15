@@ -32,6 +32,7 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.compiler.Preferences2;
 
 
 
@@ -70,11 +71,11 @@ public class UpdateCheck implements Runnable {
     Random r = new Random();
     long id = r.nextLong();
 
-    String idString = Preferences.get("update.id");
+    String idString = Preferences2.get("update.id");
     if (idString != null) {
       id = Long.parseLong(idString);
     } else {
-      Preferences.set("update.id", String.valueOf(id));
+      Preferences2.set("update.id", String.valueOf(id));
     }
 
     try {
@@ -89,7 +90,7 @@ public class UpdateCheck implements Runnable {
       
       int latest = readInt(downloadURL + "?" + info);
 
-      String lastString = Preferences.get("update.last");
+      String lastString = Preferences2.get("update.last");
       long now = System.currentTimeMillis();
       if (lastString != null) {
         long when = Long.parseLong(lastString);
@@ -98,7 +99,7 @@ public class UpdateCheck implements Runnable {
           return;
         }
       }
-      Preferences.set("update.last", String.valueOf(now));
+      Preferences2.set("update.last", String.valueOf(now));
 
       String prompt =
         "A new version of Arduino is available,\n" +

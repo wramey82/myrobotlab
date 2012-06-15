@@ -34,13 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.arduino.gui.Sketch;
 
 
@@ -69,7 +67,7 @@ public class PdePreprocessor {
   // than the others, since the imports are auto-generated.
   List<String> codeFolderImports;
 
-  String indent;
+  //String indent;
 
   PrintStream stream;
   String program;
@@ -82,10 +80,6 @@ public class PdePreprocessor {
    * Setup a new preprocessor.
    */
   public PdePreprocessor() { 
-    int tabSize = Preferences.getInteger("editor.tabs.size");
-    char[] indentChars = new char[tabSize];
-    Arrays.fill(indentChars, ' ');
-    indent = new String(indentChars);
   }
 
   /**
@@ -113,7 +107,7 @@ public class PdePreprocessor {
     Sketch.scrubComments(program);
     // If there are errors, an exception is thrown and this fxn exits.
 
-    if (Preferences.getBoolean("preproc.substitute_unicode")) {
+    if (Preferences2.getBoolean("preproc.substitute_unicode")) {
       program = substituteUnicode(program);
     }
 

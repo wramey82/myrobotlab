@@ -19,9 +19,10 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    
 */
 
-package org.myrobotlab.arduino.compiler;
+package org.myrobotlab.arduino.gui.compiler;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -32,8 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.compiler.MessageSiphon;
+import org.myrobotlab.arduino.compiler.MessageStream;
+import org.myrobotlab.arduino.compiler.Preferences2;
+import org.myrobotlab.arduino.compiler.RunnerException;
+import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.arduino.gui.Base;
-import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.arduino.gui.Sketch;
 import org.myrobotlab.arduino.gui.SketchCode;
 import org.myrobotlab.serial.MessageConsumer;
@@ -42,10 +47,8 @@ import org.myrobotlab.serial.MessageConsumer;
 
 
 public class Compiler implements MessageConsumer {
-  static final String BUGS_URL =
-    "http://code.google.com/p/arduino/issues/list";
-  static final String SUPER_BADNESS =
-    "Compiler error, please submit this code to " + BUGS_URL;
+  static final String BUGS_URL = "http://code.google.com/p/arduino/issues/list";
+  static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
 
   Sketch sketch;
   String buildPath;
@@ -299,7 +302,7 @@ public class Compiler implements MessageConsumer {
     commandList.toArray(command);
     int result = 0;
     
-    if (verbose || Preferences.getBoolean("build.verbose")) {
+    if (verbose || Preferences2.getBoolean("build.verbose")) {
       for(int j = 0; j < command.length; j++) {
         System.out.print(command[j] + " ");
       }
@@ -483,7 +486,7 @@ public class Compiler implements MessageConsumer {
       "-c", // compile, don't link
       "-g", // include debugging info (so errors include line numbers)
       "-Os", // optimize for size
-      Preferences.getBoolean("build.verbose") ? "-Wall" : "-w", // show warnings if verbose
+      Preferences2.getBoolean("build.verbose") ? "-Wall" : "-w", // show warnings if verbose
       "-ffunction-sections", // place each function in its own section
       "-fdata-sections",
       "-mmcu=" + boardPreferences.get("build.mcu"),
@@ -511,7 +514,7 @@ public class Compiler implements MessageConsumer {
       "-c", // compile, don't link
       "-g", // include debugging info (so errors include line numbers)
       "-Os", // optimize for size
-      Preferences.getBoolean("build.verbose") ? "-Wall" : "-w", // show warnings if verbose
+      Preferences2.getBoolean("build.verbose") ? "-Wall" : "-w", // show warnings if verbose
       "-fno-exceptions",
       "-ffunction-sections", // place each function in its own section
       "-fdata-sections",

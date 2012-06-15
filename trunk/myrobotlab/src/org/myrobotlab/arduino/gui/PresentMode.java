@@ -30,6 +30,8 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 /**
@@ -78,14 +80,14 @@ public class PresentMode {
         public void actionPerformed(ActionEvent e) {
           int index = selector.getSelectedIndex();
           //device = devices[index];
-          Preferences.setInteger("run.present.display", index + 1);
+          Preferences2.setInteger("run.present.display", index + 1);
         }
       });
   }
 
 
   static public JComboBox getSelector() {
-    int deviceIndex = Preferences.getInteger("run.present.display") - 1;
+    int deviceIndex = Preferences2.getInteger("run.present.display") - 1;
     selector.setSelectedIndex(deviceIndex);
     return selector;
   }

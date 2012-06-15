@@ -24,10 +24,13 @@
 
 package org.myrobotlab.arduino;
 
+import java.awt.Font;
+import java.util.prefs.Preferences;
+
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.gui.Base;
 import org.myrobotlab.arduino.gui.DefaultInputHandler;
 import org.myrobotlab.arduino.gui.InputHandler;
-import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.arduino.gui.SyntaxDocument;
 import org.myrobotlab.arduino.gui.SyntaxStyle;
 import org.myrobotlab.arduino.gui.TextAreaDefaults;
@@ -51,7 +54,7 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
     inputHandler.addKeyBinding("BACK_SPACE", InputHandler.BACKSPACE);
     // for 0122, shift-backspace is delete, for 0176, it's now a preference, 
     // to prevent holy warriors from attacking me for it.
-    if (Preferences.getBoolean("editor.keys.shift_backspace_is_delete")) {
+    if (Preferences2.getBoolean("editor.keys.shift_backspace_is_delete")) {
       inputHandler.addKeyBinding("S+BACK_SPACE", InputHandler.DELETE);
     } else {
       inputHandler.addKeyBinding("S+BACK_SPACE", InputHandler.BACKSPACE);
@@ -72,7 +75,7 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
     
     // http://dev.processing.org/bugs/show_bug.cgi?id=162
     // added for 0176, though the bindings do not appear relevant for osx 
-    if (Preferences.getBoolean("editor.keys.alternative_cut_copy_paste")) {
+    if (Preferences2.getBoolean("editor.keys.alternative_cut_copy_paste")) {
       inputHandler.addKeyBinding("C+INSERT", InputHandler.CLIPBOARD_COPY);
       inputHandler.addKeyBinding("S+INSERT", InputHandler.CLIPBOARD_PASTE);
       inputHandler.addKeyBinding("S+DELETE", InputHandler.CLIPBOARD_CUT);
@@ -85,7 +88,7 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
     // HOME and END now mean the beginning/end of the document
     // for 0176 changed this to a preference so that the Mac OS X people
     // can get the "normal" behavior as well if they prefer.
-    if (Preferences.getBoolean("editor.keys.home_and_end_travel_far")) {
+    if (Preferences2.getBoolean("editor.keys.home_and_end_travel_far")) {
       inputHandler.addKeyBinding("HOME", InputHandler.DOCUMENT_HOME);
       inputHandler.addKeyBinding("END", InputHandler.DOCUMENT_END);
       inputHandler.addKeyBinding("S+HOME", InputHandler.SELECT_DOC_HOME);
@@ -186,16 +189,13 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
     // area that's not in use by the text (replaced with tildes)
     styles[Token.INVALID] = Theme.getStyle("invalid");
 
-
-    // moved from TextAreaPainter
-
-    font = Preferences.getFont("editor.font");
+    font = getFont();
 
     fgcolor = Theme.getColor("editor.fgcolor");
     bgcolor = Theme.getColor("editor.bgcolor");
 
     caretVisible = true;
-    caretBlinks = Preferences.getBoolean("editor.caret.blink");
+    caretBlinks = Preferences2.getBoolean("editor.caret.blink");
     caretColor = Theme.getColor("editor.caret.color");
 
     selectionColor = Theme.getColor("editor.selection.color");
@@ -215,4 +215,12 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
 
     paintInvalid = Theme.getBoolean("editor.invalid");
   }
+  
+  static public Font getFont() {
+
+	  Font font = new Font("sansserif", Font.PLAIN, 32);
+
+	    return font;
+	  }
+
 }

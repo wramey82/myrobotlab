@@ -32,6 +32,8 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 
@@ -101,7 +103,7 @@ public class EditorLineStatus extends JComponent {
     if (name=="" && serialport=="") {
       Map<String, String> boardPreferences =  Base.getBoardPreferences();
       setBoardName(boardPreferences.get("name"));
-      setSerialPort(Preferences.get("serial.port"));
+      setSerialPort(Preferences2.get("serial.port")); // FIXME 
     }
     g.setColor(background);
     Dimension size = getSize();

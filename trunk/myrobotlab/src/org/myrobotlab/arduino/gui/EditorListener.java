@@ -27,6 +27,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 
@@ -74,12 +76,12 @@ public class EditorListener {
 
 
   public void applyPreferences() {
-    tabsExpand = Preferences.getBoolean("editor.tabs.expand");
-    //tabsIndent = Preferences.getBoolean("editor.tabs.indent");
-    tabSize = Preferences.getInteger("editor.tabs.size");
+    tabsExpand = Preferences2.getBoolean("editor.tabs.expand");
+    //tabsIndent = Preferences2.getBoolean("editor.tabs.indent");
+    tabSize = Preferences2.getInteger("editor.tabs.size");
     tabString = Editor.EMPTY.substring(0, tabSize);
-    autoIndent = Preferences.getBoolean("editor.indent");
-    externalEditor = Preferences.getBoolean("editor.external");
+    autoIndent = Preferences2.getBoolean("editor.indent");
+    externalEditor = Preferences2.getBoolean("editor.external");
   }
 
 

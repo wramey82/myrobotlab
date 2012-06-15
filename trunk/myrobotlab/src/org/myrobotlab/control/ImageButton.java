@@ -22,6 +22,7 @@ public class ImageButton extends JButton{
 	ImageIcon activatedIcon = null;
 	int type = -1;
 
+	
 	public ImageButton(String serviceType, String name, ActionListener listener)
 	{
 		this(name, 

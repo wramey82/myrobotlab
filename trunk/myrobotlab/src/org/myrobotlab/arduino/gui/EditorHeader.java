@@ -43,6 +43,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
+
 
 
 /**
@@ -312,20 +314,15 @@ public class EditorHeader extends JComponent {
       });
     menu.add(item);
 
+    /*
     item = new JMenuItem("Rename");
     item.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           editor.getSketch().handleRenameCode();
-          /*
-          // this is already being called by nameCode(), the second stage of rename
-          if (editor.sketch.current == editor.sketch.code[0]) {
-            editor.sketchbook.rebuildMenus();
-          }
-          */
         }
       });
     menu.add(item);
-
+*/
     item = new JMenuItem("Delete");
     item.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -397,16 +394,16 @@ public class EditorHeader extends JComponent {
 
   public Dimension getMinimumSize() {
     if (Base.isMacOS()) {
-      return new Dimension(300, Preferences.GRID_SIZE);
+      return new Dimension(300, Preferences2.GRID_SIZE);
     }
-    return new Dimension(300, Preferences.GRID_SIZE - 1);
+    return new Dimension(300, Preferences2.GRID_SIZE - 1);
   }
 
 
   public Dimension getMaximumSize() {
     if (Base.isMacOS()) {
-      return new Dimension(3000, Preferences.GRID_SIZE);
+      return new Dimension(3000, Preferences2.GRID_SIZE);
     }
-    return new Dimension(3000, Preferences.GRID_SIZE - 1);
+    return new Dimension(3000, Preferences2.GRID_SIZE - 1);
   }
 }

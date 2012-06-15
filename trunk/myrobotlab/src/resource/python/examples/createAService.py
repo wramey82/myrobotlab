@@ -1,3 +1,5 @@
+# each of these lines creates and starts a service
+
 arduino01 	= runtime.createAndStart("arduino01","Arduino")
 audiofile01 	= runtime.createAndStart("audiofile01","AudioFile")
 chessgame01 	= runtime.createAndStart("chessgame01","ChessGame")

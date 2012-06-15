@@ -422,6 +422,7 @@ public class Runtime extends Service {
 			addInclusiveExportFilterServiceType("SensorMonitor");
 			addInclusiveExportFilterServiceType("Clock");
 			addInclusiveExportFilterServiceType("Logging");
+			addInclusiveExportFilterServiceType("Jython");
 			addInclusiveExportFilterServiceType("GUIService");
 			addInclusiveExportFilterServiceType("Runtime");
 		//}

@@ -36,22 +36,24 @@ import javax.swing.JOptionPane;
 
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
-import org.myrobotlab.arduino.compiler.Compiler;
 import org.myrobotlab.arduino.compiler.PdePreprocessor;
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Sizer;
 import org.myrobotlab.arduino.compiler.Uploader;
+import org.myrobotlab.arduino.gui.compiler.Compiler;
 import org.myrobotlab.serial.SerialException;
-
-
-
+import org.myrobotlab.service.Arduino;
 
 /**
+ * FIXME - GroG - this is the dividing line - all gui elements need to be removed from
+ * this object..  including all imports must have no gui elements
  * Stores information about files in the current sketch
  */
 public class Sketch {
   static private File tempBuildFolder;
 
+  Arduino myArduino;
   private Editor editor;
 
   /** main pde file for this sketch. */
@@ -107,7 +109,7 @@ public class Sketch {
    * path is location of the main .pde file, because this is also
    * simplest to use when opening the file from the finder/explorer.
    */
-  public Sketch(Editor editor, String path) throws IOException {
+  public Sketch(Editor editor, String path, Arduino myArduino) throws IOException {
     this.editor = editor;
 
     primaryFile = new File(path);
@@ -284,13 +286,14 @@ public class Sketch {
     }
 
     renamingCode = false;
-    editor.status.edit("Name for new file:", "");
+//    editor.status.edit("Name for new file:", "");
   }
 
 
   /**
    * Handler for the Rename Code menu option.
    */
+  /* not interested in supporting 
   public void handleRenameCode() {
     // make sure the user didn't hide the sketch folder
     ensureExistence();
@@ -311,7 +314,7 @@ public class Sketch {
                        "and try again.");
       return;
     }
-
+	
     // ask for new name of file (internal to window)
     // TODO maybe just popup a text area?
     renamingCode = true;
@@ -321,7 +324,7 @@ public class Sketch {
       current.getPrettyName() : current.getFileName();
     editor.status.edit(prompt, oldName);
   }
-
+*/
 
   /**
    * This is called upon return from entering a new file name.
@@ -720,14 +723,14 @@ public class Sketch {
       });
       
       if (pdeFiles != null && pdeFiles.length > 0) {
-        if (Preferences.get("editor.update_extension") == null) {
+        if (Preferences2.get("editor.update_extension") == null) {
           Object[] options = { "OK", "Cancel" };
           int result = JOptionPane.showOptionDialog(editor,
                                                     "In Arduino 1.0, the default file extension has changed\n" +
                                                     "from .pde to .ino.  New sketches (including those created\n" +
                                                     "by \"Save-As\" will use the new extension.  The extension\n" +
                                                     "of existing sketches will be updated on save, but you can\n" +
-                                                    "disable this in the Preferences dialog.\n" +
+                                                    "disable this in the Preferences2 dialog.\n" +
                                                     "\n" +
                                                     "Save sketch and update its extension?",
                                                     ".pde -> .ino",
@@ -739,10 +742,10 @@ public class Sketch {
           
           if (result != JOptionPane.OK_OPTION) return false; // save cancelled
           
-          Preferences.setBoolean("editor.update_extension", true);
+          Preferences2.setBoolean("editor.update_extension", true);
         }
         
-        if (Preferences.getBoolean("editor.update_extension")) {
+        if (Preferences2.getBoolean("editor.update_extension")) {
           // Do rename of all .pde files to new .ino extension
           for (File pdeFile : pdeFiles)
             renameCodeToInoExtension(pdeFile);
@@ -792,7 +795,7 @@ public class Sketch {
       fc.setDialogTitle("Save sketch folder as...");
       if (isReadOnly() || isUntitled()) {
         // default to the sketchbook folder
-        fc.setCurrentDirectory(new File(Preferences.get("sketchbook.path")));
+        fc.setCurrentDirectory(new File(Preferences2.get("sketchbook.path")));
       } else {
         // default to the parent folder of where this was
         fc.setCurrentDirectory(folder.getParentFile());
@@ -813,7 +816,7 @@ public class Sketch {
                                    FileDialog.SAVE);
     if (isReadOnly() || isUntitled()) {
       // default to the sketchbook folder
-      fd.setDirectory(Preferences.get("sketchbook.path"));
+      fd.setDirectory(Preferences2.get("sketchbook.path"));
     } else {
       // default to the parent folder of where this was
       fd.setDirectory(folder.getParent());
@@ -1241,7 +1244,7 @@ public class Sketch {
 
     // if an external editor is being used, need to grab the
     // latest version of the code from the file.
-    if (Preferences.getBoolean("editor.external")) {
+    if (Preferences2.getBoolean("editor.external")) {
       // history gets screwed by the open..
       //String historySaved = history.lastRecorded;
       //handleOpen(sketch);
@@ -1290,25 +1293,6 @@ public class Sketch {
 
     String[] codeFolderPackages = null;
     classPath = buildPath;
-
-//    // figure out the contents of the code folder to see if there
-//    // are files that need to be added to the imports
-//    if (codeFolder.exists()) {
-//      libraryPath = codeFolder.getAbsolutePath();
-//
-//      // get a list of .jar files in the "code" folder
-//      // (class files in subfolders should also be picked up)
-//      String codeFolderClassPath =
-//        Compiler.contentsToClassPath(codeFolder);
-//      // append the jar files in the code folder to the class path
-//      classPath += File.pathSeparator + codeFolderClassPath;
-//      // get list of packages found in those jars
-//      codeFolderPackages =
-//        Compiler.packageListFromClassPath(codeFolderClassPath);
-//
-//    } else {
-//      libraryPath = "";
-//    }
 
     // 1. concatenate all .pde files to the 'main' pde
     //    store line number for starting point of each code bit
@@ -1593,7 +1577,7 @@ public class Sketch {
     current.setProgram(editor.getText());
 
     // Reload the code when an external editor is being used
-    if (Preferences.getBoolean("editor.external")) {
+    if (Preferences2.getBoolean("editor.external")) {
       current = null;
       // nuke previous files and settings
       load();
@@ -1601,7 +1585,7 @@ public class Sketch {
 
     File appletFolder = new File(appletPath);
     // Nuke the old applet folder because it can cause trouble
-    if (Preferences.getBoolean("export.delete_target_folder")) {
+    if (Preferences2.getBoolean("export.delete_target_folder")) {
       Base.removeDir(appletFolder);
     }
     // Create a fresh applet folder (needed before preproc is run below)
@@ -1612,15 +1596,6 @@ public class Sketch {
     String foundName = build(appletFolder.getPath(), false);
     // (already reported) error during export, exit this function
     if (foundName == null) return false;
-
-//    // If name != exportSketchName, then that's weirdness
-//    // BUG unfortunately, that can also be a bug in the preproc :(
-//    if (!name.equals(foundName)) {
-//      Base.showWarning("Error during export",
-//                       "Sketch name is " + name + " but the sketch\n" +
-//                       "name in the code was " + foundName, null);
-//      return false;
-//    }
 
     editor.status.progressNotice("Uploading...");
     upload(appletFolder.getPath(), foundName, usingProgrammer);
@@ -1662,7 +1637,7 @@ public class Sketch {
 
     // download the program
     //
-    uploader = new AvrdudeUploader();
+    uploader = new AvrdudeUploader(myArduino);
     boolean success = uploader.uploadUsingPreferences(buildPath,
                                                       suggestedClassName,
                                                       usingProgrammer);

@@ -32,8 +32,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
-import org.myrobotlab.arduino.gui.Preferences;
 import org.myrobotlab.serial.MessageConsumer;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
@@ -41,10 +41,12 @@ import org.myrobotlab.serial.SerialDeviceEventListener;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceIdentifier;
 import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.service.Arduino;
 
 public class Serial implements SerialDeviceEventListener {
 
 	SerialDevice port;
+	Arduino myArduino;
 
 	int rate;
 	int parity;
@@ -61,36 +63,37 @@ public class Serial implements SerialDeviceEventListener {
 
 	MessageConsumer consumer;
 
-	public Serial(boolean monitor) throws SerialException {
-		this(Preferences.get("serial.port"), Preferences.getInteger("serial.debug_rate"), Preferences.get(
-				"serial.parity").charAt(0), Preferences.getInteger("serial.databits"), new Float(
-				Preferences.get("serial.stopbits")).floatValue());
+	public Serial(boolean monitor, Arduino myArduino) throws SerialException {
+		this(Preferences2.get("serial.port"), Preferences2.getInteger("serial.debug_rate"), Preferences2.get(
+				"serial.parity").charAt(0), Preferences2.getInteger("serial.databits"), new Float(
+				Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 		this.monitor = monitor;
 	}
 
-	public Serial() throws SerialException {
-		this(Preferences.get("serial.port"), Preferences.getInteger("serial.debug_rate"), Preferences.get(
-				"serial.parity").charAt(0), Preferences.getInteger("serial.databits"), new Float(
-				Preferences.get("serial.stopbits")).floatValue());
+	public Serial(Arduino myArduino) throws SerialException {
+		this(Preferences2.get("serial.port"), Preferences2.getInteger("serial.debug_rate"), Preferences2.get(
+				"serial.parity").charAt(0), Preferences2.getInteger("serial.databits"), new Float(
+				Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(int irate) throws SerialException {
-		this(Preferences.get("serial.port"), irate, Preferences.get("serial.parity").charAt(0), Preferences
-				.getInteger("serial.databits"), new Float(Preferences.get("serial.stopbits")).floatValue());
+	public Serial(int irate, Arduino myArduino) throws SerialException {
+		this(Preferences2.get("serial.port"), irate, Preferences2.get("serial.parity").charAt(0), Preferences2
+				.getInteger("serial.databits"), new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname, int irate) throws SerialException {
-		this(iname, irate, Preferences.get("serial.parity").charAt(0), Preferences.getInteger("serial.databits"),
-				new Float(Preferences.get("serial.stopbits")).floatValue());
+	public Serial(String iname, int irate, Arduino myArduino) throws SerialException {
+		this(iname, irate, Preferences2.get("serial.parity").charAt(0), Preferences2.getInteger("serial.databits"),
+				new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname) throws SerialException {
-		this(iname, Preferences.getInteger("serial.debug_rate"), Preferences.get("serial.parity").charAt(0),
-				Preferences.getInteger("serial.databits"), new Float(Preferences.get("serial.stopbits")).floatValue());
+	public Serial(String iname, Arduino myArduino) throws SerialException {
+		this(iname, Preferences2.getInteger("serial.debug_rate"), Preferences2.get("serial.parity").charAt(0),
+				Preferences2.getInteger("serial.databits"), new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname, int irate, char iparity, int idatabits, float istopbits) throws SerialException {
+	public Serial(String iname, int irate, char iparity, int idatabits, float istopbits, Arduino myArduino) throws SerialException {
 
+		this.myArduino = myArduino;
 		this.rate = irate;
 
 		parity = SerialDevice.PARITY_NONE;
@@ -115,14 +118,18 @@ public class Serial implements SerialDeviceEventListener {
 				SerialDeviceIdentifier portId = portList.get(i);
 				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
 					// System.out.println("found " + portId.getName());
+				
 					if (portId.getName().equals(iname)) {
+						port = myArduino.getSerialDevice();
 						// System.out.println("looking for "+iname);
-						port = (SerialDevice) portId.open("serial madness", 2000);
+//						port = (SerialDevice) portId.open("serial madness", 2000); // FIXME
+/*
 						input = port.getInputStream();
 						output = port.getOutputStream();
 						port.setSerialPortParams(rate, databits, stopbits, parity);
 						port.addEventListener(this);
 						port.notifyOnDataAvailable(true);
+*/						
 						// System.out.println("opening, ready to roll");
 					}
 				}

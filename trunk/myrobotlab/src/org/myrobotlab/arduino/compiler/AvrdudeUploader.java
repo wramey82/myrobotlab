@@ -32,30 +32,30 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.myrobotlab.arduino.gui.Base;
-import org.myrobotlab.arduino.gui.Preferences;
+import org.myrobotlab.service.Arduino;
 import org.myrobotlab.serial.SerialException;
 
 
 
 
 public class AvrdudeUploader extends Uploader  {
-  public AvrdudeUploader() {
+  public AvrdudeUploader(Arduino myArduino) {
+	  super(myArduino);
   }
 
   public boolean uploadUsingPreferences(String buildPath, String className, boolean usingProgrammer)
   throws RunnerException, SerialException {
     this.verbose = verbose;
-    Map<String, String> boardPreferences = Base.getBoardPreferences();
+    Map<String, String> boardPreferences = Arduino.getBoardPreferences();
 
     // if no protocol is specified for this board, assume it lacks a 
     // bootloader and upload using the selected programmer.
     if (usingProgrammer || boardPreferences.get("upload.protocol") == null) {
-      String programmer = Preferences.get("programmer");
-      Target target = Base.getTarget();
+      String programmer = Preferences2.get("programmer");
+      Target target = Arduino.getTarget();
 
       if (programmer.indexOf(":") != -1) {
-        target = Base.targetsTable.get(programmer.substring(0, programmer.indexOf(":")));
+        target = Arduino.targetsTable.get(programmer.substring(0, programmer.indexOf(":")));
         programmer = programmer.substring(programmer.indexOf(":") + 1);
       }
       
@@ -69,7 +69,7 @@ public class AvrdudeUploader extends Uploader  {
   
   private boolean uploadViaBootloader(String buildPath, String className)
   throws RunnerException, SerialException {
-    Map<String, String> boardPreferences = Base.getBoardPreferences();
+    Map<String, String> boardPreferences = Arduino.getBoardPreferences();
     List commandDownloader = new ArrayList();
     String protocol = boardPreferences.get("upload.protocol");
     
@@ -78,7 +78,7 @@ public class AvrdudeUploader extends Uploader  {
       protocol = "stk500v1";
     commandDownloader.add("-c" + protocol);
     commandDownloader.add(
-      "-P" + (Base.isWindows() ? "\\\\.\\" : "") + Preferences.get("serial.port"));
+      "-P" + (Arduino.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
     commandDownloader.add(
       "-b" + Integer.parseInt(boardPreferences.get("upload.speed")));
     commandDownloader.add("-D"); // don't erase
@@ -93,10 +93,10 @@ public class AvrdudeUploader extends Uploader  {
   }
   
   public boolean burnBootloader() throws RunnerException {
-    String programmer = Preferences.get("programmer");
-    Target target = Base.getTarget();
+    String programmer = Preferences2.get("programmer");
+    Target target = Arduino.getTarget();
     if (programmer.indexOf(":") != -1) {
-      target = Base.targetsTable.get(programmer.substring(0, programmer.indexOf(":")));
+      target = Arduino.targetsTable.get(programmer.substring(0, programmer.indexOf(":")));
       programmer = programmer.substring(programmer.indexOf(":") + 1);
     }
     return burnBootloader(getProgrammerCommands(target, programmer));
@@ -110,7 +110,7 @@ public class AvrdudeUploader extends Uploader  {
     if ("usb".equals(programmerPreferences.get("communication"))) {
       params.add("-Pusb");
     } else if ("serial".equals(programmerPreferences.get("communication"))) {
-      params.add("-P" + (Base.isWindows() ? "\\\\.\\" : "") + Preferences.get("serial.port"));
+      params.add("-P" + (Arduino.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
       if (programmerPreferences.get("speed") != null) {
 	params.add("-b" + Integer.parseInt(programmerPreferences.get("speed")));
       }
@@ -130,7 +130,7 @@ public class AvrdudeUploader extends Uploader  {
   
   protected boolean burnBootloader(Collection params)
   throws RunnerException {
-    Map<String, String> boardPreferences = Base.getBoardPreferences();
+    Map<String, String> boardPreferences = Arduino.getBoardPreferences();
     List fuses = new ArrayList();
     fuses.add("-e"); // erase the chip
     if (boardPreferences.get("bootloader.unlock_bits") != null)
@@ -153,10 +153,10 @@ public class AvrdudeUploader extends Uploader  {
     
     if (bootloaderPath != null) {
       if (bootloaderPath.indexOf(':') == -1) {
-        t = Base.getTarget(); // the current target (associated with the board)
+        t = Arduino.getTarget(); // the current target (associated with the board)
       } else {
         String targetName = bootloaderPath.substring(0, bootloaderPath.indexOf(':'));
-        t = Base.targetsTable.get(targetName);
+        t = Arduino.targetsTable.get(targetName);
         bootloaderPath = bootloaderPath.substring(bootloaderPath.indexOf(':') + 1);
       }
       
@@ -185,20 +185,20 @@ public class AvrdudeUploader extends Uploader  {
   public boolean avrdude(Collection params) throws RunnerException {
     List commandDownloader = new ArrayList();
       
-    if(Base.isLinux()) {
-      if ((new File(Base.getHardwarePath() + "/tools/" + "avrdude")).exists()) {
-        commandDownloader.add(Base.getHardwarePath() + "/tools/" + "avrdude");
-        commandDownloader.add("-C" + Base.getHardwarePath() + "/tools/avrdude.conf");
+    if(Arduino.isLinux()) {
+      if ((new File(Arduino.getHardwarePath() + "/tools/" + "avrdude")).exists()) {
+        commandDownloader.add(Arduino.getHardwarePath() + "/tools/" + "avrdude");
+        commandDownloader.add("-C" + Arduino.getHardwarePath() + "/tools/avrdude.conf");
       } else {
         commandDownloader.add("avrdude");
       }
     }
     else {
-      commandDownloader.add(Base.getHardwarePath() + "/tools/avr/bin/" + "avrdude");
-      commandDownloader.add("-C" + Base.getHardwarePath() + "/tools/avr/etc/avrdude.conf");
+      commandDownloader.add(Arduino.getHardwarePath() + "/tools/avr/bin/" + "avrdude");
+      commandDownloader.add("-C" + Arduino.getHardwarePath() + "/tools/avr/etc/avrdude.conf");
     }
 
-    if (verbose || Preferences.getBoolean("upload.verbose")) {
+    if (verbose || Preferences2.getBoolean("upload.verbose")) {
       commandDownloader.add("-v");
       commandDownloader.add("-v");
       commandDownloader.add("-v");
@@ -207,7 +207,7 @@ public class AvrdudeUploader extends Uploader  {
       commandDownloader.add("-q");
       commandDownloader.add("-q");
     }
-    commandDownloader.add("-p" + Base.getBoardPreferences().get("build.mcu"));
+    commandDownloader.add("-p" + Arduino.getBoardPreferences().get("build.mcu"));
     commandDownloader.addAll(params);
 
     return executeUploadCommand(commandDownloader);

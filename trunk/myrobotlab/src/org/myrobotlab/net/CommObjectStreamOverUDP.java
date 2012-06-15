@@ -35,75 +35,42 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.Communicator;
 
 public class CommObjectStreamOverUDP extends Communicator implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * A Service needs a CommunicatorManager to communicate to another service.
-	 * The manager can handle local (intra-process) communication - by using a
-	 * Service reference. Remote (inter-process) communication requires a
-	 * Communicator. There is a global (static) map of
-	 * service names to endpoints - this is maintained here.
-	 * 
-	 * A thread is create for each new connection - its basically the "ear" Here
-	 * is what basically happens 1. a request comes in for a foreign ip/port -
-	 * msg.hostname:msg.servicePort != :0 2. the global clientList is checked -
-	 * if found - the endpoint is used 3. if not found - a new connection &
-	 * thread is created 4. messages coming from the remote endpoint are
-	 * extracted with the serializer and put into the inbox for processing by
-	 * the Service 5. outbound messages are sent directly from the Service
-	 * (myService) to the endpoint
-	 */
-
 	public final static Logger log = Logger.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
-
+	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
-
-	public static HashMap<URL, Remote> clientList = new HashMap<URL, Remote>();
-
+	static public transient HashMap<URL, UDPThread> clientList = new HashMap<URL, UDPThread>();
 	Service myService = null;
 
-	InetSocketAddress remoteAddr;
-
-	static boolean isUDPListening = false;
-
-	public class Remote {
-		public transient UDPThread udp = null;
-	}
-
-	public class UDPThread extends Thread { // implements Runnable? {
+	public class UDPThread extends Thread {
+		URL url;
 		transient DatagramSocket socket = null;
-		InetAddress address = null;
-		int port = -1;
 
-		ObjectInputStream ois = null;
-		ObjectOutputStream oos = null;
+		ObjectInputStream in = null;
+		ObjectOutputStream out = null;
 
-		byte[] b = new byte[65535];
-		ByteArrayInputStream b_in = new ByteArrayInputStream(b);
-		DatagramPacket dgram = new DatagramPacket(b, b.length);
+		byte[] buffer = new byte[65535];
+		ByteArrayInputStream b_in = new ByteArrayInputStream(buffer);
+		DatagramPacket dgram = new DatagramPacket(buffer, buffer.length);
 
-		public UDPThread() {
-			super(myService.getName() + "_UDPThread");
-		}
-
-		public UDPThread(DatagramSocket s, InetAddress address, int port) {
-			this.socket = s;
-			this.address = address;
-			this.port = port;
+		public UDPThread(URL url) {
+			super("udp");
+			try {
+			this.url = url;
+				this.socket = new DatagramSocket();
+			} catch (SocketException e) {
+				Service.logException(e);
+			}
 		}
 
 		synchronized public void send(final URL url, final Message msg) throws IOException {
@@ -113,43 +80,32 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			
 			log.info("sending udp msg to " + host + ":" +port + "/" + msg.getName());
 
-			if (socket == null) {
-				socket = new DatagramSocket(); // here is a "random port"
-				if (!isUDPListening) {
-					this.start();
-				}
-			}
-
-			if (address == null) {
-				address = InetAddress.getByName(host);
-			}
-
 			try {
-
+				// FIXME - determine which can be re-used & what has to be 
+				// created/re-created new
 				ByteArrayOutputStream b_out = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(b_out);
-				oos.writeObject(msg);
-				oos.flush();
-				byte[] b = b_out.toByteArray();
+				ObjectOutputStream out = new ObjectOutputStream(b_out);
+				out.writeObject(msg);
+				out.flush();
+				byte[] buffer = b_out.toByteArray();
 
 				log.info("send " + msg.getParameterSignature());
 
-				if (b.length > 65535) {
+				if (buffer.length > 65535) {
 					log.error("udp datagram can not exceed 65535 msg size is "
-							+ b.length + " !");
+							+ buffer.length + " !");
 				}
 
-				DatagramPacket packet = new DatagramPacket(b, b.length, address, port);
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(url.getHost()), url.getPort());
 				socket.send(packet);
 
-				oos.reset();
+				out.reset();
 
 			} catch (NotSerializableException e) {
 				log.error("could not serialize [" + e.getMessage() + "]");
 			}
 		}
 
-		// "client" run / listen on a socket
 		@Override
 		public void run() {
 			try {
@@ -161,31 +117,21 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 					try {
 						socket.receive(dgram); // blocks
-						ois = new ObjectInputStream(b_in);
+						in = new ObjectInputStream(b_in);
 
-						Object o = ois.readObject();
+						Object o = in.readObject();
 
-						dgram.setLength(b.length); // must reset length field!
+						dgram.setLength(buffer.length); // must reset length field!
 						b_in.reset(); // reset so next read is from start of
 										// byte[] again
 						msg = (Message) o;
-
-						if (msg == null) {
-							log.error(myService.getName()
-											+ " UDP Datagram corrupt from "
-											+ socket.getInetAddress() + ":"
-											+ socket.getPort()
-											+ " - dumping null message ");
-							socket = null;
-							break;
-						} 
 						
 						// client's side - "I connected to a listener and it replied with registerService" 
 						if (msg.method.equals("registerServices")) 
 						{
 							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 
-							addClient(socket, dgram.getAddress(),  dgram.getPort()); 
+							//addClient(socket, dgram.getAddress(),  dgram.getPort()); 
 							continue;
 						}
 
@@ -199,8 +145,8 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				}
 
 				// closing connections TODO - why wouldn't you close the others?
-				ois.close();
-				oos.close();
+				in.close();
+				out.close();
 
 			} catch (Exception e) {
 				log.error("UDPThread threw");
@@ -224,75 +170,31 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	@Override
 	public void send(final URL url, final Message msg) {
 
-		Remote phone = null;
+		UDPThread phone = null;
 
 		try {
 
 			if (clientList.containsKey(url)) {
 				phone = clientList.get(url);
 			} else {
-				phone = new Remote();
-				phone.udp = new UDPThread();
+				phone = new UDPThread(url);
 				clientList.put(url, phone);
 			}
 
-			if (phone.udp == null) {
-				phone.udp = new UDPThread();
-			}
+			phone.send(url, msg);
 
-			phone.udp.send(url, msg);
-
-		} catch (ConfigurationManager.CFGError e) {
-			log.error("error could not find Service Entry in " + myService.getName()
-					+ " for " + msg.getName() + "/" + msg.method);
-			return;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			Service.logException(e);
-		}
-
-	}
-
-
-	// TODO - generate addClient event - so gui tabs can be refreshed or other
-	// listeners notified
-
-	public void addClient(Socket socket) {
-		log.info("adding tcp client ");
-
-		InetSocketAddress remoteAddr = (InetSocketAddress) socket
-				.getRemoteSocketAddress();
-		URL url;
-		try {
-			url = new URL("http://" + remoteAddr.getAddress().getHostAddress() + ":"
-					+ remoteAddr.getPort());
-		} catch (MalformedURLException e) {
-			Service.stackToString(e);
 			return;
-		}
-		Remote phone = new Remote();
-		clientList.put(url, phone);
+		} 
 	}
 
 	
-	public void addClient(DatagramSocket s, InetAddress address, int port) {
+	public void addClient(URL url, Object commData) {
+		log.info("adding tcp client ");
 
-		try {
-			URL url;
-			url = new URL("http://" + address.getHostAddress() + ":" + port);
-			Remote phone = new Remote();
-			phone.udp = new UDPThread(s, address, port);
-
-			if (!clientList.containsKey(url))
-			{	log.debug("adding client " + url);
-				clientList.put(url, phone);
-			}
-
-		} catch (MalformedURLException e) {
-			log.error(Service.stackToString(e));
-			return;
-		}
-
+		UDPThread phone = new UDPThread(url);
+		clientList.put(url, phone);
 	}
 
 	@Override
@@ -300,28 +202,17 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 		if (clientList != null) {
 			for (int i = 0; i < clientList.size(); ++i) {
-				Remote r = clientList.get(i);
+				UDPThread r = clientList.get(i);
 				if (r != null) {
-					r.udp.interrupt();
+					r.interrupt();
 				}
 				r = null;
 			}
 
 		}
 		clientList.clear();
-		clientList = new HashMap<URL, Remote>();
+		clientList = new HashMap<URL, UDPThread>();
 		isRunning = false;
 	}
-
-	@Override
-	public void disconnectAll() {
-		// NOOP - UDP is connectionless
-	}
-
-	@Override
-	public void setIsUDPListening(boolean set) {
-		isUDPListening = set;
-	}
-	
 
 }
