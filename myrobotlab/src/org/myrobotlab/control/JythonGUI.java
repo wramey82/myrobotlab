@@ -282,7 +282,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		sendNotifyRequest("publishState", "getState", Jython.class);
 		sendNotifyRequest("finishedExecutingScript");
 		sendNotifyRequest("publishStdOut","getStdOut", String.class);		
-		myService.send(boundServiceName, "publishState");
+		myService.send(boundServiceName, "broadcastState");
 	}
 
 	@Override
