@@ -95,9 +95,11 @@ public class GUIServiceGUI extends ServiceGUI {
 	mxGraphComponent graphComponent = null;
 	JPanel graphPanel = new JPanel();
 
-	private JButton rebuildButton = new JButton("rebuild");
-	private JButton hideRoutesButton = new JButton("hide routes");
-	private JButton showRouteLabelsButton = new JButton("show route labels");
+	JButton rebuildButton = new JButton("rebuild");
+	JButton hideRoutesButton = new JButton("hide routes");
+	JButton showRouteLabelsButton = new JButton("show route labels");
+	JButton dumpButton = new JButton("dump");
+	
 
 	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -133,6 +135,8 @@ public class GUIServiceGUI extends ServiceGUI {
 		filters.add(rebuildButton);
 		filters.add(hideRoutesButton);
 		filters.add(showRouteLabelsButton);
+		filters.add(dumpButton);
+		
 		display.add(filters, gc);
 		++gc.gridy;
 		gc.gridx = 0;
@@ -142,15 +146,10 @@ public class GUIServiceGUI extends ServiceGUI {
 		display.add(graphPanel, gc);
 		++gc.gridy;
 
-		//rebuildButton.setActionCommand("rebuild");
 		rebuildButton.addActionListener(buttonListener);
-
-		//hideRoutesButton.setActionCommand("hide routes");
 		hideRoutesButton.addActionListener(buttonListener);
-
-		//hideRoutesButton.setActionCommand("show route labels");
 		showRouteLabelsButton.addActionListener(buttonListener);
-		
+		dumpButton.addActionListener(buttonListener);		
 	}
 
 	class ButtonListener implements ActionListener {
@@ -181,6 +180,10 @@ public class GUIServiceGUI extends ServiceGUI {
 					showRouteLabels = false;
 				}
 				rebuildGraph();
+			} else if (b == dumpButton)
+			{
+				FileIO.stringToFile("serviceRegistry.txt", Runtime.dump());
+				FileIO.stringToFile("notifyEntries.xml", Runtime.dumpNotifyEntries());
 			}
 		}
 	}
@@ -431,23 +434,6 @@ public class GUIServiceGUI extends ServiceGUI {
 				// FIXME - startGUI
 
 				// Execute when button is pressed // TODO send - message
-
-			}
-
-		});
-
-		return button;
-	}
-
-	public JButton getDumpButton() {
-		JButton button = new JButton("dump");
-		button.setEnabled(true);
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				FileIO.stringToFile("dump.xml", Runtime.dumpNotifyEntries());
 
 			}
 
