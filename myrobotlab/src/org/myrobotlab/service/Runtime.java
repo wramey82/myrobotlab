@@ -1175,7 +1175,7 @@ public class Runtime extends Service {
 	
 	// ---------------- Runtime end   --------------
 	
-	public String dump()
+	public static String dump()
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append("\nhosts:\n");
