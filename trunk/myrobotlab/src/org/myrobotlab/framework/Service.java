@@ -454,11 +454,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public void stopService() {
 		isRunning = false;
+		getComm().getComm().stopService();
 		outbox.stop();
 		if (thisThread != null) {
 			thisThread.interrupt();
 		}
-		getComm().getComm().stopService();
 		thisThread = null;
 	}
 
