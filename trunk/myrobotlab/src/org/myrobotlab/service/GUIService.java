@@ -474,7 +474,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw)
 	{
 		ServiceGUI gui = null;
-//		JPanel tpanel = new JPanel();
 		ServiceInterface se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
@@ -484,19 +483,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			tabPanelMap.put(serviceName, gui.getDisplay());
 			gui.attachGUI();
 
-/*			
-			resizer.registerComponent(gui.widgetFrame);
-			resizer.registerComponent(gui.display);
-*/			
-/*			
-			List<Component> comps = getAllComponents(gui.widgetFrame);
-			for (Component comp: comps)
-			{
-				resizer.registerComponent(comp);	
-			}
-*/
-			
-//			tpanel.add(gui.getDisplay()); 
 			tabs.addTab(serviceName, gui.getDisplay());
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName));
 
