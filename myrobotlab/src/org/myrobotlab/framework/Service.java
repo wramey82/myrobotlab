@@ -834,17 +834,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	}
 
-	// TODO - refactor / remove
 	public Object invoke(Message msg) {
 
 		Object retobj = null;
 
-		log.info("***" + name + " msgid " + msg.msgID + " invoking " + msg.method + " (" + msg.getParameterSignature()
-				+ ")***");
+		log.info("invoking " + name + "." + msg.method + " (" + msg.getParameterSignature() + ") " + msg.msgID);
 
 		retobj = invoke(msg.method, msg.data);
-
-		// TODO - look for sendBlocking - then send call back obj to sender
 
 		return retobj;
 
@@ -918,8 +914,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			} else {
 				paramTypeString = "null";
 			}
-			log.debug("****invoking " + host + "/" + getClass().getCanonicalName() + "." + method + "("
-					+ paramTypeString + ")****");
+			//log.debug("invoking " + "/" + name + "." + method + "("+ paramTypeString + ")");
 		}
 
 		Object retobj = invoke(this, method, params);
