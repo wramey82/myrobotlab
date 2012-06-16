@@ -46,7 +46,7 @@ import org.myrobotlab.service.interfaces.Communicator;
 
 /***
  * 
- * @author Gro-G
+ * @author GroG
  * 
  *         This is a service which allows foreign clients to connect. It
  *         maintains a list of currently connected clients. Most of the

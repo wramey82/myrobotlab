@@ -84,8 +84,11 @@ public class GUIServiceGUI extends ServiceGUI {
 	public JLabel arrow0 = new JLabel(" ");
 	// public JLabel arrow1 = new JLabel(" ");
 	// notify structure end -------------
+	
+	ButtonListener buttonListener = new ButtonListener();
 
 	boolean showRoutes = true;
+	boolean showRouteLabels = false;
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>();
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
@@ -93,7 +96,8 @@ public class GUIServiceGUI extends ServiceGUI {
 	JPanel graphPanel = new JPanel();
 
 	private JButton rebuildButton = new JButton("rebuild");
-	private JButton showRoutesButton = new JButton("hide routes");
+	private JButton hideRoutesButton = new JButton("hide routes");
+	private JButton showRouteLabelsButton = new JButton("show route labels");
 
 	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -125,14 +129,10 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		++gc.gridx;
 		// begin graph view buttons
-		JPanel filters = new JPanel(new GridBagLayout());
-		GridBagConstraints fgc = new GridBagConstraints();
-		fgc.fill = GridBagConstraints.HORIZONTAL;
-		fgc.gridy = 0;
-		fgc.gridx = 0;
-		filters.add(rebuildButton, fgc);
-		++fgc.gridy;
-		filters.add(showRoutesButton, fgc);
+		JPanel filters = new JPanel();
+		filters.add(rebuildButton);
+		filters.add(hideRoutesButton);
+		filters.add(showRouteLabelsButton);
 		display.add(filters, gc);
 		++gc.gridy;
 		gc.gridx = 0;
@@ -142,31 +142,44 @@ public class GUIServiceGUI extends ServiceGUI {
 		display.add(graphPanel, gc);
 		++gc.gridy;
 
-		rebuildButton.setActionCommand("rebuild");
-		rebuildButton.addActionListener(new ButtonListener());
+		//rebuildButton.setActionCommand("rebuild");
+		rebuildButton.addActionListener(buttonListener);
 
-		showRoutesButton.setActionCommand("hide routes");
-		showRoutesButton.addActionListener(new ButtonListener());
+		//hideRoutesButton.setActionCommand("hide routes");
+		hideRoutesButton.addActionListener(buttonListener);
 
+		//hideRoutesButton.setActionCommand("show route labels");
+		showRouteLabelsButton.addActionListener(buttonListener);
+		
 	}
 
 	class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
-			if (cmd.equals("rebuild")) {
+			JButton b = (JButton)e.getSource();
+			if (b == rebuildButton) {
 				rebuildGraph();
-			} else if (cmd.equals("show routes")) {
-				JButton b = (JButton) e.getSource();
-				b.setText("hide routes");
-				b.setActionCommand("hide routes");
-				showRoutes = true;
+			} else if (b == hideRoutesButton) {
+				if (b.getText().equals("show routes"))
+				{
+					b.setText("hide routes");
+					showRoutes = true;
+				} else {
+					b.setText("show routes");
+					showRoutes = false;
+				}
 				rebuildGraph();
-			} else if (cmd.equals("hide routes")) {
-				JButton b = (JButton) e.getSource();
-				b.setText("show routes");
-				b.setActionCommand("show routes");
-				showRoutes = false;
+			} else if (b == showRouteLabelsButton)
+			{
+				if (b.getText().equals("show route labels"))
+				{
+					b.setText("hide route labels");
+					showRouteLabels = true;
+				} else {
+					b.setText("show route labels");
+					showRouteLabels = false;
+				}
 				rebuildGraph();
 			}
 		}
@@ -229,9 +242,7 @@ public class GUIServiceGUI extends ServiceGUI {
 				log.info(s);
 
 				mxCell m = (mxCell) services[i];
-				GUIServiceGraphVertex v = (GUIServiceGraphVertex) m.getValue();// zod
-																				// zod
-																				// zod
+				GUIServiceGraphVertex v = (GUIServiceGraphVertex) m.getValue();
 				log.info(v.name);
 				serviceCells.put(v.name, m);
 				// serviceCells.put(arg0, s.);
@@ -553,11 +564,15 @@ public class GUIServiceGUI extends ServiceGUI {
 						// methodString);
 						// graph.getChildVertices(arg0)parent.
 						// graph.getChildVertices(graph.getDefaultParent());
-/*						mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(ne.outMethod	, ne.paramTypes, ne.inMethod),
+// ROUTING LABELS						
+						if (showRouteLabels)
+						{
+							mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(ne.outMethod	, ne.paramTypes, ne.inMethod),
 								serviceCells.get(s.getName()), serviceCells.get(ne.name));
-*/								
-						mxCell c = (mxCell)graph.insertEdge(parent, null, "",
+						} else {								
+							mxCell c = (mxCell)graph.insertEdge(parent, null, "",
 								serviceCells.get(s.getName()), serviceCells.get(ne.name));
+						}
 											
 						//mxGeometry g = c.getGeometry();
 						//c.setGeometry(g);
