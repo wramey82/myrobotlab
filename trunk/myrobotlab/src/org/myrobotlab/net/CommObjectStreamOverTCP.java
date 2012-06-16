@@ -95,7 +95,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						log.error("removing url from registry");
 						Runtime.release(url);
 						log.error("removing client from clientList");
-						clientList.remove(url);
+						//clientList.remove(url);
 						log.error("shutting down thread");
 						isRunning = false;
 						log.error("attempting to close streams");
