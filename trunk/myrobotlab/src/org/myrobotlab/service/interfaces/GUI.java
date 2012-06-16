@@ -31,11 +31,9 @@ public abstract class GUI extends Service  {
 	public abstract JTabbedPane loadTabPanels();	
 	public abstract JFrame getFrame();
 	public abstract void pack();
-	//public abstract void display(); PUT IN Service class
 	
 	public abstract void undockPanel(String boundServiceName);
 
-	// for GUIServiceIn/OutMethodDialogs
 	public abstract void setPeriod0(String s);
 	public abstract void setPeriod1(String s);
 	public abstract void setArrow(String s);

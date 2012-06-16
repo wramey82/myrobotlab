@@ -76,10 +76,10 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))
 		{
 			log.debug("sending local");
-			Message m = new Message(msg); // TODO UNECESSARY - BUT TOO SCARED TO REMOVE !!
+			Message m = new Message(msg); // TODO UNECESSARY ???? Probably - BUT TOO SCARED TO REMOVE !!
 			sw.get().in(m);			
 		} else {// TODO - test for loglevel
-			log.debug( msg.sender + "." + msg.sendingMethod + "->" + 
+			log.info( msg.sender + "." + msg.sendingMethod + "->" + 
 					sw.host.accessURL + "/" + msg.name + "."+ msg.method + "(" + ((msg.data == null)?"":msg.data.length) + ")");
 			getComm().send(sw.host.accessURL, msg);			
 		}
