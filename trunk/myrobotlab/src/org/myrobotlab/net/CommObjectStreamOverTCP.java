@@ -89,6 +89,16 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					} catch (Exception e) {
 						msg = null;
 						Service.logException(e);
+						log.error(url + " connection failure - shutting down");
+						log.error("removing client from clientList");
+						clientList.remove(url);
+						log.error("shutting down thread");
+						isRunning = false;
+						log.error("attempting to close streams");
+						in.close();
+						out.close();
+						log.error("attempting to close socket");
+						socket.close();
 					}
 					if (msg == null) {
 						log.error("msg deserialized to null");
