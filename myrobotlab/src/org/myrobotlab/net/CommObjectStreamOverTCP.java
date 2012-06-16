@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.Runtime;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
@@ -90,6 +91,8 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						msg = null;
 						Service.logException(e);
 						log.error(url + " connection failure - shutting down");
+						log.error("removing url from registry");
+						Runtime.release(url);
 						log.error("removing client from clientList");
 						clientList.remove(url);
 						log.error("shutting down thread");
