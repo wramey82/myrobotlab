@@ -507,19 +507,24 @@ public class Runtime extends Service {
 		return release (null, name);
 	}
 	
-	public static boolean release(URL url, String name) //release service environment
+	public static boolean release(URL url, String name) 
 	{
 		ServiceWrapper sw = getService(url, name);
 		if (sw != null)
 		{
 			if (sw.isValid()) {
-				if (url == null) sw.get().stopService();// if its a local Service shut it down
+				if (url == null)
+				{
+					sw.get().stopService();// if its a local Service shut it down
+				}
 				registry.remove(name);
 				ServiceEnvironment se = hosts.get(url);
 				INSTANCE.invoke("released", se.serviceDirectory.get(name));
 				se.serviceDirectory.remove(name);				
 				return true;
 			}
+		} else {
+			log.error("no service wrapper for " + url + " " + name);
 		}
 		return false;
 	}

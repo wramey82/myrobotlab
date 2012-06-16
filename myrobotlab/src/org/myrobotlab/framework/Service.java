@@ -985,29 +985,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (params == null && pType.length != 0 || pType.length != params.length) {
 					continue;
 				}
-
-				/*
-				 * skip this attempt of type checking - can't get it to work -
-				 * does it matter? // checking if we can match or upcast on each
-				 * parameter for (int i=0; i < pType.length; ++i) { //if
-				 * (params[i].getClass().isAssignableFrom(pType[i].getClass()))
-				 * //if
-				 * (pType[i].getClass().isAssignableFrom(params[i].getClass()))
-				 * log.info(pType[i].getClass().getClass().getCanonicalName());
-				 * log.info(pType[i].getClass().getCanonicalName());
-				 * log.info(params[i].getClass().getCanonicalName());
-				 * 
-				 * if
-				 * (pType[i].getClass().isAssignableFrom(pType[i].getClass())) {
-				 * //m.setAccessible(true); - leave private alone //invoke it -
-				 * we are done, whew! try { retobj = m.invoke(object, params);
-				 * return retobj; } catch (Exception e1) {
-				 * Service.logException(e1); }
-				 * 
-				 * }
-				 * 
-				 * }
-				 */
+				
 				try {
 					log.debug("found appropriate method");
 					retobj = m.invoke(object, params);
