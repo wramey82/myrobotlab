@@ -513,7 +513,7 @@ public class Runtime extends Service {
 		if (sw != null)
 		{
 			if (sw.isValid()) {
-				sw.get().stopService(); //FIXME send message to stop ??? wait for callback?
+				if (url == null) sw.get().stopService();// if its a local Service shut it down
 				registry.remove(name);
 				ServiceEnvironment se = hosts.get(url);
 				INSTANCE.invoke("released", se.serviceDirectory.get(name));
