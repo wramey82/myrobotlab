@@ -88,6 +88,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						Object o = in.readObject();
 						msg = (Message) o;
 					} catch (Exception e) {
+						Service.logException(e);
 						msg = null;
 						Service.logException(e);
 						log.error(url + " connection failure - shutting down");
