@@ -507,7 +507,6 @@ public class Runtime extends Service {
 		return release (null, name);
 	}
 	
-	// FIXME - can only release local services
 	public static boolean release(URL url, String name) //release service environment
 	{
 		ServiceWrapper sw = getService(url, name);
