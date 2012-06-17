@@ -458,9 +458,9 @@ public class RemoteAdapter extends Service {
 		Jython jython = new Jython("jython0");
 		jython.startService();
 		
-		GUIService gui = new GUIService("gui0");
-		gui.startService();
-		gui.display();
+//		GUIService gui = new GUIService("gui0");
+//		gui.startService();
+//		gui.display();
 	
 					
 	}
