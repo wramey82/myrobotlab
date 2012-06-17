@@ -55,6 +55,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.logging.*;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
@@ -121,23 +122,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
 
-	// logging
-	public final static String LOG_LEVEL_DEBUG = "DEBUG";
-	public final static String LOG_LEVEL_INFO = "INFO";
-	public final static String LOG_LEVEL_WARN = "WARN";
-	public final static String LOG_LEVEL_ERROR = "ERROR";
-	public final static String LOG_LEVEL_FATAL = "FATAL";
-	public final static String LOGGING_APPENDER_NONE = "none";
-	public final static String LOGGING_APPENDER_CONSOLE = "console";
-	public final static String LOGGING_APPENDER_CONSOLE_GUI = "console gui";
-	public final static String LOGGING_APPENDER_ROLLING_FILE = "file";
-	public final static String LOGGING_APPENDER_SOCKET = "remote";
-
+	public static HashMap <String, Long> timerMap = null;
+	
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
-	protected static String cfgDir = System.getProperty("user.dir") + File.separator + ".myrobotlab";
+	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir") + File.separator);
 	private static boolean hostInitialized = false;
-
+	
+	/**
+	 * 
+	 */
 	abstract public String getToolTip();
 
 	/**
@@ -158,14 +152,29 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param instanceName
+	 * @param serviceClass
+	 */
 	public Service(String instanceName, String serviceClass) {
 		this(instanceName, serviceClass, null);
 	}
 
-	public String getName() {
+	/**
+	 * 
+	 */
+	public String getName()
+	{
 		return name;
 	}
 
+	/**
+	 * 
+	 * @param instanceName
+	 * @param serviceClass
+	 * @param inHost
+	 */
 	public Service(String instanceName, String serviceClass, String inHost) {
 
 		// if I'm not a Runtime - then
@@ -179,7 +188,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				url = new URL(inHost); // TODO - initialize once
 										// RuntimeEnvironment
 			} catch (MalformedURLException e) {
-				log.error(inHost + " not a valid URL");
+				log.error(String.format("%1$s not a valid URL", inHost));
 			}
 		}
 		// determine host name
@@ -210,43 +219,53 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		loadDefaultConfiguration();
 
 		// over-ride service level with service file
-		cfg.load(host + "." + name + ".properties");
+		cfg.load(String.format("%1$s.%2$s.properties", host, name));
 
 		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);
 
 		registerServices();// FIXME - deprecate - remove !
 		registerLocalService(url);
-
 	}
-
-	public static void initialize() {
+	
+	/**
+	 * 
+	 */
+	public static synchronized void initialize()
+	{		
 		// ;.\libraries\x86\32\windows
 		System.setProperty("java.library.path",
-				System.getProperty("java.library.path") + File.pathSeparator + "libraries" + File.separator + "native"
-						+ File.separator + Platform.getArch() + "." + Platform.getBitness() + "." + Platform.getOS());
-
+				String.format("%1$s%2$slibraries%3$snative%4$s%5$s.%6$s.%7$s",
+					System.getProperty("java.library.path"),
+					File.pathSeparator,
+					File.separator,
+					File.separator,
+					Platform.getArch(),
+					Platform.getBitness(),
+					Platform.getOS())
+				);
+		
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
 
-		// cfgDir = userDir + File.separator + ".myrobotlab";
-
+		String vmName = System.getProperty("java.vm.name");
+		// TODO this should be a single log statement
 		// http://developer.android.com/reference/java/lang/System.html
 		log.info("---------------normalize-------------------");
-		log.info("os.name [" + System.getProperty("os.name") + "] getOS [" + Platform.getOS() + "]");
-		log.info("os.arch [" + System.getProperty("os.arch") + "] getArch [" + Platform.getArch() + "]");
-		log.info("getBitness [" + Platform.getBitness() + "]");
-		log.info("java.vm.name [" + System.getProperty("java.vm.name") + "] getArch [" + Platform.getVMName() + "]");
-
-		log.info("---------------non-normalize---------------");
-		log.info("java.vm.name [" + System.getProperty("java.vm.name") + "]");
-		log.info("java.vm.vendor [" + System.getProperty("java.vm.vendor") + "]");
-		log.info("java.home [" + System.getProperty("java.home") + "]");
-		log.info("os.version [" + System.getProperty("os.version") + "]");
-		log.info("java.class.path [" + System.getProperty("java.class.path") + "]");
-		log.info("java.library.path [" + libararyPath + "]");
-		log.info("user.dir [" + userDir + "]");
-
+		log.info(String.format("os.name [%1$s] getOS [%2$s]", System.getProperty("os.name"), Platform.getOS()));
+		log.info(String.format("os.arch [%1$s] getArch [%2$s]", System.getProperty("os.arch"), Platform.getArch()));
+		log.info(String.format("getBitness [%1$d]", Platform.getBitness()));
+		log.info(String.format("java.vm.name [%1$s] getVMName [%2$s]", vmName, Platform.getVMName()));
+					
+		log.info("---------------non-normalize---------------");						
+		log.info(String.format("java.vm.name [%1$s]", vmName));
+		log.info(String.format("java.vm.vendor [%1$s]", System.getProperty("java.vm.vendor")));
+		log.info(String.format("java.home [%1$s]", System.getProperty("java.home")));
+		log.info(String.format("os.version [%1$s]", System.getProperty("os.version")));
+		log.info(String.format("java.class.path [%1$s]", System.getProperty("java.class.path")));
+		log.info(String.format("java.library.path [%1$s]", libararyPath));
+		log.info(String.format("user.dir [%1$s]", userDir));
+		
 		// load root level configuration
 		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
 		// deprecate
@@ -255,46 +274,63 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		// create local configuration directory
 		new File(cfgDir).mkdir();
-
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isRunning() {
 		return isRunning;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isReady() {
 		return true;
 	}
 
-	public void logTime(String tag) {
+	/**
+	 * 
+	 * @param tag
+	 */
+	public void logTime(String tag) 
+	{
 		if (startTimeMilliseconds == 0) {
 			startTimeMilliseconds = System.currentTimeMillis();
 		}
 		if (performanceTiming) {
-			log.error("performance clock :" + (System.currentTimeMillis() - startTimeMilliseconds + " ms " + tag));
+			log.error(String.format("performance clock :%1$d ms %2$s", System.currentTimeMillis() - startTimeMilliseconds, tag));
 		}
 	}
 
-	public static HashMap<String, Long> timerMap = null;
-
-	static public void logTime(String timerName, String tag) {
-		if (timerMap == null) {
-			timerMap = new HashMap<String, Long>();
+	/**
+	 * 
+	 * @param timerName
+	 * @param tag
+	 */
+	static public void logTime (String timerName, String tag)
+	{
+		if (timerMap == null)
+		{
+			timerMap = new HashMap <String, Long>();
 		}
 
 		if (!timerMap.containsKey(timerName) || "start".equals(tag)) {
 			timerMap.put(timerName, System.currentTimeMillis());
 		}
-
-		StringBuffer sb = new StringBuffer(40);
-		sb.append("timer ");
-		sb.append(timerName);
-		sb.append(" ");
-		sb.append(System.currentTimeMillis() - timerMap.get(timerName));
-		sb.append(" ms ");
-		sb.append(tag);
-
-		log.error(sb);
+		
+		StringBuffer sb = new StringBuffer(40)
+			.append("timer ")
+			.append(timerName)
+			.append(" ")
+			.append(System.currentTimeMillis() - timerMap.get(timerName))
+			.append(" ms ")
+			.append(tag);
+		
+		log.error(sb);		
 	}
 
 	/**
@@ -304,7 +340,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Serializer serializer = new Persister();
 
 		try {
-			File cfg = new File(cfgDir + File.separator + this.getName() + ".xml");
+			File cfg = new File(String.format("%1$s%2$s%3$s.xml", cfgDir, File.separator, this.getName()));
 			serializer.write(this, cfg);
 		} catch (Exception e) {
 			Service.logException(e);
@@ -313,11 +349,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return true;
 	}
 
-	public boolean save(Object o, String cfgFileName) {
+	/**
+	 * 
+	 * @param o
+	 * @param cfgFileName
+	 * @return
+	 */
+	public boolean save(Object o, String cfgFileName)
+	{
 		Serializer serializer = new Persister();
 
 		try {
-			File cfg = new File(cfgDir + File.separator + cfgFileName);
+			File cfg = new File(String.format("%1$s%2$s%3$s", cfgDir, File.separator, cfgFileName));
 			serializer.write(o, cfg);
 		} catch (Exception e) {
 			Service.logException(e);
@@ -325,12 +368,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 		return true;
 	}
-
-	public boolean save(String cfgFileName, String data) {
+	
+	/**
+	 * 
+	 * @param cfgFileName
+	 * @param data
+	 * @return
+	 */
+	public boolean save(String cfgFileName, String data)
+	{
 		// saves user data in the .myrobotlab directory
 		// with the file naming convention of name.<cfgFileName>
 		try {
-			FileIO.stringToFile(cfgDir + File.separator + this.getName() + "." + cfgFileName, data);
+			FileIO.stringToFile(String.format("%1$s%2$s%3$s.%4$s", cfgDir, File.separator, this.getName(), cfgFileName), data);
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
@@ -344,13 +394,21 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public boolean load() {
 		return load(null, null);
 	}
-
-	public boolean load(Object o, String inCfgFileName) {
+	
+	/**
+	 * 
+	 * @param o
+	 * @param inCfgFileName
+	 * @return
+	 */
+	public boolean load(Object o, String inCfgFileName)
+	{	
 		String filename = null;
-		if (inCfgFileName == null) {
-			filename = cfgDir + File.separator + this.getName() + ".xml";
+		if (inCfgFileName == null)
+		{
+			filename = String.format("%s%s%s.xml", cfgDir, File.separator, this.getName(), ".xml");
 		} else {
-			filename = cfgDir + File.separator + inCfgFileName;
+			filename = String.format("%s%s%s", cfgDir, File.separator, inCfgFileName);
 		}
 		if (o == null) {
 			o = this;
@@ -360,14 +418,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			File cfg = new File(filename);
 			if (cfg.exists()) {
 				serializer.read(o, cfg);
-			} else {
-				log.info("cfg file " + filename + " does not exist");
+				return true;
 			}
+			log.info(String.format("cfg file %1$s does not exist", filename));
 		} catch (Exception e) {
 			Service.logException(e);
-			return false;
 		}
-		return true;
+		return false;
 	}
 
 	/*
@@ -517,8 +574,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 				Object ret = invoke(m);
 				if (Message.BLOCKING.equals(m.status)) {
-					// create new message reverse sender and name
-					// set to same msg id
+					// create new message reverse sender and name set to same msg id
 					Message msg = createMessage(m.sender, m.method, ret);
 					msg.sender = this.getName();
 					msg.msgID = m.msgID;
@@ -530,48 +586,24 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 			}
 		} catch (InterruptedException e) {
+			isRunning = false;
 			if (thisThread != null) {
 				log.warn(thisThread.getName());
 			}
 			log.warn("service INTERRUPTED ");
-			isRunning = false;
 		}
 	}
 
-	/*
-	 * process a message - typically it will either invoke a function directly
-	 * or invoke a function and create a return msg with return data
-	 */
-	/*
-	 * Depricated with Hooks public void process(Message m) { Object ret =
-	 * invoke(m); if (m.status.compareTo(Message.BLOCKING) == 0) { // create new
-	 * message reverse sender and name // set to same msg id Message msg =
-	 * createMessage(m.sender, m.method, ret); msg.sender = this.getName();
-	 * msg.msgID = m.msgID; // msg.status = Message.BLOCKING; msg.status =
-	 * Message.RETURN;
-	 * 
-	 * // Thread.sleep(arg0) outbox.add(msg);
-	 * 
-	 * } }
-	 */
-
-	/*
-	 * Service.out - all data sent - get put into messages here
-	 */
-
-	/*
-	 * public void out(Object o) { Message m = Operator.createMessage(o);
-	 * switchboard.out(m); }
-	 */
-
-	/*
-	 * out(String method, Object o) creating a message function call - without
-	 * specificing the recipients - static routes will be applied this is good
+	/**
+	 * Creating a message function call - without
+	 * specifying the recipients - static routes will be applied this is good
 	 * for Motor drivers - you can swap motor drivers by creating a different
 	 * static route The motor is not "Aware" of the driver - only that it wants
 	 * to method="write" data to the driver
+	 * 
+	 * @param method
+	 * @param o
 	 */
-
 	public void out(String method, Object o) {
 		Message m = createMessage("", method, o); // create a un-named message
 													// as output
@@ -585,14 +617,26 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		outbox.add(m);
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 */
 	public void out(Message msg) {
 		outbox.add(msg);
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 */
 	public void in(Message msg) {
 		inbox.add(msg);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getIntanceName() {
 		return name;
 	}
@@ -607,6 +651,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// TODO - without class specific parameters it will get "the real class"
 	// regardless of casting
 
+	/**
+	 * 
+	 * @param classname
+	 * @return
+	 */
 	static public Object getNewInstance(String classname) {
 		Class<?> c;
 		try {
@@ -622,7 +671,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return null;
 	}
 
-	// Used by CommunicationManager to get new instances of Communicators
+	/**
+	 * Used by CommunicationManager to get new instances of Communicators 
+	 * @param classname
+	 * @param service
+	 * @return
+	 */
 	static public Object getNewInstance(String classname, Service service) {
 		Class<?> c;
 		try {
@@ -647,6 +701,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param classname
+	 * @param param
+	 * @return
+	 */
 	static public Object getNewInstance(String classname, String param) {
 		Object params[] = null;
 		if (param != null) {
@@ -667,6 +727,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// TODO - make this the custom call
+	/**
+	 * 
+	 * @param classname
+	 * @param param
+	 * @return
+	 */
 	static public Object getNewInstance(String classname, Object[] param) {
 		Class<?> c;
 		try {
@@ -697,106 +763,176 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return null;
 	}
 
-	/*
-	 * notify notify list is list of outbound The purpose of this function is to
-	 * join two named endpoints an out and an in out : outname-rettype=paramtype
-	 * -> namedInstance, method, paramtype in : TODO - define Broadcast messages
-	 * - and Type Joined messages
-	 */
-	/*
-	 * public void notify(NotifyEntry ne) { // TODO - this would have to change
-	 * if signature was used if
-	 * (outbox.notifyList.containsKey(ne.outMethod_.toString())) {
-	 * outbox.notifyList.get(ne.outMethod_.toString()).add(ne); } else {
-	 * ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>(); nel.add(ne);
-	 * outbox.notifyList.put(ne.outMethod_.toString(), nel); } }
-	 */
 	// parameterType is not used for any critical look-up - but can be used at
 	// runtime check to
 	// check parameter mating
 
-	// this is called from video widget sendNotifyRequest
-	public void notify(NotifyEntry ne) {
+	/**
+	 * this is called from video widget sendNotifyRequest 
+	 * @param ne
+	 */
+	public void notify(NotifyEntry ne)	 
+	{
 		if (outbox.notifyList.containsKey(ne.outMethod.toString())) {
 			// iterate through all looking for duplicate
 			boolean found = false;
 			ArrayList<NotifyEntry> nes = outbox.notifyList.get(ne.outMethod.toString());
 			for (int i = 0; i < nes.size(); ++i) {
 				NotifyEntry entry = nes.get(i);
-				if (entry.equals(ne)) {
-					log.warn("attempting to add duplicate NotifyEntry " + ne);
+				if (entry.equals(ne))
+				{
+					log.warn(String.format("attempting to add duplicate NotifyEntry %1$s", ne));
 					found = true;
 					break;
 				}
 			}
-			if (!found) {
-				log.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "."
-						+ ne.inMethod);
+			if (!found)
+			{
+				log.info(String.format("adding notify from %1$s.%2$s to %3$s.%4$s", this.getName(), ne.outMethod, ne.name, ne.inMethod));
 				nes.add(ne);
 			}
 		} else {
 			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
 			nel.add(ne);
-			log.info("adding notify from " + this.getName() + "." + ne.outMethod + " to " + ne.name + "." + ne.inMethod);
+			log.info(String.format("adding notify from %1$s%2$s to %3$s.%4$s", this.getName(), ne.outMethod, ne.name, ne.inMethod));
 			outbox.notifyList.put(ne.outMethod.toString(), nel);
 		}
 
 	}
-
-	public void notify(String outMethod, String namedInstance, String inMethod, Class<?>[] paramTypes) {
+	
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 * @param paramTypes
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod,
+			Class<?>[] paramTypes)	 
+	{
 		NotifyEntry ne = new NotifyEntry(outMethod, namedInstance, inMethod, paramTypes);
 		notify(ne);
 	}
 
 	// FIXME - wrong way to do boxing use ...
-
+	/**
+	 * 
+	 * @param name
+	 * @param outAndInMethod
+	 */
 	public void notify(String name, String outAndInMethod) {
 		notify(outAndInMethod, name, outAndInMethod, (Class<?>[]) null);
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param outAndInMethod
+	 * @param parameterType
+	 */
 	public void notify(String name, String outAndInMethod, Class<?> parameterType) {
 		notify(outAndInMethod, name, outAndInMethod, new Class[] { parameterType });
 	}
-
+	
+	/**
+	 * 
+	 * @param name
+	 * @param outAndInMethod
+	 * @param parameterTypes
+	 */
 	public void notify(String name, String outAndInMethod, Class<?>[] parameterTypes) {
 		notify(outAndInMethod, name, outAndInMethod, parameterTypes);
 	}
 
 	// convenience boxing functions
-	public void notify(String outMethod, String namedInstance, String inMethod) {
-
-		notify(outMethod, namedInstance, inMethod, (Class[]) null);
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod) 
+	{
+		notify(outMethod, namedInstance, inMethod, (Class[])null);
 	}
 
-	public void notify(String outMethod, String namedInstance, String inMethod, Class<?> parameterType1) {
-
-		notify(outMethod, namedInstance, inMethod, new Class[] { parameterType1 });
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 * @param parameterType1
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod,
+			Class<?> parameterType1) {
+		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1} );
 	}
 
-	public void notify(String outMethod, String namedInstance, String inMethod, Class<?> parameterType1,
-			Class<?> parameterType2) {
-
-		notify(outMethod, namedInstance, inMethod, new Class[] { parameterType1, parameterType2 });
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 * @param parameterType1
+	 * @param parameterType2
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod,
+			Class<?> parameterType1, Class<?> parameterType2) {
+		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2} );
 	}
 
-	public void notify(String outMethod, String namedInstance, String inMethod, Class<?> parameterType1,
-			Class<?> parameterType2, Class<?> parameterType3) {
-		notify(outMethod, namedInstance, inMethod, new Class[] { parameterType1, parameterType2, parameterType3 });
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 * @param parameterType1
+	 * @param parameterType2
+	 * @param parameterType3
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod,
+			Class<?> parameterType1, Class<?> parameterType2, Class<?> parameterType3) {
+		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3} );
 	}
 
-	public void notify(String outMethod, String namedInstance, String inMethod, Class<?> parameterType1,
-			Class<?> parameterType2, Class<?> parameterType3, Class<?> parameterType4) {
-		notify(outMethod, namedInstance, inMethod, new Class[] { parameterType1, parameterType2, parameterType3,
-				parameterType4 });
+	/**
+	 * 
+	 * @param outMethod
+	 * @param namedInstance
+	 * @param inMethod
+	 * @param parameterType1
+	 * @param parameterType2
+	 * @param parameterType3
+	 * @param parameterType4
+	 */
+	public void notify(String outMethod, String namedInstance, String inMethod,
+			Class<?> parameterType1, Class<?> parameterType2,
+			Class<?> parameterType3, Class<?> parameterType4) {
+			notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3, parameterType4} );
 	}
 
 	// TODO - change to addListener and removeListener
-	public void removeNotify(String serviceName, String inOutMethod) {
-		removeNotify(inOutMethod, serviceName, inOutMethod, (Class[]) null);
+	/**
+	 * 
+	 * @param serviceName
+	 * @param inOutMethod
+	 */
+	public void removeNotify(String serviceName,
+			String inOutMethod) 
+	{
+		removeNotify(inOutMethod, serviceName, inOutMethod, (Class[])null);
 	}
-
-	public void removeNotify(String outMethod, String serviceName, String inMethod, Class<?>[] paramTypes) {
-
+	
+	/**
+	 * 
+	 * @param outMethod
+	 * @param serviceName
+	 * @param inMethod
+	 * @param paramTypes
+	 */
+	public void removeNotify(String outMethod, String serviceName,
+			String inMethod, Class<?>[] paramTypes) 
+	{
 		if (outbox.notifyList.containsKey(outMethod)) {
 			ArrayList<NotifyEntry> nel = outbox.notifyList.get(outMethod);
 			for (int i = 0; i < nel.size(); ++i) {
@@ -806,44 +942,62 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 		} else {
-			log.error("removeNotify requested " + serviceName + "." + outMethod + " to be removed - but does not exist");
-		}
-
+			log.error(String.format("removeNotify requested %1$s.%2$s to be removed - but does not exist", serviceName, outMethod));
+		}		
+	}
+	
+	/**
+	 * 
+	 * @param outMethod
+	 * @param serviceName
+	 * @param inMethod
+	 * @param paramTypes
+	 */
+	public void removeNotify(String outMethod, String serviceName,
+			String inMethod, Class<?> paramTypes)
+	{
+		// TODO is this needed?
 	}
 
-	public void removeNotify(String outMethod, String serviceName, String inMethod, Class<?> paramTypes) {
-
-	}
-
+	/**
+	 * 
+	 */
 	public void removeNotify() {
 		outbox.notifyList.clear();
 	}
 
+	/**
+	 * 
+	 * @param ne
+	 */
 	public void removeNotify(NotifyEntry ne) {
-		if (outbox.notifyList.containsKey(ne.outMethod.toString())) {
-			ArrayList<NotifyEntry> nel = outbox.notifyList.get(ne.outMethod.toString());
-			for (int i = 0; i < nel.size(); ++i) {
-				NotifyEntry target = nel.get(i);
-				if (target.name.compareTo(ne.name) == 0) {
-					nel.remove(i);
-				}
-			}
-		} else {
-			log.error("removeNotify requested " + ne + " to be removed - but does not exist");
+		if (!outbox.notifyList.containsKey(ne.outMethod.toString())) {
+			log.error(String.format("removeNotify requested %1$s to be removed - but does not exist", ne));
+			return;
 		}
-
+		ArrayList<NotifyEntry> nel = outbox.notifyList.get(ne.outMethod.toString());
+		for (int i = 0; i < nel.size(); ++i) {
+			NotifyEntry target = nel.get(i);
+			if (target.name.compareTo(ne.name) == 0) {
+				nel.remove(i);
+			}
+		}
 	}
 
+	// TODO - refactor / remove
+	/**
+	 * 
+	 * @param msg
+	 * @return
+	 */
 	public Object invoke(Message msg) {
-
 		Object retobj = null;
 
-		log.info("invoking " + name + "." + msg.method + " (" + msg.getParameterSignature() + ") " + msg.msgID);
+		log.info(String.format("***%1$s msgid %2$s invoking %3$s (%4$s)***", name, msg.msgID, msg.method, msg.getParameterSignature()));
 
 		retobj = invoke(msg.method, msg.data);
 
 		return retobj;
-
 	}
 
 	/*
@@ -859,6 +1013,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return invoke(method, null);
 	}
 
+	/**
+	 * 
+	 * @param method
+	 * @param param
+	 * @return
+	 */
 	public Object invoke(String method, Object param) {
 		if (param != null) {
 			Object[] params = new Object[1];
@@ -869,7 +1029,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
-	// convenience reflection methods 2 parameters
+	/**
+	 * convenience reflection methods 2 parameters 
+	 * @param method
+	 * @param param1
+	 * @param param2
+	 * @return
+	 */
 	public Object invoke(String method, Object param1, Object param2) {
 		Object[] params = new Object[2];
 		params[0] = param1;
@@ -878,8 +1044,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return invoke(method, params);
 	}
 
-	// convenience reflection methods 3 parameters
-	public Object invoke(String method, Object param1, Object param2, Object param3) {
+	/**
+	 * convenience reflection methods 3 parameters 
+	 * @param method
+	 * @param param1
+	 * @param param2
+	 * @param param3
+	 * @return
+	 */
+	public Object invoke(String method, Object param1, Object param2,
+			Object param3) {
 		Object[] params = new Object[3];
 		params[0] = param1;
 		params[1] = param2;
@@ -888,8 +1062,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return invoke(method, params);
 	}
 
-	// convenience reflection methods 4 parameters
-	public Object invoke(String method, Object param1, Object param2, Object param3, Object param4) {
+	/**
+	 * convenience reflection methods 4 parameters
+	 * @param method
+	 * @param param1
+	 * @param param2
+	 * @param param3
+	 * @param param4
+	 * @return
+	 */
+	public Object invoke(String method, Object param1, Object param2,
+			Object param3, Object param4) {
 		Object[] params = new Object[3];
 		params[0] = param1;
 		params[1] = param2;
@@ -899,68 +1082,70 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return invoke(method, params);
 	}
 
-	/* invoke in the context of a Service */
-	public Object invoke(String method, Object[] params) {
+	/**
+	 * invoke in the context of a Service	
+	 * @param method
+	 * @param params
+	 * @return
+	 */
+	public Object invoke(String method, Object[] params) 
+	{
 		// log invoking call
 		if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
-			String paramTypeString = "";
+			StringBuilder paramTypeString = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; ++i) {
-					paramTypeString += params[i].getClass().getCanonicalName();
+					paramTypeString.append(params[i].getClass().getCanonicalName());
 					if (params.length != i + 1) {
-						paramTypeString += ",";
+						paramTypeString.append(",");
 					}
 				}
 			} else {
-				paramTypeString = "null";
+				paramTypeString.append("null");
 			}
-			//log.debug("invoking " + "/" + name + "." + method + "("+ paramTypeString + ")");
+			log.debug(String.format("****invoking %1$s/%2$s.%3$s(%4$s)****", host, getClass().getCanonicalName(), method, paramTypeString));
 		}
-
 		Object retobj = invoke(this, method, params);
-
 		return retobj;
 	}
 
-	/* general static base invoke */
-	final public Object invoke(Object object, String method, Object params[]) {
-
+	/**
+	 * general static base invoke
+	 * @param object
+	 * @param method
+	 * @param params
+	 * @return
+	 */
+	final public Object invoke(Object object, String method, Object params[]) 
+	{
 		Object retobj = null;
 		Class<?> c;
 		c = object.getClass();
 
-		try {
-			// c = Class.forName(classname); // TODO - test if cached references
-			// are faster than lookup
+		// c = Class.forName(classname); // TODO - test if cached references
+		// are faster than lookup
 
-			Class<?>[] paramTypes = null;
-			if (params != null) {
-				paramTypes = new Class[params.length];
-				for (int i = 0; i < params.length; ++i) {
-					if (params[i] != null) {
-						paramTypes[i] = params[i].getClass();
-					} else {
-						paramTypes[i] = null;
-					}
+		Class<?>[] paramTypes = null;
+		if (params != null) {
+			paramTypes = new Class[params.length]; 
+			for (int i = 0; i < params.length; ++i) {
+				if (params[i] != null) {
+					paramTypes[i] = params[i].getClass();
+				} else {
+					paramTypes[i] = null;
 				}
 			}
-			/*
-			 * else { // null treated as empty array paramTypes = new
-			 * Class<?>[0]; // no params }
-			 */
-
+		}
+		Method meth = null;
+		try {
 			// TODO - method cache map
-
-			Method meth = c.getMethod(method, paramTypes); // getDeclaredMethod
-															// zod !!!
-
+			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
 			retobj = meth.invoke(object, params);
 
 			// put return object onEvent
 			out(method, retobj);
-
 		} catch (NoSuchMethodException e) {
-			log.warn(c.getCanonicalName() + "#" + method + " NoSuchMethodException - attempting upcasting");
+			log.warn(String.format("%1$s#%2$s NoSuchMethodException - attempting upcasting", c.getCanonicalName(), method));
 
 			// search for possible upcasting methods
 			// scary ! resolution rules are undefined - first "found" first
@@ -972,7 +1157,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// TODO - optimize "setState" function since it is a framework
 			// method - do not go through the search !
 			Method[] allMethods = c.getMethods(); // ouch
-			log.warn("ouch! need to search through " + allMethods.length + " methods");
+			log.warn(String.format("ouch! need to search through %1$d methods", allMethods.length));
 
 			for (Method m : allMethods) {
 				String mname = m.getName();
@@ -986,30 +1171,38 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					continue;
 				}
 				
-				try {
-					log.debug("found appropriate method");
-					retobj = m.invoke(object, params);
+		 		Type[] pType = m.getGenericParameterTypes();
+		 		// checking parameter lengths
+		 		if (params == null && pType.length != 0 || pType.length != params.length)
+		 		{
+		 			continue;
+		 		}
+		 		try {
+		 			log.debug("found appropriate method");
+		 			retobj = m.invoke(object, params);
 
-					// put return object onEvent
+		 			// put return object onEvent
 					out(method, retobj);
 					return retobj;
 				} catch (Exception e1) {
-					log.error("boom goes method " + m.getName());
+					log.error(String.format("boom goes method %1$s", m.getName()));
 					Service.logException(e1);
 				}
-			}
-
-			log.error("did not find method [" + method + "] with " + ((params == null) ? "()" : params.length)
-					+ " params");
-
+			} 
+		    
+		    log.error(String.format("did not find method [%1$s] with %2$s params", method, ((params==null)?"()":params.length)));
 		} catch (Exception e) {
 			Service.logException(e);
 		}
 
 		return retobj;
-
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public Message getMsg() throws InterruptedException {
 		return inbox.getMsg();
 	}
@@ -1019,8 +1212,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * parameters and invokes that method at its destination.
 	 */
 
-	// this send forces remote connect - for registering services
-	public void send(URL url, String method, Object param1) {
+	
+	/**
+	 * this send forces remote connect - for registering services	
+	 * @param url
+	 * @param method
+	 * @param param1
+	 */
+	public void send(URL url, String method, Object param1)
+	{
 		Object[] params = new Object[1];
 		params[0] = param1;
 		Message msg = createMessage(name, method, params);
@@ -1029,14 +1229,23 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	// BOXING - BEGIN --------------------------------------
 
-	// 0?
+	/**
+	 * 0?
+	 * @param name
+	 * @param method
+	 */
 	public void send(String name, String method) {
 		Message msg = createMessage(name, method, null);
 		msg.sender = this.getName();
 		outbox.add(msg);
 	}
 
-	// boxing - the right way - thank you Java 5
+	/**
+	 * boxing - the right way - thank you Java 5
+	 * @param name
+	 * @param method
+	 * @param data
+	 */
 	public void send(String name, String method, Object... data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
@@ -1048,7 +1257,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// BOXING - End --------------------------------------
-
+	
+	/**
+	 * 
+	 * @param name
+	 * @param method
+	 * @param data
+	 * @return
+	 */
 	public Object sendBlocking(String name, String method, Object[] data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
@@ -1076,19 +1292,30 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	// TODO - remove or reconcile - RemoteAdapter and Service are the only ones
 	// using this
+	/**
+	 * 
+	 * @param name
+	 * @param method
+	 * @param data
+	 * @return
+	 */
 	public Message createMessage(String name, String method, Object data) {
-		if (data != null) {
-			Object[] d = new Object[1];
-			d[0] = data;
-			return createMessage(name, method, d);
-
-		} else {
+		if (data == null) {
 			return createMessage(name, method, null);
 		}
-
+		Object[] d = new Object[1];
+		d[0] = data;
+		return createMessage(name, method, d);
 	}
 
 	// master TODO - Probably simplyfy to take array of object
+	/**
+	 * 
+	 * @param name
+	 * @param method
+	 * @param data
+	 * @return
+	 */
 	public Message createMessage(String name, String method, Object[] data) {
 		Message msg = new Message(); // TODO- optimization - have a contructor
 										// for all parameters
@@ -1098,52 +1325,74 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 		formatter.setCalendar(cal);
 
-		msg.sender = this.getName();
 		if (msg.msgID == null) {
 			msg.msgID = formatter.format(d);
 		}
-		msg.timeStamp = formatter.format(d);
 		if (name != null) {
 			msg.name = name; // destination instance name
 		}
+		msg.sender = this.getName();
+		msg.timeStamp = formatter.format(d);
 		msg.data = data;
 		msg.method = method;
 
-/*		
-		if (msg.getName().length() == 0) {
-			log.debug("create message " + url + "/" + msg.method + "#" + msg.getParameterSignature());
-		} else {
-			log.debug("create message " + url + "/" + msg.getName() + "/" + msg.method + "#"
-					+ msg.getParameterSignature());
-		}
-*/		
+		log.debug(String.format("create message %1$s/%2$s/%3$s#%4$s", host, msg.getName().length() == 0 ? "*" : msg.getName(), msg.method, msg.getParameterSignature()));
 		return msg;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Inbox getInbox() {
 		return inbox;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Outbox getOutbox() {
 		return outbox;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Thread getThisThread() {
 		return thisThread;
 	}
 
+	/**
+	 * 
+	 * @param thisThread
+	 */
 	public void setThisThread(Thread thisThread) {
 		this.thisThread = thisThread;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getHost() {
 		return host;
 	}
 
+	/**
+	 * 
+	 * @param host
+	 */
 	public void setHost(String host) {
 		this.host = host;
 	}
 
+	/**
+	 * 
+	 * @param inHost
+	 * @return
+	 */
 	public static String getHostName(final String inHost) {
 		if (inHost != null)
 			return inHost;
@@ -1158,33 +1407,46 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// connection publish points - begin ---------------
+	/**
+	 * 
+	 * @param conn
+	 * @return
+	 */
 	public IPAndPort noConnection(IPAndPort conn) {
-		log.error("could not connect to " + conn.IPAddress + ":" + conn.port);
+		log.error(String.format("could not connect to %1$s:%2$d", conn.IPAddress, conn.port));
 		return conn;
 	}
 
+	/**
+	 * 
+	 * @param conn
+	 * @return
+	 */
 	public IPAndPort connectionBroken(IPAndPort conn) {
-		log.error("the connection " + conn.IPAddress + ":" + conn.port + " has been broken");
+		log.error(String.format("the connection %1$s:%2$d has been broken", conn.IPAddress, conn.port));
 		return conn;
 	}
 
 	// connection publish points - end ---------------
 
-	public static String getMethodToolTip(String className, String methodName, Class<?>[] params) {
-
+	/**
+	 * 
+	 * @param className
+	 * @param methodName
+	 * @param params
+	 * @return
+	 */
+	public static String getMethodToolTip (String className, String methodName, Class<?>[] params)
+	{
+		Class<?> c;
+		Method m;
+		ToolTip tip = null;
 		try {
-
-			Class<?> c = Class.forName(className);
-
-			Method m;
+			c = Class.forName(className);
+	
 			m = c.getMethod(methodName, params);
-
-			ToolTip tip = m.getAnnotation(ToolTip.class);
-
-			if (tip != null) {
-				return tip.value();
-			}
-
+	
+			tip = m.getAnnotation(ToolTip.class);
 		} catch (SecurityException e) {
 			logException(e);
 		} catch (NoSuchMethodException e) {
@@ -1194,33 +1456,51 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			logException(e);
 		}
 
-		return null;
-
+		if (tip == null)
+		{
+			return null;
+		}
+		return tip.value();
 	}
-
-	public CommunicationInterface getComm() {
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public CommunicationInterface getComm()
+	{
 		return cm;
 	}
-
+	
+	/**
+	 * 
+	 * @param e
+	 * @return
+	 */
 	public final static String stackToString(final Throwable e) {
+		StringWriter sw;
 		try {
-			StringWriter sw = new StringWriter();
+			sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			return "------\r\n" + sw.toString() + "------\r\n";
-		} catch (Exception e2) {
+		}
+		catch(Exception e2) {
 			return "bad stackToString";
 		}
-	}
-
+		return "------\r\n" + sw.toString() + "------\r\n";
+	 }
+	 
+	/**
+	 * 
+	 * @param e
+	 */
 	public final static void logException(final Throwable e) {
 		log.error(stackToString(e));
 	}
-
-	/*
-	 * copyShallowFrom is used to help maintain state information with
+	
+	/**
+	 * copyShallowFrom is used to help maintain state information with 
 	 */
-
 	public static Object copyShallowFrom(Object target, Object source) {
 		if (target == source) { // data is myself - operating on local copy
 			return target;
@@ -1233,50 +1513,48 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			try {
 				Field f = fields[j];
 
-				if (Modifier.isPublic(f.getModifiers()) && !(f.getName().equals("log"))
-						&& !Modifier.isTransient(f.getModifiers())) {
-
-					Type t = f.getType();
-
-					// log.info(Modifier.toString(f.getModifiers()));
-					// f.isAccessible()
-
-					log.info("setting " + f.getName());
-					if (t.equals(java.lang.Boolean.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setBoolean(target, f.getBoolean(source));
-					} else if (t.equals(java.lang.Character.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setChar(target, f.getChar(source));
-					} else if (t.equals(java.lang.Byte.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setByte(target, f.getByte(source));
-					} else if (t.equals(java.lang.Short.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setShort(target, f.getShort(source));
-					} else if (t.equals(java.lang.Integer.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setInt(target, f.getInt(source));
-					} else if (t.equals(java.lang.Long.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setLong(target, f.getLong(source));
-					} else if (t.equals(java.lang.Float.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setFloat(target, f.getFloat(source));
-					} else if (t.equals(java.lang.Double.TYPE)) {
-						targetClass.getDeclaredField(f.getName()).setDouble(target, f.getDouble(source));
-					} else {
-						log.info("setting reference to remote object " + f.getName());
-						targetClass.getDeclaredField(f.getName()).set(target, f.get(source));
-					}
-
-				} else {
-					log.debug("skipping " + f.getName());
+				if (!(Modifier.isPublic(f.getModifiers())
+						&& !(f.getName().equals("log"))
+						&& !Modifier.isTransient(f.getModifiers()))) {
+					log.debug(String.format("skipping %1$s", f.getName()));
+					continue;
 				}
-
+				Type t = f.getType();
+				
+				log.info(String.format("setting %1$s", f.getName()));
+				if (t.equals(java.lang.Boolean.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setBoolean(
+							target, f.getBoolean(source));
+				} else if (t.equals(java.lang.Character.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setChar(
+							target, f.getChar(source));
+				} else if (t.equals(java.lang.Byte.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setByte(
+							target, f.getByte(source));
+				} else if (t.equals(java.lang.Short.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setShort(
+							target, f.getShort(source));
+				} else if (t.equals(java.lang.Integer.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setInt(
+							target, f.getInt(source));
+				} else if (t.equals(java.lang.Long.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setLong(
+							target, f.getLong(source));
+				} else if (t.equals(java.lang.Float.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setFloat(
+							target, f.getFloat(source));
+				} else if (t.equals(java.lang.Double.TYPE)) {
+					targetClass.getDeclaredField(f.getName()).setDouble(
+							target, f.getDouble(source));
+				} else {
+					log.info(String.format("setting reference to remote object %1$s", f.getName()));
+					targetClass.getDeclaredField(f.getName()).set(target, f.get(source));
+				}
 			} catch (Exception e) {
 				Service.logException(e);
 			}
-			// System.out.println(names[i] + ", " + fields[j].getName() + ", "
-			// + fields[j].getType().getName() + ", " +
-			// Modifier.toString(fields[j].getModifiers()));
 		}
-
 		return target;
-
 	}
 
 	/**
@@ -1295,39 +1573,36 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param port
 	 * @param msg
 	 */
-	// FIXME - signature needs to be registerServices(URI, Message)
-	public void registerServices(String hostAddress, int port, Message msg) {
+	public  void registerServices(String hostAddress, int port, Message msg) 
+	{
+		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceDirectoryUpdate))
+		{
+			return;
+		}
 		try {
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
-
-			StringBuffer sb = new StringBuffer();
-			sb.append("http://");
-			sb.append(hostAddress);
-			sb.append(":");
-			sb.append(port);
-
-			sdu.remoteURL = new URL(sb.toString());
-
+			// TODO allow for SSL connections
+			sdu.remoteURL = new URL(String.format("http://%1$s:%2$d", hostAddress, port));
+			
 			sdu.url = url;
+			
+			sdu.serviceEnvironment.accessURL = sdu.remoteURL;			
+			log.info(String.format("%1$s recieved service directory update from %2$s", name, sdu.remoteURL));
 
-			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
-			log.info(name + " recieved service directory update from " + sdu.remoteURL);
-
-			// if successfully registered with "new" Services - echo a
-			// registration back
-			if (Runtime.register(sdu.remoteURL, sdu.serviceEnvironment)) {
-				ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
-				echoLocal.remoteURL = sdu.url;
-				echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
-				// send echo of local services back to sender
-				send(msg.sender, "registerServices", echoLocal);
+			if (!Runtime.register(sdu.remoteURL, sdu.serviceEnvironment))
+			{
+				return;
 			}
-
+			// if successfully registered with "new" Services - echo a registration back
+			ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
+			echoLocal.remoteURL = sdu.url;
+			echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
+			// send echo of local services back to sender
+			send (msg.sender, "registerServices", echoLocal); 
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			logException(e);
 		}
-
 	}
 
 	/**
@@ -1342,12 +1617,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// TODO - DEPRICATE !!!!
+	/**
+	 * 
+	 */
 	public synchronized void registerServices() {
-		log.debug(name + " registerServices");
+		log.debug(String.format("%1$s registerServices", name));
 
+		Class<?> c;
 		try {
-
-			Class<?> c;
 			c = Class.forName(serviceClass);
 
 			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
@@ -1358,37 +1635,38 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// register this service
 			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this, getToolTip());
 
+			Method m;
+			Class<?>[] paramTypes;
+			Class<?> returnType;
 			for (int i = 0; i < methods.length; ++i) {
-				Method m = methods[i];
-				Class<?>[] paramTypes = m.getParameterTypes();
-				Class<?> returnType = m.getReturnType();
+				m = methods[i];
+				paramTypes = m.getParameterTypes();
+				returnType = m.getReturnType();
 
-				if (!hideMethods.containsKey(m.getName())) {
+				if (!hideMethods.containsKey(m.getName()))
+				{
 					// service level
 					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
 				}
 			}
-
+			
 			Class<?>[] interfaces = c.getInterfaces();
-
+			Class<?> interfc;
 			for (int i = 0; i < interfaces.length; ++i) {
-				Class<?> interfc = interfaces[i];
+				interfc = interfaces[i];
 
-				log.info("adding interface " + interfc.getCanonicalName());
+				log.info(String.format("adding interface %1$s", interfc.getCanonicalName()));
 
-				hostcfg.setInterface(host, name, interfc.getClass().getCanonicalName());
-
+				hostcfg.setInterface(host, name, interfc.getClass()
+						.getCanonicalName());
 			}
 
 			Type[] intfs = c.getGenericInterfaces();
+			Type t;
 			for (int j = 0; j < intfs.length; ++j) {
-				Type t = intfs[j];
-				String nameOnly = t.toString().substring(t.toString().indexOf(" ") + 1);
-				hostcfg.setInterface(host, name, nameOnly);
+				t = intfs[j];
+				hostcfg.setInterface(host, name, t.toString().substring(t.toString().indexOf(" ") + 1));
 			}
-
-			// hostcfg.save("cfg.txt");
-
 		} catch (ClassNotFoundException e) {
 			logException(e);
 		} catch (SecurityException e) {
@@ -1396,9 +1674,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		} catch (IllegalArgumentException e) {
 			logException(e);
 		}
-
-		// send(name, "registerServicesNotify");
-
 	}
 
 	/**
@@ -1406,9 +1681,24 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * register services with a remote system FIXME - change to register - with
 	 * full signature
 	 */
-	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, int port,
-			ServiceDirectoryUpdate sdu) {
+	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
+			int port, ServiceDirectoryUpdate sdu) {
+		log.info(String.format("%1$s sendServiceDirectoryUpdate ", name));
 
+		// TODO - extend URL into something which can handle socket:// protocol and SSL
+		StringBuffer urlstr = new StringBuffer()
+			.append("http://");
+		
+		if (login != null && login.length() > 0)
+		{
+			urlstr.append(login)
+				.append(":")
+				.append(password)
+				.append("@");
+		}
+		
+		InetAddress inetAddress = null;
+		
 		try {
 
 			log.info(name + " sendServiceDirectoryUpdate ");
@@ -1429,12 +1719,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			InetAddress inetAddress = null;
 			// InetAddress.getByName("208.29.194.106");
 			inetAddress = InetAddress.getByName(remoteHost);
-
-			urlstr.append(inetAddress.getHostAddress());
-			urlstr.append(":");
-			urlstr.append(port);
-
-			URL remoteURL = null;
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		urlstr.append(inetAddress.getHostAddress())
+			.append(":")
+			.append(port);
+		
+		URL remoteURL = null;
+		try {
 			remoteURL = new URL(urlstr.toString());
 
 			if (sdu == null) {
@@ -1451,16 +1746,48 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			logException(e);
 			return;
 		}
-
+		
+		if (sdu == null) {
+			sdu = new ServiceDirectoryUpdate();
+			
+			// FIXME - needs to have an inclusion list enabled & inclusion list
+			// and an exclusion list enabled & exclusion list
+			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
+			// overloaded if you dont want to send everything
+			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
+		}
+		sdu.remoteURL = remoteURL;
+		sdu.url = url;
+		
+		send(remoteURL, "registerServices", sdu);
 	}
 
 	// new state functions begin --------------------------
-	public void broadcastState() {
+	/**
+	 * 
+	 */
+	public void broadcastState()
+	{
 		invoke("publishState");
 	}
-
-	public Service publishState() {
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Service publishState()
+	{
 		return this;
+	}
+	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public Service setState(Service s)
+	{
+		return (Service)copyShallowFrom(this, s);
 	}
 
 	public Service setState(Service s) {
@@ -1474,56 +1801,57 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param level
 	 *            DEBUG | INFO | WARN | ERROR | FATAL
 	 */
-	public final static void setLogLevel(String level) {
+	public final static void setLogLevel(LogLevel level)
+	{
 		setLogLevel(null, level);
 	}
-
+	
 	/**
 	 * @param level
 	 *            string input controls logging level
 	 */
-	public final static void setLogLevel(String object, String level) {
-		log.debug("setLogLevel " + object + " " + level);
+	public final static void setLogLevel(String object, LogLevel level)
+	{
+		log.debug(String.format("setLogLevel %1$s %2$s", object, level));
 		Logger logger;
 		if (object == null || object.length() == 0) {
 			logger = Logger.getRootLogger();
 		} else {
 			logger = Logger.getLogger(object);
 		}
-
-		if ((LOG_LEVEL_INFO).equalsIgnoreCase(level)) {
-			logger.setLevel(Level.INFO);
-		} else if ((LOG_LEVEL_WARN).equalsIgnoreCase(level)) {
-			logger.setLevel(Level.WARN);
-		} else if ((LOG_LEVEL_ERROR).equalsIgnoreCase(level)) {
-			logger.setLevel(Level.ERROR);
-		} else if ((LOG_LEVEL_FATAL).equalsIgnoreCase(level)) {
-			logger.setLevel(Level.FATAL);
-		} else {
-			logger.setLevel(Level.DEBUG);
-		}
-
+		setLoggerLevel(logger, level);
 	}
 
-	public static String getLogLevel(String object) {
-		log.debug("getLogLevel " + object);
+	/**
+	 * 
+	 * @param object
+	 * @return
+	 */
+	public static LogLevel getLogLevel(String object)
+	{
 		Logger logger;
 		if (object == null || object.length() == 0) {
 			logger = Logger.getRootLogger();
 		} else {
 			logger = Logger.getLogger(object);
 		}
-
-		if (logger.getLevel() == Level.INFO) {
-			return LOG_LEVEL_INFO;
-		} else if (logger.getLevel() == Level.WARN) {
-			return LOG_LEVEL_WARN;
-		} else if (logger.getLevel() == Level.ERROR) {
-			return LOG_LEVEL_ERROR;
-		} else if (logger.getLevel() == Level.FATAL) {
-			return LOG_LEVEL_FATAL;
-		} else if (logger.getLevel() == Level.DEBUG) {
-			return LOG_LEVEL_DEBUG;
+	
+		Level logLevel = logger.getLevel();
+		if (logLevel == Level.INFO)
+		{
+			return LogLevel.Info;
+		} else if (logLevel == Level.WARN)
+		{
+			return LogLevel.Warning;			
+		} else if (logLevel == Level.ERROR)
+		{
+			return LogLevel.Error;			
+		} else if (logLevel == Level.FATAL)
+		{
+			return LogLevel.Fatal;			
+		} else if (logLevel == Level.DEBUG)
+		{
+			return LogLevel.Debug;			
 		}
 
 		return null;
@@ -1537,54 +1865,59 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param level
 	 *            DEBUG | INFO | WARN | ERROR | FATAL
 	 */
-	public void setMyLogLevel(String level) {
+	public void setMyLogLevel(LogLevel level){
 		Logger logger = Logger.getLogger(this.getClass().toString());
-		if (("INFO").equalsIgnoreCase(level)) {
-			logger.setLevel(Level.INFO);
-		}
-		if (("WARN").equalsIgnoreCase(level)) {
-			logger.setLevel(Level.WARN);
-		}
-		if (("ERROR").equalsIgnoreCase(level)) {
-			logger.setLevel(Level.ERROR);
-		}
-		if (("FATAL").equalsIgnoreCase(level)) {
-			logger.setLevel(Level.FATAL);
-		} else {
-			logger.setLevel(Level.DEBUG);
-		}
+		setLoggerLevel(logger, level);
 	}
-
-	public static void addAppender(String type) {
+	
+	/**
+	 * 
+	 * @param type
+	 */
+	public static void addAppender(LogAppender type)
+	{
 		addAppender(type, null, null);
 	}
-
-	public static void addAppender(String type, String host, String port) {
+	
+	/**
+	 * 
+	 * @param type
+	 * @param host
+	 * @param port
+	 */
+	public static void addAppender(LogAppender type, String host, String port)
+	{
 		// same format as BasicConfigurator.configure()
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		Appender appender = null;
 
+		// TODO the type should be an enumeration so that we can make this a switch statement (unless Jython dependencies don't allow for it)
 		try {
-
-			if (LOGGING_APPENDER_CONSOLE.equals(type)) {
-				appender = new ConsoleAppender(layout);
-				appender.setName(LOGGING_APPENDER_CONSOLE);
-			} else if (LOGGING_APPENDER_CONSOLE_GUI.equals(type)) {
-				// FIXME must be done by a GUI
-				// appender = new SocketAppender(host, Integer.parseInt(port));
-				// appender.setName(LOGGING_APPENDER_SOCKET);
-			} else if (LOGGING_APPENDER_SOCKET.equals(type)) {
-				appender = new SocketAppender(host, Integer.parseInt(port));
-				appender.setName(LOGGING_APPENDER_SOCKET);
-			} else if (LOGGING_APPENDER_ROLLING_FILE.equals(type)) {
-				String userDir = System.getProperty("user.dir");
-				appender = new RollingFileAppender(layout, userDir + File.separator + "myrobotlab.log", false);
-				appender.setName(LOGGING_APPENDER_ROLLING_FILE);
-			} else {
-				log.error("attempting to add unkown type of Appender " + type);
-				return;
+			switch (type) {
+				case Console:
+					appender = new ConsoleAppender(layout);
+					appender.setName(LogAppender.Console.toString());
+					break;
+				case ConsoleGui:
+					// FIXME must be done by a GUI
+					//appender = new SocketAppender(host, Integer.parseInt(port));
+					//appender.setName(LogAppender.Remote);
+					break;
+				case Remote:			
+					appender = new SocketAppender(host, Integer.parseInt(port));
+					appender.setName(LogAppender.Remote.toString());
+					break;
+				case File:
+					appender = new RollingFileAppender(
+							layout,
+							String.format("%1$s%2$smyrobotlab.log", System.getProperty("user.dir"), File.separator),
+							false);
+					appender.setName(LogAppender.File.toString());
+					break;
+				default:
+					log.error(String.format("attempting to add unkown type of Appender %1$s", type));
+					return;
 			}
-
 		} catch (Exception e) {
 			System.out.println(Service.stackToString(e));
 		}
@@ -1598,42 +1931,84 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 
 	}
-
-	public static void remoteAppender(String name) {
-		Logger.getRootLogger().removeAppender(name);
+	
+	/**
+	 * 
+	 * @param name
+	 */
+	public static void remoteAppender(LogAppender name)
+	{
+		Logger.getRootLogger().removeAppender(name.toString());
 	}
-
-	public static void removeAllAppenders() {
+	
+	/**
+	 * 
+	 */
+	public static void removeAllAppenders()
+	{
 		Logger.getRootLogger().removeAllAppenders();
 	}
 
+	/**
+	 * 
+	 */
 	public String getShortTypeName() {
 		String serviceClassName = this.getClass().getCanonicalName();
-		return serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
+		return serviceClassName.substring(serviceClassName.lastIndexOf(".")+1);
 	}
+	
+	// ----------------  logging end ---------------------------
 
-	// ---------------- logging end ---------------------------
-
-	/*
-	 * Check RuntimeEnvironment for implementation // TODO - cache fields in a
-	 * map if "searching" requires too much public Service setState(Service
-	 * other) { // Service is local - not remote update // no need to
-	 * reflectivly update if (this == other) { return this; }
+	/**
 	 * 
-	 * return this; }
+	 * @return
 	 */
-
-	public static String getCFGDir() {
+	public static String getCFGDir()
+	{
 		return cfgDir;
 	}
-
-	public Set<String> getNotifyListKeySet() {
+	
+	/**
+	 * 
+	 */
+	public Set<String> getNotifyListKeySet()
+	{
 		return getOutbox().notifyList.keySet();
 	}
-
-	public ArrayList<NotifyEntry> getNotifyList(String key) {
+	
+	/**
+	 * 
+	 */
+	public ArrayList<NotifyEntry> getNotifyList(String key)
+	{
 		// TODO refactor Outbox inteface
 		return getOutbox().notifyList.get(key);
 	}
-
+	
+	/**
+	 * Helper method to translate between our LogLevel enumeration
+	 * and what the logging system (Log4j at this point) uses.
+	 * 
+	 * @param logger
+	 * @param level
+	 */
+	private static void setLoggerLevel(Logger logger, LogLevel level) {
+		switch (level) {
+			case Info:
+				logger.setLevel(Level.INFO);
+				break;
+			case Warning:
+				logger.setLevel(Level.WARN);
+				break;
+			case Error:
+				logger.setLevel(Level.ERROR);
+				break;
+			case Fatal:
+				logger.setLevel(Level.FATAL);
+				break;
+			default:
+				logger.setLevel(Level.DEBUG);
+				break;
+		}
+	}	
 }
