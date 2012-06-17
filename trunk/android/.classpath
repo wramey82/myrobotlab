@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="../myrobotlab/thirdParty/repo/org.simpleframework.xml/xml/2.5.3/simple-xml-2.5.3.jar"/>
 	<classpathentry kind="lib" path="../myrobotlab/thirdParty/repo/org.apache.ivy/ivy/2.0.0/ivy.jar"/>
 	<classpathentry kind="lib" path="../myrobotlab/thirdParty/repo/org.python.core/core/2.5.2/jython.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/myrobotlab.logging"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
