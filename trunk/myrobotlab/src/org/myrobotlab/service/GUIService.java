@@ -979,12 +979,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			loadRuntime();
 		} else if (cmd.equals(LogLevel.Debug.toString()) || 
 				cmd.equals(LogLevel.Info.toString()) ||
-				cmd.equals(LogLevel.Warning.toString()) ||
+				cmd.equals(LogLevel.Warn.toString()) ||
 				cmd.equals(LogLevel.Error.toString()) ||
 				cmd.equals(LogLevel.Fatal.toString()))
 		{
 			// TODO this needs to be changed into something like tryValueOf(cmd)
-			setLogLevel(LogLevel.valueOf(cmd));
+			setLogLevel(LogLevel.parse(cmd));
 		} else if ("connect".equals(cmd)) 
 		{
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
@@ -1073,7 +1073,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
 	    
-	    mi = new JRadioButtonMenuItem (LogLevel.Warning.toString());
+	    mi = new JRadioButtonMenuItem (LogLevel.Warn.toString());
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);

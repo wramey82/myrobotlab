@@ -1794,7 +1794,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			return LogLevel.Info;
 		} else if (logLevel == Level.WARN)
 		{
-			return LogLevel.Warning;			
+			return LogLevel.Warn;			
 		} else if (logLevel == Level.ERROR)
 		{
 			return LogLevel.Error;			
@@ -1949,7 +1949,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			case Info:
 				logger.setLevel(Level.INFO);
 				break;
-			case Warning:
+			case Warn:
 				logger.setLevel(Level.WARN);
 				break;
 			case Error:

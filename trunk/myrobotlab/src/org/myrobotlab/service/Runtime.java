@@ -1032,12 +1032,12 @@ public class Runtime extends Service {
 				setLogLevel(LogLevel.Debug);
 			} else {			
 				addAppender(LogAppender.File);
-				setLogLevel(LogLevel.Warning);
+				setLogLevel(LogLevel.Warn);
 			}
 						
 			if (cmdline.containsKey("-logLevel"))
 			{
-				setLogLevel(LogLevel.valueOf(cmdline.getSafeArgument("-logLevel", 0, "DEBUG")));
+				setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "DEBUG")));
 			}
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
