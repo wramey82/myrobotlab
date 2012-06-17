@@ -1053,12 +1053,25 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		GUIService gui2 = new GUIService("gui2");
-		gui2.startService();
-		gui2.display();		
+		/*              
+        Clock clock = new Clock("clock");
+        clock.startService();
+*/
+        Logging logger = new Logging("log1");
+        logger.startService();          
+        
+        Jython jython = new Jython("jython1");
+        jython.startService();          
+        
+        GUIService gui2 = new GUIService("gui1");
+        gui2.startService();
+        gui2.display();
+        
+        // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
+        // FIXME - change to sendRegistration ....
+        //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
+        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.60", 6767, null);
+	
 	}
 
 	/**

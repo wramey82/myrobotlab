@@ -404,8 +404,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public boolean load(Object o, String inCfgFileName)
 	{	
 		String filename = null;
-		if (inCfgFileName == null)
-		{
+		if (inCfgFileName == null) {
 			filename = String.format("%s%s%s.xml", cfgDir, File.separator, this.getName(), ".xml");
 		} else {
 			filename = String.format("%s%s%s", cfgDir, File.separator, inCfgFileName);
@@ -779,15 +778,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			ArrayList<NotifyEntry> nes = outbox.notifyList.get(ne.outMethod.toString());
 			for (int i = 0; i < nes.size(); ++i) {
 				NotifyEntry entry = nes.get(i);
-				if (entry.equals(ne))
-				{
+				if (entry.equals(ne)) {
 					log.warn(String.format("attempting to add duplicate NotifyEntry %1$s", ne));
 					found = true;
 					break;
 				}
 			}
-			if (!found)
-			{
+			if (!found) {
 				log.info(String.format("adding notify from %1$s.%2$s to %3$s.%4$s", this.getName(), ne.outMethod, ne.name, ne.inMethod));
 				nes.add(ne);
 			}
@@ -993,7 +990,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public Object invoke(Message msg) {
 		Object retobj = null;
 
-		log.info(String.format("***%1$s msgid %2$s invoking %3$s (%4$s)***", name, msg.msgID, msg.method, msg.getParameterSignature()));
+		log.info(String.format("invoking %1$s.%3$s (%4$s) %2$s", name, msg.msgID, msg.method, msg.getParameterSignature()));
 
 		retobj = invoke(msg.method, msg.data);
 
@@ -1103,7 +1100,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			} else {
 				paramTypeString.append("null");
 			}
-			log.debug(String.format("****invoking %1$s/%2$s.%3$s(%4$s)****", host, getClass().getCanonicalName(), method, paramTypeString));
 		}
 		Object retobj = invoke(this, method, params);
 		return retobj;
@@ -1329,7 +1325,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		msg.data = data;
 		msg.method = method;
 
-		log.debug(String.format("create message %1$s/%2$s/%3$s#%4$s", host, msg.getName().length() == 0 ? "*" : msg.getName(), msg.method, msg.getParameterSignature()));
 		return msg;
 	}
 
@@ -1575,8 +1570,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
 			// TODO allow for SSL connections
-			sdu.remoteURL = new URL(String.format("http://%1$s:%2$d", hostAddress, port));
-			
+			StringBuffer sb = new StringBuffer()
+            	.append("http://")                                                 
+            	.append(hostAddress)
+            	.append(":")
+            	.append(port);
+            sdu.remoteURL = new URL(sb.toString());
+
 			sdu.url = url;
 			
 			sdu.serviceEnvironment.accessURL = sdu.remoteURL;			
@@ -1676,81 +1676,45 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
 			int port, ServiceDirectoryUpdate sdu) {
-		log.info(String.format("%1$s sendServiceDirectoryUpdate ", name));
-
-		// TODO - extend URL into something which can handle socket:// protocol and SSL
-		StringBuffer urlstr = new StringBuffer()
-			.append("http://");
-		
-		if (login != null && login.length() > 0)
-		{
-			urlstr.append(login)
-				.append(":")
-				.append(password)
-				.append("@");
-		}
-		
-		InetAddress inetAddress = null;
-		
-		try {
-
+        try {
 			log.info(name + " sendServiceDirectoryUpdate ");
-			urlstr.append("http://"); // FIXME - change to URI - use default
-										// protocol tcp:// mrl:// udp://
-
+			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
+			StringBuffer urlstr = new StringBuffer()
+				.append("http://");
+			
 			if (login != null) {
 				urlstr.append(login)
 					.append(":");
 			}
-
+			
 			if (password != null) {
 				urlstr.append(password)
 					.append("@");
 			}
-
+			
+			InetAddress inetAddress = null;
 			// InetAddress.getByName("208.29.194.106");
 			inetAddress = InetAddress.getByName(remoteHost);
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		urlstr.append(inetAddress.getHostAddress())
-			.append(":")
-			.append(port);
-		
-		URL remoteURL = null;
-		try {
+			
+			urlstr.append(inetAddress.getHostAddress())
+				.append(":")
+				.append(port);
+			
+			URL remoteURL = null;
 			remoteURL = new URL(urlstr.toString());
-
+			
 			if (sdu == null) {
-				sdu = new ServiceDirectoryUpdate();
-				sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
+			        sdu = new ServiceDirectoryUpdate();
+			        sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
 			}
-
+			
 			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
 			sdu.url = url;
-
-			send(remoteURL, "registerServices", sdu);
-
-		} catch (Exception e) {
-			logException(e);
-			return;
-		}
-		
-		if (sdu == null) {
-			sdu = new ServiceDirectoryUpdate();
 			
-			// FIXME - needs to have an inclusion list enabled & inclusion list
-			// and an exclusion list enabled & exclusion list
-			// DEFAULT SERVICE IS TO SEND THE WHOLE LOCAL LIST - this can be
-			// overloaded if you dont want to send everything
-			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
-		}
-		sdu.remoteURL = remoteURL;
-		sdu.url = url;
-		
-		send(remoteURL, "registerServices", sdu);
+			send(remoteURL, "registerServices", sdu);
+        } catch (Exception e) {
+                logException(e);
+        }
 	}
 
 	// new state functions begin --------------------------
