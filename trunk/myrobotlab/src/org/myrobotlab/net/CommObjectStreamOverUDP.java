@@ -66,8 +66,9 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		public UDPThread(URL url) {
 			super("udp");
 			try {
-			this.url = url;
+				this.url = url;
 				this.socket = new DatagramSocket();
+				this.start();
 			} catch (SocketException e) {
 				Service.logException(e);
 			}
@@ -77,11 +78,11 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 			String host = url.getHost();
 			int port = url.getPort();
-			
-			log.info("sending udp msg to " + host + ":" +port + "/" + msg.getName());
+
+			log.info("sending udp msg to " + host + ":" + port + "/" + msg.getName());
 
 			try {
-				// FIXME - determine which can be re-used & what has to be 
+				// FIXME - determine which can be re-used & what has to be
 				// created/re-created new
 				ByteArrayOutputStream b_out = new ByteArrayOutputStream();
 				ObjectOutputStream out = new ObjectOutputStream(b_out);
@@ -92,11 +93,11 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				log.info("send " + msg.getParameterSignature());
 
 				if (buffer.length > 65535) {
-					log.error("udp datagram can not exceed 65535 msg size is "
-							+ buffer.length + " !");
+					log.error("udp datagram can not exceed 65535 msg size is " + buffer.length + " !");
 				}
 
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(url.getHost()), url.getPort());
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(url.getHost()),
+						url.getPort());
 				socket.send(packet);
 
 				out.reset();
@@ -121,26 +122,29 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 						Object o = in.readObject();
 
-						dgram.setLength(buffer.length); // must reset length field!
+						dgram.setLength(buffer.length); // must reset length
+														// field!
 						b_in.reset(); // reset so next read is from start of
 										// byte[] again
 						msg = (Message) o;
-						
-						// client's side - "I connected to a listener and it replied with registerService" 
-						if (msg.method.equals("registerServices")) 
-						{
-							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 
-							//addClient(socket, dgram.getAddress(),  dgram.getPort()); 
+						// client's side -
+						// "I connected to a listener and it replied with registerService"
+						if (msg.method.equals("registerServices")) {
+							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(),
+									msg);
+
+							// addClient(socket, dgram.getAddress(),
+							// dgram.getPort());
 							continue;
 						}
 
 						myService.getInbox().add(msg);
-						
+
 					} catch (Exception e) {
 						msg = null;
 						Service.logException(e);
-					} 
+					}
 
 				}
 
@@ -153,7 +157,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				isRunning = false;
 				socket = null;
 				Service.logException(e);
-			} 
+			}
 		}// run
 
 		public DatagramSocket getSocket() {
@@ -161,7 +165,6 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		}
 
 	} // UDPThread
-
 
 	public CommObjectStreamOverUDP(Service service) {
 		this.myService = service;
@@ -186,10 +189,9 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		} catch (Exception e) {
 			Service.logException(e);
 			return;
-		} 
+		}
 	}
 
-	
 	public void addClient(URL url, Object commData) {
 		log.info("adding tcp client ");
 

@@ -452,16 +452,16 @@ public class RemoteAdapter extends Service {
 		
 		Logging logger = new Logging("log0");
 		logger.startService();
-
+		//Clock clock = new Clock("clock0");
+		//clock.startService();
 		
 		Jython jython = new Jython("jython0");
 		jython.startService();
 		
-	/*	
 		GUIService gui = new GUIService("gui0");
 		gui.startService();
 		gui.display();
-	*/
+	
 					
 	}
 }
