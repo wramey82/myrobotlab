@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.logging.*;
+import org.myrobotlab.logging.LogAppender;
 import org.myrobotlab.service.Proxy;
 import org.myrobotlab.service.Runtime;
 
