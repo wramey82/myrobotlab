@@ -656,44 +656,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowClosing(WindowEvent e) {
-
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry(); 
-
-		Iterator<String> it = services.keySet().iterator();
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = services.get(serviceName);
-
-			ServiceInterface service = sw.get();
-			// FIXME - this logic should be in Runtime.release
-			if (serviceName.equals(this.getName())) {
-				log.info("momentarily skipping self " + serviceName + "....");
-				continue;
-			}
-			
-			// FIXME - this logic should be in Runtime.release
-			if (serviceName.equals(Runtime.getInstance().getName()))
-			{
-				log.info("momentarily skipping runtime " + serviceName);
-				continue;
-			}
-
-			if (sw.getAccessURL() == null) {
-				log.info("releasing service " + serviceName);
-				Runtime.release(serviceName);
-			} else {
-				log.info("skipping remote service " + serviceName);
-			}
-
-		}
-
-		// shut self down
-		log.info("shutting down GUIService");				
-		this.stopService();
-		// the big hammer - TODO - close gui - allow all other services to continue
-		log.info("shutting down Runtime");
-		Runtime.getInstance().stopService();
-		System.exit(1); // is this correct? - or should the gui load off a different thread?
+		Runtime.releaseAll();
+		System.exit(1); // the Big Hamm'r
 	}
 
 	// @Override - only in Java 1.6
@@ -1051,28 +1015,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			invoke(cmd);
 		}
 	}
-	
-	public static void main(String[] args) throws ClassNotFoundException {
-		/*              
-        Clock clock = new Clock("clock");
-        clock.startService();
-*/
-        Logging logger = new Logging("log1");
-        logger.startService();          
-        
-        Jython jython = new Jython("jython1");
-        jython.startService();          
-        
-        GUIService gui2 = new GUIService("gui1");
-        gui2.startService();
-        gui2.display();
-        
-        // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
-        // FIXME - change to sendRegistration ....
-        //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
-        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.60", 6767, null);
-	
-	}
 
 	/**
 	 * Add all options to the Software Update menu.
@@ -1146,4 +1088,32 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);		
 	}
+
+
+	
+	public static void main(String[] args) throws ClassNotFoundException {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		/*              
+        Clock clock = new Clock("clock");
+        clock.startService();
+*/
+        Logging logger = new Logging("log1");
+        logger.startService();          
+        
+        Jython jython = new Jython("jython1");
+        jython.startService();          
+/*        
+        GUIService gui2 = new GUIService("gui1");
+        gui2.startService();
+        gui2.display();
+ */       
+        // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
+        // FIXME - change to sendRegistration ....
+        //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
+//        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.60", 6767, null);
+	
+	}
+
 }

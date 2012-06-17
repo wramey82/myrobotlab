@@ -541,14 +541,42 @@ public class Runtime extends Service {
 		}
 	}
 	
+	/**
+	 * 
+	 * release all local services
+	 * 
+	 *  FIXME - there "should" be an order to releasing
+	 *  the correct way would be to save the Runtime for last
+	 *  and broadcast all the services being released 
+	 */
 	public static void releaseAll() /*local only?*/
 	{
 		log.debug("releaseAll");
-		Iterator<URL> it = hosts.keySet().iterator();
+		
+		/*
 		while (it.hasNext()) {
 			URL sen = it.next();
 			ServiceEnvironment se = hosts.get(sen);
+			INSTANCE.invoke("released", se.serviceDirectory.get(name));
+		}
+		*/
+		//Iterator<URL> it = hosts.keySet().iterator();
+		//while (it.hasNext()) {
+			//URL sen = it.next();
+		
+		// FIXME - this is a bit of a lie
+		// broadcasting the info all services are released before releasing them
+		// but you can't send the info if everything has been released :P
+		
+			ServiceEnvironment se = hosts.get(null); // local services only
 			Iterator<String> seit = se.serviceDirectory.keySet().iterator();
+			while (seit.hasNext()) {
+				String serviceName = seit.next();
+				ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+				INSTANCE.invoke("released", se.serviceDirectory.get(serviceName));
+			}
+			
+			seit = se.serviceDirectory.keySet().iterator();
 			while (seit.hasNext()) {
 				String serviceName = seit.next();
 				ServiceWrapper sw = se.serviceDirectory.get(serviceName);
@@ -561,8 +589,9 @@ public class Runtime extends Service {
 					log.warn("unknown type and/or remote service");
 				}
 			}
-		}
+		//}
 		
+		/*
 		it = hosts.keySet().iterator();
 		while (it.hasNext()) {
 			URL sen = it.next();
@@ -572,6 +601,7 @@ public class Runtime extends Service {
 			//Iterator<String> seit = se.keySet().iterator();
 			// FIXME - release events
 		}
+		*/
 
 		log.info("clearing hosts environments");
 		hosts.clear();
