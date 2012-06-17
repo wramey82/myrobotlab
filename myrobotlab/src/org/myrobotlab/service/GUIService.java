@@ -84,6 +84,7 @@ import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.*;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -953,122 +954,39 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		c.startLogging();
 	}
 	
-	
+	/**
+	 * Build the menu for display.
+	 * @return
+	 */
 	public JMenuBar buildMenu()
 	{
-		
 		JMenuBar menuBar = new JMenuBar();
 	    
 		// --- system ----
-		JMenu system = new JMenu("system");
+		JMenu systemMenu = new JMenu("system");
 		JMenuItem mi;
 		
-		/*
-		mi = new JMenuItem("save");
-	    mi.addActionListener(this);
-	    system.add(mi);
-
-		mi = new JMenuItem("save as");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-	    
-		mi = new JMenuItem("load");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-
-		mi = new JMenuItem("refresh");
-	    mi.addActionListener(this);
-	    system.add(mi);	    
-	    */
-
 		mi = new JMenuItem("connect");
 	    mi.addActionListener(this);
-	    system.add(mi);
+	    systemMenu.add(mi);
 	    
-		//mi = new JMenuItem("console");
-	    //mi.addActionListener(this);
-	    //system.add(mi);
-
 	    JMenu m = new JMenu("logging");
-	    system.add(m);
+	    systemMenu.add(m);
 
 	    JMenu m2 = new JMenu("level");
 	    m.add(m2);
-
-	    	ButtonGroup group = new ButtonGroup();
-	    	
-	    	mi = new JRadioButtonMenuItem (LOG_LEVEL_DEBUG);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_INFO);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_WARN);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_ERROR);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
-		    
-		    mi = new JRadioButtonMenuItem (LOG_LEVEL_FATAL);
-		    mi.addActionListener(this);
-		    group.add(mi);
-		    m2.add(mi);
+	    buildLogLevelMenu(m2);
 
 	    m2 = new JMenu("type");
 	    m.add(m2);
-		    
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_NONE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-		    
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_CONSOLE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_ROLLING_FILE);
-		    mi.addActionListener(this);
-		    m2.add(mi);
-
-			mi = new JCheckBoxMenuItem(LOGGING_APPENDER_SOCKET);
-		    mi.addActionListener(this);
-		    m2.add(mi);
+	    buildLogAppenderMenu(m2);
 		    
 	    m = new JMenu("update");
 
-	    system.add(m);
-	    
-		mi = new JMenuItem("check for updates");
-	    mi.addActionListener(this);
-	    m.add(mi);
-
-	    mi = new JMenuItem("update all");
-		mi.addActionListener(this);
-		m.add(mi);
-
-	    mi = new JMenuItem("install all");
-		mi.addActionListener(this);
-		m.add(mi);
+	    systemMenu.add(m);
+	    buildUpdatesMenu(m);
 		    	    
-	    menuBar.add(system);
-
-	    /*
-		JMenu view = new JMenu("view");
-	    JMenuItem fullscreen = new JMenuItem("explode");
-	    fullscreen.addActionListener(this);
-	    view.add(fullscreen);
-	    JMenuItem leavefullscreen = new JMenuItem("leave fullscreen");
-	    fullscreen.addActionListener(this);
-	    view.add(leavefullscreen);
-	    menuBar.add(view);
-	    */
+	    menuBar.add(systemMenu);
 	    
 		JMenu help = new JMenu("help");
 	    JMenuItem about = new JMenuItem("about");
@@ -1078,7 +996,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				
 		return menuBar;
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		String cmd = ae.getActionCommand();
@@ -1095,31 +1013,32 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		} else if ("load".equals(cmd)) 
 		{
 			loadRuntime();
-		} else if (LOG_LEVEL_DEBUG.equals(cmd) || 
-				LOG_LEVEL_INFO.equals(cmd) ||
-				LOG_LEVEL_WARN.equals(cmd) ||
-				LOG_LEVEL_ERROR.equals(cmd) ||
-				LOG_LEVEL_FATAL.equals(cmd))
+		} else if (cmd.equals(LogLevel.Debug.toString()) || 
+				cmd.equals(LogLevel.Info.toString()) ||
+				cmd.equals(LogLevel.Warning.toString()) ||
+				cmd.equals(LogLevel.Error.toString()) ||
+				cmd.equals(LogLevel.Fatal.toString()))
 		{
-			setLogLevel(cmd);
+			// TODO this needs to be changed into something like tryValueOf(cmd)
+			setLogLevel(LogLevel.valueOf(cmd));
 		} else if ("connect".equals(cmd)) 
 		{
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
 			lastHost = dlg.host.getText();
 			lastPort = dlg.port.getText();
-		} else if (LOGGING_APPENDER_NONE.equals(cmd)) 
+		} else if (cmd.equals(LogAppender.None.toString())) 
 		{
 			removeAllAppenders();
-		} else if (LOGGING_APPENDER_SOCKET.equals(cmd)) 
+		} else if (cmd.equals(LogAppender.Remote.toString())) 
 		{
 			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
 			if (m.isSelected()) {
 				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
 				lastHost = dlg.host.getText();
 				lastPort = dlg.port.getText();
-				addAppender(LOGGING_APPENDER_SOCKET, dlg.host.getText(), dlg.port.getText());
+				addAppender(LogAppender.Remote, dlg.host.getText(), dlg.port.getText());
 			} else {
-				Service.remoteAppender(LOGGING_APPENDER_SOCKET);			
+				Service.remoteAppender(LogAppender.Remote);			
 			}
 		} else if (LOGGING_APPENDER_ROLLING_FILE.equals(cmd)) { 
 			addAppender(LOGGING_APPENDER_ROLLING_FILE);
@@ -1136,27 +1055,82 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-/*		
-		Clock clock = new Clock("clock");
-		clock.startService();
-*/
-		Logging logger = new Logging("log1");
-		logger.startService();		
 		
-		Jython jython = new Jython("jython1");
-		jython.startService();		
-		
-		GUIService gui2 = new GUIService("gui1");
+		GUIService gui2 = new GUIService("gui2");
 		gui2.startService();
-		gui2.display();
-		
-		// gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
-		// FIXME - change to sendRegistration ....
-		//gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
-		gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.60", 6767, null);
-		
-		
+		gui2.display();		
 	}
-	
+
+	/**
+	 * Add all options to the Software Update menu.
+	 * @param parentMenu
+	 */
+	private void buildUpdatesMenu(JMenu parentMenu) {
+		JMenuItem mi = new JMenuItem("check for updates");
+	    mi.addActionListener(this);
+	    parentMenu.add(mi);
+
+	    mi = new JMenuItem("update all");
+		mi.addActionListener(this);
+		parentMenu.add(mi);
+
+	    mi = new JMenuItem("install all");
+		mi.addActionListener(this);
+		parentMenu.add(mi);
+	}
+
+	/**
+	 * Add all options to the Log Appender menu.
+	 * @param parentMenu
+	 */
+	private void buildLogAppenderMenu(JMenu parentMenu) {
+		JMenuItem mi = new JCheckBoxMenuItem(LogAppender.None.toString());
+	    mi.addActionListener(this);
+	    parentMenu.add(mi);
+	    
+		mi = new JCheckBoxMenuItem(LogAppender.Console.toString());
+	    mi.addActionListener(this);
+	    parentMenu.add(mi);
+
+		mi = new JCheckBoxMenuItem(LogAppender.File.toString());
+	    mi.addActionListener(this);
+	    parentMenu.add(mi);
+
+		mi = new JCheckBoxMenuItem(LogAppender.Remote.toString());
+	    mi.addActionListener(this);
+	    parentMenu.add(mi);
+	}
+
+	/**
+	 * Add all options to the Log Level menu.
+	 * @param parentMenu
+	 */
+	private void buildLogLevelMenu(JMenu parentMenu) {
+    	ButtonGroup logLevelGroup = new ButtonGroup();
+    	
+    	JMenuItem mi = new JRadioButtonMenuItem (LogLevel.Debug.toString());
+	    mi.addActionListener(this);
+	    logLevelGroup.add(mi);
+	    parentMenu.add(mi);
+
+	    mi = new JRadioButtonMenuItem (LogLevel.Info.toString());
+	    mi.addActionListener(this);
+	    logLevelGroup.add(mi);
+	    parentMenu.add(mi);
+	    
+	    mi = new JRadioButtonMenuItem (LogLevel.Warning.toString());
+	    mi.addActionListener(this);
+	    logLevelGroup.add(mi);
+	    parentMenu.add(mi);
+	    
+	    mi = new JRadioButtonMenuItem (LogLevel.Error.toString());
+	    mi.addActionListener(this);
+	    logLevelGroup.add(mi);
+	    parentMenu.add(mi);
+	    
+	    mi = new JRadioButtonMenuItem (LogLevel.Fatal.toString());
+	    mi.addActionListener(this);
+	    logLevelGroup.add(mi);
+	    parentMenu.add(mi);		
+	}
 }

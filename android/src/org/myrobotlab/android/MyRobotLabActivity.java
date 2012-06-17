@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.*;
 import org.myrobotlab.service.Proxy;
 import org.myrobotlab.service.Runtime;
 
@@ -296,7 +297,7 @@ public class MyRobotLabActivity extends ServiceActivity implements OnItemClickLi
 											.toString();
 									if (MRL.D) Log.e(TAG, "++ remote logging to " + host + ":" + port + " ++");
 									Service.addAppender(
-											Service.LOGGING_APPENDER_SOCKET,
+											LogAppender.Remote,
 											host, port);
 									/* User clicked OK so do some stuff */
 								}

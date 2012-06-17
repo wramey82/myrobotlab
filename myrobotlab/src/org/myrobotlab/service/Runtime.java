@@ -25,6 +25,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.*;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 
@@ -992,21 +993,21 @@ public class Runtime extends Service {
 		try {
 			if (cmdline.containsKey("-logToConsole"))
 			{
-				addAppender(LOGGING_APPENDER_CONSOLE);
-				setLogLevel(LOG_LEVEL_DEBUG);
+				addAppender(LogAppender.Console);
+				setLogLevel(LogLevel.Debug);
 			} else if (cmdline.containsKey("-logToRemote")) {
 				String host = cmdline.getSafeArgument("-logToRemote", 0, "localhost");
 				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445"); 
-				addAppender(LOGGING_APPENDER_SOCKET, host, port);
-				setLogLevel(LOG_LEVEL_DEBUG);
+				addAppender(LogAppender.Remote, host, port);
+				setLogLevel(LogLevel.Debug);
 			} else {			
-				addAppender(LOGGING_APPENDER_ROLLING_FILE);
-				setLogLevel(LOG_LEVEL_WARN);
+				addAppender(LogAppender.File);
+				setLogLevel(LogLevel.Warning);
 			}
 						
 			if (cmdline.containsKey("-logLevel"))
 			{
-				setLogLevel(cmdline.getSafeArgument("-logLevel", 0, "DEBUG"));
+				setLogLevel(LogLevel.valueOf(cmdline.getSafeArgument("-logLevel", 0, "DEBUG")));
 			}
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND

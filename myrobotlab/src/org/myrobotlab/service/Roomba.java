@@ -1508,7 +1508,7 @@ public class Roomba extends Service implements SerialService {
 		//roomba.connect("/dev/ttyUSB0");
 		roomba.connect("COM3");
 		
-		roomba.setMyLogLevel("DEBUG");
+		roomba.setMyLogLevel(org.myrobotlab.logging.LogLevel.Debug);
 				
 		// TODO remote test - need to undock - move - dock & re-charge !
 		// setup other cameras - see if video feed is digestable
