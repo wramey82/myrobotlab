@@ -1170,13 +1170,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (params == null && pType.length != 0 || pType.length != params.length) {
 					continue;
 				}
-				
-		 		Type[] pType = m.getGenericParameterTypes();
-		 		// checking parameter lengths
-		 		if (params == null && pType.length != 0 || pType.length != params.length)
-		 		{
-		 			continue;
-		 		}
 		 		try {
 		 			log.debug("found appropriate method");
 		 			retobj = m.invoke(object, params);
@@ -1702,21 +1695,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 
 			log.info(name + " sendServiceDirectoryUpdate ");
-			StringBuffer urlstr = new StringBuffer();
 			urlstr.append("http://"); // FIXME - change to URI - use default
 										// protocol tcp:// mrl:// udp://
 
 			if (login != null) {
-				urlstr.append(login);
-				urlstr.append(":");
+				urlstr.append(login)
+					.append(":");
 			}
 
 			if (password != null) {
-				urlstr.append(password);
-				urlstr.append("@");
+				urlstr.append(password)
+					.append("@");
 			}
 
-			InetAddress inetAddress = null;
 			// InetAddress.getByName("208.29.194.106");
 			inetAddress = InetAddress.getByName(remoteHost);
 		} catch (UnknownHostException e1) {
@@ -1788,10 +1779,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public Service setState(Service s)
 	{
 		return (Service)copyShallowFrom(this, s);
-	}
-
-	public Service setState(Service s) {
-		return (Service) copyShallowFrom(this, s);
 	}
 
 	// ---------------- logging begin ---------------------------
@@ -1926,7 +1913,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Logger.getRootLogger().addAppender(appender);
 		}
 
-		if (LOGGING_APPENDER_NONE.equals(type)) {
+		if (type.equals(LogAppender.None.toString())) {
 			Logger.getRootLogger().removeAllAppenders();
 		}
 
