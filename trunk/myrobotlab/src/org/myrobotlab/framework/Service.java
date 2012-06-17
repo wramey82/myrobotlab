@@ -127,7 +127,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
-	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir") + File.separator);
+	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
 	
 	/**
