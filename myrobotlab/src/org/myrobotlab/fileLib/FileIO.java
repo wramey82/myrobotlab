@@ -150,31 +150,40 @@ public class FileIO {
 		return stringData;
 	}
 	
-	
+	/**
+	 * Safe method for trying to read the content of a resource file.
+	 * 
+	 * @param filename
+	 * @return
+	 */
 	public final static String getResourceFile(String filename) {
-		StringBuffer str = null;
-		
+		StringBuffer str = new StringBuffer();
+		BufferedReader br = null;
 		try {
-
-			InputStream is = FileIO.class.getResourceAsStream("/resource/" + filename);
+			InputStream is = FileIO.class.getResourceAsStream(String.format("/resource/%1$s", filename));
 			
 			if (is == null)
 			{
-				log.error("resource " + filename + " not found");
+				log.error(String.format("resource %1$s not found", filename));
 				return null;
 			}
 				
 			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
+			br = new BufferedReader(isr);
 
 			String s;
-			str = new StringBuffer();
 			while ((s = br.readLine()) != null) {
 				str.append(s);
 				str.append("\n");
 			}
 		} catch (IOException e) {
-			log.error("could not open filename /resource/" + filename);
+			log.error(String.format("could not open filename /resource/%1$s", filename));
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {}
+			}
 		}
 
 		return str.toString();

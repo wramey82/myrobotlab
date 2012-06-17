@@ -137,18 +137,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		Object o = arg0.getSource();
 		if (o == restartButton) {
-			restartButton.activate();
-			executeButton.deactivate();
-			myService.send(boundServiceName, "restart");
+			performRestart();
 			return;
 		} else if (o == executeButton) {
-			executeButton.activate();
-			restartButton.deactivate();
-			javaConsole.startLogging(); // Hmm... noticed this is only local JVM
-										// :) the Jython console can be pushed
-										// over the network
-			myService.send(boundServiceName, "attachJythonConsole");
-			myService.send(boundServiceName, "exec", editor.getText());
+			performExecute();
 			return;
 		} else if (o == saveFileButton) {
 			saveFile();
@@ -158,7 +150,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			return;
 		}
 
-		JMenuItem m = (JMenuItem) arg0.getSource();
+		if (!(o instanceof JMenuItem)) {
+			return;
+		}
+		JMenuItem m = (JMenuItem) o;
 		if (m.getText().equals("save")) {
 			saveFile();
 		} else if (m.getText().equals("open")) {
@@ -166,11 +161,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		} else if (m.getText().equals("save as")) {
 			saveAsFile();
 		} else if (m.getActionCommand().equals("examples")) {
-			editor.setText(FileIO.getResourceFile("python/examples/"
-					+ m.getText()));
-			// } else if (m.getActionCommand().equals("system")) {
-			// editor.setText(FileIO.getResourceFile("python/system/" +
-			// m.getText()));
+			editor.setText(FileIO.getResourceFile(String.format("python/examples/%1$s", m.getText())));
 		}
 	}
 
@@ -542,6 +533,28 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		}
 		statusInfo.setText(FileUtil.getLastStatus());
 		return;
+	}
+
+	/**
+	 * Perform an execute action.
+	 */
+	private void performExecute() {
+		executeButton.activate();
+		restartButton.deactivate();
+		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
+									// :) the Jython console can be pushed
+									// over the network
+		myService.send(boundServiceName, "attachJythonConsole");
+		myService.send(boundServiceName, "exec", editor.getText());
+	}
+
+	/**
+	 * Perform the restart action.
+	 */
+	private void performRestart() {
+		restartButton.activate();
+		executeButton.deactivate();
+		myService.send(boundServiceName, "restart");
 	}
 
 	/**
