@@ -57,23 +57,33 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
 
+/**
+ * Jython GUI
+ * 
+ * @author SwedaKonsult
+ * 
+ */
 public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
+	private final static int fileMenuMnemonic = KeyEvent.VK_F;
+	private static final int saveMenuMnemonic = KeyEvent.VK_S;
+	private static final int openMenuMnemonic = KeyEvent.VK_O;
+	private static final int examplesMenuMnemonic = KeyEvent.VK_X;
 
-	JFrame top = myService.getFrame();
-	
-	RSyntaxTextArea editor = new RSyntaxTextArea();
-	RTextScrollPane editorScrollPane = null;
-	JTabbedPane editorTabs = new JTabbedPane();
-	
-	JSplitPane splitPane = null;
-	
-	JLabel statusInfo = new JLabel("Status:");
+	final JFrame top;
+
+	final RSyntaxTextArea editor;
+	JScrollPane editorScrollPane;
+	final JTabbedPane editorTabs;
+
+	JSplitPane splitPane;
+
+	final JLabel statusInfo;
 
 	// TODO - check for outside modification with lastmoddate
-	File currentFile = null;
-	String currentFilename = null;
+	File currentFile;
+	String currentFilename;
 
 	// button bar buttons
 	ImageButton executeButton;
@@ -81,231 +91,50 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	ImageButton openFileButton;
 	ImageButton saveFileButton;
-	
+
 	// consoles
 	JTabbedPane consoleTabs;
-	Console javaConsole = new Console();
-	JTextArea jythonConsole = new JTextArea();
-	JScrollPane jythonScrollPane = new JScrollPane(jythonConsole);
+	final Console javaConsole;
+	final JTextArea jythonConsole;
+	final JScrollPane jythonScrollPane;
 
 	// autocompletion
-	CompletionProvider provider = createCompletionProvider();
-	AutoCompletion ac = new AutoCompletion(provider);
+	final CompletionProvider provider;
+	final AutoCompletion ac;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param boundServiceName
+	 * @param myService
+	 */
 	public JythonGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-	}
 
-	public JMenuItem createMenuItem(String label, String actionCommand) {
-		return createMenuItem(label, -1, null, actionCommand);
-	}
-
-	public JMenuItem createMenuItem(String label) {
-		return createMenuItem(label, -1, null, null);
-	}
-
-	public JMenuItem createMenuItem(String label, int vKey, String accelerator, String actionCommand) {
-		JMenuItem mi = null;
-		if (vKey == -1) {
-			mi = new JMenuItem(label);
-		} else {
-			mi = new JMenuItem(label, vKey);
-		}
-
-		if (actionCommand != null) {
-			mi.setActionCommand(actionCommand);
-		}
-
-		if (accelerator != null) {
-			KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke(accelerator);
-			mi.setAccelerator(ctrlCKeyStroke);
-		}
-
-		mi.addActionListener(this);
-		return mi;
-	}
-
-	public void init() {
-
-		// editor tweaks
-		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
-		editorScrollPane = new RTextScrollPane(editor);
-		editor.setCodeFoldingEnabled(true);
-		editor.setAntiAliasingEnabled(true);
+		javaConsole = new Console();
+		jythonConsole = new JTextArea();
+		jythonScrollPane = new JScrollPane(jythonConsole);
 
 		// autocompletion
-		ac.install(editor);
-		ac.setShowDescWindow(true);
-		
-		// --------- text menu begin ------------------------
-		JMenuBar bar = new JMenuBar();
+		provider = createCompletionProvider();
+		ac = new AutoCompletion(provider);
 
-		// file ----------
-		JMenu file = new JMenu("file");
-		file.setMnemonic(KeyEvent.VK_F);
-		bar.add(file);
+		currentFile = null;
+		currentFilename = null;
 
-		file.add(createMenuItem("new"));
-		file.add(createMenuItem("save", KeyEvent.VK_S, "control S", null));
-		file.add(createMenuItem("save as"));
-		file.add(createMenuItem("open", KeyEvent.VK_O, "control O", null));
-		file.addSeparator();
+		editor = new RSyntaxTextArea();
+		editorScrollPane = null;
+		editorTabs = new JTabbedPane();
 
-		/*
-		// edit ---------
-		JMenu edit = new JMenu("edit");
-		edit.setMnemonic(KeyEvent.VK_E);
-		bar.add(edit);
-		*/
+		splitPane = null;
 
-		// examples -----
-		JMenu examples = new JMenu("examples");
-		examples.setMnemonic(KeyEvent.VK_X);
-		/*
-		 * JMenu menu = new JMenu("arduino");
-		 * menu.add(createMenuItem("dynamicallyLoadProgram.py","examples"));
-		 * examples.add(menu);
-		 * 
-		 * menu = new JMenu("chumby");
-		 * menu.add(createMenuItem("chumby.py","examples")); examples.add(menu);
-		 */
-		
-		// TODO - dynamically build based on resources
-		
-		JMenu menu;
-		
-		/*
-		JMenu menu = new JMenu("magabot");
-		menu.add(createMenuItem("magabotTest.py", "examples"));
-		menu.add(createMenuItem("magabotSpeechTest.py", "examples"));
-		examples.add(menu);
-		*/
-		menu = new JMenu("arduino");
-		menu.add(createMenuItem("arduinoBasic.py", "examples"));
-		menu.add(createMenuItem("arduinoInput.py", "examples"));
-		menu.add(createMenuItem("arduinoOutput.py", "examples"));
-		menu.add(createMenuItem("arduinoServo.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("basic");
-		menu.add(createMenuItem("createAService.py", "examples"));
-		menu.add(createMenuItem("basicPython.py", "examples"));
-		examples.add(menu);
-		
-		menu = new JMenu("input");
-		menu.add(createMenuItem("inputTest.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("speech");
-		menu.add(createMenuItem("sayThings.py", "examples"));
-		menu.add(createMenuItem("talkBack.py", "examples"));
-		//menu.add(createMenuItem("faceTracking.py", "examples"));
-
-		examples.add(menu);
-
-		menu = new JMenu("vision");
-		menu.add(createMenuItem("faceTracking.py", "examples"));
-		examples.add(menu);
-
-		/*
-		menu = new JMenu("system");
-		menu.add(createMenuItem("jythonConsole.py", "examples"));
-		examples.add(menu);
-		
-		*/
-
-		/*
-		 * menu = new JMenu("mrlbots");
-		 * menu.add(createMenuItem("minibot.py","examples"));
-		 * examples.add(menu);
-		 */
-
-		bar.add(examples);
-
-		// system -----------
-		/*
-		menu = new JMenu("system");
-		menu.add(createMenuItem("jython console", "jython console"));
-		*/
-
-		display.setLayout(new BorderLayout());
-
-		executeButton = new ImageButton("Jython", "execute", this); 
-		restartButton = new ImageButton("Jython", "restart", this);
-		openFileButton = new ImageButton("Jython", "open", this);;
-		saveFileButton = new ImageButton("Jython", "save", this);;
-
-		JPanel buttonBar = new JPanel();
-		buttonBar.add(openFileButton);
-		buttonBar.add(saveFileButton);
-		buttonBar.add(restartButton);
-		buttonBar.add(executeButton);
-
-		JPanel menuPanel = new JPanel(new BorderLayout());
-		menuPanel.add(bar, BorderLayout.LINE_START);
-		menuPanel.add(buttonBar);
-
-		display.add(menuPanel, BorderLayout.PAGE_START);
-		display.setPreferredSize(new Dimension(800, 600));
-		//display.setSize(new Dimension(800, 600));
-		//display.setMinimumSize(new Dimension(800, 600));
-
-		DefaultCaret caret = (DefaultCaret)jythonConsole.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-	
-		consoleTabs = new JTabbedPane();
-		consoleTabs.addTab("java", javaConsole.getScrollPane());
-		consoleTabs.setTabComponentAt(consoleTabs.getTabCount() - 1, new TabControl(top, consoleTabs, javaConsole.getScrollPane(), boundServiceName, "java"));
-		
-		consoleTabs.addTab("jython", jythonScrollPane);
-		consoleTabs.setTabComponentAt(consoleTabs.getTabCount() - 1, new TabControl(top, consoleTabs, jythonScrollPane, boundServiceName, "jython"));
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane, consoleTabs);
-		//new ComponentResizer(splitPane, editorScrollPane, editor);
-		
-		//splitPane.setLayout(new BorderLayout());
-		splitPane.setDividerLocation(450);
-		
-		display.add(splitPane, BorderLayout.CENTER);
-		display.add(statusInfo, BorderLayout.PAGE_END);
-		
-		//resizer.registerComponent(editor);
-		//resizer.registerComponent(editorScrollPane);
+		statusInfo = new JLabel("Status:");
+		top = myService.getFrame();
 	}
 
-	public void getState(Jython j) {
-		// TODO set GUI state debug from Service data
-
-	}
-
-	@Override
-	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Jython.class);
-		sendNotifyRequest("finishedExecutingScript");
-		sendNotifyRequest("publishStdOut","getStdOut", String.class);		
-//		myService.send(boundServiceName, "broadcastState");
-	}
-
-	@Override
-	public void detachGUI() {
-		javaConsole.stopLogging();
-		removeNotifyRequest("publishStdOut","getStdOut", String.class);		
-		removeNotifyRequest("finishedExecutingScript");
-		removeNotifyRequest("publishState", "getState", Jython.class);
-	}
-
-	public void finishedExecutingScript()
-	{
-		executeButton.deactivate();
-	}
-	
-	public void getStdOut (String data)
-	{
-		jythonConsole.append(data);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		
+
 		Object o = arg0.getSource();
 		if (o == restartButton) {
 			restartButton.activate();
@@ -314,8 +143,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			return;
 		} else if (o == executeButton) {
 			executeButton.activate();
-			restartButton.deactivate(); 
-			javaConsole.startLogging(); // Hmm... noticed this is only local JVM :) the Jython console can be pushed over the network
+			restartButton.deactivate();
+			javaConsole.startLogging(); // Hmm... noticed this is only local JVM
+										// :) the Jython console can be pushed
+										// over the network
 			myService.send(boundServiceName, "attachJythonConsole");
 			myService.send(boundServiceName, "exec", editor.getText());
 			return;
@@ -335,38 +166,162 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		} else if (m.getText().equals("save as")) {
 			saveAsFile();
 		} else if (m.getActionCommand().equals("examples")) {
-			editor.setText(FileIO.getResourceFile("python/examples/" + m.getText()));
-//		} else if (m.getActionCommand().equals("system")) {
-//			editor.setText(FileIO.getResourceFile("python/system/" + m.getText()));
+			editor.setText(FileIO.getResourceFile("python/examples/"
+					+ m.getText()));
+			// } else if (m.getActionCommand().equals("system")) {
+			// editor.setText(FileIO.getResourceFile("python/system/" +
+			// m.getText()));
 		}
 	}
 
-	public void saveAsFile()
-	{
-		if (FileUtil.saveAs(top, editor.getText(), currentFilename))
-			currentFilename = FileUtil.getLastFileSaved();
+	@Override
+	public void attachGUI() {
+		sendNotifyRequest("publishState", "getState", Jython.class);
+		sendNotifyRequest("finishedExecutingScript");
+		sendNotifyRequest("publishStdOut", "getStdOut", String.class);
+		// myService.send(boundServiceName, "broadcastState");
 	}
-	
-	public void saveFile()
-	{
-		if (FileUtil.save(top, editor.getText(), currentFilename))
-			currentFilename = FileUtil.getLastFileSaved();
+
+	@Override
+	public void detachGUI() {
+		javaConsole.stopLogging();
+		removeNotifyRequest("publishStdOut", "getStdOut", String.class);
+		removeNotifyRequest("finishedExecutingScript");
+		removeNotifyRequest("publishState", "getState", Jython.class);
 	}
-	
-	public void openFile()
-	{
-		String newfile = FileUtil.open(top,"*.py");
-		if (newfile != null)
-		{
-			editor.setText(newfile);
-			statusInfo.setText("Loaded: " + FileUtil.getLastFileOpened());
-			return;
-		}
-		statusInfo.setText(FileUtil.getLastStatus());
-		return;
+
+	/**
+	 * 
+	 */
+	public void finishedExecutingScript() {
+		executeButton.deactivate();
+	}
+
+	/**
+	 * 
+	 * @param j
+	 */
+	public void getState(Jython j) {
+		// TODO set GUI state debug from Service data
 
 	}
-	
+
+	/**
+	 * 
+	 * @param data
+	 */
+	public void getStdOut(String data) {
+		jythonConsole.append(data);
+	}
+
+	/**
+	 * 
+	 */
+	public void init() {
+		display.setLayout(new BorderLayout());
+		display.setPreferredSize(new Dimension(800, 600));
+
+		// --------- text menu begin ------------------------
+		JPanel menuPanel = createMenuPanel();
+
+		display.add(menuPanel, BorderLayout.PAGE_START);
+
+		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+		splitPane = createMainPane();
+
+		display.add(splitPane, BorderLayout.CENTER);
+		display.add(statusInfo, BorderLayout.PAGE_END);
+	}
+
+	/**
+	 * Build the main portion of the view.
+	 * 
+	 * @return
+	 */
+	private JSplitPane createMainPane() {
+		JSplitPane pane = new JSplitPane();
+
+		consoleTabs = createTabsPane();
+		editorScrollPane = createEditorPane();
+
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,
+				consoleTabs);
+		pane.setDividerLocation(450);
+
+		return pane;
+	}
+
+	/**
+	 * Build the editor pane.
+	 * 
+	 * @return
+	 */
+	private JScrollPane createEditorPane() {
+		// editor tweaks
+		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+		editor.setCodeFoldingEnabled(true);
+		editor.setAntiAliasingEnabled(true);
+
+		// autocompletion
+		ac.install(editor);
+		ac.setShowDescWindow(true);
+
+		return new RTextScrollPane(editor);
+	}
+
+	/**
+	 * Fill up the examples menu with submenu items.
+	 * 
+	 * @param examples
+	 */
+	private void createExamplesMenu(JMenu examples) {
+		// TODO - dynamically build based on resources
+		JMenu menu;
+		menu = new JMenu("arduino");
+		menu.add(createMenuItem("arduinoBasic.py", "examples"));
+		menu.add(createMenuItem("arduinoInput.py", "examples"));
+		menu.add(createMenuItem("arduinoOutput.py", "examples"));
+		menu.add(createMenuItem("arduinoServo.py", "examples"));
+		examples.add(menu);
+
+		menu = new JMenu("basic");
+		menu.add(createMenuItem("createAService.py", "examples"));
+		menu.add(createMenuItem("basicPython.py", "examples"));
+		examples.add(menu);
+
+		menu = new JMenu("input");
+		menu.add(createMenuItem("inputTest.py", "examples"));
+		examples.add(menu);
+
+		menu = new JMenu("speech");
+		menu.add(createMenuItem("sayThings.py", "examples"));
+		menu.add(createMenuItem("talkBack.py", "examples"));
+		examples.add(menu);
+
+		menu = new JMenu("vision");
+		menu.add(createMenuItem("faceTracking.py", "examples"));
+		examples.add(menu);
+	}
+
+	/**
+	 * Fill up the file menu with submenu items.
+	 * 
+	 * @param fileMenu
+	 */
+	private void createFileMenu(JMenu fileMenu) {
+		fileMenu.add(createMenuItem("new"));
+		fileMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
+		fileMenu.add(createMenuItem("save as"));
+		fileMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
+		fileMenu.addSeparator();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
 	private CompletionProvider createCompletionProvider() {
 
 		// TODO -> LanguageSupportFactory.get().register(editor);
@@ -388,7 +343,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// Add completions for all Java keywords. A BasicCompletion is just
 		// a straightforward word completion.
 
-		provider.addCompletion(new BasicCompletion(provider, "abstract", "blah", "<html><body>hello</body></html>"));
+		provider.addCompletion(new BasicCompletion(provider, "abstract",
+				"blah", "<html><body>hello</body></html>"));
 		provider.addCompletion(new BasicCompletion(provider, "assert"));
 		provider.addCompletion(new BasicCompletion(provider, "break"));
 		provider.addCompletion(new BasicCompletion(provider, "case"));
@@ -433,11 +389,177 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		// Add a couple of "shorthand" completions. These completions don't
 		// require the input text to be the same thing as the replacement text.
-		provider.addCompletion(new ShorthandCompletion(provider, "sysout", "System.out.println(", "System.out.println("));
-		provider.addCompletion(new ShorthandCompletion(provider, "syserr", "System.err.println(", "System.err.println("));
+		provider.addCompletion(new ShorthandCompletion(provider, "sysout",
+				"System.out.println(", "System.out.println("));
+		provider.addCompletion(new ShorthandCompletion(provider, "syserr",
+				"System.err.println(", "System.err.println("));
 
 		return provider;
 
+	}
+
+	/**
+	 * Helper function to create a menu item.
+	 * 
+	 * @param label
+	 * @return
+	 */
+	private JMenuItem createMenuItem(String label) {
+		return createMenuItem(label, -1, null, null);
+	}
+
+	/**
+	 * Helper function to create a menu item.
+	 * 
+	 * @param label
+	 * @param actionCommand
+	 * @return
+	 */
+	private JMenuItem createMenuItem(String label, String actionCommand) {
+		return createMenuItem(label, -1, null, actionCommand);
+	}
+
+	/**
+	 * Helper function to create a menu item.
+	 * 
+	 * @param label
+	 * @param vKey
+	 * @param accelerator
+	 * @param actionCommand
+	 * @return
+	 */
+	private JMenuItem createMenuItem(String label, int vKey,
+			String accelerator, String actionCommand) {
+		JMenuItem mi = null;
+		if (vKey == -1) {
+			mi = new JMenuItem(label);
+		} else {
+			mi = new JMenuItem(label, vKey);
+		}
+
+		if (actionCommand != null) {
+			mi.setActionCommand(actionCommand);
+		}
+
+		if (accelerator != null) {
+			KeyStroke ctrlCKeyStroke = KeyStroke.getKeyStroke(accelerator);
+			mi.setAccelerator(ctrlCKeyStroke);
+		}
+
+		mi.addActionListener(this);
+		return mi;
+	}
+
+	/**
+	 * Build the top menu panel.
+	 * 
+	 * @return
+	 */
+	private JPanel createMenuPanel() {
+		JMenuBar menuBar = createTopMenuBar();
+		JPanel buttonBar = createTopButtonBar();
+
+		JPanel menuPanel = new JPanel(new BorderLayout());
+		menuPanel.add(menuBar, BorderLayout.LINE_START);
+		menuPanel.add(buttonBar);
+
+		return menuPanel;
+	}
+
+	/**
+	 * Build the tabs pane.
+	 * 
+	 * @return
+	 */
+	private JTabbedPane createTabsPane() {
+		JTabbedPane pane = new JTabbedPane();
+		pane.addTab("java", javaConsole.getScrollPane());
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
+				pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+
+		pane.addTab("jython", jythonScrollPane);
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
+				pane, jythonScrollPane, boundServiceName, "jython"));
+
+		return pane;
+	}
+
+	/**
+	 * Build up the top button menu bar.
+	 * 
+	 * @return
+	 */
+	private JPanel createTopButtonBar() {
+		executeButton = new ImageButton("Jython", "execute", this);
+		restartButton = new ImageButton("Jython", "restart", this);
+		openFileButton = new ImageButton("Jython", "open", this);
+		;
+		saveFileButton = new ImageButton("Jython", "save", this);
+		;
+
+		JPanel buttonBar = new JPanel();
+		buttonBar.add(openFileButton);
+		buttonBar.add(saveFileButton);
+		buttonBar.add(restartButton);
+		buttonBar.add(executeButton);
+
+		return buttonBar;
+	}
+
+	/**
+	 * Build up the top text menu bar.
+	 * 
+	 * @return the menu bar filled with the top-level options.
+	 */
+	private JMenuBar createTopMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+
+		// file ----------
+		JMenu fileMenu = new JMenu("file");
+		menuBar.add(fileMenu);
+		fileMenu.setMnemonic(fileMenuMnemonic);
+		createFileMenu(fileMenu);
+
+		// examples -----
+		JMenu examples = new JMenu("examples");
+		menuBar.add(examples);
+		examples.setMnemonic(examplesMenuMnemonic);
+		createExamplesMenu(examples);
+
+		return menuBar;
+	}
+
+	/**
+	 * 
+	 */
+	private void openFile() {
+		// TODO does this need to be closed?
+		String newfile = FileUtil.open(top, "*.py");
+		if (newfile != null) {
+			editor.setText(newfile);
+			statusInfo.setText("Loaded: " + FileUtil.getLastFileOpened());
+			return;
+		}
+		statusInfo.setText(FileUtil.getLastStatus());
+		return;
+	}
+
+	/**
+	 * 
+	 */
+	private void saveAsFile() {
+		// TODO do we need to handle errors with permissions?
+		if (FileUtil.saveAs(top, editor.getText(), currentFilename))
+			currentFilename = FileUtil.getLastFileSaved();
+	}
+
+	/**
+	 * 
+	 */
+	private void saveFile() {
+		// TODO do we need to handle errors with permissions?
+		if (FileUtil.save(top, editor.getText(), currentFilename))
+			currentFilename = FileUtil.getLastFileSaved();
 	}
 
 }
