@@ -21,13 +21,13 @@
  * 
  * Enjoy !
  * 
+ * References :
+ * 	http://libjgraphx-java.sourcearchive.com/documentation/1.7.0.7/classcom_1_1mxgraph_1_1util_1_1mxConstants.html
  * */
 
 package org.myrobotlab.control;
 
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -89,6 +89,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	boolean showRoutes = true;
 	boolean showRouteLabels = false;
+	boolean showAccessURLs = false;
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>();
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
@@ -97,6 +98,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	JButton rebuildButton = new JButton("rebuild");
 	JButton hideRoutesButton = new JButton("hide routes");
+	JButton accessURLButton = new JButton("show access URLs");
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
 	
@@ -135,7 +137,9 @@ public class GUIServiceGUI extends ServiceGUI {
 		filters.add(rebuildButton);
 		filters.add(hideRoutesButton);
 		filters.add(showRouteLabelsButton);
+		filters.add(accessURLButton);
 		filters.add(dumpButton);
+		
 		
 		display.add(filters, gc);
 		++gc.gridy;
@@ -146,6 +150,8 @@ public class GUIServiceGUI extends ServiceGUI {
 		display.add(graphPanel, gc);
 		++gc.gridy;
 
+		
+		accessURLButton.addActionListener(buttonListener);
 		rebuildButton.addActionListener(buttonListener);
 		hideRoutesButton.addActionListener(buttonListener);
 		showRouteLabelsButton.addActionListener(buttonListener);
@@ -178,6 +184,17 @@ public class GUIServiceGUI extends ServiceGUI {
 				} else {
 					b.setText("show route labels");
 					showRouteLabels = false;
+				}
+				rebuildGraph();
+			} else if (b == accessURLButton)
+			{
+				if (b.getText().equals("show access URLs"))
+				{
+					b.setText("hide access URLs");
+					showAccessURLs = true;
+				} else {
+					b.setText("show access URLs");
+					showAccessURLs = false;
 				}
 				rebuildGraph();
 			} else if (b == dumpButton)
@@ -427,14 +444,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 				// load runtime
 				Runtime.load("runtime.bin");
-
-				Runtime.startLocalServices(); // FIXME - previously started gui
-												// .display()
-
-				// FIXME - startGUI
-
-				// Execute when button is pressed // TODO send - message
-
+				Runtime.startLocalServices(); 
 			}
 
 		});
@@ -459,17 +469,17 @@ public class GUIServiceGUI extends ServiceGUI {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
-			String ret;
+			String displayName;
 			String toolTip;
 			String canonicalName;
 
 			if (sw.get() == null) {
 				canonicalName = "unknown";
-				ret = serviceName + "\n" + "unknown";
+				displayName = serviceName + "\n" + "unknown";
 				toolTip = "";
 			} else {
 				canonicalName = sw.get().getShortTypeName();
-				ret = serviceName + "\n\n\n\n\n.";// +
+				displayName = serviceName + "\n\n\n\n\n.";// +
 													// sw.get().getShortTypeName();
 				toolTip = sw.getToolTip();
 			}
@@ -481,9 +491,14 @@ public class GUIServiceGUI extends ServiceGUI {
 			} else {
 				blockColor = mxUtils.getHexColorString(Style.remoteBackground);
 			}
+			
+			if (showAccessURLs)
+			{
+				displayName = sw.host.accessURL + "\n" + displayName;
+			}
 
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName,
-					ret, toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, "shape=image;image=/resource/"
+					displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, "shape=image;image=/resource/"
 					+ canonicalName.toLowerCase() + ".png");
 			// "ROUNDED;fillColor=" + blockColor);
 

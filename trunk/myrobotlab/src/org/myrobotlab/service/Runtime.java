@@ -536,7 +536,7 @@ public class Runtime extends Service {
 		ServiceEnvironment se = hosts.get(url);
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
 		while (it.hasNext()) {
-			String name = it.next();
+			String name = it.next(); // FIXME - concurrent modification - the iterator must remove not the data object
 			release(url, name);
 		}
 	}
