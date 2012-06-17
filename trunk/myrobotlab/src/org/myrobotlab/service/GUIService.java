@@ -1040,10 +1040,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			} else {
 				Service.remoteAppender(LogAppender.Remote);			
 			}
-		} else if (LOGGING_APPENDER_ROLLING_FILE.equals(cmd)) { 
-			addAppender(LOGGING_APPENDER_ROLLING_FILE);
-		} else if (LOGGING_APPENDER_NONE.equals(cmd)) { 
-			addAppender(LOGGING_APPENDER_NONE);
+		} else if (cmd.equals(LogAppender.File.toString())) { 
+			addAppender(LogAppender.File);
+		} else if (cmd.equals(LogAppender.None.toString())) { 
+			addAppender(LogAppender.None);
 	    } else if ("explode".equals(cmd)) 
 		{
 			//display();
