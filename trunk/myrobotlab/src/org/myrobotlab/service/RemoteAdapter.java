@@ -256,7 +256,7 @@ public class RemoteAdapter extends Service {
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset(); 
 						if ("registerServices".equals(msg.method)) {
-							URL url = new URL("http://" + dgram.getAddress() + ":" + dgram.getPort());
+							URL url = new URL("http://" + dgram.getAddress().getHostAddress() + ":" + dgram.getPort());
 							comm.addClient(url, socket);
 							invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 							continue;
@@ -343,80 +343,8 @@ public class RemoteAdapter extends Service {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
 
-	static public String help() {
-		return "java -jar MRLClient.jar -host [localhost] -port [6767] -service [myService] -method [doIt] -data \"data1\" \"data2\" \"data3\"... \n"
-				+ "host: the name or ip of the instance of MyRobotLab which the message should be sent."
-				+ "port: the port number which the foreign MyRobotLab is listening to."
-				+ "service: the Service the message is to be sent."
-				+ "method: the method to be invoked on the Service"
-				+ "data: the method's parameters.";
-
-	}
-
-	/**
-	 * Subscribes to a remote MRL service method. When the method is called on
-	 * the remote system an event message with return data is sent. It is
-	 * necessary to registerForServices before subscribing.
-	 * 
-	 * @param outMethod
-	 *            - the name of the remote method to hook/subscribe to
-	 * @param serviceName
-	 *            - service name of the remote service
-	 * @param inMethod
-	 *            - inMethod can be used as an identifier
-	 * @param paramTypes
-	 */
-	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, this.getName(), inMethod, paramTypes);
-		send(serviceName, "notify", ne);
-	}
-
-	/**
-	 * Registers remote service to a host and port. Used in client API to
-	 * register a remote MRL instance's service. After this is done messages can
-	 * be sent to the service using basic "Service.send" command. This method is
-	 * typically only used if messages are ONLY to be sent to MRL and not
-	 * received. If they are to be sent AND received the preferred registration
-	 * is registerForMSGs, which allows messages to be sent and received.
-	 * 
-	 * @param host
-	 *            - remote MRL's host name or ip
-	 * @param port
-	 *            - remote MRL's listening port
-	 * @param serviceName
-	 *            - name of remote service
-	 * @return
-	 */
-	public boolean register(String host, int port, String serviceName) {
-		try {
-			url = new URL("http://" + host + ":" + port);
-		} catch (MalformedURLException e) {
-			logException(e);
-			return false;
-		}
-
-		// FIXME - "more info" should win update - logic in Runtime which allows
-		// more info regarding a Service to update the registry. Services which
-		// share the same domain could be hammered by this registration
-		// since we only have a url & port name - if they are in the same
-		// process
-		// you could nullify the service pointer in the ServiceWrapper
-		ServiceWrapper sw = Runtime.getService(serviceName);
-		if (sw != null) {
-			log.warn("request to register " + serviceName + " which is already registered");
-		} else {
-			// FIXME - asking for a legitimate registry from running system
-			// this will be more complex in that it requires a call-back
-			// additionally - it seems overkill for just sending messages
-			sendServiceDirectoryUpdate(null, null, null, host, port, null);
-		}
-
-		return true;
-
-	}
-
-	/******************* Client API End ************************************/
-
+	// FIXME - restart listening threads whenever set port is called - 
+	// otherwise its meaningless
 	public void setUDPPort(int port) {
 		UDPPort = port;
 	}

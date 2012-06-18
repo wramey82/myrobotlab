@@ -991,7 +991,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public Object invoke(Message msg) {
 		Object retobj = null;
 
-		log.info(String.format("invoking %1$s.%3$s (%4$s) %2$s", name, msg.msgID, msg.method, msg.getParameterSignature()));
+		log.info(String.format("invoking %1$s.%3$s(%4$s) %2$s", name, msg.msgID, msg.method, msg.getParameterSignature()));
 
 		retobj = invoke(msg.method, msg.data);
 

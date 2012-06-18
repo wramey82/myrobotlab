@@ -64,7 +64,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		DatagramPacket dgram = new DatagramPacket(buffer, buffer.length);
 
 		public UDPThread(URL url) {
-			super("udp");
+			super("udp " + url);
 			try {
 				this.url = url;
 				this.socket = new DatagramSocket();

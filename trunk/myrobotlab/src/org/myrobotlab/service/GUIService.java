@@ -1104,15 +1104,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         
         Jython jython = new Jython("jython1");
         jython.startService();          
-/*        
+        
         GUIService gui2 = new GUIService("gui1");
         gui2.startService();
         gui2.display();
- */       
+       
         // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
         // FIXME - change to sendRegistration ....
         //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
-//        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.60", 6767, null);
+        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.73", 6767, null);
 	
 	}
 

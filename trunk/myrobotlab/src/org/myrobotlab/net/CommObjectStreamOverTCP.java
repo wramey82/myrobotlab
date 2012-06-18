@@ -62,6 +62,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		ObjectOutputStream out = null;
 		
 		public TCPThread(URL url, Socket socket) throws UnknownHostException, IOException {
+				super ("tcp " + url);
 				this.url = url;
 				if (socket == null)
 				{
