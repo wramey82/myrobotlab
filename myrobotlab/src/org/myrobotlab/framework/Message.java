@@ -119,7 +119,9 @@ public class Message implements Serializable {
 		for (int i = 0; i < data.length; ++i) {
 			if (data[i] != null)
 			{
-				ret.append(data[i].getClass().getCanonicalName());
+				String type = data[i].getClass().getCanonicalName();
+				String shortTypeName = type.substring(type.lastIndexOf(".")+1);
+				ret.append(shortTypeName);
 				if (data.length != i + 1) {
 					ret.append(",");
 				}
