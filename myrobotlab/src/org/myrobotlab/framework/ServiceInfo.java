@@ -1,22 +1,16 @@
 package org.myrobotlab.framework;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.apache.ivy.Main;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
@@ -168,7 +162,19 @@ public class ServiceInfo implements Serializable {
 	 */
 	public boolean getLocalServiceData() {
 		boolean ret = loadXML(serviceData, "serviceData.xml");
-		;
+		
+		if (!ret)
+		{
+			log.warn("no local file found - fetching repo version");
+			ret = getRepoServiceData("serviceData.xml");		
+			// try again :)
+			if (ret)
+			{
+				ret &= loadXML(serviceData, "serviceData.xml");
+			}
+			
+		}
+		
 		ret &= getLocalResolvedDependencies();
 		return ret;
 	}
@@ -190,6 +196,7 @@ public class ServiceInfo implements Serializable {
 				serializer.read(o, cfg);
 			} else {
 				log.warn("cfg file " + filename + " does not exist");
+				return false;
 			}
 		} catch (Exception e) {
 			Service.logException(e);
