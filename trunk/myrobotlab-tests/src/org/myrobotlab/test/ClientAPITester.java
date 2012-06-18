@@ -18,6 +18,7 @@ public class ClientAPITester {
 		
 	/**
 	 * Initialization of client api / remote adapter 
+	 * FIXME - use MRLCLient.jar
 	 */
 	public void init()
 	{
@@ -30,7 +31,7 @@ public class ClientAPITester {
 		api.setTCPPort(7777);
 		api.setUDPStringPort(7775);
 		api.startService();
-		api.register("localhost", 6767, "catcher01");
+		//api.register("localhost", 6767, "catcher01");
 	}
 	
 	/**
@@ -55,13 +56,16 @@ public class ClientAPITester {
 	 * In this test we will set a subscription to the catcher. So when we
 	 * send a message to the catcher, the catcher will send a message to our
 	 * receive function.  
+	 * 
+	 * FIXME - use MRLClient.jar
+	 * 
 	 */
 	public void test2()
 	{
 		// subscribe to the "catchInteger(Integer x)" method in service catch01
 		// FIXME - inbound method not needed everthing goes to receive
 		// FIXME - inbound method overloaded for routing ??? Bad Idea ???
-		api.subscribe("catchInteger", "catcher01", "receive", Integer.TYPE);
+	//	api.subscribe("catchInteger", "catcher01", "receive", Integer.TYPE);
 
 		api.send("catcher01", "catchInteger", 1);
 		api.send("catcher01", "catchInteger", 2);
