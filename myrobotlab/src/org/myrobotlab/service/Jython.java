@@ -63,8 +63,12 @@ public class Jython extends Service {
 	
 	boolean jythonConsoleInitialized = false;
 	
-	public Jython(String n) {
-		super(n, Jython.class.getCanonicalName());
+	/**
+	 * 
+	 * @param instanceName
+	 */
+	public Jython(String instanceName) {
+		super(instanceName, Jython.class.getCanonicalName());
 		Method[] methods = this.getClass().getMethods();
 		for (int i = 0; i < methods.length; ++i)
 		{
@@ -72,38 +76,6 @@ public class Jython extends Service {
 			commandMap.put(methods[i].getName(), null);
 		}
 	}
-	
-	@Override
-	public void loadDefaultConfiguration() {
-		
-	}
-	
-	@Override
-	public String getToolTip() {
-		return "Jython IDE";
-	}
-	
-	// PyObject interp.eval(String s) - for verifying?
-	
-	public void createPythonInterpreter ()
-	{
-		// TODO - check if exists - destroy / de-initialize if necessary
-		PySystemState.initialize();
-		interp = new PythonInterpreter();	
-		
-		// add self reference
-		// Python scripts can refer to this service as 'jython' regardless 
-		// of the actual name
-		String selfReferenceScript = "from org.myrobotlab.service import Runtime\n"
-				+ "from org.myrobotlab.service import Jython\n"
-				+ "jython = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n\n" // TODO - deprecate
-				+ "runtime = Runtime.getInstance()\n\n"
-				+ "myService = Runtime.create(\"" + this.getName() + "\",\"Jython\")\n"
-				;
-		interp.exec(selfReferenceScript);
-		
-	}
-
 	
 	/**
 	 * runs the jythonConsole.py script which creates a Jython Console object
@@ -118,7 +90,29 @@ public class Jython extends Service {
 			exec(consoleScript, false);
 		}
 	}
-
+	
+	// PyObject interp.eval(String s) - for verifying?
+	
+	/**
+	 * 
+	 */
+	public void createPythonInterpreter ()
+	{
+		// TODO - check if exists - destroy / de-initialize if necessary
+		PySystemState.initialize();
+		interp = new PythonInterpreter();	
+		
+		// add self reference
+		// Python scripts can refer to this service as 'jython' regardless 
+		// of the actual name
+		String selfReferenceScript = String.format("from org.myrobotlab.service import Runtime\n"
+				+ "from org.myrobotlab.service import Jython\n"
+				+ "jython = Runtime.create(\"%1$s\",\"Jython\")\n\n" // TODO - deprecate
+				+ "runtime = Runtime.getInstance()\n\n"
+				+ "myService = Runtime.create(\"%1$s\",\"Jython\")\n",
+				this.getName());
+		interp.exec(selfReferenceScript);
+	}
 	
 	/**
 	 * replaces and executes current Python script
@@ -127,16 +121,15 @@ public class Jython extends Service {
 	public void exec (String code)
 	{
 		exec(code, true);
-	}	
-	
+	}
 	
 	/**
 	 * replaces and executes current Python script
 	 * if replace = false - will not replace "script" variable
 	 * can be useful if ancillary scripts are needed e.g. monitors & consoles
 	 * 
-	 * @param code
-	 * @param replace
+	 * @param code the code to execute
+	 * @param replace replace the current script with code
 	 */
 	public void exec (String code, boolean replace)
 	{
@@ -150,8 +143,7 @@ public class Jython extends Service {
 		}
 		try {
 			interp.exec(code);
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			Service.logException(e);
 		} finally {
 			invoke("finishedExecutingScript");
@@ -165,11 +157,29 @@ public class Jython extends Service {
 	{
 	}
 	
+	/**
+	 * Get the current script.
+	 * 
+	 * @return
+	 */
 	public String getScript()
 	{
 		return script;
 	}
 	
+	@Override
+	public String getToolTip() {
+		return "Jython IDE";
+	}
+	
+	@Override
+	public void loadDefaultConfiguration() {
+		
+	}
+	
+	/**
+	 * Get rid of the interpreter.
+	 */
 	public void restart()
 	{
 		if (interp != null)
@@ -177,9 +187,13 @@ public class Jython extends Service {
 			interp.cleanup();
 			interp = null;
 		}
-		
 	}
 	
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public String publishStdOut(String data)
 	{
 		return data;
@@ -216,14 +230,12 @@ public class Jython extends Service {
 		msgHandle.append(msg.sender);
 		msgHandle.append("_");
 		msgHandle.append(msg.sendingMethod);
-		log.debug("calling " + msgHandle);
+		log.debug(String.format("calling %1$s", msgHandle));
 		interp.set(msgHandle.toString(), msg);
-		interp.exec(msg.method + "()");
+		interp.exec(String.format("%1$s()", msg.method));
 		
 		return false;
 	}
-	
-	
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
