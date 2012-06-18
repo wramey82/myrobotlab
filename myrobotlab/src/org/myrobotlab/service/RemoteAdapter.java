@@ -115,7 +115,6 @@ public class RemoteAdapter extends Service {
 				try {
 					serverSocket.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					logException(e);
 				}
 			}
@@ -137,32 +136,7 @@ public class RemoteAdapter extends Service {
 					log.info("new connection [" + url + "]");
 					comm.addClient(url, clientSocket);
 				}
-				/*
-				out = new ObjectOutputStream(clientSocket.getOutputStream());
-				out.flush();
-				in = new ObjectInputStream(clientSocket.getInputStream());
 
-				while (isRunning()) {
-
-					Message msg = (Message) in.readObject();
-
-					if ("registerServices".equals(msg.method)) {
-						URL url = new URL("http://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
-						comm.addClient(url, clientSocket);
-						invoke("registerServices", clientSocket.getInetAddress().getHostAddress(),
-								clientSocket.getPort(), msg);
-						continue;
-					}
-
-					if (msg.getName().equals(getName())) {
-						getInbox().add(msg);
-					} else {
-						getOutbox().add(msg);
-					}
-
-				}
-
-				*/
 				serverSocket.close();
 			} catch (Exception e) {
 				logException(e);

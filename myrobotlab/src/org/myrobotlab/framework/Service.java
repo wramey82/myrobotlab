@@ -566,6 +566,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (!m.getName().equals(this.getName())) // && RELAY
 				{
 					outbox.add(m); // RELAYING
+					continue; // sweet - that was a long time coming fix !
 				}
 
 				if (!preProcessHook(m)) {
