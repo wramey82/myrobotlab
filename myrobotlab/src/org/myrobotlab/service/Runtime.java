@@ -512,23 +512,29 @@ public class Runtime extends Service {
 		log.info("releasing url " + url);
 		boolean ret = true;
 		ServiceEnvironment se = hosts.get(url);
-		String[] services = (String[])se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
-		String runtimeName = null;
-		for (int i = 0; i < services.length; ++i)
+		if (se != null)
 		{
-			ServiceInterface service =  registry.get(services[i]).get();
-			if ("Runtime".equals(service.getShortTypeName()))
+			String[] services = (String[])se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
+			String runtimeName = null;
+			for (int i = 0; i < services.length; ++i)
 			{
-				runtimeName = service.getName();
-				log.info("delaying release of Runtime " + runtimeName);
-				continue;
+				ServiceInterface service =  registry.get(services[i]).get();
+				if ("Runtime".equals(service.getShortTypeName()))
+				{
+					runtimeName = service.getName();
+					log.info("delaying release of Runtime " + runtimeName);
+					continue;
+				}
+				ret &= release(services[i]);
 			}
-			ret &= release(services[i]);
-		}
-		
-		if (runtimeName != null)
-		{
-			ret &= release(runtimeName);
+			
+			if (runtimeName != null)
+			{
+				ret &= release(runtimeName);
+			}
+		} else {
+			log.warn("attempt to release " + url + " not successful - it does not exist");
+			return false;
 		}
 		
 		return ret;
