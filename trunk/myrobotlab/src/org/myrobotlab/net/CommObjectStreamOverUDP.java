@@ -21,6 +21,9 @@
  * 
  * Enjoy !
  * 
+ * References :
+ * 	http://systembash.com/content/a-simple-java-udp-server-and-udp-client/
+ * 
  * */
 
 package org.myrobotlab.net;
