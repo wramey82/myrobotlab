@@ -5,5 +5,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/myrobotlab"/>
 	<classpathentry kind="lib" path="thirdParty/lib/junit-4.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="thirdParty/lib/mockito-all-1.9.5-rc1.jar"/>
+	<classpathentry kind="lib" path="/myrobotlab/libraries/jar/jython.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

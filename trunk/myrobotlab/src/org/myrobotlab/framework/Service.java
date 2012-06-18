@@ -1085,6 +1085,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param method
 	 * @param params
 	 * @return
+	 * @deprecated use &lt;T&gt;invokeMethod(String, Object...)
 	 */
 	public Object invoke(String method, Object[] params) 
 	{
@@ -1107,11 +1108,38 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
+	 * Invoke in the context of this Service
+	 * 	
+	 * @param method
+	 * @param params
+	 * @return
+	 */
+	public <T> T invokeMethod(String method, Object... params) 
+	{
+		// log invoking call
+		if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
+			StringBuilder paramTypeString = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; ++i) {
+					paramTypeString.append(params[i].getClass().getCanonicalName());
+					if (params.length != i + 1) {
+						paramTypeString.append(",");
+					}
+				}
+			} else {
+				paramTypeString.append("null");
+			}
+		}
+		return this.<T>invokeMethod(this, method, params);
+	}
+
+	/**
 	 * general static base invoke
 	 * @param object
 	 * @param method
 	 * @param params
 	 * @return
+	 * @deprecated use &lt;T&gt;invokeMethod(Object, String, Object...)
 	 */
 	final public Object invoke(Object object, String method, Object params[]) 
 	{
@@ -1187,6 +1215,93 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		return retobj;
 	}
+	
+	/**
+	 * Invoke a method on the object.
+	 * 
+	 * @param object
+	 * @param method
+	 * @param params
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	final public <T> T invokeMethod(Object object, String method, Object... params)
+	{
+		T retobj = null;
+		Class<?> c = object.getClass();
+		// TODO - test if cached references are faster than lookup
+
+		Class<?>[] paramTypes = null;
+		if (params != null) {
+			paramTypes = new Class[params.length]; 
+			for (int i = 0; i < params.length; ++i) {
+				if (params[i] != null) {
+					paramTypes[i] = params[i].getClass();
+				} else {
+					paramTypes[i] = null;
+				}
+			}
+		}
+		Method meth = null;
+		try {
+			// TODO - method cache map
+			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
+			Object result = meth.invoke(object, params);
+			if (result != null) {
+				retobj = (T) result;
+			}
+
+			// put return object onEvent
+			out(method, retobj);
+		} catch (NoSuchMethodException e) {
+			log.warn(String.format("%1$s#%2$s NoSuchMethodException - attempting upcasting", c.getCanonicalName(), method));
+
+			// search for possible upcasting methods
+			// scary ! resolution rules are undefined - first "found" first
+			// invoked ?!?
+			// TODO - optimize with method cache - heavy on memory, good on
+			// speed
+			// Performance Analysis
+			// http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
+			// TODO - optimize "setState" function since it is a framework
+			// method - do not go through the search !
+			Method[] allMethods = c.getMethods(); // ouch
+			log.warn(String.format("ouch! need to search through %1$d methods", allMethods.length));
+
+			for (Method m : allMethods) {
+				String mname = m.getName();
+				if (!mname.equals(method)) {
+					continue;
+				}
+
+				Type[] pType = m.getGenericParameterTypes();
+				// checking parameter lengths
+				if (params == null && pType.length != 0 || pType.length != params.length) {
+					continue;
+				}
+		 		try {
+		 			log.debug("found appropriate method");
+		 			Object result = m.invoke(object, params);
+					if (result != null) {
+						retobj = (T) result;
+					}
+
+		 			// put return object onEvent
+					out(method, retobj);
+					return retobj;
+				} catch (Exception e1) {
+					log.error(String.format("boom goes method %1$s", m.getName()));
+					Service.logException(e1);
+				}
+			} 
+		    
+		    log.error(String.format("did not find method [%1$s] with %2$s params", method, ((params==null)?"()":params.length)));
+		} catch (Exception e) {
+			Service.logException(e);
+		}
+
+		return retobj;
+	}
 
 	/**
 	 * 
@@ -1201,7 +1316,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * send takes a name of a target system - the method - and a list of
 	 * parameters and invokes that method at its destination.
 	 */
-
 	
 	/**
 	 * this send forces remote connect - for registering services	
