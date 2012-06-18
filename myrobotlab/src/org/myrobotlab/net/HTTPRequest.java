@@ -40,7 +40,9 @@ import org.myrobotlab.framework.Service;
  *          
  *          The big beautiful kahuna from stack overflow
  *          http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
- *          
+ *          Proxy info - http://edn.embarcadero.com/article/29783
+ *          Proxy info - http://docs.oracle.com/javase/6/docs/technotes/guides/net/proxies.html
+ *          Proxy info - http://stackoverflow.com/questions/120797/how-do-i-set-the-proxy-to-be-used-by-the-jvm
  *          
  */
 
