@@ -256,6 +256,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// ================= begin addTab(name) =============================
 		ServiceWrapper sw = Runtime.getService(serviceName);
 
+		if (sw == null)
+		{
+			log.error("addTab " + serviceName + " can not proceed - " + serviceName + " does not exist in registry (yet?)");
+		}
+		
 		// SW sent in registerServices - yet Service is null due to incompatible Service Types
 		// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
 		if (sw.get() == null)
