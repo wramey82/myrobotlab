@@ -305,7 +305,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			sg.detachGUI();
 		} else {
-			log.error(name + " was not in the serviceGUIMap - unable to preform detach");
+			// warn not error - because service may have been removed recently
+			log.warn(name + " was not in the serviceGUIMap - unable to preform detach");
 		}
 		
 		// removing the tab

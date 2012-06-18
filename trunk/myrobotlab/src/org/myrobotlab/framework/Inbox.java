@@ -76,7 +76,7 @@ public class Inbox implements Serializable {
 		 */
 
 		Message msg = null;
-		log.debug("inbox getMsg just before synchronized");
+		// too chatty log.debug("inbox getMsg just before synchronized");
 		synchronized (msgBox) {
 
 			while (msg == null) { // while no messages && no messages that are
