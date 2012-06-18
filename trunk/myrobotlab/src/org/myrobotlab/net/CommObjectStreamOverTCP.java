@@ -70,7 +70,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				}
 				this.socket = socket;
 				out = new ObjectOutputStream(socket.getOutputStream());
-				//out.flush();// some flush before using :)
+				out.flush();// some flush before using :)
 				in = new ObjectInputStream(socket.getInputStream());
 				this.start(); // starting listener
 		}		
@@ -175,7 +175,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		phone.send(url, msg);
 	}
 
-	public void addClient(URL url, Object commData) {
+	public synchronized void addClient(URL url, Object commData) {
 		if (!clientList.containsKey(url)) {
 			log.debug("adding client " + url);
 			try {
