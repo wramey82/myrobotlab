@@ -61,7 +61,6 @@ public class Runtime extends Service {
 	private static boolean checkForDependencies = true; // TODO implement - Ivy
 														// related
 
-	public static final String registered = "registered";
 
 	// ---- rte members end ------------------------------
 

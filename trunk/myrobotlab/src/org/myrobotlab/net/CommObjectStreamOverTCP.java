@@ -96,7 +96,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						log.error("removing url from registry");
 						Runtime.release(url);
 						log.error("removing client from clientList");
-						//clientList.remove(url);
+						clientList.remove(url);
 						log.error("shutting down thread");
 						isRunning = false;
 						log.error("attempting to close streams");
@@ -137,7 +137,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			return socket;
 		}
 
-		public void send(URL url2, Message msg) {
+		public synchronized void send(URL url2, Message msg) { // FIX'd !!! you had to synchronize !
 			try {
 				out.writeObject(msg);
 				out.flush();
