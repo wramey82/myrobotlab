@@ -63,11 +63,16 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		ByteArrayInputStream b_in = new ByteArrayInputStream(buffer);
 		DatagramPacket dgram = new DatagramPacket(buffer, buffer.length);
 
-		public UDPThread(URL url) {
+		public UDPThread(URL url, DatagramSocket socket) {
 			super("udp " + url);
 			try {
 				this.url = url;
-				this.socket = new DatagramSocket();
+				if (socket == null)
+				{
+					socket = new DatagramSocket();
+				} 
+				
+				this.socket = socket;				
 				this.start();
 			} catch (SocketException e) {
 				Service.logException(e);
@@ -180,7 +185,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			if (clientList.containsKey(url)) {
 				phone = clientList.get(url);
 			} else {
-				phone = new UDPThread(url);
+				phone = new UDPThread(url, null);
 				clientList.put(url, phone);
 			}
 
@@ -195,7 +200,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	public void addClient(URL url, Object commData) {
 		log.info("adding tcp client ");
 
-		UDPThread phone = new UDPThread(url);
+		UDPThread phone = new UDPThread(url, (DatagramSocket)commData);
 		clientList.put(url, phone);
 	}
 
