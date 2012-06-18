@@ -25,6 +25,15 @@
  * 		http://www.javaspecialists.eu/archive/Issue088.html - details of ObjectOutputStream.reset()
  * 		http://zerioh.tripod.com/ressources/sockets.html - example of Object serialization
  * 		http://www.cafeaulait.org/slides/sd2003west/sockets/Java_Socket_Programming.html nice simple resource
+ * 		http://stackoverflow.com/questions/1480236/does-a-tcp-socket-connection-have-a-keep-alive
+ * 
+ * TCP can detect if a endpoint is "closed" - it also has the capability of using SO_KEEPALIVE
+ * which will detect a broken connection - but the details are left up to the operating system (with
+ * interval up to 2 hours!)
+ * 	I believe a small interval keepalive with very small data-packet would be beneficial for both TCP & UDP
+ *  Communicators
+ *  
+ *  A dead heartbeat would mean removal of all references of the dead system from the running system
  * 
  * */
 
