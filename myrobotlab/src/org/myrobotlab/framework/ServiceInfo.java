@@ -33,12 +33,14 @@ import org.simpleframework.xml.core.Persister;
  *
  */
 public class ServiceInfo implements Serializable {
-
+	// TODO this should be something a little more unique - tied to version?
 	private static final long serialVersionUID = 1L;
-
-	private String ivyFileName = "ivychain.xml";
 	public final static Logger log = Logger.getLogger(ServiceInfo.class.toString());
 
+	/**
+	 * This singleton.
+	 */
+	private static ServiceInfo instance = null;
 	/**
 	 * Lock object for creating the singleton instance.
 	 */
@@ -46,19 +48,19 @@ public class ServiceInfo implements Serializable {
 
 	private ServiceData serviceData = new ServiceData();
 	private ServiceData serviceDataFromRepo = new ServiceData();
-	private ArrayList<String> errors = new ArrayList<String>();
-
-	private String settings = "latest.integration";
-
-	private static ServiceInfo instance = null;
-
-	// private org.myrobotlab.service.Runtime runtime = null;
+	private final List<String> errors;
+	private final String ivyFileName;
+	private final String settings;
 
 	/**
 	 * Singleton constructor
 	 */
 	private ServiceInfo() {
-		// runtime = org.myrobotlab.service.Runtime.getInstance();
+		errors = new ArrayList<String>();
+		// TODO this should probably be a config value
+		ivyFileName = "ivychain.xml";
+		// TODO should this be a config value tied to versioning?
+		settings = "latest.integration";
 	}
 
 	/**
@@ -145,7 +147,8 @@ public class ServiceInfo implements Serializable {
 	 * 
 	 * @return
 	 */
-	public ArrayList<String> getErrors() {
+	public List<String> getErrors() {
+		// TODO this is not thread safe - returning a reference to a singleton list
 		return errors;
 	}
 
@@ -186,51 +189,49 @@ public class ServiceInfo implements Serializable {
 
 		// load .ivy cache
 		try {
-
 			List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
-
+			String org;
+			String module;
+			String versionFile;
+			String version;
+			Dependency dependency;
+			File componentsDir;
 			for (File file : files) {
-				String org = file.getName();
+				org = file.getName();
 				org = org.substring(org.indexOf("-") + 1);
 				org = org.substring(0, org.indexOf("-"));
 
-				String module = org.substring(org.lastIndexOf(".") + 1);
+				module = org.substring(org.lastIndexOf(".") + 1);
 
 				// String contents = FileIO.fileToString(file.getPath());
 
-				String versionFile = FileIO.fileToString(".ivy/" + org + "/" + module + "/ivydata-" + settings
-						+ ".properties");
+				versionFile = FileIO.fileToString(String.format(".ivy/%1$s/%2$s/ivydata-%3$s.properties", org, module, settings));
 
-				String version = null;
+				version = null;
 				// hack - more cheesy parsing
 				if (versionFile != null && versionFile.length() > 18) {
 					version = versionFile.substring(versionFile.indexOf("resolved.revision=") + 18);
 					int endPos = version.indexOf("\r");
-					if (endPos > -1)
+					if (endPos > -1) {
 						version = version.substring(0, endPos);
-					else
+					} else {
 						version = "0";
-					// version = version.substring(0,version.indexOf("\r\n"));
+					}
 				}
-				log.info("adding dependency " + org + " " + version + " to local thirdPartyLib");
-				Dependency d = new Dependency(org, module, version, false);
+				log.info(String.format("adding dependency %1$s %2$s to local thirdPartyLib", org, version));
+				dependency = new Dependency(org, module, version, false);
 
-				File componentsDir = new File(".ivy/" + org);
+				componentsDir = new File(".ivy/" + org);
 				if (componentsDir.exists()) {
-					d.released = true;
-					d.resolved = true;
-				} else {
-					d.released = false;
-					d.resolved = false;
+					dependency.released = true;
+					dependency.resolved = true;
 				}
-				serviceData.thirdPartyLibs.put(org, d);
+				serviceData.thirdPartyLibs.put(org, dependency);
 			}
-
 		} catch (FileNotFoundException e) {
 			Service.logException(e);
 			return false;
 		}
-
 		return ret;
 	}
 
