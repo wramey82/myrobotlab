@@ -47,12 +47,15 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.Communicator;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
@@ -69,20 +72,19 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
-		
+
 		public TCPThread(URL url, Socket socket) throws UnknownHostException, IOException {
-				super ("tcp " + url);
-				this.url = url;
-				if (socket == null)
-				{
-					socket = new Socket(url.getHost(), url.getPort());
-				}
-				this.socket = socket;
-				out = new ObjectOutputStream(socket.getOutputStream());
-				out.flush();// some flush before using :)
-				in = new ObjectInputStream(socket.getInputStream());
-				this.start(); // starting listener
-		}		
+			super("tcp " + url);
+			this.url = url;
+			if (socket == null) {
+				socket = new Socket(url.getHost(), url.getPort());
+			}
+			this.socket = socket;
+			out = new ObjectOutputStream(socket.getOutputStream());
+			out.flush();// some flush before using :)
+			in = new ObjectInputStream(socket.getInputStream());
+			this.start(); // starting listener
+		}
 
 		// run / listen for more msgs
 		@Override
@@ -118,8 +120,10 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						log.error("msg deserialized to null");
 					} else {
 						if (msg.method.equals("registerServices")) {
-							// FIXME - the only reason this is pulled off the comm line here
-							// is initial registerServices do not usually come with a "name"
+							// FIXME - the only reason this is pulled off the
+							// comm line here
+							// is initial registerServices do not usually come
+							// with a "name"
 							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
 							continue;
 						}
@@ -146,7 +150,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			return socket;
 		}
 
-		public synchronized void send(URL url2, Message msg) { // FIX'd !!! you had to synchronize !
+		public synchronized void send(URL url2, Message msg) { // FIX'd !!! you
+																// had to
+																// synchronize !
 			try {
 				out.writeObject(msg);
 				out.flush();
@@ -184,15 +190,25 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		phone.send(url, msg);
 	}
 
+	HashMap<URL, Heart> heartbeatList = new HashMap<URL, Heart>();
+	boolean useHeartbeat = false;
+
 	public synchronized void addClient(URL url, Object commData) {
 		if (!clientList.containsKey(url)) {
 			log.debug("adding client " + url);
 			try {
-				TCPThread tcp = new TCPThread(url, (Socket)commData);
+				TCPThread tcp = new TCPThread(url, (Socket) commData);
 				clientList.put(url, tcp);
+
+				if (useHeartbeat) {
+					Heart heart = new Heart(url, this);
+					heart.start();
+					heartbeatList.put(url, heart);
+				}
+
 			} catch (Exception e) {
 				Service.logException(e);
-				log.error("could not connect to " + url);				
+				log.error("could not connect to " + url);
 			}
 		}
 	}
@@ -212,6 +228,51 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		clientList.clear();
 		clientList = new HashMap<URL, TCPThread>();
 		isRunning = false;
+	}
+
+	boolean heartbeatRunning = false;
+
+	class Heart extends Thread {
+		URL url;
+		CommObjectStreamOverTCP comm;
+		boolean isRunning = false;
+		int heartbeatIntervalMilliSeconds = 1000;
+
+		Heart(URL url, CommObjectStreamOverTCP comm) {
+			this.url = url;
+			this.comm = comm;
+		}
+
+		@Override
+		public void run() {
+			try {
+			while (isRunning) {
+					Thread.sleep(heartbeatIntervalMilliSeconds);
+				Message msg = new Message();
+				msg.method = "echoHeartbeat";
+				Heartbeat heartbeat = new Heartbeat();
+				heartbeat.sender = myService.getName();
+				msg.data = new Object[]{new Heartbeat()};
+//				comm.send(name, msg);
+			}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void startHeartbeat() {
+		if (!heartbeatRunning) {
+
+		}
+	}
+
+	@Override
+	public void stopHeartbeat() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

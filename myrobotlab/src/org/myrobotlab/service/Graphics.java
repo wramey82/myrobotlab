@@ -195,7 +195,7 @@ public class Graphics extends Service {
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+	
 		GUIService gui = new GUIService("gui");
 		Graphics graph = new Graphics("graph");
 		//OpenCV opencv = new OpenCV("opencv");

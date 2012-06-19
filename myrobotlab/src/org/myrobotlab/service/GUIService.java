@@ -1096,7 +1096,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 
-	
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
@@ -1105,12 +1104,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         Clock clock = new Clock("clock");
         clock.startService();
 */
+		
+		Roomba roomba = new Roomba("roomba");
+		roomba.startService();
+/*		
         Logging logger = new Logging("log1");
         logger.startService();          
         
         Jython jython = new Jython("jython1");
         jython.startService();          
-        
+*/        
         GUIService gui2 = new GUIService("gui1");
         gui2.startService();
         gui2.display();

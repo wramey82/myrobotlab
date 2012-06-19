@@ -207,7 +207,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		Preferences2.set("target", "arduino"); // FIXME - board type
 		
 		// FIXME - set on load() & change
-		Preferences2.set("serial.port", getPortName());
+		if (getPortName() != null)
+			{
+				Preferences2.set("serial.port", getPortName());
+			}
 		Preferences2.setInteger("serial.debug_rate", 57600);
 		Preferences2.set("serial.parity", "N"); // f'ing stupid, 
 		Preferences2.setInteger("serial.databits", 8);
@@ -1282,6 +1285,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		arduino.setPort("COM10");
 		arduino.compileAndUploadSketch("C:\\mrl\\myrobotlab\\.myrobotlab\\MRLComm\\MRLComm.ino");
 		arduino.pinMode(44, Arduino.OUTPUT);
 		arduino.digitalWrite(44, Arduino.HIGH);

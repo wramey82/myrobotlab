@@ -225,4 +225,16 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		isRunning = false;
 	}
 
+	@Override
+	public void startHeartbeat() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stopHeartbeat() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
