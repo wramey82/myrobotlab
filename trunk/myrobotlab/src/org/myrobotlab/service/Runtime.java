@@ -1076,7 +1076,7 @@ public class Runtime extends Service {
 			}
 		}
 
-		ArrayList<String> errors = serviceInfo.getErrors();
+		List<String> errors = serviceInfo.getErrors();
 		for (int i = 0; i < errors.size(); ++i) {
 			log.error(errors.get(i));
 		}
