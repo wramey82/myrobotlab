@@ -82,6 +82,11 @@ public class Runtime extends Service {
 	public final static Logger log = Logger.getLogger(Runtime.class.getCanonicalName());
 	private static Runtime INSTANCE = null;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param n
+	 */
 	private Runtime(String n) {
 		super(n, Runtime.class.getCanonicalName());
 
@@ -99,10 +104,19 @@ public class Runtime extends Service {
 	}
 
 	// TODO - put this method in ServiceInterface
+	/**
+	 * 
+	 * @param newService
+	 * @return
+	 */
 	public static boolean isRuntime(Service newService) {
 		return newService.getClass().equals(Runtime.class);
 	}
 
+	/**
+	 * Get a handle to this singleton.
+	 * @return
+	 */
 	public static Runtime getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new Runtime("BORG " + new Random().nextInt(99999));
@@ -110,25 +124,37 @@ public class Runtime extends Service {
 		return INSTANCE;
 	}
 
-	// FYI - if stopServices deos not remove INSTANCE - it is not re-entrant in
-	// junit tests
+	/**
+	 * FYI - if stopServices deos not remove INSTANCE - it is not re-entrant in junit tests
+	 */
 	@Override
 	public void stopService() {
 		super.stopService();
 		INSTANCE = null;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void loadDefaultConfiguration() {
 
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public String getToolTip() {
 		return "Runtime singleton service";
 	}
 
 	// ---------- Java Runtime wrapper functions begin --------
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 */
 	public int exec(String[] params) {
 		java.lang.Runtime r = java.lang.Runtime.getRuntime();
 		try {
@@ -141,27 +167,50 @@ public class Runtime extends Service {
 		return 0;
 	}
 
-	// dorky pass-throughs to the real JVM Runtime
+	/**
+	 * dorky pass-throughs to the real JVM Runtime
+	 * 
+	 * @return
+	 */
 	public static final long getTotalMemory() {
 		return java.lang.Runtime.getRuntime().totalMemory();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static final long getFreeMemory() {
 		return java.lang.Runtime.getRuntime().freeMemory();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static final int availableProcessors() {
 		return java.lang.Runtime.getRuntime().availableProcessors();
 	}
 
+	/**
+	 * 
+	 * @param status
+	 */
 	public static final void exit(int status) {
 		java.lang.Runtime.getRuntime().exit(status);
 	}
 
+	/**
+	 * 
+	 */
 	public static final void gc() {
 		java.lang.Runtime.getRuntime().gc();
 	}
 
+	/**
+	 * 
+	 * @param filename
+	 */
 	public static final void loadLibrary(String filename) {
 		java.lang.Runtime.getRuntime().loadLibrary(filename);
 	}
@@ -294,7 +343,11 @@ public class Runtime extends Service {
 
 	}
 
-	// unregister a service environment
+	/**
+	 * unregister a service environment
+	 * 
+	 * @param url
+	 */
 	public static void unregisterAll(URL url) {
 		if (!hosts.containsKey(url)) {
 			log.error("unregisterAll " + url + " does not exist");
@@ -311,7 +364,9 @@ public class Runtime extends Service {
 
 	}
 
-	// unregister everything
+	/**
+	 * unregister everything
+	 */
 	public static void unregisterAll() {
 		Iterator<URL> it = hosts.keySet().iterator();
 		while (it.hasNext()) {
@@ -320,6 +375,10 @@ public class Runtime extends Service {
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getServiceCount() {
 		int cnt = 0;
 		Iterator<URL> it = hosts.keySet().iterator();
@@ -335,10 +394,18 @@ public class Runtime extends Service {
 		return cnt;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getServiceEnvironmentCount() {
 		return hosts.size();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static ServiceEnvironment getLocalServices() {
 		if (!hosts.containsKey(null)) {
 			log.error("local (null) ServiceEnvironment does not exist");
@@ -414,14 +481,28 @@ public class Runtime extends Service {
 		return export;
 	}
 
+	/**
+	 * 
+	 * @param packageName
+	 * @param className
+	 */
 	public static void addInclusiveExportFilterServiceType(String packageName, String className) {
 		inclusiveExportFilter.put(packageName + "." + className, className);
 	}
 
+	/**
+	 * 
+	 * @param shortClassName
+	 */
 	public static void addInclusiveExportFilterServiceType(String shortClassName) {
 		inclusiveExportFilter.put("org.myrobotlab.service." + shortClassName, shortClassName);
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static ServiceWrapper getService(String name) {
 
 		if (!registry.containsKey(name)) {
@@ -433,27 +514,11 @@ public class Runtime extends Service {
 
 	}
 
-	// get Service from specific Service Environment - null is local
-	/*
-	public static ServiceWrapper getService(URL url, String name) {
-		if (!hosts.containsKey(url)) {
-			log.error("getService environment does note exist for " + url + "." + name);
-			return null;
-		}
-
-		ServiceEnvironment se = hosts.get(url);
-
-		if (!se.serviceDirectory.containsKey(name)) {
-			log.error("getService " + name + " does note exist for " + url + "." + name);
-			return null;
-
-		}
-
-		return se.serviceDirectory.get(name);
-
-	}
-	*/
-
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static boolean release(String name) /* release local Service */
 	{
 		log.info("releasing service " + name);
@@ -484,28 +549,11 @@ public class Runtime extends Service {
 		
 	}
 
-/*	
-	public static boolean release(URL url, String name) {
-		ServiceWrapper sw = getService(url, name);
-		if (sw != null) {
-			if (sw.isValid()) {
-				if (url == null) {
-					sw.get().stopService();// if its a local Service shut it
-											// down
-				}
-				registry.remove(name);
-				ServiceEnvironment se = hosts.get(url);
-				INSTANCE.invoke("released", se.serviceDirectory.get(name));
-				se.serviceDirectory.remove(name);
-				return true;
-			}
-		} else {
-			log.error("no service wrapper for " + url + " " + name);
-		}
-		return false;
-	}
-*/
-	
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 */
 	public static boolean release(URL url) /* release process environment */
 	{
 		log.info("releasing url " + url);
@@ -585,10 +633,19 @@ public class Runtime extends Service {
 		registry.clear();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static HashMap<String, ServiceWrapper> getRegistry() {
 		return registry;// FIXME should return copy
 	}
 
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 */
 	public static ServiceEnvironment getServiceEnvironment(URL url) {
 		if (hosts.containsKey(url)) {
 			return hosts.get(url); // FIXME should return copy
@@ -596,10 +653,19 @@ public class Runtime extends Service {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static HashMap<URL, ServiceEnvironment> getServiceEnvironments() {
 		return new HashMap<URL, ServiceEnvironment>(hosts);
 	}
 
+	/**
+	 * 
+	 * @param serviceName
+	 * @return
+	 */
 	public static HashMap<String, MethodEntry> getMethodMap(String serviceName) {
 		if (!registry.containsKey(serviceName)) {
 			log.error(serviceName + " not in registry - can not return method map");
@@ -631,6 +697,11 @@ public class Runtime extends Service {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param filename
+	 * @return
+	 */
 	public static boolean save(String filename) {
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
@@ -663,6 +734,11 @@ public class Runtime extends Service {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param filename
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static boolean load(String filename) {
 		try {
@@ -684,6 +760,9 @@ public class Runtime extends Service {
 		return true;
 	}
 
+	/**
+	 * 
+	 */
 	public static void startLocalServices() {
 		// boolean hasGUI = false;
 		// GUI gui = null;
@@ -740,6 +819,11 @@ public class Runtime extends Service {
 		return sb.toString();
 	}
 
+	/**
+	 * 
+	 * @param interfaceName
+	 * @return
+	 */
 	public static Vector<String> getServicesFromInterface(String interfaceName) {
 		Vector<String> ret = new Vector<String>();
 
@@ -778,11 +862,14 @@ public class Runtime extends Service {
 	 * 
 	 * return local; }
 	 */
-
 	public static void requestRestart() {
 		needsRestart = true;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static boolean needsRestart() {
 		return needsRestart;
 	}
@@ -826,6 +913,9 @@ public class Runtime extends Service {
 
 	// ---------------- Runtime begin --------------
 
+	/**
+	 * 
+	 */
 	static void help() {
 		System.out.println("Runtime " + version());
 		System.out.println("-h       			# help ");
@@ -837,6 +927,10 @@ public class Runtime extends Service {
 		System.out.println(helpString);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	static String version() {
 		String v = FileIO.getResourceFile("version.txt");
 		System.out.println(v);
@@ -845,6 +939,10 @@ public class Runtime extends Service {
 
 	static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel DEBUG -logToConsole";
 
+	/**
+	 * 
+	 * @param cmdline
+	 */
 	public final static void invokeCMDLine(CMDLine cmdline) {
 
 		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
@@ -899,10 +997,19 @@ public class Runtime extends Service {
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	static public String[] getServiceShortClassNames() {
 		return getServiceShortClassNames(null);
 	}
 
+	/**
+	 * 
+	 * @param filter
+	 * @return
+	 */
 	static public String[] getServiceShortClassNames(String filter) {
 		return ServiceInfo.getInstance().getShortClassNames(filter);
 	}
@@ -1007,6 +1114,12 @@ public class Runtime extends Service {
 		}
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param type
+	 * @return
+	 */
 	static public ServiceInterface createAndStart(String name, String type) {
 		ServiceInterface s = create(name, type);
 		if (s == null) {
@@ -1017,6 +1130,12 @@ public class Runtime extends Service {
 		return s;
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param type
+	 * @return
+	 */
 	static public synchronized ServiceInterface create(String name, String type) {
 		return create(name, "org.myrobotlab.service.", type);
 	}
@@ -1144,6 +1263,10 @@ public class Runtime extends Service {
 
 	// ---------------- Runtime end --------------
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static String dump() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("\nhosts:\n");
@@ -1218,12 +1341,19 @@ public class Runtime extends Service {
 		return si;
 	}
 
+	/**
+	 * 
+	 */
 	public static void installLatestAll() {
 		// FIXME - implement & updateAll which updates all "installed"
 		// serviceInfo.getRepoServiceData();
 
 	}
 
+	/**
+	 * 
+	 * @param fullTypeName
+	 */
 	public void update(String fullTypeName) {
 		ServiceInfo.getInstance().getLocalServiceData();
 
@@ -1231,19 +1361,37 @@ public class Runtime extends Service {
 
 	}
 
-	// published events
+	/**
+	 * published events
+	 * 
+	 * @param className
+	 * @return
+	 */
 	public String resolveBegin(String className) {
 		return className;
 	}
 
+	/**
+	 * 
+	 * @param errors
+	 * @return
+	 */
 	public List<String> resolveError(List<String> errors) {
 		return errors;
 	}
 
+	/**
+	 * 
+	 * @param className
+	 * @return
+	 */
 	public String resolveSuccess(String className) {
 		return className;
 	}
 
+	/**
+	 * 
+	 */
 	public void resolveEnd() {
 	}
 
