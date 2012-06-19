@@ -561,7 +561,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			boolean upgradeAvailable = false;
 			
 			String upgradeString = "<html><h6>upgrade<br>";
-			ArrayList<Dependency> deps = info.checkForUpgrade("org.myrobotlab.service." + entry.type);
+			List<Dependency> deps = info.checkForUpgrade("org.myrobotlab.service." + entry.type);
 			if (deps.size() > 0)
 			{
 				upgradeAvailable = true;

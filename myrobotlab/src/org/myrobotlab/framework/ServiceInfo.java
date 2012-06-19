@@ -179,25 +179,30 @@ public class ServiceInfo implements Serializable {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param o
+	 * @param inCfgFileName
+	 * @return
+	 */
 	public boolean loadXML(Object o, String inCfgFileName) {
 		String filename = null;
 		if (inCfgFileName == null) {
-			filename = Service.getCFGDir() + File.separator + inCfgFileName + ".xml";
+			filename = String.format("%1$s%2$s.xml", Service.getCFGDir(), File.separator);
 		} else {
-			filename = Service.getCFGDir() + File.separator + inCfgFileName;
+			filename = String.format("%1$s%2$s%3$s", Service.getCFGDir(), File.separator, inCfgFileName);
+		}
+		File cfg = new File(filename);
+		if (!cfg.exists()) {
+			log.warn("cfg file " + filename + " does not exist");
+			return false;
 		}
 		if (o == null) {
 			o = this;
 		}
 		Serializer serializer = new Persister();
 		try {
-			File cfg = new File(filename);
-			if (cfg.exists()) {
-				serializer.read(o, cfg);
-			} else {
-				log.warn("cfg file " + filename + " does not exist");
-				return false;
-			}
+			serializer.read(o, cfg);
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
@@ -205,70 +210,98 @@ public class ServiceInfo implements Serializable {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param fullServiceName
+	 * @return
+	 */
 	public boolean hasUnfulfilledDependencies(String fullServiceName) {
 		boolean ret = false;
-		log.debug("inspecting " + fullServiceName + " for unfulfilled dependencies");
+		log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
 
 		// no serviceInfo
 		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
-			log.error("need full service name ... got " + fullServiceName);
+			log.error(String.format("need full service name ... got %1$s", fullServiceName));
 			return false;
 		}
 
 		ServiceDescriptor d = serviceData.serviceInfo.get(fullServiceName);
+		if (d == null || d.size() == 0) {
+			log.error(String.format("no service descriptor for %1$s", fullServiceName));
+			return false;
+		}
+		Dependency dep;
 		for (int i = 0; i < d.size(); ++i) {
-			if (serviceData.thirdPartyLibs.containsKey(d.get(i))) {
-				Dependency dep = serviceData.thirdPartyLibs.get(d.get(i));
-				if (!dep.resolved) {
-					log.debug("hasUnfulfilledDependencies exit true");
-					return true;
-				}
-			} else {
-				log.debug(d.get(i) + " can not be found in current thirdPartyLibs");
+			if (!serviceData.thirdPartyLibs.containsKey(d.get(i))) {
+				log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
 				log.debug("hasUnfulfilledDependencies exit true");
 				return true;
 			}
+			dep = serviceData.thirdPartyLibs.get(d.get(i));
+			if (dep.resolved) {
+				continue;
+			}
+			log.debug("hasUnfulfilledDependencies exit true");
+			return true;
 		}
-		log.debug("hasUnfulfilledDependencies exit " + ret);
+		log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String[] getShortClassNames() {
 		return getShortClassNames(null);
 	}
 
+	/**
+	 * 
+	 * @param filter
+	 * @return
+	 */
 	public String[] getShortClassNames(String filter) {
 		ArrayList<String> sorted = new ArrayList<String>();
 
 		Iterator<String> it = serviceData.serviceInfo.keySet().iterator();
+		String sn;
+		ServiceData.CategoryList cats;
 		while (it.hasNext()) {
-			String sn = it.next();
-			if (filter != null) {
-				ServiceData.CategoryList cats = serviceData.categories.get(sn);
-				if (cats != null) {
-					for (int i = 0; i < cats.size(); ++i) {
-						if (filter.equals(cats.get(i))) {
-							sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
-						}
-					}
+			sn = it.next();
+			if (filter == null) {
+				sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
+				continue;
+			}
+			cats = serviceData.categories.get(sn);
+			if (cats == null) {
+				continue;
+			}
+			for (int i = 0; i < cats.size(); ++i) {
+				if (!filter.equals(cats.get(i))) {
+					continue;
 				}
-			} else {
 				sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
 			}
 		}
 		Collections.sort(sorted);
 		return sorted.toArray(new String[sorted.size()]);
-		// return serviceInfo.keySet().toArray(new
-		// String[serviceInfo.keySet().size()]);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String[] getUniqueCategoryNames() {
 		ArrayList<String> sorted = new ArrayList<String>();
 		HashMap<String, String> normal = new HashMap<String, String>();
 		Iterator<String> it = serviceData.categories.keySet().iterator();
+		
+		String sn;
+		ServiceData.CategoryList al;
 		while (it.hasNext()) {
-			String sn = it.next();
-			ServiceData.CategoryList al = serviceData.categories.get(sn);
+			sn = it.next();
+			al = serviceData.categories.get(sn);
 			for (int i = 0; i < al.size(); ++i) {
 				normal.put(al.get(i), null);
 			}
@@ -276,7 +309,7 @@ public class ServiceInfo implements Serializable {
 
 		it = normal.keySet().iterator();
 		while (it.hasNext()) {
-			String sn = it.next();
+			sn = it.next();
 			sorted.add(sn);
 		}
 
@@ -284,8 +317,14 @@ public class ServiceInfo implements Serializable {
 		return sorted.toArray(new String[sorted.size()]);
 	}
 
+	/**
+	 * 
+	 * @param localFileName
+	 * @return
+	 */
 	public boolean getRepoServiceData(String localFileName) {
 		try {
+			// TODO this should be a configuration value of some sort
 			HTTPRequest http = new HTTPRequest(
 					"http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
 			String s = http.getString();
@@ -300,19 +339,26 @@ public class ServiceInfo implements Serializable {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param shortName
+	 * @param category
+	 */
 	public void addCategory(String shortName, String category) {
+		// TODO - should there be a null check on shortName?
 		// TODO - bury all this in ServiceData
 		if (serviceData.categories == null) {
 			serviceData.categories = new TreeMap<String, CategoryList>();
 		}
 
-		String fullname = "org.myrobotlab.service." + shortName;
+		String fullname = String.format("org.myrobotlab.service.%1$s", shortName);
 		// ArrayList<String>list = null;
 		ServiceData.CategoryList list = null;
 		if (serviceData.categories.containsKey(shortName)) {
-
 			list = serviceData.categories.get(fullname);
-		} else {
+		}
+		// make sure we didn't store a null value somewhere else
+		if (list == null) {
 			list = new ServiceData.CategoryList();
 			serviceData.categories.put(fullname, list);
 		}
@@ -328,129 +374,115 @@ public class ServiceInfo implements Serializable {
 	// TODO - interface to Ivy2 needs to be put into ServiceInfo
 	// resolve here "means" retrieve
 	public boolean resolve(String fullTypeName) {
-		log.debug("getDependencies " + fullTypeName);
-		boolean ret = true;
+		log.debug(String.format("getDependencies %1$s", fullTypeName));
+
 		org.myrobotlab.service.Runtime runtime = org.myrobotlab.service.Runtime.getInstance();
 
 		File ivysettings = new File(ivyFileName);
 		if (!ivysettings.exists()) {
-			log.warn(ivyFileName + " does not exits - will not try to resolve dependencies");
+			log.warn(String.format("%1$s does not exits - will not try to resolve dependencies", ivyFileName));
 			return false;
 		}
+		List<String> d = getRequiredDependencies(fullTypeName);
 
+		boolean ret = true;
+		if (d == null) {
+			log.info(String.format("%1$s returned no dependencies", fullTypeName));
+		} else {
+			log.info(String.format("%1$s found %2$d needed dependencies", fullTypeName, d.size()));
+			ret = resolveDependencies(ret, d, runtime);
+		}
+		runtime.invoke("resolveEnd");
+
+		return ret;
+	}
+
+	/**
+	 * 
+	 * java -jar libraries\jar\ivy.jar -cache .ivy -settings
+	 * ivychain.xml -dependency org.myrobotlab myrobotlab
+	 * "latest.integration"
+	 * java -jar libraries\jar\ivy.jar -cache .ivy -retrieve
+	 * libraries/[type]/[artifact].[ext] -settings ivychain.xml
+	 * -dependency org.myrobotlab myrobotlab
+	 * "latest.integration"
+	 * 
+	 * @param status
+	 * @param dependencies
+	 * @param runtime
+	 * @return
+	 */
+	private boolean resolveDependencies(boolean status, List<String> dependencies, org.myrobotlab.service.Runtime runtime) {
+		if (dependencies == null || dependencies.size() == 0) {
+			return status;
+		}
+		boolean ret = status;
 		try {
+			String dep;
+			String module;
+			List<String> cmd;
+			StringBuilder sb;
+			CommandLineParser parser;
+			ResolveReport report;
+			ArtifactDownloadReport[] artifacts;
+			ArtifactDownloadReport artifact;
+			String filename;
+			for (int i = 0; i < dependencies.size(); ++i) {
+				dep = dependencies.get(i);
+				module = dep.substring(dep.lastIndexOf(".") + 1);
+				cmd = getIvyOptions(dep, module);
 
-			ArrayList<String> d = getRequiredDependencies(fullTypeName);
-
-			if (d != null) {
-				log.info(fullTypeName + " found " + d.size() + " needed dependencies");
-				for (int i = 0; i < d.size(); ++i) {
-					// java -jar libraries\jar\ivy.jar -cache .ivy -settings
-					// ivychain.xml -dependency org.myrobotlab myrobotlab
-					// "latest.integration"
-					// java -jar libraries\jar\ivy.jar -cache .ivy -retrieve
-					// libraries/[type]/[artifact].[ext] -settings ivychain.xml
-					// -dependency org.myrobotlab myrobotlab
-					// "latest.integration"
-
-					String dep = d.get(i);
-
-					ArrayList<String> cmd = new ArrayList<String>();
-
-					cmd.add("-cache");
-					cmd.add(".ivy");
-
-					cmd.add("-retrieve");
-					cmd.add("libraries/[type]/[artifact].[ext]");
-
-					cmd.add("-settings");
-					// cmd.add("ivysettings.xml");
-					cmd.add(ivyFileName);
-
-					// cmd.add("-cachepath");
-					// cmd.add("cachefile.txt");
-
-					cmd.add("-dependency");
-					cmd.add(dep); // org
-					String module = dep.substring(dep.lastIndexOf(".") + 1);
-					cmd.add(module); // module
-					// cmd.add(dep.version); // version
-					cmd.add(settings);
-
-					cmd.add("-confs");
-					String confs = "runtime," + Platform.getArch() + "." + Platform.getBitness() + "."
-							+ Platform.getOS();
-					cmd.add(confs);
-
-					// show cmd params
-					StringBuilder sb = new StringBuilder();
-					for (int k = 0; k < cmd.size(); ++k) {
-						sb.append(cmd.get(k));
-						sb.append(" ");
-					}
-
-					// TODO - generate a valid Ivy xml file
-					log.info("Ivy2.run " + sb.toString());
-
-					CommandLineParser parser = Main.getParser();
-
-					runtime.invoke("resolveBegin", module);
-					try {
-						Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
-					} catch (Exception e) {
-						Service.logException(e);
-					}
-
-					ResolveReport report = Ivy2.getReport();
-					ArtifactDownloadReport[] artifacts = report.getAllArtifactsReports();
-
-					if (report.hasError()) {
-						ret = false;
-						log.error("Ivy resolve error");
-						List<String> l = report.getAllProblemMessages();
-						runtime.invoke("resolveError", l);
-						for (int j = 0; j < l.size(); ++j) {
-							log.error(l.get(j));
-						}
-					} else {
-						runtime.invoke("resolveSuccess", module);
-						for (int j = 0; j < artifacts.length; ++j) {
-							ArtifactDownloadReport artifact = artifacts[j];
-							if (artifact.getExt().equals("zip"))
-							{
-								String filename = "libraries" + File.separator + "zip" + File.separator + 
-										artifact.getName() + ".zip";
-								FileIO.unzip(filename, "./");
-							}
-							log.info(artifacts[j]);
-						}
-
-						// dep.resolved = true;
-						// save();
-					}
-
-					// local config -
-
-					// if the Service is downloaded we have to dynamically
-					// load the classes - if we are not going to restart
-					// http://tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html
+				// show cmd params
+				sb = new StringBuilder();
+				for (int k = 0; k < cmd.size(); ++k) {
+					sb.append(cmd.get(k));
+					sb.append(" ");
 				}
-			} else {
-				if (d == null) {
-					log.info(fullTypeName + " returned no dependencies");
+
+				// TODO - generate a valid Ivy xml file
+				log.info(String.format("Ivy2.run %1$s", sb.toString()));
+
+				parser = Main.getParser();
+
+				runtime.invoke("resolveBegin", module);
+				try {
+					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
+				} catch (Exception e) {
+					Service.logException(e);
+				}
+
+				report = Ivy2.getReport();
+				artifacts = report.getAllArtifactsReports();
+
+				if (report.hasError()) {
+					ret = false;
+					log.error("Ivy resolve error");
+					@SuppressWarnings("unchecked")
+					List<String> l = (List<String>) report.getAllProblemMessages();
+					runtime.invoke("resolveError", l);
+					for (int j = 0; j < l.size(); ++j) {
+						log.error(l.get(j));
+					}
+					continue;
+				}
+				runtime.invoke("resolveSuccess", module);
+				for (int j = 0; j < artifacts.length; ++j) {
+					artifact = artifacts[j];
+					if (artifact.getExt().equals("zip"))
+					{
+						filename = String.format("libraries%1$szip%1$s%2$s.zip", File.separator, artifact.getName());
+						FileIO.unzip(filename, "./");
+					}
+					log.info(artifacts[j]);
 				}
 			}
 		} catch (Exception e) {
 			Service.logException(e);
 			ret = false;
 		}
-
-		runtime.invoke("resolveEnd");
-
 		return ret;
 	}
 
-	
 	/**
 	 * function to return an array of serviceInfo for the Runtime So that Ivy
 	 * can download, cache, and manage all the appropriate serviceInfo for a
@@ -458,39 +490,33 @@ public class ServiceInfo implements Serializable {
 	 * 
 	 * @return Array of serviceInfo to be retrieved from the repo
 	 */
-	public ArrayList<String> getRequiredDependencies(String fullname) {
-		ArrayList<String> ret = null;
+	public List<String> getRequiredDependencies(String fullname) {
 		if (serviceDataFromRepo != null && serviceDataFromRepo.serviceInfo.containsKey(fullname)) {
 			ServiceDescriptor d = serviceDataFromRepo.serviceInfo.get(fullname);
-			if (ret == null)
-				ret = new ArrayList<String>();
-
+			List<String> list = new ArrayList<String>();
 			for (int i = 0; i < d.size(); ++i) {
-				String org = d.get(i);
-
-				ret.add(org);
+				list.add(d.get(i));
 			}
-			return ret; // repo has precedence
+			return list; // repo has precedence
 		}
 
-		if (serviceData.serviceInfo.containsKey(fullname)) {
-			ServiceDescriptor d = serviceData.serviceInfo.get(fullname);
-			ret = new ArrayList<String>();
-			for (int i = 0; i < d.size(); ++i) {
-				String org = d.get(i);
-				/*
-				 * if (serviceData.thirdPartyLibs.containsKey(org)) {
-				 * log.info(org + " already in cache - skipping"); } else {
-				 * log.error(org + " required - will need to resolve"); }
-				 */
-				ret.add(org);
-			}
+		if (!serviceData.serviceInfo.containsKey(fullname)) {
+			// TODO Required should probably throw instead of returning null
+			return null;
 		}
-
-		return ret;
+		List<String> list = new ArrayList<String>();
+		ServiceDescriptor d = serviceData.serviceInfo.get(fullname);
+		for (int i = 0; i < d.size(); ++i) {
+			list.add(d.get(i));
+		}
+		return list;
 	}
 
 	// FIXME - need update(fullTypeName); !!!
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean update() {
 
 		// load up the serviceData.xml and .ivy cache
@@ -502,22 +528,8 @@ public class ServiceInfo implements Serializable {
 		// ask for resolution without retrieving
 		Iterator<String> it = getKeySet().iterator();
 		while (it.hasNext()) {
-			String s = it.next();
-			resolve(s);
+			resolve(it.next());
 		}
-
-		// examine local cache
-
-		// display report
-		// accept changes in default upgrade from user
-		// FIXME - display report !
-
-		// retrieve updates
-		/*
-		 * it = getKeySet().iterator(); while (it.hasNext()) { String s =
-		 * it.next(); resolve(s); }
-		 */
-
 		// TODO - return list object - for event processing on caller
 		// TODO - re-check local after processing Ivy - so new Services can be
 		// loaded or
@@ -525,34 +537,42 @@ public class ServiceInfo implements Serializable {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param org
+	 * @return
+	 */
 	public Dependency getRepoLatestDependencies(String org) {
 
 		String module = org.substring(org.lastIndexOf(".") + 1);
 		try {
-			HTTPRequest http = new HTTPRequest("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/"
-					+ org + "/" + module + "/");
+			HTTPRequest http = new HTTPRequest(String.format("http://myrobotlab.googlecode.com/"
+					+ "svn/trunk/myrobotlab/thirdParty/repo/%1$s/%2$s/", org, module));
 			String s = http.getString();
-			if (s != null) {
-				// ---- begin fragile & ugly parsing -----
-				// reverse pos from bottom to find the end of the list of
-				// directories
-				// to start the pos
-				String latestVersion = s.substring(s.lastIndexOf("<li><a href=\"") + 13);
-				latestVersion = latestVersion.substring(0, latestVersion.indexOf("/\">"));
-				if (!"..".equals(latestVersion)) {
-					return new Dependency(org, module, latestVersion, true);
-				}
-				// ---- end fragile & ugly parsing -----
+			if (s == null) {
+				return null;
 			}
+			// ---- begin fragile & ugly parsing -----
+			// reverse pos from bottom to find the end of the list of
+			// directories
+			// to start the pos
+			String latestVersion = s.substring(s.lastIndexOf("<li><a href=\"") + 13);
+			latestVersion = latestVersion.substring(0, latestVersion.indexOf("/\">"));
+			if (!"..".equals(latestVersion)) {
+				return new Dependency(org, module, latestVersion, true);
+			}
+			// ---- end fragile & ugly parsing -----
 		} catch (Exception e) {
 			Service.logException(e);
 			errors.add(e.getMessage());
 		}
-
 		return null;
-
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean getRepoData() {
 		// TODO - populate errors - make event
 		// clear errors ? this is the beginning of a high level method
@@ -566,23 +586,25 @@ public class ServiceInfo implements Serializable {
 
 		// iterate through services's dependencies
 		Iterator<String> it = serviceDataFromRepo.serviceInfo.keySet().iterator();
+		String sn;
+		ServiceDescriptor sd;
+		String dependencyRef;
+		Dependency dependency;
 		while (it.hasNext()) {
-			String sn = it.next();
-			ServiceDescriptor sd = serviceDataFromRepo.serviceInfo.get(sn);
+			sn = it.next();
+			sd = serviceDataFromRepo.serviceInfo.get(sn);
 
 			// iterate through dependencies - adding to thirdparty libs
 			for (int i = 0; i < sd.size(); ++i) {
-				String dependencyRef = sd.get(i);
+				dependencyRef = sd.get(i);
 				if (!serviceDataFromRepo.thirdPartyLibs.containsKey(dependencyRef)) {
-					Dependency d = getRepoLatestDependencies(dependencyRef);
-					serviceDataFromRepo.thirdPartyLibs.put(d.organisation, d);
+					dependency = getRepoLatestDependencies(dependencyRef);
+					serviceDataFromRepo.thirdPartyLibs.put(dependency.organisation, dependency);
 				}
-
 			}
 		}
 
 		save(serviceDataFromRepo, "serviceData.repo.processed.xml");
-
 		return ret;
 	}
 
@@ -593,7 +615,7 @@ public class ServiceInfo implements Serializable {
 	 * @param fullServiceType
 	 * @return
 	 */
-	public ArrayList<Dependency> checkForUpgrade(String fullServiceType) {
+	public List<Dependency> checkForUpgrade(String fullServiceType) {
 		// look through Service's dependencies and see if
 		// a newer one is avilable from the repo
 
@@ -601,29 +623,34 @@ public class ServiceInfo implements Serializable {
 		// serviceData.serviceInfo.get(fullServiceType);
 		ServiceDescriptor fromRepo = serviceDataFromRepo.serviceInfo.get(fullServiceType);
 
-		ArrayList<Dependency> deps = new ArrayList<Dependency>();
+		List<Dependency> deps = new ArrayList<Dependency>();
 
 		if (fullServiceType.equals("org.myrobotlab.service.Arduino")) {
 			log.info("here");
 		}
 
-		if (fromRepo != null) {
-			for (int i = 0; i < fromRepo.size(); ++i) {
-				String dependencyName = fromRepo.get(i);
-				Dependency localDep = serviceData.thirdPartyLibs.get(dependencyName);
-				Dependency repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
-
-				if (localDep == null || repoDep == null || localDep.version == null) {
-					log.info("null");
-				}
-
-				if ((localDep == null) || // new dependency on repo
-						localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version)) {
-					deps.add(repoDep);
-				}
-			}
+		if (fromRepo == null) {
+			return deps;
 		}
+		String dependencyName;
+		Dependency localDep;
+		Dependency repoDep;
+		for (int i = 0; i < fromRepo.size(); ++i) {
+			dependencyName = fromRepo.get(i);
+			localDep = serviceData.thirdPartyLibs.get(dependencyName);
+			repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
 
+			if (localDep == null || repoDep == null || localDep.version == null) {
+				log.info("null");
+			}
+
+			// TODO clean up this boolean with some parenthesis in order to make it clearer
+			if (!((localDep == null) || // new dependency on repo
+					localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version))) {
+				continue;
+			}
+			deps.add(repoDep);
+		}
 		return deps;
 	}
 
@@ -671,6 +698,40 @@ public class ServiceInfo implements Serializable {
 
 		// TODO - verify all keys !
 		// info.save();
+	}
+
+	/**
+	 * 
+	 * @param dependency
+	 * @param module
+	 * @return
+	 */
+	private List<String> getIvyOptions(String dependency, String module) {
+		List<String> options = new ArrayList<String>();
+
+		options.add("-cache");
+		options.add(".ivy");
+
+		options.add("-retrieve");
+		options.add("libraries/[type]/[artifact].[ext]");
+
+		options.add("-settings");
+		// cmd.add("ivysettings.xml");
+		options.add(ivyFileName);
+
+		// cmd.add("-cachepath");
+		// cmd.add("cachefile.txt");
+
+		options.add("-dependency");
+		options.add(dependency); // org
+		options.add(module); // module
+		// cmd.add(dep.version); // version
+		options.add(settings);
+
+		options.add("-confs");
+		options.add(String.format("runtime,%1$s.%2$d.%3$s", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
+		
+		return options;
 	}
 
 }

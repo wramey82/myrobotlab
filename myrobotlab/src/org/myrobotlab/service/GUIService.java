@@ -258,14 +258,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		if (sw == null)
 		{
-			log.error("addTab " + serviceName + " can not proceed - " + serviceName + " does not exist in registry (yet?)");
+			log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
 		}
 		
 		// SW sent in registerServices - yet Service is null due to incompatible Service Types
 		// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
 		if (sw.get() == null)
 		{
-			log.error(serviceName + " does not have a valid Service - not exported ???");
+			log.error(String.format("%1$s does not have a valid Service - not exported ???", serviceName));
 			return;
 		}
 		
@@ -276,7 +276,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		if (serviceGUIMap.containsKey(sw.name))
 		{
-			log.debug("not creating " + sw.name + " gui - it already exists");
+			log.debug(String.format("not creating %1$s gui - it already exists", sw.name));
 			return;
 		}
 		
@@ -302,7 +302,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void removeTab(String name)
 	{
-		log.info("removeTab removing [" + name + "] current tab size is " + serviceGUIMap.size());
+		log.info(String.format("removeTab removing [%1$s] current tab size is %1$d", name, serviceGUIMap.size()));
 		
 		// detaching & removing the ServiceGUI
 		ServiceGUI sg = serviceGUIMap.get(name);
@@ -311,7 +311,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			sg.detachGUI();
 		} else {
 			// warn not error - because service may have been removed recently
-			log.warn(name + " was not in the serviceGUIMap - unable to preform detach");
+			log.warn(String.format("%1$s was not in the serviceGUIMap - unable to preform detach", name));
 		}
 		
 		// removing the tab
@@ -322,9 +322,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.remove(name);
 			tabPanelMap.remove(name);
 
-			log.info("removeTab new size " + serviceGUIMap.size());
+			log.info(String.format("removeTab new size %1$d", serviceGUIMap.size()));
 		} else {
-			log.error("can not removeTab " + name);
+			log.error(String.format("can not removeTab ", name));
 		}
 		
 		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
