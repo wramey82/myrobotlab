@@ -3,12 +3,12 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="C:/mrl/mrlclient/mrlclient.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="mrlclient.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="org.myrobotlab.client.MRLClient"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="C:/mrl/mrlclient/bin"/>
+            <fileset dir="bin"/>
             <!-- zipfileset excludes="META-INF/*.SF" src="C:/mrl/myrobotlab/thirdParty/repo/org.apache.log4j/log4j/1.2.14/log4j-1.2.14.jar"/ -->
         </jar>
     </target>
