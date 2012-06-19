@@ -41,7 +41,7 @@ import org.simpleframework.xml.Element;
  * 
  */
 public class Runtime extends Service {
-
+	// TODO this should be something a little more unique - tied to version?
 	private static final long serialVersionUID = 1L;
 
 	// ---- rte members begin ----------------------------
@@ -80,7 +80,15 @@ public class Runtime extends Service {
 	// ---- Runtime members end -----------------
 
 	public final static Logger log = Logger.getLogger(Runtime.class.getCanonicalName());
-	private static Runtime INSTANCE = null;
+
+	/**
+	 * Object used to synchronize initializing this singleton.
+	 */
+	private static final Object instanceLockObject = new Object();
+	/**
+	 * The singleton of this class.
+	 */
+	private static Runtime instance = null;
 
 	/**
 	 * Constructor.
@@ -118,19 +126,27 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static Runtime getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new Runtime("BORG " + new Random().nextInt(99999));
+		if (instance == null) {
+			synchronized(instanceLockObject) {
+				if (instance == null) {
+					// TODO should this be configurable?
+					instance = new Runtime(String.format("BORG %1$d", new Random().nextInt(99999)));
+				}
+			}
 		}
-		return INSTANCE;
+		return instance;
 	}
 
 	/**
+	 * Stops all service-related running items.
+	 * This releases the singleton referenced by this class, but it does not guarantee that the old
+	 * service will be GC'd.
 	 * FYI - if stopServices deos not remove INSTANCE - it is not re-entrant in junit tests
 	 */
 	@Override
 	public void stopService() {
 		super.stopService();
-		INSTANCE = null;
+		instance = null;
 	}
 
 	/**
@@ -142,7 +158,7 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
+	 * Get the tool tip for this class.
 	 */
 	@Override
 	public String getToolTip() {
@@ -217,6 +233,10 @@ public class Runtime extends Service {
 
 	// ---------- Java Runtime wrapper functions end --------
 
+	// public static synchronized boolean register(URL url, Service s)
+	// TODO more aptly named registerLocal(Service s) ?
+	// FIXME - getState publish setState need to reconcile with
+	// these definitions
 	/**
 	 * ONLY CALLED BY registerServices2 ... would be a bug if called from
 	 * foreign service - (no platform!) .. URL (URI) will always be null FIXME -
@@ -226,13 +246,7 @@ public class Runtime extends Service {
 	 * @param s
 	 * @return
 	 */
-	// public static synchronized boolean register(URL url, Service s)
-	// TODO more aptly named registerLocal(Service s) ?
-	// FIXME - getState publish setState need to reconcile with
-	// these definitions
 	public static synchronized Service register(Service s, URL url) {
-		// URL url = null; // LOCAL SERVICE !!!
-
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url)) {
 			se = new ServiceEnvironment(url);
@@ -242,18 +256,17 @@ public class Runtime extends Service {
 		}
 
 		if (se.serviceDirectory.containsKey(s.getName())) {
-			log.error("attempting to register " + s.getName() + " which is already registered in " + url);
-			if (INSTANCE != null) {
-				INSTANCE.invoke("collision", s.getName());
+			log.error(String.format("attempting to register %1$s which is already registered in %1$s", s.getName(), url));
+			if (instance != null) {
+				instance.invoke("collision", s.getName());
 			}
 			return s;
-		} else {
-			ServiceWrapper sw = new ServiceWrapper(s, se);
-			se.serviceDirectory.put(s.getName(), sw);
-			registry.put(s.getName(), sw);
-			if (INSTANCE != null) {
-				INSTANCE.invoke("registered", sw);
-			}
+		}
+		ServiceWrapper sw = new ServiceWrapper(s, se);
+		se.serviceDirectory.put(s.getName(), sw);
+		registry.put(s.getName(), sw);
+		if (instance != null) {
+			instance.invoke("registered", sw);
 		}
 
 		return s;
@@ -266,52 +279,58 @@ public class Runtime extends Service {
 	 * 
 	 * @param url
 	 * @param s
-	 * @return
+	 * @return false if it already matches
 	 */
 	public static synchronized boolean register(URL url, ServiceEnvironment s) {
-
+		// TODO what do we do if url is null?
 		if (!hosts.containsKey(url)) {
-			log.info("adding new ServiceEnvironment " + url);
+			log.info(String.format("adding new ServiceEnvironment %1$s", url));
 		} else {
-			ServiceEnvironment se = hosts.get(url);
-
-			if (se.serviceDirectory.size() == s.serviceDirectory.size()) {
-				boolean equal = true;
-
-				s.serviceDirectory.keySet().iterator();
-				Iterator<String> it = s.serviceDirectory.keySet().iterator();
-				while (it.hasNext()) {
-					String serviceName = it.next();
-					if (!se.serviceDirectory.containsKey(serviceName)) {
-						equal = false;
-						break;
-					}
-				}
-
-				if (equal) {
-					log.info("ServiceEnvironment " + url + " already exists - with same count and names");
-					return false;
-				}
-
+			if (areEqual(s, url)) {
+				log.info(String.format("ServiceEnvironment %1$s already exists - with same count and names", url));
+				return false;
 			}
-
-			log.info("replacing ServiceEnvironment " + url);
+			log.info(String.format("replacing ServiceEnvironment %1$s", url.toString()));
 		}
 
 		s.accessURL = url; // NEW - update
 		hosts.put(url, s);
 
-		s.serviceDirectory.keySet().iterator();
-
+		// TODO we're doing this same loop inside areEqual() call above - can they be consolidated?
 		Iterator<String> it = s.serviceDirectory.keySet().iterator();
+		String serviceName;
 		while (it.hasNext()) {
-			String serviceName = it.next();
-			log.info("adding " + serviceName + " to registry");
-			// s.serviceDirectory.get(serviceName).host = s;
+			serviceName = it.next();
+			log.info(String.format("adding %1$s to registry", serviceName));
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
-			INSTANCE.invoke("registered", s.serviceDirectory.get(serviceName));
+			instance.invoke("registered", s.serviceDirectory.get(serviceName));
 		}
 
+		return true;
+	}
+
+	/**
+	 * Checks if s has the same service directory content as the environment at url.
+	 * 
+	 * @param s
+	 * @param url
+	 * @return
+	 */
+	private static boolean areEqual(ServiceEnvironment s, URL url) {
+		ServiceEnvironment se = hosts.get(url);
+		if (se.serviceDirectory.size() != s.serviceDirectory.size()) {
+			return false;
+		}
+
+		s.serviceDirectory.keySet().iterator();
+		Iterator<String> it = s.serviceDirectory.keySet().iterator();
+		String serviceName;
+		while (it.hasNext()) {
+			serviceName = it.next();
+			if (!se.serviceDirectory.containsKey(serviceName)) {
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -320,27 +339,25 @@ public class Runtime extends Service {
 	 * a foreign Service
 	 */
 	public static void unregister(URL url, String name) {
-
 		if (!registry.containsKey(name)) {
-			log.error("unregister " + name + " does not exist in registry");
+			log.error(String.format("unregister %1$s does not exist in registry", name));
 		} else {
 			registry.remove(name);
 		}
 
 		if (!hosts.containsKey(url)) {
-			log.error("unregister environment does note exist for " + url + "." + name);
+			log.error(String.format("unregister environment does note exist for %1$s.%2$s", url, name));
 			return;
 		}
 
 		ServiceEnvironment se = hosts.get(url);
 
 		if (!se.serviceDirectory.containsKey(name)) {
-			log.error("unregister " + name + " does note exist for " + url + "." + name);
-		} else {
-			INSTANCE.invoke("released", se.serviceDirectory.get(name));
-			se.serviceDirectory.remove(name);
+			log.error(String.format("unregister %2$s does note exist for %1$s.%2$s", url, name));
+			return;
 		}
-
+		instance.invoke("released", se.serviceDirectory.get(name));
+		se.serviceDirectory.remove(name);
 	}
 
 	/**
@@ -350,18 +367,18 @@ public class Runtime extends Service {
 	 */
 	public static void unregisterAll(URL url) {
 		if (!hosts.containsKey(url)) {
-			log.error("unregisterAll " + url + " does not exist");
+			log.error(String.format("unregisterAll %1$s does not exist", url));
 			return;
 		}
 
 		ServiceEnvironment se = hosts.get(url);
 
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		String serviceName;
 		while (it.hasNext()) {
-			String serviceName = it.next();
+			serviceName = it.next();
 			unregister(url, serviceName);
 		}
-
 	}
 
 	/**
@@ -370,8 +387,7 @@ public class Runtime extends Service {
 	public static void unregisterAll() {
 		Iterator<URL> it = hosts.keySet().iterator();
 		while (it.hasNext()) {
-			URL se = it.next();
-			unregisterAll(se);
+			unregisterAll(it.next());
 		}
 	}
 
@@ -382,12 +398,14 @@ public class Runtime extends Service {
 	public int getServiceCount() {
 		int cnt = 0;
 		Iterator<URL> it = hosts.keySet().iterator();
+		ServiceEnvironment se;
+		Iterator<String> it2;
+		String serviceName;
 		while (it.hasNext()) {
-			URL sen = it.next();
-			ServiceEnvironment se = hosts.get(sen);
-			Iterator<String> it2 = se.serviceDirectory.keySet().iterator();
+			se = hosts.get(it.next());
+			it2 = se.serviceDirectory.keySet().iterator();
 			while (it2.hasNext()) {
-				String serviceName = it2.next();
+				serviceName = it2.next();
 				++cnt;
 			}
 		}
@@ -531,7 +549,7 @@ public class Runtime extends Service {
 											// down
 				}				
 				ServiceEnvironment se = hosts.get(url);
-				INSTANCE.invoke("released", se.serviceDirectory.get(name));
+				instance.invoke("released", se.serviceDirectory.get(name));
 				registry.remove(name);
 				se.serviceDirectory.remove(name);
 				if (se.serviceDirectory.size() == 0)
@@ -610,7 +628,7 @@ public class Runtime extends Service {
 		while (seit.hasNext()) {
 			String serviceName = seit.next();
 			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-			INSTANCE.invoke("released", se.serviceDirectory.get(serviceName));
+			instance.invoke("released", se.serviceDirectory.get(serviceName));
 		}
 
 		seit = se.serviceDirectory.keySet().iterator();
