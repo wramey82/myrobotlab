@@ -8,4 +8,5 @@
         <conf name="x86.32.windows" />
         <conf name="x86.64.windows" />
         <conf name="amd64.32.linux" />
+        <conf name="latest.integration" />
     </configurations>
