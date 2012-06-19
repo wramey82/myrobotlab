@@ -26,7 +26,12 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 // TODO - command line refresh - repo management & configuration options "latest" etc
-
+/**
+ * Singleton implementation for service information.
+ * 
+ * @author GroG
+ *
+ */
 public class ServiceInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -44,8 +49,99 @@ public class ServiceInfo implements Serializable {
 
 	// private org.myrobotlab.service.Runtime runtime = null;
 
+	/**
+	 * Singleton constructor
+	 */
 	private ServiceInfo() {
 		// runtime = org.myrobotlab.service.Runtime.getInstance();
+	}
+
+	/**
+	 * 
+	 * @param shortName
+	 * @param category
+	 */
+	public void addCategory(String shortName, String category) {
+		// TODO - should there be a null check on shortName?
+		// TODO - bury all this in ServiceData
+		if (serviceData.categories == null) {
+			serviceData.categories = new TreeMap<String, CategoryList>();
+		}
+
+		String fullname = String.format("org.myrobotlab.service.%1$s", shortName);
+		// ArrayList<String>list = null;
+		ServiceData.CategoryList list = null;
+		if (serviceData.categories.containsKey(shortName)) {
+			list = serviceData.categories.get(fullname);
+		}
+		// make sure we didn't store a null value somewhere else
+		if (list == null) {
+			list = new ServiceData.CategoryList();
+			serviceData.categories.put(fullname, list);
+		}
+		list.services.add(category);
+	}
+
+	/**
+	 * can only be called after getting data from the repo will return the first
+	 * upgradable Dependency from a service
+	 * 
+	 * @param fullServiceType
+	 * @return
+	 */
+	public List<Dependency> checkForUpgrade(String fullServiceType) {
+		// look through Service's dependencies and see if
+		// a newer one is avilable from the repo
+
+		// ServiceDescriptor local =
+		// serviceData.serviceInfo.get(fullServiceType);
+		ServiceDescriptor fromRepo = serviceDataFromRepo.serviceInfo.get(fullServiceType);
+
+		List<Dependency> deps = new ArrayList<Dependency>();
+
+		if (fullServiceType.equals("org.myrobotlab.service.Arduino")) {
+			log.info("here");
+		}
+
+		if (fromRepo == null) {
+			return deps;
+		}
+		String dependencyName;
+		Dependency localDep;
+		Dependency repoDep;
+		for (int i = 0; i < fromRepo.size(); ++i) {
+			dependencyName = fromRepo.get(i);
+			localDep = serviceData.thirdPartyLibs.get(dependencyName);
+			repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
+
+			if (localDep == null || repoDep == null || localDep.version == null) {
+				log.info("null");
+			}
+
+			// TODO clean up this boolean with some parenthesis in order to make it clearer
+			if (!((localDep == null) || // new dependency on repo
+					localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version))) {
+				continue;
+			}
+			deps.add(repoDep);
+		}
+		return deps;
+	}
+
+	/**
+	 * Clear the errors.
+	 */
+	public void clearErrors() {
+		errors.clear();
+	}
+
+	/**
+	 * Get the list of errors.
+	 * 
+	 * @return
+	 */
+	public ArrayList<String> getErrors() {
+		return errors;
 	}
 
 	/**
@@ -60,40 +156,13 @@ public class ServiceInfo implements Serializable {
 		return instance;
 	}
 
-	public void clearErrors() {
-		errors.clear();
-	}
-
-	public boolean hasErrors() {
-		return errors.size() > 0;
-	}
-
-	public ArrayList<String> getErrors() {
-		return errors;
-	}
-
+	/**
+	 * Get all the keys.
+	 * 
+	 * @return
+	 */
 	public Set<String> getKeySet() {
 		return serviceData.serviceInfo.keySet();
-	}
-
-	/**
-	 * default save saves the memory serviceData to .myrobotlab/serviceData.xml
-	 */
-	public boolean save(ServiceData data, String filename) {
-		Serializer serializer = new Persister();
-
-		try {
-			File cfgdir = new File(Service.getCFGDir());
-			if (!cfgdir.exists()) {
-				cfgdir.mkdirs();
-			}
-			File cfg = new File(Service.getCFGDir() + File.separator + filename);
-			serializer.write(data, cfg);
-		} catch (Exception e) {
-			Service.logException(e);
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -181,71 +250,124 @@ public class ServiceInfo implements Serializable {
 
 	/**
 	 * 
-	 * @param o
-	 * @param inCfgFileName
 	 * @return
 	 */
-	public boolean loadXML(Object o, String inCfgFileName) {
-		String filename = null;
-		if (inCfgFileName == null) {
-			filename = String.format("%1$s%2$s.xml", Service.getCFGDir(), File.separator);
-		} else {
-			filename = String.format("%1$s%2$s%3$s", Service.getCFGDir(), File.separator, inCfgFileName);
+	public boolean getRepoData() {
+		// TODO - populate errors - make event
+		// clear errors ? this is the beginning of a high level method
+
+		// first get repo's serviceData.xml (do not cache it !)
+		String repoFileName = "serviceData.repo.xml";
+
+		// iterate through it and get all latest dependencies
+		boolean ret = getRepoServiceData(repoFileName);
+		ret &= loadXML(serviceDataFromRepo, repoFileName);
+
+		// iterate through services's dependencies
+		Iterator<String> it = serviceDataFromRepo.serviceInfo.keySet().iterator();
+		String sn;
+		ServiceDescriptor sd;
+		String dependencyRef;
+		Dependency dependency;
+		while (it.hasNext()) {
+			sn = it.next();
+			sd = serviceDataFromRepo.serviceInfo.get(sn);
+
+			// iterate through dependencies - adding to thirdparty libs
+			for (int i = 0; i < sd.size(); ++i) {
+				dependencyRef = sd.get(i);
+				if (!serviceDataFromRepo.thirdPartyLibs.containsKey(dependencyRef)) {
+					dependency = getRepoLatestDependencies(dependencyRef);
+					serviceDataFromRepo.thirdPartyLibs.put(dependency.organisation, dependency);
+				}
+			}
 		}
-		File cfg = new File(filename);
-		if (!cfg.exists()) {
-			log.warn("cfg file " + filename + " does not exist");
-			return false;
-		}
-		if (o == null) {
-			o = this;
-		}
-		Serializer serializer = new Persister();
-		try {
-			serializer.read(o, cfg);
-		} catch (Exception e) {
-			Service.logException(e);
-			return false;
-		}
-		return true;
+
+		save(serviceDataFromRepo, "serviceData.repo.processed.xml");
+		return ret;
 	}
 
 	/**
 	 * 
-	 * @param fullServiceName
+	 * @param org
 	 * @return
 	 */
-	public boolean hasUnfulfilledDependencies(String fullServiceName) {
-		boolean ret = false;
-		log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
+	public Dependency getRepoLatestDependencies(String org) {
 
-		// no serviceInfo
-		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
-			log.error(String.format("need full service name ... got %1$s", fullServiceName));
-			return false;
+		String module = org.substring(org.lastIndexOf(".") + 1);
+		try {
+			HTTPRequest http = new HTTPRequest(String.format("http://myrobotlab.googlecode.com/"
+					+ "svn/trunk/myrobotlab/thirdParty/repo/%1$s/%2$s/", org, module));
+			String s = http.getString();
+			if (s == null) {
+				return null;
+			}
+			// ---- begin fragile & ugly parsing -----
+			// reverse pos from bottom to find the end of the list of
+			// directories
+			// to start the pos
+			String latestVersion = s.substring(s.lastIndexOf("<li><a href=\"") + 13);
+			latestVersion = latestVersion.substring(0, latestVersion.indexOf("/\">"));
+			if (!"..".equals(latestVersion)) {
+				return new Dependency(org, module, latestVersion, true);
+			}
+			// ---- end fragile & ugly parsing -----
+		} catch (Exception e) {
+			Service.logException(e);
+			errors.add(e.getMessage());
 		}
+		return null;
+	}
 
-		ServiceDescriptor d = serviceData.serviceInfo.get(fullServiceName);
-		if (d == null || d.size() == 0) {
-			log.error(String.format("no service descriptor for %1$s", fullServiceName));
-			return false;
-		}
-		Dependency dep;
-		for (int i = 0; i < d.size(); ++i) {
-			if (!serviceData.thirdPartyLibs.containsKey(d.get(i))) {
-				log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
-				log.debug("hasUnfulfilledDependencies exit true");
+	/**
+	 * 
+	 * @param localFileName
+	 * @return
+	 */
+	public boolean getRepoServiceData(String localFileName) {
+		try {
+			// TODO this should be a configuration value of some sort
+			HTTPRequest http = new HTTPRequest(
+					"http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
+			String s = http.getString();
+			if (s != null && localFileName != null) {
+				FileIO.stringToFile(Service.getCFGDir() + File.separator + localFileName, s);
 				return true;
 			}
-			dep = serviceData.thirdPartyLibs.get(d.get(i));
-			if (dep.resolved) {
-				continue;
-			}
-			log.debug("hasUnfulfilledDependencies exit true");
-			return true;
+		} catch (Exception e) {
+			Service.logException(e);
+			errors.add(e.getMessage());
 		}
-		log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
-		return ret;
+		return false;
+	}
+
+	/**
+	 * function to return an array of serviceInfo for the Runtime So that Ivy
+	 * can download, cache, and manage all the appropriate serviceInfo for a
+	 * Service. TODO - make this function abstract and force implementation.
+	 * 
+	 * @return Array of serviceInfo to be retrieved from the repo
+	 */
+	public List<String> getRequiredDependencies(String fullname) {
+		if (serviceDataFromRepo != null && serviceDataFromRepo.serviceInfo.containsKey(fullname)) {
+			ServiceDescriptor d = serviceDataFromRepo.serviceInfo.get(fullname);
+			List<String> list = new ArrayList<String>();
+			for (int i = 0; i < d.size(); ++i) {
+				list.add(d.get(i));
+			}
+			return list; // repo has precedence
+		}
+
+		if (!serviceData.serviceInfo.containsKey(fullname)) {
+			// TODO Required should probably throw instead of returning null
+			return null;
+		}
+		List<String> list = new ArrayList<String>();
+		ServiceDescriptor d = serviceData.serviceInfo.get(fullname);
+		for (int i = 0; i < d.size(); ++i) {
+			list.add(d.get(i));
+		}
+		return list;
 	}
 
 	/**
@@ -318,51 +440,127 @@ public class ServiceInfo implements Serializable {
 	}
 
 	/**
+	 * Check if there are any errors recorded.
 	 * 
-	 * @param localFileName
 	 * @return
 	 */
-	public boolean getRepoServiceData(String localFileName) {
-		try {
-			// TODO this should be a configuration value of some sort
-			HTTPRequest http = new HTTPRequest(
-					"http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
-			String s = http.getString();
-			if (s != null && localFileName != null) {
-				FileIO.stringToFile(Service.getCFGDir() + File.separator + localFileName, s);
-				return true;
-			}
-		} catch (Exception e) {
-			Service.logException(e);
-			errors.add(e.getMessage());
-		}
-		return false;
+	public boolean hasErrors() {
+		return errors.size() > 0;
 	}
 
 	/**
 	 * 
-	 * @param shortName
-	 * @param category
+	 * @param fullServiceName
+	 * @return
 	 */
-	public void addCategory(String shortName, String category) {
-		// TODO - should there be a null check on shortName?
-		// TODO - bury all this in ServiceData
-		if (serviceData.categories == null) {
-			serviceData.categories = new TreeMap<String, CategoryList>();
+	public boolean hasUnfulfilledDependencies(String fullServiceName) {
+		boolean ret = false;
+		log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
+
+		// no serviceInfo
+		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
+			log.error(String.format("need full service name ... got %1$s", fullServiceName));
+			return false;
 		}
 
-		String fullname = String.format("org.myrobotlab.service.%1$s", shortName);
-		// ArrayList<String>list = null;
-		ServiceData.CategoryList list = null;
-		if (serviceData.categories.containsKey(shortName)) {
-			list = serviceData.categories.get(fullname);
+		ServiceDescriptor d = serviceData.serviceInfo.get(fullServiceName);
+		if (d == null || d.size() == 0) {
+			log.error(String.format("no service descriptor for %1$s", fullServiceName));
+			return false;
 		}
-		// make sure we didn't store a null value somewhere else
-		if (list == null) {
-			list = new ServiceData.CategoryList();
-			serviceData.categories.put(fullname, list);
+		Dependency dep;
+		for (int i = 0; i < d.size(); ++i) {
+			if (!serviceData.thirdPartyLibs.containsKey(d.get(i))) {
+				log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
+				log.debug("hasUnfulfilledDependencies exit true");
+				return true;
+			}
+			dep = serviceData.thirdPartyLibs.get(d.get(i));
+			if (dep.resolved) {
+				continue;
+			}
+			log.debug("hasUnfulfilledDependencies exit true");
+			return true;
 		}
-		list.services.add(category);
+		log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
+		return ret;
+	}
+
+	/**
+	 * 
+	 * @param o
+	 * @param inCfgFileName
+	 * @return
+	 */
+	public boolean loadXML(Object o, String inCfgFileName) {
+		String filename = null;
+		if (inCfgFileName == null) {
+			filename = String.format("%1$s%2$s.xml", Service.getCFGDir(), File.separator);
+		} else {
+			filename = String.format("%1$s%2$s%3$s", Service.getCFGDir(), File.separator, inCfgFileName);
+		}
+		File cfg = new File(filename);
+		if (!cfg.exists()) {
+			log.warn("cfg file " + filename + " does not exist");
+			return false;
+		}
+		if (o == null) {
+			o = this;
+		}
+		Serializer serializer = new Persister();
+		try {
+			serializer.read(o, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		boolean update = true;
+		ServiceInfo info = ServiceInfo.getInstance();
+
+		// set defaults [update all | update none] depending on context
+
+		// get local data
+		info.getLocalServiceData();
+
+		info.save(info.serviceData, "serviceData.processed.xml");
+
+		// get remote data
+		info.getRepoData();
+
+		// generate update report / dialog
+
+		// get user input (or accept defaults [update all | update none])
+
+		// perform actions
+
+		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
+		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
+		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
+		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
+
+		try {
+			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+			java.lang.Runtime.getRuntime().exec("myrobotlab.sh");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// load the possibly recent serviceData
+		info.getLocalServiceData();
+
+		// add the local ivy cache - TODO - rename to thirdPartyLibs
+		info.getLocalResolvedDependencies();
+
+		// TODO - verify all keys !
+		// info.save();
 	}
 
 	/**
@@ -395,6 +593,85 @@ public class ServiceInfo implements Serializable {
 		runtime.invoke("resolveEnd");
 
 		return ret;
+	}
+
+	/**
+	 * default save saves the memory serviceData to .myrobotlab/serviceData.xml
+	 */
+	public boolean save(ServiceData data, String filename) {
+		Serializer serializer = new Persister();
+
+		try {
+			File cfgdir = new File(Service.getCFGDir());
+			if (!cfgdir.exists()) {
+				cfgdir.mkdirs();
+			}
+			File cfg = new File(Service.getCFGDir() + File.separator + filename);
+			serializer.write(data, cfg);
+		} catch (Exception e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
+	}
+
+	// FIXME - need update(fullTypeName); !!!
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean update() {
+
+		// load up the serviceData.xml and .ivy cache
+		// NOTE - it is the responsibility of some other system
+		// to call getRepoServiceData - if a new service & categories
+		// definition is wanted
+		getLocalServiceData();
+
+		// ask for resolution without retrieving
+		Iterator<String> it = getKeySet().iterator();
+		while (it.hasNext()) {
+			resolve(it.next());
+		}
+		// TODO - return list object - for event processing on caller
+		// TODO - re-check local after processing Ivy - so new Services can be
+		// loaded or
+		// after reboot -
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param dependency
+	 * @param module
+	 * @return
+	 */
+	private List<String> getIvyOptions(String dependency, String module) {
+		List<String> options = new ArrayList<String>();
+
+		options.add("-cache");
+		options.add(".ivy");
+
+		options.add("-retrieve");
+		options.add("libraries/[type]/[artifact].[ext]");
+
+		options.add("-settings");
+		// cmd.add("ivysettings.xml");
+		options.add(ivyFileName);
+
+		// cmd.add("-cachepath");
+		// cmd.add("cachefile.txt");
+
+		options.add("-dependency");
+		options.add(dependency); // org
+		options.add(module); // module
+		// cmd.add(dep.version); // version
+		options.add(settings);
+
+		options.add("-confs");
+		options.add(String.format("runtime,%1$s.%2$d.%3$s", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
+		
+		return options;
 	}
 
 	/**
@@ -481,257 +758,6 @@ public class ServiceInfo implements Serializable {
 			ret = false;
 		}
 		return ret;
-	}
-
-	/**
-	 * function to return an array of serviceInfo for the Runtime So that Ivy
-	 * can download, cache, and manage all the appropriate serviceInfo for a
-	 * Service. TODO - make this function abstract and force implementation.
-	 * 
-	 * @return Array of serviceInfo to be retrieved from the repo
-	 */
-	public List<String> getRequiredDependencies(String fullname) {
-		if (serviceDataFromRepo != null && serviceDataFromRepo.serviceInfo.containsKey(fullname)) {
-			ServiceDescriptor d = serviceDataFromRepo.serviceInfo.get(fullname);
-			List<String> list = new ArrayList<String>();
-			for (int i = 0; i < d.size(); ++i) {
-				list.add(d.get(i));
-			}
-			return list; // repo has precedence
-		}
-
-		if (!serviceData.serviceInfo.containsKey(fullname)) {
-			// TODO Required should probably throw instead of returning null
-			return null;
-		}
-		List<String> list = new ArrayList<String>();
-		ServiceDescriptor d = serviceData.serviceInfo.get(fullname);
-		for (int i = 0; i < d.size(); ++i) {
-			list.add(d.get(i));
-		}
-		return list;
-	}
-
-	// FIXME - need update(fullTypeName); !!!
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean update() {
-
-		// load up the serviceData.xml and .ivy cache
-		// NOTE - it is the responsibility of some other system
-		// to call getRepoServiceData - if a new service & categories
-		// definition is wanted
-		getLocalServiceData();
-
-		// ask for resolution without retrieving
-		Iterator<String> it = getKeySet().iterator();
-		while (it.hasNext()) {
-			resolve(it.next());
-		}
-		// TODO - return list object - for event processing on caller
-		// TODO - re-check local after processing Ivy - so new Services can be
-		// loaded or
-		// after reboot -
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param org
-	 * @return
-	 */
-	public Dependency getRepoLatestDependencies(String org) {
-
-		String module = org.substring(org.lastIndexOf(".") + 1);
-		try {
-			HTTPRequest http = new HTTPRequest(String.format("http://myrobotlab.googlecode.com/"
-					+ "svn/trunk/myrobotlab/thirdParty/repo/%1$s/%2$s/", org, module));
-			String s = http.getString();
-			if (s == null) {
-				return null;
-			}
-			// ---- begin fragile & ugly parsing -----
-			// reverse pos from bottom to find the end of the list of
-			// directories
-			// to start the pos
-			String latestVersion = s.substring(s.lastIndexOf("<li><a href=\"") + 13);
-			latestVersion = latestVersion.substring(0, latestVersion.indexOf("/\">"));
-			if (!"..".equals(latestVersion)) {
-				return new Dependency(org, module, latestVersion, true);
-			}
-			// ---- end fragile & ugly parsing -----
-		} catch (Exception e) {
-			Service.logException(e);
-			errors.add(e.getMessage());
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean getRepoData() {
-		// TODO - populate errors - make event
-		// clear errors ? this is the beginning of a high level method
-
-		// first get repo's serviceData.xml (do not cache it !)
-		String repoFileName = "serviceData.repo.xml";
-
-		// iterate through it and get all latest dependencies
-		boolean ret = getRepoServiceData(repoFileName);
-		ret &= loadXML(serviceDataFromRepo, repoFileName);
-
-		// iterate through services's dependencies
-		Iterator<String> it = serviceDataFromRepo.serviceInfo.keySet().iterator();
-		String sn;
-		ServiceDescriptor sd;
-		String dependencyRef;
-		Dependency dependency;
-		while (it.hasNext()) {
-			sn = it.next();
-			sd = serviceDataFromRepo.serviceInfo.get(sn);
-
-			// iterate through dependencies - adding to thirdparty libs
-			for (int i = 0; i < sd.size(); ++i) {
-				dependencyRef = sd.get(i);
-				if (!serviceDataFromRepo.thirdPartyLibs.containsKey(dependencyRef)) {
-					dependency = getRepoLatestDependencies(dependencyRef);
-					serviceDataFromRepo.thirdPartyLibs.put(dependency.organisation, dependency);
-				}
-			}
-		}
-
-		save(serviceDataFromRepo, "serviceData.repo.processed.xml");
-		return ret;
-	}
-
-	/**
-	 * can only be called after getting data from the repo will return the first
-	 * upgradable Dependency from a service
-	 * 
-	 * @param fullServiceType
-	 * @return
-	 */
-	public List<Dependency> checkForUpgrade(String fullServiceType) {
-		// look through Service's dependencies and see if
-		// a newer one is avilable from the repo
-
-		// ServiceDescriptor local =
-		// serviceData.serviceInfo.get(fullServiceType);
-		ServiceDescriptor fromRepo = serviceDataFromRepo.serviceInfo.get(fullServiceType);
-
-		List<Dependency> deps = new ArrayList<Dependency>();
-
-		if (fullServiceType.equals("org.myrobotlab.service.Arduino")) {
-			log.info("here");
-		}
-
-		if (fromRepo == null) {
-			return deps;
-		}
-		String dependencyName;
-		Dependency localDep;
-		Dependency repoDep;
-		for (int i = 0; i < fromRepo.size(); ++i) {
-			dependencyName = fromRepo.get(i);
-			localDep = serviceData.thirdPartyLibs.get(dependencyName);
-			repoDep = serviceDataFromRepo.thirdPartyLibs.get(dependencyName);
-
-			if (localDep == null || repoDep == null || localDep.version == null) {
-				log.info("null");
-			}
-
-			// TODO clean up this boolean with some parenthesis in order to make it clearer
-			if (!((localDep == null) || // new dependency on repo
-					localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version))) {
-				continue;
-			}
-			deps.add(repoDep);
-		}
-		return deps;
-	}
-
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		boolean update = true;
-		ServiceInfo info = ServiceInfo.getInstance();
-
-		// set defaults [update all | update none] depending on context
-
-		// get local data
-		info.getLocalServiceData();
-
-		info.save(info.serviceData, "serviceData.processed.xml");
-
-		// get remote data
-		info.getRepoData();
-
-		// generate update report / dialog
-
-		// get user input (or accept defaults [update all | update none])
-
-		// perform actions
-
-		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
-		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
-		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
-		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
-
-		try {
-			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
-			java.lang.Runtime.getRuntime().exec("myrobotlab.sh");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// load the possibly recent serviceData
-		info.getLocalServiceData();
-
-		// add the local ivy cache - TODO - rename to thirdPartyLibs
-		info.getLocalResolvedDependencies();
-
-		// TODO - verify all keys !
-		// info.save();
-	}
-
-	/**
-	 * 
-	 * @param dependency
-	 * @param module
-	 * @return
-	 */
-	private List<String> getIvyOptions(String dependency, String module) {
-		List<String> options = new ArrayList<String>();
-
-		options.add("-cache");
-		options.add(".ivy");
-
-		options.add("-retrieve");
-		options.add("libraries/[type]/[artifact].[ext]");
-
-		options.add("-settings");
-		// cmd.add("ivysettings.xml");
-		options.add(ivyFileName);
-
-		// cmd.add("-cachepath");
-		// cmd.add("cachefile.txt");
-
-		options.add("-dependency");
-		options.add(dependency); // org
-		options.add(module); // module
-		// cmd.add(dep.version); // version
-		options.add(settings);
-
-		options.add("-confs");
-		options.add(String.format("runtime,%1$s.%2$d.%3$s", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
-		
-		return options;
 	}
 
 }
