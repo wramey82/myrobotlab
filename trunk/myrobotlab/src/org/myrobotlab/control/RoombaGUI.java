@@ -34,14 +34,13 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
-
-import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Roomba;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
@@ -64,10 +63,8 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 	}
 	
 	class ButtonListener implements ActionListener {
-	  ButtonListener() {
-	  }
 
-	  public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 		  log.info(e.getActionCommand());
 		  myService.send(boundServiceName, e.getActionCommand());
 	  }
@@ -78,29 +75,26 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 		keyboard = new Keyboard();
 		buttonLisener = new ButtonListener();
 		// build input begin ------------------
+		JPanel topbar = new JPanel();
 
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		gc.gridx = 0;
-		++gc.gridy;
-		display.add(new JLabel("port : "), gc);
-		++gc.gridx;
-		display.add(ttyPort, gc);
-		++gc.gridx;
-		display.add(stop, gc);
+		topbar.add(new JLabel("port : "));
+		topbar.add(ttyPort);
+		topbar.add(stop);
+		topbar.add(test);
+
 		stop.addActionListener(buttonLisener);
-		++gc.gridx;
-		display.add(test, gc);
 		test.addActionListener(buttonLisener);
 		
-		++gc.gridy;
-		gc.gridx = 0;
-		++gc.gridy;
 		JButton keyboardButton = new JButton(
 				"<html><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control</td></tr></table></html>");
-		display.add(keyboardButton, gc);
 		keyboardButton.addKeyListener(keyboard);
+		
+		display.add(topbar, gc);
+		++gc.gridy;
+		display.add(keyboardButton, gc);
 
 		gc.gridx = 1;
 		
@@ -114,14 +108,6 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 		};
 
 		ttyPort.addActionListener(portActionListener);
-		
-
-		++gc.gridy;
-		++gc.gridy;
-		++gc.gridy;
-		gc.gridx = 0;
-
-		gc.gridx = 1;
 	}
 
 	public class Keyboard implements KeyListener {
@@ -185,13 +171,13 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 
 	
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Arduino.class);
+		sendNotifyRequest("publishState", "getState", Roomba.class);
 		myService.send(boundServiceName, "publishState");	
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Arduino.class);	
+		removeNotifyRequest("publishState", "getState", Roomba.class);	
 	}
 
 	@Override

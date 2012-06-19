@@ -55,8 +55,8 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.logging.LogLevel;
 import org.myrobotlab.logging.LogAppender;
+import org.myrobotlab.logging.LogLevel;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
@@ -66,7 +66,7 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-
+import org.myrobotlab.net.Heartbeat;
 /**
  * 
  * Service is the base of the MyRobotLab Service Oriented Architecture. All
@@ -2078,4 +2078,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				break;
 		}
 	}	
+	
+	public Heartbeat echoHeartbeat(Heartbeat pulse)
+	{
+		return pulse;
+	}
+	
+	public void startHeartbeat()
+	{
+		//getComm().
+	}
+	
+	public void stopHeartbeat()
+	{
+		
+	}
+	
 }

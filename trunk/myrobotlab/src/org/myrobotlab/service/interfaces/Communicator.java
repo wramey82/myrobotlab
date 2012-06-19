@@ -37,5 +37,8 @@ public abstract class Communicator {
 
 	public abstract void addClient(URL url, Object commData);
 
+	public abstract void startHeartbeat();
+	
+	public abstract void stopHeartbeat();
 
 }

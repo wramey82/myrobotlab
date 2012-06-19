@@ -103,7 +103,7 @@ public class SerialDeviceFactory  {
 		}
 	}
 	
-	static public SerialDevice getSerialDevice(String name, int rate, int parity, int databits, int stopbits) throws SerialException
+	static public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialException
 	{
 		SerialDevice port = null;
 		try {

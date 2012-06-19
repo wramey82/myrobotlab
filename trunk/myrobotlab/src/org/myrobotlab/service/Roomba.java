@@ -191,12 +191,20 @@ public class Roomba extends Service implements SerialService {
 	 */
 	public boolean connect(String deviceName) {
 		try {
+			if (serial != null)
+			{
+				serial.close();
+			}
 			serial = SerialDeviceFactory.getSerialDevice(deviceName, 57600, 8, 1, 0);
 		} catch (SerialException e) {
 			 logException(e);
 			 return false;
 		}
 		return true;
+	}
+	
+	public boolean setPort(String deviceName) {
+		return connect(deviceName);
 	}
 
 	/**
@@ -989,7 +997,7 @@ public class Roomba extends Service implements SerialService {
 	 */
 	public String sensorsAsString() {
 		String sd = "";
-		if (log.getLevel().equals(LogLevel.DEBUG)) {
+		if (LogLevel.DEBUG.equals(log.getLevel())) {
 			sd = "\n";
 			for (int i = 0; i < 26; i++)
 				sd += " " + hex(sensor_bytes[i]);
@@ -1495,18 +1503,44 @@ public class Roomba extends Service implements SerialService {
 		sensorsLastUpdateTime = System.currentTimeMillis();
 		computeSafetyFault();
 	}
+	
+	public String getPortName() {
+		if (serial != null)
+		{
+			return serial.getName();
+		}
+		
+		return null;
+	}
+	
+	public void keyCommand (String cmd) throws IOException
+	{
+		log.info("keyCommand " + cmd);
+		if ("Up".equals(cmd))
+		{
+			goForward();
+		} else if ("Left".equals(cmd)) {
+			turnLeft();
+		} else if ("Right".equals(cmd)) {
+			turnRight();
+		} else if ("Down".equals(cmd)) {
+			stop();
+		}
+	
+	}
 
 	/*-------------------------RoombaCommSerial End ---------------------------*/
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		Roomba roomba = new Roomba("roomba");		
 		roomba.startService();
-		
+		/*
+		try {
 		//roomba.connect("/dev/ttyUSB0");
-		roomba.connect("COM3");
+		roomba.connect("COM10");
 		
 		roomba.setMyLogLevel(org.myrobotlab.logging.LogLevel.Debug);
 				
@@ -1578,19 +1612,15 @@ public class Roomba extends Service implements SerialService {
 		roomba.full();
 		
 		roomba.powerOff();
+		} catch (IOException io)
+		{
+			
+		}
+		*/
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-	}
-
-	public String getPortName() {
-		if (serial != null)
-		{
-			return serial.getName();
-		}
-		
-		return null;
 	}
 
 }

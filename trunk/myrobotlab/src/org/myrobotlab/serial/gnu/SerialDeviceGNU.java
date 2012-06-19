@@ -42,8 +42,10 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	protected EventListenerList listenerList = new EventListenerList();
 
-	public SerialDeviceGNU(SerialPort port) {
+	public SerialDeviceGNU(SerialPort port) throws IOException {
 		this.port = port;
+		this.input = port.getInputStream();
+		this.output = port.getOutputStream();
 	}
 
 	@Override
