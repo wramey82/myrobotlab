@@ -39,6 +39,11 @@ public class ServiceInfo implements Serializable {
 	private String ivyFileName = "ivychain.xml";
 	public final static Logger log = Logger.getLogger(ServiceInfo.class.toString());
 
+	/**
+	 * Lock object for creating the singleton instance.
+	 */
+	private static final Object instanceObject = new Object();
+
 	private ServiceData serviceData = new ServiceData();
 	private ServiceData serviceDataFromRepo = new ServiceData();
 	private ArrayList<String> errors = new ArrayList<String>();
@@ -151,7 +156,11 @@ public class ServiceInfo implements Serializable {
 	 */
 	public static ServiceInfo getInstance() {
 		if (instance == null) {
-			instance = new ServiceInfo();
+			synchronized(instanceObject) {
+				if (instance == null) {
+					instance = new ServiceInfo();
+				}
+			}
 		}
 		return instance;
 	}
