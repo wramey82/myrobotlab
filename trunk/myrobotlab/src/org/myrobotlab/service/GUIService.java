@@ -1121,7 +1121,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
         // FIXME - change to sendRegistration ....
         //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
-        gui2.sendServiceDirectoryUpdate(null, null, null, "192.168.0.73", 6767, null);
+        gui2.sendServiceDirectoryUpdate(null, null, null, "10.192.198.34", 6767, null);
 	
 	}
 
