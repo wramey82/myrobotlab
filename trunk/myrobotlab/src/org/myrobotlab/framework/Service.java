@@ -554,8 +554,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		isRunning = true;
 
 		try {
+			// TODO could this be event based - with a Thread.wait()?
+			// TODO can parallel processing be utilized? worker threads?
 			while (isRunning) {
-
+				// TODO should this declaration be outside the while loop? if so, make sure to release prior to continue
 				Message m = getMsg();
 
 				if (!preRoutingHook(m)) {
@@ -572,9 +574,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (!preProcessHook(m)) {
 					continue;
 				}
-
+				// TODO should this declaration be outside the while loop?
 				Object ret = invoke(m);
 				if (Message.BLOCKING.equals(m.status)) {
+					// TODO should this declaration be outside the while loop?
 					// create new message reverse sender and name set to same msg id
 					Message msg = createMessage(m.sender, m.method, ret);
 					msg.sender = this.getName();
@@ -584,7 +587,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 					outbox.add(msg);
 				}
-
 			}
 		} catch (InterruptedException e) {
 			isRunning = false;

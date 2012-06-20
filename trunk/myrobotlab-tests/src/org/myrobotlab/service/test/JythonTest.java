@@ -10,11 +10,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.test.TestHelpers;
+import org.python.core.PyException;
 import org.python.util.PythonInterpreter;
 
 public class JythonTest {
@@ -24,7 +27,7 @@ public class JythonTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.FATAL);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
 
 	@AfterClass
@@ -44,12 +47,50 @@ public class JythonTest {
 	@Test
 	public void testGetToolTip() {
 		String result = guineaPig.getToolTip();
-		assertEquals("Jython IDE", result);
+		Assert.assertNotNull(result);
+		Assert.assertFalse(result.trim().isEmpty());
 	}
 
 	@Test
 	public void testPreProcessHook() {
-		fail("Not yet implemented"); // TODO
+		boolean result = false;
+		Message method = null;
+		
+		try {
+			guineaPig.preProcessHook(method);
+			Assert.fail("Should have thrown IllegalArgumentException because input to method is null.");
+		} catch (IllegalArgumentException e) {}
+		
+		method = new Message();
+
+		try {
+			guineaPig.preProcessHook(method);
+			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing sender.");
+		} catch (IllegalArgumentException e) {}
+
+		method.sender = "JythonTest";
+		try {
+			guineaPig.preProcessHook(method);
+			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing sendingMethod.");
+		} catch (IllegalArgumentException e) {}
+		
+		method.sendingMethod = "testPreProcessHook1";
+		try {
+			guineaPig.preProcessHook(method);
+			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing method.");
+		} catch (IllegalArgumentException e) {}
+
+		method.method = "badmethod";
+		try {
+			guineaPig.preProcessHook(method);
+			Assert.fail("Should have thrown PyException because the method is invalid.");
+		} catch (PyException e) {}
+
+		method.method = "preProcessHook";
+		result = guineaPig.preProcessHook(method);
+		Assert.assertTrue(result);
+
+		// TODO need to have a case where the jython is successfully executed
 	}
 
 	@Test
@@ -61,7 +102,7 @@ public class JythonTest {
 	public void testCreatePythonInterpreter() {
 		guineaPig.createPythonInterpreter();
 		PythonInterpreter interpreter = TestHelpers.<PythonInterpreter>getField(guineaPig, "interp");
-		assertNotNull(interpreter);
+		Assert.assertNotNull(interpreter);
 	}
 
 	@Test
@@ -75,13 +116,13 @@ public class JythonTest {
 		String code = null;
 		guineaPig.exec(code);
 		String script = TestHelpers.<String>getField(guineaPig, "script");
-		assertNull(script);
+		Assert.assertNull(script);
 		
 		code = "some code";
 		guineaPig.exec(code);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		assertNotNull(script);
-		assertEquals(code, script);
+		Assert.assertNotNull(script);
+		Assert.assertEquals(code, script);
 	}
 
 	@Test
@@ -91,20 +132,20 @@ public class JythonTest {
 		boolean replace = false;
 		guineaPig.exec(code, replace);
 		String script = TestHelpers.<String>getField(guineaPig, "script");
-		assertNull(script);
+		Assert.assertNull(script);
 		
 		code = "some code";
 		replace = false;
 		guineaPig.exec(code, replace);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		assertNull(script);
+		Assert.assertNull(script);
 		
 		code = "some code";
 		replace = true;
 		guineaPig.exec(code, replace);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		assertNotNull(script);
-		assertEquals(code, script);
+		Assert.assertNotNull(script);
+		Assert.assertEquals(code, script);
 	}
 
 	@Test
@@ -117,18 +158,18 @@ public class JythonTest {
 		String code = null;
 		boolean replace = false;
 		guineaPig.exec(code, replace);
-		assertNull(guineaPig.getScript());
+		Assert.assertNull(guineaPig.getScript());
 		
 		code = "some code";
 		replace = false;
 		guineaPig.exec(code, replace);
-		assertNull(guineaPig.getScript());
+		Assert.assertNull(guineaPig.getScript());
 		
 		code = "some code";
 		replace = true;
 		guineaPig.exec(code, replace);
-		assertNotNull(guineaPig.getScript());
-		assertEquals(code, guineaPig.getScript());
+		Assert.assertNotNull(guineaPig.getScript());
+		Assert.assertEquals(code, guineaPig.getScript());
 	}
 
 	@Test
