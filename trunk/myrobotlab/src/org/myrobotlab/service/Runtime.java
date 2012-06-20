@@ -61,6 +61,8 @@ public class Runtime extends Service {
 	private static boolean checkForDependencies = true; // TODO implement - Ivy
 														// related
 
+	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel DEBUG -logToConsole";
+
 
 	// ---- rte members end ------------------------------
 
@@ -477,22 +479,22 @@ public class Runtime extends Service {
 		ServiceEnvironment export = new ServiceEnvironment(null);
 
 		Iterator<String> it = local.serviceDirectory.keySet().iterator();
+		String name;
+		ServiceWrapper sw;
+		ServiceWrapper sw2;
+		ServiceInterface si;
 		while (it.hasNext()) {
-			String name = it.next();
-			ServiceWrapper sw = local.serviceDirectory.get(name);
-			// Service s = (Service)sw.get();
-			// s.getClass()
+			si = null;
+			name = it.next();
+			sw = local.serviceDirectory.get(name);
+			log.debug(String.format("adding %1$s to export", name));
 			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(sw.getServiceType())) {
-				log.debug("adding " + name + " " + sw.getServiceType() + " to export ");
-				// create new structure - otherwise it won't be correctly
-				// filtered
-				ServiceWrapper sw2 = new ServiceWrapper(name, sw.get(), export);
-				export.serviceDirectory.put(name, sw2);
-			} else {
-				log.debug("adding " + name + " with name info only");
-				ServiceWrapper sw2 = new ServiceWrapper(name, null, export);
-				export.serviceDirectory.put(name, sw2);
+				log.debug(String.format("service: %1$s", sw.getServiceType()));
+				// create new structure - otherwise it won't be correctly filtered
+				si = sw.get();
 			}
+			sw2 = new ServiceWrapper(name, si, export);
+			export.serviceDirectory.put(name, sw2);
 			// TODO - add exclusive list & name vs type exclusions
 		}
 
@@ -505,7 +507,7 @@ public class Runtime extends Service {
 	 * @param className
 	 */
 	public static void addInclusiveExportFilterServiceType(String packageName, String className) {
-		inclusiveExportFilter.put(packageName + "." + className, className);
+		inclusiveExportFilter.put(String.format("%1$s.%2$s", packageName, className), className);
 	}
 
 	/**
@@ -513,7 +515,7 @@ public class Runtime extends Service {
 	 * @param shortClassName
 	 */
 	public static void addInclusiveExportFilterServiceType(String shortClassName) {
-		inclusiveExportFilter.put("org.myrobotlab.service." + shortClassName, shortClassName);
+		inclusiveExportFilter.put(String.format("org.myrobotlab.service.%1$s", shortClassName), shortClassName);
 	}
 
 	/**
@@ -524,12 +526,11 @@ public class Runtime extends Service {
 	public static ServiceWrapper getService(String name) {
 
 		if (!registry.containsKey(name)) {
-			log.debug("service " + name + " does not exist");
+			log.debug(String.format("service %1$s does not exist", name));
 			return null;
 		}
 
 		return registry.get(name);
-
 	}
 
 	/**
@@ -539,32 +540,28 @@ public class Runtime extends Service {
 	 */
 	public static boolean release(String name) /* release local Service */
 	{
-		log.info("releasing service " + name);
+		log.info(String.format("releasing service %1$s", name));
 		ServiceWrapper sw = getService(name);
-		if (sw != null) {
-			URL url = sw.getAccessURL();
-			if (sw.isValid()) {
-				if (url == null) {
-					sw.get().stopService();// if its a local Service shut it
-											// down
-				}				
-				ServiceEnvironment se = hosts.get(url);
-				instance.invoke("released", se.serviceDirectory.get(name));
-				registry.remove(name);
-				se.serviceDirectory.remove(name);
-				if (se.serviceDirectory.size() == 0)
-				{
-					log.info("service directory empty - removing host");
-					hosts.remove(se); // TODO - invoke message
-				}
-				log.info("released " + name);
-				return true;
-			}
-		} else {
+		if (sw == null || !sw.isValid()) {
 			log.error("no service wrapper for " + name);
+			return false;
 		}
-		return false;
-		
+		URL url = sw.getAccessURL();
+		if (url == null) {
+			sw.get().stopService();// if its a local Service shut it
+									// down
+		}				
+		ServiceEnvironment se = hosts.get(url);
+		instance.invoke("released", se.serviceDirectory.get(name));
+		registry.remove(name);
+		se.serviceDirectory.remove(name);
+		if (se.serviceDirectory.size() == 0)
+		{
+			log.info("service directory empty - removing host");
+			hosts.remove(se); // TODO - invoke message
+		}
+		log.info(String.format("released %1$s", name));
+		return true;
 	}
 
 	/**
@@ -574,32 +571,32 @@ public class Runtime extends Service {
 	 */
 	public static boolean release(URL url) /* release process environment */
 	{
-		log.info("releasing url " + url);
 		boolean ret = true;
 		ServiceEnvironment se = hosts.get(url);
-		if (se != null)
+		if (se == null)
 		{
-			String[] services = (String[])se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
-			String runtimeName = null;
-			for (int i = 0; i < services.length; ++i)
-			{
-				ServiceInterface service =  registry.get(services[i]).get();
-				if ("Runtime".equals(service.getShortTypeName()))
-				{
-					runtimeName = service.getName();
-					log.info("delaying release of Runtime " + runtimeName);
-					continue;
-				}
-				ret &= release(services[i]);
-			}
-			
-			if (runtimeName != null)
-			{
-				ret &= release(runtimeName);
-			}
-		} else {
-			log.warn("attempt to release " + url + " not successful - it does not exist");
+			log.warn(String.format("attempt to release %1$s not successful - it does not exist", url));
 			return false;
+		}
+		log.info(String.format("releasing url %1$s", url));
+		String[] services = (String[])se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
+		String runtimeName = null;
+		ServiceInterface service;
+		for (int i = 0; i < services.length; ++i)
+		{
+			service =  registry.get(services[i]).get();
+			if ("Runtime".equals(service.getShortTypeName()))
+			{
+				runtimeName = service.getName();
+				log.info(String.format("delaying release of Runtime %1$s", runtimeName));
+				continue;
+			}
+			ret &= release(services[i]);
+		}
+		
+		if (runtimeName != null)
+		{
+			ret &= release(runtimeName);
 		}
 		
 		return ret;
@@ -625,23 +622,25 @@ public class Runtime extends Service {
 
 		ServiceEnvironment se = hosts.get(null); // local services only
 		Iterator<String> seit = se.serviceDirectory.keySet().iterator();
+		String serviceName;
+		ServiceWrapper sw;
 		while (seit.hasNext()) {
-			String serviceName = seit.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			serviceName = seit.next();
+			sw = se.serviceDirectory.get(serviceName);
 			instance.invoke("released", se.serviceDirectory.get(serviceName));
 		}
 
 		seit = se.serviceDirectory.keySet().iterator();
 		while (seit.hasNext()) {
-			String serviceName = seit.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-			log.info("stopping service " + se.accessURL + "/" + serviceName);
+			serviceName = seit.next();
+			sw = se.serviceDirectory.get(serviceName);
+			log.info(String.format("stopping service %1$s/%2$s", se.accessURL, serviceName));
 
-			if (sw.service != null) {
-				sw.service.stopService();
-			} else {
+			if (sw.service == null) {
 				log.warn("unknown type and/or remote service");
+				continue;
 			}
+			sw.service.stopService();
 		}
 
 		log.info("clearing hosts environments");
@@ -686,7 +685,7 @@ public class Runtime extends Service {
 	 */
 	public static HashMap<String, MethodEntry> getMethodMap(String serviceName) {
 		if (!registry.containsKey(serviceName)) {
-			log.error(serviceName + " not in registry - can not return method map");
+			log.error(String.format("%1$s not in registry - can not return method map", serviceName));
 			return null;
 		}
 
@@ -696,20 +695,21 @@ public class Runtime extends Service {
 		Class<?> c = sw.service.getClass();
 		Method[] methods = c.getDeclaredMethods();
 
+		Method m;
+		MethodEntry me;
+		String s;
 		for (int i = 0; i < methods.length; ++i) {
-			Method m = methods[i];
-			// Class<?>[] paramTypes = m.getParameterTypes();
-			// Class<?> returnType = m.getReturnType();
+			m = methods[i];
 
-			if (!hideMethods.containsKey(m.getName())) {
-				MethodEntry me = new MethodEntry();
-				me.name = m.getName();
-				me.parameterTypes = m.getParameterTypes();
-				me.returnType = m.getReturnType();
-				String s = MethodEntry.getSignature(me.name, me.parameterTypes, me.returnType);
-				ret.put(s, me);
+			if (hideMethods.containsKey(m.getName())) {
+				continue;
 			}
-
+			me = new MethodEntry();
+			me.name = m.getName();
+			me.parameterTypes = m.getParameterTypes();
+			me.returnType = m.getReturnType();
+			s = MethodEntry.getSignature(me.name, me.parameterTypes, me.returnType);
+			ret.put(s, me);
 		}
 
 		return ret;
@@ -747,6 +747,13 @@ public class Runtime extends Service {
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
+		} finally {
+			if (out != null) {
+				try {
+					// todo - should we flush first?
+					out.close();
+				} catch (Exception e) {}
+			}
 		}
 
 		return true;
@@ -759,20 +766,25 @@ public class Runtime extends Service {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean load(String filename) {
+		ObjectInputStream in = null;
 		try {
-
 			FileInputStream fis;
 			fis = new FileInputStream(filename);
-			ObjectInputStream in = new ObjectInputStream(fis);
+			in = new ObjectInputStream(fis);
 			// instance = (RuntimeEnvironment)in.readObject();
 			hosts = (HashMap<URL, ServiceEnvironment>) in.readObject();
 			registry = (HashMap<String, ServiceWrapper>) in.readObject();
 			hideMethods = (HashMap<String, String>) in.readObject();
-			in.close();
-
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
+		} finally {
+			if (in != null) {
+				try {
+					// TODO do we need to flush first?
+					in.close();
+				} catch (Exception e) {}
+			}
 		}
 
 		return true;
@@ -786,9 +798,11 @@ public class Runtime extends Service {
 		// GUI gui = null;
 		ServiceEnvironment se = getLocalServices();
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		String serviceName;
+		ServiceWrapper sw;
 		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			serviceName = it.next();
+			sw = se.serviceDirectory.get(serviceName);
 			sw.service.startService();
 			/*
 			 * if (sw.service.getClass().getSuperclass().equals(GUI.class)) {
@@ -807,31 +821,45 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static String dumpNotifyEntries() {
-		StringBuffer sb = new StringBuffer();
-
-		sb.append("<NotifyEntries>");
-
 		Iterator<String> it = registry.keySet().iterator();
+		String serviceName;
+		ServiceWrapper sw;
+		String n;
+		ArrayList<NotifyEntry> nes;
+		NotifyEntry ne;
+		
+		StringBuffer sb = new StringBuffer()
+			.append("<NotifyEntries>");
 		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = registry.get(serviceName);
-			sb.append("<service name=\"" + sw.getName() + "\" serviceEnironment=\"" + sw.getAccessURL() + "\">");
+			serviceName = it.next();
+			sw = registry.get(serviceName);
+			sb.append("<service name=\"")
+				.append(sw.getName())
+				.append("\" serviceEnironment=\"")
+				.append(sw.getAccessURL())
+				.append("\">");
 			Iterator<String> nit = sw.getNotifyListKeySet().iterator();
 
 			while (nit.hasNext()) {
-				String n = nit.next();
-				sb.append("<notify map=\"" + n + "\">");
-				ArrayList<NotifyEntry> nes = sw.getNotifyList(n);
+				n = nit.next();
+				sb.append("<notify map=\"")
+					.append(n)
+					.append("\">");
+				nes = sw.getNotifyList(n);
 				for (int i = 0; i < nes.size(); ++i) {
-					NotifyEntry ne = nes.get(i);
-					sb.append("<notifyEntry outMethod=\"" + ne.outMethod + "\" name=\"" + ne.name + "\" inMethod=\""
-							+ ne.outMethod + "\" />");
+					ne = nes.get(i);
+					sb.append("<notifyEntry outMethod=\"")
+						.append(ne.outMethod)
+						.append("\" name=\"")
+						.append(ne.name)
+						.append("\" inMethod=\"")
+						.append(ne.outMethod)
+						.append("\" />");
 				}
 				sb.append("</notify>");
 			}
 			sb.append("</service>");
 		}
-
 		sb.append("</NotifyEntries>");
 
 		return sb.toString();
@@ -846,22 +874,23 @@ public class Runtime extends Service {
 		Vector<String> ret = new Vector<String>();
 
 		Iterator<String> it = registry.keySet().iterator();
+		String serviceName;
+		ServiceWrapper sw;
+		Class<?> c;
+		Class<?>[] interfaces;
+		Class<?> m;
 		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = registry.get(serviceName);
-			Class<?> c = sw.service.getClass();
-
-			Class<?>[] interfaces = c.getInterfaces();
-
+			serviceName = it.next();
+			sw = registry.get(serviceName);
+			c = sw.service.getClass();
+			interfaces = c.getInterfaces();
 			for (int i = 0; i < interfaces.length; ++i) {
-				Class<?> m = interfaces[i];
+				m = interfaces[i];
 
 				if (m.getCanonicalName().equals(interfaceName)) {
 					ret.add(sw.service.getName());
 				}
-
 			}
-
 		}
 
 		return ret;
@@ -954,9 +983,7 @@ public class Runtime extends Service {
 		System.out.println(v);
 		return v;
 	}
-
-	static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel DEBUG -logToConsole";
-
+	
 	/**
 	 * 
 	 * @param cmdline
@@ -973,15 +1000,15 @@ public class Runtime extends Service {
 			return;
 		}
 
-		System.out.println("service count " + cmdline.getArgumentCount("-service") / 2);
+		System.out.println(String.format("service count %1$f", cmdline.getArgumentCount("-service") / 2));
 
 		if (cmdline.getArgumentCount("-service") > 0 && cmdline.getArgumentCount("-service") % 2 == 0) {
 
 			for (int i = 0; i < cmdline.getArgumentCount("-service"); i += 2) {
 
-				log.info("attempting to invoke : org.myrobotlab.service."
-						+ cmdline.getSafeArgument("-service", i + 1, "") + " named "
-						+ cmdline.getSafeArgument("-service", i, ""));
+				log.info(String.format("attempting to invoke : org.myrobotlab.service.%1$s named %2$s",
+						cmdline.getSafeArgument("-service", i + 1, ""),
+						cmdline.getSafeArgument("-service", i, "")));
 
 				String name = cmdline.getSafeArgument("-service", i, "");
 				String type = cmdline.getSafeArgument("-service", i + 1, "");
@@ -990,7 +1017,7 @@ public class Runtime extends Service {
 				if (s != null) {
 					s.startService();
 				} else {
-					log.error("could not create service " + name + " " + type);
+					log.error(String.format("could not create service %1$s %2$s", name, type));
 				}
 
 				// if the service has a display
@@ -1005,14 +1032,12 @@ public class Runtime extends Service {
 			if (gui != null) {
 				gui.display();
 			}
-
+			return;
 		} else if (cmdline.hasSwitch("-list")) {
 			System.out.println(getServiceShortClassNames());
-
-		} else {
-			help();
 			return;
 		}
+		help();
 	}
 
 	/**
@@ -1203,9 +1228,9 @@ public class Runtime extends Service {
 		serviceInfo.clearErrors();
 
 		// FIXME - not needed - set defaults [update all = true]
-		if (getNewRepoData)
+		if (getNewRepoData) {
 			serviceInfo.getRepoServiceData("serviceData.xml");
-
+		}
 		if (!serviceInfo.hasErrors()) {
 			serviceInfo.update();
 			if (!serviceInfo.hasErrors()) {
@@ -1241,13 +1266,13 @@ public class Runtime extends Service {
 																										// !cls.isInstance(Service.class))
 																										// \
 		{
-			log.error(fullTypeName + " not a type or " + name + " not defined ");
+			log.error(String.format("%1$s not a type or %2$s not defined ", fullTypeName, name));
 			return null;
 		}
 
 		ServiceWrapper sw = Runtime.getService(name);
 		if (sw != null) {
-			log.debug("service " + name + " already exists");
+			log.debug(String.format("service %1$s already exists", name));
 			return sw.service;
 		}
 
@@ -1255,7 +1280,7 @@ public class Runtime extends Service {
 
 			// TODO - determine if there have been new classes added from ivy
 			log.debug("ABOUT TO LOAD CLASS");
-
+			// TODO reduce the amount of log calls and put them in one log statement
 			log.info("loader for this class " + Runtime.class.getClassLoader().getClass().getCanonicalName());
 			log.info("parent " + Runtime.class.getClassLoader().getParent().getClass().getCanonicalName());
 			log.info("system class loader " + ClassLoader.getSystemClassLoader());
@@ -1286,35 +1311,43 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static String dump() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("\nhosts:\n");
+		StringBuffer sb = new StringBuffer()
+			.append("\nhosts:\n");
 
 		Iterator<URL> hkeys = hosts.keySet().iterator();
+		URL url;
+		ServiceEnvironment se;
+		Iterator<String> it2;
+		String serviceName;
+		ServiceWrapper sw;
 		while (hkeys.hasNext()) {
-			URL url = hkeys.next();
-			ServiceEnvironment se = hosts.get(url);
-			sb.append("\t");
-			sb.append(url);
+			url = hkeys.next();
+			se = hosts.get(url);
+			sb.append("\t")
+				.append(url);
 			if ((se.accessURL != url) && (!url.equals(se.accessURL))) {
-				sb.append(" key not equal to data ");
-				sb.append(se.accessURL);
+				sb.append(" key not equal to data ")
+					.append(se.accessURL);
 			}
 			sb.append("\n");
 
 			// Service Environment
-			Iterator<String> it2 = se.serviceDirectory.keySet().iterator();
+			it2 = se.serviceDirectory.keySet().iterator();
 			while (it2.hasNext()) {
-				String serviceName = it2.next();
-				ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-				sb.append("\t\t");
-				sb.append(serviceName);
+				serviceName = it2.next();
+				sw = se.serviceDirectory.get(serviceName);
+				sb.append("\t\t")
+					.append(serviceName);
 				if ((sw.name != sw.name) && (!serviceName.equals(sw.name))) {
-					sb.append(" key not equal to data ");
-					sb.append(sw.name);
+					sb.append(" key not equal to data ")
+						.append(sw.name);
 				}
 
 				if ((sw.host.accessURL != url) && (!sw.host.accessURL.equals(url))) {
-					sb.append(" service wrapper host accessURL " + sw.host.accessURL + " not equal to " + url);
+					sb.append(" service wrapper host accessURL ")
+						.append(sw.host.accessURL)
+						.append(" not equal to ")
+						.append(url);
 				}
 				sb.append("\n");
 			}
@@ -1324,12 +1357,12 @@ public class Runtime extends Service {
 
 		Iterator<String> rkeys = registry.keySet().iterator();
 		while (rkeys.hasNext()) {
-			String serviceName = rkeys.next();
-			ServiceWrapper sw = registry.get(serviceName);
-			sb.append("\n");
-			sb.append(serviceName);
-			sb.append(" ");
-			sb.append(sw.host.accessURL);
+			serviceName = rkeys.next();
+			sw = registry.get(serviceName);
+			sb.append("\n")
+				.append(serviceName)
+				.append(" ")
+				.append(sw.host.accessURL);
 		}
 
 		return sb.toString();
