@@ -48,11 +48,6 @@ public class JythonTest {
 	}
 
 	@Test
-	public void testLoadDefaultConfiguration() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
 	public void testPreProcessHook() {
 		fail("Not yet implemented"); // TODO
 	}
