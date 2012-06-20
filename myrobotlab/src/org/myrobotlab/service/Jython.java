@@ -190,14 +190,8 @@ public class Jython extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 				
-		Jython jython = (Jython) Runtime.create("jython","Jython");
-		jython.startService();
-
-/*		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-*/		
+		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("gui", "GUIService");
 		
 	}
 	

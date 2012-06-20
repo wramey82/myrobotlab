@@ -1170,6 +1170,10 @@ public class Runtime extends Service {
 			return null;
 		}
 		s.startService();
+		// new assumption - if you have a display - you probably want to display it
+		// also allows complete dynamic loading of GUIService without any GUIService 
+		// references - so the android project does not whine...
+		s.display(); 
 		return s;
 	}
 
