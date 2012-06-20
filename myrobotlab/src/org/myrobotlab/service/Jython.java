@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -62,6 +63,12 @@ public class Jython extends Service {
 	String script = null;
 	
 	boolean jythonConsoleInitialized = false;
+
+	// TODO this needs to be moved into an actual cache if it is to be used
+	/**
+	 * Cache of compile jython code.
+	 */
+	private static final HashMap<String, PyObject> objectCache = new HashMap<String, PyObject>();;
 	
 	/**
 	 * 
@@ -69,6 +76,7 @@ public class Jython extends Service {
 	 */
 	public Jython(String instanceName) {
 		super(instanceName, Jython.class.getCanonicalName());
+		// TODO should this be done somewhere else - kinda heavy for a constructor, no?
 		Method[] methods = this.getClass().getMethods();
 		for (int i = 0; i < methods.length; ++i)
 		{
@@ -101,7 +109,7 @@ public class Jython extends Service {
 		// TODO - check if exists - destroy / de-initialize if necessary
 		PySystemState.initialize();
 		interp = new PythonInterpreter();	
-		
+
 		// add self reference
 		// Python scripts can refer to this service as 'jython' regardless 
 		// of the actual name
@@ -110,8 +118,9 @@ public class Jython extends Service {
 				+ "jython = Runtime.create(\"%1$s\",\"Jython\")\n\n" // TODO - deprecate
 				+ "runtime = Runtime.getInstance()\n\n"
 				+ "myService = Runtime.create(\"%1$s\",\"Jython\")\n",
-				this.getName());
-		interp.exec(selfReferenceScript);
+			this.getName());
+		PyObject compiled = getCompiledMethod("initializeJython", selfReferenceScript, interp);
+		interp.exec(compiled);
 	}
 	
 	/**
@@ -214,12 +223,19 @@ public class Jython extends Service {
 	 */
 	public boolean preProcessHook(Message msg)
 	{
+		if (msg == null
+				|| (msg.sender == null || msg.sender.trim().isEmpty())
+				|| (msg.sendingMethod == null || msg.sendingMethod.trim().isEmpty())
+				|| (msg.method == null || msg.method.trim().isEmpty())) {
+			// TODO is this the correct result?
+			throw new IllegalArgumentException("Message parameter invalid.");
+		}
 		// let the messages for this service
 		// get processed normally
 		if (commandMap.containsKey(msg.method))
 		{
 			return true;
-		} 
+		}
 		// otherwise its target is for the
 		// scripting environment 
 		// set the data - and call the call-back function
@@ -228,18 +244,41 @@ public class Jython extends Service {
 			createPythonInterpreter();
 		}
 
-		StringBuffer msgHandle = new StringBuffer();
-		msgHandle.append("msg_");
-		msgHandle.append(msg.sender);
-		msgHandle.append("_");
-		msgHandle.append(msg.sendingMethod);
+		StringBuffer msgHandle = new StringBuffer()
+			.append("msg_")
+			.append(msg.sender)
+			.append("_")
+			.append(msg.sendingMethod);
 		log.debug(String.format("calling %1$s", msgHandle));
+		// use a compiled version to make it easier on us
+		PyObject compiledObject = getCompiledMethod(msgHandle.toString(), String.format("%1$s()", msg.method), interp);
 		interp.set(msgHandle.toString(), msg);
-		interp.exec(String.format("%1$s()", msg.method));
+		interp.exec(compiledObject);
 		
 		return false;
 	}
 	
+	/**
+	 * Get a compiled version of the python call.
+	 * 
+	 * @param msg
+	 * @param interp
+	 * @return
+	 */
+	private static synchronized PyObject getCompiledMethod(String name, String code, PythonInterpreter interp) {
+		// TODO change this from a synchronized method to a few blocks to improve concurrent performance
+		if (objectCache.containsKey(name)) {
+			return objectCache.get(name);
+		}
+		PyObject compiled = interp.compile(code);
+		if (objectCache.size() > 5) {
+			// keep the size to 6
+			objectCache.remove(objectCache.keySet().iterator().next());
+		}
+		objectCache.put(name, compiled);
+		return compiled;
+	}
+
 	/**
 	 * Get rid of the interpreter.
 	 */
