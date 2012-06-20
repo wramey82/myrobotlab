@@ -223,13 +223,6 @@ public class Jython extends Service {
 	 */
 	public boolean preProcessHook(Message msg)
 	{
-		if (msg == null
-				|| (msg.sender == null || msg.sender.trim().isEmpty())
-				|| (msg.sendingMethod == null || msg.sendingMethod.trim().isEmpty())
-				|| (msg.method == null || msg.method.trim().isEmpty())) {
-			// TODO is this the correct result?
-			throw new IllegalArgumentException("Message parameter invalid.");
-		}
 		// let the messages for this service
 		// get processed normally
 		if (commandMap.containsKey(msg.method))
