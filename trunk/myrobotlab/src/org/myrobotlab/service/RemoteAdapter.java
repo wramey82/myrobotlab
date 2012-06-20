@@ -31,7 +31,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -39,9 +38,7 @@ import java.net.URL;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.NotifyEntry;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.interfaces.Communicator;
 
 /***
@@ -335,36 +332,9 @@ public class RemoteAdapter extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		// modes of operation
-		// command line - single command lind which sends a message
-		// to mrl - this does not require the service to start
-		// just sends a quick message into a running mrl instance
-		// includes -file - to send a file as the message (possibly a serialized
-		// binary object)
-
-		// simple send command
-/*		
-
-		Jython jython = new Jython("jython");
-		jython.startService();
-*/
-
-		RemoteAdapter remote = new RemoteAdapter("remote0");
-		remote.startService();
-		
-		Logging logger = new Logging("log0");
-		logger.startService();
-		//Clock clock = new Clock("clock0");
-		//clock.startService();
-		
-		Jython jython = new Jython("jython0");
-		jython.startService();
-		
-		/*
-		GUIService gui = new GUIService("gui0");
-		gui.startService();
-		gui.display();
-		*/
+		Runtime.createAndStart("remote0", "RemoteAdapter");
+		Runtime.createAndStart("log0"	, "Logging");
+		Runtime.createAndStart("jython0", "Jython");		
 					
 	}
 }
