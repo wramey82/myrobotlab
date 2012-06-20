@@ -6,6 +6,6 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="myrobotlab.jar" type="jar"/>
+        <artifact name="myrobotlab" type="jar"/>
     </publications>
 </ivy-module>
