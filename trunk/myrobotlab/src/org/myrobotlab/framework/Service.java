@@ -554,8 +554,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		isRunning = true;
 
 		try {
-			// TODO could this be event based - with a Thread.wait()?
-			// TODO can parallel processing be utilized? worker threads?
 			while (isRunning) {
 				// TODO should this declaration be outside the while loop? if so, make sure to release prior to continue
 				Message m = getMsg();
