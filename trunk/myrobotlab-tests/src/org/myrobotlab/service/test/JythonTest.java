@@ -58,33 +58,21 @@ public class JythonTest {
 		
 		try {
 			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown IllegalArgumentException because input to method is null.");
-		} catch (IllegalArgumentException e) {}
+			Assert.fail("Should have thrown NullPointerException because input to method is null.");
+		} catch (NullPointerException e) {}
 		
 		method = new Message();
 
-		try {
-			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing sender.");
-		} catch (IllegalArgumentException e) {}
+		guineaPig.preProcessHook(method);
 
 		method.sender = "JythonTest";
-		try {
-			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing sendingMethod.");
-		} catch (IllegalArgumentException e) {}
+		guineaPig.preProcessHook(method);
 		
 		method.sendingMethod = "testPreProcessHook1";
-		try {
-			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown IllegalArgumentException because input to method is missing method.");
-		} catch (IllegalArgumentException e) {}
+		guineaPig.preProcessHook(method);
 
 		method.method = "badmethod";
-		try {
-			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown PyException because the method is invalid.");
-		} catch (PyException e) {}
+		guineaPig.preProcessHook(method);
 
 		method.method = "preProcessHook";
 		result = guineaPig.preProcessHook(method);
