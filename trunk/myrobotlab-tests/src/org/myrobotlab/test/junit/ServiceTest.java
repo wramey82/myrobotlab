@@ -65,25 +65,20 @@ public class ServiceTest {
 	String host = "localhost";
 	int port = 6767;
 	
-
 	@Test
-	public final void testSingleThrow() {
+	public final void testSimpleMessage() {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
-		log.warn("testSingleThrow begin-------------");
+		Logger.getRootLogger().setLevel(Level.INFO);
+		log.debug("testSimpleMessage begin-------------");
 
 		// create services
-		TestThrower thrower01 = new TestThrower("thrower02");
-		TestCatcher catcher01 = new TestCatcher("catcher01");
-
-		// start services
-		thrower01.startService();
-		catcher01.startService();
+		TestThrower thrower01 = (TestThrower) Runtime.createAndStart("thrower02", "TestThrower");
+		TestCatcher catcher01 = (TestCatcher) Runtime.createAndStart("catcher01", "TestCatcher");
 
 		// set notify list
 		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
 
-		// send 1 message
+		// send 10 messages
 		int cnt = 10;
 		stopwatch.start();
 		for (int i = 0; i < cnt; ++i) {
@@ -103,26 +98,9 @@ public class ServiceTest {
 
 		catcher01.catchList.clear();
 
-		// send n messages
-		stopwatch.start();
-		cnt = 2;
-		for (int i = 0; i < cnt; ++i) {
-			thrower01.invoke("throwInteger", new Integer(7));
-		}
-		catcher01.waitForCatches(cnt, 1000);
-		stopwatch.end();
-
-		// check results
-		log.info(cnt + " message sent in " + stopwatch.elapsedMillis()
-				+ " ms avg 1 msg per "
-				+ (stopwatch.elapsedMillis() / (float) cnt) + " ms");
-		assertEquals(catcher01.catchList.size(), cnt);
-		assertEquals(catcher01.catchList.get(0).getClass().getCanonicalName().compareTo("java.lang.Integer"), 0);
-		assertEquals(catcher01.catchList.get(0), new Integer(7));
-
 		Runtime.releaseAll();
 		
-		log.warn("testSingleThrow end-------------");
+		log.warn("testSimpleMessage end-------------");
 	}
 
 	@Test
