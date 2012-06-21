@@ -621,6 +621,11 @@ public class Runtime extends Service {
 		// but you can't send the info if everything has been released :P
 
 		ServiceEnvironment se = hosts.get(null); // local services only
+		if (se == null)
+		{
+			log.info("releaseAll called when everything is released, all done here");
+			return;
+		}
 		Iterator<String> seit = se.serviceDirectory.keySet().iterator();
 		String serviceName;
 		ServiceWrapper sw;
