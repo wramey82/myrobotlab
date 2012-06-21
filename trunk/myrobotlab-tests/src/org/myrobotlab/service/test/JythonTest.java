@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -83,7 +85,8 @@ public class JythonTest {
 
 	@Test
 	public void testJython() {
-		fail("Not yet implemented"); // TODO
+		HashMap<String, Object> commandMap = TestHelpers.<HashMap<String, Object>>getField(guineaPig, "commandMap");
+		Assert.assertEquals(82, commandMap.size());
 	}
 
 	@Test
@@ -95,7 +98,7 @@ public class JythonTest {
 
 	@Test
 	public void testAttachJythonConsole() {
-		fail("Not yet implemented"); // TODO
+		guineaPig.attachJythonConsole();
 	}
 
 	@Test
@@ -138,7 +141,7 @@ public class JythonTest {
 
 	@Test
 	public void testFinishedExecutingScript() {
-		fail("Not yet implemented"); // TODO
+		guineaPig.finishedExecutingScript();
 	}
 
 	@Test
@@ -162,17 +165,17 @@ public class JythonTest {
 
 	@Test
 	public void testRestart() {
-		fail("Not yet implemented"); // TODO
+		guineaPig.createPythonInterpreter();
+		guineaPig.restart();
+		Object interpreter = TestHelpers.<Object>getField(guineaPig, "interp");
+		Assert.assertNull(interpreter);
 	}
 
 	@Test
 	public void testPublishStdOut() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
-	public void testMain() {
-		fail("Not yet implemented"); // TODO
+		String data = "some data";
+		String result = guineaPig.publishStdOut(data);
+		Assert.assertEquals(data, result);
 	}
 
 }
