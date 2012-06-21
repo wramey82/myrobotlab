@@ -30,6 +30,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
@@ -64,7 +65,7 @@ public class ServiceTest {
 	
 	String host = "localhost";
 	int port = 6767;
-	
+		
 	@Test
 	public final void testSimpleMessage() {
 		org.apache.log4j.BasicConfigurator.configure();
@@ -682,5 +683,20 @@ public class ServiceTest {
 		
 		log.warn("cleanUp end-------------");
 	}
+	
+	@Test
+	public final void JythonTest() {
+		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
+		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
+		
+		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
+		jython.exec(code);
+		catcher.waitForCatches(1, 100);
+		assertEquals(1, catcher.catchList.size());
+		assertEquals(10, (int)catcher.catchList.get(0));
+		Runtime.releaseAll();
+		
+	}
+
 	
 }
