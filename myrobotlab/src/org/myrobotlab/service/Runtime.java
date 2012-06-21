@@ -1000,7 +1000,7 @@ public class Runtime extends Service {
 			return;
 		}
 
-		System.out.println(String.format("service count %1$f", cmdline.getArgumentCount("-service") / 2));
+		System.out.println(String.format("service count %1$d", cmdline.getArgumentCount("-service") / 2));
 
 		if (cmdline.getArgumentCount("-service") > 0 && cmdline.getArgumentCount("-service") % 2 == 0) {
 
