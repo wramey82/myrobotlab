@@ -657,9 +657,21 @@ public class ServiceTest {
 
 		log.warn("clientAPI end-------------");
 	}
-	
+		
+	@Test
+	public final void JythonTest() {
+		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
+		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
+		
+		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
+		jython.exec(code);
+		catcher.waitForCatches(1, 100);
+		assertEquals(1, catcher.catchList.size());
+		assertEquals(10, (int)catcher.catchList.get(0));
+		Runtime.releaseAll();
+		
+	}
 
-	
 	@Test
 	public void cleanUp ()
 	{
@@ -676,27 +688,15 @@ public class ServiceTest {
 			f.delete();
 			f = new File("cfg.txt");
 			f.delete();
-			
+			f = new File(".myrobotlab" + File.separator + "serviceData.xml");
+			f.delete();
+			f = new File(".myrobotlab");
+			f.delete();
 			} catch (Exception e) {
 			e.printStackTrace();
 		} 
 		
 		log.warn("cleanUp end-------------");
 	}
-	
-	@Test
-	public final void JythonTest() {
-		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
-		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
-		
-		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
-		jython.exec(code);
-		catcher.waitForCatches(1, 100);
-		assertEquals(1, catcher.catchList.size());
-		assertEquals(10, (int)catcher.catchList.get(0));
-		Runtime.releaseAll();
-		
-	}
 
-	
 }
