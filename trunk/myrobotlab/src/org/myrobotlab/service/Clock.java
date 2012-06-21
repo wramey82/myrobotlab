@@ -230,14 +230,6 @@ public class Clock extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-		try {
-			URI uri = new URI("mrl://192.168.0.1:5554");
-			log.info(uri);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
