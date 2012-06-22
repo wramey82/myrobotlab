@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="edu.cmu.sphinx" module="sphinx" status="release" revision="4-1.0beta6">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="batch" type="jar"/>
+        <artifact name="jsapi-1.0-base" type="jar"/>
+        <artifact name="sphinx4" type="jar"/>
+        <artifact name="tags" type="jar"/>
+        <artifact name="TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz" type="jar"/>
+        <artifact name="WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz" type="jar"/>
+        <artifact name="WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz" type="jar"/>
+    </publications>
+</ivy-module>

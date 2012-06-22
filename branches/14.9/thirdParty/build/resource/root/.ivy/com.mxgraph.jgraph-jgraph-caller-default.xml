@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="com.mxgraph.jgraph"
+		module="jgraph-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20120506073239"/>
+	<dependencies>
+		<module organisation="com.mxgraph.jgraph" name="jgraph">
+			<revision name="1.6.1.2" status="release" pubdate="20120225064830" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="arm.32.linux, x86.32.linux, x86.64.linux, *, runtime, x86.32.windows, public, x86.64.windows, amd64.32.linux, x86.32.mac" position="0">
+				<metadata-artifact status="successful" details="" size="448" time="390" location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\com.mxgraph.jgraph\jgraph\ivy-1.6.1.2.xml" searched="true" original-local-location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\com.mxgraph.jgraph\jgraph\ivy-1.6.1.2.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/com.mxgraph.jgraph/jgraph/1.6.1.2/ivy.xml"/>
+				<caller organisation="com.mxgraph.jgraph" name="jgraph-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+					<artifact name="jgraphx" type="jar" ext="jar" status="successful" details="" size="530761" time="3125" location="C:\mrl\myrobotlab\dist\516.519M.20120505.1146\.ivy\com.mxgraph.jgraph\jgraph\jars\jgraphx-1.6.1.2.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/com.mxgraph.jgraph/jgraph/1.6.1.2/jgraphx.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

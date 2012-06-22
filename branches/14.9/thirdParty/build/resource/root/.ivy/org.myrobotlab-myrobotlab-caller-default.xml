@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="org.myrobotlab"
+		module="myrobotlab-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20120424130911"/>
+	<dependencies>
+		<module organisation="org.myrobotlab" name="myrobotlab">
+			<revision name="latest.integration" error="not found" downloaded="false" searched="false" conf="runtime, x86.32.windows" position="-1">
+				<caller organisation="org.myrobotlab" name="myrobotlab-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
