@@ -1,0 +1,10 @@
+<!-- refer to : http://ant.apache.org/ivy/history/2.2.0/tutorial/defaultconf.html 
+-->
+<ivysettings>
+  <resolvers>
+    <url name="public">
+      <ivy pattern="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/[organisation]/[module]/[revision]/ivy.xml" />
+      <artifact pattern="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/[organisation]/[module]/[revision]/[artifact].[ext]" />
+    </url>
+  </resolvers>
+</ivysettings>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="org/myrobotlab/framework/ConfigurationManager.java|org/myrobotlab/framework/Dependency.java|org/myrobotlab/framework/DependencyList.java|org/myrobotlab/framework/InterfaceEntry.java|org/myrobotlab/framework/Ivy2.java|org/myrobotlab/framework/MethodEntry.java|org/myrobotlab/framework/Outbox.java|org/myrobotlab/framework/Service.java|org/myrobotlab/framework/ServiceEntry.java|org/myrobotlab/framework/ServiceInfo.java|org/myrobotlab/framework/ServiceData.java|org/myrobotlab/framework/ServiceDescriptor.java|org/myrobotlab/framework/Inbox.java" including="org/myrobotlab/cmdline/*.java|org/myrobotlab/framework/*.java|org/myrobotlab/service/interfaces/ServiceInterface.java" kind="src" path="framework"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

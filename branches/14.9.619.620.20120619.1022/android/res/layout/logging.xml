@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- http://stackoverflow.com/questions/1748977/making-textview-scrollable-in-android -->
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+	>
+<TableRow>
+<!-- === Service header begin ===============-->
+<include layout="@layout/service_header"/>    
+<!-- === Service header end =================-->
+</TableRow>
+
+<TableRow>
+    <TextView
+        android:id="@+id/log"
+        android:layout_span="4"
+        android:textSize="10sp"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:maxLines="20"
+        android:lines="20"
+        android:scrollbars = "vertical"
+        android:editable="false"     
+        android:inputType="textMultiLine" />    
+</TableRow>
+</TableLayout>
