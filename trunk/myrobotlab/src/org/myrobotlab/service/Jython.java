@@ -53,8 +53,13 @@ public class Jython extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Jython.class.getCanonicalName());
-	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
+	public final static transient Logger log = Logger.getLogger(Jython.class.getCanonicalName());
+	// using a HashMap means no duplicates
+	private static final transient HashMap<String, Object> commandMap = new HashMap<String, Object>();
+	// TODO this needs to be moved into an actual cache if it is to be used
+	// Cache of compile jython code
+	private static final transient HashMap<String, PyObject> objectCache = new HashMap<String, PyObject>();
+	
 	transient PythonInterpreter interp = null;
 
 	String inputScript = null;
@@ -63,12 +68,16 @@ public class Jython extends Service {
 	String script = null;
 	
 	boolean jythonConsoleInitialized = false;
-
-	// TODO this needs to be moved into an actual cache if it is to be used
-	/**
-	 * Cache of compile jython code.
-	 */
-	private static final HashMap<String, PyObject> objectCache = new HashMap<String, PyObject>();;
+	
+	static
+	{
+		Method[] methods = Jython.class.getMethods();
+		for (int i = 0; i < methods.length; ++i)
+		{
+			log.info(String.format("will filter method ", methods[i].getName()));
+			commandMap.put(methods[i].getName(), null);
+		}
+	}
 	
 	/**
 	 * 
@@ -76,13 +85,6 @@ public class Jython extends Service {
 	 */
 	public Jython(String instanceName) {
 		super(instanceName, Jython.class.getCanonicalName());
-		// TODO should this be done somewhere else - kinda heavy for a constructor, no?
-		Method[] methods = this.getClass().getMethods();
-		for (int i = 0; i < methods.length; ++i)
-		{
-			log.info("will filter method " + methods[i].getName());
-			commandMap.put(methods[i].getName(), null);
-		}
 	}
 	
 	/**
