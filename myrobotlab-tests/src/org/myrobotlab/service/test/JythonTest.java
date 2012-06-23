@@ -5,9 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -23,6 +29,7 @@ import org.python.core.PyException;
 import org.python.util.PythonInterpreter;
 
 public class JythonTest {
+	private Logger log = Logger.getLogger("JythonTest");
 	String name = "sometestname";
 	Jython guineaPig = null;
 
@@ -85,8 +92,16 @@ public class JythonTest {
 
 	@Test
 	public void testJython() {
+		HashMap<String, Object> publicMethods = new HashMap<String, Object>();
+		Method[] methods = guineaPig.getClass().getMethods();
+		for (Method m : methods) {
+			if (Modifier.isPublic(m.getModifiers())) {
+				publicMethods.put(m.getName(), null);
+				log.info(m.getName());
+			}
+		}
 		HashMap<String, Object> commandMap = TestHelpers.<HashMap<String, Object>>getField(guineaPig, "commandMap");
-		Assert.assertEquals(82, commandMap.size());
+		Assert.assertEquals(publicMethods.size(), commandMap.size());
 	}
 
 	@Test
