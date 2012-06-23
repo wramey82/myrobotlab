@@ -745,56 +745,70 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Constructor<?> mc = c.getConstructor(paramTypes);
 			return mc.newInstance(param); // Dynamically instantiate it
 
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			logException(e);
-		} catch (SecurityException e) {
-			logException(e);
-		} catch (NoSuchMethodException e) {
-			logException(e);
-		} catch (RuntimeException e) {
-			logException(e);
-		} catch (InstantiationException e) {
-			logException(e);
-		} catch (IllegalAccessException e) {
-			logException(e);
-		} catch (InvocationTargetException e) {
-			logException(e);
-		}
-
+		} 
+		
 		return null;
 	}
 
 	// parameterType is not used for any critical look-up - but can be used at
 	// runtime check to
 	// check parameter mating
+	
+	
+	public void subscribe(String outMethod,  String publisherName, String inMethod, Class<?>...parameterType) 
+	{
+		MRLListener listener = null;
+		if (parameterType != null) {
+			listener = new MRLListener(outMethod, getName(), inMethod, parameterType);
+		} else {
+			listener = new MRLListener(outMethod, getName(), inMethod, null);
+		}
+		
+		send(publisherName, "addListener", listener);
+	}
+
+	public void unsubscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType) {
+
+		MRLListener listener = null;
+		if (parameterType != null) {
+			listener = new MRLListener(outMethod, getName(), inMethod, parameterType);
+		} else {
+			listener = new MRLListener(outMethod, getName(), inMethod, null);
+		}
+		
+		send(publisherName, "removeListener", listener);
+	}
+
 
 	/**
-	 * this is called from video widget sendNotifyRequest 
-	 * @param ne
+	 * this is called from video widget subscribe 
+	 * @param listener
 	 */
-	public void notify(NotifyEntry ne)	 
+	public void addListener(MRLListener listener)	 
 	{
-		if (outbox.notifyList.containsKey(ne.outMethod.toString())) {
+		if (outbox.notifyList.containsKey(listener.outMethod.toString())) {
 			// iterate through all looking for duplicate
 			boolean found = false;
-			ArrayList<NotifyEntry> nes = outbox.notifyList.get(ne.outMethod.toString());
+			ArrayList<MRLListener> nes = outbox.notifyList.get(listener.outMethod.toString());
 			for (int i = 0; i < nes.size(); ++i) {
-				NotifyEntry entry = nes.get(i);
-				if (entry.equals(ne)) {
-					log.warn(String.format("attempting to add duplicate NotifyEntry %1$s", ne));
+				MRLListener entry = nes.get(i);
+				if (entry.equals(listener)) {
+					log.warn(String.format("attempting to add duplicate MRLListener %1$s", listener));
 					found = true;
 					break;
 				}
 			}
 			if (!found) {
-				log.info(String.format("adding notify from %1$s.%2$s to %3$s.%4$s", this.getName(), ne.outMethod, ne.name, ne.inMethod));
-				nes.add(ne);
+				log.info(String.format("adding addListener from %1$s.%2$s to %3$s.%4$s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
+				nes.add(listener);
 			}
 		} else {
-			ArrayList<NotifyEntry> nel = new ArrayList<NotifyEntry>();
-			nel.add(ne);
-			log.info(String.format("adding notify from %1$s%2$s to %3$s.%4$s", this.getName(), ne.outMethod, ne.name, ne.inMethod));
-			outbox.notifyList.put(ne.outMethod.toString(), nel);
+			ArrayList<MRLListener> nel = new ArrayList<MRLListener>();
+			nel.add(listener);
+			log.info(String.format("adding addListener from %1$s%2$s to %3$s.%4$s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
+			outbox.notifyList.put(listener.outMethod.toString(), nel);
 		}
 
 	}
@@ -806,122 +820,22 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param inMethod
 	 * @param paramTypes
 	 */
-	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class<?>[] paramTypes)	 
+	public void addListener(String outMethod, String namedInstance, String inMethod,
+			Class<?>... paramTypes)	 
 	{
-		NotifyEntry ne = new NotifyEntry(outMethod, namedInstance, inMethod, paramTypes);
-		notify(ne);
-	}
-
-	// FIXME - wrong way to do boxing use ...
-	/**
-	 * 
-	 * @param name
-	 * @param outAndInMethod
-	 */
-	public void notify(String name, String outAndInMethod) {
-		notify(outAndInMethod, name, outAndInMethod, (Class<?>[]) null);
+		MRLListener listener = new MRLListener(outMethod, namedInstance, inMethod, paramTypes);
+		addListener(listener);
 	}
 
 	/**
 	 * 
 	 * @param name
 	 * @param outAndInMethod
-	 * @param parameterType
 	 */
-	public void notify(String name, String outAndInMethod, Class<?> parameterType) {
-		notify(outAndInMethod, name, outAndInMethod, new Class[] { parameterType });
-	}
-	
-	/**
-	 * 
-	 * @param name
-	 * @param outAndInMethod
-	 * @param parameterTypes
-	 */
-	public void notify(String name, String outAndInMethod, Class<?>[] parameterTypes) {
-		notify(outAndInMethod, name, outAndInMethod, parameterTypes);
+	public void addListener(String name, String outAndInMethod, Class<?>... paramTypes) {
+		addListener(outAndInMethod, name, outAndInMethod, paramTypes);
 	}
 
-	// convenience boxing functions
-	/**
-	 * 
-	 * @param outMethod
-	 * @param namedInstance
-	 * @param inMethod
-	 */
-	public void notify(String outMethod, String namedInstance, String inMethod) 
-	{
-		notify(outMethod, namedInstance, inMethod, (Class[])null);
-	}
-
-	/**
-	 * 
-	 * @param outMethod
-	 * @param namedInstance
-	 * @param inMethod
-	 * @param parameterType1
-	 */
-	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class<?> parameterType1) {
-		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1} );
-	}
-
-	/**
-	 * 
-	 * @param outMethod
-	 * @param namedInstance
-	 * @param inMethod
-	 * @param parameterType1
-	 * @param parameterType2
-	 */
-	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class<?> parameterType1, Class<?> parameterType2) {
-		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2} );
-	}
-
-	/**
-	 * 
-	 * @param outMethod
-	 * @param namedInstance
-	 * @param inMethod
-	 * @param parameterType1
-	 * @param parameterType2
-	 * @param parameterType3
-	 */
-	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class<?> parameterType1, Class<?> parameterType2, Class<?> parameterType3) {
-		notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3} );
-	}
-
-	/**
-	 * 
-	 * @param outMethod
-	 * @param namedInstance
-	 * @param inMethod
-	 * @param parameterType1
-	 * @param parameterType2
-	 * @param parameterType3
-	 * @param parameterType4
-	 */
-	public void notify(String outMethod, String namedInstance, String inMethod,
-			Class<?> parameterType1, Class<?> parameterType2,
-			Class<?> parameterType3, Class<?> parameterType4) {
-			notify(outMethod, namedInstance, inMethod, new Class[]{parameterType1, parameterType2, parameterType3, parameterType4} );
-	}
-
-	// TODO - change to addListener and removeListener
-	/**
-	 * 
-	 * @param serviceName
-	 * @param inOutMethod
-	 */
-	public void removeNotify(String serviceName,
-			String inOutMethod) 
-	{
-		removeNotify(inOutMethod, serviceName, inOutMethod, (Class[])null);
-	}
-	
 	/**
 	 * 
 	 * @param outMethod
@@ -929,55 +843,54 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param inMethod
 	 * @param paramTypes
 	 */
-	public void removeNotify(String outMethod, String serviceName,
-			String inMethod, Class<?>[] paramTypes) 
+	public void removeListener(String outMethod, String serviceName,
+			String inMethod, Class<?>...paramTypes) 
 	{
 		if (outbox.notifyList.containsKey(outMethod)) {
-			ArrayList<NotifyEntry> nel = outbox.notifyList.get(outMethod);
+			ArrayList<MRLListener> nel = outbox.notifyList.get(outMethod);
 			for (int i = 0; i < nel.size(); ++i) {
-				NotifyEntry target = nel.get(i);
+				MRLListener target = nel.get(i);
 				if (target.name.compareTo(serviceName) == 0) {
 					nel.remove(i);
 				}
 			}
 		} else {
-			log.error(String.format("removeNotify requested %1$s.%2$s to be removed - but does not exist", serviceName, outMethod));
+			log.error(String.format("removeListener requested %1$s.%2$s to be removed - but does not exist", serviceName, outMethod));
 		}		
 	}
 	
-	/**
-	 * 
-	 * @param outMethod
-	 * @param serviceName
-	 * @param inMethod
-	 * @param paramTypes
-	 */
-	public void removeNotify(String outMethod, String serviceName,
-			String inMethod, Class<?> paramTypes)
+	public void removeListener(String serviceName,
+			String inOutMethod, Class<?>...paramTypes) 
 	{
-		// TODO is this needed?
+		removeListener(inOutMethod, serviceName, inOutMethod, paramTypes);
+	}
+
+	public void removeListener(String serviceName,
+			String inOutMethod) 
+	{
+		removeListener(inOutMethod, serviceName, inOutMethod, (Class<?>[])null);
 	}
 
 	/**
 	 * 
 	 */
-	public void removeNotify() {
+	public void removeAllListeners() {
 		outbox.notifyList.clear();
 	}
 
 	/**
 	 * 
-	 * @param ne
+	 * @param listener
 	 */
-	public void removeNotify(NotifyEntry ne) {
-		if (!outbox.notifyList.containsKey(ne.outMethod.toString())) {
-			log.error(String.format("removeNotify requested %1$s to be removed - but does not exist", ne));
+	public void removeListener(MRLListener listener) {
+		if (!outbox.notifyList.containsKey(listener.outMethod.toString())) {
+			log.error(String.format("removeListener requested %1$s to be removed - but does not exist", listener));
 			return;
 		}
-		ArrayList<NotifyEntry> nel = outbox.notifyList.get(ne.outMethod.toString());
+		ArrayList<MRLListener> nel = outbox.notifyList.get(listener.outMethod.toString());
 		for (int i = 0; i < nel.size(); ++i) {
-			NotifyEntry target = nel.get(i);
-			if (target.name.compareTo(ne.name) == 0) {
+			MRLListener target = nel.get(i);
+			if (target.name.compareTo(listener.name) == 0) {
 				nel.remove(i);
 			}
 		}
@@ -2046,7 +1959,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	/**
 	 * 
 	 */
-	public ArrayList<NotifyEntry> getNotifyList(String key)
+	public ArrayList<MRLListener> getNotifyList(String key)
 	{
 		// TODO refactor Outbox inteface
 		return getOutbox().notifyList.get(key);

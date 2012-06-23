@@ -236,7 +236,7 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 //		Logging log = new Logging("log");
 //		log.startService();
 		
-//		PICAXE.notify("pulse", "log", "log", Integer.class);
+//		PICAXE.addListener("pulse", "log", "log", Integer.class);
 
 //		GUIService gui = new GUIService("gui");
 //		gui.startService();	

@@ -31,7 +31,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -62,8 +62,8 @@ public class TestCatcherGUI extends ServiceGUI {
 	// directory
 	// autoBind(ServiceName) would send all NotificationEntries to a service
 	public void bindCatchInteger() {
-		NotifyEntry notifyEntry = new NotifyEntry("catchInteger", myService.getName(), "catchInteger",  new Class[]{Integer.class});
-		myService.send(boundServiceName, "notify", notifyEntry);
+		MRLListener MRLListener = new MRLListener("catchInteger", myService.getName(), "catchInteger",  new Class[]{Integer.class});
+		myService.send(boundServiceName, "addListener", MRLListener);
 	}
 
 	// TODO - generalize this and use it in reflection
@@ -76,11 +76,11 @@ public class TestCatcherGUI extends ServiceGUI {
 				public void actionPerformed(ActionEvent e) {
 					if (bindCatchIntegerButton.getText().compareTo("connect") == 0) {
 						bindCatchIntegerButton.setText("disconnect");
-						sendNotifyRequest("catchInteger", "catchInteger",
+						subscribe("catchInteger", "catchInteger",
 								SerializableImage.class);
 					} else {
 						bindCatchIntegerButton.setText("connect");
-						removeNotifyRequest("catchInteger", "catchInteger",
+						unsubscribe("catchInteger", "catchInteger",
 								SerializableImage.class);
 					}
 				}

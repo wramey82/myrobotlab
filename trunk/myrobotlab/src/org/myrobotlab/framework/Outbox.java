@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 
 /*
- * Outbox is a message based thread which sends messages based on notify lists and current
- * queue status.  It is only aware of the Service directory, notify lists, and operators.
+ * Outbox is a message based thread which sends messages based on addListener lists and current
+ * queue status.  It is only aware of the Service directory, addListener lists, and operators.
  * It can (if possible) take a message and move it to the inbox of a local service, or
  * (if necessary) send it to a local operator.
  * 
@@ -57,7 +57,7 @@ public class Outbox implements Runnable, Serializable
 	int initialThreadCount = 1;
 	transient ArrayList<Thread> outboxThreadPool = new ArrayList<Thread>();
 
-	public HashMap<String, ArrayList<NotifyEntry>> notifyList = new HashMap<String, ArrayList<NotifyEntry>>();
+	public HashMap<String, ArrayList<MRLListener>> notifyList = new HashMap<String, ArrayList<MRLListener>>();
 	CommunicationInterface comm = null;
 
 	public Outbox(Service myService) {
@@ -134,7 +134,7 @@ public class Outbox implements Runnable, Serializable
 
 				// key is now sendingMethod.destName.methodName - parameterType are
 				// left out until invoke time
-				ArrayList<NotifyEntry> subList = notifyList.get(msg.sendingMethod); // Get the value for
+				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod); // Get the value for
 															// the sourceMethod
 				if (subList == null) {
 					log.info("no static route for " + msg.sender + "." + msg.sendingMethod); 
@@ -143,9 +143,9 @@ public class Outbox implements Runnable, Serializable
 				}
 
 				for (int i = 0; i < subList.size(); ++i) {
-					NotifyEntry ne = subList.get(i);
-					msg.name = ne.name;
-					msg.method = ne.inMethod;
+					MRLListener listener = subList.get(i);
+					msg.name = listener.name;
+					msg.method = listener.inMethod;
 					if (i != 0) // TODO - this is crap refactor
 					{
 						// TODO - optimization do NOT make copy of message on

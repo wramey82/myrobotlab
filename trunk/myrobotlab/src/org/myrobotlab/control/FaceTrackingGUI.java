@@ -212,13 +212,13 @@ public class FaceTrackingGUI extends ServiceGUI implements ActionListener{
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", FaceTracking.class);
+		subscribe("publishState", "getState", FaceTracking.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", FaceTracking.class);
+		unsubscribe("publishState", "getState", FaceTracking.class);
 	}
 
 }

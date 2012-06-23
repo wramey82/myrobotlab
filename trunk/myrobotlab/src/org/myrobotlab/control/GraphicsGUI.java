@@ -90,7 +90,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		//sendNotifyRequest(outMethod, inMethod, parameterType)
+		//subscribe(outMethod, inMethod, parameterType)
 		myService.send(boundServiceName,"attach", (Object)myService.getName());
 	}
 

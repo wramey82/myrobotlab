@@ -13,7 +13,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -250,15 +250,15 @@ public class MRLClient implements Receiver {
 	 * @param paramTypes
 	 */
 	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+		MRLListener listener = new MRLListener(outMethod, getMyName(), inMethod,
 				paramTypes);
-		send(serviceName, "notify", ne);
+		send(serviceName, "addListener", listener);
 	}
 
 	public void unsubscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getMyName(), inMethod,
+		MRLListener listener = new MRLListener(outMethod, getMyName(), inMethod,
 				paramTypes);
-		send(serviceName, "remoteNotify", ne);
+		send(serviceName, "removeListener", listener);
 	}
 	
 	@Override

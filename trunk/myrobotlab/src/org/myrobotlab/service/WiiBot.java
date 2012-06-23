@@ -90,22 +90,22 @@ public class WiiBot extends Service {
 		wii.startService();
 
 		// send data from the wii to wiidar
-		wii.notify(wiidar.getName(), "publishIR", IRData.class);
+		wii.addListener(wiidar.getName(), "publishIR", IRData.class);
 		// data from widar to the gui
-		wiidar.notify("publishArrayofPoints", gui.getName(), "displaySweepData",Point.class);
+		wiidar.addListener("publishArrayofPoints", gui.getName(), "displaySweepData",Point.class);
 
 		// send the data from the wii to wiidar
-		// wii.notify("publishIR", wiidar.getName(), "computeDepth",
+		// wii.addListener("publishIR", wiidar.getName(), "computeDepth",
 		// IRData.class);
 		// send the computed depth & data to the gui
-		// notify("computeDepth", gui.getName(),"publishSinglePoint",
+		// addListener("computeDepth", gui.getName(),"publishSinglePoint",
 		// Point.class);
-		wiidar.notify("publishSinglePoint", gui.getName(), "publishSinglePoint", Point.class);
-		// gui.notify("processImage", opencv.getName(),"input",
+		wiidar.addListener("publishSinglePoint", gui.getName(), "publishSinglePoint", Point.class);
+		// gui.addListener("processImage", opencv.getName(),"input",
 		// BufferedImage.class);
-		// wii.notify("publishPin", wiidar.getName(), "publishPin",
+		// wii.addListener("publishPin", wiidar.getName(), "publishPin",
 		// IRData.class);
-		arduino.notify(wiidar.getName(), SensorData.publishPin, PinData.class);
+		arduino.addListener(wiidar.getName(), SensorData.publishPin, PinData.class);
 		gui.display();
 	}
 

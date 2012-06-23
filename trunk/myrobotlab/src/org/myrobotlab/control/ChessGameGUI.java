@@ -472,14 +472,14 @@ implements Constants, VetoableChangeListener, PropertyChangeListener
     
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("inputMove", "inputMove", String.class);
-		sendNotifyRequest("inputHMove", "inputHMove", HMove.class);
+		subscribe("inputMove", "inputMove", String.class);
+		subscribe("inputHMove", "inputHMove", HMove.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("inputMove", "inputMove", String.class);		
-		removeNotifyRequest("inputHMove", "inputHMove", HMove.class);		
+		unsubscribe("inputMove", "inputMove", String.class);		
+		unsubscribe("inputHMove", "inputHMove", HMove.class);		
 	}
 	
 	

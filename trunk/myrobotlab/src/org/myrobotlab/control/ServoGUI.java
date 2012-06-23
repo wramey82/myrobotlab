@@ -268,13 +268,13 @@ public class ServoGUI extends ServiceGUI {
 	}
 
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Servo.class);
+		subscribe("publishState", "getState", Servo.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Servo.class);		
+		unsubscribe("publishState", "getState", Servo.class);		
 	}
 	
 }

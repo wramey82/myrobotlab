@@ -31,7 +31,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.image.OpenCVFilterGoodFeaturesToTrack;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
@@ -161,8 +161,8 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		display.add(blockSize.value, gc);
 		
 		// set the hook
-		NotifyEntry ne = new NotifyEntry("publishFilterData", myService.getName(), "setFilterData", new Class[]{FilterWrapper.class});
-		myService.send(boundServiceName, "notify", ne);
+		MRLListener listener = new MRLListener("publishFilterData", myService.getName(), "setFilterData", new Class[]{FilterWrapper.class});
+		myService.send(boundServiceName, "addListener", listener);
 		// thread wait?
 		// send the event
 		myService.send(boundServiceName, "publishFilterData", boundFilterName);

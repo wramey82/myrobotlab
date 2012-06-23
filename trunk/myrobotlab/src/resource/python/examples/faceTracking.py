@@ -31,7 +31,7 @@ def input():
     return object
 
 # create a message route from opencv to jython so we can see the coordinate locations
-opencv.notify("publish", jython.name, "input", CvPoint().getClass()); 
+opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
 
 # set the input source to the first camera
 opencv.capture()

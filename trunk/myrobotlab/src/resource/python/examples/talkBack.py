@@ -55,9 +55,9 @@ def isSpeaking():
     print "is speaking " , speaking
 
 # set up a message route from the ear to the scripting engine
-ear.notify("recognized", jython.name, "heard", String().getClass()); 
+ear.addListener("recognized", jython.name, "heard", String().getClass()); 
 # prevent infinite loop 
-mouth.notify("isSpeaking", jython.name, "isSpeaking");
+mouth.addListener("isSpeaking", jython.name, "isSpeaking");
 
 # start a jython console to see the results of recognized speech
 jython.console()

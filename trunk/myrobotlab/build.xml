@@ -9,22 +9,42 @@
 	TODO : release fullRelease transfer/upload	localBuild(default)
 	FIXME - remove copy of jar's and .ivy cache from root - replace with ivy
 	resolution or mrl - update (name)
+	TODO - use more Ivy
+	TODO - removed .ivy cache copy
+	TODO - copy the "one and only" serviceData.xml to .myrobotlab directory of the build
+	TODO - move haarcascades.zip & lbpcascase.zip to opencv repo dependency
+	TODO use Ivy to place "integration" libraries into build directory for GUIService & Service
+	
+	change  names
+	
+	flow 
+	(clean)
+	init
+	build/compile
+	test
+	report   (dist)
+	post
+	doc
+	release
+	
 -->
 
-<project name="myrobotlab" default="junit" basedir=".">
+<project name="myrobotlab" default="compile" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
 	<!-- set global properties for this build -->
-	<property name="src" location="src" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
-	<property name="report.dir" location="report" />
-	<property name="resource.root" location="./thirdParty/build/resource/root" />
-	<property name="libraries.jar" location="./libraries/jar" />
-	<property name="junit.jar" location="../myrobotlab-tests/thirdParty/lib" />
-	<property name="junit.src" location="../myrobotlab-tests/src" />
-	<property name="thirdParty.build" location="./thirdParty/build" />
+	<property name="src" 				location="src" />
+	<property name="build.root.dir" 	location="build" />
+	<property name="build.type" 		value="dev" />
+	<property name="dist.root.dir" 		location="dist" />
+	<property name="report.dir" 		location="report" />
+	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
+	<property name="libraries.jar" 		location="./libraries/jar" />
+	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
+	<property name="junit.src" 			location="../myrobotlab-tests/src" />
+	<property name="targetVersion" 		value="intermediate" />
+	<property name="thirdParty.build" 	location="./thirdParty/build" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 
 	<!-- class path for build -->
@@ -38,21 +58,27 @@
 	<path id="compile.classpath.junit">
 		<fileset dir="./thirdParty/repo">
 			<include name="**/*.jar" />
-		</fileset>
+		</fileset> <!-- FIXME - this is WRONG it will include mutlipe versions since multiple versions exist in the repo - use Ivy -->
 		<fileset dir="../myrobotlab-tests/thirdParty/lib">
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
 	
+	<target name="release" description="for releases - will branch the repo and post the artifacts">
+	    <input message="Please enter version:" addproperty="targetVersion" />
+	    <echo message="targetVersion: ${targetVersion}" />	    
+	</target>
+
+	<!-- build the appropriate label -->
 	<target name="init">
 		<tstamp />
 		<!-- Create the time stamp -->
 		<exec executable="svnversion" outputproperty="repository.revision" />
 		<echo message="repository revision is ${repository.revision}" />
-		<tempfile property="temp.file" />
+		<tempfile property="temp.file"/>
 		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
 		character for a windows file system -->
-		<echo message="${repository.revision}" file="${temp.file}" />
+		<echo message="${targetVersion}.${repository.revision}" file="${temp.file}" />
 		<loadfile srcfile="${temp.file}" property="rev">
 			<filterchain>
 				<replaceregex pattern=":" replace="." />
@@ -64,7 +90,17 @@
 		<echo message="label ${label}" />
 
 		<!-- Create the build directory structure used by compile -->
+		<!-- TODO Create properties based on label and other info - dev/release build -->
+		<!-- TODO set all subsequent directories or resources with appended label -->
+		<!-- TODO branch on the label in release -->
+		
+		<property name="build"	location="${build.root.dir}/${label}"/>
+		<property name="dist"	location="${dist.root.dir}/${label}"/>
+				
+		<mkdir dir="${build.root.dir}" />
 		<mkdir dir="${build}" />
+		<mkdir dir="${dist.root.dir}" />
+		<mkdir dir="${dist}" />
 	</target>
 
 	<target name="compile" depends="init" description="compile the source ">

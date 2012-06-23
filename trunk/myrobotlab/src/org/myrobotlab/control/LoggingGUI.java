@@ -61,12 +61,12 @@ public class LoggingGUI extends ServiceGUI implements ActionListener {
 	
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("log", "log", Message.class);		
+		subscribe("log", "log", Message.class);		
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("log", "log", Message.class);
+		unsubscribe("log", "log", Message.class);
 	}
 
 	@Override

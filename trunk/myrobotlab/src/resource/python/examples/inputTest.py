@@ -52,8 +52,8 @@ clock.setPulseDataString('new clock data !!')
 
 # send a data to the log service and the jython service 
 # you should be able to see the data in the log gui or the jython console
-clock.notify("pulse", jython.name, "input", String().getClass()); 
-clock.notify("pulse", "log", "log", String().getClass());
+clock.addListener("pulse", jython.name, "input", String().getClass()); 
+clock.addListener("pulse", "log", "log", String().getClass());
 
 clock.setPulseDataType(clock.PulseDataType.string)
 clock.startClock()

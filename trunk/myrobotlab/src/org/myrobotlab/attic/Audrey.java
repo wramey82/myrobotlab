@@ -99,7 +99,7 @@ public class Audrey extends Service {
 			
 		}
 */		
-		// remove notify
+		// remove addListener
 	}
 	
 	public void findYellowBlocks()
@@ -133,8 +133,8 @@ public class Audrey extends Service {
 		
 
 		
-		// set notify foundSomething
-		camera.notify("publish", getName(), "foundYellowBlocks", Polygon.class);
+		// set addListener foundSomething
+		camera.addListener("publish", getName(), "foundYellowBlocks", Polygon.class);
 		
 	}
 
@@ -157,11 +157,11 @@ public class Audrey extends Service {
 		mouth.getCFG().set("isATT", true);
 
 		// suppress listening when talking
-		mouth.notify("started", ear.getName(), "stopRecording"); // TODO speak.queue()
-		mouth.notify("stopped", ear.getName(), "startRecording");
+		mouth.addListener("started", ear.getName(), "stopRecording"); // TODO speak.queue()
+		mouth.addListener("stopped", ear.getName(), "startRecording");
 		
 		// creating static route from ear/speech recognition to special action
-		ear.notify("recognized", this.getName(), "speechToAction", String.class);
+		ear.addListener("recognized", this.getName(), "speechToAction", String.class);
 		
 		// starting services
 		mouth.startService();
@@ -182,7 +182,7 @@ public class Audrey extends Service {
 		cameraOn();
 		
 		// set message path for polygons
-		//camera.notify("publish", name, "publish", Polygon.class.getCanonicalName());
+		//camera.addListener("publish", name, "publish", Polygon.class.getCanonicalName());
 		
 		//observer = new Thread(new Observer());
 		//observer.start();

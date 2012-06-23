@@ -237,13 +237,13 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Clock.class); 
+		subscribe("publishState", "getState", Clock.class); 
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Clock.class);
+		unsubscribe("publishState", "getState", Clock.class);
 	}
 
 }

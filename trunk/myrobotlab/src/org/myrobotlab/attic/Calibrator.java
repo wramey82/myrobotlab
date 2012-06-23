@@ -181,7 +181,7 @@ public class Calibrator extends Service {
 		params[1] = this.getName();
 		params[2] = "setOpticalTrackingPoints";
 		params[3] = CvPoint2D32f.class.getCanonicalName();
-		send(opencv, "notify", params);
+		send(opencv, "addListener", params);
 		// set camera up for lk tracking
 
 		// send notification request to publish data from lk tracking (wait)-
@@ -223,7 +223,7 @@ public class Calibrator extends Service {
 
 	/*
 	 * setOpticalTrackingPoints is used to exchange data from opencv - which
-	 * publishes a CvPoint2D32f array. We send it a message to notify us when it
+	 * publishes a CvPoint2D32f array. We send it a message to addListener us when it
 	 * has such array. From our side it looks like we set it to null and it
 	 * comes back filled
 	 */

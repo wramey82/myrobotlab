@@ -707,7 +707,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 
     
     /**
-     * Indicate that the connection attempt failed and notify the UI Activity.
+     * Indicate that the connection attempt failed and addListener the UI Activity.
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
@@ -723,7 +723,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     }
 
     /**
-     * Indicate that the connection was lost and notify the UI Activity.
+     * Indicate that the connection was lost and addListener the UI Activity.
      */
     private void connectionLost() {
         // Send a failure message back to the Activity

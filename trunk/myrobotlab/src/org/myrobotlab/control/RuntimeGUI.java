@@ -411,29 +411,29 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("resolveSuccess", "resolveSuccess", String.class);
-		sendNotifyRequest("resolveError", "resolveError", String.class);
-		sendNotifyRequest("resolveBegin", "resolveBegin", String.class);
-		sendNotifyRequest("resolveEnd", "resolveEnd");
+		subscribe("resolveSuccess", "resolveSuccess", String.class);
+		subscribe("resolveError", "resolveError", String.class);
+		subscribe("resolveBegin", "resolveBegin", String.class);
+		subscribe("resolveEnd", "resolveEnd");
 		
-		sendNotifyRequest("registered", "registered", ServiceWrapper.class);
-		sendNotifyRequest("released", "released", ServiceWrapper.class);
-		sendNotifyRequest("failedDependency", "failedDependency", String.class);
-		sendNotifyRequest("proposedUpdates", "proposedUpdates",
+		subscribe("registered", "registered", ServiceWrapper.class);
+		subscribe("released", "released", ServiceWrapper.class);
+		subscribe("failedDependency", "failedDependency", String.class);
+		subscribe("proposedUpdates", "proposedUpdates",
 				ServiceInfo.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("resolveSuccess", "resolveSuccess", String.class);
-		removeNotifyRequest("resolveError", "resolveError", String.class);
-		removeNotifyRequest("resolveBegin", "resolveBegin", String.class);
-		removeNotifyRequest("resolveEnd", "resolveEnd");
+		unsubscribe("resolveSuccess", "resolveSuccess", String.class);
+		unsubscribe("resolveError", "resolveError", String.class);
+		unsubscribe("resolveBegin", "resolveBegin", String.class);
+		unsubscribe("resolveEnd", "resolveEnd");
 		
-		removeNotifyRequest("registered", "registered", ServiceWrapper.class);
-		removeNotifyRequest("released", "released", ServiceWrapper.class);
-		removeNotifyRequest("failedDependency", "failedDependency", String.class);
-		removeNotifyRequest("proposedUpdates", "proposedUpdates", ServiceInfo.class);
+		unsubscribe("registered", "registered", ServiceWrapper.class);
+		unsubscribe("released", "released", ServiceWrapper.class);
+		unsubscribe("failedDependency", "failedDependency", String.class);
+		unsubscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 	}
 
 	public void failedDependency(String dep) {

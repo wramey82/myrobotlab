@@ -72,7 +72,7 @@ public class ServiceWrapper implements Serializable {
 		return service;
 	}
 	
-	public ArrayList<NotifyEntry> getNotifyList(String key)
+	public ArrayList<MRLListener> getNotifyList(String key)
 	{
 		return service.getNotifyList(key);
 	}

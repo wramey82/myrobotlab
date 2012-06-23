@@ -280,8 +280,8 @@ public class Toy extends Service {
 		camera.setFilterCFG("InRange", "useValue", true);
 
 		
-		// set notify foundSomething
-		camera.notify("publish", getName(), "foundToy", Polygon.class);
+		// set addListener foundSomething
+		camera.addListener("publish", getName(), "foundToy", Polygon.class);
 				
 	}
 		
@@ -447,8 +447,8 @@ public class Toy extends Service {
 		camera.setFilterCFG("FindContours", "useMaxArea", true);
 		camera.setFilterCFG("FindContours", "useMinArea", true);
 				
-		// set notify foundSomething
-		camera.notify("publish", this.getName(), "foundThingy", Polygon.class);
+		// set addListener foundSomething
+		camera.addListener("publish", this.getName(), "foundThingy", Polygon.class);
 
 	}
 	
@@ -502,9 +502,9 @@ public class Toy extends Service {
 	public void clearFilters()
 	{
 		camera.removeFilters();
-		//camera.removeNotify();
-		camera.removeNotify("publish", getName(), "foundThingy", Polygon.class);
-		camera.removeNotify("publish", getName(), "foundToy", Polygon.class);
+		//camera.removeListener();
+		camera.removeListener("publish", getName(), "foundThingy", Polygon.class);
+		camera.removeListener("publish", getName(), "foundToy", Polygon.class);
 
 	}
 	

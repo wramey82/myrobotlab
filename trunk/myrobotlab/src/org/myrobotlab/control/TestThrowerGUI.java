@@ -127,7 +127,7 @@ public class TestThrowerGUI extends ServiceGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sendNotifyRequest("throwInteger", "throwInteger", Integer.class);
+				subscribe("throwInteger", "throwInteger", Integer.class);
 			}
 
 		});

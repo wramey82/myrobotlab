@@ -116,8 +116,8 @@ public class FrogLeg extends Service {
 				IR_PIN);
 		sensors.addAlert(arduino.getName(), "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.notify("publish", this.getName(), "publish", PinAlert.class);
-		camera.notify("publish", gp.getName(), "evalCallBack", Rectangle.class);
+		sensors.addListener("publish", this.getName(), "publish", PinAlert.class);
+		camera.addListener("publish", gp.getName(), "evalCallBack", Rectangle.class);
 
 		// 320 x 240 is easier to work with over wireless
 		// camera.addFilter("PyramidDown", "PyramidDown");
@@ -194,15 +194,15 @@ public class FrogLeg extends Service {
 		camera.removeFilter("LKOpticalTrack");
 
 		// remove triggers
-		// camera.removeNotify(outMethod, serviceName, inMethod, paramType); //
+		// camera.removeListener(outMethod, serviceName, inMethod, paramType); //
 		// TODO - make removable by query best
-		camera.removeNotify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
+		camera.removeListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 		// load the movement filter
 		movementFilter();
 
 		// set trigger
-		camera.notify("publish", this.getName(), "foundMovement", Rectangle.class);
+		camera.addListener("publish", this.getName(), "foundMovement", Rectangle.class);
 	}
 
 	boolean tracking = false;
@@ -211,7 +211,7 @@ public class FrogLeg extends Service {
 		// if (!tracking)
 		{
 			// remove movement trigger
-			camera.removeNotify("publish", this.getName(), "foundMovement", Rectangle.class);
+			camera.removeListener("publish", this.getName(), "foundMovement", Rectangle.class);
 
 			// begin tracking
 			tracking = true;
@@ -228,7 +228,7 @@ public class FrogLeg extends Service {
 			// add the optical track filters
 			opticalTrackFilter();
 			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", null);
-			camera.notify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
+			camera.addListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
 			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
@@ -327,7 +327,7 @@ public class FrogLeg extends Service {
 		}
 
 		camera.removeFilter("Mouse");
-		camera.removeNotify("publish", this.getName(), "mousePoints", CvPoint2D32f[].class);
+		camera.removeListener("publish", this.getName(), "mousePoints", CvPoint2D32f[].class);
 
 	}
 
@@ -363,11 +363,11 @@ public class FrogLeg extends Service {
 
 	public void startCapture() {
 		captureData.clear();
-		camera.notify("publish", this.getName(), "capture", Rectangle.class);
+		camera.addListener("publish", this.getName(), "capture", Rectangle.class);
 	}
 
 	public void stopCapture() {
-		camera.removeNotify("publish", this.getName(), "capture", Rectangle.class);
+		camera.removeListener("publish", this.getName(), "capture", Rectangle.class);
 	}
 	
 	@Override

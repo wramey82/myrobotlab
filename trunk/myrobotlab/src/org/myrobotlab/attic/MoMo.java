@@ -115,10 +115,10 @@ public class MoMo extends Service {
 				IR_PIN);
 		sensors.addAlert(arduino.getName(), "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
 				IR_PIN);
-		sensors.notify("publish", this.getName(), "publish", PinAlert.class);
+		sensors.addListener("publish", this.getName(), "publish", PinAlert.class);
 
 		// creating static route from ear/speech recognition to special action
-		ear.notify("recognized", this.getName(), "speechToAction", String.class);
+		ear.addListener("recognized", this.getName(), "speechToAction", String.class);
 
 		// Motors attached to Arduino
 		// left motor inverted to keep it simple for me
@@ -270,7 +270,7 @@ public class MoMo extends Service {
 		// opticalTrackFilter ();
 
 		// add the call back
-		camera.notify("publish", this.getName(),
+		camera.addListener("publish", this.getName(),
 				"adjustPowerMaintainStraightCourse", CvPoint2D32f.class);
 
 	}
@@ -339,15 +339,15 @@ public class MoMo extends Service {
 		camera.removeFilter("LKOpticalTrack");
 
 		// remove triggers
-		// camera.removeNotify(outMethod, serviceName, inMethod, paramType); //
+		// camera.removeListener(outMethod, serviceName, inMethod, paramType); //
 		// TODO - make removable by query best
-		camera.removeNotify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
+		camera.removeListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 		// load the movement filter
 		movementFilter();
 
 		// set trigger
-		camera.notify("publish", this.getName(), "foundMovement", Rectangle.class);
+		camera.addListener("publish", this.getName(), "foundMovement", Rectangle.class);
 	}
 
 	boolean tracking = false;
@@ -356,7 +356,7 @@ public class MoMo extends Service {
 		// if (!tracking)
 		{
 			// remove movement trigger
-			camera.removeNotify("publish", this.getName(), "foundMovement",Rectangle.class);
+			camera.removeListener("publish", this.getName(), "foundMovement",Rectangle.class);
 
 			// begin tracking
 			tracking = true;
@@ -373,7 +373,7 @@ public class MoMo extends Service {
 			// add the optical track filters
 			opticalTrackFilter();
 			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", null);
-			camera.notify("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
+			camera.addListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
 			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
@@ -470,26 +470,26 @@ public class MoMo extends Service {
 		} else if (cmd.compareTo("6") == 0) {
 			// shaker.invoke("moveTo",20);
 		} else if (cmd.compareTo("R") == 0) {
-			camera.removeNotify("publish", this.getName(), "sampleEndPoints",
+			camera.removeListener("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 			beginSampled = false;
-			camera.notify("publish", this.getName(), "sampleBeginPoints",
+			camera.addListener("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
 		} else if (cmd.compareTo("T") == 0) {
-			camera.removeNotify("publish", this.getName(), "sampleBeginPoints",
+			camera.removeListener("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
 			endSampled = false;
-			camera.notify("publish", this.getName(), "sampleEndPoints",
+			camera.addListener("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 
 		} else if (cmd.compareTo("M") == 0) {
 			camera.addFilter("Mouse", "Mouse");
-			camera.notify("publish", this.getName(), "mousePoints",
+			camera.addListener("publish", this.getName(), "mousePoints",
 					CvPoint2D32f[].class);
 		} else if (cmd.compareTo("G") == 0) {
-			camera.removeNotify("publish", this.getName(), "sampleBeginPoints",
+			camera.removeListener("publish", this.getName(), "sampleBeginPoints",
 					CvPoint2D32f[].class);
-			camera.removeNotify("publish", this.getName(), "sampleEndPoints",
+			camera.removeListener("publish", this.getName(), "sampleEndPoints",
 					CvPoint2D32f[].class);
 			generateSketchupFile();
 		}
@@ -524,7 +524,7 @@ public class MoMo extends Service {
 
 		//Log.error(ret);
 		camera.removeFilter("Mouse");
-		camera.removeNotify("publish", this.getName(), "mousePoints",
+		camera.removeListener("publish", this.getName(), "mousePoints",
 				CvPoint2D32f[].class);
 
 	}

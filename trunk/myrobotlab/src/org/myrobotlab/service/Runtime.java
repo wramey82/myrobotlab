@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MethodEntry;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
@@ -830,8 +830,8 @@ public class Runtime extends Service {
 		String serviceName;
 		ServiceWrapper sw;
 		String n;
-		ArrayList<NotifyEntry> nes;
-		NotifyEntry ne;
+		ArrayList<MRLListener> nes;
+		MRLListener listener;
 		
 		StringBuffer sb = new StringBuffer()
 			.append("<NotifyEntries>");
@@ -847,21 +847,21 @@ public class Runtime extends Service {
 
 			while (nit.hasNext()) {
 				n = nit.next();
-				sb.append("<notify map=\"")
+				sb.append("<addListener map=\"")
 					.append(n)
 					.append("\">");
 				nes = sw.getNotifyList(n);
 				for (int i = 0; i < nes.size(); ++i) {
-					ne = nes.get(i);
-					sb.append("<notifyEntry outMethod=\"")
-						.append(ne.outMethod)
+					listener = nes.get(i);
+					sb.append("<MRLListener outMethod=\"")
+						.append(listener.outMethod)
 						.append("\" name=\"")
-						.append(ne.name)
+						.append(listener.name)
 						.append("\" inMethod=\"")
-						.append(ne.outMethod)
+						.append(listener.outMethod)
 						.append("\" />");
 				}
-				sb.append("</notify>");
+				sb.append("</addListener>");
 			}
 			sb.append("</service>");
 		}
@@ -1390,7 +1390,7 @@ public class Runtime extends Service {
 		// get remote data
 		serviceInfo.getRepoData();
 
-		// notify ready for updates
+		// addListener ready for updates
 		getInstance().invoke("proposedUpdates", serviceInfo);
 	}
 

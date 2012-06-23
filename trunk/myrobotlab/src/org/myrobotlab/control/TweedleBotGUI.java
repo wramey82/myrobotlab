@@ -186,12 +186,12 @@ public class TweedleBotGUI extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", RobotPlatform.class);
+		subscribe("publishState", "getState", RobotPlatform.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", RobotPlatform.class);
+		unsubscribe("publishState", "getState", RobotPlatform.class);
 	}
 	
 	// new state function begin ---------------	

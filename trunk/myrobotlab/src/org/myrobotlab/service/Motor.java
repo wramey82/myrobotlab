@@ -311,13 +311,13 @@ public void attachEncoder(String encoderName, int pin) // TODO Encoder Interface
 
 	// TODO - Make Encoder Interface
 
-	NotifyEntry notifyEntry = new NotifyEntry();
+	MRLListener MRLListener = new MRLListener();
 
-	notifyEntry.getName() = name;
-	notifyEntry.outMethod = "publishPin";
-	notifyEntry.inMethod = "incrementPosition";
-	notifyEntry.paramType = PinData.class.getCanonicalName();
-	send(encoderName, "notify", notifyEntry);
+	MRLListener.getName() = name;
+	MRLListener.outMethod = "publishPin";
+	MRLListener.inMethod = "incrementPosition";
+	MRLListener.paramType = PinData.class.getCanonicalName();
+	send(encoderName, "addListener", MRLListener);
 
 }
 

@@ -42,7 +42,7 @@ import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -132,34 +132,34 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
         //myService.srcMethodName = method.split(regex)
         //myService.parameterList =
         
-        // TODO - send notify !!! 
+        // TODO - send addListener !!! 
         
         if (method != null && method.length() > 0)
         {
 	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
-			//ne.getName() = myService.getDstServiceName();
-			//ne.outMethod = myService.getSrcMethodName().split(" ")[0];
-			//ne.inMethod = myService.getDstMethodName().split(" ")[0];
-			NotifyEntry ne = new NotifyEntry(myService.getSrcMethodName().split(" ")[0],
+			//listener.getName() = myService.getDstServiceName();
+			//listener.outMethod = myService.getSrcMethodName().split(" ")[0];
+			//listener.inMethod = myService.getDstMethodName().split(" ")[0];
+			MRLListener listener = new MRLListener(myService.getSrcMethodName().split(" ")[0],
 					 myService.getDstServiceName(),
 					 myService.getDstMethodName().split(" ")[0],
 					 null // this is not being filled in - TODO - fix parameter list
 					);
 			
-			log.error("NotifyEntry !!! " + ne);
+			log.error("MRLListener !!! " + listener);
 /*			
 			if (parameterType != null) {
-				ne.paramTypes = new Class[]{parameterType};
+				listener.paramTypes = new Class[]{parameterType};
 			}
 */			
 			// send the notification of new route to the target system
 			String srcService = myService.getSrcServiceName();
-			myService.send(srcService, "notify", ne);
+			myService.send(srcService, "addListener", listener);
 			
 			mxGraph graph = myService.getGraph();
 			Object parent = graph.getDefaultParent();
 			HashMap<String, mxCell> serviceCells = myService.getCells();
-			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(ne.outMethod, ne.paramTypes, ne.inMethod), serviceCells.get(srcService), serviceCells.get(ne.name));
+			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod), serviceCells.get(srcService), serviceCells.get(listener.name));
 			
 	        this.dispose();
         }

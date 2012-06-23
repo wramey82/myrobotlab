@@ -98,7 +98,7 @@ public class Servo extends Service implements
 		}
 
 		send(controllerName, ServoController.servoAttach, pin);
-		//notify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		//addListener("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 		// TODO - notice between publishing point and direct message
 		// currently removing publishing point
 
@@ -152,7 +152,7 @@ public class Servo extends Service implements
 	public void detach() {
 		send(controllerName, ServoController.servoDetach, pin); // TODO - possible
 		// configurable publishing point versus direct send
-		//removeNotify("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
+		//removeListener("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
 		isAttached = false;
 		broadcastState();
 	}

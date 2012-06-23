@@ -73,7 +73,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 			log.info(ae);
 			if ("n".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
-			} else if ("ne".equals(ae.getActionCommand())) {
+			} else if ("listener".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_LEFT);
 			} else if ("e".equals(ae.getActionCommand())) {
@@ -232,15 +232,15 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	public void attachGUI() {
 		video0.attachGUI();
-		sendNotifyRequest("connect", "isConnected", Boolean.class);
-		sendNotifyRequest("getStatus", "getStatus", String.class);
+		subscribe("connect", "isConnected", Boolean.class);
+		subscribe("getStatus", "getStatus", String.class);
 	}
 
 	@Override
 	public void detachGUI() {
 		video0.detachGUI();
-		removeNotifyRequest("connect", "isConnected", Boolean.class);
-		removeNotifyRequest("getStatus", "getStatus", String.class);
+		unsubscribe("connect", "isConnected", Boolean.class);
+		unsubscribe("getStatus", "getStatus", String.class);
 	}
 
 	@Override

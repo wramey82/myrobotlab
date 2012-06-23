@@ -127,26 +127,26 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 
 	@Override
 	public void attachGUI() {
-		// sendNotifyRequest("publishIR", "publishIR",
+		// subscribe("publishIR", "publishIR",
 		// IRData.class.getCanonicalName());
-		sendNotifyRequest("publishSweepData", "publishSweepData", ArrayList.class);
-		sendNotifyRequest("setServoLeftMax", "setServoLeftMax", Integer.class);
-		sendNotifyRequest("setServoRightMax", "setServoRightMax", Integer.class);
-		sendNotifyRequest("setIRLeftMax", "setIRLeftMax", Integer.class);
-		sendNotifyRequest("setIRRightMax", "setIRRightMax", Integer.class);
-		sendNotifyRequest("setCalibrating", "setCalibrating", Boolean.class);
+		subscribe("publishSweepData", "publishSweepData", ArrayList.class);
+		subscribe("setServoLeftMax", "setServoLeftMax", Integer.class);
+		subscribe("setServoRightMax", "setServoRightMax", Integer.class);
+		subscribe("setIRLeftMax", "setIRLeftMax", Integer.class);
+		subscribe("setIRRightMax", "setIRRightMax", Integer.class);
+		subscribe("setCalibrating", "setCalibrating", Boolean.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		// removeNotifyRequest("publishIR", "publishIR",
+		// unsubscribe("publishIR", "publishIR",
 		// IRData.class);
-		removeNotifyRequest("publishSweepData", "publishSweepData",ArrayList.class);
-		removeNotifyRequest("setServoLeftMax", "setServoLeftMax", Integer.class);
-		removeNotifyRequest("setServoRightMax", "setServoRightMax",Integer.class);
-		removeNotifyRequest("setIRLeftMax", "setIRLeftMax", Integer.class);
-		removeNotifyRequest("setIRRightMax", "setIRRightMax", Integer.class);
-		removeNotifyRequest("setCalibrating", "setCalibrating", Boolean.class);
+		unsubscribe("publishSweepData", "publishSweepData",ArrayList.class);
+		unsubscribe("setServoLeftMax", "setServoLeftMax", Integer.class);
+		unsubscribe("setServoRightMax", "setServoRightMax",Integer.class);
+		unsubscribe("setIRLeftMax", "setIRLeftMax", Integer.class);
+		unsubscribe("setIRRightMax", "setIRRightMax", Integer.class);
+		unsubscribe("setCalibrating", "setCalibrating", Boolean.class);
 	}
 
 	final String leftstr = "left";
