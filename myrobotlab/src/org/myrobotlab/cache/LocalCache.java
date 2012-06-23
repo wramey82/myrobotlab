@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author SwedaKonsult
  *
  */
-public class LocalCache implements Cache {
+public class LocalCache extends BaseCache {
 	/**
 	 * Default concurrency level - grabbed from ConcurrentHashMap.
 	 */
@@ -55,39 +55,24 @@ public class LocalCache implements Cache {
     public LocalCache(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL);
     }
-	
-	/**
-	 * Get a value from the cache.
-	 * 
-	 * @param name the name of the value to retrieve
-	 * @return null if the name does not exist or if the type could not be cast to T
-	 * @throws NullPointerException if you're asking for a primitive and it doesn't exist
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T get(String name) {
-		if (name == null) {
-			return null;
-		}
-		if (!cache.containsKey(name)) {
-			return null;
-		}
-		Object value = cache.get(name);
-		try {
-			return (T) value;
-		} catch (ClassCastException e) {}
-		return null;
-	}
-	
-	/**
-	 * Add a value to the cache.
-	 * 
-	 * @param name cannot be null or empty
-	 * @param value
-	 */
-	public void put(String name, Object value) {
-		if (name == null || name.isEmpty()) {
-			return;
-		}
+
+	@Override
+	protected void addToCache(String name, Object value) {
 		cache.put(name, value);
+	}
+
+	@Override
+	protected boolean contains(String name) {
+		return cache.containsKey(name);
+	}
+
+	@Override
+	protected Object getFromCache(String name) {
+		return cache.get(name);
+	}
+
+	@Override
+	protected void removeFromCache(String name) {
+		cache.remove(name);
 	}
 }
