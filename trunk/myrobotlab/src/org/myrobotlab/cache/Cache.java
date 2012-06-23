@@ -11,13 +11,21 @@ package org.myrobotlab.cache;
  *
  */
 public interface Cache {
+	
+	/**
+	 * Expire an item in the cache.
+	 * 
+	 * @param name
+	 */
+	void expire(String name);
+	
 	/**
 	 * Get a value.
 	 * 
 	 * @param name
 	 * @return
 	 */
-	<T> T get(String name);
+	<T> T get(String name, Class<? extends T> c);
 	
 	/**
 	 * Cache a value.
@@ -25,5 +33,5 @@ public interface Cache {
 	 * @param name
 	 * @param value
 	 */
-	<T> void put(String name, Object value);
+	void put(String name, Object value);
 }
