@@ -392,8 +392,8 @@ import android.widget.Toast;
 		// pinMode change
 		// digitalWrite change
 		// analogWrite change
-		sendNotifyRequest("publishState", "getState", ArduinoBT.class);
-		sendNotifyRequest("publishPin", "publishPin", PinData.class);
+		subscribe("publishState", "getState", ArduinoBT.class);
+		subscribe("publishPin", "publishPin", PinData.class);
 		//myService.send(boundServiceName, "publishState"); TODO - broadcast first state
 	}
 

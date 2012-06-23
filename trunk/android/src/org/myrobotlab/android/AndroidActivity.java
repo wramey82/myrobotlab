@@ -37,12 +37,12 @@ public class AndroidActivity extends ServiceActivity {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("logMsg", "logMsg", String.class);	
+		subscribe("logMsg", "logMsg", String.class);	
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("logMsg", "logMsg", String.class);	
+		unsubscribe("logMsg", "logMsg", String.class);	
 	}
 
 }

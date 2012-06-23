@@ -1,7 +1,7 @@
 package org.myrobotlab.android;
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Android;
@@ -167,29 +167,29 @@ public abstract class ServiceActivity extends Activity {
 	abstract public void detachGUI();
 	
 	// TODO - event listener model
-	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
+	public void subscribe(String outMethod, String inMethod, Class<?> parameterType) 
 	{
-		NotifyEntry ne = null;
+		MRLListener listener = null;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
+			listener = new MRLListener(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
 		} else {
-			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, null);
+			listener = new MRLListener(outMethod, myAndroid.getName(), inMethod, null);
 		}
 		
-		myAndroid.send(boundServiceName, "notify", ne);
+		myAndroid.send(boundServiceName, "addListener", listener);
 
 	}
 
-	public void removeNotifyRequest(String outMethod, String inMethod,
+	public void unsubscribe(String outMethod, String inMethod,
 			Class<?> parameterType) {
 
-		NotifyEntry ne = null;
+		MRLListener listener = null;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
+			listener = new MRLListener(outMethod, myAndroid.getName(), inMethod, new Class[]{parameterType});
 		} else {
-			ne = new NotifyEntry(outMethod, myAndroid.getName(), inMethod, null);
+			listener = new MRLListener(outMethod, myAndroid.getName(), inMethod, null);
 		}
-		myAndroid.send(boundServiceName, "removeNotify", ne);
+		myAndroid.send(boundServiceName, "removeListener", listener);
 
 	}
 	
