@@ -1,66 +1,29 @@
 /**
- * Cache class that can be used by any code.
+ * Cache interface
  */
 package org.myrobotlab.cache;
 
-import java.util.HashMap;
-
 /**
- * Singleton for caching any data.
+ * Interface for a single cache.
+ * Should be retrieved from CacheManager.
  * 
  * @author SwedaKonsult
  *
  */
-public class Cache {
-	// singleton
-	private final static transient Cache me = new Cache();
-	
-	// the cache
-	private final HashMap<String, Object> cache;
-	
-	private Cache() {
-		cache = new HashMap<String, Object>();
-	}
-	
+public interface Cache {
 	/**
-	 * Get a value from the cache.
+	 * Get a value.
 	 * 
-	 * @param name the name of the value to retrieve
-	 * @return null if the name does not exist or if the type could not be cast to T
+	 * @param name
+	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> T get(String name) {
-		if (name == null) {
-			return null;
-		}
-		if (!cache.containsKey(name)) {
-			return null;
-		}
-		Object value = cache.get(name);
-		try {
-			return (T) value;
-		} catch (ClassCastException e) {}
-		return null;
-	}
+	<T> T get(String name);
 	
 	/**
-	 * Add a value to the cache.
+	 * Cache a value.
 	 * 
 	 * @param name
 	 * @param value
 	 */
-	@SuppressWarnings("null")
-	public <T> void put(String name, Object value) {
-		T type = null;
-		cache.put(type.getClass().getName() + name, value);
-	}
-	
-	/**
-	 * Get a handle to this singleton.
-	 * 
-	 * @return
-	 */
-	public static Cache getInstance() {
-		return me;
-	}
+	<T> void put(String name, Object value);
 }
