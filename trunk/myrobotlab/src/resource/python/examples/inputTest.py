@@ -57,6 +57,3 @@ clock.addListener("pulse", "log", "log", String().getClass());
 
 clock.setPulseDataType(clock.PulseDataType.string)
 clock.startClock()
-
-# start a jython console
-jython.console()

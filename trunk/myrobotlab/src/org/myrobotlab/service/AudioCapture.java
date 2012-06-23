@@ -224,15 +224,16 @@ public class AudioCapture extends Service {
 	}
 
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-		AudioCapture audioIn = new AudioCapture("audioIn");
-		audioIn.startService();
-		audioIn.captureAudio();
-		audioIn.stopAudioCapture();
-		audioIn.playAudio();
+			AudioCapture audioIn = new AudioCapture("audioIn");
+			audioIn.startService();
+			audioIn.captureAudio();
+			Thread.sleep(3000);
+			audioIn.stopAudioCapture();
+			audioIn.playAudio();
 	}
 	
 }
