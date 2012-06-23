@@ -43,7 +43,7 @@ public class SpeechTest {
 
 		Speech speech = new Speech("speech01");
 		// SystemInformation sysinfo = new SystemInformation("sys01");
-		// sysinfo.notify("getSystemInfoString", "speech01", "speak",
+		// sysinfo.addListener("getSystemInfoString", "speech01", "speak",
 		// String.class.getCanonicalName());
 
 		// speech.start();

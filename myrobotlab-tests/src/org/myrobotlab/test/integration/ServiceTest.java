@@ -8,7 +8,7 @@
  * 
  * 
  */
-package org.myrobotlab.test.junit;
+package org.myrobotlab.test.integration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -76,8 +76,8 @@ public class ServiceTest {
 		TestThrower thrower01 = (TestThrower) Runtime.createAndStart("thrower02", "TestThrower");
 		TestCatcher catcher01 = (TestCatcher) Runtime.createAndStart("catcher01", "TestCatcher");
 
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
+		// set addListener list
+		thrower01.addListener("throwInteger", "catcher01", "catchInteger", Integer.class);
 
 		// send 10 messages
 		int cnt = 10;
@@ -117,8 +117,8 @@ public class ServiceTest {
 		thrower01.startService();
 		catcher01.startService();
 
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
+		// set addListener list
+		thrower01.addListener("throwInteger", "catcher01", "catchInteger", Integer.class);
 
 		// send 1 message
 		stopwatch.start();
@@ -224,8 +224,8 @@ public class ServiceTest {
 		catcher01.startService();
 		catcher02.startService();
 
-		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
-		thrower01.notify("throwInteger", "catcher02", "catchInteger",Integer.class);
+		thrower01.addListener("throwInteger", "catcher01", "catchInteger",Integer.class);
+		thrower01.addListener("throwInteger", "catcher02", "catchInteger",Integer.class);
 
 		// send n messages
 		stopwatch.start();
@@ -257,7 +257,7 @@ public class ServiceTest {
 		thrower01.startService();
 		catcher01.startService();
 
-		thrower01.notify("throwNothing", "catcher01", "catchNothing");
+		thrower01.addListener("throwNothing", "catcher01", "catchNothing");
 
 		// send n messages
 		stopwatch.start();
@@ -276,8 +276,8 @@ public class ServiceTest {
 	}
 
 	@Test
-	public final void testRemoveNotify() {
-		log.warn("testRemoveNotify begin-------------");
+	public final void testremoveListener() {
+		log.warn("testremoveListener begin-------------");
 
 		// create services
 		ConfigurationManager cfg = new ConfigurationManager();
@@ -288,8 +288,8 @@ public class ServiceTest {
 		thrower01.startService();
 		catcher01.startService();
 
-		thrower01.notify("catcher01", "throwNothing");
-		thrower01.removeNotify("catcher01", "throwNothing");
+		thrower01.addListener("catcher01", "throwNothing");
+		thrower01.removeListener("catcher01", "throwNothing");
 
 		// send n messages
 		stopwatch.start();
@@ -304,7 +304,7 @@ public class ServiceTest {
 
 		Runtime.releaseAll();
 
-		log.warn("testRemoveNotify begin-------------");
+		log.warn("testremoveListener begin-------------");
 	}
 
 	@Test
@@ -329,8 +329,8 @@ public class ServiceTest {
 		}
 		*/
 		
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger",Integer.class);
+		// set addListener list
+		thrower01.addListener("throwInteger", "catcher01", "catchInteger",Integer.class);
 
 		// prepare data
 		Integer param1 = new Integer(1);
@@ -358,9 +358,9 @@ public class ServiceTest {
 		assertEquals(catcher01.catchList.get(0), new Integer(1));
 
 		// set new notifies - different functions
-		thrower01.notify("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
-		thrower01.notify("highPitchInteger", "catcher01", "catchInteger", Integer.class);
-		thrower01.notify("noPitchInteger", "catcher01", "catchInteger",
+		thrower01.addListener("lowPitchInteger", "catcher01", "lowCatchInteger", Integer.class);
+		thrower01.addListener("highPitchInteger", "catcher01", "catchInteger", Integer.class);
+		thrower01.addListener("noPitchInteger", "catcher01", "catchInteger",
 				Integer.class);
 
 		// send messages
@@ -407,7 +407,7 @@ public class ServiceTest {
 		catcher01.startService();
 		log.info(catcher01.catchList.size());
 
-		// set notify list
+		// set addListener list
 
 		// prepare data
 		int param1 = 1;
@@ -475,10 +475,10 @@ public class ServiceTest {
 		gui01.startService();
 		// gui01.display();
 
-		// set notify list
-		// thrower01.notify("throwInteger", "catcher01",
+		// set addListener list
+		// thrower01.addListener("throwInteger", "catcher01",
 		// "bothHandsCatchInteger", "java.lang.Integer");
-		thrower01.notify("throwInteger", "catcher01", "bothHandsCatchInteger",
+		thrower01.addListener("throwInteger", "catcher01", "bothHandsCatchInteger",
 				Integer.class, Integer.class);
 
 		// prepare data
@@ -627,8 +627,8 @@ public class ServiceTest {
 		catcher01.startService();
 		thrower01.startService();
 		
-		// set notify list
-		thrower01.notify("throwInteger", "catcher01", "catchInteger", Integer.class);
+		// set addListener list
+		thrower01.addListener("throwInteger", "catcher01", "catchInteger", Integer.class);
 		thrower01.invoke("throwInteger", new Integer(7));
 		
 		// creating a client which uses the remote API to communicate with MRL

@@ -1,4 +1,4 @@
-package org.myrobotlab.test.junit;
+package org.myrobotlab.test.integration;
 
 import static org.junit.Assert.*;
 import org.myrobotlab.service.Runtime;
