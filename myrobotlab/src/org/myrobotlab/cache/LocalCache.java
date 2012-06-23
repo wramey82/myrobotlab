@@ -61,6 +61,7 @@ public class LocalCache implements Cache {
 	 * 
 	 * @param name the name of the value to retrieve
 	 * @return null if the name does not exist or if the type could not be cast to T
+	 * @throws NullPointerException if you're asking for a primitive and it doesn't exist
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(String name) {
@@ -80,12 +81,19 @@ public class LocalCache implements Cache {
 	/**
 	 * Add a value to the cache.
 	 * 
-	 * @param name
+	 * @param name cannot be null or empty
 	 * @param value
 	 */
-	@SuppressWarnings("null")
-	public <T> void put(String name, Object value) {
-		T type = null;
-		cache.put(type.getClass().getName() + name, value);
+	public void put(String name, Object value) {
+		if (name == null || name.isEmpty()) {
+			return;
+		}
+		StringBuilder builder = new StringBuilder(30);
+		if (value != null) {
+			builder.append(value.getClass().getName())
+				.append("_");
+		}
+		builder.append(name);
+		cache.put(builder.toString(), value);
 	}
 }
