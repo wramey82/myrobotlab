@@ -88,12 +88,6 @@ public class LocalCache implements Cache {
 		if (name == null || name.isEmpty()) {
 			return;
 		}
-		StringBuilder builder = new StringBuilder(30);
-		if (value != null) {
-			builder.append(value.getClass().getName())
-				.append("_");
-		}
-		builder.append(name);
-		cache.put(builder.toString(), value);
+		cache.put(name, value);
 	}
 }
