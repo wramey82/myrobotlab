@@ -59,5 +59,3 @@ ear.addListener("recognized", jython.name, "heard", String().getClass());
 # prevent infinite loop 
 mouth.addListener("isSpeaking", jython.name, "isSpeaking");
 
-# start a jython console to see the results of recognized speech
-jython.console()
