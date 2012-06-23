@@ -101,6 +101,7 @@
             <string>org.simpleframework.xml</string>
             <string>com.mxgraph.jgraph</string>
             <string>org.fife.rsyntaxtextarea</string>
+            <string>org.fife.autocomplete</string>
          </list>
       </dependsOn>
    </serviceType>

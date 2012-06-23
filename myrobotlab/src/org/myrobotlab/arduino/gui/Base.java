@@ -1632,7 +1632,7 @@ public class Base {
 
   /**
    * "No cookie for you" type messages. Nothing fatal or all that
-   * much of a bummer, but something to notify the user about.
+   * much of a bummer, but something to addListener the user about.
    */
   static public void showMessage(String title, String message) {
     if (title == null) title = "Message";

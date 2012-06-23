@@ -72,6 +72,11 @@ public class Platform implements Serializable {
 	
 	public static int getBitness()
 	{
+		String arch = System.getProperty("os.arch").toLowerCase(); 
+		if ("amd64".equals(arch))
+		{
+			return 64;
+		}
 		return 32;
 	}
 	
@@ -83,7 +88,7 @@ public class Platform implements Serializable {
 	public static String getArch()
 	{
 		String arch = System.getProperty("os.arch").toLowerCase(); 
-		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch)){
+		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch)){
 			arch = "x86"; // don't care at the moment
 		}
 		return arch;

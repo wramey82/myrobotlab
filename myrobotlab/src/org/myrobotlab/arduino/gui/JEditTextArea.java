@@ -1231,7 +1231,7 @@ public class JEditTextArea extends JComponent
 
     scrollToCaret();
 
-    // notify the line number feller
+    // addListener the line number feller
     if (editorLineStatus != null) {
       editorLineStatus.set(selectionStartLine, selectionEndLine);
       //System.out.println("why " + selectionStartLine + " " + selectionEndLine);
@@ -1633,9 +1633,9 @@ public class JEditTextArea extends JComponent
    * Called by the AWT when this component is removed from it's parent.
    * This stops clears the currently focused component.
    */
-  public void removeNotify()
+  public void removeListener()
   {
-    super.removeNotify();
+	super.removeNotify();
     if(focusedComponent == this)
       focusedComponent = null;
   }

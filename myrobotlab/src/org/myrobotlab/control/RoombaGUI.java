@@ -171,13 +171,13 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 
 	
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Roomba.class);
+		subscribe("publishState", "getState", Roomba.class);
 		myService.send(boundServiceName, "publishState");	
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Roomba.class);	
+		unsubscribe("publishState", "getState", Roomba.class);	
 	}
 
 	@Override

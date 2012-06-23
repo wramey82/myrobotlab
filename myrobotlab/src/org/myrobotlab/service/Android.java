@@ -35,7 +35,7 @@ public class Android extends Service implements SensorEventListener {
 		
 		// add runtime notification - so we can manage
 		// new Services starting or release or importing
-		Runtime.getInstance().notify(n, "registered", String.class);
+		Runtime.getInstance().addListener(n, "registered", String.class);
 		MRL.getInstance().addServiceActivityIntent(Runtime.getInstance().getName(),
 				Runtime.getInstance().getShortTypeName());
 		
@@ -45,8 +45,8 @@ public class Android extends Service implements SensorEventListener {
 		commandMap.put("registerServices", null);
 		commandMap.put("loadTabPanels", null);
 		commandMap.put("registerServicesNotify", null);
-		commandMap.put("notify", null);
-		commandMap.put("removeNotify", null);
+		commandMap.put("addListener", null);
+		commandMap.put("removeListener", null);
 		commandMap.put("guiUpdated", null);
 		commandMap.put("registered", null);
 		commandMap.put("released", null);

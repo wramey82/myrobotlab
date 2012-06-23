@@ -28,7 +28,7 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public final class NotifyEntry implements Serializable {
+public final class MRLListener implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public String outMethod; // the keyed out method
@@ -42,7 +42,7 @@ public final class NotifyEntry implements Serializable {
 
 	private int _hashCode = 0;
 	
-	public NotifyEntry(String outMethod,String name,String inMethod, Class<?>[] paramTypes) {
+	public MRLListener(String outMethod,String name,String inMethod, Class<?>[] paramTypes) {
 		this.outMethod = outMethod;
 		this.inMethod = inMethod;
 		this.name = name;
@@ -50,7 +50,7 @@ public final class NotifyEntry implements Serializable {
 	}
 	
 	
-	final public boolean equals(final NotifyEntry other)
+	final public boolean equals(final MRLListener other)
 	{
 		//if (paramTypes.toString().equals(other.outMethod))
 		if (Arrays.equals(paramTypes, other.paramTypes)

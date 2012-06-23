@@ -196,8 +196,8 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		sendNotifyRequest("publishInd", "publishInd", GPMessageEvaluatingIndividual.class);
-		sendNotifyRequest("publish", "publish", GPMessageBestFound.class);
+		subscribe("publishInd", "publishInd", GPMessageEvaluatingIndividual.class);
+		subscribe("publish", "publish", GPMessageBestFound.class);
 		drawFitnessGoal();
 		video.displayFrame(img);
 	}

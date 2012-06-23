@@ -124,7 +124,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void attachGUI() {
 		video0.attachGUI();
-		sendNotifyRequest("publishIR", "publishIR", IRData.class);
+		subscribe("publishIR", "publishIR", IRData.class);
 		video0.displayFrame(camImage);
 	}
 
@@ -180,7 +180,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void detachGUI() {
 		video0.detachGUI();
-		removeNotifyRequest("publishIR", "publishIR", IRData.class);
+		unsubscribe("publishIR", "publishIR", IRData.class);
 	}
 
 	// TODO - encapsulate this

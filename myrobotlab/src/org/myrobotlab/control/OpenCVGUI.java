@@ -640,7 +640,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void attachGUI() {
 		// TODO - bury in GUI Framework?
-		sendNotifyRequest("publishState", "getState", OpenCV.class);
+		subscribe("publishState", "getState", OpenCV.class);
 		myService.send(boundServiceName, "publishState");
 
 		video0.attachGUI(); // default attachment
@@ -649,7 +649,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", OpenCV.class);
+		unsubscribe("publishState", "getState", OpenCV.class);
 		
 		video0.detachGUI();
 		templateDisplay.detachGUI();

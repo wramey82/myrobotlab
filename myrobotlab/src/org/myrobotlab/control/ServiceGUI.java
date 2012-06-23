@@ -33,7 +33,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
@@ -95,51 +95,51 @@ public abstract class ServiceGUI {
 	/*
 	 * Service functions
 	 */
-	public void sendNotifyRequest(String inOutMethod) 
+	public void subscribe(String inOutMethod) 
 	{
-		sendNotifyRequest(inOutMethod, inOutMethod, null);
+		subscribe(inOutMethod, inOutMethod, null);
 	}
 
-	public void sendNotifyRequest(String inMethod, String outMethod) 
+	public void subscribe(String inMethod, String outMethod) 
 	{
-		sendNotifyRequest(inMethod, outMethod, null);
+		subscribe(inMethod, outMethod, null);
 	}
 	
-	public void sendNotifyRequest(String outMethod, String inMethod, Class<?> parameterType) 
+	public void subscribe(String outMethod, String inMethod, Class<?> parameterType) 
 	{
-		NotifyEntry ne = null;
+		MRLListener listener = null;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
 		} else {
-			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, null);
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, null);
 		}
 		
-		myService.send(boundServiceName, "notify", ne);
+		myService.send(boundServiceName, "addListener", listener);
 
 	}
 
 	// TODO - more closely model java event system with addNotification or
 	// addListener
-	public void removeNotifyRequest(String inOutMethod) 
+	public void unsubscribe(String inOutMethod) 
 	{
-		removeNotifyRequest(inOutMethod, inOutMethod, null);
+		unsubscribe(inOutMethod, inOutMethod, (Class<?>[])null);
 	}
 
-	public void removeNotifyRequest(String inMethod, String outMethod) 
+	public void unsubscribe(String inMethod, String outMethod) 
 	{
-		removeNotifyRequest(inMethod, outMethod, null);
+		unsubscribe(inMethod, outMethod, (Class<?>[])null);
 	}
 
-	public void removeNotifyRequest(String outMethod, String inMethod,
-			Class<?> parameterType) {
+	public void unsubscribe(String outMethod, String inMethod,
+			Class<?>... parameterType) {
 
-		NotifyEntry ne = null;
+		MRLListener listener = null;
 		if (parameterType != null) {
-			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, parameterType);
 		} else {
-			ne = new NotifyEntry(outMethod, myService.getName(), inMethod, null);
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, null);
 		}
-		myService.send(boundServiceName, "removeNotify", ne);
+		myService.send(boundServiceName, "removeListener", listener);
 
 	}
 	

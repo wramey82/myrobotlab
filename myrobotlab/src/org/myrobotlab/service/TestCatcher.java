@@ -35,10 +35,10 @@ import org.myrobotlab.framework.StopWatch;
 public class TestCatcher extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(TestCatcher.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(TestCatcher.class.getCanonicalName());
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();
 	public ArrayList<Integer> lowCatchList = new ArrayList<Integer>();
+	public ArrayList<String> stringCatchList = new ArrayList<String>();
 
 	public TestCatcher(String n) {
 		super(n, TestCatcher.class.getCanonicalName());
@@ -116,6 +116,13 @@ public class TestCatcher extends Service {
 	public Integer throwBack(Integer count) {
 		log.info("throwBack " + count);
 		return count;
+	}
+	
+	public String catchString(String data)
+	{
+		log.info("***CATCH*** string " + data);
+		stringCatchList.add(data);
+		return data;
 	}
 
 	public int waitForCatches(int numberOfCatches, int maxWaitTimeMilli) {

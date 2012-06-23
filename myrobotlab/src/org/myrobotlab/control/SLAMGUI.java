@@ -101,7 +101,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		sendNotifyRequest("publishIR", "publishIR", IREvent.class);
+		subscribe("publishIR", "publishIR", IREvent.class);
 		video.displayFrame(img);
 	}
 
@@ -111,7 +111,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void detachGUI() {
 		video.detachGUI();
-		removeNotifyRequest("publishIR", "publishIR", IREvent.class);
+		unsubscribe("publishIR", "publishIR", IREvent.class);
 	}
 
 	// TODO - encapsulate this

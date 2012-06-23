@@ -224,21 +224,21 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		//newImageVideo.attachGUI();
 //		video1.attachGUI();
 //		video2.attachGUI();
-		//sendNotifyRequest(outMethod, inMethod, parameterType)
-		//sendNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
-		sendNotifyRequest("publishMatch", "displayMatch", MatchResult.class);
-		//sendNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
-		//sendNotifyRequest("publishVideo1", "displayVideo1", Node.class);
-		//sendNotifyRequest("publishVideo2", "displayVideo2", Node.class);
-		//sendNotifyRequest("publishMatchResult", "displayMatchResult", IplImage.class);
+		//subscribe(outMethod, inMethod, parameterType)
+		//subscribe("publishVideo0", "displayVideo0", HashMap.class);
+		subscribe("publishMatch", "displayMatch", MatchResult.class);
+		//subscribe("clearVideo0"); // FIXME - bad notation .. come on !
+		//subscribe("publishVideo1", "displayVideo1", Node.class);
+		//subscribe("publishVideo2", "displayVideo2", Node.class);
+		//subscribe("publishMatchResult", "displayMatchResult", IplImage.class);
 		myService.send(boundServiceName,"attach", (Object)myService.getName());
 	}
 
 	@Override
 	public void detachGUI() {
 		//bestFitVideo.detachGUI();
-		//removeNotifyRequest("publishVideo0", "displayVideo0", HashMap.class);
-		//removeNotifyRequest("clearVideo0"); // FIXME - bad notation .. come on !
+		//unsubscribe("publishVideo0", "displayVideo0", HashMap.class);
+		//unsubscribe("clearVideo0"); // FIXME - bad notation .. come on !
 		//video1.detachGUI();
 		//video2.detachGUI();
 		myService.send(boundServiceName,"detach");

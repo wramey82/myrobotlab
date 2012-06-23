@@ -161,7 +161,7 @@ public class SoccerGame extends Service {
 		// set up global message routes begin--
 		// when the remote adapter finds a client disconnecting - send a msg to
 		// the SoccerGame to disconnect them
-		remote.notify("connectionBroken", this.getName(), "connectionBrokenEvent", IPAndPort.class); // TODO - TAKE CLASS
+		remote.addListener("connectionBroken", this.getName(), "connectionBrokenEvent", IPAndPort.class); // TODO - TAKE CLASS
 		// set up global message routes end--
 
 		// start services begin----------------
@@ -312,7 +312,7 @@ public class SoccerGame extends Service {
 		// params[3] = new Object[0];
 		params[3] = Integer.class.toString();
 		// params[3] = Integer.class.getCanonicalName();
-		send(client.name, "notify", params);
+		send(client.name, "addListener", params);
 
 		// / TODO - MAP OUT MESSAGES
 

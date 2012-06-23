@@ -82,21 +82,21 @@ public class Rose extends Service {
 	public void setMessageRoutes() {
 		/*
 		 * 
-		 * // tracking camera.notify("publish", tracker.getName(), "center",
-		 * CvPoint.class.getCanonicalName()); tracker.notify("correctX",
+		 * // tracking camera.addListener("publish", tracker.getName(), "center",
+		 * CvPoint.class.getCanonicalName()); tracker.addListener("correctX",
 		 * pan.getName(), "move", Integer.class.getCanonicalName());
-		 * tracker.notify("correctY", tilt.getName(), "move",
+		 * tracker.addListener("correctY", tilt.getName(), "move",
 		 * Integer.class.getCanonicalName());
 		 */
 
 		// event set the polygons i see when there are new polygons
-		camera.notify("publish", this.getName(), "setPolygons", ArrayList.class);
+		camera.addListener("publish", this.getName(), "setPolygons", ArrayList.class);
 
 		// suppress listening when talking
-		// mouth.notify("started", ear.getName(), "stopRecording", null);
-		// mouth.notify("stopped", ear.getName(), "startRecording", null);
+		// mouth.addListener("started", ear.getName(), "stopRecording", null);
+		// mouth.addListener("stopped", ear.getName(), "startRecording", null);
 
-		ear.notify("recognized", this.getName(), "speechToAction", String.class);
+		ear.addListener("recognized", this.getName(), "speechToAction", String.class);
 
 	}
 
@@ -216,7 +216,7 @@ public class Rose extends Service {
 
 	public void report() {
 		// stop looking for objects
-		camera.removeNotify("publish", this.getName(), "setPolygons", ArrayList.class);
+		camera.removeListener("publish", this.getName(), "setPolygons", ArrayList.class);
 
 		try {
 
@@ -242,7 +242,7 @@ public class Rose extends Service {
 		}
 
 		// event set the polygons i see when there are new polygons
-		camera.notify("publish", this.getName(), "setPolygons", ArrayList.class);
+		camera.addListener("publish", this.getName(), "setPolygons", ArrayList.class);
 
 	}
 

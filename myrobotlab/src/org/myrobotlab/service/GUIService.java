@@ -149,8 +149,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		commandMap.put("registerServices", null);
 		commandMap.put("loadTabPanels", null);
 		commandMap.put("registerServicesNotify", null);
-		commandMap.put("notify", null);
-		commandMap.put("removeNotify", null);
+		commandMap.put("addListener", null);
+		commandMap.put("removeListener", null);
 		commandMap.put("guiUpdated", null);
 		commandMap.put("setRemoteConnectionStatus", null);
 

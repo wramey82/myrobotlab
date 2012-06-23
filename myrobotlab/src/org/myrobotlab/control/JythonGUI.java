@@ -171,18 +171,18 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Jython.class);
-		sendNotifyRequest("finishedExecutingScript");
-		sendNotifyRequest("publishStdOut", "getStdOut", String.class);
+		subscribe("publishState", "getState", Jython.class);
+		subscribe("finishedExecutingScript");
+		subscribe("publishStdOut", "getStdOut", String.class);
 		// myService.send(boundServiceName, "broadcastState");
 	}
 
 	@Override
 	public void detachGUI() {
 		javaConsole.stopLogging();
-		removeNotifyRequest("publishStdOut", "getStdOut", String.class);
-		removeNotifyRequest("finishedExecutingScript");
-		removeNotifyRequest("publishState", "getState", Jython.class);
+		unsubscribe("publishStdOut", "getStdOut", String.class);
+		unsubscribe("finishedExecutingScript");
+		unsubscribe("publishState", "getState", Jython.class);
 	}
 
 	/**

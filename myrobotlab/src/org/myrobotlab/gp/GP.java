@@ -143,7 +143,7 @@ public class GP extends Observable implements Runnable {
 	}
 
 	/**
-	 * Should be called after any of the settings have changed, will notify any
+	 * Should be called after any of the settings have changed, will addListener any
 	 * observers of the changes.
 	 */
 	public void settingsChanged() {
@@ -152,7 +152,7 @@ public class GP extends Observable implements Runnable {
 
 	/**
 	 * After the construction of a GP object, you should call the init() method;
-	 * this will notify any observers that the initial settings are now
+	 * this will addListener any observers that the initial settings are now
 	 * established. Don't do it in the constructor, because Observer-Observable
 	 * relationships are yet not established during construction.
 	 */
@@ -959,7 +959,7 @@ public class GP extends Observable implements Runnable {
 
 				log.warn(bestOfRunIndividual.program.toString(0));
 
-				// TODO deprecate all notify Observers - change to publish
+				// TODO deprecate all addListener Observers - change to publish
 				// message
 				GPMessageBestFound gpm = new GPMessageBestFound(
 						currentGeneration, bestOfRunIndividual.program
@@ -1128,7 +1128,7 @@ public class GP extends Observable implements Runnable {
 				crash();
 			}
 		}
-		// stop() will notify any Observers that the GP has come to an end:
+		// stop() will addListener any Observers that the GP has come to an end:
 		stop();
 	}
 

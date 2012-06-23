@@ -46,7 +46,7 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
@@ -73,7 +73,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	final int PORT_DIAMETER = 20;
 	final int PORT_RADIUS = PORT_DIAMETER / 2;
 
-	// notify structure begin -------------
+	// addListener structure begin -------------
 	public JLabel srcServiceName = new JLabel("             ");
 	public JLabel srcMethodName = new JLabel("             ");
 	public JLabel parameterList = new JLabel("             ");
@@ -83,7 +83,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	public JLabel period1 = new JLabel(" ");
 	public JLabel arrow0 = new JLabel(" ");
 	// public JLabel arrow1 = new JLabel(" ");
-	// notify structure end -------------
+	// addListener structure end -------------
 	
 	ButtonListener buttonListener = new ButtonListener();
 
@@ -557,22 +557,22 @@ public class GUIServiceGUI extends ServiceGUI {
 			if (s != null) {
 				Iterator<String> ri = s.getNotifyListKeySet().iterator();
 				while (ri.hasNext()) {
-					ArrayList<NotifyEntry> nl = s.getNotifyList(ri.next());
+					ArrayList<MRLListener> nl = s.getNotifyList(ri.next());
 					for (int i = 0; i < nl.size(); ++i) {
-						NotifyEntry ne = nl.get(i);
+						MRLListener listener = nl.get(i);
 
-						// createArrow(sw.getName(), ne.getName(),
+						// createArrow(sw.getName(), listener.getName(),
 						// methodString);
 						// graph.getChildVertices(arg0)parent.
 						// graph.getChildVertices(graph.getDefaultParent());
 // ROUTING LABELS						
 						if (showRouteLabels)
 						{
-							mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(ne.outMethod	, ne.paramTypes, ne.inMethod),
-								serviceCells.get(s.getName()), serviceCells.get(ne.name));
+							mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(listener.outMethod	, listener.paramTypes, listener.inMethod),
+								serviceCells.get(s.getName()), serviceCells.get(listener.name));
 						} else {								
 							mxCell c = (mxCell)graph.insertEdge(parent, null, "",
-								serviceCells.get(s.getName()), serviceCells.get(ne.name));
+								serviceCells.get(s.getName()), serviceCells.get(listener.name));
 						}
 											
 						//mxGeometry g = c.getGeometry();
@@ -597,7 +597,7 @@ public class GUIServiceGUI extends ServiceGUI {
 		methodString += "->" + in;
 		// }
 
-		// TODO FYI - depricate NotifyEntry use MethodEntry
+		// TODO FYI - depricate MRLListener use MethodEntry
 		// These parameter types could always be considered "inbound" ? or
 		// returnType
 		// TODO - view either full named paths or shortnames
@@ -618,8 +618,8 @@ public class GUIServiceGUI extends ServiceGUI {
 		}
 
 		/*
-		 * if (ne.paramType != null) { methodString +=
-		 * ne.paramType.substring(ne.paramType .lastIndexOf(".") + 1); }
+		 * if (listener.paramType != null) { methodString +=
+		 * listener.paramType.substring(listener.paramType .lastIndexOf(".") + 1); }
 		 */
 
 		methodString += ")";
@@ -630,16 +630,16 @@ public class GUIServiceGUI extends ServiceGUI {
 	// FIXME - should it hook to the Runtime ???
 	@Override
 	public void attachGUI() {
-		// sendNotifyRequest("registerServices", "loadTabPanels");//(String
+		// subscribe("registerServices", "loadTabPanels");//(String
 		// hostAddress, int port, Message msg)
-		// sendNotifyRequest("registered", "loadTabPanels");//(String
+		// subscribe("registered", "loadTabPanels");//(String
 		// hostAddress, int port, Message msg)
 	}
 
 	@Override
 	public void detachGUI() {
-		// removeNotifyRequest("registerServices", "loadTabPanels");
-		// removeNotifyRequest("registered", "loadTabPanels");
+		// unsubscribe("registerServices", "loadTabPanels");
+		// unsubscribe("registered", "loadTabPanels");
 	}
 
 	/*

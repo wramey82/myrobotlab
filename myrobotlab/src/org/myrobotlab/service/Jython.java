@@ -132,6 +132,11 @@ public class Jython extends Service {
 		exec(code, true);
 	}
 	
+	public void exec ()
+	{
+		exec(script, false);
+	}
+	
 	/**
 	 * replaces and executes current Python script
 	 * if replace = false - will not replace "script" variable
@@ -185,16 +190,7 @@ public class Jython extends Service {
 	public void loadDefaultConfiguration() {
 		
 	}
-	
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-				
-		Runtime.createAndStart("jython", "Jython");
-		Runtime.createAndStart("gui", "GUIService");
 		
-	}
-	
 	/**
 	 * 
 	 * @param data
@@ -276,6 +272,64 @@ public class Jython extends Service {
 			interp.cleanup();
 			interp = null;
 		}
+	}
+
+	
+	// FIXME - need to replace "script" with Hashmap<filename, script> to 
+	// support and IDE muti-file view
+	
+	/**
+	 * this method can be used to load a Python script from the
+	 * Jython's local file system, which may not be the GUI's local system. 
+	 * Because it can be done programatically on a different machine we want
+	 * to broadcast our changed state to other listeners (possibly the GUI)
+	 * @param filename - name of file to load
+	 * @return - success if loaded
+	 */
+	public boolean loadPythonScript(String filename)
+	{
+		String newScript = FileIO.fileToString(filename);
+		if (newScript != null && !newScript.isEmpty()){
+			log.info(String.format("replacing current script with %1s",filename));
+
+			script = newScript;
+			
+			// tell other listeners we have changed
+			// our current script
+			broadcastState(); 
+			return true;
+		} else {
+			log.warn(String.format("%1s a not valid script", filename));
+			return false;
+		}
+	}
+
+	public boolean loadPythonScriptFromResource(String filename)
+	{
+		String newScript = FileIO.getResourceFile(String.format("scripts/%1s",filename));
+
+		if (newScript != null && !newScript.isEmpty()){
+			log.info(String.format("replacing current script with %1s",filename));
+
+			script = newScript;
+			
+			// tell other listeners we have changed
+			// our current script
+			broadcastState(); 
+			return true;
+		} else {
+			log.warn(String.format("%1s a not valid script", filename));
+			return false;
+		}
+	}
+	
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+				
+		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("gui", "GUIService");
+		
 	}
 
 }

@@ -246,13 +246,13 @@ public class PhotoReelWidget extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishTemplate", "publishTemplate", SerializableImage.class);
+		subscribe("publishTemplate", "publishTemplate", SerializableImage.class);
 	}
 
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishTemplate", "publishTemplate", SerializableImage.class);
+		unsubscribe("publishTemplate", "publishTemplate", SerializableImage.class);
 	}
 
 }

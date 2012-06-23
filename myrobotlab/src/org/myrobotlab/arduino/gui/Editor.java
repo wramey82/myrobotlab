@@ -445,7 +445,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		// in case moved to a new location
 		// For 0125, changing to async version (to be implemented later)
 		// sketchbook.rebuildMenus();
-		// For 0126, moved into Base, which will notify all editors.
+		// For 0126, moved into Base, which will addListener all editors.
 		// base.rebuildMenusAsync();
 	}
 
@@ -1836,7 +1836,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 	}
 
 	/**
-	 * Deactivate the Run button. This is called by Runner to notify that the
+	 * Deactivate the Run button. This is called by Runner to addListener that the
 	 * sketch has stopped running, usually in response to an error (or maybe the
 	 * sketch completing and exiting?) Tools should not call this function. To
 	 * initiate a "stop" action, call handleStop() instead.

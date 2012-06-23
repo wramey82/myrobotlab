@@ -115,7 +115,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		gbc_btnNe.gridy = 0;
 		add(btnNe, gbc_btnNe);
 		btnNe.addKeyListener(this);
-		btnNe.setActionCommand("ne");
+		btnNe.setActionCommand("listener");
 		
 		btnW = new JButton("");
 		btnW.setBackground(new Color(173, 255, 47));

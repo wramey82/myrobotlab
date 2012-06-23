@@ -185,13 +185,13 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 
 	
 	public void attachGUI() {
-		sendNotifyRequest("publishState", "getState", Arduino.class);
+		subscribe("publishState", "getState", Arduino.class);
 		myService.send(boundServiceName, "publishState");	
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishState", "getState", Arduino.class);	
+		unsubscribe("publishState", "getState", Arduino.class);	
 	}
 
 	@Override

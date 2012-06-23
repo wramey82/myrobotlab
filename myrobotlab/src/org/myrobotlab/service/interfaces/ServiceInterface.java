@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 
 public interface ServiceInterface {
 	public String getName();
@@ -13,7 +13,7 @@ public interface ServiceInterface {
 	public void startService();
 	public void releaseService();
 	public Set<String> getNotifyListKeySet();
-	public ArrayList<NotifyEntry> getNotifyList(String key);
+	public ArrayList<MRLListener> getNotifyList(String key);
 	public String getShortTypeName();
 	public String getToolTip();
 	public boolean hasDisplay();

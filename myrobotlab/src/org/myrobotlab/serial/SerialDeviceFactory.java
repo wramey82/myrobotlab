@@ -105,7 +105,21 @@ public class SerialDeviceFactory  {
 	
 	static public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialException
 	{
+		if (log.isDebugEnabled())
+		{
+			StringBuffer sb = new StringBuffer("getSerialDevice ")
+			.append(rate)
+			.append(" ")
+			.append(databits)
+			.append(" ")
+			.append(stopbits)
+			.append(" ")
+			.append(parity);
+			log.debug(sb.toString());
+		}
+		
 		SerialDevice port = null;
+		
 		try {
 			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
 					.getDeviceIdentifiers(SerialDeviceFactory.TYPE_GNU);
@@ -119,7 +133,7 @@ public class SerialDeviceFactory  {
 						port.setSerialPortParams(rate, databits, stopbits, parity);
 						//port.addEventListener(this);
 						port.notifyOnDataAvailable(true);
-						// System.out.println("opening, ready to roll");
+						log.debug("successfully opened and set port parameters");
 					}
 				}
 			}

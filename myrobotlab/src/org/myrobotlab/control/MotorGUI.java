@@ -328,13 +328,13 @@ public class MotorGUI extends ServiceGUI {
 	@Override
 	public void attachGUI() {
 		// TODO Auto-generated method stub
-		sendNotifyRequest("incrementPosition", "incrementPosition", Integer.class);
+		subscribe("incrementPosition", "incrementPosition", Integer.class);
 	}
 
 	@Override
 	public void detachGUI() {
 		// TODO Auto-generated method stub
-		removeNotifyRequest("incrementPosition", "incrementPosition", Integer.class);
+		unsubscribe("incrementPosition", "incrementPosition", Integer.class);
 
 	}
 	

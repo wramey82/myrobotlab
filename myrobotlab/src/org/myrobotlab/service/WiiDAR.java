@@ -286,7 +286,7 @@ public class WiiDAR extends Service {
 	 * wii.activateIRTRacking(); wii.setIrSensitivity(5); // 1-5 (highest)
 	 * wii.activateListening();
 	 * 
-	 * // send data from the wii to wiidar wii.notify(this, "publishIR",
+	 * // send data from the wii to wiidar wii.addListener(this, "publishIR",
 	 * IRData.class.getCanonicalName());
 	 * 
 	 * }
@@ -305,21 +305,21 @@ public class WiiDAR extends Service {
 	 * // TODO - make note that pinMode - will get lost if not done after serial
 	 * communication is establised // setting listeners/notifiers
 	 * 
-	 * // send data from the wii to wiidar wii.notify(this, "publishIR",
+	 * // send data from the wii to wiidar wii.addListener(this, "publishIR",
 	 * IRData.class.getCanonicalName()); // data from widar to the gui
-	 * notify("publishArrayofPoints", gui.getName(),"displaySweepData",
+	 * addListener("publishArrayofPoints", gui.getName(),"displaySweepData",
 	 * Point.class.getCanonicalName());
 	 * 
-	 * // send the data from the wii to wiidar // wii.notify("publishIR",
+	 * // send the data from the wii to wiidar // wii.addListener("publishIR",
 	 * this.getName(), "computeDepth", IRData.class.getCanonicalName()); // send the
-	 * computed depth & data to the gui // notify("computeDepth",
+	 * computed depth & data to the gui // addListener("computeDepth",
 	 * gui.getName(),"publishSinglePoint", Point.class.getCanonicalName());
-	 * notify("publishSinglePoint", gui.getName(),"publishSinglePoint",
-	 * Point.class.getCanonicalName()); // gui.notify("processImage",
+	 * addListener("publishSinglePoint", gui.getName(),"publishSinglePoint",
+	 * Point.class.getCanonicalName()); // gui.addListener("processImage",
 	 * opencv.getName(),"input", BufferedImage.class.getCanonicalName());
-	 * //wii.notify("publishPin", this.getName(), "publishPin",
-	 * IRData.class.getCanonicalName()); arduino.notify(this,
-	 * SensorData.publishPin, PinData.class.getCanonicalName()); //wii.notify(
+	 * //wii.addListener("publishPin", this.getName(), "publishPin",
+	 * IRData.class.getCanonicalName()); arduino.addListener(this,
+	 * SensorData.publishPin, PinData.class.getCanonicalName()); //wii.addListener(
 	 * 
 	 * 
 	 * gui.display();

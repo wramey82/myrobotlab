@@ -108,13 +108,13 @@ public class FSMTest extends Service {
 		gui = new GUIService("gui");
 		gui.startService();
 		
-		speech.notify("isSpeaking", getName(), "isSpeaking");
+		speech.addListener("isSpeaking", getName(), "isSpeaking");
 		
-		speechRecognition.notify("recognized", getName(), "heard", String.class);
+		speechRecognition.addListener("recognized", getName(), "heard", String.class);
 		
-		opencv.notify("publish", getName(), "publish", KinectImageNode.class); //<--- BUG - polygon, getName() (only should work)
-		opencv.notify("publishIplImageTemplate", getName(), "getImageTemplate", IplImage.class);
-		opencv.notify("publishIplImage", getName(), "publishIplImage", IplImage.class);
+		opencv.addListener("publish", getName(), "publish", KinectImageNode.class); //<--- BUG - polygon, getName() (only should work)
+		opencv.addListener("publishIplImageTemplate", getName(), "getImageTemplate", IplImage.class);
+		opencv.addListener("publishIplImage", getName(), "publishIplImage", IplImage.class);
 		
 		// filter setup
 		opencv.getDepth = true;
@@ -401,7 +401,7 @@ public class FSMTest extends Service {
 			unknown.word = UNKNOWN;
 			unknown.imageData.add(kin);
 			memory.put(UNKNOWN, unknown);
-			// try again - notify ready for correct identification
+			// try again - addListener ready for correct identification
 			speech.speak(getPhrase(QUERY_OBJECT));
 			changeState(GET_ASSOCIATIVE_WORD);
 		}

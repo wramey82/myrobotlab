@@ -38,6 +38,8 @@ public class TestThrower extends Service {
 	public int cnt = 0;
 	public int pulseLimit = 20;
 	public int pitchCnt = 0;
+	public int throwInterval = 100;
+	public String throwType = "throwInteger";
 	public ArrayList<Integer> catcher = new ArrayList<Integer>();
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();
 
@@ -54,8 +56,6 @@ public class TestThrower extends Service {
 
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("throwInterval", 100);
-		cfg.set("throwType", "throwInteger");
 	}
 
 	public Integer catchInteger(Integer count) {
@@ -107,11 +107,10 @@ public class TestThrower extends Service {
 		public void run() {
 			running = true;
 			while (running) {
-				int sleep = Integer.parseInt(myService.getCFG("throwInterval"));
 				try {
 					++count;
-					invoke("throwInteger", count);
-					Thread.sleep(sleep);
+					invoke(throwType, count);
+					Thread.sleep(throwInterval);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					logException(e);
@@ -121,7 +120,18 @@ public class TestThrower extends Service {
 
 		}
 	}
+	
 
+	public String throwString (String nameOfTargetService, String nameOfMethod, String data)
+	{
+		send(nameOfTargetService, nameOfMethod, data);
+		return data;
+	}
+
+	/**
+	 * load test related
+	 * @param num
+	 */
 	public void setNumberOfPitchers(Integer num) {
 		if (pitchers.size() < num) {
 			for (int i = 0; i < num; ++i) {

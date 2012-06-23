@@ -104,12 +104,12 @@ public class VideoWidget extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishFrame", "displayFrame", SerializableImage.class);
+		subscribe("publishFrame", "displayFrame", SerializableImage.class);
 	}
 
 	
 	public void attachGUI(String srcMethod, String dstMethod, Class<?> c) {
-		sendNotifyRequest(srcMethod, dstMethod, c);
+		subscribe(srcMethod, dstMethod, c);
 	}
 	
 	
@@ -125,7 +125,7 @@ public class VideoWidget extends ServiceGUI {
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishFrame", "displayFrame", SerializableImage.class);
+		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);
 	}
 
 	//VideoDisplayPanel vid = new VideoDisplayPanel("output"); 

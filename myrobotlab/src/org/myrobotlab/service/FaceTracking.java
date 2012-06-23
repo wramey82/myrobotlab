@@ -68,13 +68,13 @@ public class FaceTracking extends Service {
 		arduino.startService();
 		//pan.attach(arduino.getName(), 13);
 
-		camera.notify("publish", getName(), "input");
-		camera.notify("isTracking", getName(), "isTracking", Boolean.class);
-		camera.notify("sizeChange", getName(), "sizeChange", Dimension.class);
-		//notify("pan", "logger", "log");
-		//notify("tilt", "logger", "log");
-		notify("pan", "pan", "move");
-		notify("tilt", "tilt", "move");
+		camera.addListener("publish", getName(), "input");
+		camera.addListener("isTracking", getName(), "isTracking", Boolean.class);
+		camera.addListener("sizeChange", getName(), "sizeChange", Dimension.class);
+		//addListener("pan", "logger", "log");
+		//addListener("tilt", "logger", "log");
+		addListener("pan", "pan", "move");
+		addListener("tilt", "tilt", "move");
 		
 		xpid.SetTunings(0.05f, 0f, 0.6f);
 		xpid.Setpoint = 320;

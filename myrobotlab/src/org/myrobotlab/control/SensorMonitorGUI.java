@@ -55,7 +55,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SensorMonitor;
@@ -347,19 +347,19 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			t.pin = (Integer) tracePin.getSelectedItem();
 			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
-			// notify Arduino pin -> SensorMonitor
-			// notify Sensor -> GUIService
+			// addListener Arduino pin -> SensorMonitor
+			// addListener Sensor -> GUIService
 
 			// if (!isTracing) {
 			// Notification Arduino ------> SensorMonitor
 			// this creates a message path from an Arduino to the SensorMonitor
-			NotifyEntry notifyEntry = new NotifyEntry(SensorData.publishPin, boundServiceName, "sensorInput",
+			MRLListener MRLListener = new MRLListener(SensorData.publishPin, boundServiceName, "sensorInput",
 					new Class[] { PinData.class });
 
-			myService.send(controllerName, "notify", notifyEntry);
+			myService.send(controllerName, "addListener", MRLListener);
 
 			// Notification SensorMonitor ------> GUIService
-			sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
+			subscribe("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
 																						// already
 																						// in
 																						// attachGUI
@@ -541,9 +541,9 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		sendNotifyRequest("publishState", "getState", SensorMonitor.class);
-		sendNotifyRequest("addTraceData", "addTraceData", PinData.class);
-		sendNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
+		subscribe("publishState", "getState", SensorMonitor.class);
+		subscribe("addTraceData", "addTraceData", PinData.class);
+		subscribe("publishSensorData", "inputSensorData", PinData.class);
 
 		// fire the update
 		myService.send(boundServiceName, "publishState");
@@ -552,9 +552,9 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	@Override
 	public void detachGUI() {
 		video.detachGUI();
-		removeNotifyRequest("publishState", "getState", SensorMonitor.class);
-		removeNotifyRequest("addTraceData", "addTraceData", PinData.class);
-		removeNotifyRequest("publishSensorData", "inputSensorData", PinData.class);
+		unsubscribe("publishState", "getState", SensorMonitor.class);
+		unsubscribe("addTraceData", "addTraceData", PinData.class);
+		unsubscribe("publishSensorData", "inputSensorData", PinData.class);
 	}
 
 	public void getState(SensorMonitor service) {

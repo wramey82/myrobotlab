@@ -60,7 +60,7 @@ public class TranscriptionThread extends Thread {
 	public void run() {
 		// TODO - this thread will only transcribe one record
 		// if it is to do multiple records we need to do proper
-		// notification with .notify and .wait
+		// notification with .addListener and .wait
 		transcribe(this.record);
 		/*
 		while (true) {
@@ -69,7 +69,7 @@ public class TranscriptionThread extends Thread {
 				running = false;
 			} else {
 				try {
-					sleep(500); // <- TODO - wait/notify/block - lets not do this 1/2 sec pause
+					sleep(500); // <- TODO - wait/addListener/block - lets not do this 1/2 sec pause
 				} catch (InterruptedException e) {
 				}
 			}

@@ -398,20 +398,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	@Override
 	public void attachGUI() {
-		sendNotifyRequest("publishPin", "publishPin", PinData.class); 
-		sendNotifyRequest("publishState", "getState", Arduino.class);
-		sendNotifyRequest("openSketchInGUI", "openSketchInGUI", String.class);
-		sendNotifyRequest("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
+		subscribe("publishPin", "publishPin", PinData.class); 
+		subscribe("publishState", "getState", Arduino.class);
+		subscribe("openSketchInGUI", "openSketchInGUI", String.class);
+		subscribe("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
 		
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("publishPin", "publishPin", PinData.class); 
-		removeNotifyRequest("publishState", "getState", Arduino.class);
-		removeNotifyRequest("openSketchInGUI", "openSketchInGUI", String.class);
-		removeNotifyRequest("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
+		unsubscribe("publishPin", "publishPin", PinData.class); 
+		unsubscribe("publishState", "getState", Arduino.class);
+		unsubscribe("openSketchInGUI", "openSketchInGUI", String.class);
+		unsubscribe("uploadSketchFromGUI", "uploadSketchFromGUI", Boolean.class);
 	}
 
 	@Override

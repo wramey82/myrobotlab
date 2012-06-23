@@ -104,7 +104,7 @@ public class Inbox implements Serializable {
 						}
 						synchronized (returnContainer) {
 							blockingList.remove(msg.msgID);
-							returnContainer.notify(); // notify sender
+							returnContainer.notify(); // addListener sender
 						}
 						msg = null; // do not invoke this msg - sendBlocking has
 									// been notified data returned
