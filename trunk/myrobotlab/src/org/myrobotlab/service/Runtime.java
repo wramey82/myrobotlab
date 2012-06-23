@@ -258,7 +258,7 @@ public class Runtime extends Service {
 		}
 
 		if (se.serviceDirectory.containsKey(s.getName())) {
-			log.error(String.format("attempting to register %1$s which is already registered in %1$s", s.getName(), url));
+			log.error(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
 			if (instance != null) {
 				instance.invoke("collision", s.getName());
 			}
