@@ -40,14 +40,14 @@ public class LoggingActivity extends ServiceActivity {
     
     @Override
     public void attachGUI() { 
-		sendNotifyRequest("log", "log", Message.class);	
-		sendNotifyRequest("publishState", "getState", Logging.class);
+		subscribe("log", "log", Message.class);	
+		subscribe("publishState", "getState", Logging.class);
     }
 
 	@Override
 	public void detachGUI() {
-		removeNotifyRequest("log", "log", Message.class);
-		removeNotifyRequest("publishState", "getState", Logging.class);
+		unsubscribe("log", "log", Message.class);
+		unsubscribe("publishState", "getState", Logging.class);
 	}
 
 }
