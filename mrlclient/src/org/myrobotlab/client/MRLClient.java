@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.NotifyEntry;
+import org.myrobotlab.framework.MRLListener;
 
 /**
  * MRLClient
@@ -131,15 +131,15 @@ public class MRLClient implements Receiver {
 	 * @param paramTypes
 	 */
 	public void subscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getName(), inMethod,
+		MRLListener listener = new MRLListener(outMethod, getName(), inMethod,
 				paramTypes);
-		send(serviceName, "notify", ne);
+		send(serviceName, "addListener", listener);
 	}
 
 	public void unsubscribe(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
-		NotifyEntry ne = new NotifyEntry(outMethod, getName(), inMethod,
+		MRLListener listener = new MRLListener(outMethod, getName(), inMethod,
 				paramTypes);
-		send(serviceName, "remoteNotify", ne);
+		send(serviceName, "removeListener", listener);
 	}
 	
 	@Override
