@@ -1,0 +1,46 @@
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:okCancelBar="http://schemas.android.com/apk/res/com.example.android.merge">
+    
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/service_header"
+    >
+    
+<!-- === Service header begin ===============-->
+      
+<TableRow>   
+	<ImageButton
+        android:id="@+id/icon"
+        android:src="@drawable/android"
+        android:background="@color/black"
+        />	
+	<ImageButton
+        android:id="@+id/release"
+        android:src="@drawable/release"
+        android:background="@color/black"
+        android:paddingLeft="10px"/>
+	<ImageButton
+        android:id="@+id/moveGUI"
+        android:src="@drawable/move"
+        android:background="@color/black"
+        android:paddingLeft="10px"/>
+	<ImageButton
+        android:id="@+id/help"
+        android:contentDescription="@string/help"
+        android:src="@drawable/help"
+        android:background="@color/black"
+        android:paddingLeft="10px"/>
+</TableRow>
+<TableRow>
+   <TextView
+        android:id="@+id/name"
+    	android:padding="4dip"
+         />
+   <TextView
+        android:id="@+id/type"
+	    android:padding="4dip"
+         />
+</TableRow>
+<!-- === Service header end ===============-->    
+</TableLayout>
+</merge>

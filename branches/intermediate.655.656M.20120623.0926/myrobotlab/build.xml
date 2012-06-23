@@ -1,0 +1,256 @@
+<!-- <project name="myrobotlab" default="dist" basedir="."> -->
+<!--
+	Dependencies:
+		Windows:
+			svnversion.exe from Collabnet
+		Linux:
+			svnversion	
+
+	TODO : release fullRelease transfer/upload	localBuild(default)
+	FIXME - remove copy of jar's and .ivy cache from root - replace with ivy
+	resolution or mrl - update (name)
+	TODO - use more Ivy
+	TODO - removed .ivy cache copy
+	TODO - copy the "one and only" serviceData.xml to .myrobotlab directory of the build
+	TODO - move haarcascades.zip & lbpcascase.zip to opencv repo dependency
+	TODO use Ivy to place "integration" libraries into build directory for GUIService & Service
+	
+	change  names
+	
+	flow 
+	(clean)
+	release <- possibly
+	init
+	build/compile
+	test
+	report   (dist)
+	post
+	doc
+	release
+	
+-->
+
+<project name="myrobotlab" default="release" basedir=".">
+	<description>http://myrobotlab.org myrobotlab build file</description>
+
+	<!-- TODO - junit tests multiple virtualbox os-->
+	<!-- set global properties for this build -->
+	<property name="src" 				location="src" />
+	<property name="build.root.dir" 	location="build" />
+	<!--  <property name="build.type" 		value="dev" /> can't set this cause Ant is silly and doesn't have real variables -->
+	<property name="dist.root.dir" 		location="dist" />
+	<property name="report.dir" 		location="report" />
+	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
+	<property name="libraries.jar" 		location="./libraries/jar" />
+	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
+	<property name="junit.src" 			location="../myrobotlab-tests/src" />
+	<!--   <property name="targetVersion" 		value="intermediate" />-->
+	<property name="thirdParty.build" 	location="./thirdParty/build" />
+	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
+
+	<!-- class path for build -->
+	<path id="compile.classpath">
+		<fileset dir="./thirdParty/repo">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- class path for testing -->
+	<path id="compile.classpath.junit">
+		<fileset dir="./thirdParty/repo">
+			<include name="**/*.jar" />
+		</fileset> <!-- FIXME - this is WRONG it will include mutlipe versions since multiple versions exist in the repo - use Ivy -->
+		<fileset dir="../myrobotlab-tests/thirdParty/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<target name="release" description="for releases - will branch the repo and post the artifacts">
+	    <input message="Please enter version:" addproperty="targetVersion" />
+	    <echo message="targetVersion: ${targetVersion}" />	    
+		<property name="build.type" 		value="release" />
+		<antcall target="dist" />
+	</target>
+
+	<!-- build the appropriate label -->
+	<target name="init">
+	    <condition property="build.type" value="dev">
+    		<not>  
+        		<isset property="build.type"/>
+    		</not>
+		</condition>
+	    <condition property="targetVersion" value="intermediate">
+    		<not>  
+        		<isset property="targetVersion"/>
+    		</not>
+		</condition>
+	    	
+    	<echo message="build.type=${build.type}"/>			
+    	<echo message="targetVersion=${targetVersion}"/>			
+    		    
+		<tstamp />
+		<!-- Create the time stamp -->
+		<exec executable="svnversion" outputproperty="repository.revision" />
+		<echo message="repository revision is ${repository.revision}" />
+		<tempfile property="temp.file"/>
+		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
+		character for a windows file system -->
+		<echo message="${targetVersion}.${repository.revision}" file="${temp.file}" />
+		<loadfile srcfile="${temp.file}" property="rev">
+			<filterchain>
+				<replaceregex pattern=":" replace="." />
+			</filterchain>
+		</loadfile>
+		<delete file="${temp.file}" />
+		<echo message="rev ${rev}" />
+		<property name="label" value="${rev}.${DSTAMP}.${TSTAMP}" />
+		<echo message="label ${label}" />
+
+		<!-- Create the build directory structure used by compile -->
+		<!-- TODO set all subsequent directories or resources with appended label -->
+		<!-- TODO branch on the label in release -->
+		
+		<property name="build"	location="${build.root.dir}/${label}"/>
+		<property name="dist"	location="${dist.root.dir}/${label}"/>
+				
+		<mkdir dir="${build.root.dir}" />
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist.root.dir}" />
+		<mkdir dir="${dist}" />
+	
+	</target>
+
+	
+	<target name="compile" depends="init" description="compile the source ">
+		<!-- compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+			<exclude name="org/myrobotlab/service/Android.java" />
+			<exclude name="org/myrobotlab/service/ArduinoBT.java" />
+			<classpath refid="compile.classpath" />
+		</javac>
+
+		<!-- copy resource.root -->
+		<copy todir="${build}/resource">
+			<fileset dir="${src}/resource" />
+		</copy>
+
+		<echo file="${build}/resource/version.txt">${label}</echo>
+
+		<copy todir="${dist}">
+			<fileset dir="${resource.root}" />
+		</copy>
+
+		<copy file="./thirdParty/repo/serviceData.xml" todir="${dist}/.myrobotlab" />
+
+		<!-- FIXME - use Ivy to get the files there ! filebase or url resolver -->
+
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+
+		<jar jarfile="${dist}/libraries/jar/myrobotlab.jar" basedir="${build}">
+			<!-- excludes="org/myrobotlab/boot/" -->
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<!-- section name="myrobotlab" -->
+				<section name="compile">
+					<attribute name="Specification-Title" value="myrobotlab" />
+					<attribute name="Specification-Version" value="${targetVersion}" />
+					<attribute name="Specification-Vendor" value="myrobotlab" />
+					<attribute name="Implementation-Title" value="myrobotlab" />
+					<attribute name="Implementation-Version" value="${label}" />
+					<attribute name="Implementation-Vendor" value="myrobotlab.org" />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- scp updates -->
+	<target name="scp.maahr" depends="dist">
+		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
+		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
+		<scp file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@maahr:/home/gperry/releases/myrobotlab-0013" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="upload" depends="junit" description="upload to google code">
+		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
+		<input message="Please enter upload password:" addproperty="gc.upload.password" />
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload" />
+		<gcupload username="${gc.upload.userid}" password="${gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist}/${label}/libraries/jar/myrobotlab.jar" targetfilename="myrobotlab.${DSTAMP}.${TSTAMP}.jar" summary="latest build of myrobotlab.jar r${repository.revision}" labels="OpSys-All" />
+	</target>
+
+	<target name="junit" depends="dist">
+		<!-- FIXME - copy over serviceData.xml & ivy repo - root?  -->
+
+		<copy todir="${build}/resource">
+			<fileset dir="${src}/resource" />
+		</copy>
+		
+		<!-- compile tests -->
+		<javac srcdir="${junit.src}" destdir="${build}" includeantruntime="false">
+			<classpath>
+				<fileset dir="${dist}/${label}/libraries/jar">
+							<include name="myrobotlab.jar" />
+				</fileset>
+				<path refid="compile.classpath.junit" />
+			</classpath>
+		</javac>
+
+		<mkdir dir="${report.dir}" />
+		<junit printsummary="yes" > 
+			<classpath>
+				<fileset dir="${libraries.jar}">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement path="${junit.jar}/junit-4.4.jar" />
+				<!-- pathelement path="${dist}/${label}/libraries/jar/myrobotlab.jar"/ -->
+				<pathelement location="${build}" />
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${report.dir}">
+				<fileset dir="${junit.src}" includes="**/junit/*Test.java" />
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="report" depends="junit">
+		<junitreport todir="${report.dir}">
+			<fileset dir="${report.dir}" includes="TEST-*.xml" />
+			<report todir="${report.dir}" format="noframes">
+			</report>
+		</junitreport>
+	</target>
+
+	<!-- thankfully created in Eclipse -->
+	<target name="javadoc">
+		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
+			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
+			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
+			<classpath>
+				<fileset dir="./libraries/jar">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javadoc>
+	</target>
+
+	<!-- TODO - upload javadoc, check in javadoc? -->
+
+	<!-- how to call a class directly	
+	<target name="run" depends="compile">
+	  <java fork="true" failonerror="yes" classname="Addition" classpath="build">  
+	  <arg line=""/>
+	  </java>
+	  </target>
+-->
+</project>
