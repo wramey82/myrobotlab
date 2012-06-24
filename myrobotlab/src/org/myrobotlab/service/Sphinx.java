@@ -223,7 +223,7 @@ public class Sphinx extends Service {
 			// loop the recognition until the program exits.
 			while (isRunning) {
 
-				log.error("listening");
+				log.info("listening");
 				invoke("listeningEvent");
 
 				Result result = recognizer.recognize();
@@ -233,7 +233,7 @@ public class Sphinx extends Service {
 					String resultText = result.getBestFinalResultNoFiller();
 					if (resultText.length() > 0) {
 						invoke("recognized", resultText);
-						log.error("You said: " + resultText + '\n');
+						log.info("recognized: " + resultText + '\n');
 					}
 					
 				} else {
