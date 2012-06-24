@@ -350,8 +350,8 @@ public class ConfigurationManagerTest {
 		key = "key";
 		c.set(key, "");
 		z = c.get(key, 0);
-		String e = c.get("nada", null);
-		String d = c.get(key, "");
+//		String e = c.get("nada", null);
+//		String d = c.get(key, "");
 
 		// test multiple constructions
 		ConfigurationManager cfg = new ConfigurationManager("testRoot");
@@ -525,7 +525,7 @@ public class ConfigurationManagerTest {
 		assertEquals(75, int1);
 		cfg.remove("volume"); // TODO the notation here looks like remove value
 								// HOWEVER its remove map
-		int int2 = cfg.get("volume", 50);
+//		int int2 = cfg.get("volume", 50);
 		assertEquals(50, cfg.get("volume", 50));
 
 		// TODO - class defaults
@@ -551,6 +551,7 @@ public class ConfigurationManagerTest {
 		Properties p = new Properties();
 		// p.setProperty("abc", null); // can't do this TODO - needs to throw if
 		// throwable
+		@SuppressWarnings("unused")
 		String t = (String) p.get("abc");
 		t = p.getProperty("abc", null);
 

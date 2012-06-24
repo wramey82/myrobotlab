@@ -469,6 +469,7 @@ public class ServiceTest {
 	}
 
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public final void doubleHandedRemoteThrow() {
 		log.warn("doubleHandedRemoteThrow begin-------------");
@@ -651,7 +652,7 @@ public class ServiceTest {
 		RemoteAdapter remote01 = new RemoteAdapter("remote01", "http://localhost:6767");
 		TestCatcher catcher01 = new TestCatcher("catcher01", "http://localhost:6767");		
 		TestThrower thrower01 = new TestThrower("thrower01", "http://localhost:6767");		
-		log.info(Runtime.getInstance().dump());
+		log.info(Runtime.dump());
 		
 		remote01.startService();
 		catcher01.startService();
@@ -699,7 +700,6 @@ public class ServiceTest {
 		assertEquals(1, catcher.catchList.size());
 		assertEquals(10, (int)catcher.catchList.get(0));
 		Runtime.releaseAll();
-		
 	}
 
 	@Test

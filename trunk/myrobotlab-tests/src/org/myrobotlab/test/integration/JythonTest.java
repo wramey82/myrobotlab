@@ -50,7 +50,7 @@ public class JythonTest {
 		
 		catcher.waitForCatches(1, 100);
 		assertEquals(1, catcher.stringCatchList.size());
-		String s = catcher.stringCatchList.get(0);
+//		String s = catcher.stringCatchList.get(0);
 		//assertEquals(10, (int)catcher.stringCatchList.get(0));
 		Runtime.releaseAll();		
 	}
