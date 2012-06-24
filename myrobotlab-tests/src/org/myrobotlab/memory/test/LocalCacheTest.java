@@ -1,4 +1,4 @@
-package org.myrobotlab.cache.test;
+package org.myrobotlab.memory.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
