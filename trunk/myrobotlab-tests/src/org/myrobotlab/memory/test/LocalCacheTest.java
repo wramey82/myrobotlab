@@ -148,24 +148,30 @@ public class LocalCacheTest {
 		Double value4 = 0.882d;
 		
 		guineaPig.put(name1, value1);
-		ConcurrentMap cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "cache");
+		ConcurrentMap cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "items");
 		assertEquals(1, cache.size());
 		assertEquals(value1, cache.get(name1));
 		
 		guineaPig.put(name2, value2);
-		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "cache");
+		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "items");
 		assertEquals(2, cache.size());
 		assertEquals(value2, cache.get(name2));
+		assertEquals(value1, cache.get(name1));
 		
 		guineaPig.put(name3, value3);
-		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "cache");
+		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "items");
 		assertEquals(3, cache.size());
 		assertEquals(value3, cache.get(name3));
+		assertEquals(value2, cache.get(name2));
+		assertEquals(value1, cache.get(name1));
 		
 		guineaPig.put(name4, value4);
-		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "cache");
+		cache = TestHelpers.<ConcurrentMap>getField(guineaPig, "items");
 		assertEquals(4, cache.size());
 		assertEquals(value4, cache.get(name4));
+		assertEquals(value3, cache.get(name3));
+		assertEquals(value2, cache.get(name2));
+		assertEquals(value1, cache.get(name1));
 	}
 
 	private void loadDefaults() {

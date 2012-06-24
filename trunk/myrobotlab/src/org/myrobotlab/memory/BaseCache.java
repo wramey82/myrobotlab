@@ -1,15 +1,17 @@
 /**
- * 
+ * Base cache that should be used by all Cache implementations.
  */
 package org.myrobotlab.memory;
 
 import org.myrobotlab.reflection.Instantiator;
 
 /**
+ * Base class that contains the public facing methods.
+ * 
  * @author SwedaKonsult
  *
  */
-public abstract class BaseCache implements Cache {
+public abstract class BaseCache implements ManagedCache {
 	
 	private static final boolean DEFAULT_BOOL = false;
 	private static final byte DEFAULT_BYTE = 0;
@@ -25,12 +27,14 @@ public abstract class BaseCache implements Cache {
 	 * @param value
 	 */
 	protected abstract void addToCache(String name, Object value);
+	protected abstract void clearCache();
 	/**
 	 * Internal method for BaseCache to actually check if the name exists in the implementing cache.
 	 * @param name
 	 * @return
 	 */
 	protected abstract boolean contains(String name);
+	protected abstract void expireItem(String name);
 	/**
 	 * Internal method for BaseCache to actually retrieve items from the implementing cache.
 	 * @param name
@@ -41,6 +45,12 @@ public abstract class BaseCache implements Cache {
 	 * @param name
 	 */
 	protected abstract void removeFromCache(String name);
+	protected abstract void timeoutCache();
+
+	@Override
+	public void clear() {
+		clearCache();
+	}
 
 	/**
 	 * Expire an item in the cache.
@@ -48,10 +58,7 @@ public abstract class BaseCache implements Cache {
 	 * @param name
 	 */
 	public void expire(String name) {
-		if (name == null || name.isEmpty() || !contains(name)) {
-			return;
-		}
-		removeFromCache(name);
+		expireItem(name);
 	}
 	
 	/**
@@ -318,6 +325,11 @@ public abstract class BaseCache implements Cache {
 			return;
 		}
 		addToCache(name, value);
+	}
+
+	@Override
+	public void timeout() {
+		timeoutCache();
 	}
 	
 	/**

@@ -991,6 +991,34 @@ public class TestBaseCache {
 		protected void removeFromCache(String name) {
 			cache.remove(name);
 		}
+
+		@Override
+		public void clear() {
+			cache.clear();
+		}
+
+		@Override
+		public void timeout() {
+			// do nothing for now
+		}
+
+		@Override
+		protected void clearCache() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		protected void expireItem(String name) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		protected void timeoutCache() {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 }
