@@ -52,10 +52,10 @@ public class CacheFactory {
 	 * Create a cache using a specific class.
 	 * This assumes that the constructor does not take any parameters.
 	 * 
-	 * @param forClass
+	 * @param forClass the cache class that should be used
 	 * @return
 	 */
-	public Cache createCache(Class<? extends Object> forClass) {
+	public Cache createCache(Class<? extends Cache> forClass) {
 		if (forClass == null) {
 			return createDefaultCache();
 		}
@@ -63,7 +63,7 @@ public class CacheFactory {
 		if (cache != null) {
 			return cache;
 		}
-		cache = Instantiator.getNewInstance(forClass, new Object[0]);
+		cache = Instantiator.<Cache>getNewInstance(forClass, new Object[0]);
 		caches.put(createKey(forClass), cache);
 		return cache;
 	}
