@@ -13,6 +13,8 @@ public abstract class BaseCache implements Cache {
 	
 	private static final boolean DEFAULT_BOOL = false;
 	private static final byte DEFAULT_BYTE = 0;
+	private static final double DEFAULT_DOUBLE = 0.0d;
+	private static final float DEFAULT_FLOAT = 0.0f;
 	private static final int DEFAULT_INT = 0;
 	private static final short DEFAULT_SHORT = 0;
 
@@ -166,6 +168,76 @@ public abstract class BaseCache implements Cache {
 	}
 	
 	/**
+	 * Get an double primitive value from the cache.
+	 * Tests for: Double, Float, Integer, Byte, Short, String (parseDouble)
+	 * 
+	 * @param name
+	 * @return 0.0d if nothing is found or the cached value was not an double value
+	 */
+	public double getDouble(String name) {
+		if (name == null || !contains(name)) {
+			return DEFAULT_DOUBLE;
+		}
+		Object value = getFromCache(name);
+		if (value ==  null) {
+			return DEFAULT_DOUBLE;
+		}
+		if (value instanceof Double) {
+			double d = (Double) value;
+			return d;
+		}
+		if (value instanceof Float) {
+			float f = (Float) value;
+			return (double) f;
+		}
+		if (value instanceof Byte) {
+			byte b = (Byte) value;
+			return (double) b;
+		}
+		if (value instanceof Short) {
+			short s = (Short) value;
+			return (double) s;
+		}
+		if (!(value instanceof String)) {
+			return DEFAULT_DOUBLE;
+		}
+		return parseWithDefault((String) value, DEFAULT_DOUBLE);
+	}
+	
+	/**
+	 * Get an float primitive value from the cache.
+	 * Tests for: Float, Integer, Byte, Short, String (parseDouble)
+	 * 
+	 * @param name
+	 * @return 0.0f if nothing is found or the cached value was not an float value
+	 */
+	public float getFloat(String name) {
+		if (name == null || !contains(name)) {
+			return DEFAULT_FLOAT;
+		}
+		Object value = getFromCache(name);
+		if (value ==  null) {
+			return DEFAULT_FLOAT;
+		}
+		if (value instanceof Float) {
+			float f = (Float) value;
+			return (float) f;
+		}
+		if (value instanceof Byte) {
+			byte b = (Byte) value;
+			return (float) b;
+		}
+		if (value instanceof Short) {
+			short s = (Short) value;
+			return (float) s;
+		}
+		if (!(value instanceof String)) {
+			return DEFAULT_FLOAT;
+		}
+		return parseWithDefault((String) value, DEFAULT_FLOAT);
+	}
+	
+	/**
 	 * Get an int primitive value from the cache.
 	 * Tests for: Integer, Byte, Short, String (parseInt)
 	 * 
@@ -263,6 +335,34 @@ public abstract class BaseCache implements Cache {
 			return Byte.parseByte(value);
 		} catch (NumberFormatException e) {}
 		return defaultByte;
+	}
+	
+	/**
+	 * Try to parse a double.
+	 * 
+	 * @param value
+	 * @param defaultDouble return value if the string cannot be parsed into an double
+	 * @return
+	 */
+	private double parseWithDefault(String value, double defaultDouble) {
+		try {
+			return Double.parseDouble(value);
+		} catch (NumberFormatException e) {}
+		return defaultDouble;
+	}
+	
+	/**
+	 * Try to parse a float.
+	 * 
+	 * @param value
+	 * @param defaultFloat return value if the string cannot be parsed into an float
+	 * @return
+	 */
+	private float parseWithDefault(String value, float defaultFloat) {
+		try {
+			return Float.parseFloat(value);
+		} catch (NumberFormatException e) {}
+		return defaultFloat;
 	}
 	
 	/**
