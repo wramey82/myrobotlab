@@ -17,7 +17,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.myrobotlab.cache.LocalCache;
+import org.myrobotlab.memory.LocalCache;
 import org.myrobotlab.test.TestHelpers;
 
 public class LocalCacheTest {

@@ -1,7 +1,7 @@
 /**
  * Cache interface
  */
-package org.myrobotlab.cache;
+package org.myrobotlab.memory;
 
 /**
  * Interface for a single cache.

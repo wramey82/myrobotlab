@@ -1,7 +1,7 @@
 /**
  * Factory for creating caches.
  */
-package org.myrobotlab.cache;
+package org.myrobotlab.memory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

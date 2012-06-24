@@ -1,7 +1,7 @@
 /**
  * Cache manager
  */
-package org.myrobotlab.cache;
+package org.myrobotlab.memory;
 
 /**
  * Manager that should be in charge of caches so that we have a way
