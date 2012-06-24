@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.myrobotlab.cache;
+package org.myrobotlab.memory;
 
 import org.myrobotlab.reflection.Instantiator;
 

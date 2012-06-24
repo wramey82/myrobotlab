@@ -1,10 +1,11 @@
 /**
  * Cache class that can be used by any code.
  */
-package org.myrobotlab.cache;
+package org.myrobotlab.memory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 
 /**
  * Implementation of the Cache interface that stores information in local memory.
