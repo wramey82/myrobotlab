@@ -53,7 +53,7 @@ public class MoMoApplet extends Applet {
 		//CommAsciiOverTCP.clientList = new HashMap<String, CommunicatorTCPRequestThread>(); // CRAP
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void start() {
 		log.error("start");
 
@@ -85,6 +85,7 @@ public class MoMoApplet extends Applet {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public void stop() {
 
 		log.error("stop");

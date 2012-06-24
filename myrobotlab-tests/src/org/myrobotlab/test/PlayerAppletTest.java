@@ -52,6 +52,7 @@ public class PlayerAppletTest extends Applet {
 		//CommAsciiOverTCP.clientList = new HashMap<String, CommunicatorTCPRequestThread>(); // CRAP
 	}
 
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void start() {
 		log.error("start");
 		// resize(150,25);
@@ -97,6 +98,7 @@ public class PlayerAppletTest extends Applet {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public void stop() {
 
 		log.error("stop");

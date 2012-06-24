@@ -52,7 +52,7 @@ public class FrogLegApplet extends Applet {
 
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void start() {
 		log.error("start");
 
@@ -84,6 +84,7 @@ public class FrogLegApplet extends Applet {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public void stop() {
 
 		log.error("stop");
