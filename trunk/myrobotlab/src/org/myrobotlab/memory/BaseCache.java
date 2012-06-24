@@ -122,15 +122,15 @@ public abstract class BaseCache implements Cache {
 		}
 		if (value instanceof Integer) {
 			int i = (Integer) value;
-			return i == 0;
+			return i != 0;
 		}
 		if (value instanceof Byte) {
 			byte b = (Byte) value;
-			return b == 0;
+			return b != 0;
 		}
 		if (value instanceof Short) {
 			short s = (Short) value;
-			return s == 0;
+			return s != 0;
 		}
 		if (!(value instanceof String)) {
 			return DEFAULT_BOOL;
@@ -190,6 +190,10 @@ public abstract class BaseCache implements Cache {
 			float f = (Float) value;
 			return (double) f;
 		}
+		if (value instanceof Integer) {
+			int f = (Integer) value;
+			return (double) f;
+		}
 		if (value instanceof Byte) {
 			byte b = (Byte) value;
 			return (double) b;
@@ -225,6 +229,10 @@ public abstract class BaseCache implements Cache {
 		}
 		if (value instanceof Byte) {
 			byte b = (Byte) value;
+			return (float) b;
+		}
+		if (value instanceof Integer) {
+			int b = (Integer) value;
 			return (float) b;
 		}
 		if (value instanceof Short) {
