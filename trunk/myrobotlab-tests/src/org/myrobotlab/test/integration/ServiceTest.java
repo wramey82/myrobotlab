@@ -21,8 +21,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Date;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
@@ -58,6 +63,31 @@ public class ServiceTest {
 	public final static Logger log = Logger.getLogger(ServiceTest.class.getCanonicalName());
 	
 	final static StopWatch stopwatch = new StopWatch();
+	
+	Service guineaPig;
+	static String guineaPigName;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
+		guineaPigName = "test name";
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		guineaPig = new TestThrower(guineaPigName);
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		guineaPig = null;
+	}
 
 	public static void main(String args[]) {
 		org.junit.runner.JUnitCore.main("org.myrobotlab.test.junit.ServiceTest");
@@ -102,6 +132,77 @@ public class ServiceTest {
 		Runtime.releaseAll();
 		
 		log.warn("testSimpleMessage end-------------");
+	}
+	
+	@Test
+	public void testInvokeMethodObjectStringObject_Double() {
+		Double result;
+		Object methodHolder;
+		Object[] params;
+		
+		methodHolder = new Double(Double.NaN);
+		String method = "parseDouble";
+		double expected = 1.234d;
+		String doubleAsString = "" + expected;
+		params = new Object[]{doubleAsString};
+		result = guineaPig.<Double>invokeMethod(methodHolder, method, params);
+		assertEquals(expected, result, 0.0001);
+	}
+	
+	@Test
+	public void testInvokeMethodObjectStringObject_DoubleBoxing() {
+		Double result;
+		Object methodHolder;
+		Object[] params;
+		String method = "parseDouble";
+		double expected = 1.234d;
+		String doubleAsString = "" + expected;
+		// make sure it auto-boxes
+		methodHolder = 0d;
+		params = new Object[]{doubleAsString};
+		result = guineaPig.<Double>invokeMethod(methodHolder, method, params);
+		assertEquals(expected, result, 0.0001);
+	}
+	
+	@Test
+	public void testInvokeMethodObjectStringObject_DoubleInvalidMethod() {
+		Double result;
+		Object methodHolder;
+		Object[] params;
+		String method = "parseThis";
+		double expected = 1.234d;
+		String doubleAsString = "" + expected;
+		// make sure it auto-boxes
+		methodHolder = 0d;
+		params = new Object[]{doubleAsString};
+		result = guineaPig.<Double>invokeMethod(methodHolder, method, params);
+		assertEquals(expected, result, 0.0001);
+	}
+	
+	@Test
+	public void testInvokeMethodObjectStringObject_StringNoParams() {
+		String result;
+		Object methodHolder;
+		Object[] params = {};
+		String method = "toString";
+		String expected = "1.234";
+		// make sure it auto-boxes
+		methodHolder = 1.234d;
+		result = guineaPig.<String>invokeMethod(methodHolder, method, params);
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testInvokeMethodObjectStringObject_StringInvalidMethod() {
+		String result;
+		Object methodHolder;
+		Object[] params = {};
+		String method = "meRikey";
+		String expected = "1.234";
+		// make sure it auto-boxes
+		methodHolder = 1.234d;
+		result = guineaPig.<String>invokeMethod(methodHolder, method, params);
+		assertEquals(expected, result);
 	}
 
 	@Test

@@ -6,6 +6,7 @@ package org.myrobotlab.reflection;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 
 import org.myrobotlab.logging.Logger;
 
@@ -21,7 +22,26 @@ public class Instantiator {
 	/**
 	 * Logger
 	 */
-	private static final Logger log = Logger.getLogger(Instantiator.class);
+	private static final Logger log;
+
+	/**
+	 * Allow for checking if a boxed primitive is being used.
+	 */
+	public final static HashSet<Class<?>> primitiveTypes;
+	
+	static {
+		log = Logger.getLogger(Instantiator.class);
+		
+		primitiveTypes = new HashSet<Class<?>>(8);
+	    primitiveTypes.add(Boolean.class);
+	    primitiveTypes.add(Character.class);
+	    primitiveTypes.add(Byte.class);
+	    primitiveTypes.add(Short.class);
+	    primitiveTypes.add(Integer.class);
+	    primitiveTypes.add(Long.class);
+	    primitiveTypes.add(Float.class);
+	    primitiveTypes.add(Double.class);
+	}
 	
 	/**
 	 * Create an instance of the classname.
@@ -35,8 +55,11 @@ public class Instantiator {
 			return null;
 		}
 		try {
-			Class<?> c = Class.forName(classname);
+			@SuppressWarnings("unchecked")
+			Class<? extends T> c = (Class<? extends T>) Class.forName(classname);
 			return Instantiator.<T>getNewInstance(c, params);
+		} catch (ClassCastException e) {
+			log.error("Error", e);
 		} catch (ClassNotFoundException e) {
 			log.error("Error", e);
 		} catch (SecurityException e) {
@@ -50,12 +73,12 @@ public class Instantiator {
 	/**
 	 * Create an instance of Class.
 	 * 
-	 * @param c
+	 * @param c any class that extends the expected return type T
 	 * @param params
 	 * @return null if anything fails
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T getNewInstance(Class<?> c, Object... params) {
+	public static <T> T getNewInstance(Class<? extends T> c, Object... params) {
 		if (c == null) {
 			return null;
 		}
@@ -78,13 +101,53 @@ public class Instantiator {
 		}
 		return null;
 	}
+	
+	/**
+	 * Return an empty/default boxed primitive.
+	 * This is somewhat heavy since it creates a boxed instance of
+	 * the primitive.
+	 * 
+	 * @param cls
+	 * @return 
+	 */
+	public static Object getPrimitive(Class<?> cls) {
+		if (cls.isAssignableFrom(Integer.class)) {
+			return 0;
+		}
+		if (cls.isAssignableFrom(Byte.class)) {
+			byte b = 0;
+			return b;
+		}
+		if (cls.isAssignableFrom(Short.class)) {
+			short s = 0;
+			return s;
+		}
+		if (cls.isAssignableFrom(Double.class)) {
+			return 0d;
+		}
+		if (cls.isAssignableFrom(Float.class)) {
+			return 0f;
+		}
+		if (cls.isAssignableFrom(Long.class)) {
+			return 0l;
+		}
+		if (cls.isAssignableFrom(Boolean.class)) {
+			return Boolean.FALSE;
+		}
+		return '\u0000';
+	}
 
 	/**
-	 * Invoke in the context of this Service
+	 * Invoke in the context of this Service.
+	 * It is suggested to use one of the primitive overload methods when the expected
+	 * result is a primitive. This is for 2 reasons:
+	 * (1) the primitive will be boxed in this case which means more overhead
+	 * (2) if something fails a NULL is returned which results in an exception on the calling end 
 	 * 	
 	 * @param method
 	 * @param params
 	 * @return null if anything fails
+	 * @throws NullPointerException if the expected return type is a primitive
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T invokeMethod(Object object, String method, Object... params) 
@@ -109,6 +172,16 @@ public class Instantiator {
 			log.error("Error", e);
 		}
 		return null;
+	}
+	
+	/**
+	 * Test if the item is a boxed primitive.
+	 * 
+	 * @param item
+	 * @return true if it is a boxed primitive
+	 */
+	public static boolean isPrimitive(Object item) {
+		return primitiveTypes.contains(item);
 	}
 
 	/**
