@@ -1,31 +1,29 @@
 package org.myrobotlab.service.test;
 
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.test.TestHelpers;
-import org.python.core.PyException;
 import org.python.util.PythonInterpreter;
 
 public class JythonTest {
@@ -56,8 +54,8 @@ public class JythonTest {
 	@Test
 	public void testGetToolTip() {
 		String result = guineaPig.getToolTip();
-		Assert.assertNotNull(result);
-		Assert.assertFalse(result.trim().isEmpty());
+		assertNotNull(result);
+		assertFalse(result.trim().isEmpty());
 	}
 
 	@Test
@@ -67,7 +65,7 @@ public class JythonTest {
 		
 		try {
 			guineaPig.preProcessHook(method);
-			Assert.fail("Should have thrown NullPointerException because input to method is null.");
+			fail("Should have thrown NullPointerException because input to method is null.");
 		} catch (NullPointerException e) {}
 		
 		method = new Message();
@@ -85,30 +83,30 @@ public class JythonTest {
 
 		method.method = "preProcessHook";
 		result = guineaPig.preProcessHook(method);
-		Assert.assertTrue(result);
+		assertTrue(result);
 
 		// TODO need to have a case where the jython is successfully executed
 	}
 
 	@Test
 	public void testJython() {
-		HashMap<String, Object> publicMethods = new HashMap<String, Object>();
+		Set<String> publicMethods = new HashSet<String>();
 		Method[] methods = guineaPig.getClass().getMethods();
 		for (Method m : methods) {
 			if (Modifier.isPublic(m.getModifiers())) {
-				publicMethods.put(m.getName(), null);
+				publicMethods.add(m.getName());
 				log.info(m.getName());
 			}
 		}
-		HashMap<String, Object> commandMap = TestHelpers.<HashMap<String, Object>>getField(guineaPig, "commandMap");
-		Assert.assertEquals(publicMethods.size(), commandMap.size());
+		Set<String> commandMap = TestHelpers.<Set<String>>getField(guineaPig, "commandMap");
+		assertEquals(publicMethods.size(), commandMap.size());
 	}
 
 	@Test
 	public void testCreatePythonInterpreter() {
 		guineaPig.createPythonInterpreter();
 		PythonInterpreter interpreter = TestHelpers.<PythonInterpreter>getField(guineaPig, "interp");
-		Assert.assertNotNull(interpreter);
+		assertNotNull(interpreter);
 	}
 
 	@Test
@@ -122,13 +120,13 @@ public class JythonTest {
 		String code = null;
 		guineaPig.exec(code);
 		String script = TestHelpers.<String>getField(guineaPig, "script");
-		Assert.assertNull(script);
+		assertNull(script);
 		
 		code = "some code";
 		guineaPig.exec(code);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		Assert.assertNotNull(script);
-		Assert.assertEquals(code, script);
+		assertNotNull(script);
+		assertEquals(code, script);
 	}
 
 	@Test
@@ -138,20 +136,20 @@ public class JythonTest {
 		boolean replace = false;
 		guineaPig.exec(code, replace);
 		String script = TestHelpers.<String>getField(guineaPig, "script");
-		Assert.assertNull(script);
+		assertNull(script);
 		
 		code = "some code";
 		replace = false;
 		guineaPig.exec(code, replace);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		Assert.assertNull(script);
+		assertNull(script);
 		
 		code = "some code";
 		replace = true;
 		guineaPig.exec(code, replace);
 		script = TestHelpers.<String>getField(guineaPig, "script");
-		Assert.assertNotNull(script);
-		Assert.assertEquals(code, script);
+		assertNotNull(script);
+		assertEquals(code, script);
 	}
 
 	@Test
@@ -164,18 +162,18 @@ public class JythonTest {
 		String code = null;
 		boolean replace = false;
 		guineaPig.exec(code, replace);
-		Assert.assertNull(guineaPig.getScript());
+		assertNull(guineaPig.getScript());
 		
 		code = "some code";
 		replace = false;
 		guineaPig.exec(code, replace);
-		Assert.assertNull(guineaPig.getScript());
+		assertNull(guineaPig.getScript());
 		
 		code = "some code";
 		replace = true;
 		guineaPig.exec(code, replace);
-		Assert.assertNotNull(guineaPig.getScript());
-		Assert.assertEquals(code, guineaPig.getScript());
+		assertNotNull(guineaPig.getScript());
+		assertEquals(code, guineaPig.getScript());
 	}
 
 	@Test
@@ -183,14 +181,14 @@ public class JythonTest {
 		guineaPig.createPythonInterpreter();
 		guineaPig.restart();
 		Object interpreter = TestHelpers.<Object>getField(guineaPig, "interp");
-		Assert.assertNull(interpreter);
+		assertNull(interpreter);
 	}
 
 	@Test
 	public void testPublishStdOut() {
 		String data = "some data";
 		String result = guineaPig.publishStdOut(data);
-		Assert.assertEquals(data, result);
+		assertEquals(data, result);
 	}
 
 }

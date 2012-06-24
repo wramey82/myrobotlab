@@ -2,6 +2,8 @@ package org.myrobotlab.service;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -55,10 +57,10 @@ public class Jython extends Service {
 
 	public final static transient Logger log = Logger.getLogger(Jython.class.getCanonicalName());
 	// using a HashMap means no duplicates
-	private static final transient HashMap<String, Object> commandMap = new HashMap<String, Object>();
+	private static final Set<String> commandMap;
 	// TODO this needs to be moved into an actual cache if it is to be used
 	// Cache of compile jython code
-	private static final transient HashMap<String, PyObject> objectCache = new HashMap<String, PyObject>();
+	private static final transient HashMap<String, PyObject> objectCache;
 	
 	transient PythonInterpreter interp = null;
 
@@ -71,11 +73,14 @@ public class Jython extends Service {
 	
 	static
 	{
+		objectCache = new HashMap<String, PyObject>();
+		commandMap = new HashSet<String>();
+		// Load up the command map
 		Method[] methods = Jython.class.getMethods();
 		for (int i = 0; i < methods.length; ++i)
 		{
-			log.info(String.format("will filter method ", methods[i].getName()));
-			commandMap.put(methods[i].getName(), null);
+			commandMap.add(methods[i].getName());
+			log.info(String.format("will filter method %1$s", methods[i].getName()));
 		}
 	}
 	
@@ -217,7 +222,7 @@ public class Jython extends Service {
 	{
 		// let the messages for this service
 		// get processed normally
-		if (commandMap.containsKey(msg.method))
+		if (commandMap.contains(msg.method))
 		{
 			return true;
 		}
