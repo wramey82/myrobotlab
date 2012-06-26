@@ -281,6 +281,10 @@ public class Jython extends Service {
 		}
 	}
 
+	public void stopService ()
+	{
+		restart();// release the interpeter
+	}
 	
 	// FIXME - need to replace "script" with Hashmap<filename, script> to 
 	// support and IDE muti-file view
