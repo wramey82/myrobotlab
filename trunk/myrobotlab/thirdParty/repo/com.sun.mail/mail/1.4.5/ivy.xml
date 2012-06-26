@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="com.sun.mail" module="mail" status="release" revision="1.4.5">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="dsn" type="jar"/>
+        <artifact name="imap" type="jar"/>
+        <artifact name="mail" type="jar"/>
+        <artifact name="mailapi" type="jar"/>
+        <artifact name="pop3" type="jar"/>
+        <artifact name="smtp" type="jar"/>
+    </publications>
+</ivy-module>

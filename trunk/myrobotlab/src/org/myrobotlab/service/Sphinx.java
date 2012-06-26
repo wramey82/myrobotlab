@@ -69,7 +69,7 @@ public class Sphinx extends Service {
 	DialogManager dialogManager = null;
 	transient SpeechProcessor speechProcessor = null;
 
-	// boolean isListening = true;
+	private boolean isListening = false;
 
 	public Sphinx(String n) {
 		super(n, Sphinx.class.getCanonicalName());
@@ -221,6 +221,7 @@ public class Sphinx extends Service {
 			}
 
 			// loop the recognition until the program exits.
+			isListening = true;
 			while (isRunning) {
 
 				log.info("listening");
@@ -231,8 +232,8 @@ public class Sphinx extends Service {
 				//log.error(result.getBestPronunciationResult());
 				if (result != null) {
 					String resultText = result.getBestFinalResultNoFiller();
-					if (resultText.length() > 0) { 
-						invoke("recognized", resultText); // FIXME - DUH need a conditional guard - so when speaking - don't invoke recognized !!!
+					if (resultText.length() > 0 && isListening) { 
+						invoke("recognized", resultText); 
 						log.info("recognized: " + resultText + '\n');
 					}
 					
@@ -251,6 +252,24 @@ public class Sphinx extends Service {
 
 	}
 
+	
+	
+	/**
+	 * method to suppress recognition listening events
+	 * This is important when Sphinx is listening --> then Speaking, typically you don't want 
+	 * Sphinx to listen to its own speech, it causes a feedback loop and with Sphinx not really
+	 * very accurate, it leads to weirdness
+	 */
+	public void stopListening()
+	{
+		isListening = false;
+	}
+	
+	public void startListening()
+	{
+		isListening = true;
+	}
+	
 	/**
 	 * Defines the standard behavior for a node. The standard behavior is:
 	 * <ul>

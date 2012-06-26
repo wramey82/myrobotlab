@@ -313,8 +313,10 @@ public class Jython extends Service {
 
 	public boolean loadPythonScriptFromResource(String filename)
 	{
-		String newScript = FileIO.getResourceFile(String.format("scripts/%1s",filename));
+		log.debug(String.format("loadPythonScriptFromResource scripts/%1s",filename));
+		String newScript = FileIO.getResourceFile(String.format("python/examples/%1s",filename));
 
+		log.info(String.format("loaded new scripts/%1s size %d",filename, newScript.length()));
 		if (newScript != null && !newScript.isEmpty()){
 			log.info(String.format("replacing current script with %1s",filename));
 
