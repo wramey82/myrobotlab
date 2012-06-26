@@ -9,7 +9,7 @@
 	<description>http://myrobotlab.org myrobotlab master build file</description>	
 	
   <target name="buildAll" description="build mrl">
-    <ant dir="myrobotlab">
+    <ant dir="myrobotlab" />
   </target>	
   
 </project>
