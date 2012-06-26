@@ -5,10 +5,10 @@
 		http://cafe.elharo.com/blogroll/ant-tip-1-write-a-master-build-file/
 	-->	
 	
-<project name="master" default="master" basedir=".">
+<project name="master" default="buildAll" basedir=".">
 	<description>http://myrobotlab.org myrobotlab master build file</description>	
 	
-  <target name="master" description="build mrl">
+  <target name="buildAll" description="build mrl">
     <ant dir="myrobotlab">
   </target>	
   
