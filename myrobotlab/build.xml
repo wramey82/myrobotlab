@@ -6,6 +6,9 @@
 		Linux:
 			svnversion	
 
+	TODO - make default properties - (incapable of making a release - but all name/bogus values are there
+	TODO - build.properties inside repo with comments (static local computer settings username & password etc) - & build path outside
+			such that defaults are constructed - something safe to check in but allows easy modification for secure local builds
 	TODO : release fullRelease transfer/upload	localBuild(default)
 	FIXME - remove copy of jar's and .ivy cache from root - replace with ivy
 	resolution or mrl - update (name)
@@ -28,9 +31,17 @@
 	doc
 	release
 	
+	References:
+	http://www.qasimrasheed.com/post.cfm/eclipse-configure-ant-home
+	http://java.dzone.com/articles/how-use-svn-tasks-with-ant
+	http://stackoverflow.com/questions/1727616/custom-junit-report
+	http://ant.1045680.n5.nabble.com/Mail-task-with-mail-jar-amp-activation-jar-out-of-lib-folder-td3347501.html 
+	http://enitsys.sourceforge.net/ant-classloadertask/
+	http://www.shinylight.com/2009/10/03/ant-script-to-deploy/
+	
 -->
 
-<project name="myrobotlab" default="release" basedir=".">
+<project name="myrobotlab" default="report" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
 	<!-- TODO - junit tests multiple virtualbox os-->
@@ -39,15 +50,41 @@
 	<property name="build.root.dir" 	location="build" />
 	<!--  <property name="build.type" 		value="dev" /> can't set this cause Ant is silly and doesn't have real variables -->
 	<property name="dist.root.dir" 		location="dist" />
-	<property name="report.dir" 		location="report" />
+	
+	<!--  <property name="report.dir" 		location="report" /> -->
 	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
-	<property name="libraries.jar" 		location="./libraries/jar" />
+	<!--   <property name="libraries.jar" 		location="./libraries/jar" /> -->
 	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
 	<property name="junit.src" 			location="../myrobotlab-tests/src" />
 	<!--   <property name="targetVersion" 		value="intermediate" />-->
 	<property name="thirdParty.build" 	location="./thirdParty/build" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
-
+	
+	<property name="svn.base.url" 				value="https://myrobotlab.googlecode.com/svn/" />
+	<property name="svn.username" 				value="" />
+	<property name="svn.password" 				value="" />
+				
+<!--  
+# == MAIL INFO ==================================================================
+# Currently using GMAIL for now.
+mail.host=smtp.gmail.com
+mail.port=465
+mail.subjectalert=[STAGING ANT Build] Test build
+mail.ssl=yes
+mail.username=USERNAME
+mail.password=PASSWORD
+mail.from=someone@somewhere.com
+mail.to=someone@somewhere.com
+-->
+	<property name="mail.host" 				value="smtp.gmail.com" />
+	<property name="mail.port" 				value="464" />
+	<property name="mail.subjectalert" 		value="Test build" />
+	<property name="mail.ssl" 				value="yes" />
+	<property name="mail.username" 			value="" /><!-- get from local properties file -->
+	<property name="mail.password" 			value="" /><!-- get from local properties file -->
+	<property name="mail.from" 				value="build@myrobotlab.org" />
+	<property name="mail.tolist" 				value="" /><!-- get from local properties file -->
+		
 	<!-- class path for build -->
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/repo">
@@ -65,15 +102,46 @@
 		</fileset>
 	</path>
 	
+	<path id="ant_ext.classpath">
+ 		<fileset dir="./thirdParty/build/ant_ext">     
+  		<include name="**/*.jar" />
+ 		</fileset>
+	</path>
+	
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="ant_ext.classpath" />
+	
+	<!-- needed to get mail to work -->
+	<taskdef name="classloadertask" classname="org.apache.tools.ant.taskdefs.ClassloaderTask" classpathref="ant_ext.classpath"/> 
+	<classloadertask classpathref="ant_ext.classpath" loader="thread"/> 
+		
+	<target name="svnbranch" depends="init" description="creates a new branch for individual project using svnant task">    
+
+		<property name="svn.branch.message" value="Creating new branch for trunk with new branch name ${label} "/>
+		<!-- TODO make message input & possibly another friendly release name {squirty, zippy, breeze, ...} -->
+  		<property name="src.url"  value="${svn.base.url}/trunk/"/>
+		<property name="dest.url" value="${svn.base.url}/branches/${label}"/>
+		
+		<echo message="${svn.branch.message}"/>
+		<echo message="${src.url}"/>
+		<echo message="${dest.url}"/>
+
+		<svn javahl="${svnant.javahl}" svnkit="${svnant.svnkit}"   
+		        username="${svn.username}" password="${svn.password}">
+		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>                       
+		</svn>
+	</target>
+	
 	<target name="release" description="for releases - will branch the repo and post the artifacts">
 	    <input message="Please enter version:" addproperty="targetVersion" />
 	    <echo message="targetVersion: ${targetVersion}" />	    
 		<property name="build.type" 		value="release" />
-		<antcall target="dist" />
+		<antcall target="init" />
 	</target>
+	
 
 	<!-- build the appropriate label -->
 	<target name="init">
+	    <!-- default values set if not set in "release" -->
 	    <condition property="build.type" value="dev">
     		<not>  
         		<isset property="build.type"/>
@@ -112,12 +180,13 @@
 		
 		<property name="build"	location="${build.root.dir}/${label}"/>
 		<property name="dist"	location="${dist.root.dir}/${label}"/>
+		<property name="report.dir" 		location="${dist}.report" />
 				
 		<mkdir dir="${build.root.dir}" />
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist.root.dir}" />
 		<mkdir dir="${dist}" />
-	
+		
 	</target>
 
 	
@@ -167,13 +236,13 @@
 		</jar>
 	</target>
 
-	<!-- scp updates -->
+	<!-- scp updates begin -->
 	<target name="scp.maahr" depends="dist">
 		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
 		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
 		<scp file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@maahr:/home/gperry/releases/myrobotlab-0013" />
 	</target>
-
+	
 	<target name="clean" description="clean up">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}" />
@@ -197,31 +266,33 @@
 		<!-- compile tests -->
 		<javac srcdir="${junit.src}" destdir="${build}" includeantruntime="false">
 			<classpath>
-				<fileset dir="${dist}/${label}/libraries/jar">
-							<include name="myrobotlab.jar" />
+				<fileset dir="${dist}/libraries/jar">
+					<include name="myrobotlab.jar" />
 				</fileset>
 				<path refid="compile.classpath.junit" />
 			</classpath>
 		</javac>
 
+		<!-- run tests - Services will need to be loaded if they don't come 
+			 with the default mrl load ie. if they have dependencies on the repo -->
 		<mkdir dir="${report.dir}" />
 		<junit printsummary="yes" > 
 			<classpath>
-				<fileset dir="${libraries.jar}">
+				<fileset dir="${dist}/libraries/jar">
 					<include name="**/*.jar" />
 				</fileset>
 				<pathelement path="${junit.jar}/junit-4.4.jar" />
 				<!-- pathelement path="${dist}/${label}/libraries/jar/myrobotlab.jar"/ -->
-				<pathelement location="${build}" />
+				<pathelement location="${build}" /> <!-- FIXME - I should be able to pick everything up from the libraries include ?!?  -->
 			</classpath>
-
 			<formatter type="xml" />
 
 			<batchtest fork="yes" todir="${report.dir}">
-				<fileset dir="${junit.src}" includes="**/junit/*Test.java" />
+				<fileset dir="${junit.src}" includes="**/test/**/*.java" />
 			</batchtest>
 		</junit>
-	</target>
+			<!--  <classloaderreport/> -->
+		</target>
 
 	<target name="report" depends="junit">
 		<junitreport todir="${report.dir}">
@@ -230,9 +301,24 @@
 			</report>
 		</junitreport>
 	</target>
-
+	
+	<target name="mail" depends="report">	    
+		<mail mailhost="${mail.host}" mailport="${mail.port}" subject="${mail.subjectalert}" ssl="${mail.ssl}" 
+		    user="${mail.username}" password="${mail.password}" tolist="${mail.tolist}">
+			<from address="${mail.from}"/>      
+			<!--  <to address="${mail.to}"/> -->
+			<message>The nightly build has completed</message>
+  			<attachments>
+    			<fileset dir="${report.dir}">
+      				<include name="**/*.html"/>
+    			</fileset>
+  			</attachments>
+		</mail>
+ 	</target>
+	
 	<!-- thankfully created in Eclipse -->
 	<target name="javadoc">
+	    
 		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
 			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
 			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">

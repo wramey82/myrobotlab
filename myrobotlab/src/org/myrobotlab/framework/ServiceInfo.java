@@ -187,6 +187,12 @@ public class ServiceInfo implements Serializable {
 		// clear local resolved serviceInfo
 		serviceData.thirdPartyLibs.clear();
 
+		File ivyDir = new File(".ivy"); //FIXME - consolidate all ".ivy" references to single assignment - use var/properties
+		if (!ivyDir.exists())
+		{
+			log.warn(".ivy dir does not exist");
+			return false;
+		}
 		// load .ivy cache
 		try {
 			List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
@@ -232,6 +238,7 @@ public class ServiceInfo implements Serializable {
 			Service.logException(e);
 			return false;
 		}
+		
 		return ret;
 	}
 

@@ -50,5 +50,11 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.0/autocomplete.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/dsn.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/imap.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/mail.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/mailapi.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/pop3.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/smtp.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
