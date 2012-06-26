@@ -231,8 +231,8 @@ public class Sphinx extends Service {
 				//log.error(result.getBestPronunciationResult());
 				if (result != null) {
 					String resultText = result.getBestFinalResultNoFiller();
-					if (resultText.length() > 0) {
-						invoke("recognized", resultText);
+					if (resultText.length() > 0) { 
+						invoke("recognized", resultText); // FIXME - DUH need a conditional guard - so when speaking - don't invoke recognized !!!
 						log.info("recognized: " + resultText + '\n');
 					}
 					
