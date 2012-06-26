@@ -1,4 +1,4 @@
-package org.myrobotlab.reflection.test;
+package org.myrobotlab.test.reflection;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;

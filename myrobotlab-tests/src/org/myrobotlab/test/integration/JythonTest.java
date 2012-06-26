@@ -25,6 +25,8 @@ public class JythonTest {
 		*/
 		Jython jython = new Jython("jython");
 		TestCatcher catcher = new TestCatcher("catcher");
+		jython.startService();
+		catcher.startService();
 		
 		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
 		jython.exec(code);
@@ -35,14 +37,16 @@ public class JythonTest {
 	}
 
 	@Test
-	public void testmMssageToAndFromJythonScript() {
+	public void testMssageToAndFromJythonScript() {
 		/*
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
 		*/
 		Jython jython = new Jython("jython");
 		TestCatcher catcher = new TestCatcher("catcher");
-		
+		jython.startService();
+		catcher.startService();
+				
 		// String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
 		jython.loadPythonScriptFromResource("messageToAndFromJythonScript.py");
 		jython.exec();
@@ -55,6 +59,7 @@ public class JythonTest {
 		Runtime.releaseAll();		
 	}
 
+	/*
 	@Test
 	public void testPreProcessHook() {
 		fail("Not yet implemented");
@@ -114,5 +119,5 @@ public class JythonTest {
 	public void testMain() {
 		fail("Not yet implemented");
 	}
-
+ */
 }

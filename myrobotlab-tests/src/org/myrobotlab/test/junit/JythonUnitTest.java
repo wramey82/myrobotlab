@@ -1,4 +1,4 @@
-package org.myrobotlab.service.test;
+package org.myrobotlab.test.junit;
 
 
 import static org.junit.Assert.assertEquals;
@@ -23,10 +23,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.Jython;
-import org.myrobotlab.test.TestHelpers;
+import org.myrobotlab.util.TestHelpers;
 import org.python.util.PythonInterpreter;
 
-public class JythonTest {
+public class JythonUnitTest {
 	private Logger log = Logger.getLogger("JythonTest");
 	String name = "sometestname";
 	Jython guineaPig = null;
@@ -190,5 +190,67 @@ public class JythonTest {
 		String result = guineaPig.publishStdOut(data);
 		assertEquals(data, result);
 	}
+	
+	/*
+	@Test
+	public void testPreProcessHook() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testJython() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testAttachJythonConsole() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testCreatePythonInterpreter() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testExecString() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testExecStringBoolean() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testFinishedExecutingScript() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetScript() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishStdOut() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testRestart() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testLoadPythonScript() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testMain() {
+		fail("Not yet implemented");
+	}
+ */
 
 }
