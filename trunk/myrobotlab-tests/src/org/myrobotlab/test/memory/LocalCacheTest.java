@@ -1,4 +1,4 @@
-package org.myrobotlab.memory.test;
+package org.myrobotlab.test.memory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.memory.LocalCache;
-import org.myrobotlab.test.TestHelpers;
+import org.myrobotlab.util.TestHelpers;
 
 public class LocalCacheTest {
 	@SuppressWarnings("unused")

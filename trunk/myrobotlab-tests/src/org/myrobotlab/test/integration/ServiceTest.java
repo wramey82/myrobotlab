@@ -41,7 +41,6 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.TestThrower;
 import org.myrobotlab.service.interfaces.ServiceInterface;
-import org.myrobotlab.test.ClientAPITester;
 
 /**
  * @author GroG TODO - timing based and NON timing based testing TODO - global
@@ -639,7 +638,8 @@ public class ServiceTest {
 		Runtime.releaseAll();
 		log.warn("serializing end--------------------");	
 	}
-	
+	/*
+	 * FIXME - MRLClient needs to be tested in it own jar only - now has its own project
 	@Test
 	public final void clientAPI() {
 		log.warn("clientAPI begin-------------");
@@ -685,10 +685,11 @@ public class ServiceTest {
 		catcher01.catchList.clear();
 		
 		Runtime.releaseAll();
-
+		
 		log.warn("clientAPI end-------------");
 	}
-		
+	*/
+	
 	@Test
 	public final void JythonTest() {
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");

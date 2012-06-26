@@ -1,4 +1,4 @@
-package org.myrobotlab.memory.test;
+package org.myrobotlab.test.memory;
 
 import static org.junit.Assert.*;
 

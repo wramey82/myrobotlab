@@ -1,4 +1,4 @@
-package org.myrobotlab.test;
+package org.myrobotlab.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
