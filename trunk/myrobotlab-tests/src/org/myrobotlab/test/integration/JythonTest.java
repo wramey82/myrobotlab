@@ -17,7 +17,7 @@ public class JythonTest {
 	@Test
 	public void testMessagesFromScript() {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		Logger.getRootLogger().setLevel(Level.WARN);
 
 		/*
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");

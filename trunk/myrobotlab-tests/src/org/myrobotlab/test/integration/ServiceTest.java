@@ -129,7 +129,6 @@ public class ServiceTest {
 		catcher01.catchList.clear();
 
 		Runtime.releaseAll();
-		
 		log.warn("testSimpleMessage end-------------");
 	}
 
@@ -187,7 +186,6 @@ public class ServiceTest {
 		assertEquals(catcher01.catchList.get(0), new Integer(7));
 
 		Runtime.releaseAll();
-		
 		log.warn("stressTest end-------------");
 	}
 	
@@ -233,7 +231,6 @@ public class ServiceTest {
 		// testing robustness of releasing after releasing all
 		catcher01.releaseService();
 		thrower01.releaseService();
-
 		log.warn("blockingTest end-------------");
 	}
 	
@@ -270,7 +267,6 @@ public class ServiceTest {
 		assertEquals(catcher02.catchList.size(), cnt);
 		
 		Runtime.releaseAll();
-		
 		log.warn("testDoubleNotifyMessage end-------------");
 	}
 
@@ -332,7 +328,6 @@ public class ServiceTest {
 		assertEquals(catcher01.catchList.size(), 0);
 
 		Runtime.releaseAll();
-
 		log.warn("testremoveListener begin-------------");
 	}
 
@@ -419,7 +414,6 @@ public class ServiceTest {
 		// assertEquals(catcher01.catchList.size(), 5);
 		
 		Runtime.releaseAll();
-
 		log.warn("remoteThrow end-------------");
 	}
 	
@@ -463,7 +457,6 @@ public class ServiceTest {
 		assertEquals(catcher01.catchList.get(1), new Integer(2));
 
 		Runtime.releaseAll();
-
 		log.warn("bothHandsCatchIntegerTest end-------------");
 	}
 
@@ -581,8 +574,8 @@ public class ServiceTest {
 			log.warn("threw [" + e.getMessage() + "]");
 		}		
 		
+		Runtime.releaseAll();
 		log.warn("remoteInterfaceTest end-------------");
-		
 	}
 
 	
