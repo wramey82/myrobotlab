@@ -36,10 +36,12 @@ public class JythonTest {
 		Runtime.releaseAll();		
 	}
 
-	/* FIXME - put in another class
-	
 	@Test
 	public void testMssageToAndFromJythonScript() {
+		/*
+		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
+		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
+		*/
 		Jython jython = new Jython("jython");
 		TestCatcher catcher = new TestCatcher("catcher");
 		jython.startService();
@@ -56,7 +58,7 @@ public class JythonTest {
 		//assertEquals(10, (int)catcher.stringCatchList.get(0));
 		Runtime.releaseAll();		
 	}
-*/
+
 	/*
 	@Test
 	public void testPreProcessHook() {
