@@ -43,8 +43,6 @@
 
 <project name="myrobotlab" default="report" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
-
-	<sysproperty key="java.awt.headless" value="true"/><!-- any junit tests would fail running on jenkins with gui components -->
 	
 	<!-- 
 		${build.properties} external build properties - you can override the location of the build properties file
@@ -285,7 +283,8 @@ mail.to=someone@somewhere.com
 			 with the default mrl load ie. if they have dependencies on the repo -->
 		<mkdir dir="${report.dir}" />
 		<junit printsummary="yes" > 
-			<classpath>
+			<sysproperty key="java.awt.headless" value="true"/><!-- any junit tests would fail running on jenkins with gui components -->		    
+		    <classpath>
 				<fileset dir="${dist}/libraries/jar">
 					<include name="**/*.jar" />
 				</fileset>
