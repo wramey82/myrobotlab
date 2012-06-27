@@ -512,8 +512,16 @@ public class ServiceTest {
 		// send messages
 		stopwatch.start();
 		for (int i = 0; i < cnt; ++i) {
-			thrower01
-					.send("catcher01", "bothHandsCatchInteger", param1, param2);
+			thrower01.send("catcher01", "bothHandsCatchInteger", param1, param2);
+			try {
+				Thread.sleep(30); 
+				// FIXME - this is to kludge to work with UDP (hopefully) - 
+				// a "valid" test would be to see if at least 1 message got through for
+				// UDP & all messages got through for TCP
+
+			} catch (InterruptedException e) {				
+				e.printStackTrace();
+			}
 		}
 		catcher01.waitForCatches(2 * cnt, 100);
 		stopwatch.end();
