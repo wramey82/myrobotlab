@@ -282,7 +282,8 @@ public class Jython extends Service {
 	}
 
 	public void stopService ()
-	{
+	{	
+		super.stopService();
 		restart();// release the interpeter
 	}
 	

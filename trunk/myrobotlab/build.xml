@@ -44,6 +44,12 @@
 <project name="myrobotlab" default="report" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
+	<!-- 
+		${build.properties} external build properties - you can override the location of the build properties file
+		by using JVM param -Dbuild.properties=newpathlocation or in the ant build call e.g. ant -propertyfile <newPathName> 
+	-->
+	<property name="build.properties" 				location="build.properties" />
+	
 	<!-- TODO - junit tests multiple virtualbox os-->
 	<!-- set global properties for this build -->
 	<property name="src" 				location="src" />
@@ -51,9 +57,7 @@
 	<!--  <property name="build.type" 		value="dev" /> can't set this cause Ant is silly and doesn't have real variables -->
 	<property name="dist.root.dir" 		location="dist" />
 	
-	<!--  <property name="report.dir" 		location="report" /> -->
 	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
-	<!--   <property name="libraries.jar" 		location="./libraries/jar" /> -->
 	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
 	<property name="junit.src" 			location="../myrobotlab-tests/src" />
 	<!--   <property name="targetVersion" 		value="intermediate" />-->
@@ -83,7 +87,7 @@ mail.to=someone@somewhere.com
 	<property name="mail.username" 			value="" /><!-- get from local properties file -->
 	<property name="mail.password" 			value="" /><!-- get from local properties file -->
 	<property name="mail.from" 				value="build@myrobotlab.org" />
-	<property name="mail.tolist" 				value="" /><!-- get from local properties file -->
+	<property name="mail.tolist" 			value="" /><!-- get from local properties file -->
 		
 	<!-- class path for build -->
 	<path id="compile.classpath">
@@ -141,7 +145,9 @@ mail.to=someone@somewhere.com
 
 	<!-- build the appropriate label -->
 	<target name="init">
-	    <!-- default values set if not set in "release" -->
+	    <!-- load file properties -->
+	     <loadproperties srcFile="${build.properties}"/>
+	    <!-- default values set if not set in already in build.properties or "release" -->
 	    <condition property="build.type" value="dev">
     		<not>  
         		<isset property="build.type"/>
