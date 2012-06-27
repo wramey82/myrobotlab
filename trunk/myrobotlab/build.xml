@@ -44,6 +44,8 @@
 <project name="myrobotlab" default="report" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 
+	<sysproperty key="java.awt.headless" value="true"/><!-- any junit tests would fail running on jenkins with gui components -->
+	
 	<!-- 
 		${build.properties} external build properties - you can override the location of the build properties file
 		by using JVM param -Dbuild.properties=newpathlocation or in the ant build call e.g. ant -propertyfile <newPathName> 
