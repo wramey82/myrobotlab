@@ -113,7 +113,7 @@ public class Speech extends Service {
 	@SuppressWarnings("unused")
 	public synchronized Boolean isSpeaking(Boolean b)
 	{
-		log.error("isSpeaking " + b);
+		log.info("isSpeaking " + b);
 		isSpeaking = b;
 		return isSpeaking;
 	}

@@ -46,6 +46,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.speech.DialogManager;
 import org.myrobotlab.speech.NewGrammarDialogNodeBehavior;
 
@@ -400,6 +401,45 @@ public class Sphinx extends Service {
 	public String getToolTip() {
 		return "<html>speech recoginition service wrapping Sphinx 4</html>";
 	}
+	
+	/**
+	 * an inbound port for Speaking Services (TTS) - which suppress listening such
+	 * that a system will not listen when its talking, otherwise a feedback loop can occur
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public synchronized boolean isSpeaking(boolean talking)
+	{
+		if (talking)
+		{
+			isListening = false;
+			log.info("I'm talking so I'm not listening"); // Gawd, ain't that the truth !
+		} else {
+			isListening = true;
+			log.info("I'm not talking so I'm listening"); // mebbe
+		}
+		return talking;
+	}
+	
+	public boolean attach(String serviceName)
+	{
+		ServiceWrapper sw = Runtime.getService(serviceName);
+		// TODO - in the future make a common interface for 
+		// more than one implementation of STT - at the moment there is only one
+		
+		// type checking
+		if (sw == null || !sw.getServiceType().equals("org.myrobotlab.service.Speech"))
+		{
+			log.error(String.format("can not attach to %s because its not registered or of the wrong type", serviceName));
+			return false;
+		}
+		
+		subscribe("isSpeaking", serviceName, "isSpeaking", boolean.class);
+		
+		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", serviceName, getName()));
+		return true;
+	}
 
 	
 	public static void main(String[] args) {
@@ -410,8 +450,6 @@ public class Sphinx extends Service {
 		Sphinx ear = new Sphinx("ear");
 		ear.createGrammar("hello | up | down | yes | no");
 		ear.startService();
-		
-
 
 	}
 	

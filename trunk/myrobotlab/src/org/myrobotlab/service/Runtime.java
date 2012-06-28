@@ -1120,17 +1120,16 @@ public class Runtime extends Service {
 		cmdline.splitLine(args);
 
 		try {
+			setLogLevel(LogLevel.Debug);
+			
 			if (cmdline.containsKey("-logToConsole")) {
 				addAppender(LogAppender.Console);
-				setLogLevel(LogLevel.Debug);
 			} else if (cmdline.containsKey("-logToRemote")) {
 				String host = cmdline.getSafeArgument("-logToRemote", 0, "localhost");
 				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445");
 				addAppender(LogAppender.Remote, host, port);
-				setLogLevel(LogLevel.Debug);
 			} else {
 				addAppender(LogAppender.File);
-				setLogLevel(LogLevel.Warn);
 			}
 
 			if (cmdline.containsKey("-logLevel")) {

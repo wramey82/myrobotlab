@@ -1851,6 +1851,26 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 	
 	/**
+	 * a default way to attach Services to other Services
+	 * An example would be attaching a Motor to a MotorControl
+	 * or a Speaking service (TTS) to a Listening service (STT) such that
+	 * when the system is speaking it does not try to listen & act on its own
+	 * speech (feedback loop)
+	 * 
+	 * FIXME - the GUIService currently has attachGUI() and detachGUI() - 
+	 * these are to bind Services with their swing views/tab panels.  It should
+	 * be generalized to this attach method
+	 * 
+	 * @param serviceName
+	 * @return if successful
+	 */
+	public boolean attach (String serviceName)
+	{
+		log.warn(String.format("don't know how to attach to service %s", serviceName));
+		return false;
+	}
+	
+	/**
 	 * Helper method to translate between our LogLevel enumeration
 	 * and what the logging system (Log4j at this point) uses.
 	 * 

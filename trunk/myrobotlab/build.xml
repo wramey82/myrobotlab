@@ -240,6 +240,7 @@ mail.to=someone@somewhere.com
 				</section>
 			</manifest>
 		</jar>
+		<chmod file="${dist}/*.sh" perm="ugo+rx"/>
 	</target>
 
 	<!-- scp updates begin -->
@@ -282,7 +283,7 @@ mail.to=someone@somewhere.com
 		<!-- run tests - Services will need to be loaded if they don't come 
 			 with the default mrl load ie. if they have dependencies on the repo -->
 		<mkdir dir="${report.dir}" />
-		<junit printsummary="yes" > 
+		<junit printsummary="yes" haltonfailure="yes" > <!-- haltonfailure to bubble up the failure info to ant & jenkins -->
 			<sysproperty key="java.awt.headless" value="true"/><!-- any junit tests would fail running on jenkins with gui components -->		    
 		    <classpath>
 				<fileset dir="${dist}/libraries/jar">
