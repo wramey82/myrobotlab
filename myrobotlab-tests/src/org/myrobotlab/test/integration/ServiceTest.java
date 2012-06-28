@@ -100,8 +100,6 @@ public class ServiceTest {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 		log.debug("testSimpleMessage begin-------------");
-
-		assertEquals(5, 10);// test break
 		
 		// create services
 		TestThrower thrower01 = (TestThrower) Runtime.createAndStart("thrower02", "TestThrower");
