@@ -1120,9 +1120,9 @@ public class Runtime extends Service {
 
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
+		
 
 		try {
-			setLogLevel(LogLevel.Debug);
 			
 			if (cmdline.containsKey("-logToConsole")) {
 				addAppender(LogAppender.Console);
@@ -1133,10 +1133,12 @@ public class Runtime extends Service {
 			} else {
 				addAppender(LogAppender.File);
 			}
-
+			
 			if (cmdline.containsKey("-logLevel")) {
-				setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "DEBUG")));
+				setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "INFO")));
 			}
+			
+			log.info(cmdline);
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
 			// hack to reconcile the different ways os handle and expect

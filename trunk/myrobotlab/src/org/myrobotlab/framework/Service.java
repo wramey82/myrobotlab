@@ -229,23 +229,41 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		registerLocalService(url);
 	}
 	
+	/*
+	 * Interesting hack found on stack overflow - which mod's the Classloader to add another directory
+	 * http://stackoverflow.com/questions/5419039/is-djava-library-path-equivalent-to-system-setpropertyjava-library-path
+	public static void addDir(String s) throws IOException {
+	    try {
+	        // This enables the java.library.path to be modified at runtime
+	        // From a Sun engineer at http://forums.sun.com/thread.jspa?threadID=707176
+	        //
+	        Field field = ClassLoader.class.getDeclaredField("usr_paths");
+	        field.setAccessible(true);
+	        String[] paths = (String[])field.get(null);
+	        for (int i = 0; i < paths.length; i++) {
+	            if (s.equals(paths[i])) {
+	                return;
+	            }
+	        }
+	        String[] tmp = new String[paths.length+1];
+	        System.arraycopy(paths,0,tmp,0,paths.length);
+	        tmp[paths.length] = s;
+	        field.set(null,tmp);
+	        System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + s);
+	    } catch (IllegalAccessException e) {
+	        throw new IOException("Failed to get permissions to set library path");
+	    } catch (NoSuchFieldException e) {
+	        throw new IOException("Failed to get field handle to set library path");
+	    }
+	}
+	
+	*/
+	
 	/**
 	 * 
 	 */
 	public static synchronized void initialize()
 	{		
-		// ;.\libraries\x86\32\windows
-		System.setProperty("java.library.path",
-				String.format("%1$s%2$slibraries%3$snative%4$s%5$s.%6$s.%7$s",
-					System.getProperty("java.library.path"),
-					File.pathSeparator,
-					File.separator,
-					File.separator,
-					Platform.getArch(),
-					Platform.getBitness(),
-					Platform.getOS())
-				);
-		
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
 

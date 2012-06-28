@@ -625,9 +625,9 @@ public class ConfigurationManager implements Serializable {
 			 */
 
 		} catch (FileNotFoundException e) {
-			log.warn("file " + filename + " not found");
+			log.debug("file " + filename + " not found");
 		} catch (IOException e) {
-			log.warn("IOException on " + filename);
+			log.debug("IOException on " + filename);
 		}
 
 	}

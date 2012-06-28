@@ -30,10 +30,12 @@ import java.util.HashMap;
 public class CMDLine extends HashMap<String, CcmdParam> {
 
 	private static final long serialVersionUID = 1560723637806853945L;
+	private String[] args = null;
 
 	public int splitLine(String[] args) {
 		// HashMap<String, CcmdParam> a = new HashMap<String, CcmdParam>();
 		// a.put(arg0, arg1)
+		this.args = args;
 		String curParam = new String();
 		for (int i = 0; i < args.length; ++i) {
 			if (isSwitch(args[i])) {
@@ -148,6 +150,16 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 
 	}
 
+	public String toString()
+	{
+		StringBuffer ret = new StringBuffer();
+		for (int i = 0; i < args.length; ++i)
+		{
+			ret.append(args[i]).append(" ");
+		}
+		
+		return ret.toString();
+	}
 	
 	public static void main(String[] args) {
 		

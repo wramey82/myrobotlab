@@ -196,7 +196,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 		    public void popUpTrigger(MouseEvent e)
 		    {
-		    	log.error("******************popUpTrigger*********************");
+		    	log.info("******************popUpTrigger*********************");
 	            JTable source = (JTable)e.getSource();
 	            popupRow = source.rowAtPoint( e.getPoint() );
 	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
