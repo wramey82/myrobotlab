@@ -409,7 +409,7 @@ public class Sphinx extends Service {
 	 * @param b
 	 * @return
 	 */
-	public synchronized boolean isSpeaking(boolean talking)
+	public synchronized boolean isSpeaking(Boolean talking)
 	{
 		if (talking)
 		{
@@ -435,7 +435,7 @@ public class Sphinx extends Service {
 			return false;
 		}
 		
-		subscribe("isSpeaking", serviceName, "isSpeaking", boolean.class);
+		subscribe("isSpeaking", serviceName, "isSpeaking", Boolean.class);
 		
 		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", serviceName, getName()));
 		return true;

@@ -12,7 +12,7 @@ from org.myrobotlab.service import Runtime
 # and internet connectivity is no longer used.  These cached files 
 # can be found ./audioFile/google/<language code>/audrey/phrase.mpe
 #
-# A message route is created to NOT recognize speech when MRL is talking.
+# A message route is created to NOT recognize speech when the speech service is talking.
 # Otherwise, initially amusing scenarios can occur such as infinite loops of
 # the robot recognizing "hello", then saying "hello", then recognizing "hello"...
 #
@@ -24,23 +24,24 @@ from org.myrobotlab.service import Runtime
 # FYI - The memory requirements for Sphinx are a bit hefty and depending on the
 # platform additional JVM arguments might be necessary e.g. -Xmx256m
 
-# start an ear
+# create an ear
 ear = Runtime.create("ear","Sphinx")
+
 # create the grammar you would like recognized
 # this must be done before the service is started
-ear.createGrammar("hello | forward | back | stop | turn left | turn right | spin | power off")
+ear.createGrammar("hello | forward | back | stop | go |turn left | turn right | spin | power off")
 ear.startService()
 
 # start the mouth
-mouth = Runtime.create("mouth","Speech")
-mouth.startService()
+mouth = Runtime.createAndStart("mouth","Speech")
 
-speaking = False
+# set up a message route from the ear --to--> jython method "heard"
+ear.addListener("recognized", jython.name, "heard", String().getClass()); 
 
+# this method is invoked when something is 
+# recognized by the ear - in this case we
+# have the mouth "talk back" the word it recognized
 def heard():
-    # here is where recognized data from the ear will be sent
-    # if (speaking == False):
-    if (not speaking):
       data = msg_ear_recognized.data[0]
       mouth.speak("you said " + data)
       print "heard ", data
@@ -50,12 +51,8 @@ def heard():
          print  "robot says hello"
     # ... etc
     
-def isSpeaking():
-    speaking = msg_mouth_isSpeaking.data[0]
-    print "is speaking " , speaking
-
-# set up a message route from the ear to the scripting engine
-ear.addListener("recognized", jython.name, "heard", String().getClass()); 
-# prevent infinite loop 
-mouth.addListener("isSpeaking", jython.name, "isSpeaking");
+# prevent infinite loop - this will suppress the
+# recognition when speaking - default behavior
+# when attaching an ear to a mouth :)
+ear.attach("mouth")
 

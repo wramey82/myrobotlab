@@ -609,6 +609,8 @@ public class Runtime extends Service {
 	 * FIXME - there "should" be an order to releasing the correct way would be
 	 * to save the Runtime for last and broadcast all the services being
 	 * released
+	 * 
+	 * FIXME - send SHUTDOWN event to all running services
 	 */
 	public static void releaseAll() /* local only? */
 	{

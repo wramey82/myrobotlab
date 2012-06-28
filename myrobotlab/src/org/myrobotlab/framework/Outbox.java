@@ -137,7 +137,7 @@ public class Outbox implements Runnable, Serializable
 				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod); // Get the value for
 															// the sourceMethod
 				if (subList == null) {
-					log.info("no static route for " + msg.sender + "." + msg.sendingMethod); 
+					log.debug("no static route for " + msg.sender + "." + msg.sendingMethod); 
 					// This will cause issues in broadcasts
 					continue;
 				}
