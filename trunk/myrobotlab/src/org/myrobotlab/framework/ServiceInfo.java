@@ -25,6 +25,8 @@ import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import com.ziclix.python.sql.handler.MySQLDataHandler;
+
 // TODO - command line refresh - repo management & configuration options "latest" etc
 /**
  * Singleton implementation for service information.
@@ -534,51 +536,6 @@ public class ServiceInfo implements Serializable {
 		return true;
 	}
 
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		boolean update = true;
-		ServiceInfo info = ServiceInfo.getInstance();
-
-		// set defaults [update all | update none] depending on context
-
-		// get local data
-		info.getLocalServiceData();
-
-		info.save(info.serviceData, "serviceData.processed.xml");
-
-		// get remote data
-		info.getRepoData();
-
-		// generate update report / dialog
-
-		// get user input (or accept defaults [update all | update none])
-
-		// perform actions
-
-		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
-		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
-		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
-		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
-
-		try {
-			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
-			java.lang.Runtime.getRuntime().exec("myrobotlab.sh");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// load the possibly recent serviceData
-		info.getLocalServiceData();
-
-		// add the local ivy cache - TODO - rename to thirdPartyLibs
-		info.getLocalResolvedDependencies();
-
-		// TODO - verify all keys !
-		// info.save();
-	}
 
 	/**
 	 * gets thirdPartyLibs of a Service using Ivy interfaces with Ivy using its
@@ -775,6 +732,52 @@ public class ServiceInfo implements Serializable {
 			ret = false;
 		}
 		return ret;
+	}
+
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		boolean update = true;
+		ServiceInfo info = ServiceInfo.getInstance();
+
+		// set defaults [update all | update none] depending on context
+
+		// get local data
+		info.getLocalServiceData();
+
+		info.save(info.serviceData, "serviceData.processed.xml");
+
+		// get remote data
+		info.getRepoData();
+
+		// generate update report / dialog
+
+		// get user input (or accept defaults [update all | update none])
+
+		// perform actions
+
+		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
+		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
+		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
+		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
+
+		try {
+			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+			java.lang.Runtime.getRuntime().exec("myrobotlab.sh");
+		} catch (IOException e) {
+			org.myrobotlab.service.Runtime.logException(e);
+		}
+
+		// load the possibly recent serviceData
+		info.getLocalServiceData();
+
+		// add the local ivy cache - TODO - rename to thirdPartyLibs
+		info.getLocalResolvedDependencies();
+
+		// TODO - verify all keys !
+		// info.save();
 	}
 
 }

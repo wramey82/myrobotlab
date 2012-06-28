@@ -252,13 +252,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		String vmName = System.getProperty("java.vm.name");
 		// TODO this should be a single log statement
 		// http://developer.android.com/reference/java/lang/System.html
-		log.info("---------------normalize-------------------");
+		log.info("---------------normalized-------------------");
+		log.info(String.format("ivy [runtime,%1$s.%2$d.%3$s]", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
 		log.info(String.format("os.name [%1$s] getOS [%2$s]", System.getProperty("os.name"), Platform.getOS()));
 		log.info(String.format("os.arch [%1$s] getArch [%2$s]", System.getProperty("os.arch"), Platform.getArch()));
 		log.info(String.format("getBitness [%1$d]", Platform.getBitness()));
 		log.info(String.format("java.vm.name [%1$s] getVMName [%2$s]", vmName, Platform.getVMName()));
 					
-		log.info("---------------non-normalize---------------");						
+		log.info("---------------non-normalized---------------");						
 		log.info(String.format("java.vm.name [%1$s]", vmName));
 		log.info(String.format("java.vm.vendor [%1$s]", System.getProperty("java.vm.vendor")));
 		log.info(String.format("java.home [%1$s]", System.getProperty("java.home")));
