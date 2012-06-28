@@ -101,6 +101,8 @@ public class ServiceTest {
 		Logger.getRootLogger().setLevel(Level.INFO);
 		log.debug("testSimpleMessage begin-------------");
 
+		assertEquals(5, 10);// test break
+		
 		// create services
 		TestThrower thrower01 = (TestThrower) Runtime.createAndStart("thrower02", "TestThrower");
 		TestCatcher catcher01 = (TestCatcher) Runtime.createAndStart("catcher01", "TestCatcher");
