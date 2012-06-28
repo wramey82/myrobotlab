@@ -35,6 +35,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 
 public class Graphics extends Service {
 
@@ -50,11 +51,17 @@ public class Graphics extends Service {
 		super(n, Graphics.class.getCanonicalName());
 	}
 
-	// in order for a graphics service to work it needs to be associated with a GUIServic
+	// in order for a graphics service to work it needs to be associated with a GUIService
 	// this is how to associate it
-	public void attach(String guiServiceName)
+	public boolean attach(String guiServiceName)
 	{
+		ServiceWrapper sw = Runtime.getService(guiServiceName);
+		if (!sw.getServiceType().equals("org.myrobotlab.service.GUIService"))
+		{
+			log.warn(String.format("attaching type of %s instead of GUIService instance %s", sw.getServiceType(), guiServiceName));
+		}
 		this.guiServiceName = guiServiceName;
+		return true;
 	}
 
 	public void detach()
