@@ -1238,7 +1238,7 @@ public class Base {
 
     } else {
       try {
-        settingsFolder = new File(".myrobotLab");//platform.getSettingsFolder();
+        settingsFolder = new File(".myrobotlab");//platform.getSettingsFolder();
       } catch (Exception e) {
         showError("Problem getting data folder",
                   "Error getting the Arduino data folder.", e);
