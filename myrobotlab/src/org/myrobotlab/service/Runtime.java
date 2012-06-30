@@ -1134,9 +1134,9 @@ public class Runtime extends Service {
 				addAppender(LogAppender.File);
 			}
 			
-			if (cmdline.containsKey("-logLevel")) {
-				setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "INFO")));
-			}
+			
+			setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "INFO")));
+			
 			
 			log.info(cmdline);
 
