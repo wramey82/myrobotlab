@@ -14,7 +14,6 @@ public class ServiceEnvironment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	// access URL
 	public URL accessURL;
 	public HashMap<String, ServiceWrapper> serviceDirectory; // TODO make public & concurrent
 

@@ -527,7 +527,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public boolean setPort(String inPortName) {
-		log.debug("setPort requesting [" + inPortName + "]");
+		log.info("setPort requesting [" + inPortName + "]");
 
 		if (serialDevice != null) {
 			closeSerialDevice();
@@ -569,7 +569,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						// Windows you ask for "COM1" but when you ask for it
 						// back you get "/.//COM1"
 						portName = inPortName;
-						log.debug("opened " + getPortString());
+						log.info("opened " + getPortString());
 						save(); // successfully bound to port - saving
 						Preferences2.set("serial.port", portName);
 						broadcastState(); // state has changed let everyone know
@@ -607,7 +607,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 	}
 
-	public boolean setBaud(int baudRate) {
+	public boolean setBaud(Integer baudRate) {
 		if (serialDevice == null) {
 			log.error("setBaudBase - serialPort is null");
 			return false;

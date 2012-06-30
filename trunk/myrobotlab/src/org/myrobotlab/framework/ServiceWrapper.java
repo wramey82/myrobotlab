@@ -12,7 +12,6 @@ public class ServiceWrapper implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final ServiceInterface service;
 	public final String name; // needed for sorting - but not normalized FYI
-	//final boolean isRemote;	
 	final public ServiceEnvironment host; // final immutable
 	
 	public ServiceWrapper(ServiceInterface s)

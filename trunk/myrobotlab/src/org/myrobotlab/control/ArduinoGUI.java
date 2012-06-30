@@ -344,9 +344,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public void getState(Arduino data) {
 		if (data != null) {
 			myArduino = data;
-			setPorts(myArduino.portNames);
-			
+
 			serialDevice.removeActionListener(this);
+			setPorts(myArduino.portNames);
 			serialDevice.setSelectedItem(myArduino.getPortName());
 			serialDevice.addActionListener(this);
 			
@@ -356,9 +356,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			
 			// TODO - iterate through others and unselect them
 			// FIXME  - do we need to remove action listeners?
-			log.info(arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).isSelected());
-			arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).setSelected(true);
-			arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).doClick();
+			if (myArduino.getPortName() != null) {
+				log.info(arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).isSelected());
+				arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).setSelected(true);
+				arduinoIDE.editor.serialCheckBoxMenuItems.get(myArduino.getPortName()).doClick();
+			}
 			
 		}
 
@@ -380,12 +382,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * @param p
 	 */
 	public void setPorts(ArrayList<String> p) {
-		// serialDevice.removeAllItems();
-		// serialDevice.addItem(""); // the null port
-		// serialDevice.removeAllItems();
+		serialDevice.removeAllItems();
+		serialDevice.addItem("");// null port
 		for (int i = 0; i < p.size(); ++i) {
 			String n = p.get(i);
-			log.info(n);
+			log.debug(n);
 			serialDevice.addItem(n);
 		}
 
