@@ -92,8 +92,8 @@ import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.control.ImageButton;
 import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialDeviceIdentifier;
-import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 /**
@@ -946,14 +946,13 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		serialMenu.removeAll();
 		boolean empty = true;
 
-		try {
+		try { // FIXME - GUI Editor should not do this - GUI needs to ask Service what ports are available
 
-			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
-					.getDeviceIdentifiers(SerialDeviceFactory.TYPE_GNU);
+			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
 			for (int i = 0; i < portList.size(); ++i) {
-				SerialDeviceIdentifier commportidentifier = portList.get(i);
+				SerialDevice commportidentifier = portList.get(i);
 
-				if (commportidentifier.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+				if (commportidentifier.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
 					// System.out.println("Adding port to serial port menu: " +
 					// commportidentifier);
 					String curr_port = commportidentifier.getName();
@@ -2324,7 +2323,7 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		try {
 			monitor.openSerialPort();
 			monitor.setVisible(true);
-		} catch (SerialException e) {
+		} catch (SerialDeviceException e) {
 			statusError(e);
 		}
 	}

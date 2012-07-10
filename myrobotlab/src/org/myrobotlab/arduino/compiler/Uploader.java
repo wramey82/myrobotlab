@@ -32,18 +32,15 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import org.myrobotlab.arduino.Serial;
-import org.myrobotlab.serial.MessageConsumer;
-import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 
 
 
 public abstract class Uploader implements MessageConsumer  {
-  static final String BUGS_URL =
-    "https://developer.berlios.de/bugs/?group_id=3590";
-  static final String SUPER_BADNESS =
-    "Compiler error, please submit this code to " + BUGS_URL;
+  static final String BUGS_URL ="https://developer.berlios.de/bugs/?group_id=3590";
+  static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
 
   Arduino myArduino;
   RunnerException exception;
@@ -58,11 +55,11 @@ public abstract class Uploader implements MessageConsumer  {
   }
 
   public abstract boolean uploadUsingPreferences(String buildPath, String className, boolean usingProgrammer)
-    throws RunnerException, SerialException;
+    throws RunnerException, SerialDeviceException;
   
   public abstract boolean burnBootloader() throws RunnerException;
   
-  protected void flushSerialBuffer() throws RunnerException, SerialException {
+  protected void flushSerialBuffer() throws RunnerException, SerialDeviceException {
     // Cleanup the serial buffer
     try {
     	// FIXME - preferences used inside of Serial()

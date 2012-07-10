@@ -1,7 +1,10 @@
-/* -*- mode: jde; c-basic-offset: 2; indent-tabs-mode: nil -*- */
+/* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 
 /*
-  Copyright (c) 2007 David A. Mellis
+  Part of the Processing project - http://processing.org
+
+  Copyright (c) 2004-06 Ben Fry and Casey Reas
+  Copyright (c) 2001-04 Massachusetts Institute of Technology
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,25 +23,20 @@
 
 package org.myrobotlab.arduino.compiler;
 
-import org.myrobotlab.serial.SerialDeviceException;
 
+/**
+ * Interface for dealing with parser/compiler output.
+ * <P>
+ * Different instances of MessageStream need to do different things with
+ * messages.  In particular, a stream instance used for parsing output from
+ * the compiler compiler has to interpret its messages differently than one
+ * parsing output from the runtime.
+ * <P>
+ * Classes which consume messages and do something with them
+ * should implement this interface.
+ */
+public interface MessageConsumer {
 
-public class SerialNotFoundException extends SerialDeviceException {
-	private static final long serialVersionUID = 1L;
+  public void message(String s);
 
-public SerialNotFoundException() {
-    super();
-  }
-
-  public SerialNotFoundException(String message) {
-    super(message);
-  }
-  
-  public SerialNotFoundException(String message, Throwable cause) {
-    super(message, cause);
-  }
-  
-  public SerialNotFoundException(Throwable cause) {
-    super(cause);
-  }
 }

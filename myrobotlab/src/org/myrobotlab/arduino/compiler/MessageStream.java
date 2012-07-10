@@ -25,8 +25,6 @@ package org.myrobotlab.arduino.compiler;
 
 import java.io.OutputStream;
 
-import org.myrobotlab.serial.MessageConsumer;
-
 
 /**
  * OutputStream to handle stdout/stderr messages.

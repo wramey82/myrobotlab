@@ -32,15 +32,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.myrobotlab.arduino.compiler.MessageConsumer;
 import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
-import org.myrobotlab.serial.MessageConsumer;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialDeviceIdentifier;
-import org.myrobotlab.serial.SerialException;
 import org.myrobotlab.service.Arduino;
 
 public class Serial implements SerialDeviceEventListener {
@@ -63,35 +62,35 @@ public class Serial implements SerialDeviceEventListener {
 
 	MessageConsumer consumer;
 
-	public Serial(boolean monitor, Arduino myArduino) throws SerialException {
+	public Serial(boolean monitor, Arduino myArduino) throws SerialDeviceException {
 		this(Preferences2.get("serial.port"), Preferences2.getInteger("serial.debug_rate"), Preferences2.get(
 				"serial.parity").charAt(0), Preferences2.getInteger("serial.databits"), new Float(
 				Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 		this.monitor = monitor;
 	}
 
-	public Serial(Arduino myArduino) throws SerialException {
+	public Serial(Arduino myArduino) throws SerialDeviceException {
 		this(Preferences2.get("serial.port"), Preferences2.getInteger("serial.debug_rate"), Preferences2.get(
 				"serial.parity").charAt(0), Preferences2.getInteger("serial.databits"), new Float(
 				Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(int irate, Arduino myArduino) throws SerialException {
+	public Serial(int irate, Arduino myArduino) throws SerialDeviceException {
 		this(Preferences2.get("serial.port"), irate, Preferences2.get("serial.parity").charAt(0), Preferences2
 				.getInteger("serial.databits"), new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname, int irate, Arduino myArduino) throws SerialException {
+	public Serial(String iname, int irate, Arduino myArduino) throws SerialDeviceException {
 		this(iname, irate, Preferences2.get("serial.parity").charAt(0), Preferences2.getInteger("serial.databits"),
 				new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname, Arduino myArduino) throws SerialException {
+	public Serial(String iname, Arduino myArduino) throws SerialDeviceException {
 		this(iname, Preferences2.getInteger("serial.debug_rate"), Preferences2.get("serial.parity").charAt(0),
 				Preferences2.getInteger("serial.databits"), new Float(Preferences2.get("serial.stopbits")).floatValue(), myArduino);
 	}
 
-	public Serial(String iname, int irate, char iparity, int idatabits, float istopbits, Arduino myArduino) throws SerialException {
+	public Serial(String iname, int irate, char iparity, int idatabits, float istopbits, Arduino myArduino) throws SerialDeviceException {
 
 		this.myArduino = myArduino;
 		this.rate = irate;
@@ -112,11 +111,10 @@ public class Serial implements SerialDeviceEventListener {
 
 		try {
 			port = null;
-			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
-					.getDeviceIdentifiers();
+			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
 			for (int i = 0; i < portList.size(); ++i) {
-				SerialDeviceIdentifier portId = portList.get(i);
-				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+				SerialDevice portId = portList.get(i);
+				if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
 					// System.out.println("found " + portId.getName());
 				
 					if (portId.getName().equals(iname)) {
@@ -135,13 +133,13 @@ public class Serial implements SerialDeviceEventListener {
 				}
 			}
 		} catch (Exception e) {
-			throw new SerialException("Error opening serial port '" + iname + "'." + e.getMessage(), e);
+			throw new SerialDeviceException("Error opening serial port '" + iname + "'." + e.getMessage(), e);
 			// FIXME - fix back with 2 exceptions
 			/*
-			 * throw new SerialException("Serial port '" + iname +
+			 * throw new SerialDeviceException("Serial port '" + iname +
 			 * "' already in use.  Try quiting any programs that may be using it."
 			 * ); } catch (Exception e) { throw new
-			 * SerialException("Error opening serial port '" + iname + "'.", e);
+			 * SerialDeviceException("Error opening serial port '" + iname + "'.", e);
 			 */
 			// //errorMessage("<init>", e);
 			// //exception = e;
@@ -463,12 +461,11 @@ public class Serial implements SerialDeviceEventListener {
 	static public String[] list() {
 		Vector list = new Vector();
 		try {
-			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
-					.getDeviceIdentifiers();
+			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
 			for (int i = 0; i < portList.size(); ++i) {
-				SerialDeviceIdentifier portId = portList.get(i);
+				SerialDevice portId = portList.get(i);
 
-				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+				if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
 					String name = portId.getName();
 					list.addElement(name);
 				}
