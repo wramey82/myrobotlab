@@ -39,6 +39,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.serial.SerialDeviceService;
 import org.myrobotlab.service.Roomba;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
@@ -132,10 +133,12 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener {
 	
 	public void getState(Roomba roomba)
 	{
+		
 		if (roomba != null)
 		{
-			setPorts(roomba.getPorts());			
+			setPorts(roomba.getSerialDeviceNames());			
 		}
+		
 	
 	}
 	
