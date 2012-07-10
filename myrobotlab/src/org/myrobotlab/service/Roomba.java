@@ -30,10 +30,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.lf5.LogLevel;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialException;
-import org.myrobotlab.serial.SerialService;
-import org.myrobotlab.serial.UnsupportedCommOperationException;
+import org.myrobotlab.serial.SerialDeviceService;
 
 /**
  * The abstract base for all Roomba communications.
@@ -71,7 +70,7 @@ import org.myrobotlab.serial.UnsupportedCommOperationException;
  * @author Tod E. Kurt
  * 
  */
-public class Roomba extends Service implements SerialService {
+public class Roomba extends Service implements SerialDeviceService {
 	/** version of the library */
 	static public final String VERSION = "0.96";
 
@@ -119,12 +118,15 @@ public class Roomba extends Service implements SerialService {
 	public final static Logger log = Logger.getLogger(Roomba.class
 			.getCanonicalName());
 
-	SerialDevice serial;
+	SerialDevice serialDevice;
 
+	ArrayList<String> deviceNames = new ArrayList<String> ();
+	
 	public Roomba(String n) {
 		super(n, Roomba.class.getCanonicalName());
 		connected = false;
 		mode = MODE_UNKNOWN;
+		deviceNames = SerialDeviceFactory.getSerialDeviceNames();
 	}
 
 	@Override
@@ -137,17 +139,6 @@ public class Roomba extends Service implements SerialService {
 		return "Roomba Service";
 	}
 
-	@Override
-	public boolean setSerialPortParams(int baud, int dataBits, int stopBits,
-			int parity) {
-		try {
-			serial.setSerialPortParams(baud, dataBits, stopBits, parity);
-		} catch (UnsupportedCommOperationException e) {
-			logException(e);
-			return false;
-		}
-		return true;
-	}
 
 	//
 	// --------------------- BEGIN ORIGINAL ROOMBACOMM ---------------
@@ -171,17 +162,6 @@ public class Roomba extends Service implements SerialService {
 		}).start();
 	}
 
-	/**
-	 * List available ports
-	 * 
-	 * @return a list available portids, if applicable or empty set if no ports,
-	 *         or return null if list is not enumerable
-	 */
-
-
-	public ArrayList<String> getPorts() {
-		return SerialDeviceFactory.getSerialDeviceNames();
-	}
 
 	/**
 	 * Connect to a port (for serial, portid is serial port name, for net,
@@ -191,12 +171,12 @@ public class Roomba extends Service implements SerialService {
 	 */
 	public boolean connect(String deviceName) {
 		try {
-			if (serial != null)
+			if (serialDevice != null)
 			{
-				serial.close();
+				serialDevice.close();
 			}
-			serial = SerialDeviceFactory.getSerialDevice(deviceName, 57600, 8, 1, 0);
-		} catch (SerialException e) {
+			serialDevice = SerialDeviceFactory.getSerialDevice(deviceName, 57600, 8, 1, 0);
+		} catch (SerialDeviceException e) {
 			 logException(e);
 			 return false;
 		}
@@ -211,7 +191,7 @@ public class Roomba extends Service implements SerialService {
 	 * Disconnect from a port, clean up any memory in use
 	 */
 	public void disconnect() {
-		serial.close();
+		serialDevice.close();
 	}
 
 	/**
@@ -223,7 +203,7 @@ public class Roomba extends Service implements SerialService {
 	 * @throws IOException 
 	 */
 	public void send(byte[] bytes) throws IOException {
-		serial.write(bytes);
+		serialDevice.write(bytes);
 	}
 
 	/**
@@ -236,7 +216,7 @@ public class Roomba extends Service implements SerialService {
 	 * @throws IOException 
 	 */
 	public void send(int b) throws IOException {
-		serial.write(b);
+		serialDevice.write(b);
 	}
 
 	/**
@@ -434,7 +414,7 @@ public class Roomba extends Service implements SerialService {
 		}
 
 		byte cmd[] = { (byte) SENSORS, (byte) packetcode };
-		serial.write(cmd);
+		serialDevice.write(cmd);
 	}
 
 	/**
@@ -1440,7 +1420,7 @@ public class Roomba extends Service implements SerialService {
 	}
 
 	public void send(int[] data) throws IOException {
-		serial.write(data); // should be write
+		serialDevice.write(data); // should be write
 	}
 
 	/*-------------------------RoombaComm End ---------------------------*/
@@ -1505,9 +1485,9 @@ public class Roomba extends Service implements SerialService {
 	}
 	
 	public String getPortName() {
-		if (serial != null)
+		if (serialDevice != null)
 		{
-			return serial.getName();
+			return serialDevice.getName();
 		}
 		
 		return null;
@@ -1623,4 +1603,29 @@ public class Roomba extends Service implements SerialService {
 		gui.display();
 	}
 
+	@Override
+	public ArrayList<String> getSerialDeviceNames() {
+		return deviceNames;
+	}
+
+	@Override
+	public SerialDevice getSerialDevice() {
+		return serialDevice;
+	}
+
+	@Override
+	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
+		try {
+			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
+			if (sd != null)
+			{
+				serialDevice = sd;
+				return true;
+			}
+		} catch (SerialDeviceException e) {
+			logException(e);
+		}
+		return false;
+	}
+	
 }

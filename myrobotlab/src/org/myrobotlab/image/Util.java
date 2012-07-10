@@ -352,54 +352,6 @@ public class Util {
 		}
 	}
 
-	final public static int[] RGB2HSV(Color c, int hsv[]) {
-		return RGB2HSV(c.getRed(), c.getGreen(), c.getBlue(), hsv);
-	}
-	
-	/*
-	public String colorWordFromHSV(int hue, int saturation, int value)
-	{
-		if (hue < 19 || hue > 
-		
-	}
-	*/
-	
-	// TODO - deprecate
-	// When programming in Java, use the RGBtoHSB and HSBtoRGB  functions from the java.awt.Color class.
-	// http://cs.haifa.ac.il/hagit/courses/ist/Lectures/Demos/ColorApplet2/t_convert.html#RGB to HSV & HSV to RGB
-	final public static int[] RGB2HSV(int r, int g, int b, int hsv[]) {
-			
-			int min;    //Min. value of RGB
-			int max;    //Max. value of RGB
-			int delMax; //Delta RGB value
-			
-			if (r > g) { min = g; max = r; }
-			else { min = r; max = g; }
-			if (b > max) max = b;
-			if (b < min) min = b;
-									
-			delMax = max - min;
-		 
-			float H = 0, S;
-			float V = max;
-			   
-			if ( delMax == 0 ) { H = 0; S = 0; }
-			else {                                   
-				S = delMax/255f;
-				if ( r == max ) 
-					H = (      (g - b)/(float)delMax)*60;
-				else if ( g == max ) 
-					H = ( 2 +  (b - r)/(float)delMax)*60;
-				else if ( b == max ) 
-					H = ( 4 +  (r - g)/(float)delMax)*60;   
-			}
-									 
-			hsv[0] = (int)(H);
-			hsv[1] = (int)(S*100);
-			hsv[2] = (int)(V*100);
-			return hsv;
-		}	
-
 	public final static void writeBufferedImage(BufferedImage newImg, String filename) {
 		writeBufferedImage(newImg, filename, null);
 	}
