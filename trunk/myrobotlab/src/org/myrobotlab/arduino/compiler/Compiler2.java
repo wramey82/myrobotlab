@@ -40,7 +40,6 @@ import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.Sketch2;
-import org.myrobotlab.serial.MessageConsumer;
 import org.myrobotlab.service.Arduino;
 
 

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.compiler.MessageConsumer;
 import org.myrobotlab.arduino.compiler.MessageSiphon;
 import org.myrobotlab.arduino.compiler.MessageStream;
 import org.myrobotlab.arduino.compiler.Preferences2;
@@ -41,7 +42,6 @@ import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.arduino.gui.Base;
 import org.myrobotlab.arduino.gui.Sketch;
 import org.myrobotlab.arduino.gui.SketchCode;
-import org.myrobotlab.serial.MessageConsumer;
 
 
 
@@ -333,7 +333,7 @@ public class Compiler implements MessageConsumer {
         if (in.thread != null)
           in.thread.join();
         if (err.thread != null)
-          err.thread.join();
+					err.thread.join();
         result = process.waitFor();
         //System.out.println("result is " + result);
         compiling = false;

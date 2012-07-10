@@ -32,10 +32,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.myrobotlab.framework.Platform;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.serial.SerialException;
-
-
 
 
 public class AvrdudeUploader extends Uploader  {
@@ -44,7 +43,7 @@ public class AvrdudeUploader extends Uploader  {
   }
 
   public boolean uploadUsingPreferences(String buildPath, String className, boolean usingProgrammer)
-  throws RunnerException, SerialException {
+  throws RunnerException, SerialDeviceException {
     this.verbose = verbose;
     Map<String, String> boardPreferences = Arduino.getBoardPreferences();
 
@@ -68,7 +67,7 @@ public class AvrdudeUploader extends Uploader  {
   }
   
   private boolean uploadViaBootloader(String buildPath, String className)
-  throws RunnerException, SerialException {
+  throws RunnerException, SerialDeviceException {
     Map<String, String> boardPreferences = Arduino.getBoardPreferences();
     List commandDownloader = new ArrayList();
     String protocol = boardPreferences.get("upload.protocol");
@@ -78,7 +77,7 @@ public class AvrdudeUploader extends Uploader  {
       protocol = "stk500v1";
     commandDownloader.add("-c" + protocol);
     commandDownloader.add(
-      "-P" + (Arduino.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
+      "-P" + (Platform.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
     commandDownloader.add(
       "-b" + Integer.parseInt(boardPreferences.get("upload.speed")));
     commandDownloader.add("-D"); // don't erase
@@ -110,7 +109,7 @@ public class AvrdudeUploader extends Uploader  {
     if ("usb".equals(programmerPreferences.get("communication"))) {
       params.add("-Pusb");
     } else if ("serial".equals(programmerPreferences.get("communication"))) {
-      params.add("-P" + (Arduino.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
+      params.add("-P" + (Platform.isWindows() ? "\\\\.\\" : "") + Preferences2.get("serial.port"));
       if (programmerPreferences.get("speed") != null) {
 	params.add("-b" + Integer.parseInt(programmerPreferences.get("speed")));
       }
@@ -182,10 +181,11 @@ public class AvrdudeUploader extends Uploader  {
     return avrdude(p);
   }
   
-  public boolean avrdude(Collection params) throws RunnerException {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+public boolean avrdude(Collection params) throws RunnerException {
     List commandDownloader = new ArrayList();
       
-    if(Arduino.isLinux()) {
+    if(Platform.isLinux()) {
       if ((new File(Arduino.getHardwarePath() + "/tools/" + "avrdude")).exists()) {
         commandDownloader.add(Arduino.getHardwarePath() + "/tools/" + "avrdude");
         commandDownloader.add("-C" + Arduino.getHardwarePath() + "/tools/avrdude.conf");

@@ -47,9 +47,9 @@ import javax.swing.text.DefaultCaret;
 
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.Serial;
+import org.myrobotlab.arduino.compiler.MessageConsumer;
 import org.myrobotlab.arduino.compiler.Preferences2;
-import org.myrobotlab.serial.MessageConsumer;
-import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 public class SerialMonitor extends JFrame implements MessageConsumer {
@@ -168,7 +168,7 @@ public class SerialMonitor extends JFrame implements MessageConsumer {
 				closeSerialPort();
 				try {
 					openSerialPort();
-				} catch (SerialException e) {
+				} catch (SerialDeviceException e) {
 					System.err.println(e);
 				}
 			}
@@ -236,7 +236,7 @@ public class SerialMonitor extends JFrame implements MessageConsumer {
 		}
 	}
 
-	public void openSerialPort() throws SerialException {
+	public void openSerialPort() throws SerialDeviceException {
 		if (serial != null)
 			return;
 

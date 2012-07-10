@@ -249,16 +249,12 @@ public class Preferences2 {
 
 
   public static void save() {
-//    try {
-    // on startup, don't worry about it
-    // this is trying to update the prefs for who is open
-    // before Preferences.init() has been called.
+
     if (preferencesFile == null) return;
 
-    // Fix for 0163 to properly use Unicode when writing preferences.txt
     PrintWriter writer = PApplet.createWriter(preferencesFile);
 
-    Enumeration e = table.keys(); //properties.propertyNames();
+    Enumeration e = table.keys(); 
     while (e.hasMoreElements()) {
       String key = (String) e.nextElement();
       writer.println(key + "=" + ((String) table.get(key)));
@@ -267,31 +263,15 @@ public class Preferences2 {
     writer.flush();
     writer.close();
 
-//    } catch (Exception ex) {
-//      Arduino.showWarning(null, "Error while saving the settings file", ex);
-//    }
   }
 
 
   // .................................................................
 
-
-  // all the information from preferences.txt
-
-  //static public String get(String attribute) {
-  //return get(attribute, null);
-  //}
   
   static public String get(String attribute /*, String defaultValue */) {
     return (String) table.get(attribute);
-    /*
-    //String value = (properties != null) ?
-    //properties.getProperty(attribute) : applet.getParameter(attribute);
-    String value = properties.getProperty(attribute);
 
-    return (value == null) ?
-      defaultValue : value;
-    */
   }
 
 

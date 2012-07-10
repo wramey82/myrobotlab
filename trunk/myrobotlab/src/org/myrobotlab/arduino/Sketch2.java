@@ -44,7 +44,7 @@ import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.arduino.gui.compiler.Compiler;
 import org.myrobotlab.arduino.SketchCode2;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 public class Sketch2 {
@@ -817,7 +817,7 @@ public class Sketch2 {
 	 * Handle export to applet.
 	 */
 	public boolean exportApplet(String appletPath, boolean usingProgrammer) throws RunnerException, IOException,
-			SerialException {
+			SerialDeviceException {
 
 		// Make sure the user didn't hide the sketch folder
 		ensureExistence();
@@ -888,7 +888,7 @@ public class Sketch2 {
 	}
 
 	protected String upload(String buildPath, String suggestedClassName, boolean usingProgrammer)
-			throws RunnerException, SerialException {
+			throws RunnerException, SerialDeviceException {
 
 		Uploader uploader;
 

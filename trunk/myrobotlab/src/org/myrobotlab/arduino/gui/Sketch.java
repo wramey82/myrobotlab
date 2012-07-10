@@ -42,7 +42,7 @@ import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Sizer;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.arduino.gui.compiler.Compiler;
-import org.myrobotlab.serial.SerialException;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 /**
@@ -1561,15 +1561,18 @@ public class Sketch {
   
   
   protected boolean exportApplet(boolean usingProgrammer) throws Exception {
-    return exportApplet(tempBuildFolder.getAbsolutePath(), usingProgrammer);
+    return compileAndUpload(tempBuildFolder.getAbsolutePath(), usingProgrammer);
   }
 
 
   /**
-   * Handle export to applet.
+   * Should be removed from Sketch as it is a Service method 
+   * Decomposed as Compile(path)
+   * Upload(path)
+   * this Sketch method will need to send a message and recieve one 
    */
-  public boolean exportApplet(String appletPath, boolean usingProgrammer)
-    throws RunnerException, IOException, SerialException {
+  public boolean compileAndUpload(String appletPath, boolean usingProgrammer)
+    throws RunnerException, IOException, SerialDeviceException {
     
     // Make sure the user didn't hide the sketch folder
     ensureExistence();
@@ -1630,8 +1633,11 @@ public class Sketch {
   }
 
 
+  /*
+   * needs to send message - and the Arduino service should take care of uploading
+   */
   protected String upload(String buildPath, String suggestedClassName, boolean usingProgrammer)
-    throws RunnerException, SerialException {
+    throws RunnerException, SerialDeviceException {
 
     Uploader uploader;
 

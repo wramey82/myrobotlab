@@ -218,7 +218,7 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
   
   static public Font getFont() {
 
-	  Font font = new Font("sansserif", Font.PLAIN, 32);
+	  Font font = new Font("sansserif", Font.PLAIN, 12);
 
 	    return font;
 	  }
