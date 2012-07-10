@@ -22,17 +22,11 @@
 
 package org.myrobotlab.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialException;
-import org.myrobotlab.serial.SerialService;
-import org.myrobotlab.serial.UnsupportedCommOperationException;
 
 /**
  * AdaFruit Motor Shield Controller Service
@@ -40,7 +34,7 @@ import org.myrobotlab.serial.UnsupportedCommOperationException;
  * @author greg
  * 
  */
-public class AFMotorShield extends Service implements SerialService {
+public class AFMotorShield extends Service {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -65,17 +59,7 @@ public class AFMotorShield extends Service implements SerialService {
 		return "AF Motor Shield Service";
 	}
 
-	@Override
-	public boolean setSerialPortParams(int baud, int dataBits, int stopBits,
-			int parity) {
-		try {
-			serial.setSerialPortParams(baud, dataBits, stopBits, parity);
-		} catch (UnsupportedCommOperationException e) {
-			logException(e);
-			return false;
-		}
-		return true;
-	}
+
 
 	/**
 	 * Connect to a port (for serial, portid is serial port name, for net,
@@ -86,7 +70,7 @@ public class AFMotorShield extends Service implements SerialService {
 	public boolean connect(String deviceName) {
 		try {
 			serial = SerialDeviceFactory.getSerialDevice(deviceName, 57600, 8, 1, 0);
-		} catch (SerialException e) {
+		} catch (SerialDeviceException e) {
 			 logException(e);
 			 return false;
 		}
@@ -96,12 +80,6 @@ public class AFMotorShield extends Service implements SerialService {
 	
 	public void disconnect() {
 		serial.close();
-	}
-
-	@Override
-	public void send(int[] data) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 
 

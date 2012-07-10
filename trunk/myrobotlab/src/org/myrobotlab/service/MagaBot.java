@@ -1,8 +1,13 @@
 package org.myrobotlab.service;
 
+import java.io.IOException;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceException;
+import org.myrobotlab.serial.SerialDeviceFactory;
 
 public class MagaBot extends Service {
 
@@ -19,17 +24,20 @@ public class MagaBot extends Service {
 		
 	}
 	
-	Arduino arduino = new Arduino("arduino");
+	SerialDevice serialDevice = null;
 	private boolean isInitialized = false;
 	
 	public void init(String serialPortName)
 	{
 		if (!isInitialized)
 		{
-			arduino.startService();
-			arduino.setPort(serialPortName);
-			arduino.setBaud(9600);
-			isInitialized = true;
+			try {
+				serialDevice = SerialDeviceFactory.getSerialDevice(serialPortName, 9600, 8, 1, 0);
+				serialDevice.open();
+				isInitialized = true;
+			} catch (SerialDeviceException e) {
+				logException(e);
+			}
 		}
 		
 	}
@@ -48,7 +56,11 @@ public class MagaBot extends Service {
 	 */
 	public void sendOrder(String o)
 	{
-		arduino.serialSend(o);
+		try {
+			serialDevice.write(o);
+		} catch (IOException e) {
+			logException(e);
+		}
 	}
 	
 	@Override

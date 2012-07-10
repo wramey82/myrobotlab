@@ -30,7 +30,6 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,17 +42,19 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.Sketch2;
+import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler2;
 import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
+import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.SerialDeviceIdentifier;
-import org.myrobotlab.serial.UnsupportedCommOperationException;
+import org.myrobotlab.serial.SerialDeviceService;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.data.PinState;
@@ -85,16 +86,14 @@ import org.simpleframework.xml.Root;
 
 @Root
 public class Arduino extends Service implements SerialDeviceEventListener, SensorData, DigitalIO, AnalogIO,
-		ServoController, MotorController {
+		ServoController, MotorController, SerialDeviceService {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
 	// FIXME - Add Android BlueTooth as possible Serial Device - remove
 	// ArduinoBT
-	transient SerialDevice serialDevice;
-	transient InputStream inputStream;
-	transient OutputStream outputStream;
+	SerialDevice serialDevice;
 
 	static HashSet<File> libraries;
 
@@ -104,6 +103,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	static File buildFolder;
 	static public HashMap<String, File> importToLibraryTable;
 
+	// FIXME - have SerialDevice read by length or by term string
+	boolean rawReadMsg = false;
+	int rawReadMsgLength = 4;
+
+	@Element
+	String board = "";
 	@Element
 	String portName = "";
 	@Element
@@ -156,6 +161,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>();
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>();
 
+	// from the Arduino IDE :)
+	AvrdudeUploader uploader;
+	
 	// serial device factory
 
 	/**
@@ -197,40 +205,24 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			servosInUse[i] = false;
 		}
 		
-		// from Base
-	    // run static initialization that grabs all the prefs
-	    Preferences2.init(null); // FIXME - remove from Base - "really" fix me remove Base
-
+	    Preferences2.init(null); 
 
 		Preferences2.set("sketchbook.path", ".myrobotlab");
-		Preferences2.set("board", "mega2560"); // FIXME - get "real" board type
+		Preferences2.set("board", "mega2560"); // FIXME - get "real" board type - all info in boards.txt
+		Preferences2.set("board", "atmega328"); 
+		
 		Preferences2.set("target", "arduino"); // FIXME - board type
 		
 		// FIXME - set on load() & change
 		if (getPortName() != null)
-			{
+		{
 				Preferences2.set("serial.port", getPortName());
-			}
+		}
 		Preferences2.setInteger("serial.debug_rate", 57600);
 		Preferences2.set("serial.parity", "N"); // f'ing stupid, 
 		Preferences2.setInteger("serial.databits", 8);
 		Preferences2.setInteger("serial.stopbits", 1); // f'ing weird 1,1.5,2
-
-		// graphics related
-		//Preferences.setInteger("editor.tabs.size");
-		//(Preferences2.getBoolean("editor.keys.shift_backspace_is_delete")
-		//.getBoolean("editor.keys.alternative_cut_copy_paste")
-		//Preferences2.getFont("editor.font")
-		// Preferences.getBoolean("preproc.substitute_unicode")
 		Preferences2.setBoolean("upload.verbose", true);
-		
-/*		
-		Preferences2.set("serial.port", ), 
-		Preferences2.set("serial.debug_rate", )
-		Preferences2.set("serial.parity", ).charAt(0) // f'ing stupid, 
-		Preferences2.set("serial.databits", 
-		Preferences2.set(("serial.stopbits", )).floatValue()); // f'ing weird 1,1.5,2
-*/		
 
 		// Get paths for the libraries and examples in the Processing folder
 		// String workingDirectory = System.getProperty("user.dir");
@@ -253,6 +245,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		uploader = new AvrdudeUploader(this);
 
 	}
 
@@ -295,16 +289,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public ArrayList<String> getPorts() {
 
 		ArrayList<String> ports = new ArrayList<String>();
-		SerialDeviceIdentifier portId;
+		SerialDevice portId;
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
-		ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory
-				.getDeviceIdentifiers(SerialDeviceFactory.TYPE_GNU);
+		ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
 		for (int i = 0; i < portList.size(); ++i) {
 			portId = portList.get(i);
 			String inPortName = portId.getName();
 			log.info(inPortName);
-			if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+			if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
 				ports.add(inPortName);
 			}
 		}
@@ -331,9 +324,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
-			outputStream.write(function);
-			outputStream.write(param1);
-			outputStream.write(param2); // 0 - 180
+			serialDevice.write(function);
+			serialDevice.write(param1);
+			serialDevice.write(param2); // 0 - 180
 		} catch (IOException e) {
 			log.error("serialSend " + e.getMessage());
 		}
@@ -354,7 +347,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public synchronized void serialSend(byte[] data) {
 		try {
 			for (int i = 0; i < data.length; ++i) {
-				outputStream.write(data[i]);
+				serialDevice.write(data[i]);
 			}
 		} catch (IOException e) {
 			log.error("serialSend " + e.getMessage());
@@ -485,52 +478,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// ---------------------------- Servo Methods End -----------------------
 
 	// ---------------------- Serial Control Methods Begin ------------------
-	public void setDTR(boolean state) {
-		serialDevice.setDTR(state);
-	}
-
-	public void setRTS(boolean state) {
-		serialDevice.setRTS(state);
-	}
-
-	public void closeSerialDevice() {
-		log.debug("closeSerialDevice");
-		try {
-			// do io streams need to be closed first?
-			if (inputStream != null)
-				inputStream.close();
-			if (outputStream != null)
-				outputStream.close();
-
-		} catch (Exception e) {
-			logException(e);
-		}
-		inputStream = null;
-		outputStream = null;
-
-		if (serialDevice != null) {
-			log.error("WARNING - native code has bug which blocks forever - if you dont see next statement");
-			serialDevice.removeEventListener();
-			serialDevice.close();
-			log.error("WARNING - Hurray! successfully closed Yay!");
-		}
-
-		// bury in rxtx
-		/*
-		 * try { // if (serialPort != null) serialPort.close(); // close the
-		 * port Thread.sleep(300); // wait for thread to terminate
-		 * 
-		 * } catch (Exception e) { logException(e); }
-		 */
-
-		log.info("closed SerialDevice");
-	}
 
 	public boolean setPort(String inPortName) {
 		log.info("setPort requesting [" + inPortName + "]");
 
 		if (serialDevice != null) {
-			closeSerialDevice();
+			serialDevice.close();
+			serialDevice = null;
 		}
 
 		if (inPortName == null || inPortName.length() == 0) {
@@ -539,37 +493,28 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 
 		try {
-			SerialDeviceIdentifier portId;
+			SerialDevice device;
 
-			ArrayList<SerialDeviceIdentifier> portList = SerialDeviceFactory.getDeviceIdentifiers();
+			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
 			for (int i = 0; i < portList.size(); ++i) {
-				portId = portList.get(i);
+				device = portList.get(i);
 
-				log.debug("checking port " + portId.getName());
-				if (portId.getPortType() == SerialDeviceIdentifier.PORT_SERIAL) {
+				log.debug("checking port " + device.getName());
+				if (device.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
 					log.debug("is serial");
-					if (portId.getName().equals(inPortName)) {
+					if (device.getName().equals(inPortName)) {
 						log.debug("matches " + inPortName);
-						// System.out.println("looking for "+iname);
-						serialDevice = (SerialDevice) portId.open("robot overlords", 2000);
-						inputStream = serialDevice.getInputStream();
-						outputStream = serialDevice.getOutputStream();
+						serialDevice = device;
+						serialDevice.open();
 
 						serialDevice.addEventListener(this);
 						serialDevice.notifyOnDataAvailable(true);
 
 						// 115200 wired, 2400 IR ?? VW 2000??
-						serialDevice.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+						serialDevice.setParams(baudRate, dataBits, stopBits, parity);
 
-						Thread.sleep(200); // the initialization of the hardware
-											// takes a little time
-
-						// portName = serialPort.getName(); BUG -
-						// serialPort.getName != the name which is requested
-						// Windows you ask for "COM1" but when you ask for it
-						// back you get "/.//COM1"
 						portName = inPortName;
-						log.info("opened " + getPortString());
+						//log.info("opened " + getPortString());
 						save(); // successfully bound to port - saving
 						Preferences2.set("serial.port", portName);
 						broadcastState(); // state has changed let everyone know
@@ -591,61 +536,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return true;
 	}
 
-	public String getPortString() {
-		if (serialDevice != null) {
-			try {
-				return portName
-						+ "/" // can't use serialPort.getName()
-						+ serialDevice.getBaudRate() + "/" + serialDevice.getDataBits() + "/"
-						+ serialDevice.getParity() + "/" + serialDevice.getStopBits();
-			} catch (Exception e) {
-				Service.logException(e);
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
 
-	public boolean setBaud(Integer baudRate) {
-		if (serialDevice == null) {
-			log.error("setBaudBase - serialPort is null");
-			return false;
-		}
-		try {
-			// boolean ret = serialPort.set.setBaudBase(baudRate); // doesnt
-			// work - operation not allowed
-			boolean ret = setSerialPortParams(baudRate, serialDevice.getDataBits(), serialDevice.getStopBits(),
-					serialDevice.getParity());
-			this.baudRate = baudRate;
-			save();
-			broadcastState(); // state has changed let everyone know
-			return ret;
-		} catch (Exception e) {
-			Service.logException(e);
-		}
-		return false;
-	}
+	// ---------------------- Serial Control Methods End ------------------
+	// ---------------------- Protocol Methods Begin ------------------
 
-	public int getBaudRate() {
-		return baudRate;
-	}
-
-	public boolean setSerialPortParams(int baudRate, int dataBits, int stopBits, int parity) {
-		if (serialDevice == null) {
-			log.error("setSerialPortParams - serialPort is null");
-			return false;
-		}
-
-		try {
-			serialDevice.setSerialPortParams(baudRate, dataBits, stopBits, parity);
-			log.info("setSerialPortParams " + baudRate + " " + dataBits + " " + stopBits + " " + parity);
-		} catch (UnsupportedCommOperationException e) {
-			Service.logException(e);
-		}
-
-		return true;
-	}
 
 	public void digitalReadPollStart(Integer address) {
 
@@ -653,10 +547,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		serialSend(DIGITAL_READ_POLLING_START, address, 0);
 
 	}
-
-	// ---------------------- Serial Control Methods End ------------------
-	// ---------------------- Protocol Methods Begin ------------------
-
+	
 	public void digitalReadPollStop(Integer address) {
 
 		log.info("digitalRead (" + address + ") to " + serialDevice.getName());
@@ -700,27 +591,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return p;
 	}
 
-	// DEPRICATE !
-	public PinData readServo(PinData p) {
-		// TODO - translation back to pin identifier
-		// e.g. pin 6 could be servo[0] - sending back we need to put pin back
-		// pin is actually servo index until this translation bleh
-		p.pin = servoToPin.get(p.pin);
-		log.info(p);
-		return p;
-	}
-
-	// TODO - blocking call which waits for serial return
-	// not thread safe - use mutex? - block on expected byte count?
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
-
 	public String readSerialMessage(String s) {
 		return s;
 	}
-
-	boolean rawReadMsg = false;
-	int rawReadMsgLength = 4;
 
 	// char rawMsgBuffer
 	public void setRawReadMsg(Boolean b) {
@@ -758,22 +631,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// in read
 	}
 
-	/*
-	 * Another means of distributing the data would be to publish to individual
-	 * functions which might be useful for some reason in the future - initially
-	 * this was started because of the overlap on the Arduino board where the
-	 * analog pin addresses overlapped the digital vs 14 - 19 analog pins they
-	 * are addressed 0 - 1 with analog reads
-	 */
-
-	class MotorData {
-		boolean isAttached = false;
-	}
-
-	HashMap<String, MotorData> motorMap = new HashMap<String, MotorData>();
-
-	// @Override - only in Java 1.6 - its only a single reference not all
-	// supertypes define it
 	public void motorAttach(String name, Integer PWMPin, Integer DIRPin) {
 		// set the pinmodes on the 2 pins
 		if (serialDevice != null) {
@@ -810,11 +667,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public void stopService() {
 		super.stopService();
-		closeSerialDevice();
+		if (serialDevice != null)
+		{
+			serialDevice.close();
+		}
 	}
 
 	public Vector<Integer> getOutputPins() {
-		// TODO - base on "type"
 		Vector<Integer> ret = new Vector<Integer>();
 		for (int i = 2; i < 13; ++i) {
 			ret.add(i);
@@ -838,43 +697,27 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		case SerialDeviceEvent.DATA_AVAILABLE:
 
 			try {
-				// read data
 
 				byte[] msg = new byte[rawReadMsgLength];
 				int newByte;
 				int numBytes = 0;
 
-				// TODO - refactor big time ! - still can't dynamically change
-				// msg length
-				// also need a byLength or byStopString - with options to remove
-				// delimiter
-				while (inputStream != null && (newByte = inputStream.read()) >= 0) {
+				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
 					msg[numBytes] = (byte) newByte;
 					++numBytes;
-					// totalBytes += numBytes;
-
-					// log.info("read " + numBytes + " target msg length " +
-					// rawReadMsgLength);
-
+					
+					// FIXME - read by length or termination character
+					// FIXME - publish (length) or termination character 
 					if (numBytes == rawReadMsgLength) {
-						/*
-						 * Diagnostics StringBuffer b = new StringBuffer(); for
-						 * (int i = 0; i < rawReadMsgLength; ++i) {
-						 * b.append(msg[i] + " "); }
-						 * 
-						 * log.error("msg" + b.toString());
-						 */
-
+						
 						if (rawReadMsg) {
 							// raw protocol
-
 							String s = new String(msg);
 							log.info(s);
 							invoke("readSerialMessage", s);
 						} else {
 
 							// mrl protocol
-
 							PinData p = new PinData();
 							// p.time = System.currentTimeMillis();
 							p.method = msg[0];
@@ -884,21 +727,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
 															// int is 2 bytes)
 							p.value += (msg[3] & 0xFF); // LSB
-
-							// if (p.function == SERVO_READ) { COMPLETELY
-							// DEPRICATED !!!
-							// invoke("readServo", p);
-							// } else {
-							/*
-							 * if (p.method == ANALOG_VALUE) { p.type =
-							 * PinData.TYPE_ANALOG; }
-							 */
 							p.source = this.getName();
 							invoke(SensorData.publishPin, p);
-							// }
 						}
 
-						// totalBytes = 0;
 						numBytes = 0;
 
 						// reset buffer
@@ -916,45 +748,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 	}
 
-	/**
-	 * publishing point for GUIs - when it is desirable to open a sketch in a
-	 * GUI which it "really" isn't but since I have not cleaved the GUI from the
-	 * Compiler & Uploader of Arduino's IDE - it will have to do for the moment
-	 * 
-	 * @param path
-	 *            - path of sketch
-	 */
-	public String openSketchInGUI(String path) {
-		return path;
-	}
-
-	/**
-	 * the preferred method of loading a sketch - at the moment it calls the
-	 * GUI's load - which is not desirable but will have to do at the moment
-	 * 
-	 * @param path
-	 */
-	public void openSketch(String path) {
-		invoke("openSketchInGUI", path);
-	}
-
-	/**
-	 * a publishing point to upload
-	 * 
-	 * @param path
-	 * @return
-	 */
-	public boolean uploadSketchFromGUI(boolean useProgrammer) {
-		return useProgrammer;
-	}
-
-	public void uploadSketch(boolean useProgrammer) {
-		invoke("uploadSketchFromGUI", useProgrammer);
-	}
-
+	// FIXME !!! - REMOVE ALL BELOW - except compile(File) compile(String) upload(File) upload(String)
+	// supporting methods for Compiler & UPloader may be necessary
+	
+	
 
 	static public String getAvrBasePath() {
-		if (isLinux()) {
+		if (Platform.isLinux()) {
 			return ""; // avr tools are installed system-wide and in the path
 		} else {
 			return getHardwarePath() + File.separator + "tools" + File.separator + "avr" + File.separator + "bin"
@@ -978,7 +778,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		String path = System.getProperty("user.dir");
 
 		// Get a path to somewhere inside the .app folder
-		if (isMacOS()) {
+		if (Platform.isMac()) {
 			String javaroot = System.getProperty("javaroot");
 			if (javaroot != null) {
 				path = javaroot;
@@ -991,35 +791,16 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return new File(working, name);
 	}
 
-	public SerialDevice getInstance(String className) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * returns true if Processing is running on a Mac OS X machine.
-	 */
-	static public boolean isMacOS() {
-		// return PApplet.platform == PConstants.MACOSX;
-		return System.getProperty("os.name").indexOf("Mac") != -1;
-	}
-
-	/**
-	 * returns true if running on windows.
-	 */
-	static public boolean isWindows() {
-		// return PApplet.platform == PConstants.WINDOWS;
-		return System.getProperty("os.name").indexOf("Windows") != -1;
-	}
 
 	/**
 	 * true if running on linux.
 	 */
+	/*
 	static public boolean isLinux() {
 		// return PApplet.platform == PConstants.LINUX;
 		return System.getProperty("os.name").indexOf("Linux") != -1;
 	}
-
+*/
 	static public Map<String, String> getBoardPreferences() {
 		Target target = getTarget();
 		if (target == null)
@@ -1270,8 +1051,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		try {
 			currentSketch = new Sketch2(path, this);
 			currentSketch.exportApplet(false);
-			setPort(getPortName()); // reset port 
-			Thread.sleep(1000); // wait for hardware
+			//setPort(getPortName()); // reset port 
+			//Thread.sleep(1000); // wait for hardware
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1285,55 +1066,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
-		arduino.setPort("COM10");
-		arduino.compileAndUploadSketch("C:\\mrl\\myrobotlab\\.myrobotlab\\MRLComm\\MRLComm.ino");
-		arduino.pinMode(44, Arduino.OUTPUT);
-		arduino.digitalWrite(44, Arduino.HIGH);
-
+//		arduino.setPort("COM6"); //- test re-entrant
+//		arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+//		arduino.pinMode(44, Arduino.OUTPUT);
+//		arduino.digitalWrite(44, Arduino.HIGH);
 		
-		GUIService gui = new GUIService("lapgui");
-		gui.startService();
-		gui.display();
+		Runtime.createAndStart("gui01", "GUIService");
 
 
-		// Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
-		// arduino.setPort("/dev/ttyS50");
-		/*
-		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
-		 * 
-		 * //Motor left = new Motor("left"); //left.startService();
-		 * 
-		 * SensorMonitor sensors = new SensorMonitor("sensors");
-		 * sensors.startService();
-		 * 
-		 * // arduino.save();
-		 * 
-		 * Servo right = new Servo("right"); right.startService();
-		 * 
-		 * Servo left = new Servo("left"); left.startService();
-		 * 
-		 * Servo servo01 = new Servo("servo01"); servo01.startService();
-		 */
-
-		// Jython jython = new Jython("jython");
-		// jython.startService();
-
-		/*
-		 * neck.attach("arduino", 9); neck.moveTo(10); neck.moveTo(90);
-		 * neck.moveTo(170); neck.moveTo(90); neck.moveTo(10); neck.moveTo(90);
-		 * neck.moveTo(170); neck.moveTo(90); neck.moveTo(10); neck.moveTo(90);
-		 * neck.moveTo(170); neck.moveTo(90);
-		 * 
-		 * for (int i = 0; i < 100; ++i) {
-		 * 
-		 * left.attach("arduino", 2); right.attach("arduino", 3);
-		 * 
-		 * left.moveTo(130); right.moveTo(50);
-		 * 
-		 * left.moveTo(90); right.moveTo(90);
-		 * 
-		 * left.detach(); right.detach(); }
-		 */
 	}
 	
 	public SerialDevice getSerialDevice()
@@ -1341,4 +1081,24 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return serialDevice;
 	}
 	
+	@Override
+	public ArrayList<String> getSerialDeviceNames() {
+		return portNames;
+	}
+
+	@Override
+	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
+		try {
+			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
+			if (sd != null)
+			{
+				serialDevice = sd;
+				return true;
+			}
+		} catch (SerialDeviceException e) {
+			logException(e);
+		}
+		return false;
+	}
+
 }

@@ -27,6 +27,11 @@
  * 
  * References:
  * Swapping Grammars - http://cmusphinx.sourceforge.net/wiki/sphinx4:swappinggrammars
+ * 
+ * http://cmusphinx.sourceforge.net/sphinx4/javadoc/edu/cmu/sphinx/jsgf/JSGFGrammar.html#loadJSGF(java.lang.String)
+ * TODO - loadJSGF - The JSGF grammar specified by grammarName will be loaded from the base url (tossing out any previously loaded grammars)
+ * 
+ * 
  * */
 
 package org.myrobotlab.service;
