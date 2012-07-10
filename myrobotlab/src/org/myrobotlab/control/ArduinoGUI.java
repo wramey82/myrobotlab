@@ -63,7 +63,7 @@ import org.myrobotlab.service.interfaces.GUI;
  * Arduino Diecimila http://www.arduino.cc/en/Main/ArduinoBoardDiecimila Serial:
  * 0 (RX) and 1 (TX). Used to receive (RX) and transmit (TX) TTL serial data.
  * These pins are connected to the corresponding pins of the FTDI USB-to-TTL
- * Serial chip. External Interrupts: 2 and 3. These pins can be configured to
+ * Serial chip.attachGUI External Interrupts: 2 and 3. These pins can be configured to
  * trigger an interrupt on a low value, a rising or falling edge, or a change in
  * value. See the attachInterrupt() function for details. PWM: 3, 5, 6, 9, 10,
  * and 11. Provide 8-bit PWM output with the analogWrite() function. SPI: 10
@@ -238,15 +238,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		opgc.fill = GridBagConstraints.HORIZONTAL;
 		opgc.gridx = 0;
 		opgc.gridy = 0;
-		// opgc.anchor = GridBagConstraints.WEST;
-
-		// Color gradient = new Color();
-		int red = 0x00;
-		int gre = 0x16;
-		int blu = 0x16;
-
+		float gradient = 1.0f/pinList.size();
+		
+		
 		// pinList.size() mega 60 deuo 20
-		for (int i = 0; i < 20; ++i) {
+		for (int i = 0; i < pinList.size(); ++i) {
 			Pin p = pinList.get(i);
 			if (i < 14) { // digital pins -----------------
 				p.trace.setText("D " + (i));
@@ -259,10 +255,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				p.trace.offText = "A " + (i - 14);
 			}
 			tracePanel.add(p.trace, opgc);
-			p.trace.setBackground(new Color(red, gre, blu));
-			p.trace.offBGColor = new Color(red, gre, blu);
-			gre += 12;
-			blu += 12;
+			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)),  0.8f, 0.7f));
+			p.trace.setBackground(hsv);
+			p.trace.offBGColor = hsv;
 			++opgc.gridy;
 		}
 
@@ -271,8 +266,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		oscope = new VideoWidget(boundServiceName, myService, false);
 		oscope.init();
-		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB),
-				"output");
+		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
 		g = sensorImage.getImage().getGraphics();
 		oscope.displayFrame(sensorImage);
 
@@ -346,12 +340,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			myArduino = data;
 
 			serialDevice.removeActionListener(this);
-			setPorts(myArduino.portNames);
+			setPorts(myArduino.getSerialDeviceNames());
 			serialDevice.setSelectedItem(myArduino.getPortName());
 			serialDevice.addActionListener(this);
 			
 			baudRate.removeActionListener(this);
-			baudRate.setSelectedItem(myArduino.getBaudRate());
+			baudRate.setSelectedItem(myArduino.getSerialDevice().getBaudRate());
 			baudRate.addActionListener(this);
 			
 			// TODO - iterate through others and unselect them
@@ -484,18 +478,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				}
 
 			} else if (b.type == Pin.TYPE_INOUT) {
-				if ("OUTPUT".equals(cmd)) {
+				if ("out".equals(cmd)) {
 					// is now input
 					io.value = Pin.INPUT;
 					myService.send(boundServiceName, "pinMode", io);
 					myService.send(boundServiceName, "digitalReadPollStart", io.address);
 					b.toggle();
-				} else {
+				} else if ("in".equals(cmd)) {
 					// is now output
 					io.value = Pin.OUTPUT;
 					myService.send(boundServiceName, "pinMode", io);
 					myService.send(boundServiceName, "digitalReadPollStop", io.address);
 					b.toggle();
+				} else {
+					log.error(String.format("unknown digital pin cmd %s",cmd));
 				}
 			} else if (b.type == Pin.TYPE_ACTIVEINACTIVE) {
 				if ("active".equals(cmd)) {
@@ -618,7 +614,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		if (!traceData.containsKey(pin.pin)) {
 			TraceData td = new TraceData();
 			// td.color = Color.decode("0x0f7391");
-			td.color = pinList.get(pin.pin).trace.offBGColor;
+			//td.color = pinList.get(pin.pin).trace.offBGColor;
+			
+			Color color = new Color(Color.HSBtoRGB((pin.pin * (0.05f)),  0.8f, 0.7f));
+			td.color = color;
 			traceData.put(pin.pin, td);
 		}
 

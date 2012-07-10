@@ -93,7 +93,7 @@ public class Pin {
 		
 		if (!isVertical) {
 			inOut = new  DigitalButton(this, 
-					pinNumber+"",  Color.decode("0x418dd9"), Color.white, 
+					"out",  Color.decode("0x418dd9"), Color.white, 
 					"in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);						
 			
 			onOff = new  DigitalButton(this, 
