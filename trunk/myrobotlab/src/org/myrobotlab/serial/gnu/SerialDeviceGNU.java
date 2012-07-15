@@ -311,7 +311,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	public void open() throws SerialDeviceException {
 		try {
 			log.info(String.format("opening %s", commPortId.getName()));
-			port = (SerialPort)commPortId.open(commPortId.getName(), 2000);
+			port = (SerialPort)commPortId.open(commPortId.getName(), 1000);
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 			output = port.getOutputStream();
 			input = port.getInputStream();

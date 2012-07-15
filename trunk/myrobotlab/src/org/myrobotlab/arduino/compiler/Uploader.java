@@ -85,7 +85,7 @@ public abstract class Uploader implements MessageConsumer  {
       
      serialPort.dispose(); //FIXME - open/close vs - just stay open?
     } catch (SerialNotFoundException e) {
-      throw e;
+      throw e;  // FIXME - I hate re-throws
     } catch(Exception e) {
       e.printStackTrace();
       throw new RunnerException(e.getMessage());

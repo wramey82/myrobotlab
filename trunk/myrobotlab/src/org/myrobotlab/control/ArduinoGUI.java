@@ -134,6 +134,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	SerializableImage sensorImage = null;
 	Graphics g = null;
 	VideoWidget oscope = null;
+	JPanel oscopePanel = null;
 	/*
 	 * ---------- Oscope end -------------------------
 	 */
@@ -159,6 +160,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		// ---------------- tabs begin ----------------------
 		// --------- configPanel begin ----------------------
+		// TODO - deprecate completely
 		JPanel configPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints cpgc = new GridBagConstraints();
 
@@ -230,52 +232,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// ------digital pins tab end ------------
 
 		// ------oscope tab begin ----------------
-		JPanel oscopePanel = new JPanel(new GridBagLayout());
-		GridBagConstraints opgc = new GridBagConstraints();
-
-		JPanel tracePanel = new JPanel(new GridBagLayout());
-
-		opgc.fill = GridBagConstraints.HORIZONTAL;
-		opgc.gridx = 0;
-		opgc.gridy = 0;
-		float gradient = 1.0f/pinList.size();
-		
-		
-		// pinList.size() mega 60 deuo 20
-		for (int i = 0; i < pinList.size(); ++i) {
-			Pin p = pinList.get(i);
-			if (i < 14) { // digital pins -----------------
-				p.trace.setText("D " + (i));
-				p.trace.onText = "D " + (i);
-				p.trace.offText = "D " + (i);
-			} else {
-				// analog pins ------------------
-				p.trace.setText("A " + (i - 14));
-				p.trace.onText = "A " + (i - 14);
-				p.trace.offText = "A " + (i - 14);
-			}
-			tracePanel.add(p.trace, opgc);
-			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)),  0.8f, 0.7f));
-			p.trace.setBackground(hsv);
-			p.trace.offBGColor = hsv;
-			++opgc.gridy;
-		}
-
-		opgc.gridx = 0;
-		opgc.gridy = 0;
-
-		oscope = new VideoWidget(boundServiceName, myService, false);
-		oscope.init();
-		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
-		g = sensorImage.getImage().getGraphics();
-		oscope.displayFrame(sensorImage);
-
-		oscopePanel.add(tracePanel, opgc);
-		++opgc.gridx;
-		oscopePanel.add(oscope.display, opgc);
+		getOscopePanel();
 
 		// ------oscope tab end ----------------
 		// ------editor tab begin ----------------
+		// TODO - rebuild like others
 		editorPanel = new JPanel(new GridBagLayout());
 		epgc = new GridBagConstraints();
 		epgc.gridx = 0;
@@ -286,14 +247,19 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// ------editor tab end ----------------
 
 		JFrame top = myService.getFrame();
+		/*
 		tabs.addTab("pins", imageMap);
 		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+		*/
+		
 		tabs.addTab("config", configPanel);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, configPanel, boundServiceName,
-				"config"));
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, configPanel, boundServiceName,"config"));
+		
+		/*
 		tabs.addTab("oscope", oscopePanel);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, oscopePanel, boundServiceName,
-				"oscope"));
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, oscopePanel, boundServiceName, "oscope"));
+		*/
+		
 		tabs.addTab("editor", arduinoIDE.editor);
 		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, arduinoIDE.editor, boundServiceName,
 				"editor"));
@@ -505,33 +471,38 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				}
 			} else if (b.type == Pin.TYPE_TRACE) {
 				if (b.isOn) {
-					// now off
+					// turn it off
 
-					// if pin is analog && off - switch it on
+					// switch off a analog trace
 					if (pin.isAnalog) {
 						if (pin.activeInActive.isOn) {
 							myService.send(boundServiceName, "analogReadPollingStop", io.address);
 							pin.activeInActive.setOff();
 						}
 
+					} else {
+						myService.send(boundServiceName, "digitalReadPollingStop", io.address);
+						pin.activeInActive.setOff();
 					}
 
 					b.toggle();
 				} else {
-
-					// if pin is digital and on - turn off
+					// turn it on
+					/*
 					if (pin.onOff.isOn && !pin.isAnalog) {
 						io.value = Pin.LOW;
 						myService.send(boundServiceName, "digitalWrite", io);
-						pin.onOff.toggle();
+						pin.onOff.setOn();
+						pin.inOut.setOn();
 					}
+					*/
 
 					// if pin is digital - make sure pinmode is input
 					if (!pin.inOut.isOn && !pin.isAnalog) {
 						io.value = Pin.INPUT;
 						myService.send(boundServiceName, "pinMode", io);
 						myService.send(boundServiceName, "digitalReadPollStart", io.address);
-						pin.inOut.toggle();
+						pin.inOut.setOff(); //"in???"
 					}
 
 					// if pin is analog && off - switch it on
@@ -605,32 +576,44 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		int mean = 0;
 	}
 
-	int DATA_WIDTH = 480; // TODO - sync with size
-	int DATA_HEIGHT = 380;
+	int DATA_WIDTH = size.width;
+	int DATA_HEIGHT = size.height;
 	HashMap<Integer, TraceData> traceData = new HashMap<Integer, TraceData>();
 	int clearX = 0;
-
+	int lastTraceXPos = 0;
+	
+	public final int DIGITAL_VALUE = 1;
+	public final int ANALOG_VALUE = 3;
+	
 	public void publishPin(PinData pin) {
 		if (!traceData.containsKey(pin.pin)) {
 			TraceData td = new TraceData();
-			// td.color = Color.decode("0x0f7391");
-			//td.color = pinList.get(pin.pin).trace.offBGColor;
-			
-			Color color = new Color(Color.HSBtoRGB((pin.pin * (0.05f)),  0.8f, 0.7f));
+			float gradient = 1.0f/pinList.size();
+			Color color = new Color(Color.HSBtoRGB((pin.pin * (gradient)),  0.8f, 0.7f));
 			td.color = color;
 			traceData.put(pin.pin, td);
+			td.index = lastTraceXPos;
 		}
 
 		TraceData t = traceData.get(pin.pin);
 		t.index++;
+		lastTraceXPos = t.index;
 		t.data[t.index] = pin.value;
 		++t.total;
 		t.sum += pin.value;
 		t.mean = t.sum / t.total;
 
 		g.setColor(t.color);
-		// g.drawRect(20, t.pin * 15 + 5, 200, 15);
-		g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
+		if (pin.method == DIGITAL_VALUE)
+		{
+			int yoffset = pin.pin * 15 + 35;
+			int quantum = -10;
+			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index,  pin.value * quantum + yoffset);
+		} else if (pin.method == ANALOG_VALUE) {
+			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
+		} else {
+			log.error("dont know how to display pin data method");
+		}
 
 		// computer min max and mean
 		// if different then blank & post to screen
@@ -641,12 +624,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		if (t.index < DATA_WIDTH - 1) {
 			clearX = t.index + 1;
-			// g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
-			// DATA_HEIGHT - t.data[clearX]/2);
+			//g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
+			 //DATA_HEIGHT - t.data[clearX]/2);
 		} else {
 			t.index = 0;
 			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT);
+			g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT); // TODO - ratio - to expand or reduce view
 			g.setColor(Color.GRAY);
 			g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1, DATA_HEIGHT - 25);
 			g.drawString("50", 10, DATA_HEIGHT - 25);
@@ -666,6 +649,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			g.setColor(t.color);
 			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum,
 					20, t.pin * 15 + 20);
+			t.total = 0;
+			t.sum = 0;
 
 		}
 
@@ -889,4 +874,68 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		return imageMap;
 	}
 
+	
+	public JPanel getOscopePanel()
+	{
+		if (oscopePanel != null){
+			tabs.remove(oscopePanel);
+		}
+		
+		oscopePanel = new JPanel(new GridBagLayout());
+		GridBagConstraints opgc = new GridBagConstraints();
+
+		JPanel tracePanel = new JPanel(new GridBagLayout());
+
+		opgc.fill = GridBagConstraints.HORIZONTAL;
+		opgc.gridx = 0;
+		opgc.gridy = 0;
+		float gradient = 1.0f/pinList.size();
+		
+		
+		// pinList.size() mega 60 deuo 20
+		for (int i = 0; i < pinList.size(); ++i) {
+			Pin p = pinList.get(i);
+			if (!p.isAnalog) 
+			{ // digital pins -----------------
+				p.trace.setText("D " + (i));
+				p.trace.onText = "D " + (i);
+				p.trace.offText = "D " + (i);
+			} else {
+				// analog pins ------------------
+				p.trace.setText("A " + (i - 14));
+				p.trace.onText = "A " + (i - 14);
+				p.trace.offText = "A " + (i - 14);
+			}
+			tracePanel.add(p.trace, opgc);
+			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)),  0.8f, 0.7f));
+			p.trace.setBackground(hsv);
+			p.trace.offBGColor = hsv;
+			++opgc.gridy; 
+			if (opgc.gridy%20 == 0)
+			{
+				opgc.gridy = 0;
+				++opgc.gridx;
+			}
+		}
+
+		opgc.gridx = 0;
+		opgc.gridy = 0;
+
+		oscope = new VideoWidget(boundServiceName, myService, false);
+		oscope.init();
+		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
+		g = sensorImage.getImage().getGraphics();
+		oscope.displayFrame(sensorImage);
+
+		oscopePanel.add(tracePanel, opgc);
+		++opgc.gridx;
+		oscopePanel.add(oscope.display, opgc);
+
+		
+		JFrame top = myService.getFrame();
+		tabs.insertTab("oscope", null, oscopePanel, "oscope panel", 0);
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, oscopePanel, boundServiceName, "oscope"));
+		myService.getFrame().pack();
+		return oscopePanel;
+	}
 }
