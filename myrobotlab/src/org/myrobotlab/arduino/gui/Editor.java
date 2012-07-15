@@ -2487,6 +2487,8 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		String boardName = boardPreferences.get("name");
 
 		base.gui.getPinPanel();
+		base.gui.getOscopePanel();
+		
 		lineStatus.setBoardName(boardName);
 		lineStatus.setSerialPort(Preferences2.get("serial.port"));
 		lineStatus.repaint();

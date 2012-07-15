@@ -122,11 +122,6 @@ public class PdePreprocessor {
         programImports.add(pieces[i][1]);  // the package name
 
     codeFolderImports = new ArrayList<String>();
-//    if (codeFolderPackages != null) {
-//      for (String item : codeFolderPackages) {
-//        codeFolderImports.add(item + ".*");
-//      }
-//    }
 
     prototypes = prototypes(program);
     
@@ -171,7 +166,6 @@ public class PdePreprocessor {
           p2[index++] = 'u';
           char str[] = Integer.toHexString(c).toCharArray();
           // add leading zeros, so that the length is 4
-          //for (int i = 0; i < 4 - str.length; i++) p2[index++] = '0';
           for (int m = 0; m < 4 - str.length; m++) p2[index++] = '0';
           System.arraycopy(str, 0, p2, index, str.length);
           index += str.length;
@@ -186,8 +180,7 @@ public class PdePreprocessor {
    * preprocesses a pde file and writes out a java file
    * @return the classname of the exported Java
    */
-  //public String write(String program, String buildPath, String name,
-  //                  String extraImports[]) throws java.lang.Exception {
+
   public String write() throws java.lang.Exception {
     writeProgram(stream, program, prototypes);
     writeFooter(stream);

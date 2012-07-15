@@ -761,8 +761,8 @@ public class Sketch2 {
 
 		// compile the program. errors will happen as a RunnerException
 		// that will bubble up to whomever called build().
-		Compiler2 compiler = new Compiler2();
-		if (compiler.compile(this, buildPath, primaryClassName, verbose)) {
+		Compiler2 compiler = new Compiler2(myArduino);
+		if (compiler.compile(this.program, buildPath, primaryClassName, verbose)) {
 			size(buildPath, primaryClassName);
 			return primaryClassName;
 		}

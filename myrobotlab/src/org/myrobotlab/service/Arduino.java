@@ -30,22 +30,28 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SimpleTimeZone;
 import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.Sketch2;
+//import org.myrobotlab.arduino.Sketch2;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler2;
 import org.myrobotlab.arduino.compiler.Preferences2;
+import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
@@ -162,9 +168,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>();
 
 	// from the Arduino IDE :)
+	Compiler2 compiler;
 	AvrdudeUploader uploader;
 	
-	// serial device factory
+	// compile / upload
+	private String buildPath ="";
+	private String programName = "";
+	private String program = "";
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -186,7 +196,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			log.info(portNames.get(j));
 		}
 
-		if (portNames.size() == 1) { // heavy handed?
+		if (portNames.size() == 1) { // heavy handed? YES - TODO - fix - base on previous preference
 			log.info("only one serial port " + portNames.get(0));
 			setPort(portNames.get(0));
 		} else if (portNames.size() > 1) {
@@ -194,7 +204,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				log.info("more than one port - last serial port is " + portName);
 				setPort(portName);
 			} else {
-				// idea - auto discovery attempting to auto-load
 				// arduinoSerial.pde
 				log.warn("more than one port or no ports, and last serial port not set");
 				log.warn("need user input to select from " + portNames.size() + " possibilities ");
@@ -233,6 +242,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// Get the sketchbook path, and make sure it's set properly
 		String sketchbookPath = Preferences2.get("sketchbook.path");
 
+		// FIXME - all below should be done inside Compiler2
 		try {
 
 			targetsTable = new HashMap<String, Target>();
@@ -246,6 +256,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			e.printStackTrace();
 		}
 		
+		compiler = new Compiler2(this);
 		uploader = new AvrdudeUploader(this);
 
 	}
@@ -385,15 +396,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		serialSend(SET_PWM_FREQUENCY, io.address, prescalarValue);
 	}
-
-	/*
-	 * Servo Commands Arduino has a concept of a software Servo - and supports
-	 * arrays Although Services could talk directly to the Arduino software
-	 * servo in order to control the hardware the Servo service was created to
-	 * store/handle the details, provide a common interface for other services
-	 * regardless of the controller (Arduino in this case but could be any
-	 * uController)
-	 */
 
 	// ---------------------------- Servo Methods Begin -----------------------
 
@@ -792,15 +794,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 
-	/**
-	 * true if running on linux.
-	 */
-	/*
-	static public boolean isLinux() {
-		// return PApplet.platform == PConstants.LINUX;
-		return System.getProperty("os.name").indexOf("Linux") != -1;
-	}
-*/
 	static public Map<String, String> getBoardPreferences() {
 		Target target = getTarget();
 		if (target == null)
@@ -1010,24 +1003,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	    importToLibraryTable = new HashMap<String, File>();
 
 	    
-		for (String potentialName : list) {
-			File subfolder = new File(folder, potentialName);
-			// File libraryFolder = new File(subfolder, "library");
-			// File libraryJar = new File(libraryFolder, potentialName +
-			// ".jar");
-			// // If a .jar file of the same prefix as the folder exists
-			// // inside the 'library' subfolder of the sketch
-			// if (libraryJar.exists()) {
-			String sanityCheck = Sketch2.sanitizeName(potentialName);
-			if (!sanityCheck.equals(potentialName)) {
-				String mess = "The library \"" + potentialName + "\" cannot be used.\n"
-						+ "Library names must contain only basic letters and numbers.\n"
-						+ "(ASCII only and no spaces, and it cannot start with a number)";
-				showMessage("Ignoring bad library name", mess);
-				continue;
-			}
-
-			String libraryName = potentialName;
+		for (String libraryName : list) {
+			File subfolder = new File(folder, libraryName);
 
 			libraries.add(subfolder);
 			String packages[] = Compiler2.headerListFromIncludePath(subfolder.getAbsolutePath());
@@ -1044,36 +1021,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	{
 		log.info("showMessage " + msg);
 		return msg;
-	}
-
-	Sketch2 currentSketch;
-	public void compileAndUploadSketch(String path) {
-		try {
-			currentSketch = new Sketch2(path, this);
-			currentSketch.exportApplet(false);
-			//setPort(getPortName()); // reset port 
-			//Thread.sleep(1000); // wait for hardware
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public static void main(String[] args) {
-
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-//		arduino.setPort("COM6"); //- test re-entrant
-//		arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
-//		arduino.pinMode(44, Arduino.OUTPUT);
-//		arduino.digitalWrite(44, Arduino.HIGH);
-		
-		Runtime.createAndStart("gui01", "GUIService");
-
-
 	}
 	
 	public SerialDevice getSerialDevice()
@@ -1100,5 +1047,83 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 		return false;
 	}
+	
+	public int setCompilingProgress(int progress)
+	{
+		log.info(String.format("progress %d ", progress));
+		return progress;
+	}
+	
+	public String createBuildPath(String programName)
+	{
+		// make a work/tmp directory if one doesn't exist - TODO - new time stamp?
+		Date d = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+		formatter.setCalendar(cal);
+
+		String tmpdir = String.format("obj%s%s.%s",File.separator,programName,formatter.format(d));
+		new File(tmpdir).mkdirs();
+		
+		return tmpdir;
+		
+	}
+	
+	
+	public void compile(String programName, String program)
+	{
+		// FYI - not thread safe
+		this.programName = programName;
+		this.buildPath = createBuildPath(programName);
+		this.program = program;
+		
+		try {
+			compiler.compile(programName, program, buildPath, true);
+		} catch (RunnerException e) {
+			logException(e);
+			invoke("compilerError", e.getMessage());
+		}
+		log.debug(program);
+	}
+	
+	public String compilerError (String error)
+	{
+		return error;
+	}
+	
+	//public void upload(String file) throws RunnerException, SerialDeviceException
+	// FIXME - stupid - should take a binary string or the path to the .hex file
+	public void upload() throws RunnerException, SerialDeviceException
+	{
+		//uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj", "MRLComm", false);
+		uploader.uploadUsingPreferences(buildPath, programName, false);
+	}
+	
+	public static void main(String[] args) throws RunnerException, SerialDeviceException {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();		
+/*		
+		String code = FileIO.fileToString(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+		
+		arduino.compile("MRLComm", code);
+		arduino.setPort("COM6"); //- test re-entrant
+		arduino.upload();
+*/		
+		// FIXME - I BELIEVE THIS LEAVES THE SERIAL PORT IN A CLOSED STATE !!!! 
+		
+		
+//		arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+//		arduino.pinMode(44, Arduino.OUTPUT);
+//		arduino.digitalWrite(44, Arduino.HIGH);
+		
+		Runtime.createAndStart("gui01", "GUIService");
+
+
+	}
+
 
 }
