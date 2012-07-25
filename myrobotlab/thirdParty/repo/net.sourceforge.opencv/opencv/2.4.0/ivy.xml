@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="net.sourceforge.opencv" module="opencv" status="release" revision="2.4.0">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
+
+        <artifact name="x86.32.linux/libopencv_calib3d" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_contrib" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_core" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_features2d" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_flann" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_gpu" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_highgui" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_imgproc" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_legacy" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_ml" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_objdetect" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_ts" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_video" type="native" ext="so.2.3" conf="x86.32.linux"/>
+        
+        <artifact name="x86.32.windows/opencv_calib3d240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_contrib240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_core240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ffmpeg240.32. type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/libopencv_flann" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_flann240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_gpu240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_highgui240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_imgproc240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_legacy240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ml240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_nonfree240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_objdetect240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_photo240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_stitching240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ts240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_video240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_videostab240" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/tbb" type="native" ext="dll" conf="x86.32.windows"/>
+               
+        <artifact name="x86.64.windows/opencv_calib3d240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_contrib240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_core240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_ffmpeg240_64" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/libopencv_flann" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_flann240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_gpu240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_highgui240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_imgproc240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_legacy240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_ml240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_nonfree240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_objdetect240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_photo240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_stitching240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_ts240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_video240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/opencv_videostab240" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/tbb" type="native" ext="dll" conf="x86.64.windows"/>
+        
+    </publications>
+</ivy-module>
