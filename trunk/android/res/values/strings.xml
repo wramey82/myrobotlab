@@ -99,6 +99,8 @@
     <!-- hints -->
     <string name="defaultHost">127.0.0.1</string>
     <string name="defaultPort">4445</string>
+    <string name="local_addresses">local addresses</string>
+   
 
 
 </resources>
