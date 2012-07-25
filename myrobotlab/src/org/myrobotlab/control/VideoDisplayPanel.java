@@ -1,7 +1,6 @@
 package org.myrobotlab.control;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,11 +20,10 @@ import javax.swing.border.TitledBorder;
 import org.apache.log4j.Logger;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.interfaces.GUI;
 
 // TODO - too big for inner class
-public class VideoDisplayPanel
+public class VideoDisplayPanel implements ActionListener
 {
 	public final static Logger log = Logger.getLogger(VideoDisplayPanel.class.getCanonicalName());
 
@@ -94,21 +92,19 @@ public class VideoDisplayPanel
 	}
 
 	
-	VideoDisplayPanel(String boundFilterName, VideoWidget p, GUI myService, String boundServiceName, ImageIcon icon)
+	VideoDisplayPanel(String boundFilterName, VideoWidget parent, GUI myService, String boundServiceName, ImageIcon icon)
 	{
 		this.myService = myService;
 		this.boundServiceName = boundServiceName;
-		this.parent = p;
-		this.boundFilterName = boundFilterName;	// TODO - boundSourceName - not OpenCV specific		
+		this.parent = parent;
+		this.boundFilterName = boundFilterName;
 		
-		myDisplay.setLayout(new GridBagLayout());
+		myDisplay.setLayout(new BorderLayout());
 		
 		if (icon == null)
 		{
 			screen.setIcon(Util.getResourceIcon("mrl_logo.jpg"));	
 		}
-
-		GridBagConstraints gc = new GridBagConstraints();
 
 		screen.addMouseListener(vml);
 		myIcon.setImageObserver(screen); // Good(necessary) Optimization
@@ -117,54 +113,34 @@ public class VideoDisplayPanel
 		title = BorderFactory.createTitledBorder(boundServiceName + " " + boundFilterName + " video widget");
 		myDisplay.setBorder(title);
 
-		gc.gridx = 0;
-		gc.gridy = 0;
 
-		parent.localSources = parent.getServices(null); // FIXME - should be local, global, static?
-		parent.localSources.setVisible(false);
-		myDisplay.add(parent.localSources, gc);
+		JPanel north = new JPanel();
+		fork.addActionListener(this);
 
-		++gc.gridx;
-		fork.addActionListener(new ButtonListener());
-		myDisplay.add(fork, gc);
 		if (!parent.allowFork)
 		{
 			fork.setVisible(false);
 		}
 		
-		++gc.gridx;
 		sources.setVisible(false);
-		myDisplay.add(sources, gc);
-		
-		++gc.gridx;
-		attach.addActionListener(new ButtonListener());
-		myDisplay.add(attach, gc);
+		attach.addActionListener(this);
+
 		attach.setVisible(false);
-
+		north.add(fork);
+		north.add(sources);
+		north.add(attach);
 		
-		gc.gridx = 0;
-		gc.gridwidth = 5;
-		++gc.gridy;
-		myDisplay.add(screen, gc);
+		myDisplay.add(BorderLayout.NORTH, north);
+		myDisplay.add(BorderLayout.CENTER, screen);
 		
+		JPanel south = new JPanel();
 		// add the sub-text components
-		gc.gridwidth = 1;
-		++gc.gridy;
-		myDisplay.add(mouseInfo, gc);
-		++gc.gridx;
-		myDisplay.add(resolutionInfo, gc);
-		++gc.gridy;
-		myDisplay.add(deltaTime, gc);
-		
-		gc.gridx = 0;
-		++gc.gridy;
-		gc.gridwidth = 5;
-		myDisplay.add(sourceNameLabel, gc);		
-
-		gc.gridx = 0;
-		++gc.gridy;
-		gc.gridwidth = 5;
-		myDisplay.add(extraDataLabel, gc);		
+		south.add(mouseInfo);
+		south.add(resolutionInfo);
+		south.add(deltaTime);
+		south.add(sourceNameLabel);		
+		south.add(extraDataLabel);		
+		myDisplay.add(BorderLayout.SOUTH, south);		
 		
 	}
 	
@@ -181,7 +157,6 @@ public class VideoDisplayPanel
 		}
 		 
 		if (parent.allowFork && !parent.displays.containsKey(img.source)) {
-//			screens.put(img.source, new JLabel());
 			parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
 			getSources();
 		}
@@ -197,12 +172,12 @@ public class VideoDisplayPanel
 		
 		myIcon.setImage(img.getImage());
 		screen.setIcon(myIcon);
-		// screen.repaint(); - was in other function - performance hit remove if works in GraphicServiceGUI
 		if (lastImage != null) {
 			if (img.timestamp != null)
 				deltaTime.setText(""
 						+ (img.timestamp.getTime() - lastImage.timestamp.getTime()));
 		}
+		
 		lastImage = img;
 		lastIcon.setImage(img.getImage());
 
@@ -212,7 +187,6 @@ public class VideoDisplayPanel
 			}
 		}
 		
-		// resize gui if necessary
 		if (lastImageWidth != img.getImage().getWidth())
 		{
 			screen.invalidate();
@@ -233,31 +207,25 @@ public class VideoDisplayPanel
 
 		sources.removeAllItems();
 		
-		// String [] namesAndClasses = new String[sortedMap.size()];
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			sources.addItem(serviceName);
 		}
 	}
 
-	class ButtonListener implements ActionListener {
-		ButtonListener() {
-		}
 
-		public void actionPerformed(ActionEvent e) {
-			String id = ((JButton)e.getSource()).getText(); 
-			if (id.equals("attach"))
-			{
-				parent.attachLocalGUI();
-			} else if (id.equals("fork")) {
-				String filter = (String)sources.getSelectedItem();
-				parent.addVideoDisplayPanel(filter);
-				myService.send(boundServiceName, "fork", filter); 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String id = ((JButton)e.getSource()).getText(); 
+		if (id.equals("fork")) {
+			String filter = (String)sources.getSelectedItem();
+			parent.addVideoDisplayPanel(filter);
+			myService.send(boundServiceName, "fork", filter); 
 
-			} else {
-				log.error("unhandled button event - " + id);
-			}
+		} else {
+			log.error("unhandled button event - " + id);
 		}
+		
 	}
 	
 	

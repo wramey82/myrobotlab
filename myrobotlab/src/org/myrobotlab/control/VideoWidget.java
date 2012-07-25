@@ -25,12 +25,6 @@
 
 package org.myrobotlab.control;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,27 +34,22 @@ import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-
 
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.image.Util;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
-import org.myrobotlab.service.Runtime;
 
 public class VideoWidget extends ServiceGUI {
 
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 	boolean allowFork = false;
-	JComboBox localSources = null;
+	//JComboBox localSources = null;
 	
 
 	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork)
@@ -113,16 +102,6 @@ public class VideoWidget extends ServiceGUI {
 	}
 	
 	
-	/*
-	 * attaching a widget capable of display - to relay the image to good for
-	 * customizing displays
-	 */
-	public void attachLocalGUI() {
-		VideoGUISource vgs = (VideoGUISource) myService.getServiceGUIMap().get(localSources.getSelectedItem());
-		VideoWidget vw = vgs.getLocalDisplay();
-		vw.getExports().add(this);
-	}
-
 	@Override
 	public void detachGUI() {
 		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);

@@ -21,18 +21,20 @@
  * 
  * Enjoy !
  * 
+ * TODO - generalize all tracing to a static image package (share with Arduino)
+ * 
+ * 
  * */
 
 package org.myrobotlab.service;
 
 import java.util.HashMap;
-import java.util.Random;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.PinAlert;
+import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.data.PinData;
 
 public class SensorMonitor extends Service {
@@ -40,11 +42,10 @@ public class SensorMonitor extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(SensorMonitor.class.getCanonicalName());
 
-	public HashMap<String, PinAlert> alerts = new HashMap<String, PinAlert>();
-	public HashMap<String, PinAlert> alerts_nameIndex = new HashMap<String, PinAlert>();
+	public HashMap<String, Trigger> triggers = new HashMap<String, Trigger>();
+	public HashMap<String, Trigger> triggers_nameIndex = new HashMap<String, Trigger>();
 	public HashMap<String, PinData> lastValue = new HashMap<String, PinData>();
 
-	
 	public SensorMonitor(String n) {
 		super(n, SensorMonitor.class.getCanonicalName());
 	}
@@ -54,24 +55,24 @@ public class SensorMonitor extends Service {
 	}
 
 
-	public final void addAlert(PinAlert alert) {
-		if (alert.pinData.source == null)
+	public final void addTrigger(Trigger trigger) {
+		if (trigger.pinData.source == null)
 		{
-			log.error("addAlert adding alert with no source controller - will be based on pin only ! " + alert.pinData.pin);
+			log.error("addTrigger adding trigger with no source controller - will be based on pin only ! " + trigger.pinData.pin);
 		}
-		alerts.put(makeKey(alert.pinData), alert);
-		alerts_nameIndex.put(alert.name, alert);
+		triggers.put(makeKey(trigger.pinData), trigger);
+		triggers_nameIndex.put(trigger.name, trigger);
 	}
 	
 	
-	public final void addAlert(String source, String name, int min, int max, int type, int state,
+	public final void addTrigger(String source, String name, int min, int max, int type, int delay,
 			int targetPin) {
-		PinAlert pa = new PinAlert(name, min, max, type, state, targetPin);
-		alerts.put(makeKey(source, targetPin), pa);
-		alerts_nameIndex.put(name, pa);
+		Trigger pa = new Trigger(name, min, max, type, delay, targetPin);
+		triggers.put(makeKey(source, targetPin), pa);
+		triggers_nameIndex.put(name, pa);
 	}
 	
-	public boolean preProcessHook(Message m)
+	public boolean preProcessHook(Message m)  // FIXME - WTF???
 	{
 		if (m.method.equals("input"))
 		{
@@ -102,11 +103,7 @@ public class SensorMonitor extends Service {
 	
 	final static public String makeKey(String source, Integer pin)
 	{
-		StringBuffer sb = new StringBuffer();
-		sb.append(source);
-		sb.append("_");
-		sb.append(pin);
-		return sb.toString();
+		return String.format("%s_%d", source, pin);
 	}
 	
 	// sensorInput - an input point for sensor info
@@ -121,16 +118,16 @@ public class SensorMonitor extends Service {
 	public void sensorInput(PinData pinData) {
 		String key = makeKey(pinData);
 		
-		if (alerts.containsKey(key))
+		if (triggers.containsKey(key))
 		{
-			PinAlert alert = alerts.get(key);
+			Trigger trigger = triggers.get(key);
 
-			if (alert.threshold < pinData.value)
+			if (trigger.threshold < pinData.value)
 			{
-				alert.pinData = pinData;
-				invoke("publishPinAlert", alert);				
-				invoke("publishPinAlertText", alert);				
-				alerts.remove(key);
+				trigger.pinData = pinData;
+				invoke("publishPinTrigger", trigger);				
+				invoke("publishPinTriggerText", trigger);// FIXME - deprecate - silly		
+				triggers.remove(key);
 			}
 		}
 
@@ -156,24 +153,24 @@ public class SensorMonitor extends Service {
 		return -1;
 	}
 	
-	public void removeAlert(String name)
+	public void removeTrigger(String name)
 	{
-		if (alerts_nameIndex.containsKey(name))
+		if (triggers_nameIndex.containsKey(name))
 		{
-			alerts.remove(name);
-			alerts_nameIndex.remove(name);
+			triggers.remove(name);
+			triggers_nameIndex.remove(name);
 		} else {
-			log.error("remoteAlert " + name + " not found");
+			log.error("removeTrigger " + name + " not found");
 		}
 		
 	}
 	
-	public PinAlert publishPinAlert(PinAlert alert) {
-		return alert;
+	public Trigger publishPinTrigger(Trigger trigger) {
+		return trigger;
 	}
 	
-	public String publishPinAlertText(PinAlert alert) {		
-		return alert.name;
+	public String publishPinTriggerText(Trigger trigger) {		
+		return trigger.name;
 	}
 
 	// output
@@ -203,11 +200,10 @@ public class SensorMonitor extends Service {
 		SensorMonitor sm = new SensorMonitor("sensors");
 		sm.startService();
 		
+		Runtime.createAndStart("arduino", "Arduino");
+		Runtime.createAndStart("gui", "GUIService");
+
 		/*
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		*/
 		
 		Random rand = new Random();
 		for (int i = 0; i < 10000; ++i)
@@ -221,6 +217,6 @@ public class SensorMonitor extends Service {
 			//msg.data = new Object[]{rand.nextFloat()*200};
 			sm.in(msg);
 		}
-
+		*/
 	}	
 }

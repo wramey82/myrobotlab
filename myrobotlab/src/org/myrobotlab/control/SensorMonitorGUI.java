@@ -56,19 +56,21 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MRLListener;
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SensorMonitor;
-import org.myrobotlab.service.data.PinAlert;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.interfaces.GUI;
-import org.myrobotlab.service.interfaces.SensorData;
+import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+
+import simbad.sim.SensorData;
 
 /**
  * @author Gro-G Display data sent to the SensorMonitor service.
  * 
- *         TODO - auto-sizing based on min/max values - sizes screen
+ *	TODO - generalized tracing/triggering
+ *	TODO - auto-sizing based on min/max values - sizes screen
  * 
  */
 public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
@@ -77,25 +79,25 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	public final static Logger log = Logger.getLogger(SensorMonitorGUI.class.toString());
 
 	JList traces;
-	JList alerts;
+	JList triggers;
 
 	VideoWidget video = null;
 	Thread sensorTraceThread = null;
 
 	// input
 	DefaultListModel traceListModel = new DefaultListModel();
-	DefaultListModel alertListModel = new DefaultListModel();
+	DefaultListModel triggerListModel = new DefaultListModel();
 
 	JButton addTrace = new JButton("add");
 	JButton removeTrace = new JButton("remove");
 
-	JButton addAlert = new JButton("add");
-	JButton removeAlert = new JButton("remove");
+	JButton addTrigger = new JButton("add");
+	JButton removeTrigger = new JButton("remove");
 
 	JComboBox traceController = null;
-	JComboBox alertController = null;
+	JComboBox triggerController = null;
 	JComboBox tracePin = null;
-	JComboBox alertPin = null;
+	JComboBox triggerPin = null;
 
 	BufferedImage sensorImage = null;
 	Graphics g = null;
@@ -103,14 +105,11 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	final int DATA_WIDTH = 320;
 	final int DATA_HEIGHT = 512;
 
-	int red[] = new int[DATA_WIDTH];
-	int redIndex = 0;
-	int clearX = 0;
 
 	SensorMonitor myBoundService = null;
 	// trace data is owned by the GUI
 	HashMap<String, TraceData> traceData = new HashMap<String, TraceData>();
-	// alert data is owned by the Service
+	// trigger data is owned by the Service
 
 	public Random rand = new Random();
 
@@ -128,7 +127,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 		int mean = 0;
 	}
 
-	class AlertDialog extends JDialog {
+	class TriggerDialog extends JDialog {
 		private static final long serialVersionUID = 1L;
 		public JTextField name = new JTextField(15);
 		public JIntegerField threshold = new JIntegerField(15);
@@ -137,10 +136,10 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 		public String action = null;
 
-		class AlertButtonListener implements ActionListener {
-			AlertDialog myDialog = null;
+		class TriggerButtonListener implements ActionListener {
+			TriggerDialog myDialog = null;
 
-			public AlertButtonListener(AlertDialog d) {
+			public TriggerButtonListener(TriggerDialog d) {
 				myDialog = d;
 			}
 
@@ -150,12 +149,12 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			}
 		}
 
-		AlertDialog() {
-			super(myService.getFrame(), "Alert Dialog", true);
+		TriggerDialog() {
+			super(myService.getFrame(), "Trigger Dialog", true);
 
 			add.setActionCommand("add");
 			cancel.setActionCommand("cancel");
-			AlertButtonListener a = new AlertButtonListener(this);
+			TriggerButtonListener a = new TriggerButtonListener(this);
 			add.addActionListener(a);
 			cancel.addActionListener(a);
 
@@ -201,8 +200,8 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 		video.init();
 		addTrace.addActionListener(new AddTraceListener());
 		removeTrace.addActionListener(new RemoveTraceListener());
-		addAlert.addActionListener(new AddAlertListener());
-		removeAlert.addActionListener(new RemoveAlertListener());
+		addTrigger.addActionListener(new AddTriggerListener());
+		removeTrigger.addActionListener(new RemoveTriggerListener());
 
 		sensorImage = new BufferedImage(DATA_WIDTH, DATA_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		g = sensorImage.getGraphics();
@@ -216,15 +215,15 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 		JScrollPane tracesScrollPane = new JScrollPane(traces);
 
-		alerts = new JList(alertListModel);
-		alerts.setFixedCellWidth(200);
-		alerts.addListSelectionListener(this);
-		alerts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		triggers = new JList(triggerListModel);
+		triggers.setFixedCellWidth(200);
+		triggers.addListSelectionListener(this);
+		triggers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		// alerts.setSelectedIndex(clist.length-1);
-		alerts.setSize(140, 160);
-		alerts.setVisibleRowCount(10);
+		triggers.setSize(140, 160);
+		triggers.setVisibleRowCount(10);
 
-		JScrollPane alertsScrollPane = new JScrollPane(alerts);
+		JScrollPane triggersScrollPane = new JScrollPane(triggers);
 
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -239,7 +238,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 		trace.add(addTrace, gc);
 
 		++gc.gridx;
-		Vector<String> v = Runtime.getServicesFromInterface(SensorData.class.getCanonicalName());
+		Vector<String> v = Runtime.getServicesFromInterface(SensorDataPublisher.class.getCanonicalName());
 		traceController = new JComboBox(v);
 		trace.add(traceController, gc);
 
@@ -288,37 +287,37 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 		// trace end -------------------------
 
-		// alert begin ----------------------
-		JPanel alert = new JPanel(new GridBagLayout());
-		alert.setBorder(BorderFactory.createTitledBorder("alert"));
+		// trigger begin ----------------------
+		JPanel triggerPanel = new JPanel(new GridBagLayout());
+		triggerPanel.setBorder(BorderFactory.createTitledBorder("trigger"));
 
-		alert.add(addAlert, gc);
-
-		++gc.gridx;
-		alertController = new JComboBox(v);
-		alert.add(alertController, gc);
-
-		alertPin = new JComboBox(p);
+		triggerPanel.add(addTrigger, gc);
 
 		++gc.gridx;
-		alert.add(alertPin, gc);
+		triggerController = new JComboBox(v);
+		triggerPanel.add(triggerController, gc);
+
+		triggerPin = new JComboBox(p);
 
 		++gc.gridx;
-		alert.add(removeAlert, gc);
+		triggerPanel.add(triggerPin, gc);
+
+		++gc.gridx;
+		triggerPanel.add(removeTrigger, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
 		gc.gridwidth = 4;
-		alert.add(alertsScrollPane, gc);
+		triggerPanel.add(triggersScrollPane, gc);
 
 		// reusing gc for main panel
 
 		gc.gridwidth = 1;
 		gc.gridx = 1;
 		gc.gridy = 1;
-		display.add(alert, gc);
+		display.add(triggerPanel, gc);
 
-		// alert end -------------------------
+		// trigger end -------------------------
 
 		setCurrentFilterMouseListener();
 		// build filters end ------------------
@@ -347,19 +346,13 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			t.pin = (Integer) tracePin.getSelectedItem();
 			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
-			// addListener Arduino pin -> SensorMonitor
-			// addListener Sensor -> GUIService
-
-			// if (!isTracing) {
-			// Notification Arduino ------> SensorMonitor
-			// this creates a message path from an Arduino to the SensorMonitor
-			MRLListener MRLListener = new MRLListener(SensorData.publishPin, boundServiceName, "sensorInput",
+			MRLListener MRLListener = new MRLListener(SensorDataPublisher.publishPin, boundServiceName, "sensorInput",
 					new Class[] { PinData.class });
 
 			myService.send(controllerName, "addListener", MRLListener);
 
 			// Notification SensorMonitor ------> GUIService
-			subscribe("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
+			//subscribe("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
 																						// already
 																						// in
 																						// attachGUI
@@ -396,7 +389,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	}
 
-	class AddAlertListener implements ActionListener {
+	class AddTriggerListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
@@ -405,18 +398,18 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			// String name = JOptionPane.showInputDialog(frame,
 			// "new alert name");
 
-			AlertDialog alertDlg = new AlertDialog();
-			if (alertDlg.action.equals("add")) {
-				alertListModel.addElement(alertDlg.name.getText() + " " + alertPin.getSelectedItem() + " "
-						+ alertDlg.threshold.getInt());
+			TriggerDialog triggerDlg = new TriggerDialog();
+			if (triggerDlg.action.equals("add")) {
+				triggerListModel.addElement(triggerDlg.name.getText() + " " + triggerPin.getSelectedItem() + " "
+						+ triggerDlg.threshold.getInt());
 				// this has to be pushed to service
-				PinAlert alert = new PinAlert();
-				alert.name = alertDlg.name.getText();
-				alert.pinData = new PinData();
-				alert.pinData.source = alertController.getSelectedItem().toString();
-				alert.pinData.pin = (Integer) alertPin.getSelectedItem();
-				alert.threshold = alertDlg.threshold.getInt();
-				myService.send(boundServiceName, "addAlert", alert);
+				Trigger trigger = new Trigger();
+				trigger.name = triggerDlg.name.getText();
+				trigger.pinData = new PinData();
+				trigger.pinData.source = triggerController.getSelectedItem().toString();
+				trigger.pinData.pin = (Integer) triggerPin.getSelectedItem();
+				trigger.threshold = triggerDlg.threshold.getInt();
+				myService.send(boundServiceName, "addTrigger", trigger);
 				// add line ! with name ! & color !
 			}
 
@@ -424,12 +417,12 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	}
 
-	public class RemoveAlertListener implements ActionListener {
+	public class RemoveTriggerListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			String name = (String) alerts.getSelectedValue();
-			myService.send(boundServiceName, "removeAlert", name);
+			String name = (String) triggers.getSelectedValue();
+			myService.send(boundServiceName, "removeTrigger", name);
 			// TODO - block on response
-			alertListModel.removeElement(name);
+			triggerListModel.removeElement(name);
 		}
 
 	}
@@ -441,7 +434,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	 * @param pinData
 	 */
 	public void inputSensorData(PinData pinData) {
-		// update trace array & alert array if applicable
+		// update trace array & trigger array if applicable
 		// myService.logTime("start");
 		String key = SensorMonitor.makeKey(pinData);
 
@@ -466,13 +459,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 		if (pinData.value < t.min)
 			t.min = pinData.value;
 
-		// g.drawString(t.label + " min " + t.min + " max " + t.max +
-		// " mean " + t.mean, 20, t.pin * 15 + 20);
-
 		if (t.index < DATA_WIDTH - 1) {
-			clearX = t.index + 1;
-			// g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
-			// DATA_HEIGHT - t.data[clearX]/2);
 		} else {
 			t.index = 0;
 			g.setColor(Color.BLACK);
@@ -498,23 +485,14 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 					20, t.pin * 15 + 20);
 
 		}
-		// myService.logTime("afterdraw");
-
+		
 		video.displayFrame(sensorImage);
-		// myService.logTime("aftercam");
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-
-		if (e.getValueIsAdjusting() == false && traces.getSelectedValue() != null) {
-			// myService.send(boundServiceName, "setDisplayFilter",
-			// traces.getSelectedValue());
-		}
 	}
 
-	// TODO - encapsulate this
-	// MouseListener mouseListener = new MouseAdapter() {
 	public void setCurrentFilterMouseListener() {
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent mouseEvent) {

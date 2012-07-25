@@ -3,6 +3,7 @@ package org.myrobotlab.image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,6 +14,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -44,10 +46,11 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	
 	
 	@Override
-	public void start() throws Exception {
+	public void start()  {
 		
-		log.error("connecting to " + url);
-		connection = url.openConnection();
+		log.info("connecting to " + url);
+		try {
+			connection = url.openConnection();
 		headerfields = connection.getHeaderFields();
 		if (headerfields.containsKey("Content-Type"))
 		{
@@ -63,15 +66,23 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 			}
 		}
 		input = connection.getInputStream();
+		} catch (IOException e) {
+			Service.logException(e);
+		}
 	}
 
 	@Override
-	public void stop() throws Exception {
+	public void stop()  {
+		
 		//connection.
-		input.close();
+		try {
+			input.close();
 		input = null;
 		connection = null;
 		url = null;				
+		} catch (IOException e) {
+			Service.logException(e);
+		}
 	}
 
 	@Override
@@ -79,11 +90,18 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	}
 
 	@Override
-	public IplImage grab() throws Exception {
-		return IplImage.createFrom(grabBufferedImage());
+	public IplImage grab()  {
+			try {
+				return IplImage.createFrom(grabBufferedImage());
+			} catch (Exception e) {
+				Service.logException(e);
+			} catch (IOException e) {
+				Service.logException(e);
+			}
+			return null;
 	}
 	
-	public BufferedImage grabBufferedImage() throws Exception
+	public BufferedImage grabBufferedImage() throws Exception, IOException
 	{
 		byte[] buffer = new byte[4096];// MTU or JPG Frame Size?
 		int n = -1;
@@ -98,7 +116,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 				sb.append((char)c);
 				if (c == 13)
 				{
-					sb.append((char)input.read());// '10'
+					sb.append((char)input.read());// '10'+
 					c = input.read();
 					sb.append((char)c);
 					if (c == 13)
@@ -137,6 +155,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		while ((n = input.read(buffer, 0, contentLength - total)) != -1) {
 			total += n;
 			baos.write(buffer, 0, n);
+			
 			if (total == contentLength) {
 				break;
 			}

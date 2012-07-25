@@ -32,36 +32,31 @@ import org.apache.log4j.Logger;
 public class PinData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(PinData.class);
-
-	public final static int TYPE_DIGITAL 		= 0x0;
-	public final static int TYPE_ANALOG 		= 0x1;
-	public final static int TYPE_DIGITALANALOG 	= 0x2;
+	public static final int DIGITAL_VALUE = 1; // normalized with Arduino 
+	public static final int ANALOG_VALUE = 3;  // normalized with Arduino 
 	
 	//public long time; 	// time of creation
 	public int pin; 	// address
-	public int method; 	// address
+	public int type; 	// FIXME - rename type ?
 	public int value; // address
 	//public int type; // 0 Binary 1 Analog ?
 	public String source;
 
 	public PinData() {
 	}
-	public PinData(int pin, int method, int value, String source) {
+	public PinData(int pin, int type, int value, String source) {
 		this.pin = pin;
-		this.method = method;
+		this.type = type;
 		this.value = value;
 		this.source = source;
 	}
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
-		// ret.append("{<PinData");
 		ret.append("{");
 		ret.append("\"pin\":" + "\"" + pin + "\"");
-		ret.append("\"function\":" + "\"" + method + "\"");
+		ret.append("\"function\":" + "\"" + type + "\"");
 		ret.append("\"value\":" + "\"" + value + "\"");
-
-		// ret.append("</PinData>");
 		ret.append("}");
 		return ret.toString();
 	}

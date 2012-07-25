@@ -226,7 +226,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		arduinoIDE.handleActivated(arduinoIDE.editor);
 
 		Map<String, String> boardPreferences = Base.getBoardPreferences();
-		String boardName = boardPreferences.get("name");
 
 		getPinPanel(); // FIXME - need preferences ?!?! 
 		// ------digital pins tab end ------------
@@ -235,6 +234,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		getOscopePanel();
 
 		// ------oscope tab end ----------------
+		// ------editor 2 ! begin ---------------
+		getEditorPanel();
+		// ------editor 2 ! end ---------------
 		// ------editor tab begin ----------------
 		// TODO - rebuild like others
 		editorPanel = new JPanel(new GridBagLayout());
@@ -269,6 +271,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// arduinoIDE editor status setup FIXME - lame
 		arduinoIDE.editor.status.setup();
 
+		tabs.setSelectedIndex(0);
 	}
 	
 	public JLayeredPane getPinPanel()
@@ -285,17 +288,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		
 	}
 
-	/**
-	 * FIXME - needs to add a route on AttachGUI and publish from the Arduino
-	 * service when applicable (when polling)
-	 * 
-	 * @param p
-	 *            - PinData from serial reads
-	 */
+
 	public void readData(PinData p) {
 		log.info("ArduinoGUI setDataLabel " + p);
 		Pin pin = pinList.get(p.pin);
-		pin.data.setText(new Integer(p.value).toString());
+		pin.data.setText(Integer.valueOf(p.value).toString());
 		Integer d = Integer.parseInt(pin.counter.getText());
 		d++;
 		pin.counter.setText((d).toString());
@@ -403,20 +400,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// buttons
 		if (DigitalButton.class == o.getClass()) {
 			DigitalButton b = (DigitalButton) o;
-			/*
-			 * if (fullscreenButton == c) { if ("fullscreen".equals(cmd)) {
-			 * JFrame full = new JFrame(); // icon URL url =
-			 * getClass().getResource("/resource/mrl_logo_36_36.png"); Toolkit
-			 * kit = Toolkit.getDefaultToolkit(); Image img =
-			 * kit.createImage(url); full.setIconImage(img);
-			 * 
-			 * full.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			 * 
-			 * editorPanel.remove(editorScrollPane);
-			 * full.getContentPane().add(editorScrollPane); //full.pack();
-			 * full.setVisible(true); full.addWindowListener(this);
-			 * myService.pack(); return; } }
-			 */
+	
 			if (uploadButton == c) {
 				uploadButton.toggle();
 				return;
@@ -426,7 +410,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			Pin pin = null;
 
 			if (b.parent != null) {
-				io.address = ((Pin) b.parent).pinNumber; // TODO - optimize
+				io.address = ((Pin) b.parent).pinNumber; 
 				pin = ((Pin) b.parent);
 			}
 
@@ -459,65 +443,41 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				} else {
 					log.error(String.format("unknown digital pin cmd %s",cmd));
 				}
-			} else if (b.type == Pin.TYPE_ACTIVEINACTIVE) {
-				if ("active".equals(cmd)) {
-					// now inactive
-					myService.send(boundServiceName, "analogReadPollingStop", io.address);
-					b.toggle();
-				} else {
-					// now active
-					myService.send(boundServiceName, "analogReadPollingStart", io.address);
-					b.toggle();
-				}
-			} else if (b.type == Pin.TYPE_TRACE) {
-				if (b.isOn) {
-					// turn it off
+			} else if (b.type == Pin.TYPE_TRACE || b.type == Pin.TYPE_ACTIVEINACTIVE) {
 
-					// switch off a analog trace
-					if (pin.isAnalog) {
-						if (pin.activeInActive.isOn) {
-							myService.send(boundServiceName, "analogReadPollingStop", io.address);
-							pin.activeInActive.setOff();
-						}
-
-					} else {
-						myService.send(boundServiceName, "digitalReadPollingStop", io.address);
-						pin.activeInActive.setOff();
-					}
-
-					b.toggle();
-				} else {
-					// turn it on
-					/*
-					if (pin.onOff.isOn && !pin.isAnalog) {
-						io.value = Pin.LOW;
-						myService.send(boundServiceName, "digitalWrite", io);
-						pin.onOff.setOn();
-						pin.inOut.setOn();
-					}
-					*/
-
-					// if pin is digital - make sure pinmode is input
-					if (!pin.inOut.isOn && !pin.isAnalog) {
+				// digital pin
+				if  (!pin.isAnalog) {
+					if (!pin.inOut.isOn)
+					{	// pin is off turn it on
 						io.value = Pin.INPUT;
 						myService.send(boundServiceName, "pinMode", io);
 						myService.send(boundServiceName, "digitalReadPollStart", io.address);
-						pin.inOut.setOff(); //"in???"
+						pin.inOut.setOn(); // in
+						b.setOn();
+					} else {
+						io.value = Pin.OUTPUT;
+						myService.send(boundServiceName, "pinMode", io);
+						myService.send(boundServiceName, "digitalReadPollStop", io.address);
+						pin.inOut.setOff();// out
+						b.setOff();
 					}
-
-					// if pin is analog && off - switch it on
-					if (pin.isAnalog) {
-						if (!pin.activeInActive.isOn) {
-							myService.send(boundServiceName, "analogReadPollingStart", io.address);
-							pin.activeInActive.setOn();
-						}
-
+				} else {
+					io.value = Pin.INPUT;
+					myService.send(boundServiceName, "pinMode", io);
+					// analog pin
+					if (pin.activeInActive.isOn) {
+						myService.send(boundServiceName, "analogReadPollingStop", io.address);
+						pin.activeInActive.setOff();
+						pin.trace.setOff();
+						b.setOff();
+					} else {
+						myService.send(boundServiceName, "analogReadPollingStart", io.address);
+						pin.activeInActive.setOn();
+						pin.trace.setOn();
+						b.setOn();
 					}
-
-					// myService.send(boundServiceName,
-					// "analogReadPollingStart", io.address);
-					b.toggle();
 				}
+								
 			} else {
 				log.error("unknown pin type " + b.type);
 			}
@@ -574,6 +534,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		int min = 1024; // TODO - user input on min/max
 		int sum = 0;
 		int mean = 0;
+		int traceStart = 0;
 	}
 
 	int DATA_WIDTH = size.width;
@@ -581,10 +542,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	HashMap<Integer, TraceData> traceData = new HashMap<Integer, TraceData>();
 	int clearX = 0;
 	int lastTraceXPos = 0;
-	
-	public final int DIGITAL_VALUE = 1;
-	public final int ANALOG_VALUE = 3;
-	
+		
 	public void publishPin(PinData pin) {
 		if (!traceData.containsKey(pin.pin)) {
 			TraceData td = new TraceData();
@@ -604,12 +562,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		t.mean = t.sum / t.total;
 
 		g.setColor(t.color);
-		if (pin.method == DIGITAL_VALUE)
+		if (pin.type == PinData.DIGITAL_VALUE)
 		{
 			int yoffset = pin.pin * 15 + 35;
 			int quantum = -10;
 			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index,  pin.value * quantum + yoffset);
-		} else if (pin.method == ANALOG_VALUE) {
+		} else if (pin.type == PinData.ANALOG_VALUE) {
 			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
 		} else {
 			log.error("dont know how to display pin data method");
@@ -624,37 +582,49 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		if (t.index < DATA_WIDTH - 1) {
 			clearX = t.index + 1;
-			//g.drawLine(clearX, DATA_HEIGHT - t.data[t.index-1]/2, clearX,
-			 //DATA_HEIGHT - t.data[clearX]/2);
 		} else {
+			// TODO - when hit marks all startTracePos - cause the screen is blank - must iterate through all
 			t.index = 0;
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT); // TODO - ratio - to expand or reduce view
-			g.setColor(Color.GRAY);
-			g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1, DATA_HEIGHT - 25);
-			g.drawString("50", 10, DATA_HEIGHT - 25);
-			g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1, DATA_HEIGHT - 50);
-			g.drawString("100", 10, DATA_HEIGHT - 50);
-			g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1, DATA_HEIGHT - 100);
-			g.drawString("200", 10, DATA_HEIGHT - 100);
-			g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1, DATA_HEIGHT - 200);
-			g.drawString("400", 10, DATA_HEIGHT - 200);
-			g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1, DATA_HEIGHT - 300);
-			g.drawString("600", 10, DATA_HEIGHT - 300);
-			g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1, DATA_HEIGHT - 400);
-			g.drawString("800", 10, DATA_HEIGHT - 400);
+			
+			clearScreen();
+			drawGrid();
 
 			g.setColor(Color.BLACK);
 			g.fillRect(20, t.pin * 15 + 5, 200, 15);
 			g.setColor(t.color);
-			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum,
-					20, t.pin * 15 + 20);
+			
+			g.drawString(String.format("min %d max %d mean %d ", t.min, t.max, t.mean), 20, t.pin * 15 + 20);
+			
 			t.total = 0;
 			t.sum = 0;
 
 		}
 
 		oscope.displayFrame(sensorImage);
+	}
+	
+	public void clearScreen() // TODO - static - put in oscope/image package
+	{
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, DATA_WIDTH, DATA_HEIGHT); // TODO - ratio - to expand or reduce view
+	}
+	
+	public void drawGrid() // TODO - static & put in oscope/image package
+	{
+		g.setColor(Color.DARK_GRAY);
+		g.drawLine(0, DATA_HEIGHT - 25, DATA_WIDTH - 1, DATA_HEIGHT - 25);
+		g.drawString("50", 10, DATA_HEIGHT - 25);
+		g.drawLine(0, DATA_HEIGHT - 50, DATA_WIDTH - 1, DATA_HEIGHT - 50);
+		g.drawString("100", 10, DATA_HEIGHT - 50);
+		g.drawLine(0, DATA_HEIGHT - 100, DATA_WIDTH - 1, DATA_HEIGHT - 100);
+		g.drawString("200", 10, DATA_HEIGHT - 100);
+		g.drawLine(0, DATA_HEIGHT - 200, DATA_WIDTH - 1, DATA_HEIGHT - 200);
+		g.drawString("400", 10, DATA_HEIGHT - 200);
+		g.drawLine(0, DATA_HEIGHT - 300, DATA_WIDTH - 1, DATA_HEIGHT - 300);
+		g.drawString("600", 10, DATA_HEIGHT - 300);
+		g.drawLine(0, DATA_HEIGHT - 400, DATA_WIDTH - 1, DATA_HEIGHT - 400);
+		g.drawString("800", 10, DATA_HEIGHT - 400);
+		
 	}
 
 	/**
@@ -938,4 +908,28 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		myService.getFrame().pack();
 		return oscopePanel;
 	}
+
+	JPanel editor2Panel = null;
+	EditorArduino editor = null;
+	
+	public JPanel getEditorPanel()
+	{
+		if (editor2Panel != null){
+			tabs.remove(editor2Panel);
+		}
+		
+		editor2Panel = new JPanel(new GridBagLayout());
+		GridBagConstraints opgc = new GridBagConstraints();
+
+		editor = new EditorArduino(boundServiceName, myService);
+		editor.init();
+		editor2Panel.add(editor.getDisplay());
+		
+		JFrame top = myService.getFrame();
+		tabs.insertTab("editor2", null, editor2Panel, "editor 2", 0);
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, editor2Panel, boundServiceName, "editor2"));
+		myService.getFrame().pack();
+		return editor2Panel;
+	}
+
 }

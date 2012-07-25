@@ -36,10 +36,6 @@ import org.myrobotlab.arduino.PApplet;
 //import org.myrobotlab.arduino.gui.PConstants;
 import org.myrobotlab.service.Arduino;
 
-
-
-
-
 /**
  * Storage class for user preferences and environment settings.
  * <P>
@@ -134,21 +130,7 @@ public class Preferences2 {
                            "You'll need to reinstall Arduino.", e);
     }
 
-    // check for platform-specific properties in the defaults
-    //String platformExt = "." + PConstants.platformNames[PApplet.platform];
-    /*
-    int platformExtLength = platformExt.length();
-    Enumeration e = table.keys();
-    while (e.hasMoreElements()) {
-      String key = (String) e.nextElement();
-      if (key.endsWith(platformExt)) {
-        // this is a key specific to a particular platform
-        String actualKey = key.substring(0, key.length() - platformExtLength);
-        String value = get(key);
-        table.put(actualKey, value);
-      }
-    }
-	*/
+  
     // clone the hash table
     defaults = (Hashtable) table.clone();
 

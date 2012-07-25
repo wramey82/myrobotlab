@@ -31,9 +31,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -60,7 +65,8 @@ import org.myrobotlab.service.interfaces.Communicator;
 public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RemoteAdapter.class
+			.getCanonicalName());
 
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
@@ -123,13 +129,15 @@ public class RemoteAdapter extends Service {
 
 				serverSocket = new ServerSocket(TCPPort, 10);
 
-				log.info(getName() + " TCPListener listening on " + serverSocket.getLocalSocketAddress());
+				log.info(getName() + " TCPListener listening on "
+						+ serverSocket.getLocalSocketAddress());
 
-				while (isRunning())
-				{
+				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
-					URL url = new URL("http://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
+					URL url = new URL("http://"
+							+ clientSocket.getInetAddress().getHostAddress()
+							+ ":" + clientSocket.getPort());
 					log.info("new connection [" + url + "]");
 					comm.addClient(url, clientSocket);
 				}
@@ -165,7 +173,8 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(UDPStringPort);
 
-				log.info(getName() + " UDPStringListener listening on " + socket.getLocalAddress() + ":"
+				log.info(getName() + " UDPStringListener listening on "
+						+ socket.getLocalAddress() + ":"
 						+ socket.getLocalPort());
 
 				byte[] b = new byte[65535];
@@ -174,7 +183,8 @@ public class RemoteAdapter extends Service {
 				while (isRunning()) {
 
 					socket.receive(dgram);
-					String data = new String(dgram.getData(), 0, dgram.getLength());
+					String data = new String(dgram.getData(), 0,
+							dgram.getLength());
 					dgram.setLength(b.length); // must reset length field!
 
 					log.debug("udp data [" + data + "]");
@@ -210,7 +220,8 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(UDPPort);
 
-				log.info(getName() + " UDPListener listening on " + socket.getLocalAddress() + ":"
+				log.info(getName() + " UDPListener listening on "
+						+ socket.getLocalAddress() + ":"
 						+ socket.getLocalPort());
 
 				Communicator comm = (Communicator) cm.getComm();
@@ -221,15 +232,24 @@ public class RemoteAdapter extends Service {
 
 				while (isRunning()) {
 					socket.receive(dgram); // receives all datagrams
-					ObjectInputStream o_in = new ObjectInputStream(b_in); // FIXME - do we need to re-create?
+					ObjectInputStream o_in = new ObjectInputStream(b_in); // FIXME
+																			// -
+																			// do
+																			// we
+																			// need
+																			// to
+																			// re-create?
 					try {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
-						b_in.reset(); 
+						b_in.reset();
 						if ("registerServices".equals(msg.method)) {
-							URL url = new URL("http://" + dgram.getAddress().getHostAddress() + ":" + dgram.getPort());
+							URL url = new URL("http://"
+									+ dgram.getAddress().getHostAddress() + ":"
+									+ dgram.getPort());
 							comm.addClient(url, socket);
-							invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+							invoke("registerServices", dgram.getAddress()
+									.getHostAddress(), dgram.getPort(), msg);
 							continue;
 						}
 
@@ -314,7 +334,7 @@ public class RemoteAdapter extends Service {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
 
-	// FIXME - restart listening threads whenever set port is called - 
+	// FIXME - restart listening threads whenever set port is called -
 	// otherwise its meaningless
 	public void setUDPPort(int port) {
 		UDPPort = port;
@@ -328,15 +348,39 @@ public class RemoteAdapter extends Service {
 		UDPStringPort = port;
 	}
 
+	static public ArrayList<InetAddress> getLocalAddresses() {
+		ArrayList<InetAddress> ret = new ArrayList<InetAddress>();
+		try {
+		for (Enumeration<NetworkInterface> en = NetworkInterface
+				.getNetworkInterfaces(); en.hasMoreElements();) {
+			NetworkInterface intf = en.nextElement();
+			for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+					.hasMoreElements();) {
+				InetAddress inetAddress = enumIpAddr.nextElement();
+				ret.add(inetAddress);
+				/*
+				if (!inetAddress.isLoopbackAddress()
+						&& !inetAddress.isLinkLocalAddress()) {
+					System.out.println(inetAddress.getHostAddress());
+				}
+				*/
+			}
+		};
+		} catch (Exception e) {
+			logException(e);
+		}
+		return ret;
+	}
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		Runtime.createAndStart("remote0", "RemoteAdapter");
-		Runtime.createAndStart("log0"	, "Logging");
-		Runtime.createAndStart("jython0", "Jython");		
+		Runtime.createAndStart("log0", "Logging");
+		Runtime.createAndStart("jython0", "Jython");
 		Runtime.createAndStart("remote0", "RemoteAdapter");
 		Runtime.createAndStart("gui0", "GUIService");
-					
+
 	}
 }

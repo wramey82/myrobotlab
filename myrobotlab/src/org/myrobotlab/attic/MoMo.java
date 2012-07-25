@@ -42,7 +42,7 @@ import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.Sphinx;
-import org.myrobotlab.service.data.PinAlert;
+import org.myrobotlab.service.data.Trigger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
@@ -105,17 +105,17 @@ public class MoMo extends Service {
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addAlert(arduino.getName(), "200", 200, 200, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.getName(), "300", 300, 300, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.getName(), "400", 400, 400, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.getName(), "500", 500, 500, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addTrigger(arduino.getName(), "500", 500, 500, Trigger.BOUNDRY, Trigger.STATE_LOW,
 				IR_PIN);
-		sensors.addAlert(arduino.getName(), "600", 600, 600, PinAlert.BOUNDRY, PinAlert.STATE_LOW,
+		sensors.addTrigger(arduino.getName(), "600", 600, 600, Trigger.BOUNDRY, Trigger.STATE_LOW,
 				IR_PIN);
-		sensors.addListener("publish", this.getName(), "publish", PinAlert.class);
+		sensors.addListener("publish", this.getName(), "publish", Trigger.class);
 
 		// creating static route from ear/speech recognition to special action
 		ear.addListener("recognized", this.getName(), "speechToAction", String.class);
@@ -529,7 +529,7 @@ public class MoMo extends Service {
 
 	}
 
-	public void publish(PinAlert a) {
+	public void publish(Trigger a) {
 		// mouth.speak("range " + a.getName());
 
 		if (a.max == 200) {

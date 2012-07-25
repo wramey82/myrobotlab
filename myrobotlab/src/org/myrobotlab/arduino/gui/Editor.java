@@ -261,16 +261,10 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		tbar.add(fullscreenButton);
 		tbar.add(monitorButton);
 		
-		// ouch .. never dealt with boxes before
 		Box box = Box.createVerticalBox();
-		//JPanel box = new JPanel();
 		Box upper = Box.createVerticalBox();
-		//upper.setPreferredSize(new Dimension(680,15));
-		//JPanel upper = new JPanel();
-		//upper.setPreferredSize(new Dimension(680,15));
 		menuAndButtons.add(tbar, BorderLayout.CENTER);
 		pain.add(menuAndButtons, BorderLayout.NORTH);
-		//upper.add(tbar);
 
 		header = new EditorHeader(this); // um ... tab panes are nice ?
 		upper.add(header);
@@ -433,23 +427,9 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 			textarea.setCaretVisible(true);
 		}
 
-		// apply changes to the font size for the editor
-		// TextAreaPainter painter = textarea.getPainter();
-//		painter.setFont(getFont());
-		// Font font = painter.getFont();
-		// textarea.getPainter().setFont(new Font("Courier", Font.PLAIN, 36));
-
-		// in case tab expansion stuff has changed
 		listener.applyPreferences();
 
-		// in case moved to a new location
-		// For 0125, changing to async version (to be implemented later)
-		// sketchbook.rebuildMenus();
-		// For 0126, moved into Base, which will addListener all editors.
-		// base.rebuildMenusAsync();
 	}
-
-	// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 	protected void buildMenuBar() {
 		JMenuBar menubar = new JMenuBar();
@@ -458,29 +438,11 @@ public class Editor extends JPanel implements RunnerListener, ActionListener, Ke
 		menubar.add(buildEditMenu());
 		menubar.add(buildSketchMenu());
 		menubar.add(buildToolsMenu());
-		menubar.add(buildViewMenu());
 		menubar.add(buildHelpMenu());
-		// setJMenuBar(menubar);
-		// contentPain.add(new JButton("HELLO THERE"), BorderLayout.NORTH);
 		menuAndButtons.add(menubar, BorderLayout.WEST);
 	}
 
-	JMenu viewMenu;
-
-	protected JMenu buildViewMenu() {
-		JMenuItem item;
-		viewMenu = new JMenu("View");
-
-		item = newJMenuItem("FullScreen", 'N');
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				base.handleNew();
-			}
-		});
-		viewMenu.add(item);
-		return viewMenu;
-	}
-
+	
 	protected JMenu buildFileMenu() {
 		JMenuItem item;
 		fileMenu = new JMenu("File");
