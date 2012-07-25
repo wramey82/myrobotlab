@@ -4,14 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.centralnexus.joystick/joystick/0.7/Joystick.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.google.gson/gson/1.7.1/gson-1.7.1.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacpp.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-android-arm.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-linux-x86.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-linux-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-macosx-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-windows-x86.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/20111001/javacv.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.mxgraph.jgraph/jgraph/1.6.1.2/jgraphx.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.java3d/java3d/1.5.1/j3dcore.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.java3d/java3d/1.5.1/j3dutils.jar"/>
@@ -56,5 +48,8 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/mailapi.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/pop3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/smtp.jar"/>
+	<classpathentry kind="lib" path="C:/mrl/myrobotlab/libraries/jar/javacpp.jar"/>
+	<classpathentry kind="lib" path="C:/mrl/myrobotlab/libraries/jar/javacv.jar"/>
+	<classpathentry kind="lib" path="C:/mrl/myrobotlab/libraries/jar/javacv-windows-x86_64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

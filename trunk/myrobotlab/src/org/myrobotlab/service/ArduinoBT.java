@@ -43,7 +43,7 @@ import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.SensorData;
+import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -72,7 +72,7 @@ import android.util.Log;
 
 @Root
 public class ArduinoBT extends Service implements //SerialPortEventListener,
-		SensorData, DigitalIO, AnalogIO, ServoController, MotorController {
+		SensorDataPublisher, DigitalIO, AnalogIO, ServoController, MotorController {
 	
 	public final static Logger log = Logger.getLogger(ArduinoBT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
@@ -870,7 +870,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     							// mrl protocol
 
     							PinData p = new PinData();
-    							p.method = msg[0];
+    							p.type = msg[0];
     							p.pin = msg[1];
     							// java assumes signed
     							// MSB - (Arduino int is 2 bytes)
@@ -878,7 +878,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
     							p.value += (msg[3] & 0xFF); // LSB
 
     							p.source = myService.getName();
-    							invoke(SensorData.publishPin, p);
+    							invoke(SensorDataPublisher.publishPin, p);
         						// Send the obtained bytes to the UI Activity
     							/*
         	                    mHandler.obtainMessage(MESSAGE_READ, numBytes, -1, buffer)
@@ -947,5 +947,32 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	public void setmHandler(Handler mHandler) {
 		this.mHandler = mHandler;
 	}
+	
+	@Override // FIXME - normalize - and build only when change types
+	public ArrayList<PinData> getPinList() {
+		ArrayList<PinData> pinList = new ArrayList<PinData>();
+		//String type = Preferences2.get("board");
+		String type = "atmega328";
+
+		if ("mega2560".equals(type))
+		{
+			for (int i = 0; i < 70; ++i) 
+			{
+				pinList.add(new PinData(i, ((i < 54)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+			}
+		} else if ("atmega328".equals(type))
+		{
+			for (int i = 0; i < 20; ++i) 
+			{
+				pinList.add(new PinData(i, ((i < 14)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+			}
+			
+		} else {
+			log.error(String.format("getPinList %s not supported", type));
+		}
+
+		return pinList;
+	}
+
     
 }

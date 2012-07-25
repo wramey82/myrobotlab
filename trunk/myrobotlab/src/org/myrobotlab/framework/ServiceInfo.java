@@ -25,8 +25,6 @@ import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-import com.ziclix.python.sql.handler.MySQLDataHandler;
-
 // TODO - command line refresh - repo management & configuration options "latest" etc
 /**
  * Singleton implementation for service information.

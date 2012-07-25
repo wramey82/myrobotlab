@@ -45,7 +45,6 @@ import java.util.Vector;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.PApplet;
-//import org.myrobotlab.arduino.Sketch2;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler2;
 import org.myrobotlab.arduino.compiler.Preferences2;
@@ -67,7 +66,7 @@ import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.SensorData;
+import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -91,7 +90,7 @@ import org.simpleframework.xml.Root;
  */
 
 @Root
-public class Arduino extends Service implements SerialDeviceEventListener, SensorData, DigitalIO, AnalogIO,
+public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, DigitalIO, AnalogIO,
 		ServoController, MotorController, SerialDeviceService {
 
 	private static final long serialVersionUID = 1L;
@@ -118,7 +117,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Element
 	String portName = "";
 	@Element
-	int baudRate = 115200;
+	int baudRate = 57600;
 	@Element
 	int dataBits = 8;
 	@Element
@@ -139,8 +138,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	// serial protocol functions
 	public static final int DIGITAL_WRITE = 0;
+	//public static final int DIGITAL_VALUE = 1; // normalized with PinData 
 	public static final int ANALOG_WRITE = 2;
-	public static final int ANALOG_VALUE = 3;
+	//public static final int ANALOG_VALUE = 3;  // normalized with PinData 
 	public static final int PINMODE = 4;
 	public static final int PULSE_IN = 5;
 	public static final int SERVO_ATTACH = 6;
@@ -184,30 +184,19 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
-		load(); // attempt to load last configuration saved
+		load(); 
 
-		// attempt to get serial port based on there only being 1
-		// or based on previous configuration
-
-		// if there is only 1 port - attempt to initialize it
 		portNames = getPorts();
 		log.info("number of ports " + portNames.size());
 		for (int j = 0; j < portNames.size(); ++j) {
 			log.info(portNames.get(j));
 		}
-
-		if (portNames.size() == 1) { // heavy handed? YES - TODO - fix - base on previous preference
-			log.info("only one serial port " + portNames.get(0));
-			setPort(portNames.get(0));
-		} else if (portNames.size() > 1) {
-			if (portName != null && portName.length() > 0) {
-				log.info("more than one port - last serial port is " + portName);
-				setPort(portName);
-			} else {
-				// arduinoSerial.pde
-				log.warn("more than one port or no ports, and last serial port not set");
-				log.warn("need user input to select from " + portNames.size() + " possibilities ");
-			}
+		
+		if (portName != null && portName.length() > 0) {
+			log.info("more than one port - last serial port is " + portName);
+			setPort(portName);
+		} else {
+			log.info("no previously saved device name");
 		}
 
 		for (int i = 0; i < servosInUse.length; ++i) {
@@ -216,9 +205,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		
 	    Preferences2.init(null); 
 
+	    // Arduino arduino.
+	    // target arduino
+	    // board atmenga328
+	    
 		Preferences2.set("sketchbook.path", ".myrobotlab");
 		Preferences2.set("board", "mega2560"); // FIXME - get "real" board type - all info in boards.txt
 		Preferences2.set("board", "atmega328"); 
+		Preferences2.set("board", "mega2560"); // FIXME - get "real" board type - all info in boards.txt
 		
 		Preferences2.set("target", "arduino"); // FIXME - board type
 		
@@ -722,7 +716,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 							// mrl protocol
 							PinData p = new PinData();
 							// p.time = System.currentTimeMillis();
-							p.method = msg[0];
+							p.type = msg[0];
 							p.pin = msg[1];
 							// java assumes signed
 							// http://www.rgagnon.com/javadetails/java-0026.html
@@ -730,7 +724,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 															// int is 2 bytes)
 							p.value += (msg[3] & 0xFF); // LSB
 							p.source = this.getName();
-							invoke(SensorData.publishPin, p);
+							invoke(SensorDataPublisher.publishPin, p);
 						}
 
 						numBytes = 0;
@@ -1102,17 +1096,23 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static void main(String[] args) throws RunnerException, SerialDeviceException {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();		
-/*		
-		String code = FileIO.fileToString(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		sensors.startService();
+		
+		/*
+		//Runtime.createAndStart("sensors", "SensorMonitor");
+		
+		String code = FileIO.getResourceFile("Arduino/MRLComm.ino");
+		//String code = FileIO.fileToString(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
 		
 		arduino.compile("MRLComm", code);
-		arduino.setPort("COM6"); //- test re-entrant
+		arduino.setPort("COM7"); //- test re-entrant
 		arduino.upload();
-*/		
+		*/
 		// FIXME - I BELIEVE THIS LEAVES THE SERIAL PORT IN A CLOSED STATE !!!! 
 		
 		
@@ -1121,8 +1121,34 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 //		arduino.digitalWrite(44, Arduino.HIGH);
 		
 		Runtime.createAndStart("gui01", "GUIService");
+		Runtime.createAndStart("jython", "Jython");
 
 
+	}
+
+	@Override // FIXME - normalize - and build only when change types
+	public ArrayList<PinData> getPinList() {
+		ArrayList<PinData> pinList = new ArrayList<PinData>();
+		String type = Preferences2.get("board");
+
+		if ("mega2560".equals(type))
+		{
+			for (int i = 0; i < 70; ++i) 
+			{
+				pinList.add(new PinData(i, ((i < 54)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+			}
+		} else if ("atmega328".equals(type))
+		{
+			for (int i = 0; i < 20; ++i) 
+			{
+				pinList.add(new PinData(i, ((i < 14)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+			}
+			
+		} else {
+			log.error(String.format("getPinList %s not supported", type));
+		}
+
+		return pinList;
 	}
 
 

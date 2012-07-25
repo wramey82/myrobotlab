@@ -31,7 +31,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.WiiDAR.Point;
 import org.myrobotlab.service.data.PinData;
-import org.myrobotlab.service.interfaces.SensorData;
+import org.myrobotlab.service.interfaces.SensorDataPublisher;
 
 // TODO - BlockingQueue - + reference !
 
@@ -105,7 +105,7 @@ public class WiiBot extends Service {
 		// BufferedImage.class);
 		// wii.addListener("publishPin", wiidar.getName(), "publishPin",
 		// IRData.class);
-		arduino.addListener(wiidar.getName(), SensorData.publishPin, PinData.class);
+		arduino.addListener(wiidar.getName(), SensorDataPublisher.publishPin, PinData.class);
 		gui.display();
 	}
 

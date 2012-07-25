@@ -3,9 +3,9 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.PinAlert;
+import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.data.PinData;
-import org.myrobotlab.service.interfaces.SensorData;
+import org.myrobotlab.service.interfaces.SensorDataPublisher;
 
 public class ChumbyBot extends Service {
 
@@ -47,10 +47,10 @@ public class ChumbyBot extends Service {
 		arduino.setPort("/dev/ttyUSB0");
 		
 		// arduino to sensor monitor
-		arduino.addListener(SensorData.publishPin, sensors.getName(), "sensorInput", PinData.class);
+		arduino.addListener(SensorDataPublisher.publishPin, sensors.getName(), "sensorInput", PinData.class);
 		
 		// sensor monitor to chumbybot
-		sensors.addListener("publishPinAlert", this.getName(), "publishPinAlert", PinAlert.class);
+		sensors.addListener("publishPinAlert", this.getName(), "publishPinAlert", Trigger.class);
 		
 		arduino.analogReadPollingStart(0);
 
@@ -70,10 +70,10 @@ public class ChumbyBot extends Service {
 			right.move(0.5f);
 			left.move(0.5f);
 
-			PinAlert alert = new PinAlert();
+			Trigger alert = new Trigger();
 			alert.threshold = 600;
 			alert.pinData.pin = 0;
-			sensors.addAlert(alert);
+			sensors.addTrigger(alert);
 			
 			// wait on IR Event
 			synchronized (lock) {
@@ -151,7 +151,7 @@ public class ChumbyBot extends Service {
 		
 	}
 	
-	public void publishPinAlert (PinAlert alert)
+	public void publishPinAlert (Trigger alert)
 	{
 		synchronized (lock) {
 			lock.notifyAll(); 

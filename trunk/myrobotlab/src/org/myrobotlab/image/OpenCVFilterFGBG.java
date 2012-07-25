@@ -27,10 +27,8 @@ package org.myrobotlab.image;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
-import static com.googlecode.javacv.cpp.opencv_video.cvCreateBGCodeBookModel;
-import static com.googlecode.javacv.cpp.opencv_video.cvCreateGaussianBGModel;
-import static com.googlecode.javacv.cpp.opencv_video.cvUpdateBGStatModel;
 
 import java.awt.image.BufferedImage;
 
@@ -40,11 +38,14 @@ import javax.swing.JTextField;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
+/*
 import com.googlecode.javacv.cpp.opencv_video.CvBGCodeBookModel;
 import com.googlecode.javacv.cpp.opencv_video.CvBGStatModel;
-
+*/
 
 
 public class OpenCVFilterFGBG extends OpenCVFilter {
@@ -54,14 +55,11 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	public final static Logger log = Logger.getLogger(OpenCVFilterFGBG.class
 			.getCanonicalName());
 
-	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
-														// from SOHDARService
-														// configuration
 	CvMemStorage storage = null;
+	BackgroundSubtractorMOG2 bg_model = null;
+	boolean update_bg_model = true;
+	IplImage fgmask, fgimg;
+
 
 	public OpenCVFilterFGBG(OpenCV service, String name) {
 		super(service, name);
@@ -70,7 +68,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 
-		return bg_model.foreground().getBufferedImage();
+		return fgimg.getBufferedImage();
 	}
 
 	@Override
@@ -85,75 +83,31 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
-	 * .IplImage, java.util.HashMap)
-	 * 
-	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
-	 * iterations=1 ); A Source image. C Destination image. B Structuring
-	 * element used for erosion. If it is NULL, a 3×3 rectangular structuring
-	 * element is used. iterations Number of times erosion is applied. The
-	 * function cvErode erodes the source image using the specified structuring
-	 * element B that determines the shape of a pixel neighborhood over which
-	 * the minimum is taken:
-	 * 
-	 * C=erode(A,B): C(x,y)=min((x',y') in B(x,y))A(x',y') The function supports
-	 * the in-place mode when the source and destination pointers are the same.
-	 * Erosion can be applied several times iterations parameter. Erosion on a
-	 * color image means independent transformation of all the channels.
-	 */
-
-	CvBGStatModel bg_model = null;
-	boolean update_bg_model = true;
-	IplImage grey = null;
-	CvBGCodeBookModel model = null;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage img) {
 
-		/*
-		 * // TODO static global class shared between filters ???? if (storage
-		 * == null) { storage = cvCreateMemStorage(0); }
-		 */
-
-		if (buffer == null) {
-			buffer = cvCreateImage(cvGetSize(image), 8, 3);
+		if (fgimg == null) {
+			fgimg = cvCreateImage(cvGetSize(img), 8, 3);
 		}
 
-		if (bg_model == null) {
-			grey = cvCreateImage(cvGetSize(image), 8, 1);
-			model = cvCreateBGCodeBookModel();
+				
+        bg_model.apply(img, fgmask, update_bg_model ? -1 : 0);
+        
+        //cvCopy(src, dst)
+        //fgimg = Scalar::all(0);
+        //img.copyTo(fgimg, fgmask);
 
-			// create BG model
-			// Select parameters for Gaussian model.
-			/*
-			 * CvGaussBGStatModelParams params = new CvGaussBGStatModelParams();
-			 * 
-			 * params.win_size=2; params.n_gauss=5; params.bg_threshold=0.7;
-			 * params.std_threshold=3.5; params.minArea=15;
-			 * params.weight_init=0.05; params.variance_init=30;
-			 */
+        IplImage bgimg = null;
+        bg_model.getBackgroundImage(bgimg);
 
-			bg_model = cvCreateGaussianBGModel(image, null);
-			// bg_model = cvCreateFGDStatModel( temp );
-		}
+        /*
+        imshow("image", img);
+        imshow("foreground mask", fgmask);
+        imshow("foreground image", fgimg);
+		*/
 
-		cvUpdateBGStatModel(image, bg_model, update_bg_model ? -1 : 0);
-		// cvUpdateBGStatModel( image, bg_model, update_bg_model ? -1 : 0);
-		// v21.cvCreateBGCodeBookModel();
-
-		/*
-		 * cvFindContours(bg_model.foreground, storage, contourPointer,
-		 * sizeofCvContour, 0, CV_RETR_LIST); CvSeq contour =
-		 * contourPointer.getStructure();
-		 */
-
-		// CvSeq.ByReference seq = bg_model.foreground_regions;
-
-		return bg_model.foreground();
+		return fgimg;
 	}
 
 }

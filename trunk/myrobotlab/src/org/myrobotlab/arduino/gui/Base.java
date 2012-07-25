@@ -900,6 +900,7 @@ public class Base {
               Preferences2.set("target", (String) getValue("target"));
               Preferences2.set("board", (String) getValue("board"));
               onBoardOrPortChange();
+              // FIXME - Preferences2 needs to be kept in sync - send an message to reload
             }
           };
         action.putValue("target", target.getName());

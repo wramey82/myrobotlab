@@ -25,12 +25,15 @@
 
 package org.myrobotlab.service.interfaces;
 
+import java.util.ArrayList;
+
 import org.myrobotlab.service.data.PinData;
 
-public interface SensorData {
+public interface SensorDataPublisher {
 
 	public final static String publishPin = "publishPin";
 
 	public PinData publishPin(PinData p);
+	public ArrayList<PinData> getPinList();
 
 }
