@@ -2,6 +2,13 @@
 <head>
 <title>ROBOFUTBOL</title>
 <link rel="stylesheet" type="text/css" href="style.css" />
+<!-- video begin -->
+		<script type="text/javascript" src="assets/swfobject.js"></script> 
+		<script type="text/javascript"> 
+		swfobject.embedSWF("simpleSubscriber.swf", "myContent", "400", "400", "8.0.0", "assets/expressInstall.swf");
+		</script> 
+<!-- video end -->
+
 <script type="text/javascript">
 /*
 	TODO:
@@ -321,7 +328,7 @@ function setContext(contextMsg)
 	</tr>
 	<tr>
 		<td width="152"></td>
-		<td width="224">powered by µBipedino MyRobotLab</td>
+		<td width="224">powered by ï¿½Bipedino MyRobotLab</td>
 	</tr>
 </table>
 </form>
@@ -330,6 +337,16 @@ function setContext(contextMsg)
 
 <!-- ================ select.players begin================== -->
 <form id="select.players" action="" class="hide">
+<table id="video">
+<tr>
+	<td>
+	<div id="myContent"> 
+			<h1>You need the Adobe Flash Player for this demo, download it by clicking the image below.</h1> 
+			<p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p> 
+		</div> 
+		</td>
+		</tr>
+</table>
 <table id="select.players.table">
 	<tr>
 		<td colspan="2" align="center">ROBOFUTBOL<br />
@@ -379,7 +396,7 @@ function setContext(contextMsg)
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td>Powered by µBipedino &amp; MyRobotLab</td>
+		<td>Powered by ï¿½Bipedino &amp; MyRobotLab</td>
 	</tr>
 </table>
 </form>
