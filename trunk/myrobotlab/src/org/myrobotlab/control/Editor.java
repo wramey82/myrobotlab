@@ -67,10 +67,10 @@ import org.myrobotlab.service.interfaces.GUI;
 public class Editor extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	private final static int fileMenuMnemonic = KeyEvent.VK_F;
-	private static final int saveMenuMnemonic = KeyEvent.VK_S;
-	private static final int openMenuMnemonic = KeyEvent.VK_O;
-	private static final int examplesMenuMnemonic = KeyEvent.VK_X;
+	final static int fileMenuMnemonic = KeyEvent.VK_F;
+	static final int saveMenuMnemonic = KeyEvent.VK_S;
+	static final int openMenuMnemonic = KeyEvent.VK_O;
+	static final int examplesMenuMnemonic = KeyEvent.VK_X;
 
 	final JFrame top;
 
@@ -124,7 +124,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 		this.syntaxStyle = syntaxStyle;
 		
-		javaConsole = new Console();
+		javaConsole = new Console();  // FIXME - rename log console
 		jythonConsole = new JTextArea();
 		jythonScrollPane = new JScrollPane(jythonConsole);
 
@@ -193,26 +193,15 @@ public class Editor extends ServiceGUI implements ActionListener {
 		unsubscribe("publishState", "getState", Jython.class);
 	}
 
-	/**
-	 * 
-	 */
 	public void finishedExecutingScript() {
 		executeButton.deactivate();
 	}
 
-	/**
-	 * 
-	 * @param j
-	 */
 	public void getState(Service j) {
 		// TODO set GUI state debug from Service data
 
 	}
 
-	/**
-	 * 
-	 * @param data
-	 */
 	public void getStdOut(String data) {
 		jythonConsole.append(data);
 	}
@@ -224,10 +213,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 		display.setLayout(new BorderLayout());
 		display.setPreferredSize(new Dimension(800, 600));
 
-		// --------- text menu begin ------------------------
-		JPanel menuPanel = createMenuPanel();
-
-		display.add(menuPanel, BorderLayout.PAGE_START);
+		// default text based menu
+		display.add(createMenuPanel(), BorderLayout.PAGE_START);
 
 		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -243,7 +230,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * 
 	 * @return
 	 */
-	private JSplitPane createMainPane() {
+	JSplitPane createMainPane() {
 		JSplitPane pane = new JSplitPane();
 
 		consoleTabs = createTabsPane();
@@ -261,7 +248,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * 
 	 * @return
 	 */
-	private JScrollPane createEditorPane() {
+	JScrollPane createEditorPane() {
 		editor.setSyntaxEditingStyle(syntaxStyle);
 		editor.setCodeFoldingEnabled(true);
 		editor.setAntiAliasingEnabled(true);
@@ -274,33 +261,66 @@ public class Editor extends ServiceGUI implements ActionListener {
 	}
 
 
-	/**
-	 * Fill up the file menu with submenu items.
-	 * 
-	 * @param fileMenu
-	 */
-	private JMenu createFileMenu() {
-		fileMenu = new JMenu("file");
+	JMenu createFileMenu() {
+		fileMenu = new JMenu("File");
 		fileMenu.setMnemonic(fileMenuMnemonic);
-		fileMenu.add(createMenuItem("new"));
-		fileMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
-		fileMenu.add(createMenuItem("save as"));
-		fileMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
+		fileMenu.add(createMenuItem("New"));
+		fileMenu.add(createMenuItem("Save", saveMenuMnemonic, "control S", null));
+		fileMenu.add(createMenuItem("Save As"));
+		fileMenu.add(createMenuItem("Open", openMenuMnemonic, "control O", null));
 		fileMenu.addSeparator();
 		return fileMenu;
 	}
 
-	private JMenu createEditMenu() {
-		editMenu = new JMenu("edit");
-		editMenu.add(createMenuItem("new"));
-		editMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
-		editMenu.add(createMenuItem("save as"));
-		editMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
+	JMenu createEditMenu() {
+		editMenu = new JMenu("Edit");
+		editMenu.add(createMenuItem("Undo"));
+		editMenu.add(createMenuItem("Redo"));
+		editMenu.addSeparator();
+		editMenu.add(createMenuItem("Cut"));
+		editMenu.add(createMenuItem("Copy"));
+		//editMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
+		editMenu.addSeparator();
+		editMenu.add(createMenuItem("Format"));
 		return editMenu;
 	}
 
-	private JMenu createToolsMenu() {
-		toolsMenu = new JMenu("tools");
+	JMenu createExamplesMenu() {
+		// TODO - dynamically build based on resources
+		examplesMenu = new JMenu("Examples");
+		examplesMenu.setMnemonic(examplesMenuMnemonic);
+
+		JMenu menu;
+		menu = new JMenu("Arduino");
+		menu.add(createMenuItem("arduinoBasic.py", "examples"));
+		menu.add(createMenuItem("arduinoInput.py", "examples"));
+		menu.add(createMenuItem("arduinoOutput.py", "examples"));
+		menu.add(createMenuItem("arduinoServo.py", "examples"));
+		examplesMenu.add(menu);
+
+		menu = new JMenu("Basic");
+		menu.add(createMenuItem("createAService.py", "examples"));
+		menu.add(createMenuItem("basicPython.py", "examples"));
+		examplesMenu.add(menu);
+
+		menu = new JMenu("Input");
+		menu.add(createMenuItem("inputTest.py", "examples"));
+		examplesMenu.add(menu);
+
+		menu = new JMenu("Speech");
+		menu.add(createMenuItem("sayThings.py", "examples"));
+		menu.add(createMenuItem("talkBack.py", "examples"));
+		examplesMenu.add(menu);
+
+		menu = new JMenu("Vision");
+		menu.add(createMenuItem("faceTracking.py", "examples"));
+		examplesMenu.add(menu);
+		
+		return examplesMenu;
+	}
+
+	JMenu createToolsMenu() {
+		toolsMenu = new JMenu("Tools");
 		toolsMenu.add(createMenuItem("new"));
 		toolsMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
 		toolsMenu.add(createMenuItem("save as"));
@@ -308,58 +328,17 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return toolsMenu;
 	}
 
-	private JMenu createHelpMenu() {
-		helpMenu = new JMenu("help");
+	JMenu createHelpMenu() {
+		helpMenu = new JMenu("Help");
 		helpMenu.add(createMenuItem("new"));
 		helpMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
 		helpMenu.add(createMenuItem("save as"));
 		helpMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
 		return helpMenu;
 	}
-	/**
-	 * Fill up the examples menu with submenu items.
-	 * 
-	 * @param examples
-	 */
-	private JMenu createExamplesMenu() {
-		// TODO - dynamically build based on resources
-		examplesMenu = new JMenu("examples");
-		examplesMenu.setMnemonic(examplesMenuMnemonic);
-
-		JMenu menu;
-		menu = new JMenu("arduino");
-		menu.add(createMenuItem("arduinoBasic.py", "examples"));
-		menu.add(createMenuItem("arduinoInput.py", "examples"));
-		menu.add(createMenuItem("arduinoOutput.py", "examples"));
-		menu.add(createMenuItem("arduinoServo.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("basic");
-		menu.add(createMenuItem("createAService.py", "examples"));
-		menu.add(createMenuItem("basicPython.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("input");
-		menu.add(createMenuItem("inputTest.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("speech");
-		menu.add(createMenuItem("sayThings.py", "examples"));
-		menu.add(createMenuItem("talkBack.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("vision");
-		menu.add(createMenuItem("faceTracking.py", "examples"));
-		examplesMenu.add(menu);
-		
-		return examplesMenu;
-	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	private CompletionProvider createCompletionProvider() {
+	
+	CompletionProvider createCompletionProvider() {
 		// TODO -> LanguageSupportFactory.get().register(editor);
 
 		// A DefaultCompletionProvider is the simplest concrete implementation
@@ -376,7 +355,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @param label
 	 * @return
 	 */
-	private JMenuItem createMenuItem(String label) {
+	JMenuItem createMenuItem(String label) {
 		return createMenuItem(label, -1, null, null);
 	}
 
@@ -387,7 +366,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @param actionCommand
 	 * @return
 	 */
-	private JMenuItem createMenuItem(String label, String actionCommand) {
+	JMenuItem createMenuItem(String label, String actionCommand) {
 		return createMenuItem(label, -1, null, actionCommand);
 	}
 
@@ -400,7 +379,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @param actionCommand
 	 * @return
 	 */
-	private JMenuItem createMenuItem(String label, int vKey,
+	JMenuItem createMenuItem(String label, int vKey,
 			String accelerator, String actionCommand) {
 		JMenuItem mi = null;
 		if (vKey == -1) {
@@ -423,13 +402,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	}
 
 	
-	
-	/**
-	 * Build the top menu panel.
-	 * 
-	 * @return
-	 */
-	private JPanel createMenuPanel() {
+	JPanel createMenuPanel() {
 		menuBar = createTopMenuBar();
 		buttonBar = createTopButtonBar();
 
@@ -440,12 +413,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return menuPanel;
 	}
 
-	/**
-	 * Build the tabs pane.
-	 * 
-	 * @return
-	 */
-	private JTabbedPane createTabsPane() {
+	JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("java", javaConsole.getScrollPane());
 		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
@@ -458,12 +426,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return pane;
 	}
 
-	/**
-	 * Build up the top button menu bar.
-	 * 
-	 * @return
-	 */
-	private JPanel createTopButtonBar() {
+	JPanel createTopButtonBar() {
+		buttonBar = new JPanel(); // returns empty - no common set - change in future?
+		/*
 		executeButton = new ImageButton("Jython", "execute", this);
 		restartButton = new ImageButton("Jython", "restart", this);
 		openFileButton = new ImageButton("Jython", "open", this);
@@ -471,14 +436,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 		
 
 
-		buttonBar = new JPanel();
 		buttonBar.add(openFileButton);
 		buttonBar.add(saveFileButton);
 		buttonBar.add(restartButton);
 		buttonBar.add(executeButton);
 		
 		buttonBar.setBackground(new Color(0,100,104));
-
+		*/
 		return buttonBar;
 	}
 
@@ -487,7 +451,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * 
 	 * @return the menu bar filled with the top-level options.
 	 */
-	private JMenuBar createTopMenuBar() {
+	JMenuBar createTopMenuBar() {
 		menuBar = new JMenuBar();		
 
 		menuBar.add(createFileMenu());
@@ -502,7 +466,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	/**
 	 * 
 	 */
-	private void openFile() {
+	void openFile() {
 		// TODO does this need to be closed?
 		String newfile = FileUtil.open(top, "*.py");
 		if (newfile != null) {
@@ -517,7 +481,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	/**
 	 * Perform an execute action.
 	 */
-	private void performExecute() {
+	void performExecute() {
 		executeButton.activate();
 		restartButton.deactivate();
 		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
@@ -530,7 +494,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	/**
 	 * Perform the restart action.
 	 */
-	private void performRestart() {
+	void performRestart() {
 		restartButton.activate();
 		executeButton.deactivate();
 		myService.send(boundServiceName, "restart");
@@ -539,7 +503,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	/**
 	 * 
 	 */
-	private void saveAsFile() {
+	void saveAsFile() {
 		// TODO do we need to handle errors with permissions?
 		if (FileUtil.saveAs(top, editor.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
@@ -548,13 +512,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 	/**
 	 * 
 	 */
-	private void saveFile() {
+	void saveFile() {
 		// TODO do we need to handle errors with permissions?
 		if (FileUtil.save(top, editor.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
 	}
 	
-	public ImageButton addImageButton(String resourceDir, String name, ActionListener al)
+	public ImageButton addImageButtonToButtonBar(String resourceDir, String name, ActionListener al)
 	{
 		ImageButton ret = new ImageButton(resourceDir,name, al);
 		buttonBar.add(ret);

@@ -50,7 +50,6 @@ import org.myrobotlab.arduino.compiler.Compiler2;
 import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Target;
-import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
