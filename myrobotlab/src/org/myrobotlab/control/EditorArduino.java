@@ -25,45 +25,17 @@
 
 package org.myrobotlab.control;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.io.File;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.text.DefaultCaret;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
-import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
 
-/**
- * Editor 
- * 
- * General purpose swing editor
- * TODO generalize for Jython & Arduino
- * 
- * @author GroG
- * 
- */
 public class EditorArduino extends Editor implements ActionListener {
 
 	static final long serialVersionUID = 1L;
@@ -78,6 +50,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton fullscreenButton;
 	ImageButton monitorButton;
 
+	// tool menu->methods
 
 	// consoles
 	JTabbedPane consoleTabs;
@@ -100,44 +73,24 @@ public class EditorArduino extends Editor implements ActionListener {
 			return;
 		}
 	}
+	
 
-	/*
-	@Override
-	public void attachGUI() {
-		subscribe("publishState", "getState", Jython.class);
-		subscribe("finishedExecutingScript");
-		subscribe("publishStdOut", "getStdOut", String.class);
-		// myService.send(boundServiceName, "broadcastState");
-	}
-
-	@Override
-	public void detachGUI() {
-		javaConsole.stopLogging();
-		unsubscribe("publishStdOut", "getStdOut", String.class);
-		unsubscribe("finishedExecutingScript");
-		unsubscribe("publishState", "getState", Jython.class);
-	}
-	*/
-	/**
-	 * 
-	 */
-	public void finishedExecutingScript() {
-		executeButton.deactivate();
-	}
 
 	public void init() {
-		// handles basic file io and any common initialization
 		super.init();
 		
-		// TODO - add "special Arduino components"
-		compileButton = addImageButton("Arduino","compile", this);
-		uploadButton 	= addImageButton("Arduino","upload", this);
-		connectButton 	= addImageButton("Arduino","connect", this);
-		newButton 		= addImageButton("Arduino","new", this);
-		openButton 		= addImageButton("Arduino","open", this);
-		saveButton 		= addImageButton("Arduino","save", this);
-		fullscreenButton= addImageButton("Arduino","fullscreen", this);
-		monitorButton 	= addImageButton("Arduino","monitor", this);
+		compileButton = addImageButtonToButtonBar("Arduino","compile", this);
+		uploadButton 	= addImageButtonToButtonBar("Arduino","upload", this);
+		connectButton 	= addImageButtonToButtonBar("Arduino","connect", this);
+		newButton 		= addImageButtonToButtonBar("Arduino","new", this);
+		openButton 		= addImageButtonToButtonBar("Arduino","open", this);
+		saveButton 		= addImageButtonToButtonBar("Arduino","save", this);
+		fullscreenButton= addImageButtonToButtonBar("Arduino","fullscreen", this);
+		monitorButton 	= addImageButtonToButtonBar("Arduino","monitor", this);
+		
+		buttonBar.setBackground(new Color(0,100,104));
+		
+		// addHelpMenuURL("help blah", "http:blahblahblah");
 
 	}
 
