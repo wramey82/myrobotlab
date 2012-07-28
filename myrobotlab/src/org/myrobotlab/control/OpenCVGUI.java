@@ -143,7 +143,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		ArrayList<String> s = new ArrayList<String>();
 		for (int i = 0; i < FrameGrabber.list.size(); ++i)
 		{
-			String ss = FrameGrabber.list.get(i).getCanonicalName();
+			String ss = FrameGrabber.list.get(i);
 			String fg = ss.substring(ss.lastIndexOf(".") + 1);			
 			// filter out the two I've never seen
 			if (!"DC1394FrameGrabber".equals(fg) && !"FlyCaptureFrameGrabber".equals(fg))
