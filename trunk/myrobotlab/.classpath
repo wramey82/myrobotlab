@@ -48,13 +48,14 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/mailapi.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/pop3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/smtp.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacpp.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-android-arm.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-linux-x86.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-linux-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-macosx-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-windows-x86.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/1.0/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacpp.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-android-arm.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-linux-arm.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-linux-x86.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86_64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
