@@ -35,7 +35,6 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.Polygon;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;

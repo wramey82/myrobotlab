@@ -64,8 +64,6 @@ import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-import simbad.sim.SensorData;
-
 /**
  * @author Gro-G Display data sent to the SensorMonitor service.
  * 

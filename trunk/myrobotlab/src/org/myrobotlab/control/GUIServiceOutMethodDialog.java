@@ -44,10 +44,9 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MethodEntry;
-
 import org.myrobotlab.framework.ToolTip;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class GUIServiceOutMethodDialog extends JDialog  implements ActionListener  {
 	

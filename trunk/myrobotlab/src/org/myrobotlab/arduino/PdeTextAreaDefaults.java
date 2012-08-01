@@ -25,7 +25,6 @@
 package org.myrobotlab.arduino;
 
 import java.awt.Font;
-import java.util.prefs.Preferences;
 
 import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.gui.Base;

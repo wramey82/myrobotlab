@@ -38,11 +38,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Clock.PulseDataType;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class ClockGUI extends ServiceGUI implements ActionListener{
 

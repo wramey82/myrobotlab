@@ -42,7 +42,6 @@ import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
-import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class VideoWidget extends ServiceGUI {
 

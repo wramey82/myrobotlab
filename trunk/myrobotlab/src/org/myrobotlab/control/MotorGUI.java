@@ -40,10 +40,9 @@ import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
-
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.Runtime;
 
 public class MotorGUI extends ServiceGUI {
 

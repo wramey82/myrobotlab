@@ -38,7 +38,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.gp.GPMessageBestFound;
 import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 import org.myrobotlab.gp.RealPoint;

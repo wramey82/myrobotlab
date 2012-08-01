@@ -32,10 +32,9 @@ import java.util.Iterator;
 
 import javax.swing.JLabel;
 
-
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.GUI;
 
 public class RemoteAdapterGUI extends ServiceGUI {
 

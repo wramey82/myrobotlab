@@ -33,7 +33,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
-//import org.myrobotlab.arduino.gui.PConstants;
 import org.myrobotlab.service.Arduino;
 
 /**

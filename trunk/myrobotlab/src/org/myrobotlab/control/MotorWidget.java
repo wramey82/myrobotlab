@@ -37,7 +37,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.interfaces.GUI;

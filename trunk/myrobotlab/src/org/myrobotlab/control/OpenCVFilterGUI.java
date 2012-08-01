@@ -33,13 +33,12 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-
 import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class OpenCVFilterGUI {
 	public final static Logger log = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());

@@ -1,6 +1,7 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Hashtable;
 
@@ -10,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
-import java.awt.Color;
 
 public class PinTest extends JPanel {
 	public PinTest() {
