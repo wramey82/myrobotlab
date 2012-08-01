@@ -42,7 +42,6 @@ import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Sizer;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.arduino.gui.compiler.Compiler;
-import org.myrobotlab.arduino.SketchCode2;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;

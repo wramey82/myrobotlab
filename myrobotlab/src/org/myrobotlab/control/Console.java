@@ -10,7 +10,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
-import org.myrobotlab.logging.*;
+import org.myrobotlab.logging.LogAppender;
 
 // http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=5
 public class Console extends AppenderSkeleton {

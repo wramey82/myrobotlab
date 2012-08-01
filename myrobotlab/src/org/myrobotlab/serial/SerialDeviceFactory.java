@@ -3,7 +3,6 @@ package org.myrobotlab.serial;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Platform;

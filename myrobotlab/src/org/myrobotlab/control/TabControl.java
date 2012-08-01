@@ -11,12 +11,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -25,9 +23,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
-import org.myrobotlab.service.GUIService.UndockedWidgetWindowAdapter;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
 
 /**
  * @author Gro-G

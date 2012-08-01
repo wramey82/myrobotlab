@@ -27,25 +27,15 @@ package org.myrobotlab.image;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
 import java.awt.image.BufferedImage;
-
-import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 
-import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
-/*
-import com.googlecode.javacv.cpp.opencv_video.CvBGCodeBookModel;
-import com.googlecode.javacv.cpp.opencv_video.CvBGStatModel;
-*/
 
 
 public class OpenCVFilterFGBG extends OpenCVFilter {

@@ -33,9 +33,9 @@ import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
-import org.myrobotlab.service.Runtime;
 
 public class CommunicationManager  implements Serializable, CommunicationInterface {
 

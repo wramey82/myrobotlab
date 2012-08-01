@@ -34,9 +34,9 @@ import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.AudioFile;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.OpenCV.Polygon;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Sphinx;
-import org.myrobotlab.service.OpenCV.Polygon;
 
 public class Rose extends Service {
 

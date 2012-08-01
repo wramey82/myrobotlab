@@ -91,9 +91,9 @@ import org.myrobotlab.arduino.compiler.RunnerListener;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.arduino.compiler.Uploader;
 import org.myrobotlab.control.ImageButton;
-import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceException;
+import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.service.Arduino;
 
 /**

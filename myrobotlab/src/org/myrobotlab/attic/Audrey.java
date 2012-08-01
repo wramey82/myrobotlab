@@ -35,9 +35,9 @@ import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.OpenCV.Polygon;
 import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.Sphinx;
-import org.myrobotlab.service.OpenCV.Polygon;
 
 // http://ai.eecs.umich.edu/cogarch0/subsump/arch.html  Augmented Finite State Machines
 // http://www.ibm.com/developerworks/java/library/j-robots/ 

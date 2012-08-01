@@ -35,12 +35,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Graphics;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.Polygon;
+import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.data.PinState;
 

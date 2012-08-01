@@ -26,8 +26,6 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
-import org.myrobotlab.service.Runtime;
-
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -41,9 +39,9 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.MRLListener;
-
+import org.myrobotlab.framework.MethodEntry;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 import com.mxgraph.model.mxCell;

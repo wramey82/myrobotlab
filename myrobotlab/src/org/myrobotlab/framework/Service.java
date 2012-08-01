@@ -58,6 +58,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LogAppender;
 import org.myrobotlab.logging.LogLevel;
 import org.myrobotlab.net.CommunicationManager;
+import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.data.NameValuePair;
@@ -66,7 +67,6 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import org.myrobotlab.net.Heartbeat;
 /**
  * 
  * Service is the base of the MyRobotLab Service Oriented Architecture. All
