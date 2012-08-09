@@ -26,20 +26,34 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.nio.ShortBuffer;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
 import org.myrobotlab.service.OpenNI;
+import org.myrobotlab.service.data.KinectData;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class OpenNIGUI extends ServiceGUI {
+public class OpenNIGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 
 	PointsShape ptsShape = new PointsShape();
 	Points3DPanel panel3d = new Points3DPanel(ptsShape);
-
+	JButton captureButton = new JButton("capture");
+	JButton recordButton = new JButton("record");
+	JButton playbackButton = new JButton("playback");
+	JButton pointCloudButton = new JButton("point cloud");
+	JButton depthCloudButton = new JButton("depth");
+	JButton imageCloudButton = new JButton("image");
+	
+	JPanel eastPanel = new JPanel();
 	
 	public OpenNIGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -52,6 +66,19 @@ public class OpenNIGUI extends ServiceGUI {
 		display.setLayout(new BorderLayout());
 		display.add(panel3d, BorderLayout.CENTER);
 		
+		eastPanel.setLayout(new GridLayout(6,1));
+		eastPanel.add(captureButton);
+		eastPanel.add(recordButton);
+		eastPanel.add(playbackButton);
+		eastPanel.add(pointCloudButton);
+		eastPanel.add(depthCloudButton);
+		eastPanel.add(imageCloudButton);
+		
+		display.add(eastPanel, BorderLayout.EAST);
+		
+		captureButton.addActionListener(this);
+		recordButton.addActionListener(this);
+		playbackButton.addActionListener(this);
 		/*
 		JPanel viewer = new JPanel();
 		viewer.setLayout(new BorderLayout());
@@ -70,17 +97,17 @@ public class OpenNIGUI extends ServiceGUI {
 		
 	}
 
-	
-	public void publishFrame (ShortBuffer depthBuffer)
+	public void publishFrame (KinectData kd)
 	{
-		ptsShape.updateDepthCoords(depthBuffer);  
+		ptsShape.updateDepthCoords(kd);
 	}
 	
 	@Override
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
 		subscribe("publishState", "getState", OpenNI.class); 
-		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
+//		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
+		subscribe("publishFrame", "publishFrame", KinectData.class); 
 		myService.send(boundServiceName, "publishState");
 		
 	}
@@ -88,6 +115,43 @@ public class OpenNIGUI extends ServiceGUI {
 	@Override
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", OpenNI.class);
+	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if (o == captureButton)
+		{
+			if (captureButton.getText().equals("capture"))
+			{
+				myService.send(boundServiceName, "capture");
+				captureButton.setText("stop capture");
+			} else {
+				myService.send(boundServiceName, "stopCapture");
+				captureButton.setText("capture");
+			}
+		} else if (o == recordButton) 
+		{
+			if (recordButton.getText().equals("record"))
+			{
+				myService.send(boundServiceName, "record");
+				recordButton.setText("stop recording");
+			} else {
+				myService.send(boundServiceName, "stopRecording");				
+				recordButton.setText("record");
+			}
+		} else if (o == playbackButton) 
+		{
+			if (playbackButton.getText().equals("playback"))
+			{
+				myService.send(boundServiceName, "playback");
+				playbackButton.setText("stop playback");
+			} else {
+				myService.send(boundServiceName, "stopPlayback");
+				playbackButton.setText("playback");
+			}
+		}
 	}
 
 }

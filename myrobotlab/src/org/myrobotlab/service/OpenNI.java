@@ -1,23 +1,39 @@
 package org.myrobotlab.service;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ShortBuffer;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.SimpleTimeZone;
 
 import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
 import org.OpenNI.DepthMetaData;
+import org.OpenNI.GeneralException;
+import org.OpenNI.IRGenerator;
 import org.OpenNI.License;
 import org.OpenNI.MapOutputMode;
 import org.OpenNI.StatusException;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.KinectData;
 
 public class OpenNI extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenNI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenNI.class
+			.getCanonicalName());
 
 	private boolean capturing = false;
 	private Context context;
@@ -26,8 +42,31 @@ public class OpenNI extends Service {
 	private static final int IM_WIDTH = 640;
 	private static final int IM_HEIGHT = 480;
 	boolean publishFrame = true;
+	boolean isRecording = false;
+	FileOutputStream fout = null;
+	ObjectOutputStream oos = null;  
+	FileInputStream fin = null;
+	ObjectInputStream ois = null;  
+	boolean isPlayingFromFile = false;
+	static float[] depthLookUp = createDepthLookUpTable();
 	
-	SensorCaptureProcess sensorCaptureProcess =  null;
+	SensorCaptureProcess sensorCaptureProcess = null;
+	
+	public static float[] createDepthLookUpTable()
+	{
+		float[] lookup = new float[2048];
+		for (int i = 0; i < lookup.length; i++) {
+			lookup[i] = rawDepthToMeters(i);
+		}
+		return lookup;
+	}
+	
+	public static float rawDepthToMeters(int depthValue) {
+		  if (depthValue < 2047) {
+		    return (float)(1.0 / ((double)(depthValue) * -0.0030711016 + 3.3309495161));
+		  }
+		  return 0.0f;
+		}
 
 	public void configOpenNI()
 	// create context and depth generator
@@ -36,8 +75,7 @@ public class OpenNI extends Service {
 			context = new Context();
 
 			// add the NITE License
-			License license = new License("PrimeSense",
-					"0KOIk2JeIBYClPWVnMoRKn5cdY4=");
+			License license = new License("PrimeSense","0KOIk2JeIBYClPWVnMoRKn5cdY4=");
 			// vendor, key
 			context.addLicense(license);
 
@@ -61,8 +99,6 @@ public class OpenNI extends Service {
 		}
 	} // end of configOpenNI()
 
-	
-	
 	class SensorCaptureProcess implements Runnable {
 
 		boolean published = false;
@@ -76,6 +112,8 @@ public class OpenNI extends Service {
 		// CvCapture frameGrabber = cvCreateCameraCapture(0);
 		// VideoInputFrameGrabber grabber = null;
 
+		// - http://www.java2s.com/Tutorial/Java/0180__File/ReadinganObjectFromaFile.htm "buffered!!!"
+		
 		SimpleDateFormat sdf = new SimpleDateFormat();
 
 		public void start() {
@@ -92,36 +130,65 @@ public class OpenNI extends Service {
 			capturing = false;
 			captureThread = null;
 		}
+		
 
+		KinectData kd = new KinectData(); 
+		
 		public void run() {
-			configOpenNI();
 
+			configOpenNI();
 			capturing = true;
 
 			while (capturing) {
 				published = false;
 				++frameIndex;
 				logTime("start");
-
+				
 				try {
-					context.waitAnyUpdateAll();
+					if (!isPlayingFromFile)
+					{
+						context.waitAnyUpdateAll();
+					}
 				} catch (StatusException e) {
-					System.out.println(e);
-					System.exit(1);
+					logException(e);
+					capturing = false;
+					break;
+				}
+				
+				ShortBuffer depthBuf = null;
+				
+				if (!isPlayingFromFile)
+				{
+					depthBuf = depthMD.getData().createShortBuffer();
+					// "only" copy to data buffer
+					depthBuf.get(kd.data);
+					depthBuf.rewind();
+					
+				} else {
+					try {
+						kd.data = (short[])ois.readObject();
+					} catch (Exception e) {
+						logException(e);
+						isPlayingFromFile = false;
+					} 
+				}
+				
+				if (isRecording)
+				{
+					try {
+						oos.writeUnshared(kd.data);
+					} catch (IOException e) {
+						logException(e);
+					}
 				}
 
-				ShortBuffer depthBuf = depthMD.getData().createShortBuffer();
-				// ptsShape.updateDepthCoords(depthBuf); - change to publish
 				if (publishFrame) {
-					// invoke("publishFrame", displayFilter, bi);
-					invoke("publishFrame", depthBuf); // TODO - multiple formats - raw - Polar - Cartesian, Units etc.
+					invoke("publishFrame", kd); // TODO - multiple formats
 					published = true;
 				} // TODO convert to buffered image?
 					// log.error(" time");
-
-				// this call will not return until the 3D scene has been updated
-			}
-			// close down
+			} // close down
+			
 			try {
 				context.stopGeneratingAll();
 			} catch (StatusException e) {
@@ -146,15 +213,13 @@ public class OpenNI extends Service {
 		return "used as a general template";
 	}
 
-
 	public void capture() {
 
 		sensorCaptureProcess = new SensorCaptureProcess();
 		sensorCaptureProcess.start();
 	}
-	
-	public void stopCapture() 
-	{
+
+	public void stopCapture() {
 		// set variable - allow capturing thread
 		// to terminate cleanly and release resources
 		capturing = false;
@@ -166,24 +231,191 @@ public class OpenNI extends Service {
 
 	}
 
-	
-	public ShortBuffer publishFrame (ShortBuffer depthData)
-	{
+	public ShortBuffer publishFrame(ShortBuffer depthData) {
 		return depthData;
 	}
+	
+	public KinectData publishFrame(KinectData kd) {
+		return kd;
+	}
+
+	// globals 
+	private static final int MAX_DEPTH_SIZE = 10000;   
+	private byte[] imgbytes; 
+	private float histogram[]; 
+	private void updateDepthImage() 
+	{ 
+	  ShortBuffer depthBuf = depthMD.getData().createShortBuffer(); 
+	                             // current depths map  
+	  calcHistogram(depthBuf);   // convert depths to ints 
+	  depthBuf.rewind(); 
+	  // store ints as bytes in imgbytes[] pixel array 
+	  while (depthBuf.remaining() > 0) { 
+	    int pos = depthBuf.position();    // pixel position of depth 
+	    short depth = depthBuf.get();     // depth measure 
+	    imgbytes[pos] = (byte) histogram[depth];  
+	             // store depth's grayscale at depth's pixel pos 
+	  } 
+	}  // end of updateDepthImage()
+	
+	// globals 
+	//private float histogram[]; 
+	private int maxDepth = 0;    // largest depth value 
+	private void calcHistogram(ShortBuffer depthBuf) 
+	{ 
+	  // reset histogram[]  (stage 1) 
+	  for (int i = 0; i <= maxDepth; i++) 
+	    histogram[i] = 0; 
+	  // store depth counts in histogram[]; 
+	  // a depth (an integer mm value) is used as an index  
+	  // into the array (stage 2) 
+	  int numPoints = 0; 
+	  maxDepth = 0; 
+	  while (depthBuf.remaining() > 0) { 
+	    short depthVal = depthBuf.get(); 
+	    if (depthVal > maxDepth) 
+	      maxDepth = depthVal; 
+	    if ((depthVal != 0)  && (depthVal < MAX_DEPTH_SIZE)){  
+	                   // skip histogram[0] 
+	      histogram[depthVal]++; 
+	      numPoints++; 
+	    } 
+	  } 
+	  // convert into a cummulative depth count (skipping histogram[0]) 
+	  for (int i = 1; i <= maxDepth; i++)    // stage 3 
+	    histogram[i] += histogram[i - 1]; 
+	  // convert cummulative depth into integers (0-255); stage 4 
+	  if (numPoints > 0) { 
+	    for (int i = 1; i <= maxDepth; i++)   // skip histogram[0] 
+	      histogram[i] =  
+	        (int) (256 * (1.0f - (histogram[i] / (float) numPoints))); 
+	  } 
+	}  // end of calcHistogram() 
+
+	// global - IR Image hacked from begin ------------------------
+	// http://fivedots.coe.psu.ac.th/~ad/jg/nui13/KinectImaging.pdf
+	private IRGenerator irGen;
+	private BufferedImage image = null;
+
+	private void updateIRImage() {
+		try {
+			ShortBuffer irSB = irGen.getIRMap().createShortBuffer();
+			// scan the IR data, storing the min and max values
+			int minIR = irSB.get();
+			int maxIR = minIR;
+			while (irSB.remaining() > 0) {
+				int irVal = irSB.get();
+				if (irVal > maxIR)
+					maxIR = irVal;
+				if (irVal < minIR)
+					minIR = irVal;
+			}
+			irSB.rewind();
+			// convert the IR values into 8-bit grayscales
+			image = createGrayIm(irSB, minIR, maxIR);
+		} catch (GeneralException e) {
+			System.out.println(e);
+		}
+	} // end of updateIRImage()
+
+	private static final int MIN_8_BIT = 0;  
+	private static final int MAX_8_BIT = 255; 
+	       // for mapping the IR values into a 8-bit range 
+	private BufferedImage createGrayIm(ShortBuffer irSB,  
+	                                          int minIR, int maxIR)  
+	{ 
+	  // create a grayscale image 
+	  BufferedImage image = new BufferedImage(IM_WIDTH, IM_HEIGHT,  
+	                                      BufferedImage.TYPE_BYTE_GRAY); 
+	  // access the image's data buffer 
+	  byte[] data = ((DataBufferByte) 
+	                    image.getRaster().getDataBuffer()).getData(); 
+	  float displayRatio = (float)  
+	                      (MAX_8_BIT - MIN_8_BIT)/(maxIR - minIR); 
+	  // scale the converted IR data over the grayscale range; 
+	  int i = 0; 
+	  while (irSB.remaining() > 0) { 
+	    int irVal = irSB.get(); 
+	    int out; 
+	    if (irVal <= minIR) 
+	      out = MIN_8_BIT; 
+	    else if (irVal >= maxIR) 
+	      out = MAX_8_BIT; 
+	    else 
+	      out = (int) ((irVal - minIR)* displayRatio); 
+	    data[i++] = (byte) out;   // store in the data buffer 
+	  } 
+	  return image; 
+	}  // end of createGrayIm() 
+	
+	// global - hacked from end ------------------------
+	// http://fivedots.coe.psu.ac.th/~ad/jg/nui13/KinectImaging.pdf
+	
+	String lastRecordedFile = "openni_20120806125146059.data";
+	
+	public void record()
+	{
+		try {
+			//isPlayingFromFile = false;
+			Date d = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+			formatter.setCalendar(cal);
+			lastRecordedFile = String.format("%s_%s.data", getName(), formatter.format(d));
+			fout = new FileOutputStream(lastRecordedFile);
+			oos = new ObjectOutputStream(new BufferedOutputStream(fout));   
+			isRecording = true;
+		} catch (Exception e) {
+			logException(e);
+		}
+	}
+	
+	public void stopRecording()
+	{
+		try {
+			oos.close();
+			fout.close();
+		} catch (IOException e) {
+			logException(e);
+		}
+		isRecording = false;
+	}
+	
+	public void playback()
+	{
+		playback(lastRecordedFile);
+	}
+	
+	public void playback(String filename) 
+	{
+		if (isRecording)
+		{
+			stopRecording();
+		}
+		
+		try {
+			fin = new FileInputStream(filename);
+			ois = new ObjectInputStream(new BufferedInputStream(fin));
+			isPlayingFromFile = true;
+		} catch (Exception e) {
+			logException(e);
+		}
+		
+	}
+	
 	
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.WARN);
 
 		OpenNI openni = new OpenNI("openni");
 		openni.startService();
-		
+
 		Runtime.createAndStart("gui", "GUIService");
-		
-		openni.capture();
+
+		// openni.capture();
 
 	}
-	
+
 }
