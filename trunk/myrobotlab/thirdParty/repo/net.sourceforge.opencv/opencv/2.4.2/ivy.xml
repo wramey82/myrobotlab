@@ -25,7 +25,7 @@
         <artifact name="x86.32.windows/opencv_calib3d242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_contrib242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_core242" type="native" ext="dll" conf="x86.32.windows"/>
-        <artifact name="x86.32.windows/opencv_ffmpeg242 type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/opencv_ffmpeg242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_flann242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_gpu242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_highgui242" type="native" ext="dll" conf="x86.32.windows"/>
