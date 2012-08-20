@@ -29,11 +29,21 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.myrobotlab.arduino.compiler.Preferences2;
+import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class EditorArduino extends Editor implements ActionListener {
@@ -50,7 +60,6 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton fullscreenButton;
 	ImageButton monitorButton;
 
-	// tool menu->methods
 
 	// consoles
 	JTabbedPane consoleTabs;
@@ -58,42 +67,95 @@ public class EditorArduino extends Editor implements ActionListener {
 	// autocompletion
 	CompletionProvider provider;
 	AutoCompletion ac;
+	
+	Arduino myArduino = null;
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
-
+		ServiceWrapper sw = Runtime.getService(boundServiceName);
+		myArduino = (Arduino) sw.get();
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-
-		Object o = arg0.getSource();
-		if (o == restartButton) {
-			//performRestart();
+	public void actionPerformed(ActionEvent event) {
+		super.actionPerformed(event);
+		Object o = event.getSource();
+				
+		if (o == connectButton)
+		{
+			//compile();		
+		} else if (o == uploadButton) {
+			//compileAndUpload();
 			return;
 		}
 	}
 	
-
+	JMenu boardsMenu = null;
+	public JMenu serialDeviceMenu = null;
 
 	public void init() {
 		super.init();
 		
-		compileButton = addImageButtonToButtonBar("Arduino","compile", this);
-		uploadButton 	= addImageButtonToButtonBar("Arduino","upload", this);
-		connectButton 	= addImageButtonToButtonBar("Arduino","connect", this);
-		newButton 		= addImageButtonToButtonBar("Arduino","new", this);
-		openButton 		= addImageButtonToButtonBar("Arduino","open", this);
-		saveButton 		= addImageButtonToButtonBar("Arduino","save", this);
-		fullscreenButton= addImageButtonToButtonBar("Arduino","fullscreen", this);
-		monitorButton 	= addImageButtonToButtonBar("Arduino","monitor", this);
+		compileButton = addImageButtonToButtonBar("Arduino","Compile", this);
+		uploadButton 	= addImageButtonToButtonBar("Arduino","Upload", this);
+		connectButton 	= addImageButtonToButtonBar("Arduino","Connect", this);
+		newButton 		= addImageButtonToButtonBar("Arduino","New", this);
+		openButton 		= addImageButtonToButtonBar("Arduino","Open", this);
+		saveButton 		= addImageButtonToButtonBar("Arduino","Save", this);
+		fullscreenButton= addImageButtonToButtonBar("Arduino","Fullscreen", this);
+		monitorButton 	= addImageButtonToButtonBar("Arduino","Monitor", this);
 		
 		buttonBar.setBackground(new Color(0,100,104));
 		
 		// addHelpMenuURL("help blah", "http:blahblahblah");
+		
+		boardsMenu = new JMenu("Board");
+		rebuildBoardsMenu(boardsMenu);
+		
+		serialDeviceMenu = new JMenu("Serial Device");
+		
+		toolsMenu.add(boardsMenu);
+		toolsMenu.add(serialDeviceMenu);
+		
+		// add to help menu
+		helpMenu.add(createMenuItem("Getting Started"));
+		helpMenu.add(createMenuItem("Environment"));
+		helpMenu.add(createMenuItem("Troubleshooting"));
+		helpMenu.add(createMenuItem("Reference"));
+		helpMenu.add(createMenuItem("Find in Reference", saveMenuMnemonic, "control+shift-F", null));
+		helpMenu.add(createMenuItem("Frequently Asked Questions"));
+		helpMenu.add(createMenuItem("Visit Arduino.cc"));
 
 	}
 
+	  public void rebuildBoardsMenu(JMenu menu) {
+		    //System.out.println("rebuilding boards menu");
+		    menu.removeAll();      
+		    ButtonGroup group = new ButtonGroup();
+		    for (Target target : myArduino.targetsTable.values()) {
+		      for (String board : target.getBoards().keySet()) {
+		        AbstractAction action = 
+		          new AbstractAction(target.getBoards().get(board).get("name")) {
+		            public void actionPerformed(ActionEvent actionevent) {
+		            	log.info(String.format("switching to %s:%s",(String) getValue("target"), (String) getValue("board")));
+		            	myService.send(boundServiceName, "setPreference", "target", (String) getValue("target"));
+		            	myService.send(boundServiceName, "setPreference", "board", (String) getValue("board"));
+		              // FIXME - Preferences2 needs to be kept in sync - send an message to reload
+		            }
+		          };
+		        action.putValue("target", target.getName());
+		        action.putValue("board", board);
+		        JMenuItem item = new JRadioButtonMenuItem(action);
+		        if (target.getName().equals(Preferences2.get("target")) &&
+		            board.equals(Preferences2.get("board"))) {
+		          item.setSelected(true);
+		        }
+		        group.add(item);
+		        menu.add(item);
+		      }
+		    }
+		  }
 
+		
 
 }

@@ -29,9 +29,7 @@ import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import org.myrobotlab.arduino.gui.Base;
-
-
+import org.myrobotlab.service.Arduino;
 
 public class Sizer implements MessageConsumer {
   private String buildPath, sketchName;
@@ -45,7 +43,7 @@ public class Sizer implements MessageConsumer {
   }
   
   public long computeSize() throws RunnerException {
-    String avrBasePath = Base.getAvrBasePath();
+    String avrBasePath = Arduino.getAvrBasePath();
     String commandSize[] = new String[] {
       avrBasePath + "avr-size",
       " "

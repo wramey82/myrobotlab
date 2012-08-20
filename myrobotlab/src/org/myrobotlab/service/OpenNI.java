@@ -351,7 +351,7 @@ public class OpenNI extends Service {
 	// global - hacked from end ------------------------
 	// http://fivedots.coe.psu.ac.th/~ad/jg/nui13/KinectImaging.pdf
 	
-	String lastRecordedFile = "openni_20120806125146059.data";
+	String lastRecordedFile = "openni_20120809115522660.data";
 	
 	public void record()
 	{

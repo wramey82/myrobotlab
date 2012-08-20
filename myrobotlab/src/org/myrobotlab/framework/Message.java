@@ -109,8 +109,13 @@ public class Message implements Serializable {
 		method = other.method;
 		data = other.data;
 	}
+	
+	final public String getParameterSignature()
+	{
+		return getParameterSignature(data);
+	}
 
-	final public String getParameterSignature() {
+	static final public String getParameterSignature(Object[] data) {
 		if (data == null) {
 			return "null";
 		}

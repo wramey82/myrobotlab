@@ -104,7 +104,7 @@ public class OpenCV extends Service {
 	FrameGrabber grabber = null;
 
 	// grabber cfg
-	@Element
+	@Element(required=false)
 	public String format = null;
 	@Element
 	public boolean getDepth = false;
@@ -818,7 +818,7 @@ public class OpenCV extends Service {
 		 */
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
-		opencv.startService();
+		//opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		// opencv.addFilter("InRange1", "InRange");
@@ -839,8 +839,8 @@ public class OpenCV extends Service {
 		 */
 
 
-		IPCamera ip = new IPCamera("ip");
-		ip.startService();
+		//IPCamera ip = new IPCamera("ip");
+		//ip.startService();
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

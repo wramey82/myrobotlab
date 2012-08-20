@@ -29,7 +29,7 @@ package org.myrobotlab.arduino;
 import java.io.File;
 import java.io.IOException;
 
-import org.myrobotlab.arduino.gui.Base;
+import org.myrobotlab.service.Arduino;
 
 //import javax.swing.text.Document;
 //import javax.swing.undo.UndoManager;
@@ -128,7 +128,7 @@ public class SketchCode2 {
   
   
   public void copyTo(File dest) throws IOException {
-    Base.saveFile(program, dest);
+	  Arduino.saveFile(program, dest);
   }
   
 
@@ -163,7 +163,7 @@ public class SketchCode2 {
   
   
   public int getLineCount() {
-    return Base.countLines(program);
+    return Arduino.countLines(program);
   }
   
   
@@ -254,7 +254,7 @@ public class SketchCode2 {
    * Load this piece of code from a file.
    */
   public void load() throws IOException {
-    program = Base.loadFile(file);
+    program = Arduino.loadFile(file);
 
     if (program.indexOf('\uFFFD') != -1) {
       System.err.println(file.getName() + " contains unrecognized characters."); 
@@ -277,7 +277,7 @@ public class SketchCode2 {
     // TODO re-enable history
     //history.record(s, SketchHistory.SAVE);
 
-    Base.saveFile(program, file);
+    Arduino.saveFile(program, file);
     setModified(false);
   }
 
@@ -286,6 +286,6 @@ public class SketchCode2 {
    * Save this file to another location, used by Sketch.saveAs()
    */
   public void saveAs(File newFile) throws IOException {
-    Base.saveFile(program, newFile);
+	  Arduino.saveFile(program, newFile);
   }
 }

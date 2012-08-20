@@ -138,21 +138,21 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 		capture.addActionListener(captureListener);
 
-		ArrayList<String> s = new ArrayList<String>();
+		ArrayList<String> frameGrabberList = new ArrayList<String>();
 		for (int i = 0; i < FrameGrabber.list.size(); ++i)
 		{
 			String ss = FrameGrabber.list.get(i);
 			String fg = ss.substring(ss.lastIndexOf(".") + 1);			
 			// filter out the two I've never seen
-			if (!"DC1394FrameGrabber".equals(fg) && !"FlyCaptureFrameGrabber".equals(fg))
+			if (!"DC1394".equals(fg) && !"FlyCapture".equals(fg))
 			{
-				s.add(fg);
+				frameGrabberList.add(fg);
 			}
 		}
 		
-		s.add("IPCameraFrameGrabber");
+		frameGrabberList.add("IPCamera");
 		
-		grabberTypeSelect = new JComboBox(s.toArray());
+		grabberTypeSelect = new JComboBox(frameGrabberList.toArray());
 		
 		kinectImageOrDepth.addActionListener(kinectListener);
 		
@@ -279,7 +279,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
         myOpenCV = (OpenCV)Runtime.getService(boundServiceName).service;
         
         // TODO - remove action listener?
-        grabberTypeSelect.setSelectedItem("OpenCVFrameGrabber");
+        grabberTypeSelect.setSelectedItem("OpenCV");
 
 	}
 	
@@ -391,14 +391,15 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 			// otherwise invalid states may occur while a capture is running
 			// the model is to set all the data of the gui just before the capture 
 			// request is sent
-			if ("IPCameraFrameGrabber".equals((String)grabberTypeSelect.getSelectedItem()))
+			if ("IPCamera".equals((String)grabberTypeSelect.getSelectedItem()))
 			{
 				prefixPath = "org.myrobotlab.image.";		
 				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
 			} else {
 				prefixPath = "com.googlecode.javacv.";
 			}
-			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem();
+			
+			myOpenCV.grabberType = prefixPath + (String)grabberTypeSelect.getSelectedItem() + "FrameGrabber";
 						
 			if (fileRadio.isSelected())
 			{
@@ -438,7 +439,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		public void actionPerformed(ActionEvent e) {
 			
 			String type = (String)grabberTypeSelect.getSelectedItem();
-			if ("OpenKinectFrameGrabber".equals(type))
+			if ("OpenKinect".equals(type))
 			{
 				cameraRadio.setSelected(true);
 				cameraIndexLable.setVisible(true);
@@ -452,9 +453,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				IPCameraType.setVisible(false);
 			} 
 			
-			if ("OpenCVFrameGrabber".equals(type) || 
-					"VideoInputFrameGrabber".equals(type) || 
-					"FFmpegFrameGrabber".equals(type))
+			if ("OpenCV".equals(type) || 
+					"VideoInput".equals(type) || 
+					"FFmpeg".equals(type))
 			{
 				//cameraRadio.setSelected(true);
 				kinectImageOrDepth.setSelectedItem("image");
@@ -472,7 +473,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				IPCameraType.setVisible(false);				
 			}			
 
-			if ("IPCameraFrameGrabber".equals(type))
+			if ("IPCamera".equals(type))
 			{
 				//cameraRadio.setSelected(true);
 				//kinectImageOrDepth.setSelectedItem("image");

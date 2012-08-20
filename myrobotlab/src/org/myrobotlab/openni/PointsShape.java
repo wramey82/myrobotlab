@@ -35,6 +35,8 @@ package org.myrobotlab.openni;
  */
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.concurrent.Semaphore;
 
 import javax.media.j3d.Appearance;
@@ -45,7 +47,7 @@ import javax.media.j3d.PointArray;
 import javax.media.j3d.PointAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransparencyAttributes;
-import javax.vecmath.Point3f;
+import javax.media.j3d.TriangleArray;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.data.KinectData;
@@ -89,8 +91,9 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 	/**
 	 * Java 3D geometry holding the points
 	 */
-	private PointArray pointParts; 
+	private PointArray cloud; 
 	private float[] coords, colors; // holds (x,y,z) and (R,G,B) of the points
+	private TriangleArray mesh;
 
 	/**
 	 * used to make updateDepthCoords() wait until GeometryUpdater.updateData()
@@ -103,7 +106,8 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 
 	public PointsShape() {
 		// BY_REFERENCE PointArray storing coordinates and colors
-		pointParts = new PointArray(MAX_POINTS, PointArray.COORDINATES | PointArray.COLOR_3 | PointArray.BY_REFERENCE);
+		cloud = new PointArray(MAX_POINTS, PointArray.COORDINATES | PointArray.COLOR_3 | PointArray.BY_REFERENCE);
+		mesh = new TriangleArray(MAX_POINTS, GeometryArray.COORDINATES | PointArray.COLOR_3| TriangleArray.BY_REFERENCE);
 
 		TransparencyAttributes ta = new TransparencyAttributes();
 		ta.setTransparencyMode(TransparencyAttributes.NICEST);
@@ -118,12 +122,11 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 		a.setTransparencyAttributes(ta);
 		
 		// the data structure can be read and written at run time
-		pointParts.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
-		pointParts.setCapability(GeometryArray.ALLOW_REF_DATA_WRITE);
+		cloud.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
+		cloud.setCapability(GeometryArray.ALLOW_REF_DATA_WRITE);
 
-		// calculate x- and y- scaling from Kinect coords to 3D scene coords
-		//xScale = ((float) X_WIDTH) / IM_WIDTH; // FIXME ????
-		//yScale = ((float) Y_WIDTH) / IM_HEIGHT;
+		mesh.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
+		mesh.setCapability(GeometryArray.ALLOW_REF_DATA_WRITE);
 
 		sem = new Semaphore(0);
 
@@ -148,11 +151,8 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 		
 		coords = new float[IM_WIDTH * IM_HEIGHT * 3]; // for (x,y,z) coords of a point
 		colors = new float[IM_WIDTH * IM_HEIGHT * 3]; // to store each a point's color
-
+/*
 		int pointsCount = IM_WIDTH * IM_HEIGHT;
-		// initialize the two arrays
-		Point3f min = new Point3f();
-		Point3f max = new Point3f();
 
 		for (int index = 0; index < pointsCount*3; index+=3) {
 //			if (dpIdx % SAMPLE_FREQ == 0) { // only look at depth index that is
@@ -162,14 +162,6 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 					coords[index] = index%IM_WIDTH * 0.01f;// * xScale; // x coord
 					coords[index + 1] = (index/3)/IM_WIDTH * 0.01f;// * yScale; // y coord
 					coords[index + 2] = 1f; // z coord (will change later)
-
-					if (index == 0)
-					{
-						min = new Point3f(coords[index],coords[index+1], 0f);
-					} else if (index == pointsCount*3 - 3) {
-						max = new Point3f(coords[index],coords[index+1], 0f);
-					}
-// TODO - print middle point Z		          
 
 					// initial point colour is white (will change later)
 					colors[index] = 1.0f;
@@ -182,16 +174,19 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 		}
 		System.out.println("Initialized " + pointsCount + " points");
 		System.out.println("min  " + min + " max " + max);
-
+*/
 		// store the coordinates and colours in the PointArray
-		pointParts.setCoordRefFloat(coords); // use BY_REFERENCE
-		pointParts.setColorRefFloat(colors);
+		cloud.setCoordRefFloat(coords); // use BY_REFERENCE
+		cloud.setColorRefFloat(colors);
 
+//		mesh.setCoordRefFloat(coords); // use BY_REFERENCE
+//		mesh.setColorRefFloat(colors);
 		/*
 		 * PointsShape is drawn as the collection of colored points stored in
 		 * the PointsArray.
 		 */
-		setGeometry(pointParts);
+		setGeometry(cloud);
+//		setGeometry(mesh);
 	} // end of createGeometry()
 
 
@@ -238,6 +233,14 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 	float displayScale = 0.001f;
 	public void updateData(Geometry geo) {
 
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter("meshlab.xyz");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		short[] data = kinectData.data; // 640 X 480 11 bit depth data
 		
 		int coordIndex = 0;
@@ -264,10 +267,19 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 			coords[coordIndex + 1] = 10 * y;
 			coords[coordIndex + 2] = 10 * z;
 			
+			out.print(String.format("%f %f %f\n", x * 10, y * 10, z * 10));
+			
+			
 			if (r < min && r != 0) min = r;
 			if (r > max) max = r;
 			
-//			Color color = new Color(Color.HSBtoRGB((z * (0.5f)),  0.9f, 0.7f));
+			// with observed min 451 max 9757 there about 10000 depth values
+			
+			Color color = new Color(Color.HSBtoRGB((r/(float)1000),  0.9f, 0.7f));
+			colors[coordIndex] = color.getRed() / 255.0f;
+			colors[coordIndex + 1] = color.getGreen() / 255.0f;
+			colors[coordIndex + 2] = color.getBlue() / 255.0f;
+			//colors[xCoordIdx + 3] = 1.0f; transparency
 			
 //			if (depthDataIndex == 0)
 //			{
@@ -275,7 +287,7 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 //			} else 
 			if (depthDataIndex == 153920) // 640 * 240 + 320 == midpoint index
 			{
-//				log.warn(String.format("midpoint ijr (%d,%d,%d) => xyz (%f,%f,%f)  (%f,%f,%f) ", i,j,r, x,y,z, 39.3701 * x, 39.3701 * y, 39.3701 * z));
+				log.warn(String.format("midpoint ijr (%d,%d,%d) => xyz (%f,%f,%f)  (%f,%f,%f) ", i,j,r, x,y,z, 39.3701 * x, 39.3701 * y, 39.3701 * z));
 			}
 /*			
 			if (depthDataIndex == 306081)
@@ -286,6 +298,7 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 			
 		}		
 		
+		out.close();
 		log.warn(String.format("min %d max %d", min, max));
 		/*
 		for (int i = 0; i < data.length; ++i) {
@@ -343,7 +356,8 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 
 		this.kinectData = kd;
 
-		pointParts.updateData(this); // request an update of the geometry
+		cloud.updateData(this); // request an update of the geometry
+//		mesh.updateData(this);
 		try {
 			sem.acquire(); // wait for update to finish in updateData()
 		} catch (InterruptedException e) {
