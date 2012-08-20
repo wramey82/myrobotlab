@@ -1113,7 +1113,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			} 
 		    
-		    log.error(String.format("did not find method [%1$s] with %2$s params", method, ((params==null)?"()":params.length)));
+		    log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
 		} catch (Exception e) {
 			Service.logException(e);
 		}

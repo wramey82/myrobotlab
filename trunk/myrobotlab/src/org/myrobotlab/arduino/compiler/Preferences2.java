@@ -61,63 +61,37 @@ import org.myrobotlab.service.Arduino;
  * or an obscure file location (on Mac OS X) and make it far more difficult to
  * find the preferences to tweak them by hand (no! stay out of regedit!)
  * or to reset the preferences by simply deleting the preferences.txt file.
+ * 
+ * uhhh... Processing is an awesome project..  This class is an abomination...
+ * Arduino is an awesome project.. it's IDE code base is a large dung pile...
+ * 
+ * 
  */
 public class Preferences2 {
 
-  // what to call the feller
+  // FIXME - remove (almost all) of these preferences with the exception of anything
+  // which affects compile & upload
 
   static final String PREFS_FILE = "preferences.txt";
-
-
-  // prompt text stuff
 
   static final String PROMPT_YES     = "Yes";
   static final String PROMPT_NO      = "No";
   public static final String PROMPT_CANCEL  = "Cancel";
   public static final String PROMPT_OK      = "OK";
   static final String PROMPT_BROWSE  = "Browse";
-
-  /**
-   * Standardized width for buttons. Mac OS X 10.3 wants 70 as its default,
-   * Windows XP needs 66, and my Ubuntu machine needs 80+, so 80 seems proper.
-   */
   static public int BUTTON_WIDTH  = 80;
-
-  /**
-   * Standardized button height. Mac OS X 10.3 (Java 1.4) wants 29,
-   * presumably because it now includes the blue border, where it didn't
-   * in Java 1.3. Windows XP only wants 23 (not sure what default Linux
-   * would be). Because of the disparity, on Mac OS X, it will be set
-   * inside a static block.
-   */
   static public int BUTTON_HEIGHT = 24;
-
-  // value for the size bars, buttons, etc
-
   public static final int GRID_SIZE     = 33;
-
-
-  // indents and spacing standards. these probably need to be modified
-  // per platform as well, since macosx is so huge, windows is smaller,
-  // and linux is all over the map
 
   public static final int GUI_BIG     = 13;
   public static final int GUI_BETWEEN = 10;
   public static final int GUI_SMALL   = 6;
 
-  // gui elements
-  // the calling editor, so updates can be applied
-
-  //Editor editor;
-
-
-  // data model
-
   static Hashtable defaults;
   static Hashtable table = new Hashtable();;
   static File preferencesFile;
 
-
+/*
   public static void init(String commandLinePrefs) {
 
     // start by loading the defaults, in case something
@@ -169,9 +143,58 @@ public class Preferences2 {
       }
     }    
   }
+  */
 
 
-  public Preferences2() {
+  public Preferences2(String commandLinePrefs) {
+	   // start by loading the defaults, in case something
+	    // important was deleted from the user prefs
+	    try {
+	      load(Arduino.getLibStream("preferences.txt"));
+	    } catch (Exception e) {
+	      Arduino.showError(null, "Could not read default settings.\n" +
+	                           "You'll need to reinstall Arduino.", e);
+	    }
+
+	  
+	    // clone the hash table
+	    defaults = (Hashtable) table.clone();
+
+	    // other things that have to be set explicitly for the defaults
+
+	    // Load a prefs file if specified on the command line
+	    if (commandLinePrefs != null) {
+	      try {
+	        load(new FileInputStream(commandLinePrefs));
+
+	      } catch (Exception poe) {
+	        Arduino.showError("Error",
+	                       "Could not read preferences from " +
+	                       commandLinePrefs, poe);
+	      }
+	    } else if (!Arduino.isCommandLine()) {
+	      // next load user preferences file
+	      preferencesFile = Arduino.getSettingsFile(PREFS_FILE);
+	      if (!preferencesFile.exists()) {
+	        // create a new preferences file if none exists
+	        // saves the defaults out to the file
+	        save();
+
+	      } else {
+	        // load the previous preferences file
+
+	        try {
+	          load(new FileInputStream(preferencesFile));
+
+	        } catch (Exception ex) {
+	          Arduino.showError("Error reading preferences",
+	                         "Error reading the preferences file. " +
+	                         "Please delete (or move)\n" +
+	                         preferencesFile.getAbsolutePath() +
+	                         " and restart Arduino.", ex);
+	        }
+	      }
+	    }    
   }
 
 
@@ -183,16 +206,9 @@ public class Preferences2 {
     // put each of the settings into the table
     setBoolean("build.verbose", true);
     setBoolean("upload.verbose", true);
-    //setBoolean("export.delete_target_folder", deletePreviousBox.isSelected());
-
-//    setBoolean("sketchbook.closing_last_window_quits",
-//               closingLastQuitsBox.isSelected());
-    //setBoolean("sketchbook.prompt", sketchPromptBox.isSelected());
-    //setBoolean("sketchbook.auto_clean", sketchCleanBox.isSelected());
-
-    // if the sketchbook path has changed, rebuild the menus
+ 
     String oldPath = get("sketchbook.path");
-      set("sketchbook.path", ".myrobotlab");
+    set("sketchbook.path", ".myrobotlab");
 
     setBoolean("editor.external", false);
     setBoolean("update.check", false);
@@ -200,7 +216,6 @@ public class Preferences2 {
    
     setBoolean("editor.update_extension", true);
 
-    //editor.applyPreferences();
   }
 
 

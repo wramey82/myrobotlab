@@ -33,16 +33,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
+import org.myrobotlab.arduino.Sketch2;
+import org.myrobotlab.arduino.SketchCode2;
 import org.myrobotlab.arduino.compiler.MessageConsumer;
 import org.myrobotlab.arduino.compiler.MessageSiphon;
 import org.myrobotlab.arduino.compiler.MessageStream;
 import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Target;
-import org.myrobotlab.arduino.gui.Base;
-import org.myrobotlab.arduino.gui.Sketch;
-import org.myrobotlab.arduino.gui.SketchCode;
-
+import org.myrobotlab.service.Arduino;
 
 
 
@@ -50,7 +49,7 @@ public class Compiler implements MessageConsumer {
   static final String BUGS_URL = "http://code.google.com/p/arduino/issues/list";
   static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
 
-  Sketch sketch;
+  Sketch2 sketch;
   String buildPath;
   String primaryClassName;
   boolean verbose;
@@ -68,7 +67,7 @@ public class Compiler implements MessageConsumer {
    * @return true if successful.
    * @throws RunnerException Only if there's a problem. Only then.
    */
-  public boolean compile(Sketch sketch,
+  public boolean compile(Sketch2 sketch,
                          String buildPath,
                          String primaryClassName,
                          boolean verbose) throws RunnerException {
@@ -80,8 +79,8 @@ public class Compiler implements MessageConsumer {
     // the pms object isn't used for anything but storage
     MessageStream pms = new MessageStream(this);
 
-    String avrBasePath = Base.getAvrBasePath();
-    Map<String, String> boardPreferences = Base.getBoardPreferences();
+    String avrBasePath = Arduino.getAvrBasePath();
+    Map<String, String> boardPreferences = Arduino.getBoardPreferences();
     String core = boardPreferences.get("build.core");
     if (core == null) {
     	RunnerException re = new RunnerException("No board selected; please choose a board from the Tools > Board menu.");
@@ -91,11 +90,11 @@ public class Compiler implements MessageConsumer {
     String corePath;
     
     if (core.indexOf(':') == -1) {
-      Target t = Base.getTarget();
+      Target t = Arduino.getTarget();
       File coreFolder = new File(new File(t.getFolder(), "cores"), core);
       corePath = coreFolder.getAbsolutePath();
     } else {
-      Target t = Base.targetsTable.get(core.substring(0, core.indexOf(':')));
+      Target t = Arduino.targetsTable.get(core.substring(0, core.indexOf(':')));
       File coreFolder = new File(t.getFolder(), "cores");
       coreFolder = new File(coreFolder, core.substring(core.indexOf(':') + 1));
       corePath = coreFolder.getAbsolutePath();
@@ -106,11 +105,11 @@ public class Compiler implements MessageConsumer {
     
     if (variant != null) {
       if (variant.indexOf(':') == -1) {
-	Target t = Base.getTarget();
+	Target t = Arduino.getTarget();
 	File variantFolder = new File(new File(t.getFolder(), "variants"), variant);
 	variantPath = variantFolder.getAbsolutePath();
       } else {
-	Target t = Base.targetsTable.get(variant.substring(0, variant.indexOf(':')));
+	Target t = Arduino.targetsTable.get(variant.substring(0, variant.indexOf(':')));
 	File variantFolder = new File(t.getFolder(), "variants");
 	variantFolder = new File(variantFolder, variant.substring(variant.indexOf(':') + 1));
 	variantPath = variantFolder.getAbsolutePath();
@@ -439,7 +438,7 @@ public class Compiler implements MessageConsumer {
       // replace full file path with the name of the sketch tab (unless we're
       // in verbose mode, in which case don't modify the compiler output)
       if (e != null && !verbose) {
-        SketchCode code = sketch.getCode(e.getCodeIndex());
+        SketchCode2 code = sketch.getCode(e.getCodeIndex());
         String fileName = code.isExtension(sketch.getDefaultExtension()) ? code.getPrettyName() : code.getFileName();
         s = fileName + ":" + e.getCodeLine() + ": error: " + pieces[3] + msg;        
       }
@@ -464,7 +463,7 @@ public class Compiler implements MessageConsumer {
       "-assembler-with-cpp",
       "-mmcu=" + boardPreferences.get("build.mcu"),
       "-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-      "-DARDUINO=" + Base.REVISION,
+      "-DARDUINO=" + Arduino.REVISION,
     }));
 
     for (int i = 0; i < includePaths.size(); i++) {
@@ -491,7 +490,7 @@ public class Compiler implements MessageConsumer {
       "-fdata-sections",
       "-mmcu=" + boardPreferences.get("build.mcu"),
       "-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-      "-DARDUINO=" + Base.REVISION,
+      "-DARDUINO=" + Arduino.REVISION,
     }));
 		
     for (int i = 0; i < includePaths.size(); i++) {
@@ -520,7 +519,7 @@ public class Compiler implements MessageConsumer {
       "-fdata-sections",
       "-mmcu=" + boardPreferences.get("build.mcu"),
       "-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-      "-DARDUINO=" + Base.REVISION,
+      "-DARDUINO=" + Arduino.REVISION,
     }));
 
     for (int i = 0; i < includePaths.size(); i++) {

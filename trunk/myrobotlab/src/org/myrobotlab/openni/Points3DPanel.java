@@ -67,15 +67,13 @@ public class Points3DPanel extends JPanel
 	private BoundingSphere bounds; // for environment nodes
 
 	public Points3DPanel(PointsShape ptsShape)
-	// construct the 3D canvas
 	{
 		setLayout(new BorderLayout());
 		setOpaque(false);
 
 		setPreferredSize(new Dimension(PWIDTH, PHEIGHT));
 
-		GraphicsConfiguration config = SimpleUniverse
-				.getPreferredConfiguration();
+		GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
 		Canvas3D canvas3D = new Canvas3D(config);
 		add("Center", canvas3D);
 		canvas3D.setFocusable(true);
@@ -102,13 +100,13 @@ public class Points3DPanel extends JPanel
 
 		lightScene(); // add the lights
 		addBackground(); // add the sky
-		//sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
+		sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
 
 		addPointsShape(ptsShape);
 		addKinectShape();
 
 		sceneBG.compile(); // fix the scene
-	} // end of createSceneGraph()
+	}
 
 	private void lightScene()
 	/* One ambient light, 2 directional lights */
@@ -186,7 +184,8 @@ public class Points3DPanel extends JPanel
 		TransformGroup posnTG = new TransformGroup();
 		Transform3D t3d = new Transform3D();
 		// t3d.setScale(0.5);
-		t3d.setTranslation(new Vector3d(-3.2f, 0.0f, 0.0f));// 6.40 / 2
+//		t3d.setTranslation(new Vector3d(-3.2f, 2.4f, 0.0f));// 6.40 / 2
+		t3d.setTranslation(new Vector3d(0f, 0f, 0.0f));// 6.40 / 2
 		posnTG.setTransform(t3d);
 		posnTG.addChild(ptsShape);
 		sceneBG.addChild(posnTG);

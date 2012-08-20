@@ -79,7 +79,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	JSplitPane splitPane;
 
-	final JLabel statusInfo;
+	final JLabel statusLabel;
+	final JLabel status;
 
 	// TODO - check for outside modification with lastmoddate
 	File currentFile;
@@ -130,6 +131,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		provider = createCompletionProvider();
 		ac = new AutoCompletion(provider);
 
+		// FYI - files are on the "Arduino" service not on the GUI - these potentially are remote objects
 		currentFile = null;
 		currentFilename = null;
 
@@ -139,7 +141,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 		splitPane = null;
 
-		statusInfo = new JLabel("Status:");
+		statusLabel = new JLabel("Status:");
+		status = new JLabel("");
 		top = myService.getFrame();
 	}
 
@@ -221,7 +224,11 @@ public class Editor extends ServiceGUI implements ActionListener {
 		splitPane = createMainPane();
 
 		display.add(splitPane, BorderLayout.CENTER);
-		display.add(statusInfo, BorderLayout.PAGE_END);
+		
+		JPanel s = new JPanel();
+		s.add(statusLabel);
+		//s.add(comp)
+		display.add(statusLabel, BorderLayout.PAGE_END);
 	}
 
 	/**
@@ -320,19 +327,11 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	JMenu createToolsMenu() {
 		toolsMenu = new JMenu("Tools");
-		toolsMenu.add(createMenuItem("new"));
-		toolsMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
-		toolsMenu.add(createMenuItem("save as"));
-		toolsMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
 		return toolsMenu;
 	}
 
 	JMenu createHelpMenu() {
 		helpMenu = new JMenu("Help");
-		helpMenu.add(createMenuItem("new"));
-		helpMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
-		helpMenu.add(createMenuItem("save as"));
-		helpMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
 		return helpMenu;
 	}
 	
@@ -470,10 +469,10 @@ public class Editor extends ServiceGUI implements ActionListener {
 		String newfile = FileUtil.open(top, "*.py");
 		if (newfile != null) {
 			editor.setText(newfile);
-			statusInfo.setText("Loaded: " + FileUtil.getLastFileOpened());
+			statusLabel.setText("Loaded: " + FileUtil.getLastFileOpened());
 			return;
 		}
-		statusInfo.setText(FileUtil.getLastStatus());
+		statusLabel.setText(FileUtil.getLastStatus());
 		return;
 	}
 
@@ -522,6 +521,11 @@ public class Editor extends ServiceGUI implements ActionListener {
 		ImageButton ret = new ImageButton(resourceDir,name, al);
 		buttonBar.add(ret);
 		return ret;
+	}
+	
+	public void setStatus(String s)
+	{
+		status.setText(s);
 	}
 
 }

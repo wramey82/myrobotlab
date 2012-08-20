@@ -27,7 +27,7 @@ import com.sun.j3d.utils.geometry.Text2D;
 
 public class CheckerFloor
 {
-  private final static int FLOOR_LEN = 20;  // should be even
+  private final static int FLOOR_LEN = 80;  // should be even
 
   // colours for floor, etc
   private final static Color3f blue = new Color3f(0.0f, 0.1f, 0.4f);
@@ -65,9 +65,9 @@ public class CheckerFloor
 
 
   private void createCoords(int x, int z, ArrayList<Point3f> coords)
-  // Coords for a single blue or green square, 
-  // its left hand corner at (x,0,z)
   {
+	  // Coords for a single blue or green square, 
+	  // its left hand corner at (x,0,z)
     // points created in counter-clockwise order
     Point3f p1 = new Point3f(x, 0.0f, z+1.0f);
     Point3f p2 = new Point3f(x+1.0f, 0.0f, z+1.0f);
@@ -91,11 +91,11 @@ public class CheckerFloor
     oCoords.add(p3); oCoords.add(p4);
 
     floorBG.addChild( new ColouredTiles(oCoords, medRed) );
-  } // end of addOriginMarker();
+  } 
 
 
-  private void labelAxes()
   // Place numbers along the X- and Z-axes at the integer positions
+  private void labelAxes()
   {
     Vector3d pt = new Vector3d();
     for (int i=-FLOOR_LEN/2; i <= FLOOR_LEN/2; i++) {
@@ -108,11 +108,10 @@ public class CheckerFloor
       pt.z = i;
       floorBG.addChild( makeText(pt,""+i) );   // along z-axis
     }
-  }  // end of labelAxes()
+  } 
 
-
-  private TransformGroup makeText(Vector3d vertex, String text)
   // Create a Text2D object at the specified vertex
+  private TransformGroup makeText(Vector3d vertex, String text)
   {
     Text2D message = new Text2D(text, white, "SansSerif", 36, Font.BOLD );
        // 36 point bold Sans Serif
@@ -123,12 +122,11 @@ public class CheckerFloor
     tg.setTransform(t3d);
     tg.addChild(message);
     return tg;
-  } // end of getTG()
+  } 
 
 
   public BranchGroup getBG()
   {  return floorBG;  }
 
 
-}  // end of CheckerFloor class
-
+} 

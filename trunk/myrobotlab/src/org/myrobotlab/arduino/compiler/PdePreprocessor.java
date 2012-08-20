@@ -39,7 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.gui.Sketch;
+import org.myrobotlab.arduino.Sketch2;
 
 
 
@@ -104,7 +104,7 @@ public class PdePreprocessor {
     // an OutOfMemoryError or NullPointerException will happen.
     // again, not gonna bother tracking this down, but here's a hack.
     // http://dev.processing.org/bugs/show_bug.cgi?id=16
-    Sketch.scrubComments(program);
+    Sketch2.scrubComments(program);
     // If there are errors, an exception is thrown and this fxn exits.
 
     if (Preferences2.getBoolean("preproc.substitute_unicode")) {
