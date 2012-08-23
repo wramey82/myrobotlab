@@ -57,7 +57,7 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="/home/christer/Documents/workspace.myrobotlab/myrobotlab/thirdParty/repo/org.openni/1.5.4.0/org.OpenNI.jar"/>
-	<classpathentry kind="lib" path="/home/christer/Documents/workspace.myrobotlab/myrobotlab/thirdParty/repo/com.googlecode.colorutils/r9/colorutils.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.openni/1.5.4.0/org.OpenNI.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.colorutils/r9/colorutils.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
