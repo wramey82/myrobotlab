@@ -1093,7 +1093,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    mi = new JRadioButtonMenuItem (LogLevel.Fatal.toString());
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);		
+	    parentMenu.add(mi);
 	}
 
 
