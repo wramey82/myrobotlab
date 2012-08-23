@@ -15,6 +15,13 @@ public class JavaCompletionProvider extends DefaultCompletionProvider {
 	 * Constructor
 	 */
 	public JavaCompletionProvider() {
+		loadCompletions();
+	}
+	
+	/**
+	 * Load the completions related to Java.
+	 */
+	protected void loadCompletions() {
 		// Add completions for all Java keywords. A BasicCompletion is just
 		// a straightforward word completion.
 
