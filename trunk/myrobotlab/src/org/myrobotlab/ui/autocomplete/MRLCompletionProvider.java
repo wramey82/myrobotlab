@@ -138,7 +138,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 								+ "%5$s(%4$s)"
 								+ "</b></body></html>",
 							m.getReturnType().getName(),
-							m.getClass().getName(),
+							m.getDeclaringClass().getName(),
 							m.getName(),
 							paramsString,
 							genericsString));
