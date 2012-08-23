@@ -101,7 +101,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 		StringBuffer paramsString = new StringBuffer();
 		StringBuffer genericsString = new StringBuffer();
 		for (Method m: methods) {
-			if (m.getName() == "main" || !Modifier.isPublic(m.getModifiers()) || !Modifier.isStatic(m.getModifiers())) {
+			if (m.getName() == "main" || !Modifier.isPublic(m.getModifiers())) {
 				continue;
 			}
 			paramsString.delete(0, paramsString.length());
