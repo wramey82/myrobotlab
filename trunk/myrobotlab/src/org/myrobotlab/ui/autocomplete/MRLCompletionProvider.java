@@ -1,21 +1,51 @@
 /**
+ * @author SwedaKonsult
+ *  
+ * This file is part of MyRobotLab (http://myrobotlab.org).
+ *
+ * MyRobotLab is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version (subject to the "Classpath" exception
+ * as provided in the LICENSE.txt file that accompanied this code).
+ *
+ * MyRobotLab is distributed in the hope that it will be useful or fun,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * All libraries in thirdParty bundle are subject to their own license
+ * requirements - please refer to http://myrobotlab.org/libraries for 
+ * details.
+ * 
+ * Enjoy !
  * 
  */
 package org.myrobotlab.ui.autocomplete;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.myrobotlab.control.JavaCompletionProvider;
+import org.myrobotlab.reflection.Locator;
+import org.myrobotlab.service.GUIService;
 
 /**
  * @author SwedaKonsult
  *
  */
 public class MRLCompletionProvider extends JavaCompletionProvider {
+	/**
+	 * Logger for this guy.
+	 */
+	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
 	
 	/**
 	 * Overriding base class declaration in order to load methods
@@ -24,62 +54,78 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 	 */
 	protected void loadCompletions() {
 		super.loadCompletions();
-		// TODO: this needs to be dynamically loaded
-		loadClassMethods(org.myrobotlab.service.GUIService.class);
-		loadClassMethods(org.myrobotlab.service.AFMotorShield.class);
-		loadClassMethods(org.myrobotlab.service.Arduino.class);
-		loadClassMethods(org.myrobotlab.service.Arm.class);
-		loadClassMethods(org.myrobotlab.service.AudioCapture.class);
-		loadClassMethods(org.myrobotlab.service.AudioFile.class);
-		loadClassMethods(org.myrobotlab.service.ChessGame.class);
-		loadClassMethods(org.myrobotlab.service.ChumbyBot.class);
-		loadClassMethods(org.myrobotlab.service.Clock.class);
-		loadClassMethods(org.myrobotlab.service.Drupal.class);
-		loadClassMethods(org.myrobotlab.service.FaceTracking.class);
-		loadClassMethods(org.myrobotlab.service.FSM.class);
-		loadClassMethods(org.myrobotlab.service.GeneticProgramming.class);
-		loadClassMethods(org.myrobotlab.service.GoogleSTT.class);
-		loadClassMethods(org.myrobotlab.service.Graphics.class);
-		loadClassMethods(org.myrobotlab.service.HTTPClient.class);
-		loadClassMethods(org.myrobotlab.service.IPCamera.class);
-		loadClassMethods(org.myrobotlab.service.JFugue.class);
-		loadClassMethods(org.myrobotlab.service.Joystick.class);
-		loadClassMethods(org.myrobotlab.service.Jython.class);
-		loadClassMethods(org.myrobotlab.service.Keyboard.class);
-		loadClassMethods(org.myrobotlab.service.Logging.class);
-		loadClassMethods(org.myrobotlab.service.MagaBot.class);
-		loadClassMethods(org.myrobotlab.service.Motor.class);
-		loadClassMethods(org.myrobotlab.service.OpenCV.class);
-		loadClassMethods(org.myrobotlab.service.ParallelPort.class);
-		loadClassMethods(org.myrobotlab.service.PICAXE.class);
-		loadClassMethods(org.myrobotlab.service.PID.class);
-		loadClassMethods(org.myrobotlab.service.PlayerStage.class);
-		loadClassMethods(org.myrobotlab.service.Proxy.class);
-		loadClassMethods(org.myrobotlab.service.RecorderPlayer.class);
-		loadClassMethods(org.myrobotlab.service.Red5.class);
-		loadClassMethods(org.myrobotlab.service.RemoteAdapter.class);
-		loadClassMethods(org.myrobotlab.service.RobotPlatform.class);
-		loadClassMethods(org.myrobotlab.service.Roomba.class);
-		loadClassMethods(org.myrobotlab.service.Runtime.class);
-		loadClassMethods(org.myrobotlab.service.Scheduler.class);
-		loadClassMethods(org.myrobotlab.service.SensorMonitor.class);
-		loadClassMethods(org.myrobotlab.service.Serializer.class);
-		loadClassMethods(org.myrobotlab.service.Servo.class);
-		loadClassMethods(org.myrobotlab.service.Simbad.class);
-		loadClassMethods(org.myrobotlab.service.Skype.class);
-		loadClassMethods(org.myrobotlab.service.SLAM.class);
-		loadClassMethods(org.myrobotlab.service.SoccerGame.class);
-		loadClassMethods(org.myrobotlab.service.Speech.class);
-		loadClassMethods(org.myrobotlab.service.Sphinx.class);
-		loadClassMethods(org.myrobotlab.service.ThingSpeak.class);
-		loadClassMethods(org.myrobotlab.service.TrackingService.class);
-		loadClassMethods(org.myrobotlab.service.TweedleBot.class);
-		loadClassMethods(org.myrobotlab.service.WebServer.class);
-		loadClassMethods(org.myrobotlab.service.Wii.class);
-		loadClassMethods(org.myrobotlab.service.WiiBot.class);
-		loadClassMethods(org.myrobotlab.service.WiiDAR.class);
+		
+		try {
+			loadClasses(Locator.getClasses("org.myrobotlab.service"));
+		} catch (IOException e) {
+			log.error("Could not load MRLCompletions because of I/O issues.", e);
+		}
 	}
 	
+	/**
+	 * Load all information we want for the UI from the class.
+	 * 
+	 * @param implementation
+	 */
+	private void loadClass(Class<?> implementation) {
+		loadClassMethods(implementation);
+		loadClassConstants(implementation);
+	}
+	
+	/**
+	 * Load all constants available.
+	 * 
+	 * @param implementation
+	 */
+	private void loadClassConstants(Class<?> implementation) {
+		if (implementation == null) {
+			return;
+		}
+		Field[] fields = implementation.getDeclaredFields();
+		if (fields == null || fields.length == 0) {
+			return;
+		}
+		Completion completer;
+		StringBuffer paramsString = new StringBuffer();
+		StringBuffer genericsString = new StringBuffer();
+		for (Field f: fields) {
+			if (f.getName() == "main" || !Modifier.isPublic(f.getModifiers()) || !Modifier.isStatic(f.getModifiers())) {
+				continue;
+			}
+			// TODO: this doesn't work - doesn't actually grab the generics for this method
+			genericsString.delete(0, genericsString.length());
+			completer = new BasicCompletion(this,
+					String.format("%s.%s", implementation.getName(), f.getName()),
+					f.getName(),
+					String.format("<html><body>"
+								+ "<b>%1$s %2$s.%3$s"
+								+ "%5$s(%4$s)"
+								+ "</b> %6$s</body></html>",
+							f.getType().getName(),
+							f.getDeclaringClass().getName(),
+							f.getName(),
+							paramsString,
+							genericsString,
+							buildModifiers(f.getModifiers())));
+			addCompletion(completer);
+		}
+		completer = null;
+	}
+	
+	/**
+	 * Load everything from the classes in the list.
+	 * 
+	 * @param classList
+	 */
+	private void loadClasses(List<Class<?>> classList) {
+		if (classList == null || classList.size() == 0) {
+			return;
+		}
+		for (Class<?> c: classList) {
+			loadClass(c);
+		}
+	}
+
 	/**
 	 * Helper method that recurses implementation to find all
 	 * public static methods declared.
@@ -94,7 +140,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 			return;
 		}
 		Completion completer;
-		int paramLength = 0;
+		int arrayLength = 0;
 		int loop = 0;
 		Class<?>[] params;
 		TypeVariable<Method>[] generics;
@@ -106,9 +152,9 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 			}
 			paramsString.delete(0, paramsString.length());
 			params = m.getParameterTypes();
-			paramLength = params.length;
-			if (paramLength > 0) {
-				for (loop = 0; loop < paramLength; loop++) {
+			arrayLength = params.length;
+			if (arrayLength > 0) {
+				for (loop = 0; loop < arrayLength; loop++) {
 					if (loop > 0) {
 						paramsString.append(",");
 					}
@@ -119,10 +165,10 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 			genericsString.delete(0, genericsString.length());
 			// TODO: this doesn't work - doesn't actually grab the generics for this method
 			generics = m.getTypeParameters();
-			paramLength = generics.length;
-			if (paramLength > 0) {
+			arrayLength = generics.length;
+			if (arrayLength > 0) {
 				genericsString.append("<");
-				for (loop = 0; loop < paramLength; loop++) {
+				for (loop = 0; loop < arrayLength; loop++) {
 					if (loop > 0) {
 						genericsString.append(",");
 					}
@@ -131,19 +177,41 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 				genericsString.append(">");
 			}
 			completer = new BasicCompletion(this,
-					m.getName() + "(",
+					String.format("%s(", m.getName()),
 					m.getName(),
 					String.format("<html><body>"
 								+ "<b>%1$s %2$s.%3$s"
 								+ "%5$s(%4$s)"
-								+ "</b></body></html>",
+								+ "</b> %6$s</body></html>",
 							m.getReturnType().getName(),
 							m.getDeclaringClass().getName(),
 							m.getName(),
 							paramsString,
-							genericsString));
+							genericsString,
+							buildModifiers(m.getModifiers())));
 			addCompletion(completer);
 		}
 		completer = null;
+	}
+
+	private CharSequence buildModifiers(int modifiers) {
+		StringBuffer modifiersDescription = new StringBuffer();
+		if (Modifier.isStatic(modifiers)) {
+			modifiersDescription.append("<li>")
+				.append("static")
+				.append("</li>");
+		}
+		if (Modifier.isSynchronized(modifiers)) {
+			modifiersDescription.append("<li>")
+			.append("synchronized")
+			.append("</li>");
+		}
+		
+		if (modifiersDescription.length() == 0) {
+			return "";
+		}
+		modifiersDescription.insert(0, "<br><br><b><i>Modifiers:</i></b><ul>")
+			.append("</ul>");
+		return modifiersDescription;
 	}
 }
