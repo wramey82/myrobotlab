@@ -18,7 +18,9 @@ import org.myrobotlab.control.JavaCompletionProvider;
 public class MRLCompletionProvider extends JavaCompletionProvider {
 	
 	/**
-	 * Load all public methods from within the Service package.
+	 * Overriding base class declaration in order to load methods
+	 * that should be easy to find and use in Jython. Still calls
+	 * out the base class in order to load the Java keywords.
 	 */
 	protected void loadCompletions() {
 		super.loadCompletions();
@@ -111,6 +113,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 						paramsString.append(",");
 					}
 					paramsString.append(params[loop].getName());
+					// TODO: should grab the generics for each parameter
 				}
 			}
 			genericsString.delete(0, genericsString.length());
