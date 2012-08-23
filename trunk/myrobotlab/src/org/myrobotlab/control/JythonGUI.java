@@ -53,6 +53,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.Jython;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
 
 /**
  * Jython GUI
@@ -318,7 +319,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// language semantics. It simply checks the text entered up to the
 		// caret position for a match against known completions. This is all
 		// that is needed in the majority of cases.
-		return new JavaCompletionProvider();
+		return new MRLCompletionProvider();
 	}
 
 	/**
