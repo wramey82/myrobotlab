@@ -132,16 +132,6 @@ public class Calibrator extends Service {
 		return opencv;
 	}
 
-	public void sleep(int millis) {
-		try {
-
-			Thread.sleep(millis); // let camera stabilize
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // wait for camera to stabalize
-
-	}
 
 	public void calibrate() {
 		sleep(1000); // stabalize

@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import org.myrobotlab.arduino.Serial;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
@@ -55,41 +56,31 @@ public abstract class Uploader implements MessageConsumer  {
   }
 
   public abstract boolean uploadUsingPreferences(String buildPath, String className, boolean usingProgrammer)
-    throws RunnerException, SerialDeviceException;
+    throws Throwable;
   
   public abstract boolean burnBootloader() throws RunnerException;
   
-  protected void flushSerialBuffer() throws RunnerException, SerialDeviceException {
+  protected void flushSerialBuffer() throws Throwable {
     // Cleanup the serial buffer
-    try {
-    	// FIXME - preferences used inside of Serial()
-    	// need to seperate that from GUI
+	  
       Serial serialPort = new Serial(myArduino);
-      byte[] readBuffer;
       while(serialPort.available() > 0) {
-        readBuffer = serialPort.readBytes();
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {}
+        serialPort.readBytes();
+	    Service.sleep(100);
       }
+
+      serialPort.open();
 
       serialPort.setDTR(false);
       serialPort.setRTS(false);
 
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {}
-
+      Service.sleep(100);
+    
       serialPort.setDTR(true);
       serialPort.setRTS(true);
       
      serialPort.dispose(); //FIXME - open/close vs - just stay open?
-    } catch (SerialNotFoundException e) {
-      throw e;  // FIXME - I hate re-throws
-    } catch(Exception e) {
-      e.printStackTrace();
-      throw new RunnerException(e.getMessage());
-    }
+
   }
 
   protected boolean executeUploadCommand(Collection commandDownloader) 
@@ -106,7 +97,7 @@ public abstract class Uploader implements MessageConsumer  {
       String[] commandArray = new String[commandDownloader.size()];
       commandDownloader.toArray(commandArray);
       
-      if (verbose || Preferences2.getBoolean("upload.verbose")) {
+      if (verbose || myArduino.preferences.getBoolean("upload.verbose")) {
         for(int i = 0; i < commandArray.length; i++) {
           System.out.print(commandArray[i] + " ");
         }

@@ -39,7 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.Sketch2;
+import org.myrobotlab.arduino.Sketch;
+import org.myrobotlab.service.Arduino;
 
 
 
@@ -73,13 +74,15 @@ public class PdePreprocessor {
   String program;
   String buildPath;
   // starts as sketch name, ends as main class name
-  String name;
+  String programName;
 
+  Arduino myArduino;
 
   /**
    * Setup a new preprocessor.
    */
-  public PdePreprocessor() { 
+  public PdePreprocessor(Arduino myArduino) { 
+	  this.myArduino = myArduino;
   }
 
   /**
@@ -91,9 +94,9 @@ public class PdePreprocessor {
    * @param codeFolderPackages unused param (leftover from processing)
    */
   public int writePrefix(String program, String buildPath,
-                         String sketchName, String codeFolderPackages[]) throws FileNotFoundException {
+                         String programName, String codeFolderPackages[]) throws FileNotFoundException {
     this.buildPath = buildPath;
-    this.name = sketchName;
+    this.programName = programName;
 
     // if the program ends with no CR or LF an OutOfMemoryError will happen.
     // not gonna track down the bug now, so here's a hack for it:
@@ -104,14 +107,13 @@ public class PdePreprocessor {
     // an OutOfMemoryError or NullPointerException will happen.
     // again, not gonna bother tracking this down, but here's a hack.
     // http://dev.processing.org/bugs/show_bug.cgi?id=16
-    Sketch2.scrubComments(program);
+    Sketch.scrubComments(program);
     // If there are errors, an exception is thrown and this fxn exits.
 
-    if (Preferences2.getBoolean("preproc.substitute_unicode")) {
+    if (myArduino.preferences.getBoolean("preproc.substitute_unicode")) {
       program = substituteUnicode(program);
     }
 
-    //String importRegexp = "(?:^|\\s|;)(import\\s+)(\\S+)(\\s*;)";
     String importRegexp = "^\\s*#include\\s+[<\"](\\S+)[\">]";
     programImports = new ArrayList<String>();
 
@@ -132,7 +134,7 @@ public class PdePreprocessor {
     this.program = program;
     
     // output the code
-    File streamFile = new File(buildPath, name + ".cpp");
+    File streamFile = new File(buildPath, programName + ".cpp");
     stream = new PrintStream(new FileOutputStream(streamFile));
     
     return headerCount + prototypeCount;
@@ -186,7 +188,7 @@ public class PdePreprocessor {
     writeFooter(stream);
     stream.close();
     
-    return name;
+    return programName;
   }
 
   // Write the pde program to the cpp file

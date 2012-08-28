@@ -519,8 +519,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	abstract public void loadDefaultConfiguration();
 
-	// FIXME - remove - this is silly
-	public void pause(int millis) {
+	/**
+	 * sleep without the throw
+	 * @param millis
+	 */
+	public static void sleep(int millis) {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
