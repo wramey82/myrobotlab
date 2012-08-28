@@ -38,12 +38,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.text.DefaultCaret;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -77,6 +76,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
+	public JProgressBar compilingProgress = new JProgressBar(0,100);
+	
 	JSplitPane splitPane;
 
 	final JLabel statusLabel;
@@ -103,9 +104,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	// consoles
 	JTabbedPane consoleTabs;
-	final Console javaConsole;
-	final JTextArea jythonConsole;
-	final JScrollPane jythonScrollPane;
+	final Console console;
 
 	// autocompletion
 	final CompletionProvider provider;
@@ -124,9 +123,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 		this.syntaxStyle = syntaxStyle;
 		
-		javaConsole = new Console();  // FIXME - rename log console
-		jythonConsole = new JTextArea();
-		jythonScrollPane = new JScrollPane(jythonConsole);
+		console = new Console();  // FIXME - rename log console
 
 		provider = createCompletionProvider();
 		ac = new AutoCompletion(provider);
@@ -142,7 +139,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		splitPane = null;
 
 		statusLabel = new JLabel("Status:");
-		status = new JLabel("");
+		status = new JLabel("zod");
 		top = myService.getFrame();
 	}
 
@@ -189,7 +186,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void detachGUI() {
-		javaConsole.stopLogging();
+		console.stopLogging();
 		unsubscribe("publishStdOut", "getStdOut", String.class);
 		unsubscribe("finishedExecutingScript");
 		unsubscribe("publishState", "getState", Jython.class);
@@ -204,9 +201,6 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	}
 
-	public void getStdOut(String data) {
-		jythonConsole.append(data);
-	}
 
 	/**
 	 * 
@@ -218,8 +212,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 		// default text based menu
 		display.add(createMenuPanel(), BorderLayout.PAGE_START);
 
-		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+//		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
+//		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		splitPane = createMainPane();
 
@@ -227,8 +221,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 		
 		JPanel s = new JPanel();
 		s.add(statusLabel);
+		s.add(status);
 		//s.add(comp)
-		display.add(statusLabel, BorderLayout.PAGE_END);
+		display.add(s, BorderLayout.PAGE_END);
 	}
 
 	/**
@@ -238,12 +233,16 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 */
 	JSplitPane createMainPane() {
 		JSplitPane pane = new JSplitPane();
-
+		
+		JPanel lowerPanel = new JPanel();
+		lowerPanel.setLayout(new BorderLayout());
+		
 		consoleTabs = createTabsPane();
+		lowerPanel.add(consoleTabs, BorderLayout.CENTER);
+		lowerPanel.add(compilingProgress, BorderLayout.SOUTH);
 		editorScrollPane = createEditorPane();
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,
-				consoleTabs);
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,lowerPanel);
 		pane.setDividerLocation(450);
 
 		return pane;
@@ -413,13 +412,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
-		pane.addTab("java", javaConsole.getScrollPane());
+		pane.addTab("console", console.getScrollPane());
 		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
-				pane, javaConsole.getScrollPane(), boundServiceName, "java"));
-
-		pane.addTab("jython", jythonScrollPane);
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
-				pane, jythonScrollPane, boundServiceName, "jython"));
+				pane, console.getScrollPane(), boundServiceName, "console"));
 
 		return pane;
 	}
@@ -482,7 +477,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	void performExecute() {
 		executeButton.activate();
 		restartButton.deactivate();
-		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
+		console.startLogging(); // Hmm... noticed this is only local JVM
 									// :) the Jython console can be pushed
 									// over the network
 		myService.send(boundServiceName, "attachJythonConsole");

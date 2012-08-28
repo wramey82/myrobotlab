@@ -43,17 +43,16 @@ import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.SketchCode2;
 import org.myrobotlab.service.Arduino;
 
-public class Compiler2 implements MessageConsumer {
+public class Compiler {
 	static final String BUGS_URL = "http://code.google.com/p/arduino/issues/list";
-	static final String SUPER_BADNESS = "Compiler error, please submit this code to "
-			+ BUGS_URL;
+	static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
 
 	String program;
 	String buildPath;
-	String primaryClassName;
+	String programName;
 	boolean verbose;
 
-	Arduino myService = null;
+	Arduino myArduino = null;
 	private SketchCode2[] code; // FIXME - remove
 
 	RunnerException exception;
@@ -68,8 +67,8 @@ public class Compiler2 implements MessageConsumer {
 	// preprocessor
 	private ArrayList<File> importedLibraries;
 
-	public Compiler2(Arduino myService) {
-		this.myService = myService;
+	public Compiler(Arduino myArduino) {
+		this.myArduino = myArduino;
 	}
 
 	/**
@@ -85,39 +84,35 @@ public class Compiler2 implements MessageConsumer {
 	 * @throws RunnerException
 	 *             Only if there's a problem. Only then.
 	 */
-	public boolean compile(String programName, String program,
-			String buildPath, boolean verbose) throws RunnerException {
+	public boolean compile(String programName, String program, String buildPath, boolean verbose) throws RunnerException {
 		this.program = program;
 		this.buildPath = buildPath;
-		this.primaryClassName = programName;
-		this.verbose = true;
-		
-		preprocess(programName, program,  new PdePreprocessor());
+		this.programName = programName;
+		this.verbose = verbose;
+
+		preprocess(programName, program, new PdePreprocessor(myArduino));
 
 		// the pms object isn't used for anything but storage
-		MessageStream pms = new MessageStream(this);
+		MessageStream pms = new MessageStream(myArduino);
 
 		String avrBasePath = Arduino.getAvrBasePath();
-		Map<String, String> boardPreferences = Arduino.getBoardPreferences();
+		Map<String, String> boardPreferences = myArduino.getBoardPreferences();
 		String core = boardPreferences.get("build.core");
 		if (core == null) {
-			RunnerException re = new RunnerException(
-					"No board selected; please choose a board from the Tools > Board menu.");
+			RunnerException re = new RunnerException("No board selected; please choose a board from the Tools > Board menu.");
 			re.hideStackTrace();
 			throw re;
 		}
 		String corePath;
 
 		if (core.indexOf(':') == -1) {
-			Target t = Arduino.getTarget();
+			Target t = myArduino.getTarget();
 			File coreFolder = new File(new File(t.getFolder(), "cores"), core);
 			corePath = coreFolder.getAbsolutePath();
 		} else {
-			Target t = Arduino.targetsTable.get(core.substring(0,
-					core.indexOf(':')));
+			Target t = myArduino.targetsTable.get(core.substring(0, core.indexOf(':')));
 			File coreFolder = new File(t.getFolder(), "cores");
-			coreFolder = new File(coreFolder,
-					core.substring(core.indexOf(':') + 1));
+			coreFolder = new File(coreFolder, core.substring(core.indexOf(':') + 1));
 			corePath = coreFolder.getAbsolutePath();
 		}
 
@@ -126,16 +121,13 @@ public class Compiler2 implements MessageConsumer {
 
 		if (variant != null) {
 			if (variant.indexOf(':') == -1) {
-				Target t = Arduino.getTarget();
-				File variantFolder = new File(new File(t.getFolder(),
-						"variants"), variant);
+				Target t = myArduino.getTarget();
+				File variantFolder = new File(new File(t.getFolder(), "variants"), variant);
 				variantPath = variantFolder.getAbsolutePath();
 			} else {
-				Target t = Arduino.targetsTable.get(variant.substring(0,
-						variant.indexOf(':')));
+				Target t = myArduino.targetsTable.get(variant.substring(0, variant.indexOf(':')));
 				File variantFolder = new File(t.getFolder(), "variants");
-				variantFolder = new File(variantFolder,
-						variant.substring(variant.indexOf(':') + 1));
+				variantFolder = new File(variantFolder, variant.substring(variant.indexOf(':') + 1));
 				variantPath = variantFolder.getAbsolutePath();
 			}
 		}
@@ -144,7 +136,7 @@ public class Compiler2 implements MessageConsumer {
 
 		// 0. include paths for core + all libraries
 
-		myService.setCompilingProgress(20);
+		myArduino.setCompilingProgress(20);
 		List includePaths = new ArrayList();
 		includePaths.add(corePath);
 		if (variantPath != null)
@@ -155,36 +147,26 @@ public class Compiler2 implements MessageConsumer {
 
 		// 1. compile the sketch (already in the buildPath)
 
-		myService.setCompilingProgress(30);
-		objectFiles.addAll(compileFiles(avrBasePath, buildPath, includePaths,
-				findFilesInPath(buildPath, "S", false),
-				findFilesInPath(buildPath, "c", false),
+		myArduino.setCompilingProgress(30);
+		objectFiles.addAll(compileFiles(avrBasePath, buildPath, includePaths, findFilesInPath(buildPath, "S", false), findFilesInPath(buildPath, "c", false),
 				findFilesInPath(buildPath, "cpp", false), boardPreferences));
 
 		// 2. compile the libraries, outputting .o files to:
 		// <buildPath>/<library>/
 
-		myService.setCompilingProgress(40);
+		myArduino.setCompilingProgress(40);
 		for (File libraryFolder : getImportedLibraries()) {
 			File outputFolder = new File(buildPath, libraryFolder.getName());
 			File utilityFolder = new File(libraryFolder, "utility");
 			createFolder(outputFolder);
 			// this library can use includes in its utility/ folder
 			includePaths.add(utilityFolder.getAbsolutePath());
-			objectFiles.addAll(compileFiles(avrBasePath,
-					outputFolder.getAbsolutePath(), includePaths,
-					findFilesInFolder(libraryFolder, "S", false),
-					findFilesInFolder(libraryFolder, "c", false),
-					findFilesInFolder(libraryFolder, "cpp", false),
-					boardPreferences));
+			objectFiles.addAll(compileFiles(avrBasePath, outputFolder.getAbsolutePath(), includePaths, findFilesInFolder(libraryFolder, "S", false),
+					findFilesInFolder(libraryFolder, "c", false), findFilesInFolder(libraryFolder, "cpp", false), boardPreferences));
 			outputFolder = new File(outputFolder, "utility");
 			createFolder(outputFolder);
-			objectFiles.addAll(compileFiles(avrBasePath,
-					outputFolder.getAbsolutePath(), includePaths,
-					findFilesInFolder(utilityFolder, "S", false),
-					findFilesInFolder(utilityFolder, "c", false),
-					findFilesInFolder(utilityFolder, "cpp", false),
-					boardPreferences));
+			objectFiles.addAll(compileFiles(avrBasePath, outputFolder.getAbsolutePath(), includePaths, findFilesInFolder(utilityFolder, "S", false),
+					findFilesInFolder(utilityFolder, "c", false), findFilesInFolder(utilityFolder, "cpp", false), boardPreferences));
 			// other libraries should not see this library's utility/ folder
 			includePaths.remove(includePaths.size() - 1);
 		}
@@ -192,32 +174,27 @@ public class Compiler2 implements MessageConsumer {
 		// 3. compile the core, outputting .o files to <buildPath> and then
 		// collecting them into the core.a library file.
 
-		myService.setCompilingProgress(50);
+		myArduino.setCompilingProgress(50);
 		includePaths.clear();
 		includePaths.add(corePath); // include path for core only
 		if (variantPath != null)
 			includePaths.add(variantPath);
-		List<File> coreObjectFiles = compileFiles(avrBasePath, buildPath,
-				includePaths, findFilesInPath(corePath, "S", true),
-				findFilesInPath(corePath, "c", true),
+		List<File> coreObjectFiles = compileFiles(avrBasePath, buildPath, includePaths, findFilesInPath(corePath, "S", true), findFilesInPath(corePath, "c", true),
 				findFilesInPath(corePath, "cpp", true), boardPreferences);
 
 		String runtimeLibraryName = buildPath + File.separator + "core.a";
-		List baseCommandAR = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-ar", "rcs", runtimeLibraryName }));
+		List baseCommandAR = new ArrayList(Arrays.asList(new String[] { avrBasePath + "avr-ar", "rcs", runtimeLibraryName }));
 		for (File file : coreObjectFiles) {
-			List commandAR = new ArrayList(baseCommandAR);
+			List<String> commandAR = new ArrayList<String>(baseCommandAR);
 			commandAR.add(file.getAbsolutePath());
 			execAsynchronously(commandAR);
 		}
 
 		// 4. link it all together into the .elf file
 
-		myService.setCompilingProgress(60);
-		List baseCommandLinker = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-gcc", "-Os", "-Wl,--gc-sections",
-				"-mmcu=" + boardPreferences.get("build.mcu"), "-o",
-				buildPath + File.separator + primaryClassName + ".elf" }));
+		myArduino.setCompilingProgress(60);
+		List<String> baseCommandLinker = new ArrayList<String>(Arrays.asList(new String[] { avrBasePath + "avr-gcc", "-Os", "-Wl,--gc-sections", "-mmcu=" + boardPreferences.get("build.mcu"),
+				"-o", buildPath + File.separator + programName + ".elf" }));
 
 		for (File file : objectFiles) {
 			baseCommandLinker.add(file.getAbsolutePath());
@@ -229,14 +206,13 @@ public class Compiler2 implements MessageConsumer {
 
 		execAsynchronously(baseCommandLinker);
 
-		List baseCommandObjcopy = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-objcopy", "-O", "-R", }));
+		List<String> baseCommandObjcopy = new ArrayList<String>(Arrays.asList(new String[] { avrBasePath + "avr-objcopy", "-O", "-R", }));
 
-		List commandObjcopy;
+		ArrayList<String> commandObjcopy;
 
 		// 5. extract EEPROM data (from EEMEM directive) to .eep file.
-		myService.setCompilingProgress(70);
-		commandObjcopy = new ArrayList(baseCommandObjcopy);
+		myArduino.setCompilingProgress(70);
+		commandObjcopy = new ArrayList<String>(baseCommandObjcopy);
 		commandObjcopy.add(2, "ihex");
 		commandObjcopy.set(3, "-j");
 		commandObjcopy.add(".eeprom");
@@ -244,57 +220,45 @@ public class Compiler2 implements MessageConsumer {
 		commandObjcopy.add("--no-change-warnings");
 		commandObjcopy.add("--change-section-lma");
 		commandObjcopy.add(".eeprom=0");
-		commandObjcopy.add(buildPath + File.separator + primaryClassName
-				+ ".elf");
-		commandObjcopy.add(buildPath + File.separator + primaryClassName
-				+ ".eep");
+		commandObjcopy.add(buildPath + File.separator + programName + ".elf");
+		commandObjcopy.add(buildPath + File.separator + programName + ".eep");
 		execAsynchronously(commandObjcopy);
 
 		// 6. build the .hex file
-		myService.setCompilingProgress(80);
+		myArduino.setCompilingProgress(80);
 		commandObjcopy = new ArrayList(baseCommandObjcopy);
 		commandObjcopy.add(2, "ihex");
 		commandObjcopy.add(".eeprom"); // remove eeprom data
-		commandObjcopy.add(buildPath + File.separator + primaryClassName
-				+ ".elf");
-		commandObjcopy.add(buildPath + File.separator + primaryClassName
-				+ ".hex");
+		commandObjcopy.add(buildPath + File.separator + programName + ".elf");
+		commandObjcopy.add(buildPath + File.separator + programName + ".hex");
 		execAsynchronously(commandObjcopy);
 
-		myService.setCompilingProgress(90);
+		myArduino.setCompilingProgress(90);
 
 		return true;
 	}
 
-	private List<File> compileFiles(String avrBasePath, String buildPath,
-			List<File> includePaths, List<File> sSources, List<File> cSources,
-			List<File> cppSources, Map<String, String> boardPreferences)
-			throws RunnerException {
+	private List<File> compileFiles(String avrBasePath, String buildPath, List<File> includePaths, List<File> sSources, List<File> cSources, List<File> cppSources,
+			Map<String, String> boardPreferences) throws RunnerException {
 
 		List<File> objectPaths = new ArrayList<File>();
 
 		for (File file : sSources) {
-			String objectPath = buildPath + File.separator + file.getName()
-					+ ".o";
+			String objectPath = buildPath + File.separator + file.getName() + ".o";
 			objectPaths.add(new File(objectPath));
-			execAsynchronously(getCommandCompilerS(avrBasePath, includePaths,
-					file.getAbsolutePath(), objectPath, boardPreferences));
+			execAsynchronously(getCommandCompilerS(avrBasePath, includePaths, file.getAbsolutePath(), objectPath, boardPreferences));
 		}
 
 		for (File file : cSources) {
-			String objectPath = buildPath + File.separator + file.getName()
-					+ ".o";
+			String objectPath = buildPath + File.separator + file.getName() + ".o";
 			objectPaths.add(new File(objectPath));
-			execAsynchronously(getCommandCompilerC(avrBasePath, includePaths,
-					file.getAbsolutePath(), objectPath, boardPreferences));
+			execAsynchronously(getCommandCompilerC(avrBasePath, includePaths, file.getAbsolutePath(), objectPath, boardPreferences));
 		}
 
 		for (File file : cppSources) {
-			String objectPath = buildPath + File.separator + file.getName()
-					+ ".o";
+			String objectPath = buildPath + File.separator + file.getName() + ".o";
 			objectPaths.add(new File(objectPath));
-			execAsynchronously(getCommandCompilerCPP(avrBasePath, includePaths,
-					file.getAbsolutePath(), objectPath, boardPreferences));
+			execAsynchronously(getCommandCompilerCPP(avrBasePath, includePaths, file.getAbsolutePath(), objectPath, boardPreferences));
 		}
 
 		return objectPaths;
@@ -311,7 +275,7 @@ public class Compiler2 implements MessageConsumer {
 		commandList.toArray(command);
 		int result = 0;
 
-		if (verbose || Preferences2.getBoolean("build.verbose")) {
+		if (verbose || myArduino.preferences.getBoolean("build.verbose")) {
 			for (int j = 0; j < command.length; j++) {
 				System.out.print(command[j] + " ");
 			}
@@ -331,8 +295,8 @@ public class Compiler2 implements MessageConsumer {
 			throw re;
 		}
 
-		MessageSiphon in = new MessageSiphon(process.getInputStream(), this);
-		MessageSiphon err = new MessageSiphon(process.getErrorStream(), this);
+		MessageSiphon in = new MessageSiphon(process.getInputStream(), myArduino);
+		MessageSiphon err = new MessageSiphon(process.getErrorStream(), myArduino);
 
 		// wait for the process to finish. if interrupted
 		// before waitFor returns, continue waiting
@@ -387,8 +351,7 @@ public class Compiler2 implements MessageConsumer {
 		// have meaning in a regular expression.
 		if (!verbose) {
 			while ((i = s.indexOf(buildPath + File.separator)) != -1) {
-				s = s.substring(0, i)
-						+ s.substring(i + (buildPath + File.separator).length());
+				s = s.substring(0, i) + s.substring(i + (buildPath + File.separator).length());
 			}
 		}
 
@@ -412,46 +375,34 @@ public class Compiler2 implements MessageConsumer {
 						+ "\nYou appear to be using it or another library that depends on the SPI library.\n\n";
 			}
 
-			if (pieces[3].trim()
-					.equals("'BYTE' was not declared in this scope")) {
+			if (pieces[3].trim().equals("'BYTE' was not declared in this scope")) {
 				error = "The 'BYTE' keyword is no longer supported.";
-				msg = "\nAs of Arduino 1.0, the 'BYTE' keyword is no longer supported."
-						+ "\nPlease use Serial.write() instead.\n\n";
+				msg = "\nAs of Arduino 1.0, the 'BYTE' keyword is no longer supported." + "\nPlease use Serial.write() instead.\n\n";
 			}
 
-			if (pieces[3].trim().equals(
-					"no matching function for call to 'Server::Server(int)'")) {
+			if (pieces[3].trim().equals("no matching function for call to 'Server::Server(int)'")) {
 				error = "The Server class has been renamed EthernetServer.";
-				msg = "\nAs of Arduino 1.0, the Server class in the Ethernet library "
-						+ "has been renamed to EthernetServer.\n\n";
+				msg = "\nAs of Arduino 1.0, the Server class in the Ethernet library " + "has been renamed to EthernetServer.\n\n";
 			}
 
-			if (pieces[3]
-					.trim()
-					.equals("no matching function for call to 'Client::Client(byte [4], int)'")) {
+			if (pieces[3].trim().equals("no matching function for call to 'Client::Client(byte [4], int)'")) {
 				error = "The Client class has been renamed EthernetClient.";
-				msg = "\nAs of Arduino 1.0, the Client class in the Ethernet library "
-						+ "has been renamed to EthernetClient.\n\n";
+				msg = "\nAs of Arduino 1.0, the Client class in the Ethernet library " + "has been renamed to EthernetClient.\n\n";
 			}
 
 			if (pieces[3].trim().equals("'Udp' was not declared in this scope")) {
 				error = "The Udp class has been renamed EthernetUdp.";
-				msg = "\nAs of Arduino 1.0, the Udp class in the Ethernet library "
-						+ "has been renamed to EthernetClient.\n\n";
+				msg = "\nAs of Arduino 1.0, the Udp class in the Ethernet library " + "has been renamed to EthernetClient.\n\n";
 			}
 
-			if (pieces[3].trim().equals(
-					"'class TwoWire' has no member named 'send'")) {
+			if (pieces[3].trim().equals("'class TwoWire' has no member named 'send'")) {
 				error = "Wire.send() has been renamed Wire.write().";
-				msg = "\nAs of Arduino 1.0, the Wire.send() function was renamed "
-						+ "to Wire.write() for consistency with other libraries.\n\n";
+				msg = "\nAs of Arduino 1.0, the Wire.send() function was renamed " + "to Wire.write() for consistency with other libraries.\n\n";
 			}
 
-			if (pieces[3].trim().equals(
-					"'class TwoWire' has no member named 'receive'")) {
+			if (pieces[3].trim().equals("'class TwoWire' has no member named 'receive'")) {
 				error = "Wire.receive() has been renamed Wire.read().";
-				msg = "\nAs of Arduino 1.0, the Wire.receive() function was renamed "
-						+ "to Wire.read() for consistency with other libraries.\n\n";
+				msg = "\nAs of Arduino 1.0, the Wire.receive() function was renamed " + "to Wire.read() for consistency with other libraries.\n\n";
 			}
 
 			// RunnerException e = program.placeException(error, pieces[1],
@@ -473,23 +424,18 @@ public class Compiler2 implements MessageConsumer {
 			 */
 		}
 
-		myService.invoke("compilerError", s);
+		myArduino.invoke("compilerError", s);
 		System.err.print(s);
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////
 
-	static private List getCommandCompilerS(String avrBasePath,
-			List includePaths, String sourceName, String objectName,
-			Map<String, String> boardPreferences) {
-		List baseCommandCompiler = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-gcc",
-				"-c", // compile, don't link
+	static private List getCommandCompilerS(String avrBasePath, List includePaths, String sourceName, String objectName, Map<String, String> boardPreferences) {
+		List baseCommandCompiler = new ArrayList(Arrays.asList(new String[] { avrBasePath + "avr-gcc", "-c", // compile,
+																												// don't
+																												// link
 				"-g", // include debugging info (so errors include line numbers)
-				"-assembler-with-cpp",
-				"-mmcu=" + boardPreferences.get("build.mcu"),
-				"-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-				"-DARDUINO=" + Arduino.REVISION, }));
+				"-assembler-with-cpp", "-mmcu=" + boardPreferences.get("build.mcu"), "-DF_CPU=" + boardPreferences.get("build.f_cpu"), "-DARDUINO=" + Arduino.REVISION, }));
 
 		for (int i = 0; i < includePaths.size(); i++) {
 			baseCommandCompiler.add("-I" + (String) includePaths.get(i));
@@ -501,24 +447,19 @@ public class Compiler2 implements MessageConsumer {
 		return baseCommandCompiler;
 	}
 
-	static private List getCommandCompilerC(String avrBasePath,
-			List includePaths, String sourceName, String objectName,
-			Map<String, String> boardPreferences) {
+	private List getCommandCompilerC(String avrBasePath, List includePaths, String sourceName, String objectName, Map<String, String> boardPreferences) {
 
-		List baseCommandCompiler = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-gcc",
-				"-c", // compile, don't link
+		List baseCommandCompiler = new ArrayList(Arrays.asList(new String[] { avrBasePath + "avr-gcc", "-c", // compile,
+																												// don't
+																												// link
 				"-g", // include debugging info (so errors include line numbers)
 				"-Os", // optimize for size
-				Preferences2.getBoolean("build.verbose") ? "-Wall" : "-w", // show
-																			// warnings
-																			// if
-																			// verbose
+				myArduino.preferences.getBoolean("build.verbose") ? "-Wall" : "-w", // show
+				// warnings
+				// if
+				// verbose
 				"-ffunction-sections", // place each function in its own section
-				"-fdata-sections",
-				"-mmcu=" + boardPreferences.get("build.mcu"),
-				"-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-				"-DARDUINO=" + Arduino.REVISION, }));
+				"-fdata-sections", "-mmcu=" + boardPreferences.get("build.mcu"), "-DF_CPU=" + boardPreferences.get("build.f_cpu"), "-DARDUINO=" + Arduino.REVISION, }));
 
 		for (int i = 0; i < includePaths.size(); i++) {
 			baseCommandCompiler.add("-I" + (String) includePaths.get(i));
@@ -530,25 +471,21 @@ public class Compiler2 implements MessageConsumer {
 		return baseCommandCompiler;
 	}
 
-	static private List getCommandCompilerCPP(String avrBasePath,
-			List includePaths, String sourceName, String objectName,
-			Map<String, String> boardPreferences) {
+	private List getCommandCompilerCPP(String avrBasePath, List includePaths, String sourceName, String objectName, Map<String, String> boardPreferences) {
 
-		List baseCommandCompilerCPP = new ArrayList(Arrays.asList(new String[] {
-				avrBasePath + "avr-g++",
-				"-c", // compile, don't link
+		List baseCommandCompilerCPP = new ArrayList(Arrays.asList(new String[] { avrBasePath + "avr-g++", "-c", // compile,
+																												// don't
+																												// link
 				"-g", // include debugging info (so errors include line numbers)
 				"-Os", // optimize for size
-				Preferences2.getBoolean("build.verbose") ? "-Wall" : "-w", // show
-																			// warnings
-																			// if
-																			// verbose
-				"-fno-exceptions",
-				"-ffunction-sections", // place each function in its own section
-				"-fdata-sections",
-				"-mmcu=" + boardPreferences.get("build.mcu"),
-				"-DF_CPU=" + boardPreferences.get("build.f_cpu"),
-				"-DARDUINO=" + Arduino.REVISION, }));
+				myArduino.preferences.getBoolean("build.verbose") ? "-Wall" : "-w", // show
+				// warnings
+				// if
+				// verbose
+				"-fno-exceptions", "-ffunction-sections", // place each function
+															// in its own
+															// section
+				"-fdata-sections", "-mmcu=" + boardPreferences.get("build.mcu"), "-DF_CPU=" + boardPreferences.get("build.f_cpu"), "-DARDUINO=" + Arduino.REVISION, }));
 
 		for (int i = 0; i < includePaths.size(); i++) {
 			baseCommandCompilerCPP.add("-I" + (String) includePaths.get(i));
@@ -584,13 +521,11 @@ public class Compiler2 implements MessageConsumer {
 		return (new File(path)).list(onlyHFiles);
 	}
 
-	static public ArrayList<File> findFilesInPath(String path,
-			String extension, boolean recurse) {
+	static public ArrayList<File> findFilesInPath(String path, String extension, boolean recurse) {
 		return findFilesInFolder(new File(path), extension, recurse);
 	}
 
-	static public ArrayList<File> findFilesInFolder(File folder,
-			String extension, boolean recurse) {
+	static public ArrayList<File> findFilesInFolder(File folder, String extension, boolean recurse) {
 		ArrayList<File> files = new ArrayList<File>();
 
 		if (folder.listFiles() == null)
@@ -611,9 +546,7 @@ public class Compiler2 implements MessageConsumer {
 		return files;
 	}
 
-	public String preprocess(String name, String bigCode,
-			PdePreprocessor preprocessor) throws RunnerException {
-
+	public String preprocess(String programName, String program, PdePreprocessor preprocessor) throws RunnerException {
 
 		String[] codeFolderPackages = null;
 		// classPath = buildPath;
@@ -627,8 +560,7 @@ public class Compiler2 implements MessageConsumer {
 		int headerOffset = 0;
 
 		try {
-			headerOffset = preprocessor.writePrefix(bigCode, buildPath, name,
-					codeFolderPackages);
+			headerOffset = preprocessor.writePrefix(program, buildPath, programName, codeFolderPackages);
 		} catch (FileNotFoundException fnfe) {
 			fnfe.printStackTrace();
 			String msg = "Build folder disappeared or could not be written";
@@ -638,29 +570,14 @@ public class Compiler2 implements MessageConsumer {
 		// 2. run preproc on that code using the sugg class name
 		// to create a single .java file and write to buildpath
 
-		String primaryClassName = null;
+		String CPPFilename = null;
 
 		try {
-			// if (i != 0) preproc will fail if a pde file is not
-			// java mode, since that's required
-			String className = preprocessor.write();
 
-			if (className == null) {
-				throw new RunnerException("Could not find main class");
-				// this situation might be perfectly fine,
-				// (i.e. if the file is empty)
-				// System.out.println("No class found in " + code[i].name);
-				// System.out.println("(any code in that file will be ignored)");
-				// System.out.println();
+			preprocessor.write();
+			CPPFilename = programName + ".cpp";
 
-				// } else {
-				// code[0].setPreprocName(className + ".java");
-			}
-
-			// store this for the compiler and the runtime
-			primaryClassName = className + ".cpp";
-
-		} catch (FileNotFoundException fnfe) {
+		} catch (FileNotFoundException fnfe) { // FIXME - simple exception handling + feedback to gui
 			fnfe.printStackTrace();
 			String msg = "Build folder disappeared or could not be written";
 			throw new RunnerException(msg);
@@ -694,41 +611,28 @@ public class Compiler2 implements MessageConsumer {
 		// 3. then loop over the code[] and save each .java file
 
 		/*
-		try {
-			Arduino.saveFile(program, new File(buildPath, primaryClassName));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		*/
-		
-		/*
-		for (SketchCode2 sc : code) {
-			if (sc.isExtension("c") || sc.isExtension("cpp")
-					|| sc.isExtension("h")) {
-				// no pre-processing services necessary for java files
-				// just write the the contents of 'program' to a .java file
-				// into the build directory. uses byte stream and reader/writer
-				// shtuff so that unicode bunk is properly handled
-				String filename = sc.getFileName(); // code[i].name + ".java";
-				try {
-					Arduino.saveFile(sc.getProgram(), new File(buildPath,
-							filename));
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RunnerException("Problem moving " + filename
-							+ " to the build folder");
-				}
-				// sc.setPreprocName(filename);
+		 * try { Arduino.saveFile(program, new File(buildPath,
+		 * primaryClassName)); } catch (IOException e1) { // TODO Auto-generated
+		 * catch block e1.printStackTrace(); }
+		 */
 
-			} else if (sc.isExtension("ino") || sc.isExtension("pde")) {
-				// The compiler and runner will need this to have a proper
-				// offset
-				sc.addPreprocOffset(headerOffset);
-			}
-		}
-		*/
-		return primaryClassName;
+		/*
+		 * for (SketchCode2 sc : code) { if (sc.isExtension("c") ||
+		 * sc.isExtension("cpp") || sc.isExtension("h")) { // no pre-processing
+		 * services necessary for java files // just write the the contents of
+		 * 'program' to a .java file // into the build directory. uses byte
+		 * stream and reader/writer // shtuff so that unicode bunk is properly
+		 * handled String filename = sc.getFileName(); // code[i].name +
+		 * ".java"; try { Arduino.saveFile(sc.getProgram(), new File(buildPath,
+		 * filename)); } catch (IOException e) { e.printStackTrace(); throw new
+		 * RunnerException("Problem moving " + filename +
+		 * " to the build folder"); } // sc.setPreprocName(filename);
+		 * 
+		 * } else if (sc.isExtension("ino") || sc.isExtension("pde")) { // The
+		 * compiler and runner will need this to have a proper // offset
+		 * sc.addPreprocOffset(headerOffset); } }
+		 */
+		return CPPFilename;
 	}
 
 	public ArrayList<File> getImportedLibraries() {

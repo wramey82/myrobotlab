@@ -170,7 +170,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
         roombacomm.startup();
         roombacomm.control();
         roombacomm.playNote( 72, 10 );  // C , test note
-        roombacomm.pause( 200 );
+        roombacomm.sleep( 200 );
 
         connectButton.setText("disconnect");
         connectButton.setActionCommand("disconnect");
@@ -283,24 +283,24 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
         else if( "test".equals(action) ) {
             updateDisplay("Playing some notes\n");
             roombacomm.playNote( 72, 10 );  // C
-            roombacomm.pause( 200 );
+            roombacomm.sleep( 200 );
             roombacomm.playNote( 79, 10 );  // G
-            roombacomm.pause( 200 );
+            roombacomm.sleep( 200 );
             roombacomm.playNote( 76, 10 );  // E
-            roombacomm.pause( 200 );
+            roombacomm.sleep( 200 );
 
             updateDisplay("Spinning left, then right\n");
             roombacomm.spinLeft();
-            roombacomm.pause(1000);
+            roombacomm.sleep(1000);
             roombacomm.spinRight();
-            roombacomm.pause(1000);
+            roombacomm.sleep(1000);
             roombacomm.stop();
 
             updateDisplay("Going forward, then backward\n");
             roombacomm.goForward();
-            roombacomm.pause(1000);
+            roombacomm.sleep(1000);
             roombacomm.goBackward();
-            roombacomm.pause(1000);
+            roombacomm.sleep(1000);
             roombacomm.stop();
         }
         else if( "reset".equals(action) ) {
@@ -316,11 +316,11 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
         }
         else if( "beep-lo".equals(action) ) {
             roombacomm.playNote( 50, 32 );  // C1
-            roombacomm.pause( 200 );
+            roombacomm.sleep( 200 );
         }
         else if( "beep-hi".equals(action) ) {
             roombacomm.playNote( 90, 32 );  // C7
-            roombacomm.pause( 200 );
+            roombacomm.sleep( 200 );
         }
         else if( "clean".equals(action) ) {
             roombacomm.clean();
@@ -336,7 +336,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
         }
         else if( "blink-leds".equals(action) ) {
             roombacomm.setLEDs( true,true,true, true,true,true, 255, 255 );
-            roombacomm.pause(300);
+            roombacomm.sleep(300);
             roombacomm.setLEDs( false,false,false, false,false,false, 0, 128);
         }        
         else if( "sensors".equals(action) ) {

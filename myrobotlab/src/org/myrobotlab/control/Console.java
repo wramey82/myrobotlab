@@ -51,6 +51,11 @@ public class Console extends AppenderSkeleton {
 		logging = false;
 	}
 	
+	public void append(String msg)
+	{
+		textArea.append(msg);
+	}
+	
 	/**
 	 * Format and then append the loggingEvent to the stored
 	 * JTextArea.

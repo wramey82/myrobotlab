@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
@@ -39,7 +40,6 @@ import javax.swing.JTabbedPane;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Arduino;
@@ -59,7 +59,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton saveButton;
 	ImageButton fullscreenButton;
 	ImageButton monitorButton;
-
+	JLabel programName = new JLabel("prog1");
 
 	// consoles
 	JTabbedPane consoleTabs;
@@ -81,11 +81,12 @@ public class EditorArduino extends Editor implements ActionListener {
 		super.actionPerformed(event);
 		Object o = event.getSource();
 				
-		if (o == connectButton)
+		if (o == compileButton)
 		{
+			myService.send(boundServiceName, "compile", programName.getText(), editor.getText());
 			//compile();		
 		} else if (o == uploadButton) {
-			//compileAndUpload();
+			myService.send(boundServiceName, "upload");
 			return;
 		}
 	}
@@ -106,6 +107,7 @@ public class EditorArduino extends Editor implements ActionListener {
 		monitorButton 	= addImageButtonToButtonBar("Arduino","Monitor", this);
 		
 		buttonBar.setBackground(new Color(0,100,104));
+		buttonBar.add(programName);
 		
 		// addHelpMenuURL("help blah", "http:blahblahblah");
 		
@@ -129,7 +131,6 @@ public class EditorArduino extends Editor implements ActionListener {
 	}
 
 	  public void rebuildBoardsMenu(JMenu menu) {
-		    //System.out.println("rebuilding boards menu");
 		    menu.removeAll();      
 		    ButtonGroup group = new ButtonGroup();
 		    for (Target target : myArduino.targetsTable.values()) {
@@ -138,16 +139,16 @@ public class EditorArduino extends Editor implements ActionListener {
 		          new AbstractAction(target.getBoards().get(board).get("name")) {
 		            public void actionPerformed(ActionEvent actionevent) {
 		            	log.info(String.format("switching to %s:%s",(String) getValue("target"), (String) getValue("board")));
-		            	myService.send(boundServiceName, "setPreference", "target", (String) getValue("target"));
-		            	myService.send(boundServiceName, "setPreference", "board", (String) getValue("board"));
-		              // FIXME - Preferences2 needs to be kept in sync - send an message to reload
+		            	//myService.send(boundServiceName, "setPreference", "target", (String) getValue("target"));
+		            	//myService.send(boundServiceName, "setPreference", "board", (String) getValue("board"));
+		            	myService.send(boundServiceName, "setBoard", (String) getValue("board"));
 		            }
 		          };
 		        action.putValue("target", target.getName());
 		        action.putValue("board", board);
 		        JMenuItem item = new JRadioButtonMenuItem(action);
-		        if (target.getName().equals(Preferences2.get("target")) &&
-		            board.equals(Preferences2.get("board"))) {
+		        if (target.getName().equals(myArduino.preferences.get("target")) &&
+		            board.equals(myArduino.preferences.get("board"))) {
 		          item.setSelected(true);
 		        }
 		        group.add(item);

@@ -35,20 +35,18 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
-import org.myrobotlab.arduino.compiler.Compiler2;
+import org.myrobotlab.arduino.compiler.Compiler;
 import org.myrobotlab.arduino.compiler.PdePreprocessor;
-import org.myrobotlab.arduino.compiler.Preferences2;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Sizer;
 import org.myrobotlab.arduino.compiler.Uploader;
-import org.myrobotlab.arduino.gui.compiler.Compiler;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
-public class Sketch2 {
+public class Sketch {
 	Arduino myArduino;
-	public final static Logger log = Logger.getLogger(Sketch2.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Sketch.class.getCanonicalName());
 
 	static private File tempBuildFolder;
 
@@ -107,7 +105,7 @@ public class Sketch2 {
 	 * path is location of the main .pde file, because this is also simplest to
 	 * use when opening the file from the finder/explorer.
 	 */
-	public Sketch2(String path, Arduino myArduino) throws IOException {
+	public Sketch(String path, Arduino myArduino) throws IOException {
 
 		this.myArduino = myArduino;
 		primaryFile = new File(path);
@@ -118,7 +116,7 @@ public class Sketch2 {
 		int suffixLength = getDefaultExtension().length() + 1;
 		name = mainFilename.substring(0, mainFilename.length() - suffixLength);
 
-		tempBuildFolder = Arduino.getBuildFolder();
+		tempBuildFolder = myArduino.getBuildFolder();
 		folder = new File(new File(path).getParent());
 
 		load();
@@ -176,7 +174,7 @@ public class Sketch2 {
 					// on load,
 					// it would be otherwise possible to sneak in nasty
 					// filenames. [0116]
-					if (Sketch2.isSanitaryName(base)) {
+					if (Sketch.isSanitaryName(base)) {
 						code[codeCount++] = new SketchCode2(new File(folder, filename), extension);
 					}
 				}
@@ -404,7 +402,7 @@ public class Sketch2 {
 		// the next time we start up, internal runs using Runner won't
 		// work because the build dir won't exist at startup, so the classloader
 		// will ignore the fact that that dir is in the CLASSPATH in run.sh
-		Arduino.removeDescendants(tempBuildFolder);
+		myArduino.removeDescendants(tempBuildFolder);
 	}
 
 	/**
@@ -451,16 +449,8 @@ public class Sketch2 {
 
 		// if an external editor is being used, need to grab the
 		// latest version of the code from the file.
-		if (Preferences2.getBoolean("editor.external")) {
-			// history gets screwed by the open..
-			// String historySaved = history.lastRecorded;
-			// handleOpen(sketch);
-			// history.lastRecorded = historySaved;
-
-			// set current to null so that the tab gets updated
-			// http://dev.processing.org/bugs/show_bug.cgi?id=515
+		if (myArduino.preferences.getBoolean("editor.external")) {
 			current = null;
-			// nuke previous files and settings, just get things loaded
 			load();
 		}
 
@@ -491,7 +481,7 @@ public class Sketch2 {
 	 * @return null if compilation failed, main class name if not
 	 */
 	public String preprocess(String buildPath) throws RunnerException {
-		return preprocess(buildPath, new PdePreprocessor());
+		return preprocess(buildPath, new PdePreprocessor(myArduino));
 	}
 
 	public String preprocess(String buildPath, PdePreprocessor preprocessor) throws RunnerException {
@@ -760,7 +750,7 @@ public class Sketch2 {
 
 		// compile the program. errors will happen as a RunnerException
 		// that will bubble up to whomever called build().
-		Compiler2 compiler = new Compiler2(myArduino);
+		Compiler compiler = new Compiler(myArduino);
 		if (compiler.compile(this.program, buildPath, primaryClassName, verbose)) {
 			size(buildPath, primaryClassName);
 			return primaryClassName;
@@ -771,7 +761,7 @@ public class Sketch2 {
 	/**
 	 * Remove all files in a directory and the directory itself.
 	 */
-	static public void removeDir(File dir) {
+	public void removeDir(File dir) {
 		if (dir.exists()) {
 			removeDescendants(dir);
 			if (!dir.delete()) {
@@ -785,7 +775,7 @@ public class Sketch2 {
 	 * or when the contents of a dir should be removed, but not the directory
 	 * itself. (i.e. when cleaning temp files from lib/build)
 	 */
-	static public void removeDescendants(File dir) {
+	public void removeDescendants(File dir) {
 		if (!dir.exists())
 			return;
 
@@ -795,7 +785,7 @@ public class Sketch2 {
 				continue;
 			File dead = new File(dir, files[i]);
 			if (!dead.isDirectory()) {
-				if (!Preferences2.getBoolean("compiler.save_build_files")) {
+				if (!myArduino.preferences.getBoolean("compiler.save_build_files")) {
 					if (!dead.delete()) {
 						// temporarily disabled
 						System.err.println("Could not delete " + dead);
@@ -808,15 +798,15 @@ public class Sketch2 {
 		}
 	}
 
-	public boolean exportApplet(boolean usingProgrammer) throws Exception {
+	public boolean exportApplet(boolean usingProgrammer) throws Throwable {
 		return exportApplet(tempBuildFolder.getAbsolutePath(), usingProgrammer);
 	}
 
 	/**
 	 * Handle export to applet.
+	 * @throws Throwable 
 	 */
-	public boolean exportApplet(String appletPath, boolean usingProgrammer) throws RunnerException, IOException,
-			SerialDeviceException {
+	public boolean exportApplet(String appletPath, boolean usingProgrammer) throws Throwable {
 
 		// Make sure the user didn't hide the sketch folder
 		ensureExistence();
@@ -869,7 +859,7 @@ public class Sketch2 {
 
 	protected void size(String buildPath, String suggestedClassName) throws RunnerException {
 		long size = 0;
-		String maxsizeString = Arduino.getBoardPreferences().get("upload.maximum_size");
+		String maxsizeString = myArduino.getBoardPreferences().get("upload.maximum_size");
 		if (maxsizeString == null)
 			return;
 		long maxsize = Integer.parseInt(maxsizeString);
@@ -887,7 +877,7 @@ public class Sketch2 {
 	}
 
 	protected String upload(String buildPath, String suggestedClassName, boolean usingProgrammer)
-			throws RunnerException, SerialDeviceException {
+			throws Throwable {
 
 		Uploader uploader;
 

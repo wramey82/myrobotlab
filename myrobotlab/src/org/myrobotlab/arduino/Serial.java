@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import org.myrobotlab.arduino.compiler.MessageConsumer;
-import org.myrobotlab.arduino.compiler.Preferences2;
+import org.myrobotlab.arduino.compiler.Preferences;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
@@ -366,11 +366,11 @@ public class Serial implements SerialDeviceEventListener {
 		write(what.getBytes());
 	}
 
-	public void setDTR(boolean state) {
+	public void setDTR(boolean state) throws Throwable {
 		port.setDTR(state);
 	}
 
-	public void setRTS(boolean state) {
+	public void setRTS(boolean state) throws SerialDeviceException {
 		port.setRTS(state);
 	}
 
@@ -413,5 +413,10 @@ public class Serial implements SerialDeviceEventListener {
 	static public void errorMessage(String where, Throwable e) {
 		System.err.println("Error inside Serial." + where + "()");
 		e.printStackTrace();
+	}
+
+
+	public void open() throws SerialDeviceException {
+		port.open();
 	}
 }
