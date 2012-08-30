@@ -47,8 +47,8 @@ public abstract class OpenCVFilterGUI {
 	public JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;
 	final GUI myGUI;
-	protected OpenCV myService;
-	protected OpenCVFilter myOpenCVFilter;
+	//protected OpenCV myService;  // WTF ??? - violates all the rules
+	//protected OpenCVFilter myOpenCVFilter;
 	final public GridBagConstraints gc = new GridBagConstraints();
 
 	//OpenCVFilterGoodFeaturesToTrack boundFilter = null;	
@@ -60,8 +60,8 @@ public abstract class OpenCVFilterGUI {
 		name = boundFilterName;
 		this.boundServiceName = boundServiceName;
 		this.myGUI = myGUI;
-		this.myService = (OpenCV)Runtime.getService(boundServiceName).service;
-		this.myOpenCVFilter = myService.getFilter(name);
+		//this.myService = (OpenCV)Runtime.getService(boundServiceName).service;
+		//this.myOpenCVFilter = myService.getFilter(name);
 		
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(name);

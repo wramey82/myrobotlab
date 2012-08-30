@@ -25,12 +25,22 @@ package org.myrobotlab.arduino.compiler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.service.Arduino;
@@ -66,29 +76,14 @@ import org.myrobotlab.service.Arduino;
  * uhhh... Processing is an awesome project.. This class is an abomination...
  * Arduino is an awesome project.. it's IDE code base is a large dung pile...
  * 
+ * This should use Properties again - using Resource bundles would be an appropriate
+ * way to manage UTF-8 / Unicode
  * 
  */
 public class Preferences {
 
-	// FIXME - remove (almost all) of these preferences with the exception of
-	// anything
-	// which affects compile & upload
-
+	
 	final String PREFS_FILE = "preferences.txt";
-
-	final String PROMPT_YES = "Yes";
-	final String PROMPT_NO = "No";
-	public final String PROMPT_CANCEL = "Cancel";
-	public final String PROMPT_OK = "OK";
-	final String PROMPT_BROWSE = "Browse";
-	public int BUTTON_WIDTH = 80;
-	public int BUTTON_HEIGHT = 24;
-	public final int GRID_SIZE = 33;
-
-	public final int GUI_BIG = 13;
-	public final int GUI_BETWEEN = 10;
-	public final int GUI_SMALL = 6;
-
 	Hashtable<String, Object> defaults;
 	Hashtable<String, Object> table = new Hashtable<String, Object>();;
 	File preferencesFile;
@@ -260,6 +255,55 @@ public class Preferences {
 
 	public void setInteger(String key, int value) {
 		set(key, String.valueOf(value));
+	}
+	
+	public static void main (String[] args) throws FileNotFoundException, IOException
+	{
+		//Properties props = new Properties();
+		//props.load(new FileInputStream("arduino/lib/preferences.txt"));
+		//props.save(new FileOutputStream("arduino.properties"), "latest and greatest");
+		
+		String propFile = "arduino/lib/preferences.txt";
+		Properties props = new Properties();
+		/*set some properties here*/
+		props.load(new FileInputStream("arduino/lib/preferences.txt"));
+		
+		
+		//new TreeMap(props);
+		
+		FileOutputStream fos = new FileOutputStream("sorted.properties");
+		OutputStreamWriter out = new OutputStreamWriter(fos);
+		
+		List<String> n = new ArrayList(props.keySet());
+		Collections.sort(n);
+		for (int i = 0; i < n.size(); ++i)
+		{
+			out.write(String.format("%s=%s\n" +
+					"", n.get(i), props.get(n.get(i))));
+		}
+		out.close();
+
+		//new TreeSet<Object>(super.keySet())
+		
+		Properties tmp = new Properties() {
+
+		  @Override
+		  public Set<Object> keySet()
+		  {
+		    return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
+		  }
+
+		};
+		tmp.putAll(props);
+		try {
+		    FileOutputStream xmlStream = new FileOutputStream("arduino.props.xml");
+		    /*this comes out SORTED! */
+		    tmp.storeToXML(xmlStream,"");
+		    tmp.store(new FileOutputStream("arduino.properties"), "latest and greatest");
+		   // tmp.save(new FileOutputStream("arduino.properties"), "latest and greatest");
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 	}
 
 }

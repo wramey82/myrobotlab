@@ -31,16 +31,11 @@ public class PApplet {
 	/** Path to sketch folder */
 	public String sketchPath; // folder;
 
-	public static final String ICON_IMAGE = "/resource/mrl_logo_36_36.png";
 	public static int platform;
 	static final String WHITESPACE = " \t\n\r\f\u00A0";
 
 	static protected HashMap<String, Pattern> matchPatterns;
 
-
-	/**
-	 * @nowebref
-	 */
 	static public String[] loadStrings(File file) {
 		InputStream is = createInput(file);
 		if (is != null)
@@ -48,9 +43,6 @@ public class PApplet {
 		return null;
 	}
 
-	/**
-	 * @nowebref
-	 */
 	static public InputStream createInput(File file) {
 		if (file == null) {
 			throw new IllegalArgumentException(

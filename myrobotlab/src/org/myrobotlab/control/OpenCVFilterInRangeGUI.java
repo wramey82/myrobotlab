@@ -112,10 +112,8 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 	public OpenCVFilterInRangeGUI(String boundFilterName,
 			String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
-		myFilter = (OpenCVFilterInRange) myOpenCVFilter;
-		
-		
-		myFilter.useHue = true;
+		//myFilter = (OpenCVFilterInRange) myOpenCVFilter;
+		//myFilter.useHue = true;
 		
 		hueMin.setName("hueMin"); 
 		hueMax.setName("hueMax");
@@ -226,7 +224,7 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 	@Override
 	public void setFilterData(FilterWrapper filter) {
 		// TODO Auto-generated method stub
-		
+		log.info(filter);
 	}
 
 }
