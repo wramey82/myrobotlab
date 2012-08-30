@@ -1919,6 +1919,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}	
 	
+	public String getServiceResourceFile(String subpath)
+	{
+		return FileIO.getResourceFile(String.format("%s/%s",this.getShortTypeName(), subpath));
+	}
+	
 	public Heartbeat echoHeartbeat(Heartbeat pulse)
 	{
 		return pulse;

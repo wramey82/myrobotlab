@@ -68,7 +68,6 @@ import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 /**

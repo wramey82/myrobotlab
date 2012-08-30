@@ -159,7 +159,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		} else if (m.getText().equals("save as")) {
 			saveAsFile();
 		} else if (m.getActionCommand().equals("examples")) {
-			editor.setText(FileIO.getResourceFile(String.format("python/examples/%1$s", m.getText())));
+			editor.setText(FileIO.getResourceFile(String.format("Jython/examples/%1$s", m.getText())));
 		}
 	}
 
@@ -266,7 +266,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 * @param examples
 	 */
 	private void createExamplesMenu(JMenu examples) {
-		// TODO - dynamically build based on resources
+		// FIXME - dynamically build based on resources
 		JMenu menu;
 		menu = new JMenu("arduino");
 		menu.add(createMenuItem("arduinoBasic.py", "examples"));
