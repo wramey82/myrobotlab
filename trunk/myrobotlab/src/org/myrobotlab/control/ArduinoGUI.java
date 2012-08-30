@@ -482,11 +482,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			log.info("DigitalButton");
 		}
 
+		// FIXME - most are deprecated
 		// ports & timers
 		if (c == serialDevice) {
 			JComboBox cb = (JComboBox) c;
 			String newPort = (String) cb.getSelectedItem();
-			myService.send(boundServiceName, "setPort", newPort);
+			//myService.send(boundServiceName, "setPort", newPort);
+			myService.send(boundServiceName, "setSerialDevice", newPort, 57600, 8, 1, 0);
+
 		} else if (c == baudRate) {
 			JComboBox cb = (JComboBox) c;
 			Integer newBaud = (Integer) cb.getSelectedItem();

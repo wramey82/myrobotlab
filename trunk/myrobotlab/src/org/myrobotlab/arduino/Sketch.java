@@ -246,10 +246,6 @@ public class Sketch {
 		ensureExistence();
 	}
 
-	public String showMessage(String msg, String desc) {
-		return msg;
-	}
-
 	public String showWarning(String warning, String desc, Exception e) {
 		return warning;
 	}

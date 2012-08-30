@@ -108,7 +108,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 			public void actionPerformed(ActionEvent e) {
 				JComboBox cb = (JComboBox) e.getSource();
 				String newPort = (String) cb.getSelectedItem();
-				myService.send(boundServiceName, "setPort", newPort);
+				myService.send(boundServiceName, "setSerialDevice", newPort, 57600, 8, 1, 0);
 			}
 		};
 

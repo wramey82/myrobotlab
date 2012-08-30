@@ -76,16 +76,9 @@ import org.simpleframework.xml.Root;
  * The protocol is basically a pass through of system calls to the Arduino
  * board. Data can be passed back from the digital or analog ports by request to
  * start polling. The serial port can be wireless (bluetooth), rf, or wired. The
- * communication protocol supported is in arduinoSerial.pde - located here :
+ * communication protocol supported is in MRLComm.ino
  * 
  * Should support nearly all Arduino board types
- * 
- * References: <a
- * href="http://www.arduino.cc/playground/Main/RotaryEncoders">Rotary
- * Encoders</a>
- * 
- * FIXME - Preference2, Preferences, the xml parameters, "board", type ALL need
- * to be reconciled to one normalized value and container !
  * 
  * @author GroG
  */
@@ -96,8 +89,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
-	// FIXME - Add Android BlueTooth as possible Serial Device - remove
-	// ArduinoBT
+
 	SerialDevice serialDevice;
 
 	static HashSet<File> libraries;
@@ -112,8 +104,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	boolean rawReadMsg = false;
 	int rawReadMsgLength = 4;
 
-	@Element
-	String board = "";
+	/* the end of neat, clean, simple config - 
+	 * have to use messy Preferences
 	@Element
 	String portName = "";
 	@Element
@@ -124,7 +116,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	int parity = 0;
 	@Element
 	int stopBits = 1;
-
+	*/
+	
 	// imported Arduino constants
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
@@ -132,6 +125,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int INPUT = 0x0;
 	public static final int OUTPUT = 0x1;
 
+	// needed to dynamically adjust PWM rate (D. only?)
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
@@ -192,6 +186,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		for (int j = 0; j < portNames.size(); ++j) {
 			log.info(portNames.get(j));
 		}
+		
+		/*
 
 		if (portName != null && portName.length() > 0) {
 			log.info("more than one port - last serial port is " + portName);
@@ -203,8 +199,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		for (int i = 0; i < servosInUse.length; ++i) {
 			servosInUse[i] = false;
 		}
-
-		// preferences.init(null);
+		*/
 
 		// Arduino arduino.
 		// target arduino
@@ -250,8 +245,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			File sketchbookLibraries = getSketchbookLibrariesFolder();
 			addLibraries(sketchbookLibraries);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Service.logException(e);
 		}
 
 		compiler = new Compiler(this);
@@ -262,6 +256,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public void setBoard(String board)
 	{
 		preferences.set("board",board);
+		preferences.save();
 	}
 
 	protected void loadHardware(File folder) {
@@ -285,6 +280,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// alphabetize list, since it's not always alpha order
 		// replaced hella slow bubble sort with this feller for 0093
 		Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+		// after that lovely searching of dirs - will come back with
+		// [arduino, tools]
 
 		for (String target : list) {
 			File subfolder = new File(folder, target);
@@ -490,7 +487,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// ---------------------------- Servo Methods End -----------------------
 
 	// ---------------------- Serial Control Methods Begin ------------------
-
+/*
 	public boolean setPort(String inPortName) {
 		log.info("setPort requesting [" + inPortName + "]");
 
@@ -523,12 +520,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						serialDevice.notifyOnDataAvailable(true);
 
 						// 115200 wired, 2400 IR ?? VW 2000??
-						serialDevice.setParams(baudRate, dataBits, stopBits, parity);
+						serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until Preferences are removed
 
-						portName = inPortName;
+						//portName = inPortName;
 						// log.info("opened " + getPortString());
 						save(); // successfully bound to port - saving
-						preferences.set("serial.port", portName);
+						preferences.set("serial.port", serialDevice.getName());
+						preferences.save();
 						broadcastState(); // state has changed let everyone know
 						break;
 
@@ -547,7 +545,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		log.info(inPortName + " ready");
 		return true;
 	}
-
+*/
 	// ---------------------- Serial Control Methods End ------------------
 	// ---------------------- Protocol Methods Begin ------------------
 
@@ -1000,15 +998,27 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return portNames;
 	}
 
-	@Override
+	@Override // FIXME - remove setPort !!!!!
 	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
 		try {
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
 				serialDevice = sd;
+				serialDevice.open();
+
+				serialDevice.addEventListener(this);
+				serialDevice.notifyOnDataAvailable(true);
+
+				// 115200 wired, 2400 IR ?? VW 2000??
+				serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until Preferences are removed
+
+				save(); // successfully bound to port - saving
+				preferences.set("serial.port", serialDevice.getName());
+				preferences.save();
+				broadcastState(); // state has changed let everyone know
 				return true;
 			}
-		} catch (SerialDeviceException e) {
+		} catch (Exception e) {
 			logException(e);
 		}
 		return false;
@@ -1151,6 +1161,35 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public String publishMessage(String msg)
 	{
 		return msg;
+	}
+	
+	public boolean connect()
+	{
+		if (serialDevice == null)
+		{
+			return false;
+		}
+		
+		try {
+			serialDevice.open();
+		} catch (SerialDeviceException e) {
+			Service.logException(e);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean disconnect()
+	{
+		if (serialDevice == null)
+		{
+			return false;
+		}
+		
+		serialDevice.close();
+		
+		return true;
 	}
 
 }

@@ -177,7 +177,6 @@ public class OpenCV extends Service {
 			this.isConvex = isConvex;
 			this.centeroid = centeroid;
 			this.vertices = vertices;
-
 		}
 
 		// TODO - static functions in Speech service
@@ -307,38 +306,63 @@ public class OpenCV extends Service {
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Float value) {
+		// we need to check both lists - as filters may not have been added to 
+		// the workflow yet
+		log.info(String.format("setFilterCFG %s %s %f", filterName, cfgName, value));
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} else {
-			log.error("setFilterCFG " + filterName + " does not exist");
-		}
+		} 
+		if (addFilters.containsKey(filterName)) {
+			return addFilters.get(filterName).setCFG(cfgName, value);
+		} 
+		
+		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Integer value) {
-		if (!filters.containsKey(filterName)) {
-			log.warn("setFilterCFG filter " + filterName
-					+ " does not currently exist");
-		}
-		return cfg.set(OpenCVFilter.FILTER_CFG_ROOT + filterName + "/"
-				+ cfgName, value);
+		// we need to check both lists - as filters may not have been added to 
+		// the workflow yet
+		log.info(String.format("setFilterCFG %s %s %d", filterName, cfgName, value));
+		if (filters.containsKey(filterName)) {
+			return filters.get(filterName).setCFG(cfgName, value);
+		} 
+		if (addFilters.containsKey(filterName)) {
+			return addFilters.get(filterName).setCFG(cfgName, value);
+		} 
+		
+		log.error("setFilterCFG " + filterName + " does not exist");
+		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Boolean value) {
+		// we need to check both lists - as filters may not have been added to 
+		// the workflow yet
+		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, (value)?"True":"False"));
+
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} else {
-			log.error("setFilterCFG " + filterName + " does not exist");
-		}
+		} 
+		if (addFilters.containsKey(filterName)) {
+			return addFilters.get(filterName).setCFG(cfgName, value);
+		} 
+		
+		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, String value) {
+		// we need to check both lists - as filters may not have been added to 
+		// the workflow yet
+		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, value));
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} else {
-			log.error("setFilterCFG " + filterName + " does not exist");
-		}
+		} 
+		if (addFilters.containsKey(filterName)) {
+			return addFilters.get(filterName).setCFG(cfgName, value);
+		} 
+		
+		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
@@ -713,6 +737,8 @@ public class OpenCV extends Service {
 		// the same time
 		// a concurrent modification exception will occur
 
+		log.info(String.format("request to addFilter %s, %s", name, newFilter));
+
 		String type = "org.myrobotlab.image.OpenCVFilter" + newFilter;
 		Object[] params = new Object[2];
 		params[0] = this;
@@ -720,6 +746,7 @@ public class OpenCV extends Service {
 		OpenCVFilter filter = (OpenCVFilter) getNewInstance(type, params);
 		filter.loadDefaultConfiguration();
 		addFilters.put(name, filter);
+		log.info(String.format("added new filter %s, %s", name, newFilter));
 		// filters.put(name, filter);
 	}
 
