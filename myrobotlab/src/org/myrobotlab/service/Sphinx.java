@@ -120,9 +120,10 @@ public class Sphinx extends Service {
 	 */
 	public boolean createGrammar (String grammar)
 	{	
+		// FIXME - probably broken
 		// get base simple.xml file - and modify it to
 		// point to the correct .gram file
-		String simplexml = FileIO.getResourceFile("simple.xml");
+		String simplexml = getServiceResourceFile("simple.xml");
 		//String grammarLocation = "file://" + cfgDir.replaceAll("\\\\", "/") + "/";
 		//simplexml = simplexml.replaceAll("resource:/resource/", cfgDir.replaceAll("\\\\", "/"));
 		simplexml = simplexml.replaceAll("resource:/resource/", ".\\\\.myrobotlab");

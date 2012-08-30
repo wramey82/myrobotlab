@@ -101,7 +101,8 @@ public class Jython extends Service {
 	{
 		if (!jythonConsoleInitialized)
 		{
-			String consoleScript = FileIO.getResourceFile("python/examples/jythonConsole.py");
+			//String consoleScript = FileIO.getResourceFile("python/examples/jythonConsole.py");
+			String consoleScript = getServiceResourceFile("examples/jythonConsole.py");
 			exec(consoleScript, false);
 		}
 	}
@@ -319,7 +320,7 @@ public class Jython extends Service {
 	public boolean loadPythonScriptFromResource(String filename)
 	{
 		log.debug(String.format("loadPythonScriptFromResource scripts/%1s",filename));
-		String newScript = FileIO.getResourceFile(String.format("python/examples/%1s",filename));
+		String newScript = getServiceResourceFile(String.format("examples/%1s",filename));
 
 		log.info(String.format("loaded new scripts/%1s size %d",filename, newScript.length()));
 		if (newScript != null && !newScript.isEmpty()){
