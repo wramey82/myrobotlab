@@ -145,7 +145,6 @@ mail.to=someone@somewhere.com
 
 	<!-- build the appropriate label -->
 	<target name="init">
-	    <echo>svn revision=${SVN_REVISION}</echo> 
 	    <!-- load file properties -->
 	     <loadproperties srcFile="${build.properties}"/>
 	    <!-- default values set if not set in already in build.properties or "release" -->
