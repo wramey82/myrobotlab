@@ -45,7 +45,6 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -60,6 +59,18 @@ import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.GUI;
 
+/*
+ * TODO - move menu into ArduinoGUI from editor
+ * 		- make Communication -> menu -> MRLComm.ino
+ *      - make menu builder
+ *      - auto-load - MRLComm first
+ *      - refresh serial ?
+ *      - message syphone - message pump - stdout stdin pipes process creator etc...
+ *      - all traces start stop at same time
+ *      - 100% on compile & upload
+ *      - arrow changed for upload to "up" duh
+ *      
+ */
 
 public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener {
 
@@ -89,21 +100,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * ---------- Config begin -------------------------
 	 */
 	ArrayList<Pin> pinList = null;
-	JComboBox serialDevice = new JComboBox(new String[] { "" });
-	JComboBox baudRate = new JComboBox(new Integer[] { 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 57600, 115200 }); // TODO
-																															// REMOVE
-	/**
-	 * for pins 6 and 5 1kHz default
-	 */
-	JComboBox PWMRate1 = new JComboBox(new String[] { "62", "250", "1000", "8000", "64000" });
-	/**
-	 * for pins 9 and 10 500 hz default
-	 */
-	JComboBox PWMRate2 = new JComboBox(new String[] { "31", "125", "500", "4000", "32000" });
-	/**
-	 * for pins 3 and 111 500 hz default
-	 */
-	JComboBox PWMRate3 = new JComboBox(new String[] { "31", "125", "500", "4000", "32000" });
 
 	JIntegerField rawReadMsgLength = new JIntegerField(4);
 	JCheckBox rawReadMessage = new JCheckBox();
@@ -142,74 +138,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// ---------------- tabs begin ----------------------
 		tabs.setTabPlacement(JTabbedPane.RIGHT);
 
-		// ---------------- tabs begin ----------------------
-		// --------- configPanel begin ----------------------
-		// TODO - deprecate completely
-		JPanel configPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints cpgc = new GridBagConstraints();
-
-		cpgc.anchor = GridBagConstraints.WEST;
-
-		cpgc.gridx = 0;
-		cpgc.gridy = 0;
-
-		configPanel.add(new JLabel("type : "), cpgc);
-		++cpgc.gridx;
-
-		++cpgc.gridx;
-		configPanel.add(new JLabel(" pwm 5 6 : "), cpgc);
-		++cpgc.gridx;
-		PWMRate1.setSelectedIndex(2);
-		configPanel.add(PWMRate1, cpgc);
-
-		++cpgc.gridx;
-		configPanel.add(new JLabel(" pwm 9 10 : "), cpgc);
-		++cpgc.gridx;
-		PWMRate2.setSelectedIndex(2);
-		configPanel.add(PWMRate2, cpgc);
-
-		cpgc.gridx = 0;
-		++cpgc.gridy;
-		configPanel.add(new JLabel("port : "), cpgc);
-		++cpgc.gridx;
-		configPanel.add(serialDevice, cpgc);
-
-		++cpgc.gridx;
-		configPanel.add(new JLabel(" serial rate : "), cpgc);
-		++cpgc.gridx;
-		configPanel.add(baudRate, cpgc);
-
-		++cpgc.gridx;
-		configPanel.add(new JLabel(" pwm 3 11 : "), cpgc);
-		++cpgc.gridx;
-		PWMRate3.setSelectedIndex(2);
-		configPanel.add(PWMRate3, cpgc);
-
-		++cpgc.gridy;
-		cpgc.gridx = 0;
-
-		serialDevice.setName("serialDevice");
-		// boardType.setName("boardType");
-		baudRate.setName("baudRate");
-		PWMRate1.setName("PWMRate1");
-		PWMRate2.setName("PWMRate2");
-		PWMRate3.setName("PWMRate3");
-
-		PWMRate1.addActionListener(this);
-		PWMRate2.addActionListener(this);
-		PWMRate3.addActionListener(this);
-
-		// boardType.addActionListener(this);
-		serialDevice.addActionListener(this);
-		baudRate.addActionListener(this);
-
 		getPinPanel();
 		getOscopePanel();
 		getEditorPanel();
 
-		JFrame top = myService.getFrame();
-		tabs.addTab("config", configPanel); // FIXME - remove
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(top, tabs, configPanel, boundServiceName, "config"));
 		display.add(tabs);
 		tabs.setSelectedIndex(0);
 	}
@@ -264,20 +196,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			boardName = boardPreferences.get("name");
 
 
-			if (serialDevice != null) {
-				serialDevice.removeActionListener(this);
-				displaySerialDevices(myArduino.getSerialDeviceNames());
-				serialDevice.setSelectedItem(myArduino.getPortName());
-				serialDevice.addActionListener(this);
-			}
-
-			if (baudRate != null && serialDevice != null) {
-				baudRate.removeActionListener(this);
-				// baudRate.setSelectedItem(myArduino.getSerialDevice().getBaudRate());
-				// // FIXME = just myArduino.getBaudRate()
-				baudRate.addActionListener(this);
-			}
-
 			// TODO - iterate through others and unselect them
 			// FIXME - do we need to remove action listeners?
 			/*
@@ -313,22 +231,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	}
 
-
-	/**
-	 * displaySerialDevices displays the list of available devices on the
-	 * machine which the Arduino service is running.
-	 * @param devices - list of serial devices on the Arduino machine
-	 */
-	public void displaySerialDevices(ArrayList<String> devices) {
-		serialDevice.removeAllItems();
-		serialDevice.addItem("");// null port
-		for (int i = 0; i < devices.size(); ++i) {
-			String n = devices.get(i);
-			log.debug(n);
-			serialDevice.addItem(n);
-		}
-
-	}
 
 	public void setCompilingProgress(Integer percent)
 	{
@@ -481,36 +383,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 			log.info("DigitalButton");
 		}
-
-		// FIXME - most are deprecated
-		// ports & timers
-		if (c == serialDevice) {
-			JComboBox cb = (JComboBox) c;
-			String newPort = (String) cb.getSelectedItem();
-			//myService.send(boundServiceName, "setPort", newPort);
-			myService.send(boundServiceName, "setSerialDevice", newPort, 57600, 8, 1, 0);
-
-		} else if (c == baudRate) {
-			JComboBox cb = (JComboBox) c;
-			Integer newBaud = (Integer) cb.getSelectedItem();
-			myService.send(boundServiceName, "setBaud", newBaud);
-		} else if (c == PWMRate1 || c == PWMRate2 || c == PWMRate3) {
-			JComboBox cb = (JComboBox) e.getSource();
-			Integer newFrequency = Integer.parseInt((String) cb.getSelectedItem());
-			IOData io = new IOData();
-			int timerAddr = (c == PWMRate1) ? Arduino.TCCR0B : ((c == PWMRate2) ? Arduino.TCCR0B : Arduino.TCCR2B);
-			io.address = timerAddr;
-			io.value = newFrequency;
-			myService.send(boundServiceName, "setPWMFrequency", io);
-		}
-		/*
-		 * else if (c == boardType) { log.info("type change"); JComboBox cb =
-		 * (JComboBox) e.getSource(); String newType = (String)
-		 * cb.getSelectedItem(); getPinPanel(); // ----------- TODO
-		 * --------------------- // MEGA Type switching
-		 * 
-		 * }
-		 */
 
 	}
 

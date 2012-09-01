@@ -45,17 +45,6 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	transient InputStream input;
 	transient OutputStream output;
 
-	/* no internal buffer
-	 * the result can be a broken message if
-	 * an Arduino is loaded while consuming messages - since we cannot "clear"
-	 * the broken message from here 
-	 * A possible solution would be to handle messages based on length or stop character
-	 * which migh be a nice addition - but currently not implemented
-	byte buffer[] = new byte[32768];
-	int bufferIndex;
-	int bufferLast;
-	*/
-
 	protected EventListenerList listenerList = new EventListenerList();
 	private CommPortIdentifier commPortId;
 
@@ -311,6 +300,13 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	public void open() throws SerialDeviceException {
 		try {
 			log.info(String.format("opening %s", commPortId.getName()));
+			if (isOpen())
+			{
+				log.warn("port already opened, you should fix calling code....");
+				// FIXME !!! - the listener is busted at this point !!
+				return;
+			}
+
 			port = (SerialPort)commPortId.open(commPortId.getName(), 1000);
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 			output = port.getOutputStream();

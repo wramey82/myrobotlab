@@ -20,6 +20,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
+import org.myrobotlab.fileLib.Zip;
 import org.myrobotlab.framework.ServiceData.CategoryList;
 import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Serializer;
@@ -720,7 +721,7 @@ public class ServiceInfo implements Serializable {
 					if (artifact.getExt().equals("zip"))
 					{
 						filename = String.format("libraries%1$szip%1$s%2$s.zip", File.separator, artifact.getName());
-						FileIO.unzip(filename, "./");
+						Zip.unzip(filename, "./");
 					}
 					log.info(artifacts[j]);
 				}

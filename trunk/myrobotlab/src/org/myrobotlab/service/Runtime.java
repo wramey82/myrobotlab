@@ -986,9 +986,8 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 */
-	static String version() {
+	public static String version() {
 		String v = FileIO.getResourceFile("version.txt");
-		System.out.println(v);
 		return v;
 	}
 	

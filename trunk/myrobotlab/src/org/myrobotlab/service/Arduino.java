@@ -30,16 +30,19 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
+import java.util.TooManyListenersException;
 import java.util.Vector;
 
 import org.apache.log4j.Level;
@@ -484,68 +487,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	// ---------------------------- Servo Methods End -----------------------
-
-	// ---------------------- Serial Control Methods Begin ------------------
-/*
-	public boolean setPort(String inPortName) {
-		log.info("setPort requesting [" + inPortName + "]");
-
-		if (serialDevice != null) {
-			serialDevice.close();
-			serialDevice = null;
-		}
-
-		if (inPortName == null || inPortName.length() == 0) {
-			log.info("setting serial to nothing");
-			return true;
-		}
-
-		try {
-			SerialDevice device;
-
-			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
-			for (int i = 0; i < portList.size(); ++i) {
-				device = portList.get(i);
-
-				log.debug("checking port " + device.getName());
-				if (device.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
-					log.debug("is serial");
-					if (device.getName().equals(inPortName)) {
-						log.debug("matches " + inPortName);
-						serialDevice = device;
-						serialDevice.open();
-
-						serialDevice.addEventListener(this);
-						serialDevice.notifyOnDataAvailable(true);
-
-						// 115200 wired, 2400 IR ?? VW 2000??
-						serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until Preferences are removed
-
-						//portName = inPortName;
-						// log.info("opened " + getPortString());
-						save(); // successfully bound to port - saving
-						preferences.set("serial.port", serialDevice.getName());
-						preferences.save();
-						broadcastState(); // state has changed let everyone know
-						break;
-
-					}
-				}
-			}
-		} catch (Exception e) {
-			Service.logException(e);
-		}
-
-		if (serialDevice == null) {
-			log.error(inPortName + " serialPort is null - bad init?");
-			return false;
-		}
-
-		log.info(inPortName + " ready");
-		return true;
-	}
-*/
-	// ---------------------- Serial Control Methods End ------------------
 	// ---------------------- Protocol Methods Begin ------------------
 
 	public void digitalReadPollStart(Integer address) {
@@ -1003,10 +944,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
 				serialDevice = sd;
-				serialDevice.open();
-
-				serialDevice.addEventListener(this);
-				serialDevice.notifyOnDataAvailable(true);
+				
+				connect();
 
 				// 115200 wired, 2400 IR ?? VW 2000??
 				serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until Preferences are removed
@@ -1076,37 +1015,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		uploader.uploadUsingPreferences(buildPath, programName, false);
 	}
 
-	public static void main(String[] args) throws RunnerException, SerialDeviceException {
-
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
-
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-		SensorMonitor sensors = new SensorMonitor("sensors");
-		sensors.startService();
-
-		/*
-		 * //Runtime.createAndStart("sensors", "SensorMonitor");
-		 * 
-		 * String code = FileIO.getResourceFile("Arduino/MRLComm.ino"); //String
-		 * code = FileIO.fileToString(
-		 * ".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
-		 * 
-		 * arduino.compile("MRLComm", code); arduino.setPort("COM7"); //- test
-		 * re-entrant arduino.upload();
-		 */
-		// FIXME - I BELIEVE THIS LEAVES THE SERIAL PORT IN A CLOSED STATE !!!!
-
-		// arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
-		// arduino.pinMode(44, Arduino.OUTPUT);
-		// arduino.digitalWrite(44, Arduino.HIGH);
-
-		Runtime.createAndStart("gui01", "GUIService");
-		//Runtime.createAndStart("jython", "Jython");
-
-	}
-
 	/**
 	 * Get the number of lines in a file by counting the number of newline
 	 * characters inside a String (and adding 1).
@@ -1166,12 +1074,20 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	{
 		if (serialDevice == null)
 		{
+			log.error("can't connect, serialDevice is null");
 			return false;
 		}
 		
 		try {
-			serialDevice.open();
-		} catch (SerialDeviceException e) {
+			if (!serialDevice.isOpen())
+			{
+				serialDevice.open();
+				serialDevice.addEventListener(this);
+				serialDevice.notifyOnDataAvailable(true);
+			} else {
+				log.warn(String.format("%s is already open, close first before opening again",serialDevice.getName()));
+			}
+		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
@@ -1190,5 +1106,51 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		
 		return true;
 	}
+	
+	public static File[] getPackageContent(String packageName) throws IOException{
+	    ArrayList<File> list = new ArrayList<File>();
+	    Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
+	                            .getResources(packageName);
+	    while (urls.hasMoreElements()) {
+	        URL url = urls.nextElement();
+	        File dir = new File(url.getFile());
+	        for (File f : dir.listFiles()) {
+	            list.add(f);
+	        }
+	    }
+	    return list.toArray(new File[]{});
+	}
+	
+	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
+		SensorMonitor sensors = new SensorMonitor("sensors");
+		sensors.startService();
+
+		/*
+		 * //Runtime.createAndStart("sensors", "SensorMonitor");
+		 * 
+		 * String code = FileIO.getResourceFile("Arduino/MRLComm.ino"); //String
+		 * code = FileIO.fileToString(
+		 * ".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+		 * 
+		 * arduino.compile("MRLComm", code); arduino.setPort("COM7"); //- test
+		 * re-entrant arduino.upload();
+		 */
+		// FIXME - I BELIEVE THIS LEAVES THE SERIAL PORT IN A CLOSED STATE !!!!
+
+		// arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
+		// arduino.pinMode(44, Arduino.OUTPUT);
+		// arduino.digitalWrite(44, Arduino.HIGH);
+
+		Runtime.createAndStart("gui01", "GUIService");
+		//Runtime.createAndStart("jython", "Jython");
+
+	}
+
 
 }
