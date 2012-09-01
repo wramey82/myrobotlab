@@ -82,7 +82,7 @@ public abstract class Uploader implements MessageConsumer  {
 		myArduino.setCompilingProgress(20);
 
       
-     //serialPort.dispose(); //FIXME - open/close vs - just stay open?
+     serialPort.dispose(); //FIXME - open/close vs - just stay open?
 
   }
 
