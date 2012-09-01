@@ -155,6 +155,7 @@ public class Jython extends Service {
 	 */
 	public void exec (String code, boolean replace)
 	{
+		log.info(String.format("exec %s", code));
 		if (interp == null)
 		{
 			createPythonInterpreter();

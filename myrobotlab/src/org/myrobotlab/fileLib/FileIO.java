@@ -42,11 +42,12 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
@@ -240,63 +241,97 @@ public class FileIO {
 	    }
 	}
 	
-	static public void unzip(String zipFile, String newPath) throws ZipException, IOException 
+	
+	static public String getResouceLocation()
 	{
-	    System.out.println(zipFile);
-	    int BUFFER = 2048;
-	    File file = new File(zipFile);
-
-	    ZipFile zip = new ZipFile(file);
-	    //String newPath = zipFile.substring(0, zipFile.length() - 4);
-
-	    new File(newPath).mkdir();
-	    Enumeration zipFileEntries = zip.entries();
-
-	    // Process each entry
-	    while (zipFileEntries.hasMoreElements())
-	    {
-	        // grab a zip file entry
-	        ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-	        String currentEntry = entry.getName();
-	        File destFile = new File(newPath, currentEntry);
-	        //destFile = new File(newPath, destFile.getName());
-	        File destinationParent = destFile.getParentFile();
-
-	        // create the parent directory structure if needed
-	        destinationParent.mkdirs();
-
-	        if (!entry.isDirectory())
-	        {
-	            BufferedInputStream is = new BufferedInputStream(zip
-	            .getInputStream(entry));
-	            int currentByte;
-	            // establish buffer for writing file
-	            byte data[] = new byte[BUFFER];
-
-	            // write the current file to disk
-	            FileOutputStream fos = new FileOutputStream(destFile);
-	            BufferedOutputStream dest = new BufferedOutputStream(fos,
-	            BUFFER);
-
-	            // read and write until last byte is encountered
-	            while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
-	                dest.write(data, 0, currentByte);
-	            }
-	            dest.flush();
-	            dest.close();
-	            is.close();
-	        }
-	        else{
-	            destFile.mkdirs();
-	        }
-	        if (currentEntry.endsWith(".zip"))
-	        {
-	            // found a zip file, try to open
-	            unzip(destFile.getAbsolutePath(), "./");
-	        }
-	    }
+		URL url = File.class.getResource("/resource");
+		return url.toString();		
 	}
+	
+	static public String getRootLocation()
+	{
+		URL url = File.class.getResource("/");
+		return url.toString();		
+	}
+	
 		
+	static public boolean inJar()
+	{
+		return getResouceLocation().startsWith("jar:");
+	}
+	
+	static public String getResourceJarPath()
+	{
+
+		if (!inJar())
+		{
+			log.info("resource is not in jar");
+			return null;
+		}
+		
+		String full = getResouceLocation();
+		String jarPath = full.substring(full.indexOf("jar:file:/") + 10, full.lastIndexOf("!"));
+		return jarPath;
+	}
+	
+	static public ArrayList<String> listInternalContents(String path)
+	{
+		if (!inJar())
+		{
+			// get listing if in debug mode or classes are unzipped
+			String rp = getRootLocation();
+			String targetDir = rp.substring(rp.indexOf("file:/") + 6);
+			String fullPath = targetDir + path;
+			File dir = new File(fullPath);
+			if (!dir.exists())
+			{
+				log.error(String.format("%s does not exist", fullPath));
+			}
+			ArrayList<String> ret = new ArrayList<String>();
+			String[] tmp = dir.list();
+			for (int i = 0; i < tmp.length; ++i)
+			{
+				File dirCheck = new File(targetDir + path + "/" + tmp[i]);
+				if (dirCheck.isDirectory())
+				{
+					ret.add(tmp[i] + "/");
+				} else {
+					ret.add(tmp[i]);
+				}
+			}
+			dir.list();
+			return ret;
+		} else {
+			// unzip
+			return null;
+		}
+	}
+	
+	static public ArrayList<String> listResourceContents(String path)
+	{
+		return listInternalContents("/resource" + path);
+	}
+	
+	public static void main(String[] args) throws ZipException, IOException {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		ArrayList<String> files = listInternalContents("resource/images");
+		for (int i = 0; i < files.size(); ++i) {
+			log.info(files.get(i));
+		}
+		
+		files = Zip.listDirectoryContents("myrobotlab.jar", "resource/images");
+		for (int i = 0; i < files.size(); ++i) {
+			log.info(files.get(i));
+		}
+		
+		log.info("done");
+
+	}
+
+	
 }
 
 

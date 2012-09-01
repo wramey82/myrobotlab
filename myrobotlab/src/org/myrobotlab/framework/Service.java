@@ -26,6 +26,7 @@
 package org.myrobotlab.framework;
 
 import java.io.File;
+import org.myrobotlab.service.Runtime;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -276,6 +277,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("os.arch [%1$s] getArch [%2$s]", System.getProperty("os.arch"), Platform.getArch()));
 		log.info(String.format("getBitness [%1$d]", Platform.getBitness()));
 		log.info(String.format("java.vm.name [%1$s] getVMName [%2$s]", vmName, Platform.getVMName()));
+		log.info(String.format("version [%s]", Runtime.version()));
+		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
+		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 					
 		log.info("---------------non-normalized---------------");						
 		log.info(String.format("java.vm.name [%1$s]", vmName));
