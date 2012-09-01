@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.myrobotlab.arduino.PApplet;
-import org.myrobotlab.arduino.SketchCode2;
 import org.myrobotlab.service.Arduino;
 
 public class Compiler {
@@ -53,7 +52,6 @@ public class Compiler {
 	boolean verbose;
 
 	Arduino myArduino = null;
-	private SketchCode2[] code; // FIXME - remove
 
 	RunnerException exception;
 
@@ -61,6 +59,7 @@ public class Compiler {
 	 * This is *not* the "Processing" libraries path, this is the Java libraries
 	 * path, as in java.library.path=BlahBlah, which identifies search paths for
 	 * DLLs or JNILIBs. (bullshit)
+	 * did I say bullshit? - this variable is never even read ... ever .. i mean wtf ?
 	 */
 	private String libraryPath;
 
@@ -279,10 +278,11 @@ public class Compiler {
 		int result = 0;
 
 		if (verbose || myArduino.preferences.getBoolean("build.verbose")) {
+			String avrCmd = "";
 			for (int j = 0; j < command.length; j++) {
-				System.out.print(command[j] + " ");
+				avrCmd += command[j] + " ";
 			}
-			System.out.println();
+			myArduino.message(String.format("%s\n", avrCmd));
 		}
 
 		firstErrorFound = false; // haven't found any errors yet
@@ -312,11 +312,13 @@ public class Compiler {
 				if (err.thread != null)
 					err.thread.join();
 				result = process.waitFor();
-				// System.out.println("result is " + result);
+				//myArduino.message("result is " + result);
 				compiling = false;
 			} catch (InterruptedException ignored) {
 			}
 		}
+		
+		// FIXME - garbage - inducing program control via re-throwing exceptions - very ugly !
 
 		// an error was queued up by message(), barf this back to compile(),
 		// which will barf it back to Editor. if you're having trouble
@@ -335,7 +337,7 @@ public class Compiler {
 
 		if (result != 0) {
 			RunnerException re = new RunnerException("Error compiling.");
-			re.hideStackTrace();
+			re.hideStackTrace(); 
 			throw re;
 		}
 	}

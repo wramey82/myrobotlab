@@ -41,6 +41,7 @@ import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
@@ -59,7 +60,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton saveButton;
 	ImageButton fullscreenButton;
 	ImageButton monitorButton;
-	JLabel programName = new JLabel("prog1");
+	JLabel programName = new JLabel("MRLComm");
 
 	// consoles
 	JTabbedPane consoleTabs;
@@ -95,6 +96,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	
 	JMenu boardsMenu = null;
 	public JMenu serialDeviceMenu = null;
+	JMenu communicationMenu = new JMenu("communication");
 
 	public void init() {
 		super.init();
@@ -121,6 +123,8 @@ public class EditorArduino extends Editor implements ActionListener {
 		toolsMenu.add(boardsMenu);
 		toolsMenu.add(serialDeviceMenu);
 		
+		menuBar.remove(examplesMenu);
+		
 		// add to help menu
 		helpMenu.add(createMenuItem("Getting Started"));
 		helpMenu.add(createMenuItem("Environment"));
@@ -129,7 +133,22 @@ public class EditorArduino extends Editor implements ActionListener {
 		helpMenu.add(createMenuItem("Find in Reference", saveMenuMnemonic, "control+shift-F", null));
 		helpMenu.add(createMenuItem("Frequently Asked Questions"));
 		helpMenu.add(createMenuItem("Visit Arduino.cc"));
+		
+		communicationMenu.add(createMenuItem("Load MRLComm.ino"));
+		loadCommunicationFile();
 
+	}
+	
+	public void loadResourceFile(String filename)
+	{
+		// TODO - set "name" progname
+		String program = FileIO.getResourceFile("Arduino/" + filename);
+		editor.setText(program);
+		
+	}
+	public void loadCommunicationFile()
+	{
+		loadResourceFile("MRLComm.ino");
 	}
 
 	  public void rebuildBoardsMenu(JMenu menu) {

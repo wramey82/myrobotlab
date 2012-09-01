@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
-import java.util.TooManyListenersException;
 import java.util.Vector;
 
 import org.apache.log4j.Level;
@@ -310,7 +309,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public ArrayList<String> getPorts() {
 
 		ArrayList<String> ports = new ArrayList<String>();
-/*		
+
 		SerialDevice portId;
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
@@ -331,7 +330,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				ports.add(serialDevice.getName());
 		}
 
-*/
 		return ports;
 	}
 
@@ -530,7 +528,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 	public PinData publishPin(PinData p) {
-		log.info(p);
+		//log.debug(p);
 		return p;
 	}
 
@@ -1054,6 +1052,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	@Override
 	public void message(String msg) {
+		log.info(msg);
 		invoke("publishMessage", msg);
 	}
 	
@@ -1071,8 +1070,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	public boolean connect()
 	{
+		message(String.format("\nconnecting to serial device %s\n", serialDevice.getName()));
+		
 		if (serialDevice == null)
 		{
+			message("\ncan't connect, serialDevice is null\n"); // TODO - "errorMessage vs message" 
 			log.error("can't connect, serialDevice is null");
 			return false;
 		}
@@ -1084,13 +1086,16 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				serialDevice.addEventListener(this);
 				serialDevice.notifyOnDataAvailable(true);
 			} else {
-				log.warn(String.format("%s is already open, close first before opening again",serialDevice.getName()));
+				log.warn(String.format("\n%s is already open, close first before opening again\n",serialDevice.getName()));
+				message(String.format("%s is already open, close first before opening again",serialDevice.getName()));
 			}
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
 		
+		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
+		message("good times...\n");
 		return true;
 	}
 	

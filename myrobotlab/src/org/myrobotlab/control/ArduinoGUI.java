@@ -74,6 +74,8 @@ import org.myrobotlab.service.interfaces.GUI;
  *      - Java console - duh
  *      - uploader progress - duh
  *      - error goes to status	
+ *      - console info regarding the state & progress of "connecting" to a serialDevice
+ *      - TODO - "errorMessage vs message" warnMessage too - embed in Console logic
  *      
  */
 
@@ -128,7 +130,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 */
 	// Base arduinoIDE;
 	DigitalButton uploadButton = null;
-	JPanel editorPanel = null;
+//	JPanel editorPanel = null;
 	GridBagConstraints epgc = new GridBagConstraints();
 	Dimension size = new Dimension(620, 442);
 	Map<String, String> boardPreferences;
@@ -780,22 +782,21 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	EditorArduino editor = null;
 
 	public JPanel getEditorPanel() {
-		if (editorPanel != null) {
-			tabs.remove(editorPanel);
-		}
+//		if (editorPanel != null) {
+//			tabs.remove(editorPanel);
+//		}
 
-		editorPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints opgc = new GridBagConstraints();
+//		editorPanel = new JPanel(new BorderLayout());
 
 		editor = new EditorArduino(boundServiceName, myService);
 		editor.init();
-		editorPanel.add(editor.getDisplay());
+//		editorPanel.add(editor.getDisplay());
 
 		JFrame top = myService.getFrame();
-		tabs.insertTab("editor", null, editorPanel, "editor", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, editorPanel, boundServiceName, "editor"));
+		tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, editor.getDisplay(), boundServiceName, "editor"));
 		myService.getFrame().pack();
-		return editorPanel;
+		return editor.getDisplay();
 	}
 
 	public void createSerialDeviceMenu(JMenu m) {

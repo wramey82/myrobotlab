@@ -95,7 +95,6 @@ public class GUIServiceGUI extends ServiceGUI {
 	public mxGraph graph = null;
 	mxCell currentlySelectedCell = null;
 	mxGraphComponent graphComponent = null;
-	JPanel graphPanel = new JPanel();
 
 	JButton rebuildButton = new JButton("rebuild");
 	JButton hideRoutesButton = new JButton("hide routes");
@@ -123,8 +122,6 @@ public class GUIServiceGUI extends ServiceGUI {
 		newRoute.add(period1);
 		newRoute.add(dstMethodName);
 
-		graphPanel.setBorder(BorderFactory.createTitledBorder("graph"));
-
 		buildGraph();
 
 		// begin graph view buttons
@@ -139,9 +136,6 @@ public class GUIServiceGUI extends ServiceGUI {
 		top.add(filters);
 		
 		display.add(top, BorderLayout.PAGE_START);
-
-		graphPanel.setVisible(true);
-//		display.add(graphPanel, BorderLayout.CENTER);
 		
 		accessURLButton.addActionListener(buttonListener);
 		rebuildButton.addActionListener(buttonListener);
