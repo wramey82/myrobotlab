@@ -100,15 +100,15 @@ public class EditorArduino extends Editor implements ActionListener {
 
 	public void init() {
 		super.init();
-		
-		compileButton = addImageButtonToButtonBar("Arduino","Compile", this);
-		uploadButton 	= addImageButtonToButtonBar("Arduino","Upload", this);
-		connectButton 	= addImageButtonToButtonBar("Arduino","Connect", this);
-		newButton 		= addImageButtonToButtonBar("Arduino","New", this);
-		openButton 		= addImageButtonToButtonBar("Arduino","Open", this);
-		saveButton 		= addImageButtonToButtonBar("Arduino","Save", this);
-		fullscreenButton= addImageButtonToButtonBar("Arduino","Fullscreen", this);
-		monitorButton 	= addImageButtonToButtonBar("Arduino","Monitor", this);
+		//NOTE !!! - must be lowercase to match image names
+		compileButton = addImageButtonToButtonBar("Arduino","compile", this);  
+		uploadButton 	= addImageButtonToButtonBar("Arduino","upload", this);
+		connectButton 	= addImageButtonToButtonBar("Arduino","connect", this);
+		newButton 		= addImageButtonToButtonBar("Arduino","new", this);
+		openButton 		= addImageButtonToButtonBar("Arduino","open", this);
+		saveButton 		= addImageButtonToButtonBar("Arduino","save", this);
+		fullscreenButton= addImageButtonToButtonBar("Arduino","fullscreen", this);
+		monitorButton 	= addImageButtonToButtonBar("Arduino","monitor", this);
 		
 		buttonBar.setBackground(new Color(0,100,104));
 		buttonBar.add(programName);
