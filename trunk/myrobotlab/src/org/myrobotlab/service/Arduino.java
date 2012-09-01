@@ -86,7 +86,8 @@ import org.simpleframework.xml.Root;
  */
 
 @Root
-public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, DigitalIO, AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer {
+public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, DigitalIO, 
+AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
@@ -777,9 +778,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return sketchbookFolder;
 	}
 
-	static public String showError(String error, String desc, Exception e) {
-		return error;
-	}
+
 
 	public File getSketchbookLibrariesFolder() {
 		return new File(getSketchbookFolder(), "libraries");
@@ -1002,9 +1001,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		log.debug(program);
 	}
 
-	public String compilerError(String error) {
-		return error;
-	}
 
 	// public void upload(String file) throws RunnerException,
 	// SerialDeviceException
@@ -1065,6 +1061,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		invoke("publishMessage", msg);
 	}
 	
+	static public String showError(String error, String desc, Exception e) {
+		return error;
+	}
+	public String compilerError(String error) {
+		return error;
+	}
+
 	public String publishMessage(String msg)
 	{
 		return msg;
