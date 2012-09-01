@@ -26,7 +26,10 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -76,7 +79,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
-	public JProgressBar compilingProgress = new JProgressBar(0,100);
+	public JProgressBar progress = new JProgressBar(0,100);
 	
 	JSplitPane splitPane;
 
@@ -123,7 +126,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 		this.syntaxStyle = syntaxStyle;
 		
-		console = new Console();  // FIXME - rename log console
+		console = new Console(); 
 
 		provider = createCompletionProvider();
 		ac = new AutoCompletion(provider);
@@ -139,7 +142,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		splitPane = null;
 
 		statusLabel = new JLabel("Status:");
-		status = new JLabel("zod");
+		status = new JLabel("");
 		top = myService.getFrame();
 	}
 
@@ -212,17 +215,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 		// default text based menu
 		display.add(createMenuPanel(), BorderLayout.PAGE_START);
 
-//		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
-//		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
 		splitPane = createMainPane();
 
 		display.add(splitPane, BorderLayout.CENTER);
 		
-		JPanel s = new JPanel();
+		JPanel s = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		s.add(statusLabel);
 		s.add(status);
-		//s.add(comp)
 		display.add(s, BorderLayout.PAGE_END);
 	}
 
@@ -239,7 +238,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 		
 		consoleTabs = createTabsPane();
 		lowerPanel.add(consoleTabs, BorderLayout.CENTER);
-		lowerPanel.add(compilingProgress, BorderLayout.SOUTH);
+		progress.setForeground(Color.green);
+		lowerPanel.add(progress, BorderLayout.SOUTH);
 		editorScrollPane = createEditorPane();
 
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,lowerPanel);
@@ -308,18 +308,6 @@ public class Editor extends ServiceGUI implements ActionListener {
 		menu.add(createMenuItem("basicPython.py", "examples"));
 		examplesMenu.add(menu);
 
-		menu = new JMenu("Input");
-		menu.add(createMenuItem("inputTest.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("Speech");
-		menu.add(createMenuItem("sayThings.py", "examples"));
-		menu.add(createMenuItem("talkBack.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("Vision");
-		menu.add(createMenuItem("faceTracking.py", "examples"));
-		examplesMenu.add(menu);
 		
 		return examplesMenu;
 	}
@@ -401,7 +389,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	
 	JPanel createMenuPanel() {
 		menuBar = createTopMenuBar();
-		buttonBar = createTopButtonBar();
+		buttonBar = new JPanel();
 
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(menuBar, BorderLayout.LINE_START);
@@ -419,25 +407,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return pane;
 	}
 
-	JPanel createTopButtonBar() {
-		buttonBar = new JPanel(); // returns empty - no common set - change in future?
-		/*
-		executeButton = new ImageButton("Jython", "execute", this);
-		restartButton = new ImageButton("Jython", "restart", this);
-		openFileButton = new ImageButton("Jython", "open", this);
-		saveFileButton = new ImageButton("Jython", "save", this);
-		
 
-
-		buttonBar.add(openFileButton);
-		buttonBar.add(saveFileButton);
-		buttonBar.add(restartButton);
-		buttonBar.add(executeButton);
-		
-		buttonBar.setBackground(new Color(0,100,104));
-		*/
-		return buttonBar;
-	}
 
 	/**
 	 * Build up the top text menu bar.

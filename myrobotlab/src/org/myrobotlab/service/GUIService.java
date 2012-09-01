@@ -530,7 +530,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		undocked.setIconImage(img);					
 		
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-//		sg.detachButton.setVisible(false);
 	    tabs.remove(sg.getDisplay().getParent()); // FIXME - memory leak tpanel parent is not disposed - put tpanel in widget
 
 		undocked.getContentPane().add(sg.getDisplay());
@@ -548,14 +547,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 */
 	public void dockPanel(String boundServiceName)
 	{
-		// add a single tabbed panel
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-//		JPanel tpanel = new JPanel();
-//		tpanel.add(sg.getDisplay());
-		//sg.detachButton.setVisible(true);
 		tabs.add(boundServiceName, sg.getDisplay());		
-		//tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, boundServiceName));
-
 		frame.pack();
 	}
 	

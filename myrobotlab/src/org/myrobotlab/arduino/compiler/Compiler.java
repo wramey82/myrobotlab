@@ -234,7 +234,10 @@ public class Compiler {
 		execAsynchronously(commandObjcopy);
 
 		myArduino.setCompilingProgress(90);
-
+		
+		myArduino.setCompilingProgress(100);
+		myArduino.message("done.");
+		
 		return true;
 	}
 
@@ -287,6 +290,7 @@ public class Compiler {
 
 		Process process;
 
+		//command = new String[]{"ls.exe"};
 		try {
 			process = Runtime.getRuntime().exec(command);
 		} catch (IOException e) {

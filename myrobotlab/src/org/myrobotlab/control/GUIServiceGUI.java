@@ -27,6 +27,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,14 +110,15 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	public void init() {
 
+		display.setLayout(new BorderLayout());
+
+		JPanel top = new JPanel();
 		JPanel newRoute = new JPanel(new FlowLayout());
 		newRoute.setBorder(BorderFactory.createTitledBorder("new message route"));
 		newRoute.add(srcServiceName);
 		newRoute.add(period0);
 		newRoute.add(srcMethodName);
 		newRoute.add(arrow0);
-		// newRoute.add(parameterList);
-		// newRoute.add(arrow1);
 		newRoute.add(dstServiceName);
 		newRoute.add(period1);
 		newRoute.add(dstMethodName);
@@ -125,13 +127,6 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		buildGraph();
 
-		gc.gridx = 0;
-		gc.gridy = 0;
-		//gc.gridwidth = 2;
-		display.add(newRoute, gc);
-		//gc.gridwidth = 1;
-
-		++gc.gridx;
 		// begin graph view buttons
 		JPanel filters = new JPanel();
 		filters.add(rebuildButton);
@@ -140,16 +135,13 @@ public class GUIServiceGUI extends ServiceGUI {
 		filters.add(accessURLButton);
 		filters.add(dumpButton);
 		
+		top.add(newRoute);
+		top.add(filters);
 		
-		display.add(filters, gc);
-		++gc.gridy;
-		gc.gridx = 0;
-		gc.gridwidth = 2;
+		display.add(top, BorderLayout.PAGE_START);
 
 		graphPanel.setVisible(true);
-		display.add(graphPanel, gc);
-		++gc.gridy;
-
+//		display.add(graphPanel, BorderLayout.CENTER);
 		
 		accessURLButton.addActionListener(buttonListener);
 		rebuildButton.addActionListener(buttonListener);
@@ -161,7 +153,6 @@ public class GUIServiceGUI extends ServiceGUI {
 	class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			String cmd = e.getActionCommand();
 			JButton b = (JButton)e.getSource();
 			if (b == rebuildButton) {
 				rebuildGraph();
@@ -283,7 +274,8 @@ public class GUIServiceGUI extends ServiceGUI {
 		// creating JComponent
 		if (graphComponent == null) {	
 			graphComponent = new mxGraphComponent(graph);
-			graphPanel.add(graphComponent);
+			//graphPanel.add(graphComponent);
+			display.add(graphComponent, BorderLayout.CENTER);
 			// graphComponent.addKeyListener(this);
 
 			// graphComponent.getGraphControl().addMouseListener(this);

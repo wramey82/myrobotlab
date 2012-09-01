@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -69,6 +70,10 @@ import org.myrobotlab.service.interfaces.GUI;
  *      - all traces start stop at same time
  *      - 100% on compile & upload
  *      - arrow changed for upload to "up" duh
+ *      
+ *      - Java console - duh
+ *      - uploader progress - duh
+ *      - error goes to status	
  *      
  */
 
@@ -134,6 +139,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 */
 
 	public void init() {
+		display.setLayout(new BorderLayout());
 
 		// ---------------- tabs begin ----------------------
 		tabs.setTabPlacement(JTabbedPane.RIGHT);
@@ -142,7 +148,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		getOscopePanel();
 		getEditorPanel();
 
-		display.add(tabs);
+		display.add(tabs, BorderLayout.CENTER);
 		tabs.setSelectedIndex(0);
 	}
 
@@ -234,7 +240,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	public void setCompilingProgress(Integer percent)
 	{
-		editor.compilingProgress.setValue(percent);
+		editor.progress.setValue(percent);
 	}
 	
 	public void compilerError(String msg)

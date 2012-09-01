@@ -82,6 +82,7 @@ public abstract class ServiceGUI {
 		
 		display.setLayout(new GridBagLayout());
 
+		//gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 	}
@@ -89,7 +90,6 @@ public abstract class ServiceGUI {
 	public JPanel getDisplay()
 	{
 		return display;
-		//return widgetFrame;
 	}
 
 	/*

@@ -310,6 +310,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public ArrayList<String> getPorts() {
 
 		ArrayList<String> ports = new ArrayList<String>();
+/*		
 		SerialDevice portId;
 		// getPortIdentifiers - returns all ports "available" on the machine -
 		// ie not ones already used
@@ -330,12 +331,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				ports.add(serialDevice.getName());
 		}
 
-		// adding custom ports if they were previously added with addPortName
-		/*
-		 * for (String key : customPorts.keySet()) { // customPorts.get(key)
-		 * ports.add(key); }
-		 */
-
+*/
 		return ports;
 	}
 
