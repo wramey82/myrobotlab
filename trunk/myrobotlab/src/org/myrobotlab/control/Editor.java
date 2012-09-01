@@ -27,7 +27,6 @@ package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -243,7 +242,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		editorScrollPane = createEditorPane();
 
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,lowerPanel);
-		pane.setDividerLocation(450);
+		pane.setDividerLocation(440);
 
 		return pane;
 	}

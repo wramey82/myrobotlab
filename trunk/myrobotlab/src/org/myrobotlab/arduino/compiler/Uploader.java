@@ -79,7 +79,10 @@ public abstract class Uploader implements MessageConsumer  {
       serialPort.setDTR(true);
       serialPort.setRTS(true);
       
-     serialPort.dispose(); //FIXME - open/close vs - just stay open?
+		myArduino.setCompilingProgress(20);
+
+      
+     //serialPort.dispose(); //FIXME - open/close vs - just stay open?
 
   }
 
@@ -97,12 +100,18 @@ public abstract class Uploader implements MessageConsumer  {
       String[] commandArray = new String[commandDownloader.size()];
       commandDownloader.toArray(commandArray);
       
+      String uploadCmd = "";
       if (verbose || myArduino.preferences.getBoolean("upload.verbose")) {
         for(int i = 0; i < commandArray.length; i++) {
-          System.out.print(commandArray[i] + " ");
+          //System.out.print(commandArray[i] + " ");
+          uploadCmd += commandArray[i] + " ";
         }
-        System.out.println();
+        //System.out.println();
       }
+      
+      myArduino.setCompilingProgress(40);
+      myArduino.message(String.format("%s\n", uploadCmd));
+      
       Process process = Runtime.getRuntime().exec(commandArray);
       new MessageSiphon(process.getInputStream(), this);
       new MessageSiphon(process.getErrorStream(), this);
@@ -118,6 +127,13 @@ public abstract class Uploader implements MessageConsumer  {
         } catch (InterruptedException intExc) {
         }
       } 
+      
+      // FIXME - same crap as compiler
+      // OMG - how is the f'ing error handled? WTF?
+      
+      myArduino.setCompilingProgress(100);
+      myArduino.message("\ndone.  Thank you.\n"); // nice message from avrdude - he's such a friendly dude.
+      
       if(exception!=null) {
         exception.hideStackTrace();
         throw exception;   

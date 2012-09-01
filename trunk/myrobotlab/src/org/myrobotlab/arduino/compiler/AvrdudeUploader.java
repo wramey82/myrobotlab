@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.myrobotlab.framework.Platform;
-import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
 public class AvrdudeUploader extends Uploader {
@@ -71,7 +70,8 @@ public class AvrdudeUploader extends Uploader {
 		Map<String, String> boardPreferences = myArduino.getBoardPreferences();
 		List commandDownloader = new ArrayList();
 		String protocol = boardPreferences.get("upload.protocol");
-
+		myArduino.setCompilingProgress(10);
+		
 		// avrdude wants "stk500v1" to distinguish it from stk500v2
 		if (protocol.equals("stk500"))
 			protocol = "stk500v1";
@@ -204,6 +204,8 @@ public class AvrdudeUploader extends Uploader {
 		}
 		commandDownloader.add("-p" + boardPreferences.get("build.mcu"));
 		commandDownloader.addAll(params);
+		
+		myArduino.setCompilingProgress(30);
 
 		return executeUploadCommand(commandDownloader);
 	}
