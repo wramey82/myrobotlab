@@ -182,12 +182,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
 		load();
-
-		portNames = getPorts();
-		log.info("number of ports " + portNames.size());
-		for (int j = 0; j < portNames.size(); ++j) {
-			log.info(portNames.get(j));
-		}
 		
 		/*
 
@@ -252,6 +246,15 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		compiler = new Compiler(this);
 		uploader = new AvrdudeUploader(this);
+		
+		portNames = getPorts();
+		log.info("number of ports " + portNames.size());
+		for (int j = 0; j < portNames.size(); ++j) {
+			log.info(portNames.get(j));
+		}
+		// FIXME - hilacious long wait - need to incorporate .waitTillServiceReady
+		// especially if there are multiple initialization threads
+		// SWEEEET ! - Service already provides an isReady - just need to overload it with a Thread.sleep check -> broadcast setState
 
 	}
 	

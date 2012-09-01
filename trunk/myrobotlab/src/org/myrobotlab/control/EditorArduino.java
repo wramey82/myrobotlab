@@ -28,6 +28,7 @@ package org.myrobotlab.control;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
@@ -154,6 +155,10 @@ public class EditorArduino extends Editor implements ActionListener {
 	  public void rebuildBoardsMenu(JMenu menu) {
 		    menu.removeAll();      
 		    ButtonGroup group = new ButtonGroup();
+		    
+		    HashMap<String, Target> t = myArduino.targetsTable;
+		    t.values();
+		    
 		    for (Target target : myArduino.targetsTable.values()) {
 		      for (String board : target.getBoards().keySet()) {
 		        AbstractAction action = 
