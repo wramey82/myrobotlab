@@ -186,7 +186,7 @@ mail.to=someone@somewhere.com
 		
 		<property name="build"	location="${build.root.dir}/${label}"/>
 		<property name="dist"	location="${dist.root.dir}/${label}"/>
-		<property name="report.dir" 		location="${dist}.report" />
+		<property name="report.dir" 		location="report/${label}" />
 				
 		<mkdir dir="${build.root.dir}" />
 		<mkdir dir="${build}" />
