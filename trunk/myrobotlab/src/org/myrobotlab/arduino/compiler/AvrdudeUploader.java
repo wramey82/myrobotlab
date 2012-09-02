@@ -67,6 +67,7 @@ public class AvrdudeUploader extends Uploader {
 	}
 
 	private boolean uploadViaBootloader(String buildPath, String className) throws Throwable {
+		myArduino.message("uploadViaBootloader");
 		Map<String, String> boardPreferences = myArduino.getBoardPreferences();
 		List commandDownloader = new ArrayList();
 		String protocol = boardPreferences.get("upload.protocol");
