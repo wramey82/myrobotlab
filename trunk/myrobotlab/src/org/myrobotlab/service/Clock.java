@@ -222,7 +222,14 @@ public class Clock extends Service {
 	public String getToolTip() {
 		return "used to generate pulses";
 	}
-
+	/**
+	public static getBleedingEdgeMyRobotLabJar()
+	{
+		Runtime runtime = Runtime.getInstance();
+		
+		// get 
+	}
+	*/
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);

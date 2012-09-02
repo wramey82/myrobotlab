@@ -72,6 +72,7 @@ import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.AboutDialog;
 import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
@@ -698,94 +699,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void about()
 	{
-		String v = FileIO.getResourceFile("version.txt");
-		new AboutDialog(frame, "about", 
-		"<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+v+"</p><html>");		
+		new AboutDialog(frame, "about", "<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+ Runtime.version() +"</p><html>");
 	}
 	
-	public class AboutDialog extends JDialog implements ActionListener, MouseListener {
 
-		private static final long serialVersionUID = 1L;
-
-		public AboutDialog(JFrame parent, String title, String message) {
-		    super(parent, title, true);
-		    if (parent != null) {
-		      Dimension parentSize = parent.getSize(); 
-		      Point p = parent.getLocation(); 
-		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
-		    }
-
-		    JPanel messagePane = new JPanel();
-		    
-		    JLabel pic = new JLabel();
-			ImageIcon icon = Util.getResourceIcon("mrl_logo_about_128.png");
-			if (icon != null)
-			{
-				pic.setIcon(icon);	
-			}
-		    
-			messagePane.add(pic);
-		    
-		    JLabel link = new JLabel(message);
-		    link.addMouseListener(this);
-		    ++gc.gridy; 
-		    messagePane.add(link,gc);
-		    getContentPane().add(messagePane);
-		    JPanel buttonPane = new JPanel();
-		    JButton button = new JButton("OK"); 
-		    buttonPane.add(button); 
-		    button.addActionListener(this);
-		    
-		    getContentPane().add(buttonPane, BorderLayout.SOUTH);
-		    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		    pack(); 
-		    setVisible(true);
-		  }
-
-		@Override
-		  public void actionPerformed(ActionEvent e) {
-		    setVisible(false); 
-		    dispose(); 
-		  }
-
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			URI uri;
-			try {
-				uri = new URI("http://myrobotlab.org");
-				open(uri);
-			} catch (URISyntaxException error) {
-				// TODO Auto-generated catch block
-				error.printStackTrace();
-			}
-			
-		}
-	}		  
 	
 	public void stopService() {
 		dispose();
