@@ -111,7 +111,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				Object[] options = {"Yes, hit me daddy-O!",
 				                    "No way, I'm scared"};
 				int n = JOptionPane.showOptionDialog(parent,
-				    "<html><p align=center>A fresh new version is ready, do you want this one? <br>" + newVersion + "</p></html>",
+				    "<html><p align=center>A fresh new version is ready, do you want this one? <br>[" + currentVersion + "]<[" + newVersion + "]</p></html>",
 				    "Bleeding Edge Check",
 				    JOptionPane.YES_NO_OPTION,
 				    JOptionPane.QUESTION_MESSAGE,
