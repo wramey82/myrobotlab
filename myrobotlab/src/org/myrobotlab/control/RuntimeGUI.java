@@ -70,6 +70,7 @@ import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -763,6 +764,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		progressDialog.addInfo("installed " + className);
 		return className;
 	}
+
 	
 	public void resolveEnd ()
 	{
@@ -776,34 +778,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			progressDialog.addErrorInfo("there were errors " + resolveErrors);
 		} else {
 			progressDialog.finished();
-			log.info("new components - restart?");
-			JFrame frame = new JFrame();
-			int ret = JOptionPane
-					.showConfirmDialog(
-							frame,
-							"<html>New components have been added,<br>"
-									+ " it is necessary to restart in order to use them.</html>",
-							"restart", JOptionPane.YES_NO_OPTION);
-			if (ret == JOptionPane.OK_OPTION) {
-				log.info("restarting");
-				Runtime.releaseAll();
-				try {
-					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec(
-								"cmd /c start myrobotlab.bat");
-					} else {
-						java.lang.Runtime.getRuntime().exec(
-								"./myrobotlab.sh");
-					}
-				} catch (Exception ex) {
-					Service.logException(ex);
-				}
-				System.exit(0);
-			} else {
-				log.info("chose not to restart");
-				return;
-			}
-
+			GUIService.restart();
 		}
 	}
 

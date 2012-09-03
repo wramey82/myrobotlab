@@ -25,19 +25,14 @@
 
 package org.myrobotlab.service;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -47,7 +42,6 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,15 +51,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
@@ -80,11 +72,10 @@ import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.Style;
 import org.myrobotlab.control.TabControl;
 import org.myrobotlab.control.Welcome;
-import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LogAppender;
 import org.myrobotlab.logging.LogLevel;
 import org.myrobotlab.service.data.IPAndPort;
@@ -699,7 +690,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void about()
 	{
-		new AboutDialog(frame, "about", "<html><p align=center><a href=\"http://myrobotlab.org\">http://myrobotlab.org</a><br>version "+ Runtime.version() +"</p><html>");
+		new AboutDialog(frame);
 	}
 	
 
@@ -1006,6 +997,38 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    parentMenu.add(mi);
 	}
 
+	
+	static public void restart()
+	{
+		log.info("new components - restart?");
+		JFrame frame = new JFrame();
+		int ret = JOptionPane
+				.showConfirmDialog(
+						frame,
+						"<html>New components have been added,<br>"
+								+ " it is necessary to restart in order to use them.</html>",
+						"restart", JOptionPane.YES_NO_OPTION);
+		if (ret == JOptionPane.OK_OPTION) {
+			log.info("restarting");
+			Runtime.releaseAll();
+			try {
+				if (Platform.isWindows()) {
+					java.lang.Runtime.getRuntime().exec(
+							"cmd /c start myrobotlab.bat");
+				} else {
+					java.lang.Runtime.getRuntime().exec(
+							"./myrobotlab.sh");
+				}
+			} catch (Exception ex) {
+				Service.logException(ex);
+			}
+			System.exit(0);
+		} else {
+			log.info("chose not to restart");
+			return;
+		}
+
+	}
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();

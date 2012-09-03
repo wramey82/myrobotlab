@@ -2,6 +2,7 @@ package org.myrobotlab.net;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,25 +38,28 @@ import org.myrobotlab.framework.Service;
  *          http://www.javabeat.net/tips/36-file-upload-and-download-
  *          using-java.html http://www.java2s.com/Code/Java/File-Input-Output/
  *          ComparingBufferedandUnbufferedWritingPerformance.htm
- *          
+ * 
  *          The big beautiful kahuna from stack overflow
- *          http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
- *          Proxy info - http://edn.embarcadero.com/article/29783
- *          Proxy info - http://docs.oracle.com/javase/6/docs/technotes/guides/net/proxies.html
- *          Proxy info - http://stackoverflow.com/questions/120797/how-do-i-set-the-proxy-to-be-used-by-the-jvm
- *          
+ *          http://stackoverflow.com
+ *          /questions/2793150/how-to-use-java-net-urlconnection
+ *          -to-fire-and-handle-http-requests Proxy info -
+ *          http://edn.embarcadero.com/article/29783 Proxy info -
+ *          http://docs.oracle
+ *          .com/javase/6/docs/technotes/guides/net/proxies.html Proxy info -
+ *          http
+ *          ://stackoverflow.com/questions/120797/how-do-i-set-the-proxy-to-be
+ *          -used-by-the-jvm
+ * 
  */
 
-
 public class HTTPRequest {
-	public final static Logger log = Logger.getLogger(HTTPRequest.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(HTTPRequest.class.getCanonicalName());
 
 	URLConnection connection;
 	OutputStream osstr = null;
 	BufferedOutputStream os = null;
 	Map<String, String> cookies = new HashMap<String, String>();
-	
+
 	String boundary = "---------------------------";
 
 	String error = null;
@@ -88,7 +92,6 @@ public class HTTPRequest {
 		write(s);
 		newline();
 	}
-
 
 	private void boundary() throws IOException {
 		write("--");
@@ -140,11 +143,9 @@ public class HTTPRequest {
 	public void postCookies() {
 		StringBuffer cookieList = new StringBuffer();
 
-		for (Iterator<Entry<String, String>> i = cookies.entrySet().iterator(); i
-				.hasNext();) {
+		for (Iterator<Entry<String, String>> i = cookies.entrySet().iterator(); i.hasNext();) {
 			Entry<String, String> entry = (i.next());
-			cookieList.append(entry.getKey().toString() + "="
-					+ entry.getValue());
+			cookieList.append(entry.getKey().toString() + "=" + entry.getValue());
 
 			if (i.hasNext()) {
 				cookieList.append("; ");
@@ -248,8 +249,7 @@ public class HTTPRequest {
 	 *            input stream to read the contents of the file from
 	 * @throws IOException
 	 */
-	public void setParameter(String name, String filename, InputStream is)
-			throws IOException {
+	public void setParameter(String name, String filename, InputStream is) throws IOException {
 		Service.logTime("t1", "setParameter begin (after new fileinput)");
 		boundary();
 		writeName(name);
@@ -405,8 +405,7 @@ public class HTTPRequest {
 	 * @see #setParameters
 	 * @see setCookies
 	 */
-	public InputStream post(Map<String, String> cookies, Map parameters)
-			throws IOException {
+	public InputStream post(Map<String, String> cookies, Map parameters) throws IOException {
 		setCookies(cookies);
 		setParameters(parameters);
 		return post();
@@ -426,8 +425,7 @@ public class HTTPRequest {
 	 * @see #setParameters
 	 * @see setCookies
 	 */
-	public InputStream post(String[] cookies, Object[] parameters)
-			throws IOException {
+	public InputStream post(String[] cookies, Object[] parameters) throws IOException {
 		setCookies(cookies);
 		setParameters(parameters);
 		return post();
@@ -464,8 +462,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(String name1, Object value1, String name2,
-			Object value2) throws IOException {
+	public InputStream post(String name1, Object value1, String name2, Object value2) throws IOException {
 		setParameter(name1, value1);
 		return post(name2, value2);
 	}
@@ -489,8 +486,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(String name1, Object value1, String name2,
-			Object value2, String name3, Object value3) throws IOException {
+	public InputStream post(String name1, Object value1, String name2, Object value2, String name3, Object value3) throws IOException {
 		setParameter(name1, value1);
 		return post(name2, value2, name3, value3);
 	}
@@ -518,9 +514,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(String name1, Object value1, String name2,
-			Object value2, String name3, Object value3, String name4,
-			Object value4) throws IOException {
+	public InputStream post(String name1, Object value1, String name2, Object value2, String name3, Object value3, String name4, Object value4) throws IOException {
 		setParameter(name1, value1);
 		return post(name2, value2, name3, value3, name4, value4);
 	}
@@ -566,8 +560,7 @@ public class HTTPRequest {
 	 * @see #setCookies
 	 * @see #setParameters
 	 */
-	public InputStream post(URL url, Map<String, String> cookies, Map parameters)
-			throws IOException {
+	public InputStream post(URL url, Map<String, String> cookies, Map parameters) throws IOException {
 		return new HTTPRequest(url).post(cookies, parameters);
 	}
 
@@ -584,8 +577,7 @@ public class HTTPRequest {
 	 * @see #setCookies
 	 * @see #setParameters
 	 */
-	public InputStream post(URL url, String[] cookies, Object[] parameters)
-			throws IOException {
+	public InputStream post(URL url, String[] cookies, Object[] parameters) throws IOException {
 		return new HTTPRequest(url).post(cookies, parameters);
 	}
 
@@ -600,8 +592,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(URL url, String name1, Object value1)
-			throws IOException {
+	public InputStream post(URL url, String name1, Object value1) throws IOException {
 		return new HTTPRequest(url).post(name1, value1);
 	}
 
@@ -620,8 +611,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(URL url, String name1, Object value1, String name2,
-			Object value2) throws IOException {
+	public InputStream post(URL url, String name1, Object value1, String name2, Object value2) throws IOException {
 		return new HTTPRequest(url).post(name1, value1, name2, value2);
 	}
 
@@ -644,10 +634,8 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(URL url, String name1, Object value1, String name2,
-			Object value2, String name3, Object value3) throws IOException {
-		return new HTTPRequest(url).post(name1, value1, name2, value2, name3,
-				value3);
+	public InputStream post(URL url, String name1, Object value1, String name2, Object value2, String name3, Object value3) throws IOException {
+		return new HTTPRequest(url).post(name1, value1, name2, value2, name3, value3);
 	}
 
 	/**
@@ -673,17 +661,13 @@ public class HTTPRequest {
 	 * @throws IOException
 	 * @see #setParameter
 	 */
-	public InputStream post(URL url, String name1, Object value1, String name2,
-			Object value2, String name3, Object value3, String name4,
-			Object value4) throws IOException {
-		return new HTTPRequest(url).post(name1, value1, name2, value2, name3,
-				value3, name4, value4);
+	public InputStream post(URL url, String name1, Object value1, String name2, Object value2, String name3, Object value3, String name4, Object value4) throws IOException {
+		return new HTTPRequest(url).post(name1, value1, name2, value2, name3, value3, name4, value4);
 	}
 
 	public byte[] getBinary() {
 		// URL u = new URL("http://www.java2s.com/binary.dat");
 		// URLConnection uc = url.openConnection();
-		error = null;
 		
 		String contentType = connection.getContentType();
 		int contentLength = connection.getContentLength();
@@ -692,99 +676,99 @@ public class HTTPRequest {
 
 		InputStream raw;
 		byte[] data = null;
+		int initSize = (contentLength == -1) ? 16384 : contentLength;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(initSize);
+		InputStream in = null;
 		try {
 			raw = connection.getInputStream();
-			InputStream in = new BufferedInputStream(raw);
-			data = new byte[contentLength];
-			int bytesRead = 0;
-			int offset = 0;
-			while (offset < contentLength) {
-				bytesRead = in.read(data, offset, data.length - offset);
-				if (bytesRead == -1)
-					break;
-				offset += bytesRead;
-			}
-			in.close();
+			in = new BufferedInputStream(raw);
 
-			if (offset != contentLength) {
-				throw new IOException("Only read " + offset
-						+ " bytes; Expected " + contentLength + " bytes");
+			int BUFFER_SIZE = 16384;
+			byte[] tmp = new byte[BUFFER_SIZE];
+			int ret;
+			while ((ret = in.read(tmp)) > 0) {
+				bos.write(tmp, 0, ret);
 			}
-		} catch (IOException e1) {
-			Service.logException(e1);
-			error = e1.getMessage();
+		} catch (IOException e) {
+			Service.logException(e);
 		}
+
+		data = bos.toByteArray();
+		log.info(String.format("read %d bytes", data.length));
+
+		try {
+			in.close();
+		} catch (IOException e) {
+			// don't care
+		}
+
+		/*
+		 * 
+		 * try { // content size sent back data = new byte[contentLength]; int
+		 * bytesRead = 0; int offset = 0; while (offset < contentLength) {
+		 * bytesRead = in.read(data, offset, data.length - offset); if
+		 * (bytesRead == -1) break; offset += bytesRead; } in.close();
+		 * 
+		 * if (offset != contentLength) { throw new IOException("Only read " +
+		 * offset + " bytes; Expected " + contentLength + " bytes"); } } catch
+		 * (IOException e1) { Service.logException(e1); error = e1.getMessage();
+		 * } }
+		 */
 
 		/*
 		 * String filename = u.getFile().substring(filename.lastIndexOf('/') +
 		 * 1);
 		 */
-		
+
 		/*
-		FileOutputStream out;
-		try {
-			out = new FileOutputStream("hello.mp3");
-			out.write(data);
-			out.flush();
-			out.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
+		 * FileOutputStream out; try { out = new FileOutputStream("hello.mp3");
+		 * out.write(data); out.flush(); out.close(); } catch (Exception e) { //
+		 * TODO Auto-generated catch block e.printStackTrace(); }
+		 */
 
 		return data;
 	}
-	
-	public String getString()
-	{
+
+	public String getString() {
 		byte[] b = getBinary();
 		if (b != null)
 			return new String(b);
-		
+
 		return null;
 	}
 
 	public static void main(String[] args) throws Exception {
-		
+
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		
 		HTTPRequest http = new HTTPRequest("http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/");
 		String s = http.getString();
 		log.info(s);
-		
-		
+
 		String language = "en";
 		String toSpeak = "hello";
-		URI uri = new URI("http", null, "translate.google.com", 80,
-				"/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
-		
+		URI uri = new URI("http", null, "translate.google.com", 80, "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
+
 		URL url = uri.toURL();
-		
+
 		HttpURLConnection.setFollowRedirects(true);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        System.out.println("Response code = " + connection.getResponseCode());
-        String header = connection.getHeaderField("location");
-        if (header != null)
-            System.out.println("Redirected to " + header);
-        
-		
-		
-		
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		System.out.println("Response code = " + connection.getResponseCode());
+		String header = connection.getHeaderField("location");
+		if (header != null)
+			System.out.println("Redirected to " + header);
+
 		HTTPRequest request = new HTTPRequest(uri.toURL());
 		request.getBinary();
-		
+
 	}
-	
-	public boolean hasError()
-	{
+
+	public boolean hasError() {
 		return error != null;
 	}
-	
-	public String getError()
-	{
+
+	public String getError() {
 		return error;
 	}
 
