@@ -1,0 +1,1 @@
+mv -f update/myrobotlab.jar libraries/jar/myrobotlab.jar
