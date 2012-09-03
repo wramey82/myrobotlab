@@ -111,7 +111,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				Object[] options = {"Yes, hit me daddy-O!",
 				                    "No way, I'm scared"};
 				int n = JOptionPane.showOptionDialog(parent,
-				    "<html><p align=center>A fresh new version is ready, do you want this one? <br>[" + currentVersion + "]<[" + newVersion + "]</p></html>",
+				    String.format("<html><p align=center>A fresh new version is ready, do you want this one? <br>[%s][%s]</p></html>",currentVersion,newVersion),
 				    "Bleeding Edge Check",
 				    JOptionPane.YES_NO_OPTION,
 				    JOptionPane.QUESTION_MESSAGE,
@@ -121,7 +121,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				if (n == JOptionPane.YES_OPTION)
 				{
 					Runtime.getBleedingEdgeMyRobotLabJar();
-					versionLabel.setText(newVersion);
+					versionLabel.setText("updating");
 					GUIService.restart();
 				} else {
 					versionLabel.setText("bwak bwak bwak... chicken!");

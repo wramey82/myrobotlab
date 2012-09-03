@@ -1,5 +1,6 @@
 package org.myrobotlab.service;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1511,12 +1512,14 @@ public class Runtime extends Service {
 			HTTPRequest zip = new HTTPRequest(latestMRLJar);
 			byte[] jarfile = zip.getBinary();
 			
-			FileOutputStream out = new FileOutputStream("libraries/jar/myrobotlab.jar");  
+			File updateDir = new File("update");
+			updateDir.mkdir();
+			File backupDir = new File("backup");
+			backupDir.mkdir();
+			
+			FileOutputStream out = new FileOutputStream("update/myrobotlab.jar");  
 			try {  
-			    out.write(jarfile);  
-			    
-			    // you will need to restart now 
-			    
+			    out.write(jarfile);  		    
 			    
 			} catch (Exception e) {
 				Service.logException(e);

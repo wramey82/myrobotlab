@@ -997,8 +997,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    parentMenu.add(mi);
 	}
 
-	
 	static public void restart()
+	{
+		restart(null);
+	}
+	
+	static public void restart(String restartScript)
 	{
 		log.info("new components - restart?");
 		JFrame frame = new JFrame();
@@ -1012,12 +1016,23 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.info("restarting");
 			Runtime.releaseAll();
 			try {
-				if (Platform.isWindows()) {
-					java.lang.Runtime.getRuntime().exec(
-							"cmd /c start myrobotlab.bat");
+				if (restartScript == null)
+				{
+					if (Platform.isWindows()) {
+						java.lang.Runtime.getRuntime().exec(
+								"cmd /c start myrobotlab.bat");
+					} else {
+						java.lang.Runtime.getRuntime().exec(
+								"./myrobotlab.sh");
+					}
 				} else {
-					java.lang.Runtime.getRuntime().exec(
-							"./myrobotlab.sh");
+					if (Platform.isWindows()) {
+						java.lang.Runtime.getRuntime().exec(
+								String.format("cmd /c start scripts\\%s.bat", restartScript));
+					} else {
+						java.lang.Runtime.getRuntime().exec(
+								String.format("./scripts/%s.sh", restartScript));
+					}
 				}
 			} catch (Exception ex) {
 				Service.logException(ex);
