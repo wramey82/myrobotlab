@@ -1028,7 +1028,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				} else {
 					if (Platform.isWindows()) {
 						java.lang.Runtime.getRuntime().exec(
-								String.format("cmd /c start scripts\\%s.bat", restartScript));
+								String.format("cmd /c start scripts\\%s.cmd", restartScript));
 					} else {
 						java.lang.Runtime.getRuntime().exec(
 								String.format("./scripts/%s.sh", restartScript));

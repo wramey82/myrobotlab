@@ -990,7 +990,7 @@ public class Runtime extends Service {
 	 */
 	public static String version() {
 		String v = FileIO.getResourceFile("version.txt");
-		return v;
+		return v.trim();
 	}
 	
 	/**
@@ -1490,7 +1490,7 @@ public class Runtime extends Service {
 			int p1 = s.indexOf("</a>", p0);
 			String intermediate = s.substring(p0,p1);
 			log.info(intermediate);
-			return intermediate;
+			return intermediate.trim();
 		} catch (Exception e) {
 			Service.logException(e);
 		}
