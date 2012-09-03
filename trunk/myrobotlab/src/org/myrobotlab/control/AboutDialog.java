@@ -100,8 +100,8 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 		    dispose(); 			
 		} else if (source == bleedingEdge)
 		{
-			String newVersion = Runtime.getBleedingEdgeVersionString();
-			String currentVersion = Runtime.version();
+			String newVersion = Runtime.getBleedingEdgeVersionString().trim();
+			String currentVersion = Runtime.version().trim();// FIXME - should be trimmed at source
 			if (currentVersion.equals(newVersion))
 			{
 				JOptionPane.showMessageDialog(parent,
@@ -121,8 +121,8 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				if (n == JOptionPane.YES_OPTION)
 				{
 					Runtime.getBleedingEdgeMyRobotLabJar();
-					versionLabel.setText("updating");
-					GUIService.restart();
+					versionLabel.setText(String.format("updating with %s", newVersion));
+					GUIService.restart("moveUpdate");
 				} else {
 					versionLabel.setText("bwak bwak bwak... chicken!");
 				}
