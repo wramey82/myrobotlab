@@ -100,8 +100,8 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 		    dispose(); 			
 		} else if (source == bleedingEdge)
 		{
-			String newVersion = Runtime.getBleedingEdgeVersionString().trim();
-			String currentVersion = Runtime.version().trim();// FIXME - should be trimmed at source
+			String newVersion = Runtime.getBleedingEdgeVersionString();
+			String currentVersion = Runtime.version();
 			if (currentVersion.equals(newVersion))
 			{
 				JOptionPane.showMessageDialog(parent,
@@ -111,7 +111,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				Object[] options = {"Yes, hit me daddy-O!",
 				                    "No way, I'm scared"};
 				int n = JOptionPane.showOptionDialog(parent,
-				    String.format("<html><p align=center>A fresh new version is ready, do you want this one? <br>[%s][%s]</p></html>",currentVersion,newVersion),
+				    String.format("A fresh new version is ready, do you want this one? %s",newVersion),
 				    "Bleeding Edge Check",
 				    JOptionPane.YES_NO_OPTION,
 				    JOptionPane.QUESTION_MESSAGE,
