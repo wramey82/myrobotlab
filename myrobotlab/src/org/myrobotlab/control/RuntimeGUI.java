@@ -64,8 +64,6 @@ import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Dependency;
-import org.myrobotlab.framework.Platform;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
