@@ -262,6 +262,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	{
 		preferences.set("board",board);
 		preferences.save();
+		broadcastState();
 	}
 
 	protected void loadHardware(File folder) {

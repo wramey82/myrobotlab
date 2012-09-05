@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,8 +19,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 
@@ -128,6 +131,36 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 				}
 				
 			}
+		} else if (source == noWorky)
+		{
+			String logon = JOptionPane.showInputDialog(parent,
+					"<html>This will send GroG your myrobotlab.log file<br> please type your myrobotlab.org user</html>");
+			if (logon == null || logon.length() == 0)
+			{
+				return;
+			}
+
+			try {
+				String ret = HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", logon, "file", new File("myrobotlab.log"));
+				if (ret.contains("Upload:"))
+				{
+					JOptionPane.showMessageDialog(parent,
+						    "log file sent, Thank you",
+						    "Sent !",
+						    JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(parent,
+						    ret,
+						    "DOH !",
+						    JOptionPane.ERROR_MESSAGE);
+				}
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(parent,
+					    Service.stackToString(e1),
+					    "DOH !",
+					    JOptionPane.ERROR_MESSAGE);
+			}
+
 		}
 	  }
 
@@ -160,4 +193,33 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 	public void mouseReleased(MouseEvent e) {
 			BareBonesBrowserLaunch.openURL("http://myrobotlab.org");
 	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		org.apache.log4j.BasicConfigurator.configure();
+		//HTTPRequest logPoster = new HTTPRequest(new URL("http://myrobotlab.org/myrobotlab_log/postLogFile.php"));
+		HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "GroG", "file", new File("myrobotlab.log"));
+		//logPoster.setParameter("file", "myrobotlab.log", new FileInputStream(new File("myrobotlab.log")));
+		//logPoster.setParameter("file", new File("myrobotlab.log"));
+		//logPoster.setc
+		/*
+		InputStream in = logPoster.post().getInputStream();
+	   	//read it with BufferedReader
+    	BufferedReader br
+        	= new BufferedReader(
+        		new InputStreamReader(in));
+ 
+    	StringBuilder sb = new StringBuilder();
+ 
+    	String line;
+    	while ((line = br.readLine()) != null) {
+    		sb.append(line);
+    	} 
+ 
+    	System.out.println(sb.toString());
+ 
+    	br.close();
+    	*/
+	}
+	
 }		  
