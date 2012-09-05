@@ -33,10 +33,9 @@ import java.util.Collection;
 
 import org.myrobotlab.arduino.Serial;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Arduino;
 
-public abstract class Uploader implements MessageConsumer {
+public abstract class Uploader {
 	static final String BUGS_URL = "https://developer.berlios.de/bugs/?group_id=3590";
 	static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
 
@@ -108,9 +107,13 @@ public abstract class Uploader implements MessageConsumer {
 			myArduino.setCompilingProgress(40);
 			myArduino.message(String.format("%s\n", uploadCmd));
 
+//			org.myrobotlab.service.Runtime.createProcess(commandArray);
+			// FIXME - normalize with Compiler - move MessageSiphon into "logging" package
+			// Siphon with .addErrorScanner("!thank you")
+			
 			Process process = Runtime.getRuntime().exec(commandArray);
-			new MessageSiphon(process.getInputStream(), this);
-			new MessageSiphon(process.getErrorStream(), this);
+			new MessageSiphon(process.getInputStream(), myArduino);
+			new MessageSiphon(process.getErrorStream(), myArduino);
 
 			// wait for the process to finish. if interrupted
 			// before waitFor returns, continue waiting

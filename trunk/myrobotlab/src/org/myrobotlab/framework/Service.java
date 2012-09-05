@@ -289,6 +289,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("java.class.path [%1$s]", System.getProperty("java.class.path")));
 		log.info(String.format("java.library.path [%1$s]", libararyPath));
 		log.info(String.format("user.dir [%1$s]", userDir));
+		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory()/1048576)); // 1024 x 1024 = 1K x 1K = 1Meg
+		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory()/1048576));
 		
 		// load root level configuration
 		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
