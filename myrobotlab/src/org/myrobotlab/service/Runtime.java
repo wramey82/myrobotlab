@@ -1,9 +1,12 @@
 package org.myrobotlab.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
@@ -11,6 +14,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -187,7 +191,25 @@ public class Runtime extends Service {
 
 		return 0;
 	}
+/*
+ * BLOCKS ON BAD READ or Process termination
+ 	static public void createProcess(String[] cmdline) throws IOException
+	{
+		Process process = new ProcessBuilder(cmdline).start();
+	       InputStream is = process.getInputStream();
+	       InputStreamReader isr = new InputStreamReader(is);
+	       BufferedReader br = new BufferedReader(isr);
+	       String line;
 
+	       System.out.printf("Output of running %s is:", 
+	          Arrays.toString(cmdline));
+
+	       while ((line = br.readLine()) != null) {
+	         System.out.println(line);
+	       }
+	}
+*/	
+	
 	/**
 	 * dorky pass-throughs to the real JVM Runtime
 	 * 

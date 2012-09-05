@@ -681,17 +681,17 @@ public class HTTPRequest {
 
 		InputStream raw;
 		byte[] data = null;
-		int initSize = (contentLength == -1) ? 16384 : contentLength;
+		int initSize = (contentLength == -1) ? 65536 : contentLength;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(initSize);
 		InputStream in = null;
 		try {
 			raw = connection.getInputStream();
 			in = new BufferedInputStream(raw);
 
-			int BUFFER_SIZE = 16384;
-			byte[] tmp = new byte[BUFFER_SIZE];
+			byte[] tmp = new byte[initSize];
 			int ret;
 			while ((ret = in.read(tmp)) > 0) {
+				log.info(String.format("read %d bytes", ret));
 				bos.write(tmp, 0, ret);
 			}
 		} catch (IOException e) {
