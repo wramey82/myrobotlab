@@ -258,6 +258,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	}
 	
+	// FIXME - add const BOARD TYPE strings
 	public void setBoard(String board)
 	{
 		preferences.set("board",board);
