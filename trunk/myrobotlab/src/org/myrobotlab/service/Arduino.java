@@ -1074,7 +1074,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	public boolean connect()
 	{
-		message(String.format("\nconnecting to serial device %s\n", serialDevice.getName()));
 		
 		if (serialDevice == null)
 		{
@@ -1082,6 +1081,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			log.error("can't connect, serialDevice is null");
 			return false;
 		}
+
+		message(String.format("\nconnecting to serial device %s\n", serialDevice.getName()));
 		
 		try {
 			if (!serialDevice.isOpen())
