@@ -68,7 +68,7 @@ public class Runtime extends Service {
 	private static boolean checkForDependencies = true; // TODO implement - Ivy
 														// related
 
-	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel DEBUG -logToConsole";
+	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 
 
 	// ---- rte members end ------------------------------
