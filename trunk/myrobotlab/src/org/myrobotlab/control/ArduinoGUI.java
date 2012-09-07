@@ -132,7 +132,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	DigitalButton uploadButton = null;
 //	JPanel editorPanel = null;
 	GridBagConstraints epgc = new GridBagConstraints();
-	Dimension size = new Dimension(620, 442);
+	Dimension size = new Dimension(620, 512);
 	Map<String, String> boardPreferences;
 	String boardName;
 
