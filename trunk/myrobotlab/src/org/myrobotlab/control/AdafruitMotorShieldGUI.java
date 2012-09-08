@@ -38,17 +38,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.AFMotorShield;
+import org.myrobotlab.service.AdafruitMotorShield;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
+public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(AFMotorShieldGUI.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(AdafruitMotorShieldGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
-	private AFMotorShield myAFMotorShield = null;
+	private AdafruitMotorShield myAdafruitMotorShield = null;
 
 	JComboBox ttyPort = new JComboBox(new String[] { "" }); 
 	Keyboard keyboard = null;
@@ -57,9 +57,9 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 	JButton test = new JButton("test");
 	ButtonListener buttonLisener = null;
 
-	public AFMotorShieldGUI(final String boundServiceName, final GUI myService) {
+	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myAFMotorShield = (AFMotorShield)Runtime.getService(boundServiceName).service;
+		myAdafruitMotorShield = (AdafruitMotorShield)Runtime.getService(boundServiceName).service;
 	}
 	
 	class ButtonListener implements ActionListener {
@@ -143,7 +143,7 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 		}
 	};
 	
-	public void getState(AFMotorShield shield)
+	public void getState(AdafruitMotorShield shield)
 	{
 		if (shield != null)
 		{
@@ -170,13 +170,13 @@ public class AFMotorShieldGUI extends ServiceGUI implements ListSelectionListene
 			ttyPort.addItem(n);
 		}
 
-		if (myAFMotorShield != null)
+		if (myAdafruitMotorShield != null)
 		{
 			// remove and re-add the action listener
 			// because we don't want a recursive event
 			// when the Service changes the state
 			ttyPort.removeActionListener(portActionListener);
-			//ttyPort.setSelectedItem(myAFMotorShield.getPortName());
+			//ttyPort.setSelectedItem(myAdafruitMotorShield.getPortName());
 			ttyPort.addActionListener(portActionListener);
 		}
 

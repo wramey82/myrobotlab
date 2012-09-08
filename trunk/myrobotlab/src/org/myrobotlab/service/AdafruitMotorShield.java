@@ -34,19 +34,19 @@ import org.myrobotlab.serial.SerialDeviceFactory;
  * @author greg
  * 
  */
-public class AFMotorShield extends Service {
+public class AdafruitMotorShield extends Service {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(AFMotorShield.class
+	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class
 			.getCanonicalName());
 
 	SerialDevice serial;
 
-	public AFMotorShield(String n) {
-		super(n, AFMotorShield.class.getCanonicalName());
+	public AdafruitMotorShield(String n) {
+		super(n, AdafruitMotorShield.class.getCanonicalName());
 	}
 
 	@Override

@@ -474,8 +474,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			setText("<html><font color=#" + Style.listBackground + ">" + entry.name
 					+ "</font></html>");
 
-			ImageIcon icon = Util.getScaledIcon(Util.getImage(
-					(entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
+			//ImageIcon icon = Util.getScaledIcon(Util.getImage((entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
+			ImageIcon icon = Util.getScaledIcon(Util.getImage((entry.type + ".png"), "unknown.png"), 0.50);
 			setIcon(icon);
 
 			if (isSelected) {
