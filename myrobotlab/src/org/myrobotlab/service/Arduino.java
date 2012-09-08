@@ -157,6 +157,13 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int SERVO_ANGLE_MAX = 180;
 	public static final int SERVO_SWEEP = 10;
 	public static final int MAX_SERVOS = 8;
+	
+	// vendor specific
+	public static final int ACEDUINO_MOTOR_SHIELD_START = 50;
+	public static final int ACEDUINO_MOTOR_SHIELD_STOP = 51;
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION = 52;	
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS = 53;
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS = 54;
 
 	// servos
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
