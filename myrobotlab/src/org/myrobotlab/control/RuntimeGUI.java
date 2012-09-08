@@ -580,7 +580,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			{
 				setHorizontalAlignment(JLabel.LEFT);
 				setIcon(Util.getScaledIcon(Util.getImage( (entry.type +
-						 ".png").toLowerCase(), "unknown.png"), 0.50));
+						 ".png"), "unknown.png"), 0.50));
 				setText(entry.type);
 				//setToolTipText("<html><body bgcolor=\"#E6E6FA\">" + entry.type+ " <a href=\"http://myrobotlab.org\">blah</a></body></html>");
 				
