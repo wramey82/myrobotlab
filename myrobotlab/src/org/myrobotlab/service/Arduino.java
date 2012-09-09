@@ -609,6 +609,13 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// TODO Auto-generated method stub
 
 	}
+	
+	// FIXME - make interface for this one
+	// General purpose send command to send a custom 3 byte message to MRLComm
+	public void sendCommand(Integer method, Integer param1, Integer param2)
+	{
+		serialSend(method, param1, param2);
+	}
 
 	@Override
 	public String getToolTip() {
