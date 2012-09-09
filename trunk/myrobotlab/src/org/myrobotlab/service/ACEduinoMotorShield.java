@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 
 /**
  * @author GroG
@@ -60,20 +61,34 @@ public class ACEduinoMotorShield extends Service {
 	}
 	*/
 	
-	public void startServoShield()
+	public void start()
 	{
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_START);
+		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_START, 0, 0);
 	}
 	
-	public void stopServoShield()
+	public void stop()
 	{
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_STOP);
+		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_STOP, 0, 0);
 	}
 	
 
 	public Object getControllerName() {
 		return controllerName;
 	}
+	
+	public boolean attach(String controllerName) {
+		ServiceWrapper sw = Runtime.getService(controllerName);
+		if (sw != null)
+		{
+			log.info(String.format("%s controller set to %s", getName(), controllerName));
+			this.controllerName = controllerName;
+			return true;
+		} 
+		
+		log.error(String.format("controller %s does not exits", controllerName));
+		return false;
+	}
+
 	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
