@@ -8,6 +8,10 @@
     <publications>
         <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
 
+        <artifact name="haarcascades" type="zip" ext="zip" conf="*"/>
+        <artifact name="lbpcascades" type="zip" ext="zip" conf="*"/>
+        
+        
         <artifact name="x86.32.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libopencv_contrib" type="native" ext="so.2.4" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libopencv_core" type="native" ext="so.2.4" conf="x86.32.linux"/>
