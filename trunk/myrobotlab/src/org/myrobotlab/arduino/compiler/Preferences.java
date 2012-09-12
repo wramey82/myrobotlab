@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -83,12 +82,12 @@ import org.myrobotlab.service.Arduino;
 public class Preferences {
 
 	
-	final String PREFS_FILE = "preferences.txt";
+	//final String PREFS_FILE = "preferences.txt";
 	Hashtable<String, Object> defaults;
 	Hashtable<String, Object> table = new Hashtable<String, Object>();;
 	File preferencesFile;
 
-	public Preferences(String commandLinePrefs) {
+	public Preferences(String filename, String commandLinePrefs) {
 		// start by loading the defaults, in case something
 		// important was deleted from the user prefs
 		try {
@@ -112,7 +111,7 @@ public class Preferences {
 			}
 		} else if (!Arduino.isCommandLine()) {
 			// next load user preferences file
-			preferencesFile = getSettingsFile(PREFS_FILE);
+			preferencesFile = getSettingsFile(filename);
 			if (!preferencesFile.exists()) {
 				// create a new preferences file if none exists
 				// saves the defaults out to the file

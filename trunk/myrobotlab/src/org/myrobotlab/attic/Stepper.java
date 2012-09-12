@@ -80,7 +80,7 @@ public class Stepper extends Service {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;
 		this.DIRPin = DIRPin;
-		send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
+		// WRONG ! send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
 	}
 	
 	public void invertDirection() {

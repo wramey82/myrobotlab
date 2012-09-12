@@ -25,36 +25,19 @@
 
 package org.myrobotlab.service.interfaces;
 
-import java.util.Vector;
 
 public interface MotorController {
 
-	public final static String digitalWrite = "digitalWrite";
-
 	/**
-	 * createMotor - creats a new service - probably through the interface
-	 * hopefully much of the managing through the interface will be hidden
+	 * createMotor - creates a new Motor service. The data
+	 * parameter is used for any necessary initialization info
 	 * 
-	 * @param name
+	 * @param data
 	 *            - name of the Motor
 	 * @return Motor
 	 */
-	// GenericMotor createMotor(String name);
+	 Motor createMotor(String name);
 
-	/**
-	 * createMotor - creats a new service - probably through the interface
-	 * hopefully much of the managing through the interface will be hidden
-	 * 
-	 * @param name
-	 *            - name of the Motor
-	 * @param PWMPin
-	 *            - power pin in a DPDT motor controller
-	 * @param DIRPin
-	 *            - direction pin in a DPDT motor controller
-	 * @return Motor
-	 */
-	// GenericMotor createMotor(String name, int PWMPin, int DIRPin);
-	// GenericMotor createHSmokeMotor(String name, int PWMPin, int DIRPin);
 
 	/**
 	 * moveTo - move the Motor a relative amount the amount can be negative or
@@ -80,16 +63,6 @@ public interface MotorController {
 	 */
 	void motorMove(String name, Integer amount);
 
-	/**
-	 * MotorAttach - attach the Motor to a specific pin on the controller
-	 * 
-	 * @param name
-	 *            - name of the Motor
-	 * @param pin
-	 *            - pin number
-	 * @return void
-	 */
-	void motorAttach(String name, Integer PWMPin, Integer DIRPin);
 
 	/**
 	 * MotorDetach - detach the Motor from a specific pin on the controller
@@ -98,16 +71,7 @@ public interface MotorController {
 	 *            - name of the Motor
 	 * @return void
 	 */
-	void motorDetach(String name);
-
-	/**
-	 * getOutputPins - get a list of output pin address from the controller which could be power
-	 * or directional.
-	 * 
-	 * @return Vector<Integer> list of output pins
-	 */	
-	
-	Vector<Integer> getOutputPins();
+	void releaseMotor (String data);
 
 	
 

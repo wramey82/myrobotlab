@@ -30,19 +30,18 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SimpleTimeZone;
-import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -64,9 +63,9 @@ import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceService;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
-import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
+import org.myrobotlab.service.interfaces.Motor;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
@@ -204,25 +203,20 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		}
 		*/
 
-		// Arduino arduino.
 		// target arduino
 		// board atmenga328
-		preferences = new Preferences(null);
-
+		preferences = new Preferences(String.format("%s.preferences.txt",getName()),null);
 		preferences.set("sketchbook.path", ".myrobotlab");
-//		preferences.set("board", "mega2560"); // FIXME - get "real" board type
-												// - all info in boards.txt
-//		preferences.set("board", "atmega328");
-//		preferences.set("board", "mega2560"); // FIXME - get "real" board type
-												// - all info in boards.txt
-
-//		preferences.set("target", "arduino"); // FIXME - board type
 
 //		preferences.set("serial.port", "");
 		// FIXME - set on load() & change
+/*		
 		if (getPortName() != null) {
 			preferences.set("serial.port", getPortName());
 		}
+*/		
+		String lastPort = preferences.get("serial.port");
+		
 		preferences.setInteger("serial.debug_rate", 57600);
 		preferences.set("serial.parity", "N"); // f'ing stupid,
 		preferences.setInteger("serial.databits", 8);
@@ -584,22 +578,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// in read
 	}
 
-	public void motorAttach(String name, Integer PWMPin, Integer DIRPin) {
-		// set the pinmodes on the 2 pins
-		if (serialDevice != null) {
-			pinMode(PWMPin, PinState.OUTPUT);
-			pinMode(DIRPin, PinState.OUTPUT);
-		} else {
-			log.error("attempting to attach motor before serial connection to " + name + " Arduino is ready");
-		}
-
-	}
-
-	public void motorDetach(String name) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void motorMove(String name, Integer amount) {
 		// TODO Auto-generated method stub
 
@@ -628,14 +606,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		if (serialDevice != null) {
 			serialDevice.close();
 		}
-	}
-
-	public Vector<Integer> getOutputPins() {
-		Vector<Integer> ret = new Vector<Integer>();
-		for (int i = 2; i < 13; ++i) {
-			ret.add(i);
-		}
-		return ret;
 	}
 
 	@Override
@@ -1131,19 +1101,25 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return true;
 	}
 	
-	public static File[] getPackageContent(String packageName) throws IOException{
-	    ArrayList<File> list = new ArrayList<File>();
-	    Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
-	                            .getResources(packageName);
-	    while (urls.hasMoreElements()) {
-	        URL url = urls.nextElement();
-	        File dir = new File(url.getFile());
-	        for (File f : dir.listFiles()) {
-	            list.add(f);
-	        }
-	    }
-	    return list.toArray(new File[]{});
+
+	HashMap <String, Motor> motors = new HashMap <String, Motor>();
+	
+	
+	@Override
+	public Motor createMotor(String data) {
+	    Properties properties = new Properties();
+	    try {
+			properties.load(new StringReader(data));
+			String name = properties.getProperty("name");
+			String powerPin = properties.getProperty("powerPin");
+			String directionPin = properties.getProperty("directionPin");
+			
+		} catch (IOException e) {
+			Service.logException(e);
+		}
+		return null;
 	}
+
 	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
@@ -1176,5 +1152,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	}
 
+	@Override
+	public void releaseMotor(String data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 
 }
