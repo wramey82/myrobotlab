@@ -60,9 +60,9 @@ public class Motor extends Service {
 
 	boolean isAttached = false;
 	
-	int PWRPin;
-	int DIRPin;
-	int powerMultiplier = 255; // FIXME - remove | default to Arduino analogWrite max
+	private int PWRPin;
+	private int DIRPin;
+	private int powerMultiplier = 255; // FIXME - remove | default to Arduino analogWrite max
 								
 	int FORWARD = 1;
 	int BACKWARD = 0;

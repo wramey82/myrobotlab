@@ -159,6 +159,7 @@ public class MotorGUI extends ServiceGUI {
 					powerPin.addItem("");
 					directionPin.addItem("");
 					
+					/*
 					Vector<Integer> v = myMotorController.getOutputPins();
 					
 					for (int i = 0; i < v.size(); ++i)
@@ -166,6 +167,8 @@ public class MotorGUI extends ServiceGUI {
 						powerPin.addItem(""+v.get(i));
 						directionPin.addItem(""+v.get(i));
 					}
+					*/
+					
 					powerPin.setEnabled(true);
 					directionPin.setEnabled(true);
 					powerPinLabel.setEnabled(true);					

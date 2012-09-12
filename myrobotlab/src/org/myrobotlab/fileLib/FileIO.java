@@ -45,6 +45,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.zip.ZipException;
 
 import org.apache.log4j.Level;
@@ -331,6 +332,19 @@ public class FileIO {
 
 	}
 
+	public static File[] getPackageContent(String packageName) throws IOException{
+	    ArrayList<File> list = new ArrayList<File>();
+	    Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
+	                            .getResources(packageName);
+	    while (urls.hasMoreElements()) {
+	        URL url = urls.nextElement();
+	        File dir = new File(url.getFile());
+	        for (File f : dir.listFiles()) {
+	            list.add(f);
+	        }
+	    }
+	    return list.toArray(new File[]{});
+	}
 	
 }
 
