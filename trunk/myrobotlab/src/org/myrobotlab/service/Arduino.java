@@ -177,7 +177,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	// compile / upload
 	private String buildPath = "";
 	private String programName = "";
-	private String program = "";
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -215,13 +214,20 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			preferences.set("serial.port", getPortName());
 		}
 */		
-		String lastPort = preferences.get("serial.port");
+		//String lastPort = preferences.get("serial.port");
 		
 		preferences.setInteger("serial.debug_rate", 57600);
 		preferences.set("serial.parity", "N"); // f'ing stupid,
 		preferences.setInteger("serial.databits", 8);
 		preferences.setInteger("serial.stopbits", 1); // f'ing weird 1,1.5,2
 		preferences.setBoolean("upload.verbose", true);
+		
+		/*
+		if (lastPort != null)
+		{
+			setSerialDevice(lastPort, 57600, 8, 1, 0);
+		}
+		*/
 
 		// Get paths for the libraries and examples in the Processing folder
 		// String workingDirectory = System.getProperty("user.dir");
@@ -973,7 +979,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// FYI - not thread safe
 		this.programName = programName;
 		this.buildPath = createBuildPath(programName);
-		this.program = program;
 
 		try {
 			compiler.compile(programName, program, buildPath, true);
