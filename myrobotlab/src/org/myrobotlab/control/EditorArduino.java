@@ -63,69 +63,62 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton monitorButton;
 	JLabel programName = new JLabel("MRLComm");
 
-	// consoles
-	JTabbedPane consoleTabs;
-
-	// autocompletion
-	CompletionProvider provider;
-	AutoCompletion ac;
-	
 	Arduino myArduino = null;
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
 		ServiceWrapper sw = Runtime.getService(boundServiceName);
 		myArduino = (Arduino) sw.get();
+		examplesMenu.add(createExamplesMenu());
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		super.actionPerformed(event);
 		Object o = event.getSource();
-				
-		if (o == compileButton)
-		{
-			myService.send(boundServiceName, "compile", programName.getText(), editor.getText());
+
+		if (o == compileButton) {
+			myService.send(boundServiceName, "compile", programName.getText(), textArea.getText());
 		} else if (o == uploadButton) {
 			myService.send(boundServiceName, "upload");
 			return;
-		} else if (o == connectButton)
-		{
+		} else if (o == connectButton) {
 			myService.send(boundServiceName, "connect");
-		}
+		} else if ("examples".equals(event.getActionCommand()))
+		{
+			JMenuItem menu = (JMenuItem)o;
+			loadResourceFile(menu.getText());
+		} 
 	}
-	
+
 	JMenu boardsMenu = null;
 	public JMenu serialDeviceMenu = null;
-	JMenu communicationMenu = new JMenu("communication");
 
 	public void init() {
 		super.init();
-		//NOTE !!! - must be lowercase to match image names
-		compileButton = addImageButtonToButtonBar("Arduino","compile", this);  
-		uploadButton 	= addImageButtonToButtonBar("Arduino","upload", this);
-		connectButton 	= addImageButtonToButtonBar("Arduino","connect", this);
-		newButton 		= addImageButtonToButtonBar("Arduino","new", this);
-		openButton 		= addImageButtonToButtonBar("Arduino","open", this);
-		saveButton 		= addImageButtonToButtonBar("Arduino","save", this);
-		fullscreenButton= addImageButtonToButtonBar("Arduino","fullscreen", this);
-		monitorButton 	= addImageButtonToButtonBar("Arduino","monitor", this);
-		
-		buttonBar.setBackground(new Color(0,100,104));
+		// NOTE !!! - must be lowercase to match image names
+		compileButton = addImageButtonToButtonBar("Arduino", "compile", this);
+		uploadButton = addImageButtonToButtonBar("Arduino", "upload", this);
+		connectButton = addImageButtonToButtonBar("Arduino", "connect", this);
+		newButton = addImageButtonToButtonBar("Arduino", "new", this);
+		openButton = addImageButtonToButtonBar("Arduino", "open", this);
+		saveButton = addImageButtonToButtonBar("Arduino", "save", this);
+		fullscreenButton = addImageButtonToButtonBar("Arduino", "fullscreen", this);
+		monitorButton = addImageButtonToButtonBar("Arduino", "monitor", this);
+
+		buttonBar.setBackground(new Color(0, 100, 104));
 		buttonBar.add(programName);
-		
+
 		// addHelpMenuURL("help blah", "http:blahblahblah");
-		
+
 		boardsMenu = new JMenu("Board");
 		rebuildBoardsMenu(boardsMenu);
-		
+
 		serialDeviceMenu = new JMenu("Serial Device");
-		
+
 		toolsMenu.add(boardsMenu);
 		toolsMenu.add(serialDeviceMenu);
-		
-		menuBar.remove(examplesMenu);
-		
+
 		// add to help menu
 		helpMenu.add(createMenuItem("Getting Started"));
 		helpMenu.add(createMenuItem("Environment"));
@@ -135,54 +128,61 @@ public class EditorArduino extends Editor implements ActionListener {
 		helpMenu.add(createMenuItem("Frequently Asked Questions"));
 		helpMenu.add(createMenuItem("Visit Arduino.cc"));
 		
-		communicationMenu.add(createMenuItem("Load MRLComm.ino"));
 		loadCommunicationFile();
 
 	}
-	
-	public void loadResourceFile(String filename)
-	{
-		// TODO - set "name" progname
-		String program = FileIO.getResourceFile("Arduino/" + filename);
-		editor.setText(program);
-		
+
+	public void loadResourceFile(String filename) {
+		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
+		log.info(String.format("loadResourceFile %s", resourcePath));
+		String program = FileIO.getResourceFile(resourcePath);
+		textArea.setText(program);
 	}
-	public void loadCommunicationFile()
-	{
+
+	public void loadCommunicationFile() {
 		loadResourceFile("MRLComm.ino");
 	}
 
-	  public void rebuildBoardsMenu(JMenu menu) {
-		    menu.removeAll();      
-		    ButtonGroup group = new ButtonGroup();
-		    
-		    HashMap<String, Target> t = myArduino.targetsTable;
-		    t.values();
-		    
-		    for (Target target : myArduino.targetsTable.values()) {
-		      for (String board : target.getBoards().keySet()) {
-		        AbstractAction action = 
-		          new AbstractAction(target.getBoards().get(board).get("name")) {
-		            public void actionPerformed(ActionEvent actionevent) {
-		            	log.info(String.format("switching to %s:%s",(String) getValue("target"), (String) getValue("board")));
-		            	//myService.send(boundServiceName, "setPreference", "target", (String) getValue("target"));
-		            	//myService.send(boundServiceName, "setPreference", "board", (String) getValue("board"));
-		            	myService.send(boundServiceName, "setBoard", (String) getValue("board"));
-		            }
-		          };
-		        action.putValue("target", target.getName());
-		        action.putValue("board", board);
-		        JMenuItem item = new JRadioButtonMenuItem(action);
-		        if (target.getName().equals(myArduino.preferences.get("target")) &&
-		            board.equals(myArduino.preferences.get("board"))) {
-		          item.setSelected(true);
-		        }
-		        group.add(item);
-		        menu.add(item);
-		      }
-		    }
-		  }
+	public void rebuildBoardsMenu(JMenu menu) {
+		menu.removeAll();
+		ButtonGroup group = new ButtonGroup();
 
+		HashMap<String, Target> t = myArduino.targetsTable;
+		t.values(); // FIXME - t is null
+
+		for (Target target : myArduino.targetsTable.values()) {
+			for (String board : target.getBoards().keySet()) {
+				AbstractAction action = new AbstractAction(target.getBoards().get(board).get("name")) {
+					public void actionPerformed(ActionEvent actionevent) {
+						log.info(String.format("switching to %s:%s", (String) getValue("target"), (String) getValue("board")));
+						// myService.send(boundServiceName, "setPreference",
+						// "target", (String) getValue("target"));
+						// myService.send(boundServiceName, "setPreference",
+						// "board", (String) getValue("board"));
+						myService.send(boundServiceName, "setBoard", (String) getValue("board"));
+					}
+				};
+				action.putValue("target", target.getName());
+				action.putValue("board", board);
+				JMenuItem item = new JRadioButtonMenuItem(action);
+				if (target.getName().equals(myArduino.preferences.get("target")) && board.equals(myArduino.preferences.get("board"))) {
+					item.setSelected(true);
+				}
+				group.add(item);
+				menu.add(item);
+			}
+		}
+	}
+	
+	private JMenu createExamplesMenu() {
+		// FIXME - dynamically build based on resources
+;
+		JMenu menu;
+		menu = new JMenu("Communication");
+		menu.add(createMenuItem("MRLComm.ino", "examples"));
+		menu.add(createMenuItem("AceduinoMotorShield.ino", "examples"));
 		
+		return menu;
+	}
 
 }

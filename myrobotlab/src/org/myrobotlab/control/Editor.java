@@ -74,7 +74,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	final JFrame top;
 
-	final RSyntaxTextArea editor;
+	final protected RSyntaxTextArea textArea;
 	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
@@ -88,17 +88,20 @@ public class Editor extends ServiceGUI implements ActionListener {
 	// TODO - check for outside modification with lastmoddate
 	File currentFile;
 	String currentFilename;
-
-	JMenuBar menuBar;
 	
-	JMenu fileMenu = null;
-	JMenu editMenu = null;
-	JMenu examplesMenu = null;
-	JMenu toolsMenu = null;
-	JMenu helpMenu = null;
+	// menu
+	JMenu fileMenu 		= createFileMenu();
+	JMenu editMenu 		= createEditMenu();
+	JMenu examplesMenu 	= new JMenu("Examples");;
+	JMenu toolsMenu 	= createToolsMenu();
+	JMenu helpMenu 		= createHelpMenu();
+
+	JMenuBar menuBar 	= createMenuBar();
+	JPanel   buttonBar = new JPanel();
+	
+	JPanel menuPanel 	= createMenuPanel();
 	
 	// button bar buttons
-	JPanel buttonBar;
 	ImageButton executeButton;
 	ImageButton restartButton;
 	ImageButton openFileButton;
@@ -134,7 +137,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		currentFile = null;
 		currentFilename = null;
 
-		editor = new RSyntaxTextArea();
+		textArea = new RSyntaxTextArea();
 		editorScrollPane = null;
 		editorTabs = new JTabbedPane();
 
@@ -143,6 +146,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 		statusLabel = new JLabel("Status:");
 		status = new JLabel("");
 		top = myService.getFrame();
+		
+		textArea.getInputMap().put( KeyStroke.getKeyStroke( "F3" ), "find-action" );
+		textArea.getInputMap().put( KeyStroke.getKeyStroke( "ctrl F" ), "find-action" );
+		/*
+		RSyntaxTextAreaFindAndReplaceable findAndReplaceable = new RSyntaxTextAreaFindAndReplaceable();
+		editArea.getActionMap().put( "find-action", new FindAndReplaceDialog( findAndReplaceable ) );
+		*/
 	}
 
 	@Override
@@ -167,15 +177,20 @@ public class Editor extends ServiceGUI implements ActionListener {
 			return;
 		}
 		JMenuItem m = (JMenuItem) o;
-		if (m.getText().equals("save")) {
+		if (m.getText().equals("Save")) {
 			saveFile();
-		} else if (m.getText().equals("open")) {
+		} else if (m.getText().equals("Open")) {
 			openFile();
-		} else if (m.getText().equals("save as")) {
+		} else if (m.getText().equals("Save As")) {
 			saveAsFile();
-		} else if (m.getActionCommand().equals("examples")) {
-			editor.setText(FileIO.getResourceFile(String.format("python/examples/%1$s", m.getText())));
+		} else if (m.getText().equals("Find")) {
+			new FindAndReplaceDialog(this);
+		} 
+		/*
+		else if (m.getActionCommand().equals("examples")) {
+			textArea.setText(FileIO.getResourceFile(String.format("python/examples/%1$s", m.getText())));
 		}
+		*/
 	}
 
 	@Override
@@ -203,16 +218,12 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	}
 
-
-	/**
-	 * 
-	 */
 	public void init() {
 		display.setLayout(new BorderLayout());
 		display.setPreferredSize(new Dimension(800, 600));
 
 		// default text based menu
-		display.add(createMenuPanel(), BorderLayout.PAGE_START);
+		display.add(menuPanel, BorderLayout.PAGE_START);
 
 		splitPane = createMainPane();
 
@@ -253,27 +264,27 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @return
 	 */
 	JScrollPane createEditorPane() {
-		editor.setSyntaxEditingStyle(syntaxStyle);
-		editor.setCodeFoldingEnabled(true);
-		editor.setAntiAliasingEnabled(true);
+		textArea.setSyntaxEditingStyle(syntaxStyle);
+		textArea.setCodeFoldingEnabled(true);
+		textArea.setAntiAliasingEnabled(true);
 
 		// autocompletion
-		ac.install(editor);
+		ac.install(textArea);
 		ac.setShowDescWindow(true);
 
-		return new RTextScrollPane(editor);
+		return new RTextScrollPane(textArea);
 	}
 
 
 	JMenu createFileMenu() {
-		fileMenu = new JMenu("File");
-		fileMenu.setMnemonic(fileMenuMnemonic);
-		fileMenu.add(createMenuItem("New"));
-		fileMenu.add(createMenuItem("Save", saveMenuMnemonic, "control S", null));
-		fileMenu.add(createMenuItem("Save As"));
-		fileMenu.add(createMenuItem("Open", openMenuMnemonic, "control O", null));
-		fileMenu.addSeparator();
-		return fileMenu;
+		JMenu menu = new JMenu("File");
+		menu.setMnemonic(fileMenuMnemonic);
+		menu.add(createMenuItem("New"));
+		menu.add(createMenuItem("Save", saveMenuMnemonic, "control S", null));
+		menu.add(createMenuItem("Save As"));
+		menu.add(createMenuItem("Open", openMenuMnemonic, "control O", null));
+		menu.addSeparator();
+		return menu;
 	}
 
 	JMenu createEditMenu() {
@@ -285,31 +296,11 @@ public class Editor extends ServiceGUI implements ActionListener {
 		editMenu.add(createMenuItem("Copy"));
 		//editMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
 		editMenu.addSeparator();
-		editMenu.add(createMenuItem("Format"));
+		editMenu.add(createMenuItem("Find", openMenuMnemonic, "CTRL+F", "Find"));
+		//editMenu.add(createMenuItem("Format"));
 		return editMenu;
 	}
 
-	JMenu createExamplesMenu() {
-		// TODO - dynamically build based on resources
-		examplesMenu = new JMenu("Examples");
-		examplesMenu.setMnemonic(examplesMenuMnemonic);
-
-		JMenu menu;
-		menu = new JMenu("Arduino");
-		menu.add(createMenuItem("arduinoBasic.py", "examples"));
-		menu.add(createMenuItem("arduinoInput.py", "examples"));
-		menu.add(createMenuItem("arduinoOutput.py", "examples"));
-		menu.add(createMenuItem("arduinoServo.py", "examples"));
-		examplesMenu.add(menu);
-
-		menu = new JMenu("Basic");
-		menu.add(createMenuItem("createAService.py", "examples"));
-		menu.add(createMenuItem("basicPython.py", "examples"));
-		examplesMenu.add(menu);
-
-		
-		return examplesMenu;
-	}
 
 	JMenu createToolsMenu() {
 		toolsMenu = new JMenu("Tools");
@@ -387,8 +378,6 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	
 	JPanel createMenuPanel() {
-		menuBar = createTopMenuBar();
-		buttonBar = new JPanel();
 
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(menuBar, BorderLayout.LINE_START);
@@ -413,13 +402,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * 
 	 * @return the menu bar filled with the top-level options.
 	 */
-	JMenuBar createTopMenuBar() {
+	JMenuBar createMenuBar() {
 		menuBar = new JMenuBar();		
 
-		menuBar.add(createFileMenu());
-		menuBar.add(createEditMenu());
-		menuBar.add(createExamplesMenu());
-		menuBar.add(createToolsMenu());
+		menuBar.add(fileMenu);
+		menuBar.add(editMenu);
+		menuBar.add(examplesMenu);
+		menuBar.add(toolsMenu);
 		menuBar.add(createHelpMenu());
 
 		return menuBar;
@@ -432,7 +421,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		// TODO does this need to be closed?
 		String newfile = FileUtil.open(top, "*.py");
 		if (newfile != null) {
-			editor.setText(newfile);
+			textArea.setText(newfile);
 			statusLabel.setText("Loaded: " + FileUtil.getLastFileOpened());
 			return;
 		}
@@ -450,7 +439,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 									// :) the Jython console can be pushed
 									// over the network
 		myService.send(boundServiceName, "attachJythonConsole");
-		myService.send(boundServiceName, "exec", editor.getText());
+		myService.send(boundServiceName, "exec", textArea.getText());
 	}
 
 	/**
@@ -467,7 +456,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 */
 	void saveAsFile() {
 		// TODO do we need to handle errors with permissions?
-		if (FileUtil.saveAs(top, editor.getText(), currentFilename))
+		if (FileUtil.saveAs(top, textArea.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
 	}
 
@@ -476,7 +465,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 */
 	void saveFile() {
 		// TODO do we need to handle errors with permissions?
-		if (FileUtil.save(top, editor.getText(), currentFilename))
+		if (FileUtil.save(top, textArea.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
 	}
 	
@@ -492,4 +481,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 		status.setText(s);
 	}
 
+	public RSyntaxTextArea getTextArea()
+	{
+		return textArea;
+	}
 }

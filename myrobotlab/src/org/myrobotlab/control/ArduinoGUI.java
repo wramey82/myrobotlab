@@ -62,6 +62,8 @@ import org.myrobotlab.service.interfaces.GUI;
 
 /*
  * TODO - move menu into ArduinoGUI from editor
+ *      - synch up repo with createLabs
+ *      - correct pin state on menu
  * 		- make Communication -> menu -> MRLComm.ino
  *      - make menu builder
  *      - auto-load - MRLComm first
@@ -70,6 +72,7 @@ import org.myrobotlab.service.interfaces.GUI;
  *      - all traces start stop at same time
  *      - 100% on compile & upload
  *      - arrow changed for upload to "up" duh
+ *      - incoming pin data -> determines state of inactive/active & oscope pin update
  *      
  *      - Java console - duh
  *      - uploader progress - duh
