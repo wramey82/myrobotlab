@@ -4,6 +4,9 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>ph.com.alexan.aceduino</string>
          </list>
       </dependsOn>
    </serviceType>
@@ -12,6 +15,9 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>com.adafruit.motorshield</string>
          </list>
       </dependsOn>
    </serviceType>
