@@ -35,7 +35,7 @@ import org.simpleframework.xml.Element;
 /**
  * 
  * Runtime is responsible for the creation and removal of all Services and the
- * associated static regestries It maintains state information regarding
+ * associated static registries It maintains state information regarding
  * possible & running local Services It maintains state information regarding
  * foreign Runtimes It is a singleton and should be the only service of Runtime
  * running in a process The host and registry maps are used in routing
