@@ -81,19 +81,34 @@ arduino.pinMode(16, Arduino.INPUT)
 # arduino.digitalReadPollingStop(7)
 arduino.analogReadPollingStart(16) # A2
 
-# //////////////ACEDUINO MOTOR SHIELD////////////////////////////////////////////
-from org.myrobotlab.service import ACEduinoMotorShield
 
-aceduinoshield = runtime.createAndStart('aceduinoshield ','ACEduinoMotorShield')
-aceduinoshield.attach(arduino.getName())
-aceduinoshield.start()
-aceduinoshield.setBounds(7, 500, 2400)
+# //////////////SERVOS////////////////////////////////////////////
+from org.myrobotlab.service import Servo
 
-for pos in range(0,180):
-	aceduinoshield.setPosition(7, 501)
+pan = runtime.createAndStart('pan','Servo')
+tilt = runtime.createAndStart('tilt','Servo')
+
+# attach the pan servo to the Arduino on pin 2
+pan.attach(arduino.getName(),2) 
+# attach the pan servo to the Arduino on pin 3
+tilt.attach(arduino.getName(),3) 
+
+pan = runtime.createAndStart('pan','Servo')
+tilt = runtime.createAndStart('tilt','Servo')
+
+for pos in range(0,3):
+	pan.moveTo(10)
+	tilt.moveTo(10)
 	sleep(1)
-	aceduinoshield.setPosition(7, 1500)
+	pan.moveTo(60)
+	tilt.moveTo(60)
 	sleep(1)
-	aceduinoshield.setPosition(7, 2399)
+	pan.moveTo(130)
+	tilt.moveTo(130)
+	sleep(1)
+
+# ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
+
+
 
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
