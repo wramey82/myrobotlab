@@ -42,6 +42,7 @@ import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
+import org.myrobotlab.service.interfaces.Motor;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
@@ -972,6 +973,18 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		}
 
 		return pinList;
+	}
+
+	@Override
+	public Motor createMotor(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void releaseMotor(String data) {
+		// TODO Auto-generated method stub
+		
 	}
 
     
