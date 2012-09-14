@@ -17,8 +17,8 @@ public class JythonTest {
 	@Test
 	public void testMessagesFromScript() {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
-
+		Logger.getRootLogger().setLevel(Level.INFO);
+		log.info("testMessagesFromScript");
 		/*
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
@@ -38,6 +38,7 @@ public class JythonTest {
 
 	@Test
 	public void testMssageToAndFromJythonScript() {
+		log.info("testMssageToAndFromJythonScript");
 		/*
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
@@ -49,7 +50,9 @@ public class JythonTest {
 				
 		// String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
 		jython.loadPythonScriptFromResource("messageToAndFromJythonScript.py");
+		log.info("pre exec");
 		jython.exec();
+		log.info("post exec");
 		log.info(jython.getScript());
 		
 		catcher.waitForCatches(1, 100);
