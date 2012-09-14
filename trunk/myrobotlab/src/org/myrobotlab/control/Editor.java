@@ -448,7 +448,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	void performRestart() {
 		restartButton.activate();
 		executeButton.deactivate();
-		myService.send(boundServiceName, "restart");
+		myService.send(boundServiceName, "stop");
 	}
 
 	/**

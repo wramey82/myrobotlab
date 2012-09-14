@@ -63,6 +63,7 @@ public class Jython extends Service {
 	private static final transient HashMap<String, PyObject> objectCache;
 	
 	transient PythonInterpreter interp = null;
+	transient PIThread interpThread = null;
 
 	String inputScript = null;
 	String setupScript = null;
@@ -83,6 +84,33 @@ public class Jython extends Service {
 			log.info(String.format("will filter method %1$s", methods[i].getName()));
 		}
 	}
+	
+
+	class PIThread extends Thread
+	{
+		public boolean executing = false;
+		private String code;
+		
+		PIThread(String code)
+		{
+			this.code = code;
+		}
+		
+		public void run() {
+			try {
+	            executing = true;
+				interp.exec(code);
+			} catch(Exception e)
+			{
+				Service.logException(e);
+			} finally {
+				executing = false;
+				invoke("finishedExecutingScript");
+			}
+
+        }
+	}
+	
 	
 	/**
 	 * 
@@ -165,12 +193,14 @@ public class Jython extends Service {
 			script = code;
 		}
 		try {
-			interp.exec(code);
+			interpThread = new PIThread(code);
+			interpThread.start();
+			
+			//interp.exec(code);
+			
 		} catch (Exception e) {
 			Service.logException(e);
-		} finally {
-			invoke("finishedExecutingScript");
-		}
+		}	
 	}
 	
 	/**
@@ -274,10 +304,13 @@ public class Jython extends Service {
 	/**
 	 * Get rid of the interpreter.
 	 */
-	public void restart()
+	public void stop()
 	{
 		if (interp != null)
 		{
+			interpThread.interrupt();
+			interpThread = null;
+			//PySystemState.exit(); // the big hammar' throws like Thor
 			interp.cleanup();
 			interp = null;
 		}
@@ -286,7 +319,7 @@ public class Jython extends Service {
 	public void stopService ()
 	{	
 		super.stopService();
-		restart();// release the interpeter
+		stop();// release the interpeter
 	}
 	
 	// FIXME - need to replace "script" with Hashmap<filename, script> to 
