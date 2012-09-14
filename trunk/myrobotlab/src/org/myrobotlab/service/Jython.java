@@ -308,8 +308,10 @@ public class Jython extends Service {
 	{
 		if (interp != null)
 		{
-			interpThread.interrupt();
-			interpThread = null;
+			if (interpThread != null) {
+				interpThread.interrupt();
+				interpThread = null;
+			}
 			//PySystemState.exit(); // the big hammar' throws like Thor
 			interp.cleanup();
 			interp = null;
