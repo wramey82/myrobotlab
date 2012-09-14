@@ -177,7 +177,7 @@ public class JythonUnitTest {
 	}
 
 	@Test
-	public void testRestart() {
+	public void testStop() {
 		guineaPig.createPythonInterpreter();
 		guineaPig.stop();
 		Object interpreter = TestHelpers.<Object>getField(guineaPig, "interp");
