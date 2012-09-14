@@ -85,7 +85,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	// button bar buttons
 	ImageButton executeButton;
-	ImageButton restartButton;
+	ImageButton stopButton;
 
 	ImageButton openFileButton;
 	ImageButton saveFileButton;
@@ -134,8 +134,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 
 		Object o = arg0.getSource();
-		if (o == restartButton) {
-			performRestart();
+		if (o == stopButton) {
+			performStop();
 			return;
 		} else if (o == executeButton) {
 			performExecute();
@@ -168,15 +168,16 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		subscribe("publishState", "getState", Jython.class);
 		subscribe("finishedExecutingScript");
 		subscribe("publishStdOut", "getStdOut", String.class);
+		myService.send(boundServiceName, "attachJythonConsole");
 		// myService.send(boundServiceName, "broadcastState");
 	}
 
 	@Override
 	public void detachGUI() {
 		javaConsole.stopLogging();
-		unsubscribe("publishStdOut", "getStdOut", String.class);
-		unsubscribe("finishedExecutingScript");
 		unsubscribe("publishState", "getState", Jython.class);
+		unsubscribe("finishedExecutingScript");
+		unsubscribe("publishStdOut", "getStdOut", String.class);
 	}
 
 	/**
@@ -184,6 +185,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 */
 	public void finishedExecutingScript() {
 		executeButton.deactivate();
+		stopButton.deactivate();
 	}
 
 	/**
@@ -416,7 +418,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 */
 	private JPanel createTopButtonBar() {
 		executeButton = new ImageButton("Jython", "execute", this);
-		restartButton = new ImageButton("Jython", "restart", this);
+		stopButton = new ImageButton("Jython", "stop", this);
 		openFileButton = new ImageButton("Jython", "open", this);
 		;
 		saveFileButton = new ImageButton("Jython", "save", this);
@@ -425,7 +427,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		JPanel buttonBar = new JPanel();
 		buttonBar.add(openFileButton);
 		buttonBar.add(saveFileButton);
-		buttonBar.add(restartButton);
+		buttonBar.add(stopButton);
 		buttonBar.add(executeButton);
 
 		return buttonBar;
@@ -472,21 +474,21 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 */
 	private void performExecute() {
 		executeButton.activate();
-		restartButton.deactivate();
+		stopButton.deactivate();
 		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
 									// :) the Jython console can be pushed
 									// over the network
-		myService.send(boundServiceName, "attachJythonConsole");
 		myService.send(boundServiceName, "exec", editor.getText());
 	}
 
 	/**
 	 * Perform the restart action.
 	 */
-	private void performRestart() {
-		restartButton.activate();
-		executeButton.deactivate();
-		myService.send(boundServiceName, "restart");
+	private void performStop() {
+		stopButton.activate();
+		//executeButton.deactivate();
+		myService.send(boundServiceName, "stop");
+		myService.send(boundServiceName, "attachJythonConsole");
 	}
 
 	/**
