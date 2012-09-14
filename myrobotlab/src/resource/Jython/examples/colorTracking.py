@@ -33,6 +33,16 @@ opencv.setFilterCFG("InRange1","useHue", True)
 opencv.setFilterCFG("InRange1","useSaturation", True)
 opencv.setFilterCFG("InRange1","useValue", True)
 
+# configuration variables
+# GroG's config
+#panServoPin = 9
+#tiltServoPin = 10
+#comPort = 'COM10'
+# michael's config
+panServoPin = 2
+tiltServoPin = 3
+comPort = 'COM7'
+
 # change value of the FindContours filter
 # opencv.setFilterCFG("FindContours1","minArea", "150")
 # opencv.setFilterCFG("FindContours1","maxArea", "-1")
@@ -74,9 +84,9 @@ arduino = runtime.createAndStart('arduino','Arduino')
 
 # set and open the serial device 
 # arduino.setSerialDevice('/dev/ttyUSB0', 57600, 8, 1, 0)
-arduino.setSerialDevice('COM7', 57600, 8, 1, 0)
+arduino.setSerialDevice(comPort, 57600, 8, 1, 0)
 
-sleep(4)
+sleep(3) # sleep because even after initialization the serial port still takes time to be ready
 arduino.pinMode(16, Arduino.INPUT)
 # arduino.digitalReadPollingStop(7)
 arduino.analogReadPollingStart(16) # A2
@@ -89,9 +99,9 @@ pan = runtime.createAndStart('pan','Servo')
 tilt = runtime.createAndStart('tilt','Servo')
 
 # attach the pan servo to the Arduino on pin 2
-pan.attach(arduino.getName(),2) 
+pan.attach(arduino.getName(),panServoPin) 
 # attach the pan servo to the Arduino on pin 3
-tilt.attach(arduino.getName(),3) 
+tilt.attach(arduino.getName(),tiltServoPin) 
 
 pan = runtime.createAndStart('pan','Servo')
 tilt = runtime.createAndStart('tilt','Servo')
@@ -108,7 +118,4 @@ for pos in range(0,3):
 	sleep(1)
 
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
-
-
-
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
