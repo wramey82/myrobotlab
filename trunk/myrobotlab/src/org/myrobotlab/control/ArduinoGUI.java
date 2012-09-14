@@ -55,6 +55,7 @@ import javax.swing.JTabbedPane;
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.PinData;
@@ -228,10 +229,25 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			editor.serialDeviceMenu.removeAll();
 			publishMessage(String.format("found %d serial ports", myArduino.portNames.size()));
 			for (int i = 0; i < myArduino.portNames.size(); ++i) {
-				publishMessage(String.format(" %s", myArduino.portNames.get(i)));
+				String portName = myArduino.portNames.get(i);
+				publishMessage(String.format(" %s", portName));
 				JCheckBoxMenuItem device = new JCheckBoxMenuItem(myArduino.portNames.get(i));
+				SerialDevice sd = myArduino.getSerialDevice();
+				if (sd != null && sd.getName().equals(portName))
+				{
+					device.setSelected(true);
+					if (sd.isOpen())
+					{
+						editor.connectButton.activate();
+					} else {
+						editor.connectButton.deactivate();
+					}
+				} else {
+					device.setSelected(false);
+				}
 				device.addActionListener(serialMenuListener);
 				editor.serialDeviceMenu.add(device);
+				
 				// rbMenuItem = new JCheckBoxMenuItem(curr_port,
 				// curr_port.equals(Preferences2.get("serial.port")));
 				// rbMenuItem.addActionListener(serialMenuListener);
