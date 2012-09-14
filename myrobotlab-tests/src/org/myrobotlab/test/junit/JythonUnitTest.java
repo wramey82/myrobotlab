@@ -179,7 +179,7 @@ public class JythonUnitTest {
 	@Test
 	public void testRestart() {
 		guineaPig.createPythonInterpreter();
-		guineaPig.restart();
+		guineaPig.stop();
 		Object interpreter = TestHelpers.<Object>getField(guineaPig, "interp");
 		assertNull(interpreter);
 	}
