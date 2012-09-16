@@ -4,6 +4,38 @@
 # http://myrobotlab.org/content/color-tracking-mrl-using-opencv-jython-and-arduino-services
 # File colorTracking.py
 # //////////BEGIN PYTHON SCRIPT////////////////////////////
+
+configType = 'michael'
+
+# configuration variables - differ on each system
+if configType == 'GroG':
+	# GroG's config
+	panServoPin = 9
+	tiltServoPin = 10
+	comPort = 'COM10'
+else:
+	# michael's config
+	panServoPin = 2
+	tiltServoPin = 3
+	comPort = 'COM7'
+	
+# ///////////////////PID/////////////////////////////////////////////////////
+# 2 PID services to adjust for X & Y of the open cv point and to map them
+# to the pan and tilt servo values
+# X : opencv 0 - 320 ->  pan 0 - 180
+# Y : opencv 0 - 240 -> tilt 0 - 180
+
+xpid = Runtime.createAndStart("xpid","PID")
+ypid = Runtime.createAndStart("ypid","PID")
+	
+xpid.setInputRange(0, 320)
+xpid.setOutputRange(0, 180)
+xpid.setPoint(160) # we want the target in the middle of the x
+
+ypid.setInputRange(0, 240)
+ypid.setOutputRange(0, 180)
+xpid.setPoint(160) # and the middle of the y
+
 # //////////OPENCV////////////////////////////////////////
 
 from java.lang import String
@@ -22,26 +54,29 @@ opencv.addFilter("InRange1", "InRange")
 opencv.addFilter("Dilate1", "Dilate")
 opencv.addFilter("FindContours1", "FindContours")
 
-# change values of the InRange filter
-opencv.setFilterCFG("InRange1","hueMin", "3")
-opencv.setFilterCFG("InRange1","hueMax", "33")
-opencv.setFilterCFG("InRange1","saturationMin", "87")
-opencv.setFilterCFG("InRange1","saturationMax", "256")
-opencv.setFilterCFG("InRange1","valueMin", "230")
-opencv.setFilterCFG("InRange1","valueMax", "256")
-opencv.setFilterCFG("InRange1","useHue", True)
-opencv.setFilterCFG("InRange1","useSaturation", True)
-opencv.setFilterCFG("InRange1","useValue", True)
+if configType == 'GroG':
+	# GroG is looking for a purple balloon 
+	opencv.setFilterCFG("InRange1","hueMin", "3")
+	opencv.setFilterCFG("InRange1","hueMax", "33")
+	opencv.setFilterCFG("InRange1","saturationMin", "87")
+	opencv.setFilterCFG("InRange1","saturationMax", "256")
+	opencv.setFilterCFG("InRange1","valueMin", "230")
+	opencv.setFilterCFG("InRange1","valueMax", "256")
+	opencv.setFilterCFG("InRange1","useHue", True)
+	opencv.setFilterCFG("InRange1","useSaturation", True)
+	opencv.setFilterCFG("InRange1","useValue", True)
+else:
+	# michael is looking for something else
+	opencv.setFilterCFG("InRange1","hueMin", "3")
+	opencv.setFilterCFG("InRange1","hueMax", "33")
+	opencv.setFilterCFG("InRange1","saturationMin", "87")
+	opencv.setFilterCFG("InRange1","saturationMax", "256")
+	opencv.setFilterCFG("InRange1","valueMin", "230")
+	opencv.setFilterCFG("InRange1","valueMax", "256")
+	opencv.setFilterCFG("InRange1","useHue", True)
+	opencv.setFilterCFG("InRange1","useSaturation", True)
+	opencv.setFilterCFG("InRange1","useValue", True)
 
-# configuration variables
-# GroG's config
-#panServoPin = 9
-#tiltServoPin = 10
-#comPort = 'COM10'
-# michael's config
-panServoPin = 2
-tiltServoPin = 3
-comPort = 'COM7'
 
 # change value of the FindContours filter
 # opencv.setFilterCFG("FindContours1","minArea", "150")
@@ -74,6 +109,7 @@ opencv.addListener("publish", jython.name, "input", CvPoint().getClass());
 
 # set the input source to the first camera
 opencv.capture()
+
 
 # ///////////////////ARDUINO/////////////////////////////////////////////////////
 
