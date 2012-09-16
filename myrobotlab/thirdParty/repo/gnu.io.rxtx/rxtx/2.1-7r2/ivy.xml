@@ -7,10 +7,17 @@
     </configurations>
     <publications>
         <artifact name="RXTXcomm" type="jar"/>
-        <artifact name="x86.32.linux/librxtxSerial" type="native" ext="so" conf="x86.32.linux"/>
-        <artifact name="x86.64.linux/librxtxSerial" type="native" ext="so" conf="x86.64.linux"/>
-        <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
-        <artifact name="x86.32.windows/rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
-        <artifact name="x86.64.windows/rxtxSerial" type="native" ext="dll" conf="x86.64.windows"/>
+        
+        <artifact name="librxtxSerial" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="librxtxSerial" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="librxtxSerial64" type="native" ext="so" conf="x86.64.linux"/>
+
+        <artifact name="librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
+        <artifact name="librxtxSerial" type="native" ext="jnilib" conf="x86.64.mac"/>
+        <artifact name="librxtxSerial64" type="native" ext="jnilib" conf="x86.64.mac"/>
+
+        <artifact name="rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="rxtxSerial" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="rxtxSerial64" type="native" ext="dll" conf="x86.64.windows"/>
         </publications>
 </ivy-module>

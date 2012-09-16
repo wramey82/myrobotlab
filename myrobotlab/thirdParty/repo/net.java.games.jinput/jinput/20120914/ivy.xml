@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="net.java.games.jinput" module="jinput" status="release" revision="20120914">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="Joystick" type="jar"/>
+
+        <artifact name="jinput-dx8" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="jinput-raw" type="native" ext="dll" conf="x86.32.windows"/>
+
+        <artifact name="jinput-dx8_64" type="native" ext="dll" conf="x86.64.windows"/>
+        <artifact name="jinput-raw_64" type="native" ext="dll" conf="x86.64.windows"/>
+        
+        <artifact name="libjinput-linux" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="libjinput-linux64" type="native" ext="so" conf="x86.64.linux"/>
+
+        <artifact name="libjinput-osx" type="native" ext="jnilib" conf="x86.32.mac"/>
+    </publications>
+</ivy-module>
