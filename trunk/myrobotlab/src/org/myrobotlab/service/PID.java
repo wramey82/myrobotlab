@@ -121,6 +121,10 @@ public class PID extends Service {
 		this.outputMax = max;
 	}
 	
+	/**
+	 * TODO - implement this
+	 * @param percent
+	 */
 	public void setTolerance(double percent)
 	{
 		this.tolerance = percent;

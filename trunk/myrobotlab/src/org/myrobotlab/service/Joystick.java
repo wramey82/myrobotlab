@@ -25,159 +25,206 @@
 
 package org.myrobotlab.service;
 
-import java.io.IOException;
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-import com.centralnexus.input.JoystickListener;
-
-public class Joystick extends Service implements JoystickListener {
+public class Joystick extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Joystick.class
-			.getCanonicalName());
-	public com.centralnexus.input.Joystick joy;
-	public final int MAX_AXES = 6;
+	public final static Logger log = Logger.getLogger(Joystick.class.getCanonicalName());
+	
+	public final static String Z_AXIS = "Z_AXIS";
+	public final static String Z_ROTATION = "Z_ROTATION";
 
-	public final int R = 0;
-	public final int U = 1;
-	public final int V = 2;
-	public final int X = 3;
-	public final int Y = 4;
-	public final int Z = 5;
+	Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	InputPollingThread pollingThread = null;
+	int myDeviceIndex = -1;
+	Controller controller = null;
+	double[] lastValues;
+	
+	public class InputPollingThread extends Thread
+	{
+		public boolean isPolling = false;
+		
+		public InputPollingThread(String name)
+		{
+			super(name);
+		}
+		
+		
+		public void run()
+		{
+			
+			if (controller == null)
+			{
+				log.error("controller is null - can not poll");
+			}
+			
+			/* Get all the axis and buttons */
+			Component[] components = controller.getComponents();
+			lastValues = new double[components.length];	
+			
+			isPolling = true;
+			while (isPolling)
+			{
+				
+					/* Poll the controller */
+					controller.poll();
 
-	Axis axes[] = new Axis[MAX_AXES];
+					StringBuffer buffer = new StringBuffer();
 
-	public class Axis {
-		public float currentValue = 0;
-		public float mappedMin = 0;
-		public float mappedMax = 180;
+					/* For each component, get it's name, and it's current value */
+					for (int i = 0; i < components.length; i++) {
+						if (i > 0) {
+							buffer.append(", ");
+						}
+						String n = components[i].getName();
+						buffer.append(n);
+						if ("Z Axis".equals(n))
+						{
+							double in = components[i].getPollData();
+							int pos = (int)((90 * in) + 90);
+							if (lastValues[i] != pos)
+							{
+								invoke("ZAxisInt", pos);
+							}
+							lastValues[i] = pos;
 
-		boolean intOutput = false;
+						} else if ("Z Rotation".equals(n))
+						{
+							double in = components[i].getPollData();
+							int pos = (int)((90 * in) + 90);
+							if (lastValues[i] != pos)
+							{
+								invoke("ZRotationInt", pos);
+							}
+							lastValues[i] = pos;
+						} 
+						buffer.append(": ");
+						if (components[i].isAnalog()) {
+							/* Get the value at the last poll of this component */
+							buffer.append(components[i].getPollData());
+						} else {
+							if (components[i].getPollData() == 1.0f) {
+								buffer.append("On");
+							} else {
+								buffer.append("Off");
+							}
+						}
+					}
 
-	}
-
+					//log.debug(buffer.toString());
+					/*
+					 * Sleep for 20 millis, this is just so the example doesn't thrash
+					 * the system.
+					 * FIXME - can a polling system be avoided - could this block with 
+					 * the JNI code?
+					 */
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			}
+			}
+		}
+	
 	public Joystick(String n) {
 		super(n, Joystick.class.getCanonicalName());
 
-		try {
-			log
-					.info("number of joysticks reported "
-							+ com.centralnexus.input.Joystick.getNumDevices());
-			joy = com.centralnexus.input.Joystick.createInstance(0);
-			/*
-			 * for (int idx = joy.getID() + 1; idx < Joystick.getNumDevices();
-			 * idx++) { //if (Joystick.isPluggedIn(idx)) { // joy2 =
-			 * Joystick.createInstance(idx); //} } if (joy2 == null) { joy2 =
-			 * joy; }
-			 */
-
-			for (int i = 0; i < MAX_AXES; ++i) {
-				axes[i] = new Axis();
-			}
-
-			joy.addJoystickListener(this);
-
-		} catch (IOException e) {
-			log.error("joystick not found");
-		} catch (Exception e) {
-			log.error("joystick not found" + e.getMessage());
-		} catch (UnsatisfiedLinkError e) {
-			log.error("joystick binaries (.dll or .so) needed but not found"
-					+ e.getMessage());
+		for (int i = 0; i < controllers.length; i++) {
+			log.info(String.format("Found input device: %d %s", i, controllers[i].getName()));
+			
+			// search for gamepad or joystick
 		}
+	}
+	
+	public boolean attach(Servo servo, String axis)
+	{
+		if (Z_AXIS.equals(axis))
+		{
+			servo.subscribe("ZAxisInt", getName(), "moveTo", Integer.class);
+			return true;
+		} else if (Z_ROTATION.equals(axis)) 
+		{
+			servo.subscribe("ZRotationInt", getName(), "moveTo", Integer.class);	
+			return true;
+		}
+		
+		log.error(String.format("unknown axis %s", axis));
+		return false;
+	}
 
+	//---------------Publishing Begin ------------------------
+	public Integer ZAxisInt(Integer zaxis)
+	{
+		return zaxis;
+	}
+
+	public Integer ZRotationInt(Integer zaxis)
+	{
+		return zaxis;
+	}
+	//---------------Publishing End ------------------------
+	
+	
+	public boolean setController(int index)
+	{
+		//if ()
+		log.info(String.format("attaching controller %d", index));
+		if (index > -1 && index < controllers.length) {
+			controller = controllers[index];
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void startPolling()
+	{
+
+		pollingThread = new InputPollingThread(String.format("%s_polling", getName()));
+		pollingThread.start();
+	}
+	
+	public void stopPolling()
+	{
+		if (pollingThread != null)
+		{
+			pollingThread.isPolling = false;
+			pollingThread = null;
+		}
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
-		cfg.set("zMultiplier", 90);
-		cfg.set("zOffset", 90);
-		cfg.set("rMultiplier", 90);
-		cfg.set("rOffset", 90);
 	}
 
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void joystickAxisChanged(com.centralnexus.input.Joystick j) {
-		log.info(" axis jid " + j.getID() + " dz " + j.getDeadZone() + " r "
-				+ j.getR() + " u " + j.getU() + " v " + j.getV() + " x "
-				+ j.getX() + " y " + j.getY() + " z " + j.getZ());
-
-		float retval = 0;
-
-		if (j.getZ() != axes[Z].currentValue) {
-			axes[Z].currentValue = j.getZ();
-			retval = cfg.getInt("zMultiplier") * axes[Z].currentValue
-					+ cfg.getInt("zOffset");
-			invoke("getAxisZ", (int) retval);
-		}
-
-		if (j.getR() != axes[R].currentValue) {
-			axes[R].currentValue = j.getR();
-			retval = cfg.getInt("rMultiplier") * axes[R].currentValue
-					+ cfg.getInt("rOffset");
-			invoke("getAxisR", (int) retval);
-		}
-
-	}
-
-	/*
-	 * TODO - make this an interface????? Split out for late binding and message
-	 * routing
-	 */
-
-	final static public void button1() {
-		log.info("button1");
-	}
-
-	final static public void button2() {
-		log.info("button2");
-	}
-
-	final static public void button3() {
-		log.info("button3");
-	}
-
-	final static public void button4() {
-		log.info("button4");
-	}
-
-	final static public int getAxisR(Integer f) {
-		log.info("getAxisR int " + f);
-		return f;
-	}
-
-	final static public int getAxisZ(Integer f) {
-		log.info("getAxisZ int " + f);
-		return f;
-	}
-
-	// @Override - only in Java 1.6 - its only a single reference not all supertypes define it
-	public void joystickButtonChanged(com.centralnexus.input.Joystick j) {
-
-		int buttonsPressed = j.getButtons();
-
-		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON1) == com.centralnexus.input.Joystick.BUTTON1) {
-			invoke("button1");
-		}
-
-		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON2) == com.centralnexus.input.Joystick.BUTTON2) {
-			invoke("button2");
-		}
-
-		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON3) == com.centralnexus.input.Joystick.BUTTON3) {
-			invoke("button3");
-		}
-
-		if ((buttonsPressed & com.centralnexus.input.Joystick.BUTTON4) == com.centralnexus.input.Joystick.BUTTON4) {
-			invoke("button4");
-		}
-	}
 
 	@Override
 	public String getToolTip() {
 		return "used for interfacing with a Joystick";
+	}
+
+	public static void main(String args[]) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		// First you need to create controller.
+		// http://theuzo007.wordpress.com/2012/09/02/joystick-in-java-with-jinput/
+		//JInputJoystick joystick = new JInputJoystick(Controller.Type.STICK, Controller.Type.GAMEPAD);
+
+		Joystick joy = new Joystick("joystick");
+		joy.startService();
+		joy.setController(2);
+		joy.startPolling();	
+		
 	}
 
 }
