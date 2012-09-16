@@ -30,7 +30,7 @@ public class JythonTest {
 		
 		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
 		jython.exec(code);
-		catcher.waitForCatches(1, 100);
+		catcher.waitForCatches(1, 1000);
 		assertEquals(1, catcher.catchList.size());
 		assertEquals(10, (int)catcher.catchList.get(0));
 		Runtime.releaseAll();		
@@ -55,7 +55,7 @@ public class JythonTest {
 		log.info("post exec");
 		log.info(jython.getScript());
 		
-		catcher.waitForCatches(1, 100);
+		catcher.waitForStringCatches(1, 1000);
 		assertEquals(1, catcher.stringCatchList.size());
 //		String s = catcher.stringCatchList.get(0);
 		//assertEquals(10, (int)catcher.stringCatchList.get(0));
