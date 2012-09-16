@@ -13,8 +13,9 @@
         <artifact name="librxtxSerial64" type="native" ext="so" conf="x86.64.linux"/>
 
         <artifact name="librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
-        <artifact name="librxtxSerial" type="native" ext="jnilib" conf="x86.64.mac"/>
+        <!--   <artifact name="librxtxSerial" type="native" ext="jnilib" conf="x86.64.mac"/>
         <artifact name="librxtxSerial64" type="native" ext="jnilib" conf="x86.64.mac"/>
+        -->
 
         <artifact name="rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="rxtxSerial" type="native" ext="dll" conf="x86.64.windows"/>
