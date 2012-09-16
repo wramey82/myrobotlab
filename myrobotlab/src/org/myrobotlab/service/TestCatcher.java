@@ -158,6 +158,40 @@ public class TestCatcher extends Service {
 		return catchList.size();
 	}
 
+	public int waitForStringCatches(int numberOfCatches, int maxWaitTimeMilli) {
+		log.info(getName() + ".waitForCatches waiting for " + numberOfCatches
+				+ " currently " + stringCatchList.size());
+
+		StopWatch stopwatch = new StopWatch();
+		synchronized (stringCatchList) {
+			if (stringCatchList.size() < numberOfCatches) {
+				try {
+					stopwatch.start(); // starting clock
+					while (stringCatchList.size() < numberOfCatches)
+					{
+						stringCatchList.wait(maxWaitTimeMilli); // wait up to the max time
+						stopwatch.end(); // sample time - 	
+						if (stopwatch.elapsedMillis() > maxWaitTimeMilli)
+						{
+							log.error("waited for " + maxWaitTimeMilli + "ms and still only " + stringCatchList.size() + " out of " + numberOfCatches);							
+							return stringCatchList.size();
+						}
+					} 
+										
+					log.info("caught " + stringCatchList.size() + " out of " + numberOfCatches);
+					return numberOfCatches;
+					
+				} catch (InterruptedException e) {
+					log.error("waitForCatches " + numberOfCatches
+							+ " interrupted");
+					// logException(e); - removed for Android
+				}
+			}
+		}
+		return stringCatchList.size();
+	}
+
+	
 	public void waitForLowCatches(int numberOfCatches, int maxWaitTimeMilli) {
 		log.info(getName() + ".waitForLowCatches waiting for " + numberOfCatches
 				+ " currently " + lowCatchList.size());
