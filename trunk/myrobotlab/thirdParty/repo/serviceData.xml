@@ -168,7 +168,7 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
-            <string>com.centralnexus.joystick</string>
+            <string>net.java.games.jinput</string>
          </list>
       </dependsOn>
    </serviceType>
