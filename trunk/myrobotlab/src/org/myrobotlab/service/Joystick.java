@@ -25,6 +25,8 @@
 
 package org.myrobotlab.service;
 
+import java.util.TreeMap;
+
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -36,12 +38,30 @@ import org.myrobotlab.framework.Service;
 public class Joystick extends Service {
 
 	private static final long serialVersionUID = 1L;
+	
+	  public static final int NUM_BUTTONS = 12;
+
+	  // public stick and hat compass positions 
+	  public static final int NUM_COMPASS_DIRS = 9;
+
+	  public static final int NW = 0;
+	  public static final int NORTH = 1;
+	  public static final int NE = 2;
+	  public static final int WEST = 3;
+	  public static final int NONE = 4;   // default value
+	  public static final int EAST = 5;
+	  public static final int SW = 6;
+	  public static final int SOUTH = 7;
+	  public static final int SE = 8;
+	  
 	public final static Logger log = Logger.getLogger(Joystick.class.getCanonicalName());
 	
 	public final static String Z_AXIS = "Z_AXIS";
 	public final static String Z_ROTATION = "Z_ROTATION";
 
 	Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	TreeMap<String, Integer> controllerNames = new TreeMap<String, Integer> ();
+	
 	InputPollingThread pollingThread = null;
 	int myDeviceIndex = -1;
 	Controller controller = null;
@@ -91,7 +111,7 @@ public class Joystick extends Service {
 							int pos = (int)((90 * in) + 90);
 							if (lastValues[i] != pos)
 							{
-								invoke("ZAxisInt", pos);
+								invoke("ZAxis", pos);
 							}
 							lastValues[i] = pos;
 
@@ -101,10 +121,33 @@ public class Joystick extends Service {
 							int pos = (int)((90 * in) + 90);
 							if (lastValues[i] != pos)
 							{
-								invoke("ZRotationInt", pos);
+								invoke("ZRotation", pos);
 							}
 							lastValues[i] = pos;
-						} 
+						}  else if ("X Axis".equals(n))
+						{
+							double in = components[i].getPollData();
+							int pos = (int)((90 * in) + 90);
+							if (lastValues[i] != pos)
+							{
+								invoke("XAxis", pos);
+							}
+							lastValues[i] = pos;
+
+						}  else if ("X Axis".equals(n))
+						{
+							double in = components[i].getPollData();
+							int pos = (int)((90 * in) + 90);
+							if (lastValues[i] != pos)
+							{
+								invoke("XAxis", pos);
+							}
+							lastValues[i] = pos;
+
+						}
+						
+						
+						
 						buffer.append(": ");
 						if (components[i].isAnalog()) {
 							/* Get the value at the last poll of this component */
@@ -140,7 +183,10 @@ public class Joystick extends Service {
 
 		for (int i = 0; i < controllers.length; i++) {
 			log.info(String.format("Found input device: %d %s", i, controllers[i].getName()));
-			
+			if (controllers[i].getType() == Controller.Type.GAMEPAD || controllers[i].getType() == Controller.Type.STICK)
+			{
+				controllerNames.put(String.format("%d - %s",i, controllers[i].getName()), i);
+			}
 			// search for gamepad or joystick
 		}
 	}
@@ -149,11 +195,11 @@ public class Joystick extends Service {
 	{
 		if (Z_AXIS.equals(axis))
 		{
-			servo.subscribe("ZAxisInt", getName(), "moveTo", Integer.class);
+			servo.subscribe("ZAxis", getName(), "moveTo", Integer.class);
 			return true;
 		} else if (Z_ROTATION.equals(axis)) 
 		{
-			servo.subscribe("ZRotationInt", getName(), "moveTo", Integer.class);	
+			servo.subscribe("ZRotation", getName(), "moveTo", Integer.class);	
 			return true;
 		}
 		
@@ -162,12 +208,12 @@ public class Joystick extends Service {
 	}
 
 	//---------------Publishing Begin ------------------------
-	public Integer ZAxisInt(Integer zaxis)
+	public Integer ZAxis(Integer zaxis)
 	{
 		return zaxis;
 	}
 
-	public Integer ZRotationInt(Integer zaxis)
+	public Integer ZRotation(Integer zaxis)
 	{
 		return zaxis;
 	}
@@ -182,7 +228,18 @@ public class Joystick extends Service {
 			controller = controllers[index];
 			return true;
 		}
-		
+		log.error("bad index");
+		return false;
+	}
+	
+	public boolean setController(String s)
+	{
+		if (controllerNames.containsKey(s))
+		{
+			setController(controllerNames.get(s));
+			return true;
+		}
+		log.error(String.format("cant find %s", s));
 		return false;
 	}
 	
@@ -211,6 +268,11 @@ public class Joystick extends Service {
 	public String getToolTip() {
 		return "used for interfacing with a Joystick";
 	}
+	
+	public TreeMap<String, Integer> getControllerNames()
+	{
+		return controllerNames;
+	}
 
 	public static void main(String args[]) {
 		org.apache.log4j.BasicConfigurator.configure();
@@ -222,8 +284,12 @@ public class Joystick extends Service {
 
 		Joystick joy = new Joystick("joystick");
 		joy.startService();
-		joy.setController(2);
-		joy.startPolling();	
+		//joy.setController(2);
+		//joy.startPolling();	
+		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 		
 	}
 

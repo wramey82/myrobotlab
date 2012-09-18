@@ -25,7 +25,14 @@
 
 package org.myrobotlab.framework;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -97,6 +104,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 									// RuntimeEnvironment???
 	@Element
 	private final String name;
+	private String lastRecordingFilename;
 	public final String serviceClass; // TODO - remove
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
@@ -129,6 +137,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
+	
+	SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+	Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+	
+	// recordings
+	private boolean isRecording = false;
+	public final String MESSAGE_RECORDING_FORMAT_XML = "MESSAGE_RECORDING_FORMAT_XML";
+	public final String MESSAGE_RECORDING_FORMAT_BINARY = "MESSAGE_RECORDING_FORMAT_BINARY";
+	private transient ObjectOutputStream recording;
+	private transient ObjectInputStream playback;
 	
 	/**
 	 * 
@@ -225,6 +243,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);
 
+		TSFormatter.setCalendar(cal);
+		
 		registerServices();// FIXME - deprecate - remove !
 		registerLocalService(url);
 	}
@@ -1165,9 +1185,69 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param method
 	 */
 	public void send(String name, String method) {
-		Message msg = createMessage(name, method, null);
-		msg.sender = this.getName();
-		outbox.add(msg);
+		send(name, method, (Object[]) null);
+	}
+	
+	public void startRecording()
+	{
+		startRecording(null);
+	}
+	
+	public void startRecording(String filename)
+	{
+		if (filename == null)
+		{
+			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()) );
+			lastRecordingFilename = filename;
+		}
+		
+		try {
+			recording = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
+			isRecording = true;
+		} catch (Exception e) {
+			logException(e);
+		} 
+	}
+	
+	public void stopRecording()
+	{
+		isRecording = false;
+		if (recording == null)
+		{
+			return;
+		}
+		try {
+			recording.flush();
+			recording.close();
+			recording = null;
+		} catch (IOException e) {
+			logException(e);
+		}
+		
+	}
+	
+	public void loadRecording(String filename)
+	{
+		isRecording = false;
+		
+		if (filename == null)
+		{
+			filename = lastRecordingFilename;
+		}
+	
+		try {
+			playback = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filename)));
+		    while (true) {
+		          Message msg = (Message) playback.readObject();
+		          if (msg.name.startsWith("BORG"))
+		          {
+		        	  msg.name = Runtime.getInstance().getName();
+		          }
+		          outbox.add(msg);
+		    }
+		} catch (Exception e) {
+			logException(e);
+		}
 	}
 
 	/**
@@ -1183,6 +1263,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// get the correct sendingMethod
 		// here its hardcoded
 		msg.sendingMethod="send"; 
+
+		if (isRecording)
+		{
+			try {
+				recording.writeObject(msg);
+			} catch (IOException e) {
+				logException(e);
+			}
+		}
 		outbox.add(msg);
 	}
 
@@ -1251,18 +1340,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 										// for all parameters
 
 		Date d = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
-		formatter.setCalendar(cal);
+
 
 		if (msg.msgID == null) {
-			msg.msgID = formatter.format(d);
+			msg.msgID = TSFormatter.format(d); // FIXME - wouldn't long timestamp be better ? System.currentTimeMillis()
 		}
 		if (name != null) {
 			msg.name = name; // destination instance name
 		}
 		msg.sender = this.getName();
-		msg.timeStamp = formatter.format(d);
+		msg.timeStamp = TSFormatter.format(d); // FIXME - wouldn't long timestamp be better ? System.currentTimeMillis()
 		msg.data = data;
 		msg.method = method;
 
