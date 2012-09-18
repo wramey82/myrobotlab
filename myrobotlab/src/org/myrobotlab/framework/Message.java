@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * @author grperry
+ * @author GroG
  *
  */
 public class Message implements Serializable {

@@ -5,7 +5,7 @@
 # File colorTracking.py
 # //////////BEGIN PYTHON SCRIPT////////////////////////////
 
-configType = 'michael'
+configType = 'GroG'
 
 # configuration variables - differ on each system
 if configType == 'GroG':
@@ -35,80 +35,6 @@ else:
 # ypid.setInputRange(0, 240)
 # ypid.setOutputRange(0, 180)
 # xpid.setPoint(160) # and the middle of the y
-
-# //////////OPENCV////////////////////////////////////////
-
-from java.lang import String
-from java.lang import Class
-from org.myrobotlab.service import Runtime
-from org.myrobotlab.service import OpenCV
-from com.googlecode.javacv.cpp.opencv_core import CvPoint;
-from org.myrobotlab.service import OpenCV
-
-# create or get a handle to an OpenCV service
-opencv = Runtime.createAndStart("opencv","OpenCV")
-
-# add the desired filters
-opencv.addFilter("PyramidDown1", "PyramidDown")
-opencv.addFilter("InRange1", "InRange")
-opencv.addFilter("Dilate1", "Dilate")
-opencv.addFilter("FindContours1", "FindContours")
-
-if configType == 'GroG':
-	# GroG is looking for a purple balloon 
-	opencv.setFilterCFG("InRange1","hueMin", "3")
-	opencv.setFilterCFG("InRange1","hueMax", "33")
-	opencv.setFilterCFG("InRange1","saturationMin", "87")
-	opencv.setFilterCFG("InRange1","saturationMax", "256")
-	opencv.setFilterCFG("InRange1","valueMin", "230")
-	opencv.setFilterCFG("InRange1","valueMax", "256")
-	opencv.setFilterCFG("InRange1","useHue", True)
-	opencv.setFilterCFG("InRange1","useSaturation", True)
-	opencv.setFilterCFG("InRange1","useValue", True)
-else:
-	# michael is looking for something else
-	opencv.setFilterCFG("InRange1","hueMin", "3")
-	opencv.setFilterCFG("InRange1","hueMax", "33")
-	opencv.setFilterCFG("InRange1","saturationMin", "87")
-	opencv.setFilterCFG("InRange1","saturationMax", "256")
-	opencv.setFilterCFG("InRange1","valueMin", "230")
-	opencv.setFilterCFG("InRange1","valueMax", "256")
-	opencv.setFilterCFG("InRange1","useHue", True)
-	opencv.setFilterCFG("InRange1","useSaturation", True)
-	opencv.setFilterCFG("InRange1","useValue", True)
-
-
-# change value of the FindContours filter
-# opencv.setFilterCFG("FindContours1","minArea", "150")
-# opencv.setFilterCFG("FindContours1","maxArea", "-1")
-# opencv.setFilterCFG("FindContours1","useMinArea", True)
-# opencv.setFilterCFG("FindContours1","useMaxArea", false)
-
-# ----------------------------------
-# input
-# ----------------------------------
-# the "input" method is where Messages are sent to this Service
-# from other Services. The data from these messages can
-# be accessed on based on these rules:
-# Details of a Message structure can be found here
-# http://myrobotlab.org/doc/org/myrobotlab/framework/Message.html 
-# When a message comes in - the input function will be called
-# the name of the message will be msg_++_+
-# In this particular case when the service named "opencv" finds a face it will publish
-# a CvPoint.  The CvPoint can be access by msg_opencv_publish.data[0]
-def input():
-    #print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
-    arrayOfPolygons = msg_opencv_publish.data[0]
-    print arrayOfPolygons
-    if (arrayOfPolygons.size() > 0):
-      print arrayOfPolygons.get(0).centeroid.x(),arrayOfPolygons.get(0).centeroid.y()
-    return object
-
-# create a message route from opencv to jython so we can see the coordinate locations
-opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
-
-# set the input source to the first camera
-opencv.capture()
 
 
 # ///////////////////ARDUINO/////////////////////////////////////////////////////
@@ -143,15 +69,118 @@ pan = runtime.createAndStart('pan','Servo')
 tilt = runtime.createAndStart('tilt','Servo')
 
 for pos in range(0,3):
-	pan.moveTo(10)
-	tilt.moveTo(10)
-	sleep(1)
-	pan.moveTo(60)
-	tilt.moveTo(60)
-	sleep(1)
-	pan.moveTo(130)
-	tilt.moveTo(130)
-	sleep(1)
+	pan.moveTo(70)
+	pan.moveTo(100)
+	sleep(0.5)
+	
+pan.moveTo(90)
+
+for pos in range(0,3):
+	tilt.moveTo(70)
+	tilt.moveTo(100)
+	sleep(0.5)
+	
+tilt.moveTo(90)
+
+	
+# //////////OPENCV////////////////////////////////////////
+
+from java.lang import String
+from java.lang import Class
+from org.myrobotlab.service import Runtime
+from org.myrobotlab.service import OpenCV
+from com.googlecode.javacv.cpp.opencv_core import CvPoint;
+from org.myrobotlab.service import OpenCV
+
+# create or get a handle to an OpenCV service
+opencv = Runtime.createAndStart("opencv","OpenCV")
+
+# add the desired filters
+opencv.addFilter("PyramidDown1", "PyramidDown")
+opencv.addFilter("InRange1", "InRange")
+opencv.addFilter("Dilate1", "Dilate")
+opencv.addFilter("FindContours1", "FindContours")
+
+if configType == 'GroG':
+	# GroG is looking for a purple balloon 
+	opencv.setFilterCFG("InRange1","hueMin", "116")
+	opencv.setFilterCFG("InRange1","hueMax", "150")
+	opencv.setFilterCFG("InRange1","saturationMin", "80")
+	opencv.setFilterCFG("InRange1","saturationMax", "178")
+	opencv.setFilterCFG("InRange1","valueMin", "72")
+	opencv.setFilterCFG("InRange1","valueMax", "139")
+	opencv.setFilterCFG("InRange1","useHue", True)
+	opencv.setFilterCFG("InRange1","useSaturation", True)
+	opencv.setFilterCFG("InRange1","useValue", True)
+else:
+	# michael is looking for something else
+	opencv.setFilterCFG("InRange1","hueMin", "3")
+	opencv.setFilterCFG("InRange1","hueMax", "33")
+	opencv.setFilterCFG("InRange1","saturationMin", "87")
+	opencv.setFilterCFG("InRange1","saturationMax", "256")
+	opencv.setFilterCFG("InRange1","valueMin", "230")
+	opencv.setFilterCFG("InRange1","valueMax", "256")
+	opencv.setFilterCFG("InRange1","useHue", True)
+	opencv.setFilterCFG("InRange1","useSaturation", True)
+	opencv.setFilterCFG("InRange1","useValue", True)
+
+
+# change value of the FindContours filter
+# opencv.setFilterCFG("FindContours1","minArea", "150")
+# opencv.setFilterCFG("FindContours1","maxArea", "-1")
+# opencv.setFilterCFG("FindContours1","useMinArea", True)
+# opencv.setFilterCFG("FindContours1","useMaxArea", false)
+
+# ----------------------------------
+# input
+# ----------------------------------
+# the "input" method is where Messages are sent to this Service
+# from other Services. The data from these messages can
+# be accessed on based on these rules:
+# Details of a Message structure can be found here
+# http://myrobotlab.org/doc/org/myrobotlab/framework/Message.html 
+# When a message comes in - the input function will be called
+# the name of the message will be msg_++_+
+# In this particular case when the service named "opencv" finds a face it will publish
+# a CvPoint.  The CvPoint can be access by msg_opencv_publish.data[0]
+
+sampleCount = 0
+xAvg = 0
+yAvg = 0
+
+def input():
+    #print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
+    arrayOfPolygons = msg_opencv_publish.data[0]
+    print arrayOfPolygons
+    if (arrayOfPolygons.size() > 0):
+      # grab the first polygon - print it's center (x,y)
+      x = arrayOfPolygons.get(0).centeroid.x()
+      y = arrayOfPolygons.get(0).centeroid.y()
+      print x,y
+      # figure out how far off from the center of the view is this point
+      panOffset = (320/2 - x) / 6 # (screenWidth/2 -x) / pixelsPerDegree
+      tiltOffset = (240/2 - y) / 6 # (screenWidth/2 -y) / pixelsPerDegree
+      if (sampleCount > 30):
+      	pan.moveTo(90 + xAvg/sampleCount)
+      	xAvg = 0
+      	yAvg = 0
+      	sampleCount = 0
+
+      global sampleCount
+      ++sampleCount
+      global xAvg 
+      xAvg += panOffset
+      print xAvg, sampleCount
+      #tilt.moveTo(90 + tiltOffset)
+    return object
+
+# create a message route from opencv to jython so we can see the coordinate locations
+opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
+
+# set the input source to the first camera
+opencv.capture()
+
+	
 
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
