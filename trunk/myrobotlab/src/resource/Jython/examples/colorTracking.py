@@ -25,16 +25,16 @@ else:
 # X : opencv 0 - 320 ->  pan 0 - 180
 # Y : opencv 0 - 240 -> tilt 0 - 180
 
-xpid = Runtime.createAndStart("xpid","PID")
-ypid = Runtime.createAndStart("ypid","PID")
+# xpid = Runtime.createAndStart("xpid","PID")
+# ypid = Runtime.createAndStart("ypid","PID")
 	
-xpid.setInputRange(0, 320)
-xpid.setOutputRange(0, 180)
-xpid.setPoint(160) # we want the target in the middle of the x
+# xpid.setInputRange(0, 320)
+# xpid.setOutputRange(0, 180)
+# xpid.setPoint(160) # we want the target in the middle of the x
 
-ypid.setInputRange(0, 240)
-ypid.setOutputRange(0, 180)
-xpid.setPoint(160) # and the middle of the y
+# ypid.setInputRange(0, 240)
+# ypid.setOutputRange(0, 180)
+# xpid.setPoint(160) # and the middle of the y
 
 # //////////OPENCV////////////////////////////////////////
 
