@@ -21,6 +21,9 @@
  * 
  * Enjoy !
  * 
+ * References :
+ * 		http://forums.adafruit.com/viewtopic.php?f=31&t=26873 - Servos & cut traces
+ * 
  * */
 
 package org.myrobotlab.control;

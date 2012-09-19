@@ -21,6 +21,9 @@
  * 
  * Enjoy !
  * 
+ * References :
+ * 	http://www.pjrc.com/teensy/td_joystick.html gamepad map
+ * 
  * */
 
 package org.myrobotlab.control;
@@ -32,7 +35,6 @@ import java.util.Iterator;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
