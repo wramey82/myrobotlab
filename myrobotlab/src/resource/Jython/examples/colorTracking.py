@@ -12,12 +12,14 @@ if configType == 'GroG':
 	# GroG's config
 	panServoPin = 9
 	tiltServoPin = 10
-	comPort = '/dev/ttyUSB0'
+	comPort = 'COM10'
+	cameraIndex = 1
 else:
 	# michael's config
 	panServoPin = 2
 	tiltServoPin = 3
 	comPort = 'COM7'
+	cameraIndex = 0
 	
 # ///////////////////PID/////////////////////////////////////////////////////
 # 2 PID services to adjust for X & Y of the open cv point and to map them
@@ -103,12 +105,12 @@ opencv.addFilter("FindContours1", "FindContours")
 
 if configType == 'GroG':
 	# GroG is looking for a purple balloon 
-	opencv.setFilterCFG("InRange1","hueMin", "116")
-	opencv.setFilterCFG("InRange1","hueMax", "150")
-	opencv.setFilterCFG("InRange1","saturationMin", "80")
-	opencv.setFilterCFG("InRange1","saturationMax", "178")
-	opencv.setFilterCFG("InRange1","valueMin", "72")
-	opencv.setFilterCFG("InRange1","valueMax", "139")
+	opencv.setFilterCFG("InRange1","hueMin", "0")
+	opencv.setFilterCFG("InRange1","hueMax", "7")
+	opencv.setFilterCFG("InRange1","saturationMin", "246")
+	opencv.setFilterCFG("InRange1","saturationMax", "256")
+	opencv.setFilterCFG("InRange1","valueMin", "135")
+	opencv.setFilterCFG("InRange1","valueMax", "173")
 	opencv.setFilterCFG("InRange1","useHue", True)
 	opencv.setFilterCFG("InRange1","useSaturation", True)
 	opencv.setFilterCFG("InRange1","useValue", True)
@@ -147,20 +149,19 @@ else:
 sampleCount = 0
 xAvg = 0
 yAvg = 0
+pixelsPerDegree = 5
 
 def input():
-    #print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
     arrayOfPolygons = msg_opencv_publish.data[0]
-    print arrayOfPolygons
     if (arrayOfPolygons.size() > 0):
       # grab the first polygon - print it's center (x,y)
       x = arrayOfPolygons.get(0).centeroid.x()
       y = arrayOfPolygons.get(0).centeroid.y()
       print x,y
       # figure out how far off from the center of the view is this point
-      panOffset = (320/2 - x) / 6 # (screenWidth/2 -x) / pixelsPerDegree
-      tiltOffset = (240/2 - y) / 6 # (screenWidth/2 -y) / pixelsPerDegree
-      if (sampleCount > 30):
+      panOffset = (320/2 - x) / pixelsPerDegree # (screenWidth/2 -x) / pixelsPerDegree
+      tiltOffset = (240/2 - y) / pixelsPerDegree # (screenWidth/2 -y) / pixelsPerDegree
+      if (sampleCount > 10):
       	pan.moveTo(90 + xAvg/sampleCount)
       	xAvg = 0
       	yAvg = 0
@@ -176,6 +177,8 @@ def input():
 
 # create a message route from opencv to jython so we can see the coordinate locations
 opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
+
+opencv.setCameraIndex(cameraIndex)
 
 # set the input source to the first camera
 opencv.capture()
