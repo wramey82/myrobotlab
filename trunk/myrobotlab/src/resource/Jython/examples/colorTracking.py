@@ -12,7 +12,7 @@ if configType == 'GroG':
 	# GroG's config
 	panServoPin = 9
 	tiltServoPin = 10
-	comPort = 'COM10'
+	comPort = '/dev/ttyUSB0'
 else:
 	# michael's config
 	panServoPin = 2
@@ -167,7 +167,7 @@ def input():
       	sampleCount = 0
 
       global sampleCount
-      ++sampleCount
+      sampleCount += 1
       global xAvg 
       xAvg += panOffset
       print xAvg, sampleCount
