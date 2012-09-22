@@ -44,6 +44,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +53,7 @@ import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -62,8 +64,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.control.AboutDialog;
 import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
@@ -81,6 +87,7 @@ import org.myrobotlab.logging.LogLevel;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.myrobotlab.string.Util;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -564,7 +571,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         }		
 	}
 	
+	// how to do re-entrant - reconstruct all correctly - or avoid building twice ?
+	// I'm going with the "easy" approach
+	
+	boolean isDisplaying = false;
 	public void display() {
+		if (!isDisplaying)
+		{
 		// reentrant 
 		if (frame != null)
 		{
@@ -596,6 +609,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    frame.setJMenuBar(buildMenu());
 		frame.setVisible(true);
 		frame.pack();
+		isDisplaying = true;
+		}
 
 	}
 	
@@ -854,9 +869,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    buildLogAppenderMenu(m2);
 		    
 	    m = new JMenu("update");
+	    buildUpdatesMenu(m);
 
 	    systemMenu.add(m);
-	    buildUpdatesMenu(m);
+	    	    
+	    systemMenu.add(buildRecordingMenu(new JMenu("recording")));
 		    	    
 	    menuBar.add(systemMenu);
 	    
@@ -868,10 +885,26 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				
 		return menuBar;
 	}
+	
+	JMenuItem recording = new JMenuItem("start recording");
+	JMenuItem loadRecording = new JMenuItem("load recording");
+	
+	public JMenu buildRecordingMenu(JMenu parentMenu)
+	{
+
+		recording.addActionListener(this);
+	    parentMenu.add(recording);
+
+	    loadRecording.addActionListener(this);
+	    parentMenu.add(loadRecording);
+
+		return parentMenu;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		String cmd = ae.getActionCommand();
+		Object source = ae.getSource();
 		if ("save".equals(cmd))
 		{
 			Runtime.save("myrobotlab.mrl");
@@ -919,8 +952,31 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	    } else if ("explode".equals(cmd)) 
 		{
 			//display();
+		} else if (source == recording) {
+			if ("start recording".equals(recording.getText()))
+			{
+				startRecording();
+				recording.setText("stop recording");
+			} else {
+				stopRecording();
+				recording.setText("start recording");
+			}
+		} else if (source == loadRecording) {
+			JFileChooser c = new JFileChooser();
+		      // Demonstrate "Open" dialog:
+			String filename;
+			String dir;
+		      int rVal = c.showOpenDialog(frame);
+		      if (rVal == JFileChooser.APPROVE_OPTION) {
+		        filename = c.getSelectedFile().getName();
+		        dir = c.getCurrentDirectory().toString();
+		        loadRecording(dir + "/" + filename);
+		      }
+		      if (rVal == JFileChooser.CANCEL_OPTION) {
+		        
+		      }
 		} else {
-			invoke(cmd);
+			invoke(Util.StringToMethodName(cmd));
 		}
 	}
 
@@ -947,19 +1003,44 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param parentMenu
 	 */
 	private void buildLogAppenderMenu(JMenu parentMenu) {
-		JMenuItem mi = new JCheckBoxMenuItem(LogAppender.None.toString());
+		Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
+		boolean console = false;
+		boolean file = false;
+		boolean remote = false;
+		
+		while (appenders.hasMoreElements()) {
+            Object o =  appenders.nextElement();
+            if (o.getClass() == ConsoleAppender.class)
+            {
+            	console = true;
+            } else if (o.getClass() == FileAppender.class)
+            {
+            	file = true;
+            } else if  (o.getClass() == SocketAppender.class)
+            {
+            	remote = true;
+            }
+            
+            log.info(o.getClass().toString());
+        }
+		
+		JCheckBoxMenuItem mi = new JCheckBoxMenuItem(LogAppender.None.toString());
+		mi.setSelected(!console && !file && !remote);
 	    mi.addActionListener(this);
 	    parentMenu.add(mi);
 	    
 		mi = new JCheckBoxMenuItem(LogAppender.Console.toString());
+		mi.setSelected(console);
 	    mi.addActionListener(this);
 	    parentMenu.add(mi);
 
 		mi = new JCheckBoxMenuItem(LogAppender.File.toString());
+		mi.setSelected(file);
 	    mi.addActionListener(this);
 	    parentMenu.add(mi);
 
 		mi = new JCheckBoxMenuItem(LogAppender.Remote.toString());
+		mi.setSelected(remote);
 	    mi.addActionListener(this);
 	    parentMenu.add(mi);
 	}
@@ -971,27 +1052,35 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	private void buildLogLevelMenu(JMenu parentMenu) {
     	ButtonGroup logLevelGroup = new ButtonGroup();
     	
-    	JMenuItem mi = new JRadioButtonMenuItem (LogLevel.Debug.toString());
+    	Logger root = Logger.getRootLogger();
+    	String level = root.getLevel().toString();
+    	
+    	JRadioButtonMenuItem mi = new JRadioButtonMenuItem (LogLevel.Debug.toString());
+    	mi.setSelected(("DEBUG".equals(level)));
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
 
 	    mi = new JRadioButtonMenuItem (LogLevel.Info.toString());
+    	mi.setSelected(("INFO".equals(level)));
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
 	    
 	    mi = new JRadioButtonMenuItem (LogLevel.Warn.toString());
+    	mi.setSelected(("WARN".equals(level)));
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
 	    
 	    mi = new JRadioButtonMenuItem (LogLevel.Error.toString());
+    	mi.setSelected(("ERROR".equals(level)));
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
 	    
 	    mi = new JRadioButtonMenuItem (LogLevel.Fatal.toString());
+    	mi.setSelected(("FATAL".equals(level)));
 	    mi.addActionListener(this);
 	    logLevelGroup.add(mi);
 	    parentMenu.add(mi);
@@ -1047,7 +1136,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
 		GUIService gui2 = (GUIService)Runtime.createAndStart("gui1", "GUIService");
        
@@ -1057,12 +1146,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
         //gui2.sendServiceDirectoryUpdate(null, null, null, "10.192.198.34", 6767, null);
 		
 		gui2.startService();
-		gui2.display();
+//		gui2.display();
 		
 		//gui2.startRecording();
 		//gui2.stopRecording();
 		
-		gui2.loadRecording(".myrobotlab/gui1_20120918052147517.msg");
+		//gui2.loadRecording(".myrobotlab/gui1_20120918052147517.msg");
 		
 		
 	

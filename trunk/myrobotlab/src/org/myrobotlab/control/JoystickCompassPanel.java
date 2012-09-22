@@ -7,101 +7,69 @@ package org.myrobotlab.control;
  the analog stick / hat (and a label as background).
  */
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.myrobotlab.service.Joystick;
 
 public class JoystickCompassPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final int PANEL_SIZE = 80;
 	private static final int CIRCLE_RADIUS = 5;
-	private static final int OFFSET = 8; // of the circle from the panel's edge
-
-	// (x,y) coordinates for the compass positions
-	private int xPos[], yPos[];
-	private int compassDir;
-	/*
-	 * holds the current compass value, which is used to index into the xPos[]
-	 * and yPos[] arrays
-	 */
-
-	// for displaying the axes label
-	private Font labelFont;
-	private String axesLabel;
-	//private int xLabel, yLabel;
+	
+	private int x, y;
+	private JLabel XLabel = new JLabel();
+	private JLabel YLabel = new JLabel();
+	private JLabel screen = new JLabel();
 
 	public JoystickCompassPanel(String label) {
-		axesLabel = label;
-
-		//setBackground(Color.white);
-		setPreferredSize(new Dimension(PANEL_SIZE, PANEL_SIZE));
-
-		initCompass();
-
-		// set up label font and (x,y) position for label
-		//labelFont = new Font("SansSerif", Font.BOLD, 12);
-		//FontMetrics metrics = this.getFontMetrics(labelFont);
-		//xLabel = (PANEL_SIZE - metrics.stringWidth(axesLabel)) / 2;
-		//yLabel = PANEL_SIZE / 5;
+		setLayout(new BorderLayout());
+		setBackground(Style.listHighlight);
+		screen.setPreferredSize(new Dimension(PANEL_SIZE, PANEL_SIZE));
+		add(screen, BorderLayout.CENTER);
+		
+		JPanel info = new JPanel(new GridBagLayout());
+		GridBagConstraints gc = new GridBagConstraints();
+		gc.gridx = 0;
+		gc.gridy = 0;
+		
+		gc.gridwidth = 2;
+		info.add(new JLabel(label), gc);
+		
+		gc.gridwidth = 1;
+		++gc.gridy;		
+		info.add(new JLabel("X:"), gc);
+		++gc.gridx;
+		XLabel.setText((new Float(0.0)).toString());
+		info.add(XLabel, gc);
+		
+		gc.gridx = 0;
+		++gc.gridy;
+		info.add(new JLabel("Y:"), gc);
+		++gc.gridx;
+		YLabel.setText((new Float(0.0)).toString());
+		info.add(YLabel, gc);
+		
+		add(info, BorderLayout.PAGE_END);
 
 	} // end of CompassPanel()
 
-	private void initCompass()
-	/*
-	 * Fill the xPos[] and yPos[] arrays with the (x,y) coordinates of the
-	 * compass positions. The array will be accessed using the compass constants
-	 * defined in the Joystick class.
-	 */
+
+	public void setX(Float value)
 	{
-		xPos = new int[Joystick.NUM_COMPASS_DIRS];
-		yPos = new int[Joystick.NUM_COMPASS_DIRS];
+		x = (int) (PANEL_SIZE / 2 * value + PANEL_SIZE / 2);
+		XLabel.setText(String.format("%.3f", value));
+	}
 
-		// top row
-		xPos[Joystick.NW] = OFFSET;
-		yPos[Joystick.NW] = OFFSET;
-		xPos[Joystick.NORTH] = PANEL_SIZE / 2;
-		yPos[Joystick.NORTH] = OFFSET;
-		xPos[Joystick.NE] = PANEL_SIZE - OFFSET;
-		yPos[Joystick.NE] = OFFSET;
-
-		// middle row
-		xPos[Joystick.WEST] = OFFSET;
-		yPos[Joystick.WEST] = PANEL_SIZE / 2;
-		xPos[Joystick.NONE] = PANEL_SIZE / 2;
-		yPos[Joystick.NONE] = PANEL_SIZE / 2;
-		xPos[Joystick.EAST] = PANEL_SIZE - OFFSET;
-		yPos[Joystick.EAST] = PANEL_SIZE / 2;
-
-		// bottom row
-		xPos[Joystick.SW] = OFFSET;
-		yPos[Joystick.SW] = PANEL_SIZE - OFFSET;
-		xPos[Joystick.SOUTH] = PANEL_SIZE / 2;
-		yPos[Joystick.SOUTH] = PANEL_SIZE - OFFSET;
-		xPos[Joystick.SE] = PANEL_SIZE - OFFSET;
-		yPos[Joystick.SE] = PANEL_SIZE - OFFSET;
-
-		// initial compass position -- the center
-		compassDir = Joystick.NONE;
-	} // end of initCompass()
-
-	public void setCompass(int pos)
-	// update the current compass position
+	public void setY(Float value)
 	{
-		// System.out.println("Compass pos: " + pos);
-
-		if ((pos < 0) || (pos >= Joystick.NUM_COMPASS_DIRS)) {
-			System.out.println("Compass value out of range");
-			compassDir = Joystick.NONE; // middle of compass
-		} else
-			compassDir = pos;
-		repaint();
-	} // end of setCompass()
+		y = (int) (PANEL_SIZE / 2 * value + PANEL_SIZE / 2);
+		YLabel.setText(String.format("%.3f", value));
+	}
 
 	public void paintComponent(Graphics g)
 	// draw the current compass position as a black circle
@@ -109,18 +77,54 @@ public class JoystickCompassPanel extends JPanel {
 		super.paintComponent(g);
 
 		g.drawRect(1, 1, PANEL_SIZE - 2, PANEL_SIZE - 2); // a black border
-
-		g.setFont(labelFont);
-		//g.drawString(axesLabel, xLabel, yLabel); // axes label
-
-		/*
-		 * use the compass direction (compassDir) to index into xPos[] and
-		 * yPos[] to get the (x,y) position where the circle should be drawn.
-		 */
-		g.fillOval(xPos[compassDir] - CIRCLE_RADIUS, // x position
-				yPos[compassDir] - CIRCLE_RADIUS, // y position
-				CIRCLE_RADIUS * 2, CIRCLE_RADIUS * 2);
+		g.drawLine(x-6, y, x+6, y);
+		g.drawLine(x, y-6, x, y+6);
 
 	} // end of paintComponent()
+
+
+	public void setDir(Float value) {
+		int MARKER = 10;
+		
+		if (value == 0)
+		{
+			// 0 position
+			x = PANEL_SIZE/2;
+			y = PANEL_SIZE/2;
+	    } else if (value == 0.25)
+		{
+	    	// NORTH
+			x = PANEL_SIZE/2;
+			y = MARKER;			
+		} else if (value == 0.375)
+		{	// NE
+			x = PANEL_SIZE - MARKER;
+			y = MARKER;
+		} else if (value == 0.5)
+		{	// E
+			x = PANEL_SIZE - MARKER;
+			y = PANEL_SIZE/2;
+		} else if (value == 0.625)
+		{	// SE
+			x = PANEL_SIZE - MARKER;
+			y = PANEL_SIZE - MARKER;
+		} else if (value == 0.75)
+		{	// S
+			x = PANEL_SIZE/2;
+			y = PANEL_SIZE - MARKER;
+		} else if (value == 0.875)
+		{	// SE
+			x = 0 + MARKER;
+			y = PANEL_SIZE - MARKER;
+		} else if (value == 1.0)
+		{	// E
+			x = 0 + MARKER;
+			y = PANEL_SIZE/2;
+		} else if (value == 0.125)
+		{	// NE
+			x = 0 + MARKER;
+			y = 0 + MARKER;
+		} 
+	}
 
 } // end of CompassPanel class
