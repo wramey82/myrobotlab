@@ -236,7 +236,7 @@ public class Joystick extends Service {
 					}
 				}
 
-				//log.debug(buffer.toString());
+				log.info(buffer.toString());
 				/*
 				 * Sleep for 20 millis, this is just so the example doesn't
 				 * thrash the system. FIXME - can a polling system be avoided -
