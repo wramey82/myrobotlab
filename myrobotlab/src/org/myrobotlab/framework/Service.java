@@ -1200,6 +1200,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()) );
 			lastRecordingFilename = filename;
 		}
+
+		log.info(String.format("started recording %s to file %s", getName(), filename));
 		
 		try {
 			recording = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
@@ -1211,6 +1213,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public void stopRecording()
 	{
+		log.info("stopped recording");
 		isRecording = false;
 		if (recording == null)
 		{

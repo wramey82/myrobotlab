@@ -30,13 +30,14 @@ public class JoystickButtonsPanel extends JPanel
   private JTextField buttonTFs[];   // represents the game pad buttons
 
 
-  public JoystickButtonsPanel()
-  /* Add the textfields to the panel and store references to
-     them in a buttonTFs[] array. 
-
-     Each textfield contains a number, is uneditable, and starts
-     with an OFF_COLOUR background (meaning it's not pressed).
+  /**
+   *  Add the textfields to the panel and store references to
+	  them in a buttonTFs[] array. 
+	
+	  Each textfield contains a number, is uneditable, and starts
+	  with an OFF_COLOUR background (meaning it's not pressed).
   */
+  public JoystickButtonsPanel()
   {
     setBackground(Color.white);
 
@@ -71,6 +72,12 @@ public class JoystickButtonsPanel extends JPanel
     add(rowPanel);
   }  // end of makeRow()
 
+  public void setButton(int buttonNum, int value)
+  {
+	  Color c = (value == Joystick.BUTTON_ON)? ON_COLOUR : OFF_COLOUR;
+	  buttonTFs[buttonNum].setBackground(c);
+	  repaint();
+  }
 
   public void setButtons(boolean bVals[])
   /* Use the bVals[] array to switch the buttonTFs on/off by
