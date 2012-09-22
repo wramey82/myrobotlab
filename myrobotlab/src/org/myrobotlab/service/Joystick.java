@@ -282,10 +282,13 @@ public class Joystick extends Service {
 		log.info(String.format("attaching controller %d", index));
 		if (index > -1 && index < controllers.length) {
 			controller = controllers[index];
-			findRumblers(controller);
+			//findRumblers(controller);
+			log.info("here 1");
 			findCompIndices(controller);
+			log.info("here 2");
 			return true;
 		}
+		log.info("here 3");
 		log.error("bad index");
 		return false;
 	}
