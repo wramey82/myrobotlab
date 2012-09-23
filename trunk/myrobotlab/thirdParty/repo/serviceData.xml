@@ -222,6 +222,7 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.openni</string>
+            <string>com.sun.java3d</string>
          </list>
       </dependsOn>
    </serviceType>
