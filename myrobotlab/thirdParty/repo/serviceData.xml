@@ -216,6 +216,15 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.OpenNI">
+      <dependsOn>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.openni</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.ParallelPort">
       <dependsOn>
          <list>
@@ -442,6 +451,11 @@
       </category>
    </categories>
    <categories string="org.myrobotlab.service.OpenCV">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.OpenNI">
       <category>
          <include>vision</include>
       </category>
