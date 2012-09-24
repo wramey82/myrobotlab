@@ -391,12 +391,18 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
         //Create a combo box with choices.
         String[] ports = roombacomm.listPorts();
         portChoices = new JComboBox(ports);
-        portChoices.setSelectedIndex(0);
-        for( int i=0; i<ports.length; i++ ) { 
-            String s = ports[i];
-        	if (s.equals(roombacomm.getPortname())) {
-            	portChoices.setSelectedItem(s);        		
-        	}
+        
+        if (ports.length > 0)
+        {
+	        portChoices.setSelectedIndex(0);
+	        for( int i=0; i<ports.length; i++ ) { 
+	            String s = ports[i];
+	        	if (s.equals(roombacomm.getPortname())) {
+	            	portChoices.setSelectedItem(s);        		
+	        	}
+	        }
+        } else {
+        	log.error("no ports found!");
         }
         connectButton = new JButton();
         connectButton.setText("  connect  ");
