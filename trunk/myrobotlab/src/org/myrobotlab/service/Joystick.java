@@ -27,6 +27,7 @@ package org.myrobotlab.service;
 import java.util.TreeMap;
 
 import net.java.games.input.Component;
+import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -94,20 +95,28 @@ public class Joystick extends Service {
 				/* Poll the controller */
 				controller.poll();
 
-				StringBuffer buffer = new StringBuffer();
+				//StringBuffer buffer = new StringBuffer();
 
 				// TODO - selectively publish ... publish Direction? Yes
 				/* For each component, get it's name, and it's current value */
+				
 				for (int i = 0; i < components.length; i++) {
+					
+					/*
 					if (i > 0) {
 						buffer.append(", ");
 					}
+					*/
+					
+					Component component = components[i];
+					Identifier id = component.getIdentifier();
+					
 					String n = components[i].getName();
 					float data = components[i].getPollData();
 
-					buffer.append(n);
+					// buffer.append(n);
 					// TODO - invoke based on invoke(String.trim(component.getName()), mapMultiplier(getName()), mapOffset(getName()) - REFACTOR REFACTOR !!!
-					if ("Z Axis".equals(n)) {
+					if (Identifier.Axis.Z.equals(id)) {
 						if (lastValues[i] != data) {
 							if (ZAxisTransform) {
 								invoke("ZAxis", (int)(ZAxisMultiplier * data) + ZAxisOffset);
@@ -116,7 +125,7 @@ public class Joystick extends Service {
 							}
 						}
 						
-					} else if ("Z Rotation".equals(n)) {
+					} else if (Identifier.Axis.RZ.equals(id)) {
 						if (lastValues[i] != data) {
 							if (ZRotTransform) {
 								invoke("ZRotation", (int)(ZRotMultiplier * data) + ZRotOffset);
@@ -124,7 +133,7 @@ public class Joystick extends Service {
 								invoke("ZRotationRaw", data);
 							}
 						}
-					} else if ("X Axis".equals(n)) {						
+					} else if (Identifier.Axis.X.equals(id)) {
 						if (lastValues[i] != data) {
 							if (XAxisTransform) {
 								invoke("XAxis", (int)(XAxisMultiplier * data) + XAxisOffset);
@@ -132,7 +141,7 @@ public class Joystick extends Service {
 								invoke("XAxisRaw", data);
 							}
 						}
-					} else if ("Y Axis".equals(n)) {
+					} else if (Identifier.Axis.Y.equals(id)) {
 						if (lastValues[i] != data) {							
 							if (YAxisTransform) {
 								invoke("YAxis", (int)(YAxisMultiplier * data) + YAxisOffset);
@@ -140,7 +149,7 @@ public class Joystick extends Service {
 								invoke("YAxisRaw", data);
 							}
 						}
-					} else if ("Hat Switch".equals(n)) {
+					} else if (Identifier.Axis.POV.equals(id)) {
 						if (lastValues[i] != data) {
 							if (hatTransform) {
 								invoke("hatSwitch", (int)(hatMultiplier * data) + hatOffset);
@@ -148,83 +157,79 @@ public class Joystick extends Service {
 								invoke("hatSwitchRaw", data);
 							}
 						}
-					} else if ("Button 0".equals(n)) {
+					} else if (Identifier.Button._0.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button0", pos);
 						}
-					} else if ("Button 1".equals(n)) {
+					} else if (Identifier.Button._1.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button1", pos);
 						}
-					} else if ("Button 2".equals(n)) {
+					} else if (Identifier.Button._2.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button2", pos);
 						}
-					} else if ("Button 3".equals(n)) {
+					} else if (Identifier.Button._3.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button3", pos);
 						}
-					} else if ("Button 4".equals(n)) {
+					} else if (Identifier.Button._4.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button4", pos);
 						}
-					} else if ("Button 5".equals(n)) {
+					} else if (Identifier.Button._5.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button5", pos);
 						}
-					} else if ("Button 6".equals(n)) {
+					} else if (Identifier.Button._6.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button6", pos);
 						}
-					} else if ("Button 7".equals(n)) {
+					} else if (Identifier.Button._7.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button7", pos);
 						}
-					} else if ("Button 8".equals(n)) {
+					} else if (Identifier.Button._8.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button8", pos);
 						}
-					} else if ("Button 9".equals(n)) {
+					} else if (Identifier.Button._9.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button9", pos);
 						}
-					} else if ("Button 6".equals(n)) {
-						int pos = (int) data;
-						if (lastValues[i] != data) {
-							invoke("button6", pos);
-						}
-					} else if ("Button 10".equals(n)) {
+					} else if (Identifier.Button._10.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button10", pos);
 						}
-					} else if ("Button 11".equals(n)) {
+					} else if (Identifier.Button._11.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button11", pos);
 						}
-					} else if ("Button 12".equals(n)) {
+					} else if (Identifier.Button._12.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button12", pos);
 						}
-					}
+					} 
 
 					lastValues[i] = data;
 
+					/*
 					buffer.append(": ");
 					if (components[i].isAnalog()) {
-						/* Get the value at the last poll of this component */
+						// Get the value at the last poll of this component 
 						buffer.append(components[i].getPollData());
 					} else {
 						buffer.append(components[i].getPollData());
@@ -234,9 +239,10 @@ public class Joystick extends Service {
 							buffer.append("Off");
 						}
 					}
+					*/
 				}
 
-				log.info(buffer.toString());
+				//log.info(buffer.toString());
 				/*
 				 * Sleep for 20 millis, this is just so the example doesn't
 				 * thrash the system. FIXME - can a polling system be avoided -
