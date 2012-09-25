@@ -193,12 +193,12 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button6", pos);
 						}
-					} else if (Identifier.Button.LEFT_THUMB2.equals(id) || Identifier.Button._7.equals(id)) {
+					} else if (Identifier.Button.RIGHT_THUMB.equals(id) || Identifier.Button._7.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button7", pos);
 						}
-					} else if (Identifier.Button.RIGHT_THUMB.equals(id) ||Identifier.Button._8.equals(id)) {
+					} else if (Identifier.Button.LEFT_THUMB2.equals(id) ||Identifier.Button._8.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button8", pos);
@@ -213,7 +213,7 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button10", pos);
 						}
-					} else if (Identifier.Button._11.equals(id)) {
+					} else if (Identifier.Button.UNKNOWN.equals(id) ||Identifier.Button._11.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button11", pos);
