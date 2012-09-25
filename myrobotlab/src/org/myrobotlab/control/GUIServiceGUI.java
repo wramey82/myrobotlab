@@ -485,7 +485,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName,
 					displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, "shape=image;image=/resource/"
-					+ canonicalName.toLowerCase() + ".png");
+					+ canonicalName + ".png");
 			// "ROUNDED;fillColor=" + blockColor);
 
 			// graphComponent.getGraphControl().scrollRectToVisible(new
