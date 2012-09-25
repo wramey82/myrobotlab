@@ -157,57 +157,58 @@ public class Joystick extends Service {
 								invoke("hatSwitchRaw", data);
 							}
 						}
-					} else if (Identifier.Button._0.equals(id)) {
+						// WTF ??? - A on Linux _0 on Windows, really? I mean really? Why?
+					} else if (Identifier.Button.A.equals(id) || Identifier.Button._0.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button0", pos);
 						}
-					} else if (Identifier.Button._1.equals(id)) {
+					} else if (Identifier.Button.B.equals(id) || Identifier.Button._1.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button1", pos);
 						}
-					} else if (Identifier.Button._2.equals(id)) {
+					} else if (Identifier.Button.C.equals(id) || Identifier.Button._2.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button2", pos);
 						}
-					} else if (Identifier.Button._3.equals(id)) {
+					} else if (Identifier.Button.X.equals(id) || Identifier.Button._3.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button3", pos);
 						}
-					} else if (Identifier.Button._4.equals(id)) {
+					} else if (Identifier.Button.Y.equals(id) || Identifier.Button._4.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button4", pos);
 						}
-					} else if (Identifier.Button._5.equals(id)) {
+					} else if (Identifier.Button.Z.equals(id) ||Identifier.Button._5.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button5", pos);
 						}
-					} else if (Identifier.Button._6.equals(id)) {
+					} else if (Identifier.Button.LEFT_THUMB.equals(id) || Identifier.Button._6.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button6", pos);
 						}
-					} else if (Identifier.Button._7.equals(id)) {
+					} else if (Identifier.Button.LEFT_THUMB2.equals(id) || Identifier.Button._7.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button7", pos);
 						}
-					} else if (Identifier.Button._8.equals(id)) {
+					} else if (Identifier.Button.RIGHT_THUMB.equals(id) ||Identifier.Button._8.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button8", pos);
 						}
-					} else if (Identifier.Button._9.equals(id)) {
+					} else if (Identifier.Button.RIGHT_THUMB2.equals(id) ||Identifier.Button._9.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button9", pos);
 						}
-					} else if (Identifier.Button._10.equals(id)) {
+					} else if (Identifier.Button.SELECT.equals(id) ||Identifier.Button._10.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button10", pos);
