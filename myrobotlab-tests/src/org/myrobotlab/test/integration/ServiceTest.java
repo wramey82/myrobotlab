@@ -332,7 +332,7 @@ public class ServiceTest {
 	}
 
 	@Test
-	public final void remoteThrow() {
+	public final void remoteThrow() throws InterruptedException {
 		log.warn("remoteThrow begin-------------");
 		//Logger.getRootLogger().setLevel(Level.DEBUG);
 		
@@ -414,6 +414,7 @@ public class ServiceTest {
 		// assertEquals(catcher01.catchList.size(), 5);
 		
 		Runtime.releaseAll();
+		Thread.sleep(1000); // wait a second for OS to free bound udp port
 		log.warn("remoteThrow end-------------");
 	}
 	
@@ -463,7 +464,7 @@ public class ServiceTest {
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public final void doubleHandedRemoteThrow() {
+	public final void doubleHandedRemoteThrow() throws InterruptedException {
 		log.warn("doubleHandedRemoteThrow begin-------------");
 
 		// clear globals
@@ -538,11 +539,12 @@ public class ServiceTest {
 		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		
 		Runtime.releaseAll();
+		Thread.sleep(1000);
 		log.warn("doubleHandedRemoteThrow end-------------");
 	}
 
 	@Test
-	public final void remoteInterfaceTest ()
+	public final void remoteInterfaceTest () throws InterruptedException
 	{
 		log.warn("remoteInterfaceTest begin-------------");
 		// The following services would be running in a remote
@@ -583,6 +585,8 @@ public class ServiceTest {
 		}		
 		
 		Runtime.releaseAll();
+		
+		Thread.sleep(1000);
 		log.warn("remoteInterfaceTest end-------------");
 	}
 
