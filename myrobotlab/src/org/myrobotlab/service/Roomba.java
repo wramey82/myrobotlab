@@ -138,60 +138,6 @@ public class Roomba extends Service implements SerialDeviceService {
 
 	// RoombaComm passthrough end ----------------------
 
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-
-		Roomba roomba = new Roomba("roomba");
-		roomba.startService();
-
-		/*
-		 * roomba.connect("COM6");
-		 * 
-		 * roomba.startup(); roomba.control();
-		 */
-		// roomba.pause(30);
-		/*
-		 * System.out.println("Checking for Roomba... "); if(
-		 * roomba.updateSensors() ) System.out.println("Roomba found!"); else
-		 * System.out.println("No Roomba. :(  Is it turned on?");
-		 * 
-		 * //roomba.updateSensors();
-		 * 
-		 * System.out.println("Playing some notes"); roomba.playNote( 72, 10 );
-		 * // C roomba.pause( 200 ); roomba.playNote( 79, 10 ); // G
-		 * roomba.pause( 200 ); roomba.playNote( 76, 10 ); // E roomba.pause(
-		 * 200 );
-		 * 
-		 * System.out.println("Spinning left, then right"); roomba.spinLeft();
-		 * roomba.pause(1000); roomba.spinRight(); roomba.pause(1000);
-		 * roomba.stop();
-		 * 
-		 * System.out.println("Going forward, then backward");
-		 * roomba.goForward(); roomba.pause(1000); roomba.goBackward();
-		 * roomba.pause(1000); roomba.stop();
-		 * 
-		 * 
-		 * System.out.println("Moving via send()"); byte cmd[] =
-		 * {(byte)RoombaComm.DRIVE, (byte)0x00,(byte)0xfa,
-		 * (byte)0x00,(byte)0x00}; roomba.send( cmd ) ; roomba.pause(1000);
-		 * roomba.stop(); cmd[1] = (byte)0xff; cmd[2] = (byte)0x05; roomba.send(
-		 * cmd ) ; roomba.pause(1000); roomba.stop();
-		 * 
-		 * System.out.println("Disconnecting"); roomba.disconnect();
-		 * 
-		 * System.out.println("Done");
-		 * 
-		 * roomba.setWaitForDSR(false);
-		 * 
-		 * roomba.setHardwareHandshake(false);
-		 */
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-
-	}
-
 	public void setHardwareHandshake(boolean hardwareHandshake) {
 		setWaitForDSR(hardwareHandshake);
 	}
@@ -791,4 +737,60 @@ public class Roomba extends Service implements SerialDeviceService {
         }
     }
     
+    
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+
+		Roomba roomba = new Roomba("roomba");
+		roomba.startService();
+
+		/*
+		 * roomba.connect("COM6");
+		 * 
+		 * roomba.startup(); roomba.control();
+		 */
+		// roomba.pause(30);
+		/*
+		 * System.out.println("Checking for Roomba... "); if(
+		 * roomba.updateSensors() ) System.out.println("Roomba found!"); else
+		 * System.out.println("No Roomba. :(  Is it turned on?");
+		 * 
+		 * //roomba.updateSensors();
+		 * 
+		 * System.out.println("Playing some notes"); roomba.playNote( 72, 10 );
+		 * // C roomba.pause( 200 ); roomba.playNote( 79, 10 ); // G
+		 * roomba.pause( 200 ); roomba.playNote( 76, 10 ); // E roomba.pause(
+		 * 200 );
+		 * 
+		 * System.out.println("Spinning left, then right"); roomba.spinLeft();
+		 * roomba.pause(1000); roomba.spinRight(); roomba.pause(1000);
+		 * roomba.stop();
+		 * 
+		 * System.out.println("Going forward, then backward");
+		 * roomba.goForward(); roomba.pause(1000); roomba.goBackward();
+		 * roomba.pause(1000); roomba.stop();
+		 * 
+		 * 
+		 * System.out.println("Moving via send()"); byte cmd[] =
+		 * {(byte)RoombaComm.DRIVE, (byte)0x00,(byte)0xfa,
+		 * (byte)0x00,(byte)0x00}; roomba.send( cmd ) ; roomba.pause(1000);
+		 * roomba.stop(); cmd[1] = (byte)0xff; cmd[2] = (byte)0x05; roomba.send(
+		 * cmd ) ; roomba.pause(1000); roomba.stop();
+		 * 
+		 * System.out.println("Disconnecting"); roomba.disconnect();
+		 * 
+		 * System.out.println("Done");
+		 * 
+		 * roomba.setWaitForDSR(false);
+		 * 
+		 * roomba.setHardwareHandshake(false);
+		 */
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+
+	}
+
 }
