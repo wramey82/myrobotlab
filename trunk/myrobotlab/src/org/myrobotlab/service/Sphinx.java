@@ -214,7 +214,7 @@ public class Sphinx extends Service {
 				cm = new ConfigurationManager(newPath);	
 			} else {
 				// resource in jar default
-				cm = new ConfigurationManager(this.getClass().getResource("/resource/simple.xml"));
+				cm = new ConfigurationManager(this.getClass().getResource("/resource/Sphinx/simple.xml"));
 			}
 
 			// start the word recognizer
