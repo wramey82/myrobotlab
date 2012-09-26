@@ -40,8 +40,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.quartz/quartz/2.1.5/quartz-2.1.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.1/rsyntaxtextarea.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.0/autocomplete.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/dsn.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/imap.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.mail/mail/1.4.5/mail.jar"/>
@@ -60,5 +58,7 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/org.OpenNI.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.colorutils/r9/colorutils.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/net.java.games.jinput/jinput/20120914/jinput.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.4.1/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
