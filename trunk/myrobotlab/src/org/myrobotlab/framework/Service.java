@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -145,8 +146,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private boolean isRecording = false;
 	public final String MESSAGE_RECORDING_FORMAT_XML = "MESSAGE_RECORDING_FORMAT_XML";
 	public final String MESSAGE_RECORDING_FORMAT_BINARY = "MESSAGE_RECORDING_FORMAT_BINARY";
+	
 	private transient ObjectOutputStream recording;
 	private transient ObjectInputStream playback;
+	private transient OutputStream recordingXML;
+	private transient OutputStream recordingJython;
 	
 	/**
 	 * 
@@ -1195,6 +1199,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public void startRecording(String filename)
 	{
+		String filenameXML = String.format("%s/%s_%s.xml", cfgDir, getName(), TSFormatter.format(new Date()) );
+		String filenameJython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()) );
 		if (filename == null)
 		{
 			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()) );
@@ -1205,6 +1211,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		
 		try {
 			recording = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
+			recordingXML = new BufferedOutputStream(new FileOutputStream(filenameXML), 8 * 1024);
+			recordingXML.write("<Messages>\n".getBytes());
+			
+			recordingJython = new BufferedOutputStream(new FileOutputStream(filenameJython), 8 * 1024);
+			
 			isRecording = true;
 		} catch (Exception e) {
 			logException(e);
@@ -1220,6 +1231,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			return;
 		}
 		try {
+		
+			recordingJython.flush();
+			recordingJython.close();
+			recordingJython = null;
+			
+			recordingXML.write("\n</Messages>".getBytes());
+			recordingXML.flush();
+			recordingXML.close();
+			recordingXML = null;
+			
 			recording.flush();
 			recording.close();
 			recording = null;
@@ -1270,7 +1291,48 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		if (isRecording)
 		{
 			try {
+				
 				recording.writeObject(msg);
+				recordingXML.write(String.format("<Message name=\"%s\" method=\"%s\" sender=\"%s\" sendingMethod=\"%s\" ",
+				msg.name, msg.method, msg.sender, msg.sendingMethod).getBytes());
+				if (data != null)
+				{
+					recordingXML.write("><data>".getBytes());
+					for (int i = 0; i < data.length; ++i)
+					{
+						recordingXML.write(String.format("<param%s type=\"%s\" data=\"%s\" />", i, data[i].getClass().getCanonicalName(), data[i].toString()).getBytes());
+					}
+					recordingXML.write("</data></Message>\n".getBytes());
+				} else {
+					recordingXML.write("/>\n".getBytes());
+				}
+				
+				
+				// jython
+				String msgName = (msg.name.equals(Runtime.getInstance().getName()))?"runtime":msg.name;
+				recordingJython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
+				if (data != null)
+				{
+					for (int i = 0; i < data.length; ++i)
+					{
+						Object d = data[i];
+						if (d.getClass() == Integer.class || d.getClass() == Float.class || d.getClass() == Boolean.class || d.getClass() == Double.class ||  d.getClass() == Short.class ||  d.getClass() == Short.class)
+						{
+							recordingJython.write(d.toString().getBytes());
+							
+						} else if (d.getClass() == String.class || d.getClass() == Character.class) { //FIXME Character probably blows up
+							recordingJython.write(String.format("\"%s\"",d).getBytes());							
+						} else {
+							recordingJython.write("object".getBytes());
+						}
+						if (i < data.length-1)
+						{
+							recordingJython.write(",".getBytes());
+						}
+					}
+				} 
+				recordingJython.write(")\n".getBytes());		
+				
 			} catch (IOException e) {
 				logException(e);
 			}

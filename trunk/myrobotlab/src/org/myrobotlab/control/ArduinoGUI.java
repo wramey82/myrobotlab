@@ -335,39 +335,41 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				return;
 			}
 
-			IOData io = new IOData();
+			//IOData io = new IOData();
 			Pin pin = null;
+			int address = -1;
+			int value = -1;
 
 			if (b.parent != null) {
-				io.address = ((Pin) b.parent).pinNumber;
+				address = ((Pin) b.parent).pinNumber;
 				pin = ((Pin) b.parent);
 			}
 
 			if (b.type == Pin.TYPE_ONOFF) {
 				if ("off".equals(cmd)) {
 					// now on
-					io.value = Pin.HIGH;
-					myService.send(boundServiceName, "digitalWrite", io);
+					value = Pin.HIGH;
+					myService.send(boundServiceName, "digitalWrite", address, value);
 					b.toggle();
 				} else {
 					// now off
-					io.value = Pin.LOW;
-					myService.send(boundServiceName, "digitalWrite", io);
+					value = Pin.LOW;
+					myService.send(boundServiceName, "digitalWrite", address, value);
 					b.toggle();
 				}
 
 			} else if (b.type == Pin.TYPE_INOUT) {
 				if ("out".equals(cmd)) {
 					// is now input
-					io.value = Pin.INPUT;
-					myService.send(boundServiceName, "pinMode", io);
-					myService.send(boundServiceName, "digitalReadPollStart", io.address);
+					value = Pin.INPUT;
+					myService.send(boundServiceName, "pinMode", address, value);
+					myService.send(boundServiceName, "digitalReadPollStart", address);
 					b.toggle();
 				} else if ("in".equals(cmd)) {
 					// is now output
-					io.value = Pin.OUTPUT;
-					myService.send(boundServiceName, "pinMode", io);
-					myService.send(boundServiceName, "digitalReadPollStop", io.address);
+					value = Pin.OUTPUT;
+					myService.send(boundServiceName, "pinMode", address, value);
+					myService.send(boundServiceName, "digitalReadPollStop", address);
 					b.toggle();
 				} else {
 					log.error(String.format("unknown digital pin cmd %s", cmd));
@@ -377,29 +379,29 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				// digital pin
 				if (!pin.isAnalog) {
 					if (!pin.inOut.isOn) { // pin is off turn it on
-						io.value = Pin.INPUT;
-						myService.send(boundServiceName, "pinMode", io);
-						myService.send(boundServiceName, "digitalReadPollStart", io.address);
+						value = Pin.INPUT;
+						myService.send(boundServiceName, "pinMode", address, value);
+						myService.send(boundServiceName, "digitalReadPollStart", address);
 						pin.inOut.setOn(); // in
 						b.setOn();
 					} else {
-						io.value = Pin.OUTPUT;
-						myService.send(boundServiceName, "pinMode", io);
-						myService.send(boundServiceName, "digitalReadPollStop", io.address);
+						value = Pin.OUTPUT;
+						myService.send(boundServiceName, "pinMode", address, value);
+						myService.send(boundServiceName, "digitalReadPollStop", address);
 						pin.inOut.setOff();// out
 						b.setOff();
 					}
 				} else {
-					io.value = Pin.INPUT;
-					myService.send(boundServiceName, "pinMode", io);
+					value = Pin.INPUT;
+					myService.send(boundServiceName, "pinMode", address, value);
 					// analog pin
 					if (pin.activeInActive.isOn) {
-						myService.send(boundServiceName, "analogReadPollingStop", io.address);
+						myService.send(boundServiceName, "analogReadPollingStop", address);
 						pin.activeInActive.setOff();
 						pin.trace.setOff();
 						b.setOff();
 					} else {
-						myService.send(boundServiceName, "analogReadPollingStart", io.address);
+						myService.send(boundServiceName, "analogReadPollingStart", address);
 						pin.activeInActive.setOn();
 						pin.trace.setOn();
 						b.setOn();

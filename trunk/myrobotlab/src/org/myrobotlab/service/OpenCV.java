@@ -748,6 +748,8 @@ public class OpenCV extends Service {
 		addFilters.put(name, filter);
 		log.info(String.format("added new filter %s, %s", name, newFilter));
 		// filters.put(name, filter);
+		
+		broadcastState(); // let everyone know
 	}
 
 	// TO be used only by the VideoProcessor thread --- BEGIN ----
@@ -768,11 +770,13 @@ public class OpenCV extends Service {
 		}
 
 		removeFilters.clear();
+		broadcastState(); // let everyone know
 	}
 
 	private void removeAllFilters() {
 		filters.clear();
 		removeAllFilters = false;
+		broadcastState(); // let everyone know
 	}
 
 	// TO be used only by the VideoProcessor thread --- END ----
@@ -780,6 +784,7 @@ public class OpenCV extends Service {
 	public void removeFilter(String name) {
 		// filters.remove(name);
 		removeFilters.add(name);
+		broadcastState(); // let everyone know
 	}
 
 	private boolean removeAllFilters = false;
@@ -791,6 +796,7 @@ public class OpenCV extends Service {
 		 * (itr.hasNext()) { filters.remove(itr.next()); }
 		 */
 		removeAllFilters = true;
+		broadcastState(); // let everyone know
 	}
 
 	public IplImage getLastFrame() {
