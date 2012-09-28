@@ -324,3 +324,5 @@ files containing the version number.  For simplicity, I just copied the .so file
 librxtxSerial64.so and librxtxParallel64.so.
 
 ========================================================================================================================
+
+GroG - hacked the CommPort.java to accept ttyACM on default
