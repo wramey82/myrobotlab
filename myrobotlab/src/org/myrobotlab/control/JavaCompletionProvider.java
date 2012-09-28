@@ -19,12 +19,56 @@ public class JavaCompletionProvider extends DefaultCompletionProvider {
 	}
 	
 	/**
+	 * Returns whether the specified character is valid in an auto-completion.
+	 * The default implementation is equivalent to
+	 * "<code>Character.isLetterOrDigit(ch) || ch=='_'</code>".  Subclasses
+	 * can override this method to change what characters are matched.
+	 *
+	 * @param ch The character.
+	 * @return Whether the character is valid.
+	 */
+	protected boolean isValidChar(char ch) {
+		return Character.isLetterOrDigit(ch) || ch=='_' || ch=='.';
+	}
+	
+	/**
 	 * Load the completions related to Java.
 	 */
 	protected void loadCompletions() {
 		// Add completions for all Java keywords. A BasicCompletion is just
 		// a straightforward word completion.
-
+		addCompletion(new BasicCompletion(this,"and"));
+		addCompletion(new BasicCompletion(this,"as"));
+		addCompletion(new BasicCompletion(this,"assert"));
+		addCompletion(new BasicCompletion(this,"break"));
+		addCompletion(new BasicCompletion(this,"class"));
+		addCompletion(new BasicCompletion(this,"continue"));
+		addCompletion(new BasicCompletion(this,"def"));
+		addCompletion(new BasicCompletion(this,"del"));
+		addCompletion(new BasicCompletion(this,"elif"));
+		addCompletion(new BasicCompletion(this,"else"));
+		addCompletion(new BasicCompletion(this,"except"));
+		addCompletion(new BasicCompletion(this,"exec"));
+		addCompletion(new BasicCompletion(this,"finally"));
+		addCompletion(new BasicCompletion(this,"for"));
+		addCompletion(new BasicCompletion(this,"from"));
+		addCompletion(new BasicCompletion(this,"global"));
+		addCompletion(new BasicCompletion(this,"if"));
+		addCompletion(new BasicCompletion(this,"import"));
+		addCompletion(new BasicCompletion(this,"in"));
+		addCompletion(new BasicCompletion(this,"is"));
+		addCompletion(new BasicCompletion(this,"lambda"));
+		addCompletion(new BasicCompletion(this,"not"));
+		addCompletion(new BasicCompletion(this,"or"));
+		addCompletion(new BasicCompletion(this,"pass"));
+		addCompletion(new BasicCompletion(this,"print"));
+		addCompletion(new BasicCompletion(this,"raise"));
+		addCompletion(new BasicCompletion(this,"return"));
+		addCompletion(new BasicCompletion(this,"try"));
+		addCompletion(new BasicCompletion(this,"while"));
+		addCompletion(new BasicCompletion(this,"with"));
+		addCompletion(new BasicCompletion(this,"yield"));
+/*
 		addCompletion(new BasicCompletion(this, "abstract", "blah", "<html><body>hello</body></html>"));
 		addCompletion(new BasicCompletion(this, "assert"));
 		addCompletion(new BasicCompletion(this, "break"));
@@ -72,5 +116,6 @@ public class JavaCompletionProvider extends DefaultCompletionProvider {
 		// require the input text to be the same thing as the replacement text.
 		addCompletion(new ShorthandCompletion(this, "sysout", "System.out.println(", "System.out.println("));
 		addCompletion(new ShorthandCompletion(this, "syserr", "System.err.println(", "System.err.println("));
+		*/
 	}
 }

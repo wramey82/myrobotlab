@@ -63,6 +63,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
@@ -962,7 +963,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				recording.setText("start recording");
 			}
 		} else if (source == loadRecording) {
-			JFileChooser c = new JFileChooser();
+			JFileChooser c = new JFileChooser(cfgDir);
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Message files", "msg");
+			c.setFileFilter(filter);
 		      // Demonstrate "Open" dialog:
 			String filename;
 			String dir;

@@ -40,7 +40,7 @@ import org.myrobotlab.service.GUIService;
  * @author SwedaKonsult
  *
  */
-public class MRLCompletionProvider extends JavaCompletionProvider {
+public class MRLCompletionProvider extends  JavaCompletionProvider {
 	/**
 	 * Logger for this guy.
 	 */
@@ -119,35 +119,42 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 		}
 		Completion completer;
 		StringBuffer genericsString = new StringBuffer();
-		String fullClassName, fieldTypeName;
-		for (Field f: fields) {
-			if (f.getName() == "main" || !Modifier.isPublic(f.getModifiers()) || !Modifier.isStatic(f.getModifiers())) {
-				continue;
+		String fieldTypeName;
+		String fullClassName = implementation.getName();
+		String className = getClassName(fullClassName).toString();
+		log.error(className);
+
+		if (!(className.contains("$")))
+		{
+			for (Field f: fields) {
+				if (f.getName() == "main" || !Modifier.isPublic(f.getModifiers())){// || !Modifier.isStatic(f.getModifiers())) {
+					continue;
+				}
+				// TODO: grab the generics for this field
+				genericsString.delete(0, genericsString.length());
+				
+				fieldTypeName = f.getType().getName();
+				completer = new BasicCompletion(this,
+						String.format("%s.%s", className, f.getName()),
+						getClassName(fieldTypeName).toString(),
+						String.format("<html><body>"
+									+ "<b>%1$s %2$s.%3$s"
+									+ "%4$s"
+									+ "</b> %5$s</body></html>",
+								fieldTypeName,
+								className,
+								f.getName(),
+								genericsString,
+								buildModifiersDescriptionForGUI(f.getModifiers())));
+				addCompletion(completer);
 			}
-			// TODO: grab the generics for this field
-			genericsString.delete(0, genericsString.length());
-			fullClassName = implementation.getName();
-			fieldTypeName = f.getType().getName();
-			completer = new BasicCompletion(this,
-					String.format("%s.%s", getClassName(fullClassName), f.getName()),
-					getClassName(fieldTypeName).toString(),
-					String.format("<html><body>"
-								+ "<b>%1$s %2$s.%3$s"
-								+ "%4$s"
-								+ "</b> %5$s</body></html>",
-							fieldTypeName,
-							fullClassName,
-							f.getName(),
-							genericsString,
-							buildModifiersDescriptionForGUI(f.getModifiers())));
-			addCompletion(completer);
 		}
 		completer = null;
 	}
 
 	/**
 	 * Helper method that recurses implementation to find all
-	 * public static methods declared.
+	 * public methods declared.
 	 * @param implementation the class to analyze
 	 */
 	private void loadClassMethods(Class<?> implementation) {
@@ -165,8 +172,13 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 		StringBuffer paramsString = new StringBuffer();
 		StringBuffer shortParamsString = new StringBuffer();
 		StringBuffer genericsString = new StringBuffer();
-		String fullClassName, matchString, extraString;
+		String matchString, extraString;
+		String fullClassName = implementation.getName();
+		String className = getClassName(fullClassName).toString();
 		boolean isStatic;
+		if (!(className.contains("$")))
+		{
+
 		for (Method m: methods) {
 			if (m.getName() == "main" || !Modifier.isPublic(m.getModifiers())) {
 				continue;
@@ -191,14 +203,15 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 				}
 			}
 			genericsString.delete(0, genericsString.length());
-			fullClassName = implementation.getName();
-			if (isStatic) {
+			
+//			if (isStatic) {
 				matchString = String.format("%s.%s(", getClassName(fullClassName), m.getName());
 				extraString = shortParamsString.toString();
-			} else {
+/*			} else {
 				matchString = String.format(".%s(", m.getName());
 				extraString = m.getName();
 			}
+*/			
 			// TODO: grab the generics for this method
 			completer = new BasicCompletion(this,
 					matchString,
@@ -206,14 +219,16 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 					String.format("<html><body>"
 								+ "<b>%1$s %2$s.%3$s"
 								+ "%5$s(%4$s)"
-								+ "</b> %6$s</body></html>",
+								+ "</b> %6$s <br> <a href=\"http://myrobotlab.org/service/%2$s\">more help</a> </body></html>",
 							m.getReturnType().getName(),
-							fullClassName,
+							className,
 							m.getName(),
 							paramsString,
 							genericsString,
-							buildModifiersDescriptionForGUI(m.getModifiers())));
+							buildModifiersDescriptionForGUI(m.getModifiers())
+							));
 			addCompletion(completer);
+		}
 		}
 		completer = null;
 	}
