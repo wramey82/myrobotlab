@@ -14,9 +14,14 @@
         <artifact name="x86.32.windows/rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.64.windows/rxtxSerial" type="native" ext="dll" conf="x86.64.windows"/>
         -->
+        <artifact name="x86.32.linux/libnimCodecs" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libnimMockNodes" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libnimRecorder" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/OpenNI.jni" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/OpenNI" type="native" ext="so" conf="x86.32.linux"/>
         
-        <artifact name="x86.64.windows/OpenNI.jni" type="native" ext="dll" conf="x86.32.windows"/>
-        <artifact name="x86.64.windows/OpenNI" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/OpenNI.jni" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/OpenNI" type="native" ext="dll" conf="x86.32.windows"/>
         
         <artifact name="x86.64.windows/OpenNI.jni64" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/OpenNI64" type="native" ext="dll" conf="x86.64.windows"/>
