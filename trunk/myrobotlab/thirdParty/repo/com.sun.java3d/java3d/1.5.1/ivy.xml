@@ -9,8 +9,18 @@
         <artifact name="j3dcore" type="jar"/>
         <artifact name="j3dutils" type="jar"/>
         <artifact name="vecmath" type="jar"/>
+
         <artifact name="x86.64.windows/j3dcore-ogl" type="native" ext="dll" conf="x86.64.windows"/>
+
+        <artifact name="x86.64.linux/libj3dcore-ogl" type="native" ext="so" conf="x86.64.linux"/>
+
         <artifact name="x86.32.linux/libj3dcore-ogl" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libj3dcore-ogl-cg" type="native" ext="so" conf="x86.32.linux"/>
+        
+        <artifact name="x86.32.windows/j3dcore-d3d" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/j3dcore-ogl-cg" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/j3dcore-ogl-chk" type="native" ext="dll" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/j3dcore-ogl" type="native" ext="dll" conf="x86.32.windows"/>	
+
     </publications>
 </ivy-module>
