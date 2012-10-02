@@ -526,7 +526,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		ConfigurationManager hostCFG = new ConfigurationManager(host);
 		// add global config
 		hostCFG.set("servicePort", 3389);
-		hostCFG.set("Communicator", "org.myrobotlab.net.CommObjectStreamOverTCPUDP");
+		//hostCFG.set("Communicator", "org.myrobotlab.net.CommObjectStreamOverTCPUDP");
 		hostCFG.set("Serializer", "org.myrobotlab.net.SerializerObject");
 	}
 
