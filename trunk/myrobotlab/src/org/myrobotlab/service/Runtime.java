@@ -63,6 +63,8 @@ public class Runtime extends Service {
 	private static boolean needsRestart = false;
 	private static boolean checkForDependencies = true; // TODO implement - Ivy
 														// related
+	
+	private static String runtimeName;
 
 	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 
@@ -135,7 +137,11 @@ public class Runtime extends Service {
 			synchronized(instanceLockObject) {
 				if (instance == null) {
 					// TODO should this be configurable?
-					instance = new Runtime(String.format("MRL%1$d", new Random().nextInt(99999)));
+					if (runtimeName == null)
+					{
+						runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
+					}
+					instance = new Runtime(runtimeName);
 				}
 			}
 		}
@@ -1143,6 +1149,11 @@ public class Runtime extends Service {
 		
 
 		try {
+			
+			if (cmdline.containsKey("-runtimeName"))
+			{
+				runtimeName = cmdline.getSafeArgument("-runtimeName", 0, "MRL");
+			}
 			
 			if (cmdline.containsKey("-logToConsole")) {
 				addAppender(LogAppender.Console);
