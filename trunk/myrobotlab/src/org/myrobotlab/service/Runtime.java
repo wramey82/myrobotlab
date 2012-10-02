@@ -135,7 +135,7 @@ public class Runtime extends Service {
 			synchronized(instanceLockObject) {
 				if (instance == null) {
 					// TODO should this be configurable?
-					instance = new Runtime(String.format("BORG %1$d", new Random().nextInt(99999)));
+					instance = new Runtime(String.format("MRL%1$d", new Random().nextInt(99999)));
 				}
 			}
 		}

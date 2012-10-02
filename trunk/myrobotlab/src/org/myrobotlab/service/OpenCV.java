@@ -877,10 +877,10 @@ public class OpenCV extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-		opencv.addFilter("pyramdDown", "PyramidDown");
+		//opencv.addFilter("pyramdDown", "PyramidDown");
 		//opencv.addFilter("floodFill", "FloodFill");
 
-		opencv.capture();
+		//opencv.capture();
 
 	}
 

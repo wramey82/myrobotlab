@@ -22,6 +22,8 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
 
+import org.myrobotlab.control.Style;
+
 import com.sun.j3d.utils.geometry.Text2D;
 
 
@@ -30,8 +32,12 @@ public class CheckerFloor
   private final static int FLOOR_LEN = 80;  // should be even
 
   // colours for floor, etc
-  private final static Color3f blue = new Color3f(0.0f, 0.1f, 0.4f);
-  private final static Color3f green = new Color3f(0.0f, 0.5f, 0.1f);
+  //private final static Color3f blue = new Color3f(0.0f, 0.1f, 0.4f);
+//  private final static Color3f green = new Color3f(0.0f, 0.5f, 0.1f);
+ // private final static Color3f blue = new Color3f(Style.possibleServicesNotInstalled);
+  private final static Color3f green = new Color3f(0.17f, 0.43f, 0.20f);
+  private final static Color3f blue = new Color3f(0.35f, 0.35f, 0.35f);
+ // private final static Color3f green = new Color3f(Style.possibleServicesStable);
   private final static Color3f medRed = new Color3f(0.8f, 0.4f, 0.3f);
   private final static Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
 

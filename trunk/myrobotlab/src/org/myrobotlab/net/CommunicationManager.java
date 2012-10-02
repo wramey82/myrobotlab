@@ -51,7 +51,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
 
-		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverUDP";
+		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverTCP";
 		log.info("instanciating a " + communicatorClass);
 		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 
