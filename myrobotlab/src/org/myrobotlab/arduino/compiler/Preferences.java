@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -79,9 +80,9 @@ import org.myrobotlab.service.Arduino;
  * way to manage UTF-8 / Unicode
  * 
  */
-public class Preferences {
+public class Preferences implements Serializable {
 
-	
+	private static final long serialVersionUID = 1L;
 	//final String PREFS_FILE = "preferences.txt";
 	Hashtable<String, Object> defaults;
 	Hashtable<String, Object> table = new Hashtable<String, Object>();;
