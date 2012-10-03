@@ -27,12 +27,14 @@ package org.myrobotlab.arduino.compiler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
 
-public class Target {
+public class Target implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String name;
 	private File folder;
 	private LinkedHashMap<String, LinkedHashMap<String, String>> boards;

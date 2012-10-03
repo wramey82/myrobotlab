@@ -171,8 +171,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	// from the Arduino IDE :P
 	public Preferences preferences;
-	Compiler compiler;
-	AvrdudeUploader uploader;
+	transient Compiler compiler;
+	transient AvrdudeUploader uploader;
 
 	// compile / upload
 	private String buildPath = "";
