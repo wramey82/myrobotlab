@@ -488,16 +488,19 @@ public class Runtime extends Service {
 		// FIXME - temporary for testing
 		// if (getVMName().equals(DALVIK))
 		// {
-		inclusiveExportFilterEnabled = true;
+		//inclusiveExportFilterEnabled = false;
+		/*
 		addInclusiveExportFilterServiceType("RemoteAdapter");
 		addInclusiveExportFilterServiceType("SensorMonitor");
 		addInclusiveExportFilterServiceType("Clock");
 		addInclusiveExportFilterServiceType("Logging");
 		addInclusiveExportFilterServiceType("Jython");
+		addInclusiveExportFilterServiceType("Arduino");
 		addInclusiveExportFilterServiceType("GUIService");
 		addInclusiveExportFilterServiceType("Runtime");
 		// }
-
+		*/
+		
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled) {
 			return local; // FIXME - still need to construct new SWs
 		}
@@ -612,7 +615,7 @@ public class Runtime extends Service {
 		for (int i = 0; i < services.length; ++i)
 		{
 			service =  registry.get(services[i]).get();
-			if ("Runtime".equals(service.getShortTypeName()))
+			if (service != null && "Runtime".equals(service.getShortTypeName()))
 			{
 				runtimeName = service.getName();
 				log.info(String.format("delaying release of Runtime %1$s", runtimeName));
