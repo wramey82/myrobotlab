@@ -81,7 +81,7 @@ public class Jython extends Service {
 		for (int i = 0; i < methods.length; ++i)
 		{
 			commandMap.add(methods[i].getName());
-			log.info(String.format("will filter method %1$s", methods[i].getName()));
+			//log.info(String.format("will filter method %1$s", methods[i].getName()));
 		}
 	}
 	
