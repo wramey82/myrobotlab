@@ -45,7 +45,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -111,7 +111,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	protected transient Thread thisThread = null;
 	Outbox outbox = null;
 	Inbox inbox = null;
-	public URL url = null;
+	public URI url = null;
 
 	public boolean performanceTiming = false;
 
@@ -208,10 +208,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		if (inHost != null) {
 			try {
-				url = new URL(inHost); // TODO - initialize once
+				url = new URI(inHost); // TODO - initialize once
 										// RuntimeEnvironment
-			} catch (MalformedURLException e) {
-				log.error(String.format("%1$s not a valid URL", inHost));
+			} catch (Exception e) {
+				log.error(String.format("%1$s not a valid URI", inHost));
 			}
 		}
 		// determine host name
@@ -1173,7 +1173,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param method
 	 * @param param1
 	 */
-	public void send(URL url, String method, Object param1)
+	public void send(URI url, String method, Object param1)
 	{
 		Object[] params = new Object[1];
 		params[0] = param1;
@@ -1646,7 +1646,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * sender, such that all Services ready for export are shared.
 	 * 
 	 * it is also invoked by RemoteAdapters as they recieve the initial request
-	 * the remote URL is filled in from the other end of the socket info Since
+	 * the remote URI is filled in from the other end of the socket info Since
 	 * the foreign Services do not necessarily know how they are identified the
 	 * ServiceEnvironment & Service accessURL are filled in here
 	 * 
@@ -1664,11 +1664,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
 			// TODO allow for SSL connections
 			StringBuffer sb = new StringBuffer()
-            	.append("http://")                                                 
-            	.append(hostAddress)
+            	.append("tcp://")     // FIXME - assumption you know what protocol this going out on                                            
+            	.append(hostAddress)  // FIXME - the remoteURL - should not be used ! it should be contructed at the protocol level
             	.append(":")
             	.append(port);
-            sdu.remoteURL = new URL(sb.toString());
+            sdu.remoteURL = new URI(sb.toString());
 
 			sdu.url = url;
 			
@@ -1685,7 +1685,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
 			// send echo of local services back to sender
 			send (msg.sender, "registerServices", echoLocal); 
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logException(e);
 		}
@@ -1697,7 +1697,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param host
 	 *            always null for local service
 	 */
-	public synchronized void registerLocalService(URL url) {
+	public synchronized void registerLocalService(URI url) {
 		Runtime.register(this, url); // problem with this in it does not
 										// broadcast
 	}
@@ -1773,7 +1773,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			log.info(name + " sendServiceDirectoryUpdate ");
 			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
 			StringBuffer urlstr = new StringBuffer()
-				.append("http://");
+				.append("tcp://");
 			
 			if (login != null) {
 				urlstr.append(login)
@@ -1793,8 +1793,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				.append(":")
 				.append(port);
 			
-			URL remoteURL = null;
-			remoteURL = new URL(urlstr.toString());
+			URI remoteURL = null;
+			remoteURL = new URI(urlstr.toString());
 			
 			if (sdu == null) {
 			        sdu = new ServiceDirectoryUpdate();

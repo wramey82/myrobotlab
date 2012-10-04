@@ -26,13 +26,15 @@
 package org.myrobotlab.control;
 
 import java.awt.GridBagConstraints;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.swing.JLabel;
 
 import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -75,10 +77,10 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	// TODO - register listening to Runtime !!! 
 	public void updateNodeList()
 	{
-		HashMap<URL, ServiceEnvironment> services = Runtime.getServiceEnvironments();
+		HashMap<URI, ServiceEnvironment> services = Runtime.getServiceEnvironments();
 		log.info("service count " + Runtime.getRegistry().size());
 				
-		Iterator<URL> it = services.keySet().iterator();
+		Iterator<URI> it = services.keySet().iterator();
 		
 		list.model.removeAllElements();
 		
@@ -89,21 +91,29 @@ public class RemoteAdapterGUI extends ServiceGUI {
 
 		// remote connected nodes
 		while (it.hasNext()) {
-			URL url = it.next();
-			String host = (url == null)?"local":url.toString();
-			//list.model.add(0, (Object)new CommunicationNodeEntry(host + " " + serviceName + " 0.0.0.0:6432 -> 192.168.0.7:6767 latency 05ms rx 14 tx 742 msg 5 UDP", "3.gif"));
-			if (!host.equals("local")) {host = host.substring(7);} // peel off the http://
-			list.model.add(0, (Object)new CommunicationNodeEntry(host, "3.gif"));
+			URI url = it.next();
+			if (url != null) {
+				list.model.add(0, (Object)new CommunicationNodeEntry(url.toString(), "3.gif"));
+			}
 		}
 
 	}
 	
+	public void getState(RemoteAdapter data) {
+		if (data != null) {
+			updateNodeList();
+		}
+	}
+	
 	@Override
-	public void detachGUI() {
+	public void attachGUI() {
+		subscribe("publishState", "getState", RemoteAdapter.class);
 	}
 
 	@Override
-	public void attachGUI() {
+	public void detachGUI() {
+		unsubscribe("publishState", "getState", RemoteAdapter.class);
 	}
+
 
 }

@@ -39,7 +39,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.URL;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -52,11 +53,11 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	public final static Logger log = Logger.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
-	static public transient HashMap<URL, UDPThread> clientList = new HashMap<URL, UDPThread>();
+	static public transient HashMap<URI, UDPThread> clientList = new HashMap<URI, UDPThread>();
 	Service myService = null;
 
 	public class UDPThread extends Thread {
-		URL url;
+		URI url;
 		transient DatagramSocket socket = null;
 
 		ObjectInputStream in = null;
@@ -66,7 +67,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		ByteArrayInputStream b_in = new ByteArrayInputStream(buffer);
 		DatagramPacket dgram = new DatagramPacket(buffer, buffer.length);
 
-		public UDPThread(URL url, DatagramSocket socket) {
+		public UDPThread(URI url, DatagramSocket socket) {
 			super("udp " + url);
 			try {
 				this.url = url;
@@ -82,7 +83,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			}
 		}
 
-		synchronized public void send(final URL url, final Message msg) throws IOException {
+		synchronized public void send(final URI url, final Message msg) throws IOException {
 
 			String host = url.getHost();
 			int port = url.getPort();
@@ -179,7 +180,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	}
 
 	@Override
-	public void send(final URL url, final Message msg) {
+	public void send(final URI url, final Message msg) {
 
 		UDPThread phone = null;
 
@@ -200,7 +201,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		}
 	}
 
-	public void addClient(URL url, Object commData) {
+	public void addClient(URI url, Object commData) {
 		log.info("adding tcp client ");
 
 		UDPThread phone = new UDPThread(url, (DatagramSocket)commData);
@@ -221,7 +222,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 		}
 		clientList.clear();
-		clientList = new HashMap<URL, UDPThread>();
+		clientList = new HashMap<URI, UDPThread>();
 		isRunning = false;
 	}
 
@@ -235,6 +236,16 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	public void stopHeartbeat() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ArrayList<URI> getClients() {
+		ArrayList<URI> ret = new ArrayList<URI>();
+		for (URI key : clientList.keySet()) {
+			ret.add(key);
+		}
+		
+		return ret;
 	}
 
 }

@@ -61,8 +61,6 @@ public class Outbox implements Runnable, Serializable
 	CommunicationInterface comm = null;
 
 	public Outbox(Service myService) {
-		//super(myService.getName() + "_outbox");
-		//outboxThread = new Thread(this, myService.getName() + "_outbox");
 		this.myService = myService;
 	}
 

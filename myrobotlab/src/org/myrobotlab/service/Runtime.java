@@ -8,8 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class Runtime extends Service {
 	private static final long serialVersionUID = 1L;
 
 	// ---- rte members begin ----------------------------
-	static private HashMap<URL, ServiceEnvironment> hosts = new HashMap<URL, ServiceEnvironment>();;
+	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
 	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
 
 	static private boolean inclusiveExportFilterEnabled = false;
@@ -262,20 +262,20 @@ public class Runtime extends Service {
 
 	// ---------- Java Runtime wrapper functions end --------
 
-	// public static synchronized boolean register(URL url, Service s)
+	// public static synchronized boolean register(URI url, Service s)
 	// TODO more aptly named registerLocal(Service s) ?
 	// FIXME - getState publish setState need to reconcile with
 	// these definitions
 	/**
 	 * ONLY CALLED BY registerServices2 ... would be a bug if called from
-	 * foreign service - (no platform!) .. URL (URI) will always be null FIXME -
-	 * change to register(URL url)
+	 * foreign service - (no platform!) .. URI (URI) will always be null FIXME -
+	 * change to register(URI url)
 	 * 
 	 * @param url
 	 * @param s
 	 * @return
 	 */
-	public static synchronized Service register(Service s, URL url) {
+	public static synchronized Service register(Service s, URI url) {
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url)) {
 			se = new ServiceEnvironment(url);
@@ -310,7 +310,7 @@ public class Runtime extends Service {
 	 * @param s
 	 * @return false if it already matches
 	 */
-	public static synchronized boolean register(URL url, ServiceEnvironment s) {
+	public static synchronized boolean register(URI url, ServiceEnvironment s) {
 		// TODO what do we do if url is null?
 		if (!hosts.containsKey(url)) {
 			log.info(String.format("adding new ServiceEnvironment %1$s", url));
@@ -345,7 +345,7 @@ public class Runtime extends Service {
 	 * @param url
 	 * @return
 	 */
-	private static boolean areEqual(ServiceEnvironment s, URL url) {
+	private static boolean areEqual(ServiceEnvironment s, URI url) {
 		ServiceEnvironment se = hosts.get(url);
 		if (se.serviceDirectory.size() != s.serviceDirectory.size()) {
 			return false;
@@ -367,7 +367,7 @@ public class Runtime extends Service {
 	 * FIXME - possibly needed when the intent is to remove the registration of
 	 * a foreign Service
 	 */
-	public static void unregister(URL url, String name) {
+	public static void unregister(URI url, String name) {
 		if (!registry.containsKey(name)) {
 			log.error(String.format("unregister %1$s does not exist in registry", name));
 		} else {
@@ -394,7 +394,7 @@ public class Runtime extends Service {
 	 * 
 	 * @param url
 	 */
-	public static void unregisterAll(URL url) {
+	public static void unregisterAll(URI url) {
 		if (!hosts.containsKey(url)) {
 			log.error(String.format("unregisterAll %1$s does not exist", url));
 			return;
@@ -414,7 +414,7 @@ public class Runtime extends Service {
 	 * unregister everything
 	 */
 	public static void unregisterAll() {
-		Iterator<URL> it = hosts.keySet().iterator();
+		Iterator<URI> it = hosts.keySet().iterator();
 		while (it.hasNext()) {
 			unregisterAll(it.next());
 		}
@@ -426,7 +426,7 @@ public class Runtime extends Service {
 	 */
 	public int getServiceCount() {
 		int cnt = 0;
-		Iterator<URL> it = hosts.keySet().iterator();
+		Iterator<URI> it = hosts.keySet().iterator();
 		ServiceEnvironment se;
 		Iterator<String> it2;
 		String serviceName;
@@ -505,7 +505,7 @@ public class Runtime extends Service {
 			return local; // FIXME - still need to construct new SWs
 		}
 
-		// URL is null but the "acceptor" will fill in the correct URI/ID
+		// URI is null but the "acceptor" will fill in the correct URI/ID
 		ServiceEnvironment export = new ServiceEnvironment(null);
 
 		Iterator<String> it = local.serviceDirectory.keySet().iterator();
@@ -576,7 +576,7 @@ public class Runtime extends Service {
 			log.error("no service wrapper for " + name);
 			return false;
 		}
-		URL url = sw.getAccessURL();
+		URI url = sw.getAccessURL();
 		if (url == null) {
 			sw.get().stopService();// if its a local Service shut it
 									// down
@@ -599,7 +599,7 @@ public class Runtime extends Service {
 	 * @param url
 	 * @return
 	 */
-	public static boolean release(URL url) /* release process environment */
+	public static boolean release(URI url) /* release process environment */
 	{
 		boolean ret = true;
 		ServiceEnvironment se = hosts.get(url);
@@ -700,7 +700,7 @@ public class Runtime extends Service {
 	 * @param url
 	 * @return
 	 */
-	public static ServiceEnvironment getServiceEnvironment(URL url) {
+	public static ServiceEnvironment getServiceEnvironment(URI url) {
 		if (hosts.containsKey(url)) {
 			return hosts.get(url); // FIXME should return copy
 		}
@@ -711,8 +711,8 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 */
-	public static HashMap<URL, ServiceEnvironment> getServiceEnvironments() {
-		return new HashMap<URL, ServiceEnvironment>(hosts);
+	public static HashMap<URI, ServiceEnvironment> getServiceEnvironments() {
+		return new HashMap<URI, ServiceEnvironment>(hosts);
 	}
 
 	/**
@@ -809,7 +809,7 @@ public class Runtime extends Service {
 			fis = new FileInputStream(filename);
 			in = new ObjectInputStream(fis);
 			// instance = (RuntimeEnvironment)in.readObject();
-			hosts = (HashMap<URL, ServiceEnvironment>) in.readObject();
+			hosts = (HashMap<URI, ServiceEnvironment>) in.readObject();
 			registry = (HashMap<String, ServiceWrapper>) in.readObject();
 			hideMethods = (HashMap<String, String>) in.readObject();
 		} catch (Exception e) {
@@ -1137,15 +1137,6 @@ public class Runtime extends Service {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		URL url = null;
-		try {
-			url = new URL("http://0.0.0.0:0");
-		} catch (MalformedURLException e2) {
-			Service.logException(e2);
-		}
-
-		System.out.println(url.getHost());
-		System.out.println(url.getPort());
 
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
@@ -1360,8 +1351,8 @@ public class Runtime extends Service {
 		StringBuffer sb = new StringBuffer()
 			.append("\nhosts:\n");
 
-		Iterator<URL> hkeys = hosts.keySet().iterator();
-		URL url;
+		Iterator<URI> hkeys = hosts.keySet().iterator();
+		URI url;
 		ServiceEnvironment se;
 		Iterator<String> it2;
 		String serviceName;

@@ -44,8 +44,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.net.URL;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -59,18 +60,18 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	public final static Logger log = Logger.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
-	static public transient HashMap<URL, TCPThread> clientList = new HashMap<URL, TCPThread>();
+	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 	Service myService = null;
 
 	public class TCPThread extends Thread {
 
-		URL url;
+		URI url;
 		transient Socket socket = null;
 
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 
-		public TCPThread(URL url, Socket socket) throws UnknownHostException, IOException {
+		public TCPThread(URI url, Socket socket) throws UnknownHostException, IOException {
 			super("tcp " + url);
 			this.url = url;
 			if (socket == null) {
@@ -147,7 +148,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			return socket;
 		}
 
-		public synchronized void send(URL url2, Message msg) { // FIX'd !!! you
+		public synchronized void send(URI url2, Message msg) { // FIX'd !!! you
 																// had to
 																// synchronize !
 			try {
@@ -167,7 +168,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	// send tcp
 	@Override
-	public void send(final URL url, final Message msg) {
+	public void send(final URI url, final Message msg) {
 
 		TCPThread phone = null;
 		if (clientList.containsKey(url)) {
@@ -187,10 +188,10 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		phone.send(url, msg);
 	}
 
-	HashMap<URL, Heart> heartbeatList = new HashMap<URL, Heart>();
+	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
 	boolean useHeartbeat = false;
 
-	public synchronized void addClient(URL url, Object commData) {
+	public synchronized void addClient(URI url, Object commData) {
 		if (!clientList.containsKey(url)) {
 			log.debug("adding client " + url);
 			try {
@@ -223,19 +224,19 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			}
 		}
 		clientList.clear();
-		clientList = new HashMap<URL, TCPThread>();
+		clientList = new HashMap<URI, TCPThread>();
 		isRunning = false;
 	}
 
 	boolean heartbeatRunning = false;
 
 	class Heart extends Thread {
-		URL url;
+		URI url;
 		CommObjectStreamOverTCP comm;
 		boolean isRunning = false;
 		int heartbeatIntervalMilliSeconds = 1000;
 
-		Heart(URL url, CommObjectStreamOverTCP comm) {
+		Heart(URI url, CommObjectStreamOverTCP comm) {
 			this.url = url;
 			this.comm = comm;
 		}
@@ -270,6 +271,16 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	public void stopHeartbeat() {
 		// TODO Auto-generated method stub
 
+	}
+	
+	@Override
+	public ArrayList<URI> getClients() {
+		ArrayList<URI> ret = new ArrayList<URI>();
+		for (URI key : clientList.keySet()) {
+			ret.add(key);
+		}
+		
+		return ret;
 	}
 
 }

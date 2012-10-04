@@ -26,19 +26,19 @@
 package org.myrobotlab.framework;
 
 import java.io.Serializable;
-import java.net.URL;
+import java.net.URI;
 
 public class ServiceDirectoryUpdate implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public int ID;
-	public URL url; 
+	public URI url; 
 	/**
 	 * URL built by process which accepted the communication endpoint. The
 	 * receiving communication adapter provides the information to build this
 	 * URL
 	 */
-	public URL remoteURL;
+	public URI remoteURL;
 	/**
 	 * unused
 	 */
