@@ -26,7 +26,7 @@
 package org.myrobotlab.net;
 
 import java.io.Serializable;
-import java.net.URL;
+import java.net.URI;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
@@ -61,7 +61,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 
 	}
 
-	public void send(final URL remoteURL, final Message msg) {
+	public void send(final URI remoteURL, final Message msg) {
 		getComm().send(remoteURL, msg);	
 	}
 	

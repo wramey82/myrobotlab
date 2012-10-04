@@ -1,7 +1,7 @@
 package org.myrobotlab.framework;
 
 import java.io.Serializable;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -46,7 +46,7 @@ public class ServiceWrapper implements Serializable {
 		return (service != null);
 	}
 	
-	public URL getAccessURL()
+	public URI getAccessURL()
 	{
 		return host.accessURL;
 	}

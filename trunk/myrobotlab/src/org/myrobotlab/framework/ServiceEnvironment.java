@@ -1,7 +1,7 @@
 package org.myrobotlab.framework;
 
 import java.io.Serializable;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 
 /**
@@ -14,7 +14,7 @@ public class ServiceEnvironment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public URL accessURL;
+	public URI accessURL;
 	public HashMap<String, ServiceWrapper> serviceDirectory; // TODO make public & concurrent
 
 	/**
@@ -23,7 +23,7 @@ public class ServiceEnvironment implements Serializable {
 	 */
 	public Platform platform;
 
-	public ServiceEnvironment(URL url)
+	public ServiceEnvironment(URI url)
 	{
 		this.accessURL = url;
 		serviceDirectory = new HashMap<String, ServiceWrapper>();

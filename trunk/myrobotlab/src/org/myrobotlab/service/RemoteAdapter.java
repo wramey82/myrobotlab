@@ -35,7 +35,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -71,7 +71,7 @@ public class RemoteAdapter extends Service {
 	// when correct interfaces and base classes are done
 	transient TCPListener tcpListener = null;
 	transient UDPListener udpListener = null;
-	transient UDPStringListener udpStringListener = null;
+	//transient UDPStringListener udpStringListener = null;
 
 	// FIXME - all port & ip data needs to be only in the threads
 	public int TCPPort = 6767;
@@ -100,6 +100,8 @@ public class RemoteAdapter extends Service {
 		}
 		return false;
 	}
+	
+	public int TCPMessages = 0;
 
 	class TCPListener extends Thread {
 		RemoteAdapter myService = null;
@@ -134,11 +136,12 @@ public class RemoteAdapter extends Service {
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
-					URL url = new URL("http://"
+					URI url = new URI("tcp://"
 							+ clientSocket.getInetAddress().getHostAddress()
 							+ ":" + clientSocket.getPort());
 					log.info("new connection [" + url + "]");
 					comm.addClient(url, clientSocket);
+					broadcastState();
 				}
 
 				serverSocket.close();
@@ -149,55 +152,7 @@ public class RemoteAdapter extends Service {
 		}
 	}
 
-	class UDPStringListener extends Thread {
-		DatagramSocket socket = null;
-		String dst = "chess";
-		String fn = "parseOSC";
-
-		RemoteAdapter myService = null;
-
-		public UDPStringListener(String n, RemoteAdapter s) {
-			super(n);
-			myService = s;
-		}
-
-		public void shutdown() {
-			if ((socket != null) && (!socket.isClosed())) {
-				socket.close();
-			}
-		}
-
-		public void run() {
-
-			try {
-				socket = new DatagramSocket(UDPStringPort);
-
-				log.info(getName() + " UDPStringListener listening on "
-						+ socket.getLocalAddress() + ":"
-						+ socket.getLocalPort());
-
-				byte[] b = new byte[65535];
-				DatagramPacket dgram = new DatagramPacket(b, b.length);
-
-				while (isRunning()) {
-
-					socket.receive(dgram);
-					String data = new String(dgram.getData(), 0,
-							dgram.getLength());
-					dgram.setLength(b.length); // must reset length field!
-
-					log.debug("udp data [" + data + "]");
-					send(dst, fn, data);
-					// create a string message and send it
-				}
-
-			} catch (Exception e) {
-				log.error("UDPStringListener could not listen");
-				logException(e);
-			}
-		}
-	}
-
+	
 	class UDPListener extends Thread {
 
 		DatagramSocket socket = null;
@@ -243,12 +198,13 @@ public class RemoteAdapter extends Service {
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset();
 						if ("registerServices".equals(msg.method)) {
-							URL url = new URL("http://"
+							URI url = new URI("tcp://" // FIXME - is wrong of course !?!?
 									+ dgram.getAddress().getHostAddress() + ":"
 									+ dgram.getPort());
 							comm.addClient(url, socket);
 							invoke("registerServices", dgram.getAddress()
 									.getHostAddress(), dgram.getPort(), msg);
+							//broadcastState();
 							continue;
 						}
 
@@ -272,6 +228,12 @@ public class RemoteAdapter extends Service {
 				logException(e);
 			}
 		}
+	}
+	
+	public ArrayList<URI> getClients ()
+	{
+		//ArrayList<U>
+		return null;
 	}
 
 	@Override
@@ -313,11 +275,6 @@ public class RemoteAdapter extends Service {
 			udpListener.interrupt();
 			udpListener.shutdown();
 			udpListener = null;
-		}
-		if (udpStringListener != null) {
-			udpStringListener.interrupt();
-			udpStringListener.shutdown();
-			udpStringListener = null;
 		}
 
 		if (thisThread != null) {
@@ -374,12 +331,13 @@ public class RemoteAdapter extends Service {
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-
+/*
 		Runtime.createAndStart("remote0", "RemoteAdapter");
 		Runtime.createAndStart("log0", "Logging");
 		Runtime.createAndStart("jython0", "Jython");
+*/
 		Runtime.createAndStart("remote0", "RemoteAdapter");
-		Runtime.createAndStart("gui0", "GUIService");
+		Runtime.createAndStart("gui011", "GUIService");
 
 	}
 }
