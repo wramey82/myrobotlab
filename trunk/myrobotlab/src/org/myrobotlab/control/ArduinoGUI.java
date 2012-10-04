@@ -160,16 +160,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 	public JLayeredPane getPinPanel() {
 
-		if (myArduino == null)
+		if (myArduino != null && boardName != null && boardName.contains("Mega"))
 		{
-			return getDuemilanovePanel();
-		}
-			
-		if (boardName.contains("Mega")) {
 			return getMegaPanel();
-		} else {
-			return getDuemilanovePanel();
 		}
+		
+		return getDuemilanovePanel();
 
 	}
 
