@@ -303,7 +303,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	
 	public void removeTab(String name)
 	{
-		log.info(String.format("removeTab removing [%1$s] current tab size is %d", name, serviceGUIMap.size()));
+		log.info("removeTab");
+		//log.info(String.format("removeTab removing [%1$s] current tab size is %d", name, serviceGUIMap.size()));
 		
 		// detaching & removing the ServiceGUI
 		ServiceGUI sg = serviceGUIMap.get(name);
