@@ -76,8 +76,9 @@ public class PhotoReelWidget extends ServiceGUI {
 			mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
 			// myService.send(boundServiceName, "invokeFilterMethod",
 			// "samplePoint", boundFilterName, e);
-			Object[] d = new Object[1];
-			d[0] = e;
+			Object[] d = new Object[2];
+			d[0] = e.getX();
+			d[0] = e.getY();
 			myService.send(boundServiceName, "invokeFilterMethod",
 					boundFilterName, "samplePoint", d); // TODO - overload and
 														// hind boundServiceName

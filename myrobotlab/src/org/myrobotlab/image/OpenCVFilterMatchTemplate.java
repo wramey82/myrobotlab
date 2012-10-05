@@ -96,23 +96,23 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	int x0,y0,x1,y1;
 	public CvRect rect = new CvRect();
 	public boolean makeTemplate = false;
-	public void samplePoint(MouseEvent event) {
+	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
-		if (event.getButton() == 1) {
+		//if (event.getButton() == 1) {
 			if (clickCount%2 == 0)
 			{
-				x0 = event.getPoint().x;
-				y0 = event.getPoint().y;
+				x0 = x;
+				y0 = y;
 			} else {
-				x1 = event.getPoint().x;
-				y1 = event.getPoint().y;
+				x1 = x;
+				y1 = y;
 				rect.x(x0);
 				rect.y(y0);
 				rect.width(Math.abs(x1-x0));
 				rect.height(Math.abs(y1-y0));
 				makeTemplate = true;
 			}
-		}
+	//	}
 		++clickCount;
 	}
 	

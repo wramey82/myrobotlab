@@ -45,7 +45,6 @@ import static com.googlecode.javacv.cpp.opencv_video.cvCalcOpticalFlowPyrLK;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
@@ -198,6 +197,21 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	int add_remove_pt = 0;
 
+	public void samplePoint(Integer x, Integer y) {
+		// MouseEvent me = (MouseEvent)params[0];
+		if (count < maxCount) {
+			// current_features[count++] = new
+			// cxcore.CvPoint2D32f(event.getPoint().x(), event.getPoint().y());
+			pt.x(x);
+			pt.y(y);
+			add_remove_pt = 1;
+		} else {
+			clearPoints();
+		}
+
+		// add_remove_pt = 0;
+	}
+	/*
 	public void samplePoint(MouseEvent event) {
 		// MouseEvent me = (MouseEvent)params[0];
 		if (count < maxCount && event.getButton() == 1) {
@@ -206,19 +220,14 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			pt.x(event.getPoint().x);
 			pt.y(event.getPoint().y);
 			add_remove_pt = 1;
-			/*
-			 * cv.cvFindCornerSubPix( grey, current_features[count - 1], 1,
-			 * cxcore.cvSize(win_size,win_size),
-			 * cxcore.cvSize(-1,-1),
-			 * cxcore.cvTermCriteria(CV_TERMCRIT_ITER
-			 * |CV_TERMCRIT_EPS,20,0.03));
-			 */
+			
 		} else {
 			clearPoints();
 		}
 
 		// add_remove_pt = 0;
 	}
+	*/
 
 	public void samplePoint(Point p) {
 		if (count < maxCount) {

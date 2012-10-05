@@ -98,6 +98,16 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 	}
 
+	public void samplePoint(Integer x, Integer y) {
+
+		frameBuffer = hsv.getBufferedImage();
+		int rgb = frameBuffer.getRGB(x, y);
+		Color c = new Color(rgb);
+		log.error(x + "," + y + " h " + c.getRed()
+				+ " s " + c.getGreen() + " v " + c.getBlue());
+	}
+/*
+	
 	public void samplePoint(MouseEvent event) {
 
 		frameBuffer = hsv.getBufferedImage();
@@ -106,6 +116,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 		log.error(event.getX() + "," + event.getY() + " h " + c.getRed()
 				+ " s " + c.getGreen() + " v " + c.getBlue());
 	}
+*/
 
 	@Override
 	public IplImage process(IplImage image) {

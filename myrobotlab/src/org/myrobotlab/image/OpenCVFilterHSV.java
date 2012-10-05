@@ -79,10 +79,10 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	Graphics g = null;
 	String lastHexValueOfPoint = "";
 
-	public void samplePoint(MouseEvent me) {
+	public void samplePoint(Integer inX, Integer inY) {
 		++clickCounter;
-		x = me.getPoint().x;
-		y = me.getPoint().y;
+		x = inX;
+		y = inY;
 
 	}
 
