@@ -29,7 +29,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -71,6 +70,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 
 		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
+		/*
 		++frameCounter;
 		if (x != 0 && clickCounter % 2 == 0) {
 			if (g == null) {
@@ -85,7 +85,8 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 			frameBuffer.getRGB(x, y);
 			g.drawString(lastHexValueOfPoint, x, y);
 		}
-
+		*/
+		//dst.release();
 		return frameBuffer;
 	}
 
@@ -113,7 +114,10 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 		}
 		
 
-		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
+		//if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
+		// FIXME - in an attempt to make more robust ie having different filters "removed" above this filter
+		// such that a change of width or channels will occur you've made a huge memory leak
+		if (dst == null || dst.width() != image.width() / 2 || dst.nChannels() != image.nChannels()) {	
 			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(),
 					image.nChannels());
 		}
