@@ -327,6 +327,7 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
          </list>
       </dependsOn>
    </serviceType>
