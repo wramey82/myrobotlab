@@ -264,7 +264,7 @@ public class OpenCV extends Service {
 	 * Callback from the GUI to the appropriate filter funnel through here
 	 */
 	public void invokeFilterMethod(String filterName, String method,
-			Object[] params) {
+			Object... params) {
 		// log.error("invokeFilterMethod here");
 		if (filters.containsKey(filterName)) {
 			invoke(filters.get(filterName), method, params);
@@ -274,6 +274,7 @@ public class OpenCV extends Service {
 
 	}
 
+	
 	public void setFilterData(FilterWrapper filterData) {
 		if (filters.containsKey(filterData.name)) {
 			Service.copyShallowFrom(filters.get(filterData.name),

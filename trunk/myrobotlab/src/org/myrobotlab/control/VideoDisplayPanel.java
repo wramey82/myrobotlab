@@ -57,9 +57,14 @@ public class VideoDisplayPanel implements ActionListener
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
-			Object[] d = new Object[1];
-			d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not OpenCV specific
-			myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", d); 
+			Object[] params = new Object[2];
+			params[0] = e.getX();
+			params[1] = e.getY();
+			
+			//d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not OpenCV specific
+			//myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", d); 
+			myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", params); 
+			//myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", e.getX(), e.getY()); 
 		}
 
 		@Override

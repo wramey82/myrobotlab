@@ -127,12 +127,12 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 
 	}
 
-	public void samplePoint(MouseEvent event) {
+	public void samplePoint(Integer x, Integer y) {
 
 		frameBuffer = hsv.getBufferedImage();
-		int rgb = frameBuffer.getRGB(event.getX(), event.getY());
+		int rgb = frameBuffer.getRGB(x,y);
 		Color c = new Color(rgb);
-		log.error(event.getX() + "," + event.getY() + " h " + c.getRed()
+		log.error(x + "," + y + " h " + c.getRed()
 				+ " s " + c.getGreen() + " v " + c.getBlue());
 	}
 
