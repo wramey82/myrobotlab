@@ -59,6 +59,8 @@
 #define SET_DIGITAL_TRIGGER              19
 #define REMOVE_DIGITAL_TRIGGER           20
 
+#define COMMUNICATION_RESET	   252
+#define SOFT_RESET			   253
 #define SERIAL_ERROR           254
 #define NOP  255
 
