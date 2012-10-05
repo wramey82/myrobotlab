@@ -320,7 +320,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				myService.send(boundServiceName, "addFilter", name, type);
 				// TODO - block on response - if (myService.send...)
 
-				addFilterToGUI(name, type);
+//				addFilterToGUI(name, type);
 
 			}
 
@@ -607,6 +607,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 				}
 				
 			}
+			
+			currentFilters.repaint();
 						
 			for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i)
 			{

@@ -812,7 +812,14 @@ public class OpenCV extends Service {
 		// so the structure of the LinkedHashMap can not be changed - this
 		// function should hand back a "copy"
 		// not the actual filters
-		return filters;
+		LinkedHashMap<String, OpenCVFilter> ret = new LinkedHashMap<String, OpenCVFilter>();
+		
+		ret.putAll(filters);
+		ret.putAll(addFilters);
+		
+		// FIXME - since the capture thread is the one moving from addFilters to filters
+		// there is a chance the ret will have a duplicate
+		return ret;
 	}
 
 	public OpenCVFilter getFilter(String name) {
