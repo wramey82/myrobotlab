@@ -54,14 +54,16 @@ public class Motor extends Service {
 	 * POWER - PWM must be put on both lines - 2 PWM lines
 	 */
 
+	// TODO - Motor type or controller type
+	
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(Motor.class.toString());
 
 	boolean isAttached = false;
 	
-	private int PWRPin;
-	private int DIRPin;
+	private int powerPin;
+	private int directionPin;
 	private int powerMultiplier = 255; // FIXME - remove | default to Arduino analogWrite max
 								
 	int FORWARD = 1;
@@ -92,7 +94,7 @@ public class Motor extends Service {
 	}
 
 	/**
-	 * attach (controllerName, PWRPin, DIRPin is primarily for simple motor
+	 * attach (controllerName, powerPin, directionPin is primarily for simple motor
 	 * controllers such as the Arduino, PicAxe, or other controllers which can
 	 * typically control motors with 2 bits.  One for power with pulse width modulation
 	 * and another for direction.
@@ -101,14 +103,14 @@ public class Motor extends Service {
 	 * {@link #attach(String, Properties) attach with Properties}
 	 * 
 	 * @param controllerName
-	 * @param PWRPin
-	 * @param DIRPin
+	 * @param powerPin
+	 * @param directionPin
 	 */
-	public void attach(String controllerName, int PWRPin, int DIRPin) {
+	public void attach(String controllerName, int powerPin, int directionPin) {
 		this.controllerName = controllerName;
-		this.PWRPin = PWRPin;
-		this.DIRPin = DIRPin;
-		send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
+		this.powerPin = powerPin;
+		this.directionPin = directionPin;
+		send(controllerName, "motorAttach", this.getName(), powerPin, directionPin);
 	}
 
 	/**
@@ -118,13 +120,14 @@ public class Motor extends Service {
 	 * 
 	 * @param controllerName - name of the controller controlling this Motor
 	 * @param config - all the configuration needed for the motor controller
-	 * most times this will just require a PWRPin and DIRPin to describe which
+	 * most times this will just require a powerPin and directionPin to describe which
 	 * pins will be used to control power and direction of the motor
 	 */
 	public void attach(String controllerName, Properties config) {
 		this.controllerName = controllerName;
 		send(controllerName, "motorAttach", this.getName(), config);
 	}
+	
 	
 	// motor primitives begin ------------------------------------
 	public void invertDirection() {
@@ -150,16 +153,16 @@ public class Motor extends Service {
 
 		// check if the direction has changed - send command if necessary
 		if (newPowerLevel > 0 && power <= 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, FORWARD); 
+			send(controllerName, DigitalIO.digitalWrite, directionPin, FORWARD); 
 		} else if (newPowerLevel < 0 && power >= 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD); 
+			send(controllerName, DigitalIO.digitalWrite, directionPin, BACKWARD); 
 		}
 
 		//log.error("direction " + ((newPowerLevel > 0) ? "FORWARD" : "BACKWARD"));
 		log.error(getName() + " power " + (int) (newPowerLevel * 100) + "% actual " + (int) (newPowerLevel * powerMultiplier));
 		// FIXME - MotorController needs a "scalePWM" which takes a float - the controller
 		// then maps it to what would be appropriate - in Arduino 0-255 - remove "powerMultiplier"
-		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (newPowerLevel * powerMultiplier)));
+		send(controllerName, AnalogIO.analogWrite, powerPin, Math.abs((int) (newPowerLevel * powerMultiplier)));
 
 		power = newPowerLevel;
 
@@ -409,8 +412,8 @@ int encoderPin = 0; // TODO - put in Encoder class
 		// TODO - enums pinMode & OUTPUT
 		// TODO - abstract "controller" Controller.OUTPUT
 
-		send(controllerName, "pinMode", PWRPin, Arduino.OUTPUT); // TODO THIS IS NOT!!! A FUNCTION OF THE MOTOR - THIS NEEDS TO BE TAKEN CARE OF BY THE BOARD
-		send(controllerName, "pinMode", DIRPin, Arduino.OUTPUT);
+		send(controllerName, "pinMode", powerPin, Arduino.OUTPUT); // TODO THIS IS NOT!!! A FUNCTION OF THE MOTOR - THIS NEEDS TO BE TAKEN CARE OF BY THE BOARD
+		send(controllerName, "pinMode", directionPin, Arduino.OUTPUT);
 
 	public void move(int direction, float power, int amount) {
 		setDir(direction);

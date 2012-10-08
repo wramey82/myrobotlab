@@ -12,14 +12,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.SerialDeviceException;
-import org.myrobotlab.service.interfaces.Motor;
+import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.interfaces.MotorController;
 
 /**
@@ -28,7 +25,10 @@ import org.myrobotlab.service.interfaces.MotorController;
  * @author greg
  * 
  */
-public class AdafruitMotorShield extends Service implements MotorController {
+// FIXME - implements MotorController
+
+
+public class AdafruitMotorShield extends Service  {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -51,6 +51,12 @@ public class AdafruitMotorShield extends Service implements MotorController {
 	final public int BACKWARD = 0;
 	final public int FORWARD = 0;
 	
+	// dc motors
+	private Motor m1 = null;
+	private Motor m2 = null;
+	private Motor m3 = null;
+	private Motor m4 = null;
+	
 	
 	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
@@ -58,6 +64,8 @@ public class AdafruitMotorShield extends Service implements MotorController {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
 		//servo9 = (Servo)Runtime.createAndStart("servo9", "Servo");
 		//servo10 = (Servo)Runtime.createAndStart("servo10", "Servo");
+		createDCMotors();
+		startDCMotorServices();
 	}
 
 	@Override
@@ -66,6 +74,9 @@ public class AdafruitMotorShield extends Service implements MotorController {
 	}
 	
 	// MOTOR SHIELD INTERFACE BEGIN ////////////
+	// TODO - figure if the way framegrabber initilization with data stream properties is appropriate of 
+	// Motors
+	/*
 	@Override
 	public Motor createMotor(String data) {
 	    Properties properties = new Properties();
@@ -79,6 +90,23 @@ public class AdafruitMotorShield extends Service implements MotorController {
 			Service.logException(e);
 		}
 		return null;
+	}
+	*/
+	
+	public void createDCMotors()
+	{
+		m1 = new Motor(String.format("%s_%s",getName(), "m1"));
+		m2 = new Motor(String.format("%s_%s",getName(), "m2"));
+		m3 = new Motor(String.format("%s_%s",getName(), "m3"));
+		m4 = new Motor(String.format("%s_%s",getName(), "m4"));
+	}
+	
+	public void startDCMotorServices()
+	{
+		m1.startService();
+		m2.startService();
+		m3.startService();
+		m4.startService();
 	}
 	
 	public void releaseMotor()
@@ -132,6 +160,7 @@ public class AdafruitMotorShield extends Service implements MotorController {
 		return false;
 	}
 
+	/*
 	// Begin Motor Controller Interface
 	@Override
 	public void motorMoveTo(String name, Integer position) {
@@ -151,21 +180,23 @@ public class AdafruitMotorShield extends Service implements MotorController {
 		// release service
 		
 	}
-	
+	*/
 	public static void main(String[] args)  {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
+		/*
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		SensorMonitor sensors = new SensorMonitor("sensors");
 		sensors.startService();
-		/*
+		*/
 		AdafruitMotorShield adafruit = new AdafruitMotorShield("adafruit");
 		adafruit.startService();
 		
-		adafruit.attach(arduino.getName());
+		//adafruit.attach(arduino.getName());
+		/*
 		*/
 		/*
 		 * //Runtime.createAndStart("sensors", "SensorMonitor");
