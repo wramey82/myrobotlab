@@ -276,7 +276,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 
 		
 		// TODO - bury in framework?
-        myOpenCV = (OpenCV)Runtime.getService(boundServiceName).service;
+        myOpenCV = (OpenCV)Runtime.getServiceWrapper(boundServiceName).service;
         
         // TODO - remove action listener?
         grabberTypeSelect.setSelectedItem("OpenCV");

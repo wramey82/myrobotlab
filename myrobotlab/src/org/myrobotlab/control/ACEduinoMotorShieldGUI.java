@@ -69,7 +69,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-        myServo = (ACEduinoMotorShield)Runtime.getService(boundServiceName).service;
+        myServo = (ACEduinoMotorShield)Runtime.getServiceWrapper(boundServiceName).service;
 	}
 	
 	public void init() {

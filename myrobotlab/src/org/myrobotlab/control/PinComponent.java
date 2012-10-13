@@ -36,10 +36,11 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.service.data.Pin;
 
-public class Pin {
+public class PinComponent {
 
-	public final static Logger log = Logger.getLogger(Pin.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(PinComponent.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 	
 	public final String boundServiceName;
@@ -73,8 +74,13 @@ public class Pin {
 	public static final int LOW = 0x0;
 	public static final int OUTPUT = 0x1;
 	public static final int INPUT = 0x0;
+	
+	public PinComponent(Service myService, String boundServiceName, Pin pin, boolean isVertical)
+	{
+		this(myService, boundServiceName, pin.pin, pin.type == Pin.PWM_VALUE, pin.type == Pin.ANALOG_VALUE,  isVertical);
+	}
 
-	public Pin(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog, boolean isVertical) {
+	public PinComponent(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog, boolean isVertical) {
 		this.boundServiceName = boundServiceName;
 		this.isAnalog = isAnalog;
 		this.isPWM = isPWM;

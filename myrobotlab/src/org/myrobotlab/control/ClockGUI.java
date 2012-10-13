@@ -136,7 +136,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		gc.gridy = 2;
         display.add(pulseData, gc);
         
-        myClock = (Clock)Runtime.getService(boundServiceName).service;
+        myClock = (Clock)Runtime.getServiceWrapper(boundServiceName).service;
 		
 	}
 

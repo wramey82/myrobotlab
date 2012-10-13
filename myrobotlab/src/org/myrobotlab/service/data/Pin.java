@@ -29,22 +29,22 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
-public class PinData implements Serializable {
+public class Pin implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(PinData.class);
-	public static final int DIGITAL_VALUE = 1; // normalized with Arduino 
-	public static final int ANALOG_VALUE = 3;  // normalized with Arduino 
+	public final static Logger log = Logger.getLogger(Pin.class);
+	public static final int DIGITAL_VALUE = 1; // normalized with data coming from Arduino.DIGITAL_READ_POLLING_START 
+	public static final int PWM_VALUE = 2; 
+	public static final int ANALOG_VALUE = 3;  // normalized with data coming from Adruino.ANALOG_READ_POLLING_START
 	
-	//public long time; 	// time of creation
-	public int pin; 	// address
-	public int type; 	// FIXME - rename type ?
-	public int value; // address
-	//public int type; // 0 Binary 1 Analog ?
+	public int pin; 	
+	public int type; 	
+	public int value; 
 	public String source;
 
-	public PinData() {
+	public Pin() {
 	}
-	public PinData(int pin, int type, int value, String source) {
+	
+	public Pin(int pin, int type, int value, String source) {
 		this.pin = pin;
 		this.type = type;
 		this.value = value;

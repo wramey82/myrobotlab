@@ -255,7 +255,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void addTab(String serviceName)
 	{
 		// ================= begin addTab(name) =============================
-		ServiceWrapper sw = Runtime.getService(serviceName);
+		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
 
 		if (sw == null)
 		{

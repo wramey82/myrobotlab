@@ -38,11 +38,11 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
-import org.myrobotlab.service.interfaces.Motor;
+import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
@@ -488,7 +488,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		return io;
 	}
 
-	public PinData publishPin(PinData p) {
+	public Pin publishPin(Pin p) {
 		log.info(p);
 		return p;
 	}
@@ -870,7 +870,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 
     							// mrl protocol
 
-    							PinData p = new PinData();
+    							Pin p = new Pin();
     							p.type = msg[0];
     							p.pin = msg[1];
     							// java assumes signed
@@ -950,8 +950,8 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 	
 	@Override // FIXME - normalize - and build only when change types
-	public ArrayList<PinData> getPinList() {
-		ArrayList<PinData> pinList = new ArrayList<PinData>();
+	public ArrayList<Pin> getPinList() {
+		ArrayList<Pin> pinList = new ArrayList<Pin>();
 		//String type = Preferences2.get("board");
 		String type = "atmega328";
 
@@ -959,13 +959,13 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		{
 			for (int i = 0; i < 70; ++i) 
 			{
-				pinList.add(new PinData(i, ((i < 54)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+				pinList.add(new Pin(i, ((i < 54)?Pin.DIGITAL_VALUE:Pin.ANALOG_VALUE), 0, getName()));
 			}
 		} else if ("atmega328".equals(type))
 		{
 			for (int i = 0; i < 20; ++i) 
 			{
-				pinList.add(new PinData(i, ((i < 14)?PinData.DIGITAL_VALUE:PinData.ANALOG_VALUE), 0, getName()));
+				pinList.add(new Pin(i, ((i < 14)?Pin.DIGITAL_VALUE:Pin.ANALOG_VALUE), 0, getName()));
 			}
 			
 		} else {
@@ -976,16 +976,33 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	@Override
-	public Motor createMotor(String name) {
+	public ArrayList<String> getMotorAttachData() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void releaseMotor(String data) {
+	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void motorMove(String name) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
+	public boolean motorAttach(MotorControl motor, Object... motorData) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean motorAttach(String motorName, Object... motorData) {
+		// TODO Auto-generated method stub
+		return false;
+	}
     
 }

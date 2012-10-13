@@ -31,7 +31,7 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 
@@ -302,7 +302,7 @@ public class TweedleBot extends Service {
 		explore();
 		
 		// set a route of data from arduino to the sensor monitor
-		arduino.addListener(SensorDataPublisher.publishPin, sensors.getName(), "sensorInput", PinData.class);
+		arduino.addListener(SensorDataPublisher.publishPin, sensors.getName(), "sensorInput", Pin.class);
 
 		// set an alert from sensor monitor to MyRobot
 		sensors.addListener("publishPinAlert", this.getName(), "sensorAlert", Trigger.class);

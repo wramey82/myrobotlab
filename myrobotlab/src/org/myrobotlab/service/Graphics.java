@@ -55,7 +55,7 @@ public class Graphics extends Service {
 	// this is how to associate it
 	public boolean attach(String guiServiceName)
 	{
-		ServiceWrapper sw = Runtime.getService(guiServiceName);
+		ServiceWrapper sw = Runtime.getServiceWrapper(guiServiceName);
 		if (!sw.getServiceType().equals("org.myrobotlab.service.GUIService"))
 		{
 			log.warn(String.format("attaching type of %s instead of GUIService instance %s", sw.getServiceType(), guiServiceName));

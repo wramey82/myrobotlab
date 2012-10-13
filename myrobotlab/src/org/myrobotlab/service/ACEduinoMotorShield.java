@@ -77,7 +77,7 @@ public class ACEduinoMotorShield extends Service {
 	}
 	
 	public boolean attach(String controllerName) {
-		ServiceWrapper sw = Runtime.getService(controllerName);
+		ServiceWrapper sw = Runtime.getServiceWrapper(controllerName);
 		if (sw != null)
 		{
 			log.info(String.format("%s controller set to %s", getName(), controllerName));

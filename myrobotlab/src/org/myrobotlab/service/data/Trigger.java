@@ -14,7 +14,7 @@ public class Trigger implements Serializable {
 	public int max;
 	public int type; // ONESHOT (only) | MEAN ? EDGE TRIGGER | EDGE DELAY |FIXME - ENUMS
 	public int delay; 
-	public PinData pinData = null;// = new PinData();
+	public Pin pinData = null;// = new PinData();
 	public int targetPin;
 	public int threshold; // use this
 

@@ -34,7 +34,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
 
 public class SensorMonitor extends Service {
@@ -44,7 +44,7 @@ public class SensorMonitor extends Service {
 
 	public HashMap<String, Trigger> triggers = new HashMap<String, Trigger>();
 	public HashMap<String, Trigger> triggers_nameIndex = new HashMap<String, Trigger>();
-	public HashMap<String, PinData> lastValue = new HashMap<String, PinData>();
+	public HashMap<String, Pin> lastValue = new HashMap<String, Pin>();
 
 	public SensorMonitor(String n) {
 		super(n, SensorMonitor.class.getCanonicalName());
@@ -85,7 +85,7 @@ public class SensorMonitor extends Service {
 			Object data = m.data[0];
 			if (data instanceof Float)
 			{
-				PinData pinData = new PinData(0, 0,((Float)data).intValue(), m.sender);
+				Pin pinData = new Pin(0, 0,((Float)data).intValue(), m.sender);
 				sensorInput(pinData);
 			}
 			
@@ -95,7 +95,7 @@ public class SensorMonitor extends Service {
 	}
 	
 
-	final static public String makeKey(PinData pinData)
+	final static public String makeKey(Pin pinData)
 	{
 		return makeKey(pinData.source, pinData.pin);
 	}
@@ -115,7 +115,7 @@ public class SensorMonitor extends Service {
 	 * source can be attached so that trace lines can be identified
 	 * @param pinData
 	 */
-	public void sensorInput(PinData pinData) {
+	public void sensorInput(Pin pinData) {
 		String key = makeKey(pinData);
 		
 		if (triggers.containsKey(key))
@@ -174,7 +174,7 @@ public class SensorMonitor extends Service {
 	}
 
 	// output
-	public PinData publishSensorData(PinData pinData) {
+	public Pin publishSensorData(Pin pinData) {
 		// TODO - wrap with more info if possible
 		return pinData;
 	}
@@ -187,7 +187,7 @@ public class SensorMonitor extends Service {
 	/*
 	 * publishing point to add trace data to listeners (like the gui)
 	 */
-	public PinData addTraceData (PinData pinData)
+	public Pin addTraceData (Pin pinData)
 	{
 		return pinData;
 	}

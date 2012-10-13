@@ -62,12 +62,13 @@ import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceService;
 import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
-import org.myrobotlab.service.interfaces.Motor;
+import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Root;
 
@@ -126,6 +127,9 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int INPUT = 0x0;
 	public static final int OUTPUT = 0x1;
 
+	public static final int MOTOR_FORWARD = 1;
+	public static final int MOTOR_BACKWARD = 0;
+	
 	// needed to dynamically adjust PWM rate (D. only?)
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
@@ -164,9 +168,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS = 53;
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS = 54;
 	
+	
+	public static final int ADAFRUIT_MOTOR_SHIELD_START = 60;
+	
 	// error
 	public static final int SERIAL_ERROR = 254;
 
+	/**
+	 *  pin description of board
+	 */
+	ArrayList<Pin> pinList = null;
+	
 	// servos
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>();
@@ -265,6 +277,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// FIXME - hilacious long wait - need to incorporate .waitTillServiceReady
 		// especially if there are multiple initialization threads
 		// SWEEEET ! - Service already provides an isReady - just need to overload it with a Thread.sleep check -> broadcast setState
+		
+		createPinList();
 
 	}
 	
@@ -542,7 +556,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(ANALOG_WRITE, address, value);
 	}
 
-	public PinData publishPin(PinData p) {
+	public Pin publishPin(Pin p) {
 		//log.debug(p);
 		return p;
 	}
@@ -587,15 +601,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// in read
 	}
 
-	public void motorMove(String name, Integer amount) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void motorMoveTo(String name, Integer position) {
-		// TODO Auto-generated method stub
-
-	}
 	
 	// FIXME - make interface for this one
 	// General purpose send command to send a custom 3 byte message to MRLComm
@@ -653,17 +658,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 							invoke("readSerialMessage", s);
 						} else {
 
-							// mrl protocol
-							PinData p = new PinData();
-							// p.time = System.currentTimeMillis();
-							p.type = msg[0];
-							p.pin = msg[1];
-							// java assumes signed
-							// http://www.rgagnon.com/javadetails/java-0026.html
-							p.value = (msg[2] & 0xFF) << 8; // MSB - (Arduino
-															// int is 2 bytes)
-							p.value += (msg[3] & 0xFF); // LSB
-							p.source = this.getName();
+							// mrl protocol 
+							Pin p = new Pin(msg[1],msg[0], (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF)), getName());
 							invoke(SensorDataPublisher.publishPin, p);
 						}
 
@@ -1026,24 +1022,44 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 	@Override
-	// FIXME - normalize - and build only when change types
-	public ArrayList<PinData> getPinList() {
-		ArrayList<PinData> pinList = new ArrayList<PinData>();
+	public ArrayList<Pin> getPinList()
+	{
+		return pinList;
+	}
+	
+	public ArrayList<Pin> createPinList() {
+		pinList = new ArrayList<Pin>();
 		String type = preferences.get("board");
+		int pinType = Pin.DIGITAL_VALUE;
 
 		if ("mega2560".equals(type)) {
 			for (int i = 0; i < 70; ++i) {
-				pinList.add(new PinData(i, ((i < 54) ? PinData.DIGITAL_VALUE : PinData.ANALOG_VALUE), 0, getName()));
+	
+				if (i < 1 || (i > 13 && i < 54))
+				{
+					pinType = Pin.DIGITAL_VALUE;
+				} else if (i > 53) {
+					pinType = Pin.ANALOG_VALUE;
+				} else {
+					pinType = Pin.PWM_VALUE;
+				}
+				pinList.add(new Pin(i, pinType, 0, getName()));
 			}
-		} else if ("atmega328".equals(type)) {
-			for (int i = 0; i < 20; ++i) {
-				pinList.add(new PinData(i, ((i < 14) ? PinData.DIGITAL_VALUE : PinData.ANALOG_VALUE), 0, getName()));
-			}
-
 		} else {
-			log.error(String.format("getPinList %s not supported", type));
+			for (int i = 0; i < 20; ++i) {
+				if  (i < 14)
+				{
+					pinType = Pin.DIGITAL_VALUE;
+				} else if (i > 53) {
+					pinType = Pin.ANALOG_VALUE;
+				}
+				
+				if (i == 3 || i == 5 || i == 6 || i == 9 || i == 10 || i == 11) {
+					pinType = Pin.PWM_VALUE;
+				}
+				pinList.add(new Pin(i, pinType, 0, getName()));			}
 		}
-
+		
 		return pinList;
 	}
 
@@ -1109,10 +1125,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return true;
 	}
 	
+	
+	// ----------- Motor Controller API Begin ----------------
 
-	HashMap <String, Motor> motors = new HashMap <String, Motor>();
+	//HashMap <String, Motor> motors = new HashMap <String, Motor>();
 	
-	
+	/*
 	@Override
 	public Motor createMotor(String data) {
 	    Properties properties = new Properties();
@@ -1127,8 +1145,132 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		}
 		return null;
 	}
-
+	*/
 	
+
+	@Override
+	public boolean motorAttach(MotorControl motor, Object... motorData)
+	{
+		if (motor == null || motorData == null)
+		{
+			log.error("null data or motor - can't attach motor");
+			return false;
+		}
+		
+		if (motorData.length != 2 || motorData[0] == null || motorData[1] == null)
+		{
+			log.error("motor data must be of the folowing format - motorAttach(Integer PWMPin, Integer directionPin)");
+			return false;
+		}
+		
+		MotorData md = new MotorData();
+		md.PWMPin = (Integer)motorData[0];
+		md.directionPin = (Integer)motorData[1];
+		motors.put(motor.getName(), md);
+		motor.attached(true);
+		serialSend(PINMODE, md.PWMPin, OUTPUT);
+		serialSend(PINMODE, md.directionPin, OUTPUT);
+		return true;
+		
+		/*
+	    Properties properties = new Properties();
+	    try {
+			properties.load(new StringReader(motorData));
+			String PWMPin = properties.getProperty("PWMPin");
+			String directionPin = properties.getProperty("directionPin");
+			MotorData md = new MotorData();
+			md.PWMPin = Integer.parseInt(PWMPin);
+			md.directionPin = Integer.parseInt(directionPin);
+			motors.put(motor.getName(), md);
+			motor.attached(true);
+			
+			// TODO - check inverted
+			
+			serialSend(PINMODE, md.PWMPin, OUTPUT);
+			serialSend(PINMODE, md.directionPin, OUTPUT);
+			return true;
+			
+		} catch (Exception e) {
+			log.error(String.format("could not attach motor %s %s %s", motor.getClass().getCanonicalName(), motor.getName(), motorData));
+			Service.logException(e);
+			return false;
+		}
+		*/
+	}
+	
+
+	@Override
+	public void motorDetach(String data) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * MotorData is the combination of a Motor and any controller data needed to 
+	 * implement all of MotorController API
+	 *
+	 */
+	class MotorData 
+	{
+		MotorControl motor = null;
+		int PWMPin = -1;
+		int directionPin = -1;
+		String motorData;
+	}
+	
+	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
+	
+	public void motorMove(String name) {
+		
+		MotorData md = motors.get(name);
+		MotorControl m = md.motor;
+		float power = m.getPowerLevel();
+		
+		if (power < 0)
+		{
+			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_FORWARD:MOTOR_BACKWARD);
+			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255*m.getPowerLevel()));
+		} else if (power > 0)
+		{
+			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_BACKWARD:MOTOR_FORWARD);
+			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255*m.getPowerLevel()));
+		} else {
+			serialSend(ANALOG_WRITE, md.PWMPin, 0);
+		}
+	}
+
+	public void motorMoveTo(String name, Integer position) {
+		// TODO Auto-generated method stub
+
+	}
+
+
+	@Override
+	public ArrayList<String> getMotorAttachData() {
+		ArrayList<String> motorData = new ArrayList<String>();
+		motorData.add("PWMPin");
+		motorData.add("directionPin");
+		return motorData;
+	}
+
+	@Override
+	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
+		ArrayList<String> values = new ArrayList<String>();
+		if ("PWMPin".equals(attachParameterName))
+		{
+			String type = preferences.get("board");
+
+			if ("mega2560".equals(type)) 
+			{
+				
+			}
+		}
+		
+		return values;
+	}
+
+	// ----------- Motor Controller API End ----------------
+
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
@@ -1159,13 +1301,16 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		//Runtime.createAndStart("jython", "Jython");
 
 	}
+	
+	
+
 
 	@Override
-	public void releaseMotor(String data) {
-		// TODO Auto-generated method stub
-		
+	public boolean motorAttach(String motorName, Object... motorData) {
+		ServiceInterface service = Runtime.getServiceWrapper(motorName).service;
+		Motor motor = (Motor)service; // BE-AWARE - local optimization ! Will not work on remote !!!
+		return motorAttach(motor, motorData);
 	}
 
-	
 
 }

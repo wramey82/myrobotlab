@@ -67,7 +67,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	
 	public void send(final Message msg) {
 		
-		ServiceWrapper sw = Runtime.getService(msg.getName());
+		ServiceWrapper sw = Runtime.getServiceWrapper(msg.getName());
 		if (sw == null)
 		{
 			log.error(msg.getName() + " service does not exist - should clean up " + msg.sender );

@@ -67,7 +67,7 @@ public class EditorArduino extends Editor implements ActionListener {
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
-		ServiceWrapper sw = Runtime.getService(boundServiceName);
+		ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);
 		myArduino = (Arduino) sw.get();
 		examplesMenu.add(createExamplesMenu());
 	}

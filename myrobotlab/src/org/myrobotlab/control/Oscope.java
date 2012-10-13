@@ -24,9 +24,9 @@ public class Oscope {
 
 	Graphics g = null;
 
-	HashMap<String, ArrayList<Pin>> allPins = new HashMap<String, ArrayList<Pin>>();
+	HashMap<String, ArrayList<PinComponent>> allPins = new HashMap<String, ArrayList<PinComponent>>();
 	
-	ArrayList<Pin> pinList = null; 
+	ArrayList<PinComponent> pinList = null; 
 	String source = null;
 	
 	SerializableImage sensorImage = null;
@@ -94,7 +94,7 @@ public class Oscope {
 		
 		// pinList.size() mega 60 deuo 20
 		for (int i = 0; i < pinList.size(); ++i) {
-			Pin p = pinList.get(i);
+			PinComponent p = pinList.get(i);
 			if (!p.isAnalog) 
 			{ // digital pins -----------------
 				p.trace.setText("D " + (i));

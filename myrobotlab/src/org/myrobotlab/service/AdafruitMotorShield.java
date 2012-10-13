@@ -8,27 +8,25 @@
 
 package org.myrobotlab.service;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.ArrayList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.Motor;
+import org.myrobotlab.service.data.Pin;
+import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 
 /**
  * AdaFruit Motor Shield Controller Service
  * 
- * @author greg
+ * @author GroG
  * 
+ * References :
+ * 	http://www.ladyada.net/make/mshield/use.html
  */
-// FIXME - implements MotorController
 
-
-public class AdafruitMotorShield extends Service  {
+public class AdafruitMotorShield extends Service implements MotorController  {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -46,7 +44,6 @@ public class AdafruitMotorShield extends Service  {
 	//final public int M1 = 0;
 	//final public int FORWARD = 0;
 	
-	private HashMap<String, Motor> motors = new HashMap<String, Motor>();
 
 	final public int BACKWARD = 0;
 	final public int FORWARD = 0;
@@ -57,6 +54,11 @@ public class AdafruitMotorShield extends Service  {
 	private Motor m3 = null;
 	private Motor m4 = null;
 	
+	private Servo s1 = null;
+	private Servo s2 = null;
+	
+	private Arduino myArduino = null;
+	
 	
 	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
@@ -64,13 +66,23 @@ public class AdafruitMotorShield extends Service  {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
 		//servo9 = (Servo)Runtime.createAndStart("servo9", "Servo");
 		//servo10 = (Servo)Runtime.createAndStart("servo10", "Servo");
-		createDCMotors();
-		startDCMotorServices();
+		myArduino = new Arduino(String.format("%s_arduino", n));		
+//		createDCMotors();
+//		s1 = new Servo(String.format("%s_servo1", n));	
+//		s2 = new Servo(String.format("%s_servo2", n));	
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
 
+	}
+	
+	public void startService() {
+		super.startService();
+		myArduino.startService();
+//		startDCMotorServices();
+//		s1.attach(myArduino.getName(), 9);
+//		s2.attach(myArduino.getName(), 10);
 	}
 	
 	// MOTOR SHIELD INTERFACE BEGIN ////////////
@@ -93,6 +105,7 @@ public class AdafruitMotorShield extends Service  {
 	}
 	*/
 	
+	// TODO - 2 calls as the business logic is 1/2 - 2 motors or 1 stepper
 	public void createDCMotors()
 	{
 		m1 = new Motor(String.format("%s_%s",getName(), "m1"));
@@ -111,17 +124,17 @@ public class AdafruitMotorShield extends Service  {
 	
 	public void releaseMotor()
 	{
-		
+		m1.releaseService();
+		m2.releaseService();
+		m3.releaseService();
+		m4.releaseService();
 	}
 	
-	public void attachMotor(String motorName)
-	{
-		
-	}
 	// MOTOR SHIELD INTERFACE END ////////////
 	
 	// VENDOR SPECIFIC LIBRARY METHODS BEGIN /////
 	// DC Motors
+	// ----------- AFMotor API Begin --------------
 	public void setSpeed(Integer speed)
 	{
 		
@@ -135,19 +148,17 @@ public class AdafruitMotorShield extends Service  {
 	{
 		
 	}
-	// VENDOR SPECIFIC LIBRARY METHODS END /////
+	// ----------- AFMotor API End --------------
 	
 	@Override
 	public String getToolTip() {
 		return "Adafruit Motor Shield Service";
 	}
-
-	HashMap<String, Servo> servos = new HashMap<String, Servo>();
 	
 	// attachControllerBoard ???
 	public boolean attach(String arduinoName) {
 		
-		if (Runtime.getService(arduinoName) != null)
+		if (Runtime.getServiceWrapper(arduinoName) != null)
 		{
 			this.arduinoName = arduinoName;
 			broadcastState(); // state has changed let everyone know
@@ -218,6 +229,58 @@ public class AdafruitMotorShield extends Service  {
 		//Runtime.createAndStart("jython", "Jython");
 
 	}
+
+
+	@Override
+	public void motorMoveTo(String name, Integer position) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void motorMove(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void motorDetach(String data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean motorAttach(MotorControl motor, Object... motorData) {
+		// TODO Auto-generated method stub
+		return false;
+		
+	}
+
+	@Override
+	public ArrayList<String> getMotorAttachData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ArrayList<Pin> getPinList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean motorAttach(String motorName, Object... motorData) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	// motor controller api
 
 
 
