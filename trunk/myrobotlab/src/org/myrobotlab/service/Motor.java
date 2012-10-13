@@ -252,6 +252,7 @@ public class Motor extends Service implements MotorControl {
 	@Override
 	public void attached(boolean isAttached) {
 		this.isAttached = isAttached;
+		broadcastState();
 	}
 
 	@Override
@@ -266,7 +267,7 @@ public class Motor extends Service implements MotorControl {
 		Logger.getRootLogger().setLevel(Level.INFO);
 
 		Runtime.createAndStart("arduino", "Arduino");
-		Runtime.createAndStart("adafruit", "AdafruitMotorShield");
+		//Runtime.createAndStart("adafruit", "AdafruitMotorShield");
 		Runtime.createAndStart("motor01", "Motor");
 		Runtime.createAndStart("gui", "GUIService");
 	

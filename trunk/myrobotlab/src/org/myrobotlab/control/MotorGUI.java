@@ -187,7 +187,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", Arduino.class);
+		subscribe("publishState", "getState", Motor.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -250,6 +250,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		if (power == source) {
 			// powerValue.setText(power.getValue() + "%");
 			powerValue.setText(String.format("%3.2f", power.getScaledValue()));
+			myService.send(boundServiceName, "motorMove", boundServiceName);
 		}
 	}
 
