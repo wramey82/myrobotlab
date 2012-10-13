@@ -30,7 +30,6 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
@@ -1127,25 +1125,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	
 	// ----------- Motor Controller API Begin ----------------
-
-	//HashMap <String, Motor> motors = new HashMap <String, Motor>();
-	
-	/*
-	@Override
-	public Motor createMotor(String data) {
-	    Properties properties = new Properties();
-	    try {
-			properties.load(new StringReader(data));
-			String name = properties.getProperty("name");
-			String powerPin = properties.getProperty("powerPin");
-			String directionPin = properties.getProperty("directionPin");
-			
-		} catch (IOException e) {
-			Service.logException(e);
-		}
-		return null;
-	}
-	*/
 	
 
 	@Override
@@ -1215,7 +1194,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		MotorControl motor = null;
 		int PWMPin = -1;
 		int directionPin = -1;
-		String motorData;
 	}
 	
 	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
