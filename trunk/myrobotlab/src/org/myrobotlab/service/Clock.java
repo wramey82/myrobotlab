@@ -25,13 +25,9 @@
 
 package org.myrobotlab.service;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 

@@ -430,7 +430,7 @@ public class Sphinx extends Service {
 	}
 
 	public boolean attach(String serviceName) {
-		ServiceWrapper sw = Runtime.getService(serviceName);
+		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
 		// TODO - in the future make a common interface for
 		// more than one implementation of STT - at the moment there is only one
 

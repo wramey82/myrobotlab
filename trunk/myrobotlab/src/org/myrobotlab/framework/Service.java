@@ -1796,10 +1796,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			URI remoteURL = null;
 			remoteURL = new URI(urlstr.toString());
 			
-			if (sdu == null) {
+			//if (sdu == null) { bug
 			        sdu = new ServiceDirectoryUpdate();
 			        sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
-			}
+			//}
 			
 			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
 			sdu.url = url;
@@ -2081,6 +2081,33 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return FileIO.getResourceFile(String.format("%s/%s",this.getShortTypeName(), subpath));
 	}
 	
+	/**
+	 * called typically from a remote system
+	 * When 2 MRL instances are connected they contain serialized non running Service in a registry, 
+	 * which is maintained by the Runtime.  The data can be stale.
+	 * 
+	 * Messages are sometimes sent (often in the gui) which prompt the remote service to "broadcastState"
+	 * a new serialized snapshot is broadcast to all subscribed methods, but there is no guarantee that the
+	 * registry is updated
+	 * 
+	 * This method will update the registry, additionally it will block until the refresh response comes back
+	 * 
+	 * @return
+	 */
+	/*
+	public Service updateState(String serviceName)
+	{
+		sendBlocking(serviceName, "broadcastState", null);
+		ServiceWrapper sw = Runtime.getService(serviceName);
+		if (sw == null)
+		{
+			log.error(String.format("service wrapper came back null for %s", serviceName));
+			return null;
+		}
+		
+		return (Service)sw.get();
+	}
+	*/
 	public Heartbeat echoHeartbeat(Heartbeat pulse)
 	{
 		return pulse;
@@ -2094,6 +2121,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public void stopHeartbeat()
 	{
 		
+	}
+	
+	/**
+	 * This method is a rounting method used to attach service to other services - the implementation
+	 * of this method depends on what needs to be done in order to attach one service to another
+	 * 
+	 * @param name
+	 * @param data
+	 * @return
+	 */
+	public boolean attach (String name, Object... data)
+	{
+		return false;
 	}
 	
 }

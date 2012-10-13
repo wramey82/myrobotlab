@@ -25,20 +25,36 @@
 
 package org.myrobotlab.service.interfaces;
 
+import java.util.ArrayList;
+
+import org.myrobotlab.service.data.Pin;
+
 
 public interface MotorController {
 
 	/**
-	 * createMotor - creates a new Motor service. The data
-	 * parameter is used for any necessary initialization info
+	 * Remote attachment activation - used by services not in the same instance to attach a Motor
+	 * to a MotorController
 	 * 
-	 * @param data
-	 *            - name of the Motor
-	 * @return Motor
+	 * @param motorName
+	 * @param motorData
 	 */
-	 Motor createMotor(String name);
+	public boolean motorAttach(String motorName, Object... motorData); // PWMPin=9;directionPin=10; ?? would motorAttach(String motorName, Object...data) be better?
+	
+	/**
+	 * Direct attachement - MotorControllers will be on the same instance as a Motor so they can have
+	 * a direct reference for a performance optimization
+	 * @param motor
+	 * @param motorData
+	 */
+	public boolean motorAttach(MotorControl motor, Object... motorData); // PWMPin=9;directionPin=10;
 
-
+	public ArrayList<String> getMotorAttachData();
+	
+	public ArrayList<String> getMotorValidAttachValues(String attachParameterName);
+	
+	public ArrayList<Pin> getPinList();
+	
 	/**
 	 * moveTo - move the Motor a relative amount the amount can be negative or
 	 * positive an integer value is expected
@@ -49,19 +65,18 @@ public interface MotorController {
 	 *            - positive or negative absolute amount to move the Motor
 	 * @return void
 	 */
-	void motorMoveTo(String name, Integer position);
+	public void motorMoveTo(String name, Integer position);
 
 	/**
-	 * MotorMove - move the Motor a relative amount the amount can be negative
-	 * or positive an integer value is expected
+	 * 
+	 * request for motor to move
+	 * the motor can be queried for the new powerlevel and the 
+	 * controller shall appropriately change power level and direction
+	 * if necessary
 	 * 
 	 * @param name
-	 *            - name of the Motor
-	 * @param amount
-	 *            - positive or negative relative amount to move the Motor
-	 * @return void
 	 */
-	void motorMove(String name, Integer amount);
+	public void motorMove(String name);
 
 
 	/**
@@ -71,7 +86,7 @@ public interface MotorController {
 	 *            - name of the Motor
 	 * @return void
 	 */
-	void releaseMotor (String data);
+	public void motorDetach (String name);
 
 	
 

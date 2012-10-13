@@ -123,10 +123,10 @@ public class MoMo extends Service {
 		// Motors attached to Arduino
 		// left motor inverted to keep it simple for me
 		// neck.attach(arduino.getName(), 10, 12);
-		right.attach(arduino.getName(), 9, 8);
+		//right.attach(arduino.getName(), 9, 8);
 		// left.attach(arduino.getName(), 11, 13);
-		left.attach(arduino.getName(), 10, 11);
-		left.invertDirection();
+		//left.attach(arduino.getName(), 10, 11);
+		//left.invertDirection();
 
 		// 2 encoders attached
 		// right.attachEncoder(arduino.getName(), 2);
@@ -171,8 +171,8 @@ public class MoMo extends Service {
 			right.stopAndLock();
 			mouth.speak("locked");
 		} else if (speech.compareTo("go") == 0) {
-			left.incrementPower(0.3f);
-			right.incrementPower(0.3f);
+			//left.incrementPower(0.3f);
+			//right.incrementPower(0.3f);
 			// center();
 		} else if (speech.compareTo("center") == 0) {
 			// center();
@@ -190,10 +190,10 @@ public class MoMo extends Service {
 			// report();
 		} else if (speech.compareTo("left") == 0) {
 			// report();
-			left.incrementPower(0.1f);
+			//left.incrementPower(0.1f);
 		} else if (speech.compareTo("right") == 0) {
 			// report();
-			right.incrementPower(0.1f);
+			//right.incrementPower(0.1f);
 		} else if (speech.compareTo("clear") == 0) {
 			// filterOff();
 		} else {
@@ -249,8 +249,8 @@ public class MoMo extends Service {
 			right.stop();
 			mouth.speak("stop");
 
-			left.incrementPower(0.45f); // TODO - moveTo -3 inches
-			right.incrementPower(0.45f);
+			//left.incrementPower(0.45f); // TODO - moveTo -3 inches
+			//right.incrementPower(0.45f);
 
 			Thread.sleep(1000);
 			left.stop(); // TODO decompose
@@ -442,17 +442,17 @@ public class MoMo extends Service {
 
 	public void keyCommand(String cmd) {
 		if (cmd.compareTo("Up") == 0) {
-			right.incrementPower(0.1f);
-			left.incrementPower(0.1f);
+			//right.incrementPower(0.1f);
+			//left.incrementPower(0.1f);
 		} else if (cmd.compareTo("Down") == 0) {
-			right.incrementPower(-0.1f);
-			left.incrementPower(-0.1f);
+			//right.incrementPower(-0.1f);
+			//left.incrementPower(-0.1f);
 		} else if (cmd.compareTo("Left") == 0) {
-			left.incrementPower(-0.1f);
-			right.incrementPower(0.1f);
+			//left.incrementPower(-0.1f);
+			//right.incrementPower(0.1f);
 		} else if (cmd.compareTo("Right") == 0) {
-			right.incrementPower(-0.1f);
-			left.incrementPower(0.1f);
+			//right.incrementPower(-0.1f);
+			//left.incrementPower(0.1f);
 		} else if (cmd.compareTo("Space") == 0) {
 			right.stopAndLock();
 			left.stopAndLock();

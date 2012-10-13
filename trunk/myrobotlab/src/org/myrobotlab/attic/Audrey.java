@@ -174,10 +174,10 @@ public class Audrey extends Service {
 
 		gui.display();
 
-		right.attach(arduino.getName(), 5, 12);
-		left.attach(arduino.getName(), 6, 13);
+		//right.attach(arduino.getName(), 5, 12);
+		//left.attach(arduino.getName(), 6, 13);
 		
-		left.invertDirection();
+		//left.invertDirection();
 		
 		cameraOn();
 		
@@ -234,8 +234,8 @@ public class Audrey extends Service {
 			right.stopAndLock();
 			// mouth.speak("locked");
 		} else if (speech.compareTo("go") == 0) {
-			left.incrementPower(0.3f);
-			right.incrementPower(0.3f);
+			//left.incrementPower(0.3f);
+			//right.incrementPower(0.3f);
 			// center();
 		} else if (speech.compareTo("center") == 0) {
 			// center();
@@ -253,10 +253,10 @@ public class Audrey extends Service {
 			// report();
 		} else if (speech.compareTo("left") == 0) {
 			// report();
-			left.incrementPower(0.1f);
+			//left.incrementPower(0.1f);
 		} else if (speech.compareTo("right") == 0) {
 			// report();
-			right.incrementPower(0.1f);
+			//right.incrementPower(0.1f);
 		} else if (speech.compareTo("clear") == 0) {
 			// filterOff();
 		} else {
@@ -282,19 +282,19 @@ public class Audrey extends Service {
 		
 		// Toy stuff
 		case 104: // numpad 8
-			right.incrementPower(amt);
+			//right.incrementPower(amt);
 			break;
 			
 		case 101: // numpad 5
-			right.incrementPower(-amt);
+			//right.incrementPower(-amt);
 			break;
 
 		case 103: // numpad 7
-			left.incrementPower(amt);
+			//left.incrementPower(amt);
 			break;
 			
 		case 100: // numpad 4
-			left.incrementPower(-amt);
+			//left.incrementPower(-amt);
 			break;
 
 		case 32: // space

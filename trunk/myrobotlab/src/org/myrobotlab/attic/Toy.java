@@ -242,9 +242,9 @@ public class Toy extends Service {
 	{
 		try {
 			
-			right.attach(arduino.getName(), 3, 11); 
+			//right.attach(arduino.getName(), 3, 11); 
 			Thread.sleep(160);
-			left.attach(arduino.getName(), 6, 7);
+			//left.attach(arduino.getName(), 6, 7);
 			Thread.sleep(160);
 			arduino.pinMode(7, PinState.OUTPUT);
 			Thread.sleep(160);
@@ -526,7 +526,7 @@ public class Toy extends Service {
 		camera.setInpurtSource("camera");
 		camera.capture();
 		
-		right.invertDirection();
+		//right.invertDirection();
 		
 		// prepare graphics screen
 		graphics.createGraph(640, 480);

@@ -62,7 +62,7 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 
 	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myAdafruitMotorShield = (AdafruitMotorShield)Runtime.getService(boundServiceName).service;
+		myAdafruitMotorShield = (AdafruitMotorShield)Runtime.getServiceWrapper(boundServiceName).service;
 	}
 	
 	class ButtonListener implements ActionListener {

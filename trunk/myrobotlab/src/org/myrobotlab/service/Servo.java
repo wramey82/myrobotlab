@@ -29,7 +29,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -143,7 +143,7 @@ public class Servo extends Service implements
 	}
 
 	// callback from controller
-	public PinData publishPin(PinData p) {
+	public Pin publishPin(Pin p) {
 		log.info(p);
 		setPos(p.value);
 		return p;

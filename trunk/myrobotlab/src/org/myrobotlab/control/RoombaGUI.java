@@ -79,7 +79,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 
 	public RoombaGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		roombacomm = (Roomba)Runtime.getService(boundServiceName).service;
+		roombacomm = (Roomba)Runtime.getServiceWrapper(boundServiceName).service;
 	}
 	
 	public void getState(Roomba roomba)

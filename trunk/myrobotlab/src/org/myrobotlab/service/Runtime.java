@@ -553,7 +553,7 @@ public class Runtime extends Service {
 	 * @param name
 	 * @return
 	 */
-	public static ServiceWrapper getService(String name) {
+	public static ServiceWrapper getServiceWrapper(String name) {
 
 		if (!registry.containsKey(name)) {
 			log.debug(String.format("service %1$s does not exist", name));
@@ -571,7 +571,7 @@ public class Runtime extends Service {
 	public static boolean release(String name) /* release local Service */
 	{
 		log.info(String.format("releasing service %1$s", name));
-		ServiceWrapper sw = getService(name);
+		ServiceWrapper sw = getServiceWrapper(name);
 		if (sw == null || !sw.isValid()) {
 			log.error("no service wrapper for " + name);
 			return false;
@@ -1307,7 +1307,7 @@ public class Runtime extends Service {
 			return null;
 		}
 
-		ServiceWrapper sw = Runtime.getService(name);
+		ServiceWrapper sw = Runtime.getServiceWrapper(name);
 		if (sw != null) {
 			log.debug(String.format("service %1$s already exists", name));
 			return sw.service;

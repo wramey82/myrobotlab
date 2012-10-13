@@ -69,7 +69,7 @@ public class ServoGUI extends ServiceGUI {
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-        myServo = (Servo)Runtime.getService(boundServiceName).service;
+        myServo = (Servo)Runtime.getServiceWrapper(boundServiceName).service;
 	}
 	
 	public void init() {

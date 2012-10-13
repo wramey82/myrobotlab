@@ -31,7 +31,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Wii.IRData;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 
 // TODO - BlockingQueue - + reference !
 
@@ -59,7 +59,7 @@ public class WiiDAR extends Service {
 	public static final int UNKNOWN = -1;
 
 	public IRData lastIRData = null;
-	public PinData lastEncoderData = null;
+	public Pin lastEncoderData = null;
 
 	int servoRightMax = 0;
 	IRData irRightMax = null;
@@ -271,7 +271,7 @@ public class WiiDAR extends Service {
 
 	int cnt = 0;
 
-	public PinData publishPin(PinData pd) {
+	public Pin publishPin(Pin pd) {
 		++cnt;
 		lastEncoderData = pd;
 		//log.error("pin v " + pd.value + " " + cnt + " " + pd.time);

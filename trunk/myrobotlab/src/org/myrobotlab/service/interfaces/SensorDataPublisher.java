@@ -27,13 +27,13 @@ package org.myrobotlab.service.interfaces;
 
 import java.util.ArrayList;
 
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 
 public interface SensorDataPublisher {
 
 	public final static String publishPin = "publishPin";
 
-	public PinData publishPin(PinData p);
-	public ArrayList<PinData> getPinList();
+	public Pin publishPin(Pin p);
+	public ArrayList<Pin> getPinList();
 
 }

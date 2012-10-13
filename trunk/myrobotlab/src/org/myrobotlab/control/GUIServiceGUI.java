@@ -539,7 +539,7 @@ public class GUIServiceGUI extends ServiceGUI {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 
-			ServiceInterface s = Runtime.getService(serviceName).get();
+			ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
 			if (s != null) {
 				Iterator<String> ri = s.getNotifyListKeySet().iterator();
 				while (ri.hasNext()) {

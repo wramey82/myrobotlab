@@ -58,7 +58,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SensorMonitor;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
@@ -345,7 +345,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
 			MRLListener MRLListener = new MRLListener(SensorDataPublisher.publishPin, boundServiceName, "sensorInput",
-					new Class[] { PinData.class });
+					new Class[] { Pin.class });
 
 			myService.send(controllerName, "addListener", MRLListener);
 
@@ -361,7 +361,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	}
 
-	public PinData addTraceData(PinData pinData) {
+	public Pin addTraceData(Pin pinData) {
 		// add the data to the array
 		TraceData t = new TraceData();
 		t.label = pinData.source;
@@ -403,7 +403,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 				// this has to be pushed to service
 				Trigger trigger = new Trigger();
 				trigger.name = triggerDlg.name.getText();
-				trigger.pinData = new PinData();
+				trigger.pinData = new Pin();
 				trigger.pinData.source = triggerController.getSelectedItem().toString();
 				trigger.pinData.pin = (Integer) triggerPin.getSelectedItem();
 				trigger.threshold = triggerDlg.threshold.getInt();
@@ -431,7 +431,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	 * 
 	 * @param pinData
 	 */
-	public void inputSensorData(PinData pinData) {
+	public void inputSensorData(Pin pinData) {
 		// update trace array & trigger array if applicable
 		// myService.logTime("start");
 		String key = SensorMonitor.makeKey(pinData);
@@ -518,8 +518,8 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	public void attachGUI() {
 		video.attachGUI();
 		subscribe("publishState", "getState", SensorMonitor.class);
-		subscribe("addTraceData", "addTraceData", PinData.class);
-		subscribe("publishSensorData", "inputSensorData", PinData.class);
+		subscribe("addTraceData", "addTraceData", Pin.class);
+		subscribe("publishSensorData", "inputSensorData", Pin.class);
 
 		// fire the update
 		myService.send(boundServiceName, "publishState");
@@ -529,8 +529,8 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	public void detachGUI() {
 		video.detachGUI();
 		unsubscribe("publishState", "getState", SensorMonitor.class);
-		unsubscribe("addTraceData", "addTraceData", PinData.class);
-		unsubscribe("publishSensorData", "inputSensorData", PinData.class);
+		unsubscribe("addTraceData", "addTraceData", Pin.class);
+		unsubscribe("publishSensorData", "inputSensorData", Pin.class);
 	}
 
 	public void getState(SensorMonitor service) {

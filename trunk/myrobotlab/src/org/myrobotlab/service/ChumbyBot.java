@@ -3,7 +3,7 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 
@@ -47,7 +47,7 @@ public class ChumbyBot extends Service {
 		arduino.setSerialDevice("/dev/ttyUSB0", 57600, 8, 1, 0);
 		
 		// arduino to sensor monitor
-		arduino.addListener(SensorDataPublisher.publishPin, sensors.getName(), "sensorInput", PinData.class);
+		arduino.addListener(SensorDataPublisher.publishPin, sensors.getName(), "sensorInput", Pin.class);
 		
 		// sensor monitor to chumbybot
 		sensors.addListener("publishPinAlert", this.getName(), "publishPinAlert", Trigger.class);

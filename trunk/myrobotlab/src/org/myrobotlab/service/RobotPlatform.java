@@ -394,12 +394,12 @@ public class RobotPlatform extends Service {
 	// incrementMotor must be more descriptive
 	public void incrementRightPower(float power)
 	{
-		right.incrementPower(power);
+		//right.incrementPower(power);
 	}
 
 	public void incrementLeftPower(float power)
 	{
-		left.incrementPower(power);
+		//left.incrementPower(power);
 	}
 	
 	// control functions end -------------------

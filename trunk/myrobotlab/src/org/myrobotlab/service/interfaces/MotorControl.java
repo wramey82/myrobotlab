@@ -25,6 +25,34 @@
 
 package org.myrobotlab.service.interfaces;
 
-public interface Motor {
+public interface MotorControl {
+	
+	public String getName();
+	
+	/**
+	 *  method for the controller to set the state of the motor
+	 */
+	public void attached(boolean isAttached);
+	
+	/**
+	 *  reports if a motor is attached to a motor controller
+	 */
+	public boolean isAttached();
+	
+	/**
+	 * get the current power level of the motor
+	 * @return
+	 */
+	public float getPowerLevel();
+	
+	public boolean isDirectionInverted();
+	
+	public void invertDirection(boolean invert);
+	
+	public void stopAndLock();
+	
+	public void stop();
+	
+	public void lock();
 
 }
