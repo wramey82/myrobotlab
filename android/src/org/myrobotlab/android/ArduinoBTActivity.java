@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.myrobotlab.service.ArduinoBT;
 import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.PinState;
 
 import android.app.Activity;
@@ -372,7 +372,7 @@ import android.widget.Toast;
     // does not return PinData, because if you are hooking/registering off the 
     // GUI for publishPin events ... you are doing it wrong..  register off the
     // Service
-    public void publishPin(PinData data)
+    public void publishPin(Pin data)
     {
     	Log.e(TAG, "--- publishPin ---");
     	//PinButtonGroup p = pinToButton.get(data.pin);
@@ -393,7 +393,7 @@ import android.widget.Toast;
 		// digitalWrite change
 		// analogWrite change
 		subscribe("publishState", "getState", ArduinoBT.class);
-		subscribe("publishPin", "publishPin", PinData.class);
+		subscribe("publishPin", "publishPin", Pin.class);
 		//myService.send(boundServiceName, "publishState"); TODO - broadcast first state
 	}
 

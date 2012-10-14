@@ -154,7 +154,7 @@ public class MRL extends Application {
 			*/
 			name = "android";
 			createAndStartService(name, Android.class.getCanonicalName());
-			androidService = (Android)Runtime.getService(name).service;
+			androidService = (Android)Runtime.getServiceWrapper(name).service;
 			androidService.setContext(getApplicationContext()); // FIXME - cheesey
 //			android.startSensors();
 
