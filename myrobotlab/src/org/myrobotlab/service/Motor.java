@@ -78,7 +78,7 @@ public class Motor extends Service implements MotorControl {
 	public boolean inMotion = false;
 
 	boolean locked = false; // for locking the motor in a stopped position
-	MotorController controller = null; // board name
+	private MotorController controller = null; // board name
 
 	public float getPowerLevel() {
 		return powerLevel;
@@ -243,14 +243,21 @@ public class Motor extends Service implements MotorControl {
 		}
 
 	}
+	
+	@Override
+	public boolean attach(MotorController controller)
+	{
+		this.controller = controller;
+		attached(true);
+		return true;
+	}
 
 	@Override
 	public String getToolTip() {
 		return "general motor service";
 	}
 
-	@Override
-	public void attached(boolean isAttached) {
+	private void attached(boolean isAttached) {
 		this.isAttached = isAttached;
 		broadcastState();
 	}
@@ -271,5 +278,10 @@ public class Motor extends Service implements MotorControl {
 		Runtime.createAndStart("motor01", "Motor");
 		Runtime.createAndStart("gui", "GUIService");
 	
+	}
+
+	@Override
+	public boolean detach() {
+		return controller.motorDetach(getName());
 	}
 }

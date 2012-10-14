@@ -179,6 +179,12 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		power.setEnabled(enable);
 		invert.setEnabled(enable);
 		powerValue.setEnabled(enable);
+		if (enable)
+		{
+			attachButton.setText("detach");
+		} else {
+			attachButton.setText("attach");
+		}
 	}
 
 	public void incrementPosition(Integer pos) {
@@ -250,7 +256,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		if (power == source) {
 			// powerValue.setText(power.getValue() + "%");
 			powerValue.setText(String.format("%3.2f", power.getScaledValue()));
-			myService.send(boundServiceName, "motorMove", boundServiceName);
+			myService.send(boundServiceName, "move", power.getScaledValue());
 		}
 	}
 
