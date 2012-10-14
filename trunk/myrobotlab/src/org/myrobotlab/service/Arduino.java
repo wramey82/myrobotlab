@@ -102,7 +102,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	// FIXME - have SerialDevice read by length or by term string
 	boolean rawReadMsg = false;
-	int rawReadMsgLength = 4;
+	int rawReadMsgLength = 5;
 
 	/* the end of neat, clean, simple config - 
 	 * have to use messy Preferences
@@ -363,13 +363,22 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	@Override
 	public void loadDefaultConfiguration() {
 	}
+	
+	public final static int MAGIC_NUMBER = 170; //10101010
 
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
+			// not CRC16 - but cheesy error correction of bytestream
+			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm
+			// #include <util/crc16.h>
+			// _crc16_update (test, testdata);
+			
+			serialDevice.write(MAGIC_NUMBER);
 			serialDevice.write(function);
 			serialDevice.write(param1);
 			serialDevice.write(param2); // 0 - 180
+			
 		} catch (IOException e) {
 			log.error("serialSend " + e.getMessage());
 		}
@@ -620,6 +629,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		}
 	}
 
+	int errorCount = 0;
+	
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
 		switch (event.getEventType()) {
@@ -642,6 +653,15 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				int numBytes = 0;
 
 				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
+					
+					if (numBytes == 0 && newByte != MAGIC_NUMBER)
+					{
+						// ERROR ERROR ERROR !!!!
+						++errorCount;
+						// TODO call error method - notify rest of system
+						continue;
+					}
+					
 					msg[numBytes] = (byte) newByte;
 					++numBytes;
 
@@ -656,7 +676,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 							invoke("readSerialMessage", s);
 						} else {
 
-							// mrl protocol 
+							// MRL Arduino protocol 
 							Pin p = new Pin(msg[1],msg[0], (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF)), getName());
 							invoke(SensorDataPublisher.publishPin, p);
 						}
