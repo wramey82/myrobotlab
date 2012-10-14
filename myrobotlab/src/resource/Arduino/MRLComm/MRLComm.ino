@@ -347,6 +347,6 @@ Serial.print("]\n");
     lastAnalogInputValue[analogReadPin[i]] = readValue;
   }
 
-  delay(20); // necessary? TODO - onfigurable - SET_DELAY
+  //delay(20); // Removed ! needed for some servo library - Yay big increase in performance !
 
 } // loop
