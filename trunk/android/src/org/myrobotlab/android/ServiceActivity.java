@@ -106,7 +106,7 @@ public abstract class ServiceActivity extends Activity {
         	return;
         }
         
-        sw = Runtime.getService(boundServiceName);
+        sw = Runtime.getServiceWrapper(boundServiceName);
         if (sw == null)
         {
         	MRL.toast("bad service reference - name " + boundServiceName + " not valid !");

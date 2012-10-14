@@ -77,7 +77,7 @@ public class MyRobotLabActivity extends ServiceActivity implements OnItemClickLi
 	 @Override
 	 public View getView(int position, View convertView, ViewGroup parent) {
 	   View view = super.getView(position, convertView, parent);
-	   ServiceWrapper sw = Runtime.getService(getItem(position));
+	   ServiceWrapper sw = Runtime.getServiceWrapper(getItem(position));
 	   if (sw.host.accessURL != null)
 	   {
 		   view.setBackgroundColor(0xFF007000);
