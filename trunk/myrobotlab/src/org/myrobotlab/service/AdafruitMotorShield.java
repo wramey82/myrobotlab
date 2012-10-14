@@ -244,8 +244,8 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 	}
 
 	@Override
-	public void motorDetach(String data) {
-		// TODO Auto-generated method stub
+	public boolean motorDetach(String data) {
+		return false;
 		
 	}
 

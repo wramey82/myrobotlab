@@ -86,7 +86,7 @@ public interface MotorController {
 	 *            - name of the Motor
 	 * @return void
 	 */
-	public void motorDetach (String name);
+	public boolean motorDetach (String name);
 
 	
 

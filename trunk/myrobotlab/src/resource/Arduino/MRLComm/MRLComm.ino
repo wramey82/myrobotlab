@@ -226,25 +226,25 @@ Serial.print(ioCommand[2],HEX);
 Serial.print("]\n");
 */
 
-        switch (ioCommand[0])
+        switch (ioCommand[1])
         {
            case DIGITAL_WRITE:
-             digitalWrite(ioCommand[1], ioCommand[2]);
+             digitalWrite(ioCommand[2], ioCommand[3]);
            break;
            case ANALOG_WRITE:
-             analogWrite(ioCommand[1], ioCommand[2]);
+             analogWrite(ioCommand[2], ioCommand[3]);
            break;
            case PINMODE:
-             pinMode(ioCommand[1], ioCommand[2]);
+             pinMode(ioCommand[2], ioCommand[3]);
            break;
            case PULSE_IN:
-             retULValue = pulseIn(ioCommand[1], ioCommand[2]);
+             retULValue = pulseIn(ioCommand[2], ioCommand[3]);
            break;
            case SERVO_ATTACH:
-             servos[ioCommand[1]].attach(ioCommand[2]);
+             servos[ioCommand[2]].attach(ioCommand[3]);
            break;
            case SERVO_WRITE:
-               servos[ioCommand[1]].write(ioCommand[2]);
+               servos[ioCommand[2]].write(ioCommand[3]);
            break;
            case SERVO_READ:
              //Serial.write(servos[ioCommand[1]].read());
@@ -253,36 +253,36 @@ Serial.print("]\n");
              //servos[ioCommand[1]].setMaximumPulse(ioCommand[2]);    TODO - lame fix hardware
            break;
            case SERVO_DETACH:
-             servos[ioCommand[1]].detach();
+             servos[ioCommand[2]].detach();
            break;
            case SET_PWM_FREQUENCY:
-             setPWMFrequency (ioCommand[1], ioCommand[2]);
+             setPWMFrequency (ioCommand[2], ioCommand[3]);
            break;
            case ANALOG_READ_POLLING_START:
-             analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
-             analogPinService[ioCommand[1]] |= POLLING_MASK;
+             analogReadPin[analogReadPollingPinCount] = ioCommand[2]; // put on polling read list
+             analogPinService[ioCommand[2]] |= POLLING_MASK;
              // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT - if already set don't increment
              ++analogReadPollingPinCount;
            break;
            case ANALOG_READ_POLLING_STOP:
              // TODO - MAKE RE-ENRANT
-             removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
-             analogPinService[ioCommand[1]] &= ~POLLING_MASK;
+             removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[2]);
+             analogPinService[ioCommand[2]] &= ~POLLING_MASK;
            break;
            case DIGITAL_READ_POLLING_START:
              // TODO - MAKE RE-ENRANT
-             digitalReadPin[digitalReadPollingPinCount] = ioCommand[1]; // put on polling read list
+             digitalReadPin[digitalReadPollingPinCount] = ioCommand[2]; // put on polling read list
              ++digitalReadPollingPinCount;
            break;
            case DIGITAL_READ_POLLING_STOP:
              // TODO - MAKE RE-ENRANT
-             removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[1]);
+             removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[2]);
              digitalPinService[ioCommand[1]] &= ~POLLING_MASK;
            break;
            case SET_ANALOG_TRIGGER:
              // TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT
-             analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
-             analogPinService[ioCommand[1]] |= TRIGGER_MASK;
+             analogReadPin[analogReadPollingPinCount] = ioCommand[2]; // put on polling read list
+             analogPinService[ioCommand[2]] |= TRIGGER_MASK;
              ++analogReadPollingPinCount;
            break;
 
@@ -295,10 +295,10 @@ Serial.print("]\n");
         }
 
         // reset buffer
-        ioCommand[0] = -1;
-        ioCommand[1] = -1;
-        ioCommand[2] = -1;
-        ioCommand[3] = -1;
+        ioCommand[0] = -1; // MAGIC_NUMBER 
+        ioCommand[1] = -1; // FUNCTION
+        ioCommand[2] = -1; // PARAM 1
+        ioCommand[3] = -1; // PARAM 2
         byteCount = 0;
 
   } // if getCommand()
@@ -315,6 +315,7 @@ Serial.print("]\n");
       //++encoderValue;
       //if (encoderValue%300 == 0)
       //{
+        Serial.write(MAGIC_NUMBER);
         Serial.write(DIGITAL_VALUE);
         Serial.write(digitalReadPin[i]); // TODO - have to encode it to determine where it came from
         Serial.write(readValue >> 8);   // MSB
@@ -336,6 +337,7 @@ Serial.print("]\n");
     // if my value is different then last time - send it
     if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !sendAnalogDataDeltaOnly) //TODO - SEND_DELTA_MIN_DIFF
     {
+      Serial.write(MAGIC_NUMBER);
       Serial.write(ANALOG_VALUE);
       Serial.write(analogReadPin[i]);
       Serial.write(readValue >> 8);   	// MSB
@@ -348,4 +350,3 @@ Serial.print("]\n");
   delay(20); // necessary? TODO - onfigurable - SET_DELAY
 
 } // loop
-

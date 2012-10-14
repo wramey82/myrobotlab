@@ -128,6 +128,21 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int MOTOR_FORWARD = 1;
 	public static final int MOTOR_BACKWARD = 0;
 	
+	/**
+	 * MotorData is the combination of a Motor and any controller data needed to 
+	 * implement all of MotorController API
+	 *
+	 */
+	class MotorData 
+	{
+		MotorControl motor = null;
+		int PWMPin = -1;
+		int directionPin = -1;
+	}
+	
+	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
+	
+	
 	// needed to dynamically adjust PWM rate (D. only?)
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
@@ -367,7 +382,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public final static int MAGIC_NUMBER = 170; //10101010
 
 	public synchronized void serialSend(int function, int param1, int param2) {
-		log.info("serialSend fn " + function + " p1 " + param1 + " p2 " + param2);
+		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
 			// not CRC16 - but cheesy error correction of bytestream
 			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm
@@ -677,7 +692,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 						} else {
 
 							// MRL Arduino protocol 
-							Pin p = new Pin(msg[1],msg[0], (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF)), getName());
+							// msg[0] MAGIC_NUMBER
+							// msg[1] METHOD
+							// msg[2] PIN
+							// msg[3] HIGHBYTE
+							// msg[4] LOWBYTE
+							Pin p = new Pin(msg[2],msg[1], (((msg[3] & 0xFF) << 8) + (msg[4] & 0xFF)), getName());
 							invoke(SensorDataPublisher.publishPin, p);
 						}
 
@@ -1163,10 +1183,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		}
 		
 		MotorData md = new MotorData();
+		md.motor = motor;
 		md.PWMPin = (Integer)motorData[0];
 		md.directionPin = (Integer)motorData[1];
 		motors.put(motor.getName(), md);
-		motor.attached(true);
+		motor.attach(this);
 		serialSend(PINMODE, md.PWMPin, OUTPUT);
 		serialSend(PINMODE, md.directionPin, OUTPUT);
 		return true;
@@ -1199,24 +1220,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 
 	@Override
-	public void motorDetach(String data) {
-		// TODO Auto-generated method stub
-		
+	public boolean motorDetach(String motorName) {
+		boolean  ret = motors.containsKey(motorName);
+		if (ret)
+		{
+			motors.remove(motorName);
+		}
+		return ret;
 	}
-	
-	/**
-	 * MotorData is the combination of a Motor and any controller data needed to 
-	 * implement all of MotorController API
-	 *
-	 */
-	class MotorData 
-	{
-		MotorControl motor = null;
-		int PWMPin = -1;
-		int directionPin = -1;
-	}
-	
-	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
 	
 	public void motorMove(String name) {
 		

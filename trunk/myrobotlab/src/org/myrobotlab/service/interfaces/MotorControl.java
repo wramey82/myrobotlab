@@ -30,9 +30,15 @@ public interface MotorControl {
 	public String getName();
 	
 	/**
-	 *  method for the controller to set the state of the motor
+	 *  attach a motor controller to the motor
 	 */
-	public void attached(boolean isAttached);
+	public boolean attach(MotorController controller);
+	
+	/**
+	 *  detaches the motor from the motor controller
+	 * @return
+	 */
+	public boolean detach();
 	
 	/**
 	 *  reports if a motor is attached to a motor controller
