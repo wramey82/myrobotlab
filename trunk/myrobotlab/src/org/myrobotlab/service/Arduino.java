@@ -1238,7 +1238,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		if (power < 0)
 		{
 			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_FORWARD:MOTOR_BACKWARD);
-			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255*m.getPowerLevel()));
+			serialSend(ANALOG_WRITE, md.PWMPin, Math.abs((int) (255*m.getPowerLevel())));
 		} else if (power > 0)
 		{
 			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_BACKWARD:MOTOR_FORWARD);

@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Level;
@@ -10,9 +11,12 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
+
+import com.sun.jndi.toolkit.url.Uri;
 
 /**
  * @author GroG
@@ -111,6 +115,7 @@ public class Jython extends Service {
         }
 	}
 	
+	String initialServiceScript = "";
 	
 	/**
 	 * 
@@ -118,6 +123,36 @@ public class Jython extends Service {
 	 */
 	public Jython(String instanceName) {
 		super(instanceName, Jython.class.getCanonicalName());
+		
+		// get all currently registered services and add appropriate jython handles
+		HashMap<String,ServiceWrapper> svcs = Runtime.getRegistry();
+		StringBuffer initScript = new StringBuffer();
+		initScript.append("from org.myrobotlab.service import Runtime\n");
+		 Iterator<String> it = svcs.keySet().iterator();
+		    while (it.hasNext()) {
+		    	String serviceName = it.next();
+		    	ServiceWrapper sw = svcs.get(serviceName);
+		    	
+		    	// load the import
+		    	initScript.append(String.format("from org.myrobotlab.service import %s\n", sw.getShortTypeName()));
+		    	
+		    	// get a handle on running service
+		    	initScript.append(String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", serviceName, serviceName));
+		    }
+		
+		    initialServiceScript = initScript.toString();
+		    exec(initialServiceScript, false); // FIXME - shouldn't be done in the constructor - e.g. "initServicesScripts()"
+		// register for addition of new services
+		subscribe("registered", Runtime.getInstance().getName(), "registered", ServiceWrapper.class);
+	}
+	
+	String registerScript = "";
+	
+	public void registered(ServiceWrapper s)
+	{
+		registerScript = String.format("from org.myrobotlab.service import %s\n", s.getShortTypeName());
+		registerScript += String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", s.getName(), s.getName());
+		exec(registerScript, false);
 	}
 	
 	/**
