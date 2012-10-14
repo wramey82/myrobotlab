@@ -64,6 +64,8 @@
 #define SERIAL_ERROR           254
 #define NOP  255
 
+#define MAGIC_NUMBER    170 // 10101010
+
 // pin services
 #define POLLING_MASK 1
 #define TRIGGER_MASK 2
@@ -74,7 +76,7 @@ Servo servos[MAX_SERVOS];
 unsigned long loopCount = 0;
 int byteCount 		= 0;
 unsigned char newByte 		= 0;
-unsigned char ioCommand[3]; 	// most io fns can cleanly be done with a 3 byte code
+unsigned char ioCommand[4]; 	// most io fns can cleanly be done with a 4 byte code
 int readValue;
 int nibbleCount = 0;        // wii-led protocol
 
@@ -91,6 +93,8 @@ int analogPinService[4];                // the services this pin is involved in
 bool sendAnalogDataDeltaOnly = false;	// send data back only if its different
 
 unsigned long retULValue;
+
+unsigned int errorCount = 0;
 
 void setup() {
   Serial.begin(57600);        // connect to the serial port
@@ -156,11 +160,11 @@ void removeAndShift (int array [], int& len, int removeValue)
  * getCommand - retrieves a command message
  * input messages are in the following format
  *
- * command message - (3 byte protocol) FUNCTION|DATA0|DATA1
- * e.g. digitalWrite (13, 1)     = DIGITAL_WRITE|13|1 = 0|13|1
+ * command message - (4 byte protocol) MAGICNUMBER|FUNCTION|DATA0|DATA1
+ * e.g. digitalWrite (13, 1)     = DIGITAL_WRITE|13|1 = 170|0|13|1
  *
- * return message  - (4 byte protocol) FUNCTION|DATA0|MSB|LSB
- * e.g. results of analogRead = ANALOG_READ|3|1|1  = 3|3|257
+ * return message  - (5 byte protocol) MAGICNUMBER|FUNCTION|DATA0|MSB|LSB
+ * e.g. results of analogRead = ANALOG_READ|3|1|1  = 170|3|3|257
  *
  */
 
@@ -172,10 +176,19 @@ boolean getCommand ()
     {
       // read the incoming byte:
       newByte = Serial.read();
+      
+      if (byteCount == 0 && newByte != MAGIC_NUMBER)
+      {
+         // ERROR !!!!!
+         // TODO - call error method - notify sender
+         ++errorCount;
+         return false;
+      }
+      
       ioCommand[byteCount] = newByte;
       ++byteCount;
-
-      if (byteCount > 2)
+      
+      if (byteCount > 3)
       {
         return true;
       }
@@ -285,6 +298,7 @@ Serial.print("]\n");
         ioCommand[0] = -1;
         ioCommand[1] = -1;
         ioCommand[2] = -1;
+        ioCommand[3] = -1;
         byteCount = 0;
 
   } // if getCommand()
