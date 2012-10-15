@@ -558,9 +558,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 
 	}
 
-	public void motorDetach(String name) {
+	public boolean motorDetach(String name) {
 		// TODO Auto-generated method stub
-
+		return false;
 	}
 
 	public void motorMove(String name, Integer amount) {
