@@ -16,8 +16,6 @@ import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-import com.sun.jndi.toolkit.url.Uri;
-
 /**
  * @author GroG
  *
