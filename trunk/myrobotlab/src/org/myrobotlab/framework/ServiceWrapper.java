@@ -80,4 +80,8 @@ public class ServiceWrapper implements Serializable {
 	{
 		return service.getToolTip();
 	}
+
+	public boolean isLocal() {
+		return host.accessURL == null;
+	}
 }

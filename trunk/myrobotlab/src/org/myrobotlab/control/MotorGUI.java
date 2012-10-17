@@ -57,7 +57,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 	// controller
 	JPanel controllerPanel = new JPanel(new BorderLayout());
 	JPanel controllerTypePanel = new JPanel();
-	JButton attachButton = null;
+	//JButton attachButton = null; implemented by specific MotorController_GUI
 	JComboBox controllerSelect = new JComboBox();
 	MotorController controller = null;
 	JCheckBox invert = new JCheckBox("invert");
@@ -179,12 +179,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		power.setEnabled(enable);
 		invert.setEnabled(enable);
 		powerValue.setEnabled(enable);
-		if (enable)
-		{
-			attachButton.setText("detach");
-		} else {
-			attachButton.setText("attach");
-		}
+		
 	}
 
 	public void incrementPosition(Integer pos) {
