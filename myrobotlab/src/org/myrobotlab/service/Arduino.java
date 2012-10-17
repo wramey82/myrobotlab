@@ -1139,11 +1139,22 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	// ----------- Motor Controller API Begin ----------------
 
-	@Override // FIXME - check if motor is local - error if not
+	@Override 
 	public boolean motorAttach(String motorName, Object... motorData) {
-		ServiceInterface service = Runtime.getServiceWrapper(motorName).service;
-		Motor motor = (Motor)service; // BE-AWARE - local optimization ! Will not work on remote !!!
+		ServiceWrapper sw = Runtime.getServiceWrapper(motorName);
+		if (!sw.isLocal())
+		{
+			log.error("motor is not in the same MRL instance as the motor controller");
+			return false;
+		}
+		ServiceInterface service = sw.service;
+		MotorControl motor = (MotorControl)service; // BE-AWARE - local optimization ! Will not work on remote !!!
 		return motorAttach(motor, motorData);
+	}
+	
+	public boolean motorAttach(String motorName, Integer PWMPin, Integer directionPin)
+	{
+		return motorAttach(motorName, new Object[]{PWMPin, directionPin});
 	}
 
 	/**

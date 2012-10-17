@@ -127,6 +127,7 @@ public class Jython extends Service {
 		// get all currently registered services and add appropriate jython handles
 		HashMap<String,ServiceWrapper> svcs = Runtime.getRegistry();
 		StringBuffer initScript = new StringBuffer();
+		initScript.append(	"from time import sleep\n");
 		initScript.append("from org.myrobotlab.service import Runtime\n");
 		 Iterator<String> it = svcs.keySet().iterator();
 		    while (it.hasNext()) {
