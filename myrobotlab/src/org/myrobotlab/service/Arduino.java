@@ -447,6 +447,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				
 				try {
 					ServoControl sc = (ServoControl)sw.service;
+					sd.servo = sc;
 					sc.setController(this);
 					return true;
 				} catch(Exception e)
@@ -463,14 +464,16 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	@Override
 	public boolean servoDetach(String servoName) {
-		log.info("servoDetach (" + servoName + ") to " + serialDevice.getName() + " function number " + SERVO_DETACH);
-
+		log.info(String.format("servoDetach(%s)", servoName));
+		
 		if (servos.containsKey(servoName)) {
 			ServoData sd = servos.get(servoName);
 			serialSend(SERVO_DETACH, sd.servoIndex, 0);
 			servosInUse[sd.servoIndex] = false;
+			sd.servo.setController(null);
 			return true;
 		}
+		
 
 		log.error(String.format("servo %s detach failed - not found",servoName));
 		return false;

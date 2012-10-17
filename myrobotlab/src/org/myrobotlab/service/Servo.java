@@ -203,14 +203,15 @@ public class Servo extends Service implements ServoControl {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		/*
+		// FIXME - routing of servo.attach("arduino", 3);
+		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
-		*/
+		
 
-		Servo right = new Servo("right");
+		Servo right = new Servo("servo01");
 		right.startService();
-
+/*
 		Servo left = new Servo("left");
 		left.startService();
 
@@ -234,12 +235,12 @@ public class Servo extends Service implements ServoControl {
 			//right.detach();
 			//left.detach();
 		}
-
-		/*
+*/
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-		*/
+		
 		
 	}
 
