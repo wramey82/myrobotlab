@@ -206,11 +206,10 @@ public class ServoGUI extends ServiceGUI {
 		public void actionPerformed(ActionEvent e) {
 			if (getText().equals("attach")) {
 				setText("detach");
-				myService.send(boundServiceName, "attach", controller
-						.getSelectedItem().toString(), pin.getSelectedItem());
+				myService.send(controller.getSelectedItem().toString(), "servoAttach", boundServiceName, pin.getSelectedItem());
 			} else {
 				setText("attach");
-				myService.send(boundServiceName, "detach", (Object[])null);
+				myService.send(controller.getSelectedItem().toString(), "servoDetach", boundServiceName);
 			}
 		}
 	}
@@ -226,8 +225,8 @@ public class ServoGUI extends ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			myService.send(boundServiceName, "setPosMin", Integer.parseInt(posMin.getText()));
-			myService.send(boundServiceName, "setPosMax", Integer.parseInt(posMax.getText()));
+			myService.send(boundServiceName, "setPositionMin", Integer.parseInt(posMin.getText()));
+			myService.send(boundServiceName, "setPositionMax", Integer.parseInt(posMax.getText()));
 		}
 	}
 	
