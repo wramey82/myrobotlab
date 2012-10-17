@@ -205,9 +205,7 @@ public class Servo extends Service implements ServoControl {
 
 		// FIXME - routing of servo.attach("arduino", 3);
 		
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-		
+		Runtime.createAndStart("arduino", "Arduino");
 
 		Servo right = new Servo("servo01");
 		right.startService();
@@ -236,11 +234,7 @@ public class Servo extends Service implements ServoControl {
 			//left.detach();
 		}
 */
-		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		
+		Runtime.createAndStart("gui", "GUIService");
 		
 	}
 

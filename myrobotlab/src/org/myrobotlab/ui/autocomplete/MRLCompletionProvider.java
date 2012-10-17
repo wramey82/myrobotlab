@@ -122,7 +122,7 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		String fieldTypeName;
 		String fullClassName = implementation.getName();
 		String className = getClassName(fullClassName).toString();
-		log.error(className);
+		//log.error(className);
 
 		if (!(className.contains("$")))
 		{
