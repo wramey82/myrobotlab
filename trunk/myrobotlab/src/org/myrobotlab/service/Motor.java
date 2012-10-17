@@ -80,6 +80,10 @@ public class Motor extends Service implements MotorControl {
 	boolean locked = false; // for locking the motor in a stopped position
 	private MotorController controller = null; // board name
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#getPowerLevel()
+	 */
+	@Override
 	public float getPowerLevel() {
 		return powerLevel;
 	}
@@ -88,6 +92,10 @@ public class Motor extends Service implements MotorControl {
 		this.directionInverted = invert;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#isDirectionInverted()
+	 */
+	@Override
 	public boolean isDirectionInverted() {
 		return directionInverted;
 	}
@@ -109,6 +117,10 @@ public class Motor extends Service implements MotorControl {
 	}
 
 	// --------- Motor (front end) API Begin ----------------------------
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#move(float)
+	 */
+	@Override
 	public void move(float newPowerLevel) {
 		// check for locked or invalid level
 		if (locked) {
@@ -127,10 +139,18 @@ public class Motor extends Service implements MotorControl {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#moveTo(java.lang.Integer)
+	 */
+	@Override
 	public void moveTo(Integer newPos) {
 		// FIXME - implement - needs encoder
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#setMaxPower(float)
+	 */
+	@Override
 	public void setMaxPower(float max) {
 		if (maxPower > 1 || maxPower < 0) {
 			log.error("max power must be between 0.0 and 0.1");
@@ -139,11 +159,19 @@ public class Motor extends Service implements MotorControl {
 		maxPower = max;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#stop()
+	 */
+	@Override
 	public void stop() {
 		move(0);
 	}
 
-	public void unLock() {
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#unLock()
+	 */
+	@Override
+	public void unlock() {
 		log.info("unLock");
 		locked = false;
 	}
@@ -153,6 +181,10 @@ public class Motor extends Service implements MotorControl {
 		locked = true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#stopAndLock()
+	 */
+	@Override
 	public void stopAndLock() {
 		log.info("stopAndLock");
 		move(0);
@@ -168,11 +200,11 @@ public class Motor extends Service implements MotorControl {
 
 	class EncoderTimer extends Thread {
 		public float power = 0.0f;
-		public int duration = 0;
+		public float duration = 0;
 
 		Motor instance = null;
 
-		EncoderTimer(float power, int duration, Motor instance) {
+		EncoderTimer(float power, float duration, Motor instance) {
 			super(instance.getName() + "_duration");
 			this.power = power;
 			this.duration = duration;
@@ -189,7 +221,7 @@ public class Motor extends Service implements MotorControl {
 						instance.move(this.power);
 						inMotion = true;
 
-						Thread.sleep(this.duration);
+						Thread.sleep((int)(this.duration * 1000));
 
 						instance.stop();
 						inMotion = false;
@@ -202,13 +234,21 @@ public class Motor extends Service implements MotorControl {
 		}
 	}
 
-	public void moveFor(float power, int duration) {
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#moveFor(float, int)
+	 */
+	@Override
+	public void moveFor(Float power, Float duration) {
 		// default is not to block
 		moveFor(power, duration, false);
 	}
 
 	// TODO - operate from thread pool
-	public void moveFor(float power, int duration, boolean block) {
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#moveFor(float, int, boolean)
+	 */
+	@Override
+	public void moveFor(Float power, Float duration, Boolean block) {
 		// TODO - remove - Timer which implements SensorFeedback should be used
 		if (!block) {
 			// non-blocking call to move for a duration
@@ -232,7 +272,7 @@ public class Motor extends Service implements MotorControl {
 			inMotion = true;
 
 			try {
-				Thread.sleep(duration);
+				Thread.sleep((int)(duration * 1000));
 			} catch (InterruptedException e) {
 				logException(e);
 			}
@@ -244,8 +284,11 @@ public class Motor extends Service implements MotorControl {
 
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#attach(org.myrobotlab.service.interfaces.MotorController)
+	 */
 	@Override
-	public boolean attach(MotorController controller)
+	public boolean setController(MotorController controller)
 	{
 		this.controller = controller;
 		attached(true);
@@ -262,6 +305,9 @@ public class Motor extends Service implements MotorControl {
 		broadcastState();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#isAttached()
+	 */
 	@Override
 	public boolean isAttached() {
 		return isAttached;
@@ -280,6 +326,9 @@ public class Motor extends Service implements MotorControl {
 	
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.X#detach()
+	 */
 	@Override
 	public boolean detach() {
 		return controller.motorDetach(getName());

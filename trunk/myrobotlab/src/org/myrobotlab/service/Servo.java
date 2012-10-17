@@ -28,37 +28,30 @@ package org.myrobotlab.service;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.IOData;
-import org.myrobotlab.service.data.Pin;
+import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 @Root
-public class Servo extends Service implements
-		org.myrobotlab.service.interfaces.Servo {
+public class Servo extends Service implements ServoControl {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(Servo.class.getCanonicalName());
 
-	boolean isAttached = false;
-
-	@Element
-	String controllerName = ""; 
+	ServoController controller = null;
 	
 	@Element
-	public int pos = -1; // position -1 invalid not set yet
+	private Integer position = null; // position -1 invalid not set yet
 	@Element
-	public int posMin = 0;
+	private int positionMin = 0;
 	@Element
-	public int posMax = 180;
-	@Element
-	public int pin = -1; // pin on controller servo is attached to -1 invalid not set yet
+	private int positionMax = 180;
 	
-	// sweep related TODO - should be implemented in Arduino protocol
-	int sweepStart = 89;
-	int sweepEnd = 91;
+	// FIXME - should be implemented inside the Arduino / ServoController - but has to be tied to position
+	int sweepStart = 0;
+	int sweepEnd = 180;
 	int sweepDelayMS = 1000;
 	int sweepIncrement = 1;
 	boolean sweeperRunning = false;
@@ -74,141 +67,73 @@ public class Servo extends Service implements
 	}
 
 
-	public void attach(String controllerName, Integer pin) {
-		this.controllerName = controllerName;
-		this.pin = pin;
-		if (attach())
+	@Override
+	public boolean setController(ServoController controller) {
+		if (controller == null)
 		{
-			save(); // bound to controller and pin
-			broadcastState(); // state has changed let everyone know
+			log.error("setting null as controller");
+			return false;
+		}
+		this.controller = controller;
+		return true;
+	}
+
+	/**
+	 * simple move servo to the location desired
+	 */
+	@Override
+	public void moveTo(Integer newPos) {
+		if (newPos >= positionMin && newPos <= positionMax )
+		{
+			controller.servoWrite(getName(), newPos);
+			position = newPos;
+		} else {
+			log.error(String.format("Servo.moveTo(%d) out of range", newPos));
 		}
 	}
 
-	public boolean attach()
+	/**
+	 * moves the servo in the range -1.0 to 1.0
+	 * where in a typical servo
+	 * 		-1.0 = 0
+	 * 		 0.0 = 90
+	 * 		 1.0 = 180
+	 * setting the min and max will affect the range
+	 * where -1.0 will always be the minPos and 1.0 will be maxPos
+	 */
+	@Override
+	public void move(Float amount) 
 	{
-		if (controllerName.length() == 0) {
-			log.error("can not attach, controller name is blank");
-			return false;
-		}
-		
-		if (isAttached)
+		if (amount > 1 || amount < -1)
 		{
-			log.warn("servo " + getName() +  " is already attached - detach before re-attaching");
-			return false;
+			log.error("Servo.move %d out of range");
+			return;
 		}
+		int range = positionMax - positionMin;
+		int newPos = (int) (range/2 * amount - range/2);
+		
+		controller.servoWrite(getName(), newPos);
+		position = newPos;
 
-		send(controllerName, ServoController.servoAttach, pin);
-		//addListener("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
-		// TODO - notice between publishing point and direct message
-		// currently removing publishing point
-
-		isAttached = true;
-		return isAttached;
 	}
 	
 	public boolean isAttached() {
-		return isAttached;
-	}
-
-	public Integer setPos(Integer pos) {
-		this.pos = pos;
-		return pos;
-	}
-
-	public Integer getPin() { 
-		return new Integer(pin);
-	}
-
-	public Integer getPos() {
-		return new Integer(pos);
+		return controller != null;
 	}
 	
-	public void setPosMin(Integer posMin)
+	public void setPositionMin(Integer min)
 	{
-		this.posMin = posMin; 
+		this.positionMin = min; 
 	}
 
-	public void setPosMax(Integer posMax)
-	{
-		this.posMax = posMax; 
-	}
-	
-	public String getControllerName() 
-	{
-		return controllerName;
-	}
-
-	public int readServo() {
-		return pos;
-	}
-
-	// callback from controller
-	public Pin publishPin(Pin p) {
-		log.info(p);
-		setPos(p.value);
-		return p;
-	}
-
-	public void detach() {
-		send(controllerName, ServoController.servoDetach, pin); // TODO - possible
-		// configurable publishing point versus direct send
-		//removeListener("servoWrite", controllerName, ServoController.servoWrite, IOData.class);
-		isAttached = false;
-		broadcastState();
-	}
-
-	/**
-	 * moveTo - used to move the servo to a new position
-	 * @param pos - absolute position to move to normally servos can move between
-	 * 0 - 180 unless other limits are set
-	 * @return
-	 */
-	public Integer moveTo(Integer pos) {
-		log.info(getName() + " moveTo " + pos);
-		send(controllerName, ServoController.servoWrite, pin, pos); 
-		this.pos = pos; 
-		// invoke("servoWrite", pos); TODO - consider
-		// the differences between direct send and publishing to a point
-		// make it configurable? - at the moment the expectation of a working Servo
-		// means it "must" be associated with something which implements ServoController
-		// so we are going to direct send only at the momo
-		return pos;
-	}
-
-	/**
-	 * moveTo() should be used by the Services or user wanting to control the servo
-	 * This function in turn is invoked and is used as an interface to the 
-	 * ServoController
-	 * @param pos - position to move
-	 * @return
-	 */
-	public IOData servoWrite(Integer pos) {
-		IOData d = new IOData();
-		d.address = pin;
-		d.value = pos;
-		return d;
+	@Override
+	public void setPositionMax(Integer max) {
+		this.positionMax = max; 
 	}
 
 
-	/**
-	 * move (pos) is used to move the servo a relative amount to its
-	 * current position
-	 * @param amount relative position
-	 * @return the current position
-	 */
-	public int move(Integer amount) 
-	{
-		int p = pos + amount;
-		if (p < posMax && p > posMin) {
-			pos = p;
-			log.info("move" + pos);
-			invoke("servoWrite", pos);
-
-		} else {
-			log.error("servo out of bounds pin " + pin + " pos " + pos + " amount " + amount);
-		}
-
-		return pos;
+	public Integer getPosition() {
+		return position;
 	}
 
 	@Override
@@ -226,19 +151,17 @@ public class Servo extends Service implements
 		public void run() {
 
 			while (sweeperRunning) {
-				// controller.servoMoveTo(name, pos);
-				pos += sweepIncrement;
+				// controller.servoMoveTo(name, position);
+				position += sweepIncrement;
 
 				// switch directions
-				if ((pos <= sweepStart && sweepIncrement < 0)
-						|| (pos >= sweepEnd && sweepIncrement > 0)) {
+				if ((position <= sweepStart && sweepIncrement < 0)
+						|| (position >= sweepEnd && sweepIncrement > 0)) {
 					sweepIncrement = sweepIncrement * -1;
 				}
 
-				// moveTo(pos); hmm vs send ??? TODO - what is better??? - refer
-				// to documentation
-				invoke("servoWrite", pos);
-
+				moveTo(position);
+				
 				try {
 					Thread.sleep(sweepDelayMS);
 				} catch (InterruptedException e) {
@@ -308,8 +231,8 @@ public class Servo extends Service implements
 			right.moveTo(90);		
 			left.moveTo(90);
 	
-			right.detach();
-			left.detach();
+			//right.detach();
+			//left.detach();
 		}
 
 		/*
@@ -319,5 +242,27 @@ public class Servo extends Service implements
 		*/
 		
 	}
+
+	@Override
+	public String getControllerName() {
+		if (controller == null)
+		{
+			return null;
+		} 
+		
+		return controller.getName();
+	}
+
+	@Override
+	public Integer getPin() {
+		if (controller == null)
+		{
+			return null;
+		}
+		
+		return controller.getServoPin(getName());
+	}
+
+
 	
 }

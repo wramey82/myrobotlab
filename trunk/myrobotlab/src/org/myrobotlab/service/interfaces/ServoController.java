@@ -25,35 +25,26 @@
 
 package org.myrobotlab.service.interfaces;
 
-import org.myrobotlab.service.data.IOData;
+import java.util.ArrayList;
+
+import org.myrobotlab.service.data.Pin;
 
 public interface ServoController {
 
 	public final static String servoWrite = "servoWrite";
-	//public final static String servoRead = "servoRead"; problematic implementation
 	public final static String servoAttach = "servoAttach";
 	public final static String servoDetach = "servoDetach";
 
-	/**
-	 * servoWrite - move the servo at an angle between 0 - 180
-	 * 
-	 * @param name
-	 *            - name of the servo
-	 * @param amount
-	 *            - positive or negative relative amount to move the servo
-	 * @return void
-	 */
-	void servoWrite(Integer pin, Integer amount);
+	public String getName();
 
 	/**
-	 * servoWrite - move the servo at an angle between 0 - 180
-	 * 
-	 * @param IOData
-	 *            - single parameter to allow "routing" of messages
-	 * @return void
+	 *  a list of pins from the controller which might be applicable for controlling
+	 *  a Servo
+	 * @return
 	 */
-	void servoWrite(IOData io);
-
+	public ArrayList<Pin> getPinList();
+	
+	
 	/**
 	 * servoAttach - attach the servo to a specific pin on the controller
 	 * 
@@ -63,7 +54,19 @@ public interface ServoController {
 	 *            - pin number
 	 * @return boolean boolean
 	 */
-	boolean servoAttach(Integer pin);
+	public boolean servoAttach(String servoName, Integer pin);
+
+	/**
+	 * servoWrite - move the servo at an angle between 0 - 180
+	 * 
+	 * @param name
+	 *            - name of the servo
+	 * @param newPos
+	 *            - positive or negative relative amount to move the servo
+	 * @return void
+	 */
+	void servoWrite(String name, Integer newPos);
+
 
 	/**
 	 * servoDetach - detach the servo from a specific pin on the controller
@@ -72,8 +75,13 @@ public interface ServoController {
 	 *            - name of the servo
 	 * @return boolean
 	 */
-	boolean servoDetach(Integer pin);
-
-	//void servoRead(Integer pin);
+	boolean servoDetach(String servoName);
+	
+	/**
+	 * return the current pin this servo is attached to
+	 * @param servoName
+	 * @return
+	 */
+	public Integer getServoPin(String servoName);
 
 }

@@ -304,8 +304,8 @@ public class Audrey extends Service {
 			break;
 
 		case 85: // 'u'
-			left.unLock();
-			right.unLock();
+			//left.unLock();
+			//right.unLock();
 			break;
 
 		case 70: // 'f'

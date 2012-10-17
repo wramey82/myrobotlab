@@ -198,7 +198,7 @@ public class RobotPlatform extends Service {
 		boolean isRunning = true;
 		int feedback = 0;
 		float power = 0.13f;
-		int estimatedTime = 0;
+		float estimatedTime = 0;
 		int lagTime = 700;
 		
 		PIDThread()
@@ -248,7 +248,7 @@ public class RobotPlatform extends Service {
 												
 						estimatedTime += 700; // add lag time
 												
-						Thread.sleep(estimatedTime); // wait
+						Thread.sleep((int)(estimatedTime/1000)); // wait
 						// wait for estimated time + lag time
 						// check feedback for correction 
 						

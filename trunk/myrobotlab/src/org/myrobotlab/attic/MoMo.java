@@ -459,8 +459,8 @@ public class MoMo extends Service {
 		} else if (cmd.compareTo("W") == 0) {
 			watchForMovement();
 		} else if (cmd.compareTo("U") == 0) {
-			right.unLock();
-			left.unLock();
+			///right.unLock();
+			//left.unLock();
 		} else if (cmd.compareTo("9") == 0) {
 			// shaker.invoke("moveTo",130);
 		} else if (cmd.compareTo("8") == 0) {

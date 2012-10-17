@@ -41,18 +41,13 @@ public interface MotorController {
 	 */
 	public boolean motorAttach(String motorName, Object... motorData); // PWMPin=9;directionPin=10; ?? would motorAttach(String motorName, Object...data) be better?
 	
+		
 	/**
-	 * Direct attachement - MotorControllers will be on the same instance as a Motor so they can have
-	 * a direct reference for a performance optimization
-	 * @param motor
-	 * @param motorData
+	 * This is basic information to request from a Controller.  
+	 * A list of pins on the controller so GUIs or other services
+	 * can figure out if there are any appropriate
+	 * @return
 	 */
-	public boolean motorAttach(MotorControl motor, Object... motorData); // PWMPin=9;directionPin=10;
-
-	public ArrayList<String> getMotorAttachData();
-	
-	public ArrayList<String> getMotorValidAttachValues(String attachParameterName);
-	
 	public ArrayList<Pin> getPinList();
 	
 	/**
@@ -87,7 +82,5 @@ public interface MotorController {
 	 * @return void
 	 */
 	public boolean motorDetach (String name);
-
-	
 
 }
