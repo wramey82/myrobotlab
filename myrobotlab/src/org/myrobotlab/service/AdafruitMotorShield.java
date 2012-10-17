@@ -250,22 +250,9 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 	}
 
 	@Override
-	public boolean motorAttach(MotorControl motor, Object... motorData) {
+	public boolean motorAttach(String motorName, Object... motorData) {
 		// TODO Auto-generated method stub
 		return false;
-		
-	}
-
-	@Override
-	public ArrayList<String> getMotorAttachData() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -274,12 +261,6 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 		return null;
 	}
 
-	@Override
-	public boolean motorAttach(String motorName, Object... motorData) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
 	// motor controller api
 
 

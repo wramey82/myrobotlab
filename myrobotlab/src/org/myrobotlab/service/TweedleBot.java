@@ -171,8 +171,8 @@ public class TweedleBot extends Service {
 	{
 		// start timer;
 		timer.schedule(new TimedTask(), time);
-		right.attach(); // FIXME - attach right & left in single uC call - Arduino platform API
-		left.attach();
+		//right.attach(); // FIXME - attach right & left in single uC call - Arduino platform API
+		//left.attach();
 		right.moveTo(power);
 		left.moveTo(-power);
 		waitForEvent(); // blocks
@@ -210,8 +210,10 @@ public class TweedleBot extends Service {
 	{
 		right.moveTo(rightStopPos);
 		left.moveTo(leftStopPos);
-		right.detach();
-		left.detach();
+		arduino.servoDetach("right");
+		arduino.servoDetach("left");
+		//right.detach();
+		//left.detach();
 	}
 	
 	public void spinLeft(int power)
@@ -230,8 +232,10 @@ public class TweedleBot extends Service {
 	public void move(int power)
 	{	
 		// to attach or not to attach that is the question
-		right.attach();
-		left.attach();
+		//right.attach();
+		//left.attach();
+		arduino.servoAttach("right", 9);
+		arduino.servoAttach("left", 8);
 		
 		try {
 		// must ramp

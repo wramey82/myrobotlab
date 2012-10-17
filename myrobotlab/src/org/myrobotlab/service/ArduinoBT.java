@@ -976,15 +976,9 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	@Override
-	public ArrayList<String> getMotorAttachData() {
+	public boolean motorAttach(String motorName, Object... motorData) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
-		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	@Override
@@ -994,15 +988,27 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	@Override
-	public boolean motorAttach(MotorControl motor, Object... motorData) {
+	public boolean servoAttach(String servoName, Integer pin) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean motorAttach(String motorName, Object... motorData) {
+	public void servoWrite(String name, Integer newPos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean servoDetach(String servoName) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-    
+
+	@Override
+	public Integer getServoPin(String servoName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

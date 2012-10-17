@@ -52,6 +52,7 @@ import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
@@ -67,6 +68,7 @@ import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Root;
 
@@ -92,6 +94,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	SerialDevice serialDevice;
 
+	// from Arduino IDE (yuk)
 	static HashSet<File> libraries;
 
 	static boolean commandLine;
@@ -103,20 +106,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	// FIXME - have SerialDevice read by length or by term string
 	boolean rawReadMsg = false;
 	int rawReadMsgLength = 5;
-
-	/* the end of neat, clean, simple config - 
-	 * have to use messy Preferences
-	@Element
-	String portName = "";
-	@Element
-	int baudRate = 57600;
-	@Element
-	int dataBits = 8;
-	@Element
-	int parity = 0;
-	@Element
-	int stopBits = 1;
-	*/
 	
 	// imported Arduino constants
 	public static final int HIGH = 0x1;
@@ -169,10 +158,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int SET_ANALOG_PIN_GAIN = 18;
 
 	// servo related
-	public static final int SERVO_ANGLE_MIN = 0;
-	public static final int SERVO_ANGLE_MAX = 180;
 	public static final int SERVO_SWEEP = 10;
-	public static final int MAX_SERVOS = 8;
+	public static final int MAX_SERVOS = 12; // FIXME - more depending on board (mega)
 	
 	// vendor specific
 	public static final int ACEDUINO_MOTOR_SHIELD_START = 50;
@@ -193,9 +180,16 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	ArrayList<Pin> pinList = null;
 	
 	// servos
+	class ServoData
+	{
+		ServoControl servo = null;
+		Integer pin = null;
+		int servoIndex = -1;
+	}
+	
+	
+	HashMap<String, ServoData> servos = new HashMap<String, ServoData>();
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
-	HashMap<Integer, Integer> pinToServo = new HashMap<Integer, Integer>();
-	HashMap<Integer, Integer> servoToPin = new HashMap<Integer, Integer>();
 
 	// from the Arduino IDE :P
 	public Preferences preferences;
@@ -216,56 +210,21 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		super(n, Arduino.class.getCanonicalName());
 		load();
 		
-		/*
-
-		if (portName != null && portName.length() > 0) {
-			log.info("more than one port - last serial port is " + portName);
-			setPort(portName);
-		} else {
-			log.info("no previously saved device name");
-		}
-
-		for (int i = 0; i < servosInUse.length; ++i) {
-			servosInUse[i] = false;
-		}
-		*/
 
 		// target arduino
 		// board atmenga328
 		preferences = new Preferences(String.format("%s.preferences.txt",getName()),null);
 		preferences.set("sketchbook.path", ".myrobotlab");
 
-//		preferences.set("serial.port", "");
-		// FIXME - set on load() & change
-/*		
-		if (getPortName() != null) {
-			preferences.set("serial.port", getPortName());
-		}
-*/		
-		//String lastPort = preferences.get("serial.port");
 		
 		preferences.setInteger("serial.debug_rate", 57600);
 		preferences.set("serial.parity", "N"); // f'ing stupid,
 		preferences.setInteger("serial.databits", 8);
 		preferences.setInteger("serial.stopbits", 1); // f'ing weird 1,1.5,2
 		preferences.setBoolean("upload.verbose", true);
-		
-		/*
-		if (lastPort != null)
-		{
-			setSerialDevice(lastPort, 57600, 8, 1, 0);
-		}
-		*/
-
-		// Get paths for the libraries and examples in the Processing folder
-		// String workingDirectory = System.getProperty("user.dir");
-		//File examplesFolder = getContentFile("examples");
+	
 		File librariesFolder = getContentFile("libraries");
-		//File toolsFolder = getContentFile("tools");
-
-		// Get the sketchbook path, and make sure it's set properly
-		//String sketchbookPath = preferences.get("sketchbook.path");
-
+	
 		// FIXME - all below should be done inside Compiler2
 		try {
 
@@ -453,35 +412,48 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(SET_PWM_FREQUENCY, io.address, prescalarValue);
 	}
 
-	// ---------------------------- Servo Methods Begin -----------------------
+	// ---------------------------- ServoController begin  -----------------------
 
-	/*
-	 * servoAttach attach a servo to a pin
-	 * 
-	 * @see
-	 * org.myrobotlab.service.interfaces.ServoController#servoAttach(java.lang
-	 * .Integer)
-	 */
-	public boolean servoAttach(Integer pin) {
+	@Override
+	public boolean servoAttach(String servoName, Integer pin) {
 		if (serialDevice == null) {
 			log.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
 			return false;
 		}
+		
 		// serialPort == null ??? make sure you chown it correctly !
 		log.info("servoAttach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_ATTACH);
 
-		/*
-		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin !=
+		/* yuk
+		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 
 		 * 10 && pin != 11) { log.error(pin + " not valid for servo"); }
 		 */
+		
+		ServoData sd = new ServoData();
+		sd.pin = pin;
 
 		for (int i = 0; i < servosInUse.length; ++i) {
 			if (!servosInUse[i]) {
 				servosInUse[i] = true;
-				pinToServo.put(pin, i);
-				servoToPin.put(i, pin);
-				serialSend(SERVO_ATTACH, pinToServo.get(pin), pin);
-				return true;
+				sd.servoIndex = i;
+				serialSend(SERVO_ATTACH, sd.servoIndex, pin);
+				servos.put(servoName, sd);
+				ServiceWrapper sw = Runtime.getServiceWrapper(servoName);
+				if (sw == null || sw.service == null)
+				{
+					log.error(String.format("%s does not exist in registry", servoName));
+					return false;
+				}
+				
+				try {
+					ServoControl sc = (ServoControl)sw.service;
+					sc.setController(this);
+					return true;
+				} catch(Exception e)
+				{
+					log.error(String.format("%s not a valid ServoController", servoName));
+					return false;
+				}
 			}
 		}
 
@@ -489,50 +461,48 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return false;
 	}
 
-	public boolean servoDetach(Integer pin) {
-		log.info("servoDetach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_DETACH);
+	@Override
+	public boolean servoDetach(String servoName) {
+		log.info("servoDetach (" + servoName + ") to " + serialDevice.getName() + " function number " + SERVO_DETACH);
 
-		if (pinToServo.containsKey(pin)) {
-			int removeIdx = pinToServo.get(pin);
-			serialSend(SERVO_DETACH, pinToServo.get(pin), 0);
-			servosInUse[removeIdx] = false;
-
+		if (servos.containsKey(servoName)) {
+			ServoData sd = servos.get(servoName);
+			serialSend(SERVO_DETACH, sd.servoIndex, 0);
+			servosInUse[sd.servoIndex] = false;
 			return true;
 		}
 
-		log.error("servo " + pin + " detach failed - not found");
+		log.error(String.format("servo %s detach failed - not found",servoName));
 		return false;
 
 	}
 
-	/*
-	 * servoWrite(IOData io) interface that allows routing with a single
-	 * parameter TODO - how to "route" to multiple parameters
-	 */
-	public void servoWrite(IOData io) {
-		servoWrite(io.address, io.value);
-	}
 
-	// Set the angle of the servo in degrees, 0 to 180.
-	// @Override - TODO - make interface - implements ServoController interface
-	public void servoWrite(Integer pin, Integer angle) {
+	@Override
+	public void servoWrite(String servoName, Integer newPos) {
 		if (serialDevice == null) {
 			log.error("serialPort is NULL !");
 			return;
 		}
 
-		log.info("servoWrite (" + pin + "," + angle + ") to " + serialDevice.getName() + " function number " + SERVO_WRITE);
+		log.info(String.format("servoWrite %s %d", servoName, newPos));
 
-		if (angle < SERVO_ANGLE_MIN || angle > SERVO_ANGLE_MAX) {
-			// log.error(pin + " angle " + angle + " request invalid");
-			return;
-		}
-
-		serialSend(SERVO_WRITE, pinToServo.get(pin), angle);
+		serialSend(SERVO_WRITE, servos.get(servoName).servoIndex, newPos);
 
 	}
+	
+	@Override
+	public Integer getServoPin(String servoName) {
+		if (servos.containsKey(servoName))
+		{
+			return servos.get(servoName).pin;
+		}
+		return null;
+	}
 
-	// ---------------------------- Servo Methods End -----------------------
+
+
+	// ---------------------------- ServoController End -----------------------
 	// ---------------------- Protocol Methods Begin ------------------
 
 	public void digitalReadPollStart(Integer address) {
@@ -1165,10 +1135,24 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	
 	// ----------- Motor Controller API Begin ----------------
-	
 
-	@Override
-	public boolean motorAttach(MotorControl motor, Object... motorData)
+	@Override // FIXME - check if motor is local - error if not
+	public boolean motorAttach(String motorName, Object... motorData) {
+		ServiceInterface service = Runtime.getServiceWrapper(motorName).service;
+		Motor motor = (Motor)service; // BE-AWARE - local optimization ! Will not work on remote !!!
+		return motorAttach(motor, motorData);
+	}
+
+	/**
+	 * implementation of motorAttach(String motorName, Object... motorData)
+	 * is private so that interfacing consistently uses service names to attach,
+	 * even though service is local
+	 * 
+	 * @param motor
+	 * @param motorData
+	 * @return
+	 */
+	private boolean motorAttach(MotorControl motor, Object... motorData)
 	{
 		if (motor == null || motorData == null)
 		{
@@ -1187,35 +1171,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		md.PWMPin = (Integer)motorData[0];
 		md.directionPin = (Integer)motorData[1];
 		motors.put(motor.getName(), md);
-		motor.attach(this);
+		motor.setController(this);
 		serialSend(PINMODE, md.PWMPin, OUTPUT);
 		serialSend(PINMODE, md.directionPin, OUTPUT);
 		return true;
-		
-		/*
-	    Properties properties = new Properties();
-	    try {
-			properties.load(new StringReader(motorData));
-			String PWMPin = properties.getProperty("PWMPin");
-			String directionPin = properties.getProperty("directionPin");
-			MotorData md = new MotorData();
-			md.PWMPin = Integer.parseInt(PWMPin);
-			md.directionPin = Integer.parseInt(directionPin);
-			motors.put(motor.getName(), md);
-			motor.attached(true);
-			
-			// TODO - check inverted
-			
-			serialSend(PINMODE, md.PWMPin, OUTPUT);
-			serialSend(PINMODE, md.directionPin, OUTPUT);
-			return true;
-			
-		} catch (Exception e) {
-			log.error(String.format("could not attach motor %s %s %s", motor.getClass().getCanonicalName(), motor.getName(), motorData));
-			Service.logException(e);
-			return false;
-		}
-		*/
+
 	}
 	
 
@@ -1254,32 +1214,10 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 
-	@Override
-	public ArrayList<String> getMotorAttachData() {
-		ArrayList<String> motorData = new ArrayList<String>();
-		motorData.add("PWMPin");
-		motorData.add("directionPin");
-		return motorData;
-	}
+	// ----------- MotorController API End ----------------
 
-	@Override
-	public ArrayList<String> getMotorValidAttachValues(String attachParameterName) {
-		ArrayList<String> values = new ArrayList<String>();
-		if ("PWMPin".equals(attachParameterName))
-		{
-			String type = preferences.get("board");
 
-			if ("mega2560".equals(type)) 
-			{
-				
-			}
-		}
-		
-		return values;
-	}
-
-	// ----------- Motor Controller API End ----------------
-
+	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
@@ -1310,16 +1248,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		//Runtime.createAndStart("jython", "Jython");
 
 	}
-	
-	
 
-
-	@Override
-	public boolean motorAttach(String motorName, Object... motorData) {
-		ServiceInterface service = Runtime.getServiceWrapper(motorName).service;
-		Motor motor = (Motor)service; // BE-AWARE - local optimization ! Will not work on remote !!!
-		return motorAttach(motor, motorData);
-	}
 
 
 }

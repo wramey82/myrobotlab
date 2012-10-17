@@ -246,13 +246,13 @@ public class Toy extends Service {
 			Thread.sleep(160);
 			//left.attach(arduino.getName(), 6, 7);
 			Thread.sleep(160);
-			arduino.pinMode(7, PinState.OUTPUT);
+			//arduino.pinMode(7, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(11, PinState.OUTPUT);
+			//arduino.pinMode(11, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(12, PinState.OUTPUT);
+			//arduino.pinMode(12, PinState.OUTPUT);
 			Thread.sleep(160);
-			arduino.pinMode(13, PinState.OUTPUT);
+			//arduino.pinMode(13, PinState.OUTPUT);
 			
 			platform.attach(left, right);
 			
