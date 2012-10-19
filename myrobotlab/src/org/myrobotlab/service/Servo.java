@@ -110,7 +110,7 @@ public class Servo extends Service implements ServoControl {
 			return;
 		}
 		int range = positionMax - positionMin;
-		int newPos = (int) (range/2 * amount - range/2);
+		int newPos = Math.abs((int)(range/2 * amount - range/2));
 		
 		controller.servoWrite(getName(), newPos);
 		position = newPos;

@@ -31,13 +31,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.Serial;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.serial.gnu.SerialDeviceGNU;
 import org.myrobotlab.service.Arduino;
 
 public abstract class Uploader {
 	static final String BUGS_URL = "https://developer.berlios.de/bugs/?group_id=3590";
 	static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
+	public final static Logger log = Logger.getLogger(Uploader.class.getCanonicalName());
 
 	Arduino myArduino;
 	RunnerException exception;
@@ -94,6 +97,17 @@ public abstract class Uploader {
 		try {
 			String[] commandArray = new String[commandDownloader.size()];
 			commandDownloader.toArray(commandArray);
+			
+			if (commandArray.length > 0)
+			{
+				String exeFile = commandArray[0];
+				log.info(String.format("making %s executable", exeFile));
+				File exe = new File(exeFile);
+				if (!exe.setExecutable(true))
+				{
+					log.error(String.format("could not set %s to executable permissions", exeFile));
+				}
+			}
 
 			String uploadCmd = "";
 			if (verbose || myArduino.preferences.getBoolean("upload.verbose")) {
