@@ -32,7 +32,8 @@ import org.myrobotlab.serial.SerialDeviceException;
  */
 public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceGNU.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SerialDeviceGNU.class
+			.getCanonicalName());
 
 	private gnu.io.SerialPort port;
 
@@ -48,12 +49,13 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	protected EventListenerList listenerList = new EventListenerList();
 	private CommPortIdentifier commPortId;
 
-	
-	public SerialDeviceGNU(CommPortIdentifier portId) throws SerialDeviceException {
+	public SerialDeviceGNU(CommPortIdentifier portId)
+			throws SerialDeviceException {
 		this.commPortId = portId;
 	}
 
-	public SerialDeviceGNU(CommPortIdentifier portId, int rate, int databits, int stopbits, int parity) {
+	public SerialDeviceGNU(CommPortIdentifier portId, int rate, int databits,
+			int stopbits, int parity) {
 		this.commPortId = portId;
 		this.rate = rate;
 		this.databits = databits;
@@ -61,36 +63,35 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		this.parity = parity;
 	}
 
-	public String getPortString()
-	{
-		return String.format(("%s/%d/%d/%d/%d"),port.getName(),port.getBaudRate(),
-				port.getDataBits(),port.getParity(),port.getStopBits());
+	public String getPortString() {
+		return String.format(("%s/%d/%d/%d/%d"), port.getName(),
+				port.getBaudRate(), port.getDataBits(), port.getParity(),
+				port.getStopBits());
 	}
-	
+
 	@Override
-	public boolean isOpen()
-	{
+	public boolean isOpen() {
 		return port != null;
 	}
 
 	@Override
 	public void close() {
 		log.debug(String.format("closing %s", commPortId.getName()));
-		
-		if (port == null)
-		{
-			log.warn(String.format("serial device %s already closed", commPortId.getName()));
+
+		if (port == null) {
+			log.warn(String.format("serial device %s already closed",
+					commPortId.getName()));
 			return;
 		}
 		port.removeEventListener();
-	
+
 		Object[] listeners = listenerList.getListenerList();
-		for (int i = 1; i < listeners.length; i+=2) {
-			listenerList.remove(EventListener.class, (EventListener)listeners[i]);
-		  }
-		
-		
-		log.info(String.format("closing SerialDevice %s",getPortString()));
+		for (int i = 1; i < listeners.length; i += 2) {
+			listenerList.remove(EventListener.class,
+					(EventListener) listeners[i]);
+		}
+
+		log.info(String.format("closing SerialDevice %s", getPortString()));
 		try {
 			// do io streams need to be closed first?
 			if (input != null)
@@ -102,18 +103,25 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			e.printStackTrace();
 		}
 
-		/*
-		 * new Thread(){
-		 * 
-		 * @Override public void run(){ serialPort.removeEventListener();
-		 * serialPort.close(); serialPort = null; } }.start();
-		 */
-
 		input = null;
 		output = null;
-		if (port != null)
-			port.close();
-		port = null;
+		if (port != null) {
+			/*
+			 * cheesy way to close serial port
+			 * since it will sometimes hang forever
+			 * Hangs on Ubuntu 12.04.1 LTS - IcedTea6 1.11.4
+			 */
+			new Thread() {
+
+				@Override
+				public void run() {
+					port.removeEventListener();
+					port.close();
+					port = null;
+				}
+			}.start();
+			// port.close();
+		}
 		log.debug(String.format("closed %s", commPortId.getName()));
 	}
 
@@ -129,18 +137,20 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public String getName() {
-		//return port.getName();
+		// return port.getName();
 		return commPortId.getName();
 	}
 
 	@Override
-	public void setParams(int rate, int databits, int stopbits, int parity) throws SerialDeviceException
-	 {
+	public void setParams(int rate, int databits, int stopbits, int parity)
+			throws SerialDeviceException {
 		try {
-			log.debug(String.format("setSerialPortParams %d %d %d %d", rate, databits, stopbits, parity));
+			log.debug(String.format("setSerialPortParams %d %d %d %d", rate,
+					databits, stopbits, parity));
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 		} catch (UnsupportedCommOperationException e) {
-			throw new SerialDeviceException("unsupported comm operation " + e.getMessage());
+			throw new SerialDeviceException("unsupported comm operation "
+					+ e.getMessage());
 		}
 	}
 
@@ -163,7 +173,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	public int getParity() {
 		return port.getParity();
 	}
-	
+
 	@Override
 	public boolean isDTR() {
 		return port.isDTR();
@@ -225,7 +235,8 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	}
 
 	// This methods allows classes to unregister for MyEvents
-	public void removeSerialDeviceEventListener(SerialDeviceEventListener listener) {
+	public void removeSerialDeviceEventListener(
+			SerialDeviceEventListener listener) {
 		log.debug("removeSerialDeviceEventListener");
 		listenerList.remove(SerialDeviceEventListener.class, listener);
 	}
@@ -241,7 +252,6 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			}
 		}
 	}
-
 
 	@Override
 	public void write(int[] data) throws IOException {
@@ -300,34 +310,32 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	public void open() throws SerialDeviceException {
 		try {
 			log.info(String.format("opening %s", commPortId.getName()));
-			if (isOpen())
-			{
+			if (isOpen()) {
 				log.warn("port already opened, you should fix calling code....");
 				// FIXME !!! - the listener is busted at this point !!
 				return;
 			}
 
-			port = (SerialPort)commPortId.open(commPortId.getName(), 1000);
+			port = (SerialPort) commPortId.open(commPortId.getName(), 1000);
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 			output = port.getOutputStream();
 			input = port.getInputStream();
 			log.info(String.format("opened %s", commPortId.getName()));
-		} catch(PortInUseException e) 
-		{
+		} catch (PortInUseException e) {
 			Service.logException(e);
 			throw new SerialDeviceException("port in use " + e.getMessage());
 		} catch (UnsupportedCommOperationException e) {
 			Service.logException(e);
-			throw new SerialDeviceException("UnsupportedCommOperationException " + e.getMessage());
+			throw new SerialDeviceException(
+					"UnsupportedCommOperationException " + e.getMessage());
 		} catch (IOException e) {
 			Service.logException(e);
 			throw new SerialDeviceException("IOException " + e.getMessage());
 		}
 	}
-	
+
 	@Override
-	public int read() throws IOException 
-	{
+	public int read() throws IOException {
 		return input.read();
 	}
 
