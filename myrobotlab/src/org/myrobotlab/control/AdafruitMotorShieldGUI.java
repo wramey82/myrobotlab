@@ -179,7 +179,6 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 			// because we don't want a recursive event
 			// when the Service changes the state
 			ttyPort.removeActionListener(portActionListener);
-			//ttyPort.setSelectedItem(myAdafruitMotorShield.getPortName());
 			ttyPort.addActionListener(portActionListener);
 		}
 

@@ -50,6 +50,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -95,6 +96,10 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	HashMap<String, Component> components = new HashMap<String, Component>();
 
 	static final long serialVersionUID = 1L;
+	// FIXME - you need a pattern or a new Menu
+	// A Menu in the ArduinoGUI versus the Arduino Editor
+	private JMenuItem serialRefresh = new JMenuItem("refresh"); 
+
 
 	JTabbedPane tabs = new JTabbedPane();
 
@@ -165,6 +170,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		display.add(tabs, BorderLayout.CENTER);
 		tabs.setSelectedIndex(0);
+		
+		serialRefresh.addActionListener(this);
 	}
 
 	public JLayeredPane getPinPanel() {
@@ -188,7 +195,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		}
 	}
 
-
+	
 	/**
 	 * getState is called when the Arduino service changes
 	 * state information
@@ -208,11 +215,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			// editor2Panel.ser
 			// createSerialDeviceMenu(m)
 			editor.serialDeviceMenu.removeAll();
-			publishMessage(String.format("found %d serial ports", myArduino.portNames.size()));
-			for (int i = 0; i < myArduino.portNames.size(); ++i) {
-				String portName = myArduino.portNames.get(i);
+			publishMessage(String.format("found %d serial ports", myArduino.serialDeviceNames.size()));
+			for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
+				String portName = myArduino.serialDeviceNames.get(i);
 				publishMessage(String.format(" %s", portName));
-				JCheckBoxMenuItem serialDevice = new JCheckBoxMenuItem(myArduino.portNames.get(i));
+				JCheckBoxMenuItem serialDevice = new JCheckBoxMenuItem(myArduino.serialDeviceNames.get(i));
 				SerialDevice sd = myArduino.getSerialDevice();
 				if (sd != null && sd.getName().equals(portName))
 				{
@@ -229,10 +236,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				serialDevice.addActionListener(serialMenuListener);
 				editor.serialDeviceMenu.add(serialDevice);
 				
+				
 				// rbMenuItem = new JCheckBoxMenuItem(curr_port,
 				// curr_port.equals(Preferences2.get("serial.port")));
 				// rbMenuItem.addActionListener(serialMenuListener);
 			}
+			editor.serialDeviceMenu.add(serialRefresh);
 
 			String statusString = boardName + " " + myArduino.preferences.get("serial.port");
 			editor.setStatus(statusString);
@@ -258,7 +267,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	
-	
 	@Override
 	public void attachGUI() {
 		subscribe("publishPin", "publishPin", Pin.class);
@@ -266,6 +274,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		subscribe("publishCompilingProgress", "setCompilingProgress", Integer.class);
 		subscribe("publishMessage", "publishMessage", String.class);
 		subscribe("compilerError", "compilerError", String.class);
+		subscribe("getPorts","getPorts", String.class);
 		//subscribe("setBoard", "setBoard", String.class);
 		//myService.send(boundServiceName, "broadcastState");
 
@@ -310,6 +319,13 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		String cmd = e.getActionCommand();
 		Component c = (Component) e.getSource();
 
+		
+		if (o == serialRefresh)
+		{
+			myService.send(boundServiceName, "publishState");
+			return;
+		}
+		
 		// buttons
 		if (DigitalButton.class == o.getClass()) {
 			DigitalButton b = (DigitalButton) o;
@@ -807,7 +823,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	public void createSerialDeviceMenu(JMenu m) {
-		for (int i = 0; i < myArduino.portNames.size(); ++i) {
+		for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
 			// m.add(a)
 		}
 	}

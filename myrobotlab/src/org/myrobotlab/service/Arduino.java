@@ -81,7 +81,6 @@ import org.simpleframework.xml.Root;
  * 
  * Should support nearly all Arduino board types
  * 
- * @author GroG
  */
 
 @Root
@@ -92,7 +91,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
 
-	SerialDevice serialDevice;
+	// serial device info
+	private transient SerialDevice serialDevice;
 
 	// from Arduino IDE (yuk)
 	static HashSet<File> libraries;
@@ -138,6 +138,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
 
 	// serial protocol functions
+	public final static int MAGIC_NUMBER = 170; //10101010
+
 	public static final int DIGITAL_WRITE = 0;
 	// public static final int DIGITAL_VALUE = 1; // normalized with PinData
 	public static final int ANALOG_WRITE = 2;
@@ -173,13 +175,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	// error
 	public static final int SERIAL_ERROR = 254;
-
+	
 	/**
 	 *  pin description of board
 	 */
 	ArrayList<Pin> pinList = null;
 	
 	// servos
+	/**
+	 * ServoController data needed to run a servo
+	 *
+	 */
 	class ServoData
 	{
 		ServoControl servo = null;
@@ -188,7 +194,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 	
 	
+	/**
+	 * the local name to servo info
+	 */
 	HashMap<String, ServoData> servos = new HashMap<String, ServoData>();
+	
+	/**
+	 * represents the Arduino pde array of servos and their state
+	 */
 	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
 
 	// from the Arduino IDE :P
@@ -202,9 +215,9 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
-	 * running
+	 * running - this list is refreshed on querySerialDevices
 	 */
-	public ArrayList<String> portNames = new ArrayList<String>();
+	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
@@ -241,11 +254,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		compiler = new Compiler(this);
 		uploader = new AvrdudeUploader(this);
 		
-		portNames = getPorts();
-		log.info("number of ports " + portNames.size());
-		for (int j = 0; j < portNames.size(); ++j) {
-			log.info(portNames.get(j));
-		}
+		serialDeviceNames = querySerialDeviceNames();
+
 		// FIXME - hilacious long wait - need to incorporate .waitTillServiceReady
 		// especially if there are multiple initialization threads
 		// SWEEEET ! - Service already provides an isReady - just need to overload it with a Thread.sleep check -> broadcast setState
@@ -299,7 +309,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		}
 	}
 
-	public String getPortName() {
+	public String getSerialDeviceName() {
 		if (serialDevice != null) {
 			return serialDevice.getName();
 		}
@@ -307,15 +317,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return null;
 	}
 
-	public ArrayList<String> getPorts() {
+	public ArrayList<String> querySerialDeviceNames() {
 
+		log.info("queryPortNames");
+		
 		ArrayList<String> ports = new ArrayList<String>();
 
 		SerialDevice portId;
-		// getPortIdentifiers - returns all ports "available" on the machine -
-		// ie not ones already used
 		ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
-//		ArrayList<SerialDevice> portList = new ArrayList<SerialDevice>();
 		for (int i = 0; i < portList.size(); ++i) {
 			portId = portList.get(i);
 			String inPortName = portId.getName();
@@ -330,7 +339,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			if (serialDevice.getName() != null)
 				ports.add(serialDevice.getName());
 		}
-
+		
 		return ports;
 	}
 
@@ -338,7 +347,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void loadDefaultConfiguration() {
 	}
 	
-	public final static int MAGIC_NUMBER = 170; //10101010
 
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
@@ -933,7 +941,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	@Override
 	public ArrayList<String> getSerialDeviceNames() {
-		return portNames;
+		return serialDeviceNames;
 	}
 
 	@Override // FIXME - remove setPort !!!!!
