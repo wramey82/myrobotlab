@@ -25,6 +25,7 @@
 
 package org.myrobotlab.cmdline;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CMDLine extends HashMap<String, CcmdParam> {
@@ -120,6 +121,11 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 
 		return "";
 
+	}
+	
+	public ArrayList<String> getArgumentList(final String pSwitch)
+	{
+		return get(pSwitch).m_strings;
 	}
 
 	public int getArgumentCount(final String pSwitch) {

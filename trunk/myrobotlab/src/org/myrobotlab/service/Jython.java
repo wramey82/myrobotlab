@@ -358,6 +358,13 @@ public class Jython extends Service {
 		stop();// release the interpeter
 	}
 	
+	public boolean loadAndExec(String filename)
+	{
+		boolean ret = loadScript(filename);
+		exec();
+		return ret;
+	}
+	
 	// FIXME - need to replace "script" with Hashmap<filename, script> to 
 	// support and IDE muti-file view
 	
@@ -369,7 +376,7 @@ public class Jython extends Service {
 	 * @param filename - name of file to load
 	 * @return - success if loaded
 	 */
-	public boolean loadPythonScript(String filename)
+	public boolean loadScript(String filename)
 	{
 		String newScript = FileIO.fileToString(filename);
 		if (newScript != null && !newScript.isEmpty()){
@@ -387,9 +394,9 @@ public class Jython extends Service {
 		}
 	}
 
-	public boolean loadPythonScriptFromResource(String filename)
+	public boolean loadScriptFromResource(String filename)
 	{
-		log.debug(String.format("loadPythonScriptFromResource scripts/%1s",filename));
+		log.debug(String.format("loadScriptFromResource scripts/%1s",filename));
 		String newScript = getServiceResourceFile(String.format("examples/%1s",filename));
 
 		log.info(String.format("loaded new scripts/%1s size %d",filename, newScript.length()));

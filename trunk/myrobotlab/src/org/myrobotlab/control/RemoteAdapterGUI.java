@@ -33,7 +33,6 @@ import java.util.Iterator;
 import javax.swing.JLabel;
 
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
@@ -55,7 +54,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 		gc.gridy = 0;
 		display.add(new JLabel("number of connections : 5"), gc);
 		gc.gridy = 1;
-		display.add(new JLabel("last activity : player 01 - forward"), gc);
+		display.add(new JLabel("last activity : arduino.digitaWrite"), gc);
 		gc.gridy = 2;
 		display.add(new JLabel("number of messages : 1388"), gc);
 		gc.gridx = 0;
@@ -74,7 +73,6 @@ public class RemoteAdapterGUI extends ServiceGUI {
 
 	}
 
-	// TODO - register listening to Runtime !!! 
 	public void updateNodeList()
 	{
 		HashMap<URI, ServiceEnvironment> services = Runtime.getServiceEnvironments();
@@ -83,13 +81,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 		Iterator<URI> it = services.keySet().iterator();
 		
 		list.model.removeAllElements();
-		
-		// my connection info
-		
-			// my remote adapters
-				// their connection methods - ports etc
 
-		// remote connected nodes
 		while (it.hasNext()) {
 			URI url = it.next();
 			if (url != null) {

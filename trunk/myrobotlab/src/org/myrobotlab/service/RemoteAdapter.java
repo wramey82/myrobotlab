@@ -186,19 +186,14 @@ public class RemoteAdapter extends Service {
 
 				while (isRunning()) {
 					socket.receive(dgram); // receives all datagrams
-					ObjectInputStream o_in = new ObjectInputStream(b_in); // FIXME
-																			// -
-																			// do
-																			// we
-																			// need
-																			// to
-																			// re-create?
+					// FIXME - do we need o re-create???
+					ObjectInputStream o_in = new ObjectInputStream(b_in); 
 					try {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset();
 						if ("registerServices".equals(msg.method)) {
-							URI url = new URI("tcp://" // FIXME - is wrong of course !?!?
+							URI url = new URI("tcp://" 
 									+ dgram.getAddress().getHostAddress() + ":"
 									+ dgram.getPort());
 							comm.addClient(url, socket);
