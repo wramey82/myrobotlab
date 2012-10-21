@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,9 +123,10 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	 * implement all of MotorController API
 	 *
 	 */
-	class MotorData 
+	class MotorData implements Serializable
 	{
-		MotorControl motor = null;
+		private static final long serialVersionUID = 1L;
+		transient MotorControl motor = null;
 		int PWMPin = -1;
 		int directionPin = -1;
 	}
@@ -186,9 +188,10 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	 * ServoController data needed to run a servo
 	 *
 	 */
-	class ServoData
+	class ServoData implements Serializable
 	{
-		ServoControl servo = null;
+		private static final long serialVersionUID = 1L;
+		transient ServoControl servo = null;
 		Integer pin = null;
 		int servoIndex = -1;
 	}
