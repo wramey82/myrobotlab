@@ -85,6 +85,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	JMenuItem installMenuItem = null;
 	JMenuItem startMenuItem = null;
 	JMenuItem upgradeMenuItem = null;
+	JMenuItem releaseMenuItem = null;
 	
 	DefaultListModel currentServicesModel = new DefaultListModel();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
@@ -121,6 +122,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	CurrentServicesRenderer currentServicesRenderer = new CurrentServicesRenderer();
 	FilterListener filterListener = new FilterListener();
 	JPopupMenu popup = new JPopupMenu();
+	
+	ServiceEntry releasedTarget = null;
 	
 	public RuntimeGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -175,22 +178,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		    		popUpTrigger(e);
 		    	}
 		    }
-		    
-			// works on linux & mac
-		    /*
-		    public void mousePressed(MouseEvent e)
-		    {
-		        if (SwingUtilities.isRightMouseButton(e)) {
-		            System.out.println("mousePressed - right");
-		          }
-		    	log.error("h1");
-		    	if (e.isPopupTrigger())
-		        {
-			    	log.error("h2");
-		    		popUpTrigger(e);
-		        }
-		    }
-		    */
 
 		    public void popUpTrigger(MouseEvent e)
 		    {
@@ -198,6 +185,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	            JTable source = (JTable)e.getSource();
 	            popupRow = source.rowAtPoint( e.getPoint() );
 	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
+	            releaseMenuItem.setVisible(false);
 	            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
 	            {
 	            	// need to install it
@@ -229,6 +217,41 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		    
 		});
 		
+		
+		currentServices.addMouseListener(new MouseAdapter()
+		{
+			// isPopupTrigger over OSs - use masks
+		    public void mouseReleased(MouseEvent e)
+		    {
+	            log.debug("mouseReleased");
+		    	
+		    	if (SwingUtilities.isRightMouseButton(e)) {
+		            log.debug("mouseReleased - right");
+		    		popUpTrigger(e);
+		    	}
+		    }
+
+		    public void popUpTrigger(MouseEvent e)
+		    {
+		    	log.info("******************popUpTrigger*********************");
+	            JList source = (JList)e.getSource();
+	            int index = source.locationToIndex(e.getPoint());
+	            if (index >= 0) {
+	            	releasedTarget = (ServiceEntry)source.getModel().getElementAt(index);
+	            	log.info(String.format("right click on running service %s", releasedTarget.name));
+	            	releaseMenuItem.setVisible(true);
+	            	upgradeMenuItem.setVisible(false);
+	            	installMenuItem.setVisible(false);
+	            	startMenuItem.setVisible(false);
+	            }
+	            popup.show(e.getComponent(), e.getX(), e.getY());
+	            
+		    	
+		    }
+		    
+		});
+		
+		
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
 		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
@@ -252,6 +275,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		upgradeMenuItem.setIcon(Util.getScaledIcon(Util.getImage("upgrade.png"), 0.50));
 		//menuItem.setVisible(false);
 		popup.add(upgradeMenuItem);
+		
+		releaseMenuItem = new JMenuItem("release");
+		releaseMenuItem.addActionListener(this);
+		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
+		popup.add(releaseMenuItem);
 		
 		
 /*		
@@ -664,6 +692,13 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	public void actionPerformed(ActionEvent event) {
 		ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
 		String cmd = event.getActionCommand();
+		Object o = event.getSource();
+		if (releaseMenuItem == o)
+		{
+			myService.send(boundServiceName, "releaseService", releasedTarget.name);
+			return;
+		}
+		
 		if ("info".equals(cmd))
 		{
 			BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + c.type);
