@@ -260,6 +260,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (sw == null)
 		{
 			log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
+			return;
 		}
 		
 		// SW sent in registerServices - yet Service is null due to incompatible Service Types

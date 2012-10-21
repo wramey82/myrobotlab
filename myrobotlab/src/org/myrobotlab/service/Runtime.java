@@ -1023,7 +1023,7 @@ public class Runtime extends Service {
 	 * 
 	 * @param cmdline
 	 */
-	public final static void invokeCMDLine(CMDLine cmdline) {
+	public final static void createServices(CMDLine cmdline) {
 
 		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
 			help();
@@ -1176,8 +1176,11 @@ public class Runtime extends Service {
 				updateAll();
 				return;
 			} else {
-				invokeCMDLine(cmdline);
+				createServices(cmdline);
 			}
+			
+			invokeCommands(cmdline);
+			
 		} catch (Exception e) {
 			Service.logException(e);
 			try {
@@ -1187,6 +1190,31 @@ public class Runtime extends Service {
 				e1.printStackTrace();
 			}
 		}
+	}
+	
+	static public void invokeCommands(CMDLine cmdline)
+	{
+		int argCount = cmdline.getArgumentCount("-invoke");
+		if (argCount > 1) {
+
+			StringBuffer params = new StringBuffer();
+			
+			ArrayList<String> invokeList = cmdline.getArgumentList("-invoke");
+			Object[] data = new Object[argCount-2];
+			for (int i = 2; i < argCount; ++i)
+			{
+				data[i-2] = invokeList.get(i);
+				params.append(String.format("%s ",invokeList.get(i)));
+			}
+			
+			String name = cmdline.getArgument("-invoke", 0);
+			String method = cmdline.getArgument("-invoke", 1);
+			
+			log.info(String.format("attempting to invoke : %s.%s(%s)\n", name, method, params.toString()));
+			getInstance().send(name, method, data);
+		
+		}
+		
 	}
 
 	/**
