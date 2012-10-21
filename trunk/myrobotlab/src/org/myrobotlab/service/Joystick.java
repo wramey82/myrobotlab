@@ -64,12 +64,12 @@ public class Joystick extends Service {
 	public final static String Z_AXIS = "Z_AXIS";
 	public final static String Z_ROTATION = "Z_ROTATION";
 
-	Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	transient Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 	TreeMap<String, Integer> controllerNames = new TreeMap<String, Integer>();
 
 	InputPollingThread pollingThread = null;
 	int myDeviceIndex = -1;
-	Controller controller = null;
+	transient Controller controller = null;
 	double[] lastValues;
 
 	public class InputPollingThread extends Thread {
