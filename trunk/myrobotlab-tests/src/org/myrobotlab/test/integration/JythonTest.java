@@ -49,7 +49,7 @@ public class JythonTest {
 		catcher.startService();
 				
 		// String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
-		jython.loadPythonScriptFromResource("messageToAndFromJythonScript.py");
+		jython.loadScriptFromResource("messageToAndFromJythonScript.py");
 		log.info("pre exec");
 		jython.exec();
 		log.info("post exec");
