@@ -72,8 +72,8 @@ public class Platform implements Serializable {
 	
 	public static int getBitness()
 	{
-		String arch = System.getProperty("os.arch").toLowerCase(); 
-		if ("amd64".equals(arch))
+		String model = System.getProperty("sun.arch.data.model");
+		if ("64".equals(model))
 		{
 			return 64;
 		}

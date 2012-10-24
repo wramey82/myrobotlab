@@ -25,6 +25,7 @@
 
 package org.myrobotlab.service;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -76,7 +78,6 @@ import org.myrobotlab.control.ConnectDialog;
 import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
-import org.myrobotlab.control.Style;
 import org.myrobotlab.control.TabControl;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.framework.Message;
@@ -120,32 +121,35 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
 
 	public String graphXML = "";
-	
+
 	public transient JFrame frame = null;
 
 	public transient JTabbedPane tabs = new JTabbedPane();
-	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui of the gui service
+	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui
+															// of the gui
+															// service
 	transient Welcome welcome = null;
-	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();		
-	
-	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();			
+	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();
+
+	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();
 	transient Map<String, ServiceWrapper> sortedMap = null;
-	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
+	HashMap<String, Object> commandMap = new HashMap<String, Object>();
 
 	transient GridBagConstraints gc = null;
 	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
-	
+
 	String selectedTabTitle = null;
-	
+
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
 
 		/*
-		 * The commandMap is a list of GUIService functions which should
-		 * be processed by GUIService rather than routed to control Panels
-		 * FIXME !!! - dynamically generate "all" top level functions getMethods + Service ?
+		 * The commandMap is a list of GUIService functions which should be
+		 * processed by GUIService rather than routed to control Panels FIXME
+		 * !!! - dynamically generate "all" top level functions getMethods +
+		 * Service ?
 		 */
-		
+
 		commandMap.put("registerServicesEvent", null);
 		commandMap.put("registerServices", null);
 		commandMap.put("loadTabPanels", null);
@@ -156,36 +160,31 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		commandMap.put("setRemoteConnectionStatus", null);
 
 	}
-	
-	public boolean hasDisplay()
-	{
+
+	public boolean hasDisplay() {
 		return true;
 	}
-	
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-	
+
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
 	}
 
-	public boolean preProcessHook(Message m)
-	{
-		if (commandMap.containsKey(m.method))
-		{
+	public boolean preProcessHook(Message m) {
+		if (commandMap.containsKey(m.method)) {
 			return true;
-		} 
-		
+		}
+
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
 		if (sg == null) {
-			log.error("attempting to update sub-gui - sender "
-					+ m.sender + " not available in map " + getName());
+			log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());
 		} else {
 			invoke(serviceGUIMap.get(m.sender), m.method, m.data);
 		}
-		
+
 		return false;
 	}
 
@@ -198,16 +197,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param service
 	 * @return
 	 */
-	static public Object getNewInstance(String classname,
-			String boundServiceName, GUI service) {
+	static public Object getNewInstance(String classname, String boundServiceName, GUI service) {
 		try {
 			Object[] params = new Object[2];
 			params[0] = boundServiceName;
 			params[1] = service;
 			Class<?> c;
 			c = Class.forName(classname);
-			Constructor<?> mc = c.getConstructor(new Class[] { String.class,
-					GUI.class });
+			Constructor<?> mc = c.getConstructor(new Class[] { String.class, GUI.class });
 			return mc.newInstance(params);
 		} catch (ClassNotFoundException e) {
 			logException(e);
@@ -225,14 +222,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			logException(e);
 		}
 		return null;
-	}	
-	
-	public void buildTabPanels()
-	{
+	}
+
+	public void buildTabPanels() {
 		// add the welcome screen
-		if (!serviceGUIMap.containsKey("welcome")) 
-		{
-			welcome = new Welcome("",this); 
+		if (!serviceGUIMap.containsKey("welcome")) {
+			welcome = new Welcome("", this);
 			welcome.init();
 			tabs.addTab("Welcome", welcome.display);
 			tabs.setTabComponentAt(0, new JLabel("Welcome"));
@@ -241,17 +236,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
 		log.info("service count " + Runtime.getRegistry().size());
-		
+
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
-				
+
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			addTab(serviceName);
-		}				
+		}
 		frame.pack();
 	}
-	
+
 	public void addTab(String serviceName)
 	{
 		// ================= begin addTab(name) =============================
@@ -285,13 +280,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
 		// woot - got index !
 		int index = tabs.indexOfTab(serviceName) - 1;
+		
 		if (newGUI != null)
 		{
 			++index;
+			/*
 			if (sw.getAccessURL() != null) {
-				tabs.setBackgroundAt(index, Style.remoteColorTab);
-				tabs.setForegroundAt(index, Style.remoteFont);
+				// FIXME - getting a bit confusing because - TabControl is a label which has its own color properties !!!
+				// TODO - get color gradient based on number of ServiceEnvironments (i * (gradient))
+				//Color hsv = new Color(Color.HSBtoRGB(0, 0.8f, 0.7f));
+				//Font font = new Font("Verdana", Font.ITALIC, 12);
+				//tabs.setBackgroundAt(index, hsv);
+				//tabs.setForegroundAt(index, Color.white); // bug in JTabbedPane - does not work
+				//tabs.setFont(font);
 			}
+			*/
 		}
 
 		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
@@ -301,26 +304,24 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		frame.pack();
 	}
-	
-	public void removeTab(String name)
-	{
+
+	public void removeTab(String name) {
 		log.info("removeTab");
-		//log.info(String.format("removeTab removing [%1$s] current tab size is %d", name, serviceGUIMap.size()));
-		
+		// log.info(String.format("removeTab removing [%1$s] current tab size is %d",
+		// name, serviceGUIMap.size()));
+
 		// detaching & removing the ServiceGUI
 		ServiceGUI sg = serviceGUIMap.get(name);
-		if (sg != null)
-		{
+		if (sg != null) {
 			sg.detachGUI();
 		} else {
 			// warn not error - because service may have been removed recently
 			log.warn(String.format("%1$s was not in the serviceGUIMap - unable to preform detach", name));
 		}
-		
+
 		// removing the tab
 		JPanel tab = tabPanelMap.get(name);
-		if (tab != null)
-		{
+		if (tab != null) {
 			tabs.remove(tab);
 			serviceGUIMap.remove(name);
 			tabPanelMap.remove(name);
@@ -329,35 +330,32 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		} else {
 			log.error(String.format("can not removeTab ", name));
 		}
-		
-		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
-		if (guiServiceGUI != null)
-		{
-			guiServiceGUI.rebuildGraph(); 
+
+		guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
+		if (guiServiceGUI != null) {
+			guiServiceGUI.rebuildGraph();
 		}
 		frame.pack();
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels()
-	 * This is a bit "big hammer" in that it destroys all panels and rebuilds the GUI
-	 * don't use except to initially build
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels() This is a bit
+	 * "big hammer" in that it destroys all panels and rebuilds the GUI don't
+	 * use except to initially build
 	 */
-	
+
 	boolean test = true;
-	
+
 	public JTabbedPane loadTabPanels() {
-		if (test)
-		{
+		if (test) {
 			buildTabPanels();
 			return null;
 		}
-		
-		
+
 		log.debug("loadTabPanels");
-		
-		
+
 		// detach from Services, if panels are currently attached
 		Iterator<String> sgi = serviceGUIMap.keySet().iterator();
 		while (sgi.hasNext()) {
@@ -366,11 +364,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			sg.detachGUI();
 		}
 
-		
 		// begin building panels put in init !
-		if (!serviceGUIMap.containsKey("welcome")) // FIXME - possible problem loading a non-Service ServiceGUI
+		if (!serviceGUIMap.containsKey("welcome")) // FIXME - possible problem
+													// loading a non-Service
+													// ServiceGUI
 		{
-			welcome = new Welcome("",this); 
+			welcome = new Welcome("", this);
 			welcome.init();
 			tabs.addTab("Welcome", welcome.display);
 			tabs.setTabComponentAt(0, new JLabel("Welcome"));
@@ -379,11 +378,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
 		log.info("service count " + Runtime.getRegistry().size());
-		
+
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
 		Integer index = tabs.getTabCount() - 1;
-		
+
 		// build Service panels
 		boolean createGUIServiceGUI = false;
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -391,86 +390,87 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
 
-			// SW sent in registerServices - yet Service is null due to incompatible Service Types
-			// FIXME - Solution ??? - send SW with "suggested type ???"  Android --becomes--> AndroidController :)
-			if (sw.get() == null)
-			{
+			// SW sent in registerServices - yet Service is null due to
+			// incompatible Service Types
+			// FIXME - Solution ??? - send SW with "suggested type ???" Android
+			// --becomes--> AndroidController :)
+			if (sw.get() == null) {
 				log.error(serviceName + " does not have a valid Service - not exported ???");
 				continue;
 			}
-			
+
 			// get service type class name TODO
 			String serviceClassName = sw.get().getClass().getCanonicalName();
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
 			if (sw.get().getName().equals(getName())) {
-				// GUIServiceGUI must be created last to ensure all routing from attachGUI is done
+				// GUIServiceGUI must be created last to ensure all routing from
+				// attachGUI is done
 				log.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
 				createGUIServiceGUI = true;
 				continue;
 			}
 
-			if (serviceGUIMap.containsKey(sw.name))
-			{
+			if (serviceGUIMap.containsKey(sw.name)) {
 				log.debug("not creating " + sw.name + " gui - it already exists");
 				continue;
 			}
-			
+
 			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
-			if (newGUI != null)
-			{
+			if (newGUI != null) {
 				++index;
+				/*
 				if (sw.getAccessURL() != null) {
-					tabs.setBackgroundAt(index, Style.remoteColorTab);
-					tabs.setForegroundAt(index, Style.remoteFont);
+					Color hsv = new Color(Color.HSBtoRGB(0, 0.8f, 0.7f)); // FIXME - code is not normalized !
+					tabs.setBackgroundAt(index, hsv);
+					tabs.setForegroundAt(index, Color.white);
 				}
+				*/
 
 			}
 
 		}
 
-		// FIXME creating the ServiceGUI for "this" class if its not already created
-		// FIXME - you'll need to recreate/refresh the block map since new 
+		// FIXME creating the ServiceGUI for "this" class if its not already
+		// created
+		// FIXME - you'll need to recreate/refresh the block map since new
 		// service might have been added or dropped out !
 		// POSSIBILITY is to REMOVE THEN ADD
 		if (createGUIServiceGUI) // && !serviceGUIMap.containsKey(getName())
 		{
 			// if it already exists remove it
-			if (serviceGUIMap.containsKey(getName()))
-			{
+			if (serviceGUIMap.containsKey(getName())) {
 				removeTab(getName());
 			}
-			// TODO - warning this may need more of a delay - or must "remember" notifications of attachGUI
+			// TODO - warning this may need more of a delay - or must "remember"
+			// notifications of attachGUI
 			// going out to remote systems.
 			ServiceWrapper se = services.get(getName());
 			String serviceClassName = se.get().getClass().getCanonicalName();
 
 			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
-			
-			guiServiceGUI = (GUIServiceGUI)createTabbedPanel(this.getName(), guiClass, se);
+
+			guiServiceGUI = (GUIServiceGUI) createTabbedPanel(this.getName(), guiClass, se);
 			++index;
 
 		}
-				
+
 		frame.pack();
 
 		return tabs;
 
 	}
-	
-		
-	public synchronized void removeAllTabPanels()
-	{
+
+	public synchronized void removeAllTabPanels() {
 		log.info("tab count" + tabs.getTabCount());
-		while (tabs.getTabCount() > 0)
-		{
-		    tabs.remove(0);
+		while (tabs.getTabCount() > 0) {
+			tabs.remove(0);
 		}
 
 	}
-	
+
 	/**
 	 * attempts to create a new ServiceGUI and add it to the map
 	 * 
@@ -479,10 +479,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param sw
 	 * @return
 	 */
-	
-//	public ComponentResizer resizer = new ComponentResizer();
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw)
-	{
+
+	// public ComponentResizer resizer = new ComponentResizer();
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw) {
 		ServiceGUI gui = null;
 		ServiceInterface se = sw.get();
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
@@ -494,7 +493,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			gui.attachGUI();
 
 			tabs.addTab(serviceName, gui.getDisplay());
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName));
+			
+			if (sw.isLocal())
+			{
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName));
+			} else {
+				// create hash color for hsv from accessURI
+				Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+				int index = tabs.indexOfTab(serviceName);
+				tabs.setBackgroundAt(index, hsv);
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName, Color.white, hsv));				
+			}
 
 		} else {
 			log.warn("could not construct a " + guiClass + " object");
@@ -502,135 +511,130 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		return gui;
 	}
-	
+
 	public static List<Component> getAllComponents(final Container c) {
-	    Component[] comps = c.getComponents();
-	    List<Component> compList = new ArrayList<Component>();
-	    for (Component comp : comps) {
-	        compList.add(comp);
-	        if (comp instanceof Container)
-	            compList.addAll(getAllComponents((Container) comp));
-	    }
-	    return compList;
+		Component[] comps = c.getComponents();
+		List<Component> compList = new ArrayList<Component>();
+		for (Component comp : comps) {
+			compList.add(comp);
+			if (comp instanceof Container)
+				compList.addAll(getAllComponents((Container) comp));
+		}
+		return compList;
 	}
-	
+
 	/**
 	 * Move Service panel into a JFrame
+	 * 
 	 * @param boundServiceName
 	 * 
-	 * TODO - move completely into TabControl
+	 *            TODO - move completely into TabControl
 	 */
-	public void undockPanel(String boundServiceName)
-	{
+	public void undockPanel(String boundServiceName) {
 		JFrame undocked = new JFrame();
-		
-		
+
 		// icon
 		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
-		undocked.setIconImage(img);					
-		
+		undocked.setIconImage(img);
+
 		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-	    tabs.remove(sg.getDisplay().getParent()); // FIXME - memory leak tpanel parent is not disposed - put tpanel in widget
+		tabs.remove(sg.getDisplay().getParent()); // FIXME - memory leak tpanel
+													// parent is not disposed -
+													// put tpanel in widget
 
 		undocked.getContentPane().add(sg.getDisplay());
 		undocked.pack();
 		undocked.setVisible(true);
 		undocked.setTitle(boundServiceName);
-	    undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, boundServiceName));
-	    
-	    frame.pack();		
-	}
-	
-	/**
-	 * Move Service panel back into tabbed panels
-	 * @param boundServiceName
-	 */
-	public void dockPanel(String boundServiceName)
-	{
-		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-		tabs.add(boundServiceName, sg.getDisplay());		
+		undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, boundServiceName));
+
 		frame.pack();
 	}
-	
-	
-	public class UndockedWidgetWindowAdapter extends WindowAdapter
-	{
+
+	/**
+	 * Move Service panel back into tabbed panels
+	 * 
+	 * @param boundServiceName
+	 */
+	public void dockPanel(String boundServiceName) {
+		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
+		tabs.add(boundServiceName, sg.getDisplay());
+		frame.pack();
+	}
+
+	public class UndockedWidgetWindowAdapter extends WindowAdapter {
 		private String name;
 		JFrame myFrame;
 		GUI parent;
-		
-		public UndockedWidgetWindowAdapter (JFrame myFrame, GUI parent, String name)
-		{
+
+		public UndockedWidgetWindowAdapter(JFrame myFrame, GUI parent, String name) {
 			this.myFrame = myFrame;
 			this.parent = parent;
 			this.name = name;
 		}
-		
-        public void windowClosing(WindowEvent winEvt) {
-            dockPanel(name);
-        	myFrame.dispose();
-        }		
+
+		public void windowClosing(WindowEvent winEvt) {
+			dockPanel(name);
+			myFrame.dispose();
+		}
 	}
-	
-	// how to do re-entrant - reconstruct all correctly - or avoid building twice ?
+
+	// how to do re-entrant - reconstruct all correctly - or avoid building
+	// twice ?
 	// I'm going with the "easy" approach
-	
-	boolean isDisplaying = false;
-	public void display() {
-		if (!isDisplaying)
-		{
-		// reentrant 
-		if (frame != null)
-		{
-			frame.dispose();
-			frame = null;
-		}
-		
-		if (frame == null)
-		{
-			frame = new JFrame();
-		}
-		
-		gc = new GridBagConstraints();
-		
-		frame.addWindowListener(this);
-		frame.setTitle("myrobotlab - " + getName());
-		
-	    buildTabPanels();
 
-		frame.add(tabs);
-		
-		
-		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.createImage(url);
-		frame.setIconImage(img);		
-		
-		// menu
-	    frame.setJMenuBar(buildMenu());
-		frame.setVisible(true);
-		frame.pack();
-		isDisplaying = true;
+	boolean isDisplaying = false;
+
+	public void display() {
+		if (!isDisplaying) {
+			// reentrant
+			if (frame != null) {
+				frame.dispose();
+				frame = null;
+			}
+
+			if (frame == null) {
+				frame = new JFrame();
+			}
+
+			gc = new GridBagConstraints();
+
+			frame.addWindowListener(this);
+			frame.setTitle("myrobotlab - " + getName());
+
+			buildTabPanels();
+
+			frame.add(tabs);
+
+			URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+			Toolkit kit = Toolkit.getDefaultToolkit();
+			Image img = kit.createImage(url);
+			frame.setIconImage(img);
+
+			// menu
+			frame.setJMenuBar(buildMenu());
+			frame.setVisible(true);
+			frame.pack();
+			isDisplaying = true;
 		}
 
 	}
-	
 
 	private static void open(URI uri) {
-        if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-                try {
-                	desktop.browse(uri);
-                } catch (IOException e) {
-                        // TODO: error handling
-                }
-        } else {
-                // TODO: error handling
-        }
-    }	
-	
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			try {
+				desktop.browse(uri);
+			} catch (IOException e) {
+				// TODO: error handling
+			}
+		} else {
+			// TODO: error handling
+		}
+	}
+
 	public void registerServicesNotify() {
 		loadTabPanels();
 		invoke("guiUpdated");
@@ -656,12 +660,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowActivated(WindowEvent e) {
-		//log.info("windowActivated");
+		// log.info("windowActivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowClosed(WindowEvent e) {
-		//log.info("windowClosed");
+		// log.info("windowClosed");
 	}
 
 	// @Override - only in Java 1.6
@@ -672,61 +676,53 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowDeactivated(WindowEvent e) {
-		//log.info("windowDeactivated");
+		// log.info("windowDeactivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowDeiconified(WindowEvent e) {
-		//log.info("windowDeiconified");
+		// log.info("windowDeiconified");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowIconified(WindowEvent e) {
-		//log.info("windowActivated");
+		// log.info("windowActivated");
 	}
 
 	// @Override - only in Java 1.6
 	public void windowOpened(WindowEvent e) {
-		//log.info("windowOpened");
+		// log.info("windowOpened");
 
 	}
-	
+
 	String lastHost = "127.0.0.1";
 	String lastPort = "6767";
 
-
-	
-	public void loadRuntime()
-	{
+	public void loadRuntime() {
 		Runtime.releaseAll();
-		
+
 		// load runtime
 		Runtime.load("myrobotlab.mrl");
-		
-		Runtime.startLocalServices(); // FIXME - gui will not re-activate - removed for Android?
+
+		Runtime.startLocalServices(); // FIXME - gui will not re-activate -
+										// removed for Android?
 	}
-	
-	public void about()
-	{
+
+	public void about() {
 		new AboutDialog(frame);
 	}
-	
 
-	
 	public void stopService() {
 		dispose();
 		super.stopService();
 	}
-	
-	public void dispose()
-	{
-		if (frame != null)
-		{
+
+	public void dispose() {
+		if (frame != null) {
 			frame.dispose();
 		}
 	}
-	
-	
+
 	@Override
 	public String getToolTip() {
 		return "<html>Service used to graphically display and control other services</html>";
@@ -734,7 +730,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Override
 	public void pack() {
-		frame.pack();		
+		frame.pack();
 	}
 
 	@Override
@@ -749,7 +745,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Override
 	public void setDstServiceName(String d) {
-		guiServiceGUI.dstServiceName.setText(d);		
+		guiServiceGUI.dstServiceName.setText(d);
 	}
 
 	@Override
@@ -764,17 +760,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Override
 	public String getDstServiceName() {
-		return guiServiceGUI.dstServiceName.getText();		
+		return guiServiceGUI.dstServiceName.getText();
 	}
 
 	@Override
 	public String getSrcMethodName() {
-		return guiServiceGUI.srcMethodName.getText();		
+		return guiServiceGUI.srcMethodName.getText();
 	}
 
 	@Override
 	public String getSrcServiceName() {
-		return guiServiceGUI.srcServiceName.getText();		
+		return guiServiceGUI.srcServiceName.getText();
 	}
 
 	@Override
@@ -789,22 +785,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Override
 	public void setSrcMethodName(String d) {
-		guiServiceGUI.srcMethodName.setText(d);		
+		guiServiceGUI.srcMethodName.setText(d);
 	}
 
 	@Override
 	public void setSrcServiceName(String d) {
-		guiServiceGUI.srcServiceName.setText(d);		
+		guiServiceGUI.srcServiceName.setText(d);
 	}
 
 	@Override
 	public void setArrow(String s) {
-        guiServiceGUI.arrow0.setText(s);		
+		guiServiceGUI.arrow0.setText(s);
 	}
 
 	@Override
 	public void setPeriod1(String s) {
-		guiServiceGUI.period1.setText(s);		
+		guiServiceGUI.period1.setText(s);
 	}
 
 	@Override
@@ -816,90 +812,83 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void setGraphXML(String xml) {
 		graphXML = xml;
 	}
-	
-	
-	public void registerServicesEvent (String host, int port, Message msg)
-	{
+
+	public void registerServicesEvent(String host, int port, Message msg) {
 		loadTabPanels();
 	}
-	
-	public void registerServicesEvent ()
-	{
+
+	public void registerServicesEvent() {
 		loadTabPanels();
 	}
-	
-	
-	static public void console()
-	{
+
+	static public void console() {
 		attachJavaConsole();
 	}
-	
-	static public void attachJavaConsole()
-	{
+
+	static public void attachJavaConsole() {
 		JFrame j = new JFrame("Java Console");
 		j.setSize(500, 550);
 		Console c = new Console();
 		j.add(c.getScrollPane());
-		j.setVisible(true);		
+		j.setVisible(true);
 		c.startLogging();
 	}
-	
+
 	/**
 	 * Build the menu for display.
+	 * 
 	 * @return
 	 */
-	public JMenuBar buildMenu()
-	{
+	public JMenuBar buildMenu() {
 		JMenuBar menuBar = new JMenuBar();
-	    
+
 		// --- system ----
 		JMenu systemMenu = new JMenu("system");
 		JMenuItem mi;
-		
+
 		mi = new JMenuItem("connect");
-	    mi.addActionListener(this);
-	    systemMenu.add(mi);
-	    
-	    JMenu m = new JMenu("logging");
-	    systemMenu.add(m);
+		mi.addActionListener(this);
+		systemMenu.add(mi);
 
-	    JMenu m2 = new JMenu("level");
-	    m.add(m2);
-	    buildLogLevelMenu(m2);
+		JMenu m = new JMenu("logging");
+		systemMenu.add(m);
 
-	    m2 = new JMenu("type");
-	    m.add(m2);
-	    buildLogAppenderMenu(m2);
-		    
-	    m = new JMenu("update");
-	    buildUpdatesMenu(m);
+		JMenu m2 = new JMenu("level");
+		m.add(m2);
+		buildLogLevelMenu(m2);
 
-	    systemMenu.add(m);
-	    	    
-	    systemMenu.add(buildRecordingMenu(new JMenu("recording")));
-		    	    
-	    menuBar.add(systemMenu);
-	    
+		m2 = new JMenu("type");
+		m.add(m2);
+		buildLogAppenderMenu(m2);
+
+		m = new JMenu("update");
+		buildUpdatesMenu(m);
+
+		systemMenu.add(m);
+
+		systemMenu.add(buildRecordingMenu(new JMenu("recording")));
+
+		menuBar.add(systemMenu);
+
 		JMenu help = new JMenu("help");
-	    JMenuItem about = new JMenuItem("about");
-	    about.addActionListener(this);
-	    help.add(about);
-	    menuBar.add(help);
-				
+		JMenuItem about = new JMenuItem("about");
+		about.addActionListener(this);
+		help.add(about);
+		menuBar.add(help);
+
 		return menuBar;
 	}
-	
+
 	JMenuItem recording = new JMenuItem("start recording");
 	JMenuItem loadRecording = new JMenuItem("load recording");
-	
-	public JMenu buildRecordingMenu(JMenu parentMenu)
-	{
+
+	public JMenu buildRecordingMenu(JMenu parentMenu) {
 
 		recording.addActionListener(this);
-	    parentMenu.add(recording);
+		parentMenu.add(recording);
 
-	    loadRecording.addActionListener(this);
-	    parentMenu.add(loadRecording);
+		loadRecording.addActionListener(this);
+		parentMenu.add(loadRecording);
 
 		return parentMenu;
 	}
@@ -908,56 +897,43 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void actionPerformed(ActionEvent ae) {
 		String cmd = ae.getActionCommand();
 		Object source = ae.getSource();
-		if ("save".equals(cmd))
-		{
+		if ("save".equals(cmd)) {
 			Runtime.save("myrobotlab.mrl");
-		} else if ("check for updates".equals(cmd))
-		{
+		} else if ("check for updates".equals(cmd)) {
 			Runtime runtime = Runtime.getInstance();
 			send(runtime.getName(), "checkForUpdates");
-		} else if ("update all".equals(cmd))
-		{
+		} else if ("update all".equals(cmd)) {
 			Runtime.updateAll();
-		} else if ("load".equals(cmd)) 
-		{
+		} else if ("load".equals(cmd)) {
 			loadRuntime();
-		} else if (cmd.equals(LogLevel.Debug.toString()) || 
-				cmd.equals(LogLevel.Info.toString()) ||
-				cmd.equals(LogLevel.Warn.toString()) ||
-				cmd.equals(LogLevel.Error.toString()) ||
-				cmd.equals(LogLevel.Fatal.toString()))
-		{
+		} else if (cmd.equals(LogLevel.Debug.toString()) || cmd.equals(LogLevel.Info.toString()) || cmd.equals(LogLevel.Warn.toString()) || cmd.equals(LogLevel.Error.toString())
+				|| cmd.equals(LogLevel.Fatal.toString())) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)
 			setLogLevel(LogLevel.parse(cmd));
-		} else if ("connect".equals(cmd)) 
-		{
+		} else if ("connect".equals(cmd)) {
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
 			lastHost = dlg.host.getText();
 			lastPort = dlg.port.getText();
-		} else if (cmd.equals(LogAppender.None.toString())) 
-		{
+		} else if (cmd.equals(LogAppender.None.toString())) {
 			removeAllAppenders();
-		} else if (cmd.equals(LogAppender.Remote.toString())) 
-		{
-			JCheckBoxMenuItem m = (JCheckBoxMenuItem)ae.getSource();
+		} else if (cmd.equals(LogAppender.Remote.toString())) {
+			JCheckBoxMenuItem m = (JCheckBoxMenuItem) ae.getSource();
 			if (m.isSelected()) {
 				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
 				lastHost = dlg.host.getText();
 				lastPort = dlg.port.getText();
 				addAppender(LogAppender.Remote, dlg.host.getText(), dlg.port.getText());
 			} else {
-				Service.remoteAppender(LogAppender.Remote);			
+				Service.remoteAppender(LogAppender.Remote);
 			}
-		} else if (cmd.equals(LogAppender.File.toString())) { 
+		} else if (cmd.equals(LogAppender.File.toString())) {
 			addAppender(LogAppender.File);
-		} else if (cmd.equals(LogAppender.None.toString())) { 
+		} else if (cmd.equals(LogAppender.None.toString())) {
 			addAppender(LogAppender.None);
-	    } else if ("explode".equals(cmd)) 
-		{
-			//display();
+		} else if ("explode".equals(cmd)) {
+			// display();
 		} else if (source == recording) {
-			if ("start recording".equals(recording.getText()))
-			{
+			if ("start recording".equals(recording.getText())) {
 				startRecording();
 				recording.setText("stop recording");
 			} else {
@@ -968,18 +944,18 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			JFileChooser c = new JFileChooser(cfgDir);
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Message files", "msg");
 			c.setFileFilter(filter);
-		      // Demonstrate "Open" dialog:
+			// Demonstrate "Open" dialog:
 			String filename;
 			String dir;
-		      int rVal = c.showOpenDialog(frame);
-		      if (rVal == JFileChooser.APPROVE_OPTION) {
-		        filename = c.getSelectedFile().getName();
-		        dir = c.getCurrentDirectory().toString();
-		        loadRecording(dir + "/" + filename);
-		      }
-		      if (rVal == JFileChooser.CANCEL_OPTION) {
-		        
-		      }
+			int rVal = c.showOpenDialog(frame);
+			if (rVal == JFileChooser.APPROVE_OPTION) {
+				filename = c.getSelectedFile().getName();
+				dir = c.getCurrentDirectory().toString();
+				loadRecording(dir + "/" + filename);
+			}
+			if (rVal == JFileChooser.CANCEL_OPTION) {
+
+			}
 		} else {
 			invoke(Util.StringToMethodName(cmd));
 		}
@@ -987,24 +963,26 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	/**
 	 * Add all options to the Software Update menu.
+	 * 
 	 * @param parentMenu
 	 */
 	private void buildUpdatesMenu(JMenu parentMenu) {
 		JMenuItem mi = new JMenuItem("check for updates");
-	    mi.addActionListener(this);
-	    parentMenu.add(mi);
-
-	    mi = new JMenuItem("update all");
 		mi.addActionListener(this);
 		parentMenu.add(mi);
 
-	    mi = new JMenuItem("install all");
+		mi = new JMenuItem("update all");
+		mi.addActionListener(this);
+		parentMenu.add(mi);
+
+		mi = new JMenuItem("install all");
 		mi.addActionListener(this);
 		parentMenu.add(mi);
 	}
 
 	/**
 	 * Add all options to the Log Appender menu.
+	 * 
 	 * @param parentMenu
 	 */
 	private void buildLogAppenderMenu(JMenu parentMenu) {
@@ -1012,120 +990,107 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		boolean console = false;
 		boolean file = false;
 		boolean remote = false;
-		
+
 		while (appenders.hasMoreElements()) {
-            Object o =  appenders.nextElement();
-            if (o.getClass() == ConsoleAppender.class)
-            {
-            	console = true;
-            } else if (o.getClass() == FileAppender.class)
-            {
-            	file = true;
-            } else if  (o.getClass() == SocketAppender.class)
-            {
-            	remote = true;
-            }
-            
-            log.info(o.getClass().toString());
-        }
-		
+			Object o = appenders.nextElement();
+			if (o.getClass() == ConsoleAppender.class) {
+				console = true;
+			} else if (o.getClass() == FileAppender.class) {
+				file = true;
+			} else if (o.getClass() == SocketAppender.class) {
+				remote = true;
+			}
+
+			log.info(o.getClass().toString());
+		}
+
 		JCheckBoxMenuItem mi = new JCheckBoxMenuItem(LogAppender.None.toString());
 		mi.setSelected(!console && !file && !remote);
-	    mi.addActionListener(this);
-	    parentMenu.add(mi);
-	    
+		mi.addActionListener(this);
+		parentMenu.add(mi);
+
 		mi = new JCheckBoxMenuItem(LogAppender.Console.toString());
 		mi.setSelected(console);
-	    mi.addActionListener(this);
-	    parentMenu.add(mi);
+		mi.addActionListener(this);
+		parentMenu.add(mi);
 
 		mi = new JCheckBoxMenuItem(LogAppender.File.toString());
 		mi.setSelected(file);
-	    mi.addActionListener(this);
-	    parentMenu.add(mi);
+		mi.addActionListener(this);
+		parentMenu.add(mi);
 
 		mi = new JCheckBoxMenuItem(LogAppender.Remote.toString());
 		mi.setSelected(remote);
-	    mi.addActionListener(this);
-	    parentMenu.add(mi);
+		mi.addActionListener(this);
+		parentMenu.add(mi);
 	}
 
 	/**
 	 * Add all options to the Log Level menu.
+	 * 
 	 * @param parentMenu
 	 */
 	private void buildLogLevelMenu(JMenu parentMenu) {
-    	ButtonGroup logLevelGroup = new ButtonGroup();
-    	
-    	Logger root = Logger.getRootLogger();
-    	String level = root.getLevel().toString();
-    	
-    	JRadioButtonMenuItem mi = new JRadioButtonMenuItem (LogLevel.Debug.toString());
-    	mi.setSelected(("DEBUG".equals(level)));
-	    mi.addActionListener(this);
-	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);
+		ButtonGroup logLevelGroup = new ButtonGroup();
 
-	    mi = new JRadioButtonMenuItem (LogLevel.Info.toString());
-    	mi.setSelected(("INFO".equals(level)));
-	    mi.addActionListener(this);
-	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);
-	    
-	    mi = new JRadioButtonMenuItem (LogLevel.Warn.toString());
-    	mi.setSelected(("WARN".equals(level)));
-	    mi.addActionListener(this);
-	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);
-	    
-	    mi = new JRadioButtonMenuItem (LogLevel.Error.toString());
-    	mi.setSelected(("ERROR".equals(level)));
-	    mi.addActionListener(this);
-	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);
-	    
-	    mi = new JRadioButtonMenuItem (LogLevel.Fatal.toString());
-    	mi.setSelected(("FATAL".equals(level)));
-	    mi.addActionListener(this);
-	    logLevelGroup.add(mi);
-	    parentMenu.add(mi);
+		Logger root = Logger.getRootLogger();
+		String level = root.getLevel().toString();
+
+		JRadioButtonMenuItem mi = new JRadioButtonMenuItem(LogLevel.Debug.toString());
+		mi.setSelected(("DEBUG".equals(level)));
+		mi.addActionListener(this);
+		logLevelGroup.add(mi);
+		parentMenu.add(mi);
+
+		mi = new JRadioButtonMenuItem(LogLevel.Info.toString());
+		mi.setSelected(("INFO".equals(level)));
+		mi.addActionListener(this);
+		logLevelGroup.add(mi);
+		parentMenu.add(mi);
+
+		mi = new JRadioButtonMenuItem(LogLevel.Warn.toString());
+		mi.setSelected(("WARN".equals(level)));
+		mi.addActionListener(this);
+		logLevelGroup.add(mi);
+		parentMenu.add(mi);
+
+		mi = new JRadioButtonMenuItem(LogLevel.Error.toString());
+		mi.setSelected(("ERROR".equals(level)));
+		mi.addActionListener(this);
+		logLevelGroup.add(mi);
+		parentMenu.add(mi);
+
+		mi = new JRadioButtonMenuItem(LogLevel.Fatal.toString());
+		mi.setSelected(("FATAL".equals(level)));
+		mi.addActionListener(this);
+		logLevelGroup.add(mi);
+		parentMenu.add(mi);
 	}
 
-	static public void restart()
-	{
+	static public void restart() {
 		restart(null);
 	}
-	
-	static public void restart(String restartScript)
-	{
+
+	static public void restart(String restartScript) {
 		log.info("new components - restart?");
 		JFrame frame = new JFrame();
-		int ret = JOptionPane
-				.showConfirmDialog(
-						frame,
-						"<html>New components have been added,<br>"
-								+ " it is necessary to restart in order to use them.</html>",
-						"restart", JOptionPane.YES_NO_OPTION);
+		int ret = JOptionPane.showConfirmDialog(frame, "<html>New components have been added,<br>" + " it is necessary to restart in order to use them.</html>", "restart",
+				JOptionPane.YES_NO_OPTION);
 		if (ret == JOptionPane.OK_OPTION) {
 			log.info("restarting");
 			Runtime.releaseAll();
 			try {
-				if (restartScript == null)
-				{
+				if (restartScript == null) {
 					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec(
-								"cmd /c start myrobotlab.bat");
+						java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
 					} else {
-						java.lang.Runtime.getRuntime().exec(
-								"./myrobotlab.sh");
+						java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");
 					}
 				} else {
 					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec(
-								String.format("cmd /c start scripts\\%s.cmd", restartScript));
+						java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
 					} else {
-						java.lang.Runtime.getRuntime().exec(
-								String.format("./scripts/%s.sh", restartScript));
+						java.lang.Runtime.getRuntime().exec(String.format("./scripts/%s.sh", restartScript));
 					}
 				}
 			} catch (Exception ex) {
@@ -1139,27 +1104,46 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException {
+	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
+/*
+		//float x = 539248398 >> 10;
+		float x = 10f % 539248398;
+		log.info(x);
+		float y = 5383823987f % 10f;
+		log.info(y);
+		
+		URI a = new URI("tcp://127.0.0.1:6767");
+		URI b = new URI("tcp://192.168.0.2:6767");
+		
+		String c = a.toString();
+		String d = b.toString();
+		
+		log.info(c);
+		log.info(String.format("0.%d",Math.abs(c.hashCode())));
+				
+		log.info(d);
+		log.info(String.format("0.%d",Math.abs(d.hashCode())));
+		*/
+		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
 
-		GUIService gui2 = (GUIService)Runtime.createAndStart("gui1", "GUIService");
-       
-        // gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost, port, sdu) <--FIXME no sdu
-        // FIXME - change to sendRegistration ....
-        //gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767, null);
-        //gui2.sendServiceDirectoryUpdate(null, null, null, "10.192.198.34", 6767, null);
-		
+		// gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost,
+		// port, sdu) <--FIXME no sdu
+		// FIXME - change to sendRegistration ....
+		// gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767,
+		// null);
+		// gui2.sendServiceDirectoryUpdate(null, null, null, "10.192.198.34",
+		// 6767, null);
+
 		gui2.startService();
-//		gui2.display();
-		
-		//gui2.startRecording();
-		//gui2.stopRecording();
-		
-		//gui2.loadRecording(".myrobotlab/gui1_20120918052147517.msg");
-		
-		
-	
+		// gui2.display();
+
+		// gui2.startRecording();
+		// gui2.stopRecording();
+
+		// gui2.loadRecording(".myrobotlab/gui1_20120918052147517.msg");
+
 	}
 
 }
