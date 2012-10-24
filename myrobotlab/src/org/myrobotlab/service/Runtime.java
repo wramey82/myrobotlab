@@ -546,6 +546,18 @@ public class Runtime extends Service {
 	public static void addInclusiveExportFilterServiceType(String shortClassName) {
 		inclusiveExportFilter.put(String.format("org.myrobotlab.service.%1$s", shortClassName), shortClassName);
 	}
+	
+	public static boolean isLocal(String serviceName)
+	{
+		ServiceWrapper sw = getServiceWrapper(serviceName);
+		if (sw == null)
+		{
+			log.error(String.format("%s not defined - can't determine if its local"));
+			return false;
+		}
+		
+		return sw.isLocal();
+	}
 
 	/**
 	 * 

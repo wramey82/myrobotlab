@@ -1,5 +1,6 @@
 package org.myrobotlab.control;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -96,12 +97,28 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		
 	}
 	
+	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background)
+	{
+		this(top, parent, myPanel, boundServiceName, boundServiceName, foreground, background);
+	}
 
 	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName)
 	{
-		this(top, parent, myPanel, boundServiceName, boundServiceName);
+		this(top, parent, myPanel, boundServiceName, boundServiceName, null, null);
 	}
 	
+	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, Color foreground, Color background)
+	{
+		this(top, parent, myPanel, boundServiceName, txt);
+		if (foreground != null)
+		{
+			setForeground(foreground);
+		}	
+		if (background != null)
+		{
+			setBackground(background);
+		}	
+	}
 	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt)
 	{
 		super(txt);
