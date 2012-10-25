@@ -473,7 +473,7 @@ public class ServiceInfo implements Serializable {
 	 */
 	public boolean hasUnfulfilledDependencies(String fullServiceName) {
 		boolean ret = false;
-		log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
+		//log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
 
 		// no serviceInfo
 		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
@@ -489,8 +489,8 @@ public class ServiceInfo implements Serializable {
 		Dependency dep;
 		for (int i = 0; i < d.size(); ++i) {
 			if (!serviceData.thirdPartyLibs.containsKey(d.get(i))) {
-				log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
-				log.debug("hasUnfulfilledDependencies exit true");
+				//log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
+				//log.debug("hasUnfulfilledDependencies exit true");
 				return true;
 			}
 			dep = serviceData.thirdPartyLibs.get(d.get(i));
@@ -500,7 +500,7 @@ public class ServiceInfo implements Serializable {
 			log.debug("hasUnfulfilledDependencies exit true");
 			return true;
 		}
-		log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
+		//log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
 		return ret;
 	}
 

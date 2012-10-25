@@ -25,11 +25,15 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -40,12 +44,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServoController;
 
-public class ServoGUI extends ServiceGUI {
+public class ServoGUI extends ServiceGUI implements ActionListener, MouseListener {
 
 	public final static Logger log = Logger.getLogger(ServoGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
@@ -58,8 +62,10 @@ public class ServoGUI extends ServiceGUI {
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 
-	JComboBox controller = null;
+	JComboBox controller = new JComboBox();
 	JComboBox pin = null;
+	
+	DefaultComboBoxModel controllerModel = new DefaultComboBoxModel();
 	
 	// TODO - sync initially by requesting entire Servo service object - can you get cfg? that way?
 	JTextField posMin = new JTextField("0");
@@ -125,8 +131,6 @@ public class ServoGUI extends ServiceGUI {
 		control.add(attachButton, gc);
 		++gc.gridx;
 
-		Vector<String> v = getAllServoControllers();
-		controller = new JComboBox(v);
 		control.add(controller, gc);
 
 		++gc.gridx;
@@ -134,7 +138,7 @@ public class ServoGUI extends ServiceGUI {
 											// Arduino - getValidPinsForServo in
 											// Interface
 
-		// TODO - pin config is based on Arduino D.
+		// FIXME - controller selection - generates a getPins() which populates pin JComboBox
 		Vector<Integer> p = new Vector<Integer>();
 		p.addElement(1);
 		p.addElement(2);
@@ -169,10 +173,42 @@ public class ServoGUI extends ServiceGUI {
 		limits.add(posMax);
 
 		display.add(limits, gc);
-
 		
+		// http://stackoverflow.com/questions/6205433/jcombobox-focus-and-mouse-click-events-not-working
+		// jComboBox1.getEditor().getEditorComponent().addMouseListener(...);
+		// have to add mouse listener to the MetalComboButton embedded in the JComboBox
+		Component[] comps = controller.getComponents();
+		for(int i = 0; i < comps.length; i++)
+		{ 
+			comps[i].addMouseListener(this); // JComboBox composite listener - have to get all the sub components
+			/*
+		comps[i].addMouseListener(new MouseAdapter() {
+		public void mouseClicked(MouseEvent me) {
+		System.out.println("clicked");
+		}
+		});*/
+		}
+		//controller.getEditor().getEditorComponent().addMouseListener(this);
+		controller.addActionListener(this);
+		controller.setModel(controllerModel);
+		
+		refreshControllers();
 	}
 	
+	
+	public void refreshControllers()
+	{
+		// FIXME - would newing? a new DefaultComboBoxModel be better?
+		controllerModel.removeAllElements();
+		Vector<String> v = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName()); // FIXME - getLocalRelative to the Servo
+		for (int i = 0; i < v.size(); ++i)
+		{
+			controllerModel.addElement(v.get(i));
+		}
+		
+		controller.invalidate();
+		// if isAttached() - select the correct one
+	}
 
 	private JSlider getAnalogValue() {
 		if (slider == null) {
@@ -182,8 +218,7 @@ public class ServoGUI extends ServiceGUI {
 					boundPos.setText("" + slider.getValue());
 
 					if (myService != null) {
-						myService.send(boundServiceName, "moveTo", new Integer(
-								slider.getValue()));
+						myService.send(boundServiceName, "moveTo", Integer.valueOf(slider.getValue()));
 					} else {
 						log.error("can not send message myService is null");
 					}
@@ -231,27 +266,6 @@ public class ServoGUI extends ServiceGUI {
 	}
 	
 	
-
-	public Vector<String> getAllServoControllers() {
-		Vector<String> v = new Vector<String>();
-		v.addElement(""); // the "no interface" selection
-		ConfigurationManager cm = myService.getHostCFG();
-		Vector<String> sm = cm.getServiceVector();
-		for (int i = 0; i < sm.size(); ++i) {
-			Vector<String> intfcs = cm.getInterfaces(sm.get(i));
-			if (intfcs == null)
-				continue;
-			for (int j = 0; j < intfcs.size(); ++j) {
-				if (intfcs.get(j).compareTo(
-						"org.myrobotlab.service.interfaces.ServoController") == 0) {
-					v.addElement(sm.get(i));
-				}
-			}
-
-		}
-		return v;
-	}
-	
 	public void getState(Servo servo)
 	{
 		controller.setSelectedItem(servo.getControllerName());
@@ -272,6 +286,52 @@ public class ServoGUI extends ServiceGUI {
 	@Override
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", Servo.class);		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		Object o = event.getSource();
+		if (o == controller)
+		{
+			log.info("here");
+		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		log.info("clicked");
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		log.info("entered");
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		log.info("exited");
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		log.info("pressed");
+		Object o = arg0.getSource();
+		log.info(o);
+
+		refreshControllers();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		log.info("released");
 	}
 	
 }

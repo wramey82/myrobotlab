@@ -267,14 +267,14 @@ public class Runtime extends Service {
 	// these definitions
 	/**
 	 * ONLY CALLED BY registerServices2 ... would be a bug if called from
-	 * foreign service - (no platform!) .. URI (URI) will always be null FIXME -
-	 * change to register(URI url)
+	 * foreign service - (no platform! - unless ServiceEnvironment already exists) 
+	 * 
 	 * 
 	 * @param url
 	 * @param s
 	 * @return
 	 */
-	public static synchronized Service register(Service s, URI url) {
+	public final static synchronized Service register(Service s, URI url) {
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url)) {
 			se = new ServiceEnvironment(url);
@@ -300,8 +300,44 @@ public class Runtime extends Service {
 		return s;
 	}
 
+	
 	/**
-	 * registers a ServiceEnvironment which is a complete set of Services from a
+	 * called by remote/foreign systems to register a new service
+	 * through a subscription
+	 * 
+	 * @param sw
+	 */
+	public void register(ServiceWrapper sw)
+	{
+		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
+		ServiceEnvironment se = hosts.get(sw.getAccessURL());
+		if (se == null)
+		{
+			log.error("no service environment");
+			return;
+		}
+		
+		if (se.serviceDirectory.containsKey(sw.name))
+		{
+			log.info(String.format("%s already registered"));
+			return;
+		}
+		// FIXME - does the refrence of this service wrapper need to point back to the 
+		// service environment its referencing?
+		// sw.host = se; - can't do this because its final
+		
+		se.serviceDirectory.put(sw.name, sw);
+		registry.put(sw.name, sw);
+		if (instance != null) {
+			instance.invoke("registered", sw);
+		}
+
+	}
+	
+	
+	
+	/**
+	 * registers an initial ServiceEnvironment which is a complete set of Services from a
 	 * foreign instance of MRL. It returns whether changes have been made. This
 	 * is necessary to determine if the register should be echoed back.
 	 * 
@@ -332,6 +368,14 @@ public class Runtime extends Service {
 			log.info(String.format("adding %1$s to registry", serviceName));
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
 			instance.invoke("registered", s.serviceDirectory.get(serviceName));
+			
+			ServiceWrapper sw = getServiceWrapper(serviceName);
+			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType()))
+			{
+				log.info(String.format("found runtime %s", serviceName));
+				instance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
+			}
+			
 		}
 
 		return true;
