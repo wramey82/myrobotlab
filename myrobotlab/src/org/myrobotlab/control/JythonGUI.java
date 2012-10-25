@@ -160,6 +160,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			saveAsFile();
 		} else if (m.getActionCommand().equals("examples")) {
 			editor.setText(FileIO.getResourceFile(String.format("Jython/examples/%1$s", m.getText())));
+			editor.setCaretPosition(0);
 		}
 	}
 
@@ -270,29 +271,31 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	private void createExamplesMenu(JMenu examples) {
 		// FIXME - dynamically build based on resources
 		JMenu menu;
-		menu = new JMenu("arduino");
-		menu.add(createMenuItem("arduinoBasic.py", "examples"));
+		menu = new JMenu("Arduino");
 		menu.add(createMenuItem("arduinoInput.py", "examples"));
 		menu.add(createMenuItem("arduinoOutput.py", "examples"));
-		menu.add(createMenuItem("arduinoServo.py", "examples"));
+		menu.add(createMenuItem("arduinoLoopback.py", "examples"));
 		examples.add(menu);
 
-		menu = new JMenu("basic");
+		menu = new JMenu("Python");
 		menu.add(createMenuItem("createAService.py", "examples"));
 		menu.add(createMenuItem("basicPython.py", "examples"));
 		menu.add(createMenuItem("panTilt.py", "examples"));
 		examples.add(menu);
 
+		menu = new JMenu("Ser");
+		menu.add(createMenuItem("createAService.py", "examples"));
+		
 		menu = new JMenu("input");
 		menu.add(createMenuItem("inputTest.py", "examples"));
 		examples.add(menu);
 
-		menu = new JMenu("speech");
+		menu = new JMenu("Speech");
 		menu.add(createMenuItem("sayThings.py", "examples"));
 		menu.add(createMenuItem("talkBack.py", "examples"));
 		examples.add(menu);
 
-		menu = new JMenu("vision");
+		menu = new JMenu("Vision");
 		menu.add(createMenuItem("faceTracking.py", "examples"));
 		menu.add(createMenuItem("colorTracking.py", "examples"));
 		menu.add(createMenuItem("lkOpticalTrack.py", "examples"));
