@@ -2,16 +2,18 @@
 # Connects a serial device on Windows this would COMx 
 # Sets the board type
 # It then uses digitalWrite to change the output value of pin 13
+# You will need MRLComm.ino loaded on the Arduino
+from time import sleep
 from org.myrobotlab.service import Arduino
 
 # create an Arduino service named arduino
-runtime.createAndStart("arduino","Arduino")
+arduino = runtime.createAndStart("arduino","Arduino")
 
 # set the board type
-arduino.setBoard("atmega328") # atmega168 | mega2560 | etc
+arduino.setBoard("atmega168") # atmega168 | mega2560 | etc
 
 # set serial device
-arduino.setSerialDevice("/dev/ttyUSB1",57600,8,1,0)
+arduino.setSerialDevice("/dev/ttyUSB0",57600,8,1,0)
 sleep(1) # give it a second for the serial device to get ready
 
 # update the gui with configuration changes
@@ -21,7 +23,7 @@ arduino.publishState()
 arduino.pinMode(13, Arduino.OUTPUT)
 
 # turn pin 13 on and off 10 times
-for x in range(0 to 10):
+for x in range(0, 10):
 	arduino.digitalWrite(13, Arduino.HIGH)
 	sleep(0.5) # sleep half a second
 	arduino.digitalWrite(13, Arduino.LOW)
@@ -32,8 +34,12 @@ for x in range(0 to 10):
 arduino.pinMode(9, Arduino.OUTPUT)
 
 # run through pin 9's pwm frequency 5 times
-for y in range(0 to 3):
-  for x in range(0 to 255):
-	  arduino.analogWrite(13, x)
-	  sleep(0.2) # sleep a 2 tenths of a second
-	
+# in increments of 10 - dim to bright
+for y in range(0, 5):
+  for x in range(0, 255, 10):
+	  arduino.analogWrite(9, x)
+	  sleep(0.1) # sleep a 1 tenth of a second
+
+# turn out the lights :)
+arduino.analogWrite(9, 0)
+

@@ -295,6 +295,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu.add(createMenuItem("talkBack.py", "examples"));
 		examples.add(menu);
 
+		menu = new JMenu("Robots");
+		menu.add(createMenuItem("inMoovHandRobot.py", "examples"));
+		examples.add(menu);
+		
+		
+		
 		menu = new JMenu("Vision");
 		menu.add(createMenuItem("faceTracking.py", "examples"));
 		menu.add(createMenuItem("colorTracking.py", "examples"));
