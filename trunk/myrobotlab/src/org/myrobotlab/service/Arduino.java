@@ -99,7 +99,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	static HashSet<File> libraries;
 
 	static boolean commandLine;
-	public HashMap<String, Target> targetsTable;
+	public HashMap<String, Target> targetsTable = new HashMap<String, Target>();
 
 	static File buildFolder;
 	static public HashMap<String, File> importToLibraryTable;

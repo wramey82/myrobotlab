@@ -20,8 +20,18 @@ arduino.publishState()
 # in the oscope
 arduino.analogReadPollingStart(17)
 
-# sample the data in the oscope for 10 seconds
-sleep(10) 
+# sample the data in the oscope for 5 seconds
+sleep(5) 
 
 # turn off the sampling
 arduino.analogReadPollingStop(17)
+
+# change the pinMode of digital pin 13
+arduino.pinMode(13,0)
+
+# begin tracing the digital pin 13 line for 5 seconds
+arduino.digitalReadPollStart(13)
+sleep(5)
+
+# turn off the trace
+arduino.digitalReadPollStop(13)
