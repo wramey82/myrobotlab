@@ -1,0 +1,146 @@
+#create an Arduino &  name arduino & index
+runtime.createAndStart("arduino","Arduino")
+ 
+runtime.createAndStart("thumb","Servo")
+runtime.createAndStart("index","Servo")
+runtime.createAndStart("majeure","Servo")
+runtime.createAndStart("ringfinger","Servo")
+runtime.createAndStart("pinky","Servo")
+runtime.createAndStart("wrist","Servo")
+runtime.createAndStart("biceps","Servo")
+runtime.createAndStart("rotate","Servo")
+runtime.createAndStart("shoulder","Servo")
+# runtime.createAndStart("omoplat","Servo")
+runtime.createAndStart("neck","Servo")
+runtime.createAndStart("rothead","Servo")
+ 
+# configuration for the arduino & quick test
+arduino.setBoard("atmega1280") # atmega328 | atmega168 | mega2560 | atmega1280 etc
+arduino.setSerialDevice("COM7",57600,8,1,0)
+sleep(2)
+arduino.pinMode(17,0)
+arduino.analogReadPollingStart(17)
+sleep(1)
+arduino.pinMode(17,0)
+arduino.analogReadPollingStop(17)
+ 
+# attach servos
+arduino.servoAttach("thumb",2)
+arduino.servoAttach("index",3)
+arduino.servoAttach("majeure",4)
+arduino.servoAttach("ringfinger",5)
+arduino.servoAttach("pinky",6)
+arduino.servoAttach("wrist",7)
+arduino.servoAttach("biceps",8)
+arduino.servoAttach("rotate",9)
+arduino.servoAttach("shoulder",10)
+#arduino.servoAttach("omoplat",11)
+arduino.servoAttach("neck",12)
+arduino.servoAttach("rothead",13)
+ 
+# refresh the gui 
+arduino.publishState()
+thumb.publishState()
+index.publishState()
+majeure.publishState()
+ringfinger.publishState()
+pinky.publishState()
+wrist.publishState()
+biceps.publishState()
+rotate.publishState()
+shoulder.publishState()
+#omoplat.publishState()
+neck.publishState()
+rothead.publishState()
+
+def allopen():
+  thumb.moveTo(0)
+  index.moveTo(0)
+  majeure.moveTo(0)
+  ringfinger.moveTo(0)
+  pinky.moveTo(0)
+  wrist.moveTo(0)
+  biceps.moveTo(0)
+  rotate.moveTo(90)
+  shoulder.moveTo(0)
+  #omoplat.moveTo(0)
+  neck.moveTo(90)
+  rothead.moveTo(90)
+ 
+def handopen():
+  thumb.moveTo(0)
+  index.moveTo(0)
+  majeure.moveTo(0)
+  ringfinger.moveTo(0)
+  pinky.moveTo(0)
+  wrist.moveTo(180)
+  biceps.moveTo(80)
+  rotate.moveTo(60)
+  shoulder.moveTo(30)
+  
+ 
+def handopen2():
+  thumb.moveTo(0)
+  index.moveTo(0)
+  majeure.moveTo(0)
+  ringfinger.moveTo(0)
+  pinky.moveTo(0)
+  wrist.moveTo(0)
+  biceps.moveTo(0)
+  rotate.moveTo(60)
+  shoulder.moveTo(0)
+ 
+def handrest():
+  thumb.moveTo(85)
+  index.moveTo(60)
+  majeure.moveTo(60)
+  ringfinger.moveTo(40)
+  pinky.moveTo(20)
+  wrist.moveTo(0)
+  biceps.moveTo(0)
+  rotate.moveTo(90)
+  shoulder.moveTo(120)
+  #omoplat.moveTo(0)
+  
+def handclose():
+  thumb.moveTo(130)
+  index.moveTo(180)
+  majeure.moveTo(180)
+  ringfinger.moveTo(180)
+  pinky.moveTo(180)
+  wrist.moveTo(180)
+  biceps.moveTo(80)
+  rotate.moveTo(50)
+  shoulder.moveTo(20)
+  #omoplat.moveTo(0)
+  neck.moveTo(120)
+  rothead.moveTo(140)
+ 
+def pinchmode():
+  thumb.moveTo(130)
+  index.moveTo(140)
+  
+def openpinch():
+  thumb.moveTo(0)
+  index.moveTo(0)
+  majeure.moveTo(0)
+  ringfinger.moveTo(0)
+  biceps.moveTo(80)
+  rotate.moveTo(90)
+  shoulder.moveTo(30)
+
+  
+for x in range (0, 180):
+  allopen()
+  sleep(0.5)
+  handopen()
+  sleep(0.5)
+  handopen2()
+  sleep(0.5)
+  handrest()
+  sleep(0.5)
+  handclose()
+  sleep(0.5)
+  pinchmode()
+  sleep(0.5)
+ 

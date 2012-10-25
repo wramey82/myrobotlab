@@ -6,9 +6,11 @@
 # If all goes well - you should have 2 traces running
 # in the arduino->oscope tab - you can at this point connect
 # input - for example a 5v line to the lines and see them change
+from time import sleep
+from org.myrobotlab.service import Arduino
 
 # create an Arduino service named arduino
-runtime.createAndStart("arduino","Arduino")
+arduino = runtime.createAndStart("arduino","Arduino")
 
 # set the board type
 arduino.setBoard("atmega328") # atmega168 | mega2560 | etc
