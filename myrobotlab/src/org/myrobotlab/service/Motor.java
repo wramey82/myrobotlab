@@ -53,13 +53,6 @@ public class Motor extends Service implements MotorControl {
 	private boolean isAttached = false;
 
 	/**
-	 * properties which are necessary to attach a motor to a motor controller
-	 * depends on the controller type and requirements in addition to the motor
-	 * type
-	 */
-	String attachData = null;
-
-	/**
 	 * determines if the motor should spin CW or CCW relative to the positive or
 	 * negative signed power
 	 */
@@ -320,6 +313,7 @@ public class Motor extends Service implements MotorControl {
 		Logger.getRootLogger().setLevel(Level.INFO);
 
 		Runtime.createAndStart("arduino", "Arduino");
+		Runtime.createAndStart("jython", "Jython");
 		//Runtime.createAndStart("adafruit", "AdafruitMotorShield");
 		Runtime.createAndStart("motor01", "Motor");
 		Runtime.createAndStart("gui", "GUIService");

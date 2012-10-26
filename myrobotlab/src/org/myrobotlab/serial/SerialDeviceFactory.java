@@ -46,10 +46,10 @@ public class SerialDeviceFactory  {
 		ArrayList<SerialDevice> ret = new ArrayList<SerialDevice>();
 		try {
 			Class<?> c = Class.forName(type);
-			System.out.println("Loaded class: " + c);
+			log.info("Loaded class: " + c);
 			Object serialDeviceFramework = c.newInstance();
 			Method m = c.getDeclaredMethod("getSerialDevices", (Class<?>[])null);
-			System.out.println("Got method: " + m);
+			log.info("Got method: " + m);
 			return (ArrayList<SerialDevice>) m.invoke(serialDeviceFramework, (Object[])null);
 		} catch (Exception e) {
 			log.error(e.getMessage());// FIXME - logexception
@@ -76,10 +76,10 @@ public class SerialDeviceFactory  {
 		
 		try {
 			Class<?> c = Class.forName(factoryType);
-			System.out.println("Loaded class: " + c);
+			log.info("Loaded class: " + c);
 			Object serialDeviceFramework = c.newInstance();
 			Method m = c.getDeclaredMethod("getSerialDevice", new Class<?>[]{String.class, int.class, int.class, int.class, int.class});
-			System.out.println("Got method: " + m);
+			log.info("Got method: " + m);
 			return (SerialDevice) m.invoke(serialDeviceFramework, new Object[]{name, rate, databits, stopbits, parity});
 		} catch (Exception e) {
 			e.printStackTrace();
