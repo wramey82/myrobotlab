@@ -67,8 +67,16 @@ public class Motor_ArduinoGUI extends JPanel implements ActionListener  {
 		
 		if (o == attachButton)
 		{
-			Object[] motorData = new Object[]{new Integer(powerPin.getSelectedIndex()), new Integer(directionPin.getSelectedIndex())};
-			myService.send(arduinoName, "motorAttach", motorName, motorData);
+			if ("attach".equals(attachButton.getText()))
+			{
+				Object[] motorData = new Object[]{new Integer(powerPin.getSelectedIndex()), new Integer(directionPin.getSelectedIndex())};
+				myService.send(arduinoName, "motorAttach", motorName, motorData);
+				attachButton.setText("detach");
+			} else {
+				myService.send(arduinoName, "motorDetach", motorName);
+				attachButton.setText("attach");				
+			}
+			
 		}
 		
 	}

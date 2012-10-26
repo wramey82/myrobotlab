@@ -34,7 +34,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -80,6 +79,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 	// TODO - tighten up interfaces
 	// TODO - DIRECT calls ! - motor & controller HAVE to be on the same
 	// computer
+	// TODO - cw ccw buttons enabled
 
 	public class FloatJSlider extends JSlider {
 
