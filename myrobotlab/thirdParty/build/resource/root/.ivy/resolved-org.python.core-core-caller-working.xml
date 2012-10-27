@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+	<info organisation="org.python.core" module="core-caller" revision="working" status="release" publication="20121027052159" default="true"/>
+	<configurations>
+		<conf name="default" visibility="public"/>
+	</configurations>
+	<publications>
+		<artifact name="core-caller" type="jar" ext="jar" conf="default"/>
+	</publications>
+	<dependencies>
+		<dependency org="org.python.core" name="core" rev="latest.integration" conf="default->runtime,x86.32.windows"/>
+	</dependencies>
+</ivy-module>

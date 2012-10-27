@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="org.fife.autocomplete"
+		module="autocomplete-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20121027052439"/>
+	<dependencies>
+		<module organisation="org.fife.autocomplete" name="autocomplete">
+			<revision name="2.0.4" status="release" pubdate="20120925092904" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="runtime, x86.32.windows" position="0">
+				<metadata-artifact status="successful" details="" size="460" time="313" location="C:\mrl\myrobotlab\.ivy\org.fife.autocomplete\autocomplete\ivy-2.0.4.xml" searched="true" original-local-location="C:\mrl\myrobotlab\.ivy\org.fife.autocomplete\autocomplete\ivy-2.0.4.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/ivy.xml"/>
+				<caller organisation="org.fife.autocomplete" name="autocomplete-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+					<artifact name="autocomplete" type="jar" ext="jar" status="successful" details="" size="121645" time="767" location="C:\mrl\myrobotlab\.ivy\org.fife.autocomplete\autocomplete\jars\autocomplete-2.0.4.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

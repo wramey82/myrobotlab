@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="1.0">
+    <info organisation="org.python.core" module="core" revision="2.5.2" status="release" publication="20120314100718">
+    </info>
+    <configurations>
+        <conf name="public"/>
+		<conf name="runtime"/>
+		<conf name="arm.32.linux"/>
+		<conf name="x86.32.linux"/>
+		<conf name="x86.64.linux"/>
+		<conf name="x86.32.mac"/>
+		<conf name="x86.32.windows"/>
+		<conf name="x86.64.windows"/>
+    </configurations>
+    <publications>
+        <artifact name="jython" type="jar"/>
+    </publications>
+</ivy-module>
