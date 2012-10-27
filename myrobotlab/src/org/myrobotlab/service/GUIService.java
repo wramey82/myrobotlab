@@ -124,13 +124,24 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public transient JFrame frame = null;
 
+	/**
+	 * all the panels
+	 */
 	public transient JTabbedPane tabs = new JTabbedPane();
-	public transient GUIServiceGUI guiServiceGUI = null; // the tabbed panel gui
-															// of the gui
-															// service
+	
+	/**
+	 * the GUIService's gui
+	 */
+	public transient GUIServiceGUI guiServiceGUI = null; 
+	/**
+	 * welcome panel
+	 */
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();
 
+	/**
+	 * hashmap "quick lookup" of panels
+	 */
 	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();
 	transient Map<String, ServiceWrapper> sortedMap = null;
 	HashMap<String, Object> commandMap = new HashMap<String, Object>();
@@ -670,6 +681,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	// @Override - only in Java 1.6
 	public void windowClosing(WindowEvent e) {
+		// check for all service guis and see if its
+		// ok to shutdown now
+		
+		Iterator<Map.Entry<String, ServiceGUI>> it = serviceGUIMap.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	Map.Entry<String, ServiceGUI> pairs = (Map.Entry<String, ServiceGUI>)it.next();
+	    	pairs.getValue().isReadyForRelease();
+	    	pairs.getValue().makeReadyForRelease();
+	    }
+	    
 		Runtime.releaseAll();
 		System.exit(1); // the Big Hamm'r
 	}
@@ -695,9 +716,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 
-	String lastHost = "127.0.0.1";
-	String lastPort = "6767";
+	public String lastHost = "127.0.0.1";
+	public String lastPort = "6767";
 
+	/*
 	public void loadRuntime() {
 		Runtime.releaseAll();
 
@@ -707,6 +729,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Runtime.startLocalServices(); // FIXME - gui will not re-activate -
 										// removed for Android?
 	}
+	*/
 
 	public void about() {
 		new AboutDialog(frame);
@@ -904,8 +927,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			send(runtime.getName(), "checkForUpdates");
 		} else if ("update all".equals(cmd)) {
 			Runtime.updateAll();
-		} else if ("load".equals(cmd)) {
-			loadRuntime();
 		} else if (cmd.equals(LogLevel.Debug.toString()) || cmd.equals(LogLevel.Info.toString()) || cmd.equals(LogLevel.Warn.toString()) || cmd.equals(LogLevel.Error.toString())
 				|| cmd.equals(LogLevel.Fatal.toString())) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)

@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.GUIService;
 
 public class ConnectDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
@@ -23,12 +24,12 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	public JTextField port = new JTextField("6767", 10);
 	JButton connect = new JButton("connect");
 	JButton cancel = new JButton("cancel");
-	Service myService;
+	GUIService myService;
 
 	
-	public ConnectDialog(JFrame parent, String title, String message, Service s, String defaultIP, String defaultPort) {
+	public ConnectDialog(JFrame parent, String title, String message, GUIService myService, String defaultIP, String defaultPort) {
 		    super(parent, title, true);
-		    myService = s;
+		    this.myService = myService;
 		    if (parent != null) {
 		      Dimension parentSize = parent.getSize(); 
 		      Point p = parent.getLocation(); 
@@ -83,6 +84,9 @@ public class ConnectDialog extends JDialog implements ActionListener {
 		{
 			myService.sendServiceDirectoryUpdate(null, null, null, host.getText(), Integer.parseInt(port.getText()), null);
 		}
+
+		myService.lastHost = host.getText();
+		myService.lastPort = port.getText();
 		setVisible(false); 
 	    dispose(); 
 	}

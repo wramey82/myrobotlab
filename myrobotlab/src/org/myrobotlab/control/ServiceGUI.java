@@ -87,6 +87,25 @@ public abstract class ServiceGUI {
 
 	}
 	
+	/**
+	 * hook for GUI framework to query each panel before release
+	 * checking if any panel needs user input before shutdown
+	 * @return
+	 */
+	public boolean isReadyForRelease()
+	{
+		return true;
+	}
+	
+	/**
+	 * call-back from framework for qui to get ready 
+	 * for shutdown
+	 */
+	public void makeReadyForRelease()
+	{
+		
+	}
+	
 	public JPanel getDisplay()
 	{
 		return display;

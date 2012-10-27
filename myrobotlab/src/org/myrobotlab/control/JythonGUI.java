@@ -31,12 +31,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -47,8 +50,9 @@ import javax.swing.text.DefaultCaret;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.Jython;
@@ -71,7 +75,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	final JFrame top;
 
-	final RSyntaxTextArea editor;
+	final TextEditorPane editor;
 	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
@@ -120,7 +124,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		currentFile = null;
 		currentFilename = null;
 
-		editor = new RSyntaxTextArea();
+		editor = new TextEditorPane();
 		editorScrollPane = null;
 		editorTabs = new JTabbedPane();
 
@@ -283,10 +287,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu.add(createMenuItem("panTilt.py", "examples"));
 		examples.add(menu);
 
-		menu = new JMenu("Ser");
+		menu = new JMenu("Services");
 		menu.add(createMenuItem("createAService.py", "examples"));
 		
-		menu = new JMenu("input");
+		menu = new JMenu("Input");
 		menu.add(createMenuItem("inputTest.py", "examples"));
 		examples.add(menu);
 
@@ -298,8 +302,6 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu = new JMenu("Robots");
 		menu.add(createMenuItem("inMoovHandRobot.py", "examples"));
 		examples.add(menu);
-		
-		
 		
 		menu = new JMenu("Vision");
 		menu.add(createMenuItem("faceTracking.py", "examples"));
@@ -518,6 +520,30 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// TODO do we need to handle errors with permissions?
 		if (FileUtil.save(top, editor.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.control.ServiceGUI#makeReadyForRelease()
+	 * Shutting down - check for dirty script and offer to save
+	 */
+	public void makeReadyForRelease()
+	{
+		log.info("makeReadyForRelease");
+		if (editor.isDirty())
+		{
+			FileLocation fl = FileLocation.create(editor.getFileFullPath());
+			String filename = JOptionPane.showInputDialog(myService.getFrame(), "Save File?", editor.getFileFullPath());
+			if (filename != null)
+			{
+				fl = FileLocation.create(filename);
+				try {
+					editor.saveAs(fl);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+			}
+		}
 	}
 
 }

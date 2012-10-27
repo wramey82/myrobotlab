@@ -1561,6 +1561,16 @@ public class Runtime extends Service {
 	}
 
 	/**
+	 * event fired when a new artifact is download
+	 * @param module
+	 * @return
+	 */
+	public String newArtifactsDownloaded (String module)
+	{
+		return module;
+	}
+	
+	/**
 	 * 
 	 */
 	public void resolveEnd() {

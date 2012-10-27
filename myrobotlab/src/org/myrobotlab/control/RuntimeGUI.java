@@ -441,6 +441,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		subscribe("resolveError", "resolveError", String.class);
 		subscribe("resolveBegin", "resolveBegin", String.class);
 		subscribe("resolveEnd", "resolveEnd");
+		subscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
+		
+		
 		
 		subscribe("registered", "registered", ServiceWrapper.class);
 		subscribe("released", "released", ServiceWrapper.class);
@@ -455,6 +458,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		unsubscribe("resolveError", "resolveError", String.class);
 		unsubscribe("resolveBegin", "resolveBegin", String.class);
 		unsubscribe("resolveEnd", "resolveEnd");
+		unsubscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
 		
 		unsubscribe("registered", "registered", ServiceWrapper.class);
 		unsubscribe("released", "released", ServiceWrapper.class);
@@ -794,9 +798,19 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	
 	public String resolveSuccess (String className)
 	{
-		progressDialog.addInfo("installed " + className);
+		progressDialog.addInfo(String.format("%s is installed",className));
 		return className;
 	}
+	
+	boolean localRepoChange = false;
+	public String newArtifactsDownloaded (String className)
+	{
+		localRepoChange = true;
+		progressDialog.addInfo(String.format("%s - new artifacts downloaded",className));
+		return className;
+	}
+	
+	
 
 	
 	public void resolveEnd ()
@@ -811,7 +825,10 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			progressDialog.addErrorInfo("there were errors " + resolveErrors);
 		} else {
 			progressDialog.finished();
-			GUIService.restart();
+			if (localRepoChange)
+			{
+				GUIService.restart();
+			}
 		}
 	}
 

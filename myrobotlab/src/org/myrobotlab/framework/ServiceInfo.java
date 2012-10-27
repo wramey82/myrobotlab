@@ -704,6 +704,14 @@ public class ServiceInfo implements Serializable {
 				report = Ivy2.getReport();
 				artifacts = report.getAllArtifactsReports();
 
+
+				
+				/*
+				if (report.hasChanged())
+				{
+					log.info(String.format("local system has changed with %d download", report.getDownloadSize()));
+				}
+				*/
 				if (report.hasError()) {
 					ret = false;
 					log.error("Ivy resolve error");
@@ -715,6 +723,15 @@ public class ServiceInfo implements Serializable {
 					}
 					continue;
 				}
+				
+				if (report.getDownloadSize() > 0)
+				{
+					log.info("downloaded new artifacts");
+					runtime.invoke("newArtifactsDownloaded", module);
+				} else {
+					log.info("no new artifacts");
+				}
+				
 				runtime.invoke("resolveSuccess", module);
 				for (int j = 0; j < artifacts.length; ++j) {
 					artifact = artifacts[j];
@@ -732,6 +749,7 @@ public class ServiceInfo implements Serializable {
 		}
 		return ret;
 	}
+
 
 
 	public static void main(String[] args) {
