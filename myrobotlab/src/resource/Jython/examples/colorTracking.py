@@ -5,14 +5,14 @@
 # File colorTracking.py
 # //////////BEGIN PYTHON SCRIPT////////////////////////////
 
-configType = 'GroG'
+configType = 'michael'
 
 # configuration variables - differ on each system
 if configType == 'GroG':
   # GroG's config
   panServoPin = 9
   tiltServoPin = 10
-  comPort = 'COM10'
+  comPort = 'COM9'
   cameraIndex = 1
 else:
   # michael's config
@@ -20,6 +20,7 @@ else:
   tiltServoPin = 3
   comPort = 'COM7'
   cameraIndex = 0
+
 
 # ///////////////////PID/////////////////////////////////////////////////////
 # 2 PID services to adjust for X & Y of the open cv point and to map them
@@ -54,7 +55,8 @@ sleep(3) # sleep because even after initialization the serial port still takes t
 arduino.pinMode(16, Arduino.INPUT)
 # arduino.digitalReadPollingStop(7)
 arduino.analogReadPollingStart(16) # A2
-
+sleep(1)
+arduino.analogReadPollingStop(16)
 
 # //////////////SERVOS////////////////////////////////////////////
 from org.myrobotlab.service import Servo
@@ -63,9 +65,11 @@ pan = runtime.createAndStart('pan','Servo')
 tilt = runtime.createAndStart('tilt','Servo')
 
 # attach the pan servo to the Arduino on pin 2
-pan.attach(arduino.getName(),panServoPin) 
+# pan.attach(arduino.getName(),panServoPin) 
+arduino.servoAttach(pan.getName(),panServoPin)
 # attach the pan servo to the Arduino on pin 3
-tilt.attach(arduino.getName(),tiltServoPin) 
+#tilt.attach(arduino.getName(),tiltServoPin) 
+arduino.servoAttach(tilt.getName(),tiltServoPin)
 
 pan = runtime.createAndStart('pan','Servo')
 tilt = runtime.createAndStart('tilt','Servo')
@@ -190,5 +194,4 @@ opencv.capture()
 
 
 
-# ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
 # ////////////////////END PYTHON  SCRIPT/////////////////////////////////////////
