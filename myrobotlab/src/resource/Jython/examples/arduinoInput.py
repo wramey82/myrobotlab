@@ -9,14 +9,20 @@
 from time import sleep
 from org.myrobotlab.service import Arduino
 
+# variables dependent on your setup
+boardType = "atmega2560"  # atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
+comPort = "COM9"
+readAnalogPin = 17
+readDigitalPin = 13
+
 # create an Arduino service named arduino
 arduino = runtime.createAndStart("arduino","Arduino")
 
 # set the board type
-arduino.setBoard("atmega328") # atmega168 | mega2560 | etc
+arduino.setBoard(boardType) # atmega168 | mega2560 | etc
 
 # set serial device
-arduino.setSerialDevice("/dev/ttyUSB0",57600,8,1,0)
+arduino.setSerialDevice(comPort,57600,8,1,0)
 sleep(1) # give it a second for the serial device to get ready
 
 # update the gui with configuration changes
@@ -24,15 +30,15 @@ arduino.publishState()
 
 # start the analog pin sample to display
 # in the oscope
-arduino.analogReadPollingStart(17)
+arduino.analogReadPollingStart(readAnalogPin)
 
 # change the pinMode of digital pin 13
-arduino.pinMode(13,0)
+arduino.pinMode(readDigitalPin, Arduino.OUTPUT)
 
 # begin tracing the digital pin 13 
-arduino.digitalReadPollStart(13)
+arduino.digitalReadPollStart(readDigitalPin)
 
 # turn off the trace
-# arduino.digitalReadPollStop(13)
+# arduino.digitalReadPollStop(readDigitalPin)
 # turn off the analog sampling
-# arduino.analogReadPollingStop(17)
+# arduino.analogReadPollingStop(readAnalogPin)

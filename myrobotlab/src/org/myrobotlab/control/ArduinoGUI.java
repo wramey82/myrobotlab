@@ -52,6 +52,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 
 import org.myrobotlab.image.SerializableImage;
@@ -99,6 +100,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	// FIXME - you need a pattern or a new Menu
 	// A Menu in the ArduinoGUI versus the Arduino Editor
 	private JMenuItem serialRefresh = new JMenuItem("refresh"); 
+	private JMenuItem serialDisconnect = new JMenuItem("disconnect"); 
 
 
 	JTabbedPane tabs = new JTabbedPane();
@@ -172,6 +174,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		tabs.setSelectedIndex(0);
 		
 		serialRefresh.addActionListener(this);
+		serialDisconnect.addActionListener(this);
 	}
 
 	public JLayeredPane getPinPanel() {
@@ -189,7 +192,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	class SerialMenuListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+			JRadioButtonMenuItem checkbox = (JRadioButtonMenuItem) e.getSource();
 			myService.send(boundServiceName, "setSerialDevice", checkbox.getText(), 57600, 8, 1, 0);
 
 		}
@@ -219,7 +222,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
 				String portName = myArduino.serialDeviceNames.get(i);
 				publishMessage(String.format(" %s", portName));
-				JCheckBoxMenuItem serialDevice = new JCheckBoxMenuItem(myArduino.serialDeviceNames.get(i));
+				JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(myArduino.serialDeviceNames.get(i));
 				SerialDevice sd = myArduino.getSerialDevice();
 				if (sd != null && sd.getName().equals(portName))
 				{
@@ -242,6 +245,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				// rbMenuItem.addActionListener(serialMenuListener);
 			}
 			editor.serialDeviceMenu.add(serialRefresh);
+			editor.serialDeviceMenu.add(serialDisconnect);
+			
 
 			String statusString = boardName + " " + myArduino.preferences.get("serial.port");
 			editor.setStatus(statusString);
