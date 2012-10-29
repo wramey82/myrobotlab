@@ -257,7 +257,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		compiler = new Compiler(this);
 		uploader = new AvrdudeUploader(this);
 		
-		serialDeviceNames = querySerialDeviceNames();
+		querySerialDeviceNames();
 
 		// FIXME - hilacious long wait - need to incorporate .waitTillServiceReady
 		// especially if there are multiple initialization threads
@@ -324,7 +324,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		log.info("queryPortNames");
 		
-		ArrayList<String> ports = new ArrayList<String>();
+		serialDeviceNames = new ArrayList<String>();
 
 		SerialDevice portId;
 		ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
@@ -333,17 +333,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			String inPortName = portId.getName();
 			log.info(inPortName);
 			if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
-				ports.add(inPortName);
+				serialDeviceNames.add(inPortName);
 			}
 		}
 
 		// adding connected serial port if connected
 		if (serialDevice != null) {
 			if (serialDevice.getName() != null)
-				ports.add(serialDevice.getName());
+				serialDeviceNames.add(serialDevice.getName());
 		}
 		
-		return ports;
+		return serialDeviceNames;
 	}
 
 	@Override
