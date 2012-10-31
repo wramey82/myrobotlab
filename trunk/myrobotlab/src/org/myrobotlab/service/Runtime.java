@@ -1618,7 +1618,7 @@ public class Runtime extends Service {
 	{
 		
 		try {
-	
+			log.info("getBleedingEdgeMyRobotLabJar");
 			String intermediate = getBleedingEdgeVersionString();
 			//http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/*zip*/intermediate.757.20120902.1502.zip
 			//String latestBuildURL =  "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/"+intermediate+"/*zip*/"+intermediate+".zip";
@@ -1636,7 +1636,7 @@ public class Runtime extends Service {
 			FileOutputStream out = new FileOutputStream("update/myrobotlab.jar");  
 			try {  
 			    out.write(jarfile);  		    
-			    
+				log.info("getBleedingEdgeMyRobotLabJar - done - since there is an update you will probably want to run scripts/update.(sh)(bat) to replace the jar");
 			} catch (Exception e) {
 				Service.logException(e);
 			} finally {  
