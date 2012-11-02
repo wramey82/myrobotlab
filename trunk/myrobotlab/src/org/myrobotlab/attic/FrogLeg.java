@@ -226,7 +226,7 @@ public class FrogLeg extends Service {
 
 			// add the optical track filters
 			opticalTrackFilter();
-			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", null);
+			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", (Object[])null);
 			camera.addListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion

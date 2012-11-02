@@ -83,6 +83,10 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public void moveTo(Integer newPos) {
+		if (newPos == null)
+		{
+			return;
+		}
 		if (newPos >= positionMin && newPos <= positionMax )
 		{
 			controller.servoWrite(getName(), newPos);
