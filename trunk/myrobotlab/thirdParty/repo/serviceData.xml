@@ -146,6 +146,24 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.InMoov">
+      <dependsOn>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>org.apache.commons.codec</string>
+            <string>org.apache.commons.logging</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.IPCamera">
       <dependsOn>
          <list>
@@ -415,6 +433,11 @@
    <categories string="org.myrobotlab.service.HTTPClient">
       <category>
          <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.InMoov">
+      <category>
+         <include>robots</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.IPCamera">
