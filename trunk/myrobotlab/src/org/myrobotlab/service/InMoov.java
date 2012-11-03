@@ -137,6 +137,9 @@ public class InMoov extends Service {
 		rotateRight.publishState();
 		shoulderRight.publishState();
 		omoplatRight.publishState();
+		
+		// when speaking don't listen
+		ear.attach(mouth.getName());
 
 	}
 	
