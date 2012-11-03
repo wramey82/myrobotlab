@@ -265,6 +265,7 @@ public class InMoov extends Service {
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
 		
+		Runtime.createAndStart("jython", "Jython");
 		Runtime.createAndStart("gui", "GUIService");
 		
 		/*
