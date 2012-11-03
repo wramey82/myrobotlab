@@ -427,6 +427,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
+		log.info(String.format("servoAttach %s pin %d", servoName, pin));
+		
 		if (serialDevice == null) {
 			log.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
 			return false;
@@ -434,6 +436,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		
 		// serialPort == null ??? make sure you chown it correctly !
 		log.info("servoAttach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_ATTACH);
+		if (servos.containsKey(servoName))
+		{
+			log.warn("servo already attach - detach first");
+			return false;
+		}
 
 		/* yuk
 		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 
@@ -482,6 +489,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			serialSend(SERVO_DETACH, sd.servoIndex, 0);
 			servosInUse[sd.servoIndex] = false;
 			sd.servo.setController(null);
+			servos.remove(servoName);
 			return true;
 		}
 		
@@ -1242,6 +1250,48 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	// ----------- MotorController API End ----------------
 
 
+	public boolean attach (String serviceName, Object...data)
+	{
+		log.info(String.format("attaching %s", serviceName));
+		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
+		if (sw == null)
+		{
+			log.error(String.format("could not attach % - not found in registry", serviceName));
+			return false;
+		}
+		if (sw.get() instanceof Servo) // Servo or ServoControl ???
+		{
+			if (data.length != 1)
+			{
+				log.error("can not attach a Servo without a pin number");
+				return false;
+			}
+			if (!sw.isLocal())
+			{
+				log.error("servo controller and servo must be local");
+				return false;
+			}
+			return servoAttach(serviceName, (Integer)(data[0]));
+		}
+		
+		if (sw.get() instanceof Motor) // Servo or ServoControl ???
+		{
+			if (data.length != 2)
+			{
+				log.error("can not attach a Motor without a PWMPin & directionPin ");
+				return false;
+			}
+			if (!sw.isLocal())
+			{
+				log.error("motor controller and motor must be local");
+				return false;
+			}
+			return motorAttach(serviceName, data);
+		}
+		
+		log.error("don't know how to attach");
+		return false;
+	}
 	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
@@ -1250,9 +1300,15 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		
+		Runtime.createAndStart("jython", "Jython");
+		
+		
+		/*
 		SensorMonitor sensors = new SensorMonitor("sensors");
 		sensors.startService();
-
+		*/
+		
 		/*
 		 * //Runtime.createAndStart("sensors", "SensorMonitor");
 		 * 

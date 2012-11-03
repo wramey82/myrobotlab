@@ -2042,12 +2042,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * 
 	 * @param serviceName
 	 * @return if successful
+	 * 
 	 */
+	/*
 	public boolean attach (String serviceName)
 	{
 		log.warn(String.format("don't know how to attach to service %s", serviceName));
 		return false;
 	}
+	*/
 	
 	/**
 	 * Helper method to translate between our LogLevel enumeration
