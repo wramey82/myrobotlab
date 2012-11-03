@@ -218,6 +218,7 @@ public class Servo extends Service implements ServoControl {
 
 		Servo right = new Servo("servo01");
 		right.startService();
+//		right.attach(serviceName)
 /*
 		Servo left = new Servo("left");
 		left.startService();
