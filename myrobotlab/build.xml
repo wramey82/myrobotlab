@@ -6,8 +6,6 @@
 		Linux:
 			svnversion	
 	
-	FIXME FIXME FIXME - NORMALIZE serviceData.xml - you got 2 copies ! build process should copy repos		
-
 	TODO - make default properties - (incapable of making a release - but all name/bogus values are there
 	TODO - build.properties inside repo with comments (static local computer settings username & password etc) - & build path outside
 			such that defaults are constructed - something safe to check in but allows easy modification for secure local builds
@@ -199,6 +197,7 @@ mail.to=someone@somewhere.com
 
 	
 	<target name="compile" depends="init" description="compile the source ">
+	    <echo>compile start</echo>
 		<!-- compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
 			<exclude name="org/myrobotlab/service/Android.java" />
@@ -220,7 +219,7 @@ mail.to=someone@somewhere.com
 		<copy file="./thirdParty/repo/serviceData.xml" todir="${dist}/.myrobotlab" />
 
 		<!-- FIXME - use Ivy to get the files there ! filebase or url resolver -->
-
+	    <echo>compile end</echo>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
