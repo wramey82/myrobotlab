@@ -68,6 +68,7 @@ public class InMoov extends Service {
 	
 	Sphinx ear = (Sphinx)Runtime.createAndStart("ear", "Sphinx"); 
 	Speech mouth = (Speech)Runtime.createAndStart("mouth", "Speech"); 
+	OpenCV opencv = (OpenCV)Runtime.createAndStart("opencv", "OpenCV");
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
@@ -79,17 +80,19 @@ public class InMoov extends Service {
 		arduinoLeft.setSerialDevice(LeftComPort, 57600, 8, 1, 0);
 		arduinoRight.setSerialDevice(RightComPort, 57600, 8, 1, 0);
 
-		// wait a sec for serial
+		// wait a sec for serial ports to come online
+		sleep(1);
+		
 		arduinoLeft.servoAttach(thumbLeft.getName(), 2);
-		arduinoLeft.servoAttach(indexRight.getName(), 3);
-		arduinoLeft.servoAttach(majeureRight.getName(), 4);
-		arduinoLeft.servoAttach(ringFingerRight.getName(), 5);
-		arduinoLeft.servoAttach(pinkyRight.getName(), 6);
-		arduinoLeft.servoAttach(wristRight.getName(), 7);
-		arduinoLeft.servoAttach(bicepsRight.getName(), 8);
-		arduinoLeft.servoAttach(rotateRight.getName(), 9);
-		arduinoLeft.servoAttach(shoulderRight.getName(), 10);
-		arduinoLeft.servoAttach(omoplatRight.getName(), 11);
+		arduinoLeft.servoAttach(indexLeft.getName(), 3);
+		arduinoLeft.servoAttach(majeureLeft.getName(), 4);
+		arduinoLeft.servoAttach(ringFingerLeft.getName(), 5);
+		arduinoLeft.servoAttach(pinkyLeft.getName(), 6);
+		arduinoLeft.servoAttach(wristLeft.getName(), 7);
+		arduinoLeft.servoAttach(bicepsLeft.getName(), 8);
+		arduinoLeft.servoAttach(rotateLeft.getName(), 9);
+		arduinoLeft.servoAttach(shoulderLeft.getName(), 10);
+		arduinoLeft.servoAttach(omoplatLeft.getName(), 11);
 
 		arduinoLeft.servoAttach(neck.getName(), 12);
 		arduinoLeft.servoAttach(rothead.getName(), 13);

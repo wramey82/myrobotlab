@@ -87,6 +87,11 @@ public class Servo extends Service implements ServoControl {
 		{
 			return;
 		}
+		if (controller == null)
+		{
+			log.error(String.format("%s's controller is not set", getName()));
+			return;
+		}
 		if (newPos >= positionMin && newPos <= positionMax )
 		{
 			controller.servoWrite(getName(), newPos);
