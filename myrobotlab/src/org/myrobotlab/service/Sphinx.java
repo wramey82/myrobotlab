@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ import javax.speech.recognition.GrammarException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.speech.DialogManager;
@@ -75,6 +76,7 @@ public class Sphinx extends Service {
 	Thread listener = null;
 	DialogManager dialogManager = null;
 	transient SpeechProcessor speechProcessor = null;
+	HashMap<String, Message> commandMap = new HashMap<String, Message>();
 
 	private boolean isListening = false;
 
@@ -95,6 +97,9 @@ public class Sphinx extends Service {
 	 * @return the word
 	 */
 	public String recognized(String word) {
+		if (commandMap.containsKey(word)) {
+			getOutbox().add(commandMap.get(word));
+		}
 		return word;
 	}
 
@@ -443,12 +448,23 @@ public class Sphinx extends Service {
 			return false;
 		}
 
+		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", serviceName, "isSpeaking", Boolean.class);
 
 		log.info(String
 				.format("attached Speech service %s to Sphinx service %s with default message routes",
 						serviceName, getName()));
 		return true;
+	}
+
+	public void onCommand(String command, String targetName,
+			String targetMethod, Object... data) {
+		Message msg = new Message();
+		msg.name = targetName;
+		msg.method = targetMethod;
+		msg.data = data;
+
+		commandMap.put(command, msg);
 	}
 
 	public static void main(String[] args) {
