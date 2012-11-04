@@ -32,9 +32,6 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 
 	private static final long serialVersionUID = 1L;
 
-	// name of arduino service this shield is plugged into
-	String arduinoName;
-	
 	// AF Shield controls these 2 servos
 	// Servo servo9; - difficult idea - com port may not be initialized - which makes "attaching" impossible
 	// Servo servo10;
@@ -155,12 +152,48 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 		return "Adafruit Motor Shield Service";
 	}
 	
+	public static final String ADAFRUIT_DEFINES = "\n\n #include <AFMotor.h>\n"
+			+" \n"
+			+" AF_DCMotor m1(1);\n"
+			+" AF_DCMotor m2(2);\n"
+			+" AF_DCMotor m3(3);\n"
+			+" AF_DCMotor m4(4);\n"
+			+" AF_DCMotor* motors[4];\n"
+			+" \n";
+	
+	public boolean attach()
+	{
+		return attach(myArduino.getName(), (Object[])null);
+	}
+	
+	
 	// attachControllerBoard ???
-	public boolean attach(String arduinoName) {
+	public boolean attach(String arduinoName, Object...data) { // FIXME <- other way around attach shield to the Arduino !!!
 		
 		if (Runtime.getServiceWrapper(arduinoName) != null)
 		{
-			this.arduinoName = arduinoName;
+			//arduinoName;
+			// TODO - check if local instance etc
+			StringBuffer newProgram = new StringBuffer();
+			newProgram.append(myArduino.getProgram());
+			
+			int insertPoint =  newProgram.indexOf(Arduino.VENDOR_DEFINES_BEGIN); // TODO public define ???
+			
+			if (insertPoint > 0)
+			{
+				newProgram.insert(Arduino.VENDOR_DEFINES_BEGIN.length() + insertPoint, ADAFRUIT_DEFINES);
+			} else {
+				log.error("could not find insert point in MRLComm.ino");
+				// get info back to user
+			}
+			
+			insertPoint =  newProgram.indexOf(Arduino.VENDOR_DEFINES_BEGIN); // TODO public define ???
+			
+			
+			// modify program
+			// set the program
+			// broadcast the arduino state - ArduinoGUI should subscribe to setProgram
+			myArduino.setProgram(newProgram.toString());
 			broadcastState(); // state has changed let everyone know
 		} 
 		
@@ -192,44 +225,7 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 		
 	}
 	*/
-	public static void main(String[] args)  {
-
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
-
-		/*
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
-		SensorMonitor sensors = new SensorMonitor("sensors");
-		sensors.startService();
-		*/
-		AdafruitMotorShield adafruit = new AdafruitMotorShield("adafruit");
-		adafruit.startService();
-		
-		//adafruit.attach(arduino.getName());
-		/*
-		*/
-		/*
-		 * //Runtime.createAndStart("sensors", "SensorMonitor");
-		 * 
-		 * String code = FileIO.getResourceFile("Arduino/MRLComm.ino"); //String
-		 * code = FileIO.fileToString(
-		 * ".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
-		 * 
-		 * arduino.compile("MRLComm", code); arduino.setPort("COM7"); //- test
-		 * re-entrant arduino.upload();
-		 */
-		// FIXME - I BELIEVE THIS LEAVES THE SERIAL PORT IN A CLOSED STATE !!!!
-
-		// arduino.compileAndUploadSketch(".\\arduino\\libraries\\MyRobotLab\\examples\\MRLComm\\MRLComm.ino");
-		// arduino.pinMode(44, Arduino.OUTPUT);
-		// arduino.digitalWrite(44, Arduino.HIGH);
-
-		Runtime.createAndStart("gui01", "GUIService");
-		//Runtime.createAndStart("jython", "Jython");
-
-	}
-
+	
 
 	@Override
 	public void motorMoveTo(String name, Integer position) {
@@ -263,6 +259,19 @@ public class AdafruitMotorShield extends Service implements MotorController  {
 
 	// motor controller api
 
+	public static void main(String[] args)  {
+
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+	
+		AdafruitMotorShield fruity = (AdafruitMotorShield)Runtime.createAndStart("fruity", "AdafruitMotorShield");
+		fruity.attach();
+		
+		Runtime.createAndStart("gui01", "GUIService");
+		
+		//Runtime.createAndStart("jython", "Jython");
+
+	}
 
 
 }

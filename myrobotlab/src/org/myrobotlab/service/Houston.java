@@ -20,7 +20,7 @@ public class Houston extends Service {
 	Servo rshoulder = (Servo)Runtime.createAndStart("rshoulder","Servo");
 	Servo rbicep = (Servo)Runtime.createAndStart("rbicep","Servo");
 	Servo relbow = (Servo)Runtime.createAndStart("relbow","Servo");
-
+	
 	// 4 motors 
 	Motor lfmotor = (Motor)Runtime.createAndStart("lfmotor","Motor");// left front
 	Motor rfmotor = (Motor)Runtime.createAndStart("rfmotor","Motor");// right front

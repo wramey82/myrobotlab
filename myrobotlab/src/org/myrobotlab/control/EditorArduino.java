@@ -36,10 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTabbedPane;
 
-import org.fife.ui.autocomplete.AutoCompletion;
-import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.fileLib.FileIO;
@@ -128,7 +125,7 @@ public class EditorArduino extends Editor implements ActionListener {
 		helpMenu.add(createMenuItem("Frequently Asked Questions"));
 		helpMenu.add(createMenuItem("Visit Arduino.cc"));
 		
-		loadCommunicationFile();
+		//loadCommunicationFile(); - get it from the Arduino itself
 
 	}
 
