@@ -71,6 +71,9 @@
 #define TRIGGER_MASK 2
 // TODO #define SERVO_SWEEP
 
+// --VENDOR DEFINE SECTION BEGIN--
+// --VENDOR DEFINE SECTION END--
+
 Servo servos[MAX_SERVOS];
 
 unsigned long loopCount = 0;
@@ -98,7 +101,13 @@ unsigned int errorCount = 0;
 
 void setup() {
   Serial.begin(57600);        // connect to the serial port
+  
+  // --VENDOR SETUP BEGIN--
+  // --VENDOR SETUP END-- 
 }
+
+// --VENDOR CODE BEGIN--
+// --VENDOR CODE END-- 
 
 void setPWMFrequency (int address, int prescalar)
 {

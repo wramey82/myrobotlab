@@ -51,6 +51,7 @@ import org.myrobotlab.arduino.compiler.MessageConsumer;
 import org.myrobotlab.arduino.compiler.Preferences;
 import org.myrobotlab.arduino.compiler.RunnerException;
 import org.myrobotlab.arduino.compiler.Target;
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -166,6 +167,10 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int MAX_SERVOS = 12; // FIXME - more depending on board (mega)
 	
 	// vendor specific
+	public static final String VENDOR_DEFINES_BEGIN = "// --VENDOR DEFINE SECTION BEGIN--";
+	public static final String VENDOR_SETUP_BEGIN = "// --VENDOR SETUP BEGIN--";
+	public static final String VENDOR_CODE_BEGIN = "// --VENDOR CODE BEGIN--";
+	
 	public static final int ACEDUINO_MOTOR_SHIELD_START = 50;
 	public static final int ACEDUINO_MOTOR_SHIELD_STOP = 51;
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION = 52;	
@@ -215,6 +220,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	// compile / upload
 	private String buildPath = "";
 	private String programName = "";
+	private String program = "";
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -264,8 +270,23 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// SWEEEET ! - Service already provides an isReady - just need to overload it with a Thread.sleep check -> broadcast setState
 		
 		createPinList();
-
+		
+		String filename = "MRLComm.ino";
+		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
+		log.info(String.format("loadResourceFile %s", resourcePath));
+		String defaultProgram = FileIO.getResourceFile(resourcePath);
+		this.program = defaultProgram;
 	}
+	
+	
+	/*
+	 * 	public void loadResourceFile(String filename) {
+		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
+		log.info(String.format("loadResourceFile %s", resourcePath));
+		String program = FileIO.getResourceFile(resourcePath);
+		textArea.setText(program);
+	}
+	 */
 	
 	// FIXME - add const BOARD TYPE strings
 	public void setBoard(String board)
@@ -1007,6 +1028,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void compile(String programName, String program) {
 		// FYI - not thread safe
 		this.programName = programName;
+		this.program = program;
 		this.buildPath = createBuildPath(programName);
 
 		try {
@@ -1291,6 +1313,29 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		
 		log.error("don't know how to attach");
 		return false;
+	}
+	
+	
+	public String getProgram()
+	{
+		return this.program;		
+	}
+	
+	public String setProgram(String newProg)
+	{
+		program = newProg;
+		return program;
+	}
+	
+	public String loadProgramFromFile(String filename)
+	{
+		String newProg = FileIO.fileToString(filename);
+		if (newProg != null)
+		{
+			program = newProg;
+			return program;
+		}
+		return null;
 	}
 	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {

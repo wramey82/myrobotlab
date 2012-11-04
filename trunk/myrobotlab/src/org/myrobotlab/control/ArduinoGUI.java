@@ -239,11 +239,15 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				serialDevice.addActionListener(serialMenuListener);
 				editor.serialDeviceMenu.add(serialDevice);
 				
+				editor.getTextArea().setText(arduino.getProgram());
+				
 				
 				// rbMenuItem = new JCheckBoxMenuItem(curr_port,
 				// curr_port.equals(Preferences2.get("serial.port")));
 				// rbMenuItem.addActionListener(serialMenuListener);
 			}
+			
+			// TODO - work on generalizing editor
 			editor.serialDeviceMenu.add(serialRefresh);
 			editor.serialDeviceMenu.add(serialDisconnect);
 			
