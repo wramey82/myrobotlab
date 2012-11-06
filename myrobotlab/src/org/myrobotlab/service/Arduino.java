@@ -65,6 +65,7 @@ import org.myrobotlab.serial.SerialDeviceService;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.AnalogIO;
+import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.DigitalIO;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
@@ -1309,6 +1310,18 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				return false;
 			}
 			return motorAttach(serviceName, data);
+		}
+		
+		if (sw.get() instanceof ArduinoShield) // Servo or ServoControl ???
+		{
+			
+			if (!sw.isLocal())
+			{
+				log.error("motor controller and motor must be local");
+				return false;
+			}
+			
+			return ((ArduinoShield)sw.get()).attach(this);
 		}
 		
 		log.error("don't know how to attach");

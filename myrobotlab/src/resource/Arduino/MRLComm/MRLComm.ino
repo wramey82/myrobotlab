@@ -106,8 +106,6 @@ void setup() {
   // --VENDOR SETUP END-- 
 }
 
-// --VENDOR CODE BEGIN--
-// --VENDOR CODE END-- 
 
 void setPWMFrequency (int address, int prescalar)
 {
@@ -294,6 +292,9 @@ Serial.print("]\n");
              analogPinService[ioCommand[2]] |= TRIGGER_MASK;
              ++analogReadPollingPinCount;
            break;
+
+// --VENDOR CODE BEGIN--
+// --VENDOR CODE END-- 
 
            case NOP:
              // No Operation

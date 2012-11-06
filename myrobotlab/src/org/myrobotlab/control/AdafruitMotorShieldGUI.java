@@ -22,25 +22,26 @@
  * Enjoy !
  * 
  * References :
+ * 		http://learn.adafruit.com/adafruit-motor-shield/af-dcmotor-class
  * 		http://forums.adafruit.com/viewtopic.php?f=31&t=26873 - Servos & cut traces
  * 
  * */
 
 package org.myrobotlab.control;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.AdafruitMotorShield;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
@@ -52,13 +53,8 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 	static final long serialVersionUID = 1L;
 
 	private AdafruitMotorShield myAdafruitMotorShield = null;
+	JLayeredPane imageMap;
 
-	JComboBox ttyPort = new JComboBox(new String[] { "" }); 
-	Keyboard keyboard = null;
-	ActionListener portActionListener = null;
-	JButton stop = new JButton("stop");
-	JButton test = new JButton("test");
-	ButtonListener buttonLisener = null;
 
 	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -77,74 +73,29 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 	
 	public void init() {
 
-		keyboard = new Keyboard();
-		buttonLisener = new ButtonListener();
-		// build input begin ------------------
+		getAFPanel();
+		display.add(imageMap);
+	}
+	
+	
+	public void getAFPanel()
+	{
+		imageMap = new JLayeredPane();
+		imageMap.setPreferredSize(new Dimension(400, 266));
+		imageMap.setVisible(true);
+		//pinComponentList = new ArrayList<PinComponent>();
 
-		gc.gridx = 0;
-		gc.gridy = 0;
+		// set correct arduino image
+		JLabel image = new JLabel();
 
-		gc.gridx = 0;
-		++gc.gridy;
-		display.add(new JLabel("port : "), gc);
-		++gc.gridx;
-		display.add(ttyPort, gc);
-		++gc.gridx;
-		display.add(stop, gc);
-		stop.addActionListener(buttonLisener);
-		++gc.gridx;
-		display.add(test, gc);
-		test.addActionListener(buttonLisener);
-		
-		++gc.gridy;
-		gc.gridx = 0;
-		++gc.gridy;
-		JButton keyboardButton = new JButton(
-				"<html><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control</td></tr></table></html>");
-		display.add(keyboardButton, gc);
-		keyboardButton.addKeyListener(keyboard);
-
-		gc.gridx = 1;
-		
-		 portActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JComboBox cb = (JComboBox) e.getSource();
-				String newPort = (String) cb.getSelectedItem();
-				myService.send(boundServiceName, "setSerialDevice", newPort, 57600, 8, 1, 0);
-			}
-		};
-
-		ttyPort.addActionListener(portActionListener);
-		
-
-		++gc.gridy;
-		++gc.gridy;
-		++gc.gridy;
-		gc.gridx = 0;
-
-		gc.gridx = 1;
+		ImageIcon dPic = Util.getImageIcon("AdafruitMotorShield/DC_Motor_Ports.png");
+		image.setIcon(dPic);
+		Dimension s = image.getPreferredSize();
+		image.setBounds(0, 0, s.width, s.height);
+		imageMap.add(image, new Integer(1));
 	}
 
-	public class Keyboard implements KeyListener {
-		public void keyPressed(KeyEvent keyEvent) {
-			myService.send(boundServiceName, "keyCommand", KeyEvent
-					.getKeyText(keyEvent.getKeyCode()));
-		}
-
-		public void keyReleased(KeyEvent keyEvent) {
-			// log.error("Released" + keyEvent);
-		}
-
-		public void keyTyped(KeyEvent keyEvent) {
-			// log.error("Typed" + keyEvent);
-		}
-
-		private void printIt(String title, KeyEvent keyEvent) {
-			int keyCode = keyEvent.getKeyCode();
-			String keyText = KeyEvent.getKeyText(keyCode);
-		}
-	};
+	
 	
 	public void getState(AdafruitMotorShield shield)
 	{
@@ -156,35 +107,7 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 	}
 	
 
-	/**
-	 * setPorts is called by getState - which is called when the Arduino changes port state
-	 * is NOT called by the GUI component
-	 * @param p
-	 * FIXME - there should be a corresponding gui element for the serial.Port ie serial.PortGUI such
-	 */
-	public void setPorts(ArrayList<String> p) {
-		//ttyPort.removeAllItems();
-		
-		//ttyPort.addItem(""); // the null port
-		// ttyPort.removeAllItems();
-		for (int i = 0; i < p.size(); ++i) {
-			String n = p.get(i);
-			log.info(n);
-			ttyPort.addItem(n);
-		}
 
-		if (myAdafruitMotorShield != null)
-		{
-			// remove and re-add the action listener
-			// because we don't want a recursive event
-			// when the Service changes the state
-			ttyPort.removeActionListener(portActionListener);
-			ttyPort.addActionListener(portActionListener);
-		}
-
-	}
-
-	
 	public void attachGUI() {
 		subscribe("publishState", "getState", Arduino.class);
 		myService.send(boundServiceName, "publishState");	
