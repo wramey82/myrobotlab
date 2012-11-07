@@ -14,6 +14,7 @@ import java.util.HashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.MotorController;
@@ -37,15 +38,29 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	// makes "attaching" impossible
 	// Servo servo10;
 
-	// vendor specific consts
 	// Motor identifiers
 	// final public int M1 = 0;
 	// final public int FORWARD = 0;
+	
+	/*
+	 * TODO - if arduino has a last port defined - then auto-connect
+	 * if the connect was unsuccessful - warn the user
+	 * if it was successful (report yay) - query the version & type of INO
+	 * if version & type match - report Yay
+	 * proceed to attach all motors - (save config regarding last state of shieldd - dcmotors vs steppers)
+	 */
 
-	final public int BACKWARD = 0;
-	final public int FORWARD = 0;
+	final public int FORWARD = 1;
+	final public int BACKWARD = 2;
+	final public int BRAKE = 3;
+	final public int RELEASE = 4;
 
-	// dc motors
+	final public int SINGLE = 1;
+	final public int DOUBLE = 2;
+	final public int INTERLEAVE = 3;
+	final public int MICROSTEP = 4;
+	
+	// dc motorMap
 	private Motor m1 = null;
 	private Motor m2 = null;
 	private Motor m3 = null;
@@ -56,18 +71,20 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 	private Arduino myArduino = null;
 
-	HashMap<String, Motor> motors = new HashMap<String, Motor>();
+	HashMap<String, Integer> motorMap = new HashMap<String, Integer>();
+	Motor[] motors = new Motor[4];
+
+	final int AF_DCMOTOR_SET_SPEED = 51;
 
 	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
-		// servo9 = (Servo)Runtime.createAndStart("servo9", "Servo");
-		// servo10 = (Servo)Runtime.createAndStart("servo10", "Servo");
 		myArduino = new Arduino(String.format("%s_arduino", n));
-		// createDCMotors();
-		// s1 = new Servo(String.format("%s_servo1", n));
-		// s2 = new Servo(String.format("%s_servo2", n));
+		s1 = new Servo(String.format("%s_servo1", n));
+		s2 = new Servo(String.format("%s_servo2", n));
+		createM1M2DCMotors();
+		createM3M4DCMotors();
 	}
 
 	@Override
@@ -78,33 +95,17 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	public void startService() {
 		super.startService();
 		myArduino.startService();
-		createM1M2DCMotors();
-		createM3M4DCMotors();
-		// startDCMotorServices();
-		// s1.attach(myArduino.getName(), 9);
-		// s2.attach(myArduino.getName(), 10);
+		// TODO - request myArduino - re connect
 	}
 
-	// MOTOR SHIELD INTERFACE BEGIN ////////////
-	// TODO - figure if the way framegrabber initilization with data stream
-	// properties is appropriate of
-	// Motors
-	/*
-	 * @Override public Motor createMotor(String data) { Properties properties =
-	 * new Properties(); try { properties.load(new StringReader(data)); String
-	 * name = properties.getProperty("name"); String powerPin =
-	 * properties.getProperty("powerPin"); String directionPin =
-	 * properties.getProperty("directionPin");
-	 * 
-	 * } catch (IOException e) { Service.logException(e); } return null; }
-	 */
-
-	// TODO - 2 calls as the business logic is 1/2 - 2 motors or 1 stepper
+	// TODO - 2 calls as the business logic is 1/2 - 2 motorMap or 1 stepper
 	public void createM1M2DCMotors() {
 		m1 = new Motor(String.format("%s_%s", getName(), "m1"));
 		m2 = new Motor(String.format("%s_%s", getName(), "m2"));
-		motors.put(m1.getName(), m1);
-		motors.put(m2.getName(), m2);
+		motorMap.put(m1.getName(), 1);
+		motorMap.put(m2.getName(), 2);
+		motors[0] = m1;
+		motors[1] = m2;
 		m1.startService();
 		m2.startService();
 	}
@@ -112,52 +113,64 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	public void createM3M4DCMotors() {
 		m3 = new Motor(String.format("%s_%s", getName(), "m3"));
 		m4 = new Motor(String.format("%s_%s", getName(), "m4"));
-		motors.put(m3.getName(), m3);
-		motors.put(m4.getName(), m4);
+		motorMap.put(m3.getName(), 3);
+		motorMap.put(m4.getName(), 4);
+		motors[2] = m3;
+		motors[3] = m4;
 		m3.startService();
 		m4.startService();
 	}
 
 	public void releaseM1M2Motor() {
-		motors.remove(m1);
-		motors.remove(m2);
+		motorMap.remove(m1);
+		motorMap.remove(m2);
 		m1.releaseService();
 		m2.releaseService();
+		motors[0] = null;
+		motors[1] = null;
 	}
 	public void releaseM3M4Motor() {
-		motors.remove(m3);
-		motors.remove(m4);
+		motorMap.remove(m3);
+		motorMap.remove(m4);
 		m3.releaseService();
 		m4.releaseService();
+		motors[2] = null;
+		motors[3] = null;
 	}
 
-	// MOTOR SHIELD INTERFACE END ////////////
 
-	final int AF_DCMOTOR_SET_SPEED = 51;
 	// VENDOR SPECIFIC LIBRARY METHODS BEGIN /////
 	// DC Motors
 	// ----------- AFMotor API Begin --------------
 	public void setSpeed(String name, Integer speed) { // FIXME - sloppy
-		Motor m = motors.get(name);
-		if (m == m1)
-		{
-			setSpeed(0, speed);
-		} else if (m == m2) {
-			setSpeed(1, speed);			
-		}  else if (m == m3) {
-			setSpeed(2, speed);			
-		}else if (m == m4) {
-			setSpeed(3, speed);			
-		}
+		setSpeed(motorMap.get(name)-1, speed);
 	}
 	
-	public void setSpeed(Integer motorIndex, Integer speed)
+	public void setSpeed(Integer motorNumber, Integer speed)
 	{
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorIndex, speed);
+		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorNumber-1, speed);
 	}
 
-	public void run(Integer motorIndex, Integer command) {
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorIndex, command);
+	public void run(Integer motorNumber, Integer command) {
+		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorNumber-1, command);
+	}
+	
+	public void runForward(Integer motorNumber, Integer speed)
+	{
+		setSpeed(motorNumber, speed);
+		run(motorNumber, FORWARD);
+	}
+	
+	public void runBackward(Integer motorNumber, Integer speed)
+	{
+		setSpeed(motorNumber, speed);
+		run(motorNumber, BACKWARD);
+	}
+	
+	public void stop(Integer motorNumber)
+	{
+		//setSpeed(motorNumber, speed);
+		run(motorNumber, RELEASE);
 	}
 
 	// Stepper Motors
@@ -182,28 +195,40 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 			" AF_DCMotor m2(2);\n" + 
 			" AF_DCMotor m3(3);\n" + 
 			" AF_DCMotor m4(4);\n" + 
-			" AF_DCMotor* motors[4];\n" + 
+			" AF_DCMotor* motorMap[4];\n" + 
 			"\n\n";
 
 	public static final String ADAFRUIT_SETUP = "\n\n" +
-			"  motors[0] = &m1; \n" +
-			"  motors[1] = &m2; \n" +
-			"  motors[2] = &m3; \n" +
-			"  motors[3] = &m4; \n" 
+			"  motorMap[0] = &m1; \n" +
+			"  motorMap[1] = &m2; \n" +
+			"  motorMap[2] = &m3; \n" +
+			"  motorMap[3] = &m4; \n" 
 	;
 	
 	public static final String ADAFRUIT_CODE = "\n\n" +
 			
 			"            case AF_DCMOTOR_RUN_COMMAND: \n" +
-			"             motors[ioCommand[2]]->run(ioCommand[3]); \n" +
+			"             motorMap[ioCommand[2]]->run(ioCommand[3]); \n" +
 			"            break; \n" +
 			"            case AF_DCMOTOR_SET_SPEED: \n" +
-			"             motors[ioCommand[2]]->setSpeed(ioCommand[3]); \n" +
+			"             motorMap[ioCommand[2]]->setSpeed(ioCommand[3]); \n" +
 			"            break; \n" 
 	;
 
 	public boolean attach() {
-		return attach(myArduino);
+		boolean ret = true;
+		ret &= attach(myArduino); // TODO - check to see if Arduino is connected
+		ret &= s1.attach(myArduino.getName(), 9);
+		ret &= s2.attach(myArduino.getName(), 10);
+		
+		m1.setController(this);
+		m2.setController(this);
+		m3.setController(this);
+		m4.setController(this);
+		
+		m1.broadcastState();
+		
+		return ret;
 	}
 
 	// attachControllerBoard ???    FIXME FIXME FIXME - should  "attach" call another's attach?
@@ -226,7 +251,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 		// arduinoName; FIXME - get clear on diction Program Script or Sketch
 		StringBuffer newProgram = new StringBuffer();
-		newProgram.append(myArduino.getProgram());
+		newProgram.append(myArduino.getSketch());
 
 		// modify the program
 		int insertPoint = newProgram.indexOf(Arduino.VENDOR_DEFINES_BEGIN);
@@ -260,7 +285,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		}
 
 		// set the program
-		myArduino.setProgram(newProgram.toString());
+		myArduino.setSketch(newProgram.toString());
 		// broadcast the arduino state - ArduinoGUI should subscribe to
 		// setProgram
 		broadcastState(); // state has changed let everyone know
@@ -281,7 +306,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	@Override
 	public void motorMove(String name) {
 /*
-		MotorData md = motors.get(name);
+		MotorData md = motorMap.get(name);
 		MotorControl m = md.motor;
 		float power = m.getPowerLevel();
 
@@ -306,8 +331,17 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 	@Override
 	public boolean motorAttach(String motorName, Object... motorData) {
-		// TODO Auto-generated method stub
-		return false;
+		ServiceWrapper sw = Runtime.getServiceWrapper(motorName);
+		if (!sw.isLocal())
+		{
+			log.error("motor needs to be in same instance of mrl as controller");
+			return false;
+		}
+		
+		Motor m = (Motor)sw.get();
+		m.setController(this);
+		m.broadcastState();
+		return true;
 	}
 
 	@Override
@@ -330,9 +364,9 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		fruity.attach();
 
+		Runtime.createAndStart("jython", "Jython");
 		Runtime.createAndStart("gui01", "GUIService");
 
-		// Runtime.createAndStart("jython", "Jython");
 
 	}
 

@@ -53,6 +53,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
@@ -203,7 +204,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * state information
 	 * @param arduino
 	 */
-	public void getState(Arduino arduino) {
+	public void getState(final Arduino arduino) { // TODO - all getState data should be final
 		if (arduino != null) {
 			myArduino = arduino; // FIXME - super updates registry state ?
 			boardPreferences = myArduino.getBoardPreferences(); // FIXME - class member has precedence - do away with properties !
@@ -211,11 +212,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			pinList = myArduino.getPinList();
 			
 			// update panels based on state change
+			// TODO - check what state the panels are to see if a 
+			// change is needed
 			getPinPanel();
 			getOscopePanel();
 
-			// editor2Panel.ser
-			// createSerialDeviceMenu(m)
+
 			editor.serialDeviceMenu.removeAll();
 			publishMessage(String.format("found %d serial ports", myArduino.serialDeviceNames.size()));
 			for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
@@ -225,32 +227,37 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				SerialDevice sd = myArduino.getSerialDevice();
 				if (sd != null && sd.getName().equals(portName))
 				{
-					serialDevice.setSelected(true);
 					if (sd.isOpen())
 					{
 						editor.connectButton.activate();
+						serialDevice.setSelected(true);
 					} else {
 						editor.connectButton.deactivate();
+						serialDevice.setSelected(false);
 					}
 				} else {
 					serialDevice.setSelected(false);
 				}
 				serialDevice.addActionListener(serialMenuListener);
-				editor.serialDeviceMenu.add(serialDevice);
+				editor.serialDeviceMenu.add(serialDevice);				
+				//editor.getTextArea().setText(arduino.getSketch());
 				
-				editor.getTextArea().setText(arduino.getProgram());
-				
-				
-				// rbMenuItem = new JCheckBoxMenuItem(curr_port,
-				// curr_port.equals(Preferences2.get("serial.port")));
-				// rbMenuItem.addActionListener(serialMenuListener);
+				// if the service has a different sketch update the gui
+				// TODO - kinder - gentler - ask user if they want the update
+				if (!editor.getTextArea().equals(arduino.getSketch())) {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							editor.getTextArea().setText(arduino.getSketch());
+						}
+					});
+				}
+								
 			}
 			
 			// TODO - work on generalizing editor
 			editor.serialDeviceMenu.add(serialRefresh);
 			editor.serialDeviceMenu.add(serialDisconnect);
 			
-
 			String statusString = boardName + " " + myArduino.preferences.get("serial.port");
 			editor.setStatus(statusString);
 
@@ -332,6 +339,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		{
 			
 			myService.send(boundServiceName, "querySerialDeviceNames");
+			myService.send(boundServiceName, "publishState");
+			return;
+		}
+
+		if (o == serialDisconnect)
+		{
+			
+			myService.send(boundServiceName, "disconnect");
 			myService.send(boundServiceName, "publishState");
 			return;
 		}

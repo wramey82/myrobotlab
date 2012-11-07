@@ -28,32 +28,10 @@ public class Motor_AdafruitMotorShieldGUI extends JPanel implements ActionListen
 	public Motor_AdafruitMotorShieldGUI(GUIService myService, String motorName, String controllerName)
 	{
 		this.myService = myService;
-		this.arduinoName = arduinoName;
+		this.arduinoName = controllerName;
 		this.motorName = motorName;
-
-		// TODO - get list of motor ports from Adafruit which are currently free
 		
-		/*
-		AdafruitMotorShield o = (AdafruitMotorShield) myService.sendBlocking(controllerName, "publishState", null);
-		pinList = o.getPinList(); // ?? how to handle
-		
-		//setLayout(new BorderLayout());
-		
-		for (int i = 0; i < pinList.size(); ++i)
-		{
-			Pin pin = pinList.get(i);
-			if (pin.type == Pin.PWM_VALUE) {
-				motorPort.addItem(String.format("<html><font color=white bgcolor=green>%d</font></html>",pin.pin));
-			} else {
-				motorPort.addItem(String.format("%d",pin.pin));
-			}
-		}
-		*/
-		
-		
-		// TODO - fix up with only free ports offered in drop down
-		
-		for (int i = 0; i < 4; ++i)
+		for (int i = 1; i < 5; ++i)
 		{
 			motorPort.addItem(String.format("m%d",i));
 		}
@@ -75,11 +53,19 @@ public class Motor_AdafruitMotorShieldGUI extends JPanel implements ActionListen
 		
 		if (o == attachButton)
 		{
-			Object[] motorData = null;// new Object[]{new Integer(powerPin.getSelectedIndex()), new Integer(directionPin.getSelectedIndex())};
-			myService.send(arduinoName, "motorAttach", motorName, motorData);
+			if ("attach".equals(attachButton.getText()))
+			{
+				Object[] motorData = new Object[]{motorPort.getSelectedItem()};
+				myService.send(arduinoName, "motorAttach", motorName, motorData);
+				attachButton.setText("detach");
+			} else {
+				myService.send(arduinoName, "motorDetach", motorName);
+				attachButton.setText("attach");				
+			}
+			
 		}
 		
-	}		
+	}
 	
 
 }

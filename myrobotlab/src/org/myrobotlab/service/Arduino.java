@@ -42,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
@@ -120,6 +119,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int MOTOR_FORWARD = 1;
 	public static final int MOTOR_BACKWARD = 0;
 	
+	private boolean connected = false;
+	
 	/**
 	 * MotorData is the combination of a Motor and any controller data needed to 
 	 * implement all of MotorController API
@@ -178,8 +179,9 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS = 53;
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS = 54;
 	
-	
-	public static final int ADAFRUIT_MOTOR_SHIELD_START = 60;
+	// non final for vendor mods
+	public static int ARDUINO_SKETCH_TYPE = 1; 
+	public static int ARDUINO_SKETCH_VERSION = 1;
 	
 	// error
 	public static final int SERIAL_ERROR = 254;
@@ -220,8 +222,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	// compile / upload
 	private String buildPath = "";
-	private String programName = "";
-	private String program = "";
+	private String sketchName = "";
+	private String sketch = "";
 
 	/**
 	 * list of serial port names from the system which the Arduino service is
@@ -275,19 +277,9 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		String filename = "MRLComm.ino";
 		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
-		String defaultProgram = FileIO.getResourceFile(resourcePath);
-		this.program = defaultProgram;
+		String defaultSketch = FileIO.getResourceFile(resourcePath);
+		this.sketch = defaultSketch;
 	}
-	
-	
-	/*
-	 * 	public void loadResourceFile(String filename) {
-		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
-		log.info(String.format("loadResourceFile %s", resourcePath));
-		String program = FileIO.getResourceFile(resourcePath);
-		textArea.setText(program);
-	}
-	 */
 	
 	// FIXME - add const BOARD TYPE strings
 	public void setBoard(String board)
@@ -1011,7 +1003,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return progress;
 	}
 
-	public String createBuildPath(String programName) {
+	public String createBuildPath(String sketchName) {
 		// make a work/tmp directory if one doesn't exist - TODO - new time
 		// stamp?
 		Date d = new Date();
@@ -1019,26 +1011,26 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 		formatter.setCalendar(cal);
 
-		String tmpdir = String.format("obj%s%s.%s", File.separator, programName, formatter.format(d));
+		String tmpdir = String.format("obj%s%s.%s", File.separator, sketchName, formatter.format(d));
 		new File(tmpdir).mkdirs();
 
 		return tmpdir;
 
 	}
 
-	public void compile(String programName, String program) {
+	public void compile(String sketchName, String sketch) {
 		// FYI - not thread safe
-		this.programName = programName;
-		this.program = program;
-		this.buildPath = createBuildPath(programName);
+		this.sketchName = sketchName;
+		this.sketch = sketch;
+		this.buildPath = createBuildPath(sketchName);
 
 		try {
-			compiler.compile(programName, program, buildPath, true);
+			compiler.compile(sketchName, sketch, buildPath, true);
 		} catch (RunnerException e) {
 			logException(e);
 			invoke("compilerError", e.getMessage());
 		}
-		log.debug(program);
+		log.debug(sketch);
 	}
 
 
@@ -1048,7 +1040,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void upload() throws Throwable {
 		// uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj",
 		// "MRLComm", false);
-		uploader.uploadUsingPreferences(buildPath, programName, false);
+		uploader.uploadUsingPreferences(buildPath, sketchName, false);
 	}
 
 	/**
@@ -1163,18 +1155,28 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		
 		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
 		message("good times...\n");
+		connected = true;
 		return true;
+	}
+	
+	public boolean isConnected()
+	{
+		// I know not normalized
+		// but we have to do this - since
+		// the SerialDevice is transient
+		return connected; 
 	}
 	
 	public boolean disconnect()
 	{
+		connected = false;
 		if (serialDevice == null)
 		{
 			return false;
 		}
 		
 		serialDevice.close();
-		
+
 		return true;
 	}
 	
@@ -1329,24 +1331,24 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 	
 	
-	public String getProgram()
+	public String getSketch()
 	{
-		return this.program;		
+		return this.sketch;		
 	}
 	
-	public String setProgram(String newProg)
+	public String setSketch(String newSketch)
 	{
-		program = newProg;
-		return program;
+		sketch = newSketch;
+		return sketch;
 	}
 	
-	public String loadProgramFromFile(String filename)
+	public String loadSketchFromFile(String filename)
 	{
-		String newProg = FileIO.fileToString(filename);
-		if (newProg != null)
+		String newSketch = FileIO.fileToString(filename);
+		if (newSketch != null)
 		{
-			program = newProg;
-			return program;
+			sketch = newSketch;
+			return sketch;
 		}
 		return null;
 	}
@@ -1354,7 +1356,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		//Logger.getRootLogger().setLevel(Level.INFO);
 
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();

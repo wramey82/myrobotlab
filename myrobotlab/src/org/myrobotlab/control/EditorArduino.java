@@ -58,9 +58,11 @@ public class EditorArduino extends Editor implements ActionListener {
 	ImageButton saveButton;
 	ImageButton fullscreenButton;
 	ImageButton monitorButton;
-	JLabel programName = new JLabel("MRLComm");
+	JLabel sketchName = new JLabel("MRLComm");
 
 	Arduino myArduino = null;
+	JMenu boardsMenu = null;
+	public JMenu serialDeviceMenu = null;
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
@@ -75,7 +77,7 @@ public class EditorArduino extends Editor implements ActionListener {
 		Object o = event.getSource();
 
 		if (o == compileButton) {
-			myService.send(boundServiceName, "compile", programName.getText(), textArea.getText());
+			myService.send(boundServiceName, "compile", sketchName.getText(), textArea.getText());
 		} else if (o == uploadButton) {
 			myService.send(boundServiceName, "upload");
 			return;
@@ -88,8 +90,6 @@ public class EditorArduino extends Editor implements ActionListener {
 		} 
 	}
 
-	JMenu boardsMenu = null;
-	public JMenu serialDeviceMenu = null;
 
 	public void init() {
 		super.init();
@@ -104,7 +104,7 @@ public class EditorArduino extends Editor implements ActionListener {
 		monitorButton = addImageButtonToButtonBar("Arduino", "monitor", this);
 
 		buttonBar.setBackground(new Color(0, 100, 104));
-		buttonBar.add(programName);
+		buttonBar.add(sketchName);
 
 		// addHelpMenuURL("help blah", "http:blahblahblah");
 
@@ -132,8 +132,8 @@ public class EditorArduino extends Editor implements ActionListener {
 	public void loadResourceFile(String filename) {
 		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
-		String program = FileIO.getResourceFile(resourcePath);
-		textArea.setText(program);
+		String sketch = FileIO.getResourceFile(resourcePath);
+		textArea.setText(sketch);
 	}
 
 	public void loadCommunicationFile() {
@@ -152,10 +152,6 @@ public class EditorArduino extends Editor implements ActionListener {
 				AbstractAction action = new AbstractAction(target.getBoards().get(board).get("name")) {
 					public void actionPerformed(ActionEvent actionevent) {
 						log.info(String.format("switching to %s:%s", (String) getValue("target"), (String) getValue("board")));
-						// myService.send(boundServiceName, "setPreference",
-						// "target", (String) getValue("target"));
-						// myService.send(boundServiceName, "setPreference",
-						// "board", (String) getValue("board"));
 						myService.send(boundServiceName, "setBoard", (String) getValue("board"));
 					}
 				};

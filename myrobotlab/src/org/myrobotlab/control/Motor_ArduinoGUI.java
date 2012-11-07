@@ -28,12 +28,12 @@ public class Motor_ArduinoGUI extends JPanel implements ActionListener  {
 	String motorName;
 
 	ArrayList<Pin> pinList  = null;
-	public Motor_ArduinoGUI(GUIService myService, String motorName, String arduinoName)
+	public Motor_ArduinoGUI(GUIService myService, String motorName, String controllerName)
 	{
 		this.myService = myService;
-		this.arduinoName = arduinoName;
+		this.arduinoName = controllerName;
 		this.motorName = motorName;
-		Arduino o = (Arduino) myService.sendBlocking(arduinoName, "publishState", null);
+		Arduino o = (Arduino) myService.sendBlocking(controllerName, "publishState", null);
 		pinList = o.getPinList();
 				
 		for (int i = 0; i < pinList.size(); ++i)
