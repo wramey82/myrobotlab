@@ -287,6 +287,16 @@ public class Motor extends Service implements MotorControl {
 		attached(true);
 		return true;
 	}
+	
+	public String getControllerName()
+	{
+		if (controller != null)
+		{
+			return controller.getName();
+		}
+		
+		return null;
+	}
 
 	@Override
 	public String getToolTip() {

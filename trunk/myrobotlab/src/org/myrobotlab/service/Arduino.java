@@ -1353,6 +1353,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return null;
 	}
 	
+	
+	@Override
+	public Object[] getMotorData(String motorName) {
+		MotorData md = motors.get(motorName);
+		Object [] data = new Object[]{md.PWMPin, md.directionPin};
+		return data;
+	}
+	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();

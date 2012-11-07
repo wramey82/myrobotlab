@@ -55,8 +55,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 	// controller
 	JPanel controllerPanel = new JPanel(new BorderLayout());
-	JPanel controllerTypePanel = new JPanel();
-	//JButton attachButton = null; implemented by specific MotorController_GUI
+	MotorControllerPanel controllerTypePanel = new Motor_UnknownGUI();
 	JComboBox controllerSelect = new JComboBox();
 	MotorController controller = null;
 	JCheckBox invert = new JCheckBox("invert");
@@ -119,7 +118,6 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		v.add(0, "");
 		controllerSelect = new JComboBox(v);
 		controllerPanel.add(controllerSelect, BorderLayout.WEST);
-		controllerTypePanel.setBorder(BorderFactory.createTitledBorder("type"));
 		controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);
 
 		// controllerPanel end ------------------
@@ -203,6 +201,15 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 	
 	public void getState(Motor motor) {
 		setEnabled(motor.isAttached());
+		// FIXED - can't use a reference - because it changes mid-stream through this method
+		//MotorControllerPanel subpanel = ((MotorControllerPanel)controllerTypePanel); 
+		if (motor.isAttached())
+		{
+			// !!!!! - This actually fires the (makes a new MotorControllerPanel)  !!!!!
+			controllerSelect.setSelectedItem(motor.getControllerName()); 
+			controllerTypePanel.setData(controller.getMotorData(boundServiceName));
+		}
+		controllerTypePanel.setAttached(motor.isAttached());
 	}
 
 	@Override
@@ -231,7 +238,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 				
 			} else {
 				controllerPanel.remove(controllerTypePanel);
-				controllerTypePanel = new JPanel();
+				controllerTypePanel = new Motor_UnknownGUI();
 				controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);
 				//setEnabled(false);
 			}

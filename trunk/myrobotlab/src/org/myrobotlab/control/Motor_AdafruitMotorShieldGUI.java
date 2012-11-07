@@ -8,12 +8,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.Pin;
 
-public class Motor_AdafruitMotorShieldGUI extends JPanel implements ActionListener {
+public class Motor_AdafruitMotorShieldGUI extends MotorControllerPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private GUIService myService;
@@ -27,6 +26,7 @@ public class Motor_AdafruitMotorShieldGUI extends JPanel implements ActionListen
 	ArrayList<Pin> pinList  = null;
 	public Motor_AdafruitMotorShieldGUI(GUIService myService, String motorName, String controllerName)
 	{
+		super();
 		this.myService = myService;
 		this.arduinoName = controllerName;
 		this.motorName = motorName;
@@ -66,6 +66,27 @@ public class Motor_AdafruitMotorShieldGUI extends JPanel implements ActionListen
 		}
 		
 	}
+
+	/**
+	 * method to update the GUI from MotorController data
+	 */
+	@Override
+	public void setData(Object[] data) {
+		// TODO Auto-generated method stub
+		motorPort.setSelectedItem(data[0]);
+	}
+	
+	@Override
+	void setAttached(boolean state) {
+		if (state)
+		{
+			attachButton.setText("detach");
+		} else {
+			attachButton.setText("attach");
+		}
+		
+	}
+	
 	
 
 }
