@@ -17,6 +17,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
+import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 
 /**
@@ -85,6 +86,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		s2 = new Servo(String.format("%s_servo2", n));
 		createM1M2DCMotors();
 		createM3M4DCMotors();
+		attach();
 	}
 
 	@Override
@@ -146,31 +148,31 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		setSpeed(motorMap.get(name)-1, speed);
 	}
 	
-	public void setSpeed(Integer motorNumber, Integer speed)
+	public void setSpeed(Integer motorPortNumber, Integer speed)
 	{
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorNumber-1, speed);
+		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorPortNumber-1, speed);
 	}
 
-	public void run(Integer motorNumber, Integer command) {
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorNumber-1, command);
+	public void run(Integer motorPortNumber, Integer command) {
+		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorPortNumber-1, command);
 	}
 	
-	public void runForward(Integer motorNumber, Integer speed)
+	public void runForward(Integer motorPortNumber, Integer speed)
 	{
-		setSpeed(motorNumber, speed);
-		run(motorNumber, FORWARD);
+		setSpeed(motorPortNumber, speed);
+		run(motorPortNumber, FORWARD);
 	}
 	
-	public void runBackward(Integer motorNumber, Integer speed)
+	public void runBackward(Integer motorPortNumber, Integer speed)
 	{
-		setSpeed(motorNumber, speed);
-		run(motorNumber, BACKWARD);
+		setSpeed(motorPortNumber, speed);
+		run(motorPortNumber, BACKWARD);
 	}
 	
-	public void stop(Integer motorNumber)
+	public void stop(Integer motorPortNumber)
 	{
 		//setSpeed(motorNumber, speed);
-		run(motorNumber, RELEASE);
+		run(motorPortNumber, RELEASE);
 	}
 
 	// Stepper Motors
@@ -305,21 +307,23 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 	@Override
 	public void motorMove(String name) {
-/*
-		MotorData md = motorMap.get(name);
-		MotorControl m = md.motor;
-		float power = m.getPowerLevel();
-
-		if (power < 0) {
-			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_FORWARD : MOTOR_BACKWARD);
-			serialSend(ANALOG_WRITE, md.PWMPin, Math.abs((int) (255 * m.getPowerLevel())));
-		} else if (power > 0) {
-			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_BACKWARD : MOTOR_FORWARD);
-			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255 * m.getPowerLevel()));
+		
+		// a bit weird indirection - but this would support
+		// adafruit to be attached to motors defined outside of 
+		// initialization
+		MotorControl mc = (MotorControl)Runtime.getServiceWrapper(name).get();
+		Float pwr = mc.getPowerLevel();
+		int pwm = Math.abs((int)(pwr * 127.5f + 127.5f));
+		int motorPortNumber = motorMap.get(name); 
+		
+		if (pwr < 0)
+		{
+			runForward(motorPortNumber, pwm);
+		} else if (pwr > 0){
+			runBackward(motorPortNumber, pwm);
 		} else {
-			serialSend(ANALOG_WRITE, md.PWMPin, 0);
+			stop(motorPortNumber);
 		}
-*/		
 
 	}
 
@@ -368,6 +372,13 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		Runtime.createAndStart("gui01", "GUIService");
 
 
+	}
+
+	@Override
+	public Object[] getMotorData(String motorName) {
+		String ret = String.format("m%d",motorMap.get(motorName));
+		Object [] data = new Object[]{ret};
+		return data;
 	}
 
 }

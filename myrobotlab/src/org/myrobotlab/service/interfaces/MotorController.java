@@ -82,5 +82,14 @@ public interface MotorController {
 	 * @return void
 	 */
 	public boolean motorDetach (String name);
+	
+	public String getName();
+	
+	/**
+	 * method to return motor information
+	 * @param motorName
+	 * @return
+	 */
+	public Object[] getMotorData(String motorName);
 
 }

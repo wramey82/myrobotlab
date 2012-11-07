@@ -8,13 +8,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.Pin;
 
-public class Motor_ArduinoGUI extends JPanel implements ActionListener  {
+public class Motor_ArduinoGUI extends MotorControllerPanel implements ActionListener  {
 
 	private static final long serialVersionUID = 1L;
 	private GUIService myService;
@@ -30,6 +29,7 @@ public class Motor_ArduinoGUI extends JPanel implements ActionListener  {
 	ArrayList<Pin> pinList  = null;
 	public Motor_ArduinoGUI(GUIService myService, String motorName, String controllerName)
 	{
+		super();
 		this.myService = myService;
 		this.arduinoName = controllerName;
 		this.motorName = motorName;
@@ -77,6 +77,21 @@ public class Motor_ArduinoGUI extends JPanel implements ActionListener  {
 				attachButton.setText("attach");				
 			}
 			
+		}
+		
+	}
+	@Override
+	public void setData(Object[] data) {
+		powerPin.setSelectedItem(data[0]);
+		directionPin.setSelectedItem(data[1]);
+	}
+	@Override
+	void setAttached(boolean state) {
+		if (state)
+		{
+			attachButton.setText("detach");
+		} else {
+			attachButton.setText("attach");
 		}
 		
 	}
