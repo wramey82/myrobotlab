@@ -114,7 +114,7 @@ public class Motor extends Service implements MotorControl {
 	 * @see org.myrobotlab.service.X#move(float)
 	 */
 	@Override
-	public void move(float newPowerLevel) {
+	public void move(Float newPowerLevel) {
 		// check for locked or invalid level
 		if (locked) {
 			log.warn("motor locked");
@@ -157,7 +157,7 @@ public class Motor extends Service implements MotorControl {
 	 */
 	@Override
 	public void stop() {
-		move(0);
+		move(0.0f);
 	}
 
 	/* (non-Javadoc)
@@ -180,7 +180,7 @@ public class Motor extends Service implements MotorControl {
 	@Override
 	public void stopAndLock() {
 		log.info("stopAndLock");
-		move(0);
+		move(0.0f);
 		lock();
 	}
 
