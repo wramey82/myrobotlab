@@ -60,7 +60,7 @@ public interface MotorControl {
 	 * 
 	 * @param power - new power level
 	 */
-	public void move(float power);
+	public void move(Float power);
 
 	/**
 	 * moveTo moves the motor to a specific location. Typically,

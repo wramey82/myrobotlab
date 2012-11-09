@@ -140,6 +140,16 @@ public class InMoov extends Service {
 		
 		// when speaking don't listen
 		ear.attach(mouth.getName());
+		
+		// servo limits
+		bicepsLeft.setPositionMax(90);
+		bicepsRight.setPositionMax(90);
+		omoplatLeft.setPositionMax(70);
+		omoplatRight.setPositionMax(70);
+		omoplatLeft.setPositionMin(10);
+		omoplatRight.setPositionMin(10);
+		rotateLeft.setPositionMin(40);
+		rotateRight.setPositionMin(40);
 
 	}
 	

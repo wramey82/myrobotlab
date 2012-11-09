@@ -260,8 +260,8 @@ public class Toy extends Service {
 			Thread.sleep(160);
 			jaw.attach(arduino.getName(),13);
 			Thread.sleep(80);
-			right.move(0);
-			left.move(0);
+			right.move(0.0f);
+			left.move(0.0f);
 						
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
