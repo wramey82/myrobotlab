@@ -44,7 +44,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -1999,6 +1998,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getShortTypeName() {
 		String serviceClassName = this.getClass().getCanonicalName();
 		return serviceClassName.substring(serviceClassName.lastIndexOf(".")+1);
+	}
+	public String getTypeName() {
+		return this.getClass().getCanonicalName();
 	}
 	
 	// ----------------  logging end ---------------------------
