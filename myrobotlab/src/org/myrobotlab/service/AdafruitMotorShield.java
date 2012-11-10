@@ -314,14 +314,14 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		// initialization
 		MotorControl mc = (MotorControl)Runtime.getServiceWrapper(name).get();
 		Float pwr = mc.getPowerLevel();
-		int pwm = Math.abs((int)(pwr * 127.5f + 127.5f));
+		int pwm = (int)(pwr * 255);
 		int motorPortNumber = motorMap.get(name); 
 		
-		if (pwr < 0)
+		if (pwr > 0)
 		{
 			runForward(motorPortNumber, pwm);
-		} else if (pwr > 0){
-			runBackward(motorPortNumber, pwm);
+		} else if (pwr < 0){
+			runBackward(motorPortNumber, -1 * pwm);
 		} else {
 			stop(motorPortNumber);
 		}
