@@ -82,7 +82,14 @@ public class EditorArduino extends Editor implements ActionListener {
 			myService.send(boundServiceName, "upload");
 			return;
 		} else if (o == connectButton) {
-			myService.send(boundServiceName, "connect");
+			if (connectButton.isActive())
+			{
+				myService.send(boundServiceName, "disconnect");
+			} else {
+				myService.send(boundServiceName, "connect");
+			}
+			myService.send(boundServiceName, "publishState");
+			
 		} else if ("examples".equals(event.getActionCommand()))
 		{
 			JMenuItem menu = (JMenuItem)o;

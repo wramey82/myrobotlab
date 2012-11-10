@@ -80,9 +80,11 @@ public abstract class Uploader {
 
 		myArduino.setCompilingProgress(20);
 
-		myArduino.message("disposing serial device");
+		myArduino.message("disconnecting serial device");
 
-		serialPort.dispose(); // FIXME - open/close vs - just stay open?
+		myArduino.disconnect();
+		myArduino.broadcastState();
+		//serialPort.dispose(); // FIXME - open/close vs - just stay open?
 
 	}
 
