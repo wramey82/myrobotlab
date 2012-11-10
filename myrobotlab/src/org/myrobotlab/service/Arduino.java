@@ -455,11 +455,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			log.warn("servo already attach - detach first");
 			return false;
 		}
-
-		/* yuk
-		 * soft servo if (pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 
-		 * 10 && pin != 11) { log.error(pin + " not valid for servo"); }
-		 */
 		
 		ServoData sd = new ServoData();
 		sd.pin = pin;
@@ -555,6 +550,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	}
 
+	// FIXME - deprecate
 	public IOData digitalWrite(IOData io) {
 		digitalWrite(io.address, io.value);
 		return io;
@@ -565,6 +561,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(DIGITAL_WRITE, address, value);
 	}
 
+	// FIXME - deprecate
 	public void pinMode(IOData io) {
 		pinMode(io.address, io.value);
 	}
@@ -574,6 +571,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(PINMODE, address, value);
 	}
 
+	// FIXME - deprecate
 	public IOData analogWrite(IOData io) {
 		analogWrite(io.address, io.value);
 		return io;
@@ -602,9 +600,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		rawReadMsgLength = length;
 	}
 
-	public String getType() {
-		return Arduino.class.getCanonicalName();
-	}
 
 	// force an digital read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
@@ -627,14 +622,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void analogReadPollingStop(Integer pin) {
 		serialSend(ANALOG_READ_POLLING_STOP, pin, 0); // last param is not used
 		// in read
-	}
-
-	
-	// FIXME - make interface for this one
-	// General purpose send command to send a custom 3 byte message to MRLComm
-	public void sendCommand(Integer method, Integer param1, Integer param2)
-	{
-		serialSend(method, param1, param2);
 	}
 
 	@Override
@@ -969,7 +956,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return serialDeviceNames;
 	}
 
-	@Override // FIXME - remove setPort !!!!!
+	@Override 
 	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
 		try {
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
@@ -1040,6 +1027,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void upload() throws Throwable {
 		// uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj",
 		// "MRLComm", false);
+		if (sketchName == null)
+		{
+			log.error("invalid sketchname");
+			return;
+		}
 		uploader.uploadUsingPreferences(buildPath, sketchName, false);
 	}
 

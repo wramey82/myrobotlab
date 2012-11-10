@@ -35,7 +35,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	private static final long serialVersionUID = 1L;
 
 	// AF Shield controls these 2 servos
-	// Servo servo9; - difficult idea - com port may not be initialized - which
 	// makes "attaching" impossible
 	// Servo servo10;
 
@@ -67,9 +66,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	private Motor m3 = null;
 	private Motor m4 = null;
 
-	private Servo s1 = null;
-	private Servo s2 = null;
-
 	private Arduino myArduino = null;
 
 	HashMap<String, Integer> motorMap = new HashMap<String, Integer>();
@@ -83,8 +79,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
 		myArduino = new Arduino(String.format("%s_arduino", n));
-		s1 = new Servo(String.format("%s_servo1", n));
-		s2 = new Servo(String.format("%s_servo2", n));
 		createM1M2DCMotors();
 		createM3M4DCMotors();
 		attach();
@@ -221,8 +215,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	public boolean attach() {
 		boolean ret = true;
 		ret &= attach(myArduino); // TODO - check to see if Arduino is connected
-		ret &= s1.attach(myArduino.getName(), 9);
-		ret &= s2.attach(myArduino.getName(), 10);
 		
 		m1.setController(this);
 		m2.setController(this);

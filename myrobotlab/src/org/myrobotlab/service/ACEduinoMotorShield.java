@@ -39,7 +39,7 @@ public class ACEduinoMotorShield extends Service {
 	
 	public void setPosition(int servo, int position)
 	{		
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION, servo, position);
+		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION, servo, position);
 	}
 	
 	public void setBounds(int servo, int minposition, int maxposition)
@@ -49,26 +49,20 @@ public class ACEduinoMotorShield extends Service {
 		// 2 methods of 1 parameter until the Arduino
 		// either accepts multiple parameters
 		// not multi-threaded safe - ie get Servo then setServo Position
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS, servo, minposition);
-		send(controllerName, "sendCommand",  Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS, servo, maxposition);
+		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS, servo, minposition);
+		send(controllerName, "serialSend",  Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS, servo, maxposition);
 		
 	}
 	
-	/*	
-	public void getposition(int Servo)
-	{
-		return 1;
-	}
-	*/
 	
 	public void start()
 	{
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_START, 0, 0);
+		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_START, 0, 0);
 	}
 	
 	public void stop()
 	{
-		send(controllerName, "sendCommand", Arduino.ACEDUINO_MOTOR_SHIELD_STOP, 0, 0);
+		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_STOP, 0, 0);
 	}
 	
 
