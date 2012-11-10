@@ -76,6 +76,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	Motor[] motors = new Motor[4];
 
 	final int AF_DCMOTOR_SET_SPEED = 51;
+	final int AF_DCMOTOR_RUN_COMMAND = 52;
 
 	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
@@ -154,7 +155,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	}
 
 	public void run(Integer motorPortNumber, Integer command) {
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorPortNumber-1, command);
+		myArduino.serialSend(AF_DCMOTOR_RUN_COMMAND, motorPortNumber-1, command);
 	}
 	
 	public void runForward(Integer motorPortNumber, Integer speed)
@@ -191,8 +192,8 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 	public static final String ADAFRUIT_DEFINES = "\n\n"+
 			"#include <AFMotor.h>\n\n" + 
-			" #define AF_DCMOTOR_RUN_COMMAND 51\n" + 
-			" #define AF_DCMOTOR_SET_SPEED 52\n" + 
+			" #define AF_DCMOTOR_SET_SPEED 51\n" + 
+			" #define AF_DCMOTOR_RUN_COMMAND 52\n" + 
 			" AF_DCMotor m1(1);\n" + 
 			" AF_DCMotor m2(2);\n" + 
 			" AF_DCMotor m3(3);\n" + 
