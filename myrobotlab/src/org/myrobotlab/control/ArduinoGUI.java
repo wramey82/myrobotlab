@@ -84,7 +84,8 @@ import org.myrobotlab.service.interfaces.GUI;
  *      
  */
 
-public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener {
+public class ArduinoGUI extends ServiceGUI implements ItemListener,
+		ActionListener {
 
 	public ArduinoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -99,9 +100,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	static final long serialVersionUID = 1L;
 	// FIXME - you need a pattern or a new Menu
 	// A Menu in the ArduinoGUI versus the Arduino Editor
-	private JMenuItem serialRefresh = new JMenuItem("refresh"); 
-	private JMenuItem serialDisconnect = new JMenuItem("disconnect"); 
-
+	private JMenuItem serialRefresh = new JMenuItem("refresh");
+	private JMenuItem serialDisconnect = new JMenuItem("disconnect");
 
 	JTabbedPane tabs = new JTabbedPane();
 
@@ -127,7 +127,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * ---------- Oscope begin -------------------------
 	 */
 	/**
-	 *  array list of graphical pin components built from pinList
+	 * array list of graphical pin components built from pinList
 	 */
 	ArrayList<PinComponent> pinComponentList = null;
 	SerializableImage sensorImage = null;
@@ -147,18 +147,17 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	Dimension size = new Dimension(620, 512);
 	Map<String, String> boardPreferences;
 	String boardName;
-	//JCheckBoxMenuItem serialDevice;
+	// JCheckBoxMenuItem serialDevice;
 	SerialMenuListener serialMenuListener = new SerialMenuListener();
 
 	/*
 	 * ---------- Editor end -------------------------
 	 */
-	
+
 	/**
 	 * pinList - from Arduino
 	 */
 	ArrayList<Pin> pinList = null;
-	
 
 	public void init() {
 		display.setLayout(new BorderLayout());
@@ -172,134 +171,157 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		display.add(tabs, BorderLayout.CENTER);
 		tabs.setSelectedIndex(0);
-		
+
 		serialRefresh.addActionListener(this);
 		serialDisconnect.addActionListener(this);
 	}
 
 	public JLayeredPane getPinPanel() {
 
-		if (myArduino != null && boardName != null && boardName.contains("Mega"))
-		{
+		if (myArduino != null && boardName != null
+				&& boardName.contains("Mega")) {
 			return getMegaPanel();
 		}
-		
+
 		return getDuemilanovePanel();
 
 	}
 
-
 	class SerialMenuListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			JRadioButtonMenuItem checkbox = (JRadioButtonMenuItem) e.getSource();
-			if (checkbox.isSelected())
-			{
-				myService.send(boundServiceName, "setSerialDevice", checkbox.getText(), 57600, 8, 1, 0);
+			JRadioButtonMenuItem checkbox = (JRadioButtonMenuItem) e
+					.getSource();
+			if (checkbox.isSelected()) {
+				myService.send(boundServiceName, "setSerialDevice",
+						checkbox.getText(), 57600, 8, 1, 0);
 			} else {
 				myService.send(boundServiceName, "disconnect");
 			}
-			
+
 			myService.send(boundServiceName, "publishState");
 
-
 		}
 	}
 
-	
 	/**
-	 * getState is called when the Arduino service changes
-	 * state information
+	 * getState is called when the Arduino service changes state information
+	 * FIXME - this method is often called by other threads so gui - updates
+	 * must be done in the swing post method way
+	 * 
 	 * @param arduino
 	 */
-	public void getState(final Arduino arduino) { // TODO - all getState data should be final
-		if (arduino != null) {
-			myArduino = arduino; // FIXME - super updates registry state ?
-			boardPreferences = myArduino.getBoardPreferences(); // FIXME - class member has precedence - do away with properties !
-			boardName = boardPreferences.get("name"); // FIXME - class member has precedence - do away with properties !
-			pinList = myArduino.getPinList();
-			
-			// update panels based on state change
-			// TODO - check what state the panels are to see if a 
-			// change is needed
-			getPinPanel();
-			getOscopePanel();
+	public void getState(final Arduino arduino) { // TODO - all getState data
+													// should be final
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
+				log.info("getState Arduino");
+				if (arduino != null) {
+					myArduino = arduino; // FIXME - super updates registry state
+											// ?
+					boardPreferences = myArduino.getBoardPreferences(); // FIXME
+																		// -
+																		// class
+																		// member
+																		// has
+																		// precedence
+																		// - do
+																		// away
+																		// with
+																		// properties
+																		// !
+					boardName = boardPreferences.get("name"); // FIXME - class
+																// member has
+																// precedence -
+																// do away with
+																// properties !
+					pinList = myArduino.getPinList();
 
-			editor.serialDeviceMenu.removeAll();
-			publishMessage(String.format("found %d serial ports", myArduino.serialDeviceNames.size()));
-			for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
-				String portName = myArduino.serialDeviceNames.get(i);
-				publishMessage(String.format(" %s", portName));
-				JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(myArduino.serialDeviceNames.get(i));
-				SerialDevice sd = myArduino.getSerialDevice();
-				if (sd != null && sd.getName().equals(portName))
-				{
-					if (sd.isOpen())
-					{
-						editor.connectButton.activate();
-						serialDevice.setSelected(true);
-					} else {
-						editor.connectButton.deactivate();
-						serialDevice.setSelected(false);
-					}
-				} else {
-					serialDevice.setSelected(false);
-				}
-				serialDevice.addActionListener(serialMenuListener);
-				editor.serialDeviceMenu.add(serialDevice);				
-				//editor.getTextArea().setText(arduino.getSketch());
-				
-				// if the service has a different sketch update the gui
-				// TODO - kinder - gentler - ask user if they want the update
-				if (!editor.getTextArea().equals(arduino.getSketch())) {
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							editor.getTextArea().setText(arduino.getSketch());
+					// update panels based on state change
+					// TODO - check what state the panels are to see if a
+					// change is needed
+					log.info("getState Arduino 1");
+					getPinPanel();
+					log.info("getState Arduino 2");
+					getOscopePanel();
+					log.info("getState Arduino 3");
+
+					editor.serialDeviceMenu.removeAll();
+					publishMessage(String.format("found %d serial ports",
+							myArduino.serialDeviceNames.size()));
+					for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
+						String portName = myArduino.serialDeviceNames.get(i);
+						publishMessage(String.format(" %s", portName));
+						log.info("getState Arduino 5");
+
+						JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(
+								myArduino.serialDeviceNames.get(i));
+						SerialDevice sd = myArduino.getSerialDevice();
+						log.info("getState Arduino 6");
+						if (sd != null && sd.getName().equals(portName)) {
+							if (sd.isOpen()) {
+								editor.connectButton.activate();
+								serialDevice.setSelected(true);
+							} else {
+								editor.connectButton.deactivate();
+								serialDevice.setSelected(false);
+							}
+						} else {
+							serialDevice.setSelected(false);
 						}
-					});
-				}
-								
-			}
-			
-			// TODO - work on generalizing editor
-			editor.serialDeviceMenu.add(serialRefresh);
-			editor.serialDeviceMenu.add(serialDisconnect);
-			
-			String statusString = boardName + " " + myArduino.preferences.get("serial.port");
-			editor.setStatus(statusString);
+						serialDevice.addActionListener(serialMenuListener);
+						editor.serialDeviceMenu.add(serialDevice);
+						// editor.getTextArea().setText(arduino.getSketch());
 
-		}
+						log.info("getState Arduino 7");
+						// if the service has a different sketch update the gui
+						// TODO - kinder - gentler - ask user if they want the
+						// update
+					}
+					if (!editor.getTextArea().equals(arduino.getSketch())) {
+						editor.getTextArea().setText(arduino.getSketch());
+					}
+
+				}
+
+				log.info("getState Arduino 8");
+				// TODO - work on generalizing editor
+				editor.serialDeviceMenu.add(serialRefresh);
+				editor.serialDeviceMenu.add(serialDisconnect);
+
+				String statusString = boardName + " "
+						+ myArduino.preferences.get("serial.port");
+				editor.setStatus(statusString);
+
+			}
+		});
 
 	}
 
-
-	public void setCompilingProgress(Integer percent)
-	{
+	public void setCompilingProgress(Integer percent) {
 		editor.progress.setValue(percent);
 	}
-	
-	public void compilerError(String msg)
-	{
+
+	public void compilerError(String msg) {
 		editor.status.setText(msg);
 	}
-	
-	public void publishMessage(String msg)
-	{
+
+	public void publishMessage(String msg) {
 		editor.console.append(msg);
 	}
 
-	
 	@Override
 	public void attachGUI() {
 		subscribe("publishPin", "publishPin", Pin.class);
 		subscribe("publishState", "getState", Arduino.class);
-		subscribe("publishCompilingProgress", "setCompilingProgress", Integer.class);
+		subscribe("publishCompilingProgress", "setCompilingProgress",
+				Integer.class);
 		subscribe("publishMessage", "publishMessage", String.class);
 		subscribe("compilerError", "compilerError", String.class);
-		subscribe("getPorts","getPorts", String.class);
-		//subscribe("setBoard", "setBoard", String.class);
-		//myService.send(boundServiceName, "broadcastState");
+		subscribe("getPorts", "getPorts", String.class);
+		// subscribe("setBoard", "setBoard", String.class);
+		// myService.send(boundServiceName, "broadcastState");
 
 		myService.send(boundServiceName, "publishState");
 	}
@@ -308,7 +330,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	public void detachGUI() {
 		unsubscribe("publishPin", "publishPin", Pin.class);
 		unsubscribe("publishState", "getState", Arduino.class);
-		unsubscribe("publishCompilingProgress", "setCompilingProgress", Integer.class);
+		unsubscribe("publishCompilingProgress", "setCompilingProgress",
+				Integer.class);
 		unsubscribe("publishMessage", "publishMessage", String.class);
 		unsubscribe("compilerError", "compilerError", String.class);
 	}
@@ -322,19 +345,21 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			boolean isSel = cb.isSelected();
 			if (isSel) {
 				myService.send(boundServiceName, "setRawReadMsg", true);
-				myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+				myService.send(boundServiceName, "setReadMsgLength",
+						rawReadMsgLength.getInt());
 				rawReadMsgLength.setEnabled(false);
 			} else {
 				myService.send(boundServiceName, "setRawReadMsg", false);
-				myService.send(boundServiceName, "setReadMsgLength", rawReadMsgLength.getInt());
+				myService.send(boundServiceName, "setReadMsgLength",
+						rawReadMsgLength.getInt());
 				rawReadMsgLength.setEnabled(true);
 			}
 		}
 	}
 
 	/**
-	 * The guts of the business logic of handling all the graphical components and
-	 * their relations with each other.
+	 * The guts of the business logic of handling all the graphical components
+	 * and their relations with each other.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -342,23 +367,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		String cmd = e.getActionCommand();
 		Component c = (Component) e.getSource();
 
-		
-		if (o == serialRefresh)
-		{
-			
+		if (o == serialRefresh) {
+
 			myService.send(boundServiceName, "querySerialDeviceNames");
 			myService.send(boundServiceName, "publishState");
 			return;
 		}
 
-		if (o == serialDisconnect)
-		{
-			
+		if (o == serialDisconnect) {
+
 			myService.send(boundServiceName, "disconnect");
 			myService.send(boundServiceName, "publishState");
 			return;
 		}
-		
+
 		// buttons
 		if (DigitalButton.class == o.getClass()) {
 			DigitalButton b = (DigitalButton) o;
@@ -368,7 +390,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				return;
 			}
 
-			//IOData io = new IOData();
+			// IOData io = new IOData();
 			PinComponent pin = null;
 			int address = -1;
 			int value = -1;
@@ -382,12 +404,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				if ("off".equals(cmd)) {
 					// now on
 					value = PinComponent.HIGH;
-					myService.send(boundServiceName, "digitalWrite", address, value);
+					myService.send(boundServiceName, "digitalWrite", address,
+							value);
 					b.toggle();
 				} else {
 					// now off
 					value = PinComponent.LOW;
-					myService.send(boundServiceName, "digitalWrite", address, value);
+					myService.send(boundServiceName, "digitalWrite", address,
+							value);
 					b.toggle();
 				}
 
@@ -396,31 +420,38 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					// is now input
 					value = PinComponent.INPUT;
 					myService.send(boundServiceName, "pinMode", address, value);
-					myService.send(boundServiceName, "digitalReadPollStart", address);
+					myService.send(boundServiceName, "digitalReadPollStart",
+							address);
 					b.toggle();
 				} else if ("in".equals(cmd)) {
 					// is now output
 					value = PinComponent.OUTPUT;
 					myService.send(boundServiceName, "pinMode", address, value);
-					myService.send(boundServiceName, "digitalReadPollStop", address);
+					myService.send(boundServiceName, "digitalReadPollStop",
+							address);
 					b.toggle();
 				} else {
 					log.error(String.format("unknown digital pin cmd %s", cmd));
 				}
-			} else if (b.type == PinComponent.TYPE_TRACE || b.type == PinComponent.TYPE_ACTIVEINACTIVE) {
+			} else if (b.type == PinComponent.TYPE_TRACE
+					|| b.type == PinComponent.TYPE_ACTIVEINACTIVE) {
 
 				// digital pin
 				if (!pin.isAnalog) {
 					if (!pin.inOut.isOn) { // pin is off turn it on
 						value = PinComponent.INPUT;
-						myService.send(boundServiceName, "pinMode", address, value);
-						myService.send(boundServiceName, "digitalReadPollStart", address);
+						myService.send(boundServiceName, "pinMode", address,
+								value);
+						myService.send(boundServiceName,
+								"digitalReadPollStart", address);
 						pin.inOut.setOn(); // in
 						b.setOn();
 					} else {
 						value = PinComponent.OUTPUT;
-						myService.send(boundServiceName, "pinMode", address, value);
-						myService.send(boundServiceName, "digitalReadPollStop", address);
+						myService.send(boundServiceName, "pinMode", address,
+								value);
+						myService.send(boundServiceName, "digitalReadPollStop",
+								address);
 						pin.inOut.setOff();// out
 						b.setOff();
 					}
@@ -429,12 +460,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					myService.send(boundServiceName, "pinMode", address, value);
 					// analog pin
 					if (pin.activeInActive.isOn) {
-						myService.send(boundServiceName, "analogReadPollingStop", address);
+						myService.send(boundServiceName,
+								"analogReadPollingStop", address);
 						pin.activeInActive.setOff();
 						pin.trace.setOff();
 						b.setOff();
 					} else {
-						myService.send(boundServiceName, "analogReadPollingStart", address);
+						myService.send(boundServiceName,
+								"analogReadPollingStart", address);
 						pin.activeInActive.setOn();
 						pin.trace.setOn();
 						b.setOn();
@@ -479,7 +512,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		if (!traceData.containsKey(pin.pin)) {
 			TraceData td = new TraceData();
 			float gradient = 1.0f / pinComponentList.size();
-			Color color = new Color(Color.HSBtoRGB((pin.pin * (gradient)), 0.8f, 0.7f));
+			Color color = new Color(Color.HSBtoRGB((pin.pin * (gradient)),
+					0.8f, 0.7f));
 			td.color = color;
 			traceData.put(pin.pin, td);
 			td.index = lastTraceXPos;
@@ -497,9 +531,11 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		if (pin.type == Pin.DIGITAL_VALUE) {
 			int yoffset = pin.pin * 15 + 35;
 			int quantum = -10;
-			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index, pin.value * quantum + yoffset);
+			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset,
+					t.index, pin.value * quantum + yoffset);
 		} else if (pin.type == Pin.ANALOG_VALUE) {
-			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
+			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index,
+					DATA_HEIGHT - pin.value / 2);
 		} else {
 			log.error("dont know how to display pin data method");
 		}
@@ -525,7 +561,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			g.fillRect(20, t.pin * 15 + 5, 200, 15);
 			g.setColor(t.color);
 
-			g.drawString(String.format("min %d max %d mean %d ", t.min, t.max, t.mean), 20, t.pin * 15 + 20);
+			g.drawString(String.format("min %d max %d mean %d ", t.min, t.max,
+					t.mean), 20, t.pin * 15 + 20);
 
 			t.total = 0;
 			t.sum = 0;
@@ -564,12 +601,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * Spew the contents of a String object out to a file.
 	 */
 	static public void saveFile(String str, File file) throws IOException {
-		File temp = File.createTempFile(file.getName(), null, file.getParentFile());
+		File temp = File.createTempFile(file.getName(), null,
+				file.getParentFile());
 		// PApplet.saveStrings(temp, new String[] { str }); FIXME
 		if (file.exists()) {
 			boolean result = file.delete();
 			if (!result) {
-				throw new IOException("Could not remove old version of " + file.getAbsolutePath());
+				throw new IOException("Could not remove old version of "
+						+ file.getAbsolutePath());
 			}
 		}
 		boolean result = temp.renameTo(file);
@@ -604,18 +643,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// set correct arduino image
 		JLabel image = new JLabel();
 
-		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/mega.200.pins.png");
+		ImageIcon dPic = Util
+				.getImageIcon("images/service/Arduino/mega.200.pins.png");
 		image.setIcon(dPic);
 		Dimension s = image.getPreferredSize();
 		image.setBounds(0, 0, s.width, s.height);
 		imageMap.add(image, new Integer(1));
-		
+
 		for (int i = 0; i < 70; ++i) {
 
 			PinComponent p = null;
 
 			if (i > 1 && i < 14) { // pwm pins -----------------
-				p = new PinComponent(myService, boundServiceName, i, true, false, true);
+				p = new PinComponent(myService, boundServiceName, i, true,
+						false, true);
 				int xOffSet = 0;
 				if (i > 7)
 					xOffSet = 18; // skip pin
@@ -636,7 +677,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				}
 			} else if (i < 54 && i > 21) {
 				// digital pin racks
-				p = new PinComponent(myService, boundServiceName, i, false, false, false);
+				p = new PinComponent(myService, boundServiceName, i, false,
+						false, false);
 
 				if (i != 23 && i != 25 && i != 27 && i != 29) {
 					if ((i % 2 == 0)) {
@@ -657,12 +699,14 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				}
 
 			} else if (i > 53) {
-				p = new PinComponent(myService, boundServiceName, i, false, true, true);
+				p = new PinComponent(myService, boundServiceName, i, false,
+						true, true);
 				// analog pins -----------------
 				int xOffSet = 0;
 				if (i > 61)
 					xOffSet = 18; // skip pin
-				p.activeInActive.setBounds(128 + 18 * (i - 52) + xOffSet, 392, 15, 48);
+				p.activeInActive.setBounds(128 + 18 * (i - 52) + xOffSet, 392,
+						15, 48);
 				imageMap.add(p.activeInActive, new Integer(2));
 				/*
 				 * bag data at the moment - go look at the Oscope
@@ -672,7 +716,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				 * p.data.setOpaque(true); imageMap.add(p.data, new Integer(2));
 				 */
 			} else {
-				p = new PinComponent(myService, boundServiceName, i, false, false, false);
+				p = new PinComponent(myService, boundServiceName, i, false,
+						false, false);
 			}
 
 			// set up the listeners
@@ -688,7 +733,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap,
+				boundServiceName, "pins"));
 
 		return imageMap;
 	}
@@ -708,7 +754,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// set correct arduino image
 		JLabel image = new JLabel();
 
-		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/arduino.duemilanove.200.pins.png");
+		ImageIcon dPic = Util
+				.getImageIcon("images/service/Arduino/arduino.duemilanove.200.pins.png");
 		image.setIcon(dPic);
 		Dimension s = image.getPreferredSize();
 		image.setBounds(0, 0, s.width, s.height);
@@ -719,12 +766,15 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 			PinComponent p = null;
 			if (i < 14) {
 				if (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
-					p = new PinComponent(myService, boundServiceName, i, true, false, false);
+					p = new PinComponent(myService, boundServiceName, i, true,
+							false, false);
 				} else {
-					p = new PinComponent(myService, boundServiceName, i, false, false, false);
+					p = new PinComponent(myService, boundServiceName, i, false,
+							false, false);
 				}
 			} else {
-				p = new PinComponent(myService, boundServiceName, i, false, true, false);
+				p = new PinComponent(myService, boundServiceName, i, false,
+						true, false);
 			}
 
 			// set up the listeners
@@ -772,7 +822,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap, boundServiceName, "pins"));
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap,
+				boundServiceName, "pins"));
 		return imageMap;
 	}
 
@@ -820,7 +871,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		oscope = new VideoWidget(boundServiceName, myService, false);
 		oscope.init();
-		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
+		sensorImage = new SerializableImage(new BufferedImage(size.width,
+				size.height, BufferedImage.TYPE_INT_RGB), "output");
 		g = sensorImage.getImage().getGraphics();
 		oscope.displayFrame(sensorImage);
 
@@ -830,7 +882,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("oscope", null, oscopePanel, "oscope panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, oscopePanel, boundServiceName, "oscope"));
+		tabs.setTabComponentAt(0, new TabControl(top, tabs, oscopePanel,
+				boundServiceName, "oscope"));
 		myService.getFrame().pack();
 		return oscopePanel;
 	}
@@ -838,19 +891,20 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	EditorArduino editor = null;
 
 	public JPanel getEditorPanel() {
-//		if (editorPanel != null) {
-//			tabs.remove(editorPanel);
-//		}
+		// if (editorPanel != null) {
+		// tabs.remove(editorPanel);
+		// }
 
-//		editorPanel = new JPanel(new BorderLayout());
+		// editorPanel = new JPanel(new BorderLayout());
 
 		editor = new EditorArduino(boundServiceName, myService);
 		editor.init();
-//		editorPanel.add(editor.getDisplay());
+		// editorPanel.add(editor.getDisplay());
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, editor.getDisplay(), boundServiceName, "editor"));
+		tabs.setTabComponentAt(0, new TabControl(top, tabs,
+				editor.getDisplay(), boundServiceName, "editor"));
 		myService.getFrame().pack();
 		return editor.getDisplay();
 	}
