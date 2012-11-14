@@ -19,44 +19,48 @@ public class SerialDeviceFactory  {
 	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
 	final public static String TYPE_GNU = "org.myrobotlab.serial.gnu.SerialDeviceFactoryGNU";
+	final public static String TYPE_JSSC = "org.myrobotlab.serial.jssc.SerialDeviceFactoryJSSC";
 	final public static String TYPE_ANDROID_BLUETOOTH = "android.somethin";
-
-	static public ArrayList<String> getSerialDeviceNames() {
-		ArrayList<String> ret = new ArrayList<String>();
-		ArrayList<SerialDevice> devices = getSerialDevices();
-		for (int i = 0; i < devices.size(); ++i)
-		{
-			ret.add(devices.get(i).getName());
-		}
-		return ret;
-	}
 	
-	static public ArrayList<SerialDevice> getSerialDevices() {
+	static public ArrayList<String> getSerialDeviceNames() {
 		if (Platform.isDavlik())
 		{
-			return getSerialDevices(TYPE_ANDROID_BLUETOOTH);
+			return getSerialDeviceNames(TYPE_ANDROID_BLUETOOTH);
 		} else {
-			return getSerialDevices(TYPE_GNU);
+			return getSerialDeviceNames(TYPE_GNU);
 		}
-		
 	}
 	
 	@SuppressWarnings("unchecked")
-	static public ArrayList<SerialDevice> getSerialDevices(String type) {
-		ArrayList<SerialDevice> ret = new ArrayList<SerialDevice>();
+	static public ArrayList<String> getSerialDeviceNames(String factoryType) {
+		ArrayList<String> ret = new ArrayList<String>();
+		
 		try {
-			Class<?> c = Class.forName(type);
+			Class<?> c = Class.forName(factoryType);
 			log.info("Loaded class: " + c);
 			Object serialDeviceFramework = c.newInstance();
-			Method m = c.getDeclaredMethod("getSerialDevices", (Class<?>[])null);
+			Method m = c.getDeclaredMethod("getSerialDeviceNames");
 			log.info("Got method: " + m);
-			return (ArrayList<SerialDevice>) m.invoke(serialDeviceFramework, (Object[])null);
+			return (ArrayList<String>) m.invoke(serialDeviceFramework);
 		} catch (Exception e) {
-			log.error(e.getMessage());// FIXME - logexception
+			e.printStackTrace();
+			log.error(e.getMessage());
 		}
+		
 		return ret;
 	}
-	
+
+	/**
+	 * The main "meaty" method - get me a serial device ! 
+	 * A serial factory will be supplied for you.
+	 * @param name
+	 * @param rate
+	 * @param databits
+	 * @param stopbits
+	 * @param parity
+	 * @return
+	 * @throws SerialDeviceException
+	 */
 	static public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialDeviceException
 	{
 		if (Platform.isDavlik())
@@ -68,6 +72,17 @@ public class SerialDeviceFactory  {
 		}		
 	}
 	
+	/**
+	 * The 'under the hood" method to get a serial device - "choose your own factory"
+	 * @param factoryType
+	 * @param name
+	 * @param rate
+	 * @param databits
+	 * @param stopbits
+	 * @param parity
+	 * @return
+	 * @throws SerialDeviceException
+	 */
 	static public SerialDevice getSerialDevice(String factoryType, String name, int rate, int databits, int stopbits, int parity) throws SerialDeviceException
 	{
 		log.info(String.format("getSerialDevice %s|%d|%d|%d|%d", name,rate,databits,stopbits,parity));
@@ -93,18 +108,17 @@ public class SerialDeviceFactory  {
 		org.apache.log4j.BasicConfigurator.configure();
 		//Logger.getRootLogger().setLevel(Level.DEBUG);
 		
-		ArrayList<SerialDevice> serialDevices =  SerialDeviceFactory.getSerialDevices();
-		for (int i = 0; i < serialDevices.size(); ++i)
+		ArrayList<String> names =  SerialDeviceFactory.getSerialDeviceNames(TYPE_GNU);
+		for (int i = 0; i < names.size(); ++i)
 		{
-			SerialDevice serialDevice = serialDevices.get(i);
-			log.info(serialDevice.getName());
+			log.info(names.get(i));
 		}
 		
 		Class<?>[] d = new Class<?>[]{int.class};
 		
-		String portName = "COM7";
+		String portName = "COM9";
 		try {
-			SerialDevice sd = SerialDeviceFactory.getSerialDevice(portName, 57600, 8, 1, 0); // TODO/FIXME - serialdevice identifier - opened by someone else
+			SerialDevice sd = SerialDeviceFactory.getSerialDevice(TYPE_GNU, portName, 57600, 8, 1, 0); // TODO/FIXME - serialdevice identifier - opened by someone else
 			sd.open();
 			log.info(sd.isOpen());
 			log.info(sd.isOpen());

@@ -380,17 +380,10 @@ public class Serial implements SerialDeviceEventListener {
 	 * knows.
 	 */
 	static public String[] list() {
-		Vector list = new Vector();
 		try {
-			ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
-			for (int i = 0; i < portList.size(); ++i) {
-				SerialDevice portId = portList.get(i);
-
-				if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
-					String name = portId.getName();
-					list.addElement(name);
-				}
-			}
+			ArrayList<String> portList = SerialDeviceFactory.getSerialDeviceNames();
+			String [] ret = portList.toArray(new String[portList.size()]);
+			return ret;
 
 		} catch (UnsatisfiedLinkError e) {
 			// System.err.println("1");
@@ -400,10 +393,8 @@ public class Serial implements SerialDeviceEventListener {
 			// System.err.println("2");
 			errorMessage("ports", e);
 		}
-		// System.err.println("move out");
-		String outgoing[] = new String[list.size()];
-		list.copyInto(outgoing);
-		return outgoing;
+
+		return new String[]{};
 	}
 
 	/**

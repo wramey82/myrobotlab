@@ -28,9 +28,10 @@ public interface SerialDevice {
 
 	// identification
 	public abstract String getName();
-	public abstract String getCurrentOwner();
-	public abstract int getPortType();
-	public abstract boolean isCurrentlyOwned();
+	//public abstract String getCurrentOwner();
+	//public abstract int getPortType();
+	//public abstract boolean isCurrentlyOwned();
+	public abstract int	available();
 	
 	// open / close
 	public abstract void open() throws SerialDeviceException;
@@ -41,25 +42,21 @@ public interface SerialDevice {
 	public abstract void close();
 	
 	// input/output 
-	public abstract InputStream getInputStream() throws IOException;
-	public abstract OutputStream getOutputStream() throws IOException;
+	//public abstract InputStream getInputStream() throws IOException;
+	//public abstract OutputStream getOutputStream() throws IOException;
 
 	// serial parameters
 	public abstract void setParams(int b, int d, int s, int p) throws SerialDeviceException;
-	public abstract int getBaudRate();
-	public abstract int getDataBits();
-	public abstract int getStopBits();
-	public abstract int getParity();
 	
 	// special serial methods/states
-	public abstract boolean isDTR();
+//	public abstract boolean isDTR();
 	public abstract void setDTR(boolean state);
 	public abstract void setRTS(boolean state);
-	public abstract boolean isCTS();
-	public abstract boolean isDSR();
-	public abstract boolean isCD();
-	public abstract boolean isRI();
-	public abstract boolean isRTS();
+//	public abstract boolean isCTS();
+//	public abstract boolean isDSR();
+//	public abstract boolean isCD();
+//	public abstract boolean isRI();
+//	public abstract boolean isRTS();
 
 
 	// reading/listening events

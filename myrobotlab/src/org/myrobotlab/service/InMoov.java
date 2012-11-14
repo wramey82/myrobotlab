@@ -144,8 +144,8 @@ public class InMoov extends Service {
 		// servo limits
 		bicepsLeft.setPositionMax(90);
 		bicepsRight.setPositionMax(90);
-		omoplatLeft.setPositionMax(70);
-		omoplatRight.setPositionMax(70);
+		omoplatLeft.setPositionMax(80);
+		omoplatRight.setPositionMax(80);
 		omoplatLeft.setPositionMin(10);
 		omoplatRight.setPositionMin(10);
 		rotateLeft.setPositionMin(40);

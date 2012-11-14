@@ -111,26 +111,24 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			 * since it will sometimes hang forever
 			 * Hangs on Ubuntu 12.04.1 LTS - IcedTea6 1.11.4
 			 */
-			new Thread() {
+//			new Thread() {
 
-				@Override
-				public void run() {
-					port.removeEventListener();
+//				@Override
+//				public void run() {
+//					port.removeEventListener(); doing in a list works?
 					port.close();
 					port = null;
-				}
-			}.start();
+//				}
+//			}.start();
 			// port.close();
 		}
 		log.debug(String.format("closed %s", commPortId.getName()));
 	}
 
-	@Override
 	public InputStream getInputStream() throws IOException {
 		return port.getInputStream();
 	}
 
-	@Override
 	public OutputStream getOutputStream() throws IOException {
 		return port.getOutputStream();
 	}
@@ -154,27 +152,23 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		}
 	}
 
-	@Override
 	public int getBaudRate() {
 		return port.getBaudRate();
 	}
 
-	@Override
+
 	public int getDataBits() {
 		return port.getDataBits();
 	}
 
-	@Override
 	public int getStopBits() {
 		return port.getStopBits();
 	}
 
-	@Override
 	public int getParity() {
 		return port.getParity();
 	}
 
-	@Override
 	public boolean isDTR() {
 		return port.isDTR();
 	}
@@ -189,27 +183,22 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		port.setRTS(state);
 	}
 
-	@Override
 	public boolean isCTS() {
 		return port.isCTS();
 	}
 
-	@Override
 	public boolean isDSR() {
 		return port.isDSR();
 	}
 
-	@Override
 	public boolean isCD() {
 		return port.isCD();
 	}
 
-	@Override
 	public boolean isRI() {
 		return port.isRI();
 	}
 
-	@Override
 	public boolean isRTS() {
 		return port.isRTS();
 	}
@@ -289,19 +278,16 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		output.write(data);
 	}
 
-	@Override
 	public String getCurrentOwner() {
 		if (commPortId != null)
 			return commPortId.getCurrentOwner();
 		return null;
 	}
 
-	@Override
 	public int getPortType() {
 		return commPortId.getPortType();
 	}
 
-	@Override
 	public boolean isCurrentlyOwned() {
 		return commPortId.isCurrentlyOwned();
 	}
@@ -336,7 +322,22 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public int read() throws IOException {
+		//return (byte)input.read();
 		return input.read();
+	}
+
+	@Override
+	public int available() {
+		if (input != null)
+		{
+			try {
+				return input.available();
+			} catch (IOException e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return 0;
 	}
 
 }

@@ -338,18 +338,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		log.info("queryPortNames");
 		
-		serialDeviceNames = new ArrayList<String>();
-
-		SerialDevice portId;
-		ArrayList<SerialDevice> portList = SerialDeviceFactory.getSerialDevices();
-		for (int i = 0; i < portList.size(); ++i) {
-			portId = portList.get(i);
-			String inPortName = portId.getName();
-			log.info(inPortName);
-			if (portId.getPortType() == SerialDevice.PORTTYPE_SERIAL) {
-				serialDeviceNames.add(inPortName);
-			}
-		}
+		serialDeviceNames = SerialDeviceFactory.getSerialDeviceNames();
 
 		// adding connected serial port if connected
 		if (serialDevice != null) {

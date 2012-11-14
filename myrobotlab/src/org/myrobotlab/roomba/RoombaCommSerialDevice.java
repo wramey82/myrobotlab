@@ -63,9 +63,9 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
     private String    portname = null;   //"/dev/cu.KeySerial1" for instance
 
     /** the serial input stream, normally you don't need access to this */
-    public InputStream input;
+   // public InputStream input;
     /** the serial output stream, normally you don't need access to this */
-    public OutputStream output;
+   // public OutputStream output;
 
     /** 
      * RXTX bombs when flushing output sometimes, so by default do not
@@ -166,6 +166,7 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
         // log in the global ports hash if the port is in use now or not
         ports.put( portname, new Boolean( connected ) );
 
+        /*
         try {
             // do io streams need to be closed first?
             if (input != null) input.close();
@@ -175,7 +176,8 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
         }
         input = null;
         output = null;
-    
+    	*/
+        
         try {
             if (port != null) port.close();  // close the port 
         } catch (Exception e) {
@@ -190,8 +192,8 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
     @Override
 	public boolean send(byte[] bytes) {
         try {
-            output.write(bytes);
-            if( flushOutput ) output.flush();   // hmm, not sure if a good idea
+            port.write(bytes);
+            //if( flushOutput ) port.flush();   // hmm, not sure if a good idea
         } catch (Exception e) { // null pointer or serial port dead
             e.printStackTrace();
         }
@@ -204,8 +206,8 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
     @Override
 	public boolean send(int b) {  // will also cover char or byte
         try {
-            output.write(b & 0xff);  // for good measure do the &
-            if( flushOutput ) output.flush();   // hmm, not sure if a good idea
+            port.write(b & 0xff);  // for good measure do the &
+           // if( flushOutput ) output.flush();   // hmm, not sure if a good idea
         } catch (Exception e) { // null pointer or serial port dead
             //errorMessage("send", e);
             e.printStackTrace();
@@ -384,8 +386,8 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
         	if (port != null)
         	{
         		port.open();
-                input  = port.getInputStream();
-                output = port.getOutputStream();
+                //input  = port.getInputStream();
+                //output = port.getOutputStream();
                 //port.setSerialDeviceParams(rate,databits,stopbits,parity);
                 port.addEventListener(this);
                 port.notifyOnDataAvailable(true);
@@ -397,8 +399,8 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
         } catch (Exception e) {
             logmsg("connect failed: "+e);
             port = null;
-            input = null;
-            output = null;
+           // input = null;
+          //  output = null;
         }
                         
         return success;
@@ -411,11 +413,11 @@ public class RoombaCommSerialDevice extends RoombaComm implements SerialDeviceEv
 	//public void serialEvent(SerialDeviceEvent ev) {
     synchronized public void serialEvent(SerialDeviceEvent serialEvent) {
         try {
-        logmsg("serialEvent:"+serialEvent+", nvailable:"+input.available());
+        //logmsg("serialEvent:"+serialEvent+", nvailable:"+port.available());
         if (serialEvent.getEventType() == SerialDeviceEvent.DATA_AVAILABLE) {
-                while (input.available() > 0) {
+                while (port.available() > 0) { // FIXME !!!! - JSSC DOES NOT SUPPORT AVAILAVLE !!!!
                     //logmsg("serialEvent: available="+input.available());
-                    buffer[bufferLast++] = (byte) input.read();
+                    buffer[bufferLast++] = (byte) port.read();
                     if( bufferLast == 26 ) {
                         bufferLast = 0;
                         System.arraycopy(buffer, 0, sensor_bytes, 0, 26);
