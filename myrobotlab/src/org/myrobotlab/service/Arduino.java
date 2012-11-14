@@ -1158,6 +1158,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		
 		serialDevice.close();
 
+		broadcastState();
 		return true;
 	}
 	
