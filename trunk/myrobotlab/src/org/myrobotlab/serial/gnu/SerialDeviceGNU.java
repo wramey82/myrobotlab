@@ -83,7 +83,8 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 					commPortId.getName()));
 			return;
 		}
-		port.removeEventListener();
+		//port.removeEventListener();
+		//port.close();
 
 		Object[] listeners = listenerList.getListenerList();
 		for (int i = 1; i < listeners.length; i += 2) {
@@ -111,16 +112,24 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			 * since it will sometimes hang forever
 			 * Hangs on Ubuntu 12.04.1 LTS - IcedTea6 1.11.4
 			 */
-//			new Thread() {
+			new Thread() {
 
-//				@Override
-//				public void run() {
-//					port.removeEventListener(); doing in a list works?
-					port.close();
-					port = null;
-//				}
-//			}.start();
+				@Override
+				public void run() {
+					SerialPort hangMe = port;
+					hangMe.removeEventListener(); 
+					hangMe.close();
+					hangMe = null;
+				}
+			}.start();
 			// port.close();
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			port = null;
 		}
 		log.debug(String.format("closed %s", commPortId.getName()));
 	}
