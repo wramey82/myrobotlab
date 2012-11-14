@@ -16,16 +16,21 @@ public class SerialDeviceEvent  extends EventObject {
 	public static final int FE                  =9;
 	public static final int BI                 =10;
 
-	private boolean OldValue;
-	private boolean NewValue;
+	private boolean oldValue;
+	private boolean newValue;
 	private int eventType;
 	/*public int eventType           =0; depricated */
 
 	public SerialDeviceEvent(Object srcport, int eventtype, boolean oldvalue, boolean newvalue)
 	{
 		super( srcport );	
-		OldValue=oldvalue;
-		NewValue=newvalue;
+		oldValue=oldvalue;
+		newValue=newvalue;
+		eventType=eventtype;
+	}
+	public SerialDeviceEvent(Object srcport, int eventtype)
+	{
+		super( srcport );	
 		eventType=eventtype;
 	}
 	public int getEventType()
@@ -34,10 +39,10 @@ public class SerialDeviceEvent  extends EventObject {
 	}
 	public boolean getNewValue()
 	{
-		return( NewValue );
+		return( newValue );
 	}
 	public boolean getOldValue()
 	{
-		return( OldValue );
+		return( oldValue );
 	}
 }
