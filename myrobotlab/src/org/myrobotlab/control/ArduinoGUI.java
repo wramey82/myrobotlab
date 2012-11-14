@@ -199,8 +199,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 				myService.send(boundServiceName, "disconnect");
 			}
 
-			myService.send(boundServiceName, "publishState");
-
 		}
 	}
 
@@ -261,6 +259,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 						log.info("getState Arduino 6");
 						if (sd != null && sd.getName().equals(portName)) {
 							if (sd.isOpen()) {
+								log.info("hi");
 								editor.connectButton.activate();
 								serialDevice.setSelected(true);
 							} else {
@@ -377,7 +376,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 		if (o == serialDisconnect) {
 
 			myService.send(boundServiceName, "disconnect");
-			myService.send(boundServiceName, "publishState");
 			return;
 		}
 
