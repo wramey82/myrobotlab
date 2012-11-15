@@ -49,6 +49,8 @@ public class Servo extends Service implements ServoControl {
 	@Element
 	private int positionMax = 180;
 	
+	//private float speed = 1.0f; // fractional speed component 0 to 1.0
+	
 	// FIXME - should be implemented inside the Arduino / ServoController - but has to be tied to position
 	int sweepStart = 0;
 	int sweepEnd = 180;
@@ -268,6 +270,9 @@ public class Servo extends Service implements ServoControl {
 		return controller.getServoPin(getName());
 	}
 
+	public void setSpeed(Float speed) {
+		controller.setServoSpeed(getName(), speed);
+	}
 
 	
 }

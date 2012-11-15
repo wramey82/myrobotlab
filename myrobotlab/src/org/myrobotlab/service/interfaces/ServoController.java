@@ -65,7 +65,7 @@ public interface ServoController {
 	 *            - positive or negative relative amount to move the servo
 	 * @return void
 	 */
-	void servoWrite(String name, Integer newPos);
+	void servoWrite(String servoName, Integer newPos);
 
 
 	/**
@@ -83,5 +83,7 @@ public interface ServoController {
 	 * @return
 	 */
 	public Integer getServoPin(String servoName);
+	
+	public void setServoSpeed(String servoName, Float speed);
 
 }
