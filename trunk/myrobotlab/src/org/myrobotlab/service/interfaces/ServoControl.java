@@ -81,4 +81,6 @@ public interface ServoControl {
 	public String getControllerName();
 	
 	public Integer getPin();
+	
+	public void setSpeed(Float speed);
 }

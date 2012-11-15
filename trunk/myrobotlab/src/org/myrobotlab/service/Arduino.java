@@ -156,7 +156,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int SERVO_SET_MAX_PULSE = 8;
 	public static final int SERVO_DETACH = 9;
 	public static final int SET_PWM_FREQUENCY = 11;
-	public static final int SERVO_READ = 12;
+	public static final int SET_SERVO_SPEED = 12;
 	public static final int ANALOG_READ_POLLING_START = 13;
 	public static final int ANALOG_READ_POLLING_STOP = 14;
 	public static final int DIGITAL_READ_POLLING_START = 15;
@@ -183,6 +183,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static int ARDUINO_SKETCH_TYPE = 1; 
 	public static int ARDUINO_SKETCH_VERSION = 1;
 	
+	public static final int SOFT_RESET = 253;
 	// error
 	public static final int SERIAL_ERROR = 254;
 	
@@ -1343,13 +1344,45 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return data;
 	}
 	
+	public void softReset()
+	{
+		serialSend(SOFT_RESET, 0, 0);
+	}
+	
+	@Override
+	public void setServoSpeed(String servoName, Float speed) {
+		serialSend(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int)(speed * 100));
+	}
+	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		//Logger.getRootLogger().setLevel(Level.INFO);
 
+		/*
+		for (int i = 0; i < 10000; ++i)
+		{
+			if (i%1 == 0)
+			{
+				log.info("mod 1");
+			}
+			if (i%10 == 0)
+			{
+				log.info("mod 10");
+			}
+			if (i%100 == 0)
+			{
+				log.info("mod 100");
+			}
+		}
+
+		*/
+		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
+		
+		Servo servo01 = new Servo("servo01");
+		servo01.startService();
 		
 		Runtime.createAndStart("jython", "Jython");
 		
@@ -1379,6 +1412,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		//Runtime.createAndStart("jython", "Jython");
 
 	}
+
+
 
 
 

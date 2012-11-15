@@ -101,6 +101,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 	// FIXME - you need a pattern or a new Menu
 	// A Menu in the ArduinoGUI versus the Arduino Editor
 	private JMenuItem serialRefresh = new JMenuItem("refresh");
+	private JMenuItem softReset = new JMenuItem("soft reset");
 	private JMenuItem serialDisconnect = new JMenuItem("disconnect");
 
 	JTabbedPane tabs = new JTabbedPane();
@@ -173,6 +174,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 		tabs.setSelectedIndex(0);
 
 		serialRefresh.addActionListener(this);
+		softReset.addActionListener(this);
 		serialDisconnect.addActionListener(this);
 	}
 
@@ -288,6 +290,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 				// TODO - work on generalizing editor
 				editor.serialDeviceMenu.add(serialRefresh);
 				editor.serialDeviceMenu.add(serialDisconnect);
+				editor.serialDeviceMenu.add(softReset);
 
 				String statusString = boardName + " "
 						+ myArduino.preferences.get("serial.port");
@@ -370,6 +373,13 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 			myService.send(boundServiceName, "querySerialDeviceNames");
 			myService.send(boundServiceName, "publishState");
+			return;
+			
+		} 
+
+		if (o == softReset) {
+
+			myService.send(boundServiceName, "softReset");
 			return;
 		}
 
