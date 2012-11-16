@@ -1351,6 +1351,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	
 	@Override
 	public void setServoSpeed(String servoName, Float speed) {
+		if (speed == null || speed < 0.0f || speed > 1.0f)
+		{
+			log.error(String.format("speed %f out of bounds", speed));
+			return;
+		}
 		serialSend(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int)(speed * 100));
 	}
 	

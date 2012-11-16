@@ -827,7 +827,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			progressDialog.finished();
 			if (localRepoChange)
 			{
-				GUIService.restart();
+				GUIService.restart(null);
 			}
 		}
 	}

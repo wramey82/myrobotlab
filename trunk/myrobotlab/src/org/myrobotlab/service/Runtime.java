@@ -16,11 +16,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.MethodEntry;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
@@ -1650,5 +1654,35 @@ public class Runtime extends Service {
 		}
 	}
 	
+	
+	static public void restart(String restartScript) {
+		log.info("new components - restart?");
+
+			Runtime.releaseAll();
+			try {
+				if (restartScript == null) {
+					if (Platform.isWindows()) {
+						java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
+					} else {
+						java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");
+					}
+				} else {
+					if (Platform.isWindows()) {
+						java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
+					} else {
+						File exe = new File(restartScript);  // FIXME - NORMALIZE !!!!!
+						if (!exe.setExecutable(true))
+						{
+							log.error(String.format("could not set %s to executable permissions", restartScript));
+						}
+						java.lang.Runtime.getRuntime().exec(String.format("./scripts/%s.sh", restartScript));
+					}
+				}
+			} catch (Exception ex) {
+				Service.logException(ex);
+			}
+			System.exit(0);
+
+	}
 
 }
