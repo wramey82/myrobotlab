@@ -271,6 +271,8 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public void setSpeed(Float speed) {
+		if (speed == null) {return;}
+		
 		controller.setServoSpeed(getName(), speed);
 	}
 

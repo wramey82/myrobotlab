@@ -1088,42 +1088,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		parentMenu.add(mi);
 	}
 
-	static public void restart() {
-		restart(null);
-	}
-
 	static public void restart(String restartScript) {
-		log.info("new components - restart?");
 		JFrame frame = new JFrame();
 		int ret = JOptionPane.showConfirmDialog(frame, "<html>New components have been added,<br>" + " it is necessary to restart in order to use them.</html>", "restart",
 				JOptionPane.YES_NO_OPTION);
 		if (ret == JOptionPane.OK_OPTION) {
 			log.info("restarting");
-			Runtime.releaseAll();
-			try {
-				if (restartScript == null) {
-					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
-					} else {
-						java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");
-					}
-				} else {
-					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
-					} else {
-						java.lang.Runtime.getRuntime().exec(String.format("./scripts/%s.sh", restartScript));
-					}
-				}
-			} catch (Exception ex) {
-				Service.logException(ex);
-			}
-			System.exit(0);
+			Runtime.restart(restartScript);
 		} else {
 			log.info("chose not to restart");
 			return;
 		}
-
 	}
+	
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {
 		org.apache.log4j.BasicConfigurator.configure();

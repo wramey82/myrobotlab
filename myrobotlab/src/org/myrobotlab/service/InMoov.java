@@ -74,10 +74,58 @@ public class InMoov extends Service {
 		super(n, InMoov.class.getCanonicalName());
 	}
 
-	public void initialize(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
+	
+	public void initializeLeft(String LeftBoardType, String LeftComPort)
+	{
 		arduinoLeft.setBoard(LeftBoardType);
-		arduinoRight.setBoard(RightBoardType);
 		arduinoLeft.setSerialDevice(LeftComPort, 57600, 8, 1, 0);
+
+		// wait a sec for serial ports to come online
+		sleep(1);
+		
+		arduinoLeft.servoAttach(thumbLeft.getName(), 2);
+		arduinoLeft.servoAttach(indexLeft.getName(), 3);
+		arduinoLeft.servoAttach(majeureLeft.getName(), 4);
+		arduinoLeft.servoAttach(ringFingerLeft.getName(), 5);
+		arduinoLeft.servoAttach(pinkyLeft.getName(), 6);
+		arduinoLeft.servoAttach(wristLeft.getName(), 7);
+		arduinoLeft.servoAttach(bicepsLeft.getName(), 8);
+		arduinoLeft.servoAttach(rotateLeft.getName(), 9);
+		arduinoLeft.servoAttach(shoulderLeft.getName(), 10);
+		arduinoLeft.servoAttach(omoplatLeft.getName(), 11);
+
+		arduinoLeft.servoAttach(neck.getName(), 12);
+		arduinoLeft.servoAttach(rothead.getName(), 13);
+
+		leftHand = new Hand("left", thumbLeft, indexLeft, majeureLeft, ringFingerLeft, pinkyLeft, wristLeft, rotateLeft);
+
+
+		// refresh the gui
+		arduinoLeft.publishState();
+		thumbLeft.publishState();
+		indexLeft.publishState();
+		majeureLeft.publishState();
+		ringFingerLeft.publishState();
+		pinkyLeft.publishState();
+		wristLeft.publishState();
+		bicepsLeft.publishState();
+		rotateLeft.publishState();
+		shoulderLeft.publishState();
+		omoplatLeft.publishState();
+		neck.publishState();
+		rothead.publishState();
+				
+		// servo limits
+		bicepsLeft.setPositionMax(90);
+		omoplatLeft.setPositionMax(80);
+		omoplatLeft.setPositionMin(10);
+		rotateLeft.setPositionMin(40);
+
+	}
+	
+	public void initializeRight(String RightBoardType, String RightComPort)
+	{
+		arduinoRight.setBoard(RightBoardType);
 		arduinoRight.setSerialDevice(RightComPort, 57600, 8, 1, 0);
 
 		// wait a sec for serial ports to come online
@@ -97,35 +145,9 @@ public class InMoov extends Service {
 		arduinoLeft.servoAttach(neck.getName(), 12);
 		arduinoLeft.servoAttach(rothead.getName(), 13);
 
-		arduinoRight.servoAttach(thumbRight.getName(), 2);
-		arduinoRight.servoAttach(indexRight.getName(), 3);
-		arduinoRight.servoAttach(majeureRight.getName(), 4);
-		arduinoRight.servoAttach(ringFingerRight.getName(), 5);
-		arduinoRight.servoAttach(pinkyRight.getName(), 6);
-		arduinoRight.servoAttach(wristRight.getName(), 7);
-		arduinoRight.servoAttach(bicepsRight.getName(), 8);
-		arduinoRight.servoAttach(rotateRight.getName(), 9);
-		arduinoRight.servoAttach(shoulderRight.getName(), 10);
-		arduinoRight.servoAttach(omoplatRight.getName(), 11);
-
-		leftHand = new Hand("left", thumbLeft, indexLeft, majeureLeft, ringFingerLeft, pinkyLeft, wristLeft, rotateLeft);
 		rightHand = new Hand("right", thumbRight, indexRight, majeureRight, ringFingerRight, pinkyRight, wristRight, rotateRight);
 
-
 		// refresh the gui
-		arduinoLeft.publishState();
-		thumbLeft.publishState();
-		indexLeft.publishState();
-		majeureLeft.publishState();
-		ringFingerLeft.publishState();
-		pinkyLeft.publishState();
-		wristLeft.publishState();
-		bicepsLeft.publishState();
-		rotateLeft.publishState();
-		shoulderLeft.publishState();
-		omoplatLeft.publishState();
-		neck.publishState();
-		rothead.publishState();
 		arduinoRight.publishState();
 		thumbRight.publishState();
 		indexRight.publishState();
@@ -137,19 +159,21 @@ public class InMoov extends Service {
 		rotateRight.publishState();
 		shoulderRight.publishState();
 		omoplatRight.publishState();
+				
+		// servo limits
+		bicepsRight.setPositionMax(90);
+		omoplatRight.setPositionMax(80);
+		omoplatRight.setPositionMin(10);
+		rotateRight.setPositionMin(40);
 		
+	}
+	
+	public void initialize(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
+
 		// when speaking don't listen
 		ear.attach(mouth.getName());
-		
-		// servo limits
-		bicepsLeft.setPositionMax(90);
-		bicepsRight.setPositionMax(90);
-		omoplatLeft.setPositionMax(80);
-		omoplatRight.setPositionMax(80);
-		omoplatLeft.setPositionMin(10);
-		omoplatRight.setPositionMin(10);
-		rotateLeft.setPositionMin(40);
-		rotateRight.setPositionMin(40);
+		initializeLeft(LeftBoardType, LeftComPort);
+		initializeRight(RightBoardType, RightComPort);
 
 	}
 	
@@ -236,10 +260,62 @@ public class InMoov extends Service {
 			log.warn(String.format("dont have a %s hand", which));
 		}
 	}
+	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky)
+	{
+		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, null, null);
+	}
+	
+	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist)
+	{
+		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, wrist, null);
+	}
+	
+	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist, Float rotate)
+	{
+		if (which.equals("left"))
+		{
+			leftHand.thumb.setSpeed(thumb);
+			leftHand.index.setSpeed(index);
+			leftHand.majeure.setSpeed(majeure);
+			leftHand.ringFinger.setSpeed(ringFinger);
+			leftHand.pinky.setSpeed(pinky);
+			leftHand.wrist.setSpeed(wrist);
+			leftHand.rotate.setSpeed(rotate);
+		} else if (which.equals("right"))
+		{
+			rightHand.thumb.setSpeed(thumb);
+			rightHand.index.setSpeed(index);
+			rightHand.majeure.setSpeed(majeure);
+			rightHand.ringFinger.setSpeed(ringFinger);
+			rightHand.pinky.setSpeed(pinky);
+			rightHand.wrist.setSpeed(wrist);
+			rightHand.rotate.setSpeed(rotate);
+		} else if (which.equals("both"))
+		{
+			rightHand.thumb.setSpeed(thumb);
+			leftHand.thumb.setSpeed(thumb);
+			rightHand.index.setSpeed(index);
+			leftHand.index.setSpeed(index);
+			rightHand.majeure.setSpeed(majeure);
+			leftHand.majeure.setSpeed(majeure);
+			rightHand.ringFinger.setSpeed(ringFinger);
+			leftHand.ringFinger.setSpeed(ringFinger);
+			rightHand.pinky.setSpeed(pinky);
+			leftHand.pinky.setSpeed(pinky);
+			rightHand.wrist.setSpeed(wrist);
+			leftHand.wrist.setSpeed(wrist);
+			rightHand.rotate.setSpeed(rotate);
+			leftHand.rotate.setSpeed(rotate);
+		} else {
+			log.warn(String.format("dont have a %s hand", which));
+		}
+	}
 
 	public void systemCheck() {
 		// check arduinos
 
+		mouth.speak("starting system check");
+		
 		arduinoLeft.pinMode(17, 0);
 		arduinoLeft.analogReadPollingStart(17);
 		sleep(1);
@@ -258,11 +334,10 @@ public class InMoov extends Service {
 
 		// check mount - all my circuits are functioning perfectly
 
+		mouth.speak("completed system check");
 	}
 
-	public void allOpen(String hand) {
-
-	}
+	
 
 	@Override
 	public void loadDefaultConfiguration() {
