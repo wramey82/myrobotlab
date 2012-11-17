@@ -524,7 +524,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			graph.addCell(outport, v1);
 
 			x += 150;
-			if (x > 400) {
+			if (x > 800) {
 				y += 150;
 				x = 20;
 			}
