@@ -101,25 +101,30 @@ public class InMoov extends Service {
 
 
 		// refresh the gui
-		arduinoLeft.publishState();
-		thumbLeft.publishState();
-		indexLeft.publishState();
-		majeureLeft.publishState();
-		ringFingerLeft.publishState();
-		pinkyLeft.publishState();
-		wristLeft.publishState();
-		bicepsLeft.publishState();
-		rotateLeft.publishState();
-		shoulderLeft.publishState();
-		omoplatLeft.publishState();
-		neck.publishState();
-		rothead.publishState();
+		arduinoLeft.broadcastState();
+		thumbLeft.broadcastState();
+		indexLeft.broadcastState();
+		majeureLeft.broadcastState();
+		ringFingerLeft.broadcastState();
+		pinkyLeft.broadcastState();
+		wristLeft.broadcastState();
+		bicepsLeft.broadcastState();
+		rotateLeft.broadcastState();
+		shoulderLeft.broadcastState();
+		omoplatLeft.broadcastState();
+		neck.broadcastState();
+		rothead.broadcastState();
 				
 		// servo limits
 		bicepsLeft.setPositionMax(90);
 		omoplatLeft.setPositionMax(80);
 		omoplatLeft.setPositionMin(10);
 		rotateLeft.setPositionMin(40);
+		
+		arduinoLeft.pinMode(17, Arduino.OUTPUT);
+		arduinoLeft.analogReadPollingStart(17);
+		sleep(500);
+		arduinoLeft.analogReadPollingStop(17);
 
 	}
 	
@@ -131,40 +136,45 @@ public class InMoov extends Service {
 		// wait a sec for serial ports to come online
 		sleep(1);
 		
-		arduinoLeft.servoAttach(thumbLeft.getName(), 2);
-		arduinoLeft.servoAttach(indexLeft.getName(), 3);
-		arduinoLeft.servoAttach(majeureLeft.getName(), 4);
-		arduinoLeft.servoAttach(ringFingerLeft.getName(), 5);
-		arduinoLeft.servoAttach(pinkyLeft.getName(), 6);
-		arduinoLeft.servoAttach(wristLeft.getName(), 7);
-		arduinoLeft.servoAttach(bicepsLeft.getName(), 8);
-		arduinoLeft.servoAttach(rotateLeft.getName(), 9);
-		arduinoLeft.servoAttach(shoulderLeft.getName(), 10);
-		arduinoLeft.servoAttach(omoplatLeft.getName(), 11);
+		arduinoRight.servoAttach(thumbRight.getName(), 2);
+		arduinoRight.servoAttach(indexRight.getName(), 3);
+		arduinoRight.servoAttach(majeureRight.getName(), 4);
+		arduinoRight.servoAttach(ringFingerRight.getName(), 5);
+		arduinoRight.servoAttach(pinkyRight.getName(), 6);
+		arduinoRight.servoAttach(wristRight.getName(), 7);
+		arduinoRight.servoAttach(bicepsRight.getName(), 8);
+		arduinoRight.servoAttach(rotateRight.getName(), 9);
+		arduinoRight.servoAttach(shoulderRight.getName(), 10);
+		arduinoRight.servoAttach(omoplatRight.getName(), 11);
 
-		arduinoLeft.servoAttach(neck.getName(), 12);
-		arduinoLeft.servoAttach(rothead.getName(), 13);
+		arduinoRight.servoAttach(neck.getName(), 12);
+		arduinoRight.servoAttach(rothead.getName(), 13);
 
 		rightHand = new Hand("right", thumbRight, indexRight, majeureRight, ringFingerRight, pinkyRight, wristRight, rotateRight);
 
 		// refresh the gui
-		arduinoRight.publishState();
-		thumbRight.publishState();
-		indexRight.publishState();
-		majeureRight.publishState();
-		ringFingerRight.publishState();
-		pinkyRight.publishState();
-		wristRight.publishState();
-		bicepsRight.publishState();
-		rotateRight.publishState();
-		shoulderRight.publishState();
-		omoplatRight.publishState();
+		arduinoRight.broadcastState();
+		thumbRight.broadcastState();
+		indexRight.broadcastState();
+		majeureRight.broadcastState();
+		ringFingerRight.broadcastState();
+		pinkyRight.broadcastState();
+		wristRight.broadcastState();
+		bicepsRight.broadcastState();
+		rotateRight.broadcastState();
+		shoulderRight.broadcastState();
+		omoplatRight.broadcastState();
 				
 		// servo limits
 		bicepsRight.setPositionMax(90);
 		omoplatRight.setPositionMax(80);
 		omoplatRight.setPositionMin(10);
 		rotateRight.setPositionMin(40);
+		
+		arduinoRight.pinMode(17, Arduino.OUTPUT);
+		arduinoRight.analogReadPollingStart(17);
+		sleep(500);
+		arduinoRight.analogReadPollingStop(17);
 		
 	}
 	
