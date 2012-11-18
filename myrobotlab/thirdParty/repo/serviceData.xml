@@ -150,6 +150,8 @@
             <string>edu.cmu.sphinx</string>
             <string>gnu.io.rxtx</string>
             <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>com.sun.java3d</string>
          </list>
       </dependsOn>
    </serviceType>
