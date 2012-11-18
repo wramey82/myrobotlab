@@ -11,22 +11,29 @@ public class Houston extends Service {
 	public final static Logger log = Logger.getLogger(Houston.class.getCanonicalName());
 
 	// create service for Houston
-	Arduino arduino = (Arduino)Runtime.createAndStart("arduino","Arduino");
 
-	Servo lshoulder = (Servo)Runtime.createAndStart("lshoulder","Servo");
-	Servo lbicep = (Servo)Runtime.createAndStart("lbicep","Servo");
-	Servo lelbow = (Servo)Runtime.createAndStart("lelbow","Servo");
+	Servo lshoulder = null;
+	Servo lbicep 	= null;
+	Servo lelbow	= null;
 
-	Servo rshoulder = (Servo)Runtime.createAndStart("rshoulder","Servo");
-	Servo rbicep = (Servo)Runtime.createAndStart("rbicep","Servo");
-	Servo relbow = (Servo)Runtime.createAndStart("relbow","Servo");
+	Servo rshoulder = null;
+	Servo rbicep 	= null;
+	Servo relbow 	= null;
 	
 	// 4 motors 
-	Motor lfmotor = (Motor)Runtime.createAndStart("lfmotor","Motor");// left front
-	Motor rfmotor = (Motor)Runtime.createAndStart("rfmotor","Motor");// right front
-	Motor lbmotor = (Motor)Runtime.createAndStart("lbmotor","Motor");// left back
-	Motor rbmotor = (Motor)Runtime.createAndStart("rbmotor","Motor");// right back
+	Motor lfmotor 	= null;
+	Motor rfmotor	= null;
+	Motor lbmotor	= null;
+	Motor rbmotor	= null;
+	
+	Sphinx ear 		= null;
+	Speech mouth 	= null;
 
+	OpenCV eye 		= null;
+	
+	OpenNI openni 	= null;
+	
+	Arduino arduino = null;
 	
 	public Houston(String n) {
 		super(n, Houston.class.getCanonicalName());
@@ -34,12 +41,34 @@ public class Houston extends Service {
 	
 	public void initialize(String boardType, String comPort)
 	{
-				
+		lshoulder = (Servo)Runtime.createAndStart("lshoulder","Servo");
+		lbicep = (Servo)Runtime.createAndStart("lbicep","Servo");
+		lelbow = (Servo)Runtime.createAndStart("lelbow","Servo");
+
+		rshoulder = (Servo)Runtime.createAndStart("rshoulder","Servo");
+		rbicep = (Servo)Runtime.createAndStart("rbicep","Servo");
+		relbow = (Servo)Runtime.createAndStart("relbow","Servo");
+		
+		lfmotor = (Motor)Runtime.createAndStart("lfmotor","Motor");// left front
+		rfmotor = (Motor)Runtime.createAndStart("rfmotor","Motor");// right front
+		lbmotor = (Motor)Runtime.createAndStart("lbmotor","Motor");// left back
+		rbmotor = (Motor)Runtime.createAndStart("rbmotor","Motor");// right back
+		
+		ear = (Sphinx)Runtime.createAndStart("ear","Sphinx");// right back
+		mouth = (Speech)Runtime.createAndStart("mouth","Speech");// right back
+
+		eye = (OpenCV)Runtime.createAndStart("eye","OpenCV");// right back
+		
+		openni = (OpenNI)Runtime.createAndStart("openni","OpenNI");// right back
+		
+		arduino = (Arduino)Runtime.createAndStart("arduino","Arduino");
+		
 		// set config for the services
 		arduino.setBoard(boardType); // atmega168 | mega2560 | etc;
 		arduino.setSerialDevice(comPort,57600,8,1,0);
 		sleep(1); // give it a second for the serial device to get ready;
-
+		
+		
 		// attach Servos & Motors to arduino;
 		arduino.servoAttach(lshoulder.getName(), 46);
 		arduino.servoAttach(lbicep.getName(), 47);
@@ -67,6 +96,7 @@ public class Houston extends Service {
 		rfmotor.publishState();
 		lbmotor.publishState();
 		rbmotor.publishState();
+		
 
 	}
 	
