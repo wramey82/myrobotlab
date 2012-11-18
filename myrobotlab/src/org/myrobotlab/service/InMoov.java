@@ -83,6 +83,12 @@ public class InMoov extends Service {
 		// wait a sec for serial ports to come online
 		sleep(1);
 		
+		// servo limits
+		bicepsLeft.setPositionMax(90);
+		omoplatLeft.setPositionMax(80);
+		omoplatLeft.setPositionMin(10);
+		rotateLeft.setPositionMin(40);
+		
 		arduinoLeft.servoAttach(thumbLeft.getName(), 2);
 		arduinoLeft.servoAttach(indexLeft.getName(), 3);
 		arduinoLeft.servoAttach(majeureLeft.getName(), 4);
@@ -96,6 +102,24 @@ public class InMoov extends Service {
 
 		arduinoLeft.servoAttach(neck.getName(), 12);
 		arduinoLeft.servoAttach(rothead.getName(), 13);
+		
+		// initial positions
+		thumbLeft.moveTo(0);
+		indexLeft.moveTo(0);
+		majeureLeft.moveTo(0);
+		ringFingerLeft.moveTo(0);
+		pinkyLeft.moveTo(0);
+		
+		wristLeft.moveTo(90);
+		bicepsLeft.moveTo(0);
+		rotateLeft.moveTo(90);
+		
+		shoulderLeft.moveTo(30);
+		omoplatLeft.moveTo(10);
+
+		neck.moveTo(90);
+		rothead.moveTo(90);
+		
 
 		leftHand = new Hand("left", thumbLeft, indexLeft, majeureLeft, ringFingerLeft, pinkyLeft, wristLeft, rotateLeft);
 
@@ -115,11 +139,6 @@ public class InMoov extends Service {
 		neck.broadcastState();
 		rothead.broadcastState();
 				
-		// servo limits
-		bicepsLeft.setPositionMax(90);
-		omoplatLeft.setPositionMax(80);
-		omoplatLeft.setPositionMin(10);
-		rotateLeft.setPositionMin(40);
 		
 		arduinoLeft.pinMode(17, Arduino.OUTPUT);
 		arduinoLeft.analogReadPollingStart(17);
@@ -147,8 +166,25 @@ public class InMoov extends Service {
 		arduinoRight.servoAttach(shoulderRight.getName(), 10);
 		arduinoRight.servoAttach(omoplatRight.getName(), 11);
 
-		arduinoRight.servoAttach(neck.getName(), 12);
-		arduinoRight.servoAttach(rothead.getName(), 13);
+		//arduinoRight.servoAttach(neck.getName(), 12);
+		//arduinoRight.servoAttach(rothead.getName(), 13);
+		
+		// initial positions
+		thumbRight.moveTo(0);
+		indexRight.moveTo(0);
+		majeureRight.moveTo(0);
+		ringFingerRight.moveTo(0);
+		pinkyRight.moveTo(0);
+		
+		wristRight.moveTo(90);
+		bicepsRight.moveTo(0);
+		rotateRight.moveTo(90);
+		
+		shoulderRight.moveTo(30);
+		omoplatRight.moveTo(10);
+
+		//neck.moveTo(90);
+		//rothead.moveTo(90);
 
 		rightHand = new Hand("right", thumbRight, indexRight, majeureRight, ringFingerRight, pinkyRight, wristRight, rotateRight);
 
