@@ -241,11 +241,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 					// update panels based on state change
 					// TODO - check what state the panels are to see if a
 					// change is needed
-					log.info("getState Arduino 1");
 					getPinPanel();
-					log.info("getState Arduino 2");
 					getOscopePanel();
-					log.info("getState Arduino 3");
 
 					editor.serialDeviceMenu.removeAll();
 					publishMessage(String.format("found %d serial ports",
@@ -253,15 +250,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 					for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
 						String portName = myArduino.serialDeviceNames.get(i);
 						publishMessage(String.format(" %s", portName));
-						log.info("getState Arduino 5");
 
 						JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(
 								myArduino.serialDeviceNames.get(i));
 						SerialDevice sd = myArduino.getSerialDevice();
-						log.info("getState Arduino 6");
 						if (sd != null && sd.getName().equals(portName)) {
 							if (sd.isOpen()) {
-								log.info("hi");
 								editor.connectButton.activate();
 								serialDevice.setSelected(true);
 							} else {
@@ -275,7 +269,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 						editor.serialDeviceMenu.add(serialDevice);
 						// editor.getTextArea().setText(arduino.getSketch());
 
-						log.info("getState Arduino 7");
 						// if the service has a different sketch update the gui
 						// TODO - kinder - gentler - ask user if they want the
 						// update
@@ -286,7 +279,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 				}
 
-				log.info("getState Arduino 8");
 				// TODO - work on generalizing editor
 				editor.serialDeviceMenu.add(serialRefresh);
 				editor.serialDeviceMenu.add(serialDisconnect);

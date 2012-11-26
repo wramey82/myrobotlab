@@ -43,10 +43,12 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	JPopupMenu popup = new JPopupMenu();
 	JTabbedPane parent; 
 	Container myPanel;
-	String boundServiceName;
+	private String boundServiceName;// FIXME - artifact of "Service" tabs
 	JFrame undocked;
 	TabControlWindowAdapter windowAdapter = new TabControlWindowAdapter();
 	JFrame top;
+	
+	String filename = null;
 	
 	public class TabControlWindowAdapter extends WindowAdapter
 	{		
@@ -118,6 +120,11 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		{
 			setBackground(background);
 		}	
+	}
+	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, String filename)
+	{
+		this(top, parent, myPanel, boundServiceName, txt);
+		this.filename = filename;
 	}
 	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt)
 	{
@@ -229,6 +236,11 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 				undockPanel();			
 			}		
 		}
-	}    
+	} 
+	
+	public String getFilename()
+	{
+		return filename;
+	}
 }
 	

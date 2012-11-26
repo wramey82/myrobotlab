@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -207,12 +209,47 @@ public class IPCamera extends Service {
 		return "used as a general template";
 	}
 
+	public static class Test
+	{
+		public String name;
+		public Test(String n)
+		{
+			this.name = n;
+		}
+	}
+	
+	static public HashMap<String, ArrayList<Test>> tests = new HashMap<String, ArrayList<Test>>();
+	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 
 		IPCamera foscam = new IPCamera("foscam");
 
+		
+		Test l = new Test("left");
+		Test r = new Test("right");
+		
+		ArrayList<Test> al = new ArrayList<Test>();
+		al.add(l);
+		tests.put("left", al);
+		
+		 al = new ArrayList<Test>();
+			al.add(l);
+			tests.put("left", al);
+			
+		/*
+		
+		ArrayList<Test> al = new ArrayList<Test>();
+		al.add(l);
+
+		ArrayList<Test> al = new ArrayList<Test>();
+		al.add(l);
+
+		*/
+		
+		
+		
 		//foscam.attach("192.168.0.59", "", "");
 		//foscam.capture();
 

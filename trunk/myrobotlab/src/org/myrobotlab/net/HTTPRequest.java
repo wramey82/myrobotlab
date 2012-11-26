@@ -589,7 +589,7 @@ public class HTTPRequest {
 	/**
 	 * post the POST request specified URL, with the specified parameter
 	 * 
-	 * @param name
+	 * @param filename
 	 *            parameter name
 	 * @param value
 	 *            parameter value

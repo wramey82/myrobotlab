@@ -136,13 +136,23 @@ public class Servo extends Service implements ServoControl {
 	{
 		this.positionMin = min; 
 	}
+	
+	public Integer getPositionMin()
+	{
+		return positionMin;
+	}
 
 	@Override
 	public void setPositionMax(Integer max) {
 		this.positionMax = max; 
 	}
 
-
+	public Integer getPositionMax()
+	{
+		return positionMax;
+	}
+	
+	
 	public Integer getPosition() {
 		return position;
 	}
@@ -274,6 +284,14 @@ public class Servo extends Service implements ServoControl {
 		if (speed == null) {return;}
 		
 		controller.setServoSpeed(getName(), speed);
+	}
+	
+	public void detach()
+	{
+		if (controller != null)
+		{
+			controller.servoDetach(getName());
+		}
 	}
 
 	

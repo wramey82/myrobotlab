@@ -30,10 +30,13 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -55,7 +58,9 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Jython;
+import org.myrobotlab.service.Jython.Script;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
 
@@ -65,7 +70,7 @@ import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
  * @author SwedaKonsult
  * 
  */
-public class JythonGUI extends ServiceGUI implements ActionListener {
+public class JythonGUI extends ServiceGUI implements ActionListener, MouseListener {
 
 	static final long serialVersionUID = 1L;
 	private final static int fileMenuMnemonic = KeyEvent.VK_F;
@@ -75,17 +80,16 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 	final JFrame top;
 
-	final TextEditorPane editor;
-	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
 	JSplitPane splitPane;
 
 	final JLabel statusInfo;
 
+	HashMap<String, EditorPanel> scripts = new HashMap<String, EditorPanel>();
+
 	// TODO - check for outside modification with lastmoddate
-	File currentFile;
-	String currentFilename;
+	String currentScriptName;
 
 	// button bar buttons
 	ImageButton executeButton;
@@ -100,9 +104,61 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	final JTextArea jythonConsole;
 	final JScrollPane jythonScrollPane;
 
-	// autocompletion
-	final CompletionProvider provider;
-	final AutoCompletion ac;
+	// auto-completion
+	static CompletionProvider provider;
+	static AutoCompletion ac;
+
+	int untitledCount = 1;
+
+	// FIXME - should be part of separate "Editor" class
+	static public class EditorPanel {
+		String filename;
+		final TextEditorPane editor = new TextEditorPane();
+		JScrollPane panel = createEditorPane();
+
+		public EditorPanel(Script script) {
+			filename = script.getName();
+			editor.setText(script.getCode());
+			editor.setCaretPosition(0);
+		}
+
+		public String getDisplayName() {
+			if (filename.startsWith("Jython/examples/")) {
+
+				return filename.substring("Jython/examples/".length());
+
+			} else {
+				int begin = filename.lastIndexOf(File.separator);
+				if (begin > 0) {
+					++begin;
+				} else {
+					begin = 0;
+				}
+
+				return filename.substring(begin);
+			}
+		}
+
+		private JScrollPane createEditorPane() {
+			// editor tweaks
+			editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+			editor.setCodeFoldingEnabled(true);
+			editor.setAntiAliasingEnabled(true);
+
+			// auto-completion
+			if (ac != null) {
+				ac.install(editor);
+				ac.setShowDescWindow(true);
+			}
+
+			return new RTextScrollPane(editor);
+		}
+		
+		public String getFilename()
+		{
+			return filename;
+		}
+	}
 
 	/**
 	 * Constructor
@@ -117,21 +173,25 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		jythonConsole = new JTextArea();
 		jythonScrollPane = new JScrollPane(jythonConsole);
 
-		// autocompletion - in the constructor so that they can be declared final
-		provider = createCompletionProvider();
-		ac = new AutoCompletion(provider);
+		// autocompletion - in the constructor so that they can be declared
+		// final
+		// provider = createCompletionProvider(); FIXME - takes forever
+		// ac = new AutoCompletion(provider);
 
-		currentFile = null;
-		currentFilename = null;
+		provider = null;
+		ac = null;
 
-		editor = new TextEditorPane();
-		editorScrollPane = null;
+		currentScriptName = null;
+
 		editorTabs = new JTabbedPane();
 
 		splitPane = null;
 
 		statusInfo = new JLabel("Status:");
 		top = myService.getFrame();
+
+		Script s = new Script(String.format("%s%suntitled.%d.py", Service.getCFGDir(), File.separator, untitledCount), "");
+		addNewEditorPanel(s);
 	}
 
 	@Override
@@ -156,15 +216,43 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 			return;
 		}
 		JMenuItem m = (JMenuItem) o;
-		if (m.getText().equals("save")) {
+		if (m.getText().equals("new")) {
+			++untitledCount;
+			Script s = new Script(String.format("%s%suntitled.%d.py", myService.getCFGDir(), File.separator, untitledCount), "");
+			addNewEditorPanel(s);
+		} else if (m.getText().equals("save")) {
 			saveFile();
 		} else if (m.getText().equals("open")) {
 			openFile();
 		} else if (m.getText().equals("save as")) {
 			saveAsFile();
+		} else if (m.getText().equals("close")) {
+			closeFile();
 		} else if (m.getActionCommand().equals("examples")) {
-			editor.setText(FileIO.getResourceFile(String.format("Jython/examples/%1$s", m.getText())));
-			editor.setCaretPosition(0);
+			String filename = String.format("Jython/examples/%1$s", m.getText());
+			Script script = new Script(filename, FileIO.getResourceFile(filename));
+			addNewEditorPanel(script);
+		}
+	}
+	
+
+	public EditorPanel addNewEditorPanel(Script script) {
+		EditorPanel panel = new EditorPanel(script);
+		editorTabs.addTab(panel.getDisplayName(), panel.panel);
+		TabControl tc = new TabControl(top, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
+		tc.addMouseListener(this);
+		editorTabs.setTabComponentAt(editorTabs.getTabCount() - 1, tc);
+		currentScriptName = script.getName();
+		scripts.put(script.getName(), panel);
+		return panel;
+	}
+
+	public void appendScript(String data) {
+		EditorPanel p = scripts.get(currentScriptName);
+		if (p != null) {
+			p.editor.setText(String.format("%s\n%s", p.editor.getText(), data));
+		} else {
+			log.error("can't append Script to current");
 		}
 	}
 
@@ -173,6 +261,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		subscribe("publishState", "getState", Jython.class);
 		subscribe("finishedExecutingScript");
 		subscribe("publishStdOut", "getStdOut", String.class);
+		subscribe("appendScript", "appendScript", String.class);
+		subscribe("startRecording", "startRecording", String.class);
 		myService.send(boundServiceName, "attachJythonConsole");
 		// myService.send(boundServiceName, "broadcastState");
 	}
@@ -183,8 +273,15 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("publishState", "getState", Jython.class);
 		unsubscribe("finishedExecutingScript");
 		unsubscribe("publishStdOut", "getStdOut", String.class);
+		unsubscribe("appendScript", "appendScript", String.class);
+		unsubscribe("startRecording", "startRecording", String.class);
 	}
 
+	public void startRecording(String filename)
+	{
+		addNewEditorPanel(new Script(filename, ""));
+	}
+	
 	/**
 	 * 
 	 */
@@ -240,31 +337,11 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		JSplitPane pane = new JSplitPane();
 
 		consoleTabs = createTabsPane();
-		editorScrollPane = createEditorPane();
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,
-				consoleTabs);
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorTabs, consoleTabs);
 		pane.setDividerLocation(450);
 
 		return pane;
-	}
-
-	/**
-	 * Build the editor pane.
-	 * 
-	 * @return
-	 */
-	private JScrollPane createEditorPane() {
-		// editor tweaks
-		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
-		editor.setCodeFoldingEnabled(true);
-		editor.setAntiAliasingEnabled(true);
-
-		// autocompletion
-		ac.install(editor);
-		ac.setShowDescWindow(true);
-
-		return new RTextScrollPane(editor);
 	}
 
 	/**
@@ -289,7 +366,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 
 		menu = new JMenu("Services");
 		menu.add(createMenuItem("createAService.py", "examples"));
-		
+
 		menu = new JMenu("Input");
 		menu.add(createMenuItem("inputTest.py", "examples"));
 		examples.add(menu);
@@ -303,7 +380,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		menu.add(createMenuItem("houston.py", "examples"));
 		menu.add(createMenuItem("inMoovHandRobot.py", "examples"));
 		examples.add(menu);
-		
+
 		menu = new JMenu("Vision");
 		menu.add(createMenuItem("faceTracking.py", "examples"));
 		menu.add(createMenuItem("colorTracking.py", "examples"));
@@ -321,6 +398,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		fileMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
 		fileMenu.add(createMenuItem("save as"));
 		fileMenu.add(createMenuItem("open", openMenuMnemonic, "control O", null));
+		fileMenu.add(createMenuItem("close"));
 		fileMenu.addSeparator();
 	}
 
@@ -369,8 +447,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 * @param actionCommand
 	 * @return
 	 */
-	private JMenuItem createMenuItem(String label, int vKey,
-			String accelerator, String actionCommand) {
+	private JMenuItem createMenuItem(String label, int vKey, String accelerator, String actionCommand) {
 		JMenuItem mi = null;
 		if (vKey == -1) {
 			mi = new JMenuItem(label);
@@ -415,12 +492,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	private JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("java", javaConsole.getScrollPane());
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
-				pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
 
 		pane.addTab("jython", jythonScrollPane);
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
-				pane, jythonScrollPane, boundServiceName, "jython"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, jythonScrollPane, boundServiceName, "jython"));
 
 		return pane;
 	}
@@ -453,7 +528,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 * @return the menu bar filled with the top-level options.
 	 */
 	private JMenuBar createTopMenuBar() {
-		JMenuBar menuBar = new JMenuBar();		// file ----------
+		JMenuBar menuBar = new JMenuBar(); 
 		JMenu fileMenu = new JMenu("file");
 		menuBar.add(fileMenu);
 		fileMenu.setMnemonic(fileMenuMnemonic);
@@ -475,7 +550,10 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		// TODO does this need to be closed?
 		String newfile = FileUtil.open(top, "*.py");
 		if (newfile != null) {
-			editor.setText(newfile);
+			// editor.setText(newfile);
+			String filename = FileUtil.getLastFileOpened();
+			Script script = new Script(filename, newfile);
+			addNewEditorPanel(script);
 			statusInfo.setText("Loaded: " + FileUtil.getLastFileOpened());
 			return;
 		}
@@ -492,7 +570,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
 									// :) the Jython console can be pushed
 									// over the network
-		myService.send(boundServiceName, "exec", editor.getText());
+		if (scripts.containsKey(currentScriptName)) {
+			EditorPanel p = scripts.get(currentScriptName);
+			myService.send(boundServiceName, "exec", p.editor.getText());
+		} else {
+			log.error(String.format("cant exec %s", currentScriptName));
+		}
 	}
 
 	/**
@@ -500,51 +583,141 @@ public class JythonGUI extends ServiceGUI implements ActionListener {
 	 */
 	private void performStop() {
 		stopButton.activate();
-		//executeButton.deactivate();
+		// executeButton.deactivate();
 		myService.send(boundServiceName, "stop");
 		myService.send(boundServiceName, "attachJythonConsole");
 	}
-
-	/**
-	 * 
-	 */
-	private void saveAsFile() {
-		// TODO do we need to handle errors with permissions?
-		if (FileUtil.saveAs(top, editor.getText(), currentFilename))
-			currentFilename = FileUtil.getLastFileSaved();
+	
+	
+	public void closeFile()
+	{
+		if (scripts.containsKey(currentScriptName)) {
+			EditorPanel p = scripts.get(currentScriptName);
+			if (p.editor.isDirty())
+			{
+				saveAsFile();
+			} 
+			
+			p = scripts.get(currentScriptName);
+			scripts.remove(p);
+			editorTabs.remove(p.panel);
+			
+		} else {
+			log.error(String.format("can't closeFile %s", currentScriptName));
+		}
 	}
 
 	/**
 	 * 
 	 */
-	private void saveFile() {
+	public void saveAsFile() {
+		if (scripts.containsKey(currentScriptName)) {
+			EditorPanel p = scripts.get(currentScriptName);
+			if (FileUtil.saveAs(top, p.editor.getText(), currentScriptName)) // FIXME - don't create new if unnecessary
+			{
+				currentScriptName = FileUtil.getLastFileSaved();
+				scripts.remove(p);
+				editorTabs.remove(p.panel);
+				EditorPanel np = addNewEditorPanel(new Script(currentScriptName, p.editor.getText()));
+				editorTabs.setSelectedComponent(np.panel);
+			}
+		} else {
+			log.error(String.format("cant saveAsFile %s", currentScriptName));
+		}
 		// TODO do we need to handle errors with permissions?
-		if (FileUtil.save(top, editor.getText(), currentFilename))
-			currentFilename = FileUtil.getLastFileSaved();
+	}
+
+	/**
+	 * 
+	 */
+	public void saveFile() {
+		if (scripts.containsKey(currentScriptName)) {
+			EditorPanel p = scripts.get(currentScriptName);
+			if (FileUtil.save(top, p.editor.getText(), currentScriptName)) // FIXME - don't create new if unnecessary
+			{
+				currentScriptName = FileUtil.getLastFileSaved();
+				scripts.remove(p);
+				editorTabs.remove(p.panel);
+				EditorPanel np = addNewEditorPanel(new Script(currentScriptName, p.editor.getText()));
+				editorTabs.setSelectedComponent(np.panel);
+			
+//				sdfafafdds
+			}
+		} else {
+			log.error(String.format("cant saveFile %s", currentScriptName));
+		}
+
+		// TODO do we need to handle errors with permissions?
+
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.myrobotlab.control.ServiceGUI#makeReadyForRelease()
-	 * Shutting down - check for dirty script and offer to save
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.myrobotlab.control.ServiceGUI#makeReadyForRelease() Shutting
+	 * down - check for dirty script and offer to save
 	 */
-	public void makeReadyForRelease()
-	{
+	public void makeReadyForRelease() {
+
 		log.info("makeReadyForRelease");
-		if (editor.isDirty())
-		{
-			FileLocation fl = FileLocation.create(editor.getFileFullPath());
-			String filename = JOptionPane.showInputDialog(myService.getFrame(), "Save File?", editor.getFileFullPath());
-			if (filename != null)
-			{
-				fl = FileLocation.create(filename);
-				try {
-					editor.saveAs(fl);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	
+
+		Iterator<String> it = scripts.keySet().iterator();
+		while (it.hasNext()) {
+
+			String name = it.next();
+			TextEditorPane e = scripts.get(name).editor;
+			if (e.isDirty()) {
+				FileLocation fl = FileLocation.create(e.getFileFullPath());
+				String filename = JOptionPane.showInputDialog(myService.getFrame(), "Save File?", name);
+				if (filename != null) {
+					fl = FileLocation.create(filename);
+					try {
+						e.saveAs(fl);
+					} catch (IOException e1) {
+						Service.logException(e1);
+						// TODO Auto-generated catch block
+					}
+				}
 			}
 		}
+
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent me) {
+		// TODO Auto-generated method stub
+		Object o = me.getSource();
+		if (o instanceof TabControl)
+		{
+			TabControl tc = (TabControl) o; 
+			currentScriptName = tc.getFilename();
+		}
+		//log.info(me);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

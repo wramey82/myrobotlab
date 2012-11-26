@@ -92,7 +92,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
-
+	
+	public static final String BOARD_TYPE_UNO = "uno";
+	public static final String BOARD_TYPE_ATMEGA168 = "atmega168";
+	public static final String BOARD_TYPE_ATMEGA328P = "atmega328p";
+	public static final String BOARD_TYPE_ATMEGA2560 = "atmega2560";
+	public static final String BOARD_TYPE_ATMEGA1280 = "atmega1280";
+	public static final String BOARD_TYPE_ATMEGA32U4 = "atmega32u4";
+	
 	// serial device info
 	private transient SerialDevice serialDevice;
 
@@ -214,7 +221,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	/**
 	 * represents the Arduino pde array of servos and their state
 	 */
-	boolean[] servosInUse = new boolean[MAX_SERVOS - 1];
+	boolean[] servosInUse = new boolean[MAX_SERVOS];
 
 	// from the Arduino IDE :P
 	public Preferences preferences;
@@ -1357,6 +1364,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			return;
 		}
 		serialSend(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int)(speed * 100));
+	}
+	
+	@Override
+	public void releaseService() {
+		super.releaseService();
+		disconnect();
 	}
 	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {

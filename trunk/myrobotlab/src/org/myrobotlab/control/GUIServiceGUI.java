@@ -440,8 +440,9 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	public void buildLocalServiceGraph() {
 
+		log.info("buildLocalServiceGraph-begin");
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		log.info("service count " + Runtime.getRegistry().size());
+		log.info("GUIServiceGUI service count " + Runtime.getRegistry().size());
 
 		TreeMap<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -529,6 +530,8 @@ public class GUIServiceGUI extends ServiceGUI {
 				x = 20;
 			}
 		}
+		
+		log.info("buildLocalServiceGraph-end");
 	}
 
 	public void buildLocalServiceRoutes() {

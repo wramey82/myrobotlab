@@ -1193,10 +1193,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public void startRecording()
 	{
-		startRecording(null);
+		invoke ("startRecording", new Object[]{null});
 	}
 	
-	public void startRecording(String filename)
+	public String startRecording(String filename)
 	{
 		String filenameXML = String.format("%s/%s_%s.xml", cfgDir, getName(), TSFormatter.format(new Date()) );
 		String filenameJython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()) );
@@ -1219,6 +1219,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		} catch (Exception e) {
 			logException(e);
 		} 
+		return filenameJython;
 	}
 	
 	public void stopRecording()
@@ -1291,6 +1292,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		{
 			try {
 				
+				/*
 				recording.writeObject(msg);
 				recordingXML.write(String.format("<Message name=\"%s\" method=\"%s\" sender=\"%s\" sendingMethod=\"%s\" ",
 				msg.name, msg.method, msg.sender, msg.sendingMethod).getBytes());
@@ -1305,7 +1307,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				} else {
 					recordingXML.write("/>\n".getBytes());
 				}
-				
+				*/
 				
 				// jython
 				String msgName = (msg.name.equals(Runtime.getInstance().getName()))?"runtime":msg.name;
