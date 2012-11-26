@@ -118,7 +118,7 @@ public class Sphinx extends Service {
 	 * example: Sphinx.createGrammar ("ear", "stop | go | left | right | back");
 	 * ear = Runtime.create("ear", "Sphinx")
 	 * 
-	 * @param name
+	 * @param filename
 	 *            - name of the Service which will be utilizing this grammar
 	 * @param grammar
 	 *            - grammar content

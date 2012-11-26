@@ -25,10 +25,17 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -37,12 +44,26 @@ public class InMoovGUI extends ServiceGUI implements ActionListener{
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(InMoovGUI.class.getCanonicalName());
 
+	JLayeredPane imageMap;
 	
 	public InMoovGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
 	public void init() {
+		
+		imageMap = new JLayeredPane();
+		imageMap.setPreferredSize(new Dimension(692,688));
+
+		// set correct arduino image
+		JLabel image = new JLabel();
+
+		ImageIcon dPic = Util.getImageIcon("InMoov/body.png"); // FIXME - shortType/image.png
+		image.setIcon(dPic);
+		Dimension s = image.getPreferredSize();
+		image.setBounds(0, 0, s.width, s.height);
+		imageMap.add(image, new Integer(1));
+		display.add(imageMap);
 	}
 
 

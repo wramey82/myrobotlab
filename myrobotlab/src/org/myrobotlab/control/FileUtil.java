@@ -61,6 +61,7 @@ public class FileUtil {
 
 	static public boolean saveAs(JFrame frame, String data, String filename) {
 		FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
+		fd.setFile(filename);
 		fd.setVisible(true);
 		String selectedFilename = fd.getFile();
 		if (selectedFilename != null) {

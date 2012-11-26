@@ -147,7 +147,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	HashMap<String, Object> commandMap = new HashMap<String, Object>();
 
 	transient GridBagConstraints gc = null;
-	transient public JLabel remoteStatus = new JLabel("<html><body>not connected</body></html>");
 
 	String selectedTabTitle = null;
 
@@ -246,7 +245,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		log.info("service count " + Runtime.getRegistry().size());
+		log.info("buildTabPanels service count " + Runtime.getRegistry().size());
 
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
@@ -388,7 +387,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		log.info("service count " + Runtime.getRegistry().size());
+		log.info("loadTabPanels service count " + Runtime.getRegistry().size());
 
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 
@@ -495,6 +494,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw) {
 		ServiceGUI gui = null;
 		ServiceInterface se = sw.get();
+		if (serviceName.equals("jython"))
+		{
+			log.info("here");
+		}
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
 		if (gui != null) {

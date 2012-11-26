@@ -99,12 +99,13 @@ public class Util {
 	}	
 	public static ImageIcon getImageIcon(String path) {
 		ImageIcon icon = null;
-		java.net.URL imgURL = Util.class.getResource("/resource/" + path);
+		String resourcePath = String.format("/resource/%s", path);
+		java.net.URL imgURL = Util.class.getResource(resourcePath);
 		if (imgURL != null) {
 			icon = new ImageIcon(imgURL);
 			return icon;
 		} else {
-			log.error("Couldn't find file: " + path);
+			log.error(String.format("Couldn't find file: %s", resourcePath));
 			return null;
 		}
 	}

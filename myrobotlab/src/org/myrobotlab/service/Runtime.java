@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
@@ -1021,7 +1018,7 @@ public class Runtime extends Service {
 	/**
 	 * registration event
 	 * 
-	 * @param name
+	 * @param filename
 	 *            - the name of the Service which was successfully registered
 	 * @return
 	 */
@@ -1032,7 +1029,7 @@ public class Runtime extends Service {
 	/**
 	 * release event
 	 * 
-	 * @param name
+	 * @param filename
 	 *            - the name of the Service which was successfully released
 	 * @return
 	 */
@@ -1095,7 +1092,7 @@ public class Runtime extends Service {
 			return;
 		}
 
-		System.out.println(String.format("service count %1$d", cmdline.getArgumentCount("-service") / 2));
+		System.out.println(String.format("createServices service count %1$d", cmdline.getArgumentCount("-service") / 2));
 
 		if (cmdline.getArgumentCount("-service") > 0 && cmdline.getArgumentCount("-service") % 2 == 0) {
 

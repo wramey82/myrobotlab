@@ -1,225 +1,288 @@
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.inmoov.Arm;
+import org.myrobotlab.inmoov.Hand;
+import org.myrobotlab.inmoov.Head;
 
 public class InMoov extends Service {
 
+	// TODO - normalize bi-lateral code parts
+	
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(InMoov.class.getCanonicalName());
 	
 	String bodyPartContext = null;
-
-	public class Hand {
-		String name;
-		
-		Servo thumb;
-		Servo index;
-		Servo majeure;
-		Servo ringFinger;
-		Servo pinky;
-		Servo wrist;
-		Servo rotate; // ?
-
-		public Hand(String name, Servo thumb, Servo index, Servo majeure, Servo ringFinger, Servo pinky, Servo wrist, Servo rotate) {
-			this.name = name;
-			this.thumb = thumb;
-			this.index = index;
-			this.majeure = majeure;
-			this.ringFinger = ringFinger;
-			this.pinky = pinky;
-			this.wrist = wrist;
-			this.rotate = rotate;
-		}
-	}
 	
-	Hand leftHand;
-	Hand rightHand;
-
-	Servo thumbLeft = (Servo)Runtime.createAndStart("thumbLeft", "Servo");
-	Servo indexLeft = (Servo)Runtime.createAndStart("indexLeft", "Servo");
-	Servo majeureLeft = (Servo)Runtime.createAndStart("majeureLeft", "Servo");
-	Servo ringFingerLeft = (Servo)Runtime.createAndStart("ringFingerLeft", "Servo");
-	Servo pinkyLeft = (Servo)Runtime.createAndStart("pinkyLeft", "Servo");
-	Servo wristLeft = (Servo)Runtime.createAndStart("wristLeft", "Servo");
-	Servo bicepsLeft = (Servo)Runtime.createAndStart("bicepsLeft", "Servo");
-	Servo rotateLeft = (Servo)Runtime.createAndStart("rotateLeft", "Servo");
-	Servo shoulderLeft = (Servo)Runtime.createAndStart("shoulderLeft", "Servo");
-	Servo omoplatLeft = (Servo)Runtime.createAndStart("omoplatLeft", "Servo");
-
-	Servo neck = (Servo)Runtime.createAndStart("neck", "Servo");
-	Servo rothead = (Servo)Runtime.createAndStart("rothead", "Servo");
-
-	Servo thumbRight = (Servo)Runtime.createAndStart("thumbRight", "Servo");
-	Servo indexRight = (Servo)Runtime.createAndStart("indexRight", "Servo");
-	Servo majeureRight = (Servo)Runtime.createAndStart("majeureRight", "Servo");
-	Servo ringFingerRight = (Servo)Runtime.createAndStart("ringFingerRight", "Servo");
-	Servo pinkyRight = (Servo)Runtime.createAndStart("pinkyRight", "Servo");
-	Servo wristRight = (Servo)Runtime.createAndStart("wristRight", "Servo");
-	Servo bicepsRight = (Servo)Runtime.createAndStart("bicepsRight", "Servo");
-	Servo rotateRight = (Servo)Runtime.createAndStart("rotateRight", "Servo");
-	Servo shoulderRight = (Servo)Runtime.createAndStart("shoulderRight", "Servo");
-	Servo omoplatRight = (Servo)Runtime.createAndStart("omoplatRight", "Servo");
-
-	Arduino arduinoLeft = (Arduino)Runtime.createAndStart("arduinoLeft", "Arduino"); 
-	Arduino arduinoRight = (Arduino)Runtime.createAndStart("arduinoRight", "Arduino"); 
+	public static final String left = "left";
+	public static final String right = "right";
+	public static final String both = "both";
 	
-	Sphinx ear = (Sphinx)Runtime.createAndStart("ear", "Sphinx"); 
-	Speech mouth = (Speech)Runtime.createAndStart("mouth", "Speech"); 
-	OpenCV opencv = (OpenCV)Runtime.createAndStart("opencv", "OpenCV");
+	Head head;
+	HashMap<String, ArrayList<Hand>> hands = new HashMap<String, ArrayList<Hand>>();
+	HashMap<String, ArrayList<Arm>> arms = new HashMap<String, ArrayList<Arm>>();
+	HashMap<String, ArrayList<Arduino>> arduinos = new HashMap<String, ArrayList<Arduino>>();
+
+	Jython jython;
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
+		ArrayList<Hand> bothHands = new ArrayList<Hand>();
+		hands.put(both, bothHands);
+		
+		ArrayList<Arm> bothArms = new ArrayList<Arm>();
+		arms.put(both, bothArms);
+		
+		ArrayList<Arduino> bothArduinos = new ArrayList<Arduino>();
+		arduinos.put(both, bothArduinos);
+		
+		// get a handle on the jython service
+		// jython = (Jython)Runtime.createAndStart("jython", "Jython");
 	}
 
+	// -----------  normalization begin ---------------------
 	
-	public void initializeLeft(String LeftBoardType, String LeftComPort)
+	public Arduino getArduino(String key)
 	{
-		arduinoLeft.setBoard(LeftBoardType);
-		arduinoLeft.setSerialDevice(LeftComPort, 57600, 8, 1, 0);
-
-		// wait a sec for serial ports to come online
-		sleep(1);
+		// String.format("arduino%s",key)
+		ArrayList<Arduino> arduinoList = arduinos.get(key);
+		if (arduinoList == null || arduinoList.size() != 1)
+		{
+			log.error(String.format("%s arduino not available", key));
+			return null;
+		}
 		
-		// servo limits
-		bicepsLeft.setPositionMax(90);
-		omoplatLeft.setPositionMax(80);
-		omoplatLeft.setPositionMin(10);
-		rotateLeft.setPositionMin(40);
-		
-		arduinoLeft.servoAttach(thumbLeft.getName(), 2);
-		arduinoLeft.servoAttach(indexLeft.getName(), 3);
-		arduinoLeft.servoAttach(majeureLeft.getName(), 4);
-		arduinoLeft.servoAttach(ringFingerLeft.getName(), 5);
-		arduinoLeft.servoAttach(pinkyLeft.getName(), 6);
-		arduinoLeft.servoAttach(wristLeft.getName(), 7);
-		arduinoLeft.servoAttach(bicepsLeft.getName(), 8);
-		arduinoLeft.servoAttach(rotateLeft.getName(), 9);
-		arduinoLeft.servoAttach(shoulderLeft.getName(), 10);
-		arduinoLeft.servoAttach(omoplatLeft.getName(), 11);
-
-		arduinoLeft.servoAttach(neck.getName(), 12);
-		arduinoLeft.servoAttach(rothead.getName(), 13);
-		
-		// initial positions
-		thumbLeft.moveTo(0);
-		indexLeft.moveTo(0);
-		majeureLeft.moveTo(0);
-		ringFingerLeft.moveTo(0);
-		pinkyLeft.moveTo(0);
-		
-		wristLeft.moveTo(90);
-		bicepsLeft.moveTo(0);
-		rotateLeft.moveTo(90);
-		
-		shoulderLeft.moveTo(30);
-		omoplatLeft.moveTo(10);
-
-		neck.moveTo(90);
-		rothead.moveTo(90);
-		
-
-		leftHand = new Hand("left", thumbLeft, indexLeft, majeureLeft, ringFingerLeft, pinkyLeft, wristLeft, rotateLeft);
-
-
-		// refresh the gui
-		arduinoLeft.broadcastState();
-		thumbLeft.broadcastState();
-		indexLeft.broadcastState();
-		majeureLeft.broadcastState();
-		ringFingerLeft.broadcastState();
-		pinkyLeft.broadcastState();
-		wristLeft.broadcastState();
-		bicepsLeft.broadcastState();
-		rotateLeft.broadcastState();
-		shoulderLeft.broadcastState();
-		omoplatLeft.broadcastState();
-		neck.broadcastState();
-		rothead.broadcastState();
-				
-		
-		arduinoLeft.pinMode(17, Arduino.OUTPUT);
-		arduinoLeft.analogReadPollingStart(17);
+		return arduinoList.get(0);
+	}
+	
+	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
+	public Arduino initializeArduino(String key, String boardType, String comPort)
+	{
+		Arduino arduino = (Arduino)Runtime.createAndStart(String.format("arduino%s",key), "Arduino"); 
+		arduino.setBoard(boardType);
+		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
+		// wait a 1/2 sec for serial ports to come online
 		sleep(500);
-		arduinoLeft.analogReadPollingStop(17);
+		
+		//String contextKey = String.format("arduino%s",key);
+		
+		ArrayList<Arduino> list = new ArrayList<Arduino>();
+		list.add(arduino);
+		arduinos.put(key, list);
+		arduinos.get(both).add(arduino);
+		return arduino;
 
 	}
 	
-	public void initializeRight(String RightBoardType, String RightComPort)
+	public void releaseArduino(String key)
 	{
-		arduinoRight.setBoard(RightBoardType);
-		arduinoRight.setSerialDevice(RightComPort, 57600, 8, 1, 0);
+		ArrayList<Arduino> arduinoList = arduinos.get(key);
+		for (int i = 0; i < arduinoList.size(); ++i)
+		{
+			Arduino a = arduinoList.get(i);
+			a.releaseService();
+		}
+		
+		for (Iterator<?> it = arduinoList.iterator(); it.hasNext(); )
+		{ 
+			it.next();
+			it.remove();
+		}
+		
+		arduinos.remove(arduinoList);
+	}
+	
+	public Hand initializeHand(String key)
+	{
+		Arduino arduino = getArduino(key);
 
-		// wait a sec for serial ports to come online
-		sleep(1);
+		//String contextKey = String.format("hand%s",key);
 		
-		arduinoRight.servoAttach(thumbRight.getName(), 2);
-		arduinoRight.servoAttach(indexRight.getName(), 3);
-		arduinoRight.servoAttach(majeureRight.getName(), 4);
-		arduinoRight.servoAttach(ringFingerRight.getName(), 5);
-		arduinoRight.servoAttach(pinkyRight.getName(), 6);
-		arduinoRight.servoAttach(wristRight.getName(), 7);
-		arduinoRight.servoAttach(bicepsRight.getName(), 8);
-		arduinoRight.servoAttach(rotateRight.getName(), 9);
-		arduinoRight.servoAttach(shoulderRight.getName(), 10);
-		arduinoRight.servoAttach(omoplatRight.getName(), 11);
+		// hand
+		Hand hand = new Hand();
+		hand.initialize(arduino, key);
+		
+		ArrayList<Hand> handList = new ArrayList<Hand>();
+		handList.add(hand);
+		hands.put(key, handList);
+		hands.get(both).add(hand);
+		
+		return hand;
+		
+	}
+	
+	public void releaseHand(String key)
+	{
+		ArrayList<Hand> handList = hands.get(key);
+		for (int i = 0; i < handList.size(); ++i)
+		{
+			handList.get(i).release();
+		}
+		
+		
+		for (Iterator<?> it = handList.iterator(); it.hasNext(); )
+		{ 
+			it.next();
+			it.remove();
+		}
+		
+		
+		hands.remove(handList);
+	}
 
-		//arduinoRight.servoAttach(neck.getName(), 12);
-		//arduinoRight.servoAttach(rothead.getName(), 13);
-		
-		// initial positions
-		thumbRight.moveTo(0);
-		indexRight.moveTo(0);
-		majeureRight.moveTo(0);
-		ringFingerRight.moveTo(0);
-		pinkyRight.moveTo(0);
-		
-		wristRight.moveTo(90);
-		bicepsRight.moveTo(0);
-		rotateRight.moveTo(90);
-		
-		shoulderRight.moveTo(30);
-		omoplatRight.moveTo(10);
 
-		//neck.moveTo(90);
-		//rothead.moveTo(90);
-
-		rightHand = new Hand("right", thumbRight, indexRight, majeureRight, ringFingerRight, pinkyRight, wristRight, rotateRight);
-
-		// refresh the gui
-		arduinoRight.broadcastState();
-		thumbRight.broadcastState();
-		indexRight.broadcastState();
-		majeureRight.broadcastState();
-		ringFingerRight.broadcastState();
-		pinkyRight.broadcastState();
-		wristRight.broadcastState();
-		bicepsRight.broadcastState();
-		rotateRight.broadcastState();
-		shoulderRight.broadcastState();
-		omoplatRight.broadcastState();
-				
-		// servo limits
-		bicepsRight.setPositionMax(90);
-		omoplatRight.setPositionMax(80);
-		omoplatRight.setPositionMin(10);
-		rotateRight.setPositionMin(40);
+	public Arm initializeArm(String key)
+	{
+		Arduino arduino = getArduino(key);
 		
-		arduinoRight.pinMode(17, Arduino.OUTPUT);
-		arduinoRight.analogReadPollingStart(17);
-		sleep(500);
-		arduinoRight.analogReadPollingStop(17);
+		//String contextKey = String.format("arm%s", key);
+		// arm
+		Arm arm = new Arm();
+		arm.initialize(arduino, key);
 		
+		ArrayList<Arm> armList = new ArrayList<Arm>();
+		armList.add(arm);
+		arms.put(key, armList);
+		arms.get(both).add(arm);
+		return arm;
+		
+	}
+	
+	public void releaseArm(String key)
+	{
+		ArrayList<Arm> armList = arms.get(key);
+		for (int i = 0; i < armList.size(); ++i)
+		{
+			armList.get(i).release();
+		}
+		
+		for (Iterator<?> it = armList.iterator(); it.hasNext(); )
+		{ 
+			it.next();
+			it.remove();
+		}
+		
+		arms.remove(armList);
+	}
+	
+	
+	public void release()
+	{
+	    Iterator<String> it = hands.keySet().iterator();
+	    while (it.hasNext()) {
+	    	releaseHand(it.next());
+	        it.remove(); 
+	    }
+	    
+	    it = arms.keySet().iterator();
+	    while (it.hasNext()) {
+	    	releaseArm(it.next());
+	        it.remove(); 
+	    }
+	    
+	    it = arduinos.keySet().iterator();
+	    while (it.hasNext()) {
+	    	releaseArduino(it.next()); 
+	    	it.remove();
+	    }
+	}
+	
+	public void rest()
+	{
+		ArrayList<Arm> armList = arms.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			armList.get(i).rest();
+		}
+		ArrayList<Hand> handList = hands.get(both);
+		for(int i = 0; i < handList.size(); ++i)
+		{
+			handList.get(i).rest();
+		}
+		
+		if (head != null)
+		{
+			head.rest();
+		}
+	}
+	
+	public void initializeHead(String key)
+	{
+		initializeHead(getArduino(key));
+	}
+	
+	public void initializeHead(Arduino arduino)
+	{	
+		if (arduino == null)
+		{
+			log.error("arduino not valid");
+		}
+		head = new Head();
+		head.initialize(arduino);
+	}
+	// -----------  normalization end ---------------------
+	
+	public void initialize(String side, String boardType, String comPort)
+	{
+		//String arduinoKey = String.format("arduino%s", side);
+		//String armKey = String.format("arm%s", side);
+		//String handKey = String.format("hand%s", side);
+		
+		if (!arduinos.containsKey(side))
+		{
+			initializeArduino(side, boardType, comPort);
+		} else {
+			log.warn(String.format("already initialized %s", side));
+		}
+		
+		if (!hands.containsKey(side))
+		{
+			initializeHand(side);
+		} else {
+			log.warn(String.format("already initialized %s", side));
+		}
+		
+		if (!arms.containsKey(side))
+		{
+			initializeArm(side);
+		} else {
+			log.warn(String.format("already initialized %s", side));
+		}
+
+	}
+	
+
+	public void broadcastState()
+	{
+		ArrayList<Arduino> arduinoList = arduinos.get(both);
+		for(int i = 0; i < arduinoList.size(); ++i)
+		{
+			arduinoList.get(i).broadcastState();
+		}
+		ArrayList<Arm> armList = arms.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			armList.get(i).broadcastState();
+		}
+		ArrayList<Hand> handList = hands.get(both);
+		for(int i = 0; i < handList.size(); ++i)
+		{
+			handList.get(i).broadcastState();
+		}
+
 	}
 	
 	public void initialize(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
 
-		// when speaking don't listen
-		ear.attach(mouth.getName());
-		initializeLeft(LeftBoardType, LeftComPort);
-		initializeRight(RightBoardType, RightComPort);
+		log.info(String.format("left - %s %s right - %s %s", LeftBoardType, LeftComPort, RightBoardType, RightComPort));
+		initialize(left, LeftBoardType, LeftComPort);
+		initialize(right, RightBoardType, RightComPort);
 
 	}
 	
@@ -258,132 +321,163 @@ public class InMoov extends Service {
 
 	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky)
 	{
-		moveHand(which, thumb, index, majeure, ringFinger, pinky, null, null);
+		moveHand(which, thumb, index, majeure, ringFinger, pinky, null);
 	}
 	
 	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist)
 	{
-		moveHand(which, thumb, index, majeure, ringFinger, pinky, wrist, null);
-	}
-	
-	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist, Integer rotate)
-	{
-		if (which.equals("left"))
+		
+		ArrayList<Hand> whichHands = hands.get(which);
+		for (int i = 0; i < whichHands.size(); ++i)
 		{
-			leftHand.thumb.moveTo(thumb);
-			leftHand.index.moveTo(index);
-			leftHand.majeure.moveTo(majeure);
-			leftHand.ringFinger.moveTo(ringFinger);
-			leftHand.pinky.moveTo(pinky);
-			leftHand.wrist.moveTo(wrist);
-			leftHand.rotate.moveTo(rotate);
-		} else if (which.equals("right"))
-		{
-			rightHand.thumb.moveTo(thumb);
-			rightHand.index.moveTo(index);
-			rightHand.majeure.moveTo(majeure);
-			rightHand.ringFinger.moveTo(ringFinger);
-			rightHand.pinky.moveTo(pinky);
-			rightHand.wrist.moveTo(wrist);
-			rightHand.rotate.moveTo(rotate);
-		} else if (which.equals("both"))
-		{
-			rightHand.thumb.moveTo(thumb);
-			leftHand.thumb.moveTo(thumb);
-			rightHand.index.moveTo(index);
-			leftHand.index.moveTo(index);
-			rightHand.majeure.moveTo(majeure);
-			leftHand.majeure.moveTo(majeure);
-			rightHand.ringFinger.moveTo(ringFinger);
-			leftHand.ringFinger.moveTo(ringFinger);
-			rightHand.pinky.moveTo(pinky);
-			leftHand.pinky.moveTo(pinky);
-			rightHand.wrist.moveTo(wrist);
-			leftHand.wrist.moveTo(wrist);
-			rightHand.rotate.moveTo(rotate);
-			leftHand.rotate.moveTo(rotate);
-		} else {
-			log.warn(String.format("dont have a %s hand", which));
+			Hand hand = whichHands.get(i);
+			hand.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
 		}
 	}
+	
+
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky)
 	{
-		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, null, null);
+		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, null);
 	}
 	
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist)
 	{
-		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, wrist, null);
+		ArrayList<Hand> whichHands = hands.get(which);
+		for (int i = 0; i < whichHands.size(); ++i)
+		{
+			Hand hand = whichHands.get(i);
+			hand.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		}
 	}
 	
-	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist, Float rotate)
+	
+	public void moveArm(String which, Integer bicep, Integer rotate, Integer shoulder, Integer omoplate)
 	{
-		if (which.equals("left"))
+		ArrayList<Arm> armList = arms.get(which);
+		for (int i = 0; i < armList.size(); ++i)
 		{
-			leftHand.thumb.setSpeed(thumb);
-			leftHand.index.setSpeed(index);
-			leftHand.majeure.setSpeed(majeure);
-			leftHand.ringFinger.setSpeed(ringFinger);
-			leftHand.pinky.setSpeed(pinky);
-			leftHand.wrist.setSpeed(wrist);
-			leftHand.rotate.setSpeed(rotate);
-		} else if (which.equals("right"))
-		{
-			rightHand.thumb.setSpeed(thumb);
-			rightHand.index.setSpeed(index);
-			rightHand.majeure.setSpeed(majeure);
-			rightHand.ringFinger.setSpeed(ringFinger);
-			rightHand.pinky.setSpeed(pinky);
-			rightHand.wrist.setSpeed(wrist);
-			rightHand.rotate.setSpeed(rotate);
-		} else if (which.equals("both"))
-		{
-			rightHand.thumb.setSpeed(thumb);
-			leftHand.thumb.setSpeed(thumb);
-			rightHand.index.setSpeed(index);
-			leftHand.index.setSpeed(index);
-			rightHand.majeure.setSpeed(majeure);
-			leftHand.majeure.setSpeed(majeure);
-			rightHand.ringFinger.setSpeed(ringFinger);
-			leftHand.ringFinger.setSpeed(ringFinger);
-			rightHand.pinky.setSpeed(pinky);
-			leftHand.pinky.setSpeed(pinky);
-			rightHand.wrist.setSpeed(wrist);
-			leftHand.wrist.setSpeed(wrist);
-			rightHand.rotate.setSpeed(rotate);
-			leftHand.rotate.setSpeed(rotate);
-		} else {
-			log.warn(String.format("dont have a %s hand", which));
+			Arm arm = armList.get(i);
+			arm.moveTo(bicep, rotate, shoulder, omoplate);
 		}
+	}
+	
+	public void moveHead(Integer neck, Integer rothead)
+	{
+		if (head != null)
+		{
+			head.move(neck, rothead);
+		} else {
+			log.error("I have a null head");
+		}
+	}
+	
+	public void setHeadSpeed(Float neck, Float rothead)
+	{
+		head.setSpeed(neck, rothead);
 	}
 
 	public void systemCheck() {
 		// check arduinos
 
-		mouth.speak("starting system check");
+		if (head != null)
+		{
+			head.mouth.speak("starting system check");
+		}
 		
-		arduinoLeft.pinMode(17, 0);
-		arduinoLeft.analogReadPollingStart(17);
-		sleep(1);
-		arduinoLeft.pinMode(17, 0);
-		arduinoLeft.analogReadPollingStop(17);
+		rest();
+		
+		ArrayList<Arduino> arduinoList = arduinos.get(both);
+		for(int i = 0; i < arduinoList.size(); ++i)
+		{
+			Arduino arduino = arduinoList.get(i);
+			arduino.pinMode(17, Arduino.INPUT);
+			arduino.analogReadPollingStart(17);
+			sleep(250);
+			arduino.analogReadPollingStop(17);
+		}
+		
 
-		arduinoRight.pinMode(17, 0);
-		arduinoRight.analogReadPollingStart(17);
-		sleep(1);
-		arduinoRight.pinMode(17, 0);
-		arduinoRight.analogReadPollingStop(17);
+		ArrayList<Arm> armList = arms.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			Arm arm = armList.get(i);
+			
+			arm.bicep.moveTo(10);
+			arm.rotate.moveTo(100);
+			arm.shoulder.moveTo(40);
+			arm.omoplate.moveTo(20);
+			sleep(1);			
+		}
+		
+		ArrayList<Hand> handList = hands.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			Hand hand = handList.get(i);
+			hand.moveTo(10, 10, 10, 10, 10, 10);
+			sleep(1);
+
+		}		
+		
+		rest();
 
 		// check servos
 
 		// check ear
 
 		// check mount - all my circuits are functioning perfectly
-
-		mouth.speak("completed system check");
+		if (head != null)
+		{
+			head.mouth.speak("completed system check");
+		}
+		
+		broadcastState();
 	}
 
+	public String captureGesture()
+	{
+		return captureGesture(null);
+	}
 	
+	public String captureGesture(String gestureName)
+	{
+		StringBuffer script = new StringBuffer();
+		
+		String indentSpace = "";
+		
+		if (gestureName != null)
+		{
+			indentSpace = "  ";
+			script.append(String.format("def %s():\n", gestureName));
+		}
+		
+		if (head != null)
+		{
+			script.append(indentSpace);
+			script.append(head.getScript(getName()));
+		}	
+
+		ArrayList<Arm> armList = arms.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			Arm arm = armList.get(i);
+			script.append(indentSpace);
+			script.append(arm.getScript(getName()));
+		}
+		
+		ArrayList<Hand> handList = hands.get(both);
+		for(int i = 0; i < armList.size(); ++i)
+		{
+			Hand hand = handList.get(i);
+			script.append(indentSpace);
+			script.append(hand.getScript(getName()));
+		}		
+		
+		
+		send("jython", "appendScript", script.toString());
+		
+		return script.toString();
+	}
 
 	@Override
 	public void loadDefaultConfiguration() {
@@ -397,7 +491,7 @@ public class InMoov extends Service {
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		//Logger.getRootLogger().setLevel(Level.WARN);
 
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
