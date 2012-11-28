@@ -55,4 +55,10 @@ public class Head {
 		neck.moveTo(90);
 		rothead.moveTo(90);
 	}
+	
+	public void broadcastState()
+	{
+		neck.broadcastState();
+		rothead.broadcastState();
+	}
 }

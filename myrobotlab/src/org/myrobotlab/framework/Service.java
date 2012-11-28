@@ -302,6 +302,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("version [%s]", Runtime.version()));
 		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
+		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
 					
 		log.info("---------------non-normalized---------------");						
 		log.info(String.format("java.vm.name [%1$s]", vmName));

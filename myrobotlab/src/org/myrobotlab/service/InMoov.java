@@ -67,8 +67,8 @@ public class InMoov extends Service {
 		Arduino arduino = (Arduino)Runtime.createAndStart(String.format("arduino%s",key), "Arduino"); 
 		arduino.setBoard(boardType);
 		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
-		// wait a 1/2 sec for serial ports to come online
-		sleep(500);
+		// wait a second for serial ports to come online
+		sleep(1000);
 		
 		//String contextKey = String.format("arduino%s",key);
 		

@@ -53,9 +53,10 @@ public class Hand {
 		arduino.servoAttach(ringFinger.getName(), 5);
 		arduino.servoAttach(pinky.getName(), 6);
 		arduino.servoAttach(wrist.getName(), 7);
+		
+		rest();
 
-		// broadcastState();
-
+		broadcastState();
 	}
 
 	public void broadcastState() {

@@ -44,7 +44,9 @@ public class Arm {
 		omoplate.setPositionMin(10);
 		rotate.setPositionMin(40);
 
-		//broadcastState();
+		rest();
+		
+		broadcastState();
 
 	}
 
