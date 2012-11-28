@@ -1667,12 +1667,13 @@ public class Runtime extends Service {
 					if (Platform.isWindows()) {
 						java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
 					} else {
-						File exe = new File(restartScript);  // FIXME - NORMALIZE !!!!!
+						String command = String.format("./scripts/%s.sh", restartScript);
+						File exe = new File(command);  // FIXME - NORMALIZE !!!!!
 						if (!exe.setExecutable(true))
 						{
-							log.error(String.format("could not set %s to executable permissions", restartScript));
+							log.error(String.format("could not set %s to executable permissions", command));
 						}
-						java.lang.Runtime.getRuntime().exec(String.format("./scripts/%s.sh", restartScript));
+						java.lang.Runtime.getRuntime().exec(command);
 					}
 				}
 			} catch (Exception ex) {
