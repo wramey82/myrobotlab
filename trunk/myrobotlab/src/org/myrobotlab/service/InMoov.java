@@ -386,7 +386,7 @@ public class InMoov extends Service {
 		}
 		
 		rest();
-		
+		/*  TRACING APPEARS TO "MESS" THINGS UP --- POSSIBLY  FIXME
 		ArrayList<Arduino> arduinoList = arduinos.get(both);
 		for(int i = 0; i < arduinoList.size(); ++i)
 		{
@@ -396,6 +396,7 @@ public class InMoov extends Service {
 			sleep(250);
 			arduino.analogReadPollingStop(17);
 		}
+		*/
 		
 
 		ArrayList<Arm> armList = arms.get(both);
