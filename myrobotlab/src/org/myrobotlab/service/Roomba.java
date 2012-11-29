@@ -41,7 +41,7 @@ public class Roomba extends Service implements SerialDeviceService {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(_TempateService.class
+	public final static Logger log = Logger.getLogger(Roomba.class
 			.getCanonicalName());
 
 	RoombaCommSerialDevice roombacomm = null;
@@ -737,8 +737,6 @@ public class Roomba extends Service implements SerialDeviceService {
         }
     }
     
-    
-
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);

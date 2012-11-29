@@ -31,7 +31,7 @@ public class Houston extends Service {
 
 	OpenCV eye 		= null;
 	
-	OpenNI openni 	= null;
+	PointCloud openni 	= null;
 	
 	Arduino arduino = null;
 	
@@ -59,7 +59,7 @@ public class Houston extends Service {
 
 		eye = (OpenCV)Runtime.createAndStart("eye","OpenCV");// right back
 		
-		openni = (OpenNI)Runtime.createAndStart("openni","OpenNI");// right back
+		openni = (PointCloud)Runtime.createAndStart("openni","OpenNI");// right back
 		
 		arduino = (Arduino)Runtime.createAndStart("arduino","Arduino");
 		

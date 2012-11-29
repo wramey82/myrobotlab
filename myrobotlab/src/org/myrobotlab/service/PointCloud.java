@@ -26,13 +26,13 @@ import org.OpenNI.StatusException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.data.KinectData;
+import org.myrobotlab.service.data.SensorData;
 
-public class OpenNI extends Service {
+public class PointCloud extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenNI.class
+	public final static Logger log = Logger.getLogger(PointCloud.class
 			.getCanonicalName());
 
 	private boolean capturing = false;
@@ -121,7 +121,7 @@ public class OpenNI extends Service {
 			sdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
 			sdf.applyPattern("dd MMM yyyy HH:mm:ss z");
 
-			captureThread = new Thread(this, "OpenNI_SensorCaptureProcess");
+			captureThread = new Thread(this, "PointCloud_SensorCaptureProcess");
 			captureThread.start();
 		}
 
@@ -132,7 +132,7 @@ public class OpenNI extends Service {
 		}
 		
 
-		KinectData kd = new KinectData(); 
+		SensorData kd = new SensorData(); 
 		
 		public void run() {
 
@@ -199,8 +199,8 @@ public class OpenNI extends Service {
 
 	}
 
-	public OpenNI(String n) {
-		super(n, OpenNI.class.getCanonicalName());
+	public PointCloud(String n) {
+		super(n, PointCloud.class.getCanonicalName());
 	}
 
 	@Override
@@ -235,7 +235,7 @@ public class OpenNI extends Service {
 		return depthData;
 	}
 	
-	public KinectData publishFrame(KinectData kd) {
+	public SensorData publishFrame(SensorData kd) {
 		return kd;
 	}
 
@@ -409,7 +409,7 @@ public class OpenNI extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 
-		OpenNI openni = new OpenNI("openni");
+		PointCloud openni = new PointCloud("openni");
 		openni.startService();
 
 		Runtime.createAndStart("gui", "GUIService");

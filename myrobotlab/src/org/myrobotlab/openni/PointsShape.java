@@ -50,7 +50,7 @@ import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.TriangleArray;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.service.data.KinectData;
+import org.myrobotlab.service.data.SensorData;
 
 public class PointsShape extends Shape3D implements GeometryUpdater {
 	
@@ -100,7 +100,7 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 	 * has finished an update
 	 */
 	private Semaphore sem;
-	private KinectData kinectData;
+	private SensorData kinectData;
 
 	
 
@@ -352,7 +352,7 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 	 * buffer changes. This method will not return until the 3D scene has been
 	 * updated.
 	 */
-	public void updateDepthCoords(KinectData kd) {
+	public void updateDepthCoords(SensorData kd) {
 
 		this.kinectData = kd;
 

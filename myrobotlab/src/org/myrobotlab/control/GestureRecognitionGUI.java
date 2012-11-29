@@ -29,18 +29,17 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.ShortBuffer;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
-import org.myrobotlab.service.OpenNI;
-import org.myrobotlab.service.data.KinectData;
+import org.myrobotlab.service.PointCloud;
+import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class OpenNIGUI extends ServiceGUI implements ActionListener {
+public class GestureRecognitionGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 
@@ -55,7 +54,7 @@ public class OpenNIGUI extends ServiceGUI implements ActionListener {
 	
 	JPanel eastPanel = new JPanel();
 	
-	public OpenNIGUI(final String boundServiceName, final GUI myService) {
+	public GestureRecognitionGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
@@ -88,7 +87,7 @@ public class OpenNIGUI extends ServiceGUI implements ActionListener {
 	}
 
 	
-	public void getState(OpenNI openni)
+	public void getState(PointCloud openni)
 	{
 		if (openni != null)
 		{
@@ -97,7 +96,7 @@ public class OpenNIGUI extends ServiceGUI implements ActionListener {
 		
 	}
 
-	public void publishFrame (KinectData kd)
+	public void publishFrame (SensorData kd)
 	{
 		ptsShape.updateDepthCoords(kd);
 	}
@@ -105,16 +104,16 @@ public class OpenNIGUI extends ServiceGUI implements ActionListener {
 	@Override
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
-		subscribe("publishState", "getState", OpenNI.class); 
+		subscribe("publishState", "getState", PointCloud.class); 
 //		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
-		subscribe("publishFrame", "publishFrame", KinectData.class); 
+		subscribe("publishFrame", "publishFrame", SensorData.class); 
 		myService.send(boundServiceName, "publishState");
 		
 	}
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", OpenNI.class);
+		unsubscribe("publishState", "getState", PointCloud.class);
 	}
 
 
