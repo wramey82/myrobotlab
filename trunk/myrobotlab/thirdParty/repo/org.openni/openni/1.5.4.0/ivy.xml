@@ -23,11 +23,12 @@
         <artifact name="x86.32.linux/libnimRecorder" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libOpenNI.jni" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libOpenNI" type="native" ext="so" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/org.OpenNI" type="jar" conf="x86.32.linux"/>
         
         <artifact name="x86.32.windows/OpenNI.jni" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/OpenNI" type="native" ext="dll" conf="x86.32.windows"/>
         
-        <artifact name="org.OpenNI" type="jar" conf="x86.64.windows"/>
+        <artifact name="x86.64.windows/org.OpenNI" type="jar" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/OpenNI.jni64" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/OpenNI64" type="native" ext="dll" conf="x86.64.windows"/>
         </publications>
