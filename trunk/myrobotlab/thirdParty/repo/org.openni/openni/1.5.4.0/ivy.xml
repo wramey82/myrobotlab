@@ -6,7 +6,11 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="org.OpenNI" type="jar"/>
+        <!--  
+        	<artifact name="org.OpenNI" type="jar"/> Grrr.. can't do this all jars are different !!!
+        	OpenNI needs some good Java developers !  There is no (good reason) a single Jar can't
+        	work for all platforms.
+        -->
         <!--
         <artifact name="x86.32.linux/librxtxSerial" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.64.linux/librxtxSerial" type="native" ext="so" conf="x86.64.linux"/>
@@ -23,6 +27,7 @@
         <artifact name="x86.32.windows/OpenNI.jni" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/OpenNI" type="native" ext="dll" conf="x86.32.windows"/>
         
+        <artifact name="org.OpenNI" type="jar"/>
         <artifact name="x86.64.windows/OpenNI.jni64" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/OpenNI64" type="native" ext="dll" conf="x86.64.windows"/>
         </publications>
