@@ -1,21 +1,6 @@
 #!/bin/sh
 
-# actual start script - this does not work directly from 
-# the file manager (nautilus) so if anyone has an idea
-# as to why I'd love to know - 
- 
-APPDIR="$(dirname -- "${0}")"
-
-cd $APPDIR
-
-# for pre-Java 1.5 wildcard jar loading  
-for LIB in \
-    libraries/jar/*.jar \
-    ;
-do
-    CLASSPATH="${CLASSPATH}:${APPDIR}/${LIB}"
-done
-export CLASSPATH
+CLASSPATH=.; export CLASSPATH=$CLASSPATH$(find "$PWD/libraries/jar" -name '*.jar' -type f -printf ':%p\n' | sort -u | tr -d '\n'); echo $CLASSPATH
 
 # Mac's don't use LD_LIBRARY_PATH yet its 
 # required to load shared objects on Linux systems
