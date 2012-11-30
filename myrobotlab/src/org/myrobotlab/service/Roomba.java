@@ -639,6 +639,12 @@ public class Roomba extends Service implements SerialDeviceService {
 				+ " wheel:" + (roombacomm.wheelDropLeft() ? "l" : "_")
 				+ (roombacomm.wheelDropCenter() ? "c" : "_")
 				+ (roombacomm.wheelDropLeft() ? "r" : "_"));
+		
+	}
+	
+	public boolean bump()
+	{
+		return roombacomm.bump();
 	}
 	
 	public void test()
