@@ -6,24 +6,34 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <!--  
-        	<artifact name="org.OpenNI" type="jar"/> Grrr.. can't do this all jars are different !!!
-        	OpenNI needs some good Java developers !  There is no (good reason) a single Jar can't
-        	work for all platforms.
-        -->
-        <!--
-        <artifact name="x86.32.linux/librxtxSerial" type="native" ext="so" conf="x86.32.linux"/>
-        <artifact name="x86.64.linux/librxtxSerial" type="native" ext="so" conf="x86.64.linux"/>
-        <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
-        <artifact name="x86.32.windows/rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
-        <artifact name="x86.64.windows/rxtxSerial" type="native" ext="dll" conf="x86.64.windows"/>
-        -->
+    
+        <artifact name="arm.32.linux/libnimCodecs" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/libnimMockNodes" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/libnimRecorder" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/libOpenNI.jni" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/libOpenNI" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/org.OpenNI" type="jar" conf="arm.32.linux"/>    
+
+        <artifact name="x86.32.mac/libnimCodecs" type="native" ext="dylib" conf="x86.32.mac"/>
+        <artifact name="x86.32.mac/libnimMockNodes" type="native" ext="dylib" conf="x86.32.mac"/>
+        <artifact name="x86.32.mac/libnimRecorder" type="native" ext="dylib" conf="x86.32.mac"/>
+        <artifact name="x86.32.mac/libOpenNI.jni" type="native" ext="dylib" conf="x86.32.mac"/>
+        <artifact name="x86.32.mac/libOpenNI" type="native" ext="dylib" conf="x86.32.mac"/>
+        <artifact name="x86.32.mac/org.OpenNI" type="jar" conf="x86.32.mac"/>    
+        
         <artifact name="x86.32.linux/libnimCodecs" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libnimMockNodes" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libnimRecorder" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libOpenNI.jni" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libOpenNI" type="native" ext="so" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/org.OpenNI" type="jar" conf="x86.32.linux"/>
+        
+        <artifact name="x86.64.linux/libnimCodecs" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libnimMockNodes" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libnimRecorder" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libOpenNI.jni" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libOpenNI" type="native" ext="so" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/org.OpenNI" type="jar" conf="x86.64.linux"/>        
         
         <artifact name="x86.32.windows/OpenNI.jni" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/OpenNI" type="native" ext="dll" conf="x86.32.windows"/>
