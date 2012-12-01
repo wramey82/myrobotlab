@@ -13,5 +13,5 @@ export LD_LIBRARY_PATH
 # LD_LIBRARY_PATH needed by Linux systems
 # -Djava.library.path= needed by mac
 
-java -classpath "./libraries/jar/*" -Djava.library.path="./libraries/native/arm.32.linux:./libraries/native/x86.32.linux:./libraries/native/x86.64.linux:./libraries/native/x86.32.mac" org.myrobotlab.service.Runtime -service gui GUIService jython Jython 
+java -classpath "./libraries/jar/*" -Djava.library.path="./libraries/native/arm.32.linux:./libraries/native/x86.32.linux:./libraries/native/x86.64.linux:./libraries/native/x86.32.mac" org.myrobotlab.service.Runtime -service gui GUIService python Python 
 

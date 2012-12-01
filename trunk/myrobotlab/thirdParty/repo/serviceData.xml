@@ -219,7 +219,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Jython">
+   <serviceType string="org.myrobotlab.service.Python">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -494,7 +494,7 @@
          <include>controller</include>
       </category>
    </categories>
-   <categories string="org.myrobotlab.service.Jython">
+   <categories string="org.myrobotlab.service.Python">
       <category>
          <include>programming</include>
       </category>
