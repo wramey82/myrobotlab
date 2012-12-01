@@ -29,7 +29,7 @@ public class InMoov extends Service {
 	HashMap<String, ArrayList<Arm>> arms = new HashMap<String, ArrayList<Arm>>();
 	HashMap<String, ArrayList<Arduino>> arduinos = new HashMap<String, ArrayList<Arduino>>();
 
-	Jython jython;
+	Python python;
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
@@ -42,8 +42,8 @@ public class InMoov extends Service {
 		ArrayList<Arduino> bothArduinos = new ArrayList<Arduino>();
 		arduinos.put(both, bothArduinos);
 		
-		// get a handle on the jython service
-		// jython = (Jython)Runtime.createAndStart("jython", "Jython");
+		// get a handle on the python service
+		// python = (Python)Runtime.createAndStart("python", "Python");
 	}
 
 	// -----------  normalization begin ---------------------
@@ -475,7 +475,7 @@ public class InMoov extends Service {
 		}		
 		
 		
-		send("jython", "appendScript", script.toString());
+		send("python", "appendScript", script.toString());
 		
 		return script.toString();
 	}
@@ -497,7 +497,7 @@ public class InMoov extends Service {
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
 		
-		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui", "GUIService");
 		
 		/*

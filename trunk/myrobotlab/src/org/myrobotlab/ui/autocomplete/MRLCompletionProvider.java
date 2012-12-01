@@ -48,7 +48,7 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 	
 	/**
 	 * Overriding base class declaration in order to load methods
-	 * that should be easy to find and use in Jython. Still calls
+	 * that should be easy to find and use in Python. Still calls
 	 * out the base class in order to load the Java keywords.
 	 */
 	@Override

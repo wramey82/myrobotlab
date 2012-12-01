@@ -8,12 +8,12 @@ catcher = Runtime.createAndStart("catcher","TestCatcher")
 thrower = Runtime.createAndStart("thrower","TestThrower")
 
 def input():
-	# jython catches data from thrower - then throws to catcher
+	# python catches data from thrower - then throws to catcher
     	print 'thrower sent me ', msg_thrower_send.data[0]
     	print 'modifying the ball'
-    	msg_thrower_send.data[0]='throw from jython->catcher'
+    	msg_thrower_send.data[0]='throw from python->catcher'
     	print 'throwing to catcher now'
-    	jython.send('catcher', 'catchString', msg_thrower_send.data[0])
+    	python.send('catcher', 'catchString', msg_thrower_send.data[0])
 
-# thrower sends data to jython
-thrower.throwString('jython', 'input', 'throw from thrower->jython');
+# thrower sends data to python
+thrower.throwString('python', 'input', 'throw from thrower->python');

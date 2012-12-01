@@ -35,8 +35,8 @@ ear.startService()
 # start the mouth
 mouth = Runtime.createAndStart("mouth","Speech")
 
-# set up a message route from the ear --to--> jython method "heard"
-ear.addListener("recognized", jython.name, "heard", String().getClass()); 
+# set up a message route from the ear --to--> python method "heard"
+ear.addListener("recognized", python.name, "heard", String().getClass()); 
 
 # this method is invoked when something is 
 # recognized by the ear - in this case we

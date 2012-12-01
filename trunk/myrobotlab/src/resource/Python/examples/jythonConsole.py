@@ -10,7 +10,7 @@ from java.awt import BorderLayout
 from java.lang import Boolean
 
 # myService is a local variable
-# created to point to this Jython
+# created to point to this Python
 # service
 
 class Console:
@@ -18,7 +18,7 @@ class Console:
   def __init__(self):
     self.stdout = None
     self.stderr = None
-#    frame = JFrame("Jython Console")
+#    frame = JFrame("Python Console")
 #    frame.setSize(400, 300)
 #    frame.setLayout(BorderLayout())
 

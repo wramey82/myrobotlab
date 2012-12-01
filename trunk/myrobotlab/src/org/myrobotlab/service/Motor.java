@@ -323,7 +323,7 @@ public class Motor extends Service implements MotorControl {
 		Logger.getRootLogger().setLevel(Level.INFO);
 
 		Runtime.createAndStart("arduino", "Arduino");
-		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("python", "Python");
 		//Runtime.createAndStart("adafruit", "AdafruitMotorShield");
 		Runtime.createAndStart("motor01", "Motor");
 		Runtime.createAndStart("gui", "GUIService");

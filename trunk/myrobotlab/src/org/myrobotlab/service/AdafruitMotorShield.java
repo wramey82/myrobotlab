@@ -361,7 +361,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		fruity.attach();
 
-		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui01", "GUIService");
 
 

@@ -149,7 +149,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private transient ObjectOutputStream recording;
 	private transient ObjectInputStream playback;
 	private transient OutputStream recordingXML;
-	private transient OutputStream recordingJython;
+	private transient OutputStream recordingPython;
 	
 	/**
 	 * 
@@ -1200,7 +1200,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String startRecording(String filename)
 	{
 		String filenameXML = String.format("%s/%s_%s.xml", cfgDir, getName(), TSFormatter.format(new Date()) );
-		String filenameJython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()) );
+		String filenamePython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()) );
 		if (filename == null)
 		{
 			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()) );
@@ -1214,13 +1214,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			recordingXML = new BufferedOutputStream(new FileOutputStream(filenameXML), 8 * 1024);
 			recordingXML.write("<Messages>\n".getBytes());
 			
-			recordingJython = new BufferedOutputStream(new FileOutputStream(filenameJython), 8 * 1024);
+			recordingPython = new BufferedOutputStream(new FileOutputStream(filenamePython), 8 * 1024);
 			
 			isRecording = true;
 		} catch (Exception e) {
 			logException(e);
 		} 
-		return filenameJython;
+		return filenamePython;
 	}
 	
 	public void stopRecording()
@@ -1233,9 +1233,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 		try {
 		
-			recordingJython.flush();
-			recordingJython.close();
-			recordingJython = null;
+			recordingPython.flush();
+			recordingPython.close();
+			recordingPython = null;
 			
 			recordingXML.write("\n</Messages>".getBytes());
 			recordingXML.flush();
@@ -1310,9 +1310,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 				*/
 				
-				// jython
+				// python
 				String msgName = (msg.name.equals(Runtime.getInstance().getName()))?"runtime":msg.name;
-				recordingJython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
+				recordingPython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
 				if (data != null)
 				{
 					for (int i = 0; i < data.length; ++i)
@@ -1320,20 +1320,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 						Object d = data[i];
 						if (d.getClass() == Integer.class || d.getClass() == Float.class || d.getClass() == Boolean.class || d.getClass() == Double.class ||  d.getClass() == Short.class ||  d.getClass() == Short.class)
 						{
-							recordingJython.write(d.toString().getBytes());
+							recordingPython.write(d.toString().getBytes());
 							
 						} else if (d.getClass() == String.class || d.getClass() == Character.class) { //FIXME Character probably blows up
-							recordingJython.write(String.format("\"%s\"",d).getBytes());							
+							recordingPython.write(String.format("\"%s\"",d).getBytes());							
 						} else {
-							recordingJython.write("object".getBytes());
+							recordingPython.write("object".getBytes());
 						}
 						if (i < data.length-1)
 						{
-							recordingJython.write(",".getBytes());
+							recordingPython.write(",".getBytes());
 						}
 					}
 				} 
-				recordingJython.write(")\n".getBytes());		
+				recordingPython.write(")\n".getBytes());		
 				
 			} catch (IOException e) {
 				logException(e);
@@ -1937,7 +1937,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		Appender appender = null;
 
-		// TODO the type should be an enumeration so that we can make this a switch statement (unless Jython dependencies don't allow for it)
+		// TODO the type should be an enumeration so that we can make this a switch statement (unless Python dependencies don't allow for it)
 		try {
 			switch (type) {
 				case Console:

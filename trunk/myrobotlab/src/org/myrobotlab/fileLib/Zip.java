@@ -228,7 +228,7 @@ public class Zip {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		ArrayList<String> files = listDirectoryContents("myrobotlab.jar", "resource/Jython/");
+		ArrayList<String> files = listDirectoryContents("myrobotlab.jar", "resource/Python/");
 		for (int i = 0; i < files.size(); ++i) {
 			log.info(files.get(i));
 		}

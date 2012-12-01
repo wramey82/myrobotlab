@@ -1,7 +1,7 @@
 ########################################################
 # authors : GroG & michael96_27
 # references:
-# http://myrobotlab.org/content/color-tracking-mrl-using-opencv-jython-and-arduino-services
+# http://myrobotlab.org/content/color-tracking-mrl-using-opencv-python-and-arduino-services
 # File colorTracking.py
 # //////////BEGIN PYTHON SCRIPT////////////////////////////
 
@@ -184,8 +184,8 @@ def input():
    
   return object
 
-# create a message route from opencv to jython so we can see the coordinate locations
-opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
+# create a message route from opencv to python so we can see the coordinate locations
+opencv.addListener("publish", python.name, "input", CvPoint().getClass()); 
 
 opencv.setCameraIndex(cameraIndex)
 
