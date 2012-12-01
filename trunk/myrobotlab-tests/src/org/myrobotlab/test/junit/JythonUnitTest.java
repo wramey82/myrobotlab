@@ -22,14 +22,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.service.Jython;
+import org.myrobotlab.service.Python;
 import org.myrobotlab.util.TestHelpers;
 import org.python.util.PythonInterpreter;
 
 public class JythonUnitTest {
 	private Logger log = Logger.getLogger("JythonTest");
 	String name = "sometestname";
-	Jython guineaPig = null;
+	Python guineaPig = null;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -43,7 +43,7 @@ public class JythonUnitTest {
 
 	@Before
 	public void setUp() throws Exception {
-		guineaPig = new Jython(name);
+		guineaPig = new Python(name);
 	}
 
 	@After
@@ -111,7 +111,7 @@ public class JythonUnitTest {
 
 	@Test
 	public void testAttachJythonConsole() {
-		guineaPig.attachJythonConsole();
+		guineaPig.attachPythonConsole();
 	}
 
 	@Test

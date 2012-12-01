@@ -3,7 +3,7 @@ package org.myrobotlab.test.integration;
 import static org.junit.Assert.*;
 
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.service.Jython;
+import org.myrobotlab.service.Python;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
 import org.apache.log4j.Level;
@@ -23,7 +23,7 @@ public class JythonTest {
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
 		*/
-		Jython jython = new Jython("jython");
+		Python jython = new Python("jython");
 		TestCatcher catcher = new TestCatcher("catcher");
 		jython.startService();
 		catcher.startService();
@@ -43,7 +43,7 @@ public class JythonTest {
 		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
 		*/
-		Jython jython = new Jython("jython");
+		Python jython = new Python("jython");
 		TestCatcher catcher = new TestCatcher("catcher");
 		jython.startService();
 		catcher.startService();
