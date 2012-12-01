@@ -55,11 +55,11 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.2/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/org.OpenNI.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.colorutils/r9/colorutils.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/net.java.games.jinput/jinput/20120914/jinput.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.4.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.jssc/jssc/0.9.0/jssc.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/x86.64.windows/org.OpenNI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
