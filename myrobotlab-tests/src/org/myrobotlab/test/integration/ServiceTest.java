@@ -35,7 +35,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Jython;
+import org.myrobotlab.service.Python;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
@@ -697,7 +697,7 @@ public class ServiceTest {
 	
 	@Test
 	public final void JythonTest() {
-		Jython jython = (Jython)Runtime.createAndStart("jython", "Jython");
+		Python jython = (Python)Runtime.createAndStart("jython", "Jython");
 		TestCatcher catcher = (TestCatcher)Runtime.createAndStart("catcher", "TestCatcher");
 		
 		String code = "jython.send(\"catcher\", \"catchInteger\", 10)\n";
