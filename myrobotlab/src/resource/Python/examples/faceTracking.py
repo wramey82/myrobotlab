@@ -30,8 +30,8 @@ def input():
     print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
     return object
 
-# create a message route from opencv to jython so we can see the coordinate locations
-opencv.addListener("publish", jython.name, "input", CvPoint().getClass()); 
+# create a message route from opencv to python so we can see the coordinate locations
+opencv.addListener("publish", python.name, "input", CvPoint().getClass()); 
 
 # set the input source to the first camera
 opencv.capture()

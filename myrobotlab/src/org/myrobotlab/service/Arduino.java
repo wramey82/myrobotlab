@@ -1402,7 +1402,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		Servo servo01 = new Servo("servo01");
 		servo01.startService();
 		
-		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("python", "Python");
 		
 		
 		/*
@@ -1427,7 +1427,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// arduino.digitalWrite(44, Arduino.HIGH);
 
 		Runtime.createAndStart("gui01", "GUIService");
-		//Runtime.createAndStart("jython", "Jython");
+		//Runtime.createAndStart("python", "Python");
 
 	}
 

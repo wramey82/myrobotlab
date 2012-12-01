@@ -59,18 +59,18 @@ import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.Jython;
-import org.myrobotlab.service.Jython.Script;
+import org.myrobotlab.service.Python;
+import org.myrobotlab.service.Python.Script;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
 
 /**
- * Jython GUI
+ * Python GUI
  * 
  * @author SwedaKonsult
  * 
  */
-public class JythonGUI extends ServiceGUI implements ActionListener, MouseListener {
+public class PythonGUI extends ServiceGUI implements ActionListener, MouseListener {
 
 	static final long serialVersionUID = 1L;
 	private final static int fileMenuMnemonic = KeyEvent.VK_F;
@@ -101,8 +101,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	// consoles
 	JTabbedPane consoleTabs;
 	final Console javaConsole;
-	final JTextArea jythonConsole;
-	final JScrollPane jythonScrollPane;
+	final JTextArea pythonConsole;
+	final JScrollPane pythonScrollPane;
 
 	// auto-completion
 	static CompletionProvider provider;
@@ -123,9 +123,9 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		}
 
 		public String getDisplayName() {
-			if (filename.startsWith("Jython/examples/")) {
+			if (filename.startsWith("Python/examples/")) {
 
-				return filename.substring("Jython/examples/".length());
+				return filename.substring("Python/examples/".length());
 
 			} else {
 				int begin = filename.lastIndexOf(File.separator);
@@ -166,12 +166,12 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param boundServiceName
 	 * @param myService
 	 */
-	public JythonGUI(final String boundServiceName, final GUI myService) {
+	public PythonGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 
 		javaConsole = new Console();
-		jythonConsole = new JTextArea();
-		jythonScrollPane = new JScrollPane(jythonConsole);
+		pythonConsole = new JTextArea();
+		pythonScrollPane = new JScrollPane(pythonConsole);
 
 		// autocompletion - in the constructor so that they can be declared
 		// final
@@ -229,7 +229,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		} else if (m.getText().equals("close")) {
 			closeFile();
 		} else if (m.getActionCommand().equals("examples")) {
-			String filename = String.format("Jython/examples/%1$s", m.getText());
+			String filename = String.format("Python/examples/%1$s", m.getText());
 			Script script = new Script(filename, FileIO.getResourceFile(filename));
 			addNewEditorPanel(script);
 		}
@@ -258,19 +258,19 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", Jython.class);
+		subscribe("publishState", "getState", Python.class);
 		subscribe("finishedExecutingScript");
 		subscribe("publishStdOut", "getStdOut", String.class);
 		subscribe("appendScript", "appendScript", String.class);
 		subscribe("startRecording", "startRecording", String.class);
-		myService.send(boundServiceName, "attachJythonConsole");
+		myService.send(boundServiceName, "attachPythonConsole");
 		// myService.send(boundServiceName, "broadcastState");
 	}
 
 	@Override
 	public void detachGUI() {
 		javaConsole.stopLogging();
-		unsubscribe("publishState", "getState", Jython.class);
+		unsubscribe("publishState", "getState", Python.class);
 		unsubscribe("finishedExecutingScript");
 		unsubscribe("publishStdOut", "getStdOut", String.class);
 		unsubscribe("appendScript", "appendScript", String.class);
@@ -294,7 +294,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * 
 	 * @param j
 	 */
-	public void getState(Jython j) {
+	public void getState(Python j) {
 		// TODO set GUI state debug from Service data
 
 	}
@@ -304,7 +304,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param data
 	 */
 	public void getStdOut(String data) {
-		jythonConsole.append(data);
+		pythonConsole.append(data);
 	}
 
 	/**
@@ -319,7 +319,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 		display.add(menuPanel, BorderLayout.PAGE_START);
 
-		DefaultCaret caret = (DefaultCaret) jythonConsole.getCaret();
+		DefaultCaret caret = (DefaultCaret) pythonConsole.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		splitPane = createMainPane();
@@ -494,8 +494,8 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		pane.addTab("java", javaConsole.getScrollPane());
 		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
 
-		pane.addTab("jython", jythonScrollPane);
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, jythonScrollPane, boundServiceName, "jython"));
+		pane.addTab("python", pythonScrollPane);
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, pythonScrollPane, boundServiceName, "python"));
 
 		return pane;
 	}
@@ -506,11 +506,11 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @return
 	 */
 	private JPanel createTopButtonBar() {
-		executeButton = new ImageButton("Jython", "execute", this);
-		stopButton = new ImageButton("Jython", "stop", this);
-		openFileButton = new ImageButton("Jython", "open", this);
+		executeButton = new ImageButton("Python", "execute", this);
+		stopButton = new ImageButton("Python", "stop", this);
+		openFileButton = new ImageButton("Python", "open", this);
 		;
-		saveFileButton = new ImageButton("Jython", "save", this);
+		saveFileButton = new ImageButton("Python", "save", this);
 		;
 
 		JPanel buttonBar = new JPanel();
@@ -568,7 +568,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		executeButton.activate();
 		stopButton.deactivate();
 		javaConsole.startLogging(); // Hmm... noticed this is only local JVM
-									// :) the Jython console can be pushed
+									// :) the Python console can be pushed
 									// over the network
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
@@ -585,7 +585,7 @@ public class JythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		stopButton.activate();
 		// executeButton.deactivate();
 		myService.send(boundServiceName, "stop");
-		myService.send(boundServiceName, "attachJythonConsole");
+		myService.send(boundServiceName, "attachPythonConsole");
 	}
 	
 	

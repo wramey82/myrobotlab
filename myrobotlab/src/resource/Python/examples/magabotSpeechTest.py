@@ -68,9 +68,9 @@ def isSpeaking():
     print "is speaking " , speaking
 
 # set up a message route from the ear to the scripting engine
-ear.addListener("recognized", jython.name, "heard", String().getClass()); 
+ear.addListener("recognized", python.name, "heard", String().getClass()); 
 # prevent infinite loop 
-mouth.addListener("isSpeaking", jython.name, "isSpeaking");
+mouth.addListener("isSpeaking", python.name, "isSpeaking");
 
 
 

@@ -251,7 +251,7 @@ public class RequestThread extends Thread {
 					contentType = "application/octet-stream";
 				}
 
-				// handler based on extension type Jython -> .py
+				// handler based on extension type Python -> .py
 				if (myService.containsKey(ext)) {
 					// handler interface WebHandler
 					// load file

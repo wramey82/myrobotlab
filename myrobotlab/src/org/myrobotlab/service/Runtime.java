@@ -538,7 +538,7 @@ public class Runtime extends Service {
 		addInclusiveExportFilterServiceType("SensorMonitor");
 		addInclusiveExportFilterServiceType("Clock");
 		addInclusiveExportFilterServiceType("Logging");
-		addInclusiveExportFilterServiceType("Jython");
+		addInclusiveExportFilterServiceType("Python");
 		addInclusiveExportFilterServiceType("Arduino");
 		addInclusiveExportFilterServiceType("GUIService");
 		addInclusiveExportFilterServiceType("Runtime");

@@ -494,7 +494,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw) {
 		ServiceGUI gui = null;
 		ServiceInterface se = sw.get();
-		if (serviceName.equals("jython"))
+		if (serviceName.equals("python"))
 		{
 			log.info("here");
 		}

@@ -97,7 +97,7 @@ public class WebServer extends Service {
 		WebServer web = new WebServer("web");
 		web.startService();
 		web.startWebServer();
-		web.setHandler("jython", ".py");
+		web.setHandler("python", ".py");
 		
 /*		
 		SoccerGame game = new SoccerGame("soccergame");

@@ -52,14 +52,14 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.Jython;
+import org.myrobotlab.service.Python;
 import org.myrobotlab.service.interfaces.GUI;
 
 /**
  * Editor 
  * 
  * General purpose swing editor
- * TODO generalize for Jython & Arduino
+ * TODO generalize for Python & Arduino
  * 
  * @author GroG
  * 
@@ -195,7 +195,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", Jython.class);
+		subscribe("publishState", "getState", Python.class);
 		subscribe("finishedExecutingScript");
 		subscribe("publishStdOut", "getStdOut", String.class);
 		// myService.send(boundServiceName, "broadcastState");
@@ -206,7 +206,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		console.stopLogging();
 		unsubscribe("publishStdOut", "getStdOut", String.class);
 		unsubscribe("finishedExecutingScript");
-		unsubscribe("publishState", "getState", Jython.class);
+		unsubscribe("publishState", "getState", Python.class);
 	}
 
 	public void finishedExecutingScript() {
@@ -436,9 +436,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 		executeButton.activate();
 		restartButton.deactivate();
 		console.startLogging(); // Hmm... noticed this is only local JVM
-									// :) the Jython console can be pushed
+									// :) the Python console can be pushed
 									// over the network
-		myService.send(boundServiceName, "attachJythonConsole");
+		myService.send(boundServiceName, "attachPythonConsole");
 		myService.send(boundServiceName, "exec", textArea.getText());
 	}
 

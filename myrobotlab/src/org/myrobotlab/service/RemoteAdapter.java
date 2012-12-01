@@ -331,11 +331,11 @@ public class RemoteAdapter extends Service {
 /*
 		Runtime.createAndStart("remote0", "RemoteAdapter");
 		Runtime.createAndStart("log0", "Logging");
-		Runtime.createAndStart("jython0", "Jython");
+		Runtime.createAndStart("python0", "Python");
 */
 		Runtime.createAndStart("remote", "RemoteAdapter");
 		Runtime.createAndStart("rgui", "GUIService");
-		Runtime.createAndStart("rjython", "Jython");
+		Runtime.createAndStart("rpython", "Python");
 
 	}
 }

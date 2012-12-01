@@ -19,14 +19,14 @@ import org.python.util.PythonInterpreter;
 /**
  * @author GroG
  * 
- *         a Service to access Jython interpreter.
+ *         a Service to access Python interpreter.
  * 
- *         references : http://wiki.python.org/jython/InstallationInstructions
- *         http://www.jython.org/javadoc/org/python/util/PythonInterpreter.html
+ *         references : http://wiki.python.org/python/InstallationInstructions
+ *         http://www.python.org/javadoc/org/python/util/PythonInterpreter.html
  *         http
  *         ://etutorials.org/Programming/Python+tutorial/Part+V+Extending+and
  *         +Embedding
- *         /Chapter+25.+Extending+and+Embedding+Jython/25.2+Embedding+Jython
+ *         /Chapter+25.+Extending+and+Embedding+Python/25.2+Embedding+Python
  *         +in+Java/ http://wiki.python.org/moin/PythonEditors - list of editors
  *         http://java-source.net/open-source/scripting-languages
  *         http://java.sun.com/products/jfc/tsc/articles/text/editor_kit/ -
@@ -54,33 +54,33 @@ import org.python.util.PythonInterpreter;
  *         http://www.pushing-pixels.org/2008/06/27/syntax-coloring-for-the
  *         -swing-editor-pane.html
  * 
- *         Java Jython integration
- *         http://jythonpodcast.hostjava.net/jythonbook/en
- *         /1.0/JythonAndJavaIntegration
- *         .html#using-jython-within-java-applications
+ *         Java Python integration
+ *         http://pythonpodcast.hostjava.net/pythonbook/en
+ *         /1.0/PythonAndJavaIntegration
+ *         .html#using-python-within-java-applications
  * 
  *         Redirecting std out
  *         http://bytes.com/topic/python/answers/40880-redirect
- *         -standard-output-jython-jtextarea
+ *         -standard-output-python-jtextarea
  *         http://stefaanlippens.net/redirect_python_print
  *         http://stackoverflow.com
  *         /questions/1000360/python-print-on-stdout-on-a-terminal
  *         http://coreygoldberg
  *         .blogspot.com/2009/05/python-redirect-or-turn-off-stdout-and.html
  *         https
- *         ://www.ibm.com/developerworks/mydeveloperworks/blogs/JythonSwing/
+ *         ://www.ibm.com/developerworks/mydeveloperworks/blogs/PythonSwing/
  *         ?lang=en
  * 
  */
-public class Jython extends Service {
+public class Python extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static transient Logger log = Logger.getLogger(Jython.class.getCanonicalName());
+	public final static transient Logger log = Logger.getLogger(Python.class.getCanonicalName());
 	// using a HashMap means no duplicates
 	private static final Set<String> commandMap;
 	// TODO this needs to be moved into an actual cache if it is to be used
-	// Cache of compile jython code
+	// Cache of compile python code
 	private static final transient HashMap<String, PyObject> objectCache;
 
 	transient PythonInterpreter interp = null;
@@ -93,7 +93,7 @@ public class Jython extends Service {
 
 	HashMap<String, Script> scripts = new HashMap<String, Script>();
 
-	boolean jythonConsoleInitialized = false;
+	boolean pythonConsoleInitialized = false;
 	String initialServiceScript = "";
 
 	public static class Script {
@@ -129,7 +129,7 @@ public class Jython extends Service {
 		objectCache = new HashMap<String, PyObject>();
 		commandMap = new HashSet<String>();
 		// Load up the command map
-		Method[] methods = Jython.class.getMethods();
+		Method[] methods = Python.class.getMethods();
 		for (int i = 0; i < methods.length; ++i) {
 			commandMap.add(methods[i].getName());
 			// log.info(String.format("will filter method %1$s",
@@ -163,10 +163,10 @@ public class Jython extends Service {
 	 * 
 	 * @param instanceName
 	 */
-	public Jython(String instanceName) {
-		super(instanceName, Jython.class.getCanonicalName());
+	public Python(String instanceName) {
+		super(instanceName, Python.class.getCanonicalName());
 
-		// get all currently registered services and add appropriate jython
+		// get all currently registered services and add appropriate python
 		// handles
 		HashMap<String, ServiceWrapper> svcs = Runtime.getRegistry();
 		StringBuffer initScript = new StringBuffer();
@@ -201,15 +201,15 @@ public class Jython extends Service {
 	}
 
 	/**
-	 * runs the jythonConsole.py script which creates a Jython Console object
+	 * runs the pythonConsole.py script which creates a Python Console object
 	 * and redirect stdout & stderr to published data - these are hooked by the
 	 * GUI
 	 */
-	public void attachJythonConsole() {
-		if (!jythonConsoleInitialized) {
+	public void attachPythonConsole() {
+		if (!pythonConsoleInitialized) {
 			// String consoleScript =
-			// FileIO.getResourceFile("python/examples/jythonConsole.py");
-			String consoleScript = getServiceResourceFile("examples/jythonConsole.py");
+			// FileIO.getResourceFile("python/examples/pythonConsole.py");
+			String consoleScript = getServiceResourceFile("examples/pythonConsole.py");
 			exec(consoleScript, false);
 		}
 	}
@@ -225,13 +225,13 @@ public class Jython extends Service {
 		interp = new PythonInterpreter();
 
 		// add self reference
-		// Python scripts can refer to this service as 'jython' regardless
+		// Python scripts can refer to this service as 'python' regardless
 		// of the actual name
-		String selfReferenceScript = String.format("from org.myrobotlab.service import Runtime\n" + "from org.myrobotlab.service import Jython\n"
-				+ "jython = Runtime.create(\"%1$s\",\"Jython\")\n\n" // TODO -
+		String selfReferenceScript = String.format("from org.myrobotlab.service import Runtime\n" + "from org.myrobotlab.service import Python\n"
+				+ "python = Runtime.create(\"%1$s\",\"Python\")\n\n" // TODO -
 																		// deprecate
-				+ "runtime = Runtime.getInstance()\n\n" + "myService = Runtime.create(\"%1$s\",\"Jython\")\n", this.getName());
-		PyObject compiled = getCompiledMethod("initializeJython", selfReferenceScript, interp);
+				+ "runtime = Runtime.getInstance()\n\n" + "myService = Runtime.create(\"%1$s\",\"Python\")\n", this.getName());
+		PyObject compiled = getCompiledMethod("initializePython", selfReferenceScript, interp);
 		interp.exec(compiled);
 	}
 
@@ -294,7 +294,7 @@ public class Jython extends Service {
 
 	@Override
 	public String getToolTip() {
-		return "Jython IDE";
+		return "Python IDE";
 	}
 
 	@Override
@@ -315,9 +315,9 @@ public class Jython extends Service {
 	 * preProcessHook is used to intercept messages and process or route them
 	 * before being processed/invoked in the Service.
 	 * 
-	 * Here all messages allowed to go and effect the Jython service will be let
+	 * Here all messages allowed to go and effect the Python service will be let
 	 * through. However, all messsages not found in this filter will go "into"
-	 * they Jython script. There they can be handled in the scripted users code.
+	 * they Python script. There they can be handled in the scripted users code.
 	 * 
 	 * @see org.myrobotlab.framework.Service#preProcessHook(org.myrobotlab.framework.Message)
 	 */
@@ -396,7 +396,7 @@ public class Jython extends Service {
 	// support and IDE muti-file view
 
 	/**
-	 * this method can be used to load a Python script from the Jython's local
+	 * this method can be used to load a Python script from the Python's local
 	 * file system, which may not be the GUI's local system. Because it can be
 	 * done programatically on a different machine we want to broadcast our
 	 * changed state to other listeners (possibly the GUI)
@@ -477,7 +477,7 @@ public class Jython extends Service {
 		//String f = "C:\\Program Files\\blah.1.py";
 		//log.info(getName(f));
 		
-		Runtime.createAndStart("jython", "Jython");
+		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui", "GUIService");
 
 	}
