@@ -26,17 +26,21 @@
 package org.myrobotlab.control;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
@@ -111,7 +115,7 @@ public class VideoWidget extends ServiceGUI {
 	int videoDisplayXPos = 0;
 	int videoDisplayYPos = 0;
 
-	@Override
+	@Override // FIXME - do in constructor for krikey sakes !
 	public void init() {
 		init(null);
 	}
@@ -186,6 +190,19 @@ public class VideoWidget extends ServiceGUI {
 		displays.clear();
 		videoDisplayXPos = 0;
 		videoDisplayYPos = 0;
+	}
+	
+	
+	
+	public void displayFrame(byte[] imgBytes)
+	{
+		try {
+			ByteArrayInputStream in = new ByteArrayInputStream (imgBytes);
+			BufferedImage bi = ImageIO.read(in);
+			displayFrame(bi);
+		} catch (IOException e) {
+			Service.logException(e);
+		}
 	}
 	
 	/* 

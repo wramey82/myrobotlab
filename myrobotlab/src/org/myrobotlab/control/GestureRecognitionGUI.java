@@ -33,22 +33,23 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
-import org.myrobotlab.service.PointCloud;
+import org.myrobotlab.service.GestureRecognition;
 import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class GestureRecognitionGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
+	
+	VideoWidget video;
 
-	PointsShape ptsShape = new PointsShape();
-	Points3DPanel panel3d = new Points3DPanel(ptsShape);
 	JButton captureButton = new JButton("capture");
 	JButton recordButton = new JButton("record");
 	JButton playbackButton = new JButton("playback");
-	JButton pointCloudButton = new JButton("point cloud");
+	JButton GestureRecognitionButton = new JButton("point cloud");
 	JButton depthCloudButton = new JButton("depth");
 	JButton imageCloudButton = new JButton("image");
 	
@@ -56,20 +57,21 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 	
 	public GestureRecognitionGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		video = new VideoWidget(boundServiceName, myService);
 	}
 	
 	
 	public void init() {
-		//openni = (OpenNI)Runtime.getService(boundServiceName).service;
+		
+		video.init();
 		
 		display.setLayout(new BorderLayout());
-		display.add(panel3d, BorderLayout.CENTER);
+		display.add(video.getDisplay(), BorderLayout.CENTER);
 		
 		eastPanel.setLayout(new GridLayout(6,1));
 		eastPanel.add(captureButton);
 		eastPanel.add(recordButton);
 		eastPanel.add(playbackButton);
-		eastPanel.add(pointCloudButton);
 		eastPanel.add(depthCloudButton);
 		eastPanel.add(imageCloudButton);
 		
@@ -78,42 +80,33 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 		captureButton.addActionListener(this);
 		recordButton.addActionListener(this);
 		playbackButton.addActionListener(this);
-		/*
-		JPanel viewer = new JPanel();
-		viewer.setLayout(new BorderLayout());
-		viewer.add(panel3d, BorderLayout.CENTER);
-		*/
 		
 	}
 
 	
-	public void getState(PointCloud openni)
+	public void getState(GestureRecognition openni)
 	{
-		if (openni != null)
-		{
-	
-		}
-		
+		// TODO - update state
 	}
 
-	public void publishFrame (SensorData kd)
+	public void publishFrame (SerializableImage si)
 	{
-		ptsShape.updateDepthCoords(kd);
+		video.displayFrame(si);
 	}
 	
 	@Override
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
-		subscribe("publishState", "getState", PointCloud.class); 
+		subscribe("publishState", "getState", GestureRecognition.class); 
 //		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
-		subscribe("publishFrame", "publishFrame", SensorData.class); 
+		subscribe("publishFrame", "publishFrame", SerializableImage.class); 
 		myService.send(boundServiceName, "publishState");
 		
 	}
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", PointCloud.class);
+		unsubscribe("publishState", "getState", GestureRecognition.class);
 	}
 
 
