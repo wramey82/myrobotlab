@@ -60,8 +60,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.image.OpenCVFilter;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.Runtime;
@@ -151,6 +151,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener,
 		}
 		
 		frameGrabberList.add("IPCamera");
+		frameGrabberList.add("Image Stream Source"); // service which implements ImageStreamSource
 		
 		grabberTypeSelect = new JComboBox(frameGrabberList.toArray());
 		

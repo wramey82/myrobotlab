@@ -46,7 +46,6 @@ public class Inbox implements Serializable {
 	boolean blocking = false;
 	int maxQueue = 10;
 
-	//ConcurrentHashMap<String, Object[]> blockingList = new ConcurrentHashMap<String, Object[]>();
 	HashMap<String, Object[]> blockingList = new HashMap<String, Object[]>();
 
 	public Inbox() {
@@ -86,7 +85,7 @@ public class Inbox implements Serializable {
 					msgBox.wait(); // must own the lock
 				} else {
 					msg = msgBox.removeLast();
-					log.debug(name + ".msgBox -1 = " + msgBox.size());
+					log.debug(String.format("%s.msgBox -1 %d", name, msgBox.size()));
 
 					// --- sendBlocking support begin --------------------
 					// TODO - possible safety check msg.status == Message.RETURN

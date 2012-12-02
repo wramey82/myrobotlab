@@ -29,10 +29,10 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
-import org.myrobotlab.image.OpenCVFilterKinectDepthMask;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.memory.Node;
+import org.myrobotlab.opencv.OpenCVFilterKinectDepthMask;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
