@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.image.OpenCVFilter;
+import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;

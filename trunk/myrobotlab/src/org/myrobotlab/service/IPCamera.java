@@ -11,8 +11,8 @@ import java.util.HashMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.image.IPCameraFrameGrabber;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.opencv.IPCameraFrameGrabber;
 
 // Android related - http://stackoverflow.com/questions/8301543/android-bitmap-to-bufferedimage
 // Bitmap to BufferedImage - conversion once Bitmap class is serialized

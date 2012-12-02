@@ -4,8 +4,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.nio.ShortBuffer;
-
-import javax.swing.JFrame;
+import java.util.ArrayList;
 
 import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
@@ -18,9 +17,10 @@ import org.OpenNI.ScriptNode;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.openni.UserTracker;
+import org.myrobotlab.service.interfaces.VideoSink;
+import org.myrobotlab.service.interfaces.VideoSource;
 
-public class GestureRecognition extends Service {
+public class GestureRecognition extends Service implements VideoSource {
 
 	private static final long serialVersionUID = 1L;
 
@@ -39,6 +39,7 @@ public class GestureRecognition extends Service {
 	private static final int IM_WIDTH = 640;
 	private static final int IM_HEIGHT = 480;
 
+	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
     
 
 	public GestureRecognition(String n) {
@@ -64,6 +65,8 @@ public class GestureRecognition extends Service {
 	// create context and depth generator
 	{
 		try {
+			log.info("configOpenNI begin");
+
 			context = new Context();
 
 			// add the NITE License
@@ -99,6 +102,7 @@ public class GestureRecognition extends Service {
 //			depthMD = depthGen.getMetaData();
 			// use depth metadata to access depth info (avoids bug with
 			// DepthGenerator)
+			log.info("configOpenNI begin");
 		} catch (Exception e) {
 			logException(e);
 		}
@@ -125,14 +129,21 @@ public class GestureRecognition extends Service {
 
 		public void run() {
 			while (shouldRun) {
+				log.debug("pre updateDepth");
+
 				updateDepth();  // viewer.updateDepth()
 //				viewer.repaint(); // publish
+				log.debug("post updateDepth");
 				
 			     DataBufferByte dataBuffer = new DataBufferByte(imgbytes, width*height);
 			     Raster raster = Raster.createPackedRaster(dataBuffer, width, height, 8, null);
 			     bimg.setData(raster);
 			     simg.setImage(bimg);				
 				invoke("publishFrame", simg);
+				for (int i = 0; i < sinks.size(); ++i)
+				{
+					sinks.get(i).add(simg);
+				}
 			}
 			//frame.dispose();
 		}
@@ -141,6 +152,7 @@ public class GestureRecognition extends Service {
 	
 	public void capture()
 	{
+		log.info("capture");
 		if (openniThread != null)
 		{
 			openniThread.shouldRun = false;
@@ -153,12 +165,25 @@ public class GestureRecognition extends Service {
 	
 	public SerializableImage publishFrame(SerializableImage frame)
 	{
+		log.debug("publishing frame");
 		return frame;
+	}
+	
+	
+	public void add(VideoSink vs)
+	{
+		sinks.add(vs);
+	}
+	
+	public void remove(VideoSink vs)
+	{
+		sinks.remove(vs);
 	}
 	
 
 	public void stopCapture()
 	{
+		log.info("stopCapture");
 		openniThread.shouldRun = false;
 		openniThread = null;
 	}
