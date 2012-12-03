@@ -36,8 +36,8 @@ public class GestureRecognition extends Service implements VideoSource {
     private DepthGenerator depthGen;
     private byte[] imgbytes;
     private float histogram[];
-	private static final int IM_WIDTH = 640;
-	private static final int IM_HEIGHT = 480;
+	private int IM_WIDTH = 640;
+	private int IM_HEIGHT = 480;
 
 	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
     
@@ -56,8 +56,6 @@ public class GestureRecognition extends Service implements VideoSource {
 		return "used as a general template";
 	}
 
-	int width;
-	int height;
 	private DepthMetaData depthMD;
 
 	
@@ -87,14 +85,14 @@ public class GestureRecognition extends Service implements VideoSource {
 			context.startGeneratingAll();
 			
             histogram = new float[10000];
-            width = depthMD.getFullXRes();
-            height = depthMD.getFullYRes();
+            //IM_WIDTH = depthMD.getFullXRes();
+            //IM_HEIGHT = depthMD.getFullYRes();
             
-            imgbytes = new byte[width*height];
+            imgbytes = new byte[IM_WIDTH*IM_HEIGHT];
             
-            DataBufferByte dataBuffer = new DataBufferByte(imgbytes, width*height);
-            Raster raster = Raster.createPackedRaster(dataBuffer, width, height, 8, null);
-            bimg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+            DataBufferByte dataBuffer = new DataBufferByte(imgbytes, IM_WIDTH*IM_HEIGHT);
+            Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
+            bimg = new BufferedImage(IM_WIDTH, IM_HEIGHT, BufferedImage.TYPE_BYTE_GRAY);
             bimg.setData(raster);
 
 			System.out.println("Started context generating...");
@@ -135,8 +133,8 @@ public class GestureRecognition extends Service implements VideoSource {
 //				viewer.repaint(); // publish
 				log.debug("post updateDepth");
 				
-			     DataBufferByte dataBuffer = new DataBufferByte(imgbytes, width*height);
-			     Raster raster = Raster.createPackedRaster(dataBuffer, width, height, 8, null);
+			     DataBufferByte dataBuffer = new DataBufferByte(imgbytes, IM_WIDTH*IM_HEIGHT);
+			     Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
 			     bimg.setData(raster);
 			     simg.setImage(bimg);				
 				invoke("publishFrame", simg);
