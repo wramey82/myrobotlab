@@ -243,8 +243,8 @@ public class GestureRecognition extends Service implements VideoSource {
                 log.debug(String.format("here %d %d %d", pos, imgbytes.length, histogram.length));
                 imgbytes[pos] = (byte)histogram[pixel];
             }
-        } catch (GeneralException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logException(e);
         }
     }
 
