@@ -235,10 +235,12 @@ public class GestureRecognition extends Service implements VideoSource {
             ShortBuffer depth = depthMD.getData().createShortBuffer();
             depth.rewind();
             
+            log.debug(depth.remaining());
             while(depth.remaining() > 0)
             {
                 int pos = depth.position();
                 short pixel = depth.get();
+                log.debug(String.format("here %d %d %d", pos, imgbytes.length, histogram.length));
                 imgbytes[pos] = (byte)histogram[pixel];
             }
         } catch (GeneralException e) {
