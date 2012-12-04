@@ -29,13 +29,24 @@ public class Simbad extends Service {
 
 	private static final long serialVersionUID = 1L;
 	//Simbad frame = new Simbad(new MyEnv() ,false);
-	 
+	simbad.gui.Simbad frame;
+	
 	public final static Logger log = Logger.getLogger(Simbad.class.getCanonicalName());
 
 	public static class MyEnv extends EnvironmentDescription {
 	    public MyEnv(){
 	        add(new Arch(new Vector3d(3,0,-3),this));
-	        //add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1),this));
+	        for (int i = 0; i < 20; ++i)
+	        {
+	        	double x = (Math.random() * 20) - 10;
+	        	double y = (Math.random() * 20) - 10;
+	        	float xdim = (float)(Math.random() * 4) - 2;
+	        	float ydim = (float)(Math.random() * 4) - 2;
+	        	float zdim = (float)(Math.random() * 4) - 2;
+		        add(new Box(new Vector3d(x, 0, y), new Vector3f(xdim, 1, ydim),this));
+	        	
+	        }
+	        
 	        add(new MyRobot(new Vector3d(0, 0, 0),"my robot"));
 	    }
 	}	
@@ -64,6 +75,23 @@ public class Simbad extends Service {
 		super(n, Simbad.class.getCanonicalName());
 	}
 	
+	public void startService()
+	{
+		super.startService();
+		startSimulator();
+	}
+	
+	public void startSimulator()
+	{
+		
+		MyEnv env = new MyEnv();
+		
+		frame = new simbad.gui.Simbad(env ,false);
+		
+		env.add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1), env));
+		frame.setVisible(true);
+	}
+	
 	@Override
 	public void loadDefaultConfiguration() {
 		
@@ -84,9 +112,10 @@ public class Simbad extends Service {
 		
 		env.add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1), env));
 		//frame.
-		
+		/*
 		Simbad template = new Simbad("simulator");
 		template.startService();
+		*/
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
