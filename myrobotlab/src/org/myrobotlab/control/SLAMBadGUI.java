@@ -32,13 +32,13 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SLAMBad;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class SimbadGUI extends ServiceGUI implements ActionListener{
+public class SLAMBadGUI extends ServiceGUI implements ActionListener{
 
 	static final long serialVersionUID = 1L;
 
 	SLAMBad mySimbad = null;
 	
-	public SimbadGUI(final String boundServiceName, final GUI myService) {
+	public SLAMBadGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 	
