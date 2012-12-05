@@ -363,7 +363,6 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
-            <string>simbad.gui</string>
             <string>javax.vecmath</string>
          </list>
       </dependsOn>
