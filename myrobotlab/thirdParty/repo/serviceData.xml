@@ -358,7 +358,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Simbad">
+   <serviceType string="org.myrobotlab.service.SLAMBad">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -559,7 +559,7 @@
          <include>actuators</include>
       </category>
    </categories>
-   <categories string="org.myrobotlab.service.Simbad">
+   <categories string="org.myrobotlab.service.SLAMBad">
       <category>
          <include>simulator</include>
       </category>
