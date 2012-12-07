@@ -60,6 +60,8 @@
 #define REMOVE_ANALOG_TRIGGER            18
 #define SET_DIGITAL_TRIGGER              19
 #define REMOVE_DIGITAL_TRIGGER           20
+#define DIGITAL_DEBOUNCE_ON              21
+#define DIGITAL_DEBOUNCE_OFF             22
 
 #define COMMUNICATION_RESET	   252
 #define SOFT_RESET			   253
@@ -346,6 +348,10 @@ void loop () {
 			analogPinService[ioCommand[2]] |= TRIGGER_MASK;
 			++analogReadPollingPinCount;
 			break;
+		case DIGITAL_DEBOUNCE_ON:
+			debounceDelay = 50;
+		case DIGITAL_DEBOUNCE_OFF:
+			debounceDelay = 0;
 		case SOFT_RESET:
 			softReset();
 			break;
