@@ -40,6 +40,14 @@ public class TrackingService extends Service {
 	public final static Logger log = Logger.getLogger(TrackingService.class
 			.getCanonicalName());
 
+	/*
+	 * TODO - Calibrate - do good features points - select closest to center - record point - move 1 x -> record delta & latency -> move to edge -> 
+	 * 			take multiple samples for non-linear control
+	 * TODO - do not use CVPoint nor AWT Points !
+	 * 
+	 */
+	
+	
 	// TODO center vs - lock
 	/*
 	 * 
