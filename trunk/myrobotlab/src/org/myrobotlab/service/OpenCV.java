@@ -740,7 +740,7 @@ public class OpenCV extends Service {
 
 		log.info(String.format("request to addFilter %s, %s", name, newFilter));
 
-		String type = "org.myrobotlab.image.OpenCVFilter" + newFilter;
+		String type = "org.myrobotlab.opencv.OpenCVFilter" + newFilter;
 		Object[] params = new Object[2];
 		params[0] = this;
 		params[1] = name;

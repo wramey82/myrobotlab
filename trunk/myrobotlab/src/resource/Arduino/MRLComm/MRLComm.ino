@@ -81,6 +81,9 @@
 #define DIGITAL_PIN_COUNT 13
 // -- FIXME - modified by board type END --
 
+long debounceDelay = 50; // in ms
+long lastDebounceTime[DIGITAL_PIN_COUNT];
+
 Servo servos[MAX_SERVOS];
 int servoSpeed[MAX_SERVOS];    // 0 - 100 corresponding to the 0.0 - 1.0 Servo.setSpeed - not a float at this point
 int servoTargetPosition[MAX_SERVOS];  // when using a fractional speed - servo's must remember their end destination
@@ -370,21 +373,27 @@ void loop () {
 	// digital polling read - send data for pins which are currently in INPUT mode only AND whose state has changed
 	for (int i  = 0; i < digitalReadPollingPinCount; ++i)
 	{
+		if (debounceDelay)
+		{
+		  if (millis() - lastDebounceTime[digitalReadPin[i]] < debounceDelay)
+		  {
+		    continue;
+		  } 
+		} 
+	
 		// read the pin
 		readValue = digitalRead(digitalReadPin[i]);
 
-		// if my value is different then last time  && config - send it
+		// if my value is different from last time  && config - send it
 		if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !sendDigitalDataDeltaOnly)
 		{
-			//++encoderValue;
-			//if (encoderValue%300 == 0)
-			//{
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(DIGITAL_VALUE);
-			Serial.write(digitalReadPin[i]); // TODO - have to encode it to determine where it came from
+			Serial.write(digitalReadPin[i]);// Pin# 
 			Serial.write(readValue >> 8);   // MSB
-			Serial.write(readValue); // LSB
-			//}
+			Serial.write(readValue); 	// LSB
+
+		        lastDebounceTime[digitalReadPin[i]] = millis();
 		}
 
 		// set the last input value of this pin
@@ -398,13 +407,13 @@ void loop () {
 		// read the pin
 		readValue = analogRead(analogReadPin[i]);
 
-		// if my value is different then last time - send it
+		// if my value is different from last time - send it
 		if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !sendAnalogDataDeltaOnly) //TODO - SEND_DELTA_MIN_DIFF
 		{
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(ANALOG_VALUE);
 			Serial.write(analogReadPin[i]);
-			Serial.write(readValue >> 8);   	// MSB
+			Serial.write(readValue >> 8);   // MSB
 			Serial.write(readValue & 0xFF);	// LSB
 		}
 		// set the last input value of this pin
