@@ -170,7 +170,9 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int DIGITAL_READ_POLLING_STOP = 16;
 	public static final int SET_ANALOG_PIN_SENSITIVITY = 17;
 	public static final int SET_ANALOG_PIN_GAIN = 18;
-
+	public static final int DIGITAL_DEBOUNCE_ON = 21;
+	public static final int DIGITAL_DEBOUNCE_OFF = 21;
+	
 	// servo related
 	public static final int SERVO_SWEEP = 10;
 	public static final int MAX_SERVOS = 12; // FIXME - more depending on board (mega)
@@ -1261,7 +1263,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	}
 
+	
+	public void digitalDebounceOn()
+	{
+		serialSend(DIGITAL_DEBOUNCE_ON, 0, 0);
+	}
 
+	public void digitalDebounceOff()
+	{
+		serialSend(DIGITAL_DEBOUNCE_OFF, 0, 0);
+	}
+	
 	// ----------- MotorController API End ----------------
 
 
@@ -1399,11 +1411,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		
+		/*
 		Servo servo01 = new Servo("servo01");
 		servo01.startService();
 		
 		Runtime.createAndStart("python", "Python");
-		
+		*/
 		
 		/*
 		SensorMonitor sensors = new SensorMonitor("sensors");

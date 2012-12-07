@@ -32,6 +32,7 @@ import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -61,8 +62,11 @@ public class EditorArduino extends Editor implements ActionListener {
 	JLabel sketchName = new JLabel("MRLComm");
 
 	Arduino myArduino = null;
-	JMenu boardsMenu = null;
-	public JMenu serialDeviceMenu = null;
+	JMenu boardsMenu = new JMenu("Board");
+	public JMenu serialDeviceMenu  = new JMenu("Serial Device");
+	public JMenu digitalPinMenu = new JMenu("Digital Pins");
+    JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
+
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
@@ -81,15 +85,14 @@ public class EditorArduino extends Editor implements ActionListener {
 		} else if (o == uploadButton) {
 			myService.send(boundServiceName, "upload");
 			return;
-		} else if (o == connectButton) {
-			if (connectButton.isActive())
+		} else if (o == digitalDebounce) {
+			if (digitalDebounce.isSelected())
 			{
-				myService.send(boundServiceName, "disconnect");
+				myService.send(boundServiceName, "digitalDebounceOn");
 			} else {
-				myService.send(boundServiceName, "connect");
+				myService.send(boundServiceName, "digitalDebounceOff");
 			}
-			myService.send(boundServiceName, "publishState");
-			
+		} else if (o == connectButton) {
 		} else if ("examples".equals(event.getActionCommand()))
 		{
 			JMenuItem menu = (JMenuItem)o;
@@ -114,15 +117,18 @@ public class EditorArduino extends Editor implements ActionListener {
 		buttonBar.add(sketchName);
 
 		// addHelpMenuURL("help blah", "http:blahblahblah");
-
-		boardsMenu = new JMenu("Board");
+		
 		rebuildBoardsMenu(boardsMenu);
 
-		serialDeviceMenu = new JMenu("Serial Device");
 
 		toolsMenu.add(boardsMenu);
 		toolsMenu.add(serialDeviceMenu);
-
+		toolsMenu.add(digitalPinMenu);
+				
+	    digitalDebounce.setSelected(true);
+		digitalDebounce.addActionListener(this);
+		digitalPinMenu.add(digitalDebounce);
+		
 		// add to help menu
 		helpMenu.add(createMenuItem("Getting Started"));
 		helpMenu.add(createMenuItem("Environment"));
