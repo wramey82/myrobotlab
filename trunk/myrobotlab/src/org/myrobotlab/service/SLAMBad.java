@@ -119,7 +119,10 @@ public class SLAMBad extends Service {
 	public void startService()
 	{
 		super.startService();
-		startSimulator();
+		if (simbad == null)
+		{
+			startSimulator();
+		}
 	}
 	
 	MyEnv env;
@@ -129,6 +132,20 @@ public class SLAMBad extends Service {
 		Wall wall = new Wall(new Vector3d(x, y, z), x1, y1, z1, env);
 		wall.setColor(new Color3f(new Color(0,0,0,0)));
 		simbad.attach(wall);
+	}
+	
+	public void addRandomWall()
+	{
+    	double x = (Math.random() * 20) - 10;
+    	double y = (Math.random() * 20) - 10;
+    	
+    	float xdim = (float)(Math.random() * 4);
+    	float ydim = (float)(Math.random() * 4);
+    	float zdim = (float)(Math.random() * 2);
+
+		Wall wall = new Wall(new Vector3d(x, 0, y), xdim, zdim, ydim, env);
+    	wall.setColor(new Color3f(new Color(Color.HSBtoRGB((float)Math.random(),  0.9f, 0.7f))));
+		simbad.attach(wall);		
 	}
 	
 	public void startSimulator()
