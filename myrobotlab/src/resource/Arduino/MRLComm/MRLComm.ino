@@ -62,6 +62,8 @@
 #define REMOVE_DIGITAL_TRIGGER           20
 #define DIGITAL_DEBOUNCE_ON              21
 #define DIGITAL_DEBOUNCE_OFF             22
+#define DIGITAL_TRIGGER_ONLY_ON          23
+#define DIGITAL_TRIGGER_ONLY_OFF         24
 
 #define COMMUNICATION_RESET	   252
 #define SOFT_RESET			   253
@@ -103,13 +105,13 @@ int digitalReadPin[DIGITAL_PIN_COUNT];        // array of pins to read from
 int digitalReadPollingPinCount = 0;           // number of pins currently reading
 int lastDigitalInputValue[DIGITAL_PIN_COUNT]; // array of last input values
 int digitalPinService[DIGITAL_PIN_COUNT];     // the services this pin is involved in
-bool sendDigitalDataDeltaOnly	= false;      // send data back only if its different
+bool digitalTriggerOnly	= false;      // send data back only if its different
 
 int analogReadPin[ANALOG_PIN_COUNT];          // array of pins to read from
 int analogReadPollingPinCount = 0;            // number of pins currently reading
 int lastAnalogInputValue[ANALOG_PIN_COUNT];   // array of last input values
 int analogPinService[ANALOG_PIN_COUNT];       // the services this pin is involved in
-bool sendAnalogDataDeltaOnly = false;         // send data back only if its different
+bool analogTriggerOnly = false;         // send data back only if its different
 
 unsigned long retULValue;
 
@@ -350,8 +352,18 @@ void loop () {
 			break;
 		case DIGITAL_DEBOUNCE_ON:
 			debounceDelay = 50;
+			break;
 		case DIGITAL_DEBOUNCE_OFF:
 			debounceDelay = 0;
+			break;
+		case DIGITAL_TRIGGER_ONLY_ON:
+			digitalTriggerOnly = true;
+			break;
+		case DIGITAL_TRIGGER_ONLY_OFF:
+			digitalTriggerOnly = false;
+			break;
+			
+			
 		case SOFT_RESET:
 			softReset();
 			break;
@@ -391,7 +403,7 @@ void loop () {
 		readValue = digitalRead(digitalReadPin[i]);
 
 		// if my value is different from last time  && config - send it
-		if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !sendDigitalDataDeltaOnly)
+		if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !digitalTriggerOnly)
 		{
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(DIGITAL_VALUE);
@@ -414,7 +426,7 @@ void loop () {
 		readValue = analogRead(analogReadPin[i]);
 
 		// if my value is different from last time - send it
-		if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !sendAnalogDataDeltaOnly) //TODO - SEND_DELTA_MIN_DIFF
+		if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !analogTriggerOnly) //TODO - SEND_DELTA_MIN_DIFF
 		{
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(ANALOG_VALUE);

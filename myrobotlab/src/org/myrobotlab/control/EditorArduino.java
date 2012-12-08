@@ -66,6 +66,8 @@ public class EditorArduino extends Editor implements ActionListener {
 	public JMenu serialDeviceMenu  = new JMenu("Serial Device");
 	public JMenu digitalPinMenu = new JMenu("Digital Pins");
     JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
+    JCheckBoxMenuItem digitalTriggerOnly = new JCheckBoxMenuItem("Digital Trigger Only");
+    
 
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
@@ -91,6 +93,13 @@ public class EditorArduino extends Editor implements ActionListener {
 				myService.send(boundServiceName, "digitalDebounceOn");
 			} else {
 				myService.send(boundServiceName, "digitalDebounceOff");
+			}
+		} else if (o == digitalTriggerOnly) {
+			if (digitalTriggerOnly.isSelected())
+			{
+				myService.send(boundServiceName, "setDigitalTriggerOnly", true);
+			} else {
+				myService.send(boundServiceName, "setDigitalTriggerOnly", false);
 			}
 		} else if (o == connectButton) {
 		} else if ("examples".equals(event.getActionCommand()))
@@ -128,6 +137,10 @@ public class EditorArduino extends Editor implements ActionListener {
 	    digitalDebounce.setSelected(true);
 		digitalDebounce.addActionListener(this);
 		digitalPinMenu.add(digitalDebounce);
+		
+		digitalTriggerOnly.setSelected(true);
+		digitalTriggerOnly.addActionListener(this);
+		digitalPinMenu.add(digitalTriggerOnly);
 		
 		// add to help menu
 		helpMenu.add(createMenuItem("Getting Started"));
