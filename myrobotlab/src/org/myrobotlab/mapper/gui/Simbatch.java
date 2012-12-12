@@ -1,4 +1,4 @@
-/* author: Louis Hugues - created on 12 févr. 2005  */
+/* author: Louis Hugues - created on 12. 2005  */
 package org.myrobotlab.mapper.gui;
 
 import java.awt.BorderLayout;
