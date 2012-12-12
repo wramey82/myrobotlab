@@ -50,6 +50,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 
 	static final long serialVersionUID = 1L;
 	JButton startClock = new JButton("start clock");
+	JButton startCountDown = new JButton("start count down");
 	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:120px\">00:00:00</p></html>");
 
     ButtonGroup group = new ButtonGroup();

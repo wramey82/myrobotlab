@@ -94,7 +94,7 @@ public class Arm {
 
 	}
 	
-	public void setSpeed(Float bicep, Float rotate, Float shoulder, Float omoplate, Float pinky, Float wrist)
+	public void setSpeed(Float bicep, Float rotate, Float shoulder, Float omoplate)
 	{
 		this.bicep.setSpeed(bicep);
 		this.rotate.setSpeed(rotate);
