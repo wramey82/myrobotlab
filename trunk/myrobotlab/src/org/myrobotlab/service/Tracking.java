@@ -27,17 +27,22 @@ package org.myrobotlab.service;
 
 import java.awt.Rectangle;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.Point2Df;
+import org.myrobotlab.tracking.ControlSystem;
+import org.myrobotlab.tracking.ObjectFinder;
+import org.myrobotlab.tracking.ObjectTracker;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
-public class TrackingService extends Service {
+public class Tracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(TrackingService.class
+	public final static Logger log = Logger.getLogger(Tracking.class
 			.getCanonicalName());
 
 	/*
@@ -89,6 +94,10 @@ public class TrackingService extends Service {
 	 * NEEDS needs to be smoother - less jerky needs to create new points needs
 	 * to make a roi from motion needs to focus at the top of the motion
 	 */
+	
+	ObjectFinder finder;
+	ObjectTracker tracker;
+	ControlSystem control;
 
 	boolean tracking = true;
 
@@ -99,14 +108,18 @@ public class TrackingService extends Service {
 	transient CvPoint2D32f targetPoint = null;
 	Rectangle deadzone = new Rectangle();
 
-	public TrackingService(String n) {
-		super(n, TrackingService.class.getCanonicalName());
+	public Tracking(String n) {
+		super(n, Tracking.class.getCanonicalName());
 
 		deadzone.x = 150;
 		deadzone.width = 20;
 		deadzone.y = 110;
 		deadzone.height = 20;
 		
+	}
+	
+	public void startService() {
+		super.startService();
 	}
 
 	@Override
@@ -131,10 +144,13 @@ public class TrackingService extends Service {
 
 
 	// note - using pt.x() - gets the first point if an array is sent
-	final public void center(CvPoint2D32f pt) {
-		//pt.
-		trackX((int) pt.x());
-		trackY((int) pt.y());
+	final public void setTrackingPoint(Point2Df pt) {
+		
+		log.info(String.format("pt %s", pt));
+		/*
+		trackX((int)pt.x);
+		trackY((int)pt.y);
+		*/
 	}
 
 	final public void center(CvPoint pt) {
@@ -180,5 +196,70 @@ public class TrackingService extends Service {
 		return "proportional control, tracking, and translation - full PID not implemented yet :P";
 	}
 	
+	// TODO - suppor interfaces 
+	public boolean attach (String name, Object... data)
+	{
+		return false;
+	}
+	
+	
+	public static void main(String[] args) {
+
+		// ground plane
+		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
+		// radio lab - map cells location cells yatta yatta
+		// lkoptical disparity motion Time To Contact 
+		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
+		org.apache.log4j.BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.WARN);
+
+		/*
+		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
+		 * catch (Exception e) { // TODO Auto-generated catch block
+		 * logException(e); }
+		 */
+
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
+		//opencv.startService();
+		// opencv.addFilter("PyramidDown1", "PyramidDown");
+		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
+		// opencv.addFilter("InRange1", "InRange");
+		// opencv.setFrameGrabberType("camera");
+		// opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
+		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
+
+		// opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
+		// opencv.capture();
+
+		/*
+		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
+		 * 
+		 * Servo pan = new Servo("pan"); pan.startService();
+		 * 
+		 * Servo tilt = new Servo("tilt"); tilt.startService();
+		 */
+		
+		Tracking t = new Tracking("tracking");
+		t.startService();
+		
+		t.attach(opencv.getName());
+		
+
+
+		//IPCamera ip = new IPCamera("ip");
+		//ip.startService();
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		//opencv.addFilter("pyramdDown", "PyramidDown");
+		//opencv.addFilter("floodFill", "FloodFill");
+
+		//opencv.capture();
+
+	}
+
 	
 }

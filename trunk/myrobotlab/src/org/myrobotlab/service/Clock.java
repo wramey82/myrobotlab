@@ -231,6 +231,12 @@ public class Clock extends Service {
 		Clock clock = new Clock("clock");
 		clock.startService();
 		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+
+		
+		
 	}
 	
 }

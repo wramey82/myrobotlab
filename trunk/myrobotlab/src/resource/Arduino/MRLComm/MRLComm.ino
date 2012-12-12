@@ -64,6 +64,7 @@
 #define DIGITAL_DEBOUNCE_OFF             22
 #define DIGITAL_TRIGGER_ONLY_ON          23
 #define DIGITAL_TRIGGER_ONLY_OFF         24
+#define SET_SERIAL_RATE			         25
 
 #define COMMUNICATION_RESET	   252
 #define SOFT_RESET			   253
@@ -315,7 +316,7 @@ void loop () {
 			servoSpeed[ioCommand[2]]=ioCommand[3];
 			break;
 		case SERVO_SET_MAX_PULSE:
-			//servos[ioCommand[1]].setMaximumPulse(ioCommand[2]);    TODO - lame fix hardware
+			//servos[ioCommand[2]].setMaximumPulse(ioCommand[3]);    TODO - lame fix hardware
 			break;
 		case SERVO_DETACH:
 			servos[ioCommand[2]].detach();
@@ -342,7 +343,7 @@ void loop () {
 		case DIGITAL_READ_POLLING_STOP:
 			// TODO - MAKE RE-ENRANT
 			removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[2]);
-			digitalPinService[ioCommand[1]] &= ~POLLING_MASK;
+			digitalPinService[ioCommand[2]] &= ~POLLING_MASK;
 			break;
 		case SET_ANALOG_TRIGGER:
 			// TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT
@@ -362,7 +363,11 @@ void loop () {
 		case DIGITAL_TRIGGER_ONLY_OFF:
 			digitalTriggerOnly = false;
 			break;
-			
+		case SET_SERIAL_RATE:
+			Serial.end();
+			delay(500);
+			Serial.begin(ioCommand[2]);
+			break;
 			
 		case SOFT_RESET:
 			softReset();
@@ -411,7 +416,7 @@ void loop () {
 			Serial.write(readValue >> 8);   // MSB
 			Serial.write(readValue); 	// LSB
 
-		        lastDebounceTime[digitalReadPin[i]] = millis();
+		    lastDebounceTime[digitalReadPin[i]] = millis();
 		}
 
 		// set the last input value of this pin

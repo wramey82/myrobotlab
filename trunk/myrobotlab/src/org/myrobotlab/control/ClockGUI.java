@@ -25,6 +25,9 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +49,9 @@ import org.myrobotlab.service.interfaces.GUI;
 public class ClockGUI extends ServiceGUI implements ActionListener{
 
 	static final long serialVersionUID = 1L;
-	JButton startClock = null;
+	JButton startClock = new JButton("start clock");
+	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:120px\">00:00:00</p></html>");
+
     ButtonGroup group = new ButtonGroup();
     
 	JRadioButton none = new JRadioButton("none");
@@ -65,29 +70,31 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	}
 	
 	
-	ActionListener setType = new ActionListener() {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			//myService.send(boundServiceName, "setType", ((JRadioButton) e.getSource()).getText()); - look ma no message !
-			myClock.setType(((JRadioButton) e.getSource()).getText());
-		}
-	};
 
 	public void init() {
+		display.setLayout(new BorderLayout());
+		
+		JPanel clockDisplayPanel = new JPanel();
+		clockDisplayPanel.add(clockDisplay);
+	
+		display.add(clockDisplayPanel, BorderLayout.CENTER);
+		
+		JPanel clockControlPanel = new JPanel();
+		display.add(clockControlPanel, BorderLayout.SOUTH);
+
 		
 		gc.gridx = 0;
 		gc.gridy = 0;
 		gc.gridwidth = 2;
 
-		display.add(getstartClockButton(), gc);
+		clockControlPanel.add(startClock);
 		gc.gridwidth = 1;
 		++gc.gridx;
-		display.add(new JLabel("  interval  "), gc);
+		clockControlPanel.add(new JLabel("  interval  "));
 		++gc.gridx;
-		display.add(interval, gc);
+		clockControlPanel.add(interval);
 		++gc.gridx;
-		display.add(new JLabel("  ms  "), gc);
+		clockControlPanel.add(new JLabel("  ms  "));
 		
 		
 		// build filters begin ------------------
@@ -98,16 +105,16 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 		
 		none.setActionCommand("none");
 		none.setSelected(true);
-		none.addActionListener(setType);
+		none.addActionListener(this);
 
 		increment.setActionCommand("increment");
-		increment.addActionListener(setType);
+		increment.addActionListener(this);
 
 		integer.setActionCommand("integer");
-		integer.addActionListener(setType);
+		integer.addActionListener(this);
 
 		string.setActionCommand("string");
-		string.addActionListener(setType);
+		string.addActionListener(this);
 		
 	     //Group the radio buttons.
         group.add(none);
@@ -118,73 +125,66 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
         // reuse gc
         gc.gridx = 0;
         gc.gridy = 0;
-        pulseData.add(none, gc);
+        pulseData.add(none);
         ++gc.gridy;
-        pulseData.add(increment, gc);
+        pulseData.add(increment);
         ++gc.gridy;        
-        pulseData.add(integer, gc);
+        pulseData.add(integer);
         ++gc.gridx;
-        pulseData.add(pulseDataInteger, gc);
+        pulseData.add(pulseDataInteger);
         gc.gridx = 0;        
         ++gc.gridy;
-        pulseData.add(string, gc);
+        pulseData.add(string);
         ++gc.gridx;        
-        pulseData.add(pulseDataString, gc);
+        pulseData.add(pulseDataString);
 
         // reuse gc
 		gc.gridx = 0;
 		gc.gridy = 2;
-        display.add(pulseData, gc);
+        clockControlPanel.add(pulseData);
         
         myClock = (Clock)Runtime.getServiceWrapper(boundServiceName).service;
 		
 	}
 
-	public JButton getstartClockButton() {
-		if (startClock == null) {
-			startClock = new JButton("start clock");
-			startClock.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (startClock.getText().compareTo("start clock") == 0) {
-						startClock.setText("stop clock");
-												
-						myClock.interval = Integer.parseInt(interval.getText());
-						myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
-						myClock.pulseDataString = pulseDataString.getText();
-								
-						// set the state of the bound service - whether local or remote 
-						myService.send(boundServiceName, "setState", myClock); // double set on local
-						// publish the fact you set the state - 
-						// TODO - should this a function which calls both functions ? 
-						myService.send(boundServiceName, "publishState"); // TODO - bury in Service.SetState?
-						myService.send(boundServiceName, "startClock"); 
-						
-					} else {
-						startClock.setText("start clock");
-						myService.send(boundServiceName, "stopClock");
-					}
-				}
-
-			});
-
-		}
-
-		return startClock;
-
-	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		myService.send(boundServiceName, "setType", e.getActionCommand());
+		Object o = e.getSource();
+		
+		if (o == none || o == increment || o == integer || o == string)
+		{
+			myClock.setType(((JRadioButton) e.getSource()).getText());
+		}
+		
+		if (o == startClock)
+		{
+			if (startClock.getText().compareTo("start clock") == 0) {
+				startClock.setText("stop clock");
+										
+				myClock.interval = Integer.parseInt(interval.getText());
+				myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
+				myClock.pulseDataString = pulseDataString.getText();
+						
+				// set the state of the bound service - whether local or remote 
+				myService.send(boundServiceName, "setState", myClock); // double set on local
+				// publish the fact you set the state - 
+				// TODO - should this a function which calls both functions ? 
+				myService.send(boundServiceName, "publishState"); // TODO - bury in Service.SetState?
+				myService.send(boundServiceName, "startClock"); 
+				
+			} else {
+				startClock.setText("start clock");
+				myService.send(boundServiceName, "stopClock");
+			}
+		}
 	}
 	
 	// FIXME - is get/set state interact with Runtime registry ??? 
 	// it probably should
 	public void getState(Clock c)
 	{
-		// Setting the display fields based on incoming Clock data
+		// Setting the clockControlPanel fields based on incoming Clock data
 		// if the Clock is local - the actual clock is sent
 		// if the Clock is remote - a data proxy is sent
 		if (c != null)
@@ -210,16 +210,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 			pulseDataInteger.setInt(c.pulseDataInteger);
 			
 			interval.setText((c.interval + ""));
-			
-			/*
-			 * WARNING - you can not base accurate data on a transient member !!!
-			if (c.myClock != null) // this is transient it will always be null if remote !
-			{
-				startClock.setText("stop clock");
-			} else {
-				startClock.setText("start clock");
-			}
-			*/
 			
 			if (c.isClockRunning)
 			{

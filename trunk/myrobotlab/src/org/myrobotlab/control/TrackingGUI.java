@@ -29,11 +29,11 @@ import javax.swing.JLabel;
 
 import org.myrobotlab.service.interfaces.GUI;
 
-public class TrackingServiceGUI extends ServiceGUI {
+public class TrackingGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public TrackingServiceGUI(final String boundServiceName, final GUI myService) {
+	public TrackingGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 

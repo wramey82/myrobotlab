@@ -67,6 +67,7 @@ import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterAverageColor;
+import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
@@ -632,6 +633,11 @@ public class OpenCV extends Service {
 	public CvPoint publish(CvPoint point) {
 		return point;
 	}
+	
+	public Point2Df publish(Point2Df point)
+	{
+		return point;
+	}
 
 	public Rectangle publish(Rectangle rectangle) // TODO - going bothways here
 													// - cv & awt
@@ -878,6 +884,10 @@ public class OpenCV extends Service {
 		 * 
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
+		
+		Tracking t = new Tracking("tracking");
+		t.startService();
+		
 
 
 		//IPCamera ip = new IPCamera("ip");

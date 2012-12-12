@@ -50,6 +50,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.data.Point2Df;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
@@ -100,6 +101,8 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	double min_distance = 10;
 	boolean needTrackingPoints = true; // TODO - remove - should not use
 										// collection
+	
+	boolean publishOpenCVObjects = false;
 
 	int featureSetDump = 0;
 
@@ -154,29 +157,35 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	boolean needToInitialize = true;
 
+	
 	@Override
 	public BufferedImage display(IplImage frame, Object[] data) {
 
+		
 		frameBuffer = frame.getBufferedImage();
 		graphics = frameBuffer.createGraphics();
 		graphics.setColor(Color.green);
 
 		int validPoints = 0;
-		int x = 0;
-		int y = 0;
+		int pixelX;
+		int pixelY;
+		float x;
+		float y;
 
 		for (int i = 0; i < count; ++i) {
 
-			x = (int) current_features.position(i).x();
-			y = (int) current_features.position(i).y();
+			x = current_features.position(i).x();
+			y = current_features.position(i).y();
+			pixelX = (int) x;
+			pixelY = (int) y;
 
 			if (status[i] == 1) {
 				++validPoints;
 				if (graphics != null) {
 					graphics.setColor(Color.red);
-					graphics.drawLine(x - 2, y, x + 2, y);
-					graphics.drawLine(x, y + 2, x, y - 2);
-					graphics.drawString(x + "," + y, x, y);
+					graphics.drawLine(pixelX - 2, pixelY, pixelX + 2, pixelY);
+					graphics.drawLine(pixelX, pixelY + 2, pixelX, pixelY - 2);
+					graphics.drawString(String.format("%f,%f",x/frame.width(),y/frame.height()), pixelX, pixelY);
 				}
 			}
 		}
@@ -211,23 +220,6 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 		// add_remove_pt = 0;
 	}
-	/*
-	public void samplePoint(MouseEvent event) {
-		// MouseEvent me = (MouseEvent)params[0];
-		if (count < maxCount && event.getButton() == 1) {
-			// current_features[count++] = new
-			// cxcore.CvPoint2D32f(event.getPoint().x(), event.getPoint().y());
-			pt.x(event.getPoint().x);
-			pt.y(event.getPoint().y);
-			add_remove_pt = 1;
-			
-		} else {
-			clearPoints();
-		}
-
-		// add_remove_pt = 0;
-	}
-	*/
 
 	public void samplePoint(Point p) {
 		if (count < maxCount) {
@@ -332,7 +324,13 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			}
 			count = k;
 			if (count > 0) {
-				myService.invoke("publish", (Object) current_features);
+				if (publishOpenCVObjects)
+				{
+					myService.invoke("publish", (Object) current_features);
+				} else {
+					CvPoint2D32f p = current_features;
+					myService.invoke("publish", new Point2Df(p.x(), p.y()));
+				}
 			}
 		}
 
@@ -367,35 +365,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	CvPoint dp0 = new CvPoint();
 	CvPoint dp1 = new CvPoint();
+	int validPoints = 0;
 
-	public void display(IplImage frame) {
-		int validPoints = 0;
-		int x = 0;
-		int y = 0;
-		// calculate Z or calculate Distance
-		for (int i = 0; i < count; ++i) {
-
-			dp0.x((int) current_features.position(i).x() - 1);
-			dp1.x(dp0.x() + 2);
-			y = (int) current_features.position(i).y();
-			if (status[i] == 1) {
-				++validPoints;
-				if (graphics != null) {
-					if (x < 15 || x > 315 || y < 5 || y > 235) {
-						graphics.setColor(Color.gray);
-						--validPoints;
-						status[i] = 0;
-						cvDrawLine(frame, dp0, dp1, CV_RGB(
-								150, 150, 150), 1, 8, 0);
-					} else {
-						graphics.setColor(Color.red);
-						cvDrawLine(frame, dp0, dp1, CV_RGB(
-								255, 0, 0), 1, 8, 0);
-					}
-				}
-			}
-		}
-
-	}
 
 }
