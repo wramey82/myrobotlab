@@ -351,13 +351,13 @@ public class InMoov extends Service {
 		}
 	}
 	
-	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate, Float pinky, Float wrist)
+	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate)
 	{
 		ArrayList<Arm> whichArms = arms.get(which);
 		for (int i = 0; i < whichArms.size(); ++i)
 		{
 			Arm arm = whichArms.get(i);
-			arm.setSpeed(bicep, rotate, shoulder, omoplate, pinky, wrist);
+			arm.setSpeed(bicep, rotate, shoulder, omoplate);
 		}
 	}
 	
