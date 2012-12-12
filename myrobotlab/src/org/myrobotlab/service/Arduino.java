@@ -174,6 +174,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public static final int DIGITAL_DEBOUNCE_OFF = 22;
 	public static final int DIGITAL_TRIGGER_ONLY_ON = 23;
 	public static final int DIGITAL_TRIGGER_ONLY_OFF = 24;
+	public static final int SET_SERIAL_RATE = 25;
 
 	// servo related
 	public static final int SERVO_SWEEP = 10;
@@ -1394,6 +1395,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		else 
 			serialSend(DIGITAL_TRIGGER_ONLY_OFF, 0, 0);
 			
+	}
+	
+	public void setSerialRate(int rate)
+	{
+		try {
+			log.info(String.format("setSerialRate %d", rate));
+			serialSend(SET_SERIAL_RATE, rate, 0);
+			serialDevice.setParams(rate, 8, 1, 0);
+		} catch (SerialDeviceException e) {
+			logException(e);
+		}
 	}
 	
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
