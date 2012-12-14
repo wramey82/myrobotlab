@@ -544,7 +544,11 @@ public class Runtime extends Service {
 		addInclusiveExportFilterServiceType("Runtime");
 		// }
 		*/
+		inclusiveExportFilterEnabled = true;
+		addInclusiveExportFilterServiceType("Clock");
+		addInclusiveExportFilterServiceType("GUIService");
 		
+		// FIXME - can't do this HAS TO BE A COPY !!!!
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled) {
 			return local; // FIXME - still need to construct new SWs
 		}
@@ -566,6 +570,8 @@ public class Runtime extends Service {
 				log.debug(String.format("service: %1$s", sw.getServiceType()));
 				// create new structure - otherwise it won't be correctly filtered
 				si = sw.get();
+			} else {
+				continue;
 			}
 			sw2 = new ServiceWrapper(name, si, export);
 			export.serviceDirectory.put(name, sw2);

@@ -4,14 +4,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 
-public class _TempateService extends Service {
+public class _TemplateService extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(_TempateService.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(_TemplateService.class.getCanonicalName());
 
-	public _TempateService(String n) {
-		super(n, _TempateService.class.getCanonicalName());
+	public _TemplateService(String n) {
+		super(n, _TemplateService.class.getCanonicalName());
 	}
 	
 	@Override
@@ -28,7 +28,7 @@ public class _TempateService extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
 		
-		_TempateService template = new _TempateService("template");
+		_TemplateService template = new _TemplateService("template");
 		template.startService();
 		/*
 		GUIService gui = new GUIService("gui");

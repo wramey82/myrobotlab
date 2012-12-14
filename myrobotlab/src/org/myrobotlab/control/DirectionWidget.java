@@ -89,6 +89,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnNw, gbc_btnNw);
 		btnNw.addKeyListener(this);
 		btnNw.setActionCommand("nw");
+		btnNw.setVisible(false);
 		
 		btnN = new JButton("");
 		btnN.setBackground(new Color(173, 255, 47));
@@ -115,6 +116,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnNe, gbc_btnNe);
 		btnNe.addKeyListener(this);
 		btnNe.setActionCommand("listener");
+		btnNe.setVisible(false);
 		
 		btnW = new JButton("");
 		btnW.setBackground(new Color(173, 255, 47));
@@ -166,7 +168,9 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		gbc_btnSw.gridy = 2;
 		add(btnSw, gbc_btnSw);
 		btnSw.addKeyListener(this);
-		btnSw.setActionCommand("sw");		
+		btnSw.setActionCommand("sw");	
+		btnSw.setVisible(false);
+
 		
 		btnS = new JButton("");
 		btnS.setBackground(new Color(173, 255, 47));
@@ -193,6 +197,8 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnSe, gbc_btnSe);
 		btnSe.addKeyListener(this);
 		btnSe.setActionCommand("se");		
+		btnSe.setVisible(false);
+
 		
 		/*
 		JToggleButton tglbtnT = new JToggleButton("use keyboard");
