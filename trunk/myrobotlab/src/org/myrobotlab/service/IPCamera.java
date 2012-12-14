@@ -31,6 +31,8 @@ public class IPCamera extends Service {
 	private Thread videoProcess = null;
 
 	private boolean capturing = false;
+	
+	private boolean enableControls = true;
 
 	public final static Logger log = Logger.getLogger(IPCamera.class.getCanonicalName());
 
@@ -62,9 +64,9 @@ public class IPCamera extends Service {
 				capturing = true;
 				while (capturing) {
 					BufferedImage bi = grabber.grabBufferedImage();
-					log.info("grabbed");
+					log.debug("grabbed");
 					if (bi != null){
-						log.info("publishFrame");
+						log.debug("publishFrame");
 						invoke("publishFrame", new Object[] { host,  bi });
 					}
 				}
@@ -94,7 +96,12 @@ public class IPCamera extends Service {
 
 	public String move(Integer param)
 	{
-		log.debug("move " + param);
+		if (!enableControls)
+		{
+			return null;
+		}
+		
+		log.info("move " + param);
 		StringBuffer ret = new StringBuffer();
 		try {
 			// TODO - re-use connection optimization
@@ -220,13 +227,19 @@ public class IPCamera extends Service {
 	
 	static public HashMap<String, ArrayList<Test>> tests = new HashMap<String, ArrayList<Test>>();
 	
+	public Boolean setEnableControls(Boolean v)
+	{
+		enableControls = v;
+		return v;
+	}
+	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
 		IPCamera foscam = new IPCamera("foscam");
-
-		
+		foscam.startService();
+		/*
 		Test l = new Test("left");
 		Test r = new Test("right");
 		
@@ -260,5 +273,5 @@ public class IPCamera extends Service {
 		gui.display();
 		
 	}
-
+	
 }

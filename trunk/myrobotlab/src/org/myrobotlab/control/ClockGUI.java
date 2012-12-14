@@ -27,10 +27,10 @@ package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -39,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.Clock;
@@ -46,15 +47,23 @@ import org.myrobotlab.service.Clock.PulseDataType;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class ClockGUI extends ServiceGUI implements ActionListener{
+public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	JButton startClock = new JButton("start clock");
 	JButton startCountDown = new JButton("start count down");
-	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:120px\">00:00:00</p></html>");
 
-    ButtonGroup group = new ButtonGroup();
-    
+	JPanel clockDisplayPanel = new JPanel(new BorderLayout());
+	JPanel clockControlPanel = new JPanel();
+
+	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:120px;\">00:00:00</p></html>");
+	JLabel msgDisplay = new JLabel("");
+
+	ButtonGroup group = new ButtonGroup();
+
+
+	Date countDownTo = null;
+
 	JRadioButton none = new JRadioButton("none");
 	JRadioButton increment = new JRadioButton("increment");
 	JRadioButton integer = new JRadioButton("integer");
@@ -63,47 +72,38 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 	JTextField interval = new JTextField("1000");
 	JTextField pulseDataString = new JTextField(10);
 	JIntegerField pulseDataInteger = new JIntegerField(10);
-	
+
 	Clock myClock = null;
-	
+
+
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
 
 	public void init() {
 		display.setLayout(new BorderLayout());
-		
-		JPanel clockDisplayPanel = new JPanel();
-		clockDisplayPanel.add(clockDisplay);
-	
+
+		clockDisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		clockDisplayPanel.add(clockDisplay, BorderLayout.CENTER);
+		msgDisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		clockDisplayPanel.add(msgDisplay, BorderLayout.SOUTH);
+
 		display.add(clockDisplayPanel, BorderLayout.CENTER);
-		
-		JPanel clockControlPanel = new JPanel();
 		display.add(clockControlPanel, BorderLayout.SOUTH);
 
-		
-		gc.gridx = 0;
-		gc.gridy = 0;
-		gc.gridwidth = 2;
-
+		startCountDown.addActionListener(this);
+		clockControlPanel.add(startCountDown);
 		clockControlPanel.add(startClock);
-		gc.gridwidth = 1;
-		++gc.gridx;
 		clockControlPanel.add(new JLabel("  interval  "));
-		++gc.gridx;
 		clockControlPanel.add(interval);
-		++gc.gridx;
 		clockControlPanel.add(new JLabel("  ms  "));
-		
-		
+
 		// build filters begin ------------------
 		JPanel pulseData = new JPanel(new GridBagLayout());
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder("pulse data");
 		pulseData.setBorder(title);
-		
+
 		none.setActionCommand("none");
 		none.setSelected(true);
 		none.addActionListener(this);
@@ -116,123 +116,136 @@ public class ClockGUI extends ServiceGUI implements ActionListener{
 
 		string.setActionCommand("string");
 		string.addActionListener(this);
-		
-	     //Group the radio buttons.
-        group.add(none);
-        group.add(increment);
-        group.add(integer);
-        group.add(string);
-        
-        // reuse gc
-        gc.gridx = 0;
-        gc.gridy = 0;
-        pulseData.add(none);
-        ++gc.gridy;
-        pulseData.add(increment);
-        ++gc.gridy;        
-        pulseData.add(integer);
-        ++gc.gridx;
-        pulseData.add(pulseDataInteger);
-        gc.gridx = 0;        
-        ++gc.gridy;
-        pulseData.add(string);
-        ++gc.gridx;        
-        pulseData.add(pulseDataString);
 
-        // reuse gc
-		gc.gridx = 0;
-		gc.gridy = 2;
-        clockControlPanel.add(pulseData);
-        
-        myClock = (Clock)Runtime.getServiceWrapper(boundServiceName).service;
-		
+		// Group the radio buttons.
+		group.add(none);
+		group.add(increment);
+		group.add(integer);
+		group.add(string);
+
+		pulseData.add(none);
+		pulseData.add(increment);
+		pulseData.add(integer);
+		pulseData.add(pulseDataInteger);
+		pulseData.add(string);
+		pulseData.add(pulseDataString);
+		clockControlPanel.add(pulseData);
+
+		myClock = (Clock) Runtime.getServiceWrapper(boundServiceName).service;
+
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		
-		if (o == none || o == increment || o == integer || o == string)
-		{
+
+		if (o == none || o == increment || o == integer || o == string) {
 			myClock.setType(((JRadioButton) e.getSource()).getText());
 		}
-		
-		if (o == startClock)
-		{
+
+		if (o == startClock) {
 			if (startClock.getText().compareTo("start clock") == 0) {
 				startClock.setText("stop clock");
-										
+
 				myClock.interval = Integer.parseInt(interval.getText());
 				myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
 				myClock.pulseDataString = pulseDataString.getText();
-						
-				// set the state of the bound service - whether local or remote 
-				myService.send(boundServiceName, "setState", myClock); // double set on local
-				// publish the fact you set the state - 
-				// TODO - should this a function which calls both functions ? 
-				myService.send(boundServiceName, "publishState"); // TODO - bury in Service.SetState?
-				myService.send(boundServiceName, "startClock"); 
-				
+
+				// set the state of the bound service - whether local or remote
+				myService.send(boundServiceName, "setState", myClock); // double
+																		// set
+																		// on
+																		// local
+				// publish the fact you set the state -
+				// TODO - should this a function which calls both functions ?
+				myService.send(boundServiceName, "publishState"); // TODO - bury
+																	// in
+																	// Service.SetState?
+				myService.send(boundServiceName, "startClock");
+
 			} else {
 				startClock.setText("start clock");
 				myService.send(boundServiceName, "stopClock");
 			}
 		}
+
+		if (o == startCountDown) {
+
+			countDownTo = Clock.getFutureDate(5, 0);
+			myService.send(boundServiceName, "startCountDown", countDownTo);
+			clockControlPanel.setVisible(false);
+			// color:#2BFF00;
+			msgDisplay.setText("<html><p style=\"font-size:20px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
+			clockDisplay.setOpaque(true);
+			msgDisplay.setOpaque(true);
+			clockDisplay.setBackground(new Color(0x2BFF00));
+			msgDisplay.setBackground(new Color(0x2BFF00));
+		}
 	}
-	
-	// FIXME - is get/set state interact with Runtime registry ??? 
+
+	// FIXME - is get/set state interact with Runtime registry ???
 	// it probably should
-	public void getState(Clock c)
-	{
+	public void getState(Clock c) {
 		// Setting the clockControlPanel fields based on incoming Clock data
 		// if the Clock is local - the actual clock is sent
 		// if the Clock is remote - a data proxy is sent
-		if (c != null)
-		{
-			if (c.pulseDataType == PulseDataType.increment)
-			{
+		if (c != null) {
+			if (c.pulseDataType == PulseDataType.increment) {
 				increment.setSelected(true);
-			} else if (c.pulseDataType == PulseDataType.integer)
-			{
+			} else if (c.pulseDataType == PulseDataType.integer) {
 				integer.setSelected(true);
-				
-			} else if (c.pulseDataType == PulseDataType.string)
-			{
+
+			} else if (c.pulseDataType == PulseDataType.string) {
 				string.setSelected(true);
-				
-			} else if (c.pulseDataType == PulseDataType.none)
-			{
-				none.setSelected(true);			
+
+			} else if (c.pulseDataType == PulseDataType.none) {
+				none.setSelected(true);
 			}
-			
+
 			pulseDataString.setText(c.pulseDataString);
 
 			pulseDataInteger.setInt(c.pulseDataInteger);
-			
+
 			interval.setText((c.interval + ""));
-			
-			if (c.isClockRunning)
-			{
-				startClock.setText("stop clock");				
+
+			if (c.isClockRunning) {
+				startClock.setText("stop clock");
 			} else {
-				startClock.setText("start clock");				
+				startClock.setText("start clock");
 			}
-			
+
 		}
-		
+
 	}
 
+	String displayFormat = "<html><p style=\"font-size:120px\">%02d:%02d:%02d</p></html>";
 
-	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
+	public void countdown(Long amtRemaining) {
+
+		long sec = amtRemaining / 1000 % 60;
+		long min = amtRemaining / (60 * 1000) % 60;
+		long hrs = amtRemaining / (60 * 60 * 1000);
+
+		clockDisplay.setText(String.format(displayFormat, hrs, min, sec));
+	}
+	
+	public void addClockEvent(Date time, String name, String method,  Object... data)
+	{
+		myService.send(boundServiceName, "addClockEvent", time, name, method, data);
+	}
+
+	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <-
+	// Class.forName(type)
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", Clock.class); 
+		subscribe("countdown", "countdown", Long.class);
+		subscribe("publishState", "getState", Clock.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
+		unsubscribe("countdown", "countdown", Long.class);
 		unsubscribe("publishState", "getState", Clock.class);
 	}
 

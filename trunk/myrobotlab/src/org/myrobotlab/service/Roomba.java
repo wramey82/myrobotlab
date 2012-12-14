@@ -44,7 +44,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	public final static Logger log = Logger.getLogger(Roomba.class
 			.getCanonicalName());
 
-	RoombaCommSerialDevice roombacomm = null;
+	transient RoombaCommSerialDevice roombacomm = null;
 
 	@Element
 	String portName = "";

@@ -130,7 +130,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		}
 		// find embedded jpeg in stream
 		String subheader = sb.toString();
-		log.error(subheader);
+		log.debug(subheader);
 		int contentLength = -1;
 		//if (boundryKey == null)
 		//{
@@ -139,7 +139,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 			int c1 = subheader.indexOf('\r',c0);
 			 c0 += 16;
 			 contentLength = Integer.parseInt(subheader.substring(c0,c1));
-			 log.info("Content-Length: " + contentLength);
+			 log.debug("Content-Length: " + contentLength);
 		//} else {
 			
 		//}

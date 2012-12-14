@@ -91,7 +91,8 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
 			} else if ("stop".equals(ae.getActionCommand())) {
-				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_CENTER);
+				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_STOP_RIGHT);
+				//myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_CENTER);
 			} else if ("connect".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "connect", host.getText(), user.getText(), password.getText());
 			} else if ("capture".equals(ae.getActionCommand())) {
@@ -114,7 +115,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		direction.setDirectionListener(del);
 	}
 
-	JTextField host = new JTextField("myrobotlab.dyndns.org:1060", 8);
+	JTextField host = new JTextField("192.168.0.68", 8);
 	JTextField user = new JTextField("admin", 8);
 	JPasswordField password = new JPasswordField("xxxxx", 8);
 	
@@ -152,7 +153,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		connect.addActionListener(del);
 		display.add(connect, gc);
 		++gc.gridx;
-		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));
+		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));// TODO move to IPCamera
 		notConnected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_grey.png")));
 		display.add(notConnected, gc);
 		display.add(connected, gc);
@@ -233,6 +234,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		video0.attachGUI();
 		subscribe("connect", "isConnected", Boolean.class);
 		subscribe("getStatus", "getStatus", String.class);
+		subscribe("setEnableControls", "setEnableControls", Boolean.class);
 	}
 
 	@Override
@@ -240,8 +242,21 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		video0.detachGUI();
 		unsubscribe("connect", "isConnected", Boolean.class);
 		unsubscribe("getStatus", "getStatus", String.class);
+		unsubscribe("setEnableControls", "setEnableControls", Boolean.class);
 	}
 
+	public void setEnableControls(Boolean v)
+	{
+		// from service -> prevents control on the service level
+		// event comes back and updates gui
+		direction.btnN.setEnabled(v);
+		direction.btnS.setEnabled(v);
+		direction.btnE.setEnabled(v);
+		direction.btnW.setEnabled(v);
+		direction.btnStop.setEnabled(v);
+		//direction.setEnabled(v);
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		// TODO Auto-generated method stub

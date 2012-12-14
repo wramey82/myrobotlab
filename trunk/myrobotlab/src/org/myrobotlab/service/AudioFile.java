@@ -49,7 +49,9 @@ public class AudioFile extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(AudioFile.class.getCanonicalName());
-	Player player;
+	transient Player player;
+	transient AePlayWave wavPlayer = new AePlayWave();
+
 
 	public AudioFile(String n) {
 		super(n, AudioFile.class.getCanonicalName());
@@ -138,7 +140,6 @@ public class AudioFile extends Service {
 		wavPlayer.playAeWavFile(name);
 	}
 
-	AePlayWave wavPlayer = new AePlayWave();
 	
 	public void playBlockingWavFile(String filename)
 	{
