@@ -694,7 +694,7 @@ public class ServiceTest {
 		log.warn("clientAPI end-------------");
 	}
 	*/
-	
+	/*
 	@Test
 	public final void JythonTest() {
 		Python jython = (Python)Runtime.createAndStart("jython", "Jython");
@@ -707,7 +707,7 @@ public class ServiceTest {
 		assertEquals(10, (int)catcher.catchList.get(0));
 		Runtime.releaseAll();
 	}
-
+	*/
 	@Test
 	public void cleanUp ()
 	{
