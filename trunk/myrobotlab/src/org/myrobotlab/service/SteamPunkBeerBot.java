@@ -6,12 +6,8 @@ import org.myrobotlab.framework.Service;
 
 public class SteamPunkBeerBot extends Service {
 
-	//Clock countdown;
-	//Speech voice;
 	IPCamera beerEye;
 	Roomba beerbot;		
-	//Arduino reactor;
-	//AudioFile audio;
 	GUIService beergui;
 	
 	private static final long serialVersionUID = 1L;

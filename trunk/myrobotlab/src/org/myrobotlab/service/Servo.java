@@ -219,6 +219,42 @@ public class Servo extends Service implements ServoControl {
 		sweep(sweepStart, sweepEnd, sweepDelayMS, sweepIncrement);
 	}
 
+
+
+	@Override
+	public String getControllerName() {
+		if (controller == null)
+		{
+			return null;
+		} 
+		
+		return controller.getName();
+	}
+
+	@Override
+	public Integer getPin() {
+		if (controller == null)
+		{
+			return null;
+		}
+		
+		return controller.getServoPin(getName());
+	}
+
+	public void setSpeed(Float speed) {
+		if (speed == null) {return;}
+		
+		controller.setServoSpeed(getName(), speed);
+	}
+	
+	public void detach()
+	{
+		if (controller != null)
+		{
+			controller.servoDetach(getName());
+		}
+	}
+
 	public static void main(String[] args) throws InterruptedException {
 
 		org.apache.log4j.BasicConfigurator.configure();
@@ -259,40 +295,5 @@ public class Servo extends Service implements ServoControl {
 		Runtime.createAndStart("gui", "GUIService");
 		
 	}
-
-	@Override
-	public String getControllerName() {
-		if (controller == null)
-		{
-			return null;
-		} 
-		
-		return controller.getName();
-	}
-
-	@Override
-	public Integer getPin() {
-		if (controller == null)
-		{
-			return null;
-		}
-		
-		return controller.getServoPin(getName());
-	}
-
-	public void setSpeed(Float speed) {
-		if (speed == null) {return;}
-		
-		controller.setServoSpeed(getName(), speed);
-	}
-	
-	public void detach()
-	{
-		if (controller != null)
-		{
-			controller.servoDetach(getName());
-		}
-	}
-
 	
 }

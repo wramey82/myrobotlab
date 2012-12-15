@@ -43,8 +43,10 @@ public class Clock extends Service {
 
 	public final static Logger log = Logger.getLogger(Clock.class.getCanonicalName());
 	
-	ArrayList<ClockEvent> events = new ArrayList<ClockEvent>();
+	transient ArrayList<ClockEvent> events = new ArrayList<ClockEvent>(); // FIXME - should be serializable - but isnt
+	
 	public static class ClockEvent {
+		
 		Date time = null;
 		String name;
 		String method;
@@ -341,6 +343,14 @@ public class Clock extends Service {
 			cal.add(Calendar.MINUTE, minutes);
 		if (seconds != null)
 			cal.add(Calendar.SECOND, seconds);
+		return cal.getTime();
+	}
+	
+	public static Date add(Date startDate, Integer seconds)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(startDate);
+		cal.add(Calendar.SECOND, seconds);
 		return cal.getTime();
 	}
 	
