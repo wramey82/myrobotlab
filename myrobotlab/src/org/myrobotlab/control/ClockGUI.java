@@ -173,13 +173,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 			countDownTo = Clock.getFutureDate(5, 0);
 			myService.send(boundServiceName, "startCountDown", countDownTo);
-			clockControlPanel.setVisible(false);
-			// color:#2BFF00;
-			msgDisplay.setText("<html><p style=\"font-size:20px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
-			clockDisplay.setOpaque(true);
-			msgDisplay.setOpaque(true);
-			clockDisplay.setBackground(new Color(0x2BFF00));
-			msgDisplay.setBackground(new Color(0x2BFF00));
 		}
 	}
 
@@ -225,6 +218,14 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		long sec = amtRemaining / 1000 % 60;
 		long min = amtRemaining / (60 * 1000) % 60;
 		long hrs = amtRemaining / (60 * 60 * 1000);
+
+		clockControlPanel.setVisible(false);
+		// color:#2BFF00;
+		msgDisplay.setText("<html><p style=\"font-size:20px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
+		clockDisplay.setOpaque(true);
+		msgDisplay.setOpaque(true);
+		clockDisplay.setBackground(new Color(0x2BFF00));
+		msgDisplay.setBackground(new Color(0x2BFF00));
 
 		clockDisplay.setText(String.format(displayFormat, hrs, min, sec));
 	}
