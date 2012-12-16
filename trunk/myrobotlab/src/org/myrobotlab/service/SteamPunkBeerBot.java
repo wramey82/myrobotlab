@@ -8,6 +8,7 @@ public class SteamPunkBeerBot extends Service {
 
 	IPCamera beerEye;
 	Roomba beerbot;		
+
 	GUIService beergui;
 	
 	private static final long serialVersionUID = 1L;
