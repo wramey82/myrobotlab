@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.data.Pin;
 
 public class SteamPunkGame extends Service {
 
@@ -19,6 +20,7 @@ public class SteamPunkGame extends Service {
 	
 	Servo left;
 	Servo right;
+	Servo hopper;
 	
 	Date gameEndTime;
 	
@@ -33,6 +35,25 @@ public class SteamPunkGame extends Service {
 	
 	public void initGame()
 	{
+		hopper = new Servo("hopper");
+		hopper.startService();
+		
+		reactor = new Arduino("reactor");
+		reactor.startService();
+		reactor.setSerialDevice("/dev/ttyUSB0", 57600, 8, 1, 0);
+		reactor.broadcastState();
+		sleep(1000);
+				
+		gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+	
+		reactor.digitalReadPollingStart(4);
+		this.subscribe("publishPin", reactor.getName(), "publishPin", Pin.class);
+		
+		reactor.attach(hopper.getName(), 8);
+		hopper.moveTo(90);
+		//hopper.moveTo(0);
 		
 		voice = new Speech("voice");
 		voice.startService();
@@ -50,23 +71,29 @@ public class SteamPunkGame extends Service {
 
 		eyebot = new Arduino("eyebot");
 		eyebot.startService();
+		eyebot.setSerialDevice("/dev/rfcomm0", 57600, 8, 1, 0);
+		eyebot.broadcastState();
+		sleep(1000);
 				
-		reactor = new Arduino("reactor");
-		reactor.startService();
 				
 		remote = new RemoteAdapter("remote");
 		remote.startService();
 		
 		left = new Servo("left");
+		left.startService();
 		right = new Servo("right");		
+		right.startService();
 	
-		gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
+		eyebot.attach(left.getName(), 8);
+		eyebot.attach(right.getName(), 9);
+		
+		left.broadcastState();
+		right.broadcastState();
+		
 		
 	}
 	
-	
+	boolean gameStarted = false;
 	public void startGame()
 	{
 		fiveMinuteWarning();
@@ -79,6 +106,15 @@ public class SteamPunkGame extends Service {
 		countdown.addClockEvent(Clock.add(gameEndTime, -1), this.getName(), "failure", (Object[])null);
 		countdown.startCountDown(gameEndTime);
 		
+		gameStarted = true;
+		
+	}
+	
+	public void publishPin(Pin p){
+		if (gameStarted & p.value == 0)
+		{
+			success();
+		}
 	}
 	
 	@Override
@@ -132,9 +168,19 @@ public class SteamPunkGame extends Service {
 	
 	public void failure()
 	{
+		reactor.pinMode(12, Arduino.OUTPUT);
+		reactor.digitalWrite(12, 0);
+		reactor.digitalWrite(12, 1);
+		reactor.digitalWrite(12, 0);
+		reactor.digitalWrite(12, 1);
+		reactor.digitalWrite(12, 0);
+		reactor.digitalWrite(12, 1);
+		
 		voice.setLanguage("en");
 		voice.speak("oh no! the core has melted. Im sorry. thanks for playing");
 		audio.playFile("explosion.mp3");
+		
+		hopper.moveTo(0);
 		// reactor - changes
 	}
 

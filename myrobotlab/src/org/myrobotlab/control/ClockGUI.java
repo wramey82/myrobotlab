@@ -56,7 +56,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	JPanel clockDisplayPanel = new JPanel(new BorderLayout());
 	JPanel clockControlPanel = new JPanel();
 
-	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:120px;\">00:00:00</p></html>");
+	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:30px;\">00:00:00</p></html>");
 	JLabel msgDisplay = new JLabel("");
 
 	ButtonGroup group = new ButtonGroup();
@@ -211,7 +211,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	}
 
-	String displayFormat = "<html><p style=\"font-size:120px\">%02d:%02d:%02d</p></html>";
+	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
 
 	public void countdown(Long amtRemaining) {
 
@@ -221,7 +221,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 		clockControlPanel.setVisible(false);
 		// color:#2BFF00;
-		msgDisplay.setText("<html><p style=\"font-size:20px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
+		msgDisplay.setText("<html><p style=\"font-size:10px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
 		clockDisplay.setOpaque(true);
 		msgDisplay.setOpaque(true);
 		clockDisplay.setBackground(new Color(0x2BFF00));
