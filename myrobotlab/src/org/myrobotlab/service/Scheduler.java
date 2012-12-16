@@ -243,7 +243,7 @@ public class Scheduler extends Service {
 			props.put("org.quartz.dataSource.myDS.driver", "com.mysql.jdbc.Driver");
 			props.put("org.quartz.dataSource.myDS.URL", "jdbc:mysql://localhost:3306/viva");
 			props.put("org.quartz.dataSource.myDS.user", "root");
-			props.put("org.quartz.dataSource.myDS.password", "zardoz7");
+			props.put("org.quartz.dataSource.myDS.password","" );
 			props.put("org.quartz.dataSource.myDS.maxConnections", "20");
 
 			// config end ---------------------------------------------------
