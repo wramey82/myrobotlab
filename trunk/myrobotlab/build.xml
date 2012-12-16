@@ -32,6 +32,7 @@
 	release
 	
 	References:
+	http://onjava.com/pub/a/onjava/2003/12/17/ant_bestpractices.html
 	http://www.qasimrasheed.com/post.cfm/eclipse-configure-ant-home
 	http://java.dzone.com/articles/how-use-svn-tasks-with-ant
 	http://stackoverflow.com/questions/1727616/custom-junit-report
@@ -41,7 +42,7 @@
 	
 -->
 
-<project name="myrobotlab" default="report" basedir=".">
+<project name="myrobotlab" default="upload" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 	
 	<!-- 
@@ -60,7 +61,6 @@
 	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
 	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
 	<property name="junit.src" 			location="../myrobotlab-tests/src" />
-	<!--   <property name="targetVersion" 		value="intermediate" />-->
 	<property name="thirdParty.build" 	location="./thirdParty/build" />
 	<property name="XMLConstants.FEATURE_SECURE_PROCESSING" value="false" />
 	
@@ -88,6 +88,10 @@ mail.to=someone@somewhere.com
 	<property name="mail.password" 			value="" /><!-- get from local properties file -->
 	<property name="mail.from" 				value="build@myrobotlab.org" />
 	<property name="mail.tolist" 			value="" /><!-- get from local properties file -->
+			<property environment="env" />
+		<property name="gc.upload.userid" value="${env.gc.upload.userid}"/>  
+		<property name="gc.upload.password" value="${env.gc.upload.password}"/>  
+	
 		
 	<!-- class path for build -->
 	<path id="compile.classpath">
@@ -131,7 +135,7 @@ mail.to=someone@somewhere.com
 
 		<svn javahl="${svnant.javahl}" svnkit="${svnant.svnkit}"   
 		        username="${svn.username}" password="${svn.password}">
-		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>                       
+		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>       								              
 		</svn>
 	</target>
 	
@@ -153,7 +157,7 @@ mail.to=someone@somewhere.com
         		<isset property="build.type"/>
     		</not>
 		</condition>
-	    <condition property="targetVersion" value="intermediate">
+	    <condition property="targetVersion" value="myrobotlab">
     		<not>  
         		<isset property="targetVersion"/>
     		</not>
@@ -192,6 +196,9 @@ mail.to=someone@somewhere.com
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist.root.dir}" />
 		<mkdir dir="${dist}" />
+		
+		<echo message="uid ${env.gc.upload.userid}"/>
+		<echo message="pwd ${env.gc.upload.password}"/>
 		
 	</target>
 
@@ -242,6 +249,9 @@ mail.to=someone@somewhere.com
 			</manifest>
 		</jar>
 		<chmod file="${dist}/*.sh" perm="ugo+rx"/>
+		<zip destfile="${dist.root.dir}/${label}.zip"
+   			basedir="${dist.root.dir}"
+   			includes="${label}/**" />
 	</target>
 
 	<!-- scp updates begin -->
@@ -257,11 +267,13 @@ mail.to=someone@somewhere.com
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="upload" depends="junit" description="upload to google code">
+	<target name="upload" depends="report" description="upload to google code">
+	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
+		 -->
 		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload" />
-		<gcupload username="${gc.upload.userid}" password="${gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist}/${label}/libraries/jar/myrobotlab.jar" targetfilename="myrobotlab.${DSTAMP}.${TSTAMP}.jar" summary="latest build of myrobotlab.jar r${repository.revision}" labels="OpSys-All" />
+		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package" labels="OpSys-All" />
 	</target>
 
 	<target name="junit" depends="dist">
