@@ -88,9 +88,9 @@ mail.to=someone@somewhere.com
 	<property name="mail.password" 			value="" /><!-- get from local properties file -->
 	<property name="mail.from" 				value="build@myrobotlab.org" />
 	<property name="mail.tolist" 			value="" /><!-- get from local properties file -->
-			<property environment="env" />
-		<property name="gc.upload.userid" value="${env.gc.upload.userid}"/>  
-		<property name="gc.upload.password" value="${env.gc.upload.password}"/>  
+	<property environment="env" />
+	<property name="gc.upload.userid" 		value="${env.gc.upload.userid}"/>  
+	<property name="gc.upload.password" 	value="${env.gc.upload.password}"/>  
 	
 		
 	<!-- class path for build -->
@@ -267,12 +267,12 @@ mail.to=someone@somewhere.com
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="upload" depends="report" description="upload to google code">
+	<target name="upload" depends="report" description="upload to google code" >
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
 		 -->
-		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant_ext/ant-googlecode-0.0.3.jar" name="gcupload" />
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload" classpathref="ant_ext.classpath"/>
 		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package" labels="OpSys-All" />
 	</target>
 
