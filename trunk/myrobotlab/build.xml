@@ -267,7 +267,7 @@ mail.to=someone@somewhere.com
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="upload" depends="report" description="upload to google code" classpath="${src}/../thirdParty/build/ant_ext/ant-googlecode-0.0.3.jar">
+	<target name="upload" depends="report" description="upload to google code">
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
