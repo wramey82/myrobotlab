@@ -267,12 +267,12 @@ mail.to=someone@somewhere.com
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="upload" depends="report" description="upload to google code">
+	<target name="upload" depends="report" description="upload to google code" classpath="${src}/../thirdParty/build/ant_ext/ant-googlecode-0.0.3.jar">
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
 		 -->
-		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant-googlecode-0.0.3.jar" name="gcupload" />
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${src}/../thirdParty/build/ant_ext/ant-googlecode-0.0.3.jar" name="gcupload" />
 		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package" labels="OpSys-All" />
 	</target>
 
