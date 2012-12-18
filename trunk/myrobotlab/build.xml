@@ -92,6 +92,10 @@ mail.to=someone@somewhere.com
 	<property name="gc.upload.userid" 		value="${env.gc.upload.userid}"/>  
 	<property name="gc.upload.password" 	value="${env.gc.upload.password}"/>  
 	
+	<exec executable="svn" dir="." outputproperty="svn.comment">
+     <arg line="propget --revprop svn:log -r HEAD"/>
+	</exec>
+	<echo>The svn comment is: ${svn.comment}</echo>
 		
 	<!-- class path for build -->
 	<path id="compile.classpath">
@@ -267,16 +271,6 @@ mail.to=someone@somewhere.com
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="upload" depends="report" description="upload to google code" >
-	    <!-- 
-		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
-		<input message="Please enter upload password:" addproperty="gc.upload.password" />
-		 -->
-		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload" classpathref="ant_ext.classpath"/>
-		<!--   gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}/myrobotlab.jar" targetfilename="myrobotlab.jar" summary="latest jar for bleeding edge updates" labels="OpSys-All" -->
-		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package" labels="OpSys-All" />
-	</target>
-
 	<target name="junit" depends="dist">
 		<!-- FIXME - copy over serviceData.xml & ivy repo - root?  -->
 
@@ -352,7 +346,17 @@ mail.to=someone@somewhere.com
 		</javadoc>
 	</target>
 
-	<!-- TODO - upload javadoc, check in javadoc? -->
+	<target name="upload" depends="report" description="upload to google code" >
+	    <!-- 
+		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
+		<input message="Please enter upload password:" addproperty="gc.upload.password" />
+		 -->
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload" classpathref="ant_ext.classpath"/>
+		<!--   gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}/myrobotlab.jar" targetfilename="myrobotlab.jar" summary="latest jar for bleeding edge updates" labels="OpSys-All" -->
+		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package - ${svn.comment}" labels="OpSys-All" />
+	</target>
+
+		<!-- TODO - upload javadoc, check in javadoc? -->
 
 	<!-- how to call a class directly	
 	<target name="run" depends="compile">

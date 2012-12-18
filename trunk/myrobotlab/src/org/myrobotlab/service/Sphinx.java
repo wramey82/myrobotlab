@@ -197,7 +197,6 @@ public class Sphinx extends Service {
 
 	class SpeechProcessor extends Thread {
 		Sphinx myService = null;
-		int cnt = 0;
 		public boolean isRunning = false;
 
 		public SpeechProcessor(Sphinx myService) {
@@ -242,8 +241,6 @@ public class Sphinx extends Service {
 					Result result = recognizer.recognize();
 
 					// log.error(result.getBestPronunciationResult());
-					++cnt;
-					log.warn(cnt);
 					if (result != null) {
 						String resultText = result.getBestFinalResultNoFiller();
 						if (resultText.length() > 0 && isListening) {
@@ -279,11 +276,20 @@ public class Sphinx extends Service {
 	}
 
 	// FYI - grammar must be created BEFORE we start to listen
-	public void startListening() {
+	public void startListening() 
+	{
+		startListening(null); // use existing grammar
+	}
+	
+	public void startListening(String grammar) {
 		if (speechProcessor != null)
 		{
 			log.warn("already listening");
 			return;
+		}
+		if (grammar != null)
+		{
+			createGrammar(grammar);
 		}
 		speechProcessor = new SpeechProcessor(this);
 		speechProcessor.start();

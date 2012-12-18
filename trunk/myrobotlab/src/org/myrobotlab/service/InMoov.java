@@ -519,8 +519,17 @@ public class InMoov extends Service {
 		ear.stopListening();
 	}
 
+	boolean isTracking = false;
+	
 	public void startTracking()
 	{
+		if (isTracking)
+		{
+			log.warn("already tracking");
+			return;
+		}
+		
+		isTracking = true;
 		eye.addFilter("pyramidDown1","PyramidDown");
 		eye.addFilter("lkOpticalTrack1","LKOpticalTrack");
 		eye.setDisplayFilter("lkOpticalTrack1");
@@ -531,6 +540,13 @@ public class InMoov extends Service {
 	
 	public void stopTracking()
 	{
+		if (!isTracking)
+		{
+			log.warn("already stopped tracking");
+			return;
+		}
+			
+		isTracking = false;
 		eye.removeFilters();
 		eye.stopCapture();
 	}
