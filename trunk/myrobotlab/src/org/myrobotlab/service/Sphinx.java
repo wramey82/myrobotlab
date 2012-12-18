@@ -167,15 +167,10 @@ public class Sphinx extends Service {
 
 	public void startService() {
 		super.startService();
-		speechProcessor = new SpeechProcessor(this);
-		speechProcessor.start();
 	}
 
 	public void stopService() {
-		if (speechProcessor != null) {
-			speechProcessor.isRunning = false;
-		}
-		speechProcessor = null;
+		stopListening();
 		super.stopService();
 	}
 
@@ -202,6 +197,7 @@ public class Sphinx extends Service {
 
 	class SpeechProcessor extends Thread {
 		Sphinx myService = null;
+		int cnt = 0;
 		public boolean isRunning = false;
 
 		public SpeechProcessor(Sphinx myService) {
@@ -246,6 +242,8 @@ public class Sphinx extends Service {
 					Result result = recognizer.recognize();
 
 					// log.error(result.getBestPronunciationResult());
+					++cnt;
+					log.warn(cnt);
 					if (result != null) {
 						String resultText = result.getBestFinalResultNoFiller();
 						if (resultText.length() > 0 && isListening) {
@@ -271,19 +269,41 @@ public class Sphinx extends Service {
 
 	}
 
+	
+	public void stopListening() {
+		isListening = false;
+		if (speechProcessor != null) {
+			speechProcessor.isRunning = false;
+		}
+		speechProcessor = null;
+	}
+
+	// FYI - grammar must be created BEFORE we start to listen
+	public void startListening() {
+		if (speechProcessor != null)
+		{
+			log.warn("already listening");
+			return;
+		}
+		speechProcessor = new SpeechProcessor(this);
+		speechProcessor.start();
+	}
+	
 	/**
 	 * method to suppress recognition listening events This is important when
 	 * Sphinx is listening --> then Speaking, typically you don't want Sphinx to
 	 * listen to its own speech, it causes a feedback loop and with Sphinx not
-	 * really very accurate, it leads to weirdness
+	 * really very accurate, it leads to weirdness -- additionally it does
+	 * not recreate the speech processor - so its not as heavy handed
 	 */
-	public void stopListening() {
+	public void pauseListening() {
 		isListening = false;
 	}
 
-	public void startListening() {
+	public void resumeListening() {
 		isListening = true;
 	}
+	
 
 	/**
 	 * Defines the standard behavior for a node. The standard behavior is:
@@ -425,11 +445,11 @@ public class Sphinx extends Service {
 	public synchronized boolean isSpeaking(Boolean talking) {
 		if (talking) {
 			isListening = false;
-			log.info("I'm talking so I'm not listening"); // Gawd, ain't that
+			log.warn("I'm talking so I'm not listening"); // Gawd, ain't that
 															// the truth !
 		} else {
 			isListening = true;
-			log.info("I'm not talking so I'm listening"); // mebbe
+			log.warn("I'm not talking so I'm listening"); // mebbe
 		}
 		return talking;
 	}

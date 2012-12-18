@@ -48,8 +48,7 @@ import edu.cmu.sphinx.util.props.S4Component;
  */
 public class DialogManager implements Configurable {
 
-	public final static Logger log = Logger.getLogger(DialogManager.class
-			.toString());
+	public final static Logger log = Logger.getLogger(DialogManager.class.toString());
 
 	/**
 	 * The property that defines the name of the grammar component to be used by
@@ -88,8 +87,7 @@ public class DialogManager implements Configurable {
 	private String name;
 
 	public void generateGrammarFiles(Service myService) {
-		HashMap<String, ServiceEntry> services = myService.getHostCFG()
-				.getServiceMap();
+		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
 		Iterator<String> it = services.keySet().iterator();
 
 		// this.getClass().getClassLoader().getResource(grammarLocation)
@@ -104,8 +102,7 @@ public class DialogManager implements Configurable {
 
 			while (it.hasNext()) {
 				String serviceName = it.next();
-				g.write("\t\t" + serviceName + "\t\t" + "{ goto_" + serviceName
-						+ " } ");
+				g.write("\t\t" + serviceName + "\t\t" + "{ goto_" + serviceName + " } ");
 				if (it.hasNext()) {
 					g.write("|\n");
 				} else {
@@ -116,7 +113,7 @@ public class DialogManager implements Configurable {
 			g.close();
 
 		} catch (IOException e) {
-			//log.error("could not create grammar file service.gram");
+			// log.error("could not create grammar file service.gram");
 			e.printStackTrace();
 			return;
 		}
@@ -129,8 +126,7 @@ public class DialogManager implements Configurable {
 			while (it.hasNext()) {
 				serviceName = it.next();
 
-				HashMap<String, MethodEntry> methods = myService.getHostCFG()
-						.getMethodMap(serviceName);
+				HashMap<String, MethodEntry> methods = myService.getHostCFG().getMethodMap(serviceName);
 				g = new BufferedWriter(new FileWriter(serviceName + ".gram"));
 				g.write("#JSGF V1.0;\n\n");
 				g.write("grammar " + serviceName + ";\n\n");
@@ -142,8 +138,7 @@ public class DialogManager implements Configurable {
 					String methodName = mit.next();
 					MethodEntry me = methods.get(methodName);
 
-					if (me.parameterTypes == null
-							|| me.parameterTypes.length != 0) {
+					if (me.parameterTypes == null || me.parameterTypes.length != 0) {
 						continue;
 					}
 
@@ -160,7 +155,8 @@ public class DialogManager implements Configurable {
 
 			}
 		} catch (IOException e) {
-			//Log.error("could not create grammar file " + serviceName + ".gram");
+			// Log.error("could not create grammar file " + serviceName +
+			// ".gram");
 			e.printStackTrace();
 		}
 	}
@@ -254,8 +250,7 @@ public class DialogManager implements Configurable {
 					} else {
 						DialogNode node = nodeMap.get(nextStateName);
 						if (node == null) {
-							warn("Can't transition to unknown state "
-									+ nextStateName);
+							warn("Can't transition to unknown state " + nextStateName);
 						} else {
 							curNode = node;
 						}
@@ -267,8 +262,7 @@ public class DialogManager implements Configurable {
 		} catch (GrammarException ge) {
 			error("grammar problem in state " + curNode.getName() + ' ' + ge);
 		} catch (IOException ioe) {
-			error("problem loading grammar in state " + curNode.getName() + ' '
-					+ ioe);
+			error("problem loading grammar in state " + curNode.getName() + ' ' + ioe);
 		}
 	}
 
@@ -524,7 +518,7 @@ class DialogNodeBehavior {
 	 */
 	RuleParse getRuleParse(Result result) throws GrammarException {
 		String resultText = result.getBestFinalResultNoFiller();
-		RuleGrammar ruleGrammar = (RuleGrammar)getGrammar().getRuleGrammar(); // FIXME
+		RuleGrammar ruleGrammar = (RuleGrammar) getGrammar().getRuleGrammar(); // FIXME
 		RuleParse ruleParse = ruleGrammar.parse(resultText, null);
 		return ruleParse;
 	}

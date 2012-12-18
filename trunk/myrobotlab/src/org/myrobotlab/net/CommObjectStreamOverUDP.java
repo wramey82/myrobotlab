@@ -99,7 +99,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				out.flush();
 				byte[] buffer = b_out.toByteArray();
 
-				log.info("send " + msg.getParameterSignature());
+				//log.info("send " + msg.getParameterSignature());
 
 				if (buffer.length > 65535) {
 					log.error("udp datagram can not exceed 65535 msg size is " + buffer.length + " !");

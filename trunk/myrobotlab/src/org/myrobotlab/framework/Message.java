@@ -109,7 +109,7 @@ public class Message implements Serializable {
 		method = other.method;
 		data = other.data;
 	}
-	
+
 	final public String getParameterSignature()
 	{
 		return getParameterSignature(data);
@@ -124,10 +124,16 @@ public class Message implements Serializable {
 		for (int i = 0; i < data.length; ++i) {
 			if (data[i] != null)
 			{
-				String type = data[i].getClass().getCanonicalName();
-				String shortTypeName = type.substring(type.lastIndexOf(".")+1);
-				ret.append(shortTypeName);
-				//ret.append(data[i].toString());// - very helpful in debugging
+				Class<?> c = data[i].getClass(); // not all data types are safe toString() e.g. SerializableImage
+				if (c == String.class || c == Integer.class || c == Boolean.class || c == Float.class)
+				{
+					ret.append(data[i].toString());
+				} else {
+					String type = data[i].getClass().getCanonicalName();
+					String shortTypeName = type.substring(type.lastIndexOf(".")+1);
+					ret.append(shortTypeName);
+				}
+
 				if (data.length != i + 1) {
 					ret.append(",");
 				}
