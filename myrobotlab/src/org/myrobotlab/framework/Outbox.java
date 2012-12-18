@@ -183,9 +183,11 @@ public class Outbox implements Runnable, Serializable
 						+ msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			log.debug(" msgBox size " + msgBox.size()
-					+ " msg [" + msg.method + "(" + msg.getParameterSignature()
-					+ ")]");
+			
+			if (log.isDebugEnabled())
+			{
+				log.debug(String.format("msg [%s.%s (%s)]", msg.name, msg.method, msg.getParameterSignature()));
+			}
 			msgBox.notifyAll(); // must own the lock
 		}
 	}

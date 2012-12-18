@@ -1688,5 +1688,16 @@ public class Runtime extends Service {
 			System.exit(0);
 
 	}
+	
+	static public ServiceInterface getService(String name)
+	{
+		ServiceWrapper sw = getServiceWrapper(name);
+		if (sw == null)
+		{
+			log.error(String.format("getService %s not found", name));
+			return null;
+		}
+		return sw.get();
+	}
 
 }

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.inmoov.Arm;
 import org.myrobotlab.inmoov.Hand;
 import org.myrobotlab.inmoov.Head;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 
 public class InMoov extends Service {
 
@@ -28,8 +30,12 @@ public class InMoov extends Service {
 	HashMap<String, ArrayList<Hand>> hands = new HashMap<String, ArrayList<Hand>>();
 	HashMap<String, ArrayList<Arm>> arms = new HashMap<String, ArrayList<Arm>>();
 	HashMap<String, ArrayList<Arduino>> arduinos = new HashMap<String, ArrayList<Arduino>>();
-
-	Python python;
+	
+	// head
+	public Sphinx ear 		= (Sphinx)Runtime.createAndStart("ear", "Sphinx"); 
+	public Speech mouth 	= (Speech)Runtime.createAndStart("mouth", "Speech");
+	public OpenCV eye 		= (OpenCV)Runtime.createAndStart("eye", "OpenCV");
+	public Python python	= (Python)Runtime.createAndStart("python", "Python");
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
@@ -286,6 +292,11 @@ public class InMoov extends Service {
 
 	}
 	
+	public void initializeBrain()
+	{
+		
+	}
+	
 	// lower higher concepts - 10 degree
 	// much higher 
 	// remember move - save 
@@ -390,10 +401,7 @@ public class InMoov extends Service {
 	public void systemCheck() {
 		// check arduinos
 
-		if (head != null)
-		{
-			head.mouth.speak("starting system check");
-		}
+		mouth.speak("starting system check");
 		
 		rest();
 		/*  TRACING APPEARS TO "MESS" THINGS UP --- POSSIBLY  FIXME
@@ -437,10 +445,7 @@ public class InMoov extends Service {
 		// check ear
 
 		// check mount - all my circuits are functioning perfectly
-		if (head != null)
-		{
-			head.mouth.speak("completed system check");
-		}
+		mouth.speak("completed system check");
 		
 		broadcastState();
 	}
@@ -497,18 +502,50 @@ public class InMoov extends Service {
 
 	@Override
 	public String getToolTip() {
-		return "used as a general template";
+		return "the InMoov Service";
+	}
+	
+	public void startListening(String grammar)
+	{
+		ear.attach(mouth.getName());
+		ear.addListener("recognized", "python", "heard", String.class); 
+		ear.createGrammar(grammar);
+		ear.startListening();
+
+	}
+	
+	public void stopListening()
+	{
+		ear.stopListening();
 	}
 
+	public void startTracking()
+	{
+		eye.addFilter("pyramidDown1","PyramidDown");
+		eye.addFilter("lkOpticalTrack1","LKOpticalTrack");
+		eye.setDisplayFilter("lkOpticalTrack1");
+		eye.capture();
+		sleep(500);
+		eye.invokeFilterMethod("lkOpticalTrack1","samplePoint", 160, 120);
+	}
+	
+	public void stopTracking()
+	{
+		eye.removeFilters();
+		eye.stopCapture();
+	}
+	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.WARN);
-
+		Logger.getRootLogger().setLevel(Level.WARN);
+		
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
 		
-		Runtime.createAndStart("python", "Python");
-		Runtime.createAndStart("gui", "GUIService");
+		//Runtime.createAndStart("python", "Python");
+		ServiceInterface si = Runtime.createAndStart("gui", "GUIService");
+		si.display();
+		
 		
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();

@@ -406,6 +406,7 @@ public class Speech extends Service {
 		
 		invoke("isSpeaking", true);
 		speechAudioFile.playFile(audioFile, true);	
+		sleep(600);// important pause after speech
 		invoke("isSpeaking", false);		
 	}
 	
