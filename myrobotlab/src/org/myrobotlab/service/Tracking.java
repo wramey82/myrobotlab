@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.tracking.ControlSystem;
 import org.myrobotlab.tracking.ObjectFinder;
@@ -131,6 +132,18 @@ public class Tracking extends Service {
 		 */
 
 	}
+	
+	public void calibrate()
+	{
+		
+		// set point
+		
+		// don't move - calculate error & latency
+		
+		// move minimum amount (int)
+		
+		// determine difference - > build PID map
+	}
 
 	final static public Integer correctX(Integer f) {
 		log.info("correctX " + f);
@@ -144,15 +157,16 @@ public class Tracking extends Service {
 
 
 	// note - using pt.x() - gets the first point if an array is sent
-	final public void setTrackingPoint(Point2Df pt) {
+	final public void updateTrackingPoint(Point2Df pt) {
 		
-		log.info(String.format("pt %s", pt));
+		log.error(String.format("pt %s", pt));
 		/*
 		trackX((int)pt.x);
 		trackY((int)pt.y);
 		*/
 	}
 
+	// FIXME - depricate - use Float not CvPoint
 	final public void center(CvPoint pt) {
 		deadzone.x = 155;
 		deadzone.width = 10;
@@ -197,11 +211,26 @@ public class Tracking extends Service {
 	}
 	
 	// TODO - suppor interfaces 
-	public boolean attach (String name, Object... data)
+	public boolean attach (String serviceName, Object...data)
 	{
+		log.info(String.format("attaching %s", serviceName));
+		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
+		if (sw == null)
+		{
+			log.error(String.format("could not attach % - not found in registry", serviceName));
+			return false;
+		}
+		if (sw.getServiceType().equals("org.myrobotlab.service.OpenCV")) 
+		{
+			subscribe("publish", serviceName, "updateTrackingPoint", Point2Df.class);
+			return true;
+		}
+	
+		log.error(String.format("%s - don't know how to attach %s", getName(), serviceName));
 		return false;
 	}
 	
+	//public setTr
 	
 	public static void main(String[] args) {
 
@@ -221,7 +250,8 @@ public class Tracking extends Service {
 		 * logException(e); }
 		 */
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
+		OpenCV eye = (OpenCV) Runtime.createAndStart("eye","OpenCV");
+	
 		//opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
@@ -245,7 +275,7 @@ public class Tracking extends Service {
 		Tracking t = new Tracking("tracking");
 		t.startService();
 		
-		t.attach(opencv.getName());
+		t.attach(eye.getName());
 		
 
 
@@ -258,6 +288,14 @@ public class Tracking extends Service {
 		//opencv.addFilter("floodFill", "FloodFill");
 
 		//opencv.capture();
+		
+		eye.addFilter("pyramidDown1","PyramidDown");
+		eye.addFilter("lkOpticalTrack1","LKOpticalTrack");
+		eye.setDisplayFilter("lkOpticalTrack1");
+		eye.capture();
+		sleep(500);
+		eye.invokeFilterMethod("lkOpticalTrack1","samplePoint", 160, 120);
+
 
 	}
 

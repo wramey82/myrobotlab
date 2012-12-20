@@ -26,12 +26,10 @@
 
 package org.myrobotlab.opencv;
 
-import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
@@ -329,7 +327,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 					myService.invoke("publish", (Object) current_features);
 				} else {
 					CvPoint2D32f p = current_features;
-					myService.invoke("publish", new Point2Df(p.x(), p.y()));
+					myService.invoke("publish", new Point2Df(p.x()/frame.width(), p.y()/frame.height()));
 				}
 			}
 		}
