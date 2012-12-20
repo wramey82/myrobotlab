@@ -25,6 +25,12 @@ public class ServiceDescriptor implements Serializable {
 	
 	@Attribute(required=false)
 	public String state = "dev";
+
+	@Attribute(required=false)
+	public Integer workingLevel = 0;
+	
+	@Attribute(required=false)
+	public String description = "this is a service";
 	
 	@ElementList(name="list")
 	private ArrayList<String> dependencyList = new ArrayList<String>(); 
