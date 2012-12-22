@@ -2,7 +2,9 @@ package org.myrobotlab.control;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 
 /**
@@ -46,7 +49,8 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	private String boundServiceName;// FIXME - artifact of "Service" tabs
 	JFrame undocked;
 	TabControlWindowAdapter windowAdapter = new TabControlWindowAdapter();
-	JFrame top;
+	//JFrame top;
+	GUIService myService;
 	
 	String filename = null;
 	
@@ -63,24 +67,55 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 */
 	public void dockPanel()
 	{
+		// docking panel will move the data of the frame to serializable position
+		myService.undockedPanels.get(boundServiceName).savePosition(); // FIXME - very hacked !
+		myService.undockedPanels.get(boundServiceName).isDocked = true;
+		
 		parent.add(myPanel);
 		parent.setTabComponentAt(parent.getTabCount() - 1, this);
 		undocked.dispose();
 		undocked = null;
+		
 		//frame.pack(); - call pack
-		top.pack();
+		myService.getFrame().pack();
+		myService.save();
 	}
 	
 	/**
 	 * undocks a tabbed panel into a JFrame 
+	 * FIXME - NORMALIZE - there are similar methods in GUIService
+	 * FIXME - there needs to be clear pattern replacement - this is a decorator - I think... (also it will always be Swing)
+	 * 
 	 */
 	public void undockPanel()
 	{
 		parent.remove(myPanel);
 		if (boundServiceName.equals(getText()))
 		{
+			
+			// service tabs
 			undocked = new JFrame(boundServiceName);
+			// check to see if this frame was positioned before
+			UndockedPanel panel = null;
+			if (myService.undockedPanels.containsKey(boundServiceName))
+			{
+				// has been undocked before
+				panel = myService.undockedPanels.get(boundServiceName);
+				undocked.setLocation(new Point(panel.x, panel.y));
+				undocked.setPreferredSize(new Dimension(panel.width, panel.height));
+			} else { 
+				// first time undocked
+				panel = new UndockedPanel(undocked);
+				myService.undockedPanels.put(boundServiceName, panel);
+				panel.x = undocked.getWidth();
+				panel.y = undocked.getHeight();
+			}
+
+			panel.frame = undocked;
+			panel.isDocked = false;
+			
 		} else {
+			// sub - tabs e.g. Arduino oscope, pins, editor
 			undocked = new JFrame(boundServiceName + " " + getText());
 		}
 
@@ -95,23 +130,24 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		//undocked.setTitle(boundServiceName);
 		undocked.setVisible(true);
 		undocked.pack();
-		top.pack();
+		myService.getFrame().pack();
+		myService.save();
 		
 	}
 	
-	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background)
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background)
 	{
-		this(top, parent, myPanel, boundServiceName, boundServiceName, foreground, background);
+		this(gui, parent, myPanel, boundServiceName, boundServiceName, foreground, background);
 	}
 
-	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName)
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName)
 	{
-		this(top, parent, myPanel, boundServiceName, boundServiceName, null, null);
+		this(gui, parent, myPanel, boundServiceName, boundServiceName, null, null);
 	}
 	
-	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, Color foreground, Color background)
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, Color foreground, Color background)
 	{
-		this(top, parent, myPanel, boundServiceName, txt);
+		this(gui, parent, myPanel, boundServiceName, txt);
 		if (foreground != null)
 		{
 			setForeground(foreground);
@@ -121,18 +157,18 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 			setBackground(background);
 		}	
 	}
-	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, String filename)
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, String filename)
 	{
-		this(top, parent, myPanel, boundServiceName, txt);
+		this(gui, parent, myPanel, boundServiceName, txt);
 		this.filename = filename;
 	}
-	public TabControl(JFrame top, JTabbedPane parent, Container myPanel, String boundServiceName, String txt)
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt)
 	{
 		super(txt);
 		this.parent = parent;
 		this.myPanel = myPanel;
 		this.boundServiceName = boundServiceName;
-		this.top = top;
+		this.myService = gui;
 		
 		// build menu
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");

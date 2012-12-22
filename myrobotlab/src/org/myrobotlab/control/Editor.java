@@ -52,6 +52,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Python;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -389,7 +390,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 	JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("console", console.getScrollPane());
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top,
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui,
 				pane, console.getScrollPane(), boundServiceName, "console"));
 
 		return pane;

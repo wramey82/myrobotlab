@@ -34,7 +34,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -79,9 +78,9 @@ import org.myrobotlab.control.Console;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.TabControl;
+import org.myrobotlab.control.UndockedPanel;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.LogAppender;
@@ -90,6 +89,8 @@ import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.string.Util;
+import org.simpleframework.xml.ElementMap;
+import org.simpleframework.xml.Root;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -114,6 +115,7 @@ import com.mxgraph.view.mxGraph;
  * http://www.scribd.com/doc/13122112/Java6-Rules-Adding-Components-To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
  */
 
+@Root
 public class GUIService extends GUI implements WindowListener, ActionListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -123,6 +125,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public String graphXML = "";
 
 	public transient JFrame frame = null;
+	
+	/**
+	 * class to save the position and size of undocked panels
+	 *
+	 */
+
+		
+	@ElementMap(entry="serviceType", value="dependsOn", attribute=true, inline=true, required=false)
+	public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
 
 	/**
 	 * all the panels
@@ -168,6 +179,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		commandMap.put("removeListener", null);
 		commandMap.put("guiUpdated", null);
 		commandMap.put("setRemoteConnectionStatus", null);
+		
+		load();
 
 	}
 
@@ -254,9 +267,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String serviceName = it.next();
 			addTab(serviceName);
 		}
+		
 		frame.pack();
 	}
 
+	// TODO - get index based on name
 	public void addTab(String serviceName)
 	{
 		// ================= begin addTab(name) =============================
@@ -294,17 +309,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (newGUI != null)
 		{
 			++index;
-			/*
-			if (sw.getAccessURL() != null) {
-				// FIXME - getting a bit confusing because - TabControl is a label which has its own color properties !!!
-				// TODO - get color gradient based on number of ServiceEnvironments (i * (gradient))
-				//Color hsv = new Color(Color.HSBtoRGB(0, 0.8f, 0.7f));
-				//Font font = new Font("Verdana", Font.ITALIC, 12);
-				//tabs.setBackgroundAt(index, hsv);
-				//tabs.setForegroundAt(index, Color.white); // bug in JTabbedPane - does not work
-				//tabs.setFont(font);
-			}
-			*/
 		}
 
 		guiServiceGUI = (GUIServiceGUI)serviceGUIMap.get(getName());
@@ -312,6 +316,44 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		{
 			guiServiceGUI.rebuildGraph(); 
 		}
+/*** UNDOCKED		
+		if (undockedPanels.containsKey(serviceName))
+		{
+			UndockedPanel panel = undockedPanels.get(serviceName);
+			if (!panel.isDocked)
+			{
+				undockPanel(serviceName);
+			}
+		}
+***/			
+		
+		// iterate through tabcomponents
+		
+		// if data - undock
+		//tabs.gett
+		// FIXME - put in addTab remove from here
+		
+		//for (int i = 0; i < tabs.getTabCount() - 1; ++i)
+		//{
+			Component c = tabs.getTabComponentAt(index);
+			if (c instanceof TabControl)
+			{
+				TabControl tc = (TabControl)c;
+				//String serviceName = tc.getText();
+				if (undockedPanels.containsKey(serviceName))
+				{
+					UndockedPanel up = undockedPanels.get(serviceName);
+					if (!up.isDocked)
+					{
+						tc.undockPanel();
+					}
+			}
+				
+		//	}
+			log.info(c);
+		}
+		
+		
 		frame.pack();
 	}
 
@@ -354,6 +396,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels() This is a bit
 	 * "big hammer" in that it destroys all panels and rebuilds the GUI don't
 	 * use except to initially build
+	 * 
+	 * FIXME - remove - residual kruft
 	 */
 
 	boolean test = true;
@@ -363,112 +407,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			buildTabPanels();
 			return null;
 		}
-
-		log.debug("loadTabPanels");
-
-		// detach from Services, if panels are currently attached
-		Iterator<String> sgi = serviceGUIMap.keySet().iterator();
-		while (sgi.hasNext()) {
-			String serviceName = sgi.next();
-			ServiceGUI sg = serviceGUIMap.get(serviceName);
-			sg.detachGUI();
-		}
-
-		// begin building panels put in init !
-		if (!serviceGUIMap.containsKey("welcome")) // FIXME - possible problem
-													// loading a non-Service
-													// ServiceGUI
-		{
-			welcome = new Welcome("", this);
-			welcome.init();
-			tabs.addTab("Welcome", welcome.display);
-			tabs.setTabComponentAt(0, new JLabel("Welcome"));
-			serviceGUIMap.put("welcome", welcome);
-		}
-
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
-		log.info("loadTabPanels service count " + Runtime.getRegistry().size());
-
-		sortedMap = new TreeMap<String, ServiceWrapper>(services);
-
-		Integer index = tabs.getTabCount() - 1;
-
-		// build Service panels
-		boolean createGUIServiceGUI = false;
-		Iterator<String> it = sortedMap.keySet().iterator();
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			ServiceWrapper sw = services.get(serviceName);
-
-			// SW sent in registerServices - yet Service is null due to
-			// incompatible Service Types
-			// FIXME - Solution ??? - send SW with "suggested type ???" Android
-			// --becomes--> AndroidController :)
-			if (sw.get() == null) {
-				log.error(serviceName + " does not have a valid Service - not exported ???");
-				continue;
-			}
-
-			// get service type class name TODO
-			String serviceClassName = sw.get().getClass().getCanonicalName();
-			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
-
-			if (sw.get().getName().equals(getName())) {
-				// GUIServiceGUI must be created last to ensure all routing from
-				// attachGUI is done
-				log.debug("delaying construction my GUI " + getName() + " GUIServiceGUI ");
-				createGUIServiceGUI = true;
-				continue;
-			}
-
-			if (serviceGUIMap.containsKey(sw.name)) {
-				log.debug("not creating " + sw.name + " gui - it already exists");
-				continue;
-			}
-
-			ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
-			if (newGUI != null) {
-				++index;
-				/*
-				if (sw.getAccessURL() != null) {
-					Color hsv = new Color(Color.HSBtoRGB(0, 0.8f, 0.7f)); // FIXME - code is not normalized !
-					tabs.setBackgroundAt(index, hsv);
-					tabs.setForegroundAt(index, Color.white);
-				}
-				*/
-
-			}
-
-		}
-
-		// FIXME creating the ServiceGUI for "this" class if its not already
-		// created
-		// FIXME - you'll need to recreate/refresh the block map since new
-		// service might have been added or dropped out !
-		// POSSIBILITY is to REMOVE THEN ADD
-		if (createGUIServiceGUI) // && !serviceGUIMap.containsKey(getName())
-		{
-			// if it already exists remove it
-			if (serviceGUIMap.containsKey(getName())) {
-				removeTab(getName());
-			}
-			// TODO - warning this may need more of a delay - or must "remember"
-			// notifications of attachGUI
-			// going out to remote systems.
-			ServiceWrapper se = services.get(getName());
-			String serviceClassName = se.get().getClass().getCanonicalName();
-
-			String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-			guiClass = "org.myrobotlab.control" + guiClass + "GUI";
-
-			guiServiceGUI = (GUIServiceGUI) createTabbedPanel(this.getName(), guiClass, se);
-			++index;
-
-		}
-
-		frame.pack();
-
+		
 		return tabs;
 
 	}
@@ -510,13 +449,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			
 			if (sw.isLocal())
 			{
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName));
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
 			} else {
 				// create hash color for hsv from accessURI
 				Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
 				int index = tabs.indexOfTab(serviceName);
 				tabs.setBackgroundAt(index, hsv);
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(getFrame(), tabs, gui.getDisplay(), serviceName, Color.white, hsv));				
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));				
 			}
 
 		} else {
@@ -537,47 +476,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return compList;
 	}
 
-	/**
-	 * Move Service panel into a JFrame
-	 * 
-	 * @param boundServiceName
-	 * 
-	 *            TODO - move completely into TabControl
-	 */
-	public void undockPanel(String boundServiceName) {
-		JFrame undocked = new JFrame();
 
-		// icon
-		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.createImage(url);
-		undocked.setIconImage(img);
-
-		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-		tabs.remove(sg.getDisplay().getParent()); // FIXME - memory leak tpanel
-													// parent is not disposed -
-													// put tpanel in widget
-
-		undocked.getContentPane().add(sg.getDisplay());
-		undocked.pack();
-		undocked.setVisible(true);
-		undocked.setTitle(boundServiceName);
-		undocked.addWindowListener(new UndockedWidgetWindowAdapter(undocked, this, boundServiceName));
-
-		frame.pack();
-	}
-
-	/**
-	 * Move Service panel back into tabbed panels
-	 * 
-	 * @param boundServiceName
-	 */
-	public void dockPanel(String boundServiceName) {
-		ServiceGUI sg = serviceGUIMap.get(boundServiceName);
-		tabs.add(boundServiceName, sg.getDisplay());
-		frame.pack();
-	}
-
+	/*
 	public class UndockedWidgetWindowAdapter extends WindowAdapter {
 		private String name;
 		JFrame myFrame;
@@ -590,10 +490,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		public void windowClosing(WindowEvent winEvt) {
-			dockPanel(name);
+			//dockPanel(name);
 			myFrame.dispose();
 		}
 	}
+	*/
 
 	// how to do re-entrant - reconstruct all correctly - or avoid building
 	// twice ?
@@ -686,14 +587,24 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void windowClosing(WindowEvent e) {
 		// check for all service guis and see if its
 		// ok to shutdown now
-		
 		Iterator<Map.Entry<String, ServiceGUI>> it = serviceGUIMap.entrySet().iterator();
 	    while (it.hasNext()) {
 	    	Map.Entry<String, ServiceGUI> pairs = (Map.Entry<String, ServiceGUI>)it.next();
+	    	String serviceName = pairs.getKey();
+	    	if (undockedPanels.containsKey(serviceName))
+	    	{
+	    		UndockedPanel up = undockedPanels.get(serviceName);
+	    		if (!up.isDocked)
+	    		{
+	    			up.savePosition();
+	    		}
+	    	}
 	    	pairs.getValue().isReadyForRelease();
 	    	pairs.getValue().makeReadyForRelease();
 	    }
 	    
+		save();
+		
 		Runtime.releaseAll();
 		System.exit(1); // the Big Hamm'r
 	}
@@ -721,18 +632,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public String lastHost = "127.0.0.1";
 	public String lastPort = "6767";
-
-	/*
-	public void loadRuntime() {
-		Runtime.releaseAll();
-
-		// load runtime
-		Runtime.load("myrobotlab.mrl");
-
-		Runtime.startLocalServices(); // FIXME - gui will not re-activate -
-										// removed for Android?
-	}
-	*/
 
 	public void about() {
 		new AboutDialog(frame);
