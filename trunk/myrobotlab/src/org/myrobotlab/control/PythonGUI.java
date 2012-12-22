@@ -59,6 +59,7 @@ import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Python;
 import org.myrobotlab.service.Python.Script;
 import org.myrobotlab.service.interfaces.GUI;
@@ -239,7 +240,8 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public EditorPanel addNewEditorPanel(Script script) {
 		EditorPanel panel = new EditorPanel(script);
 		editorTabs.addTab(panel.getDisplayName(), panel.panel);
-		TabControl tc = new TabControl(top, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+		TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
 		tc.addMouseListener(this);
 		editorTabs.setTabComponentAt(editorTabs.getTabCount() - 1, tc);
 		currentScriptName = script.getName();
@@ -492,10 +494,12 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	private JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("java", javaConsole.getScrollPane());
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
 
 		pane.addTab("python", pythonScrollPane);
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(top, pane, pythonScrollPane, boundServiceName, "python"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, pythonScrollPane, boundServiceName, "python"));
 
 		return pane;
 	}

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
@@ -29,7 +30,7 @@ public class ServiceDescriptor implements Serializable {
 	@Attribute(required=false)
 	public Integer workingLevel = 0;
 	
-	@Attribute(required=false)
+	@Element(required=false)
 	public String description = "this is a service";
 	
 	@ElementList(name="list")

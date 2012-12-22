@@ -59,6 +59,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -733,7 +734,8 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap,
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+		tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap,
 				boundServiceName, "pins"));
 
 		return imageMap;
@@ -822,7 +824,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, imageMap,
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+
+		tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap,
 				boundServiceName, "pins"));
 		return imageMap;
 	}
@@ -882,7 +886,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("oscope", null, oscopePanel, "oscope panel", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs, oscopePanel,
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+
+		tabs.setTabComponentAt(0, new TabControl(gui, tabs, oscopePanel,
 				boundServiceName, "oscope"));
 		myService.getFrame().pack();
 		return oscopePanel;
@@ -903,7 +909,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener,
 
 		JFrame top = myService.getFrame();
 		tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
-		tabs.setTabComponentAt(0, new TabControl(top, tabs,
+		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+
+		tabs.setTabComponentAt(0, new TabControl(gui, tabs,
 				editor.getDisplay(), boundServiceName, "editor"));
 		myService.getFrame().pack();
 		return editor.getDisplay();

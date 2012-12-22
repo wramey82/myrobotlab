@@ -32,7 +32,7 @@ public abstract class GUI extends Service  {
 	public abstract JFrame getFrame();
 	public abstract void pack();
 	
-	public abstract void undockPanel(String boundServiceName);
+	//public abstract void undockPanel(String boundServiceName);
 
 	public abstract void setPeriod0(String s);
 	public abstract void setPeriod1(String s);

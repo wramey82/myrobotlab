@@ -54,7 +54,7 @@ public abstract class ServiceGUI {
 	public JPanel display = new JPanel();
 
 	public abstract void init();	
-
+/*
 	public class DetachListener implements ActionListener
 	{
 
@@ -66,6 +66,7 @@ public abstract class ServiceGUI {
 		}
 		
 	}
+	*/
 		
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;

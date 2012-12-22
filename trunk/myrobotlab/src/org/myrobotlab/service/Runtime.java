@@ -308,7 +308,7 @@ public class Runtime extends Service {
 	 * 
 	 * @param sw
 	 */
-	public void register(ServiceWrapper sw)
+	public synchronized void register(ServiceWrapper sw)
 	{
 		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
