@@ -118,6 +118,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		
 		corners = new CvPoint2D32f(maxPointCount); // this must be new'd every iteration
 
+		// TODO check if already grey
 		cvCvtColor(frame, grey, CV_BGR2GRAY);
 
 		if (needTrackingPoints) // warm up camera

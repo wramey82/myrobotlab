@@ -78,6 +78,9 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	private class SliderListener implements ChangeListener
 	{
 		public void stateChanged(javax.swing.event.ChangeEvent e) {
+			
+			// if (!slider.getValueIsAdjusting())   TODO !!!!! exciting !!!
+			
 			boundPos.setText("" + slider.getValue());
 
 			if (myService != null) {

@@ -42,7 +42,6 @@ import static com.googlecode.javacv.cpp.opencv_video.cvCalcOpticalFlowPyrLK;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
@@ -77,19 +76,19 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	CvPoint pt = new CvPoint(0, 0);
 	CvPoint circle_pt = new CvPoint(0, 0);
 
-	int win_size = 20;
-	int maxCount = 3;
+	public int win_size = 20;
+	public int maxPointCount = 30;
 	
-	IntByReference featurePointCount = new IntByReference(maxCount);
+	IntByReference featurePointCount = new IntByReference(maxPointCount);
 
 	CvPoint2D32f current_features = null;
 	CvPoint2D32f previous_features = null;
 	CvPoint2D32f saved_features = null;
 	CvPoint2D32f swap_points = null;
 
-	float distance[] = new float[maxCount];
+	float distance[] = new float[maxPointCount];
 
-	byte[] status = new byte[maxCount];
+	byte[] status = new byte[maxPointCount];
 	float[] error = null;
 	byte status_value = 0;
 	int count = 0;
@@ -97,8 +96,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	double quality = 0.01;
 	double min_distance = 10;
-	boolean needTrackingPoints = true; // TODO - remove - should not use
-										// collection
+	boolean needTrackingPoints = true; 
 	
 	boolean publishOpenCVObjects = false;
 
@@ -113,7 +111,6 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 
 	
-	int maxPointCount = 30;
 	int totalIterations = 0;
 	
 	// quality - Multiplier for the maxmin eigenvalue; specifies minimal
@@ -206,7 +203,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
-		if (count < maxCount) {
+		if (count < maxPointCount) {
 			// current_features[count++] = new
 			// cxcore.CvPoint2D32f(event.getPoint().x(), event.getPoint().y());
 			pt.x(x);
@@ -219,18 +216,31 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		// add_remove_pt = 0;
 	}
 
+	public void samplePoint(Float x, Float y) {
+		if (width == 0 || height == 0)
+		{
+			log.error("width and height need to be set");
+			return;
+		}
+		
+		samplePoint((int)(x * width), (int)(y * height));
+		
+	}
+	/*
 	public void samplePoint(Point p) {
-		if (count < maxCount) {
+		if (count < maxPointCount) {
 			pt.x(p.x);
 			pt.y(p.y);
 			add_remove_pt = 1;
 		}
 	}
-
+*/
 	public void clearPoints() {
 		count = 0;
 	}
 
+	int width = 0;
+	int height = 0;
 
 	@Override
 	public IplImage process(IplImage frame) {
@@ -241,7 +251,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		if (needToInitialize) {
 
 			// was in init
-			featurePointCount.setValue(maxCount);
+			featurePointCount.setValue(maxPointCount);
 			cvWinSize = cvSize(win_size, win_size);
 			termCrit = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
 
@@ -255,8 +265,8 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 			mask = null; // TODO - create maskROI FROM motion template !!!
 			current_features = new CvPoint2D32f(maxPointCount);
-			previous_features = new CvPoint2D32f(maxCount);
-			saved_features = new CvPoint2D32f(maxCount);
+			previous_features = new CvPoint2D32f(maxPointCount);
+			saved_features = new CvPoint2D32f(maxPointCount);
 
 			// init get good features
 			corners = new CvPoint2D32f(maxPointCount);
@@ -267,6 +277,9 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			add_remove_pt = 0;
 			cornerCount.setValue(maxPointCount);
 			needToInitialize = false;
+			
+			width = frame.width();
+			height = frame.height();
 
 		}
 
@@ -280,7 +293,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		if (needTrackingPoints) // warm up camera TODO CFG
 		{
 
-			count = maxCount;
+			count = maxPointCount;
 			//cvGoodFeaturesToTrack(grey, eig, temp, current_features, featurePointCount, quality, min_distance, mask, 3, 0, 0.04);
 	        cvGoodFeaturesToTrack(grey, eig, temp, corners,
 	                corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
@@ -332,7 +345,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			}
 		}
 
-		if (add_remove_pt == 1 && count < maxCount) {
+		if (add_remove_pt == 1 && count < maxPointCount) {
 			current_features.position(count).x(pt.x());
 			current_features.position(count).y(pt.y());
 			count++;

@@ -10,7 +10,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.AdafruitMotorShield">
+   <serviceType string="org.myrobotlab.service.AdafruitMotorShield" workingLevel="4">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -21,7 +21,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Arduino">
+   <serviceType string="org.myrobotlab.service.Arduino" workingLevel="4">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>

@@ -13,12 +13,13 @@ import org.myrobotlab.service.Servo;
  * of stacked message buffer. This requires local actuator services.
  * 
  */
-public class ControlSystem extends Thread {
+public class ControlSystem {
 	
-	private boolean isRunning = false;
-	private Servo x;
-	private Servo y;
+	//private boolean isRunning = false;
+	private Servo pan;
+	private Servo tilt;
 	
+	/*
 	public void run()
 	{
 		isRunning = true;
@@ -28,28 +29,30 @@ public class ControlSystem extends Thread {
 		}
 	}
 	
+	
 	public void release()
 	{
 		isRunning = false;
 	}
+	*/
 	
 	public void setServoX(Servo x)
 	{
-		this.x = x;
+		this.pan = x;
 	}
 
 	public void setServoY(Servo y)
 	{
-		this.y = y;
+		this.tilt = y;
 	}
 	
 	public void moveXTo(int pos)
 	{
-		x.moveTo(pos);
+		pan.moveTo(pos);
 	}
 
 	public void moveYTo(int pos)
 	{
-		y.moveTo(pos);
+		tilt.moveTo(pos);
 	}
 }
