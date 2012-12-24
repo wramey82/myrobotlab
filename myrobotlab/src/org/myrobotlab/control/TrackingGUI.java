@@ -26,12 +26,17 @@
 package org.myrobotlab.control;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
+import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class TrackingGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
+	JLabel cnt = new JLabel("0");
+	JLabel latency = new JLabel("0");
 
 	public TrackingGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -39,19 +44,32 @@ public class TrackingGUI extends ServiceGUI {
 
 	public void init() 
 	{
-		display.add(new JLabel("no gui"));
+		JPanel p = new JPanel();
+		p.add(new JLabel("cnt "));
+		p.add(cnt);
+		p.add(new JLabel("latency "));
+		p.add(latency);
+		display.add(p);
 	}
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		subscribe("publishState", "getState", Tracking.class);
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-
+		subscribe("publishState", "getState", Tracking.class);
+	}
+	
+	public void getState(final Tracking tracker) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {			
+				
+				cnt.setText(String.format("%d ",tracker.cnt));
+				latency.setText(String.format("%d ms",tracker.latency));
+			}
+		});
 	}
 
 }

@@ -26,18 +26,13 @@
 package org.myrobotlab.service;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.tracking.ControlSystem;
-import org.myrobotlab.tracking.ObjectFinder;
-import org.myrobotlab.tracking.ObjectTracker;
-
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class Tracking extends Service {
 
@@ -96,121 +91,107 @@ public class Tracking extends Service {
 	 * to make a roi from motion needs to focus at the top of the motion
 	 */
 	
-	ObjectFinder finder;
-	ObjectTracker tracker;
-	ControlSystem control;
+	/*
+	TODO - abstract to support OpenNI
+	ObjectFinder finder = new ObjectFinder();
+	ObjectTracker tracker = new ObjectTracker();
+	*/
+	transient OpenCV opencv;
+	transient ControlSystem control = new ControlSystem();
+		
+	public static final String STATUS_IDLE = "IDLE";
+	public static final String STATUS_CALIBRATING = "CALIBRATING";
+	
+	public String status = STATUS_IDLE;
+	
+	// statistics
+	public int updateModulus = 100;
+	public long cnt = 0;
+	public long latency = 0;
 
 	boolean tracking = true;
 
-	float XMultiplier = (float) 0.15; // 0.14 ~ 0.16
+	float XMultiplier = (float) 0.15; // 0.14 ~ 0.16 PID
 	float YMultiplier = (float) 0.15;
 
-	transient CvPoint2D32f lastPoint = null;
-	transient CvPoint2D32f targetPoint = null;
-	Rectangle deadzone = new Rectangle();
+	public Point2Df lastPoint;
+	public Point2Df targetPoint;
+	
+	public ArrayList<Point2Df> points = new ArrayList<Point2Df>();
+	
+	public Rectangle deadzone = new Rectangle();
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
-
-		deadzone.x = 150;
-		deadzone.width = 20;
-		deadzone.y = 110;
-		deadzone.height = 20;
-		
 	}
 	
-	public void startService() {
-		super.startService();
-	}
-
 	@Override
 	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-		/*
-		 * input range min & max output range min & max coordinate system polar
-		 * / cartesian calibrate x & y direction scalar
-		 */
-
 	}
 	
-	public void calibrate()
+	public boolean calibrate()
 	{
+		if (opencv == null)
+		{
+			log.error("must set an object finder");
+			return false;
+		}
+		
+		// clear filters
+		opencv.removeFilters();
+		
+		// set filters
+		opencv.addFilter("pyramidDown1","PyramidDown"); // needed ??? test
+		opencv.addFilter("lkOpticalTrack1","LKOpticalTrack");
+		opencv.setDisplayFilter("lkOpticalTrack1");
+		
+		// start capture
+		opencv.capture();
+		
+		// pause
+		sleep(2000);
 		
 		// set point
+		opencv.invokeFilterMethod("lkOpticalTrack1","samplePoint", 0.5f, 0.5f);
+		
+		// subscribe
+		subscribe("publish", opencv.getName(), "updateTrackingPoint", Point2Df.class);
 		
 		// don't move - calculate error & latency
 		
 		// move minimum amount (int)
 		
 		// determine difference - > build PID map
-	}
-
-	final static public Integer correctX(Integer f) {
-		log.info("correctX " + f);
-		return f;
-	}
-
-	final static public Integer correctY(Integer f) {
-		log.info("correctY " + f);
-		return f;
-	}
-
-
-	// note - using pt.x() - gets the first point if an array is sent
-	final public void updateTrackingPoint(Point2Df pt) {
 		
-		log.error(String.format("pt %s", pt));
+		return true;
+	}
+
+
+	final public void updateTrackingPoint(Point2Df pt) {
+		++cnt;
+		
+		if (cnt % updateModulus == 0)
+		{
+			broadcastState();
+		}
+		
+		latency = System.currentTimeMillis() - pt.timestamp;
+		
+		log.debug(String.format("pt %s", pt));
 		/*
 		trackX((int)pt.x);
 		trackY((int)pt.y);
 		*/
 	}
 
-	// FIXME - depricate - use Float not CvPoint
-	final public void center(CvPoint pt) {
-		deadzone.x = 155;
-		deadzone.width = 10;
-		deadzone.y = 115;
-		deadzone.height = 10;
-
-		trackX((int) pt.x());
-		trackY((int) pt.y());
-	}
-
-	float XCorrection = 0;
-	float YCorrection = 0;
-
-	final public void trackX(Integer x) {
-		XMultiplier = (float) -0.12;
-
-		// FIXME - bad - but can't put it into constructor or ServiceTest will fail with UnsatisfiedLinkError
-		if (targetPoint == null)
-		{
-			targetPoint = new CvPoint2D32f(160, 120);
-		}
-		log.info("trackPointX " + x);
-		XCorrection = (x - targetPoint.x()) * XMultiplier;
-		if (tracking && (x < deadzone.x || x > deadzone.x + deadzone.width)) {
-			invoke("correctX", (int) XCorrection);
-		}
-
-	}
-
-	final public void trackY(Integer y) {
-		YMultiplier = (float) -0.12;
-		log.info("trackPointY " + y);
-		YCorrection = (y - targetPoint.y()) * YMultiplier;
-		if (tracking && (y < deadzone.y || y > deadzone.y + deadzone.width)) {
-			invoke("correctY", (int) YCorrection);
-		}
-	}
 
 	@Override
 	public String getToolTip() {
 		return "proportional control, tracking, and translation - full PID not implemented yet :P";
 	}
 	
-	// TODO - suppor interfaces 
+	// TODO - support interfaces 
+	/*
 	public boolean attach (String serviceName, Object...data)
 	{
 		log.info(String.format("attaching %s", serviceName));
@@ -229,9 +210,23 @@ public class Tracking extends Service {
 		log.error(String.format("%s - don't know how to attach %s", getName(), serviceName));
 		return false;
 	}
+	*/
 	
-	//public setTr
+	public void attachObjectTracker(OpenCV opencv)
+	{
+		this.opencv = opencv;
+	}
 	
+	public void attachControlX(Servo servo)
+	{
+		control.setServoX(servo);
+	}
+	
+	public void attachControlY(Servo servo)
+	{
+		control.setServoY(servo);
+	}
+		
 	public static void main(String[] args) {
 
 		// ground plane
@@ -240,7 +235,7 @@ public class Tracking extends Service {
 		// lkoptical disparity motion Time To Contact 
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.INFO);
 
 		/*
 		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
@@ -250,9 +245,10 @@ public class Tracking extends Service {
 		 * logException(e); }
 		 */
 
-		OpenCV eye = (OpenCV) Runtime.createAndStart("eye","OpenCV");
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
+		opencv.startService();
 	
-		//opencv.startService();
+		// opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		// opencv.addFilter("InRange1", "InRange");
@@ -272,10 +268,10 @@ public class Tracking extends Service {
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
 		
-		Tracking t = new Tracking("tracking");
-		t.startService();
+		Tracking tracker = new Tracking("tracking");
+		tracker.startService();
 		
-		t.attach(eye.getName());
+		tracker.attachObjectTracker(opencv);
 		
 
 
@@ -284,17 +280,14 @@ public class Tracking extends Service {
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
+		
+		tracker.calibrate();
 		//opencv.addFilter("pyramdDown", "PyramidDown");
 		//opencv.addFilter("floodFill", "FloodFill");
 
 		//opencv.capture();
 		
-		eye.addFilter("pyramidDown1","PyramidDown");
-		eye.addFilter("lkOpticalTrack1","LKOpticalTrack");
-		eye.setDisplayFilter("lkOpticalTrack1");
-		eye.capture();
-		sleep(500);
-		eye.invokeFilterMethod("lkOpticalTrack1","samplePoint", 160, 120);
+
 
 
 	}
