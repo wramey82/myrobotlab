@@ -156,7 +156,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Houston">
+   <serviceType string="org.myrobotlab.service.Houston" workingLevel="1">
       <dependsOn>
   	 <description>control service for Houston robot project
 	 </description>       
@@ -178,7 +178,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.HTTPClient">
+   <serviceType string="org.myrobotlab.service.HTTPClient" workingLevel="4">
       <dependsOn>
   	 <description>service to retrieve internet content
 	 </description>       
