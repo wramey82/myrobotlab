@@ -1,6 +1,8 @@
 <serviceData>
    <serviceType string="org.myrobotlab.service.ACEduinoMotorShield" workingLevel="3">
       <dependsOn>
+      	 <description>ACEduino Motor Shield for Arduino
+      	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -12,6 +14,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.AdafruitMotorShield" workingLevel="4">
       <dependsOn>
+      	 <description>Adafruit Motor Shield for Arduino
+      	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -23,6 +27,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Arduino" workingLevel="4">
       <dependsOn>
+      	 <description>The Arduino service is used to communicate and control the very popular Arduino micro-controller.
+      	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -33,22 +39,28 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Arm" workingLevel="0">
       <dependsOn>
+	 <description>proposed forward / reverse kinetic arm service - needs a project
+	 </description>            
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.AudioCapture">
+   <serviceType string="org.myrobotlab.service.AudioCapture" workingLevel="3">
       <dependsOn>
+	 <description>captures audio for playback
+	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.AudioFile">
+   <serviceType string="org.myrobotlab.service.AudioFile" workingLevel="4">
       <dependsOn>
+	 <description>plays audio mp3 files
+	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -56,8 +68,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.ChessGame">
+   <serviceType string="org.myrobotlab.service.ChessGame" workingLevel="4">
       <dependsOn>
+	 <description>chess game engine
+	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -65,24 +79,30 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Clock">
+   <serviceType string="org.myrobotlab.service.Clock" workingLevel="3">
       <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.FSM">
+   <serviceType string="org.myrobotlab.service.FSM" workingLevel="1">
       <dependsOn>
+	 <description>Finite state machine
+	 </description>      
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.GUIService">
+   <serviceType string="org.myrobotlab.service.GUIService" workingLevel="5">
       <dependsOn>
+      	 <description>a graphical user interface for MyRobotLab
+      	 </description>      
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -92,16 +112,20 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.GeneticProgramming">
+   <serviceType string="org.myrobotlab.service.GeneticProgramming" workingLevel="1">
       <dependsOn>
+      	 <description>simple genetic programming engine
+      	 </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.GestureRecognition">
+   <serviceType string="org.myrobotlab.service.GestureRecognition" workingLevel="1">
       <dependsOn>
+	 <description>gesture recognition service
+	 </description>      
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -109,8 +133,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.GoogleSTT">
+   <serviceType string="org.myrobotlab.service.GoogleSTT" workingLevel="2">
       <dependsOn>
+  	 <description>voice recognition with Google
+	 </description>      
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -228,8 +254,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Motor">
+   <serviceType string="org.myrobotlab.service.Motor" workingLevel="4">
       <dependsOn>
+        <description>A general purpose Motor service.
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -238,6 +266,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.OpenCV">
       <dependsOn>
+        <description>The OpenCV Service is a library of vision functions.
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
