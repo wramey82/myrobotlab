@@ -156,6 +156,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Houston">
       <dependsOn>
+  	 <description>control service for Houston robot project
+	 </description>       
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -176,6 +178,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.HTTPClient">
       <dependsOn>
+  	 <description>service to retrieve internet content
+	 </description>       
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -185,7 +189,9 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.InMoov">
+   <serviceType string="org.myrobotlab.service.InMoov" workingLevel="3">
+      <description>service to control the InMoov robot
+      </description>  
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -205,14 +211,18 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.IPCamera">
       <dependsOn>
+         <description>service to control and retrieve a video feed from a ip camera.  Foscam cameras currently supported.
+      	 </description>        
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.JFugue">
+   <serviceType string="org.myrobotlab.service.JFugue" workingLevel="3">
       <dependsOn>
+         <description>music and tone generation service.
+      	 </description>        
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -220,17 +230,21 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Joystick">
+   <serviceType string="org.myrobotlab.service.Joystick" workingLevel="4">
       <dependsOn>
-         <list>
+         <description>general joystick service. Works with gamepads.
+      	 </description>  
+          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>net.java.games.jinput</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Python">
+   <serviceType string="org.myrobotlab.service.Python" workingLevel="4">
       <dependsOn>
+         <description>scripting engine and IDE. All services are controllable through Python.
+      	 </description>  
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -246,8 +260,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Logging">
+   <serviceType string="org.myrobotlab.service.Logging" workingLevel="3">
       <dependsOn>
+        <description>a service capable of logging framework messages
+      	 </description>  
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -264,9 +280,9 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.OpenCV">
+   <serviceType string="org.myrobotlab.service.OpenCV" workingLevel="4">
       <dependsOn>
-        <description>The OpenCV Service is a library of vision functions.
+        <description>The OpenCV Service is a library of vision functions
         </description>
          <list>
             <string>org.apache.log4j</string>
@@ -277,8 +293,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.PointCloud">
+   <serviceType string="org.myrobotlab.service.PointCloud" workingLevel="3">
       <dependsOn>
+        <description>Uses OpenNI to generated a 3D pointcloud, will be useful in SLAM
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -287,8 +305,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.ParallelPort">
+   <serviceType string="org.myrobotlab.service.ParallelPort" workingLevel="3">
       <dependsOn>
+        <description>general parallel port control service
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -296,16 +316,20 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.PID">
+   <serviceType string="org.myrobotlab.service.PID"  workingLevel="4">
       <dependsOn>
+        <description>PID service for control
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.PlayerStage">
+   <serviceType string="org.myrobotlab.service.PlayerStage" workingLevel="0">
       <dependsOn>
+        <description>simulator service wrapper - use SLAMBad
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -313,16 +337,20 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Propellor">
+   <serviceType string="org.myrobotlab.service.Propellor" workingLevel="0">
       <dependsOn>
+        <description>service for the Propellor micro-controller
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.RemoteAdapter">
+   <serviceType string="org.myrobotlab.service.RemoteAdapter" workingLevel="4">
       <dependsOn>
+        <description>allows connectivity to multiple instances of MyRobotLab.  Allows peer to peer service sharing
+        </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -408,14 +436,6 @@
             <string>org.simpleframework.xml</string>
             <string>javax.speech.recognition</string>
             <string>edu.cmu.sphinx</string>
-         </list>
-      </dependsOn>
-   </serviceType>
-   <serviceType string="org.myrobotlab.service.TweedleBot">
-      <dependsOn>
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
