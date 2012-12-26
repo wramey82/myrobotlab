@@ -1,5 +1,5 @@
 <serviceData>
-   <serviceType string="org.myrobotlab.service.ACEduinoMotorShield">
+   <serviceType string="org.myrobotlab.service.ACEduinoMotorShield" workingLevel="3">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -31,7 +31,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Arm">
+   <serviceType string="org.myrobotlab.service.Arm" workingLevel="0">
       <dependsOn>
          <list>
             <string>org.apache.log4j</string>
@@ -309,6 +309,8 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Roomba">
       <dependsOn>
+         <description>allows MyRobotLabL to connect and control a Roomba
+         </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -334,16 +336,20 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Servo">
+   <serviceType string="org.myrobotlab.service.Servo" workingLevel="4">
       <dependsOn>
+         <description>allows speed and position control of a Servo
+         </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.SLAMBad">
+   <serviceType string="org.myrobotlab.service.SLAMBad" workingLevel="3">
       <dependsOn>
+         <description>3D Simulator based on Simbad
+         </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -351,8 +357,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Speech">
+   <serviceType string="org.myrobotlab.service.Speech" workingLevel="4">
       <dependsOn>
+         <description>FreeTTS and Google text to speech service
+         </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -361,8 +369,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Sphinx">
+   <serviceType string="org.myrobotlab.service.Sphinx" workingLevel="3">
       <dependsOn>
+         <description>Sphinx speech recognition
+         </description>
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
