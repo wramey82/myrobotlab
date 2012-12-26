@@ -146,8 +146,10 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Graphics">
+   <serviceType string="org.myrobotlab.service.Graphics" workingLevel="2">
       <dependsOn>
+  	 <description>service for general purpose graphics - might use SensorMonitor instead
+	 </description>      
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
@@ -209,7 +211,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.IPCamera">
+   <serviceType string="org.myrobotlab.service.IPCamera" workingLevel="4">
       <dependsOn>
          <description>service to control and retrieve a video feed from a ip camera.  Foscam cameras currently supported.
       	 </description>        
@@ -320,7 +322,7 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.PID"  workingLevel="4">
       <dependsOn>
-        <description>PID service for control
+        <description>service used to control other systems with PID
         </description>
          <list>
             <string>org.apache.log4j</string>
