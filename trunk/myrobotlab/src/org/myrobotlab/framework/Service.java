@@ -111,7 +111,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	Outbox outbox = null;
 	Inbox inbox = null;
 	public URI url = null;
-
+	
 	public boolean performanceTiming = false;
 
 	protected CommunicationInterface cm = null;
@@ -1343,7 +1343,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// BOXING - End --------------------------------------
-	
+	public Object sendBlocking(String name, String method) {		
+		return sendBlocking(name, method, null);
+	}
 	/**
 	 * 
 	 * @param name
@@ -1368,6 +1370,31 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			synchronized (returnContainer) {
 				outbox.add(msg);
 				returnContainer.wait();
+			}
+		} catch (InterruptedException e) {
+			logException(e);
+		}
+
+		return returnContainer[0];
+	}
+	
+	public Object sendBlockingWithTimeout(Integer timeout, String name, String method, Object[] data) {
+		Message msg = createMessage(name, method, data);
+		msg.sender = this.getName();
+		msg.status = Message.BLOCKING;
+
+		Object[] returnContainer = new Object[1];
+		/*
+		 * if (inbox.blockingList.contains(msg.msgID)) { log.error("DUPLICATE");
+		 * }
+		 */
+		inbox.blockingList.put(msg.msgID, returnContainer);
+
+		try {
+			// block until message comes back
+			synchronized (returnContainer) {
+				outbox.add(msg);
+				returnContainer.wait(timeout);
 			}
 		} catch (InterruptedException e) {
 			logException(e);
