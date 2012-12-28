@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -47,6 +48,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServoController;
 
@@ -57,19 +59,21 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 	JLabel boundPos = null;
 
-	AttachButton attachButton = null;
+	JButton attachButton = new JButton("attach");
+	JButton updateLimitsButton = new JButton("update limits");
+	
+	
 	JSlider slider = new JSlider(0, 180, 90);
 
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 
 	JComboBox controller = new JComboBox();
-	JComboBox pin = null;
+	JComboBox pin = new JComboBox();
 
 	DefaultComboBoxModel controllerModel = new DefaultComboBoxModel();
+	DefaultComboBoxModel pinModel = new DefaultComboBoxModel();
 
-	// TODO - sync initially by requesting entire Servo service object - can you
-	// get cfg? that way?
 	JTextField posMin = new JTextField("0");
 	JTextField posMax = new JTextField("180");
 
@@ -99,18 +103,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	}
 
 	public void init() {
-
-		left.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				slider.setValue(slider.getValue() - 1);
-			}
-		});
-		right.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				slider.setValue(slider.getValue() + 1);
-			}
-		});
-
+		
 		// build input begin ------------------
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
@@ -147,8 +140,6 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		attachButton = new AttachButton();
-		attachButton.setText("attach");
 		control.add(attachButton, gc);
 		++gc.gridx;
 
@@ -161,6 +152,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 		// FIXME - controller selection - generates a getPins() which populates
 		// pin JComboBox
+		/*
 		Vector<Integer> p = new Vector<Integer>();
 		p.addElement(1);
 		p.addElement(2);
@@ -175,8 +167,9 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		p.addElement(11);
 		p.addElement(12);
 		p.addElement(13);
+		*/
 
-		pin = new JComboBox(p);
+		//pin = new JComboBox(p);
 
 		++gc.gridx;
 		control.add(pin, gc);
@@ -188,7 +181,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		++gc.gridy;
 
 		JPanel limits = new JPanel();
-		limits.add(new UpdateLimits());
+		limits.add(updateLimitsButton);
 		limits.add(new JLabel("min "));
 		limits.add(posMin);
 		limits.add(new JLabel(" max "));
@@ -196,6 +189,12 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 		display.add(limits, gc);
 
+		left.addActionListener(this);
+		right.addActionListener(this);
+		controller.addActionListener(this);
+		attachButton.addActionListener(this);
+		pin.addActionListener(this);
+		
 		// http://stackoverflow.com/questions/6205433/jcombobox-focus-and-mouse-click-events-not-working
 		// jComboBox1.getEditor().getEditorComponent().addMouseListener(...);
 		// have to add mouse listener to the MetalComboButton embedded in the
@@ -212,8 +211,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 			 */
 		}
 		// controller.getEditor().getEditorComponent().addMouseListener(this);
-		controller.addActionListener(this);
 		controller.setModel(controllerModel);
+		pin.setModel(pinModel);
 
 		refreshControllers();
 	}
@@ -221,76 +220,16 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	public void refreshControllers() {
 		// FIXME - would newing? a new DefaultComboBoxModel be better?
 		controllerModel.removeAllElements();
-		Vector<String> v = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName()); // FIXME
-																										// -
-																										// getLocalRelative
-																										// to
-																										// the
-																										// Servo
+		// FIXME - get Local services relative to the servo
+		controllerModel.addElement("");
+		Vector<String> v = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName()); 
 		for (int i = 0; i < v.size(); ++i) {
 			controllerModel.addElement(v.get(i));
 		}
-
 		controller.invalidate();
 		// if isAttached() - select the correct one
 	}
 	
-	
-/*
-	private JSlider getAnalogValue() {
-		if (slider == null) {
-			slider = new JSlider(0, 180, 90);
-			slider.addChangeListener(new ChangeListener() {
-				public void stateChanged(javax.swing.event.ChangeEvent e) {
-					boundPos.setText("" + slider.getValue());
-
-					if (myService != null) {
-						myService.send(boundServiceName, "moveTo", Integer.valueOf(slider.getValue()));
-					} else {
-						log.error("can not send message myService is null");
-					}
-				}
-			});
-
-		}
-		return slider;
-	}
-*/
-	private class AttachButton extends JButton implements ActionListener {
-		private static final long serialVersionUID = 1L;
-
-		public AttachButton() {
-			super();
-			addActionListener(this);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (getText().equals("attach")) {
-				setText("detach");
-				myService.send(controller.getSelectedItem().toString(), "servoAttach", boundServiceName, pin.getSelectedItem());
-			} else {
-				setText("attach");
-				myService.send(controller.getSelectedItem().toString(), "servoDetach", boundServiceName);
-			}
-		}
-	}
-
-	private class UpdateLimits extends JButton implements ActionListener {
-		private static final long serialVersionUID = 1L;
-
-		public UpdateLimits() {
-			super();
-			setText("update limits");
-			addActionListener(this);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			myService.send(boundServiceName, "setPositionMin", Integer.parseInt(posMin.getText()));
-			myService.send(boundServiceName, "setPositionMax", Integer.parseInt(posMax.getText()));
-		}
-	}
 
 	public void getState(final Servo servo) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -329,11 +268,63 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		unsubscribe("publishState", "getState", Servo.class);
 	}
 
+	// GUI's action processing section
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 		if (o == controller) {
-			log.info("here");
+			String controllerName = (String)controller.getSelectedItem();
+			log.info(String.format("controller event %s", controllerName));
+			if (controllerName != null && controllerName.length() > 0)
+			{
+				//myService.send(controllerName, "getPinList");
+				@SuppressWarnings("unchecked")
+				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList", null);
+				log.info(pinList.size());
+				
+				pinModel.removeAllElements();
+				// FIXME - get Local services relative to the servo
+				pinModel.addElement("");
+				 
+				for (int i = 0; i < pinList.size(); ++i) {
+					pinModel.addElement(pinList.get(i).pin);
+				}
+				
+				pin.invalidate();
+				
+				
+			}
+		}
+		
+		if (o == attachButton)
+		{
+			if (attachButton.getText().equals("attach")) {
+				myService.send(controller.getSelectedItem().toString(), "servoAttach", boundServiceName, pin.getSelectedItem());
+				attachButton.setText("detach");
+			} else {
+				myService.send(controller.getSelectedItem().toString(), "servoDetach", boundServiceName);
+				attachButton.setText("attach");
+			}
+			return;
+		}
+		
+		if (o == updateLimitsButton)
+		{
+			myService.send(boundServiceName, "setPositionMin", Integer.parseInt(posMin.getText()));
+			myService.send(boundServiceName, "setPositionMax", Integer.parseInt(posMax.getText()));
+			return;
+		}
+		
+		if (o == right)
+		{
+			slider.setValue(slider.getValue() + 1);
+			return;
+		}
+
+		if (o == left)
+		{
+			slider.setValue(slider.getValue() - 1);
+			return;
 		}
 	}
 
@@ -361,10 +352,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	@Override
 	public void mousePressed(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		log.info("pressed");
-		Object o = arg0.getSource();
-		log.info(o);
-
+		log.info("controller pressed");	
 		refreshControllers();
 	}
 

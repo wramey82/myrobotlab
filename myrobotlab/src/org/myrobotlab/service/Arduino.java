@@ -298,6 +298,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void setBoard(String board)
 	{
 		preferences.set("board",board);
+		createPinList();
 		preferences.save();
 		broadcastState();
 	}
