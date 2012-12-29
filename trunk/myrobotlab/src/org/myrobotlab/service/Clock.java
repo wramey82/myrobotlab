@@ -376,11 +376,7 @@ public class Clock extends Service {
 		//clock.startCountDownTimer();
 		
 		
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-
-		
+		Runtime.createAndStart("gui", "GUIService");
 		
 	}
 	

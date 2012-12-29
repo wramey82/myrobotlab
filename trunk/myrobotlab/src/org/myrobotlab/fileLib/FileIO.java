@@ -50,6 +50,7 @@ import java.util.zip.ZipException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 
 public class FileIO {
@@ -161,12 +162,19 @@ public class FileIO {
 	public final static String getResourceFile(String filename) {
 		StringBuffer str = new StringBuffer();
 		BufferedReader br = null;
+		
+		String davlikPrefix = "";
+		if (Platform.isDavlik())
+		{
+			davlikPrefix = "/assets";
+		}
+		
 		try {
-			InputStream is = FileIO.class.getResourceAsStream(String.format("/resource/%1$s", filename));
+			InputStream is = FileIO.class.getResourceAsStream(String.format("%s/resource/%s", davlikPrefix, filename));
 			
 			if (is == null)
 			{
-				log.error(String.format("resource %1$s not found", filename));
+				log.error(String.format("resource %s not found", filename));
 				return null;
 			}
 				
@@ -179,7 +187,7 @@ public class FileIO {
 				str.append("\n");
 			}
 		} catch (IOException e) {
-			log.error(String.format("could not open filename /resource/%1$s", filename));
+			log.error(String.format("could not open filename %s/resource/%s", davlikPrefix, filename));
 		} finally {
 			if (br != null) {
 				try {
