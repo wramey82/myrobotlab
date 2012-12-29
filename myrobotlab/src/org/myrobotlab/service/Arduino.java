@@ -1072,7 +1072,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		String type = preferences.get("board");
 		int pinType = Pin.DIGITAL_VALUE;
 
-		if ("mega2560".equals(type)) {
+		if (type != null && type.startsWith("mega")) {
 			for (int i = 0; i < 70; ++i) {
 	
 				if (i < 1 || (i > 13 && i < 54))

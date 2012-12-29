@@ -59,7 +59,7 @@ public class Platform implements Serializable {
 		
 		if (vmname.equals(DALVIK))
 		{
-			return vmname;
+			return DALVIK;
 		} else {
 			return HOTSPOT;
 		}

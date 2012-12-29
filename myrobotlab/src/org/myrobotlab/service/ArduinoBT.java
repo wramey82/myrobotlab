@@ -1011,4 +1011,16 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		return null;
 	}
 
+	@Override
+	public Object[] getMotorData(String motorName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setServoSpeed(String servoName, Float speed) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -34,7 +34,6 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.myrobotlab.arduino.Serial;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.serial.gnu.SerialDeviceGNU;
 import org.myrobotlab.service.Arduino;
 
 public abstract class Uploader {
