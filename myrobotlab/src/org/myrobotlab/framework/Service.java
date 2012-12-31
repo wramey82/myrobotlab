@@ -142,7 +142,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 	
 	// recordings
-	private boolean isRecording = false;
+	static private boolean isRecording = false;
 	public final String MESSAGE_RECORDING_FORMAT_XML = "MESSAGE_RECORDING_FORMAT_XML";
 	public final String MESSAGE_RECORDING_FORMAT_BINARY = "MESSAGE_RECORDING_FORMAT_BINARY";
 	

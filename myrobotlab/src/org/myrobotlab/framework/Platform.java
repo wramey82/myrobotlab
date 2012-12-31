@@ -88,7 +88,7 @@ public class Platform implements Serializable {
 	public static String getArch()
 	{
 		String arch = System.getProperty("os.arch").toLowerCase(); 
-		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch)){
+		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch) || arch.startsWith("x86")){
 			arch = "x86"; // don't care at the moment
 		}
 		return arch;
