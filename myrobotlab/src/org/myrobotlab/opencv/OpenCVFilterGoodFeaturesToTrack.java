@@ -129,6 +129,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	                corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
 			//needTrackingPoints = false;
+	        // TODO - static switch to use OpenCV objects or Java objects
 		}
 
 		return frame;
