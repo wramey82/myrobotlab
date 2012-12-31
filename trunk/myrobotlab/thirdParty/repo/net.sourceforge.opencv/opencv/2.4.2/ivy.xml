@@ -6,46 +6,45 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
 
         <artifact name="haarcascades" type="zip" ext="zip" conf="*"/>
         <artifact name="lbpcascades" type="zip" ext="zip" conf="*"/>
              
-        <artifact name="x86.32.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_contrib" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_core" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_features2d" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_flann" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_gpu" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_highgui" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_imgproc" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_legacy" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_ml" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_nonfree" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_objdetect" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_photo" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_stitching" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_ts" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_video" type="native" ext="so.2.4" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/libopencv_videostab" type="native" ext="so.2.4" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_calib3d" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_contrib" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_core" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_features2d" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_flann" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_gpu" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_highgui" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_imgproc" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_legacy" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_ml" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_nonfree" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_objdetect" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_photo" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_stitching" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_ts" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_video" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libopencv_videostab" type="native" ext="2.4.dylib" conf="x86.32.linux"/>
         
-        <artifact name="x86.64.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_contrib" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_core" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_features2d" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_flann" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_gpu" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_highgui" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_imgproc" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_legacy" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_ml" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_nonfree" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_objdetect" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_photo" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_stitching" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_ts" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_video" type="native" ext="so.2.4" conf="x86.64.linux"/>
-        <artifact name="x86.64.linux/libopencv_videostab" type="native" ext="so.2.4" conf="x86.64.linux"/>        
+        <artifact name="x86.64.linux/libopencv_calib3d" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_contrib" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_core" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_features2d" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_flann" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_gpu" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_highgui" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_imgproc" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_legacy" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_ml" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_nonfree" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_objdetect" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_photo" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_stitching" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_ts" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_video" type="native" ext="2.4.dylib" conf="x86.64.linux"/>
+        <artifact name="x86.64.linux/libopencv_videostab" type="native" ext="2.4.dylib" conf="x86.64.linux"/>        
         
         <artifact name="x86.32.windows/opencv_calib3d242" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_contrib242" type="native" ext="dll" conf="x86.32.windows"/>
@@ -84,6 +83,27 @@
         <artifact name="x86.64.windows/opencv_video242" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/opencv_videostab242" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/tbb" type="native" ext="dll" conf="x86.64.windows"/>
+        
+        <artifact name="x86.64.mac/libopencv_calib3d" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_contrib" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_core" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_features2d" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_flann" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_gpu" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_highgui" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_imgproc" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_legacy" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_ml" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_nonfree" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_objdetect" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_photo" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_stitching" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_ts" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_video" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_videostab" type="native" ext="2.4.dylib" conf="x86.64.mac"/>      
+        
+        <artifact name="x86.64.mac/cv2" type="native" ext="so" conf="x86.64.mac"/>
+        <artifact name="x86.64.mac/libopencv_haartraining_engine" type="native" ext="a" conf="x86.64.mac"/>      
         
     </publications>
 </ivy-module>
