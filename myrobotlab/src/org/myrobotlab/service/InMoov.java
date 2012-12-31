@@ -514,6 +514,20 @@ public class InMoov extends Service {
 
 	}
 	
+	public void startListening()
+	{
+		ear.startListening();
+	}
+	
+	public void pauseListening() {
+		ear.pauseListening();
+	}
+
+	public void resumeListening() {
+		ear.resumeListening();
+	}
+	
+	
 	public void stopListening()
 	{
 		ear.stopListening();
