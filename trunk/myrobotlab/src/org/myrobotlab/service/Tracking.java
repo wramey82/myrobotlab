@@ -137,6 +137,14 @@ public class Tracking extends Service {
 			return false;
 		}
 		
+		if (!control.isReady())
+		{
+			log.error("control system is not ready");
+			return false;
+		}
+		
+		control.center();
+		
 		// clear filters
 		opencv.removeFilters();
 		
@@ -144,6 +152,8 @@ public class Tracking extends Service {
 		opencv.addFilter("pyramidDown1","PyramidDown"); // needed ??? test
 		opencv.addFilter("lkOpticalTrack1","LKOpticalTrack");
 		opencv.setDisplayFilter("lkOpticalTrack1");
+		
+		//opencv.setCameraIndex(1);
 		
 		// start capture
 		opencv.capture();
@@ -268,11 +278,22 @@ public class Tracking extends Service {
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
 		
+		Arduino mega = (Arduino)Runtime.createAndStart("mega", "Arduino");
+		mega.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
+		mega.setSerialDevice("COM9", 57600, 8, 1, 0);
+		
+		Servo pan =  (Servo)Runtime.createAndStart("pan", "Servo");
+		Servo tilt =  (Servo)Runtime.createAndStart("tilt", "Servo");
+		
+		mega.servoAttach("pan", 32);
+		mega.servoAttach("tilt", 6);
+		
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
 		
 		tracker.attachObjectTracker(opencv);
-		
+		tracker.attachControlX(pan);
+		tracker.attachControlY(tilt);
 
 
 		//IPCamera ip = new IPCamera("ip");
