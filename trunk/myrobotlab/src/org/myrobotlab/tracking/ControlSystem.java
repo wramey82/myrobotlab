@@ -1,6 +1,8 @@
 package org.myrobotlab.tracking;
 
+import org.apache.log4j.Logger;
 import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.Tracking;
 
 /**
  * ControlSystem is responsible for the underlying control of
@@ -14,6 +16,8 @@ import org.myrobotlab.service.Servo;
  * 
  */
 public class ControlSystem {
+	
+	public final static Logger log = Logger.getLogger(ControlSystem.class.getCanonicalName());
 	
 	//private boolean isRunning = false;
 	private Servo pan;
@@ -54,5 +58,20 @@ public class ControlSystem {
 	public void moveYTo(int pos)
 	{
 		tilt.moveTo(pos);
+	}
+	
+	public void center()
+	{
+		tilt.moveTo(90);
+		pan.moveTo(90);
+	}
+
+	public boolean isReady() {
+		if (pan != null && tilt != null && pan.isAttached() && tilt.isAttached())
+		{
+			return true;
+		}
+		
+		return false;
 	}
 }
