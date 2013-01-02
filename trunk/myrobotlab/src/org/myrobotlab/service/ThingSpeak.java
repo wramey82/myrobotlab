@@ -34,8 +34,22 @@ public class ThingSpeak extends Service {
 	int intervalSeconds = 15;
 
 
+	public Integer getIntervalSeconds() {
+		return intervalSeconds;
+	}
+
+	public void setIntervalSeconds(int intervalSeconds) {
+		this.intervalSeconds = intervalSeconds;
+	}
+
 	public ThingSpeak(String n) {
 		super(n, ThingSpeak.class.getCanonicalName());
+		load();
+	}
+	
+	public void saveConfig()
+	{
+		save();
 	}
 
 	@Override
