@@ -25,8 +25,16 @@
 
 package org.myrobotlab.control;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.ThingSpeak;
@@ -37,14 +45,36 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(ThingSpeakGUI.class.getCanonicalName());
 
+	JTextField writeKey = new JTextField(15);
+	JLabel lastUpdate = new JLabel("");
+	
 	public ThingSpeakGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
 	public void init() {
+		JPanel input = new JPanel(new GridLayout(0,2));
+		input.add(new JLabel("write key"));
+		input.add(writeKey);
+		input.add(new JLabel("last update"));
+		input.add(lastUpdate);
+
+		
+		display.add(input);
+		
 	}
 
-	public void getState(ThingSpeak thing) {
+	public void getState(final ThingSpeak thing) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				
+				writeKey.setText(thing.getWriteKey());
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
+		        Date resultdate = new Date(thing.getLastUpdate());
+		        lastUpdate.setText(sdf.format(resultdate));
+
+			}
+			});
 	}
 
 	@Override

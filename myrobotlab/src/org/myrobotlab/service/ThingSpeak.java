@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.data.Pin;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 /**
  * @author GroG & 
@@ -13,6 +15,8 @@ import org.myrobotlab.service.data.Pin;
  *         References : http://community.thingspeak.com/documentation/api/
  * 
  */
+
+@Root
 public class ThingSpeak extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -21,8 +25,13 @@ public class ThingSpeak extends Service {
 	// http://api.thingspeak.com/update?key=AO4DMKQZY4RLWNNU&field1=pin&field2=A0&field3=value&field4=345&status=boink6
 
 	String updateURL = "http://api.thingspeak.com/update";
-	String writeKey = "AO4DMKQZY4RLWNNU";
-	String readKey = "";
+	@Element
+	String writeKey = "";
+
+	long lastUpdate = 0;
+
+	@Element
+	int intervalSeconds = 15;
 
 
 	public ThingSpeak(String n) {
@@ -38,22 +47,46 @@ public class ThingSpeak extends Service {
 		return "used as a general template";
 	}
 	
+	// TODO - add averaging & timing info
+	
 	public Integer update(Object[] data) {
 		String result = "0";
 		try {
-			for (int i = 0; i < data.length; ++i)
+			
+			if (System.currentTimeMillis() - lastUpdate < intervalSeconds * 1000)
+			{
+				log.debug(String.format("not ready for posting - must be >= %d seconds", intervalSeconds));
+				return 0;
+			}
+			
+			if (data.length > 8)
+			{
+				log.warn("data array is larger than 8 - post will be truncated");
+			}
+			
+			StringBuffer url = new StringBuffer();
+			url.append(String.format("%s?key=%s", updateURL, writeKey));	
+			
+			for (int i = 0; i < data.length && i < 8; ++i)
 			{
 				Object o = data[i];
-				String url = String.format("%s?key=%s&field1=%s", updateURL, writeKey, o.toString());
-				HTTPRequest request = new HTTPRequest(url);
-				result = request.getString();
-				log.info(String.format("ThingSpeak returned %s",result));
+				url.append(String.format("&field%d=%s", i+1, o.toString()));
 			}
+			
+			HTTPRequest request = new HTTPRequest(url.toString());
+			result = request.getString();
+			log.info(String.format("ThingSpeak returned %s",result));
+			
 		} catch (IOException e) {
 			Service.logException(e);
 		}
 
-		return Integer.parseInt(result);
+		Integer ret = Integer.parseInt(result);
+		if (ret > 0)
+		{
+			lastUpdate = System.currentTimeMillis();
+		}
+		return ret;
 	}
 	
 	public Integer update (Integer data)
@@ -68,7 +101,7 @@ public class ThingSpeak extends Service {
 	
 	public Integer update(Pin pin)
 	{
-		return update(new Object[]{pin.value});
+		return update(new Object[]{pin.pin, pin.value});
 	}
 
 	public static void main(String[] args) {
@@ -78,10 +111,27 @@ public class ThingSpeak extends Service {
 		ThingSpeak thingSpeak = new ThingSpeak("thingSpeak");
 		thingSpeak.update(33);
 		thingSpeak.startService();
+
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
 	}
 
+	public String getWriteKey() {
+		return writeKey;
+	}
+
+	public void setWriteKey(String writeKey) {
+		this.writeKey = writeKey;
+	}
+	
+	public long getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(long lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+	
 }
