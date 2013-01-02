@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -46,20 +47,28 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	public final static Logger log = Logger.getLogger(ThingSpeakGUI.class.getCanonicalName());
 
 	JTextField writeKey = new JTextField(15);
+	JLabel intervalSeconds = new JLabel("");
 	JLabel lastUpdate = new JLabel("");
+	JButton save = new JButton("save");
 	
 	public ThingSpeakGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		
 	}
 
 	public void init() {
 		JPanel input = new JPanel(new GridLayout(0,2));
 		input.add(new JLabel("write key"));
 		input.add(writeKey);
+		input.add(new JLabel("update interval"));
+		input.add(intervalSeconds);
 		input.add(new JLabel("last update"));
 		input.add(lastUpdate);
 
 		
+		input.add(save);
+		
+		save.addActionListener(this);
 		display.add(input);
 		
 	}
@@ -69,6 +78,7 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 			public void run() {
 				
 				writeKey.setText(thing.getWriteKey());
+				intervalSeconds.setText(thing.getIntervalSeconds().toString());
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
 		        Date resultdate = new Date(thing.getLastUpdate());
 		        lastUpdate.setText(sdf.format(resultdate));
@@ -80,7 +90,7 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	@Override
 	public void attachGUI() {
 		subscribe("publishState", "getState", ThingSpeak.class);
-		myService.send(boundServiceName, "publishState");
+		myService.send(boundServiceName, "broadcastState");
 	}
 
 	@Override
@@ -89,9 +99,12 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void actionPerformed(ActionEvent event) {
+		Object o = event.getSource();
+		if (o == save)
+		{
+			myService.send(boundServiceName, "saveConfig");
+		}
 	}
 
 }
