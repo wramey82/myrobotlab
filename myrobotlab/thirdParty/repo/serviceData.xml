@@ -449,6 +449,26 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.ThingSpeak" workingLevel="2">
+      <dependsOn>
+         <description>Interface to ThingSpeak for data logging and charting
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Tracking" workingLevel="1">
+      <dependsOn>
+         <description>Vision tracking service - In Dev Now....
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.WebServer" workingLevel="3">
       <dependsOn>
          <description>embedded web server - allows control through AJAX and web services - initially created for the Robosoccer project 
