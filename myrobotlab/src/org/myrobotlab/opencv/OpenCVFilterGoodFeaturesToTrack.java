@@ -39,12 +39,12 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.data.Point2Df;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.sun.jna.ptr.IntByReference;
-
 
 public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
@@ -59,7 +59,9 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 	public int maxPointCount = 46;
 	public int totalIterations = 0;
-	
+
+	boolean publishOpenCVObjects = false; // TODO put in Parent
+
 	// quality - Multiplier for the maxmin eigenvalue; specifies minimal
 	// accepted quality of image corners
 	public double qualityLevel = 0.05;
@@ -69,26 +71,27 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	// blockSize - Size of the averaging block, passed to underlying
 	// cvCornerMinEigenVal or cvCornerHarris used by the function
 	public int blockSize = 3;
-	// If nonzero, Harris operator (cvCornerHarris) is used instead of default cvCornerMinEigenVal.
+	// If nonzero, Harris operator (cvCornerHarris) is used instead of default
+	// cvCornerMinEigenVal.
 	public int useHarris = 0;
-	//Free parameter of Harris detector; used only if useHarris != 0
+	// Free parameter of Harris detector; used only if useHarris != 0
 	public double k = 0.0;
 
-	public HashMap<String, Integer> stableIterations = null;	
-	
+	public HashMap<String, Integer> stableIterations = null;
+
 	int lastMaxPointCount = 0;
 	transient IntByReference cornerCount = new IntByReference(maxPointCount);
 	transient CvPoint2D32f corners = null; // new way?
-    int[] corner_count = { maxPointCount };
-	
-    public boolean needTrackingPoints = true;
+	int[] corner_count = { maxPointCount };
 
+	public boolean needTrackingPoints = true;
 
 	public OpenCVFilterGoodFeaturesToTrack(OpenCV service, String name) {
 		super(service, name);
 	}
 
-	@Override // TODO - use annotations
+	@Override
+	// TODO - use annotations
 	public String getDescription() {
 		return null;
 	}
@@ -107,16 +110,16 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 			stableIterations = new HashMap<String, Integer>();
 		}
-		
-		if (lastMaxPointCount != maxPointCount)
-		{
-			cornerCount.setValue(maxPointCount);		
-		    corner_count = new int[]{ maxPointCount };
+
+		if (lastMaxPointCount != maxPointCount) {
+			cornerCount.setValue(maxPointCount);
+			corner_count = new int[] { maxPointCount };
 
 			lastMaxPointCount = maxPointCount;
 		}
-		
-		corners = new CvPoint2D32f(maxPointCount); // this must be new'd every iteration
+
+		corners = new CvPoint2D32f(maxPointCount); // this must be new'd every
+													// iteration
 
 		// TODO check if already grey
 		cvCvtColor(frame, grey, CV_BGR2GRAY);
@@ -124,12 +127,29 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		if (needTrackingPoints) // warm up camera
 		{
 			++totalIterations;
-			
-	        cvGoodFeaturesToTrack(grey, eig, temp, corners,
-	                corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
-			//needTrackingPoints = false;
-	        // TODO - static switch to use OpenCV objects or Java objects
+			cvGoodFeaturesToTrack(grey, eig, temp, corners, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
+
+			// if (corner_count > 0) {
+			if (publishOpenCVObjects) {
+				myService.invoke("publish", (Object) corners);
+			} else {
+
+				double[] da = corners.get();
+				if (da.length % 2 != 0) {
+					log.error("incorrect corner count");
+				} else {
+					// normalize
+					for (int i = 0; i < da.length; i += 2) {
+						da[i] = da[i] / frame.width();
+						da[i + 1] = da[i + 1] / frame.height();
+					}
+					myService.invoke("publish", da);
+				}
+			}
+
+			// needTrackingPoints = false;
+			// TODO - static switch to use OpenCV objects or Java objects
 		}
 
 		return frame;
@@ -138,13 +158,12 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage frame, Object[] data) {
 
-        for (int i = 0; i < corner_count[0]; i++) {
-        	corners.position(i);
-        	CvPoint p0 = cvPoint(Math.round(corners.x()),
-                    Math.round(corners.y()));
-            cvLine(frame, p0, p0, CV_RGB(255, 0, 0), 2, 8, 0);
-        }		
-		
+		for (int i = 0; i < corner_count[0]; i++) {
+			corners.position(i);
+			CvPoint p0 = cvPoint(Math.round(corners.x()), Math.round(corners.y()));
+			cvLine(frame, p0, p0, CV_RGB(255, 0, 0), 2, 8, 0);
+		}
+
 		return frame.getBufferedImage(); // TODO - ran out of memory here
 
 	}

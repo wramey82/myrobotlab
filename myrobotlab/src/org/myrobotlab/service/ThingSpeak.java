@@ -3,11 +3,16 @@ package org.myrobotlab.service;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.data.Pin;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+
 
 /**
  * @author GroG & 
@@ -21,6 +26,7 @@ public class ThingSpeak extends Service {
 
 	private static final long serialVersionUID = 1L;
 
+//	public final static Logger log = LoggerFactory.getLogger(ThingSpeak.class.getCanonicalName());
 	public final static Logger log = Logger.getLogger(ThingSpeak.class.getCanonicalName());
 	// http://api.thingspeak.com/update?key=AO4DMKQZY4RLWNNU&field1=pin&field2=A0&field3=value&field4=345&status=boink6
 
@@ -117,21 +123,8 @@ public class ThingSpeak extends Service {
 	{
 		return update(new Object[]{pin.pin, pin.value});
 	}
-
-	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.WARN);
-
-		ThingSpeak thingSpeak = new ThingSpeak("thingSpeak");
-		thingSpeak.update(33);
-		thingSpeak.startService();
-
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
-	}
-
+	
+	
 	public String getWriteKey() {
 		return writeKey;
 	}
@@ -148,4 +141,24 @@ public class ThingSpeak extends Service {
 		this.lastUpdate = lastUpdate;
 	}
 	
+
+
+	public static void main(String[] args) {
+		//org.apache.log4j.BasicConfigurator.configure();
+		//Logger.getRootLogger().setLevel(Level.WARN);
+
+		//BasicConfigurator.
+		
+		log.info("hello");
+		
+		ThingSpeak thingSpeak = new ThingSpeak("thingSpeak");
+		thingSpeak.update(33);
+		thingSpeak.startService();
+
+		/*
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
+	}
+
 }
