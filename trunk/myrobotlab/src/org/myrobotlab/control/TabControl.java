@@ -181,6 +181,11 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		detachMenuItem.addActionListener(this);
 		detachMenuItem.setIcon(Util.getScaledIcon(Util.getImage("detach.png"), 0.50));
 		popup.add(detachMenuItem);
+
+		JMenuItem releaseMenuItem = new JMenuItem("release");
+		releaseMenuItem.addActionListener(this);
+		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
+		popup.add(releaseMenuItem);
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -259,7 +264,10 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 			}  else if ("detach".equals(cmd))
 			{
 				undockPanel();			
-			}		
+			} else if ("release".equals(cmd))
+			{
+				myService.send(Runtime.getInstance().getName(), "releaseService", boundServiceName);		
+			}			
 		} else {
 			// Sub Tabbed sub pane
 			ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);

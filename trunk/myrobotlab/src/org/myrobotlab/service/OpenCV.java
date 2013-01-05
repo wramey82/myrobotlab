@@ -26,6 +26,8 @@
 package org.myrobotlab.service;
 
 /*
+  TODO : 
+  	new filters - http://idouglasamoore-javacv.googlecode.com/git-history/02385ce192fb82f1668386e55ff71ed8d6f88ae3/src/main/java/com/googlecode/javacv/ObjectFinder.java
 
  static wild card imports for quickly finding static functions in eclipse
  import static com.googlecode.javacv.cpp.opencv_highgui.*;
@@ -630,6 +632,10 @@ public class OpenCV extends Service {
 		return features;
 	}
 
+	public double[] publish(double[] data) {
+		return data;
+	}
+	
 	public CvPoint publish(CvPoint point) {
 		return point;
 	}
@@ -848,6 +854,7 @@ public class OpenCV extends Service {
 
 	public static void main(String[] args) {
 
+		// TODO - Avoidance / Navigation Service
 		// ground plane
 		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
 		// radio lab - map cells location cells yatta yatta
@@ -874,24 +881,12 @@ public class OpenCV extends Service {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		// opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
-		// opencv.capture();
+		opencv.addFilter("pd","PyramidDown");
+		opencv.addFilter("gft","GoodFeaturesToTrack");
+		opencv.publishFilterData("gft");
+		opencv.setDisplayFilter("gft");
+		opencv.capture();
 
-		/*
-		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
-		 * 
-		 * Servo pan = new Servo("pan"); pan.startService();
-		 * 
-		 * Servo tilt = new Servo("tilt"); tilt.startService();
-		 */
-		
-		Tracking t = new Tracking("tracking");
-		t.startService();
-		
-
-
-		//IPCamera ip = new IPCamera("ip");
-		//ip.startService();
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();

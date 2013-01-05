@@ -27,6 +27,8 @@ package org.myrobotlab.service;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -40,6 +42,11 @@ public class Tracking extends Service {
 
 	public final static Logger log = Logger.getLogger(Tracking.class
 			.getCanonicalName());
+	
+	// TODO - Avoidance / Navigation Service
+	// ground plane
+	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
+
 
 	/*
 	 * TODO - Calibrate - do good features points - select closest to center - record point - move 1 x -> record delta & latency -> move to edge -> 
@@ -131,6 +138,7 @@ public class Tracking extends Service {
 	
 	public boolean calibrate()
 	{
+/*		
 		if (opencv == null)
 		{
 			log.error("must set an object finder");
@@ -144,14 +152,31 @@ public class Tracking extends Service {
 		}
 		
 		control.center();
-		
+*/		
 		// clear filters
 		opencv.removeFilters();
+		
+		// get good features
+		opencv.addFilter("pd","PyramidDown");
+		opencv.addFilter("gft","GoodFeaturesToTrack");
+		opencv.publishFilterData("gft");
+		opencv.setDisplayFilter("gft");
+		opencv.capture();
+
+		// pause - warm up camera
+		sleep(2000);
+		
+		// find closes to the center 
+		
+		// set tracking point there
 		
 		// set filters
 		opencv.addFilter("pyramidDown1","PyramidDown"); // needed ??? test
 		opencv.addFilter("lkOpticalTrack1","LKOpticalTrack");
 		opencv.setDisplayFilter("lkOpticalTrack1");
+		
+		subscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
+		//sendBlockingWithTimeout(1000, name, method, data)
 		
 		//opencv.setCameraIndex(1);
 		
@@ -175,8 +200,31 @@ public class Tracking extends Service {
 		
 		return true;
 	}
+	
+	
+	
 
+	BlockingQueue<double[]> footData = new LinkedBlockingQueue<double[]>();
+	boolean interrupted = false;
 
+	// TODO - bundle epi-filter & config data with this method in OpenCV for those who what to block on a method
+	public double[] GoodFeaturesToTrack() {
+		double[] goodfeatures = null;
+		try {
+			footData.clear(); 
+			while (!interrupted) {
+				goodfeatures = footData.take();
+				return goodfeatures;	
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	
+	
+	// FIXME - remove OpenCV definitions
 	final public void updateTrackingPoint(Point2Df pt) {
 		++cnt;
 		
@@ -277,7 +325,10 @@ public class Tracking extends Service {
 		 * 
 		 * Servo tilt = new Servo("tilt"); tilt.startService();
 		 */
+
+		// FIXME way to test with faux controlsystem
 		
+/*		
 		Arduino mega = (Arduino)Runtime.createAndStart("mega", "Arduino");
 		mega.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
 		mega.setSerialDevice("COM9", 57600, 8, 1, 0);
@@ -287,13 +338,13 @@ public class Tracking extends Service {
 		
 		mega.servoAttach("pan", 32);
 		mega.servoAttach("tilt", 6);
-		
+*/		
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
 		
 		tracker.attachObjectTracker(opencv);
-		tracker.attachControlX(pan);
-		tracker.attachControlY(tilt);
+//		tracker.attachControlX(pan);
+//		tracker.attachControlY(tilt);
 
 
 		//IPCamera ip = new IPCamera("ip");

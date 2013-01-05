@@ -33,16 +33,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -114,13 +114,21 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	// FIXME - should be part of separate "Editor" class
 	static public class EditorPanel {
 		String filename;
-		final TextEditorPane editor = new TextEditorPane();
-		JScrollPane panel = createEditorPane();
+		TextEditorPane editor;// = new TextEditorPane(); <-- cant be null constructor
+		JScrollPane panel;// = createEditorPane();
 
 		public EditorPanel(Script script) {
-			filename = script.getName();
-			editor.setText(script.getCode());
-			editor.setCaretPosition(0);
+			try {
+				filename = script.getName();
+				editor = new TextEditorPane(editor.INSERT_MODE, false, FileLocation.create(new File(filename)));
+				editor.setText(script.getCode());
+				editor.setCaretPosition(0);
+				
+				panel = createEditorPane();
+			} catch(Exception e)
+			{
+				Service.logException(e);
+			}
 		}
 
 		public String getDisplayName() {
@@ -158,6 +166,11 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		public String getFilename()
 		{
 			return filename;
+		}
+		
+		public TextEditorPane getEditor()
+		{
+			return editor;
 		}
 	}
 
@@ -240,6 +253,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public EditorPanel addNewEditorPanel(Script script) {
 		EditorPanel panel = new EditorPanel(script);
 		editorTabs.addTab(panel.getDisplayName(), panel.panel);
+		log.info(panel.getEditor().getFileFullPath());
 		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
 		TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
 		tc.addMouseListener(this);
@@ -666,12 +680,23 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 		log.info("makeReadyForRelease");
 
-		Iterator<String> it = scripts.keySet().iterator();
+		//Iterator<String> it = scripts.keySet().iterator();
+		Iterator<Entry<String, EditorPanel>> it = scripts.entrySet().iterator();
 		while (it.hasNext()) {
 
-			String name = it.next();
-			TextEditorPane e = scripts.get(name).editor;
+			Map.Entry pairs = (Map.Entry)it.next();
+
+			TextEditorPane e = ((EditorPanel)pairs.getValue()).getEditor();
+			log.info(String.format("checking script %s", e.getFileFullPath()));
 			if (e.isDirty()) {
+				try {
+					log.info(String.format("saving script / file %s", e.getFileFullPath()));
+					e.save();
+				} catch (Exception ex)
+				{
+					Service.logException(ex);
+				}
+				/*
 				FileLocation fl = FileLocation.create(e.getFileFullPath());
 				String filename = JOptionPane.showInputDialog(myService.getFrame(), "Save File?", name);
 				if (filename != null) {
@@ -683,6 +708,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 						// TODO Auto-generated catch block
 					}
 				}
+				*/
 			}
 		}
 

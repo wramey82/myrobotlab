@@ -1333,7 +1333,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 						}
 					}
 				} 
-				recordingPython.write(")\n".getBytes());		
+				recordingPython.write(")\n".getBytes());
+				recordingPython.flush();
 				
 			} catch (IOException e) {
 				logException(e);

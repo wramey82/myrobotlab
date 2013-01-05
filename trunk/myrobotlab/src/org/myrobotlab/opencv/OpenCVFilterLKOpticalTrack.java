@@ -98,7 +98,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	double min_distance = 10;
 	boolean needTrackingPoints = true; 
 	
-	boolean publishOpenCVObjects = false;
+	boolean publishOpenCVObjects = false; // TODO put in Parent
 
 	int featureSetDump = 0;
 
