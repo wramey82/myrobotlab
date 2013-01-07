@@ -85,7 +85,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	public JLabel arrow0 = new JLabel(" ");
 	// public JLabel arrow1 = new JLabel(" ");
 	// addListener structure end -------------
-	
+
 	ButtonListener buttonListener = new ButtonListener();
 
 	boolean showRoutes = true;
@@ -101,7 +101,6 @@ public class GUIServiceGUI extends ServiceGUI {
 	JButton accessURLButton = new JButton("show access URLs");
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
-	
 
 	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -131,28 +130,27 @@ public class GUIServiceGUI extends ServiceGUI {
 		filters.add(showRouteLabelsButton);
 		filters.add(accessURLButton);
 		filters.add(dumpButton);
-		
+
 		top.add(newRoute);
 		top.add(filters);
-		
+
 		display.add(top, BorderLayout.PAGE_START);
-		
+
 		accessURLButton.addActionListener(buttonListener);
 		rebuildButton.addActionListener(buttonListener);
 		hideRoutesButton.addActionListener(buttonListener);
 		showRouteLabelsButton.addActionListener(buttonListener);
-		dumpButton.addActionListener(buttonListener);		
+		dumpButton.addActionListener(buttonListener);
 	}
 
 	class ButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			JButton b = (JButton)e.getSource();
+			JButton b = (JButton) e.getSource();
 			if (b == rebuildButton) {
 				rebuildGraph();
 			} else if (b == hideRoutesButton) {
-				if (b.getText().equals("show routes"))
-				{
+				if (b.getText().equals("show routes")) {
 					b.setText("hide routes");
 					showRoutes = true;
 				} else {
@@ -160,10 +158,8 @@ public class GUIServiceGUI extends ServiceGUI {
 					showRoutes = false;
 				}
 				rebuildGraph();
-			} else if (b == showRouteLabelsButton)
-			{
-				if (b.getText().equals("show route labels"))
-				{
+			} else if (b == showRouteLabelsButton) {
+				if (b.getText().equals("show route labels")) {
 					b.setText("hide route labels");
 					showRouteLabels = true;
 				} else {
@@ -171,10 +167,8 @@ public class GUIServiceGUI extends ServiceGUI {
 					showRouteLabels = false;
 				}
 				rebuildGraph();
-			} else if (b == accessURLButton)
-			{
-				if (b.getText().equals("show access URLs"))
-				{
+			} else if (b == accessURLButton) {
+				if (b.getText().equals("show access URLs")) {
 					b.setText("hide access URLs");
 					showAccessURLs = true;
 				} else {
@@ -182,8 +176,7 @@ public class GUIServiceGUI extends ServiceGUI {
 					showAccessURLs = false;
 				}
 				rebuildGraph();
-			} else if (b == dumpButton)
-			{
+			} else if (b == dumpButton) {
 				FileIO.stringToFile("serviceRegistry.txt", Runtime.dump());
 				FileIO.stringToFile("notifyEntries.xml", Runtime.dumpNotifyEntries());
 			}
@@ -258,7 +251,8 @@ public class GUIServiceGUI extends ServiceGUI {
 		graph.setMinimumGraphSize(new mxRectangle(0, 0, 600, 400));
 
 		// Sets the default edge style
-		// list of styles - http://libjgraphx-java.sourcearchive.com/documentation/1.7.0.7/classcom_1_1mxgraph_1_1util_1_1mxConstants.html
+		// list of styles -
+		// http://libjgraphx-java.sourcearchive.com/documentation/1.7.0.7/classcom_1_1mxgraph_1_1util_1_1mxConstants.html
 		Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);// .ElbowConnector
 		style.put(mxConstants.STYLE_STROKECOLOR, "black");// .ElbowConnector
@@ -266,9 +260,9 @@ public class GUIServiceGUI extends ServiceGUI {
 		style.put(mxConstants.STYLE_MOVABLE, "0");// .ElbowConnector
 
 		// creating JComponent
-		if (graphComponent == null) {	
+		if (graphComponent == null) {
 			graphComponent = new mxGraphComponent(graph);
-			//graphPanel.add(graphComponent);
+			// graphPanel.add(graphComponent);
 			display.add(graphComponent, BorderLayout.CENTER);
 			// graphComponent.addKeyListener(this);
 
@@ -279,13 +273,15 @@ public class GUIServiceGUI extends ServiceGUI {
 				@Override
 				public void mouseMoved(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-// too chatty 		log.info("dragged - mouseMoved - cell " + cell + " " + e.getX() + "," + e.getY());
+					// too chatty log.info("dragged - mouseMoved - cell " + cell
+					// + " " + e.getX() + "," + e.getY());
 				}
 
 				@Override
 				public void mouseDragged(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-// too chatty		log.info("dragged cell " + cell + " " + e.getX() + "," + e.getY());
+					// too chatty log.info("dragged cell " + cell + " " +
+					// e.getX() + "," + e.getY());
 				}
 			});
 
@@ -304,13 +300,14 @@ public class GUIServiceGUI extends ServiceGUI {
 
 				public void mouseReleased(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-// too chatty					log.info("cell " + e.getX() + "," + e.getY());
+					// too chatty log.info("cell " + e.getX() + "," + e.getY());
 					currentlySelectedCell = (mxCell) cell;
 
 					if (cell != null) {
 						mxCell m = (mxCell) cell;
-// too chatty						log.info("cell=" + graph.getLabel(cell) + ", " + m.getId() + ", "
-//								+ graph.getLabel(m.getParent()));
+						// too chatty log.info("cell=" + graph.getLabel(cell) +
+						// ", " + m.getId() + ", "
+						// + graph.getLabel(m.getParent()));
 						if (m.isVertex()) {
 							// TODO - edges get filtered through here too - need
 							// to process - (String) type
@@ -352,8 +349,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			// source and target of an edge
 			public String getToolTipForCell(Object cell) {
 				if (model.isEdge(cell)) {
-					return convertValueToString(model.getTerminal(cell, true)) + " -> "
-							+ convertValueToString(model.getTerminal(cell, false));
+					return convertValueToString(model.getTerminal(cell, true)) + " -> " + convertValueToString(model.getTerminal(cell, false));
 				}
 
 				mxCell m = (mxCell) cell;
@@ -430,7 +426,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 				// load runtime
 				Runtime.load("runtime.bin");
-				Runtime.startLocalServices(); 
+				Runtime.startLocalServices();
 			}
 
 		});
@@ -467,7 +463,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			} else {
 				canonicalName = sw.get().getShortTypeName();
 				displayName = serviceName + "\n\n\n\n\n.";// +
-													// sw.get().getShortTypeName();
+				// sw.get().getShortTypeName();
 				toolTip = sw.getToolTip();
 			}
 
@@ -478,15 +474,13 @@ public class GUIServiceGUI extends ServiceGUI {
 			} else {
 				blockColor = mxUtils.getHexColorString(Style.remoteBackground);
 			}
-			
-			if (showAccessURLs)
-			{
+
+			if (showAccessURLs) {
 				displayName = sw.host.accessURL + "\n" + displayName;
 			}
 
-			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName,
-					displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE), x, y, 100, 50, "shape=image;image=/resource/"
-					+ canonicalName + ".png");
+			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName, displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE),
+					x, y, 100, 50, "shape=image;image=/resource/" + canonicalName + ".png");
 			// "ROUNDED;fillColor=" + blockColor);
 
 			// graphComponent.getGraphControl().scrollRectToVisible(new
@@ -505,9 +499,8 @@ public class GUIServiceGUI extends ServiceGUI {
 			geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo1.setRelative(true);
 
-			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, canonicalName, "in", toolTip,
-					GUIServiceGraphVertex.Type.INPORT), geo1, "shape=ellipse;perimter=ellipsePerimeter;fillColor="
-					+ blockColor);
+			mxCell inport = new mxCell(new GUIServiceGraphVertex(serviceName, canonicalName, "in", toolTip, GUIServiceGraphVertex.Type.INPORT), geo1,
+					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
 
 			inport.setVertex(true);
 
@@ -515,9 +508,8 @@ public class GUIServiceGUI extends ServiceGUI {
 			geo2.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 			geo2.setRelative(true);
 
-			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, canonicalName, "out", toolTip,
-					GUIServiceGraphVertex.Type.OUTPORT), geo2, "shape=ellipse;perimter=ellipsePerimeter;fillColor="
-					+ blockColor);
+			mxCell outport = new mxCell(new GUIServiceGraphVertex(serviceName, canonicalName, "out", toolTip, GUIServiceGraphVertex.Type.OUTPORT), geo2,
+					"shape=ellipse;perimter=ellipsePerimeter;fillColor=" + blockColor);
 
 			outport.setVertex(true);
 
@@ -530,7 +522,7 @@ public class GUIServiceGUI extends ServiceGUI {
 				x = 20;
 			}
 		}
-		
+
 		log.info("buildLocalServiceGraph-end");
 	}
 
@@ -554,19 +546,17 @@ public class GUIServiceGUI extends ServiceGUI {
 						// methodString);
 						// graph.getChildVertices(arg0)parent.
 						// graph.getChildVertices(graph.getDefaultParent());
-// ROUTING LABELS						
-						if (showRouteLabels)
-						{
-							mxCell c = (mxCell)graph.insertEdge(parent, null, formatMethodString(listener.outMethod	, listener.paramTypes, listener.inMethod),
-								serviceCells.get(s.getName()), serviceCells.get(listener.name));
-						} else {								
-							mxCell c = (mxCell)graph.insertEdge(parent, null, "",
-								serviceCells.get(s.getName()), serviceCells.get(listener.name));
+						// ROUTING LABELS
+						if (showRouteLabels) {
+							mxCell c = (mxCell) graph.insertEdge(parent, null, formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod),
+									serviceCells.get(s.getName()), serviceCells.get(listener.name));
+						} else {
+							mxCell c = (mxCell) graph.insertEdge(parent, null, "", serviceCells.get(s.getName()), serviceCells.get(listener.name));
 						}
-											
-						//mxGeometry g = c.getGeometry();
-						//c.setGeometry(g);
-// too chatty						log.info(c);
+
+						// mxGeometry g = c.getGeometry();
+						// c.setGeometry(g);
+						// too chatty log.info(c);
 
 					}
 				}
@@ -608,7 +598,8 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		/*
 		 * if (listener.paramType != null) { methodString +=
-		 * listener.paramType.substring(listener.paramType .lastIndexOf(".") + 1); }
+		 * listener.paramType.substring(listener.paramType .lastIndexOf(".") +
+		 * 1); }
 		 */
 
 		methodString += ")";

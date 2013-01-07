@@ -165,13 +165,10 @@ public class InteractiveTableModel extends AbstractTableModel {
 	public boolean hasEmptyRow() {
 		if (dataVector.size() == 0)
 			return false;
-		ServiceEntry audioRecord = (ServiceEntry) dataVector.get(dataVector
-				.size() - 1);
-		if (audioRecord.host == ""
-				&&
-				// audioRecord.servicePort.equals("") &&
-				audioRecord.name.equals("")
-				&& audioRecord.serviceClass.equals("") // &&
+		ServiceEntry audioRecord = (ServiceEntry) dataVector.get(dataVector.size() - 1);
+		if (audioRecord.host == "" &&
+		// audioRecord.servicePort.equals("") &&
+				audioRecord.name.equals("") && audioRecord.serviceClass.equals("") // &&
 		// audioRecord.status.equals("") &&
 		// audioRecord.category_.equals("")&&
 		// audioRecord.method.equals("") &&

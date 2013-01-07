@@ -55,35 +55,32 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 	private AdafruitMotorShield myAdafruitMotorShield = null;
 	JLayeredPane imageMap;
 
-
 	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myAdafruitMotorShield = (AdafruitMotorShield)Runtime.getServiceWrapper(boundServiceName).service;
+		myAdafruitMotorShield = (AdafruitMotorShield) Runtime.getServiceWrapper(boundServiceName).service;
 	}
-	
-	class ButtonListener implements ActionListener {
-	  ButtonListener() {
-	  }
 
-	  public void actionPerformed(ActionEvent e) {
-		  log.info(e.getActionCommand());
-		  myService.send(boundServiceName, e.getActionCommand());
-	  }
+	class ButtonListener implements ActionListener {
+		ButtonListener() {
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			log.info(e.getActionCommand());
+			myService.send(boundServiceName, e.getActionCommand());
+		}
 	}
-	
+
 	public void init() {
 
 		getAFPanel();
 		display.add(imageMap);
 	}
-	
-	
-	public void getAFPanel()
-	{
+
+	public void getAFPanel() {
 		imageMap = new JLayeredPane();
 		imageMap.setPreferredSize(new Dimension(400, 266));
 		imageMap.setVisible(true);
-		//pinComponentList = new ArrayList<PinComponent>();
+		// pinComponentList = new ArrayList<PinComponent>();
 
 		// set correct arduino image
 		JLabel image = new JLabel();
@@ -95,34 +92,27 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 		imageMap.add(image, new Integer(1));
 	}
 
-	
-	
-	public void getState(AdafruitMotorShield shield)
-	{
-		if (shield != null)
-		{
-			//setPorts(roomba.getDeviceNames());			
+	public void getState(AdafruitMotorShield shield) {
+		if (shield != null) {
+			// setPorts(roomba.getDeviceNames());
 		}
-	
-	}
-	
 
+	}
 
 	public void attachGUI() {
 		subscribe("publishState", "getState", Arduino.class);
-		myService.send(boundServiceName, "publishState");	
+		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", Arduino.class);	
+		unsubscribe("publishState", "getState", Arduino.class);
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 }

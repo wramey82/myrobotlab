@@ -50,7 +50,6 @@ public class NameValuePair implements Serializable {
 		this.value = other.value;
 	}
 
-
 	/*
 	 * Default format was xml is now JSON TODO - make toStringStyler like spring
 	 */

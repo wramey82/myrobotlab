@@ -44,8 +44,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.wiiusejevents.physicalevents.IREvent;
 
-public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
-		VideoGUISource {
+public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(SLAMGUI.class.toString());
@@ -62,12 +61,10 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 	public SLAMGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
 
-		img = new BufferedImage(width / 2, height / 2,
-				BufferedImage.TYPE_INT_RGB);
+		img = new BufferedImage(width / 2, height / 2, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
 		video.displayFrame(img);
 
@@ -123,8 +120,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener,
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
+						System.out.println("Double-clicked on: " + o.toString());
 					}
 				}
 			}

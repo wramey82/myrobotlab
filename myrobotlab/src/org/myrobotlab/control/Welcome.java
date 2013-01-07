@@ -44,27 +44,27 @@ public class Welcome extends ServiceGUI {
 	CommunicationInterface comm = null;
 	JTextField loginValue = new JTextField("bob");
 	JTextField loginPasswordValue = new JPasswordField("blahblah");
-	JTextField hostnameValue = new JTextField("localhost",15);
+	JTextField hostnameValue = new JTextField("localhost", 15);
 	JIntegerField servicePortValue = new JIntegerField();
 
 	public Welcome(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		GridBagConstraints gc = new GridBagConstraints();
-		//gc.anchor = GridBagConstraints.WEST;
+		// gc.anchor = GridBagConstraints.WEST;
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.ipadx = 5;
-		
+
 		servicePortValue.setInt(6767);
-		
+
 		gc.gridx = 0;
 		JLabel image = new JLabel();
 		image.setIcon(Util.getResourceIcon("mrl_logo.gif"));
 		display.add(image);
-		
+
 		++gc.gridy;
 		++gc.gridy;
 		++gc.gridy;
@@ -80,8 +80,10 @@ public class Welcome extends ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			myService.sendServiceDirectoryUpdate(loginValue.getText(),
-					loginPasswordValue.getText(), null, hostnameValue.getText(), servicePortValue.getInt(), null); // TODO FIX THIS !!!
+			myService.sendServiceDirectoryUpdate(loginValue.getText(), loginPasswordValue.getText(), null, hostnameValue.getText(), servicePortValue.getInt(), null); // TODO
+																																										// FIX
+																																										// THIS
+																																										// !!!
 		}
 
 	}

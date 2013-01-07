@@ -67,12 +67,11 @@ public class Serial implements SerialDeviceEventListener {
 		this.myArduino = myArduino;
 
 		port = myArduino.getSerialDevice();
-		
+
 		if (port == null) {
 			throw new SerialNotFoundException("serial device is null");
 		}
 	}
-
 
 	public void dispose() {
 		try {
@@ -108,14 +107,14 @@ public class Serial implements SerialDeviceEventListener {
 
 			try {
 				while (input.available() > 0) {
-					
+
 					synchronized (buffer) {
 						if (bufferLast == buffer.length) {
 							byte temp[] = new byte[bufferLast << 1];
 							System.arraycopy(buffer, 0, temp, 0, bufferLast);
 							buffer = temp;
 						}
-						
+
 						if (monitor == true)
 							System.out.print((char) input.read());
 						if (this.consumer != null)
@@ -123,13 +122,13 @@ public class Serial implements SerialDeviceEventListener {
 
 					}
 				}
-				
+
 			} catch (IOException e) {
 				errorMessage("serialEvent", e);
 			} catch (Exception e) {
 			}
 		}
-		
+
 	}
 
 	/**
@@ -282,8 +281,7 @@ public class Serial implements SerialDeviceEventListener {
 
 			int length = found - bufferIndex + 1;
 			if (length > outgoing.length) {
-				System.err.println("readBytesUntil() byte buffer is" + " too small for the " + length
-						+ " bytes up to and including char " + interesting);
+				System.err.println("readBytesUntil() byte buffer is" + " too small for the " + length + " bytes up to and including char " + interesting);
 				return -1;
 			}
 			// byte outgoing[] = new byte[length];
@@ -382,7 +380,7 @@ public class Serial implements SerialDeviceEventListener {
 	static public String[] list() {
 		try {
 			ArrayList<String> portList = SerialDeviceFactory.getSerialDeviceNames();
-			String [] ret = portList.toArray(new String[portList.size()]);
+			String[] ret = portList.toArray(new String[portList.size()]);
 			return ret;
 
 		} catch (UnsatisfiedLinkError e) {
@@ -394,7 +392,7 @@ public class Serial implements SerialDeviceEventListener {
 			errorMessage("ports", e);
 		}
 
-		return new String[]{};
+		return new String[] {};
 	}
 
 	/**
@@ -405,7 +403,6 @@ public class Serial implements SerialDeviceEventListener {
 		System.err.println("Error inside Serial." + where + "()");
 		e.printStackTrace();
 	}
-
 
 	public void open() throws SerialDeviceException {
 		port.open();

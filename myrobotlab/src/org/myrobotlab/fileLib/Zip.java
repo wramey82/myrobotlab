@@ -163,8 +163,7 @@ public class Zip {
 	}
 
 	public static ArrayList<String> listDirectoryContents(String zipFile, String dir) throws ZipException, IOException {
-		if (dir.charAt(dir.length()-1) != '/')
-		{
+		if (dir.charAt(dir.length() - 1) != '/') {
 			dir = dir + "/";
 		}
 		log.info(String.format("listing %s directory %s", zipFile, dir));

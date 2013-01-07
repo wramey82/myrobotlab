@@ -71,31 +71,22 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
 		/*
-		++frameCounter;
-		if (x != 0 && clickCounter % 2 == 0) {
-			if (g == null) {
-				g = frameBuffer.getGraphics();
-			}
-
-			if (frameCounter % 10 == 0) {
-				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x,
-						y) & 0x00ffffff);
-			}
-			g.setColor(Color.green);
-			frameBuffer.getRGB(x, y);
-			g.drawString(lastHexValueOfPoint, x, y);
-		}
-		*/
-		//dst.release();
+		 * ++frameCounter; if (x != 0 && clickCounter % 2 == 0) { if (g == null)
+		 * { g = frameBuffer.getGraphics(); }
+		 * 
+		 * if (frameCounter % 10 == 0) { lastHexValueOfPoint =
+		 * Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff); }
+		 * g.setColor(Color.green); frameBuffer.getRGB(x, y);
+		 * g.drawString(lastHexValueOfPoint, x, y); }
+		 */
+		// dst.release();
 		return frameBuffer;
 	}
 
 	@Override
 	public String getDescription() { // TODO - implement in GUI
-		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid"
-				+ " decomposition. First it convolves source image with the specified filter and then"
-				+ " downsamples the image by rejecting even rows and columns. So the destination image"
-				+ " is four times smaller than the source imag";
+		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid" + " decomposition. First it convolves source image with the specified filter and then"
+				+ " downsamples the image by rejecting even rows and columns. So the destination image" + " is four times smaller than the source imag";
 
 		return desc;
 	}
@@ -112,14 +103,15 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 		if (image == null) {
 			log.error("image is null");
 		}
-		
 
-		//if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
-		// FIXME - in an attempt to make more robust ie having different filters "removed" above this filter
-		// such that a change of width or channels will occur you've made a huge memory leak
-		if (dst == null || dst.width() != image.width() / 2 || dst.nChannels() != image.nChannels()) {	
-			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(),
-					image.nChannels());
+		// if (dst == null || dst.width() != image.width() || dst.nChannels() !=
+		// image.nChannels()) {
+		// FIXME - in an attempt to make more robust ie having different filters
+		// "removed" above this filter
+		// such that a change of width or channels will occur you've made a huge
+		// memory leak
+		if (dst == null || dst.width() != image.width() / 2 || dst.nChannels() != image.nChannels()) {
+			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(), image.nChannels());
 		}
 
 		cvPyrDown(image, dst, filter);

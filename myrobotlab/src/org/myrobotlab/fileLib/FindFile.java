@@ -13,35 +13,32 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-public final class FindFile  { //implements FilenameFilter
+public final class FindFile { // implements FilenameFilter
 	/*
-	private String root = "."; // the starting point for the search;
-	private Boolean recurse = true;
-	private Boolean includeDirsInResult = false;
-	private Pattern pattern = null;
-	*/
+	 * private String root = "."; // the starting point for the search; private
+	 * Boolean recurse = true; private Boolean includeDirsInResult = false;
+	 * private Pattern pattern = null;
+	 */
 
 	public final static Logger log = Logger.getLogger(FindFile.class.getCanonicalName());
 
-	public static List<File> find(String criteria)throws FileNotFoundException {
+	public static List<File> find(String criteria) throws FileNotFoundException {
 		return find(null, criteria, true, false);
 	}
 
-	public static List<File> find(String root, String criteria)throws FileNotFoundException {
+	public static List<File> find(String root, String criteria) throws FileNotFoundException {
 		return find(root, criteria, true, false);
 	}
-	
-	public static List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult)throws FileNotFoundException {
-		if (root == null)
-		{
+
+	public static List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult) throws FileNotFoundException {
+		if (root == null) {
 			root = ".";
 		}
 
-		if (criteria == null)
-		{			
+		if (criteria == null) {
 			criteria = ".*";
 		}
-				
+
 		File r = new File(root);
 		validateDirectory(r);
 		List<File> result = process(r, criteria, recurse, includeDirsInResult);
@@ -64,11 +61,9 @@ public final class FindFile  { //implements FilenameFilter
 			Pattern pattern = Pattern.compile(criteria);
 
 			Matcher matcher = pattern.matcher(file.getName());
-			if (matcher.find())
-			{
+			if (matcher.find()) {
 				out.append(" matches");
-				if (file.isFile() ||(!file.isFile() && includeDirsInResult))
-				{
+				if (file.isFile() || (!file.isFile() && includeDirsInResult)) {
 					out.append(" will be added");
 					result.add(file);
 				} else {
@@ -77,7 +72,7 @@ public final class FindFile  { //implements FilenameFilter
 			} else {
 				out.append(" does not match");
 			}
-			
+
 			if (!file.isFile() && recurse) {
 				log.debug("decending into " + file.getName());
 				List<File> deeperList = process(file, criteria, recurse, includeDirsInResult);
@@ -89,22 +84,18 @@ public final class FindFile  { //implements FilenameFilter
 		return result;
 	}
 
-	static private void validateDirectory(File aDirectory)
-			throws FileNotFoundException {
+	static private void validateDirectory(File aDirectory) throws FileNotFoundException {
 		if (aDirectory == null) {
 			throw new IllegalArgumentException("Directory should not be null.");
 		}
 		if (!aDirectory.exists()) {
-			throw new FileNotFoundException("Directory does not exist: "
-					+ aDirectory);
+			throw new FileNotFoundException("Directory does not exist: " + aDirectory);
 		}
 		if (!aDirectory.isDirectory()) {
-			throw new IllegalArgumentException("Is not a directory: "
-					+ aDirectory);
+			throw new IllegalArgumentException("Is not a directory: " + aDirectory);
 		}
 		if (!aDirectory.canRead()) {
-			throw new IllegalArgumentException("Directory cannot be read: "
-					+ aDirectory);
+			throw new IllegalArgumentException("Directory cannot be read: " + aDirectory);
 		}
 	}
 
@@ -114,33 +105,33 @@ public final class FindFile  { //implements FilenameFilter
 
 		// TODO - there was methods to do this already in java.io
 		List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");
-	
-		//List<File> files = FindFile.find("\\.(?i:)(?:xml)$");
-		//List<File> files = FindFile.find(".*\\.java$");
-		//List<File> files = FindFile.find(".*\\.svn$");
 
+		// List<File> files = FindFile.find("\\.(?i:)(?:xml)$");
+		// List<File> files = FindFile.find(".*\\.java$");
+		// List<File> files = FindFile.find(".*\\.svn$");
 
 		// print out all file names, in the the order of File.compareTo()
 		for (File file : files) {
 			String name = file.getName();
-			name = name.substring(name.indexOf("-")+1);
+			name = name.substring(name.indexOf("-") + 1);
 			name = name.substring(0, name.indexOf("-"));
 			System.out.println(name);
 		}
 	}
+
 	class RegexFilter implements FilenameFilter {
-		  private Pattern pattern;
+		private Pattern pattern;
 
-		  public RegexFilter(String regex) {
-		    pattern = Pattern.compile(regex);
-		  }
+		public RegexFilter(String regex) {
+			pattern = Pattern.compile(regex);
+		}
 
-		  public boolean accept(File dir, String name) {
-		    // Strip path information, search for regex:
-		    return pattern.matcher(new File(name).getName()).matches();
-		  }
+		public boolean accept(File dir, String name) {
+			// Strip path information, search for regex:
+			return pattern.matcher(new File(name).getName()).matches();
+		}
 	}
-	
+
 	// TODO - extention filter
 	// TODO - simple astrix filter
 

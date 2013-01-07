@@ -7,11 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Manager that should be in charge of caches so that we have a way
- * to clear them out and keep them under control.
+ * Manager that should be in charge of caches so that we have a way to clear
+ * them out and keep them under control.
  * 
  * @author SwedaKonsult
- *
+ * 
  */
 public class CacheManager {
 	/**
@@ -26,11 +26,11 @@ public class CacheManager {
 	 * Keep track of how often each cache is supposed to time out.
 	 */
 	private final ConcurrentMap<String, Integer> cacheTimeouts;
-	
+
 	static {
 		me = new CacheManager();
 	}
-	
+
 	/**
 	 * Singleton constructor.
 	 */
@@ -39,20 +39,23 @@ public class CacheManager {
 		caches = new ConcurrentHashMap<String, ManagedCache>(10);
 		cacheTimeouts = new ConcurrentHashMap<String, Integer>(10);
 	}
-	
+
 	/**
 	 * Add a new cache to the list of caches.
 	 * 
-	 * @param name the name used to reference the cache
-	 * @param cache the cache to add
-	 * @param timeoutInterval the interval in ms of how long items in this cache should
-	 * be kept before releasing them
+	 * @param name
+	 *            the name used to reference the cache
+	 * @param cache
+	 *            the cache to add
+	 * @param timeoutInterval
+	 *            the interval in ms of how long items in this cache should be
+	 *            kept before releasing them
 	 */
 	public void addCache(String name, ManagedCache cache, int timeoutInterval) {
 		caches.put(name, cache);
 		cacheTimeouts.put(name, timeoutInterval);
 	}
-	
+
 	/**
 	 * Get a handle to one of the caches.
 	 * 
@@ -65,7 +68,7 @@ public class CacheManager {
 		}
 		return caches.get(name);
 	}
-	
+
 	/**
 	 * Get a handle to this singleton.
 	 * 

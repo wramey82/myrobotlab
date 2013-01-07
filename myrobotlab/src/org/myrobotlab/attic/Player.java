@@ -35,8 +35,7 @@ import org.myrobotlab.service.data.IOData;
 public class Player extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Player.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Player.class.getCanonicalName());
 	public String IPAddress = ""; // GUI's ip
 	public int port = 0; // GUI's port
 	public boolean isConnected = false;
@@ -231,16 +230,14 @@ public class Player extends Service {
 			}
 			}
 			log.info(getName() + " " + cmd);
-			game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
-					+ "\">" + login + "</font> " + cmdString);
+			game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team + "\">" + login + "</font> " + cmdString);
 		}
 		return cmd;
 	}
 
 	public String playerCommand(String cmd) {
 		log.info(getName() + " " + cmd);
-		game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team
-				+ "\">" + login + "</font> " + cmd);
+		game.broadCastMsgToPlayers("addLogEntry", "<font color=\"" + team + "\">" + login + "</font> " + cmd);
 		return cmd;
 	}
 
@@ -287,5 +284,5 @@ public class Player extends Service {
 	public String getToolTip() {
 		return "<html>player bot for LMR soccars</html>";
 	}
-	
+
 }

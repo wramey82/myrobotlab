@@ -32,16 +32,18 @@ import org.myrobotlab.framework.Message;
 
 public abstract class Communicator {
 
-	public abstract void send(final URI url, final Message msg); // TODO - manage throws
+	public abstract void send(final URI url, final Message msg); // TODO -
+																	// manage
+																	// throws
 
-	public abstract void stopService(); 
+	public abstract void stopService();
 
 	public abstract void addClient(URI url, Object commData);
 
 	public abstract void startHeartbeat();
-	
+
 	public abstract void stopHeartbeat();
-	
+
 	public abstract ArrayList<URI> getClients();
 
 }

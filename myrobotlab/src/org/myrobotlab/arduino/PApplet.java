@@ -45,8 +45,7 @@ public class PApplet {
 
 	static public InputStream createInput(File file) {
 		if (file == null) {
-			throw new IllegalArgumentException(
-					"File passed to createInput() was null");
+			throw new IllegalArgumentException("File passed to createInput() was null");
 		}
 		try {
 			InputStream input = new FileInputStream(file);
@@ -113,14 +112,12 @@ public class PApplet {
 		int startIndex = 0;
 		for (int i = 0; i < chars.length; i++) {
 			if (chars[i] == delim) {
-				splits[splitIndex++] = new String(chars, startIndex, i
-						- startIndex);
+				splits[splitIndex++] = new String(chars, startIndex, i - startIndex);
 				startIndex = i + 1;
 			}
 		}
 		// if (startIndex != chars.length) {
-		splits[splitIndex] = new String(chars, startIndex, chars.length
-				- startIndex);
+		splits[splitIndex] = new String(chars, startIndex, chars.length - startIndex);
 		// }
 		return splits;
 	}
@@ -138,7 +135,6 @@ public class PApplet {
 		items.toArray(outgoing);
 		return outgoing;
 	}
-
 
 	public String sketchPath(String where) {
 		if (sketchPath == null) {
@@ -210,8 +206,7 @@ public class PApplet {
 					unit.mkdirs();
 			}
 		} catch (SecurityException se) {
-			System.err.println("You don't have permissions to create "
-					+ file.getAbsolutePath());
+			System.err.println("You don't have permissions to create " + file.getAbsolutePath());
 		}
 	}
 
@@ -276,13 +271,11 @@ public class PApplet {
 
 			if (target.exists()) {
 				if (!target.delete()) {
-					System.err.println("Could not replace "
-							+ target.getAbsolutePath() + ".");
+					System.err.println("Could not replace " + target.getAbsolutePath() + ".");
 				}
 			}
 			if (!tempFile.renameTo(target)) {
-				System.err.println("Could not rename temporary file "
-						+ tempFile.getAbsolutePath());
+				System.err.println("Could not rename temporary file " + tempFile.getAbsolutePath());
 				return false;
 			}
 			return true;
@@ -299,8 +292,7 @@ public class PApplet {
 	/**
 	 * @nowebref
 	 */
-	static public void saveStream(OutputStream target, InputStream source)
-			throws IOException {
+	static public void saveStream(OutputStream target, InputStream source) throws IOException {
 		BufferedInputStream bis = new BufferedInputStream(source, 16384);
 		BufferedOutputStream bos = new BufferedOutputStream(target);
 
@@ -334,8 +326,7 @@ public class PApplet {
 
 	static public String[] loadStrings(InputStream input) {
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					input, "UTF-8"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
 			return loadStrings(reader);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -389,12 +380,10 @@ public class PApplet {
 
 		} catch (Exception e) {
 			if (file == null) {
-				throw new RuntimeException(
-						"File passed to createWriter() was null");
+				throw new RuntimeException("File passed to createWriter() was null");
 			} else {
 				e.printStackTrace();
-				throw new RuntimeException("Couldn't create a writer for "
-						+ file.getAbsolutePath());
+				throw new RuntimeException("Couldn't create a writer for " + file.getAbsolutePath());
 			}
 		}
 		// return null;
@@ -442,7 +431,6 @@ public class PApplet {
 		return stuff;
 	}
 
-
 	static public Object subset(Object list, int start) {
 		int length = Array.getLength(list);
 		return subset(list, start, length - start);
@@ -482,8 +470,7 @@ public class PApplet {
 	static public Object expand(Object list, int newSize) {
 		Class<?> type = list.getClass().getComponentType();
 		Object temp = Array.newInstance(type, newSize);
-		System.arraycopy(list, 0, temp, 0,
-				Math.min(Array.getLength(list), newSize));
+		System.arraycopy(list, 0, temp, 0, Math.min(Array.getLength(list), newSize));
 		return temp;
 	}
 
@@ -564,16 +551,14 @@ public class PApplet {
 		if (why.isAbsolute())
 			return why;
 
-		String jarPath = getClass().getProtectionDomain().getCodeSource()
-				.getLocation().getPath();
+		String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 		if (jarPath.contains("Contents/Resources/Java/")) {
 			File containingFolder = new File(jarPath).getParentFile();
 			File dataFolder = new File(containingFolder, "data");
 			return new File(dataFolder, where);
 		}
 		// Windows, Linux, or when not using a Mac OS X .app file
-		return new File(sketchPath + File.separator + "data" + File.separator
-				+ where);
+		return new File(sketchPath + File.separator + "data" + File.separator + where);
 	}
 
 	public String dataPath(String where) {
@@ -647,9 +632,7 @@ public class PApplet {
 					// if (filenameActual.equalsIgnoreCase(filenameShort) &&
 					// !filenameActual.equals(filenameShort)) {
 					if (!filenameActual.equals(filenameShort)) {
-						throw new RuntimeException("This file is named "
-								+ filenameActual + " not " + filename
-								+ ". Rename the file " + "or change your code.");
+						throw new RuntimeException("This file is named " + filenameActual + " not " + filename + ". Rename the file " + "or change your code.");
 					}
 				} catch (IOException e) {
 				}
@@ -765,138 +748,133 @@ public class PApplet {
 		return null;
 	}
 
-	  public void saveStrings(String filename, String data[]) {
-		    saveStrings(saveFile(filename), data);
-		  }
+	public void saveStrings(String filename, String data[]) {
+		saveStrings(saveFile(filename), data);
+	}
 
+	/**
+	 * @nowebref
+	 */
+	static public void saveStrings(File file, String data[]) {
+		saveStrings(createOutput(file), data);
+	}
 
-		  /**
-		   * @nowebref
-		   */
-		  static public void saveStrings(File file, String data[]) {
-		    saveStrings(createOutput(file), data);
-		  }
+	/**
+	 * @nowebref
+	 */
+	static public void saveStrings(OutputStream output, String[] data) {
+		PrintWriter writer = createWriter(output);
+		for (int i = 0; i < data.length; i++) {
+			writer.println(data[i]);
+		}
+		writer.flush();
+		writer.close();
+	}
 
+	/**
+	 * Parse a String into an int value. Returns 0 if the value is bad.
+	 */
+	static final public int parseInt(String what) {
+		return parseInt(what, 0);
+	}
 
-		  /**
-		   * @nowebref
-		   */
-		  static public void saveStrings(OutputStream output, String[] data) {
-		    PrintWriter writer = createWriter(output);
-		    for (int i = 0; i < data.length; i++) {
-		      writer.println(data[i]);
-		    }
-		    writer.flush();
-		    writer.close();
-		  }
-
-
-		  /**
-		   * Parse a String into an int value. Returns 0 if the value is bad.
-		   */
-		  static final public int parseInt(String what) {
-		    return parseInt(what, 0);
-		  }
-
-		  /**
-		   * Parse a String to an int, and provide an alternate value that
-		   * should be used when the number is invalid.
-		   */
-		  static final public int parseInt(String what, int otherwise) {
-		    try {
-		      int offset = what.indexOf('.');
-		      if (offset == -1) {
-		        return Integer.parseInt(what);
-		      } else {
-		        return Integer.parseInt(what.substring(0, offset));
-		      }
-		    } catch (NumberFormatException e) { }
-		    return otherwise;
-		  }
-
-		  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-		  static final public int[] parseInt(boolean what[]) {
-		    int list[] = new int[what.length];
-		    for (int i = 0; i < what.length; i++) {
-		      list[i] = what[i] ? 1 : 0;
-		    }
-		    return list;
-		  }
-
-			static public String[] nf(int num[], int digits) {
-				String formatted[] = new String[num.length];
-				for (int i = 0; i < formatted.length; i++) {
-					formatted[i] = num[i] + "";// nf(num[i], digits);
-				}
-				return formatted;
+	/**
+	 * Parse a String to an int, and provide an alternate value that should be
+	 * used when the number is invalid.
+	 */
+	static final public int parseInt(String what, int otherwise) {
+		try {
+			int offset = what.indexOf('.');
+			if (offset == -1) {
+				return Integer.parseInt(what);
+			} else {
+				return Integer.parseInt(what.substring(0, offset));
 			}
+		} catch (NumberFormatException e) {
+		}
+		return otherwise;
+	}
 
-			  /**
-			   * Integer number formatter.
-			   */
-			  static private NumberFormat int_nf;
-			  static private int int_nf_digits;
-			  static private boolean int_nf_commas;
-			  
+	// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-			  
-			  static public String nf(int num, int digits) {
-				  
-				    if ((int_nf != null) &&
-				        (int_nf_digits == digits) &&
-				        !int_nf_commas) {
-				      return int_nf.format(num);
-				    }
+	static final public int[] parseInt(boolean what[]) {
+		int list[] = new int[what.length];
+		for (int i = 0; i < what.length; i++) {
+			list[i] = what[i] ? 1 : 0;
+		}
+		return list;
+	}
 
-				    int_nf = NumberFormat.getInstance();
-				    int_nf.setGroupingUsed(false); // no commas
-				    int_nf_commas = false;
-				    int_nf.setMinimumIntegerDigits(digits);
-				    int_nf_digits = digits;
-				    return int_nf.format(num);
-				    
-				  }
+	static public String[] nf(int num[], int digits) {
+		String formatted[] = new String[num.length];
+		for (int i = 0; i < formatted.length; i++) {
+			formatted[i] = num[i] + "";// nf(num[i], digits);
+		}
+		return formatted;
+	}
 
-			  static public int[] parseInt(String what[]) {
-				    return parseInt(what, 0);
-				  }
-			  static public int[] parseInt(String what[], int missing) {
-				    int output[] = new int[what.length];
-				    for (int i = 0; i < what.length; i++) {
-				      try {
-				        output[i] = Integer.parseInt(what[i]);
-				      } catch (NumberFormatException e) {
-				        output[i] = missing;
-				      }
-				    }
-				    return output;
-				  }
+	/**
+	 * Integer number formatter.
+	 */
+	static private NumberFormat int_nf;
+	static private int int_nf_digits;
+	static private boolean int_nf_commas;
 
-			  static public int[] expand(int list[]) {
-				    return expand(list, list.length << 1);
-				  }
+	static public String nf(int num, int digits) {
 
-				  static public int[] expand(int list[], int newSize) {
-				    int temp[] = new int[newSize];
-				    System.arraycopy(list, 0, temp, 0, Math.min(newSize, list.length));
-				    return temp;
-				  }
+		if ((int_nf != null) && (int_nf_digits == digits) && !int_nf_commas) {
+			return int_nf.format(num);
+		}
 
-				  static public char[] subset(char list[], int start) {
-					    return subset(list, start, list.length - start);
-					  }
+		int_nf = NumberFormat.getInstance();
+		int_nf.setGroupingUsed(false); // no commas
+		int_nf_commas = false;
+		int_nf.setMinimumIntegerDigits(digits);
+		int_nf_digits = digits;
+		return int_nf.format(num);
 
-					  static public char[] subset(char list[], int start, int count) {
-					    char output[] = new char[count];
-					    System.arraycopy(list, start, output, 0, count);
-					    return output;
-					  }
+	}
 
-					  
-					  static final public int unhex(String value) {
-						    // has to parse as a Long so that it'll work for numbers bigger than 2^31
-						    return (int) (Long.parseLong(value, 16));
-						  }
-					  
+	static public int[] parseInt(String what[]) {
+		return parseInt(what, 0);
+	}
+
+	static public int[] parseInt(String what[], int missing) {
+		int output[] = new int[what.length];
+		for (int i = 0; i < what.length; i++) {
+			try {
+				output[i] = Integer.parseInt(what[i]);
+			} catch (NumberFormatException e) {
+				output[i] = missing;
+			}
+		}
+		return output;
+	}
+
+	static public int[] expand(int list[]) {
+		return expand(list, list.length << 1);
+	}
+
+	static public int[] expand(int list[], int newSize) {
+		int temp[] = new int[newSize];
+		System.arraycopy(list, 0, temp, 0, Math.min(newSize, list.length));
+		return temp;
+	}
+
+	static public char[] subset(char list[], int start) {
+		return subset(list, start, list.length - start);
+	}
+
+	static public char[] subset(char list[], int start, int count) {
+		char output[] = new char[count];
+		System.arraycopy(list, start, output, 0, count);
+		return output;
+	}
+
+	static final public int unhex(String value) {
+		// has to parse as a Long so that it'll work for numbers bigger than
+		// 2^31
+		return (int) (Long.parseLong(value, 16));
+	}
+
 }

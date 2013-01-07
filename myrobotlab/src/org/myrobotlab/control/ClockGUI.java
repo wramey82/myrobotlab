@@ -61,7 +61,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	ButtonGroup group = new ButtonGroup();
 
-
 	Date countDownTo = null;
 
 	JRadioButton none = new JRadioButton("none");
@@ -74,7 +73,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	JIntegerField pulseDataInteger = new JIntegerField(10);
 
 	Clock myClock = null;
-
 
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -229,9 +227,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 		clockDisplay.setText(String.format(displayFormat, hrs, min, sec));
 	}
-	
-	public void addClockEvent(Date time, String name, String method,  Object... data)
-	{
+
+	public void addClockEvent(Date time, String name, String method, Object... data) {
 		myService.send(boundServiceName, "addClockEvent", time, name, method, data);
 	}
 

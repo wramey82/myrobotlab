@@ -10,13 +10,13 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.memory.Node;
+
 // CANNOT BE SERIALIZED YET !!!!!! - 
 public class Serializer extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Serializer.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Serializer.class.getCanonicalName());
 
 	public Serializer(String n) {
 		super(n, Serializer.class.getCanonicalName());
@@ -37,7 +37,7 @@ public class Serializer extends Service {
 
 			// STEP 3: Open a connection
 			System.out.println("Connecting to a selected database...");
-			String connectionURL = "jdbc:mysql://"+host+"/"+database;
+			String connectionURL = "jdbc:mysql://" + host + "/" + database;
 			conn = DriverManager.getConnection(connectionURL, user, password);
 			System.out.println("Connected database successfully...");
 
@@ -45,8 +45,7 @@ public class Serializer extends Service {
 			System.out.println("Inserting records into the table...");
 			stmt = conn.createStatement();
 
-			String sql = "INSERT INTO Registration "
-					+ "VALUES (100, 'Zara', 'Ali', 18)";
+			String sql = "INSERT INTO Registration " + "VALUES (100, 'Zara', 'Ali', 18)";
 			stmt.executeUpdate(sql);
 
 		} catch (SQLException se) {
@@ -109,7 +108,7 @@ public class Serializer extends Service {
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
-		
+
 	}
 
 }

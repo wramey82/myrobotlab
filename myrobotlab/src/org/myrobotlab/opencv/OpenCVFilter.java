@@ -38,7 +38,7 @@ import org.simpleframework.xml.Root;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 @Root
-public abstract class OpenCVFilter implements Serializable{
+public abstract class OpenCVFilter implements Serializable {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilter.class.toString());
 
@@ -46,7 +46,7 @@ public abstract class OpenCVFilter implements Serializable{
 	protected ConfigurationManager cfg = null; // TODO - remove
 	@Element
 	final public String name;
-	OpenCV myService = null; 
+	OpenCV myService = null;
 	HashMap<String, Object> storage = null;
 
 	final static public String INPUT_IMAGE_NAME = "inputImageName";
@@ -58,8 +58,6 @@ public abstract class OpenCVFilter implements Serializable{
 
 	static HashMap<String, Object> globalData = new HashMap<String, Object>();
 
-	//static HashMap<String, IplImage> imageMap = new HashMap<String, IplImage>();
-	
 	public static final String FILTER_CFG_ROOT = "displayFilter/filter/";
 	public final String FILTER_INSTANCE_CFG_ROOT;
 
@@ -67,7 +65,7 @@ public abstract class OpenCVFilter implements Serializable{
 		this.name = filterName;
 		this.myService = service;
 		this.storage = myService.storage;
-		this.FILTER_INSTANCE_CFG_ROOT = myService.getCFG().getServiceRoot() + "/" + FILTER_CFG_ROOT  + name;
+		this.FILTER_INSTANCE_CFG_ROOT = myService.getCFG().getServiceRoot() + "/" + FILTER_CFG_ROOT + name;
 		cfg = new ConfigurationManager(FILTER_INSTANCE_CFG_ROOT);
 		cfg.set(INPUT_IMAGE_NAME, "output");
 		cfg.set(OUTPUT_IMAGE_NAME, "output");
@@ -78,18 +76,16 @@ public abstract class OpenCVFilter implements Serializable{
 	}
 
 	// storage accessors begin
-	public IplImage getIplImage(String name)
-	{
-		if (storage.containsKey(name))
-		{
-			return (IplImage)storage.get(name);
+	public IplImage getIplImage(String name) {
+		if (storage.containsKey(name)) {
+			return (IplImage) storage.get(name);
 		}
 		log.error("request for " + name + " IplImage in storage - not found");
 		return null;
 	}
 
 	// storage accessors end
-	
+
 	// TODO - remove begin ------------------------
 	public Object setCFG(String name, Float value) // hmm what TODO ? Object
 													// won't work Object[]
@@ -125,16 +121,17 @@ public abstract class OpenCVFilter implements Serializable{
 	 */
 
 	// TODO - remove end ------------------------
-	
-	
+
 	// TODO - remove use Annotations
 	public abstract String getDescription();
-
-	public abstract void loadDefaultConfiguration();
 
 	public abstract IplImage process(IplImage image);
 
 	public abstract BufferedImage display(IplImage image, Object[] data);
+	
+	public void loadDefaultConfiguration() {
+		
+	}
 
 	// TODO - dispose()??
 

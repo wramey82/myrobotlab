@@ -52,11 +52,10 @@ public class AudioFile extends Service {
 	transient Player player;
 	transient AePlayWave wavPlayer = new AePlayWave();
 
-
 	public AudioFile(String n) {
 		super(n, AudioFile.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
 	}
@@ -64,17 +63,15 @@ public class AudioFile extends Service {
 	public void play(String name) {
 		playFile("audioFile/" + name + ".mp3", false);
 	}
-	
-	public void playFileBlocking(String filename)
-	{
+
+	public void playFileBlocking(String filename) {
 		playFile(filename, true);
 	}
-	
-	public void playFile(String filename)
-	{
+
+	public void playFile(String filename) {
 		playFile(filename, false);
 	}
-	
+
 	// TODO - sound directory
 	// fn play(filename);
 	// setSoundFileDirectory(dir)
@@ -89,34 +86,31 @@ public class AudioFile extends Service {
 			player = new Player(bis);
 			// player.play();
 
-
-		// if (!serialized) TODO - serialize mode - puts it on another queue
-		// run in new thread to play in background
-		if (!isBlocking)
-		{
-			new Thread() {
-				public void run() {
-					try {
-						invoke("started");
-						player.play();
-						invoke("stopped");
-					} catch (Exception e) {
-						System.out.println(e);
+			// if (!serialized) TODO - serialize mode - puts it on another queue
+			// run in new thread to play in background
+			if (!isBlocking) {
+				new Thread() {
+					public void run() {
+						try {
+							invoke("started");
+							player.play();
+							invoke("stopped");
+						} catch (Exception e) {
+							System.out.println(e);
+						}
 					}
-				}
-			}.start();
-		} else {
-			invoke("started");
-			player.play();
-			invoke("stopped");			
-		}
-		
+				}.start();
+			} else {
+				invoke("started");
+				player.play();
+				invoke("stopped");
+			}
+
 		} catch (Exception e) {
 			log.error(e);
 			log.error("Problem playing file " + filename);
 			return;
 		}
-
 
 	}
 
@@ -131,25 +125,22 @@ public class AudioFile extends Service {
 	/* BEGIN - TODO - reconcile - find how javazoom plays wave */
 
 	public void playWAV(String name) {
-		//new AePlayWave("audioFile/" + name + ".wav").start();
+		// new AePlayWave("audioFile/" + name + ".wav").start();
 		wavPlayer.playAeWavFile("audioFile/" + name + ".wav");
 	}
 
 	public void playWAVFile(String name) {
-		//new AePlayWave(name).start();
+		// new AePlayWave(name).start();
 		wavPlayer.playAeWavFile(name);
 	}
 
-	
-	public void playBlockingWavFile(String filename)
-	{
+	public void playBlockingWavFile(String filename) {
 		wavPlayer.playAeWavFile(filename);
 	}
 
 	enum Position {
 		LEFT, RIGHT, NORMAL
 	};
-
 
 	public class AePlayWave extends Thread {
 
@@ -158,11 +149,10 @@ public class AudioFile extends Service {
 		private Position curPosition;
 
 		private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
-		
-		public AePlayWave()
-		{			
+
+		public AePlayWave() {
 		}
-		
+
 		public AePlayWave(String wavfile) {
 			filename = wavfile;
 			curPosition = Position.NORMAL;
@@ -172,16 +162,16 @@ public class AudioFile extends Service {
 			filename = wavfile;
 			curPosition = p;
 		}
-		public void playAeWavFile(String filename)
-		{
+
+		public void playAeWavFile(String filename) {
 			playAeWavFile(filename, Position.LEFT);
 		}
-		public void playAeWavFile(String filename, Position p)
-		{
-			
+
+		public void playAeWavFile(String filename, Position p) {
+
 			this.filename = filename;
 			this.curPosition = p;
-			
+
 			File soundFile = new File(filename);
 			if (!soundFile.exists()) {
 				System.err.println("Wave file not found: " + filename);
@@ -215,8 +205,7 @@ public class AudioFile extends Service {
 			}
 
 			if (auline.isControlSupported(FloatControl.Type.PAN)) {
-				FloatControl pan = (FloatControl) auline
-						.getControl(FloatControl.Type.PAN);
+				FloatControl pan = (FloatControl) auline.getControl(FloatControl.Type.PAN);
 				if (curPosition == Position.RIGHT)
 					pan.setValue(1.0f);
 				else if (curPosition == Position.LEFT)
@@ -229,8 +218,7 @@ public class AudioFile extends Service {
 
 			try {
 				while (nBytesRead != -1) {
-					nBytesRead = audioInputStream
-							.read(abData, 0, abData.length);
+					nBytesRead = audioInputStream.read(abData, 0, abData.length);
 					if (nBytesRead >= 0)
 						auline.write(abData, 0, nBytesRead);
 				}
@@ -241,14 +229,13 @@ public class AudioFile extends Service {
 				auline.drain();
 				auline.close();
 			}
-			
+
 		}
 
-		public Boolean playingFile(Boolean b)
-		{
+		public Boolean playingFile(Boolean b) {
 			return b;
 		}
-		
+
 		// for non-blocking use
 		public void run() {
 			playAeWavFile(filename, curPosition);
@@ -256,19 +243,19 @@ public class AudioFile extends Service {
 	}
 
 	@Override
-	public String getToolTip() {		
+	public String getToolTip() {
 		return "Plays back audio file. Can block or multi-thread play";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+
 		AudioFile player = new AudioFile("player");
 		player.startService();
 		player.playBlockingWavFile("I am ready.wav");
 		// player.play("hello my name is audery");
 		player.playWAV("hello my name is momo");
 	}
-	
+
 }

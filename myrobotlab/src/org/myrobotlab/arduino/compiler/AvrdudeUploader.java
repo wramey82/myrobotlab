@@ -72,28 +72,31 @@ public class AvrdudeUploader extends Uploader {
 		List commandDownloader = new ArrayList();
 		String protocol = boardPreferences.get("upload.protocol");
 		myArduino.setCompilingProgress(10);
-		
+
 		String portName = myArduino.preferences.get("serial.port");
-		if (portName == null)
-		{
-			myArduino.message("serial preference not set!"); // FIXME - alright so there SHOULD be typed messages - error vs info
+		if (portName == null) {
+			myArduino.message("serial preference not set!"); // FIXME - alright
+																// so there
+																// SHOULD be
+																// typed
+																// messages -
+																// error vs info
 			return false;
 		}
-		
-		if (myArduino.getSerialDevice() == null)
-		{
-			myArduino.message(String.format("opening %s", portName ));
+
+		if (myArduino.getSerialDevice() == null) {
+			myArduino.message(String.format("opening %s", portName));
 			myArduino.setSerialDevice(portName, 57600, 8, 1, 0);
 			myArduino.message(String.format("opened serial device %s", portName));
 		}
-		
-		//myArduino.setSerialDevice(name, rate, databits, stopbits, parity)
-		
+
+		// myArduino.setSerialDevice(name, rate, databits, stopbits, parity)
+
 		// avrdude wants "stk500v1" to distinguish it from stk500v2
 		if (protocol.equals("stk500"))
 			protocol = "stk500v1";
 		commandDownloader.add("-c" + protocol);
-		commandDownloader.add("-P" + (Platform.isWindows() ? "\\\\.\\" : "") + myArduino.preferences.get("serial.port"));//myArduino.preferences.get("serial.port"));
+		commandDownloader.add("-P" + (Platform.isWindows() ? "\\\\.\\" : "") + myArduino.preferences.get("serial.port"));// myArduino.preferences.get("serial.port"));
 		commandDownloader.add("-b" + Integer.parseInt(boardPreferences.get("upload.speed")));
 		commandDownloader.add("-D"); // don't erase
 		commandDownloader.add("-Uflash:w:" + buildPath + File.separator + className + ".hex:i");
@@ -221,7 +224,7 @@ public class AvrdudeUploader extends Uploader {
 		}
 		commandDownloader.add("-p" + boardPreferences.get("build.mcu"));
 		commandDownloader.addAll(params);
-		
+
 		myArduino.setCompilingProgress(30);
 
 		return executeUploadCommand(commandDownloader);

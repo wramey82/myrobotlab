@@ -12,19 +12,17 @@ public class Trigger implements Serializable {
 	public String name;
 	public int min;
 	public int max;
-	public int type; // ONESHOT (only) | MEAN ? EDGE TRIGGER | EDGE DELAY |FIXME - ENUMS
-	public int delay; 
+	public int type; // ONESHOT (only) | MEAN ? EDGE TRIGGER | EDGE DELAY |FIXME
+						// - ENUMS
+	public int delay;
 	public Pin pinData = null;// = new PinData();
 	public int targetPin;
 	public int threshold; // use this
 
-	public Trigger()
-	{
+	public Trigger() {
 	}
 
-	
-	public Trigger(String n, int min, int max, int type, int delay,
-			int targetPin) {
+	public Trigger(String n, int min, int max, int type, int delay, int targetPin) {
 		this.name = n;
 		this.min = min;
 		this.max = max;

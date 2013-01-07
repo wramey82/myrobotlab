@@ -28,57 +28,59 @@ import org.myrobotlab.mapper.sim.SimpleAgent;
 import org.myrobotlab.mapper.sim.World;
 
 /**
- * The AgentFollower class is a helper class for the AgentInspector. It updates cyclically the world view point.
- * in order to follow agent movements.  
- *  
+ * The AgentFollower class is a helper class for the AgentInspector. It updates
+ * cyclically the world view point. in order to follow agent movements.
+ * 
  */
 class AgentFollower implements Runnable {
 
-    World world;
-    SimpleAgent agent;
-    Thread thread;
-    boolean stopped;
-    boolean changed;
-    int viewPointType;
+	World world;
+	SimpleAgent agent;
+	Thread thread;
+	boolean stopped;
+	boolean changed;
+	int viewPointType;
 
-    AgentFollower(World world, SimpleAgent agent) {
-        this.agent = agent;
-        this.world = world;
-        viewPointType = World.VIEW_ABOVE_AGENT;
-        stopped = true;
-        thread = new Thread(this);
-        thread.start();
-    }
+	AgentFollower(World world, SimpleAgent agent) {
+		this.agent = agent;
+		this.world = world;
+		viewPointType = World.VIEW_ABOVE_AGENT;
+		stopped = true;
+		thread = new Thread(this);
+		thread.start();
+	}
 
-    public void run() {
-        while (true) {
-            changed= false;
-            if (!stopped)
-            			world.changeViewPoint(viewPointType, agent);
-            try {
-                // don't need precise time tick
-                // do multiple sleep to diminish ui latency
-                for (int i=0;i<30;i++){
-                    Thread.sleep(100);
-                    if (changed) break;
-                }
+	public void run() {
+		while (true) {
+			changed = false;
+			if (!stopped)
+				world.changeViewPoint(viewPointType, agent);
+			try {
+				// don't need precise time tick
+				// do multiple sleep to diminish ui latency
+				for (int i = 0; i < 30; i++) {
+					Thread.sleep(100);
+					if (changed)
+						break;
+				}
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    protected void setViewPointType(int type){
-        viewPointType = type;
-    }
-    protected void suspend() {
-        stopped = true;
-        changed= true;
-    }
+	protected void setViewPointType(int type) {
+		viewPointType = type;
+	}
 
-    protected void resume() {
-        stopped = false;
-        changed= true;
-    }
+	protected void suspend() {
+		stopped = true;
+		changed = true;
+	}
+
+	protected void resume() {
+		stopped = false;
+		changed = true;
+	}
 }

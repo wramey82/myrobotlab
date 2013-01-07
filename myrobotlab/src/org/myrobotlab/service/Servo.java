@@ -41,24 +41,25 @@ public class Servo extends Service implements ServoControl {
 	public final static Logger log = Logger.getLogger(Servo.class.getCanonicalName());
 
 	ServoController controller = null;
-	
+
 	@Element
 	private Integer position = null; // position -1 invalid not set yet
 	@Element
 	private int positionMin = 0;
 	@Element
 	private int positionMax = 180;
-	
-	//private float speed = 1.0f; // fractional speed component 0 to 1.0
-	
-	// FIXME - should be implemented inside the Arduino / ServoController - but has to be tied to position
+
+	// private float speed = 1.0f; // fractional speed component 0 to 1.0
+
+	// FIXME - should be implemented inside the Arduino / ServoController - but
+	// has to be tied to position
 	int sweepStart = 0;
 	int sweepEnd = 180;
 	int sweepDelayMS = 1000;
 	int sweepIncrement = 1;
 	boolean sweeperRunning = false;
 	transient Thread sweeper = null;
-	
+
 	public Servo(String n) {
 		super(n, Servo.class.getCanonicalName());
 		load();
@@ -68,11 +69,9 @@ public class Servo extends Service implements ServoControl {
 	public void loadDefaultConfiguration() {
 	}
 
-
 	@Override
 	public boolean setController(ServoController controller) {
-		if (controller == null)
-		{
+		if (controller == null) {
 			log.error("setting null as controller");
 			return false;
 		}
@@ -85,17 +84,14 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public void moveTo(Integer newPos) {
-		if (newPos == null)
-		{
+		if (newPos == null) {
 			return;
 		}
-		if (controller == null)
-		{
+		if (controller == null) {
 			log.error(String.format("%s's controller is not set", getName()));
 			return;
 		}
-		if (newPos >= positionMin && newPos <= positionMax )
-		{
+		if (newPos >= positionMin && newPos <= positionMax) {
 			controller.servoWrite(getName(), newPos);
 			position = newPos;
 		} else {
@@ -104,55 +100,45 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	/**
-	 * moves the servo in the range -1.0 to 1.0
-	 * where in a typical servo
-	 * 		-1.0 = 0
-	 * 		 0.0 = 90
-	 * 		 1.0 = 180
-	 * setting the min and max will affect the range
-	 * where -1.0 will always be the minPos and 1.0 will be maxPos
+	 * moves the servo in the range -1.0 to 1.0 where in a typical servo -1.0 =
+	 * 0 0.0 = 90 1.0 = 180 setting the min and max will affect the range where
+	 * -1.0 will always be the minPos and 1.0 will be maxPos
 	 */
 	@Override
-	public void move(Float amount) 
-	{
-		if (amount > 1 || amount < -1)
-		{
+	public void move(Float amount) {
+		if (amount > 1 || amount < -1) {
 			log.error("Servo.move %d out of range");
 			return;
 		}
 		int range = positionMax - positionMin;
-		int newPos = Math.abs((int)(range/2 * amount - range/2));
-		
+		int newPos = Math.abs((int) (range / 2 * amount - range / 2));
+
 		controller.servoWrite(getName(), newPos);
 		position = newPos;
 
 	}
-	
+
 	public boolean isAttached() {
 		return controller != null;
 	}
-	
-	public void setPositionMin(Integer min)
-	{
-		this.positionMin = min; 
+
+	public void setPositionMin(Integer min) {
+		this.positionMin = min;
 	}
-	
-	public Integer getPositionMin()
-	{
+
+	public Integer getPositionMin() {
 		return positionMin;
 	}
 
 	@Override
 	public void setPositionMax(Integer max) {
-		this.positionMax = max; 
+		this.positionMax = max;
 	}
 
-	public Integer getPositionMax()
-	{
+	public Integer getPositionMax() {
 		return positionMax;
 	}
-	
-	
+
 	public Integer getPosition() {
 		return position;
 	}
@@ -161,13 +147,13 @@ public class Servo extends Service implements ServoControl {
 	public String getToolTip() {
 		return "<html>service for a servo</html>";
 	}
-	
-	
+
 	/**
-	 * Sweeper - TODO - should be implemented in the arduino code for smoother function
-	 *
+	 * Sweeper - TODO - should be implemented in the arduino code for smoother
+	 * function
+	 * 
 	 */
-	private class Sweeper implements Runnable { 
+	private class Sweeper implements Runnable {
 		@Override
 		public void run() {
 
@@ -176,13 +162,12 @@ public class Servo extends Service implements ServoControl {
 				position += sweepIncrement;
 
 				// switch directions
-				if ((position <= sweepStart && sweepIncrement < 0)
-						|| (position >= sweepEnd && sweepIncrement > 0)) {
+				if ((position <= sweepStart && sweepIncrement < 0) || (position >= sweepEnd && sweepIncrement > 0)) {
 					sweepIncrement = sweepIncrement * -1;
 				}
 
 				moveTo(position);
-				
+
 				try {
 					Thread.sleep(sweepDelayMS);
 				} catch (InterruptedException e) {
@@ -194,8 +179,7 @@ public class Servo extends Service implements ServoControl {
 
 	}
 
-	public void sweep(int sweepStart, int sweepEnd, int sweepDelayMS,
-			int sweepIncrement) {
+	public void sweep(int sweepStart, int sweepEnd, int sweepDelayMS, int sweepIncrement) {
 		if (sweeperRunning) {
 			stopSweep();
 		}
@@ -219,38 +203,34 @@ public class Servo extends Service implements ServoControl {
 		sweep(sweepStart, sweepEnd, sweepDelayMS, sweepIncrement);
 	}
 
-
-
 	@Override
 	public String getControllerName() {
-		if (controller == null)
-		{
+		if (controller == null) {
 			return null;
-		} 
-		
+		}
+
 		return controller.getName();
 	}
 
 	@Override
 	public Integer getPin() {
-		if (controller == null)
-		{
+		if (controller == null) {
 			return null;
 		}
-		
+
 		return controller.getServoPin(getName());
 	}
 
 	public void setSpeed(Float speed) {
-		if (speed == null) {return;}
-		
+		if (speed == null) {
+			return;
+		}
+
 		controller.setServoSpeed(getName(), speed);
 	}
-	
-	public void detach()
-	{
-		if (controller != null)
-		{
+
+	public void detach() {
+		if (controller != null) {
 			controller.servoDetach(getName());
 		}
 	}
@@ -261,39 +241,31 @@ public class Servo extends Service implements ServoControl {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		// FIXME - routing of servo.attach("arduino", 3);
-		
+
 		Runtime.createAndStart("arduino", "Arduino");
 
 		Servo right = new Servo("servo01");
 		right.startService();
-//		right.attach(serviceName)
-/*
-		Servo left = new Servo("left");
-		left.startService();
-
-		//Servo neck = new Servo("neck");
-		//neck.startService();
-		
-		for (int i = 0; i < 30; ++i)
-		{
-		
-			right.attach("arduino", 2);
-			left.attach("arduino", 3);
-			
-			right.moveTo(120); // 70 back
-			left.moveTo(70); // 118 back
-	
-			Thread.sleep(10000);
-			
-			right.moveTo(90);		
-			left.moveTo(90);
-	
-			//right.detach();
-			//left.detach();
-		}
-*/
+		// right.attach(serviceName)
+		/*
+		 * Servo left = new Servo("left"); left.startService();
+		 * 
+		 * //Servo neck = new Servo("neck"); //neck.startService();
+		 * 
+		 * for (int i = 0; i < 30; ++i) {
+		 * 
+		 * right.attach("arduino", 2); left.attach("arduino", 3);
+		 * 
+		 * right.moveTo(120); // 70 back left.moveTo(70); // 118 back
+		 * 
+		 * Thread.sleep(10000);
+		 * 
+		 * right.moveTo(90); left.moveTo(90);
+		 * 
+		 * //right.detach(); //left.detach(); }
+		 */
 		Runtime.createAndStart("gui", "GUIService");
-		
+
 	}
-	
+
 }

@@ -36,14 +36,13 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterMask extends OpenCVFilter {
 
-	private static final long serialVersionUID = 1L;	
+	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(OpenCVFilterMask.class.getCanonicalName());
 	transient IplImage dst = null;
 	public String maskName = "";
-	
+
 	// TODO - get list of masks for gui
 
 	public OpenCVFilterMask(OpenCV service, String name) {
@@ -68,11 +67,9 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		maskName = "kd";
-		if (myService.masks.containsKey(maskName))
-		{
-			if (dst == null || dst.width() != image.width() || image.nChannels() != image.nChannels())
-			{
-				dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(),image.nChannels());
+		if (myService.masks.containsKey(maskName)) {
+			if (dst == null || dst.width() != image.width() || image.nChannels() != image.nChannels()) {
+				dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(), image.nChannels());
 			}
 			cvCopy(image, dst, myService.masks.get(maskName));
 			return dst;

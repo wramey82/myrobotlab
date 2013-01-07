@@ -33,13 +33,11 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterSampleArray extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterSampleArray.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterSampleArray.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;

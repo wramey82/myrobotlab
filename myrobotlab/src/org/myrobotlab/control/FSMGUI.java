@@ -54,7 +54,7 @@ public class FSMGUI extends ServiceGUI {
 	JList transitionStates;
 	JTable table = new JTable(8, 4);
 	BasicArrowButton addServiceButton = null;
-	
+
 	public FSMGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -67,7 +67,7 @@ public class FSMGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		String[] namesAndClasses = {"hello-speech.speak Hello","report-system.statusReport","find bug toy-camera.findToy"};
+		String[] namesAndClasses = { "hello-speech.speak Hello", "report-system.statusReport", "find bug toy-camera.findToy" };
 
 		transitionStates = new JList(namesAndClasses);
 
@@ -86,21 +86,20 @@ public class FSMGUI extends ServiceGUI {
 		input.setBorder(title);
 
 		display.add(input, gc);
-		
+
 		++gc.gridx;
-	
+
 		display.add(table, gc);
-		
+
 	}
-	
+
 	public class LogLevel implements ItemListener {
 
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 		}
-		
+
 	}
-	
 
 	public JButton getAddServiceButton() {
 		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
@@ -111,11 +110,10 @@ public class FSMGUI extends ServiceGUI {
 
 				JFrame frame = new JFrame();
 				frame.setTitle("add new service");
-				String name = JOptionPane.showInputDialog(frame,
-						"new service name");
+				String name = JOptionPane.showInputDialog(frame, "new service name");
 				if (name != null) {
 					String newService = (String) transitionStates.getSelectedValue();
-					myService.send(boundServiceName, "create", newService,name);
+					myService.send(boundServiceName, "create", newService, name);
 				}
 			}
 
@@ -123,8 +121,6 @@ public class FSMGUI extends ServiceGUI {
 
 		return addServiceButton;
 	}
-
-	
 
 	@Override
 	public void attachGUI() {
@@ -137,5 +133,5 @@ public class FSMGUI extends ServiceGUI {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 }

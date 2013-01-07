@@ -47,17 +47,14 @@ public class Number {
 	String description = "";
 
 	public Number(String name, int init, int min, int max, String description) {
-		this(name, (double) init, (double) min, (double) max, description,
-				false);
+		this(name, (double) init, (double) min, (double) max, description, false);
 	}
 
-	public Number(String name, double init, double min, double max,
-			String description) {
+	public Number(String name, double init, double min, double max, String description) {
 		this(name, (double) init, (double) min, (double) max, description, true);
 	}
 
-	public Number(String name, double init, double min, double max,
-			String description, boolean isReal) {
+	public Number(String name, double init, double min, double max, String description, boolean isReal) {
 		this.name = name;
 		this.value = init;
 		this.init = init;
@@ -73,8 +70,7 @@ public class Number {
 			descriptionLabel.setText(min + "-" + max + " " + description);
 		} else {
 			valueField.setText((int) init + "");
-			descriptionLabel.setText((int) min + "-" + (int) max + " "
-					+ description);
+			descriptionLabel.setText((int) min + "-" + (int) max + " " + description);
 		}
 
 		nameLabel.setText(name + ":");

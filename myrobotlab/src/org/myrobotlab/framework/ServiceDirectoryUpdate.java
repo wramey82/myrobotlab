@@ -32,7 +32,7 @@ public class ServiceDirectoryUpdate implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public int ID;
-	public URI url; 
+	public URI url;
 	/**
 	 * URL built by process which accepted the communication endpoint. The
 	 * receiving communication adapter provides the information to build this

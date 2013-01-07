@@ -54,11 +54,11 @@ public class Stepper extends Service {
 	public final static Logger log = Logger.getLogger(Stepper.class.toString());
 
 	boolean isAttached = false;
-	
+
 	int PWRPin;
 	int DIRPin;
 	int powerMultiplier = 255; // default to Arduino analogWrite max
-								
+
 	int FORWARD = 1;
 	int BACKWARD = 0;
 
@@ -80,18 +80,18 @@ public class Stepper extends Service {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;
 		this.DIRPin = DIRPin;
-		// WRONG ! send(controllerName, "motorAttach", this.getName(), PWRPin, DIRPin);
+		// WRONG ! send(controllerName, "motorAttach", this.getName(), PWRPin,
+		// DIRPin);
 	}
-	
+
 	public void invertDirection() {
 		FORWARD = 0;
 		BACKWARD = 1;
 	}
 
 	public void incrementPower(float increment) {
-		if (power + increment > maxPower || power + increment < -maxPower) 
-		{
-			log.error("power " + power + " out of bounds with increment "+ increment);
+		if (power + increment > maxPower || power + increment < -maxPower) {
+			log.error("power " + power + " out of bounds with increment " + increment);
 			return;
 		}
 		power += increment;
@@ -100,18 +100,19 @@ public class Stepper extends Service {
 
 	// motor primitives begin ------------------------------------
 	public void move(float power) {
-		if (locked) return;
+		if (locked)
+			return;
 
 		// check if the direction has changed - send command if necessary
 		if (power == 0) {
 			send(controllerName, AnalogIO.analogWrite, PWRPin, 0);
 		} else if (power > 0 && this.power <= 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, FORWARD); 
+			send(controllerName, DigitalIO.digitalWrite, DIRPin, FORWARD);
 		} else if (power < 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD); 
+			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD);
 		}
 
-		//log.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
+		// log.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
 		log.error(getName() + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
 		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (power * powerMultiplier)));
 
@@ -147,201 +148,128 @@ public class Stepper extends Service {
 	public String getToolTip() {
 		return "<html>stepper motor service (not implemented)</html>";
 	}
-	
-}
-
-/* TODO - implement in Arduino
-
-	int targetPosition = 0;
-	boolean movingToPosition = false;
-
-
-public void attachEncoder(String encoderName, int pin) // TODO Encoder Interface
-{
-	this.encoderName = encoderName;
-	PinData pd = new PinData();
-	pd.pin = pin;
-	encoderPin = pin; // TODO - have encoder own pin - send name for event
-
-	// TODO - Make Encoder Interface
-
-	MRLListener MRLListener = new MRLListener();
-
-	MRLListener.getName() = name;
-	MRLListener.outMethod = "publishPin";
-	MRLListener.inMethod = "incrementPosition";
-	MRLListener.paramType = PinData.class.getCanonicalName();
-	send(encoderName, "addListener", MRLListener);
 
 }
 
-
-	public int getPosition() {
-		return position;
-	}
-
-	// feedback
-	// public static final String FEEDBACK_TIMER = "FEEDBACK_TIMER";
-	enum FeedbackType {
-		Timer, Digital
-	}
-
-	Timer timer = new Timer();
-	FeedbackType poistionFeedbackType = FeedbackType.Timer;
-
-	enum BlockingMode {
-		Blocking, Staggered, Overlap
-	}
-
-	BlockingMode blockingMode = BlockingMode.Blocking;
-
-	
-	 TODO - motors should not have any idea as to what their "pins" are - this
-	 should be maintained by the controller
-	
-
-String encoderName = null; // feedback device
-int encoderPin = 0; // TODO - put in Encoder class
-
-
-	public int incrementPosition(PinData p) {
-		if (p.pin != encoderPin) // TODO TODO TODO - this is wrong - should be
-									// filtering on the Arduino publish !!!!
-			return 0;
-
-		if (direction == FORWARD) {
-			position += 1;
-			if (movingToPosition && position >= targetPosition) {
-				stopMotor();
-				movingToPosition = false;
-			}
-
-		} else {
-			position -= 1;
-			if (movingToPosition && position <= targetPosition) {
-				stopMotor();
-				movingToPosition = false;
-			}
-		}
-
-		return position;
-
-	}
-
-
-	// move to relative amount - needs position feedback
-	public void move(int amount) // TODO - "amount" should be moveTo
-	{
-		// setPower(lastPower);
-		if (amount == 0) {
-			return;
-		} else if (direction == FORWARD) {
-			direction = FORWARD;
-			position += amount;
-		} else if (direction == BACKWARD) {
-			direction = BACKWARD;
-			position -= amount;
-		}
-
-		move();
-		amount = Math.abs(amount);
-		if (poistionFeedbackType == FeedbackType.Timer
-				&& blockingMode == BlockingMode.Blocking) {
-			try {
-				Thread.sleep(amount * positionMultiplier);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			// TODO - this is overlapp mode (least useful)
-			// timer.schedule(new FeedbackTask(FeedbackTask.stopMotor, amount *
-			// positionMultiplier), amount * positionMultiplier);
-		}
-
-		stopMotor();
-	}
-
-		// TODO - enums pinMode & OUTPUT
-		// TODO - abstract "controller" Controller.OUTPUT
-
-		send(controllerName, "pinMode", PWRPin, Arduino.OUTPUT); // TODO THIS IS NOT!!! A FUNCTION OF THE MOTOR - THIS NEEDS TO BE TAKEN CARE OF BY THE BOARD
-		send(controllerName, "pinMode", DIRPin, Arduino.OUTPUT);
-
-	public void move(int direction, float power, int amount) {
-		setDir(direction);
-		setPower(power);
-		move(amount);
-	}
-
-
-	public void setDir(int direction) {
-		if (locked) return;
-		
-		this.direction = direction;		
-	}
-
-	public void move(int direction, float power) {
-		if (locked) return;
-		
-		setDir(direction);
-		setPower(power);
-		move();
-	}
-
-	public void moveTo(Integer newPos)
-	{
-		targetPosition = newPos;
-		movingToPosition = true;
-		if (position - newPos < 0) {
-			setDir(FORWARD);
-			// move(Math.abs(position - newPos));
-			setPower(0.5f);
-			move();
-		} else if (position - newPos > 0) {
-			setDir(BACKWARD);
-			// move(Math.abs(position - newPos));
-			setPower(0.5f);
-			move();
-		} else
-			return;
-	}
-
-	public void moveCW() {
-		setDir(FORWARD);
-		move();
-	}
-
-	public void moveCCW() {
-		setDir(BACKWARD);
-		move();
-	}
-
-	public void setPower(float power) {
-		if (locked) return;
-		
-		if (power > maxPower || power < -maxPower) 
-		{
-			log.error(power + " power out of bounds - max power is "+ maxPower);
-			return;
-		}
-		
-		this.power = power;
-		move(power);
-	}
-
-	int positionMultiplier = 1000;
-	boolean useRamping = false;
-	public void setUseRamping(boolean ramping) {
-		useRamping = ramping;
-	}
-
-	// motor primitives end ------------------------------------
-	/*
-	 * Power and Direction parameters work on the principle that they are values
-	 * of a motor, but are not operated upon until a "move" command is issued.
-	 * "Move" will direct the motor to move to use the targeted power and
-	 * direction.
-	 * 
-	 * All of the following functions use primitives and are basically composite
-	 * functions
-	 */
+/*
+ * TODO - implement in Arduino
+ * 
+ * int targetPosition = 0; boolean movingToPosition = false;
+ * 
+ * 
+ * public void attachEncoder(String encoderName, int pin) // TODO Encoder
+ * Interface { this.encoderName = encoderName; PinData pd = new PinData();
+ * pd.pin = pin; encoderPin = pin; // TODO - have encoder own pin - send name
+ * for event
+ * 
+ * // TODO - Make Encoder Interface
+ * 
+ * MRLListener MRLListener = new MRLListener();
+ * 
+ * MRLListener.getName() = name; MRLListener.outMethod = "publishPin";
+ * MRLListener.inMethod = "incrementPosition"; MRLListener.paramType =
+ * PinData.class.getCanonicalName(); send(encoderName, "addListener",
+ * MRLListener);
+ * 
+ * }
+ * 
+ * 
+ * public int getPosition() { return position; }
+ * 
+ * // feedback // public static final String FEEDBACK_TIMER = "FEEDBACK_TIMER";
+ * enum FeedbackType { Timer, Digital }
+ * 
+ * Timer timer = new Timer(); FeedbackType poistionFeedbackType =
+ * FeedbackType.Timer;
+ * 
+ * enum BlockingMode { Blocking, Staggered, Overlap }
+ * 
+ * BlockingMode blockingMode = BlockingMode.Blocking;
+ * 
+ * 
+ * TODO - motors should not have any idea as to what their "pins" are - this
+ * should be maintained by the controller
+ * 
+ * 
+ * String encoderName = null; // feedback device int encoderPin = 0; // TODO -
+ * put in Encoder class
+ * 
+ * 
+ * public int incrementPosition(PinData p) { if (p.pin != encoderPin) // TODO
+ * TODO TODO - this is wrong - should be // filtering on the Arduino publish
+ * !!!! return 0;
+ * 
+ * if (direction == FORWARD) { position += 1; if (movingToPosition && position
+ * >= targetPosition) { stopMotor(); movingToPosition = false; }
+ * 
+ * } else { position -= 1; if (movingToPosition && position <= targetPosition) {
+ * stopMotor(); movingToPosition = false; } }
+ * 
+ * return position;
+ * 
+ * }
+ * 
+ * 
+ * // move to relative amount - needs position feedback public void move(int
+ * amount) // TODO - "amount" should be moveTo { // setPower(lastPower); if
+ * (amount == 0) { return; } else if (direction == FORWARD) { direction =
+ * FORWARD; position += amount; } else if (direction == BACKWARD) { direction =
+ * BACKWARD; position -= amount; }
+ * 
+ * move(); amount = Math.abs(amount); if (poistionFeedbackType ==
+ * FeedbackType.Timer && blockingMode == BlockingMode.Blocking) { try {
+ * Thread.sleep(amount * positionMultiplier); } catch (InterruptedException e) {
+ * e.printStackTrace(); } // TODO - this is overlapp mode (least useful) //
+ * timer.schedule(new FeedbackTask(FeedbackTask.stopMotor, amount * //
+ * positionMultiplier), amount * positionMultiplier); }
+ * 
+ * stopMotor(); }
+ * 
+ * // TODO - enums pinMode & OUTPUT // TODO - abstract "controller"
+ * Controller.OUTPUT
+ * 
+ * send(controllerName, "pinMode", PWRPin, Arduino.OUTPUT); // TODO THIS IS
+ * NOT!!! A FUNCTION OF THE MOTOR - THIS NEEDS TO BE TAKEN CARE OF BY THE BOARD
+ * send(controllerName, "pinMode", DIRPin, Arduino.OUTPUT);
+ * 
+ * public void move(int direction, float power, int amount) { setDir(direction);
+ * setPower(power); move(amount); }
+ * 
+ * 
+ * public void setDir(int direction) { if (locked) return;
+ * 
+ * this.direction = direction; }
+ * 
+ * public void move(int direction, float power) { if (locked) return;
+ * 
+ * setDir(direction); setPower(power); move(); }
+ * 
+ * public void moveTo(Integer newPos) { targetPosition = newPos;
+ * movingToPosition = true; if (position - newPos < 0) { setDir(FORWARD); //
+ * move(Math.abs(position - newPos)); setPower(0.5f); move(); } else if
+ * (position - newPos > 0) { setDir(BACKWARD); // move(Math.abs(position -
+ * newPos)); setPower(0.5f); move(); } else return; }
+ * 
+ * public void moveCW() { setDir(FORWARD); move(); }
+ * 
+ * public void moveCCW() { setDir(BACKWARD); move(); }
+ * 
+ * public void setPower(float power) { if (locked) return;
+ * 
+ * if (power > maxPower || power < -maxPower) { log.error(power +
+ * " power out of bounds - max power is "+ maxPower); return; }
+ * 
+ * this.power = power; move(power); }
+ * 
+ * int positionMultiplier = 1000; boolean useRamping = false; public void
+ * setUseRamping(boolean ramping) { useRamping = ramping; }
+ * 
+ * // motor primitives end ------------------------------------ /* Power and
+ * Direction parameters work on the principle that they are values of a motor,
+ * but are not operated upon until a "move" command is issued. "Move" will
+ * direct the motor to move to use the targeted power and direction.
+ * 
+ * All of the following functions use primitives and are basically composite
+ * functions
+ */
 

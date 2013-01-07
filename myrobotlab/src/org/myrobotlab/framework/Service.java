@@ -74,6 +74,7 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+
 /**
  * 
  * Service is the base of the MyRobotLab Service Oriented Architecture. All
@@ -111,7 +112,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	Outbox outbox = null;
 	Inbox inbox = null;
 	public URI url = null;
-	
+
 	public boolean performanceTiming = false;
 
 	protected CommunicationInterface cm = null;
@@ -131,26 +132,26 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
 
-	public static HashMap <String, Long> timerMap = null;
-	
+	public static HashMap<String, Long> timerMap = null;
+
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
-	
+
 	SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
-	
+
 	// recordings
 	static private boolean isRecording = false;
 	public final String MESSAGE_RECORDING_FORMAT_XML = "MESSAGE_RECORDING_FORMAT_XML";
 	public final String MESSAGE_RECORDING_FORMAT_BINARY = "MESSAGE_RECORDING_FORMAT_BINARY";
-	
+
 	private transient ObjectOutputStream recording;
 	private transient ObjectInputStream playback;
 	private transient OutputStream recordingXML;
 	private transient OutputStream recordingPython;
-	
+
 	/**
 	 * 
 	 */
@@ -186,8 +187,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	/**
 	 * 
 	 */
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 
@@ -247,46 +247,36 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		cm = new CommunicationManager(this);
 
 		TSFormatter.setCalendar(cal);
-		
+
 		registerServices();// FIXME - deprecate - remove !
 		registerLocalService(url);
 	}
-	
+
 	/*
-	 * Interesting hack found on stack overflow - which mod's the Classloader to add another directory
-	 * http://stackoverflow.com/questions/5419039/is-djava-library-path-equivalent-to-system-setpropertyjava-library-path
-	public static void addDir(String s) throws IOException {
-	    try {
-	        // This enables the java.library.path to be modified at runtime
-	        // From a Sun engineer at http://forums.sun.com/thread.jspa?threadID=707176
-	        //
-	        Field field = ClassLoader.class.getDeclaredField("usr_paths");
-	        field.setAccessible(true);
-	        String[] paths = (String[])field.get(null);
-	        for (int i = 0; i < paths.length; i++) {
-	            if (s.equals(paths[i])) {
-	                return;
-	            }
-	        }
-	        String[] tmp = new String[paths.length+1];
-	        System.arraycopy(paths,0,tmp,0,paths.length);
-	        tmp[paths.length] = s;
-	        field.set(null,tmp);
-	        System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + s);
-	    } catch (IllegalAccessException e) {
-	        throw new IOException("Failed to get permissions to set library path");
-	    } catch (NoSuchFieldException e) {
-	        throw new IOException("Failed to get field handle to set library path");
-	    }
-	}
-	
-	*/
-	
+	 * Interesting hack found on stack overflow - which mod's the Classloader to
+	 * add another directory
+	 * http://stackoverflow.com/questions/5419039/is-djava-
+	 * library-path-equivalent-to-system-setpropertyjava-library-path public
+	 * static void addDir(String s) throws IOException { try { // This enables
+	 * the java.library.path to be modified at runtime // From a Sun engineer at
+	 * http://forums.sun.com/thread.jspa?threadID=707176 // Field field =
+	 * ClassLoader.class.getDeclaredField("usr_paths");
+	 * field.setAccessible(true); String[] paths = (String[])field.get(null);
+	 * for (int i = 0; i < paths.length; i++) { if (s.equals(paths[i])) {
+	 * return; } } String[] tmp = new String[paths.length+1];
+	 * System.arraycopy(paths,0,tmp,0,paths.length); tmp[paths.length] = s;
+	 * field.set(null,tmp); System.setProperty("java.library.path",
+	 * System.getProperty("java.library.path") + File.pathSeparator + s); }
+	 * catch (IllegalAccessException e) { throw new
+	 * IOException("Failed to get permissions to set library path"); } catch
+	 * (NoSuchFieldException e) { throw new
+	 * IOException("Failed to get field handle to set library path"); } }
+	 */
+
 	/**
 	 * 
 	 */
-	public static synchronized void initialize()
-	{		
+	public static synchronized void initialize() {
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
 
@@ -303,8 +293,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
-					
-		log.info("---------------non-normalized---------------");						
+
+		log.info("---------------non-normalized---------------");
 		log.info(String.format("java.vm.name [%1$s]", vmName));
 		log.info(String.format("java.vm.vendor [%1$s]", System.getProperty("java.vm.vendor")));
 		log.info(String.format("java.home [%1$s]", System.getProperty("java.home")));
@@ -312,9 +302,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("java.class.path [%1$s]", System.getProperty("java.class.path")));
 		log.info(String.format("java.library.path [%1$s]", libararyPath));
 		log.info(String.format("user.dir [%1$s]", userDir));
-		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory()/1048576)); // 1024 x 1024 = 1K x 1K = 1Meg
-		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory()/1048576));
-		
+		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576)); // 1024
+																							// x
+																							// 1024
+																							// =
+																							// 1K
+																							// x
+																							// 1K
+																							// =
+																							// 1Meg
+		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
+
 		// load root level configuration
 		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
 		// deprecate
@@ -345,8 +343,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * 
 	 * @param tag
 	 */
-	public void logTime(String tag) 
-	{
+	public void logTime(String tag) {
 		if (startTimeMilliseconds == 0) {
 			startTimeMilliseconds = System.currentTimeMillis();
 		}
@@ -360,26 +357,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param timerName
 	 * @param tag
 	 */
-	static public void logTime (String timerName, String tag)
-	{
-		if (timerMap == null)
-		{
-			timerMap = new HashMap <String, Long>();
+	static public void logTime(String timerName, String tag) {
+		if (timerMap == null) {
+			timerMap = new HashMap<String, Long>();
 		}
 
 		if (!timerMap.containsKey(timerName) || "start".equals(tag)) {
 			timerMap.put(timerName, System.currentTimeMillis());
 		}
-		
-		StringBuffer sb = new StringBuffer(40)
-			.append("timer ")
-			.append(timerName)
-			.append(" ")
-			.append(System.currentTimeMillis() - timerMap.get(timerName))
-			.append(" ms ")
-			.append(tag);
-		
-		log.error(sb);		
+
+		StringBuffer sb = new StringBuffer(40).append("timer ").append(timerName).append(" ").append(System.currentTimeMillis() - timerMap.get(timerName)).append(" ms ")
+				.append(tag);
+
+		log.error(sb);
 	}
 
 	/**
@@ -404,8 +394,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param cfgFileName
 	 * @return
 	 */
-	public boolean save(Object o, String cfgFileName)
-	{
+	public boolean save(Object o, String cfgFileName) {
 		Serializer serializer = new Persister();
 
 		try {
@@ -417,15 +406,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * @param cfgFileName
 	 * @param data
 	 * @return
 	 */
-	public boolean save(String cfgFileName, String data)
-	{
+	public boolean save(String cfgFileName, String data) {
 		// saves user data in the .myrobotlab directory
 		// with the file naming convention of name.<cfgFileName>
 		try {
@@ -443,15 +431,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public boolean load() {
 		return load(null, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param o
 	 * @param inCfgFileName
 	 * @return
 	 */
-	public boolean load(Object o, String inCfgFileName)
-	{	
+	public boolean load(Object o, String inCfgFileName) {
 		String filename = null;
 		if (inCfgFileName == null) {
 			filename = String.format("%s%s%s.xml", cfgDir, File.separator, this.getName(), ".xml");
@@ -526,7 +513,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		ConfigurationManager hostCFG = new ConfigurationManager(host);
 		// add global config
 		hostCFG.set("servicePort", 3389);
-		//hostCFG.set("Communicator", "org.myrobotlab.net.CommObjectStreamOverTCPUDP");
+		// hostCFG.set("Communicator",
+		// "org.myrobotlab.net.CommObjectStreamOverTCPUDP");
 		hostCFG.set("Serializer", "org.myrobotlab.net.SerializerObject");
 	}
 
@@ -550,6 +538,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * sleep without the throw
+	 * 
 	 * @param millis
 	 */
 	public static void sleep(int millis) {
@@ -606,7 +595,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		try {
 			while (isRunning) {
-				// TODO should this declaration be outside the while loop? if so, make sure to release prior to continue
+				// TODO should this declaration be outside the while loop? if
+				// so, make sure to release prior to continue
 				Message m = getMsg();
 
 				if (!preRoutingHook(m)) {
@@ -627,7 +617,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				Object ret = invoke(m);
 				if (Message.BLOCKING.equals(m.status)) {
 					// TODO should this declaration be outside the while loop?
-					// create new message reverse sender and name set to same msg id
+					// create new message reverse sender and name set to same
+					// msg id
 					Message msg = createMessage(m.sender, m.method, ret);
 					msg.sender = this.getName();
 					msg.msgID = m.msgID;
@@ -647,11 +638,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * Creating a message function call - without
-	 * specifying the recipients - static routes will be applied this is good
-	 * for Motor drivers - you can swap motor drivers by creating a different
-	 * static route The motor is not "Aware" of the driver - only that it wants
-	 * to method="write" data to the driver
+	 * Creating a message function call - without specifying the recipients -
+	 * static routes will be applied this is good for Motor drivers - you can
+	 * swap motor drivers by creating a different static route The motor is not
+	 * "Aware" of the driver - only that it wants to method="write" data to the
+	 * driver
 	 * 
 	 * @param method
 	 * @param o
@@ -724,7 +715,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * Used by CommunicationManager to get new instances of Communicators 
+	 * Used by CommunicationManager to get new instances of Communicators
+	 * 
 	 * @param classname
 	 * @param service
 	 * @return
@@ -798,25 +790,23 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		} catch (Exception e) {
 			logException(e);
-		} 
-		
+		}
+
 		return null;
 	}
 
 	// parameterType is not used for any critical look-up - but can be used at
 	// runtime check to
 	// check parameter mating
-	
-	
-	public void subscribe(String outMethod,  String publisherName, String inMethod, Class<?>...parameterType) 
-	{
+
+	public void subscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType) {
 		MRLListener listener = null;
 		if (parameterType != null) {
 			listener = new MRLListener(outMethod, getName(), inMethod, parameterType);
 		} else {
 			listener = new MRLListener(outMethod, getName(), inMethod, null);
 		}
-		
+
 		send(publisherName, "addListener", listener);
 	}
 
@@ -828,17 +818,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		} else {
 			listener = new MRLListener(outMethod, getName(), inMethod, null);
 		}
-		
+
 		send(publisherName, "removeListener", listener);
 	}
 
-
 	/**
-	 * this is called from video widget subscribe 
+	 * this is called from video widget subscribe
+	 * 
 	 * @param listener
 	 */
-	public void addListener(MRLListener listener)	 
-	{
+	public void addListener(MRLListener listener) {
 		if (outbox.notifyList.containsKey(listener.outMethod.toString())) {
 			// iterate through all looking for duplicate
 			boolean found = false;
@@ -863,7 +852,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @param outMethod
@@ -871,9 +860,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param inMethod
 	 * @param paramTypes
 	 */
-	public void addListener(String outMethod, String namedInstance, String inMethod,
-			Class<?>... paramTypes)	 
-	{
+	public void addListener(String outMethod, String namedInstance, String inMethod, Class<?>... paramTypes) {
 		MRLListener listener = new MRLListener(outMethod, namedInstance, inMethod, paramTypes);
 		addListener(listener);
 	}
@@ -894,9 +881,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param inMethod
 	 * @param paramTypes
 	 */
-	public void removeListener(String outMethod, String serviceName,
-			String inMethod, Class<?>...paramTypes) 
-	{
+	public void removeListener(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes) {
 		if (outbox.notifyList.containsKey(outMethod)) {
 			ArrayList<MRLListener> nel = outbox.notifyList.get(outMethod);
 			for (int i = 0; i < nel.size(); ++i) {
@@ -907,19 +892,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 		} else {
 			log.error(String.format("removeListener requested %1$s.%2$s to be removed - but does not exist", serviceName, outMethod));
-		}		
+		}
 	}
-	
-	public void removeListener(String serviceName,
-			String inOutMethod, Class<?>...paramTypes) 
-	{
+
+	public void removeListener(String serviceName, String inOutMethod, Class<?>... paramTypes) {
 		removeListener(inOutMethod, serviceName, inOutMethod, paramTypes);
 	}
 
-	public void removeListener(String serviceName,
-			String inOutMethod) 
-	{
-		removeListener(inOutMethod, serviceName, inOutMethod, (Class<?>[])null);
+	public void removeListener(String serviceName, String inOutMethod) {
+		removeListener(inOutMethod, serviceName, inOutMethod, (Class<?>[]) null);
 	}
 
 	/**
@@ -993,7 +974,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * convenience reflection methods 2 parameters 
+	 * convenience reflection methods 2 parameters
+	 * 
 	 * @param method
 	 * @param param1
 	 * @param param2
@@ -1008,15 +990,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * convenience reflection methods 3 parameters 
+	 * convenience reflection methods 3 parameters
+	 * 
 	 * @param method
 	 * @param param1
 	 * @param param2
 	 * @param param3
 	 * @return
 	 */
-	public Object invoke(String method, Object param1, Object param2,
-			Object param3) {
+	public Object invoke(String method, Object param1, Object param2, Object param3) {
 		Object[] params = new Object[3];
 		params[0] = param1;
 		params[1] = param2;
@@ -1027,6 +1009,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * convenience reflection methods 4 parameters
+	 * 
 	 * @param method
 	 * @param param1
 	 * @param param2
@@ -1034,8 +1017,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param param4
 	 * @return
 	 */
-	public Object invoke(String method, Object param1, Object param2,
-			Object param3, Object param4) {
+	public Object invoke(String method, Object param1, Object param2, Object param3, Object param4) {
 		Object[] params = new Object[3];
 		params[0] = param1;
 		params[1] = param2;
@@ -1046,13 +1028,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * invoke in the context of a Service	
+	 * invoke in the context of a Service
+	 * 
 	 * @param method
 	 * @param params
 	 * @return
 	 */
-	public Object invoke(String method, Object[] params) 
-	{
+	public Object invoke(String method, Object[] params) {
 		// log invoking call
 		if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
 			StringBuilder paramTypeString = new StringBuilder();
@@ -1073,13 +1055,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * general static base invoke
+	 * 
 	 * @param object
 	 * @param method
 	 * @param params
 	 * @return
 	 */
-	final public Object invoke(Object object, String method, Object params[]) 
-	{
+	final public Object invoke(Object object, String method, Object params[]) {
 		Object retobj = null;
 		Class<?> c;
 		c = object.getClass();
@@ -1089,7 +1071,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Class<?>[] paramTypes = null;
 		if (params != null) {
-			paramTypes = new Class[params.length]; 
+			paramTypes = new Class[params.length];
 			for (int i = 0; i < params.length; ++i) {
 				if (params[i] != null) {
 					paramTypes[i] = params[i].getClass();
@@ -1132,27 +1114,27 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				if (params == null && pType.length != 0 || pType.length != params.length) {
 					continue;
 				}
-		 		try {
-		 			log.debug("found appropriate method");
-		 			retobj = m.invoke(object, params);
+				try {
+					log.debug("found appropriate method");
+					retobj = m.invoke(object, params);
 
-		 			// put return object onEvent
+					// put return object onEvent
 					out(method, retobj);
 					return retobj;
 				} catch (Exception e1) {
 					log.error(String.format("boom goes method %1$s", m.getName()));
 					Service.logException(e1);
 				}
-			} 
-		    
-		    log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
+			}
+
+			log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
 		} catch (Exception e) {
 			Service.logException(e);
 		}
 
 		return retobj;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -1166,15 +1148,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * send takes a name of a target system - the method - and a list of
 	 * parameters and invokes that method at its destination.
 	 */
-	
+
 	/**
-	 * this send forces remote connect - for registering services	
+	 * this send forces remote connect - for registering services
+	 * 
 	 * @param url
 	 * @param method
 	 * @param param1
 	 */
-	public void send(URI url, String method, Object param1)
-	{
+	public void send(URI url, String method, Object param1) {
 		Object[] params = new Object[1];
 		params[0] = param1;
 		Message msg = createMessage(name, method, params);
@@ -1185,91 +1167,84 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * 0?
+	 * 
 	 * @param name
 	 * @param method
 	 */
 	public void send(String name, String method) {
 		send(name, method, (Object[]) null);
 	}
-	
-	public void startRecording()
-	{
-		invoke ("startRecording", new Object[]{null});
+
+	public void startRecording() {
+		invoke("startRecording", new Object[] { null });
 	}
-	
-	public String startRecording(String filename)
-	{
-		String filenameXML = String.format("%s/%s_%s.xml", cfgDir, getName(), TSFormatter.format(new Date()) );
-		String filenamePython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()) );
-		if (filename == null)
-		{
-			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()) );
+
+	public String startRecording(String filename) {
+		String filenameXML = String.format("%s/%s_%s.xml", cfgDir, getName(), TSFormatter.format(new Date()));
+		String filenamePython = String.format("%s/%s_%s.py", cfgDir, getName(), TSFormatter.format(new Date()));
+		if (filename == null) {
+			filename = String.format("%s/%s_%s.msg", cfgDir, getName(), TSFormatter.format(new Date()));
 			lastRecordingFilename = filename;
 		}
 
 		log.info(String.format("started recording %s to file %s", getName(), filename));
-		
+
 		try {
 			recording = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
 			recordingXML = new BufferedOutputStream(new FileOutputStream(filenameXML), 8 * 1024);
 			recordingXML.write("<Messages>\n".getBytes());
-			
+
 			recordingPython = new BufferedOutputStream(new FileOutputStream(filenamePython), 8 * 1024);
-			
+
 			isRecording = true;
 		} catch (Exception e) {
 			logException(e);
-		} 
+		}
 		return filenamePython;
 	}
-	
-	public void stopRecording()
-	{
+
+	public void stopRecording() {
 		log.info("stopped recording");
 		isRecording = false;
-		if (recording == null)
-		{
+		if (recording == null) {
 			return;
 		}
 		try {
-		
+
 			recordingPython.flush();
 			recordingPython.close();
 			recordingPython = null;
-			
+
 			recordingXML.write("\n</Messages>".getBytes());
 			recordingXML.flush();
 			recordingXML.close();
 			recordingXML = null;
-			
+
 			recording.flush();
 			recording.close();
 			recording = null;
 		} catch (IOException e) {
 			logException(e);
 		}
-		
+
 	}
-	
-	public void loadRecording(String filename)
-	{
+
+	public void loadRecording(String filename) {
 		isRecording = false;
-		
-		if (filename == null)
-		{
+
+		if (filename == null) {
 			filename = lastRecordingFilename;
 		}
-	
+
 		try {
 			playback = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filename)));
-		    while (true) {
-		          Message msg = (Message) playback.readObject();
-		          if (msg.name.startsWith("BORG"))
-		          {
-		        	  msg.name = Runtime.getInstance().getName();
-		          }
-		          outbox.add(msg);
-		    }
+			while (true) {
+				Message msg = (Message) playback.readObject();
+				if (msg.name.startsWith("BORG")) {
+					msg.name = Runtime.getInstance().getName();
+				}
+				outbox.add(msg);
+			}
 		} catch (Exception e) {
 			logException(e);
 		}
@@ -1277,6 +1252,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * boxing - the right way - thank you Java 5
+	 * 
 	 * @param name
 	 * @param method
 	 * @param data
@@ -1284,58 +1260,55 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public void send(String name, String method, Object... data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
-		// All methods which are invoked will 
+		// All methods which are invoked will
 		// get the correct sendingMethod
 		// here its hardcoded
-		msg.sendingMethod="send"; 
+		msg.sendingMethod = "send";
 
-		if (isRecording)
-		{
+		if (isRecording) {
 			try {
-				
+
 				/*
-				recording.writeObject(msg);
-				recordingXML.write(String.format("<Message name=\"%s\" method=\"%s\" sender=\"%s\" sendingMethod=\"%s\" ",
-				msg.name, msg.method, msg.sender, msg.sendingMethod).getBytes());
-				if (data != null)
-				{
-					recordingXML.write("><data>".getBytes());
-					for (int i = 0; i < data.length; ++i)
-					{
-						recordingXML.write(String.format("<param%s type=\"%s\" data=\"%s\" />", i, data[i].getClass().getCanonicalName(), data[i].toString()).getBytes());
-					}
-					recordingXML.write("</data></Message>\n".getBytes());
-				} else {
-					recordingXML.write("/>\n".getBytes());
-				}
-				*/
-				
+				 * recording.writeObject(msg); recordingXML.write(String.format(
+				 * "<Message name=\"%s\" method=\"%s\" sender=\"%s\" sendingMethod=\"%s\" "
+				 * , msg.name, msg.method, msg.sender,
+				 * msg.sendingMethod).getBytes()); if (data != null) {
+				 * recordingXML.write("><data>".getBytes()); for (int i = 0; i <
+				 * data.length; ++i) { recordingXML.write(String.format(
+				 * "<param%s type=\"%s\" data=\"%s\" />", i,
+				 * data[i].getClass().getCanonicalName(),
+				 * data[i].toString()).getBytes()); }
+				 * recordingXML.write("</data></Message>\n".getBytes()); } else
+				 * { recordingXML.write("/>\n".getBytes()); }
+				 */
+
 				// python
-				String msgName = (msg.name.equals(Runtime.getInstance().getName()))?"runtime":msg.name;
+				String msgName = (msg.name.equals(Runtime.getInstance().getName())) ? "runtime" : msg.name;
 				recordingPython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
-				if (data != null)
-				{
-					for (int i = 0; i < data.length; ++i)
-					{
+				if (data != null) {
+					for (int i = 0; i < data.length; ++i) {
 						Object d = data[i];
-						if (d.getClass() == Integer.class || d.getClass() == Float.class || d.getClass() == Boolean.class || d.getClass() == Double.class ||  d.getClass() == Short.class ||  d.getClass() == Short.class)
-						{
+						if (d.getClass() == Integer.class || d.getClass() == Float.class || d.getClass() == Boolean.class || d.getClass() == Double.class
+								|| d.getClass() == Short.class || d.getClass() == Short.class) {
 							recordingPython.write(d.toString().getBytes());
-							
-						} else if (d.getClass() == String.class || d.getClass() == Character.class) { //FIXME Character probably blows up
-							recordingPython.write(String.format("\"%s\"",d).getBytes());							
+
+						} else if (d.getClass() == String.class || d.getClass() == Character.class) { // FIXME
+																										// Character
+																										// probably
+																										// blows
+																										// up
+							recordingPython.write(String.format("\"%s\"", d).getBytes());
 						} else {
 							recordingPython.write("object".getBytes());
 						}
-						if (i < data.length-1)
-						{
+						if (i < data.length - 1) {
 							recordingPython.write(",".getBytes());
 						}
 					}
-				} 
+				}
 				recordingPython.write(")\n".getBytes());
 				recordingPython.flush();
-				
+
 			} catch (IOException e) {
 				logException(e);
 			}
@@ -1344,9 +1317,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	// BOXING - End --------------------------------------
-	public Object sendBlocking(String name, String method) {		
+	public Object sendBlocking(String name, String method) {
 		return sendBlocking(name, method, null);
 	}
+
 	/**
 	 * 
 	 * @param name
@@ -1378,7 +1352,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		return returnContainer[0];
 	}
-	
+
 	public Object sendBlockingWithTimeout(Integer timeout, String name, String method, Object[] data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
@@ -1436,15 +1410,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Date d = new Date();
 
-
 		if (msg.msgID == null) {
-			msg.msgID = TSFormatter.format(d); // FIXME - wouldn't long timestamp be better ? System.currentTimeMillis()
+			msg.msgID = TSFormatter.format(d); // FIXME - wouldn't long
+												// timestamp be better ?
+												// System.currentTimeMillis()
 		}
 		if (name != null) {
 			msg.name = name; // destination instance name
 		}
 		msg.sender = this.getName();
-		msg.timeStamp = TSFormatter.format(d); // FIXME - wouldn't long timestamp be better ? System.currentTimeMillis()
+		msg.timeStamp = TSFormatter.format(d); // FIXME - wouldn't long
+												// timestamp be better ?
+												// System.currentTimeMillis()
 		msg.data = data;
 		msg.method = method;
 
@@ -1547,16 +1524,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param params
 	 * @return
 	 */
-	public static String getMethodToolTip (String className, String methodName, Class<?>[] params)
-	{
+	public static String getMethodToolTip(String className, String methodName, Class<?>[] params) {
 		Class<?> c;
 		Method m;
 		ToolTip tip = null;
 		try {
 			c = Class.forName(className);
-	
+
 			m = c.getMethod(methodName, params);
-	
+
 			tip = m.getAnnotation(ToolTip.class);
 		} catch (SecurityException e) {
 			logException(e);
@@ -1567,22 +1543,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			logException(e);
 		}
 
-		if (tip == null)
-		{
+		if (tip == null) {
 			return null;
 		}
 		return tip.value();
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public CommunicationInterface getComm()
-	{
+	public CommunicationInterface getComm() {
 		return cm;
 	}
-	
+
 	/**
 	 * 
 	 * @param e
@@ -1594,13 +1568,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-		}
-		catch(Exception e2) {
+		} catch (Exception e2) {
 			return "bad stackToString";
 		}
 		return "------\r\n" + sw.toString() + "------\r\n";
-	 }
-	 
+	}
+
 	/**
 	 * 
 	 * @param e
@@ -1608,9 +1581,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public final static void logException(final Throwable e) {
 		log.error(stackToString(e));
 	}
-	
+
 	/**
-	 * copyShallowFrom is used to help maintain state information with 
+	 * copyShallowFrom is used to help maintain state information with
 	 */
 	public static Object copyShallowFrom(Object target, Object source) {
 		if (target == source) { // data is myself - operating on local copy
@@ -1624,39 +1597,29 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			try {
 				Field f = fields[j];
 
-				if (!(Modifier.isPublic(f.getModifiers())
-						&& !(f.getName().equals("log"))
-						&& !Modifier.isTransient(f.getModifiers()))) {
+				if (!(Modifier.isPublic(f.getModifiers()) && !(f.getName().equals("log")) && !Modifier.isTransient(f.getModifiers()))) {
 					log.debug(String.format("skipping %1$s", f.getName()));
 					continue;
 				}
 				Type t = f.getType();
-				
+
 				log.info(String.format("setting %1$s", f.getName()));
 				if (t.equals(java.lang.Boolean.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setBoolean(
-							target, f.getBoolean(source));
+					targetClass.getDeclaredField(f.getName()).setBoolean(target, f.getBoolean(source));
 				} else if (t.equals(java.lang.Character.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setChar(
-							target, f.getChar(source));
+					targetClass.getDeclaredField(f.getName()).setChar(target, f.getChar(source));
 				} else if (t.equals(java.lang.Byte.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setByte(
-							target, f.getByte(source));
+					targetClass.getDeclaredField(f.getName()).setByte(target, f.getByte(source));
 				} else if (t.equals(java.lang.Short.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setShort(
-							target, f.getShort(source));
+					targetClass.getDeclaredField(f.getName()).setShort(target, f.getShort(source));
 				} else if (t.equals(java.lang.Integer.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setInt(
-							target, f.getInt(source));
+					targetClass.getDeclaredField(f.getName()).setInt(target, f.getInt(source));
 				} else if (t.equals(java.lang.Long.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setLong(
-							target, f.getLong(source));
+					targetClass.getDeclaredField(f.getName()).setLong(target, f.getLong(source));
 				} else if (t.equals(java.lang.Float.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setFloat(
-							target, f.getFloat(source));
+					targetClass.getDeclaredField(f.getName()).setFloat(target, f.getFloat(source));
 				} else if (t.equals(java.lang.Double.TYPE)) {
-					targetClass.getDeclaredField(f.getName()).setDouble(
-							target, f.getDouble(source));
+					targetClass.getDeclaredField(f.getName()).setDouble(target, f.getDouble(source));
 				} else {
 					log.info(String.format("setting reference to remote object %1$s", f.getName()));
 					targetClass.getDeclaredField(f.getName()).set(target, f.get(source));
@@ -1684,37 +1647,42 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param port
 	 * @param msg
 	 */
-	public  void registerServices(String hostAddress, int port, Message msg) 
-	{
-		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceDirectoryUpdate))
-		{
+	public void registerServices(String hostAddress, int port, Message msg) {
+		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceDirectoryUpdate)) {
 			return;
 		}
 		try {
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
 			// TODO allow for SSL connections
-			StringBuffer sb = new StringBuffer()
-            	.append("tcp://")     // FIXME - assumption you know what protocol this going out on                                            
-            	.append(hostAddress)  // FIXME - the remoteURL - should not be used ! it should be contructed at the protocol level
-            	.append(":")
-            	.append(port);
-            sdu.remoteURL = new URI(sb.toString());
+			StringBuffer sb = new StringBuffer().append("tcp://") // FIXME -
+																	// assumption
+																	// you know
+																	// what
+																	// protocol
+																	// this
+																	// going out
+																	// on
+					.append(hostAddress) // FIXME - the remoteURL - should not
+											// be used ! it should be contructed
+											// at the protocol level
+					.append(":").append(port);
+			sdu.remoteURL = new URI(sb.toString());
 
 			sdu.url = url;
-			
-			sdu.serviceEnvironment.accessURL = sdu.remoteURL;			
+
+			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
 			log.info(String.format("%1$s recieved service directory update from %2$s", name, sdu.remoteURL));
 
-			if (!Runtime.register(sdu.remoteURL, sdu.serviceEnvironment))
-			{
+			if (!Runtime.register(sdu.remoteURL, sdu.serviceEnvironment)) {
 				return;
 			}
-			// if successfully registered with "new" Services - echo a registration back
+			// if successfully registered with "new" Services - echo a
+			// registration back
 			ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
 			echoLocal.remoteURL = sdu.url;
 			echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
 			// send echo of local services back to sender
-			send (msg.sender, "registerServices", echoLocal); 
+			send(msg.sender, "registerServices", echoLocal);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logException(e);
@@ -1759,13 +1727,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				paramTypes = m.getParameterTypes();
 				returnType = m.getReturnType();
 
-				if (!hideMethods.containsKey(m.getName()))
-				{
+				if (!hideMethods.containsKey(m.getName())) {
 					// service level
 					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
 				}
 			}
-			
+
 			Class<?>[] interfaces = c.getInterfaces();
 			Class<?> interfc;
 			for (int i = 0; i < interfaces.length; ++i) {
@@ -1773,8 +1740,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 				log.info(String.format("adding interface %1$s", interfc.getCanonicalName()));
 
-				hostcfg.setInterface(host, name, interfc.getClass()
-						.getCanonicalName());
+				hostcfg.setInterface(host, name, interfc.getClass().getCanonicalName());
 			}
 
 			Type[] intfs = c.getGenericInterfaces();
@@ -1797,75 +1763,66 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * register services with a remote system FIXME - change to register - with
 	 * full signature
 	 */
-	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, 
-			int port, ServiceDirectoryUpdate sdu) {
-        try {
+	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, int port, ServiceDirectoryUpdate sdu) {
+		try {
 			log.info(name + " sendServiceDirectoryUpdate ");
 			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
-			StringBuffer urlstr = new StringBuffer()
-				.append("tcp://");
-			
+			StringBuffer urlstr = new StringBuffer().append("tcp://");
+
 			if (login != null) {
-				urlstr.append(login)
-					.append(":");
+				urlstr.append(login).append(":");
 			}
-			
+
 			if (password != null) {
-				urlstr.append(password)
-					.append("@");
+				urlstr.append(password).append("@");
 			}
-			
+
 			InetAddress inetAddress = null;
 			// InetAddress.getByName("208.29.194.106");
 			inetAddress = InetAddress.getByName(remoteHost);
-			
-			urlstr.append(inetAddress.getHostAddress())
-				.append(":")
-				.append(port);
-			
+
+			urlstr.append(inetAddress.getHostAddress()).append(":").append(port);
+
 			URI remoteURL = null;
 			remoteURL = new URI(urlstr.toString());
-			
-			//if (sdu == null) { bug
-			        sdu = new ServiceDirectoryUpdate();
-			        sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
-			//}
-			
+
+			// if (sdu == null) { bug
+			sdu = new ServiceDirectoryUpdate();
+			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
+			// }
+
 			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
 			sdu.url = url;
-			
+
 			send(remoteURL, "registerServices", sdu);
-        } catch (Exception e) {
-                logException(e);
-        }
+		} catch (Exception e) {
+			logException(e);
+		}
 	}
 
 	// new state functions begin --------------------------
 	/**
 	 * 
 	 */
-	public void broadcastState()
-	{
+	public void broadcastState() {
 		invoke("publishState");
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public Service publishState()
-	{
+	public Service publishState() {
 		return this;
 	}
-	
+
 	/**
 	 * 
 	 * @param s
 	 * @return
 	 */
-	public Service setState(Service s)
-	{
-		return (Service)copyShallowFrom(this, s);
+	public Service setState(Service s) {
+		return (Service) copyShallowFrom(this, s);
 	}
 
 	// ---------------- logging begin ---------------------------
@@ -1875,17 +1832,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param level
 	 *            DEBUG | INFO | WARN | ERROR | FATAL
 	 */
-	public final static void setLogLevel(LogLevel level)
-	{
+	public final static void setLogLevel(LogLevel level) {
 		setLogLevel(null, level);
 	}
-	
+
 	/**
 	 * @param level
 	 *            string input controls logging level
 	 */
-	public final static void setLogLevel(String object, LogLevel level)
-	{
+	public final static void setLogLevel(String object, LogLevel level) {
 		log.debug(String.format("setLogLevel %1$s %2$s", object, level));
 		Logger logger;
 		if (object == null || object.length() == 0) {
@@ -1901,31 +1856,25 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param object
 	 * @return
 	 */
-	public static LogLevel getLogLevel(String object)
-	{
+	public static LogLevel getLogLevel(String object) {
 		Logger logger;
 		if (object == null || object.length() == 0) {
 			logger = Logger.getRootLogger();
 		} else {
 			logger = Logger.getLogger(object);
 		}
-	
+
 		Level logLevel = logger.getLevel();
-		if (logLevel == Level.INFO)
-		{
+		if (logLevel == Level.INFO) {
 			return LogLevel.Info;
-		} else if (logLevel == Level.WARN)
-		{
-			return LogLevel.Warn;			
-		} else if (logLevel == Level.ERROR)
-		{
-			return LogLevel.Error;			
-		} else if (logLevel == Level.FATAL)
-		{
-			return LogLevel.Fatal;			
-		} else if (logLevel == Level.DEBUG)
-		{
-			return LogLevel.Debug;			
+		} else if (logLevel == Level.WARN) {
+			return LogLevel.Warn;
+		} else if (logLevel == Level.ERROR) {
+			return LogLevel.Error;
+		} else if (logLevel == Level.FATAL) {
+			return LogLevel.Fatal;
+		} else if (logLevel == Level.DEBUG) {
+			return LogLevel.Debug;
 		}
 
 		return null;
@@ -1939,58 +1888,54 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param level
 	 *            DEBUG | INFO | WARN | ERROR | FATAL
 	 */
-	public void setMyLogLevel(LogLevel level){
+	public void setMyLogLevel(LogLevel level) {
 		Logger logger = Logger.getLogger(this.getClass().toString());
 		setLoggerLevel(logger, level);
 	}
-	
+
 	/**
 	 * 
 	 * @param type
 	 */
-	public static void addAppender(LogAppender type)
-	{
+	public static void addAppender(LogAppender type) {
 		addAppender(type, null, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param type
 	 * @param host
 	 * @param port
 	 */
-	public static void addAppender(LogAppender type, String host, String port)
-	{
+	public static void addAppender(LogAppender type, String host, String port) {
 		// same format as BasicConfigurator.configure()
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		Appender appender = null;
 
-		// TODO the type should be an enumeration so that we can make this a switch statement (unless Python dependencies don't allow for it)
+		// TODO the type should be an enumeration so that we can make this a
+		// switch statement (unless Python dependencies don't allow for it)
 		try {
 			switch (type) {
-				case Console:
-					appender = new ConsoleAppender(layout);
-					appender.setName(LogAppender.Console.toString());
-					break;
-				case ConsoleGui:
-					// FIXME must be done by a GUI
-					//appender = new SocketAppender(host, Integer.parseInt(port));
-					//appender.setName(LogAppender.Remote);
-					break;
-				case Remote:			
-					appender = new SocketAppender(host, Integer.parseInt(port));
-					appender.setName(LogAppender.Remote.toString());
-					break;
-				case File:
-					appender = new RollingFileAppender(
-							layout,
-							String.format("%1$s%2$smyrobotlab.log", System.getProperty("user.dir"), File.separator),
-							false);
-					appender.setName(LogAppender.File.toString());
-					break;
-				default:
-					log.error(String.format("attempting to add unkown type of Appender %1$s", type));
-					return;
+			case Console:
+				appender = new ConsoleAppender(layout);
+				appender.setName(LogAppender.Console.toString());
+				break;
+			case ConsoleGui:
+				// FIXME must be done by a GUI
+				// appender = new SocketAppender(host, Integer.parseInt(port));
+				// appender.setName(LogAppender.Remote);
+				break;
+			case Remote:
+				appender = new SocketAppender(host, Integer.parseInt(port));
+				appender.setName(LogAppender.Remote.toString());
+				break;
+			case File:
+				appender = new RollingFileAppender(layout, String.format("%1$s%2$smyrobotlab.log", System.getProperty("user.dir"), File.separator), false);
+				appender.setName(LogAppender.File.toString());
+				break;
+			default:
+				log.error(String.format("attempting to add unkown type of Appender %1$s", type));
+				return;
 			}
 		} catch (Exception e) {
 			System.out.println(Service.stackToString(e));
@@ -2005,21 +1950,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @param name
 	 */
-	public static void remoteAppender(LogAppender name)
-	{
+	public static void remoteAppender(LogAppender name) {
 		Logger.getRootLogger().removeAppender(name.toString());
 	}
-	
+
 	/**
 	 * 
 	 */
-	public static void removeAllAppenders()
-	{
+	public static void removeAllAppenders() {
 		Logger.getRootLogger().removeAllAppenders();
 	}
 
@@ -2028,148 +1971,136 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public String getShortTypeName() {
 		String serviceClassName = this.getClass().getCanonicalName();
-		return serviceClassName.substring(serviceClassName.lastIndexOf(".")+1);
+		return serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
 	}
+
 	public String getTypeName() {
 		return this.getClass().getCanonicalName();
 	}
-	
-	// ----------------  logging end ---------------------------
+
+	// ---------------- logging end ---------------------------
 
 	/**
 	 * 
 	 * @return
 	 */
-	public static String getCFGDir()
-	{
+	public static String getCFGDir() {
 		return cfgDir;
 	}
-	
+
 	/**
 	 * 
 	 */
-	public Set<String> getNotifyListKeySet()
-	{
+	public Set<String> getNotifyListKeySet() {
 		return getOutbox().notifyList.keySet();
 	}
-	
+
 	/**
 	 * 
 	 */
-	public ArrayList<MRLListener> getNotifyList(String key)
-	{
+	public ArrayList<MRLListener> getNotifyList(String key) {
 		// TODO refactor Outbox inteface
 		return getOutbox().notifyList.get(key);
 	}
-	
+
 	/**
-	 * a default way to attach Services to other Services
-	 * An example would be attaching a Motor to a MotorControl
-	 * or a Speaking service (TTS) to a Listening service (STT) such that
-	 * when the system is speaking it does not try to listen & act on its own
-	 * speech (feedback loop)
+	 * a default way to attach Services to other Services An example would be
+	 * attaching a Motor to a MotorControl or a Speaking service (TTS) to a
+	 * Listening service (STT) such that when the system is speaking it does not
+	 * try to listen & act on its own speech (feedback loop)
 	 * 
-	 * FIXME - the GUIService currently has attachGUI() and detachGUI() - 
-	 * these are to bind Services with their swing views/tab panels.  It should
-	 * be generalized to this attach method
+	 * FIXME - the GUIService currently has attachGUI() and detachGUI() - these
+	 * are to bind Services with their swing views/tab panels. It should be
+	 * generalized to this attach method
 	 * 
 	 * @param serviceName
 	 * @return if successful
 	 * 
 	 */
 	/*
-	public boolean attach (String serviceName)
-	{
-		log.warn(String.format("don't know how to attach to service %s", serviceName));
-		return false;
-	}
-	*/
-	
+	 * public boolean attach (String serviceName) {
+	 * log.warn(String.format("don't know how to attach to service %s",
+	 * serviceName)); return false; }
+	 */
+
 	/**
-	 * Helper method to translate between our LogLevel enumeration
-	 * and what the logging system (Log4j at this point) uses.
+	 * Helper method to translate between our LogLevel enumeration and what the
+	 * logging system (Log4j at this point) uses.
 	 * 
 	 * @param logger
 	 * @param level
 	 */
 	private static void setLoggerLevel(Logger logger, LogLevel level) {
 		switch (level) {
-			case Info:
-				logger.setLevel(Level.INFO);
-				break;
-			case Warn:
-				logger.setLevel(Level.WARN);
-				break;
-			case Error:
-				logger.setLevel(Level.ERROR);
-				break;
-			case Fatal:
-				logger.setLevel(Level.FATAL);
-				break;
-			default:
-				logger.setLevel(Level.DEBUG);
-				break;
+		case Info:
+			logger.setLevel(Level.INFO);
+			break;
+		case Warn:
+			logger.setLevel(Level.WARN);
+			break;
+		case Error:
+			logger.setLevel(Level.ERROR);
+			break;
+		case Fatal:
+			logger.setLevel(Level.FATAL);
+			break;
+		default:
+			logger.setLevel(Level.DEBUG);
+			break;
 		}
-	}	
-	
-	public String getServiceResourceFile(String subpath)
-	{
-		return FileIO.getResourceFile(String.format("%s/%s",this.getShortTypeName(), subpath));
 	}
-	
+
+	public String getServiceResourceFile(String subpath) {
+		return FileIO.getResourceFile(String.format("%s/%s", this.getShortTypeName(), subpath));
+	}
+
 	/**
-	 * called typically from a remote system
-	 * When 2 MRL instances are connected they contain serialized non running Service in a registry, 
-	 * which is maintained by the Runtime.  The data can be stale.
+	 * called typically from a remote system When 2 MRL instances are connected
+	 * they contain serialized non running Service in a registry, which is
+	 * maintained by the Runtime. The data can be stale.
 	 * 
-	 * Messages are sometimes sent (often in the gui) which prompt the remote service to "broadcastState"
-	 * a new serialized snapshot is broadcast to all subscribed methods, but there is no guarantee that the
-	 * registry is updated
+	 * Messages are sometimes sent (often in the gui) which prompt the remote
+	 * service to "broadcastState" a new serialized snapshot is broadcast to all
+	 * subscribed methods, but there is no guarantee that the registry is
+	 * updated
 	 * 
-	 * This method will update the registry, additionally it will block until the refresh response comes back
+	 * This method will update the registry, additionally it will block until
+	 * the refresh response comes back
 	 * 
 	 * @return
 	 */
 	/*
-	public Service updateState(String serviceName)
-	{
-		sendBlocking(serviceName, "broadcastState", null);
-		ServiceWrapper sw = Runtime.getService(serviceName);
-		if (sw == null)
-		{
-			log.error(String.format("service wrapper came back null for %s", serviceName));
-			return null;
-		}
-		
-		return (Service)sw.get();
-	}
-	*/
-	public Heartbeat echoHeartbeat(Heartbeat pulse)
-	{
+	 * public Service updateState(String serviceName) {
+	 * sendBlocking(serviceName, "broadcastState", null); ServiceWrapper sw =
+	 * Runtime.getService(serviceName); if (sw == null) {
+	 * log.error(String.format("service wrapper came back null for %s",
+	 * serviceName)); return null; }
+	 * 
+	 * return (Service)sw.get(); }
+	 */
+	public Heartbeat echoHeartbeat(Heartbeat pulse) {
 		return pulse;
 	}
-	
-	public void startHeartbeat()
-	{
-		//getComm().
+
+	public void startHeartbeat() {
+		// getComm().
 	}
-	
-	public void stopHeartbeat()
-	{
-		
+
+	public void stopHeartbeat() {
+
 	}
-	
+
 	/**
-	 * This method is a rounting method used to attach service to other services - the implementation
-	 * of this method depends on what needs to be done in order to attach one service to another
+	 * This method is a rounting method used to attach service to other services
+	 * - the implementation of this method depends on what needs to be done in
+	 * order to attach one service to another
 	 * 
 	 * @param name
 	 * @param data
 	 * @return
 	 */
-	public boolean attach (String name, Object... data)
-	{
+	public boolean attach(String name, Object... data) {
 		return false;
 	}
-	
+
 }

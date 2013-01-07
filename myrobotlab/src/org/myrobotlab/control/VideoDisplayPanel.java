@@ -23,13 +23,12 @@ import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
 
 // TODO - too big for inner class
-public class VideoDisplayPanel implements ActionListener
-{
+public class VideoDisplayPanel implements ActionListener {
 	public final static Logger log = Logger.getLogger(VideoDisplayPanel.class.getCanonicalName());
 
 	VideoWidget parent;
 	String boundFilterName;
-	
+
 	public final String boundServiceName;
 	final GUI myService;
 
@@ -49,9 +48,9 @@ public class VideoDisplayPanel implements ActionListener
 	public ImageIcon lastIcon = new ImageIcon();
 	public ImageIcon myIcon = new ImageIcon();
 	public VideoMouseListener vml = new VideoMouseListener();
-	
+
 	public int lastImageWidth = 0;
-	
+
 	public class VideoMouseListener implements MouseListener {
 
 		@Override
@@ -60,11 +59,14 @@ public class VideoDisplayPanel implements ActionListener
 			Object[] params = new Object[2];
 			params[0] = e.getX();
 			params[1] = e.getY();
-			
-			//d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not OpenCV specific
-			//myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", d); 
-			myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", params); 
-			//myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", e.getX(), e.getY()); 
+
+			// d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not
+			// OpenCV specific
+			// myService.send(boundServiceName, "invokeFilterMethod",
+			// sourceNameLabel.getText(), "samplePoint", d);
+			myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", params);
+			// myService.send(boundServiceName, "invokeFilterMethod",
+			// sourceNameLabel.getText(), "samplePoint", e.getX(), e.getY());
 		}
 
 		@Override
@@ -90,25 +92,20 @@ public class VideoDisplayPanel implements ActionListener
 
 	}
 
-
-	VideoDisplayPanel(String boundFilterName, VideoWidget p, GUI myService, String boundServiceName)
-	{
+	VideoDisplayPanel(String boundFilterName, VideoWidget p, GUI myService, String boundServiceName) {
 		this(boundFilterName, p, myService, boundServiceName, null);
 	}
 
-	
-	VideoDisplayPanel(String boundFilterName, VideoWidget parent, GUI myService, String boundServiceName, ImageIcon icon)
-	{
+	VideoDisplayPanel(String boundFilterName, VideoWidget parent, GUI myService, String boundServiceName, ImageIcon icon) {
 		this.myService = myService;
 		this.boundServiceName = boundServiceName;
 		this.parent = parent;
 		this.boundFilterName = boundFilterName;
-		
+
 		myDisplay.setLayout(new BorderLayout());
-		
-		if (icon == null)
-		{
-			screen.setIcon(Util.getResourceIcon("mrl_logo.jpg"));	
+
+		if (icon == null) {
+			screen.setIcon(Util.getResourceIcon("mrl_logo.jpg"));
 		}
 
 		screen.addMouseListener(vml);
@@ -118,15 +115,13 @@ public class VideoDisplayPanel implements ActionListener
 		title = BorderFactory.createTitledBorder(boundServiceName + " " + boundFilterName + " video widget");
 		myDisplay.setBorder(title);
 
-
 		JPanel north = new JPanel();
 		fork.addActionListener(this);
 
-		if (!parent.allowFork)
-		{
+		if (!parent.allowFork) {
 			fork.setVisible(false);
 		}
-		
+
 		sources.setVisible(false);
 		attach.addActionListener(this);
 
@@ -134,66 +129,65 @@ public class VideoDisplayPanel implements ActionListener
 		north.add(fork);
 		north.add(sources);
 		north.add(attach);
-		
+
 		myDisplay.add(BorderLayout.NORTH, north);
 		myDisplay.add(BorderLayout.CENTER, screen);
-		
+
 		JPanel south = new JPanel();
 		// add the sub-text components
 		south.add(mouseInfo);
 		south.add(resolutionInfo);
 		south.add(deltaTime);
-		south.add(sourceNameLabel);		
-		south.add(extraDataLabel);		
-		myDisplay.add(BorderLayout.SOUTH, south);		
-		
+		south.add(sourceNameLabel);
+		south.add(extraDataLabel);
+		myDisplay.add(BorderLayout.SOUTH, south);
+
 	}
-	
+
 	public void displayFrame(SerializableImage img) {
-		
-		/* got new frame - check if a screen exists for it
-		 * or if i'm in single screen mode
+
+		/*
+		 * got new frame - check if a screen exists for it or if i'm in single
+		 * screen mode
 		 * 
 		 * img.source is the name of the bound filter
 		 */
-		if(img.source == null)
-		{
+		if (img.source == null) {
 			img.source = "output";
 		}
-		 
+
 		if (parent.allowFork && !parent.displays.containsKey(img.source)) {
-			parent.addVideoDisplayPanel(img.source);// dynamically spawn a display if a new source is found
+			parent.addVideoDisplayPanel(img.source);// dynamically spawn a
+													// display if a new source
+													// is found
 			getSources();
 		}
 
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
 		}
-		
-		if (!sourceNameLabel.getText().equals(img.source))
-		{
+
+		if (!sourceNameLabel.getText().equals(img.source)) {
 			sourceNameLabel.setText(img.source);
 		}
-		
+
 		myIcon.setImage(img.getImage());
 		screen.setIcon(myIcon);
 		if (lastImage != null) {
-			if (img.timestamp != null)
-				deltaTime.setText(""
-						+ (img.timestamp.getTime() - lastImage.timestamp.getTime()));
+			if (img.timestamp != 0)
+				deltaTime.setText(String.format("%d", img.timestamp - lastImage.timestamp));
 		}
-		
+
 		lastImage = img;
 		lastIcon.setImage(img.getImage());
 
 		if (parent.exports.size() > 0) {
 			for (int i = 0; i < parent.exports.size(); ++i) {
-//				exports.get(i).displayFrame(filterName, img); FIXME
+				// exports.get(i).displayFrame(filterName, img); FIXME
 			}
 		}
-		
-		if (lastImageWidth != img.getImage().getWidth())
-		{
+
+		if (lastImageWidth != img.getImage().getWidth()) {
 			screen.invalidate();
 			myService.pack();
 			lastImageWidth = img.getImage().getWidth();
@@ -204,36 +198,32 @@ public class VideoDisplayPanel implements ActionListener
 
 	}
 
-	public void getSources()
-	{
+	public void getSources() {
 
 		Map<String, VideoDisplayPanel> sortedMap = new TreeMap<String, VideoDisplayPanel>(parent.displays);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		sources.removeAllItems();
-		
+
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			sources.addItem(serviceName);
 		}
 	}
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String id = ((JButton)e.getSource()).getText(); 
+		String id = ((JButton) e.getSource()).getText();
 		if (id.equals("fork")) {
-			String filter = (String)sources.getSelectedItem();
+			String filter = (String) sources.getSelectedItem();
 			parent.addVideoDisplayPanel(filter);
-			myService.send(boundServiceName, "fork", filter); 
+			myService.send(boundServiceName, "fork", filter);
 
 		} else {
 			log.error("unhandled button event - " + id);
 		}
-		
-	}
-	
-	
-} // VideoDisplayPanel
 
+	}
+
+} // VideoDisplayPanel
 

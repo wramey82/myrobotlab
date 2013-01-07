@@ -47,22 +47,19 @@ public class SelectingToggle {
 		JToggleButton toggleButton = new JToggleButton("Selected");
 		ActionListener actionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				AbstractButton abstractButton = (AbstractButton) actionEvent
-						.getSource();
+				AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
 				boolean selected = abstractButton.getModel().isSelected();
 				System.out.println("Action - selected=" + selected + "\n");
 			}
 		};
 		ChangeListener changeListener = new ChangeListener() {
 			public void stateChanged(ChangeEvent changeEvent) {
-				AbstractButton abstractButton = (AbstractButton) changeEvent
-						.getSource();
+				AbstractButton abstractButton = (AbstractButton) changeEvent.getSource();
 				ButtonModel buttonModel = abstractButton.getModel();
 				boolean armed = buttonModel.isArmed();
 				boolean pressed = buttonModel.isPressed();
 				boolean selected = buttonModel.isSelected();
-				System.out.println("Changed: " + armed + "/" + pressed + "/"
-						+ selected);
+				System.out.println("Changed: " + armed + "/" + pressed + "/" + selected);
 			}
 		};
 		ItemListener itemListener = new ItemListener() {

@@ -17,7 +17,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.GUIService;
 
 public class Oscope {
-	
+
 	JPanel display = null;
 	VideoWidget screen = null;
 	Dimension size = new Dimension(320, 512);
@@ -25,31 +25,31 @@ public class Oscope {
 	Graphics g = null;
 
 	HashMap<String, ArrayList<PinComponent>> allPins = new HashMap<String, ArrayList<PinComponent>>();
-	
-	ArrayList<PinComponent> pinList = null; 
+
+	ArrayList<PinComponent> pinList = null;
 	String source = null;
-	
+
 	SerializableImage sensorImage = null;
 
 	String boundServiceName;
 	GUIService myService;
+
 	/*
-	 * source selector - todo
-	 * trigger interface - ???
+	 * source selector - todo trigger interface - ???
 	 */
-	
-	public Oscope(GUIService myService, String boundServiceName)
-	{
+
+	public Oscope(GUIService myService, String boundServiceName) {
 		this.myService = myService;
 		this.boundServiceName = boundServiceName;
 	}
-	
+
 	public void clearScreen() // TODO - static - put in oscope/image package
 	{
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, size.width, size.height); // TODO - ratio - to expand or reduce view
+		g.fillRect(0, 0, size.width, size.height); // TODO - ratio - to expand
+													// or reduce view
 	}
-	
+
 	public void drawGrid() // TODO - static & put in oscope/image package
 	{
 		g.setColor(Color.DARK_GRAY);
@@ -65,22 +65,20 @@ public class Oscope {
 		g.drawString("600", 10, size.height - 300);
 		g.drawLine(0, size.height - 400, size.width - 1, size.height - 400);
 		g.drawString("800", 10, size.height - 400);
-		
+
 	}
 
-	public Color getColor(int pos)
-	{
+	public Color getColor(int pos) {
 		if (pinList == null)
 			return null;
-		
-		float gradient = 1.0f/pinList.size();
-		Color hsv =  new Color(Color.HSBtoRGB((pos * (gradient)),  0.8f, 0.7f));
+
+		float gradient = 1.0f / pinList.size();
+		Color hsv = new Color(Color.HSBtoRGB((pos * (gradient)), 0.8f, 0.7f));
 		return hsv;
 	}
-	
-	public JPanel getOscopePanel()
-	{
-	
+
+	public JPanel getOscopePanel() {
+
 		display = new JPanel(new BorderLayout());
 		GridBagConstraints opgc = new GridBagConstraints();
 
@@ -89,14 +87,12 @@ public class Oscope {
 		opgc.fill = GridBagConstraints.HORIZONTAL;
 		opgc.gridx = 0;
 		opgc.gridy = 0;
-		float gradient = 1.0f/pinList.size();
-		
-		
+		float gradient = 1.0f / pinList.size();
+
 		// pinList.size() mega 60 deuo 20
 		for (int i = 0; i < pinList.size(); ++i) {
 			PinComponent p = pinList.get(i);
-			if (!p.isAnalog) 
-			{ // digital pins -----------------
+			if (!p.isAnalog) { // digital pins -----------------
 				p.trace.setText("D " + (i));
 				p.trace.onText = "D " + (i);
 				p.trace.offText = "D " + (i);
@@ -107,17 +103,15 @@ public class Oscope {
 				p.trace.offText = "A " + (i - 14);
 			}
 			tracePanel.add(p.trace, opgc);
-			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)),  0.8f, 0.7f));
+			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)), 0.8f, 0.7f));
 			p.trace.setBackground(hsv);
 			p.trace.offBGColor = hsv;
-			++opgc.gridy; 
-			if (opgc.gridy%20 == 0)
-			{
+			++opgc.gridy;
+			if (opgc.gridy % 20 == 0) {
 				opgc.gridy = 0;
 				++opgc.gridx;
 			}
 		}
-
 
 		screen = new VideoWidget(boundServiceName, myService, false);
 		screen.init();
@@ -129,10 +123,9 @@ public class Oscope {
 		++opgc.gridx;
 		display.add(screen.display, opgc);
 
-		
 		JFrame top = myService.getFrame();
 		myService.getFrame().pack();
-		
+
 		return display;
 	}
 

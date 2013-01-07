@@ -6,12 +6,12 @@ package org.myrobotlab.memory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-
 /**
- * Implementation of the Cache interface that stores information in local memory.
+ * Implementation of the Cache interface that stores information in local
+ * memory.
  * 
  * @author SwedaKonsult
- *
+ * 
  */
 public class LocalCache extends BaseCache {
 	/**
@@ -30,21 +30,26 @@ public class LocalCache extends BaseCache {
 	private final long timeout;
 	private long nextTimeout;
 	private final boolean useTimeout;
-	
+
 	/**
 	 * Constructor.
-     * @param initialCapacity the initial capacity. The implementation
-     * performs internal sizing to accommodate this many elements.
-     * @param loadFactor  the load factor threshold, used to control resizing.
-     * Resizing may be performed when the average number of elements per
-     * bin exceeds this threshold.
-     * @param concurrencyLevel the estimated number of concurrently
-     * updating threads. The implementation performs internal sizing
-     * to try to accommodate this many threads.
-     * @param the amount of time in ms after which an item should time out.
-     * @throws IllegalArgumentException if the initial capacity is
-     * negative or the load factor or concurrencyLevel are
-     * non-positive.
+	 * 
+	 * @param initialCapacity
+	 *            the initial capacity. The implementation performs internal
+	 *            sizing to accommodate this many elements.
+	 * @param loadFactor
+	 *            the load factor threshold, used to control resizing. Resizing
+	 *            may be performed when the average number of elements per bin
+	 *            exceeds this threshold.
+	 * @param concurrencyLevel
+	 *            the estimated number of concurrently updating threads. The
+	 *            implementation performs internal sizing to try to accommodate
+	 *            this many threads.
+	 * @param the
+	 *            amount of time in ms after which an item should time out.
+	 * @throws IllegalArgumentException
+	 *             if the initial capacity is negative or the load factor or
+	 *             concurrencyLevel are non-positive.
 	 */
 	public LocalCache(int initialSize, float loadFactor, int concurrencyLevel, int timeout) {
 		items = new ConcurrentHashMap<String, Object>(initialSize, loadFactor, concurrencyLevel);
@@ -54,23 +59,25 @@ public class LocalCache extends BaseCache {
 		useTimeout = this.timeout > 0l;
 	}
 
-    /**
-     * Constructor. Default load factor (0.75) and concurrencyLevel (16).
-     * Default timeout: 0 (never).
-     *
-     * @param initialCapacity the initial capacity. The implementation
-     * performs internal sizing to accommodate this many elements.
-     * @throws IllegalArgumentException if the initial capacity of
-     * elements is negative.
-     */
-    public LocalCache(int initialCapacity) {
-        this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL, 0);
-    }
+	/**
+	 * Constructor. Default load factor (0.75) and concurrencyLevel (16).
+	 * Default timeout: 0 (never).
+	 * 
+	 * @param initialCapacity
+	 *            the initial capacity. The implementation performs internal
+	 *            sizing to accommodate this many elements.
+	 * @throws IllegalArgumentException
+	 *             if the initial capacity of elements is negative.
+	 */
+	public LocalCache(int initialCapacity) {
+		this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL, 0);
+	}
 
 	@Override
 	protected void addToCache(String name, Object value) {
 		items.put(name, value);
-		// only set a timeout for the item if we want to timeout things in this cache
+		// only set a timeout for the item if we want to timeout things in this
+		// cache
 		if (timeout > 0l) {
 			itemTimeouts.put(name, System.currentTimeMillis() + timeout);
 		}
@@ -130,6 +137,7 @@ public class LocalCache extends BaseCache {
 			// nothing to time out right now
 			return;
 		}
-		// TODO loop through itemTimeouts in order to see if one of them needs to be timed out
+		// TODO loop through itemTimeouts in order to see if one of them needs
+		// to be timed out
 	}
 }

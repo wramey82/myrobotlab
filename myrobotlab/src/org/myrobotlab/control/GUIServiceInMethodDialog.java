@@ -47,32 +47,32 @@ import org.myrobotlab.service.interfaces.GUI;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
 
-public class GUIServiceInMethodDialog extends JDialog  implements ActionListener  {
-	
+public class GUIServiceInMethodDialog extends JDialog implements ActionListener {
+
 	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
-	
+
 	private static final long serialVersionUID = 1L;
 
 	GUI myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
-	
-	GUIServiceInMethodDialog (GUI myService, String title, GUIServiceGraphVertex v)
-	{	super(myService.getFrame(), title, true);
+
+	GUIServiceInMethodDialog(GUI myService, String title, GUIServiceGraphVertex v) {
+		super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;
-	    JFrame parent = myService.getFrame();
-	    if (parent != null) 
-	    {
-		      Dimension parentSize = parent.getSize(); 
-		      Point p = parent.getLocation(); 
-		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
+		JFrame parent = myService.getFrame();
+		if (parent != null) {
+			Dimension parentSize = parent.getSize();
+			Point p = parent.getLocation();
+			setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		}
 
-	    
-		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(Runtime.getMethodMap(v.name));
-		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
-		//HashMap<String, MethodEntry> m = myService.getHostCFG().getMethodMap(serviceName);
-		
+		TreeMap<String, MethodEntry> m = new TreeMap<String, MethodEntry>(Runtime.getMethodMap(v.name));
+		// TreeMap<String,MethodEntry> m = new TreeMap<String,
+		// MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
+		// HashMap<String, MethodEntry> m =
+		// myService.getHostCFG().getMethodMap(serviceName);
+
 		JComboBox combo = new JComboBox();
 		combo.addActionListener(this);
 		Iterator<String> sgi = m.keySet().iterator();
@@ -80,87 +80,91 @@ public class GUIServiceInMethodDialog extends JDialog  implements ActionListener
 		while (sgi.hasNext()) {
 			String methodName = sgi.next();
 			MethodEntry me = m.get(methodName);
-			
+
 			combo.addItem(formatOutMethod(me));
-		}			
-		
+		}
+
 		getContentPane().add(combo, BorderLayout.SOUTH);
-		
-	    pack(); 
-	    setVisible(true);
+
+		pack();
+		setVisible(true);
 
 	}
-	
-	public String formatOutMethod(MethodEntry me)
-	{
+
+	public String formatOutMethod(MethodEntry me) {
 		StringBuffer ret = new StringBuffer();
 		ret.append(me.name);
-		if (me.parameterTypes != null)
-		{
+		if (me.parameterTypes != null) {
 			ret.append(" (");
-			for (int i = 0; i < me.parameterTypes.length; ++i)
-			{
+			for (int i = 0; i < me.parameterTypes.length; ++i) {
 				String p = me.parameterTypes[i].getCanonicalName();
 				String t[] = p.split("\\.");
-				ret.append(t[t.length -1]);
-				if (i < me.parameterTypes.length - 1)
-				{
-					ret.append(","); // TODO - NOT POSSIBLE TO CONNECT IN GUI - FILTER OUT?
+				ret.append(t[t.length - 1]);
+				if (i < me.parameterTypes.length - 1) {
+					ret.append(","); // TODO - NOT POSSIBLE TO CONNECT IN GUI -
+										// FILTER OUT?
 				}
 			}
-			
+
 			ret.append(")");
 		}
-		
+
 		return ret.toString();
 	}
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JComboBox cb = (JComboBox)e.getSource();
-        String method = (String)cb.getSelectedItem();
-        log.error("method is " + method);
-        myService.setDstServiceName(v.name);
-        myService.setPeriod0(".");
-        myService.setDstMethodName(method);
-        
-        log.info(e);
-        
-        //myService.srcMethodName = method.split(regex)
-        //myService.parameterList =
-        
-        // TODO - send addListener !!! 
-        
-        if (method != null && method.length() > 0)
-        {
-	        // clean up methods (TODO - this is bad and should be done correctly - at the source)
-			//listener.getName() = myService.getDstServiceName();
-			//listener.outMethod = myService.getSrcMethodName().split(" ")[0];
-			//listener.inMethod = myService.getDstMethodName().split(" ")[0];
-			MRLListener listener = new MRLListener(myService.getSrcMethodName().split(" ")[0],
-					 myService.getDstServiceName(),
-					 myService.getDstMethodName().split(" ")[0],
-					 null // this is not being filled in - TODO - fix parameter list
-					);
-			
+		JComboBox cb = (JComboBox) e.getSource();
+		String method = (String) cb.getSelectedItem();
+		log.error("method is " + method);
+		myService.setDstServiceName(v.name);
+		myService.setPeriod0(".");
+		myService.setDstMethodName(method);
+
+		log.info(e);
+
+		// myService.srcMethodName = method.split(regex)
+		// myService.parameterList =
+
+		// TODO - send addListener !!!
+
+		if (method != null && method.length() > 0) {
+			// clean up methods (TODO - this is bad and should be done correctly
+			// - at the source)
+			// listener.getName() = myService.getDstServiceName();
+			// listener.outMethod = myService.getSrcMethodName().split(" ")[0];
+			// listener.inMethod = myService.getDstMethodName().split(" ")[0];
+			MRLListener listener = new MRLListener(myService.getSrcMethodName().split(" ")[0], myService.getDstServiceName(), myService.getDstMethodName().split(" ")[0], null // this
+																																												// is
+																																												// not
+																																												// being
+																																												// filled
+																																												// in
+																																												// -
+																																												// TODO
+																																												// -
+																																												// fix
+																																												// parameter
+																																												// list
+			);
+
 			log.error("MRLListener !!! " + listener);
-/*			
-			if (parameterType != null) {
-				listener.paramTypes = new Class[]{parameterType};
-			}
-*/			
+			/*
+			 * if (parameterType != null) { listener.paramTypes = new
+			 * Class[]{parameterType}; }
+			 */
 			// send the notification of new route to the target system
 			String srcService = myService.getSrcServiceName();
 			myService.send(srcService, "addListener", listener);
-			
+
 			mxGraph graph = myService.getGraph();
 			Object parent = graph.getDefaultParent();
 			HashMap<String, mxCell> serviceCells = myService.getCells();
-			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod), serviceCells.get(srcService), serviceCells.get(listener.name));
-			
-	        this.dispose();
-        }
-	}	
+			graph.insertEdge(parent, null, GUIServiceGUI.formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod), serviceCells.get(srcService),
+					serviceCells.get(listener.name));
+
+			this.dispose();
+		}
+	}
 
 }

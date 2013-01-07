@@ -52,7 +52,6 @@ public class TestThrowerGUI extends ServiceGUI {
 	public TestThrowerGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
 
 	public void init() {
 		display.setSize(400, 200);
@@ -66,8 +65,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(boundServiceName, "throwInteger", Integer
-						.parseInt(throwInteger.getText()));
+				myService.send(boundServiceName, "throwInteger", Integer.parseInt(throwInteger.getText()));
 			}
 
 		});
@@ -83,8 +81,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(boundServiceName, "lowPitchInteger", Integer
-						.parseInt(lowPitchInteger.getText()));
+				myService.send(boundServiceName, "lowPitchInteger", Integer.parseInt(lowPitchInteger.getText()));
 			}
 
 		});
@@ -100,8 +97,7 @@ public class TestThrowerGUI extends ServiceGUI {
 		t3.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(boundServiceName, "setNumberOfPitchers", Integer
-						.parseInt(setNumberOfPitchers.getText()));
+				myService.send(boundServiceName, "setNumberOfPitchers", Integer.parseInt(setNumberOfPitchers.getText()));
 			}
 
 		});

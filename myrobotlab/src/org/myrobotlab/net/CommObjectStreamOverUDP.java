@@ -71,12 +71,11 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			super("udp " + url);
 			try {
 				this.url = url;
-				if (socket == null)
-				{
+				if (socket == null) {
 					socket = new DatagramSocket();
-				} 
-				
-				this.socket = socket;				
+				}
+
+				this.socket = socket;
 				this.start();
 			} catch (SocketException e) {
 				Service.logException(e);
@@ -99,14 +98,13 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				out.flush();
 				byte[] buffer = b_out.toByteArray();
 
-				//log.info("send " + msg.getParameterSignature());
+				// log.info("send " + msg.getParameterSignature());
 
 				if (buffer.length > 65535) {
 					log.error("udp datagram can not exceed 65535 msg size is " + buffer.length + " !");
 				}
 
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(url.getHost()),
-						url.getPort());
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(url.getHost()), url.getPort());
 				socket.send(packet);
 
 				out.reset();
@@ -140,8 +138,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 						// client's side -
 						// "I connected to a listener and it replied with registerService"
 						if (msg.method.equals("registerServices")) {
-							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(),
-									msg);
+							myService.invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
 
 							// addClient(socket, dgram.getAddress(),
 							// dgram.getPort());
@@ -204,7 +201,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	public void addClient(URI url, Object commData) {
 		log.info("adding tcp client ");
 
-		UDPThread phone = new UDPThread(url, (DatagramSocket)commData);
+		UDPThread phone = new UDPThread(url, (DatagramSocket) commData);
 		clientList.put(url, phone);
 	}
 
@@ -229,13 +226,13 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	@Override
 	public void startHeartbeat() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void stopHeartbeat() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -244,7 +241,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		for (URI key : clientList.keySet()) {
 			ret.add(key);
 		}
-		
+
 		return ret;
 	}
 

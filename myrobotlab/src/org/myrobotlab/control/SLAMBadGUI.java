@@ -32,31 +32,30 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SLAMBad;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class SLAMBadGUI extends ServiceGUI implements ActionListener{
+public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 
 	SLAMBad mySimbad = null;
-	
+
 	public SLAMBadGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
-        mySimbad = (SLAMBad)Runtime.getServiceWrapper(boundServiceName).service;
+		mySimbad = (SLAMBad) Runtime.getServiceWrapper(boundServiceName).service;
 	}
-	
-	// FIXME - is get/set state interact with Runtime registry ??? 
+
+	// FIXME - is get/set state interact with Runtime registry ???
 	// it probably should
-	public void getState(SLAMBad c)
-	{
+	public void getState(SLAMBad c) {
 	}
 
-
-	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
+	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <-
+	// Class.forName(type)
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", SLAMBad.class); 
+		subscribe("publishState", "getState", SLAMBad.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -68,7 +67,7 @@ public class SLAMBadGUI extends ServiceGUI implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -45,12 +45,10 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-public class GeneticProgrammingGUI extends ServiceGUI implements
-		ListSelectionListener, VideoGUISource {
+public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger
-			.getLogger(GeneticProgrammingGUI.class.toString());
+	public final static Logger log = Logger.getLogger(GeneticProgrammingGUI.class.toString());
 
 	VideoWidget video = null;
 	Graphics g = null;
@@ -78,8 +76,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 	public GeneticProgrammingGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
@@ -182,12 +179,9 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		g.setColor(Color.yellow);
 		for (int i = 0; i < fitnessCases.length; ++i) {
 			if (i != fitnessCases.length - 1) {
-				g.drawLine((int) fitnessCases[i].x, (int) fitnessCases[i].y,
-						(int) fitnessCases[i + 1].x,
-						(int) fitnessCases[i + 1].y);
+				g.drawLine((int) fitnessCases[i].x, (int) fitnessCases[i].y, (int) fitnessCases[i + 1].x, (int) fitnessCases[i + 1].y);
 			} else {
-				g.drawLine((int) fitnessCases[i].x, (int) fitnessCases[i].y,
-						(int) fitnessCases[0].x, (int) fitnessCases[0].y);
+				g.drawLine((int) fitnessCases[i].x, (int) fitnessCases[i].y, (int) fitnessCases[0].x, (int) fitnessCases[0].y);
 			}
 		}
 	}
@@ -215,8 +209,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements
 		}
 	}
 
-	public GPMessageEvaluatingIndividual publishInd(
-			GPMessageEvaluatingIndividual ind) {
+	public GPMessageEvaluatingIndividual publishInd(GPMessageEvaluatingIndividual ind) {
 		// clear screen
 		g.setColor(Color.black);
 		g.fillRect(0, 0, width, height);

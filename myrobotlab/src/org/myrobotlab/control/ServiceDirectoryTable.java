@@ -41,8 +41,7 @@ import org.myrobotlab.framework.ConfigurationManager;
 public class ServiceDirectoryTable extends JPanel {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger
-			.getLogger(ServiceDirectoryTable.class.getCanonicalName()); // @jve:decl-index=0:
+	public final static Logger log = Logger.getLogger(ServiceDirectoryTable.class.getCanonicalName()); // @jve:decl-index=0:
 	JTable serviceTable = null;
 	JButton refresh = null;
 	static ConfigurationManager hostcfg; // @jve:decl-index=0:
@@ -80,12 +79,9 @@ public class ServiceDirectoryTable extends JPanel {
 		// serviceTable = new
 		// JTable(sd.getVectorRows(),sd.getVectorColumnNames());
 		serviceTable = new JTable();
-		String[] columnNamesx = { "hostname", "port", "name", "class",
-				"status", "category", "method", "direction", "lastModified",
-				"dataClass" };
+		String[] columnNamesx = { "hostname", "port", "name", "class", "status", "category", "method", "direction", "lastModified", "dataClass" };
 
-		tableModel = new InteractiveTableModel(columnNamesx, hostcfg
-				.getServiceVector());
+		tableModel = new InteractiveTableModel(columnNamesx, hostcfg.getServiceVector());
 		// TableSorter sortedModel = new TableSorter( normalModel );
 
 		serviceTable.setModel(tableModel);
@@ -101,8 +97,7 @@ public class ServiceDirectoryTable extends JPanel {
 		return refresh;
 	}
 
-	private static class RefreshButton extends JButton implements
-			ActionListener {
+	private static class RefreshButton extends JButton implements ActionListener {
 		ServiceDirectoryTable parent = null;
 		String text = "refresh";
 

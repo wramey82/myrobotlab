@@ -84,8 +84,7 @@ public class AudioCapture extends Service {
 		// true,false
 		boolean bigEndian = false;
 		// true,false
-		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed,
-				bigEndian);
+		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
 	}// end getAudioFormat
 
 	// ===================================//
@@ -95,8 +94,7 @@ public class AudioCapture extends Service {
 			// Get everything set up for
 			// capture
 			audioFormat = getAudioFormat();
-			DataLine.Info dataLineInfo = new DataLine.Info(
-					TargetDataLine.class, audioFormat);
+			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
 			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			targetDataLine.open(audioFormat);
 			targetDataLine.start();
@@ -112,16 +110,14 @@ public class AudioCapture extends Service {
 		}// end catch
 	}// end captureAudio method
 
-	public void stopAudioCapture()
-	{
+	public void stopAudioCapture() {
 		stopCapture = true;
 	}
-	
-	public ByteArrayOutputStream publishCapture()
-	{
+
+	public ByteArrayOutputStream publishCapture() {
 		return byteArrayOutputStream;
 	}
-	
+
 	class CaptureThread extends Thread {
 		// An arbitrary-size temporary holding
 		// buffer
@@ -131,13 +127,12 @@ public class AudioCapture extends Service {
 			byteArrayOutputStream = new ByteArrayOutputStream();
 			stopCapture = false;
 			try {// Loop until stopCapture is set
-				// by another thread that
-				// services the Stop button.
+					// by another thread that
+					// services the Stop button.
 				while (!stopCapture) {
 					// Read data from the internal
 					// buffer of the data line.
-					int cnt = targetDataLine.read(tempBuffer, 0,
-							tempBuffer.length);
+					int cnt = targetDataLine.read(tempBuffer, 0, tempBuffer.length);
 					if (cnt > 0) {
 						// Save data in output stream
 						// object.
@@ -160,8 +155,7 @@ public class AudioCapture extends Service {
 				// Keep looping until the input
 				// read method returns -1 for
 				// empty stream.
-				while ((cnt = audioInputStream.read(tempBuffer, 0,
-						tempBuffer.length)) != -1) {
+				while ((cnt = audioInputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) {
 					if (cnt > 0) {
 						// Write data to the internal
 						// buffer of the data line
@@ -170,9 +164,9 @@ public class AudioCapture extends Service {
 						sourceDataLine.write(tempBuffer, 0, cnt);
 					}// end if
 				}// end while
-				// Block and wait for internal
-				// buffer of the data line to
-				// empty.
+					// Block and wait for internal
+					// buffer of the data line to
+					// empty.
 				sourceDataLine.drain();
 				sourceDataLine.close();
 			} catch (Exception e) {
@@ -181,7 +175,6 @@ public class AudioCapture extends Service {
 		}// end run
 	}// end inner class PlayThread
 
-	
 	// This method plays back the audio
 	// data that has been saved in the
 	// ByteArrayOutputStream
@@ -194,13 +187,10 @@ public class AudioCapture extends Service {
 			byte audioData[] = byteArrayOutputStream.toByteArray();
 			// Get an input stream on the
 			// byte array containing the data
-			InputStream byteArrayInputStream = new ByteArrayInputStream(
-					audioData);
+			InputStream byteArrayInputStream = new ByteArrayInputStream(audioData);
 			AudioFormat audioFormat = getAudioFormat();
-			audioInputStream = new AudioInputStream(byteArrayInputStream,
-					audioFormat, audioData.length / audioFormat.getFrameSize());
-			DataLine.Info dataLineInfo = new DataLine.Info(
-					SourceDataLine.class, audioFormat);
+			audioInputStream = new AudioInputStream(byteArrayInputStream, audioFormat, audioData.length / audioFormat.getFrameSize());
+			DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
 			sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
 			sourceDataLine.open(audioFormat);
 			sourceDataLine.start();
@@ -216,58 +206,46 @@ public class AudioCapture extends Service {
 			log.error(Service.stackToString(e));
 		}// end catch
 	}// end playAudio
-	
-	
+
 	@Override
-	public String getToolTip() {		
+	public String getToolTip() {
 		return "captures and stores audio from microphone";
 	}
 
-	
 	public static void main(String[] args) throws InterruptedException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-			AudioCapture audioIn = new AudioCapture("audioIn");
-			audioIn.startService();
-			audioIn.captureAudio();
-			Thread.sleep(3000);
-			audioIn.stopAudioCapture();
-			audioIn.playAudio();
-			
-			/*
-		    AudioInputStream stream = AudioSystem.getAudioInputStream(new File(
-		        "bump.wav"));
-//		    stream = AudioSystem.getAudioInputStream(new URL(
-		  //      "http://hostname/audiofile"));
 
-		    AudioFormat format = stream.getFormat();
-		    if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
-		      format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format
-		          .getSampleRate(), format.getSampleSizeInBits() * 2, format
-		          .getChannels(), format.getFrameSize() * 2, format.getFrameRate(),
-		          true); // big endian
-		      stream = AudioSystem.getAudioInputStream(format, stream);
-		    }
+		AudioCapture audioIn = new AudioCapture("audioIn");
+		audioIn.startService();
+		audioIn.captureAudio();
+		Thread.sleep(3000);
+		audioIn.stopAudioCapture();
+		audioIn.playAudio();
 
-		    SourceDataLine.Info info = new DataLine.Info(SourceDataLine.class, stream
-		        .getFormat(), ((int) stream.getFrameLength() * format.getFrameSize()));
-		    SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-		    line.open(stream.getFormat());
-		    line.start();
-
-		    int numRead = 0;
-		    byte[] buf = new byte[line.getBufferSize()];
-		    while ((numRead = stream.read(buf, 0, buf.length)) >= 0) {
-		      int offset = 0;
-		      while (offset < numRead) {
-		        offset += line.write(buf, offset, numRead - offset);
-		      }
-		    }
-		    line.drain();
-		    line.stop();
-		  }			
-			 */
+		/*
+		 * AudioInputStream stream = AudioSystem.getAudioInputStream(new File(
+		 * "bump.wav")); // stream = AudioSystem.getAudioInputStream(new URL( //
+		 * "http://hostname/audiofile"));
+		 * 
+		 * AudioFormat format = stream.getFormat(); if (format.getEncoding() !=
+		 * AudioFormat.Encoding.PCM_SIGNED) { format = new
+		 * AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format .getSampleRate(),
+		 * format.getSampleSizeInBits() * 2, format .getChannels(),
+		 * format.getFrameSize() * 2, format.getFrameRate(), true); // big
+		 * endian stream = AudioSystem.getAudioInputStream(format, stream); }
+		 * 
+		 * SourceDataLine.Info info = new DataLine.Info(SourceDataLine.class,
+		 * stream .getFormat(), ((int) stream.getFrameLength() *
+		 * format.getFrameSize())); SourceDataLine line = (SourceDataLine)
+		 * AudioSystem.getLine(info); line.open(stream.getFormat());
+		 * line.start();
+		 * 
+		 * int numRead = 0; byte[] buf = new byte[line.getBufferSize()]; while
+		 * ((numRead = stream.read(buf, 0, buf.length)) >= 0) { int offset = 0;
+		 * while (offset < numRead) { offset += line.write(buf, offset, numRead
+		 * - offset); } } line.drain(); line.stop(); }
+		 */
 	}
-	
+
 }

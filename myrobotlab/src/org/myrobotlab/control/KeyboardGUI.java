@@ -55,8 +55,8 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 
 	JList currentPlayers;
 	JList currentLog;
-	JCheckBox sendStringsCheckBox; 
-	
+	JCheckBox sendStringsCheckBox;
+
 	public boolean sendStrings = false;
 
 	DefaultListModel logModel = new DefaultListModel();
@@ -71,18 +71,18 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 	public KeyboardGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		keyboard = new Keyboard();
-		CheckBoxChange checkBoxChange = new CheckBoxChange(); 
+		CheckBoxChange checkBoxChange = new CheckBoxChange();
 		// build input begin ------------------
 		sendStringsCheckBox = new JCheckBox();
 		sendStringsCheckBox.setName("send strings");
 
 		JButton keyboardButton = new JButton(
 				"<html><body><table><tr><td align=\"center\">click here</td></tr><tr><td align=\"center\">for keyboard</td></tr><tr><td align=\"center\">control.</td></tr></table></body></html>");
-		
+
 		display.add(keyboardButton, gc);
 		keyboardButton.addKeyListener(keyboard);
 
@@ -103,7 +103,7 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		title = BorderFactory.createTitledBorder("key log");
 		logPanel.setBorder(title);
 		logPanel.add(logScrollPane);
-		
+
 		gc.gridx = 0;
 		gc.gridwidth = 3;
 		++gc.gridy;
@@ -112,26 +112,23 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		JScrollPane currentFiltersScrollPane2 = new JScrollPane(currentLog);
 		logPanel.add(currentFiltersScrollPane2);
 
-		sendStringsCheckBox.addChangeListener(checkBoxChange);		
-		
+		sendStringsCheckBox.addChangeListener(checkBoxChange);
+
 	}
 
-	public class CheckBoxChange implements ChangeListener
-	{
+	public class CheckBoxChange implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			JCheckBox t = (JCheckBox) e.getSource();
-			if (t.getModel().isSelected())
-			{
+			if (t.getModel().isSelected()) {
 				sendStrings = true;
 			} else {
-				sendStrings = false;				
+				sendStrings = false;
 			}
 		}
 	}
-	
-	
+
 	public class Keyboard implements KeyListener {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss:SSS");
@@ -140,12 +137,10 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 
 			int code = keyEvent.getKeyCode();
 			String text = KeyEvent.getKeyText(code);
-			
-			if (sendStrings)
-			{
-				//keyBuffer.append(b)
-				if (code == KeyEvent.VK_ENTER)
-				{
+
+			if (sendStrings) {
+				// keyBuffer.append(b)
+				if (code == KeyEvent.VK_ENTER) {
 					myService.send(boundServiceName, "keyCommand", keyBuffer.toString());
 					keyBuffer.setLength(0);
 				} else {
@@ -156,8 +151,7 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 			}
 
 			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
+			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 
@@ -170,7 +164,6 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 	};
-
 
 	public void attachGUI() {
 	}
@@ -189,6 +182,4 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 		logModel.add(0, msg);
 	}
 
-	
-	
 }

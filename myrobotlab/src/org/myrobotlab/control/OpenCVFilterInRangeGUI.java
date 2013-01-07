@@ -44,11 +44,10 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 
 	// TODO - look into binding with CFG - although will only work locally
 
-	
 	JCheckBox useHue = new JCheckBox();
 	JSlider2 hueMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
 	JSlider2 hueMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
-	
+
 	JCheckBox useSaturation = new JCheckBox();
 	JSlider2 satMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
 	JSlider2 satMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
@@ -56,22 +55,19 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 	JCheckBox useValue = new JCheckBox();
 	JSlider2 valMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
 	JSlider2 valMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
-	
-	public class JSlider2 extends JSlider
-	{
+
+	public class JSlider2 extends JSlider {
 		private static final long serialVersionUID = 1L;
 		JLabel value = new JLabel();
 
 		public JSlider2(int vertical, int i, int j, int k) {
-			super (vertical, i, j, k);
+			super(vertical, i, j, k);
 			value.setText("" + k);
 		}
-				
+
 	}
-	
-	
-	public class AdjustSlider implements ChangeListener
-	{
+
+	public class AdjustSlider implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
@@ -85,8 +81,7 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		}
 	}
 
-	public class AdjustCheckBox implements ChangeListener
-	{
+	public class AdjustCheckBox implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
@@ -94,28 +89,26 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 			Object[] params = new Object[3];
 			params[0] = name;
 			params[1] = t.getName();
-			if (t.getModel().isSelected())
-			{
+			if (t.getModel().isSelected()) {
 				params[2] = true;
 			} else {
-				params[2] = false;				
+				params[2] = false;
 			}
 			myGUI.send(boundServiceName, "setFilterCFG", params);
 		}
 	}
-	
+
 	AdjustSlider change = new AdjustSlider();
 	AdjustCheckBox checkBoxChange = new AdjustCheckBox();
-	
+
 	OpenCVFilterInRange myFilter = null;
-	
-	public OpenCVFilterInRangeGUI(String boundFilterName,
-			String boundServiceName, GUIService myService) {
+
+	public OpenCVFilterInRangeGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
-		//myFilter = (OpenCVFilterInRange) myOpenCVFilter;
-		//myFilter.useHue = true;
-		
-		hueMin.setName("hueMin"); 
+		// myFilter = (OpenCVFilterInRange) myOpenCVFilter;
+		// myFilter.useHue = true;
+
+		hueMin.setName("hueMin");
 		hueMax.setName("hueMax");
 		satMin.setName("saturationMin");
 		satMax.setName("saturationMax");
@@ -124,19 +117,18 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		useHue.setName("useHue");
 		useSaturation.setName("useSaturation");
 		useValue.setName("useValue");
-		
+
 		hueMin.addChangeListener(change);
 		hueMax.addChangeListener(change);
 		valMin.addChangeListener(change);
 		valMax.addChangeListener(change);
 		satMin.addChangeListener(change);
 		satMax.addChangeListener(change);
-		
+
 		useHue.addChangeListener(checkBoxChange);
 		useSaturation.addChangeListener(checkBoxChange);
 		useValue.addChangeListener(checkBoxChange);
-		
-		
+
 		TitledBorder title;
 		JPanel j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("hue");
@@ -147,15 +139,15 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		++gc.gridx;
 		j.add(useHue, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(new JLabel("  min max"), gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(hueMin, gc);
 		++gc.gridx;
 		j.add(hueMax, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(hueMin.value, gc);
 		++gc.gridx;
 		j.add(hueMax.value, gc);
@@ -170,20 +162,20 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		++gc.gridx;
 		j.add(useSaturation, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(new JLabel("  min max"), gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(satMin, gc);
 		++gc.gridx;
 		j.add(satMax, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(satMin.value, gc);
 		++gc.gridx;
-		j.add(satMax.value, gc);		
+		j.add(satMax.value, gc);
 		display.add(j);
-		 
+
 		j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("value");
 		j.setBorder(title);
@@ -193,38 +185,44 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		++gc.gridx;
 		j.add(useValue, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(new JLabel(" min max"), gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(valMin, gc);
 		++gc.gridx;
 		j.add(valMax, gc);
 		++gc.gridy;
-		gc.gridx=0;
+		gc.gridx = 0;
 		j.add(valMin.value, gc);
 		++gc.gridx;
-		j.add(valMax.value, gc);		
+		j.add(valMax.value, gc);
 		display.add(j);
-		
+
 	}
 
 	@Override
 	public void apply() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public JPanel getDisplay() {
-		// TODO Auto-generated method stub
-		return display;
-	}
-
-	@Override
-	public void setFilterData(FilterWrapper filter) {
+	public void getFilterState(FilterWrapper filter) {
 		// TODO Auto-generated method stub
 		log.info(filter);
+	}
+
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

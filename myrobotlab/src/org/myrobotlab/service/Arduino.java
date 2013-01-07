@@ -86,20 +86,20 @@ import org.simpleframework.xml.Root;
  */
 
 @Root
-public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, DigitalIO, 
-AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer {
+public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, DigitalIO, AnalogIO, ServoController, MotorController, SerialDeviceService,
+		MessageConsumer {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
-	
+
 	public static final String BOARD_TYPE_UNO = "uno";
 	public static final String BOARD_TYPE_ATMEGA168 = "atmega168";
 	public static final String BOARD_TYPE_ATMEGA328P = "atmega328p";
 	public static final String BOARD_TYPE_ATMEGA2560 = "atmega2560";
 	public static final String BOARD_TYPE_ATMEGA1280 = "atmega1280";
 	public static final String BOARD_TYPE_ATMEGA32U4 = "atmega32u4";
-	
+
 	// serial device info
 	private transient SerialDevice serialDevice;
 
@@ -115,7 +115,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	// FIXME - have SerialDevice read by length or by term string
 	boolean rawReadMsg = false;
 	int rawReadMsgLength = 5;
-	
+
 	// imported Arduino constants
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
@@ -125,32 +125,30 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	public static final int MOTOR_FORWARD = 1;
 	public static final int MOTOR_BACKWARD = 0;
-	
+
 	private boolean connected = false;
-	
+
 	/**
-	 * MotorData is the combination of a Motor and any controller data needed to 
+	 * MotorData is the combination of a Motor and any controller data needed to
 	 * implement all of MotorController API
-	 *
+	 * 
 	 */
-	class MotorData implements Serializable
-	{
+	class MotorData implements Serializable {
 		private static final long serialVersionUID = 1L;
 		transient MotorControl motor = null;
 		int PWMPin = -1;
 		int directionPin = -1;
 	}
-	
+
 	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
-	
-	
+
 	// needed to dynamically adjust PWM rate (D. only?)
 	public static final int TCCR0B = 0x25; // register for pins 6,7
 	public static final int TCCR1B = 0x2E; // register for pins 9,10
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
 
 	// serial protocol functions
-	public final static int MAGIC_NUMBER = 170; //10101010
+	public final static int MAGIC_NUMBER = 170; // 10101010
 
 	public static final int DIGITAL_WRITE = 0;
 	// public static final int DIGITAL_VALUE = 1; // normalized with PinData
@@ -178,51 +176,50 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	// servo related
 	public static final int SERVO_SWEEP = 10;
-	public static final int MAX_SERVOS = 12; // FIXME - more depending on board (mega)
-	
+	public static final int MAX_SERVOS = 12; // FIXME - more depending on board
+												// (mega)
+
 	// vendor specific
 	public static final String VENDOR_DEFINES_BEGIN = "// --VENDOR DEFINE SECTION BEGIN--";
 	public static final String VENDOR_SETUP_BEGIN = "// --VENDOR SETUP BEGIN--";
 	public static final String VENDOR_CODE_BEGIN = "// --VENDOR CODE BEGIN--";
-	
+
 	public static final int ACEDUINO_MOTOR_SHIELD_START = 50;
 	public static final int ACEDUINO_MOTOR_SHIELD_STOP = 51;
-	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION = 52;	
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION = 52;
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS = 53;
 	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS = 54;
-	
+
 	// non final for vendor mods
-	public static int ARDUINO_SKETCH_TYPE = 1; 
+	public static int ARDUINO_SKETCH_TYPE = 1;
 	public static int ARDUINO_SKETCH_VERSION = 1;
-	
+
 	public static final int SOFT_RESET = 253;
 	// error
 	public static final int SERIAL_ERROR = 254;
-	
+
 	/**
-	 *  pin description of board
+	 * pin description of board
 	 */
 	ArrayList<Pin> pinList = null;
-	
+
 	// servos
 	/**
 	 * ServoController data needed to run a servo
-	 *
+	 * 
 	 */
-	class ServoData implements Serializable
-	{
+	class ServoData implements Serializable {
 		private static final long serialVersionUID = 1L;
 		transient ServoControl servo = null;
 		Integer pin = null;
 		int servoIndex = -1;
 	}
-	
-	
+
 	/**
 	 * the local name to servo info
 	 */
 	HashMap<String, ServoData> servos = new HashMap<String, ServoData>();
-	
+
 	/**
 	 * represents the Arduino pde array of servos and their state
 	 */
@@ -247,22 +244,20 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
 		load();
-		
 
 		// target arduino
 		// board atmenga328
-		preferences = new Preferences(String.format("%s.preferences.txt",getName()),null);
+		preferences = new Preferences(String.format("%s.preferences.txt", getName()), null);
 		preferences.set("sketchbook.path", ".myrobotlab");
 
-		
 		preferences.setInteger("serial.debug_rate", 57600);
 		preferences.set("serial.parity", "N"); // f'ing stupid,
 		preferences.setInteger("serial.databits", 8);
 		preferences.setInteger("serial.stopbits", 1); // f'ing weird 1,1.5,2
 		preferences.setBoolean("upload.verbose", true);
-	
+
 		File librariesFolder = getContentFile("libraries");
-	
+
 		// FIXME - all below should be done inside Compiler2
 		try {
 
@@ -278,26 +273,27 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		compiler = new Compiler(this);
 		uploader = new AvrdudeUploader(this);
-		
+
 		querySerialDeviceNames();
 
-		// FIXME - hilacious long wait - need to incorporate .waitTillServiceReady
+		// FIXME - hilacious long wait - need to incorporate
+		// .waitTillServiceReady
 		// especially if there are multiple initialization threads
-		// SWEEEET ! - Service already provides an isReady - just need to overload it with a Thread.sleep check -> broadcast setState
-		
+		// SWEEEET ! - Service already provides an isReady - just need to
+		// overload it with a Thread.sleep check -> broadcast setState
+
 		createPinList();
-		
+
 		String filename = "MRLComm.ino";
-		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
+		String resourcePath = String.format("Arduino/%s/%s", filename.substring(0, filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
 		String defaultSketch = FileIO.getResourceFile(resourcePath);
 		this.sketch = defaultSketch;
 	}
-	
+
 	// FIXME - add const BOARD TYPE strings
-	public void setBoard(String board)
-	{
-		preferences.set("board",board);
+	public void setBoard(String board) {
+		preferences.set("board", board);
 		createPinList();
 		preferences.save();
 		broadcastState();
@@ -351,7 +347,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public ArrayList<String> querySerialDeviceNames() {
 
 		log.info("queryPortNames");
-		
+
 		serialDeviceNames = SerialDeviceFactory.getSerialDeviceNames();
 
 		// adding connected serial port if connected
@@ -359,14 +355,13 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			if (serialDevice.getName() != null)
 				serialDeviceNames.add(serialDevice.getName());
 		}
-		
+
 		return serialDeviceNames;
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-	
 
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
@@ -375,12 +370,12 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm
 			// #include <util/crc16.h>
 			// _crc16_update (test, testdata);
-			
+
 			serialDevice.write(MAGIC_NUMBER);
 			serialDevice.write(function);
 			serialDevice.write(param1);
 			serialDevice.write(param2); // 0 - 180
-			
+
 		} catch (IOException e) {
 			log.error("serialSend " + e.getMessage());
 		}
@@ -440,25 +435,25 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(SET_PWM_FREQUENCY, io.address, prescalarValue);
 	}
 
-	// ---------------------------- ServoController begin  -----------------------
+	// ---------------------------- ServoController begin
+	// -----------------------
 
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
-		
+
 		if (serialDevice == null) {
 			log.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
 			return false;
 		}
-		
+
 		// serialPort == null ??? make sure you chown it correctly !
 		log.info("servoAttach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_ATTACH);
-		if (servos.containsKey(servoName))
-		{
+		if (servos.containsKey(servoName)) {
 			log.warn("servo already attach - detach first");
 			return false;
 		}
-		
+
 		ServoData sd = new ServoData();
 		sd.pin = pin;
 
@@ -469,19 +464,17 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				serialSend(SERVO_ATTACH, sd.servoIndex, pin);
 				servos.put(servoName, sd);
 				ServiceWrapper sw = Runtime.getServiceWrapper(servoName);
-				if (sw == null || sw.service == null)
-				{
+				if (sw == null || sw.service == null) {
 					log.error(String.format("%s does not exist in registry", servoName));
 					return false;
 				}
-				
+
 				try {
-					ServoControl sc = (ServoControl)sw.service;
+					ServoControl sc = (ServoControl) sw.service;
 					sd.servo = sc;
 					sc.setController(this);
 					return true;
-				} catch(Exception e)
-				{
+				} catch (Exception e) {
 					log.error(String.format("%s not a valid ServoController", servoName));
 					return false;
 				}
@@ -495,7 +488,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	@Override
 	public boolean servoDetach(String servoName) {
 		log.info(String.format("servoDetach(%s)", servoName));
-		
+
 		if (servos.containsKey(servoName)) {
 			ServoData sd = servos.get(servoName);
 			serialSend(SERVO_DETACH, sd.servoIndex, 0);
@@ -504,13 +497,11 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			servos.remove(servoName);
 			return true;
 		}
-		
 
-		log.error(String.format("servo %s detach failed - not found",servoName));
+		log.error(String.format("servo %s detach failed - not found", servoName));
 		return false;
 
 	}
-
 
 	@Override
 	public void servoWrite(String servoName, Integer newPos) {
@@ -524,17 +515,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		serialSend(SERVO_WRITE, servos.get(servoName).servoIndex, newPos);
 
 	}
-	
+
 	@Override
 	public Integer getServoPin(String servoName) {
-		if (servos.containsKey(servoName))
-		{
+		if (servos.containsKey(servoName)) {
 			return servos.get(servoName).pin;
 		}
 		return null;
 	}
-
-
 
 	// ---------------------------- ServoController End -----------------------
 	// ---------------------- Protocol Methods Begin ------------------
@@ -586,7 +574,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 	public Pin publishPin(Pin p) {
-		//log.debug(p);
+		// log.debug(p);
 		return p;
 	}
 
@@ -602,7 +590,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	public void setReadMsgLength(Integer length) {
 		rawReadMsgLength = length;
 	}
-
 
 	// force an digital read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
@@ -641,7 +628,7 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 	int errorCount = 0;
-	
+
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
 		switch (event.getEventType()) {
@@ -664,15 +651,14 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 				int numBytes = 0;
 
 				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
-					
-					if (numBytes == 0 && newByte != MAGIC_NUMBER)
-					{
+
+					if (numBytes == 0 && newByte != MAGIC_NUMBER) {
 						// ERROR ERROR ERROR !!!!
 						++errorCount;
 						// TODO call error method - notify rest of system
 						continue;
 					}
-					
+
 					msg[numBytes] = (byte) newByte;
 					++numBytes;
 
@@ -687,13 +673,13 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 							invoke("readSerialMessage", s);
 						} else {
 
-							// MRL Arduino protocol 
+							// MRL Arduino protocol
 							// msg[0] MAGIC_NUMBER
 							// msg[1] METHOD
 							// msg[2] PIN
 							// msg[3] HIGHBYTE
 							// msg[4] LOWBYTE
-							Pin p = new Pin(msg[2],msg[1], (((msg[3] & 0xFF) << 8) + (msg[4] & 0xFF)), getName());
+							Pin p = new Pin(msg[2], msg[1], (((msg[3] & 0xFF) << 8) + (msg[4] & 0xFF)), getName());
 							invoke(SensorDataPublisher.publishPin, p);
 						}
 
@@ -799,8 +785,6 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		return sketchbookFolder;
 	}
-
-
 
 	public File getSketchbookLibrariesFolder() {
 		return new File(getSketchbookFolder(), "libraries");
@@ -959,17 +943,19 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return serialDeviceNames;
 	}
 
-	@Override 
+	@Override
 	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
 		try {
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
 				serialDevice = sd;
-				
+
 				connect();
 
 				// 115200 wired, 2400 IR ?? VW 2000??
-				serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until Preferences are removed
+				serialDevice.setParams(57600, 8, 1, 0); // FIXME hardcoded until
+														// Preferences are
+														// removed
 
 				save(); // successfully bound to port - saving
 				preferences.set("serial.port", serialDevice.getName());
@@ -987,9 +973,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		log.info(String.format("progress %d ", progress));
 		invoke("publishCompilingProgress", progress);
 	}
-	
-	public Integer publishCompilingProgress(Integer progress)
-	{
+
+	public Integer publishCompilingProgress(Integer progress) {
 		return progress;
 	}
 
@@ -1023,15 +1008,13 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		log.debug(sketch);
 	}
 
-
 	// public void upload(String file) throws RunnerException,
 	// SerialDeviceException
 	// FIXME - stupid - should take a binary string or the path to the .hex file
 	public void upload() throws Throwable {
 		// uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj",
 		// "MRLComm", false);
-		if (sketchName == null)
-		{
+		if (sketchName == null) {
 			log.error("invalid sketchname");
 			return;
 		}
@@ -1062,11 +1045,10 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 	}
 
 	@Override
-	public ArrayList<Pin> getPinList()
-	{
+	public ArrayList<Pin> getPinList() {
 		return pinList;
 	}
-	
+
 	public ArrayList<Pin> createPinList() {
 		pinList = new ArrayList<Pin>();
 		String type = preferences.get("board");
@@ -1074,9 +1056,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 		if (type != null && type.startsWith("mega")) {
 			for (int i = 0; i < 70; ++i) {
-	
-				if (i < 1 || (i > 13 && i < 54))
-				{
+
+				if (i < 1 || (i > 13 && i < 54)) {
 					pinType = Pin.DIGITAL_VALUE;
 				} else if (i > 53) {
 					pinType = Pin.ANALOG_VALUE;
@@ -1087,19 +1068,19 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			}
 		} else {
 			for (int i = 0; i < 20; ++i) {
-				if  (i < 14)
-				{
+				if (i < 14) {
 					pinType = Pin.DIGITAL_VALUE;
 				} else if (i > 53) {
 					pinType = Pin.ANALOG_VALUE;
 				}
-				
+
 				if (i == 3 || i == 5 || i == 6 || i == 9 || i == 10 || i == 11) {
 					pinType = Pin.PWM_VALUE;
 				}
-				pinList.add(new Pin(i, pinType, 0, getName()));			}
+				pinList.add(new Pin(i, pinType, 0, getName()));
+			}
 		}
-		
+
 		return pinList;
 	}
 
@@ -1108,122 +1089,114 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		log.info(msg);
 		invoke("publishMessage", msg);
 	}
-	
+
 	static public String showError(String error, String desc, Exception e) {
 		return error;
 	}
+
 	public String compilerError(String error) {
 		return error;
 	}
 
-	public String publishMessage(String msg)
-	{
+	public String publishMessage(String msg) {
 		return msg;
 	}
-	
-	public boolean connect()
-	{
-		
-		if (serialDevice == null)
-		{
-			message("\ncan't connect, serialDevice is null\n"); // TODO - "errorMessage vs message" 
+
+	public boolean connect() {
+
+		if (serialDevice == null) {
+			message("\ncan't connect, serialDevice is null\n"); // TODO -
+																// "errorMessage vs message"
 			log.error("can't connect, serialDevice is null");
 			return false;
 		}
 
 		message(String.format("\nconnecting to serial device %s\n", serialDevice.getName()));
-		
+
 		try {
-			if (!serialDevice.isOpen())
-			{
+			if (!serialDevice.isOpen()) {
 				serialDevice.open();
 				serialDevice.addEventListener(this);
 				serialDevice.notifyOnDataAvailable(true);
 			} else {
-				log.warn(String.format("\n%s is already open, close first before opening again\n",serialDevice.getName()));
-				message(String.format("%s is already open, close first before opening again",serialDevice.getName()));
+				log.warn(String.format("\n%s is already open, close first before opening again\n", serialDevice.getName()));
+				message(String.format("%s is already open, close first before opening again", serialDevice.getName()));
 			}
 		} catch (Exception e) {
 			Service.logException(e);
 			return false;
 		}
-		
+
 		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
 		message("good times...\n");
 		connected = true;
 		return true;
 	}
-	
-	public boolean isConnected()
-	{
+
+	public boolean isConnected() {
 		// I know not normalized
 		// but we have to do this - since
 		// the SerialDevice is transient
-		return connected; 
+		return connected;
 	}
-	
-	public boolean disconnect()
-	{
+
+	public boolean disconnect() {
 		connected = false;
-		if (serialDevice == null)
-		{
+		if (serialDevice == null) {
 			return false;
 		}
-		
+
 		serialDevice.close();
 
 		broadcastState();
 		return true;
 	}
-	
-	
+
 	// ----------- Motor Controller API Begin ----------------
 
-	@Override 
+	@Override
 	public boolean motorAttach(String motorName, Object... motorData) {
 		ServiceWrapper sw = Runtime.getServiceWrapper(motorName);
-		if (!sw.isLocal())
-		{
+		if (!sw.isLocal()) {
 			log.error("motor is not in the same MRL instance as the motor controller");
 			return false;
 		}
 		ServiceInterface service = sw.service;
-		MotorControl motor = (MotorControl)service; // BE-AWARE - local optimization ! Will not work on remote !!!
+		MotorControl motor = (MotorControl) service; // BE-AWARE - local
+														// optimization ! Will
+														// not work on remote
+														// !!!
 		return motorAttach(motor, motorData);
 	}
-	
-	public boolean motorAttach(String motorName, Integer PWMPin, Integer directionPin)
-	{
-		return motorAttach(motorName, new Object[]{PWMPin, directionPin});
+
+	public boolean motorAttach(String motorName, Integer PWMPin, Integer directionPin) {
+		return motorAttach(motorName, new Object[] { PWMPin, directionPin });
 	}
 
 	/**
-	 * implementation of motorAttach(String motorName, Object... motorData)
-	 * is private so that interfacing consistently uses service names to attach,
+	 * implementation of motorAttach(String motorName, Object... motorData) is
+	 * private so that interfacing consistently uses service names to attach,
 	 * even though service is local
 	 * 
 	 * @param motor
 	 * @param motorData
 	 * @return
 	 */
-	private boolean motorAttach(MotorControl motor, Object... motorData)
-	{
-		if (motor == null || motorData == null)
-		{
+	private boolean motorAttach(MotorControl motor, Object... motorData) {
+		if (motor == null || motorData == null) {
 			log.error("null data or motor - can't attach motor");
 			return false;
 		}
-		
-		if (motorData.length != 2 || motorData[0] == null || motorData[1] == null)
-		{
+
+		if (motorData.length != 2 || motorData[0] == null || motorData[1] == null) {
 			log.error("motor data must be of the folowing format - motorAttach(Integer PWMPin, Integer directionPin)");
 			return false;
 		}
-		
+
 		MotorData md = new MotorData();
 		md.motor = motor;
-		md.PWMPin = (Integer)motorData[0];
-		md.directionPin = (Integer)motorData[1];
+		md.PWMPin = (Integer) motorData[0];
+		md.directionPin = (Integer) motorData[1];
 		motors.put(motor.getName(), md);
 		motor.setController(this);
 		serialSend(PINMODE, md.PWMPin, OUTPUT);
@@ -1231,32 +1204,28 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		return true;
 
 	}
-	
 
 	@Override
 	public boolean motorDetach(String motorName) {
-		boolean  ret = motors.containsKey(motorName);
-		if (ret)
-		{
+		boolean ret = motors.containsKey(motorName);
+		if (ret) {
 			motors.remove(motorName);
 		}
 		return ret;
 	}
-	
+
 	public void motorMove(String name) {
-		
+
 		MotorData md = motors.get(name);
 		MotorControl m = md.motor;
 		float power = m.getPowerLevel();
-		
-		if (power < 0)
-		{
-			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_FORWARD:MOTOR_BACKWARD);
-			serialSend(ANALOG_WRITE, md.PWMPin, Math.abs((int) (255*m.getPowerLevel())));
-		} else if (power > 0)
-		{
-			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted()?MOTOR_BACKWARD:MOTOR_FORWARD);
-			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255*m.getPowerLevel()));
+
+		if (power < 0) {
+			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_FORWARD : MOTOR_BACKWARD);
+			serialSend(ANALOG_WRITE, md.PWMPin, Math.abs((int) (255 * m.getPowerLevel())));
+		} else if (power > 0) {
+			serialSend(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_BACKWARD : MOTOR_FORWARD);
+			serialSend(ANALOG_WRITE, md.PWMPin, (int) (255 * m.getPowerLevel()));
 		} else {
 			serialSend(ANALOG_WRITE, md.PWMPin, 0);
 		}
@@ -1267,139 +1236,117 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 
 	}
 
-	
-	public void digitalDebounceOn()
-	{
+	public void digitalDebounceOn() {
 		serialSend(DIGITAL_DEBOUNCE_ON, 0, 0);
 	}
 
-	public void digitalDebounceOff()
-	{
+	public void digitalDebounceOff() {
 		serialSend(DIGITAL_DEBOUNCE_OFF, 0, 0);
 	}
-	
+
 	// ----------- MotorController API End ----------------
 
-
-	public boolean attach (String serviceName, Object...data)
-	{
+	public boolean attach(String serviceName, Object... data) {
 		log.info(String.format("attaching %s", serviceName));
 		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
-		if (sw == null)
-		{
+		if (sw == null) {
 			log.error(String.format("could not attach % - not found in registry", serviceName));
 			return false;
 		}
 		if (sw.get() instanceof Servo) // Servo or ServoControl ???
 		{
-			if (data.length != 1)
-			{
+			if (data.length != 1) {
 				log.error("can not attach a Servo without a pin number");
 				return false;
 			}
-			if (!sw.isLocal())
-			{
+			if (!sw.isLocal()) {
 				log.error("servo controller and servo must be local");
 				return false;
 			}
-			return servoAttach(serviceName, (Integer)(data[0]));
+			return servoAttach(serviceName, (Integer) (data[0]));
 		}
-		
+
 		if (sw.get() instanceof Motor) // Servo or ServoControl ???
 		{
-			if (data.length != 2)
-			{
+			if (data.length != 2) {
 				log.error("can not attach a Motor without a PWMPin & directionPin ");
 				return false;
 			}
-			if (!sw.isLocal())
-			{
+			if (!sw.isLocal()) {
 				log.error("motor controller and motor must be local");
 				return false;
 			}
 			return motorAttach(serviceName, data);
 		}
-		
+
 		if (sw.get() instanceof ArduinoShield) // Servo or ServoControl ???
 		{
-			
-			if (!sw.isLocal())
-			{
+
+			if (!sw.isLocal()) {
 				log.error("motor controller and motor must be local");
 				return false;
 			}
-			
-			return ((ArduinoShield)sw.get()).attach(this);
+
+			return ((ArduinoShield) sw.get()).attach(this);
 		}
-		
+
 		log.error("don't know how to attach");
 		return false;
 	}
-	
-	
-	public String getSketch()
-	{
-		return this.sketch;		
+
+	public String getSketch() {
+		return this.sketch;
 	}
-	
-	public String setSketch(String newSketch)
-	{
+
+	public String setSketch(String newSketch) {
 		sketch = newSketch;
 		return sketch;
 	}
-	
-	public String loadSketchFromFile(String filename)
-	{
+
+	public String loadSketchFromFile(String filename) {
 		String newSketch = FileIO.fileToString(filename);
-		if (newSketch != null)
-		{
+		if (newSketch != null) {
 			sketch = newSketch;
 			return sketch;
 		}
 		return null;
 	}
-	
-	
+
 	@Override
 	public Object[] getMotorData(String motorName) {
 		MotorData md = motors.get(motorName);
-		Object [] data = new Object[]{md.PWMPin, md.directionPin};
+		Object[] data = new Object[] { md.PWMPin, md.directionPin };
 		return data;
 	}
-	
-	public void softReset()
-	{
+
+	public void softReset() {
 		serialSend(SOFT_RESET, 0, 0);
 	}
-	
+
 	@Override
 	public void setServoSpeed(String servoName, Float speed) {
-		if (speed == null || speed < 0.0f || speed > 1.0f)
-		{
+		if (speed == null || speed < 0.0f || speed > 1.0f) {
 			log.error(String.format("speed %f out of bounds", speed));
 			return;
 		}
-		serialSend(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int)(speed * 100));
+		serialSend(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int) (speed * 100));
 	}
-	
+
 	@Override
 	public void releaseService() {
 		super.releaseService();
 		disconnect();
 	}
-	
-	
-	public void setDigitalTriggerOnly(Boolean b)
-	{
+
+	public void setDigitalTriggerOnly(Boolean b) {
 		if (b)
 			serialSend(DIGITAL_TRIGGER_ONLY_ON, 0, 0);
-		else 
+		else
 			serialSend(DIGITAL_TRIGGER_ONLY_OFF, 0, 0);
-			
+
 	}
-	
-	public void setSerialRate(int rate)
-	{
+
+	public void setSerialRate(int rate) {
 		try {
 			log.info(String.format("setSerialRate %d", rate));
 			serialSend(SET_SERIAL_RATE, rate, 0);
@@ -1408,49 +1355,32 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 			logException(e);
 		}
 	}
-	
+
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
-		//Logger.getRootLogger().setLevel(Level.INFO);
+		// Logger.getRootLogger().setLevel(Level.INFO);
 
 		/*
-		for (int i = 0; i < 10000; ++i)
-		{
-			if (i%1 == 0)
-			{
-				log.info("mod 1");
-			}
-			if (i%10 == 0)
-			{
-				log.info("mod 10");
-			}
-			if (i%100 == 0)
-			{
-				log.info("mod 100");
-			}
-		}
+		 * for (int i = 0; i < 10000; ++i) { if (i%1 == 0) { log.info("mod 1");
+		 * } if (i%10 == 0) { log.info("mod 10"); } if (i%100 == 0) {
+		 * log.info("mod 100"); } }
+		 */
 
-		*/
-		
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
-		
-		
+
 		Runtime.createAndStart("python", "Python");
-		
+
 		/*
-		Servo servo01 = new Servo("servo01");
-		servo01.startService();
-		
-		
-		*/
-		
+		 * Servo servo01 = new Servo("servo01"); servo01.startService();
+		 */
+
 		/*
-		SensorMonitor sensors = new SensorMonitor("sensors");
-		sensors.startService();
-		*/
-		
+		 * SensorMonitor sensors = new SensorMonitor("sensors");
+		 * sensors.startService();
+		 */
+
 		/*
 		 * //Runtime.createAndStart("sensors", "SensorMonitor");
 		 * 
@@ -1468,12 +1398,8 @@ AnalogIO, ServoController, MotorController, SerialDeviceService, MessageConsumer
 		// arduino.digitalWrite(44, Arduino.HIGH);
 
 		Runtime.createAndStart("gui01", "GUIService");
-		//Runtime.createAndStart("python", "Python");
+		// Runtime.createAndStart("python", "Python");
 
 	}
-
-
-
-
 
 }

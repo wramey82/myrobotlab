@@ -26,8 +26,8 @@
 package org.myrobotlab.service;
 
 /*
-  TODO : 
-  	new filters - http://idouglasamoore-javacv.googlecode.com/git-history/02385ce192fb82f1668386e55ff71ed8d6f88ae3/src/main/java/com/googlecode/javacv/ObjectFinder.java
+ TODO : 
+ new filters - http://idouglasamoore-javacv.googlecode.com/git-history/02385ce192fb82f1668386e55ff71ed8d6f88ae3/src/main/java/com/googlecode/javacv/ObjectFinder.java
 
  static wild card imports for quickly finding static functions in eclipse
  import static com.googlecode.javacv.cpp.opencv_highgui.*;
@@ -98,7 +98,7 @@ public class OpenCV extends Service {
 	public final static String INPUT_SOURCE_CAMERA = "camera";
 	public final static String INPUT_SOURCE_FILE = "file";
 	public final static String INPUT_SOURCE_NETWORK = "network";
-	
+
 	// GRABBER BEGIN --------------------------
 	@Element
 	public String inputSource = INPUT_SOURCE_CAMERA;
@@ -107,18 +107,18 @@ public class OpenCV extends Service {
 	FrameGrabber grabber = null;
 
 	// grabber cfg
-	@Element(required=false)
+	@Element(required = false)
 	public String format = null;
 	@Element
 	public boolean getDepth = false;
-	@Element	
+	@Element
 	public int cameraIndex = 0;
 	@Element
 	public String inputFile = "http://localhost/videostream.cgi";
 	boolean loopInputMovieFile = true;
 	boolean publishFrame = true;
 	boolean useCanvasFrame = false;
-	//public String url;
+	// public String url;
 	// GRABBER END --------------------------
 
 	transient VideoProcess videoProcess = null;
@@ -160,7 +160,7 @@ public class OpenCV extends Service {
 	 */
 	LinkedHashMap<String, OpenCVFilter> addFilters = new LinkedHashMap<String, OpenCVFilter>();
 	ArrayList<String> removeFilters = new ArrayList<String>();
-	@ElementMap	
+	@ElementMap
 	LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
 	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
 
@@ -173,8 +173,7 @@ public class OpenCV extends Service {
 		final public CvPoint centeroid;
 		final public int vertices;
 
-		public Polygon(CvRect boundingRectangle, CvScalar avgColor,
-				boolean isConvex, CvPoint centeroid, int vertices) {
+		public Polygon(CvRect boundingRectangle, CvScalar avgColor, boolean isConvex, CvPoint centeroid, int vertices) {
 			this.boundingRectangle = boundingRectangle;
 			this.avgColor = avgColor;
 			this.isConvex = isConvex;
@@ -239,15 +238,14 @@ public class OpenCV extends Service {
 		super.stopService();
 	}
 
-	public final static SerializableImage publishFrame(String source,
-			BufferedImage img) {
+	public final static SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
+		si.timestamp = System.currentTimeMillis();
 		return si;
 	}
 
-	public final static SerializableImage publishMask(String source,
-			BufferedImage img) {
+	public final static SerializableImage publishMask(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img);
 		si.source = source;
 		return si;
@@ -266,8 +264,7 @@ public class OpenCV extends Service {
 	/*
 	 * Callback from the GUI to the appropriate filter funnel through here
 	 */
-	public void invokeFilterMethod(String filterName, String method,
-			Object... params) {
+	public void invokeFilterMethod(String filterName, String method, Object... params) {
 		// log.error("invokeFilterMethod here");
 		if (filters.containsKey(filterName)) {
 			invoke(filters.get(filterName), method, params);
@@ -277,17 +274,18 @@ public class OpenCV extends Service {
 
 	}
 
-	
 	public void setFilterData(FilterWrapper filterData) {
 		if (filters.containsKey(filterData.name)) {
-			Service.copyShallowFrom(filters.get(filterData.name),
-					filterData.filter);
+			Service.copyShallowFrom(filters.get(filterData.name), filterData.filter);
 		} else {
 			log.error("setFilterData " + filterData.name + " does not exist");
 		}
 
 	}
 
+	// FIXME - good idea - but you cant replace a full filter - it has memory
+	// JNI objects
+	// marke them as transient? -
 	public final class FilterWrapper implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final String name;
@@ -309,63 +307,64 @@ public class OpenCV extends Service {
 		return null;
 	}
 
+	// FIXME - DEPRICATE - or (egads - rework????)
 	public Object setFilterCFG(String filterName, String cfgName, Float value) {
-		// we need to check both lists - as filters may not have been added to 
+		// we need to check both lists - as filters may not have been added to
 		// the workflow yet
 		log.info(String.format("setFilterCFG %s %s %f", filterName, cfgName, value));
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} 
+		}
 		if (addFilters.containsKey(filterName)) {
 			return addFilters.get(filterName).setCFG(cfgName, value);
-		} 
-		
+		}
+
 		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Integer value) {
-		// we need to check both lists - as filters may not have been added to 
+		// we need to check both lists - as filters may not have been added to
 		// the workflow yet
 		log.info(String.format("setFilterCFG %s %s %d", filterName, cfgName, value));
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} 
+		}
 		if (addFilters.containsKey(filterName)) {
 			return addFilters.get(filterName).setCFG(cfgName, value);
-		} 
-		
+		}
+
 		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, Boolean value) {
-		// we need to check both lists - as filters may not have been added to 
+		// we need to check both lists - as filters may not have been added to
 		// the workflow yet
-		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, (value)?"True":"False"));
+		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, (value) ? "True" : "False"));
 
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} 
+		}
 		if (addFilters.containsKey(filterName)) {
 			return addFilters.get(filterName).setCFG(cfgName, value);
-		} 
-		
+		}
+
 		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
 
 	public Object setFilterCFG(String filterName, String cfgName, String value) {
-		// we need to check both lists - as filters may not have been added to 
+		// we need to check both lists - as filters may not have been added to
 		// the workflow yet
 		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, value));
 		if (filters.containsKey(filterName)) {
 			return filters.get(filterName).setCFG(cfgName, value);
-		} 
+		}
 		if (addFilters.containsKey(filterName)) {
 			return addFilters.get(filterName).setCFG(cfgName, value);
-		} 
-		
+		}
+
 		log.error("setFilterCFG " + filterName + " does not exist");
 		return null;
 	}
@@ -416,14 +415,13 @@ public class OpenCV extends Service {
 				Class<?>[] paramTypes = new Class[1];
 				Object[] params = new Object[1];
 
-				if (INPUT_SOURCE_CAMERA.equals(inputSource))
-				{
+				if (INPUT_SOURCE_CAMERA.equals(inputSource)) {
 					paramTypes[0] = Integer.TYPE;
 					params[0] = cameraIndex;
-				} else if (INPUT_SOURCE_FILE.equals(inputSource)) { 
+				} else if (INPUT_SOURCE_FILE.equals(inputSource)) {
 					paramTypes[0] = String.class;
 					params[0] = inputFile;
-				} 
+				}
 
 				Class<?> nfg = Class.forName(grabberType);
 				// TODO - get correct constructor for Capture Configuration..
@@ -463,7 +461,7 @@ public class OpenCV extends Service {
 				try {
 					if (!getDepth) {
 						frame = grabber.grab();
-					} else { // OpenKinect 
+					} else { // OpenKinect
 						depthFrame = ((OpenKinectFrameGrabber) grabber).grabDepth();
 						storage.put("kinectDepth", depthFrame);
 						imageFrame = ((OpenKinectFrameGrabber) grabber).grabVideo();
@@ -480,7 +478,6 @@ public class OpenCV extends Service {
 				if (frame != null) {
 					Iterator<String> itr = filters.keySet().iterator();
 
-					
 					while (capturing && itr.hasNext()) {
 						String name = itr.next();
 
@@ -495,16 +492,11 @@ public class OpenCV extends Service {
 						if (multiplex.containsKey(name)) {
 							// FIXME - change of size will crash
 							if (multiplex.get(name) == null) {
-								multiplex.put(
-										name,
-										cvCreateImage(cvGetSize(frame),
-												frame.depth(),
-												frame.nChannels()));
+								multiplex.put(name, cvCreateImage(cvGetSize(frame), frame.depth(), frame.nChannels()));
 							}
 							IplImage forked = multiplex.get(name);
 							cvCopy(frame, forked);
-							invoke("publishFrame", name,
-									forked.getBufferedImage());
+							invoke("publishFrame", name, forked.getBufferedImage());
 							// published = true;
 						}
 
@@ -512,8 +504,7 @@ public class OpenCV extends Service {
 						if (!published && displayFilter.equals(name)) {
 							published = true;
 							if (publishFrame) {
-								invoke("publishFrame", displayFilter,
-										filter.display(frame, null));
+								invoke("publishFrame", displayFilter, filter.display(frame, null));
 							}
 						}
 
@@ -549,7 +540,7 @@ public class OpenCV extends Service {
 
 						// timestamp paint
 						screenText.delete(0, screenText.length());
-						screenText.append(sdf.format(new Date())); 
+						screenText.append(sdf.format(new Date()));
 						screenText.append(" ");
 						screenText.append(frameIndex);
 
@@ -635,13 +626,12 @@ public class OpenCV extends Service {
 	public double[] publish(double[] data) {
 		return data;
 	}
-	
+
 	public CvPoint publish(CvPoint point) {
 		return point;
 	}
-	
-	public Point2Df publish(Point2Df point)
-	{
+
+	public Point2Df publish(Point2Df point) {
 		return point;
 	}
 
@@ -691,7 +681,7 @@ public class OpenCV extends Service {
 	public void capture() {
 
 		save();
-		
+
 		if (videoProcess != null) {
 			stopCapture();
 		}
@@ -712,10 +702,8 @@ public class OpenCV extends Service {
 		// has been miscompiled
 
 		if (!outputFileStreams.containsKey(filename)) {
-			CvVideoWriter writer = cvCreateVideoWriter(
-					cfg.get("outputMovieFileName"),
-					CV_FOURCC('M', 'J', 'P', 'G'),
-					// CV_FOURCC('F', 'L', 'V', '1'),
+			CvVideoWriter writer = cvCreateVideoWriter(cfg.get("outputMovieFileName"), CV_FOURCC('M', 'J', 'P', 'G'),
+			// CV_FOURCC('F', 'L', 'V', '1'),
 					fps, imgSize, isColor);
 
 			outputFileStreams.put(filename, writer);
@@ -761,7 +749,7 @@ public class OpenCV extends Service {
 		addFilters.put(name, filter);
 		log.info(String.format("added new filter %s, %s", name, newFilter));
 		// filters.put(name, filter);
-		
+
 		broadcastState(); // let everyone know
 	}
 
@@ -826,11 +814,12 @@ public class OpenCV extends Service {
 		// function should hand back a "copy"
 		// not the actual filters
 		LinkedHashMap<String, OpenCVFilter> ret = new LinkedHashMap<String, OpenCVFilter>();
-		
+
 		ret.putAll(filters);
 		ret.putAll(addFilters);
-		
-		// FIXME - since the capture thread is the one moving from addFilters to filters
+
+		// FIXME - since the capture thread is the one moving from addFilters to
+		// filters
 		// there is a chance the ret will have a duplicate
 		return ret;
 	}
@@ -858,7 +847,7 @@ public class OpenCV extends Service {
 		// ground plane
 		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
 		// radio lab - map cells location cells yatta yatta
-		// lkoptical disparity motion Time To Contact 
+		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
@@ -871,8 +860,8 @@ public class OpenCV extends Service {
 		 * logException(e); }
 		 */
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
-		//opencv.startService();
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		// opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		// opencv.addFilter("InRange1", "InRange");
@@ -881,19 +870,22 @@ public class OpenCV extends Service {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		opencv.addFilter("pd","PyramidDown");
-		opencv.addFilter("gft","GoodFeaturesToTrack");
-		opencv.publishFilterData("gft");
-		opencv.setDisplayFilter("gft");
+		opencv.addFilter("pd", "PyramidDown");
+		// opencv.addFilter("gft", "GoodFeaturesToTrack");
+		// opencv.publishFilterData("gft");
+		// opencv.setDisplayFilter("gft");
+		opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
+		opencv.setDisplayFilter("lkOpticalTrack1");
+
 		opencv.capture();
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-		//opencv.addFilter("pyramdDown", "PyramidDown");
-		//opencv.addFilter("floodFill", "FloodFill");
+		// opencv.addFilter("pyramdDown", "PyramidDown");
+		// opencv.addFilter("floodFill", "FloodFill");
 
-		//opencv.capture();
+		// opencv.capture();
 
 	}
 

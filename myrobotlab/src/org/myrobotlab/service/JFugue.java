@@ -87,5 +87,5 @@ public class JFugue extends Service {
 	public String getToolTip() {
 		return "service wrapping Jfugue - http://www.jfugue.org/ used for music and sound generation";
 	}
-	
+
 }

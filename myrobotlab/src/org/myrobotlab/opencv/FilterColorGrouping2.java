@@ -64,8 +64,7 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 		// TODO Auto-generated constructor stub
 	}
 
-	public final static Logger log = Logger
-			.getLogger(FilterColorGrouping2.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FilterColorGrouping2.class.getCanonicalName());
 
 	ConfigurationManager cfg;
 	Rectangle target = null;
@@ -99,38 +98,27 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 		return null;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-		cfg.set("target.x", 0);
-		cfg.set("target.y", 0);
-		cfg.set("target.width", 320);
-		cfg.set("target.height", 240);
-		// cfg.set("target.color", "40");
-
-		cfg.set("step.x", 1);
-		cfg.set("step.y", 1);
-
-		cfg.set("groupDelta", 25);
-
-		target = new Rectangle(cfg.getInt("target.x"), cfg.getInt("target.x"),
-				cfg.getInt("target.width"), cfg.getInt("target.height"));
-		stepx = cfg.getInt("step.x");
-		stepy = cfg.getInt("step.y");
-		groupDelta = cfg.getInt("groupDelta");
-		xTotal = target.width / stepx;
-		yTotal = target.height / stepy;
-		grid = new PointReference[xTotal][yTotal];
-
-		// initialization
-		for (int x = 0; x < xTotal; ++x) {
-			for (int y = 0; y < yTotal; ++y) {
-				grid[x][y] = new PointReference(x, y);
-			}
-		}
-
-		groupList = new ArrayList<Group>();
-	}
+	/*
+	 * @Override public void loadDefaultConfiguration() {
+	 * 
+	 * cfg.set("target.x", 0); cfg.set("target.y", 0); cfg.set("target.width",
+	 * 320); cfg.set("target.height", 240); // cfg.set("target.color", "40");
+	 * 
+	 * cfg.set("step.x", 1); cfg.set("step.y", 1);
+	 * 
+	 * cfg.set("groupDelta", 25);
+	 * 
+	 * target = new Rectangle(cfg.getInt("target.x"), cfg.getInt("target.x"),
+	 * cfg.getInt("target.width"), cfg.getInt("target.height")); stepx =
+	 * cfg.getInt("step.x"); stepy = cfg.getInt("step.y"); groupDelta =
+	 * cfg.getInt("groupDelta"); xTotal = target.width / stepx; yTotal =
+	 * target.height / stepy; grid = new PointReference[xTotal][yTotal];
+	 * 
+	 * // initialization for (int x = 0; x < xTotal; ++x) { for (int y = 0; y <
+	 * yTotal; ++y) { grid[x][y] = new PointReference(x, y); } }
+	 * 
+	 * groupList = new ArrayList<Group>(); }
+	 */
 
 	final public class Group {
 		public int number; // externally keyed or put into list - INDEX !!!
@@ -205,8 +193,7 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 				if (x != 0) {
 					ncolorInt = image.getRGB(x - 1, y); // TODO - && vs || -
 														// single channel vs 3
-					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta
-							&& Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
+					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta && Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
 							&& Math.abs(((ncolorInt) & 0xFF) - blue) < blueGroupDelta) {
 						// add to group - first check doesn't have to worry
 						// about joins
@@ -214,10 +201,8 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 						grid[x][y].group = neighborGroup;
 						neighborGroup.points.add(grid[x][y]);
 						// adjust bounding box
-						if (x > neighborGroup.boundingBox.x
-								+ neighborGroup.boundingBox.width) {
-							neighborGroup.boundingBox.width = +x
-									- neighborGroup.boundingBox.x;
+						if (x > neighborGroup.boundingBox.x + neighborGroup.boundingBox.width) {
+							neighborGroup.boundingBox.width = +x - neighborGroup.boundingBox.x;
 						}
 
 						isGrouped = true;
@@ -231,8 +216,7 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 					ncolorInt = image.getRGB(x - 1, y - 1); // TODO - && vs || -
 															// single channel vs
 															// 3
-					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta
-							&& Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
+					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta && Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
 							&& Math.abs(((ncolorInt) & 0xFF) - blue) < blueGroupDelta) {
 						Group myGroup = grid[x][y].group;
 						Group neighborGroup = grid[x - 1][y - 1].group;
@@ -246,28 +230,18 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 																				// (OUCH)
 							}
 							if (neighborGroup.boundingBox.x < myGroup.boundingBox.x) {
-								myGroup.boundingBox.width += neighborGroup.boundingBox.x
-										- myGroup.boundingBox.x;
+								myGroup.boundingBox.width += neighborGroup.boundingBox.x - myGroup.boundingBox.x;
 								myGroup.boundingBox.x = neighborGroup.boundingBox.x;
 							}
-							if (neighborGroup.boundingBox.x
-									+ neighborGroup.boundingBox.width > myGroup.boundingBox.x
-									+ myGroup.boundingBox.width) {
-								myGroup.boundingBox.width = neighborGroup.boundingBox.x
-										+ neighborGroup.boundingBox.width
-										- myGroup.boundingBox.x;
+							if (neighborGroup.boundingBox.x + neighborGroup.boundingBox.width > myGroup.boundingBox.x + myGroup.boundingBox.width) {
+								myGroup.boundingBox.width = neighborGroup.boundingBox.x + neighborGroup.boundingBox.width - myGroup.boundingBox.x;
 							}
 							if (neighborGroup.boundingBox.y < myGroup.boundingBox.y) {
-								myGroup.boundingBox.height += neighborGroup.boundingBox.y
-										- myGroup.boundingBox.y;
+								myGroup.boundingBox.height += neighborGroup.boundingBox.y - myGroup.boundingBox.y;
 								myGroup.boundingBox.y = neighborGroup.boundingBox.y;
 							}
-							if (neighborGroup.boundingBox.y
-									+ neighborGroup.boundingBox.height > myGroup.boundingBox.y
-									+ myGroup.boundingBox.height) {
-								myGroup.boundingBox.height = neighborGroup.boundingBox.y
-										+ neighborGroup.boundingBox.height
-										- myGroup.boundingBox.y;
+							if (neighborGroup.boundingBox.y + neighborGroup.boundingBox.height > myGroup.boundingBox.y + myGroup.boundingBox.height) {
+								myGroup.boundingBox.height = neighborGroup.boundingBox.y + neighborGroup.boundingBox.height - myGroup.boundingBox.y;
 							}
 							myGroup.points.addAll(neighborGroup.points);
 							groupList.remove(neighborGroup);
@@ -276,16 +250,12 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 							grid[x][y].group = neighborGroup;
 							neighborGroup.points.add(grid[x][y]);
 							// adjust bounding box
-							if (x > neighborGroup.boundingBox.x
-									+ neighborGroup.boundingBox.width) {
-								neighborGroup.boundingBox.width = x
-										- neighborGroup.boundingBox.x;
+							if (x > neighborGroup.boundingBox.x + neighborGroup.boundingBox.width) {
+								neighborGroup.boundingBox.width = x - neighborGroup.boundingBox.x;
 							}
 
-							if (y > neighborGroup.boundingBox.y
-									+ neighborGroup.boundingBox.height) {
-								neighborGroup.boundingBox.height = y
-										- neighborGroup.boundingBox.y;
+							if (y > neighborGroup.boundingBox.y + neighborGroup.boundingBox.height) {
+								neighborGroup.boundingBox.height = y - neighborGroup.boundingBox.y;
 							}
 
 						}
@@ -299,8 +269,7 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 				if (y != 0) {
 					ncolorInt = image.getRGB(x, y - 1); // TODO - && vs || -
 														// single channel vs 3
-					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta
-							&& Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
+					if (Math.abs(((ncolorInt >> 16) & 0xFF) - red) < redGroupDelta && Math.abs(((ncolorInt >> 8) & 0xFF) - green) < greenGroupDelta
 							&& Math.abs(((ncolorInt) & 0xFF) - blue) < blueGroupDelta) {
 						Group myGroup = grid[x][y].group;
 						Group neighborGroup = grid[x][y - 1].group;
@@ -313,28 +282,18 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 																				// (OUCH)
 							}
 							if (neighborGroup.boundingBox.x < myGroup.boundingBox.x) {
-								myGroup.boundingBox.width += neighborGroup.boundingBox.x
-										- myGroup.boundingBox.x;
+								myGroup.boundingBox.width += neighborGroup.boundingBox.x - myGroup.boundingBox.x;
 								myGroup.boundingBox.x = neighborGroup.boundingBox.x;
 							}
-							if (neighborGroup.boundingBox.x
-									+ neighborGroup.boundingBox.width > myGroup.boundingBox.x
-									+ myGroup.boundingBox.width) {
-								myGroup.boundingBox.width = neighborGroup.boundingBox.x
-										+ neighborGroup.boundingBox.width
-										- myGroup.boundingBox.x;
+							if (neighborGroup.boundingBox.x + neighborGroup.boundingBox.width > myGroup.boundingBox.x + myGroup.boundingBox.width) {
+								myGroup.boundingBox.width = neighborGroup.boundingBox.x + neighborGroup.boundingBox.width - myGroup.boundingBox.x;
 							}
 							if (neighborGroup.boundingBox.y < myGroup.boundingBox.y) {
-								myGroup.boundingBox.height += neighborGroup.boundingBox.y
-										- myGroup.boundingBox.y;
+								myGroup.boundingBox.height += neighborGroup.boundingBox.y - myGroup.boundingBox.y;
 								myGroup.boundingBox.y = neighborGroup.boundingBox.y;
 							}
-							if (neighborGroup.boundingBox.y
-									+ neighborGroup.boundingBox.height > myGroup.boundingBox.y
-									+ myGroup.boundingBox.height) {
-								myGroup.boundingBox.height = neighborGroup.boundingBox.y
-										+ neighborGroup.boundingBox.height
-										- myGroup.boundingBox.y;
+							if (neighborGroup.boundingBox.y + neighborGroup.boundingBox.height > myGroup.boundingBox.y + myGroup.boundingBox.height) {
+								myGroup.boundingBox.height = neighborGroup.boundingBox.y + neighborGroup.boundingBox.height - myGroup.boundingBox.y;
 							}
 
 							myGroup.points.addAll(neighborGroup.points);
@@ -344,10 +303,8 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 							grid[x][y].group = neighborGroup;
 							neighborGroup.points.add(grid[x][y]);
 							// adjust bounding box
-							if (y > neighborGroup.boundingBox.y
-									+ neighborGroup.boundingBox.height) {
-								neighborGroup.boundingBox.height = y
-										- neighborGroup.boundingBox.y;
+							if (y > neighborGroup.boundingBox.y + neighborGroup.boundingBox.height) {
+								neighborGroup.boundingBox.height = y - neighborGroup.boundingBox.y;
 							}
 
 						} // else - i am grouped and my neighbor is in the same
@@ -388,10 +345,8 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 			 * +group.points.size());
 			 */
 			g.setColor(Color.yellow);
-			g.drawRect(group.boundingBox.x, group.boundingBox.y,
-					group.boundingBox.width, group.boundingBox.height);
-			g.drawString("" + group.number, group.boundingBox.x + 4,
-					group.boundingBox.y + 11);
+			g.drawRect(group.boundingBox.x, group.boundingBox.y, group.boundingBox.width, group.boundingBox.height);
+			g.drawString("" + group.number, group.boundingBox.x + 4, group.boundingBox.y + 11);
 
 		}
 

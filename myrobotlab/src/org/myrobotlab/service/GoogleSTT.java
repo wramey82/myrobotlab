@@ -63,8 +63,7 @@ import org.tritonus.share.sampled.FloatSampleBuffer;
 
 public class GoogleSTT extends Service {
 
-	public final static Logger log = Logger.getLogger(GoogleSTT.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GoogleSTT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	// microphone capture
@@ -116,8 +115,7 @@ public class GoogleSTT extends Service {
 	}
 
 	private AudioFormat getAudioFormat() {
-		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed,
-				bigEndian);
+		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
 	}
 
 	public void captureAudio() {
@@ -128,20 +126,16 @@ public class GoogleSTT extends Service {
 			log.info("sample size in bits " + sampleSizeInBits);
 			log.info("signed              " + signed);
 			log.info("bigEndian           " + bigEndian);
-			log.info("data rate is " + sampleRate * sampleSizeInBits / 8
-					+ " bytes per second");
+			log.info("data rate is " + sampleRate * sampleSizeInBits / 8 + " bytes per second");
 			// create a data line with parameters
-			DataLine.Info dataLineInfo = new DataLine.Info(
-					TargetDataLine.class, audioFormat);
+			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
 			// attempt to find & get an input data line with those parameters
 			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			targetDataLine.open(audioFormat);
 			targetDataLine.start();
 
 			// create buffer for root mean square level detection
-			buffer = new FloatSampleBuffer(targetDataLine.getFormat()
-					.getChannels(), bufferSize, targetDataLine.getFormat()
-					.getSampleRate());
+			buffer = new FloatSampleBuffer(targetDataLine.getFormat().getChannels(), bufferSize, targetDataLine.getFormat().getSampleRate());
 
 			// capture from microphone
 			captureThread = new CaptureThread(this);
@@ -200,22 +194,19 @@ public class GoogleSTT extends Service {
 				}
 
 				int byteBufferSize = buffer.getByteArrayBufferSize(targetDataLine.getFormat());
-				rawBytes = new byte[byteBufferSize];// TODO - create buffer here ?
-				log.info("starting capture with " + bufferSize
-						+ " buffer size and " + byteBufferSize
-						+ " byte buffer length");
+				rawBytes = new byte[byteBufferSize];// TODO - create buffer here
+													// ?
+				log.info("starting capture with " + bufferSize + " buffer size and " + byteBufferSize + " byte buffer length");
 				byteArrayOutputStream = new ByteArrayOutputStream();
 				stopCapture = false; // FIXME - remove
-				
+
 				try {
 					while (!stopCapture) {
 
 						// read from the line
-						int cnt = targetDataLine.read(rawBytes, 0,
-								rawBytes.length);
+						int cnt = targetDataLine.read(rawBytes, 0, rawBytes.length);
 						// convert to float samples
-						buffer.setSamplesFromBytes(rawBytes, 0, targetDataLine
-								.getFormat(), 0, buffer.getSampleCount());
+						buffer.setSamplesFromBytes(rawBytes, 0, targetDataLine.getFormat(), 0, buffer.getSampleCount());
 
 						rms = level(buffer.getChannel(0)); // cheezy
 						if (rms > rmsThreshold) {
@@ -232,9 +223,7 @@ public class GoogleSTT extends Service {
 
 						captureTimeMS = System.currentTimeMillis() - captureStartTimeMS;
 
-						if (isCapturing == true
-								&& captureTimeMS > captureTimeMinimumMS
-								&& rms < rmsThreshold) {
+						if (isCapturing == true && captureTimeMS > captureTimeMinimumMS && rms < rmsThreshold) {
 							isCapturing = false;
 							stopCapture = true;
 						}
@@ -245,8 +234,8 @@ public class GoogleSTT extends Service {
 					byteArrayOutputStream.close();
 
 					++transcriptionIndex;
-					saveWavAsFile(byteArrayOutputStream.toByteArray(), audioFormat, "googletts_" + transcriptionIndex +".wav");
-					encoder.encode(new File("googletts_" + transcriptionIndex +".wav"),new File("googletts_" + transcriptionIndex +".flac"));
+					saveWavAsFile(byteArrayOutputStream.toByteArray(), audioFormat, "googletts_" + transcriptionIndex + ".wav");
+					encoder.encode(new File("googletts_" + transcriptionIndex + ".wav"), new File("googletts_" + transcriptionIndex + ".flac"));
 					transcribe("googletts_" + transcriptionIndex + ".flac");
 					stopCapture = false;
 
@@ -293,14 +282,11 @@ public class GoogleSTT extends Service {
 		// threads.add(transcription);
 	}
 
-	public static void saveWavAsFile(byte[] byte_array,
-			AudioFormat audioFormat, String file) {
+	public static void saveWavAsFile(byte[] byte_array, AudioFormat audioFormat, String file) {
 		try {
-			long length = (long) (byte_array.length / audioFormat
-					.getFrameSize());
+			long length = (long) (byte_array.length / audioFormat.getFrameSize());
 			ByteArrayInputStream bais = new ByteArrayInputStream(byte_array);
-			AudioInputStream audioInputStreamTemp = new AudioInputStream(bais,
-					audioFormat, length);
+			AudioInputStream audioInputStreamTemp = new AudioInputStream(bais, audioFormat, length);
 			File fileOut = new File(file);
 			AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 
@@ -333,10 +319,8 @@ public class GoogleSTT extends Service {
 	public static long toLong(byte[] data) {
 		if (data == null || data.length != 8)
 			return 0x0;
-		return (long) ((long) (0xff & data[0]) << 56
-				| (long) (0xff & data[1]) << 48 | (long) (0xff & data[2]) << 40
-				| (long) (0xff & data[3]) << 32 | (long) (0xff & data[4]) << 24
-				| (long) (0xff & data[5]) << 16 | (long) (0xff & data[6]) << 8 | (long) (0xff & data[7]) << 0);
+		return (long) ((long) (0xff & data[0]) << 56 | (long) (0xff & data[1]) << 48 | (long) (0xff & data[2]) << 40 | (long) (0xff & data[3]) << 32
+				| (long) (0xff & data[4]) << 24 | (long) (0xff & data[5]) << 16 | (long) (0xff & data[6]) << 8 | (long) (0xff & data[7]) << 0);
 	}
 
 	/*
@@ -353,7 +337,6 @@ public class GoogleSTT extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		
 		GoogleSTT stt = new GoogleSTT("stt");
 		// stt.startService();
 		stt.captureAudio();

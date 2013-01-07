@@ -63,12 +63,10 @@ public class EditorArduino extends Editor implements ActionListener {
 
 	Arduino myArduino = null;
 	JMenu boardsMenu = new JMenu("Board");
-	public JMenu serialDeviceMenu  = new JMenu("Serial Device");
+	public JMenu serialDeviceMenu = new JMenu("Serial Device");
 	public JMenu digitalPinMenu = new JMenu("Digital Pins");
-    JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
-    JCheckBoxMenuItem digitalTriggerOnly = new JCheckBoxMenuItem("Digital Trigger Only");
-    
-
+	JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
+	JCheckBoxMenuItem digitalTriggerOnly = new JCheckBoxMenuItem("Digital Trigger Only");
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
@@ -88,27 +86,23 @@ public class EditorArduino extends Editor implements ActionListener {
 			myService.send(boundServiceName, "upload");
 			return;
 		} else if (o == digitalDebounce) {
-			if (digitalDebounce.isSelected())
-			{
+			if (digitalDebounce.isSelected()) {
 				myService.send(boundServiceName, "digitalDebounceOn");
 			} else {
 				myService.send(boundServiceName, "digitalDebounceOff");
 			}
 		} else if (o == digitalTriggerOnly) {
-			if (digitalTriggerOnly.isSelected())
-			{
+			if (digitalTriggerOnly.isSelected()) {
 				myService.send(boundServiceName, "setDigitalTriggerOnly", true);
 			} else {
 				myService.send(boundServiceName, "setDigitalTriggerOnly", false);
 			}
 		} else if (o == connectButton) {
-		} else if ("examples".equals(event.getActionCommand()))
-		{
-			JMenuItem menu = (JMenuItem)o;
+		} else if ("examples".equals(event.getActionCommand())) {
+			JMenuItem menu = (JMenuItem) o;
 			loadResourceFile(menu.getText());
-		} 
+		}
 	}
-
 
 	public void init() {
 		super.init();
@@ -126,22 +120,21 @@ public class EditorArduino extends Editor implements ActionListener {
 		buttonBar.add(sketchName);
 
 		// addHelpMenuURL("help blah", "http:blahblahblah");
-		
-		rebuildBoardsMenu(boardsMenu);
 
+		rebuildBoardsMenu(boardsMenu);
 
 		toolsMenu.add(boardsMenu);
 		toolsMenu.add(serialDeviceMenu);
 		toolsMenu.add(digitalPinMenu);
-				
-	    digitalDebounce.setSelected(true);
+
+		digitalDebounce.setSelected(true);
 		digitalDebounce.addActionListener(this);
 		digitalPinMenu.add(digitalDebounce);
-		
+
 		digitalTriggerOnly.setSelected(true);
 		digitalTriggerOnly.addActionListener(this);
 		digitalPinMenu.add(digitalTriggerOnly);
-		
+
 		// add to help menu
 		helpMenu.add(createMenuItem("Getting Started"));
 		helpMenu.add(createMenuItem("Environment"));
@@ -150,13 +143,13 @@ public class EditorArduino extends Editor implements ActionListener {
 		helpMenu.add(createMenuItem("Find in Reference", saveMenuMnemonic, "control+shift-F", null));
 		helpMenu.add(createMenuItem("Frequently Asked Questions"));
 		helpMenu.add(createMenuItem("Visit Arduino.cc"));
-		
-		//loadCommunicationFile(); - get it from the Arduino itself
+
+		// loadCommunicationFile(); - get it from the Arduino itself
 
 	}
 
 	public void loadResourceFile(String filename) {
-		String resourcePath = String.format("Arduino/%s/%s",filename.substring(0,filename.indexOf(".")), filename);
+		String resourcePath = String.format("Arduino/%s/%s", filename.substring(0, filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
 		String sketch = FileIO.getResourceFile(resourcePath);
 		textArea.setText(sketch);
@@ -192,15 +185,15 @@ public class EditorArduino extends Editor implements ActionListener {
 			}
 		}
 	}
-	
+
 	private JMenu createExamplesMenu() {
 		// FIXME - dynamically build based on resources
-;
+		;
 		JMenu menu;
 		menu = new JMenu("Communication");
 		menu.add(createMenuItem("MRLComm.ino", "examples"));
 		menu.add(createMenuItem("AceduinoMotorShield.ino", "examples"));
-		
+
 		return menu;
 	}
 

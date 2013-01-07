@@ -78,10 +78,8 @@ public class ToyGUI extends ServiceGUI implements ListSelectionListener {
 	public ToyGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
-	public void init() 
-	{
+
+	public void init() {
 
 		video0 = new VideoWidget(boundServiceName, myService);
 		video0.init();
@@ -157,8 +155,7 @@ public class ToyGUI extends ServiceGUI implements ListSelectionListener {
 			myService.send(boundServiceName, "keyPressed", keyEvent.getKeyCode());
 
 			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
+			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 

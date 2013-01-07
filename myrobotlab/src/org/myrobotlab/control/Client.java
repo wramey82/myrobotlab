@@ -109,8 +109,7 @@ public class Client extends JApplet {
 			// Multicast End --------------------------------------------------
 
 		} catch (UnknownHostException e) {
-			log
-					.error("Couldn't get Internet appletAddress: Unknown appletHostAddress");
+			log.error("Couldn't get Internet appletAddress: Unknown appletHostAddress");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			Service.logException(e);

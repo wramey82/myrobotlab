@@ -34,13 +34,11 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterResetImageROI extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterResetImageROI.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterResetImageROI.class.getCanonicalName());
 
 	public OpenCVFilterResetImageROI(OpenCV service, String name) {
 		super(service, name);

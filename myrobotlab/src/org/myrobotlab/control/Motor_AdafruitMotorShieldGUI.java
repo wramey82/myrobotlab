@@ -16,55 +16,51 @@ public class Motor_AdafruitMotorShieldGUI extends MotorControllerPanel implement
 
 	private static final long serialVersionUID = 1L;
 	private GUIService myService;
-	
+
 	JLabel motorPortLabel = new JLabel("motor port");
 	JComboBox motorPort = new JComboBox();
 	JButton attachButton = new JButton("attach");
 	String arduinoName;
 	String motorName;
 
-	ArrayList<Pin> pinList  = null;
-	public Motor_AdafruitMotorShieldGUI(GUIService myService, String motorName, String controllerName)
-	{
+	ArrayList<Pin> pinList = null;
+
+	public Motor_AdafruitMotorShieldGUI(GUIService myService, String motorName, String controllerName) {
 		super();
 		this.myService = myService;
 		this.arduinoName = controllerName;
 		this.motorName = motorName;
-		
-		for (int i = 1; i < 5; ++i)
-		{
-			motorPort.addItem(String.format("m%d",i));
+
+		for (int i = 1; i < 5; ++i) {
+			motorPort.addItem(String.format("m%d", i));
 		}
-		
+
 		setBorder(BorderFactory.createTitledBorder("type - Adafruit Motor Shield"));
 		add(motorPortLabel);
 		add(motorPort);
 		add(attachButton);
 		setEnabled(true);
-		
+
 		attachButton.addActionListener(this);
 
-
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		
-		if (o == attachButton)
-		{
-			if ("attach".equals(attachButton.getText()))
-			{
-				Object[] motorData = new Object[]{motorPort.getSelectedItem()};
+
+		if (o == attachButton) {
+			if ("attach".equals(attachButton.getText())) {
+				Object[] motorData = new Object[] { motorPort.getSelectedItem() };
 				myService.send(arduinoName, "motorAttach", motorName, motorData);
 				attachButton.setText("detach");
 			} else {
 				myService.send(arduinoName, "motorDetach", motorName);
-				attachButton.setText("attach");				
+				attachButton.setText("attach");
 			}
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -75,18 +71,15 @@ public class Motor_AdafruitMotorShieldGUI extends MotorControllerPanel implement
 		// TODO Auto-generated method stub
 		motorPort.setSelectedItem(data[0]);
 	}
-	
+
 	@Override
 	void setAttached(boolean state) {
-		if (state)
-		{
+		if (state) {
 			attachButton.setText("detach");
 		} else {
 			attachButton.setText("attach");
 		}
-		
+
 	}
-	
-	
 
 }

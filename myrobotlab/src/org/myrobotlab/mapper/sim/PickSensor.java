@@ -26,18 +26,19 @@ package org.myrobotlab.mapper.sim;
 
 import javax.media.j3d.BranchGroup;
 
-
 /**
  * Base class for all sensors using picking.
  */
 public abstract class PickSensor extends SensorDevice {
-    protected BranchGroup pickableSceneBranch;
-    
-    /**
-     * It should be called before update.
-     * @param pickableSceneBranch
-     */
-   protected  void setPickableSceneBranch(BranchGroup pickableSceneBranch)
-    { this.pickableSceneBranch = pickableSceneBranch;}
+	protected BranchGroup pickableSceneBranch;
+
+	/**
+	 * It should be called before update.
+	 * 
+	 * @param pickableSceneBranch
+	 */
+	protected void setPickableSceneBranch(BranchGroup pickableSceneBranch) {
+		this.pickableSceneBranch = pickableSceneBranch;
+	}
 
 }

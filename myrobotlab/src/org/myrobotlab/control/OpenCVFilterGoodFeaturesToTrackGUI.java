@@ -43,9 +43,8 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 	JSlider2 qualityLevel = new JSlider2(JSlider.HORIZONTAL, 0, 100, 0.05f);
 	JSlider2 blockSize = new JSlider2(JSlider.HORIZONTAL, 1, 10, 3);
 	AdjustSlider change = new AdjustSlider();
-	
-	public class AdjustSlider implements ChangeListener
-	{
+
+	public class AdjustSlider implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
@@ -54,15 +53,14 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 			params[0] = name;
 			params[1] = slider.getName();
 			params[2] = slider.getValue();
-			
-			if (!slider.getValueIsAdjusting())
-			{
-				OpenCVFilterGoodFeaturesToTrack filter = (OpenCVFilterGoodFeaturesToTrack)boundFilter.filter;
-				if (slider == qualityLevel)
-				{
-					//params[2] = slider.getValue() * 2 + 1;
-					//qualityLevel.value.setText("" + (float)qualityLevel.getValue()/100);
-					//filter.qualityLevel = (float)qualityLevel.getValue()/100;
+
+			if (!slider.getValueIsAdjusting()) {
+				OpenCVFilterGoodFeaturesToTrack filter = (OpenCVFilterGoodFeaturesToTrack) boundFilter.filter;
+				if (slider == qualityLevel) {
+					// params[2] = slider.getValue() * 2 + 1;
+					// qualityLevel.value.setText("" +
+					// (float)qualityLevel.getValue()/100);
+					// filter.qualityLevel = (float)qualityLevel.getValue()/100;
 				} else if (slider == maxPointCount) {
 					maxPointCount.value.setText("" + maxPointCount.getValue());
 					filter.maxPointCount = maxPointCount.getValue();
@@ -73,32 +71,27 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 					blockSize.value.setText("" + blockSize.getValue());
 					filter.blockSize = blockSize.getValue();
 				}
-				
+
 				myGUI.send(boundServiceName, "setFilterData", boundFilter);
 			} // else - adjust gui text only
-			
-			
+
 		}
 	}
 
-
-	
-	public OpenCVFilterGoodFeaturesToTrackGUI(String boundFilterName,
-			String boundServiceName, GUIService myService) {
+	public OpenCVFilterGoodFeaturesToTrackGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
-		
-		maxPointCount.setName("maxPointCount"); 
-		minDistance.setName("minDistance"); 
+		maxPointCount.setName("maxPointCount");
+		minDistance.setName("minDistance");
 		qualityLevel.setName("qualityLevel");
 		blockSize.setName("blockSize");
-		
+
 		maxPointCount.addChangeListener(change);
 		minDistance.addChangeListener(change);
 		qualityLevel.addChangeListener(change);
 		blockSize.addChangeListener(change);
-		
-		gc.gridy = 0;		
+
+		gc.gridy = 0;
 		gc.gridx = 0;
 
 		++gc.gridy;
@@ -108,9 +101,9 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		gc.gridwidth = 2;
 		display.add(maxPointCount, gc);
 		gc.gridwidth = 1;
-		gc.gridx+=2;
+		gc.gridx += 2;
 		display.add(maxPointCount.value, gc);
-		
+
 		++gc.gridy;
 		gc.gridx = 0;
 		display.add(new JLabel("min distance"), gc);
@@ -118,9 +111,9 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		gc.gridwidth = 2;
 		display.add(minDistance, gc);
 		gc.gridwidth = 1;
-		gc.gridx+=2;
+		gc.gridx += 2;
 		display.add(minDistance.value, gc);
-		
+
 		++gc.gridy;
 		gc.gridx = 0;
 		display.add(new JLabel("quality     "), gc);
@@ -128,9 +121,9 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		gc.gridwidth = 2;
 		display.add(qualityLevel, gc);
 		gc.gridwidth = 1;
-		gc.gridx+=2;
+		gc.gridx += 2;
 		display.add(qualityLevel.value, gc);
-		
+
 		++gc.gridy;
 		gc.gridx = 0;
 		display.add(new JLabel("block size  "), gc);
@@ -138,11 +131,11 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		gc.gridwidth = 2;
 		display.add(blockSize, gc);
 		gc.gridwidth = 1;
-		gc.gridx+=2;
+		gc.gridx += 2;
 		display.add(blockSize.value, gc);
-		
+
 		// set the hook
-		MRLListener listener = new MRLListener("publishFilterData", myService.getName(), "setFilterData", new Class[]{FilterWrapper.class});
+		MRLListener listener = new MRLListener("publishFilterData", myService.getName(), "setFilterData", new Class[] { FilterWrapper.class });
 		myService.send(boundServiceName, "addListener", listener);
 		// thread wait?
 		// send the event
@@ -154,19 +147,12 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 	}
 
 	@Override
-	public JPanel getDisplay() {
-		return display;
-	}
-	
-	@Override
-	public void setFilterData(FilterWrapper boundFilter)
-	{
-		if (this.boundFilter == null)
-		{
-			this.boundFilter = boundFilter;			
+	public void getFilterState(FilterWrapper boundFilter) {
+		if (this.boundFilter == null) {
+			this.boundFilter = boundFilter;
 		}
 
-		OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack)boundFilter.filter;
+		OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack) boundFilter.filter;
 		maxPointCount.setValueIsAdjusting(true);
 		minDistance.setValueIsAdjusting(true);
 		qualityLevel.setValueIsAdjusting(true);
@@ -174,23 +160,33 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 
 		maxPointCount.setValue(bf.maxPointCount);
 
-		minDistance.setValue((int)bf.minDistance);
-			
-		qualityLevel.setValue((int)bf.qualityLevel * 100);
+		minDistance.setValue((int) bf.minDistance);
+
+		qualityLevel.setValue((int) bf.qualityLevel * 100);
 		qualityLevel.value.setText("" + bf.qualityLevel);
-		
-		blockSize.setValue((int)bf.blockSize);
+
+		blockSize.setValue((int) bf.blockSize);
 
 		blockSize.setValueIsAdjusting(false);
 		qualityLevel.setValueIsAdjusting(false);
 		minDistance.setValueIsAdjusting(false);
 		maxPointCount.setValueIsAdjusting(false);
 	}
-	
-	public void updateState()
-	{
+
+	public void updateState() {
 		// send setState
 	}
 
+	@Override
+	public void attachGUI() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+
+	}
 
 }

@@ -37,7 +37,7 @@ import org.myrobotlab.framework.Service;
 public class ParallelPort extends Service {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public ParallelPort(String name) {
 		super(name, ParallelPort.class.getCanonicalName());
 	}
@@ -48,79 +48,75 @@ public class ParallelPort extends Service {
 
 	}
 
-	 private static OutputStream outputStream;;
-	    private static gnu.io.ParallelPort parallelPort;
-	    private static CommPortIdentifier port;
+	private static OutputStream outputStream;;
+	private static gnu.io.ParallelPort parallelPort;
+	private static CommPortIdentifier port;
 
-	    // CONSTANTS
-	    public static final String PARALLEL_PORT = "LPT1";
+	// CONSTANTS
+	public static final String PARALLEL_PORT = "LPT1";
 
-	    public static final String[] PORT_TYPE = { "Serial Port", "Parallel Port" };
+	public static final String[] PORT_TYPE = { "Serial Port", "Parallel Port" };
 
-	    // these commands are specific for my printer around the text
-	    //private static String printerCodes = "<n>HelloWorld!<p>";
+	// these commands are specific for my printer around the text
+	// private static String printerCodes = "<n>HelloWorld!<p>";
 
-	    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-	        System.out.println("Started test....");
+		System.out.println("Started test....");
 
-	        try {
-	            // get the parallel port connected to the printer
-	            port = CommPortIdentifier.getPortIdentifier(PARALLEL_PORT);
+		try {
+			// get the parallel port connected to the printer
+			port = CommPortIdentifier.getPortIdentifier(PARALLEL_PORT);
 
-	            System.out.println("\nport.portType = " + port.getPortType());
-	            System.out.println("port type = "+ PORT_TYPE[port.getPortType() - 1]);
-	            System.out.println("port.getName() = " + port.getName());
+			System.out.println("\nport.portType = " + port.getPortType());
+			System.out.println("port type = " + PORT_TYPE[port.getPortType() - 1]);
+			System.out.println("port.getName() = " + port.getName());
 
-	            // open the parallel port -- open(App name, timeout)
-	            parallelPort = (gnu.io.ParallelPort) port.open("CommTest", 50);
-	            outputStream = parallelPort.getOutputStream();
+			// open the parallel port -- open(App name, timeout)
+			parallelPort = (gnu.io.ParallelPort) port.open("CommTest", 50);
+			outputStream = parallelPort.getOutputStream();
 
-	            //char[] charArray = printerCodes.toCharArray();
-	            byte[] byteArray = null; // TODO - fix CharToByteConverter.getConverter is depricated
-	            /*
-	            byte[] byteArray = CharToByteConverter.getConverter("UTF8")
-	                    .convertAll(charArray);
-				*/
-	            System.out.println("Write...");
-	            outputStream.write(byteArray);
-	            System.out.println("Flush...");
-	            outputStream.flush();
-	            System.out.println("Close...");
-	            outputStream.close();
+			// char[] charArray = printerCodes.toCharArray();
+			byte[] byteArray = null; // TODO - fix
+										// CharToByteConverter.getConverter is
+										// depricated
+			/*
+			 * byte[] byteArray = CharToByteConverter.getConverter("UTF8")
+			 * .convertAll(charArray);
+			 */
+			System.out.println("Write...");
+			outputStream.write(byteArray);
+			System.out.println("Flush...");
+			outputStream.flush();
+			System.out.println("Close...");
+			outputStream.close();
 
-	        } catch (NoSuchPortException nspe) {
-	            System.out.println("\nPrinter Port LPT1 not found : "
-	                    + "NoSuchPortException.\nException:\n" + nspe + "\n");
-	        } catch (PortInUseException piue) {
-	            System.out.println("\nPrinter Port LPT1 is in use : "
-	                    + "PortInUseException.\nException:\n" + piue + "\n");
-	        }
-	        /*
-	         * catch (UnsupportedCommOperationException usce) {
-	         * System.out.println("\nPrinter Port LPT1 fail to write :
-	         * UnsupportedCommException.\nException:\n" + usce + "\n"); }
-	         */
-	        catch (IOException ioe) {
-	            System.out.println("\nPrinter Port LPT1 failed to write : "
-	                    + "IOException.\nException:\n" + ioe + "\n");
-	        } catch (Exception e) {
-	            System.out
-	                    .println("\nFailed to open Printer Port LPT1 with exeception : "
-	                            + e + "\n");
-	        } finally {
-	            if (port != null && port.isCurrentlyOwned()) {
-	                parallelPort.close();
-	            }
-
-	            System.out.println("Closed all resources.\n");
-	        }
-	    }
-
-		@Override
-		public String getToolTip() {
-			return "<html>(not working yet) used to communicate to and from the parallel port<br>" +
-			"wrapping the great project http://rxtx.qbang.org/ using LGPL v 2.1</html>";
+		} catch (NoSuchPortException nspe) {
+			System.out.println("\nPrinter Port LPT1 not found : " + "NoSuchPortException.\nException:\n" + nspe + "\n");
+		} catch (PortInUseException piue) {
+			System.out.println("\nPrinter Port LPT1 is in use : " + "PortInUseException.\nException:\n" + piue + "\n");
 		}
+		/*
+		 * catch (UnsupportedCommOperationException usce) {
+		 * System.out.println("\nPrinter Port LPT1 fail to write :
+		 * UnsupportedCommException.\nException:\n" + usce + "\n"); }
+		 */
+		catch (IOException ioe) {
+			System.out.println("\nPrinter Port LPT1 failed to write : " + "IOException.\nException:\n" + ioe + "\n");
+		} catch (Exception e) {
+			System.out.println("\nFailed to open Printer Port LPT1 with exeception : " + e + "\n");
+		} finally {
+			if (port != null && port.isCurrentlyOwned()) {
+				parallelPort.close();
+			}
+
+			System.out.println("Closed all resources.\n");
+		}
+	}
+
+	@Override
+	public String getToolTip() {
+		return "<html>(not working yet) used to communicate to and from the parallel port<br>" + "wrapping the great project http://rxtx.qbang.org/ using LGPL v 2.1</html>";
+	}
 
 }

@@ -44,22 +44,19 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 	JSlider2 lowThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 0);
 	JSlider2 highThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 256);
 	JSlider2 apertureSize = new JSlider2(JSlider.HORIZONTAL, 1, 3, 1);
-	
-	public class JSlider2 extends JSlider
-	{
+
+	public class JSlider2 extends JSlider {
 		private static final long serialVersionUID = 1L;
 		JLabel value = new JLabel();
 
 		public JSlider2(int vertical, int i, int j, int k) {
-			super (vertical, i, j, k);
+			super(vertical, i, j, k);
 			value.setText("" + k);
 		}
-				
+
 	}
-	
-	
-	public class AdjustSlider implements ChangeListener
-	{
+
+	public class AdjustSlider implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
@@ -68,8 +65,7 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 			params[0] = name;
 			params[1] = slider.getName();
 			params[2] = slider.getValue();
-			if (slider.getName().compareTo("apertureSize") == 0)
-			{
+			if (slider.getName().compareTo("apertureSize") == 0) {
 				params[2] = slider.getValue() * 2 + 1;
 			}
 			myGUI.send(boundServiceName, "setFilterCFG", params);
@@ -77,24 +73,21 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 		}
 	}
 
-
 	AdjustSlider change = new AdjustSlider();
-	
-	public OpenCVFloorFinderGUI(String boundFilterName,
-			String boundServiceName, GUIService myService) {
+
+	public OpenCVFloorFinderGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
-		lowThreshold.setName("lowThreshold"); 
+		lowThreshold.setName("lowThreshold");
 		highThreshold.setName("highThreshold");
 		apertureSize.setName("apertureSize");
-		
+
 		lowThreshold.addChangeListener(change);
 		highThreshold.addChangeListener(change);
 		apertureSize.addChangeListener(change);
-		
-		
+
 		GridBagConstraints gc2 = new GridBagConstraints();
-		
+
 		TitledBorder title;
 		JPanel j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("threshold");
@@ -125,25 +118,31 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 		j.add(apertureSize);
 		j.add(apertureSize.value);
 		display.add(j, gc2);
-		 		
+
 	}
 
 	@Override
 	public void apply() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public JPanel getDisplay() {
+	public void getFilterState(FilterWrapper filter) {
 		// TODO Auto-generated method stub
-		return display;
+
 	}
 
 	@Override
-	public void setFilterData(FilterWrapper filter) {
+	public void attachGUI() {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void detachGUI() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

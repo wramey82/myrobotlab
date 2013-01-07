@@ -15,8 +15,7 @@ public class GPMessageEvaluatingIndividual extends GPMessage {
 	public double rawFitness;
 	public RealPoint[] data;
 
-	GPMessageEvaluatingIndividual(int generationNr, int individualNr,
-			RealPoint[] data, double fitness, double rawFitness) {
+	GPMessageEvaluatingIndividual(int generationNr, int individualNr, RealPoint[] data, double fitness, double rawFitness) {
 		this.generationNr = generationNr;
 		this.individualNr = individualNr;
 		this.data = data;

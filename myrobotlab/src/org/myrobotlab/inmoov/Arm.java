@@ -12,10 +12,9 @@ public class Arm {
 	public Servo shoulder;
 	public Servo omoplate;
 
-	public Arm()
-	{
+	public Arm() {
 	}
-	
+
 	public void rest() {
 		// initial position
 		bicep.moveTo(0);
@@ -25,7 +24,7 @@ public class Arm {
 	}
 
 	public void initialize(Arduino arduino, String key) {
-		//name = String.format("%sArm", key);
+		// name = String.format("%sArm", key);
 		side = key;
 		bicep = (Servo) Runtime.createAndStart(String.format("bicep%s", key), "Servo");
 		rotate = (Servo) Runtime.createAndStart(String.format("rotate%s", key), "Servo");
@@ -45,7 +44,7 @@ public class Arm {
 		rotate.setPositionMin(40);
 
 		rest();
-		
+
 		broadcastState();
 
 	}
@@ -93,18 +92,17 @@ public class Arm {
 		}
 
 	}
-	
-	public void setSpeed(Float bicep, Float rotate, Float shoulder, Float omoplate)
-	{
+
+	public void setSpeed(Float bicep, Float rotate, Float shoulder, Float omoplate) {
 		this.bicep.setSpeed(bicep);
 		this.rotate.setSpeed(rotate);
 		this.shoulder.setSpeed(shoulder);
 		this.omoplate.setSpeed(omoplate);
 	}
-	
-	public String getScript(String inMoovServiceName)
-	{
-		return String.format("%s.moveArm(\"%s\",%d,%d,%d,%d)\n", inMoovServiceName, side, bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
+
+	public String getScript(String inMoovServiceName) {
+		return String
+				.format("%s.moveArm(\"%s\",%d,%d,%d,%d)\n", inMoovServiceName, side, bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
 	}
 
 	public void moveTo(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
@@ -112,6 +110,6 @@ public class Arm {
 		this.rotate.moveTo(rotate);
 		this.shoulder.moveTo(shoulder);
 		this.omoplate.moveTo(omoplate);
-		
+
 	}
 }

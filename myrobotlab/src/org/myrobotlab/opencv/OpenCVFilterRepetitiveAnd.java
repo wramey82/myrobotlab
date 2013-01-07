@@ -37,9 +37,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterRepetitiveAnd extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterRepetitiveAnd.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterRepetitiveAnd.class.getCanonicalName());
 
 	IplImage buffer = null;
 	// IplImage out = null;

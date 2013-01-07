@@ -28,12 +28,11 @@ public class FindAndReplaceDialog extends JDialog implements ActionListener {
 
 	public FindAndReplaceDialog(Editor editor) {
 
-	    JPanel cp = new JPanel(new BorderLayout());
-
+		JPanel cp = new JPanel(new BorderLayout());
 
 		this.editor = editor;
 		this.textArea = this.editor.getTextArea();
-		
+
 		// Create a toolbar with searching options.
 		JToolBar toolBar = new JToolBar();
 		searchField = new JTextField(30);
@@ -59,34 +58,34 @@ public class FindAndReplaceDialog extends JDialog implements ActionListener {
 
 		setContentPane(cp);
 		setTitle("Find and Replace Demo");
-		//setDefaultCloseOperation(EXIT_ON_CLOSE);
+		// setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
-	
-	   public void actionPerformed(ActionEvent e) {
 
-		      // "FindNext" => search forward, "FindPrev" => search backward
-		      String command = e.getActionCommand();
-		      boolean forward = "FindNext".equals(command);
+	public void actionPerformed(ActionEvent e) {
 
-		      // Create an object defining our search parameters.
-		      SearchContext context = new SearchContext();
-		      String text = searchField.getText();
-		      if (text.length() == 0) {
-		         return;
-		      }
-		      context.setSearchFor(text);
-		      context.setMatchCase(matchCaseCB.isSelected());
-		      context.setRegularExpression(regexCB.isSelected());
-		      context.setSearchForward(forward);
-		      context.setWholeWord(false);
+		// "FindNext" => search forward, "FindPrev" => search backward
+		String command = e.getActionCommand();
+		boolean forward = "FindNext".equals(command);
 
-		      boolean found = SearchEngine.find(textArea, context);
-		      if (!found) {
-		         JOptionPane.showMessageDialog(this, "Text not found");
-		      }
+		// Create an object defining our search parameters.
+		SearchContext context = new SearchContext();
+		String text = searchField.getText();
+		if (text.length() == 0) {
+			return;
+		}
+		context.setSearchFor(text);
+		context.setMatchCase(matchCaseCB.isSelected());
+		context.setRegularExpression(regexCB.isSelected());
+		context.setSearchForward(forward);
+		context.setWholeWord(false);
 
-		   }
+		boolean found = SearchEngine.find(textArea, context);
+		if (!found) {
+			JOptionPane.showMessageDialog(this, "Text not found");
+		}
+
+	}
 }

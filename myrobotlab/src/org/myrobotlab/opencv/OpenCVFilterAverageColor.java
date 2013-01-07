@@ -58,9 +58,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterAverageColor.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterAverageColor.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
@@ -102,14 +101,9 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
-	final static String[][][] colorNameCube = {
-			{ { "black", "navy", "blue" }, { "green", "teal", "bondi blue" },
-					{ "lime", "persian green", "aqua" } },
-			{ { "maroon", "purple", "amethyst" },
-					{ "olive", "gray", "sky blue" },
-					{ "brown", "aquamarine", "pale blue" } },
-			{ { "red", "rose", "fushia" }, { "persimmon", "pink", "plum" },
-					{ "yellow", "apricot", "white" } } };
+	final static String[][][] colorNameCube = { { { "black", "navy", "blue" }, { "green", "teal", "bondi blue" }, { "lime", "persian green", "aqua" } },
+			{ { "maroon", "purple", "amethyst" }, { "olive", "gray", "sky blue" }, { "brown", "aquamarine", "pale blue" } },
+			{ { "red", "rose", "fushia" }, { "persimmon", "pink", "plum" }, { "yellow", "apricot", "white" } } };
 
 	public static String getRGBColorName(CvScalar c) {
 		String ret = "";
@@ -153,13 +147,9 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 					coi = colorGrid[x][y];
 					poi.x(x * roiWidth);
 					poi.y(y * roiHeight);
-					cvDrawRect(image, cvPoint(x * roiWidth, y * roiHeight)
-							, cvPoint(x * roiWidth + roiWidth,
-							y * roiHeight + roiHeight),
-							coi, 1, 1, 0);
+					cvDrawRect(image, cvPoint(x * roiWidth, y * roiHeight), cvPoint(x * roiWidth + roiWidth, y * roiHeight + roiHeight), coi, 1, 1, 0);
 					if (lastColorName != getColorName(coi)) {
-						cvPutText(image, getColorName(coi).substring(0, 2), poi
-								, font, CV_RGB(255, 255, 255));
+						cvPutText(image, getColorName(coi).substring(0, 2), poi, font, CV_RGB(255, 255, 255));
 					}
 					lastColorName = getColorName(coi);
 
@@ -167,11 +157,8 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 			}
 		}
 
-		cvPutText(image, colorName, cvPoint(10, 14), font, CV_RGB(
-				255, 0, 0));
-		cvPutText(image, filterFrameCnt + " " + (int) avg.red() + " "
-				+ (int) avg.green() + " " + (int) avg.blue(), cvPoint(10,
-				28), font, CV_RGB(255, 0, 0));
+		cvPutText(image, colorName, cvPoint(10, 14), font, CV_RGB(255, 0, 0));
+		cvPutText(image, filterFrameCnt + " " + (int) avg.red() + " " + (int) avg.green() + " " + (int) avg.blue(), cvPoint(10, 28), font, CV_RGB(255, 0, 0));
 		// cvPutText(image, red + " " + green + " "
 		// + blue, cvPoint(10, 42), font, CV_RGB(255, 0, 0));
 		/*
@@ -182,9 +169,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		// cvFillConvexPoly( image, pts, 4, fillColor, CV_AA, 0 );
 		// cvFillPoly(image, pts, 4, contours, cvScalar(255.0, 255.0, 255.0,
 		// 0.0), 8, 0)
-		cvDrawRect(image, cvPoint(roiX, roiY), cvPoint(
-				roiX + roiWidth, roiY + roiHeight), fillColor
-				, 1, 1, 0);
+		cvDrawRect(image, cvPoint(roiX, roiY), cvPoint(roiX + roiWidth, roiY + roiHeight), fillColor, 1, 1, 0);
 
 		return image.getBufferedImage();
 	}
@@ -192,10 +177,6 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	@Override
 	public String getDescription() {
 		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
 	}
 
 	CvScalar[][] colorGrid = null;
@@ -227,8 +208,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		} else {
 			if (makeGrid) {
 				if (colorGrid == null) {
-					colorGrid = new CvScalar[image.width() / roiWidth + 1][image.height()
-							/ roiHeight + 1];
+					colorGrid = new CvScalar[image.width() / roiWidth + 1][image.height() / roiHeight + 1];
 				}
 				for (int x = 0; x < (image.width() / roiWidth); ++x) {
 					for (int y = 0; y < (image.height() / roiHeight); ++y) {

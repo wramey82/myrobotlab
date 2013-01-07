@@ -15,8 +15,7 @@ public class GPMessageBestFound extends GPMessage {
 	public double fitness;
 	public double standardFitness;
 
-	GPMessageBestFound(int generation, String program, RealPoint[] data,
-			double fitness, double standardFitness) {
+	GPMessageBestFound(int generation, String program, RealPoint[] data, double fitness, double standardFitness) {
 		this.generation = generation;
 		this.program = program;
 		this.data = data;

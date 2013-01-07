@@ -34,11 +34,12 @@ public class Logging extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Logging.class.getCanonicalName());
-	
+
 	/*
-	 * TODO - allow options to record and playback message log - serialize to disk etc
+	 * TODO - allow options to record and playback message log - serialize to
+	 * disk etc
 	 */
-	
+
 	public Logging(String n) {
 		this(n, null);
 	}
@@ -50,47 +51,44 @@ public class Logging extends Service {
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-	
-	public Message log (Message m)
-	{
-		log.info("log message from " + m.sender + "." + m.data); // TODO - remove for debug only
+
+	public Message log(Message m) {
+		log.info("log message from " + m.sender + "." + m.data); // TODO -
+																	// remove
+																	// for debug
+																	// only
 		return m;
 	}
-	
-	
-	public boolean preProcessHook(Message m)
-	{
-		if (m.method.equals("log"))
-		{
+
+	public boolean preProcessHook(Message m) {
+		if (m.method.equals("log")) {
 			invoke("log", m);
 			return false;
 		}
 		return true;
 	}
 
-	
 	// TODO - do in Service
 	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+
 		Logging toy = new Logging("logger");
 		toy.startService();
-		
+
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 		/*
-		GUIService gui = new GUIService("loggui");
-		gui.startService();
-		gui.display();
-		*/
-		
+		 * GUIService gui = new GUIService("loggui"); gui.startService();
+		 * gui.display();
+		 */
+
 	}
 
 	@Override
 	public String getToolTip() {
 		return "logging service";
 	}
-	
+
 }

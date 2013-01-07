@@ -37,7 +37,7 @@ public class CalibratorGUI extends ServiceGUI {
 	public CalibratorGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 		video = new VideoWidget(boundServiceName, myService);
 		video.init();

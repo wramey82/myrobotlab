@@ -57,9 +57,8 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
-	
+	public final static Logger log = Logger.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
+
 	public IplImage template = null;
 	IplImage res = null;
 	double[] minVal = new double[1];
@@ -69,9 +68,9 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	CvPoint tempRect0 = new CvPoint();
 	CvPoint tempRect1 = new CvPoint();
-	
+
 	CvPoint centeroid = new CvPoint(0, 0);
-	
+
 	int i = 0;
 
 	public OpenCVFilterMatchTemplate(OpenCV service, String name) {
@@ -80,43 +79,38 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
-		
+
 		return image.getBufferedImage();
-		/* display problem
-		if (res != null)
-		{
-			return res.getBufferedImage();
-		} else {
-			return image.getBufferedImage();
-		}
-		*/
+		/*
+		 * display problem if (res != null) { return res.getBufferedImage(); }
+		 * else { return image.getBufferedImage(); }
+		 */
 	}
 
 	int clickCount = 0;
-	int x0,y0,x1,y1;
+	int x0, y0, x1, y1;
 	public CvRect rect = new CvRect();
 	public boolean makeTemplate = false;
+
 	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
-		//if (event.getButton() == 1) {
-			if (clickCount%2 == 0)
-			{
-				x0 = x;
-				y0 = y;
-			} else {
-				x1 = x;
-				y1 = y;
-				rect.x(x0);
-				rect.y(y0);
-				rect.width(Math.abs(x1-x0));
-				rect.height(Math.abs(y1-y0));
-				makeTemplate = true;
-			}
-	//	}
+		// if (event.getButton() == 1) {
+		if (clickCount % 2 == 0) {
+			x0 = x;
+			y0 = y;
+		} else {
+			x1 = x;
+			y1 = y;
+			rect.x(x0);
+			rect.y(y0);
+			rect.width(Math.abs(x1 - x0));
+			rect.height(Math.abs(y1 - y0));
+			makeTemplate = true;
+		}
+		// }
 		++clickCount;
 	}
-	
-	
+
 	@Override
 	public String getDescription() {
 		return null;
@@ -125,37 +119,34 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	@Override
 	public void loadDefaultConfiguration() {
 		// Read in the template to be used for matching:
-		//template = cvLoadImage("template.jpg");
+		// template = cvLoadImage("template.jpg");
 	}
-	
-	CvPoint textpt = new CvPoint(10,20);
+
+	CvPoint textpt = new CvPoint(10, 20);
 	private CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
-	
+
 	public int matchRatio = Integer.MAX_VALUE;
 	boolean isTracking = false;
-	
+
 	@Override
 	public IplImage process(IplImage image) {
 		// cvMatchTemplate(iamge, arg1, arg2, arg3);
 
 		/*
-		if (res == null && template != null) // || dim size change 
-		{
-			res = cvCreateImage( cvSize( image.width() - template.width() + 1, 
-					image.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
-		}
-		*/
+		 * if (res == null && template != null) // || dim size change { res =
+		 * cvCreateImage( cvSize( image.width() - template.width() + 1,
+		 * image.height() - template.height() + 1), IPL_DEPTH_32F, 1 ); }
+		 */
 
 		// CV_TM_CCOEFF_NORMED
-		//cv.cvMatchTemplate(arg0, arg1, arg2, arg3);
-		if (template != null && res != null)
-		{
-			// TODO - DISPLAY RES SO THAT RESULTS FORM DIFFERENT FN's CAN BE EXAMINED
+		// cv.cvMatchTemplate(arg0, arg1, arg2, arg3);
+		if (template != null && res != null) {
+			// TODO - DISPLAY RES SO THAT RESULTS FORM DIFFERENT FN's CAN BE
+			// EXAMINED
 			cvMatchTemplate(image, template, res, CV_TM_SQDIFF);
-		// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
-		
-		
-			cvMinMaxLoc ( res, minVal, maxVal, minLoc, maxLoc, null );
+			// cvNormalize( ftmp[i], ftmp[i], 1, 0, CV_MINMAX );
+
+			cvMinMaxLoc(res, minVal, maxVal, minLoc, maxLoc, null);
 
 			tempRect0.x(minLoc.x());
 			tempRect0.y(minLoc.y());
@@ -163,43 +154,38 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 			tempRect1.y(minLoc.y() + template.height());
 		}
 
-		if (makeTemplate)
-		{
+		if (makeTemplate) {
 			makeTemplate = false;
-			template = cvCreateImage( cvSize( rect.width(), 
-					rect.height()), image.depth(), image.nChannels() );
+			template = cvCreateImage(cvSize(rect.width(), rect.height()), image.depth(), image.nChannels());
 			/* copy ROI to subimg */
 			cvSetImageROI(image, rect);
 			cvCopy(image, template, null);
 			cvResetImageROI(image);
 			myService.invoke("publishTemplate", name, template.getBufferedImage());
-			myService.invoke("publishIplImageTemplate", template); // FYI - IplImage is not serializable
-			res = cvCreateImage( cvSize( image.width() - template.width() + 1, 
-					image.height() - template.height() + 1), IPL_DEPTH_32F, 1 );
+			myService.invoke("publishIplImageTemplate", template); // FYI -
+																	// IplImage
+																	// is not
+																	// serializable
+			res = cvCreateImage(cvSize(image.width() - template.width() + 1, image.height() - template.height() + 1), IPL_DEPTH_32F, 1);
 		}
-		
-		if (template != null)
-		{
-			String text = ""+minVal[0];
-			
-			//textpt.y(20);
-			//cvPutText(image, text, textpt, font, CV_RGB(254, 254, 254));
+
+		if (template != null) {
+			String text = "" + minVal[0];
+
+			// textpt.y(20);
+			// cvPutText(image, text, textpt, font, CV_RGB(254, 254, 254));
 			textpt.y(20);
-			matchRatio = (int)(minVal[0]/((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));		
-			cvPutText(image, "" + matchRatio , textpt, font, CV_RGB(254, 254, 254));
-			
-			if (matchRatio < 500)
-			{
+			matchRatio = (int) (minVal[0] / ((tempRect1.x() - tempRect0.x()) * (tempRect1.y() - tempRect0.y())));
+			cvPutText(image, "" + matchRatio, textpt, font, CV_RGB(254, 254, 254));
+
+			if (matchRatio < 500) {
 				// draw rectangle
-				cvRectangle( image, 
-						tempRect0, 
-						tempRect1,
-						cvScalar( 255, 255, 255, 0 ), 1, 0, 0 );	
+				cvRectangle(image, tempRect0, tempRect1, cvScalar(255, 255, 255, 0), 1, 0, 0);
 
 				textpt.y(30);
-				cvPutText(image, "locked" , textpt, font, CV_RGB(254, 254, 254));
-				centeroid.x(tempRect0.x() + ((tempRect1.x() - tempRect0.x())/2));
-				centeroid.y(tempRect0.y() + ((tempRect1.y() - tempRect0.y())/2));
+				cvPutText(image, "locked", textpt, font, CV_RGB(254, 254, 254));
+				centeroid.x(tempRect0.x() + ((tempRect1.x() - tempRect0.x()) / 2));
+				centeroid.y(tempRect0.y() + ((tempRect1.y() - tempRect0.y()) / 2));
 				myService.invoke("publish", centeroid);
 				if (isTracking != true) // message clutter optimization
 				{
@@ -208,19 +194,15 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 				isTracking = true;
 
 			} else {
-				if (isTracking != false)
-				{
+				if (isTracking != false) {
 					myService.invoke("isTracking", false);
-				} 
+				}
 				isTracking = false;
 			}
 		}// if template != null
 
-		
 		return image;
 
 	}
 
-	
-	
 }

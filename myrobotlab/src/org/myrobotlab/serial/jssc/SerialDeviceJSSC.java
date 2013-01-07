@@ -21,12 +21,14 @@ import org.myrobotlab.serial.SerialDeviceException;
 /**
  * @author GroG
  * 
- *         A silly but necessary wrapper 
+ *         A silly but necessary wrapper
  * 
- * References :
- * 		http://code.google.com/p/java-simple-serial-connector/wiki/jSSC_examples
- * 		http://www.javaprogrammingforums.com/java-se-api-tutorials/5603-jssc-library-easy-work-serial-ports.html
- * 		http://en.wikibooks.org/wiki/Serial_Programming/Serial_Java
+ *         References :
+ *         http://code.google.com/p/java-simple-serial-connector/wiki
+ *         /jSSC_examples
+ *         http://www.javaprogrammingforums.com/java-se-api-tutorials
+ *         /5603-jssc-library-easy-work-serial-ports.html
+ *         http://en.wikibooks.org/wiki/Serial_Programming/Serial_Java
  * 
  */
 public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
@@ -45,12 +47,9 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 
 	public SerialDeviceJSSC(String portName) throws SerialDeviceException {
 		try {
-		port = new SerialPort(portName);
-		port.openPort();//Open serial port
-			port.setParams(SerialPort.BAUDRATE_57600, 
-			                     SerialPort.DATABITS_8,
-			                     SerialPort.STOPBITS_1,
-			                     SerialPort.PARITY_NONE);
+			port = new SerialPort(portName);
+			port.openPort();// Open serial port
+			port.setParams(SerialPort.BAUDRATE_57600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 		} catch (SerialPortException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
@@ -60,15 +59,12 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 	public SerialDeviceJSSC(String portName, int rate, int databits, int stopbits, int parity) {
 		port = new SerialPort(portName);
 		try {
-			port.setParams(rate, 
-			        databits,
-			        stopbits,
-			        parity);
+			port.setParams(rate, databits, stopbits, parity);
 		} catch (SerialPortException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
 		}
-		// set the state variables so 
+		// set the state variables so
 		// we can re-open again
 		this.rate = rate;
 		this.databits = databits;
@@ -111,7 +107,6 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 			e.printStackTrace();
 		}
 
-		
 		log.debug(String.format("closed %s", port.getPortName()));
 	}
 
@@ -130,7 +125,6 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 			throw new SerialDeviceException("unsupported comm operation " + e.getMessage());
 		}
 	}
-
 
 	@Override
 	public void setDTR(boolean state) {
@@ -152,10 +146,10 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 		}
 	}
 
-
-	@Override // FIXME - need MASK ?
+	@Override
+	// FIXME - need MASK ?
 	public void notifyOnDataAvailable(boolean enable) {
-		//port.notifyOnDataAvailable(enable);
+		// port.notifyOnDataAvailable(enable);
 	}
 
 	@Override
@@ -243,9 +237,8 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public void write(char data) throws IOException {
-		write((byte)data);
+		write((byte) data);
 	}
-
 
 	@Override
 	public void open() throws SerialDeviceException {
@@ -266,7 +259,8 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 		}
 	}
 
-	@Override // FIXME - use the throw
+	@Override
+	// FIXME - use the throw
 	public int read() throws IOException {
 		try {
 			return port.readIntArray(1)[0];

@@ -36,13 +36,11 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterPyramidUp extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterPyramidUp.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterPyramidUp.class.getCanonicalName());
 
 	IplImage dst = null;
 	BufferedImage frameBuffer = null;
@@ -79,9 +77,7 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 		}
 
 		if (dst == null) {
-			dst = cvCreateImage(
-					cvSize(2 * image.width(), 2 * image.height()), 8,
-					image.nChannels());
+			dst = cvCreateImage(cvSize(2 * image.width(), 2 * image.height()), 8, image.nChannels());
 		}
 
 		cvPyrUp(image, dst, filter);

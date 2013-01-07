@@ -35,8 +35,7 @@ import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 
 public class GeneticProgramming extends Service {
 
-	public final static Logger log = Logger.getLogger(GeneticProgramming.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GeneticProgramming.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	GP gp1 = null;
@@ -64,8 +63,7 @@ public class GeneticProgramming extends Service {
 		}
 	}
 
-	public GPMessageEvaluatingIndividual publishInd(
-			GPMessageEvaluatingIndividual ind) {
+	public GPMessageEvaluatingIndividual publishInd(GPMessageEvaluatingIndividual ind) {
 		return ind;
 	}
 
@@ -100,5 +98,5 @@ public class GeneticProgramming extends Service {
 	public String getToolTip() {
 		return "experiment in genetic programming";
 	}
-	
+
 }

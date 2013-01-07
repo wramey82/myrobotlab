@@ -37,118 +37,109 @@ public class PID extends Service {
 	double p = 0;
 	double i = 0;
 	double d = 0;
-	
+
 	double setPoint = 0;
-	
+
 	long deltaTime = 0; // delta since last input
 	long lastTime = 0;
-	
+
 	double input = 0;
 	double output = 0;
-	
+
 	double inputMin = 0;
 	double inputMax = 1.0;
-	
+
 	double outputMin = 0;
 	double outputMax = 1.0;
-	
+
 	double tolerance = 1.0;
-	
+
 	boolean isContinuous = false;
-	
+
 	double errorSum = 0;
 	double lastError = 0;
-	
+
 	public PID(String n) {
 		super(n, PID.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-	}	
+	}
 
-	public void setPID (double p, double i, double d)
-	{
+	public void setPID(double p, double i, double d) {
 		deltaTime = System.currentTimeMillis();
 		this.p = p;
 		this.i = i;
-		this.d = d;		
+		this.d = d;
 	}
-	
-	public double Compute()
-	{
-		/*How long since we last calculated*/
-		long now = System.currentTimeMillis(); 
+
+	public double Compute() {
+		/* How long since we last calculated */
+		long now = System.currentTimeMillis();
 		deltaTime = (now - lastTime);
 
-		/*Compute all the working error variables*/
+		/* Compute all the working error variables */
 		double error = setPoint - input;
 		errorSum += (error * deltaTime);
 		double dErr = (error - lastTime) / deltaTime;
-		 
-		/*Compute PID Output*/
+
+		/* Compute PID Output */
 		output = p * error + i * errorSum + d * dErr;
-		 
-		/*Remember some variables for next time*/
+
+		/* Remember some variables for next time */
 		lastError = error;
-		lastTime = now;	
-		
+		lastTime = now;
+
 		// TODO - limit with min/max
 		return output;
 	}
-	
-	public void setInput (int i)
-	{
+
+	public void setInput(int i) {
 		// TODO - limit with min/max
 		input = i;
 		lastTime = System.currentTimeMillis();
 	}
-	
-	public void setSetpoint (double setPoint)
-	{
+
+	public void setSetpoint(double setPoint) {
 		this.setPoint = setPoint;
 	}
-	
-	public void setInputRange (double min, double max)
-	{
+
+	public void setInputRange(double min, double max) {
 		this.inputMin = min;
 		this.inputMax = max;
 	}
 
-	public void setOutputRange (double min, double max)
-	{
+	public void setOutputRange(double min, double max) {
 		this.outputMin = min;
 		this.outputMax = max;
 	}
-	
+
 	/**
 	 * TODO - implement this
+	 * 
 	 * @param percent
 	 */
-	public void setTolerance(double percent)
-	{
+	public void setTolerance(double percent) {
 		this.tolerance = percent;
 	}
-	
-	public void setContinuous()
-	{
+
+	public void setContinuous() {
 		setContinuous(true);
 	}
 
-	public void setContinuous(boolean v)
-	{
+	public void setContinuous(boolean v) {
 		isContinuous = v;
 	}
-	
-	public boolean onTarget()
-	{
+
+	public boolean onTarget() {
 		return false;
 	}
-	
+
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
-		
+
 		PID pid = new PID("pid");
 		pid.startService();
 
@@ -156,13 +147,11 @@ public class PID extends Service {
 		gui.startService();
 		gui.display();
 	}
-	
+
 	@Override
 	public String getToolTip() {
-		return "<html>a PID control service,<br>"+
-		"with very helpful tutorial from<br>"+
-		"http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/</html>";
+		return "<html>a PID control service,<br>" + "with very helpful tutorial from<br>"
+				+ "http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/</html>";
 	}
-
 
 }

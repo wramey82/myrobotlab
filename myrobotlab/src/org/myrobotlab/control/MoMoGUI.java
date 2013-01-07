@@ -50,8 +50,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(MoMoGUI.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(MoMoGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
@@ -79,7 +78,7 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 	public MoMoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		video0 = new VideoWidget(boundServiceName, myService);
@@ -153,12 +152,10 @@ public class MoMoGUI extends ServiceGUI implements ListSelectionListener {
 
 			// myService.send(boundServiceName, "keyCommand",
 			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyCommand", KeyEvent
-					.getKeyText(keyEvent.getKeyCode()));
+			myService.send(boundServiceName, "keyCommand", KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
+			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 

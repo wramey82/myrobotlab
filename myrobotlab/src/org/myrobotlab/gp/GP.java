@@ -44,8 +44,7 @@ import org.myrobotlab.framework.Service;
  */
 public class GP extends Observable implements Runnable {
 
-	public final static Logger log = Logger.getLogger(GP.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(GP.class.getCanonicalName());
 
 	public Number populationSize;
 	public Number maxDepthForNewIndividuals;
@@ -86,65 +85,39 @@ public class GP extends Observable implements Runnable {
 		myService = s;
 
 		populationSize = new Number("Population size", 100, 10, 1000);
-		maxDepthForNewIndividuals = new Number(
-				"Max. depth for new individuals", 6, 1, 10);
-		maxDepthForIndividualsAfterCrossover = new Number(
-				"Max. depth for individuals after crossover", 20, 5, 20);
-		maxDepthForNewSubtreesInMutants = new Number(
-				"Max. depth for new subtrees in mutants", 4, 1, 7);
+		maxDepthForNewIndividuals = new Number("Max. depth for new individuals", 6, 1, 10);
+		maxDepthForIndividualsAfterCrossover = new Number("Max. depth for individuals after crossover", 20, 5, 20);
+		maxDepthForNewSubtreesInMutants = new Number("Max. depth for new subtrees in mutants", 4, 1, 7);
 		crossoverFraction = new Number("Crossover fraction", 80, 1, 100);
-		fitnessProportionateReproFraction = new Number("Reproduction fraction",
-				0, 0, 100);
+		fitnessProportionateReproFraction = new Number("Reproduction fraction", 0, 0, 100);
 		mutationFraction = new Number("Mutation fraction", 20, 0, 100);
 		fitnessCases = new Points("Fitness cases", makeDefaultFitnessCases());
 
-		ProgramChoice[] terminalChoices = {
-				new ProgramChoice("Random constant", new RandomConstant()
-						.getClass()),
-				new ProgramChoice("Variable x", new Variable().getClass()) };
+		ProgramChoice[] terminalChoices = { new ProgramChoice("Random constant", new RandomConstant().getClass()), new ProgramChoice("Variable x", new Variable().getClass()) };
 		int[] terminalSelections = { 0, 1 };
-		terminalSet = new SetData("Terminal set", terminalChoices,
-				terminalSelections);
+		terminalSet = new SetData("Terminal set", terminalChoices, terminalSelections);
 
-		ProgramChoice[] functionChoices = {
-				new ProgramChoice("+ (add)", new Addition(myService).getClass()),
-				new ProgramChoice("- (sub)", new Subtraction(myService)
-						.getClass()),
-				new ProgramChoice("* (mul)", new Multiplication(myService)
-						.getClass()),
-				new ProgramChoice("/ (div)", new Division(myService).getClass()),
-				new ProgramChoice("sin", new Sine(myService).getClass()),
-				new ProgramChoice("cos", new Cosine(myService).getClass()),
-				new ProgramChoice("exp", new Exp(myService).getClass()),
-				new ProgramChoice("sleep", new Sleep(myService).getClass()),
-				new ProgramChoice("moveHip", new MoveHip(myService).getClass()),
-				new ProgramChoice("moveKnee", new MoveKnee(myService)
-						.getClass()) };
+		ProgramChoice[] functionChoices = { new ProgramChoice("+ (add)", new Addition(myService).getClass()), new ProgramChoice("- (sub)", new Subtraction(myService).getClass()),
+				new ProgramChoice("* (mul)", new Multiplication(myService).getClass()), new ProgramChoice("/ (div)", new Division(myService).getClass()),
+				new ProgramChoice("sin", new Sine(myService).getClass()), new ProgramChoice("cos", new Cosine(myService).getClass()),
+				new ProgramChoice("exp", new Exp(myService).getClass()), new ProgramChoice("sleep", new Sleep(myService).getClass()),
+				new ProgramChoice("moveHip", new MoveHip(myService).getClass()), new ProgramChoice("moveKnee", new MoveKnee(myService).getClass()) };
 		int[] functionSelections = { 0, 1, 2, 3, 8, 9 };
 		// int[] functionSelections = {0, 1, 3, 7, 8};
-		functionSet = new SetData("Function set", functionChoices,
-				functionSelections);
+		functionSet = new SetData("Function set", functionChoices, functionSelections);
 
-		MethodOfGeneration[] generationChoices = {
-				new MethodOfGeneration("Grow", MethodOfGeneration.GROW),
-				new MethodOfGeneration("Full", MethodOfGeneration.FULL),
-				new MethodOfGeneration("Ramped half and half",
-						MethodOfGeneration.RAMPED_HALF_AND_HALF) };
-		methodOfGeneration = new Choices("Method of generation",
-				generationChoices, 2);
+		MethodOfGeneration[] generationChoices = { new MethodOfGeneration("Grow", MethodOfGeneration.GROW), new MethodOfGeneration("Full", MethodOfGeneration.FULL),
+				new MethodOfGeneration("Ramped half and half", MethodOfGeneration.RAMPED_HALF_AND_HALF) };
+		methodOfGeneration = new Choices("Method of generation", generationChoices, 2);
 
-		MethodOfSelection[] selectionChoices = {
-				new MethodOfSelection("Fitness proportionate",
-						MethodOfSelection.FITNESS_PROPORTIONATE),
-				new MethodOfSelection("Tournament",
-						MethodOfSelection.TOURNAMENT) };
-		methodOfSelection = new Choices("Method of selection",
-				selectionChoices, 1);
+		MethodOfSelection[] selectionChoices = { new MethodOfSelection("Fitness proportionate", MethodOfSelection.FITNESS_PROPORTIONATE),
+				new MethodOfSelection("Tournament", MethodOfSelection.TOURNAMENT) };
+		methodOfSelection = new Choices("Method of selection", selectionChoices, 1);
 	}
 
 	/**
-	 * Should be called after any of the settings have changed, will addListener any
-	 * observers of the changes.
+	 * Should be called after any of the settings have changed, will addListener
+	 * any observers of the changes.
 	 */
 	public void settingsChanged() {
 		notifyObservers(new GPMessageFitnessCasesSet(fitnessCases.get()));
@@ -222,9 +195,7 @@ public class GP extends Observable implements Runnable {
 		log.info("CRASH " + currentGeneration);
 		if (thread != null && thread.isAlive()) {
 			state = STOPPED;
-			notifyObservers(new GPMessageStateChanged(state,
-					"The genetic algorithm crashed\n" + "in generation "
-							+ currentGeneration + ".\n" + "Sorry."));
+			notifyObservers(new GPMessageStateChanged(state, "The genetic algorithm crashed\n" + "in generation " + currentGeneration + ".\n" + "Sorry."));
 			thread.stop();
 		}
 	}
@@ -255,9 +226,8 @@ public class GP extends Observable implements Runnable {
 	public synchronized void freeze() {
 		log.info("FREEZE " + currentGeneration);
 		oldState = getState();
-		if (thread != null && thread.isAlive()
-				&& (oldState == STARTED || oldState == RESUMED)) { // i.e.
-																	// running
+		if (thread != null && thread.isAlive() && (oldState == STARTED || oldState == RESUMED)) { // i.e.
+																									// running
 			thread.suspend();
 		}
 	}
@@ -271,8 +241,7 @@ public class GP extends Observable implements Runnable {
 	 */
 	public synchronized void thaw() {
 		log.info("THAW " + currentGeneration);
-		if (thread != null && thread.isAlive()
-				&& (oldState == STARTED || oldState == RESUMED)) {
+		if (thread != null && thread.isAlive() && (oldState == STARTED || oldState == RESUMED)) {
 			thread.resume();
 		}
 	}
@@ -285,8 +254,7 @@ public class GP extends Observable implements Runnable {
 		log.info("chooseFromTerminalSet " + currentGeneration);
 		try {
 			int index = random.nextInt(terminalSet.countSelections());
-			Class cls = ((ProgramChoice) terminalSet.getSelectedItem(index))
-					.value();
+			Class cls = ((ProgramChoice) terminalSet.getSelectedItem(index)).value();
 			choice = (Terminal) (cls.newInstance());
 		} catch (Exception e) {
 			choice = null;
@@ -297,13 +265,11 @@ public class GP extends Observable implements Runnable {
 	/**
 	 * Creates arguments for a function
 	 */
-	void createArgumentsForFunction(Function function, int allowableDepth,
-			boolean fullP) {
+	void createArgumentsForFunction(Function function, int allowableDepth, boolean fullP) {
 		log.info("createArgumentsForFunction " + currentGeneration);
 
 		for (int i = 0; i < function.arg.length; i++) {
-			function.arg[i] = createIndividualProgram(allowableDepth, false,
-					fullP);
+			function.arg[i] = createIndividualProgram(allowableDepth, false, fullP);
 		}
 	}
 
@@ -322,8 +288,7 @@ public class GP extends Observable implements Runnable {
 	 *            indicates whether this individual is to be maximally bushy or
 	 *            not
 	 */
-	Program createIndividualProgram(int allowableDepth, boolean topNodeP,
-			boolean fullP) {
+	Program createIndividualProgram(int allowableDepth, boolean topNodeP, boolean fullP) {
 		Program p;
 		int choice;
 		Function function;
@@ -339,10 +304,8 @@ public class GP extends Observable implements Runnable {
 				// function.
 				choice = random.nextInt(functionSet.countSelections());
 				try {
-					Class cls = ((ProgramChoice) functionSet
-							.getSelectedItem(choice)).value();
-					Constructor mc = cls
-							.getConstructor(new Class[] { Service.class });
+					Class cls = ((ProgramChoice) functionSet.getSelectedItem(choice)).value();
+					Constructor mc = cls.getConstructor(new Class[] { Service.class });
 					function = (Function) mc.newInstance(myService);
 
 				} catch (Exception e) {
@@ -353,8 +316,7 @@ public class GP extends Observable implements Runnable {
 				p = function;
 			} else {
 				// Choose one from the bag of functions and terminals.
-				choice = random.nextInt(terminalSet.countSelections()
-						+ functionSet.countSelections());
+				choice = random.nextInt(terminalSet.countSelections() + functionSet.countSelections());
 				if (choice < functionSet.countSelections()) {
 					// We chose a function, so pick it out and go on creating
 					// the tree down from here.
@@ -363,17 +325,14 @@ public class GP extends Observable implements Runnable {
 						// ((ProgramChoice)functionSet.getSelectedItem(choice)).value();
 						// function = (Function)cls.newInstance();
 
-						Class cls = ((ProgramChoice) functionSet
-								.getSelectedItem(choice)).value();
-						Constructor mc = cls
-								.getConstructor(new Class[] { Service.class });
+						Class cls = ((ProgramChoice) functionSet.getSelectedItem(choice)).value();
+						Constructor mc = cls.getConstructor(new Class[] { Service.class });
 						function = (Function) mc.newInstance(myService);
 
 					} catch (Exception e) {
 						function = null;
 					}
-					createArgumentsForFunction(function, allowableDepth - 1,
-							fullP);
+					createArgumentsForFunction(function, allowableDepth - 1, fullP);
 					p = function;
 				} else {
 					// We chose an atom, so pick it out.
@@ -404,8 +363,7 @@ public class GP extends Observable implements Runnable {
 		int attemptsAtThisIndividual = 0;
 		int individualIndex = 0;
 		while (individualIndex < population.length) {
-			switch (((MethodOfGeneration) methodOfGeneration.getSelection())
-					.getValue()) {
+			switch (((MethodOfGeneration) methodOfGeneration.getSelection()).getValue()) {
 			case MethodOfGeneration.FULL:
 				allowableDepth = maxDepthForNewIndivs;
 				fullP = true;
@@ -424,12 +382,8 @@ public class GP extends Observable implements Runnable {
 				// create
 				// a new tree. This is to avoid unecessary toggling when several
 				// attempts are necessary for the same individual.
-				allowableDepth = minimumDepthOfTrees
-						+ (individualIndex % (maxDepthForNewIndivs
-								- minimumDepthOfTrees + 1));
-				if (attemptsAtThisIndividual == 0
-						&& individualIndex
-								% (maxDepthForNewIndivs - minimumDepthOfTrees + 1) == 0) {
+				allowableDepth = minimumDepthOfTrees + (individualIndex % (maxDepthForNewIndivs - minimumDepthOfTrees + 1));
+				if (attemptsAtThisIndividual == 0 && individualIndex % (maxDepthForNewIndivs - minimumDepthOfTrees + 1) == 0) {
 					fullCycleP = !fullCycleP;
 				}
 				fullP = fullCycleP;
@@ -440,8 +394,7 @@ public class GP extends Observable implements Runnable {
 				break;
 			}
 
-			Program newProgram = createIndividualProgram(allowableDepth, true,
-					fullP);
+			Program newProgram = createIndividualProgram(allowableDepth, true, fullP);
 
 			// Check if we have already created this program.
 			// If not then store it and move on.
@@ -463,8 +416,7 @@ public class GP extends Observable implements Runnable {
 					// the new minimum:
 					//
 					minimumDepthOfTrees++;
-					maxDepthForNewIndivs = Math.max(maxDepthForNewIndivs,
-							minimumDepthOfTrees);
+					maxDepthForNewIndivs = Math.max(maxDepthForNewIndivs, minimumDepthOfTrees);
 					attemptsAtThisIndividual = 0;
 				}
 			}
@@ -565,8 +517,7 @@ public class GP extends Observable implements Runnable {
 			} else {
 				depth = maxDepthOfTree(offspring[i]);
 			}
-			if (depth < 1
-					|| depth > maxDepthForIndividualsAfterCrossover.intValue()) {
+			if (depth < 1 || depth > maxDepthForIndividualsAfterCrossover.intValue()) {
 				int whichParent = random.nextInt(2);
 				if (whichParent == 0) {
 					offspring[i] = (Program) male.clone();
@@ -590,8 +541,7 @@ public class GP extends Observable implements Runnable {
 		// Pick the mutation point.
 		int mutationPoint = random.nextInt(program.countNodes());
 		// Create a brand new subtree.
-		Program newSubtree = createIndividualProgram(
-				maxDepthForNewSubtreesInMutants.intValue(), true, false);
+		Program newSubtree = createIndividualProgram(maxDepthForNewSubtreesInMutants.intValue(), true, false);
 		Program newProgram = (Program) program.clone();
 		// Smash in the new subtree.
 		TreeHook hook = getSubtree(program, mutationPoint, isProgram);
@@ -618,14 +568,9 @@ public class GP extends Observable implements Runnable {
 		double fraction;
 		int index;
 		Individual individual1, individual2;
-		double sumOfFractions = this.crossoverFraction.doubleValue()
-				+ this.fitnessProportionateReproFraction.doubleValue()
-				+ this.mutationFraction.doubleValue();
-		double crossoverFraction = this.crossoverFraction.doubleValue()
-				/ sumOfFractions;
-		double reproductionFraction = this.fitnessProportionateReproFraction
-				.doubleValue()
-				/ sumOfFractions;
+		double sumOfFractions = this.crossoverFraction.doubleValue() + this.fitnessProportionateReproFraction.doubleValue() + this.mutationFraction.doubleValue();
+		double crossoverFraction = this.crossoverFraction.doubleValue() / sumOfFractions;
+		double reproductionFraction = this.fitnessProportionateReproFraction.doubleValue() / sumOfFractions;
 		// double mutationFraction = this.mutationFraction.get() /
 		// sumOfFractions;
 
@@ -642,8 +587,7 @@ public class GP extends Observable implements Runnable {
 			individual1 = findIndividual();
 			if (fraction < crossoverFraction) {
 				individual2 = findIndividual();
-				Program[] offspring = crossover(individual1.program,
-						individual2.program);
+				Program[] offspring = crossover(individual1.program, individual2.program);
 				newPrograms[index] = offspring[0];
 				index++;
 				if (index < population.length) {
@@ -684,8 +628,7 @@ public class GP extends Observable implements Runnable {
 	 * fitness and hits.
 	 */
 	void evaluateFitnessOfPopulation() {
-		log.warn("evaluateFitnessOfPopulation " + currentGeneration
-				+ " population length " + population.length);
+		log.warn("evaluateFitnessOfPopulation " + currentGeneration + " population length " + population.length);
 
 		for (int i = 0; i < population.length; i++) {
 			fitnessFunction(population[i], i); // TODO - Over-rideable fitness
@@ -707,15 +650,13 @@ public class GP extends Observable implements Runnable {
 			// Set the adjusted fitness.
 			population[i].adjustedFitness = 1.0 / (population[i].standardizedFitness + 1.0);
 			// Add up the adjusted fitnesses so that we can normalize them.
-			sumOfAdjustedFitnesses = sumOfAdjustedFitnesses
-					+ population[i].adjustedFitness;
+			sumOfAdjustedFitnesses = sumOfAdjustedFitnesses + population[i].adjustedFitness;
 			log.warn(i + " " + population[i].adjustedFitness);
 		}
 		log.warn("normalized ----");
 		// Loop through population normalizing the adjusted fitness.
 		for (int i = 0; i < population.length; i++) {
-			population[i].normalizedFitness = population[i].adjustedFitness
-					/ sumOfAdjustedFitnesses;
+			population[i].normalizedFitness = population[i].adjustedFitness / sumOfAdjustedFitnesses;
 			log.warn(i + " " + population[i].normalizedFitness);
 		}
 	}
@@ -812,15 +753,13 @@ public class GP extends Observable implements Runnable {
 
 			Rectangle r = waitValidForData();
 			// Rectangle r = new Rectangle(30,30,10,10);
-			valueFromProgram = new RealPoint(r.x + r.width / 2, r.y + r.height
-					/ 2);
+			valueFromProgram = new RealPoint(r.x + r.width / 2, r.y + r.height / 2);
 			// log.error(valueFromProgram);
 			double deltaX = valueFromProgram.x - x;
 			double deltaY = valueFromProgram.y - y;
 			double difference = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 			rawFitness = rawFitness + difference;
-			log.error("input " + x + " " + valueFromProgram.x + ","
-					+ valueFromProgram.y + " d " + (int) difference);
+			log.error("input " + x + " " + valueFromProgram.x + "," + valueFromProgram.y + " d " + (int) difference);
 			// if (difference < 0.01) {
 			if (difference < 10) {
 				ind.hits++;
@@ -830,19 +769,15 @@ public class GP extends Observable implements Runnable {
 		}
 		// log.warn("ind " + ind.program.toString(0));
 		try {
-			outfile.write(individualNr + " " + (int) valueFromProgram.x + ","
-					+ (int) valueFromProgram.y + " " + rawFitness + "\n");
+			outfile.write(individualNr + " " + (int) valueFromProgram.x + "," + (int) valueFromProgram.y + " " + rawFitness + "\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		myService.invoke("publishInd", new GPMessageEvaluatingIndividual(
-				currentGeneration, individualNr, testCases,
-				ind.standardizedFitness, rawFitness));
+		myService.invoke("publishInd", new GPMessageEvaluatingIndividual(currentGeneration, individualNr, testCases, ind.standardizedFitness, rawFitness));
 
 		ind.standardizedFitness = rawFitness;
-		log.warn("generation " + currentGeneration + " individualNr "
-				+ individualNr);
+		log.warn("generation " + currentGeneration + " individualNr " + individualNr);
 
 		// notifyObservers(new GPMessageEvaluatingIndividual(
 		// currentGeneration, individualNr, testCases));
@@ -864,8 +799,7 @@ public class GP extends Observable implements Runnable {
 				r0 = footData.take();
 				r1 = footData.take();
 
-				if (r1.x == r0.x && r1.y == r0.y && r1.width == r0.width
-						&& r1.height == r0.height) {
+				if (r1.x == r0.x && r1.y == r0.y && r1.width == r0.width && r1.height == r0.height) {
 					return r1;
 				}
 			}
@@ -951,8 +885,7 @@ public class GP extends Observable implements Runnable {
 					}
 					Rectangle r = waitValidForData();
 					// Rectangle r = new Rectangle(30,30,10,10);
-					RealPoint valueFromProgram = new RealPoint(r.x + r.width
-							/ 2, r.y + r.height / 2);
+					RealPoint valueFromProgram = new RealPoint(r.x + r.width / 2, r.y + r.height / 2);
 
 					testCases[i] = valueFromProgram;
 				}
@@ -961,10 +894,7 @@ public class GP extends Observable implements Runnable {
 
 				// TODO deprecate all addListener Observers - change to publish
 				// message
-				GPMessageBestFound gpm = new GPMessageBestFound(
-						currentGeneration, bestOfRunIndividual.program
-								.toString(0), testCases,
-						bestOfRunIndividual.adjustedFitness,
+				GPMessageBestFound gpm = new GPMessageBestFound(currentGeneration, bestOfRunIndividual.program.toString(0), testCases, bestOfRunIndividual.adjustedFitness,
 						bestOfRunIndividual.standardizedFitness);
 				myService.invoke("publish", gpm);
 				/*
@@ -980,8 +910,7 @@ public class GP extends Observable implements Runnable {
 			}
 
 			log.error("fitness " + fitness);
-			notifyObservers(new GPMessageEvaluatingPopulation(
-					currentGeneration, fitness));
+			notifyObservers(new GPMessageEvaluatingPopulation(currentGeneration, fitness));
 
 			currentGeneration++;
 			// log.info()
@@ -1055,8 +984,7 @@ public class GP extends Observable implements Runnable {
 		log.info("findIndividual " + currentGeneration);
 
 		Individual ind = null;
-		switch (((MethodOfSelection) methodOfSelection.getSelection())
-				.getValue()) {
+		switch (((MethodOfSelection) methodOfSelection.getSelection()).getValue()) {
 		case MethodOfSelection.TOURNAMENT:
 			ind = findIndividualUsingTournamentSelection();
 			break;
@@ -1074,7 +1002,7 @@ public class GP extends Observable implements Runnable {
 		log.info("makeDefaultFitnessCases " + currentGeneration);
 
 		// int NrOfFitnessCases = 20;
-		//int NrOfFitnessCases = 4;
+		// int NrOfFitnessCases = 4;
 		String s = "// the data \n";
 		s += "123 164\n";
 		s += "249 164\n";
@@ -1155,8 +1083,7 @@ public class GP extends Observable implements Runnable {
 	/**
 	*
 	*/
-	private TreeHook Walk(Program tree, int[] count, Condition cond,
-			Function parent, int childIndex) {
+	private TreeHook Walk(Program tree, int[] count, Condition cond, Function parent, int childIndex) {
 		log.info("Walk " + currentGeneration);
 
 		if (cond.test(tree) && count[0] == 0) {
@@ -1397,8 +1324,7 @@ abstract class Function extends Program {
 		// stuff tree-like.
 		boolean allArgsAreTerminals = true;
 		for (int a = 0; a < arg.length; a++) {
-			allArgsAreTerminals = allArgsAreTerminals
-					&& (arg[a] instanceof Terminal);
+			allArgsAreTerminals = allArgsAreTerminals && (arg[a] instanceof Terminal);
 		}
 		String s = new String();
 		if (!allArgsAreTerminals) {

@@ -37,9 +37,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterNot extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterNot.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterNot.class.getCanonicalName());
 
 	IplImage buffer = null;
 

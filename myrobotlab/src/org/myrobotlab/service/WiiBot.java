@@ -38,8 +38,7 @@ import org.myrobotlab.service.interfaces.SensorDataPublisher;
 public class WiiBot extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(WiiBot.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(WiiBot.class.getCanonicalName());
 
 	Arduino arduino = null;
 	Wii wii = new Wii("wii");
@@ -61,9 +60,9 @@ public class WiiBot extends Service {
 
 		// adding wiicom as an option
 		/*
-		Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
-				(CommDriver) new WiiDriver(wii));
-				*/
+		 * Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
+		 * (CommDriver) new WiiDriver(wii));
+		 */
 
 		gui.startService();
 		wiidar.servo = servo;
@@ -92,7 +91,7 @@ public class WiiBot extends Service {
 		// send data from the wii to wiidar
 		wii.addListener(wiidar.getName(), "publishIR", IRData.class);
 		// data from widar to the gui
-		wiidar.addListener("publishArrayofPoints", gui.getName(), "displaySweepData",Point.class);
+		wiidar.addListener("publishArrayofPoints", gui.getName(), "displaySweepData", Point.class);
 
 		// send the data from the wii to wiidar
 		// wii.addListener("publishIR", wiidar.getName(), "computeDepth",
@@ -201,5 +200,5 @@ public class WiiBot extends Service {
 	public String getToolTip() {
 		return "(not implemented) - robot utilizing the wii mote and wiidar";
 	}
-	
+
 }

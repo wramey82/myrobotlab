@@ -48,154 +48,144 @@ import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class GUIServiceOutMethodDialog extends JDialog  implements ActionListener  {
-	
+public class GUIServiceOutMethodDialog extends JDialog implements ActionListener {
+
 	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
-	
+
 	private static final long serialVersionUID = 1L;
 
 	GUI myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
-	
-	public class MethodData
-	{		
+
+	public class MethodData {
 		String canonicalName = null;
 		MethodEntry methodEntry = null;
-		
-		public MethodData (MethodEntry me, String cn)
-		{
+
+		public MethodData(MethodEntry me, String cn) {
 			this.methodEntry = me;
 			this.canonicalName = cn;
 		}
-		
-		public String toString()
-		{
+
+		public String toString() {
 			return canonicalName + "." + methodEntry;
 		}
 	}
-	
-	ArrayList<MethodData> data = new ArrayList<MethodData>(); 
-	
-	GUIServiceOutMethodDialog(GUI myService, String title, GUIServiceGraphVertex v)
-	{	super(myService.getFrame(), title, true);
+
+	ArrayList<MethodData> data = new ArrayList<MethodData>();
+
+	GUIServiceOutMethodDialog(GUI myService, String title, GUIServiceGraphVertex v) {
+		super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;
-	    JFrame parent = myService.getFrame();
-	    if (parent != null) 
-	    {
-		      Dimension parentSize = parent.getSize(); 
-		      Point p = parent.getLocation(); 
-		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
+		JFrame parent = myService.getFrame();
+		if (parent != null) {
+			Dimension parentSize = parent.getSize();
+			Point p = parent.getLocation();
+			setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
 		}
 
-		//TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
-		TreeMap<String,MethodEntry> m = new TreeMap<String, MethodEntry>(Runtime.getMethodMap(v.name));
-		
+		// TreeMap<String,MethodEntry> m = new TreeMap<String,
+		// MethodEntry>(myService.getHostCFG().getMethodMap(v.getName()));
+		TreeMap<String, MethodEntry> m = new TreeMap<String, MethodEntry>(Runtime.getMethodMap(v.name));
+
 		JComboBox combo = new JComboBox();
 		combo.addActionListener(this);
 		Iterator<String> sgi = m.keySet().iterator();
-		//combo.addItem(""); // add empty
+		// combo.addItem(""); // add empty
 		while (sgi.hasNext()) {
 			String methodName = sgi.next();
 			MethodEntry me = m.get(methodName);
 			data.add(new MethodData(me, v.canonicalName));
 			combo.addItem(formatOutMethod(me));
-		}			
-		
+		}
+
 		combo.setRenderer(new AnnotationComboBoxToolTipRenderer());
-		
+
 		getContentPane().add(combo, BorderLayout.SOUTH);
-		
-	    pack(); 
-	    setVisible(true);
+
+		pack();
+		setVisible(true);
 
 	}
-	
-	public String formatOutMethod(MethodEntry me)
-	{
-		if (me.returnType == null || me.returnType == void.class)
-		{ 
-			return me.name; 
-		} else 
-		{
+
+	public String formatOutMethod(MethodEntry me) {
+		if (me.returnType == null || me.returnType == void.class) {
+			return me.name;
+		} else {
 			String p = me.returnType.getCanonicalName();
-			String t[] = p.split("\\.");	
-			return (me.name + " -> " + t[t.length -1]);
+			String t[] = p.split("\\.");
+			return (me.name + " -> " + t[t.length - 1]);
 		}
 	}
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JComboBox cb = (JComboBox)e.getSource();
-        String method = (String)cb.getSelectedItem();
-        log.error(method);
-        myService.setSrcServiceName(v.name);
-        myService.setPeriod0(".");
-        myService.setSrcMethodName(method);
-        myService.setArrow(" -> ");
-        
-        myService.setDstServiceName("");
-        myService.setPeriod1("");
-        myService.setDstMethodName("");
-        
-        //myService.srcMethodName = method.split(regex)
-        //myService.parameterList =
-        this.dispose();
-	}	
-		
+		JComboBox cb = (JComboBox) e.getSource();
+		String method = (String) cb.getSelectedItem();
+		log.error(method);
+		myService.setSrcServiceName(v.name);
+		myService.setPeriod0(".");
+		myService.setSrcMethodName(method);
+		myService.setArrow(" -> ");
+
+		myService.setDstServiceName("");
+		myService.setPeriod1("");
+		myService.setDstMethodName("");
+
+		// myService.srcMethodName = method.split(regex)
+		// myService.parameterList =
+		this.dispose();
+	}
+
 	class AnnotationComboBoxToolTipRenderer extends BasicComboBoxRenderer {
-	    /**
+		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		@SuppressWarnings("unchecked")
-		public Component getListCellRendererComponent(JList list, Object value,
-	        int index, boolean isSelected, boolean cellHasFocus) {
-	      if (isSelected) {
-	        setBackground(list.getSelectionBackground());
-	        setForeground(list.getSelectionForeground());
-	        if (-1 < index) {	        	
-	          //list.setToolTipText(tooltips[index]);
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			if (isSelected) {
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
+				if (-1 < index) {
+					// list.setToolTipText(tooltips[index]);
 
-	        	try {
-		        	MethodData md = data.get(index);
-		        	Class c = Class.forName(md.canonicalName);
-		        	Method m = null; 
-		        	if (md.methodEntry.parameterTypes == null)
-		        	{
-		        		log.info("paramterType is null");
-		        		m = c.getMethod(md.methodEntry.name);
-		        	} else {
-		        		m = c.getMethod(md.methodEntry.name, md.methodEntry.parameterTypes);
-		        	}
-		        	ToolTip anno = m.getAnnotation(ToolTip.class);
-		        	if (anno != null)
-		        	{
-		        		list.setToolTipText(anno.value());
-		        	} else {
-		        		list.setToolTipText("annotation not available");
-		        	}
-		        	//System.out.println(anno.stringValue() + " " + anno.intValue());
-	        	} catch (Exception e){
-	        		list.setToolTipText("method or class not available");
-	        		log.error(e);
-	        	} 
-  	        	
-  	        	
-	        	//list.setToolTipText(data.get(index).toString());
-	        	//list.setToolTipText(index + "");	        	
-	        	//list.setToolTipText(value.toString());
-	        }
-	      } else {
-	        setBackground(list.getBackground());
-	        setForeground(list.getForeground());
-	      }
-	      setFont(list.getFont());
-	      setText((value == null) ? "" : value.toString());
-	      return this;
-	    }
-	  }
+					try {
+						MethodData md = data.get(index);
+						Class c = Class.forName(md.canonicalName);
+						Method m = null;
+						if (md.methodEntry.parameterTypes == null) {
+							log.info("paramterType is null");
+							m = c.getMethod(md.methodEntry.name);
+						} else {
+							m = c.getMethod(md.methodEntry.name, md.methodEntry.parameterTypes);
+						}
+						ToolTip anno = m.getAnnotation(ToolTip.class);
+						if (anno != null) {
+							list.setToolTipText(anno.value());
+						} else {
+							list.setToolTipText("annotation not available");
+						}
+						// System.out.println(anno.stringValue() + " " +
+						// anno.intValue());
+					} catch (Exception e) {
+						list.setToolTipText("method or class not available");
+						log.error(e);
+					}
+
+					// list.setToolTipText(data.get(index).toString());
+					// list.setToolTipText(index + "");
+					// list.setToolTipText(value.toString());
+				}
+			} else {
+				setBackground(list.getBackground());
+				setForeground(list.getForeground());
+			}
+			setFont(list.getFont());
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+	}
 
 }

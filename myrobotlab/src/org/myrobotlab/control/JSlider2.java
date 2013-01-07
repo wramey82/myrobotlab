@@ -8,13 +8,13 @@ public class JSlider2 extends JSlider {
 	JLabel value = new JLabel();
 
 	public JSlider2(int vertical, int i, int j, int k) {
-		super (vertical, i, j, k);
+		super(vertical, i, j, k);
 		value.setText("" + k);
 	}
 
 	public JSlider2(int vertical, int i, int j, float k) {
-		super (vertical, i, j, (int)k);
+		super(vertical, i, j, (int) k);
 		value.setText("" + k);
 	}
-	
+
 }

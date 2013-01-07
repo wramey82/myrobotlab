@@ -69,11 +69,8 @@ public class Configuration {
 	public boolean getBoolean(final String key) {
 		String configValue = Data_.get(key);
 		if ((configValue != null)
-				&& ((configValue.compareToIgnoreCase("T") == 0)
-						|| (configValue.compareToIgnoreCase("Y") == 0)
-						|| (configValue.compareToIgnoreCase("TRUE") == 0)
-						|| (configValue.compareToIgnoreCase("YES") == 0) || (configValue
-						.compareToIgnoreCase("1") == 0))) {
+				&& ((configValue.compareToIgnoreCase("T") == 0) || (configValue.compareToIgnoreCase("Y") == 0) || (configValue.compareToIgnoreCase("TRUE") == 0)
+						|| (configValue.compareToIgnoreCase("YES") == 0) || (configValue.compareToIgnoreCase("1") == 0))) {
 			return true;
 		}
 

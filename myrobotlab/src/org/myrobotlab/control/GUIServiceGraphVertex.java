@@ -27,36 +27,32 @@ package org.myrobotlab.control;
 
 import java.io.Serializable;
 
-
 public class GUIServiceGraphVertex implements Serializable {
 	static final long serialVersionUID = 1L;
-	
+
 	public String name;
 	public String toolTip;
 	public String canonicalName;
 	public String displayName;
 	public String status;
 	public Type type;
-	
+
 	public static enum Type {
 		SERVICE, INPORT, OUTPORT
 	}
-	
-	public GUIServiceGraphVertex()
-	{
+
+	public GUIServiceGraphVertex() {
 	}
-	
-	public GUIServiceGraphVertex(String name, String canonicalName, String displayName, String toolTip, Type t)
-	{
+
+	public GUIServiceGraphVertex(String name, String canonicalName, String displayName, String toolTip, Type t) {
 		this.name = name;
 		this.canonicalName = canonicalName;
 		this.displayName = displayName;
 		this.toolTip = toolTip;
 		this.type = t;
 	}
-	
-	public String toString()
-	{
+
+	public String toString() {
 		return displayName;
 	}
 

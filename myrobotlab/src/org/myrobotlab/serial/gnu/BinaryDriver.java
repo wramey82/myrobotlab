@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.serial.gnu;
 
 import gnu.io.CommDriver;

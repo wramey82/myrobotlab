@@ -23,51 +23,47 @@ public class ProgressDialog extends JDialog {
 	JLabel spinner = null;
 	JLabel downloadText = null;
 	boolean hasError = false;
-	
+
 	public ProgressDialog(JFrame frame) {
 		super(frame, "new components");
-		
+
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
-		
+
 		spinner = new JLabel();
 		panel.add(spinner);
 		spinner.setIcon(new ImageIcon(ProgressDialog.class.getResource("/resource/progressBar.gif")));
-		
+
 		downloadText = new JLabel("Downloading new components");
 		panel.add(downloadText);
-		
+
 		reportArea = new JTextArea("details", 5, 10);
 		reportArea.setLineWrap(true);
 		reportArea.setEditable(false);
 		reportArea.setBackground(SystemColor.control);
-		
+
 		scrollPane = new JScrollPane(reportArea);
-		DefaultCaret caret = (DefaultCaret)reportArea.getCaret();
+		DefaultCaret caret = (DefaultCaret) reportArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		
-		getContentPane().add(scrollPane, BorderLayout.SOUTH);	
-	    setSize(320, 240);
-	    setLocationRelativeTo(frame);
+
+		getContentPane().add(scrollPane, BorderLayout.SOUTH);
+		setSize(320, 240);
+		setLocationRelativeTo(frame);
 	}
-	
-	public void addInfo(String info)
-	{
+
+	public void addInfo(String info) {
 		data += "\n" + info;
 		reportArea.setText(data);
 	}
-	
-	public void addErrorInfo(String error)
-	{
+
+	public void addErrorInfo(String error) {
 		hasError = true;
 		spinner.setIcon(Util.getImageIcon("error.png"));
 		addInfo(error);
 	}
-	
-	public void finished()
-	{
-		if (!hasError)
-		{
+
+	public void finished() {
+		if (!hasError) {
 			spinner.setIcon(Util.getImageIcon("success.png"));
 		}
 		downloadText.setText("finished");

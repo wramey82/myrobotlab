@@ -61,8 +61,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 	JButton attachButton = new JButton("attach");
 	JButton updateLimitsButton = new JButton("update limits");
-	
-	
+
 	JSlider slider = new JSlider(0, 180, 90);
 
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
@@ -78,13 +77,12 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	JTextField posMax = new JTextField("180");
 
 	Servo myServo = null;
-	
-	private class SliderListener implements ChangeListener
-	{
+
+	private class SliderListener implements ChangeListener {
 		public void stateChanged(javax.swing.event.ChangeEvent e) {
-			
-			// if (!slider.getValueIsAdjusting())   TODO !!!!! exciting !!!
-			
+
+			// if (!slider.getValueIsAdjusting()) TODO !!!!! exciting !!!
+
 			boundPos.setText("" + slider.getValue());
 
 			if (myService != null) {
@@ -94,7 +92,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 			}
 		}
 	}
-	
+
 	SliderListener sliderListener = new SliderListener();
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
@@ -103,7 +101,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	}
 
 	public void init() {
-		
+
 		// build input begin ------------------
 		JPanel input = new JPanel();
 		input.setLayout(new GridBagLayout());
@@ -153,23 +151,14 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		// FIXME - controller selection - generates a getPins() which populates
 		// pin JComboBox
 		/*
-		Vector<Integer> p = new Vector<Integer>();
-		p.addElement(1);
-		p.addElement(2);
-		p.addElement(3);
-		p.addElement(4);
-		p.addElement(5);
-		p.addElement(6);
-		p.addElement(7);
-		p.addElement(8);
-		p.addElement(9);
-		p.addElement(10);
-		p.addElement(11);
-		p.addElement(12);
-		p.addElement(13);
-		*/
+		 * Vector<Integer> p = new Vector<Integer>(); p.addElement(1);
+		 * p.addElement(2); p.addElement(3); p.addElement(4); p.addElement(5);
+		 * p.addElement(6); p.addElement(7); p.addElement(8); p.addElement(9);
+		 * p.addElement(10); p.addElement(11); p.addElement(12);
+		 * p.addElement(13);
+		 */
 
-		//pin = new JComboBox(p);
+		// pin = new JComboBox(p);
 
 		++gc.gridx;
 		control.add(pin, gc);
@@ -194,7 +183,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		controller.addActionListener(this);
 		attachButton.addActionListener(this);
 		pin.addActionListener(this);
-		
+
 		// http://stackoverflow.com/questions/6205433/jcombobox-focus-and-mouse-click-events-not-working
 		// jComboBox1.getEditor().getEditorComponent().addMouseListener(...);
 		// have to add mouse listener to the MetalComboButton embedded in the
@@ -222,14 +211,13 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		controllerModel.removeAllElements();
 		// FIXME - get Local services relative to the servo
 		controllerModel.addElement("");
-		Vector<String> v = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName()); 
+		Vector<String> v = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName());
 		for (int i = 0; i < v.size(); ++i) {
 			controllerModel.addElement(v.get(i));
 		}
 		controller.invalidate();
 		// if isAttached() - select the correct one
 	}
-	
 
 	public void getState(final Servo servo) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -242,9 +230,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 				} else {
 					attachButton.setText("attach");
 				}
-				
-				if (servo.getPosition() == null)
-				{
+
+				if (servo.getPosition() == null) {
 					boundPos.setText("");
 				} else {
 					boundPos.setText(servo.getPosition().toString());
@@ -273,31 +260,28 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 		if (o == controller) {
-			String controllerName = (String)controller.getSelectedItem();
+			String controllerName = (String) controller.getSelectedItem();
 			log.info(String.format("controller event %s", controllerName));
-			if (controllerName != null && controllerName.length() > 0)
-			{
-				//myService.send(controllerName, "getPinList");
+			if (controllerName != null && controllerName.length() > 0) {
+				// myService.send(controllerName, "getPinList");
 				@SuppressWarnings("unchecked")
 				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList", null);
 				log.info(pinList.size());
-				
+
 				pinModel.removeAllElements();
 				// FIXME - get Local services relative to the servo
 				pinModel.addElement("");
-				 
+
 				for (int i = 0; i < pinList.size(); ++i) {
 					pinModel.addElement(pinList.get(i).pin);
 				}
-				
+
 				pin.invalidate();
-				
-				
+
 			}
 		}
-		
-		if (o == attachButton)
-		{
+
+		if (o == attachButton) {
 			if (attachButton.getText().equals("attach")) {
 				myService.send(controller.getSelectedItem().toString(), "servoAttach", boundServiceName, pin.getSelectedItem());
 				attachButton.setText("detach");
@@ -307,22 +291,19 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 			}
 			return;
 		}
-		
-		if (o == updateLimitsButton)
-		{
+
+		if (o == updateLimitsButton) {
 			myService.send(boundServiceName, "setPositionMin", Integer.parseInt(posMin.getText()));
 			myService.send(boundServiceName, "setPositionMax", Integer.parseInt(posMax.getText()));
 			return;
 		}
-		
-		if (o == right)
-		{
+
+		if (o == right) {
 			slider.setValue(slider.getValue() + 1);
 			return;
 		}
 
-		if (o == left)
-		{
+		if (o == left) {
 			slider.setValue(slider.getValue() - 1);
 			return;
 		}
@@ -352,7 +333,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	@Override
 	public void mousePressed(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		log.info("controller pressed");	
+		log.info("controller pressed");
 		refreshControllers();
 	}
 

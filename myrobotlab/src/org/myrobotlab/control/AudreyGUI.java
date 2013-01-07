@@ -75,13 +75,12 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	
 	public AudreyGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
-		
+
 		video0 = new VideoWidget(boundServiceName, myService);
 		video0.init();
 		video1 = new VideoWidget(boundServiceName, myService);
@@ -153,12 +152,10 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 			// myService.send(boundServiceName, "keyCommand",
 			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyPressed", keyEvent
-					.getKeyCode()); // KeyEvent.getKeyText(keyEvent.getKeyCode())
+			myService.send(boundServiceName, "keyPressed", keyEvent.getKeyCode()); // KeyEvent.getKeyText(keyEvent.getKeyCode())
 
 			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
+			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 

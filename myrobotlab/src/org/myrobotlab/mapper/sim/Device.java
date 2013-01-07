@@ -26,88 +26,100 @@ package org.myrobotlab.mapper.sim;
 
 import javax.swing.JPanel;
 
-
 /**
- * A abstract device, base class for sensorDevice and ActuatorDevice.
- * The class manages an update rate which will be used by the simulator.
+ * A abstract device, base class for sensorDevice and ActuatorDevice. The class
+ * manages an update rate which will be used by the simulator.
  */
-public abstract class Device extends BaseObject{
+public abstract class Device extends BaseObject {
 
-    private SimpleAgent owner;
-    private String name;
-    private double updatePerSecond;
-    private double elapsedSinceUpdate;
-    private boolean firstUpdate;
-    private boolean updateOnEachFrame;
-  
-    Device() {
-        owner = null;
-        name = "<name>";
-        updatePerSecond = 1.0;
-        elapsedSinceUpdate = 0.0;
-        firstUpdate = true;
-        updateOnEachFrame =false;;
-    }
-    /**
-     * @return device's name .
-     */
-    public String getName(){
-        return name;
-    }
-   
-    protected void setName(String name){ this.name = name;}
-    
-    /** Set the agent owner of this device */
-    protected void setOwner(SimpleAgent agent){
-        this.owner = agent;
-    }
- 
-    /** Get the agent owner of this device */
-    protected SimpleAgent getOwner(){
-        return this.owner;
-    }
-    
-    /**
-     * Creates the panel associated to the device. 
-     * This panel can be inserted in the inspector window for monitoring.
-     * 
-     * @return the JPanel.
-     * null if no panel can be associated
-     */
-    public JPanel createInspectorPanel(){ return null;}
-    
-    /** Sets the number of update per seconds for this sensor. */
-    public void setUpdatePerSecond(double ups) { updatePerSecond = ups;}
+	private SimpleAgent owner;
+	private String name;
+	private double updatePerSecond;
+	private double elapsedSinceUpdate;
+	private boolean firstUpdate;
+	private boolean updateOnEachFrame;
 
-    /** Sets if update happens on each frame . */
-    public void setUpdateOnEachFrame(boolean on ) { updateOnEachFrame = on;}
+	Device() {
+		owner = null;
+		name = "<name>";
+		updatePerSecond = 1.0;
+		elapsedSinceUpdate = 0.0;
+		firstUpdate = true;
+		updateOnEachFrame = false;
+		;
+	}
 
-    /**
-     * Returns the number of updates per second requested for this sensor.
-     * @return requested number of update per second (in virtual time). 
-     */
-    public double getUpdatePerSecond(){    return updatePerSecond;}
-   
-    
-    /** to be overriden */
-    protected void update() {}
-    
-    /** to be overriden */
-    protected void reset() {}
-    
-    /** Called by the simulator loop */
-    protected void update(double elapsedSeconds) {
-        if (updateOnEachFrame) {
-            update();
-        } else {
-            elapsedSinceUpdate += elapsedSeconds;
-            double delta = 1.0 / updatePerSecond;
-            if ((elapsedSinceUpdate > delta) || (firstUpdate)) {
-                update();
-                elapsedSinceUpdate -= delta;
-                firstUpdate = false;
-            }
-        }
-    }
-      
+	/**
+	 * @return device's name .
+	 */
+	public String getName() {
+		return name;
+	}
+
+	protected void setName(String name) {
+		this.name = name;
+	}
+
+	/** Set the agent owner of this device */
+	protected void setOwner(SimpleAgent agent) {
+		this.owner = agent;
+	}
+
+	/** Get the agent owner of this device */
+	protected SimpleAgent getOwner() {
+		return this.owner;
+	}
+
+	/**
+	 * Creates the panel associated to the device. This panel can be inserted in
+	 * the inspector window for monitoring.
+	 * 
+	 * @return the JPanel. null if no panel can be associated
+	 */
+	public JPanel createInspectorPanel() {
+		return null;
+	}
+
+	/** Sets the number of update per seconds for this sensor. */
+	public void setUpdatePerSecond(double ups) {
+		updatePerSecond = ups;
+	}
+
+	/** Sets if update happens on each frame . */
+	public void setUpdateOnEachFrame(boolean on) {
+		updateOnEachFrame = on;
+	}
+
+	/**
+	 * Returns the number of updates per second requested for this sensor.
+	 * 
+	 * @return requested number of update per second (in virtual time).
+	 */
+	public double getUpdatePerSecond() {
+		return updatePerSecond;
+	}
+
+	/** to be overriden */
+	protected void update() {
+	}
+
+	/** to be overriden */
+	protected void reset() {
+	}
+
+	/** Called by the simulator loop */
+	protected void update(double elapsedSeconds) {
+		if (updateOnEachFrame) {
+			update();
+		} else {
+			elapsedSinceUpdate += elapsedSeconds;
+			double delta = 1.0 / updatePerSecond;
+			if ((elapsedSinceUpdate > delta) || (firstUpdate)) {
+				update();
+				elapsedSinceUpdate -= delta;
+				firstUpdate = false;
+			}
+		}
+	}
+
 }

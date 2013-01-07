@@ -28,8 +28,12 @@ public class SerialDeviceFactoryJSSC implements SerialDeviceFrameworkFactory {
 	public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialDeviceException {
 
 		try {
-			SerialDevice sd = new SerialDeviceJSSC(name); //FIXME ??? opens on construction, is that a problem???
-			sd.setParams(rate, databits, stopbits, parity); // FIXME - reset params, is that a problem???
+			SerialDevice sd = new SerialDeviceJSSC(name); // FIXME ??? opens on
+															// construction, is
+															// that a problem???
+			sd.setParams(rate, databits, stopbits, parity); // FIXME - reset
+															// params, is that a
+															// problem???
 			return sd;
 		} catch (Exception e) {
 			Service.logException(e);

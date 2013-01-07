@@ -31,7 +31,7 @@ import org.simpleframework.xml.core.Persister;
  * Singleton implementation for service information.
  * 
  * @author GroG
- *
+ * 
  */
 public class ServiceInfo implements Serializable {
 	// TODO this should be something a little more unique - tied to version?
@@ -126,9 +126,10 @@ public class ServiceInfo implements Serializable {
 				log.info("null");
 			}
 
-			// TODO clean up this boolean with some parenthesis in order to make it clearer
+			// TODO clean up this boolean with some parenthesis in order to make
+			// it clearer
 			if (!((localDep == null) || // new dependency on repo
-					localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version))) {
+			localDep != null && localDep.version != null && repoDep != null && !localDep.version.equals(repoDep.version))) {
 				continue;
 			}
 			deps.add(repoDep);
@@ -149,7 +150,8 @@ public class ServiceInfo implements Serializable {
 	 * @return
 	 */
 	public List<String> getErrors() {
-		// TODO this is not thread safe - returning a reference to a singleton list
+		// TODO this is not thread safe - returning a reference to a singleton
+		// list
 		return errors;
 	}
 
@@ -160,7 +162,7 @@ public class ServiceInfo implements Serializable {
 	 */
 	public static ServiceInfo getInstance() {
 		if (instance == null) {
-			synchronized(instanceObject) {
+			synchronized (instanceObject) {
 				if (instance == null) {
 					instance = new ServiceInfo();
 				}
@@ -188,9 +190,10 @@ public class ServiceInfo implements Serializable {
 		// clear local resolved serviceInfo
 		serviceData.thirdPartyLibs.clear();
 
-		File ivyDir = new File(".ivy"); //FIXME - consolidate all ".ivy" references to single assignment - use var/properties
-		if (!ivyDir.exists())
-		{
+		File ivyDir = new File(".ivy"); // FIXME - consolidate all ".ivy"
+										// references to single assignment - use
+										// var/properties
+		if (!ivyDir.exists()) {
 			log.warn(".ivy dir does not exist");
 			return false;
 		}
@@ -239,7 +242,7 @@ public class ServiceInfo implements Serializable {
 			Service.logException(e);
 			return false;
 		}
-		
+
 		return ret;
 	}
 
@@ -249,19 +252,17 @@ public class ServiceInfo implements Serializable {
 	 */
 	public boolean getLocalServiceData() {
 		boolean ret = loadXML(serviceData, "serviceData.xml");
-		
-		if (!ret)
-		{
+
+		if (!ret) {
 			log.warn("no local file found - fetching repo version");
-			ret = getRepoServiceData("serviceData.xml");		
+			ret = getRepoServiceData("serviceData.xml");
 			// try again :)
-			if (ret)
-			{
+			if (ret) {
 				ret &= loadXML(serviceData, "serviceData.xml");
 			}
-			
+
 		}
-		
+
 		ret &= getLocalResolvedDependencies();
 		return ret;
 	}
@@ -314,8 +315,7 @@ public class ServiceInfo implements Serializable {
 
 		String module = org.substring(org.lastIndexOf(".") + 1);
 		try {
-			HTTPRequest http = new HTTPRequest(String.format("http://myrobotlab.googlecode.com/"
-					+ "svn/trunk/myrobotlab/thirdParty/repo/%1$s/%2$s/", org, module));
+			HTTPRequest http = new HTTPRequest(String.format("http://myrobotlab.googlecode.com/" + "svn/trunk/myrobotlab/thirdParty/repo/%1$s/%2$s/", org, module));
 			String s = http.getString();
 			if (s == null) {
 				return null;
@@ -345,8 +345,7 @@ public class ServiceInfo implements Serializable {
 	public boolean getRepoServiceData(String localFileName) {
 		try {
 			// TODO this should be a configuration value of some sort
-			HTTPRequest http = new HTTPRequest(
-					"http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
+			HTTPRequest http = new HTTPRequest("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");
 			String s = http.getString();
 			if (s != null && localFileName != null) {
 				FileIO.stringToFile(Service.getCFGDir() + File.separator + localFileName, s);
@@ -436,7 +435,7 @@ public class ServiceInfo implements Serializable {
 		ArrayList<String> sorted = new ArrayList<String>();
 		HashMap<String, String> normal = new HashMap<String, String>();
 		Iterator<String> it = serviceData.categories.keySet().iterator();
-		
+
 		String sn;
 		ServiceData.CategoryList al;
 		while (it.hasNext()) {
@@ -473,7 +472,8 @@ public class ServiceInfo implements Serializable {
 	 */
 	public boolean hasUnfulfilledDependencies(String fullServiceName) {
 		boolean ret = false;
-		//log.debug(String.format("inspecting %1$s for unfulfilled dependencies", fullServiceName));
+		// log.debug(String.format("inspecting %1$s for unfulfilled dependencies",
+		// fullServiceName));
 
 		// no serviceInfo
 		if (!serviceData.serviceInfo.containsKey(fullServiceName)) {
@@ -489,8 +489,9 @@ public class ServiceInfo implements Serializable {
 		Dependency dep;
 		for (int i = 0; i < d.size(); ++i) {
 			if (!serviceData.thirdPartyLibs.containsKey(d.get(i))) {
-				//log.debug(String.format("%1$s can not be found in current thirdPartyLibs", d.get(i)));
-				//log.debug("hasUnfulfilledDependencies exit true");
+				// log.debug(String.format("%1$s can not be found in current thirdPartyLibs",
+				// d.get(i)));
+				// log.debug("hasUnfulfilledDependencies exit true");
 				return true;
 			}
 			dep = serviceData.thirdPartyLibs.get(d.get(i));
@@ -500,7 +501,8 @@ public class ServiceInfo implements Serializable {
 			log.debug("hasUnfulfilledDependencies exit true");
 			return true;
 		}
-		//log.debug(String.format("hasUnfulfilledDependencies exit %1$b", ret));
+		// log.debug(String.format("hasUnfulfilledDependencies exit %1$b",
+		// ret));
 		return ret;
 	}
 
@@ -534,7 +536,6 @@ public class ServiceInfo implements Serializable {
 		}
 		return true;
 	}
-
 
 	/**
 	 * gets thirdPartyLibs of a Service using Ivy interfaces with Ivy using its
@@ -643,19 +644,17 @@ public class ServiceInfo implements Serializable {
 
 		options.add("-confs");
 		options.add(String.format("runtime,%1$s.%2$d.%3$s", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
-		
+
 		return options;
 	}
 
 	/**
 	 * 
-	 * java -jar libraries\jar\ivy.jar -cache .ivy -settings
-	 * ivychain.xml -dependency org.myrobotlab myrobotlab
-	 * "latest.integration"
-	 * java -jar libraries\jar\ivy.jar -cache .ivy -retrieve
-	 * libraries/[type]/[artifact].[ext] -settings ivychain.xml
-	 * -dependency org.myrobotlab myrobotlab
-	 * "latest.integration"
+	 * java -jar libraries\jar\ivy.jar -cache .ivy -settings ivychain.xml
+	 * -dependency org.myrobotlab myrobotlab "latest.integration" java -jar
+	 * libraries\jar\ivy.jar -cache .ivy -retrieve
+	 * libraries/[type]/[artifact].[ext] -settings ivychain.xml -dependency
+	 * org.myrobotlab myrobotlab "latest.integration"
 	 * 
 	 * @param status
 	 * @param dependencies
@@ -704,14 +703,11 @@ public class ServiceInfo implements Serializable {
 				report = Ivy2.getReport();
 				artifacts = report.getAllArtifactsReports();
 
-
-				
 				/*
-				if (report.hasChanged())
-				{
-					log.info(String.format("local system has changed with %d download", report.getDownloadSize()));
-				}
-				*/
+				 * if (report.hasChanged()) { log.info(String.format(
+				 * "local system has changed with %d download",
+				 * report.getDownloadSize())); }
+				 */
 				if (report.hasError()) {
 					ret = false;
 					log.error("Ivy resolve error");
@@ -723,20 +719,18 @@ public class ServiceInfo implements Serializable {
 					}
 					continue;
 				}
-				
-				if (report.getDownloadSize() > 0)
-				{
+
+				if (report.getDownloadSize() > 0) {
 					log.info("downloaded new artifacts");
 					runtime.invoke("newArtifactsDownloaded", module);
 				} else {
 					log.info("no new artifacts");
 				}
-				
+
 				runtime.invoke("resolveSuccess", module);
 				for (int j = 0; j < artifacts.length; ++j) {
 					artifact = artifacts[j];
-					if (artifact.getExt().equals("zip"))
-					{
+					if (artifact.getExt().equals("zip")) {
 						filename = String.format("libraries%1$szip%1$s%2$s.zip", File.separator, artifact.getName());
 						Zip.unzip(filename, "./");
 					}
@@ -749,8 +743,6 @@ public class ServiceInfo implements Serializable {
 		}
 		return ret;
 	}
-
-
 
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();

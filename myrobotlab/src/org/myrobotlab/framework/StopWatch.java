@@ -61,8 +61,7 @@ public class StopWatch {
 	}
 
 	public double elapsedMinutes() {
-		return (endCal.getTimeInMillis() - startCal.getTimeInMillis())
-				/ (1000.0 * 60.0);
+		return (endCal.getTimeInMillis() - startCal.getTimeInMillis()) / (1000.0 * 60.0);
 	}
 
 	public static void main(String[] args) {
@@ -80,7 +79,6 @@ public class StopWatch {
 
 		System.out.println("Elapsed time in minutes: " + sw.elapsedMinutes());
 		System.out.println("Elapsed time in seconds: " + sw.elapsedSeconds());
-		System.out.println("Elapsed time in milliseconds: "
-				+ sw.elapsedMillis());
+		System.out.println("Elapsed time in milliseconds: " + sw.elapsedMillis());
 	}
 } // end of StopWatch class

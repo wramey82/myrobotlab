@@ -25,26 +25,25 @@
 
 package org.myrobotlab.opencv;
 
-
 /*
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_HAAR_DO_CANNY_PRUNING;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvHaarDetectObjects;
-import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
-import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
-import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
-import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
-import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
-import static com.googlecode.javacv.cpp.opencv_core.cvRectangle;
-import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import com.googlecode.javacv.cpp.opencv_imgproc.CvHaarClassifierCascade;
-import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvRect;
-import com.googlecode.javacv.cpp.opencv_core.CvSeq;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-*/
+ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_HAAR_DO_CANNY_PRUNING;
+ import static com.googlecode.javacv.cpp.opencv_imgproc.cvHaarDetectObjects;
+ import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+ import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
+ import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+ import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
+ import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
+ import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
+ import static com.googlecode.javacv.cpp.opencv_core.cvRectangle;
+ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+ import com.googlecode.javacv.cpp.opencv_imgproc.CvHaarClassifierCascade;
+ import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+ import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+ import com.googlecode.javacv.cpp.opencv_core.CvRect;
+ import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+ import com.googlecode.javacv.cpp.opencv_core.IplImage;
+ */
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
@@ -74,13 +73,11 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_objdetect;
 import com.googlecode.javacv.cpp.opencv_objdetect.CvHaarClassifierCascade;
 
-
 public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
@@ -115,9 +112,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
-	 * .IplImage, java.util.HashMap)
+	 * @see org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.
+	 * opencv_core .IplImage, java.util.HashMap)
 	 * 
 	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
 	 * iterations=1 ); A Source image. C Destination image. B Structuring
@@ -149,15 +145,15 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage img) {
 
-
 		if (cascade == null) {
-	        // Preload the opencv_objdetect module to work around a known bug.
-	        Loader.load(opencv_objdetect.class);
-	        
+			// Preload the opencv_objdetect module to work around a known bug.
+			Loader.load(opencv_objdetect.class);
+
 			cvLoad("haarcascades/haarcascade_frontalface_alt.xml");
 			cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
-			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
-			
+			// cascade = new
+			// CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
+
 			if (cascade == null) {
 				log.error("Could not load classifier cascade");
 				return img;
@@ -179,12 +175,11 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// sequence of faces.
 			// Detect the objects and store them in the sequence
 
-//			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
-//					CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
+			// CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
+			// CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
 
-			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
-					CV_HAAR_DO_CANNY_PRUNING);
-			
+			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
+
 			// Loop the number of faces found.
 			for (i = 0; i < (faces != null ? faces.total() : 0); i++) {
 				// Create a new rectangle for drawing the face
@@ -201,10 +196,10 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				cvRectangle(img, pt1, pt2, CV_RGB(255, 0, 0), 3, 8, 0);
 				centeroid.x(r.x() + r.width() * scale / 2);
 				centeroid.y(r.y() + r.height() * scale / 2);
-/*				ch1.x = centeroid.x + 1;
-				ch1.y = centeroid.y;
-				ch2.x = centeroid.x - 1;
-				ch2.y = centeroid.y;*/
+				/*
+				 * ch1.x = centeroid.x + 1; ch1.y = centeroid.y; ch2.x =
+				 * centeroid.x - 1; ch2.y = centeroid.y;
+				 */
 				cvDrawLine(img, centeroid, centeroid, CV_RGB(255, 0, 0), 3, 8, 0);
 				myService.invoke("publish", centeroid);
 			}

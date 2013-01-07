@@ -33,8 +33,7 @@ import org.myrobotlab.framework.Service;
 public class TestThrower extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(TestThrower.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(TestThrower.class.getCanonicalName());
 	public int cnt = 0;
 	public int pulseLimit = 20;
 	public int pitchCnt = 0;
@@ -120,16 +119,15 @@ public class TestThrower extends Service {
 
 		}
 	}
-	
 
-	public String throwString (String nameOfTargetService, String nameOfMethod, String data)
-	{
+	public String throwString(String nameOfTargetService, String nameOfMethod, String data) {
 		send(nameOfTargetService, nameOfMethod, data);
 		return data;
 	}
 
 	/**
 	 * load test related
+	 * 
 	 * @param num
 	 */
 	public void setNumberOfPitchers(Integer num) {
@@ -153,5 +151,5 @@ public class TestThrower extends Service {
 	public String getToolTip() {
 		return "<html>service for junit tests</html>";
 	}
-	
+
 }

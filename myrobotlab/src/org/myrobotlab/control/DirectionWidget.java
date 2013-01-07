@@ -13,36 +13,32 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-public class DirectionWidget extends JPanel implements KeyListener  {
-	
+public class DirectionWidget extends JPanel implements KeyListener {
+
 	ButtonActionListener bal = new ButtonActionListener();
-	
-	public class ButtonActionListener implements ActionListener
-	{
-		ActionListener chainedListener;	
+
+	public class ButtonActionListener implements ActionListener {
+		ActionListener chainedListener;
+
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-			//nJButton button = (JButton)ae.getSource();
+			// nJButton button = (JButton)ae.getSource();
 
-			if (chainedListener != null)
-			{
+			if (chainedListener != null) {
 				chainedListener.actionPerformed(ae);
 			}
 		}
-		
-		public void setActionListener(ActionListener al)
-		{
+
+		public void setActionListener(ActionListener al) {
 			chainedListener = al;
 		}
-		
-		/* TODO - replaceListener
-		public ComponentListener[] getListeners()
-		{
-			return getComponentListeners();
-		}
-		*/
+
+		/*
+		 * TODO - replaceListener public ComponentListener[] getListeners() {
+		 * return getComponentListeners(); }
+		 */
 	}
-	
+
 	JButton btnNw;
 	JButton btnN;
 	JButton btnNe;
@@ -51,32 +47,30 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 	JButton btnS;
 	JButton btnSw;
 	JButton btnW;
-	
+
 	JButton btnStop;
-	
+
 	// TODO - Spin CW Spin CCW
-	// TODO - config - 4 dir 8 dir - spin (other -> globe) 
+	// TODO - config - 4 dir 8 dir - spin (other -> globe)
 	// TODO - forward driving turn left spin left - differential drive
 	// TODO - configurable key mapping
-	
+
 	public DirectionWidget() {
 		// setForeground(Color.GREEN);
 		/*
-		BevelBorder widgetTitle;
-		widgetTitle = (BevelBorder) BorderFactory.createBevelBorder(BevelBorder.RAISED);
-		this.setBorder(widgetTitle);
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder("direction");
-		this.setBorder(title);
-		*/
-		
+		 * BevelBorder widgetTitle; widgetTitle = (BevelBorder)
+		 * BorderFactory.createBevelBorder(BevelBorder.RAISED);
+		 * this.setBorder(widgetTitle); TitledBorder title; title =
+		 * BorderFactory.createTitledBorder("direction"); this.setBorder(title);
+		 */
+
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
-		
+
 		btnNw = new JButton("");
 		btnNw.setBackground(new Color(173, 255, 47));
 		btnNw.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_left_grey.png")));
@@ -90,11 +84,11 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		btnNw.addKeyListener(this);
 		btnNw.setActionCommand("nw");
 		btnNw.setVisible(false);
-		
+
 		btnN = new JButton("");
 		btnN.setBackground(new Color(173, 255, 47));
 		btnN.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_grey.png")));
-		btnN.setPressedIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_green.png")));		
+		btnN.setPressedIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_green.png")));
 		btnN.addActionListener(bal);
 		GridBagConstraints gbc_btnN = new GridBagConstraints();
 		gbc_btnN.insets = new Insets(0, 0, 0, 0);
@@ -103,7 +97,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnN, gbc_btnN);
 		btnN.addKeyListener(this);
 		btnN.setActionCommand("n");
-		
+
 		btnNe = new JButton("");
 		btnNe.setBackground(new Color(173, 255, 47));
 		btnNe.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_right_grey.png")));
@@ -117,7 +111,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		btnNe.addKeyListener(this);
 		btnNe.setActionCommand("listener");
 		btnNe.setVisible(false);
-		
+
 		btnW = new JButton("");
 		btnW.setBackground(new Color(173, 255, 47));
 		btnW.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_left_grey.png")));
@@ -130,7 +124,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnW, gbc_btnW);
 		btnW.addKeyListener(this);
 		btnW.setActionCommand("w");
-		
+
 		btnStop = new JButton("");
 		btnStop.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/bullet_square_grey.png")));
 		btnStop.setPressedIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/bullet_square_green.png")));
@@ -156,7 +150,7 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		add(btnE, gbc_btnE);
 		btnE.addKeyListener(this);
 		btnE.setActionCommand("e");
-		
+
 		btnSw = new JButton("");
 		btnSw.setBackground(new Color(173, 255, 47));
 		btnSw.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_down_left_grey.png")));
@@ -168,10 +162,9 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		gbc_btnSw.gridy = 2;
 		add(btnSw, gbc_btnSw);
 		btnSw.addKeyListener(this);
-		btnSw.setActionCommand("sw");	
+		btnSw.setActionCommand("sw");
 		btnSw.setVisible(false);
 
-		
 		btnS = new JButton("");
 		btnS.setBackground(new Color(173, 255, 47));
 		btnS.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_down_grey.png")));
@@ -183,8 +176,8 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		gbc_btnS.gridy = 2;
 		add(btnS, gbc_btnS);
 		btnS.addKeyListener(this);
-		btnS.setActionCommand("s");		
-		
+		btnS.setActionCommand("s");
+
 		btnSe = new JButton("");
 		btnSe.setBackground(new Color(173, 255, 47));
 		btnSe.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_down_right_grey.png")));
@@ -196,21 +189,17 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 		gbc_btnSe.gridy = 2;
 		add(btnSe, gbc_btnSe);
 		btnSe.addKeyListener(this);
-		btnSe.setActionCommand("se");		
+		btnSe.setActionCommand("se");
 		btnSe.setVisible(false);
 
-		
 		/*
-		JToggleButton tglbtnT = new JToggleButton("use keyboard");
-		tglbtnT.setBackground(new Color(173, 255, 47));
-		GridBagConstraints gbc_tglbtnT = new GridBagConstraints();
-		gbc_tglbtnT.gridwidth = 2;
-		gbc_tglbtnT.insets = new Insets(0, 0, 0, 0);
-		gbc_tglbtnT.gridx = 0;
-		gbc_tglbtnT.gridy = 3;
-		add(tglbtnT, gbc_tglbtnT);
-		*/
-		//this.addKeyListener(this);
+		 * JToggleButton tglbtnT = new JToggleButton("use keyboard");
+		 * tglbtnT.setBackground(new Color(173, 255, 47)); GridBagConstraints
+		 * gbc_tglbtnT = new GridBagConstraints(); gbc_tglbtnT.gridwidth = 2;
+		 * gbc_tglbtnT.insets = new Insets(0, 0, 0, 0); gbc_tglbtnT.gridx = 0;
+		 * gbc_tglbtnT.gridy = 3; add(tglbtnT, gbc_tglbtnT);
+		 */
+		// this.addKeyListener(this);
 		//
 	}
 
@@ -219,70 +208,45 @@ public class DirectionWidget extends JPanel implements KeyListener  {
 	@Override
 	public void keyPressed(KeyEvent keyEvent) {
 		int code = keyEvent.getKeyCode();
-		
-		if (code == KeyEvent.VK_Q)
-		{
-			btnNw.doClick();	
-		}
-		else if (code == KeyEvent.VK_UP || code == KeyEvent.VK_W)
-		{
-			btnN.doClick();	
-		}
-		else if (code == KeyEvent.VK_E)
-		{
-			btnNe.doClick();	
-		}
-		else if (code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D)
-		{
-			btnE.doClick();	
-		}
-		else if (code == KeyEvent.VK_C)
-		{
-			btnSe.doClick();	
-		}
-		else if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_X)
-		{
-			btnS.doClick();	
-		}
-		else if (code == KeyEvent.VK_Z)
-		{
-			btnSw.doClick();	
-		}
-		else if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A)
-		{
-			btnW.doClick();	
-		}
-		else if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_S)
-		{
-			btnStop.doClick();	
+
+		if (code == KeyEvent.VK_Q) {
+			btnNw.doClick();
+		} else if (code == KeyEvent.VK_UP || code == KeyEvent.VK_W) {
+			btnN.doClick();
+		} else if (code == KeyEvent.VK_E) {
+			btnNe.doClick();
+		} else if (code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) {
+			btnE.doClick();
+		} else if (code == KeyEvent.VK_C) {
+			btnSe.doClick();
+		} else if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_X) {
+			btnS.doClick();
+		} else if (code == KeyEvent.VK_Z) {
+			btnSw.doClick();
+		} else if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) {
+			btnW.doClick();
+		} else if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_S) {
+			btnStop.doClick();
 		}
 
-		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		//btnN.doClick();
+		// btnN.doClick();
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		//btnN.doClick();		
+		// btnN.doClick();
 	}
-	
-	public void setDirectionListener(ActionListener a)
-	{
+
+	public void setDirectionListener(ActionListener a) {
 		bal.setActionListener(a);
 	}
-	
+
 	/*
-	public void replaceListener(ActionListener al)
-	{
-		ComponentListener[] b = bal.getListeners();
-		for (int i = 0; i < b.length; ++i)
-		{
-			b[i].
-		}
-	}
-	*/
+	 * public void replaceListener(ActionListener al) { ComponentListener[] b =
+	 * bal.getListeners(); for (int i = 0; i < b.length; ++i) { b[i]. } }
+	 */
 }

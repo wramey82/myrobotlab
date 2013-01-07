@@ -90,9 +90,7 @@ public class RadarWidget extends JPanel implements Runnable {
 		int zoom = 1;
 
 		rad = sensorAngle * Math.PI / 180;
-		g.drawLine(sensorCenter.x, sensorCenter.y, sensorCenter.x
-				- (int) ((maxRange / zoom) * Math.cos(rad)), sensorCenter.y
-				- (int) ((maxRange / zoom) * Math.sin(rad)));
+		g.drawLine(sensorCenter.x, sensorCenter.y, sensorCenter.x - (int) ((maxRange / zoom) * Math.cos(rad)), sensorCenter.y - (int) ((maxRange / zoom) * Math.sin(rad)));
 
 		for (int x = 0; x < points.size(); x++) {
 			curDot = (PolarPoint) points.elementAt(x);
@@ -105,9 +103,7 @@ public class RadarWidget extends JPanel implements Runnable {
 			// g.setColor(curDot.getShade());
 			// sensor direction line
 
-			g.fillOval(sensorCenter.x
-					- (int) ((curDist / zoom) * Math.cos(rad)), sensorCenter.y
-					- (int) ((curDist / zoom) * Math.sin(rad)), 2, 2);
+			g.fillOval(sensorCenter.x - (int) ((curDist / zoom) * Math.cos(rad)), sensorCenter.y - (int) ((curDist / zoom) * Math.sin(rad)), 2, 2);
 			// if (curDot.isOld())
 			// isDead = 1;
 		}

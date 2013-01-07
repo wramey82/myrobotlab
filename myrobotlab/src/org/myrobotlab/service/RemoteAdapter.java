@@ -64,14 +64,13 @@ import org.myrobotlab.service.interfaces.Communicator;
 public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(RemoteAdapter.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
 
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
 	transient TCPListener tcpListener = null;
 	transient UDPListener udpListener = null;
-	//transient UDPStringListener udpStringListener = null;
+	// transient UDPStringListener udpStringListener = null;
 
 	// FIXME - all port & ip data needs to be only in the threads
 	public int TCPPort = 6767;
@@ -100,7 +99,7 @@ public class RemoteAdapter extends Service {
 		}
 		return false;
 	}
-	
+
 	public int TCPMessages = 0;
 
 	class TCPListener extends Thread {
@@ -130,15 +129,12 @@ public class RemoteAdapter extends Service {
 
 				serverSocket = new ServerSocket(TCPPort, 10);
 
-				log.info(getName() + " TCPListener listening on "
-						+ serverSocket.getLocalSocketAddress());
+				log.info(getName() + " TCPListener listening on " + serverSocket.getLocalSocketAddress());
 
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
-					URI url = new URI("tcp://"
-							+ clientSocket.getInetAddress().getHostAddress()
-							+ ":" + clientSocket.getPort());
+					URI url = new URI("tcp://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
 					log.info("new connection [" + url + "]");
 					comm.addClient(url, clientSocket);
 					broadcastState();
@@ -152,7 +148,6 @@ public class RemoteAdapter extends Service {
 		}
 	}
 
-	
 	class UDPListener extends Thread {
 
 		DatagramSocket socket = null;
@@ -174,9 +169,7 @@ public class RemoteAdapter extends Service {
 			try {
 				socket = new DatagramSocket(UDPPort);
 
-				log.info(getName() + " UDPListener listening on "
-						+ socket.getLocalAddress() + ":"
-						+ socket.getLocalPort());
+				log.info(getName() + " UDPListener listening on " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 
 				Communicator comm = (Communicator) cm.getComm();
 
@@ -187,19 +180,16 @@ public class RemoteAdapter extends Service {
 				while (isRunning()) {
 					socket.receive(dgram); // receives all datagrams
 					// FIXME - do we need o re-create???
-					ObjectInputStream o_in = new ObjectInputStream(b_in); 
+					ObjectInputStream o_in = new ObjectInputStream(b_in);
 					try {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset();
 						if ("registerServices".equals(msg.method)) {
-							URI url = new URI("tcp://" 
-									+ dgram.getAddress().getHostAddress() + ":"
-									+ dgram.getPort());
+							URI url = new URI("tcp://" + dgram.getAddress().getHostAddress() + ":" + dgram.getPort());
 							comm.addClient(url, socket);
-							invoke("registerServices", dgram.getAddress()
-									.getHostAddress(), dgram.getPort(), msg);
-							//broadcastState();
+							invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
+							// broadcastState();
 							continue;
 						}
 
@@ -224,10 +214,9 @@ public class RemoteAdapter extends Service {
 			}
 		}
 	}
-	
-	public ArrayList<URI> getClients ()
-	{
-		//ArrayList<U>
+
+	public ArrayList<URI> getClients() {
+		// ArrayList<U>
 		return null;
 	}
 
@@ -302,21 +291,19 @@ public class RemoteAdapter extends Service {
 	static public ArrayList<InetAddress> getLocalAddresses() {
 		ArrayList<InetAddress> ret = new ArrayList<InetAddress>();
 		try {
-		for (Enumeration<NetworkInterface> en = NetworkInterface
-				.getNetworkInterfaces(); en.hasMoreElements();) {
-			NetworkInterface intf = en.nextElement();
-			for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
-					.hasMoreElements();) {
-				InetAddress inetAddress = enumIpAddr.nextElement();
-				ret.add(inetAddress);
-				/*
-				if (!inetAddress.isLoopbackAddress()
-						&& !inetAddress.isLinkLocalAddress()) {
-					System.out.println(inetAddress.getHostAddress());
+			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+				NetworkInterface intf = en.nextElement();
+				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+					InetAddress inetAddress = enumIpAddr.nextElement();
+					ret.add(inetAddress);
+					/*
+					 * if (!inetAddress.isLoopbackAddress() &&
+					 * !inetAddress.isLinkLocalAddress()) {
+					 * System.out.println(inetAddress.getHostAddress()); }
+					 */
 				}
-				*/
 			}
-		};
+			;
 		} catch (Exception e) {
 			logException(e);
 		}
@@ -326,13 +313,13 @@ public class RemoteAdapter extends Service {
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+
 		Runtime.main(args);
-/*
-		Runtime.createAndStart("remote0", "RemoteAdapter");
-		Runtime.createAndStart("log0", "Logging");
-		Runtime.createAndStart("python0", "Python");
-*/
+		/*
+		 * Runtime.createAndStart("remote0", "RemoteAdapter");
+		 * Runtime.createAndStart("log0", "Logging");
+		 * Runtime.createAndStart("python0", "Python");
+		 */
 		Runtime.createAndStart("remote", "RemoteAdapter");
 		Runtime.createAndStart("rgui", "GUIService");
 		Runtime.createAndStart("rpython", "Python");

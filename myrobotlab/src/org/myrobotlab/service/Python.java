@@ -89,7 +89,7 @@ public class Python extends Service {
 	String inputScript = null;
 	String setupScript = null;
 	String msgHandlerScript = null;
-	private Script currentScript = new Script("untitled.py","");
+	private Script currentScript = new Script("untitled.py", "");
 
 	HashMap<String, Script> scripts = new HashMap<String, Script>();
 
@@ -190,7 +190,6 @@ public class Python extends Service {
 											// "initServicesScripts()"
 		// register for addition of new services
 
-		
 		subscribe("registered", Runtime.getInstance().getName(), "registered", ServiceWrapper.class);
 	}
 
@@ -423,26 +422,17 @@ public class Python extends Service {
 	}
 
 	public static int untitledDocuments = 0;
-/*
-	public static String getName(String filename) {
-		if (filename == null) {
-			++untitledDocuments;
-			filename = String.format("untitled.%d", untitledDocuments);
 
-		}
-		int end = filename.lastIndexOf(".py");
-		int begin = filename.lastIndexOf(File.separator);
-		if (begin > 0) {
-			++begin;
-		} else {
-			begin = 0;
-		}
-		if (end < 0) {
-			end = filename.length();
-		}
-		return filename.substring(begin, end);
-	}
-	*/
+	/*
+	 * public static String getName(String filename) { if (filename == null) {
+	 * ++untitledDocuments; filename = String.format("untitled.%d",
+	 * untitledDocuments);
+	 * 
+	 * } int end = filename.lastIndexOf(".py"); int begin =
+	 * filename.lastIndexOf(File.separator); if (begin > 0) { ++begin; } else {
+	 * begin = 0; } if (end < 0) { end = filename.length(); } return
+	 * filename.substring(begin, end); }
+	 */
 
 	public boolean loadScriptFromResource(String filename) {
 		log.debug(String.format("loadScriptFromResource scripts/%1s", filename));
@@ -473,10 +463,9 @@ public class Python extends Service {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		
-		//String f = "C:\\Program Files\\blah.1.py";
-		//log.info(getName(f));
-		
+		// String f = "C:\\Program Files\\blah.1.py";
+		// log.info(getName(f));
+
 		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui", "GUIService");
 

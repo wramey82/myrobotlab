@@ -42,13 +42,12 @@ public class ComediDriver extends Service {
 
 	public ComediDriver(String n) {
 		super(n, ComediDriver.class.getCanonicalName());
-		System.loadLibrary("IOPort"); 
+		System.loadLibrary("IOPort");
 	}
 
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-
 
 	public void foobar() {
 		log.warn("foobar");
@@ -67,15 +66,13 @@ public class ComediDriver extends Service {
 	{
 		// create a thread - volatile isDone
 		// until done - iterate through a sequence
-		// 
+		//
 		String namedSequence = inNamedSequence.toString();
 
 		log.info("write");
 		log.info(config.sequenceMap_);
 		if (!config.sequenceMap_.containsKey(namedSequence)) {
-			log.error("repeat " + namedSequence
-					+ " sequence was requested but " + namedSequence
-					+ " does not exist in config");
+			log.error("repeat " + namedSequence + " sequence was requested but " + namedSequence + " does not exist in config");
 			return;
 		}
 
@@ -83,8 +80,7 @@ public class ComediDriver extends Service {
 		for (int i = 0; i < 101; ++i) {
 			for (int j = 0; j < ios.sequenceList.size(); ++j) {
 				IOSequenceEntry se = ios.sequenceList.get(j);
-				jcomedidiowrite(se.ioAddress.subdevice, se.ioAddress.channel,
-						se.ioAddress.data);
+				jcomedidiowrite(se.ioAddress.subdevice, se.ioAddress.channel, se.ioAddress.data);
 
 				try {
 					Thread.sleep(se.timeInMilliSeconds_.intValue());
@@ -102,15 +98,13 @@ public class ComediDriver extends Service {
 		return readValue;
 	}
 
-	public static native void jcomedidiowrite(int subdev, int channel,
-			int oneByte);
+	public static native void jcomedidiowrite(int subdev, int channel, int oneByte);
 
-	public static native void jcomedidioread(int subdev, int channel,
-			int oneByte);
+	public static native void jcomedidioread(int subdev, int channel, int oneByte);
 
 	@Override
 	public String getToolTip() {
 		return "used to interface with DIO (digital input/output computer cards)";
 	}
-	
+
 }

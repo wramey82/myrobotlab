@@ -29,43 +29,45 @@ import java.util.ArrayList;
 
 import javax.media.j3d.BoundingSphere;
 
-
 /**
- * Base classt for all composite  block world objects (arch...).
+ * Base classt for all composite block world objects (arch...).
  */
 public class BlockWorldCompositeObject extends BlockWorldObject {
-    /** Keep list of all simple components .*/
-    ArrayList components;
-   
-    BlockWorldCompositeObject(){
-        components = new ArrayList();
-    }
-    
-    
-    /** Create and pre Compute the transformed bound of the objects. */
-    protected void createTransformedBounds(){
-        for (int i = 0; i< components.size();i++){
-            BlockWorldObject bo = (BlockWorldObject) components.get(i);
-            bo.createLocalToVworld();
-            bo.createTransformedBounds();
-        }
-         
-    }
+	/** Keep list of all simple components . */
+	ArrayList components;
 
-    /**  Returns true if the object intersect with the given bounding sphere. 
-     * This can be overriden.
-     * @param bs the boundingsphere to intersect with.*/
-    protected boolean intersect(BoundingSphere bs){
-        // If any component intersect
-        for (int i = 0; i< components.size();i++){
-            if (((BlockWorldObject) components.get(i)).intersect(bs))
-                return true;
-        }
-        return false ;
-    }
-    
-    protected void addComponent(BlockWorldObject o){
-        components.add(o);
-        addChild(o);
-    }
+	BlockWorldCompositeObject() {
+		components = new ArrayList();
+	}
+
+	/** Create and pre Compute the transformed bound of the objects. */
+	protected void createTransformedBounds() {
+		for (int i = 0; i < components.size(); i++) {
+			BlockWorldObject bo = (BlockWorldObject) components.get(i);
+			bo.createLocalToVworld();
+			bo.createTransformedBounds();
+		}
+
+	}
+
+	/**
+	 * Returns true if the object intersect with the given bounding sphere. This
+	 * can be overriden.
+	 * 
+	 * @param bs
+	 *            the boundingsphere to intersect with.
+	 */
+	protected boolean intersect(BoundingSphere bs) {
+		// If any component intersect
+		for (int i = 0; i < components.size(); i++) {
+			if (((BlockWorldObject) components.get(i)).intersect(bs))
+				return true;
+		}
+		return false;
+	}
+
+	protected void addComponent(BlockWorldObject o) {
+		components.add(o);
+		addChild(o);
+	}
 }

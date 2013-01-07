@@ -36,7 +36,7 @@ public class AudioFileGUI extends ServiceGUI {
 	public AudioFileGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 		display.add(new JLabel("no gui"));
 	}

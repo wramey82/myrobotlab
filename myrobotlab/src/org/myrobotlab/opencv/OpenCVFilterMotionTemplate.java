@@ -71,9 +71,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
 
 	// various tracking parameters (in seconds)
 	final double MHI_DURATION = 1;
@@ -104,7 +103,8 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		double timestamp = 0.0;
 		// TODO FIX double timestamp = (double)clock()/CLOCKS_PER_SEC; // get
 		// current time in seconds
-		CvSize size = cvSize(img.width(), img.height()); // get current frame size
+		CvSize size = cvSize(img.width(), img.height()); // get current frame
+															// size
 		int i, idx1 = last, idx2;
 		IplImage silh;
 		CvSeq seq;
@@ -160,20 +160,18 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		cvAbsDiff(buf[idx1], buf[idx2], silh); // get difference between frames
 
 		cvThreshold(silh, silh, diff_threshold, 1, CV_THRESH_BINARY); // and
-																			// threshold
-																			// it
+																		// threshold
+																		// it
 		cvUpdateMotionHistory(silh, mhi, timestamp, MHI_DURATION); // update
-																		// MHI
+																	// MHI
 
 		// convert MHI to blue 8u image
-		cvCvtScale(mhi, mask, 255. / MHI_DURATION, (MHI_DURATION - timestamp)
-				* 255. / MHI_DURATION);
+		cvCvtScale(mhi, mask, 255. / MHI_DURATION, (MHI_DURATION - timestamp) * 255. / MHI_DURATION);
 		cvZero(dst);
 		cvMerge(mask, null, null, null, dst);
 
 		// calculate motion gradient orientation and valid orientation mask
-		cvCalcMotionGradient(mhi, mask, orient, MAX_TIME_DELTA,
-				MIN_TIME_DELTA, 3);
+		cvCalcMotionGradient(mhi, mask, orient, MAX_TIME_DELTA, MIN_TIME_DELTA, 3);
 
 		if (storage == null)
 			storage = cvCreateMemStorage(0);
@@ -182,8 +180,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 		// segment motion: get sequence of motion components
 		// segmask is marked motion components map. It is not used further
-		seq = cvSegmentMotion(mhi, segmask, storage, timestamp,
-				MAX_TIME_DELTA);
+		seq = cvSegmentMotion(mhi, segmask, storage, timestamp, MAX_TIME_DELTA);
 
 		// iterate through the motion components,
 		// One more iteration (i == -1) corresponds to the whole image (global
@@ -195,12 +192,13 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 				color = CV_RGB(255, 255, 255);
 				magnitude = 100;
 			} else { // i-th motion component
-			// TODO - fix CvConnectedComp connected_comp = new
-			// CvConnectedComp(cvGetSeqElem( seq, i ));
-			// TODO -fix comp_rect = connected_comp.rect;
-				if (comp_rect != null && comp_rect.width() + comp_rect.height() < 100) // reject very
-																// small
-																// components
+				// TODO - fix CvConnectedComp connected_comp = new
+				// CvConnectedComp(cvGetSeqElem( seq, i ));
+				// TODO -fix comp_rect = connected_comp.rect;
+				if (comp_rect != null && comp_rect.width() + comp_rect.height() < 100) // reject
+																						// very
+					// small
+					// components
 					continue;
 				color = CV_RGB(255, 0, 0);
 				magnitude = 30;
@@ -213,8 +211,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 			cvSetImageROI(mask, comp_rect);
 
 			// calculate orientation
-			angle = cvCalcGlobalOrientation(orient, mask, mhi, timestamp,
-					MHI_DURATION);
+			angle = cvCalcGlobalOrientation(orient, mask, mhi, timestamp, MHI_DURATION);
 			angle = 360.0 - angle; // adjust for images with top-left origin
 
 			count = cvNorm(silh, null, CV_L1, null); // calculate number of
@@ -231,18 +228,13 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 				continue;
 
 			// draw a clock with arrow indicating the direction
-			center = cvPoint((comp_rect.x() + comp_rect.width() / 2),
-					(comp_rect.y() + comp_rect.height() / 2));
+			center = cvPoint((comp_rect.x() + comp_rect.width() / 2), (comp_rect.y() + comp_rect.height() / 2));
 
 			// cvCircle( dst, center, cvRound(magnitude*1.2), color, 3, CV_AA, 0
 			// );
-			cvCircle(dst, center, (int) (magnitude * 1.2), color
-					, 3, CV_AA, 0);
-			cvLine(dst, center, cvPoint((int) (center.x() + magnitude
-					* Math.cos(angle * Math.PI / 180)),
-					(int) (center.y() - magnitude
-							* Math.sin(angle * Math.PI / 180))), color
-					, 3, CV_AA, 0);
+			cvCircle(dst, center, (int) (magnitude * 1.2), color, 3, CV_AA, 0);
+			cvLine(dst, center, cvPoint((int) (center.x() + magnitude * Math.cos(angle * Math.PI / 180)), (int) (center.y() - magnitude * Math.sin(angle * Math.PI / 180))), color,
+					3, CV_AA, 0);
 		}
 	}
 

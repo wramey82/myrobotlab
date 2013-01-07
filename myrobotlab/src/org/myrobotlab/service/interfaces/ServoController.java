@@ -38,13 +38,13 @@ public interface ServoController {
 	public String getName();
 
 	/**
-	 *  a list of pins from the controller which might be applicable for controlling
-	 *  a Servo
+	 * a list of pins from the controller which might be applicable for
+	 * controlling a Servo
+	 * 
 	 * @return
 	 */
 	public ArrayList<Pin> getPinList();
-	
-	
+
 	/**
 	 * servoAttach - attach the servo to a specific pin on the controller
 	 * 
@@ -67,7 +67,6 @@ public interface ServoController {
 	 */
 	void servoWrite(String servoName, Integer newPos);
 
-
 	/**
 	 * servoDetach - detach the servo from a specific pin on the controller
 	 * 
@@ -76,14 +75,15 @@ public interface ServoController {
 	 * @return boolean
 	 */
 	boolean servoDetach(String servoName);
-	
+
 	/**
 	 * return the current pin this servo is attached to
+	 * 
 	 * @param servoName
 	 * @return
 	 */
 	public Integer getServoPin(String servoName);
-	
+
 	public void setServoSpeed(String servoName, Float speed);
 
 }

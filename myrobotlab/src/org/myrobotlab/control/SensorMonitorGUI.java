@@ -67,8 +67,8 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 /**
  * @author Gro-G Display data sent to the SensorMonitor service.
  * 
- *	TODO - generalized tracing/triggering
- *	TODO - auto-sizing based on min/max values - sizes screen
+ *         TODO - generalized tracing/triggering TODO - auto-sizing based on
+ *         min/max values - sizes screen
  * 
  */
 public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
@@ -102,7 +102,6 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	final int DATA_WIDTH = 320;
 	final int DATA_HEIGHT = 512;
-
 
 	SensorMonitor myBoundService = null;
 	// trace data is owned by the GUI
@@ -332,9 +331,8 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			String controllerName = (String) traceController.getSelectedItem();
 			Color color = new Color(rand.nextInt(16777215));
 
-			traceListModel.addElement("<html><body><font color=\"" + Integer.toHexString(color.getRGB() & 0x00ffffff)
-					+ "\"> " + controllerName + " " + tracePin.getSelectedItem() + " " + label
-					+ " </font></body></html>");
+			traceListModel.addElement("<html><body><font color=\"" + Integer.toHexString(color.getRGB() & 0x00ffffff) + "\"> " + controllerName + " " + tracePin.getSelectedItem()
+					+ " " + label + " </font></body></html>");
 
 			// add the data to the array
 			TraceData t = new TraceData();
@@ -344,16 +342,16 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			t.pin = (Integer) tracePin.getSelectedItem();
 			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
-			MRLListener MRLListener = new MRLListener(SensorDataPublisher.publishPin, boundServiceName, "sensorInput",
-					new Class[] { Pin.class });
+			MRLListener MRLListener = new MRLListener(SensorDataPublisher.publishPin, boundServiceName, "sensorInput", new Class[] { Pin.class });
 
 			myService.send(controllerName, "addListener", MRLListener);
 
 			// Notification SensorMonitor ------> GUIService
-			//subscribe("publishSensorData", "inputSensorData", PinData.class);// TODO-remove
-																						// already
-																						// in
-																						// attachGUI
+			// subscribe("publishSensorData", "inputSensorData",
+			// PinData.class);// TODO-remove
+			// already
+			// in
+			// attachGUI
 			// this tells the Arduino to begin analog reads
 			myService.send(controllerName, "analogReadPollingStart", (Integer) tracePin.getSelectedItem());
 
@@ -398,8 +396,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 			TriggerDialog triggerDlg = new TriggerDialog();
 			if (triggerDlg.action.equals("add")) {
-				triggerListModel.addElement(triggerDlg.name.getText() + " " + triggerPin.getSelectedItem() + " "
-						+ triggerDlg.threshold.getInt());
+				triggerListModel.addElement(triggerDlg.name.getText() + " " + triggerPin.getSelectedItem() + " " + triggerDlg.threshold.getInt());
 				// this has to be pushed to service
 				Trigger trigger = new Trigger();
 				trigger.name = triggerDlg.name.getText();
@@ -479,11 +476,10 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			g.setColor(Color.BLACK);
 			g.fillRect(20, t.pin * 15 + 5, 200, 15);
 			g.setColor(t.color);
-			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum,
-					20, t.pin * 15 + 20);
+			g.drawString(" min " + t.min + " max " + t.max + " mean " + t.mean + " total " + t.total + " sum " + t.sum, 20, t.pin * 15 + 20);
 
 		}
-		
+
 		video.displayFrame(sensorImage);
 	}
 

@@ -4,9 +4,9 @@ package org.myrobotlab.logging;
  * The log levels available.
  * 
  * @author christer
- *
+ * 
  */
-public enum LogLevel { 
+public enum LogLevel {
 	Debug {
 		public String toString() {
 			return "DEBUG";
@@ -32,7 +32,7 @@ public enum LogLevel {
 			return "FATAL";
 		}
 	};
-	
+
 	/**
 	 * Safely parse the input parameter. Default: Info.
 	 * 
@@ -43,31 +43,28 @@ public enum LogLevel {
 		if (str == null || str.length() < 4) {
 			return LogLevel.Info;
 		}
-		StringBuilder formattedString = new StringBuilder(str.length())
-			.append(Character.toUpperCase(str.charAt(0)))
-			.append(str.substring(1).toLowerCase());
+		StringBuilder formattedString = new StringBuilder(str.length()).append(Character.toUpperCase(str.charAt(0))).append(str.substring(1).toLowerCase());
 		try {
 			return LogLevel.valueOf(formattedString.toString());
 		} catch (IllegalArgumentException ex) {
 			return LogLevel.Info;
 		}
 	}
-	
+
 	/**
 	 * Parse the input parameter.
 	 * 
 	 * @param str
 	 * @return
-	 * @throws IllegalArgumentException if there is no match
+	 * @throws IllegalArgumentException
+	 *             if there is no match
 	 */
 	public static LogLevel parse(String str) {
 		if (str == null || str.length() < 4) {
 			throw new IllegalArgumentException(str);
 		}
 		// change the string to pascal casing
-		StringBuilder formattedString = new StringBuilder(str.length())
-			.append(Character.toUpperCase(str.charAt(0)))
-			.append(str.substring(1).toLowerCase());
+		StringBuilder formattedString = new StringBuilder(str.length()).append(Character.toUpperCase(str.charAt(0))).append(str.substring(1).toLowerCase());
 		return LogLevel.valueOf(formattedString.toString());
 	}
 }

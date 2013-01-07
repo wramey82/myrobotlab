@@ -48,8 +48,7 @@ import org.myrobotlab.service.WiiDAR.Point;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
-public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
-		VideoGUISource {
+public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(WiiDARGUI.class.toString());
@@ -76,15 +75,13 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 	public WiiDARGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 		screen = new VideoWidget(boundServiceName, myService);
 		screen.init();
 
-		camImage = new BufferedImage(width / xyScale, height / xyScale,
-				BufferedImage.TYPE_INT_RGB);
-		graphImage = new BufferedImage(width / xyScale, height / xyScale,
-				BufferedImage.TYPE_INT_RGB);
+		camImage = new BufferedImage(width / xyScale, height / xyScale, BufferedImage.TYPE_INT_RGB);
+		graphImage = new BufferedImage(width / xyScale, height / xyScale, BufferedImage.TYPE_INT_RGB);
 
 		cam = camImage.getGraphics();
 		graph = graphImage.getGraphics();
@@ -140,9 +137,9 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 	public void detachGUI() {
 		// unsubscribe("publishIR", "publishIR",
 		// IRData.class);
-		unsubscribe("publishSweepData", "publishSweepData",ArrayList.class);
+		unsubscribe("publishSweepData", "publishSweepData", ArrayList.class);
 		unsubscribe("setServoLeftMax", "setServoLeftMax", Integer.class);
-		unsubscribe("setServoRightMax", "setServoRightMax",Integer.class);
+		unsubscribe("setServoRightMax", "setServoRightMax", Integer.class);
 		unsubscribe("setIRLeftMax", "setIRLeftMax", Integer.class);
 		unsubscribe("setIRRightMax", "setIRRightMax", Integer.class);
 		unsubscribe("setCalibrating", "setCalibrating", Boolean.class);
@@ -222,8 +219,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 			String dir = (first.direction == WiiDAR.LEFT) ? "left" : "right";
 
 			// set appropriate color
-			Color color = (dir.compareTo(leftstr) == 0) ? Color.green
-					: Color.red;
+			Color color = (dir.compareTo(leftstr) == 0) ? Color.green : Color.red;
 			graph.setColor(color);
 
 			// draw first last info
@@ -242,10 +238,8 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 				p = points.get(i);
 
 				// polar coordinates !
-				x = vwidth
-						- ((int) (p.z * Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
-				y = vheight
-						- ((int) (p.z * Math.sin(Math.toRadians(p.servoPos)) * zScale));
+				x = vwidth - ((int) (p.z * Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
+				y = vheight - ((int) (p.z * Math.sin(Math.toRadians(p.servoPos)) * zScale));
 				graph.drawLine(x, y, x, y);
 
 			}
@@ -260,12 +254,8 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 				graph.setColor(new Color(v, v, v));
 				for (int j = 0; j < sweep.size(); ++j) {
 					p = sweep.get(j);
-					x = vwidth
-							- ((int) (p.z
-									* Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
-					y = vheight
-							- ((int) (p.z
-									* Math.sin(Math.toRadians(p.servoPos)) * zScale));
+					x = vwidth - ((int) (p.z * Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
+					y = vheight - ((int) (p.z * Math.sin(Math.toRadians(p.servoPos)) * zScale));
 					graph.drawLine(x, y, x, y);
 				}
 				v -= 30;
@@ -298,8 +288,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
+						System.out.println("Double-clicked on: " + o.toString());
 					}
 				}
 			}
@@ -357,18 +346,15 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 
 		// calculate xy for p
 		x = ((int) (p.z * Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
-		y = vheight
-				- ((int) (p.z * Math.sin(Math.toRadians(p.servoPos)) * zScale));
+		y = vheight - ((int) (p.z * Math.sin(Math.toRadians(p.servoPos)) * zScale));
 
 		// take care of history
 		if (hist.size() > 0) {
 			// get historical coordinates
 			Point h = hist.get(hist.size() - 1);
 			x0 = ((int) (h.z * Math.cos(Math.toRadians(h.servoPos)) * zScale) + xOffset);
-			y0 = vheight
-					- ((int) (h.z * Math.sin(Math.toRadians(h.servoPos)) * zScale));
-			double distance = Math.sqrt((x0 - x) * (x0 - x) + (y0 - y)
-					* (y0 - y));
+			y0 = vheight - ((int) (h.z * Math.sin(Math.toRadians(h.servoPos)) * zScale));
+			double distance = Math.sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
 
 			// black out previous info
 			graph.setColor(Color.black);
@@ -387,8 +373,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 			// black historical lidar vector
 			graph.setColor(Color.black);
 			x0 = ((int) (5 * Math.cos(Math.toRadians(h.servoPos)) * zScale) + xOffset);
-			y0 = vheight
-					- ((int) (5 * Math.sin(Math.toRadians(h.servoPos)) * zScale));
+			y0 = vheight - ((int) (5 * Math.sin(Math.toRadians(h.servoPos)) * zScale));
 			graph.drawLine(vwidth / 2, vheight, x0, y0);
 
 		}
@@ -399,13 +384,11 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 			graph.setColor(Color.black);
 			Point h = hist.remove(0);
 			x0 = ((int) (h.z * Math.cos(Math.toRadians(h.servoPos)) * zScale) + xOffset);
-			y0 = vheight
-					- ((int) (h.z * Math.sin(Math.toRadians(h.servoPos)) * zScale));
+			y0 = vheight - ((int) (h.z * Math.sin(Math.toRadians(h.servoPos)) * zScale));
 
 			Point h1 = hist.get(0);
 			int x1 = ((int) (h1.z * Math.cos(Math.toRadians(h1.servoPos)) * zScale) + xOffset);
-			int y1 = vheight
-					- ((int) (h1.z * Math.sin(Math.toRadians(h1.servoPos)) * zScale));
+			int y1 = vheight - ((int) (h1.z * Math.sin(Math.toRadians(h1.servoPos)) * zScale));
 			graph.drawLine(x1, y1, x0, y0);
 
 			// remove line segment
@@ -430,8 +413,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener,
 
 		// draw lidar vector
 		x = ((int) (5 * Math.cos(Math.toRadians(p.servoPos)) * zScale) + xOffset);
-		y = vheight
-				- ((int) (5 * Math.sin(Math.toRadians(p.servoPos)) * zScale));
+		y = vheight - ((int) (5 * Math.sin(Math.toRadians(p.servoPos)) * zScale));
 		graph.setColor(Color.gray);
 		graph.drawLine(vwidth / 2, vheight, x, y);
 

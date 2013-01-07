@@ -32,78 +32,79 @@ import org.myrobotlab.service.Runtime;
 /**
  * @author Gro-G
  * 
- * Mmmmmm...  right click
+ *         Mmmmmm... right click
  * 
- * References:
- * http://www.scribd.com/doc/13122112/Java6-Rules-Adding-Components-To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
- * http://stackoverflow.com/questions/8080438/mouseevent-of-jtabbedpane
- * http://www.jyloo.com/news/?pubId=1315817317000
+ *         References:
+ *         http://www.scribd.com/doc/13122112/Java6-Rules-Adding-Components
+ *         -To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
+ *         http://stackoverflow.com/questions/8080438/mouseevent-of-jtabbedpane
+ *         http://www.jyloo.com/news/?pubId=1315817317000
  */
 public class TabControl extends JLabel implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(TabControl.class.getCanonicalName());
 
 	JPopupMenu popup = new JPopupMenu();
-	JTabbedPane parent; 
+	JTabbedPane parent;
 	Container myPanel;
 	private String boundServiceName;// FIXME - artifact of "Service" tabs
 	JFrame undocked;
 	TabControlWindowAdapter windowAdapter = new TabControlWindowAdapter();
-	//JFrame top;
+	// JFrame top;
 	GUIService myService;
-	
+
 	String filename = null;
-	
-	public class TabControlWindowAdapter extends WindowAdapter
-	{		
-        public void windowClosing(WindowEvent winEvt) {
-            dockPanel();            
-        }				
-	}		
-	
+
+	public class TabControlWindowAdapter extends WindowAdapter {
+		public void windowClosing(WindowEvent winEvt) {
+			dockPanel();
+		}
+	}
+
 	/**
-	 * closes window and puts the panel back into the 
-	 * tabbed pane 
+	 * closes window and puts the panel back into the tabbed pane
 	 */
-	public void dockPanel()
-	{
-		// docking panel will move the data of the frame to serializable position
-		myService.undockedPanels.get(boundServiceName).savePosition(); // FIXME - very hacked !
+	public void dockPanel() {
+		// docking panel will move the data of the frame to serializable
+		// position
+		myService.undockedPanels.get(boundServiceName).savePosition(); // FIXME
+																		// -
+																		// very
+																		// hacked
+																		// !
 		myService.undockedPanels.get(boundServiceName).isDocked = true;
-		
+
 		parent.add(myPanel);
 		parent.setTabComponentAt(parent.getTabCount() - 1, this);
 		undocked.dispose();
 		undocked = null;
-		
-		//frame.pack(); - call pack
+
+		// frame.pack(); - call pack
 		myService.getFrame().pack();
 		myService.save();
 	}
-	
+
 	/**
-	 * undocks a tabbed panel into a JFrame 
-	 * FIXME - NORMALIZE - there are similar methods in GUIService
-	 * FIXME - there needs to be clear pattern replacement - this is a decorator - I think... (also it will always be Swing)
+	 * undocks a tabbed panel into a JFrame FIXME - NORMALIZE - there are
+	 * similar methods in GUIService FIXME - there needs to be clear pattern
+	 * replacement - this is a decorator - I think... (also it will always be
+	 * Swing)
 	 * 
 	 */
-	public void undockPanel()
-	{
+	public void undockPanel() {
 		parent.remove(myPanel);
-		if (boundServiceName.equals(getText()))
-		{
-			
+		if (boundServiceName.equals(getText())) {
+
 			// service tabs
 			undocked = new JFrame(boundServiceName);
 			// check to see if this frame was positioned before
 			UndockedPanel panel = null;
-			if (myService.undockedPanels.containsKey(boundServiceName))
-			{
+			if (myService.undockedPanels.containsKey(boundServiceName)) {
 				// has been undocked before
 				panel = myService.undockedPanels.get(boundServiceName);
 				undocked.setLocation(new Point(panel.x, panel.y));
 				undocked.setPreferredSize(new Dimension(panel.width, panel.height));
-			} else { 
+			} else {
 				// first time undocked
 				panel = new UndockedPanel(undocked);
 				myService.undockedPanels.put(boundServiceName, panel);
@@ -113,7 +114,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 
 			panel.frame = undocked;
 			panel.isDocked = false;
-			
+
 		} else {
 			// sub - tabs e.g. Arduino oscope, pins, editor
 			undocked = new JFrame(boundServiceName + " " + getText());
@@ -124,59 +125,54 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.createImage(url);
 		undocked.setIconImage(img);
-		
+
 		undocked.getContentPane().add(myPanel);
 		undocked.addWindowListener(windowAdapter);
-		//undocked.setTitle(boundServiceName);
+		// undocked.setTitle(boundServiceName);
 		undocked.setVisible(true);
 		undocked.pack();
 		myService.getFrame().pack();
 		myService.save();
-		
+
 	}
-	
-	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background)
-	{
+
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background) {
 		this(gui, parent, myPanel, boundServiceName, boundServiceName, foreground, background);
 	}
 
-	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName)
-	{
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName) {
 		this(gui, parent, myPanel, boundServiceName, boundServiceName, null, null);
 	}
-	
-	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, Color foreground, Color background)
-	{
+
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, Color foreground, Color background) {
 		this(gui, parent, myPanel, boundServiceName, txt);
-		if (foreground != null)
-		{
+		if (foreground != null) {
 			setForeground(foreground);
-		}	
-		if (background != null)
-		{
+		}
+		if (background != null) {
 			setBackground(background);
-		}	
+		}
 	}
-	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, String filename)
-	{
+
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt, String filename) {
 		this(gui, parent, myPanel, boundServiceName, txt);
 		this.filename = filename;
 	}
-	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt)
-	{
+
+	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, String txt) {
 		super(txt);
 		this.parent = parent;
 		this.myPanel = myPanel;
 		this.boundServiceName = boundServiceName;
 		this.myService = gui;
-		
+
 		// build menu
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
 		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
-		
+
 		JMenuItem detachMenuItem = new JMenuItem("detach");
 		detachMenuItem.addActionListener(this);
 		detachMenuItem.setIcon(Util.getScaledIcon(Util.getImage("detach.png"), 0.50));
@@ -186,105 +182,87 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		releaseMenuItem.addActionListener(this);
 		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
 		popup.add(releaseMenuItem);
-		
+
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 
-	private void dispatchMouseEvent(MouseEvent e)
-	{
-	  parent.dispatchEvent(SwingUtilities.convertMouseEvent(e.getComponent(), e, parent));
-	}     
-
-	@Override
-	public void mouseEntered(MouseEvent e)
-	{
-	  dispatchMouseEvent(e);
-	}     
-	
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-        log.debug("mouseReleased");
-    	
-    	if (SwingUtilities.isRightMouseButton(e)) {
-            log.debug("mouseReleased - right");
-    		popUpTrigger(e);
-    	}
-	  dispatchMouseEvent(e);
-	}     
-	
-	@Override
-	public void mouseClicked(MouseEvent e)
-	{
-	  dispatchMouseEvent(e);
-	}     
-
-	@Override
-	public void mouseExited(MouseEvent e)
-	{
-	  dispatchMouseEvent(e);
+	private void dispatchMouseEvent(MouseEvent e) {
+		parent.dispatchEvent(SwingUtilities.convertMouseEvent(e.getComponent(), e, parent));
 	}
 
-	
-	public void mouseMoved(MouseEvent e)
-	{
-	  dispatchMouseEvent(e);
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		dispatchMouseEvent(e);
 	}
-	
 
 	@Override
-	public void mousePressed(MouseEvent e)
-	{
-	  dispatchMouseEvent(e);
+	public void mouseReleased(MouseEvent e) {
+		log.debug("mouseReleased");
+
+		if (SwingUtilities.isRightMouseButton(e)) {
+			log.debug("mouseReleased - right");
+			popUpTrigger(e);
+		}
+		dispatchMouseEvent(e);
 	}
 
-    public void popUpTrigger(MouseEvent e)
-    {
-        popup.show(e.getComponent(), e.getX(), e.getY());
-    }
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		dispatchMouseEvent(e);
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		dispatchMouseEvent(e);
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		dispatchMouseEvent(e);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		dispatchMouseEvent(e);
+	}
+
+	public void popUpTrigger(MouseEvent e) {
+		popup.show(e.getComponent(), e.getX(), e.getY());
+	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		dispatchMouseEvent(e);
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		//parent.getSelectedComponent()
-		if (boundServiceName.equals(getText()))
-		{
+		// parent.getSelectedComponent()
+		if (boundServiceName.equals(getText())) {
 			// Service Frame
 			ServiceWrapper sw = Runtime.getServiceWrapper(getText());
-			if ("info".equals(cmd))
-			{
+			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getShortTypeName());
-				
-			}  else if ("detach".equals(cmd))
-			{
-				undockPanel();			
-			} else if ("release".equals(cmd))
-			{
-				myService.send(Runtime.getInstance().getName(), "releaseService", boundServiceName);		
-			}			
+
+			} else if ("detach".equals(cmd)) {
+				undockPanel();
+			} else if ("release".equals(cmd)) {
+				myService.send(Runtime.getInstance().getName(), "releaseService", boundServiceName);
+			}
 		} else {
 			// Sub Tabbed sub pane
 			ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);
-			if ("info".equals(cmd))
-			{
+			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getShortTypeName() + "#" + getText());
-				
-			}  else if ("detach".equals(cmd))
-			{
-				undockPanel();			
-			}		
+
+			} else if ("detach".equals(cmd)) {
+				undockPanel();
+			}
 		}
-	} 
-	
-	public String getFilename()
-	{
+	}
+
+	public String getFilename() {
 		return filename;
 	}
 }
-	

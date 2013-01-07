@@ -55,8 +55,7 @@ import wiiusej.wiiusejevents.wiiuseapievents.StatusEvent;
 // http://procrastineering.blogspot.com/2008/09/working-with-pixart-camera-directly.html
 // http://www.bot-thoughts.com/2010/12/connecting-mbed-to-wiimote-ir-camera.html
 
-public class Wii extends Service implements WiimoteListener,
-	SerialPortEventListener, LineDriver {
+public class Wii extends Service implements WiimoteListener, SerialPortEventListener, LineDriver {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Wii.class.getCanonicalName());
@@ -213,15 +212,13 @@ public class Wii extends Service implements WiimoteListener,
 	static ArrayList<IRData> t = new ArrayList<IRData>();
 
 	@Override
-	public void onClassicControllerInsertedEvent(
-			ClassicControllerInsertedEvent arg0) {
+	public void onClassicControllerInsertedEvent(ClassicControllerInsertedEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void onClassicControllerRemovedEvent(
-			ClassicControllerRemovedEvent arg0) {
+	public void onClassicControllerRemovedEvent(ClassicControllerRemovedEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
@@ -253,8 +250,7 @@ public class Wii extends Service implements WiimoteListener,
 
 		if (wiimote == null) {
 			log.error("wii is not connected - can not initialize");
-			log
-					.error("please press the (1) & (2) buttons of the wii - and re-run program while lights are flashing");
+			log.error("please press the (1) & (2) buttons of the wii - and re-run program while lights are flashing");
 			return false;
 		}
 
@@ -300,16 +296,14 @@ public class Wii extends Service implements WiimoteListener,
 		}
 		strobeState = (bitCount % 2 == 0);
 		// 1st 3 MSB bits
-		wiimote.setLeds(strobeState, (data & 128) == 0, (data & 64) == 0,
-				(data & 32) == 0);
+		wiimote.setLeds(strobeState, (data & 128) == 0, (data & 64) == 0, (data & 32) == 0);
 		++bitCount;
 		// 2nd 3 bits
-		wiimote.setLeds(!strobeState, (data & 16) == 0, (data & 8) == 0,
-				(data & 4) == 0);
+		wiimote.setLeds(!strobeState, (data & 16) == 0, (data & 8) == 0, (data & 4) == 0);
 		++bitCount;
 		// last 2 bits
-		wiimote.setLeds(strobeState, (data & 2) == 0, (data & 1) == 0, false); 
-		
+		wiimote.setLeds(strobeState, (data & 2) == 0, (data & 1) == 0, false);
+
 		++bitCount;
 
 	}
@@ -321,12 +315,11 @@ public class Wii extends Service implements WiimoteListener,
 
 		Wii wii = new Wii("wii");
 
-
 		// add the port as a possible option for the Arduino
 		/*
-		Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
-				(CommDriver) new WiiDriver(wii));
-				*/
+		 * Arduino.addPortName("wiicom", CommPortIdentifier.PORT_SERIAL,
+		 * (CommDriver) new WiiDriver(wii));
+		 */
 		/*
 		 * try { portId = CommPortIdentifier.getPortIdentifier("wiicom"); }
 		 * catch (NoSuchPortException e1) { // TODO Auto-generated catch block

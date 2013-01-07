@@ -5,18 +5,18 @@
 package org.myrobotlab.logging;
 
 /**
- * Wrapper for any logging system we want to use.
- * Initial implementation is simply a wrapper for log4j.
+ * Wrapper for any logging system we want to use. Initial implementation is
+ * simply a wrapper for log4j.
  * 
  * @author SwedaKonsult
- *
+ * 
  */
 public class Logger {
 	/**
 	 * The logger we're wrapping.
 	 */
 	private final org.apache.log4j.Logger logger;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -25,7 +25,7 @@ public class Logger {
 	public Logger(String name) {
 		logger = org.apache.log4j.Logger.getLogger(name);
 	}
-	
+
 	/**
 	 * DEBUG log.
 	 * 
@@ -34,7 +34,7 @@ public class Logger {
 	public void debug(Object message) {
 		logger.debug(message);
 	}
-	
+
 	/**
 	 * ERROR log.
 	 * 
@@ -43,7 +43,7 @@ public class Logger {
 	public void error(Object message) {
 		logger.error(message);
 	}
-	
+
 	/**
 	 * ERROR log with Exception.
 	 * 
@@ -63,7 +63,7 @@ public class Logger {
 	public static Logger getLogger(String name) {
 		return new Logger(name);
 	}
-	
+
 	/**
 	 * Get a logger handle.
 	 * 
@@ -82,7 +82,7 @@ public class Logger {
 	public void info(Object message) {
 		logger.info(message);
 	}
-	
+
 	/**
 	 * WARN log.
 	 * 
@@ -91,7 +91,7 @@ public class Logger {
 	public void warn(Object message) {
 		logger.warn(message);
 	}
-	
+
 	/**
 	 * WARN log with Exception.
 	 * 
@@ -101,6 +101,5 @@ public class Logger {
 	public void warn(Object message, Throwable t) {
 		logger.warn(message, t);
 	}
-	
-	
+
 }

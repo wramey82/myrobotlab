@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
@@ -42,7 +41,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterGray extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public final static Logger log = Logger.getLogger(OpenCVFilterGray.class.getCanonicalName());
 
 	IplImage gray = null;
@@ -72,9 +71,8 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image) {
 
-
 		// what can you expect? nothing? - if data != null then error?
-		if (image.nChannels()== 3) {
+		if (image.nChannels() == 3) {
 			if (gray == null) {
 				gray = cvCreateImage(cvGetSize(image), 8, 1);
 			}
@@ -86,7 +84,7 @@ public class OpenCVFilterGray extends OpenCVFilter {
 			}
 			cvCvtColor(image, gray, CV_GRAY2BGR);
 		}
-		
+
 		return gray;
 	}
 

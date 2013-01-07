@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
@@ -40,14 +39,14 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public final static Logger log = Logger.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
-	
+
 	public OpenCVFilterCreateHistogram(OpenCV service, String name) {
 		super(service, name);
 	}

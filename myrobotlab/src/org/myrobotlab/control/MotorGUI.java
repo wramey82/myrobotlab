@@ -59,7 +59,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 	JComboBox controllerSelect = new JComboBox();
 	MotorController controller = null;
 	JCheckBox invert = new JCheckBox("invert");
-	
+
 	// power
 	JPanel powerPanel = new JPanel(new BorderLayout());
 	private FloatJSlider power = null;
@@ -67,11 +67,10 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 	ImageButton stopButton;
 	ImageButton clockwiseButton;
 	ImageButton counterclockwiseButton;
-	
+
 	// position
 	JPanel positionPanel = null;
 	private JLabel posValue = new JLabel("0.00");
-	
 
 	// TODO - make MotorPanel - for 1 motor - for shared embedded widget
 	// TODO - stop sign button for panic stop
@@ -88,14 +87,13 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		public FloatJSlider(int min, int max, int value, int scale) {
 			super(min, max, value);
 			this.scale = scale;
-			
-			
+
 			Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-			labelTable.put( new Integer( min ), new JLabel(String.format("%.2f", (float)min/scale)));
-			labelTable.put( new Integer( min/2 ), new JLabel(String.format("%.2f", (float)min/scale/2)));
-			labelTable.put( new Integer( value ), new JLabel(String.format("%.2f", (float)value/scale)));
-			labelTable.put( new Integer( max/2 ), new JLabel(String.format("%.2f", (float)max/scale/2)));
-			labelTable.put( new Integer( max ), new JLabel(String.format("%.2f", (float)max/scale)));
+			labelTable.put(new Integer(min), new JLabel(String.format("%.2f", (float) min / scale)));
+			labelTable.put(new Integer(min / 2), new JLabel(String.format("%.2f", (float) min / scale / 2)));
+			labelTable.put(new Integer(value), new JLabel(String.format("%.2f", (float) value / scale)));
+			labelTable.put(new Integer(max / 2), new JLabel(String.format("%.2f", (float) max / scale / 2)));
+			labelTable.put(new Integer(max), new JLabel(String.format("%.2f", (float) max / scale)));
 			setLabelTable(labelTable);
 			setPaintTrack(false);
 		}
@@ -111,7 +109,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 	public void init() {
 		// controllerPanel begin ------------------
-		
+
 		controllerPanel.setBorder(BorderFactory.createTitledBorder("controller"));
 
 		Vector<String> v = Runtime.getServicesFromInterface(MotorController.class.getCanonicalName());
@@ -127,24 +125,23 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 		JPanel north = new JPanel();
 		north.add(invert);
-		north.add(powerValue);		
+		north.add(powerValue);
 		powerPanel.add(north, BorderLayout.NORTH);
-		
+
 		counterclockwiseButton = new ImageButton("Motor", "counterclockwise", this);
 		stopButton = new ImageButton("Motor", "stop", this);
 		clockwiseButton = new ImageButton("Motor", "clockwise", this);
 		powerPanel.add(counterclockwiseButton, BorderLayout.WEST);
 		powerPanel.add(stopButton, BorderLayout.CENTER);
 		powerPanel.add(clockwiseButton, BorderLayout.EAST);
-		
-		
+
 		power = new FloatJSlider(-100, 100, 0, 100);
 		power.setMajorTickSpacing(25);
 		// power.setMinorTickSpacing(10);
 		power.setPaintTicks(true);
 		power.setPaintLabels(true);
 		powerPanel.add(power, BorderLayout.SOUTH);
-		//powerValue.setPreferredSize(new Dimension(100,50));
+		// powerValue.setPreferredSize(new Dimension(100,50));
 		// powerPanel end ------------------
 
 		// positionPanel begin ------------------
@@ -164,20 +161,19 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 		controllerSelect.addActionListener(this);
 		power.addChangeListener(this);
-		
+
 		// TODO - motor could come into graphics already attached - handle it...
 
 	}
-	
-	public void setEnabled(boolean enable)
-	{
+
+	public void setEnabled(boolean enable) {
 		stopButton.setEnabled(enable);
 		clockwiseButton.setEnabled(enable);
 		counterclockwiseButton.setEnabled(enable);
 		power.setEnabled(enable);
 		invert.setEnabled(enable);
 		powerValue.setEnabled(enable);
-		
+
 	}
 
 	public void incrementPosition(Integer pos) {
@@ -195,18 +191,20 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		unsubscribe("publishState", "getState", Arduino.class);
 
 	}
-	
+
 	// FIXME put in sub gui
 	ArrayList<Pin> pinList = null;
-	
+
 	public void getState(Motor motor) {
 		setEnabled(motor.isAttached());
-		// FIXED - can't use a reference - because it changes mid-stream through this method
-		//MotorControllerPanel subpanel = ((MotorControllerPanel)controllerTypePanel); 
-		if (motor.isAttached())
-		{
-			// !!!!! - This actually fires the (makes a new MotorControllerPanel)  !!!!!
-			controllerSelect.setSelectedItem(motor.getControllerName()); 
+		// FIXED - can't use a reference - because it changes mid-stream through
+		// this method
+		// MotorControllerPanel subpanel =
+		// ((MotorControllerPanel)controllerTypePanel);
+		if (motor.isAttached()) {
+			// !!!!! - This actually fires the (makes a new
+			// MotorControllerPanel) !!!!!
+			controllerSelect.setSelectedItem(motor.getControllerName());
 			controllerTypePanel.setData(controller.getMotorData(boundServiceName));
 		}
 		controllerTypePanel.setAttached(motor.isAttached());
@@ -224,30 +222,30 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 				// myService.send(boundServiceName, "setPort", newPort);
 				ServiceWrapper sw = Runtime.getServiceWrapper(newController);
 				controller = (MotorController) Runtime.getServiceWrapper(newController).service;
-				
+
 				String type = sw.getServiceType();
-				
-				// build gui for appropriate motor controller type - 
-				// the gui needs to be able to do a Motor.attach(name, data) with appropriate data
-				String attachGUIName = String.format("org.myrobotlab.control.Motor_%sGUI",type.substring(type.lastIndexOf(".")+1));
-				
+
+				// build gui for appropriate motor controller type -
+				// the gui needs to be able to do a Motor.attach(name, data)
+				// with appropriate data
+				String attachGUIName = String.format("org.myrobotlab.control.Motor_%sGUI", type.substring(type.lastIndexOf(".") + 1));
+
 				controllerPanel.remove(controllerTypePanel);
-				controllerTypePanel = Instantiator.getNewInstance(attachGUIName, new Object[]{myService,boundServiceName, newController});
-				controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);				
-				//setEnabled(true);
-				
+				controllerTypePanel = Instantiator.getNewInstance(attachGUIName, new Object[] { myService, boundServiceName, newController });
+				controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);
+				// setEnabled(true);
+
 			} else {
 				controllerPanel.remove(controllerTypePanel);
 				controllerTypePanel = new Motor_UnknownGUI();
 				controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);
-				//setEnabled(false);
+				// setEnabled(false);
 			}
-			
+
 			controllerTypePanel.setBorder(BorderFactory.createTitledBorder("type"));
 			controllerPanel.revalidate();
 
-		} else if (source == stopButton)
-		{
+		} else if (source == stopButton) {
 			power.setValue(0);
 		}
 	}

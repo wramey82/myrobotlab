@@ -24,21 +24,20 @@
  */
 package org.myrobotlab.mapper.sim;
 
-
-
 /**
- * This class represents a CameraSensor.
- * See Eye class api .
+ * This class represents a CameraSensor. See Eye class api .
  */
 public class CameraSensor extends Eye {
 
-    /**
-     * Constructs
-     * @param radius
-     * @param imageWidth
-     * @param imageHeight
-     */
-    CameraSensor(float radius, int imageWidth, int imageHeight) {
-        super(radius, imageWidth, imageHeight);
-      
-    }}
+	/**
+	 * Constructs
+	 * 
+	 * @param radius
+	 * @param imageWidth
+	 * @param imageHeight
+	 */
+	CameraSensor(float radius, int imageWidth, int imageHeight) {
+		super(radius, imageWidth, imageHeight);
+
+	}
+}

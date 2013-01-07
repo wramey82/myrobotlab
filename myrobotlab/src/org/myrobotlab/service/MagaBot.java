@@ -18,19 +18,17 @@ public class MagaBot extends Service {
 	public MagaBot(String n) {
 		super(n, MagaBot.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	SerialDevice serialDevice = null;
 	private boolean isInitialized = false;
-	
-	public void init(String serialPortName)
-	{
-		if (!isInitialized)
-		{
+
+	public void init(String serialPortName) {
+		if (!isInitialized) {
 			try {
 				serialDevice = SerialDeviceFactory.getSerialDevice(serialPortName, 9600, 8, 1, 0);
 				serialDevice.open();
@@ -39,46 +37,39 @@ public class MagaBot extends Service {
 				logException(e);
 			}
 		}
-		
+
 	}
+
 	/*
-	 * xicombd: - '1' to Assisted Navigation 
-- 'w' to go forward 
-- 's' to go backward
-- 'a' to go left
-- 'd' to go right
-- 'p' to stop
-- '2' to Obstacle Avoidance
-- '3' to start Line Following
-  
-'i' if the ir sensors are activated
+	 * xicombd: - '1' to Assisted Navigation - 'w' to go forward - 's' to go
+	 * backward - 'a' to go left - 'd' to go right - 'p' to stop - '2' to
+	 * Obstacle Avoidance - '3' to start Line Following
 	 * 
+	 * 'i' if the ir sensors are activated
 	 */
-	public void sendOrder(String o)
-	{
+	public void sendOrder(String o) {
 		try {
 			serialDevice.write(o);
 		} catch (IOException e) {
 			logException(e);
 		}
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		MagaBot template = new MagaBot("template");
 		template.startService();
-		
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 	}
-
 
 }

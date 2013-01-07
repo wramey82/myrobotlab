@@ -38,8 +38,7 @@ import org.myrobotlab.service.data.Pin;
 public class WiiDAR extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(WiiDAR.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(WiiDAR.class.getCanonicalName());
 
 	// TODO - possibly initialize - must contend with gui as well as arduino wii
 	// & servo
@@ -111,8 +110,7 @@ public class WiiDAR extends Service {
 			this(id, servoPos, direction, servoTime, ir, 0);
 		}
 
-		Point(int id, int servoPos, int direction, long servoTime, IRData ir,
-				double z) {
+		Point(int id, int servoPos, int direction, long servoTime, IRData ir, double z) {
 			this.id = id;
 			this.servoPos = servoPos;
 			this.direction = direction;
@@ -274,7 +272,7 @@ public class WiiDAR extends Service {
 	public Pin publishPin(Pin pd) {
 		++cnt;
 		lastEncoderData = pd;
-		//log.error("pin v " + pd.value + " " + cnt + " " + pd.time);
+		// log.error("pin v " + pd.value + " " + cnt + " " + pd.time);
 		return pd;
 	}
 
@@ -292,8 +290,8 @@ public class WiiDAR extends Service {
 	 * }
 	 * 
 	 * 
-	 * public void startRobot() { // setting up servo servo.attach(arduino.getName(),
-	 * 9);
+	 * public void startRobot() { // setting up servo
+	 * servo.attach(arduino.getName(), 9);
 	 * 
 	 * // setting up wii wii.getWiimotes(); wii.setSensorBarAboveScreen();
 	 * wii.activateIRTRacking(); wii.setIrSensitivity(5); // 1-5 (highest)
@@ -311,15 +309,16 @@ public class WiiDAR extends Service {
 	 * Point.class.getCanonicalName());
 	 * 
 	 * // send the data from the wii to wiidar // wii.addListener("publishIR",
-	 * this.getName(), "computeDepth", IRData.class.getCanonicalName()); // send the
-	 * computed depth & data to the gui // addListener("computeDepth",
+	 * this.getName(), "computeDepth", IRData.class.getCanonicalName()); // send
+	 * the computed depth & data to the gui // addListener("computeDepth",
 	 * gui.getName(),"publishSinglePoint", Point.class.getCanonicalName());
 	 * addListener("publishSinglePoint", gui.getName(),"publishSinglePoint",
 	 * Point.class.getCanonicalName()); // gui.addListener("processImage",
 	 * opencv.getName(),"input", BufferedImage.class.getCanonicalName());
 	 * //wii.addListener("publishPin", this.getName(), "publishPin",
 	 * IRData.class.getCanonicalName()); arduino.addListener(this,
-	 * SensorData.publishPin, PinData.class.getCanonicalName()); //wii.addListener(
+	 * SensorData.publishPin, PinData.class.getCanonicalName());
+	 * //wii.addListener(
 	 * 
 	 * 
 	 * gui.display();
@@ -343,17 +342,18 @@ public class WiiDAR extends Service {
 		double B; // camera angle
 		double C; // point's angle
 
-		double a; // this is what I want, it "should be" distance from the wii camera
+		double a; // this is what I want, it "should be" distance from the wii
+					// camera
 		// double b; // distance from the laser - don't care
 		double c = 4; // distance from camera to laser
 
 		A = Math.toRadians(61.5);
 
 		if (pixels > width / 2) { // obtuse triangle
-			B = Math.toRadians(90 + ((pixels - width / 2) / pixelsPerDegree)); 
+			B = Math.toRadians(90 + ((pixels - width / 2) / pixelsPerDegree));
 		} else {
 			// acute triangle
-			B = Math.toRadians(90 - ((width / 2 - pixels) / pixelsPerDegree)); 
+			B = Math.toRadians(90 - ((width / 2 - pixels) / pixelsPerDegree));
 		}
 		C = Math.toRadians(180) - (B + A);
 
@@ -413,8 +413,7 @@ public class WiiDAR extends Service {
 					// right scan
 					for (int i = servoLeftMax; i > servoRightMax; --i) {
 						irdata.clear();
-						Point p = new Point(cnt, i, RIGHT, System
-								.currentTimeMillis());
+						Point p = new Point(cnt, i, RIGHT, System.currentTimeMillis());
 						servo.moveTo(i);
 						Thread.sleep(servoPause); // wait for data "bleh" -
 													// BlockingQueue?
@@ -439,8 +438,7 @@ public class WiiDAR extends Service {
 					// left scan
 					for (int i = servoRightMax; i < servoLeftMax; ++i) {
 						irdata.clear();
-						Point p = new Point(cnt, i, LEFT, System
-								.currentTimeMillis());
+						Point p = new Point(cnt, i, LEFT, System.currentTimeMillis());
 						servo.moveTo(i);
 						Thread.sleep(servoPause);
 						if (irdata.size() == 0) {
@@ -488,8 +486,7 @@ public class WiiDAR extends Service {
 
 	@Override
 	public String getToolTip() {
-		return "<html>service used in conjection with a wii camera a laser for inexpensive WiiDAR, a LIDAR like system<br>" +
-		"see http://myrobotlab.org/node/1";
+		return "<html>service used in conjection with a wii camera a laser for inexpensive WiiDAR, a LIDAR like system<br>" + "see http://myrobotlab.org/node/1";
 	}
 
 }

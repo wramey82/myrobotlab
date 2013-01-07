@@ -67,8 +67,7 @@ public class FilterDrawTargetArea {
 		cfg.set("step.x", "1");
 		cfg.set("step.y", "1");
 
-		target = new Rectangle(cfg.getInt("target.x"), cfg.getInt("target.x"),
-				cfg.getInt("target.width"), cfg.getInt("target.height"));
+		target = new Rectangle(cfg.getInt("target.x"), cfg.getInt("target.x"), cfg.getInt("target.width"), cfg.getInt("target.height"));
 		stepx = cfg.getInt("step.x");
 		stepy = cfg.getInt("step.y");
 		xTotal = target.width / stepx;
@@ -99,8 +98,7 @@ public class FilterDrawTargetArea {
 
 		Graphics2D g = output.createGraphics();
 		g.setColor(new Color(cfg.getInt("target.color")));
-		g.fillRect(cfg.getInt("target.x"), cfg.getInt("target.y"), cfg
-				.getInt("target.width"), cfg.getInt("target.height"));
+		g.fillRect(cfg.getInt("target.x"), cfg.getInt("target.y"), cfg.getInt("target.width"), cfg.getInt("target.height"));
 		return null;
 	}
 

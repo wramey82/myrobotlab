@@ -40,8 +40,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class Calibrator extends Service {
 
-	public final static Logger log = Logger.getLogger(Calibrator.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Calibrator.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	String servoX = null;
@@ -74,8 +73,7 @@ public class Calibrator extends Service {
 		public Date timestamp;
 		public CvPoint2D32f[] registrationPoints;
 
-		public VisualNode(IplImage image, Date timestamp,
-				CvPoint2D32f[] registrationPoints) {
+		public VisualNode(IplImage image, Date timestamp, CvPoint2D32f[] registrationPoints) {
 			this.image = image;
 			this.timestamp = timestamp;
 			this.registrationPoints = registrationPoints;
@@ -94,8 +92,7 @@ public class Calibrator extends Service {
 		}
 	}
 
-	public void loadImageToMemory(int x, int y, IplImage image, Date timestamp,
-			CvPoint2D32f[] registrationPoints) {
+	public void loadImageToMemory(int x, int y, IplImage image, Date timestamp, CvPoint2D32f[] registrationPoints) {
 		HashMap<Integer, VisualNode> mapy = null;
 		if (!memory.containsKey(x)) {
 			mapy = new HashMap<Integer, VisualNode>();
@@ -131,7 +128,6 @@ public class Calibrator extends Service {
 		opencv = name;
 		return opencv;
 	}
-
 
 	public void calibrate() {
 		sleep(1000); // stabalize
@@ -213,9 +209,9 @@ public class Calibrator extends Service {
 
 	/*
 	 * setOpticalTrackingPoints is used to exchange data from opencv - which
-	 * publishes a CvPoint2D32f array. We send it a message to addListener us when it
-	 * has such array. From our side it looks like we set it to null and it
-	 * comes back filled
+	 * publishes a CvPoint2D32f array. We send it a message to addListener us
+	 * when it has such array. From our side it looks like we set it to null and
+	 * it comes back filled
 	 */
 	public CvPoint2D32f[] setOpticalTrackingPoints(CvPoint2D32f[] features) {
 		new_features = features;
@@ -251,9 +247,7 @@ public class Calibrator extends Service {
 		for (int i = 0; i < current_features.length; ++i) {
 			CvPoint2D32f p0 = current_features[i];
 			CvPoint2D32f p1 = saved_features[i];
-			log.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + ","
-					+ (int) p1.y() + " " + (int) (p0.x() - p1.x()) + " "
-					+ (int) (p0.y() - p1.y()));
+			log.error((int) p0.x() + "," + (int) p0.y() + " " + (int) p1.x() + "," + (int) p1.y() + " " + (int) (p0.x() - p1.x()) + " " + (int) (p0.y() - p1.y()));
 		}
 		log.info("done");
 		displayResults();
@@ -280,11 +274,9 @@ public class Calibrator extends Service {
 			CvPoint2D32f p1 = saved_features[i];
 
 			graphics.setColor(Color.green);
-			graphics.drawLine((int) p1.x(), (int) p1.y() + 1, (int) p1.x(),
-					(int) p1.y() - 1);
+			graphics.drawLine((int) p1.x(), (int) p1.y() + 1, (int) p1.x(), (int) p1.y() - 1);
 			graphics.setColor(Color.red);
-			graphics.drawLine((int) p0.x() - 1, (int) p0.y(), (int) p0.x() + 1,
-					(int) p0.y());
+			graphics.drawLine((int) p0.x() - 1, (int) p0.y(), (int) p0.x() + 1, (int) p0.y());
 
 			// log.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));

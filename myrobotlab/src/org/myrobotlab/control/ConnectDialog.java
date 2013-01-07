@@ -19,57 +19,55 @@ import org.myrobotlab.service.GUIService;
 
 public class ConnectDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	
+
 	public JTextField host = new JTextField("127.0.0.1", 10);
 	public JTextField port = new JTextField("6767", 10);
 	JButton connect = new JButton("connect");
 	JButton cancel = new JButton("cancel");
 	GUIService myService;
 
-	
 	public ConnectDialog(JFrame parent, String title, String message, GUIService myService, String defaultIP, String defaultPort) {
-		    super(parent, title, true);
-		    this.myService = myService;
-		    if (parent != null) {
-		      Dimension parentSize = parent.getSize(); 
-		      Point p = parent.getLocation(); 
-		      setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
-		    }
-		    
-		    if (defaultIP != null)
-		    {
-		    	host = new JTextField(defaultIP, 10);
-		    }
-		    if (defaultPort != null)
-		    {
-		    	port = new JTextField(defaultPort, 10);
-		    }
-		    
-		    GridBagConstraints gc = new GridBagConstraints();
-		    JPanel connectInfo = new JPanel();
-		    connectInfo.setLayout(new GridBagLayout());
-		    gc.gridx = 0;
-		    gc.gridy = 0;
-		    connectInfo.add(new JLabel("host  "), gc);
-		    ++gc.gridx;
-		    connectInfo.add(host, gc);
-		    gc.gridx=0;
-		    ++gc.gridy;
-		    connectInfo.add(new JLabel("port  "),gc);
-		    ++gc.gridx;
-		    connectInfo.add(port, gc);
-		    ++gc.gridy;
-		    connectInfo.add(connect, gc);
-		    connect.addActionListener(this);
-		    ++gc.gridx;
-		    connectInfo.add(cancel, gc);
-		    cancel.addActionListener(this);
-		    getContentPane().add(connectInfo);
-		    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		    pack(); 
-		    setVisible(true);
-		    
-		  }
+		super(parent, title, true);
+		this.myService = myService;
+		if (parent != null) {
+			Dimension parentSize = parent.getSize();
+			Point p = parent.getLocation();
+			setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
+		}
+
+		if (defaultIP != null) {
+			host = new JTextField(defaultIP, 10);
+		}
+		if (defaultPort != null) {
+			port = new JTextField(defaultPort, 10);
+		}
+
+		GridBagConstraints gc = new GridBagConstraints();
+		JPanel connectInfo = new JPanel();
+		connectInfo.setLayout(new GridBagLayout());
+		gc.gridx = 0;
+		gc.gridy = 0;
+		connectInfo.add(new JLabel("host  "), gc);
+		++gc.gridx;
+		connectInfo.add(host, gc);
+		gc.gridx = 0;
+		++gc.gridy;
+		connectInfo.add(new JLabel("port  "), gc);
+		++gc.gridx;
+		connectInfo.add(port, gc);
+		++gc.gridy;
+		connectInfo.add(connect, gc);
+		connect.addActionListener(this);
+		++gc.gridx;
+		connectInfo.add(cancel, gc);
+		cancel.addActionListener(this);
+		getContentPane().add(connectInfo);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		pack();
+		setVisible(true);
+
+	}
+
 	/**
 	 * @param args
 	 */
@@ -80,15 +78,14 @@ public class ConnectDialog extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ("connect".endsWith(e.getActionCommand()))
-		{
+		if ("connect".endsWith(e.getActionCommand())) {
 			myService.sendServiceDirectoryUpdate(null, null, null, host.getText(), Integer.parseInt(port.getText()), null);
 		}
 
 		myService.lastHost = host.getText();
 		myService.lastPort = port.getText();
-		setVisible(false); 
-	    dispose(); 
+		setVisible(false);
+		dispose();
 	}
 
 }
