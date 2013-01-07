@@ -37,7 +37,7 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 
-public class CommunicationManager  implements Serializable, CommunicationInterface {
+public class CommunicationManager implements Serializable, CommunicationInterface {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(CommunicationManager.class.toString());
@@ -51,7 +51,7 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
 
-		String communicatorClass ="org.myrobotlab.net.CommObjectStreamOverTCP";
+		String communicatorClass = "org.myrobotlab.net.CommObjectStreamOverTCP";
 		log.info("instanciating a " + communicatorClass);
 		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
 
@@ -62,27 +62,25 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	}
 
 	public void send(final URI remoteURL, final Message msg) {
-		getComm().send(remoteURL, msg);	
+		getComm().send(remoteURL, msg);
 	}
-	
+
 	public void send(final Message msg) {
-		
+
 		ServiceWrapper sw = Runtime.getServiceWrapper(msg.getName());
-		if (sw == null)
-		{
-			log.error(msg.getName() + " service does not exist - should clean up " + msg.sender );
+		if (sw == null) {
+			log.error(msg.getName() + " service does not exist - should clean up " + msg.sender);
 			return;
 		}
-		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url))
-		{
+		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url)) {
 			log.debug("sending local");
-			Message m = new Message(msg); // TODO UNECESSARY ???? Probably - BUT TOO SCARED TO REMOVE !!
-			sw.get().in(m);			
+			Message m = new Message(msg); // TODO UNECESSARY ???? Probably - BUT
+											// TOO SCARED TO REMOVE !!
+			sw.get().in(m);
 		} else {
-			// FIXME - test for loglevel & use the Swedish Formatter 
-			log.info( msg.sender + "." + msg.sendingMethod + "->" + 
-					sw.host.accessURL + "/" + msg.name + "."+ msg.method + "(" + msg.getParameterSignature() + ")");
-			getComm().send(sw.host.accessURL, msg);			
+			// FIXME - test for loglevel & use the Swedish Formatter
+			log.info(msg.sender + "." + msg.sendingMethod + "->" + sw.host.accessURL + "/" + msg.name + "." + msg.method + "(" + msg.getParameterSignature() + ")");
+			getComm().send(sw.host.accessURL, msg);
 		}
 	}
 
@@ -93,7 +91,5 @@ public class CommunicationManager  implements Serializable, CommunicationInterfa
 	public Communicator getComm() {
 		return comm;
 	}
-	
-
 
 }

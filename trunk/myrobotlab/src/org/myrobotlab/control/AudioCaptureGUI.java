@@ -36,8 +36,7 @@ import org.myrobotlab.service.interfaces.GUI;
 public class AudioCaptureGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
-	
-	
+
 	final JButton captureBtn = new JButton("Capture");
 	final JButton stopBtn = new JButton("Stop");
 	final JButton playBtn = new JButton("Playback");
@@ -45,8 +44,8 @@ public class AudioCaptureGUI extends ServiceGUI {
 	public AudioCaptureGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	public void init(){		
+
+	public void init() {
 		// Register anonymous listeners
 		captureBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -73,7 +72,7 @@ public class AudioCaptureGUI extends ServiceGUI {
 				myService.send(boundServiceName, "stopAudioCapture");
 			}// end actionPerformed
 		}// end ActionListener
-				);// end addActionListener()
+		);// end addActionListener()
 		display.add(stopBtn);
 
 		playBtn.addActionListener(new ActionListener() {
@@ -84,13 +83,12 @@ public class AudioCaptureGUI extends ServiceGUI {
 				myService.send(boundServiceName, "playAudio");
 			}// end actionPerformed
 		}// end ActionListener
-				);// end addActionListener()
+		);// end addActionListener()
 		display.add(playBtn);
 
 		display.setLayout(new FlowLayout());
-		
+
 	}
-	
 
 	@Override
 	public void attachGUI() {

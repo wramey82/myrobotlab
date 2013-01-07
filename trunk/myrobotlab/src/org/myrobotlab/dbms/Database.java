@@ -70,8 +70,7 @@ public class Database {
 	}
 
 	// TODO - enum for RDBMSType would be good here as an input param
-	public Database(final String HostName, final String databaseName,
-			final String UserName, final String Password, final String RDBMSType) {
+	public Database(final String HostName, final String databaseName, final String UserName, final String Password, final String RDBMSType) {
 		Config_.hostname = HostName;
 		Config_.databaseName_ = databaseName;
 		Config_.userName = UserName;
@@ -86,8 +85,7 @@ public class Database {
 
 	}
 
-	public Database(final String HostName, final String databaseName,
-			final String UserName, final String Password) {
+	public Database(final String HostName, final String databaseName, final String UserName, final String Password) {
 		this(HostName, databaseName, UserName, Password, "MYSQL"); // TODO -
 																	// enum
 																	// would be
@@ -98,13 +96,11 @@ public class Database {
 		try {
 			Class.forName(Config_.driverName);
 			log.info(getConnectionUrl());
-			Connection_ = java.sql.DriverManager.getConnection(
-					getConnectionUrl(), Config_.userName, Config_.Password_);
+			Connection_ = java.sql.DriverManager.getConnection(getConnectionUrl(), Config_.userName, Config_.Password_);
 		} catch (Exception e) {
 			log.error(getConnectionUrl());
 			e.printStackTrace();
-			System.out.println("Error Trace in getConnection() : "
-					+ e.getMessage());
+			System.out.println("Error Trace in getConnection() : " + e.getMessage());
 		}
 		return Connection_;
 	}

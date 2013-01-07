@@ -73,32 +73,23 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 		return image.getBufferedImage();
 		/*
-		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
-		++frameCounter;
-		if (x != 0 && clickCounter % 2 == 0) {
-			if (g == null) {
-				g = frameBuffer.getGraphics();
-			}
-
-			if (frameCounter % 10 == 0) {
-				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x,
-						y) & 0x00ffffff);
-			}
-			g.setColor(Color.green);
-			frameBuffer.getRGB(x, y);
-			g.drawString(lastHexValueOfPoint, x, y);
-		}
-
-		return frameBuffer;
-		*/
+		 * frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory
+		 * here ++frameCounter; if (x != 0 && clickCounter % 2 == 0) { if (g ==
+		 * null) { g = frameBuffer.getGraphics(); }
+		 * 
+		 * if (frameCounter % 10 == 0) { lastHexValueOfPoint =
+		 * Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff); }
+		 * g.setColor(Color.green); frameBuffer.getRGB(x, y);
+		 * g.drawString(lastHexValueOfPoint, x, y); }
+		 * 
+		 * return frameBuffer;
+		 */
 	}
 
 	@Override
 	public String getDescription() { // TODO - implement in GUI
-		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid"
-				+ " decomposition. First it convolves source image with the specified filter and then"
-				+ " downsamples the image by rejecting even rows and columns. So the destination image"
-				+ " is four times smaller than the source imag";
+		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid" + " decomposition. First it convolves source image with the specified filter and then"
+				+ " downsamples the image by rejecting even rows and columns. So the destination image" + " is four times smaller than the source imag";
 
 		return desc;
 	}
@@ -109,58 +100,51 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 
 	}
 
-//	CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
-//	CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
+	// CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
+	// CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
 
 	@Override
 	public IplImage process(IplImage image) {
-				
+
 		if (image.nChannels() == 3) // rgb
 		{
 			return image;
 		}
-		
+
 		if (dst == null) {
-			//dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(),image.nChannels());
-			//dst = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
+			// dst = cvCreateImage(cvSize(image.width(), image.height()),
+			// image.depth(),image.nChannels());
+			// dst = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
 			src = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
 			dst = cvCreateImage(cvSize(image.width(), image.height()), 8, 1);
 		}
 
-//		cvConvertScale(image, src, 1, 0);
-		//cvThreshold(dst, dst, 30, 255, CV_THRESH_BINARY);
-		
+		// cvConvertScale(image, src, 1, 0);
+		// cvThreshold(dst, dst, 30, 255, CV_THRESH_BINARY);
+
 		CvScalar min = cvScalar(0.0, 0.0, 0.0, 0.0);
 		CvScalar max = cvScalar(10000, 0.0, 0.0, 0.0);
 
 		cvInRangeS(image, min, max, dst);
-		
-		//cvCvtColor
+
+		// cvCvtColor
 		/*
-		ByteBuffer source = image.getByteBuffer(); 
-		int z = source.capacity();
-		ByteBuffer destination = dst.getByteBuffer(); 
-		z = destination.capacity();
-		
-		int depth = 0;
-		
-		Byte b = 0xE;
-		int max = 0;
-		
-		for (int i=0; i<image.width()*image.height(); i++) {
-			
-			depth = source.get(i) & 0xFF;
-			depth <<= 8;
-			depth = source.get(i+1) & 0xFF;
-			if (depth > max) max = depth;
-						    
-			if (depth > 100 && depth < 400)
-			{
-				destination.put(i, b);
-			}
-		}
-		*/
-		
+		 * ByteBuffer source = image.getByteBuffer(); int z = source.capacity();
+		 * ByteBuffer destination = dst.getByteBuffer(); z =
+		 * destination.capacity();
+		 * 
+		 * int depth = 0;
+		 * 
+		 * Byte b = 0xE; int max = 0;
+		 * 
+		 * for (int i=0; i<image.width()*image.height(); i++) {
+		 * 
+		 * depth = source.get(i) & 0xFF; depth <<= 8; depth = source.get(i+1) &
+		 * 0xFF; if (depth > max) max = depth;
+		 * 
+		 * if (depth > 100 && depth < 400) { destination.put(i, b); } }
+		 */
+
 		return dst;
 	}
 

@@ -14,11 +14,11 @@ import org.apache.log4j.Logger;
 public class FileUtil {
 
 	public final static Logger log = Logger.getLogger(FileUtil.class.getCanonicalName());
-	
+
 	static private String lastFileOpened;
 	static private String lastFileSaved;
 	static private String lastStatus;
-	
+
 	static public String open(JFrame frame, String filter) {
 		FileDialog file = new FileDialog(frame, "Open File", FileDialog.LOAD);
 		file.setFile(filter); // Set initial filename filter
@@ -37,7 +37,7 @@ public class FileUtil {
 				log.info("Loaded: " + newfilename);
 				setLastFileOpened(newfilename);
 				return new String(data);
-				
+
 			} catch (FileNotFoundException exc) {
 				lastStatus = "File Not Found: " + newfilename;
 				log.error(lastStatus);
@@ -45,7 +45,7 @@ public class FileUtil {
 				lastStatus = "IOException: " + newfilename;
 				log.error(lastStatus);
 			}
-						// setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			// setCursor (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 		return null;
 	}
@@ -89,8 +89,7 @@ public class FileUtil {
 
 		return true;
 	}
-	
-	
+
 	public static String getLastFileOpened() {
 		return lastFileOpened;
 	}
@@ -113,5 +112,5 @@ public class FileUtil {
 
 	public static void setLastFileSaved(String lastFileSaved) {
 		FileUtil.lastFileSaved = lastFileSaved;
-	}	
+	}
 }

@@ -13,29 +13,27 @@ public class Red5 extends Service {
 	public Red5(String n) {
 		super(n, Red5.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "Red5 video/audio streaming service";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		Red5 template = new Red5("template");
 		template.startService();
 		/*
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		*/
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
 	}
-
 
 }

@@ -39,26 +39,27 @@ import org.myrobotlab.image.Util;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class InMoovGUI extends ServiceGUI implements ActionListener{
+public class InMoovGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(InMoovGUI.class.getCanonicalName());
 
 	JLayeredPane imageMap;
-	
+
 	public InMoovGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
-		
+
 		imageMap = new JLayeredPane();
-		imageMap.setPreferredSize(new Dimension(692,688));
+		imageMap.setPreferredSize(new Dimension(692, 688));
 
 		// set correct arduino image
 		JLabel image = new JLabel();
 
-		ImageIcon dPic = Util.getImageIcon("InMoov/body.png"); // FIXME - shortType/image.png
+		ImageIcon dPic = Util.getImageIcon("InMoov/body.png"); // FIXME -
+																// shortType/image.png
 		image.setIcon(dPic);
 		Dimension s = image.getPreferredSize();
 		image.setBounds(0, 0, s.width, s.height);
@@ -66,17 +67,15 @@ public class InMoovGUI extends ServiceGUI implements ActionListener{
 		display.add(imageMap);
 	}
 
+	public void getState(InMoov moov) {
 
-	public void getState(InMoov moov)
-	{
-	
 	}
 
-
-	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
+	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <-
+	// Class.forName(type)
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", InMoovGUI.class); 
+		subscribe("publishState", "getState", InMoovGUI.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -88,7 +87,7 @@ public class InMoovGUI extends ServiceGUI implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

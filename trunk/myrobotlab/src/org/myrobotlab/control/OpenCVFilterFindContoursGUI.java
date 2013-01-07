@@ -23,20 +23,14 @@
  * 
  * */
 
-
 package org.myrobotlab.control;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterFindContoursGUI extends OpenCVFilterGUI {
 
-	public OpenCVFilterFindContoursGUI(String boundFilterName,
-			String boundServiceName, GUIService myService) {
+	public OpenCVFilterFindContoursGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
 	}
@@ -53,21 +47,15 @@ public class OpenCVFilterFindContoursGUI extends OpenCVFilterGUI {
 
 	}
 
-	public JPanel getDisplay() {
-		log.debug("display");
-		return display;
-
-	}
-
 	public void apply() {
 		log.debug("apply");
 
 	}
 
 	@Override
-	public void setFilterData(FilterWrapper filter) {
+	public void getFilterState(FilterWrapper filter) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

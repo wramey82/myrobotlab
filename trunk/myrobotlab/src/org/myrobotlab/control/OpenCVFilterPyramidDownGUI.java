@@ -23,20 +23,16 @@
  * 
  * */
 
-
 package org.myrobotlab.control;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterPyramidDownGUI extends OpenCVFilterGUI {
 
-	public OpenCVFilterPyramidDownGUI(String boundFilterName,
-			String boundServiceName, GUIService myService) {
+	public OpenCVFilterPyramidDownGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
 	}
@@ -65,9 +61,9 @@ public class OpenCVFilterPyramidDownGUI extends OpenCVFilterGUI {
 	}
 
 	@Override
-	public void setFilterData(FilterWrapper filter) {
+	public void getFilterState(FilterWrapper filter) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

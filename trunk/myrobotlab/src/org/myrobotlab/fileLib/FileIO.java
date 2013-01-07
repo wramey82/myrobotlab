@@ -62,7 +62,7 @@ public class FileIO {
 		DataInputStream in = null;
 
 		try {
-			//File f = new File(filename);
+			// File f = new File(filename);
 			byte[] buffer = new byte[(int) file.length()];
 			in = new DataInputStream(new FileInputStream(file));
 			in.readFully(buffer);
@@ -71,33 +71,30 @@ public class FileIO {
 			log.error("could not open filename " + file.getName());
 		} finally {
 			try {
-				if (in != null)
-				{
+				if (in != null) {
 					in.close();
 				}
 			} catch (IOException e) { /* ignore it */
 			}
 		}
 		return result;
-	}	
-	
+	}
+
 	public final static String fileToString(String filename) {
 		return fileToString(new File(filename));
 	}
 
-	public static void stringToFile(String filename, String data)
-	{
+	public static void stringToFile(String filename, String data) {
 		stringToFile(filename, data, null);
 	}
-	
+
 	public static void stringToFile(String filename, String data, String encoding) {
 		Writer out = null;
 		try {
-			if (encoding != null)
-			{
+			if (encoding != null) {
 				out = new OutputStreamWriter(new FileOutputStream(filename), encoding);
 			} else {
-				out = new OutputStreamWriter(new FileOutputStream(filename));				
+				out = new OutputStreamWriter(new FileOutputStream(filename));
 			}
 			out.write(data);
 		} catch (Exception e) {
@@ -113,46 +110,37 @@ public class FileIO {
 		}
 	}
 
-	// TODO - NOT IMPLMENENTED 
+	// TODO - NOT IMPLMENENTED
 	public final static String getResourceBinary(String filename) {
 		InputStream isr = FileIO.class.getResourceAsStream("/resource/" + filename);
-		if (isr == null)
-		{
+		if (isr == null) {
 			log.error("could not locate resource " + filename);
 		}
-	    DataInputStream input = new DataInputStream (isr);
-	    String stringData = null;
+		DataInputStream input = new DataInputStream(isr);
+		String stringData = null;
 
-	    byte b[] = new byte[1024];
-	    try
-	    {
-	      while (true)
-	      {
-	    	input.readFully(b);
-	        stringData = input.readUTF();
-	      }
-	    }
-	    catch (EOFException e)
-	    {
-	      // Do nothing if it is the end of file.
-	    }
-	    catch (Exception e)
-	    {
-	    	Service.logException(e);
-	    }
-	    finally
-	    {
-	      try {
-			isr.close();
-		} catch (IOException e) {
-			/* ignore */
-			return null;
+		byte b[] = new byte[1024];
+		try {
+			while (true) {
+				input.readFully(b);
+				stringData = input.readUTF();
+			}
+		} catch (EOFException e) {
+			// Do nothing if it is the end of file.
+		} catch (Exception e) {
+			Service.logException(e);
+		} finally {
+			try {
+				isr.close();
+			} catch (IOException e) {
+				/* ignore */
+				return null;
+			}
 		}
-	    }
 
 		return stringData;
 	}
-	
+
 	/**
 	 * Safe method for trying to read the content of a resource file.
 	 * 
@@ -162,22 +150,20 @@ public class FileIO {
 	public final static String getResourceFile(String filename) {
 		StringBuffer str = new StringBuffer();
 		BufferedReader br = null;
-		
+
 		String davlikPrefix = "";
-		if (Platform.isDavlik())
-		{
+		if (Platform.isDavlik()) {
 			davlikPrefix = "/assets";
 		}
-		
+
 		try {
 			InputStream is = FileIO.class.getResourceAsStream(String.format("%s/resource/%s", davlikPrefix, filename));
-			
-			if (is == null)
-			{
+
+			if (is == null) {
 				log.error(String.format("resource %s not found", filename));
 				return null;
 			}
-				
+
 			InputStreamReader isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 
@@ -192,117 +178,97 @@ public class FileIO {
 			if (br != null) {
 				try {
 					br.close();
-				} catch (IOException e) {}
+				} catch (IOException e) {
+				}
 			}
 		}
 
 		return str.toString();
 	}
 
-	
-	public final static boolean writeBinary (String filename, Object toSave)
-	{
-		   try{
-			      //use buffering
-			      OutputStream file = new FileOutputStream(filename);
-			      OutputStream buffer = new BufferedOutputStream( file );
-			      ObjectOutput output = new ObjectOutputStream( buffer );
-			      try{
-			        output.writeObject(toSave);
-			      }
-			      finally{
-			        output.close();
-			      }
-			    }  
-			    catch(IOException e){
-			    	Service.logException(e);
-			    	return false;
-			    }
-			    return true;
+	public final static boolean writeBinary(String filename, Object toSave) {
+		try {
+			// use buffering
+			OutputStream file = new FileOutputStream(filename);
+			OutputStream buffer = new BufferedOutputStream(file);
+			ObjectOutput output = new ObjectOutputStream(buffer);
+			try {
+				output.writeObject(toSave);
+			} finally {
+				output.close();
+			}
+		} catch (IOException e) {
+			Service.logException(e);
+			return false;
+		}
+		return true;
 	}
-	
-	
-	public final static Object readBinary (String filename)
-	{
-	    try{
-	      InputStream file = new FileInputStream(filename);
-	      InputStream buffer = new BufferedInputStream( file );
-	      ObjectInput input = new ObjectInputStream ( buffer );
-	      try{
-	        return (Object)input.readObject();
-	      }
-	      finally{
-	        input.close();
-	      }
-	    }
-	    catch(Exception e){
-	    	Service.logException(e);
-	    	return null;
-	    }		
+
+	public final static Object readBinary(String filename) {
+		try {
+			InputStream file = new FileInputStream(filename);
+			InputStream buffer = new BufferedInputStream(file);
+			ObjectInput input = new ObjectInputStream(buffer);
+			try {
+				return (Object) input.readObject();
+			} finally {
+				input.close();
+			}
+		} catch (Exception e) {
+			Service.logException(e);
+			return null;
+		}
 	}
-	
-	
+
 	static public String streamToString(InputStream is) {
-	    try {
-	        return new java.util.Scanner(is).useDelimiter("\\A").next();
-	    } catch (java.util.NoSuchElementException e) {
-	        return "";
-	    }
+		try {
+			return new java.util.Scanner(is).useDelimiter("\\A").next();
+		} catch (java.util.NoSuchElementException e) {
+			return "";
+		}
 	}
-	
-	
-	static public String getResouceLocation()
-	{
+
+	static public String getResouceLocation() {
 		URL url = File.class.getResource("/resource");
-		return url.toString();		
+		return url.toString();
 	}
-	
-	static public String getRootLocation()
-	{
+
+	static public String getRootLocation() {
 		URL url = File.class.getResource("/");
-		return url.toString();		
+		return url.toString();
 	}
-	
-		
-	static public boolean inJar()
-	{
+
+	static public boolean inJar() {
 		return getResouceLocation().startsWith("jar:");
 	}
-	
-	static public String getResourceJarPath()
-	{
 
-		if (!inJar())
-		{
+	static public String getResourceJarPath() {
+
+		if (!inJar()) {
 			log.info("resource is not in jar");
 			return null;
 		}
-		
+
 		String full = getResouceLocation();
 		String jarPath = full.substring(full.indexOf("jar:file:/") + 10, full.lastIndexOf("!"));
 		return jarPath;
 	}
-	
-	static public ArrayList<String> listInternalContents(String path)
-	{
-		if (!inJar())
-		{
+
+	static public ArrayList<String> listInternalContents(String path) {
+		if (!inJar()) {
 			// get listing if in debug mode or classes are unzipped
 			String rp = getRootLocation();
 			String targetDir = rp.substring(rp.indexOf("file:/") + 6);
 			String fullPath = targetDir + path;
 			File dir = new File(fullPath);
-			if (!dir.exists())
-			{
+			if (!dir.exists()) {
 				log.error(String.format("%s does not exist", fullPath));
 			}
 			ArrayList<String> ret = new ArrayList<String>();
 			String[] tmp = dir.list();
-			for (int i = 0; i < tmp.length; ++i)
-			{
+			for (int i = 0; i < tmp.length; ++i) {
 				File dirCheck = new File(targetDir + path + "/" + tmp[i]);
-				if (dirCheck.isDirectory())
-				{
+				if (dirCheck.isDirectory()) {
 					ret.add(tmp[i] + "/");
 				} else {
 					ret.add(tmp[i]);
@@ -315,12 +281,11 @@ public class FileIO {
 			return null;
 		}
 	}
-	
-	static public ArrayList<String> listResourceContents(String path)
-	{
+
+	static public ArrayList<String> listResourceContents(String path) {
 		return listInternalContents("/resource" + path);
 	}
-	
+
 	public static void main(String[] args) throws ZipException, IOException {
 
 		org.apache.log4j.BasicConfigurator.configure();
@@ -330,31 +295,27 @@ public class FileIO {
 		for (int i = 0; i < files.size(); ++i) {
 			log.info(files.get(i));
 		}
-		
+
 		files = Zip.listDirectoryContents("myrobotlab.jar", "resource/images");
 		for (int i = 0; i < files.size(); ++i) {
 			log.info(files.get(i));
 		}
-		
+
 		log.info("done");
 
 	}
 
-	public static File[] getPackageContent(String packageName) throws IOException{
-	    ArrayList<File> list = new ArrayList<File>();
-	    Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
-	                            .getResources(packageName);
-	    while (urls.hasMoreElements()) {
-	        URL url = urls.nextElement();
-	        File dir = new File(url.getFile());
-	        for (File f : dir.listFiles()) {
-	            list.add(f);
-	        }
-	    }
-	    return list.toArray(new File[]{});
+	public static File[] getPackageContent(String packageName) throws IOException {
+		ArrayList<File> list = new ArrayList<File>();
+		Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(packageName);
+		while (urls.hasMoreElements()) {
+			URL url = urls.nextElement();
+			File dir = new File(url.getFile());
+			for (File f : dir.listFiles()) {
+				list.add(f);
+			}
+		}
+		return list.toArray(new File[] {});
 	}
-	
+
 }
-
-
-

@@ -49,13 +49,11 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
 
 	IplImage gray = null;
 	BufferedImage frameBuffer = null;
@@ -103,7 +101,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		}
 
 		if (storage == null) {
-			//storage = cvCreateMemStorage(0);
+			// storage = cvCreateMemStorage(0);
 			storage = CvMemStorage.create();
 		}
 
@@ -111,7 +109,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 			inlines = cvCreateImage(cvGetSize(image), 8, 1);
 		}
 
-		if (image.nChannels()> 1) {
+		if (image.nChannels() > 1) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
@@ -127,26 +125,24 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		// explanation of hough transform parameters
 
 		// CV_HOUGH_MULTI_SCALE || CV_HOUGH_STANDARD
-		CvSeq lines = cvHoughLines2(inlines, storage,
-				CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
-
+		CvSeq lines = cvHoughLines2(inlines, storage, CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 10, 40, 10);
 
 		for (int i = 0; i < lines.total(); i++) {
-			
+
 			Pointer line = cvGetSeqElem(lines, i);
-			CvPoint pt1  = new CvPoint(line).position(0);
-			CvPoint pt2  = new CvPoint(line).position(1);
+			CvPoint pt1 = new CvPoint(line).position(0);
+			CvPoint pt2 = new CvPoint(line).position(1);
 
-
-            System.out.println("Line spotted: ");
-            System.out.println("\t pt1: " + pt1);
-            System.out.println("\t pt2: " + pt2);
-            //cvLine(image, pt1, pt2, CV_RGB(255, 0, 0), 3, CV_AA, 0); // draw the segment on the image            
+			System.out.println("Line spotted: ");
+			System.out.println("\t pt1: " + pt1);
+			System.out.println("\t pt2: " + pt2);
+			// cvLine(image, pt1, pt2, CV_RGB(255, 0, 0), 3, CV_AA, 0); // draw
+			// the segment on the image
 			cvDrawLine(image, p0, p1, CV_RGB(255, 255, 255), 2, 8, 0);
 		}
-		
-		//cxcore.cvPutText(image, "x", cvPoint(10, 14), font, CvScalar.WHITE);
-		
+
+		// cxcore.cvPutText(image, "x", cvPoint(10, 14), font, CvScalar.WHITE);
+
 		return image;
 	}
 

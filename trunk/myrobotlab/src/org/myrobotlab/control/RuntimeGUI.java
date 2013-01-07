@@ -72,59 +72,55 @@ import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class RuntimeGUI extends ServiceGUI implements ActionListener  {
+public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
-	public final static Logger log = Logger.getLogger(RuntimeGUI.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RuntimeGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>();
 
-	int popupRow = 0; 
-	
+	int popupRow = 0;
+
 	JMenuItem installMenuItem = null;
 	JMenuItem startMenuItem = null;
 	JMenuItem upgradeMenuItem = null;
 	JMenuItem releaseMenuItem = null;
-	
+
 	DefaultListModel currentServicesModel = new DefaultListModel();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-	    public boolean isCellEditable(int row, int column) {
-	    return false;
-	    }
+		public boolean isCellEditable(int row, int column) {
+			return false;
+		}
 	};
 	CellRenderer cellRenderer = new CellRenderer();
-	JTable possibleServices = new JTable(possibleServicesModel)
-    {
+	JTable possibleServices = new JTable(possibleServicesModel) {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public JToolTip createToolTip() {
 			JToolTip tooltip = super.createToolTip();
-			//tooltip.setFont(tooltip.getFont().deriveFont(Font. BOLD, 32));
-			//tooltip.setForeground(Style.foreground);
-			//tooltip.setBackground(Style.background);
-			//tooltip.setOpaque(false);
+			// tooltip.setFont(tooltip.getFont().deriveFont(Font. BOLD, 32));
+			// tooltip.setForeground(Style.foreground);
+			// tooltip.setBackground(Style.background);
+			// tooltip.setOpaque(false);
 			return tooltip;
-		}		
-		
-		
-        // column returns content type 
-		public Class<?> getColumnClass(int column)
-        {
-            return getValueAt(0, column).getClass();
-        }
-    };
+		}
+
+		// column returns content type
+		public Class<?> getColumnClass(int column) {
+			return getValueAt(0, column).getClass();
+		}
+	};
 	JList currentServices = new JList(currentServicesModel);
 	CurrentServicesRenderer currentServicesRenderer = new CurrentServicesRenderer();
 	FilterListener filterListener = new FilterListener();
 	JPopupMenu popup = new JPopupMenu();
-	
+
 	ServiceEntry releasedTarget = null;
-	
+
 	public RuntimeGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
@@ -141,14 +137,14 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		possibleServicesModel.addColumn("");
 		possibleServicesModel.addColumn("");
 		possibleServices.setRowHeight(24);
-		//possibleServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);		
-		//possibleServices.setShowHorizontalLines(false);
-		//possibleServices.setShowVerticalLines(false);
+		// possibleServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		// possibleServices.setShowHorizontalLines(false);
+		// possibleServices.setShowVerticalLines(false);
 		possibleServices.setIntercellSpacing(new Dimension(0, 0));
 		possibleServices.setShowGrid(false);
 
-		//possibleServices.setGridColor(Style.possibleServicesStable);
-		//possibleServices.setGridColor(Style.possibleServicesDev);
+		// possibleServices.setGridColor(Style.possibleServicesStable);
+		// possibleServices.setGridColor(Style.possibleServicesDev);
 		possibleServices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		TableColumn col = possibleServices.getColumnModel().getColumn(0);
@@ -158,137 +154,125 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		possibleServices.setDefaultRenderer(ImageIcon.class, cellRenderer);
 		possibleServices.setDefaultRenderer(ServiceEntry.class, cellRenderer);
 		possibleServices.setDefaultRenderer(String.class, cellRenderer);
-		
+
 		/*
-		possibleServices.setCellSelectionEnabled(false);
-		possibleServices.setColumnSelectionAllowed(false);
-		possibleServices.setRowSelectionAllowed(true);
-		possibleServices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		*/
+		 * possibleServices.setCellSelectionEnabled(false);
+		 * possibleServices.setColumnSelectionAllowed(false);
+		 * possibleServices.setRowSelectionAllowed(true);
+		 * possibleServices.setSelectionMode
+		 * (ListSelectionModel.SINGLE_SELECTION);
+		 */
 
-		possibleServices.addMouseListener( new MouseAdapter()
-		{
+		possibleServices.addMouseListener(new MouseAdapter() {
 			// isPopupTrigger over OSs - use masks
-		    public void mouseReleased(MouseEvent e)
-		    {
-	            log.debug("mouseReleased");
-		    	
-		    	if (SwingUtilities.isRightMouseButton(e)) {
-		            log.debug("mouseReleased - right");
-		    		popUpTrigger(e);
-		    	}
-		    }
+			public void mouseReleased(MouseEvent e) {
+				log.debug("mouseReleased");
 
-		    public void popUpTrigger(MouseEvent e)
-		    {
-		    	log.info("******************popUpTrigger*********************");
-	            JTable source = (JTable)e.getSource();
-	            popupRow = source.rowAtPoint( e.getPoint() );
-	            ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
-	            releaseMenuItem.setVisible(false);
-	            if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type))
-	            {
-	            	// need to install it
-	            	installMenuItem.setVisible(true);		            	
-	            	startMenuItem.setVisible(false);
-	            	upgradeMenuItem.setVisible(false);
-	            } else {
-	            	// have it
-	            	installMenuItem.setVisible(false);
-	            	startMenuItem.setVisible(true);
-	            	if (ServiceInfo.getInstance().checkForUpgrade("org.myrobotlab.service." + c.type).size() > 0)
-	            	{
-	            		// has dependencies which can be upgraded
-		            	upgradeMenuItem.setVisible(true);
-	            	} else {
-	            		// no upgrade available
-		            	upgradeMenuItem.setVisible(false);
-	            	}
-	            }
+				if (SwingUtilities.isRightMouseButton(e)) {
+					log.debug("mouseReleased - right");
+					popUpTrigger(e);
+				}
+			}
 
-	            int column = source.columnAtPoint( e.getPoint() );
+			public void popUpTrigger(MouseEvent e) {
+				log.info("******************popUpTrigger*********************");
+				JTable source = (JTable) e.getSource();
+				popupRow = source.rowAtPoint(e.getPoint());
+				ServiceEntry c = (ServiceEntry) possibleServicesModel.getValueAt(popupRow, 0);
+				releaseMenuItem.setVisible(false);
+				if (ServiceInfo.getInstance().hasUnfulfilledDependencies("org.myrobotlab.service." + c.type)) {
+					// need to install it
+					installMenuItem.setVisible(true);
+					startMenuItem.setVisible(false);
+					upgradeMenuItem.setVisible(false);
+				} else {
+					// have it
+					installMenuItem.setVisible(false);
+					startMenuItem.setVisible(true);
+					if (ServiceInfo.getInstance().checkForUpgrade("org.myrobotlab.service." + c.type).size() > 0) {
+						// has dependencies which can be upgraded
+						upgradeMenuItem.setVisible(true);
+					} else {
+						// no upgrade available
+						upgradeMenuItem.setVisible(false);
+					}
+				}
 
-	            if (! source.isRowSelected(popupRow))
-	                source.changeSelection(popupRow, column, false, false);
+				int column = source.columnAtPoint(e.getPoint());
 
-	            popup.show(e.getComponent(), e.getX(), e.getY());
-		    	
-		    }
-		    
+				if (!source.isRowSelected(popupRow))
+					source.changeSelection(popupRow, column, false, false);
+
+				popup.show(e.getComponent(), e.getX(), e.getY());
+
+			}
+
 		});
-		
-		
-		currentServices.addMouseListener(new MouseAdapter()
-		{
+
+		currentServices.addMouseListener(new MouseAdapter() {
 			// isPopupTrigger over OSs - use masks
-		    public void mouseReleased(MouseEvent e)
-		    {
-	            log.debug("mouseReleased");
-		    	
-		    	if (SwingUtilities.isRightMouseButton(e)) {
-		            log.debug("mouseReleased - right");
-		    		popUpTrigger(e);
-		    	}
-		    }
+			public void mouseReleased(MouseEvent e) {
+				log.debug("mouseReleased");
 
-		    public void popUpTrigger(MouseEvent e)
-		    {
-		    	log.info("******************popUpTrigger*********************");
-	            JList source = (JList)e.getSource();
-	            int index = source.locationToIndex(e.getPoint());
-	            if (index >= 0) {
-	            	releasedTarget = (ServiceEntry)source.getModel().getElementAt(index);
-	            	log.info(String.format("right click on running service %s", releasedTarget.name));
-	            	releaseMenuItem.setVisible(true);
-	            	upgradeMenuItem.setVisible(false);
-	            	installMenuItem.setVisible(false);
-	            	startMenuItem.setVisible(false);
-	            }
-	            popup.show(e.getComponent(), e.getX(), e.getY());
-	            
-		    	
-		    }
-		    
+				if (SwingUtilities.isRightMouseButton(e)) {
+					log.debug("mouseReleased - right");
+					popUpTrigger(e);
+				}
+			}
+
+			public void popUpTrigger(MouseEvent e) {
+				log.info("******************popUpTrigger*********************");
+				JList source = (JList) e.getSource();
+				int index = source.locationToIndex(e.getPoint());
+				if (index >= 0) {
+					releasedTarget = (ServiceEntry) source.getModel().getElementAt(index);
+					log.info(String.format("right click on running service %s", releasedTarget.name));
+					releaseMenuItem.setVisible(true);
+					upgradeMenuItem.setVisible(false);
+					installMenuItem.setVisible(false);
+					startMenuItem.setVisible(false);
+				}
+				popup.show(e.getComponent(), e.getX(), e.getY());
+
+			}
+
 		});
-		
-		
+
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
 		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
-		
+
 		installMenuItem = new JMenuItem("install");
 		installMenuItem.addActionListener(this);
 		installMenuItem.setIcon(Util.getScaledIcon(Util.getImage("install.png"), 0.50));
-		//menuItem.setVisible(false);
+		// menuItem.setVisible(false);
 		popup.add(installMenuItem);
 
 		startMenuItem = new JMenuItem("start");
 		startMenuItem.addActionListener(this);
 		startMenuItem.setIcon(Util.getScaledIcon(Util.getImage("start.png"), 0.50));
-		//menuItem.setVisible(false);
+		// menuItem.setVisible(false);
 		popup.add(startMenuItem);
-		
+
 		upgradeMenuItem = new JMenuItem("upgrade");
 		upgradeMenuItem.addActionListener(this);
 		upgradeMenuItem.setIcon(Util.getScaledIcon(Util.getImage("upgrade.png"), 0.50));
-		//menuItem.setVisible(false);
+		// menuItem.setVisible(false);
 		popup.add(upgradeMenuItem);
-		
+
 		releaseMenuItem = new JMenuItem("release");
 		releaseMenuItem.addActionListener(this);
 		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
 		popup.add(releaseMenuItem);
-		
-		
-/*		
-		menuItem = new JMenuItem("upgrade");
-		menuItem.addActionListener(this);
-		menuItem.setVisible(false);
-		popup.add(menuItem);
-*/		
-		
+
+		/*
+		 * menuItem = new JMenuItem("upgrade");
+		 * menuItem.addActionListener(this); menuItem.setVisible(false);
+		 * popup.add(menuItem);
+		 */
+
 		getPossibleServicesThreadSafe(null);
 
 		GridBagConstraints inputgc = new GridBagConstraints();
@@ -328,12 +312,12 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		inputgc.gridy = 0;
 		input.add(new JLabel("possible services"), inputgc);
 		inputgc.gridy = 1;
-		//possibleServicesScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		// possibleServicesScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		input.add(possibleServicesScrollPane, inputgc);
 		++inputgc.gridx;
-		//input.add(getReleaseServiceButton(), inputgc);
+		// input.add(getReleaseServiceButton(), inputgc);
 		++inputgc.gridx;
-		//input.add(getAddServiceButton(), inputgc);
+		// input.add(getAddServiceButton(), inputgc);
 		++inputgc.gridx;
 		inputgc.gridy = 0;
 		input.add(new JLabel("running services"), inputgc);
@@ -362,32 +346,28 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			ServiceWrapper sw = services.get(serviceName);
 			String shortClassName = sw.service.getShortTypeName();
 			if (sw.host != null && sw.host.accessURL != null) {
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName,
-						true);
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			} else {
 				// namesAndClasses[i] = serviceName + " - " + shortClassName;
 				// namesAndClasses[i] = new ServiceEntry(serviceName,
 				// shortClassName);
-				ServiceEntry se = new ServiceEntry(serviceName, shortClassName,
-						false);
+				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, false);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			}
 		}
 	}
 
-	
 	/*
-	public JButton getAddServiceButton() {
-		addServiceButton = new BasicArrowButton(BasicArrowButton.EAST);
-		addServiceButton.setActionCommand("install");
-		addServiceButton.addActionListener(this);
-
-		return addServiceButton;
-	}
-	*/
+	 * public JButton getAddServiceButton() { addServiceButton = new
+	 * BasicArrowButton(BasicArrowButton.EAST);
+	 * addServiceButton.setActionCommand("install");
+	 * addServiceButton.addActionListener(this);
+	 * 
+	 * return addServiceButton; }
+	 */
 
 	public ServiceWrapper registered(ServiceWrapper sw) {
 		String typeName;
@@ -396,8 +376,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		} else {
 			typeName = sw.service.getShortTypeName();
 		}
-		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, typeName,
-				(sw.host != null && sw.host.accessURL != null));
+		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, typeName, (sw.host != null && sw.host.accessURL != null));
 		currentServicesModel.addElement(newServiceEntry);
 		nameToServiceEntry.put(sw.name, newServiceEntry);
 		myService.addTab(sw.name);
@@ -411,30 +390,26 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		if (nameToServiceEntry.containsKey(sw.name)) {
 			currentServicesModel.removeElement(nameToServiceEntry.get(sw.name));
 		} else {
-			log.error(sw.name
-					+ " released event - but could not find in currentServiceModel");
+			log.error(sw.name + " released event - but could not find in currentServiceModel");
 		}
 		// myService.loadTabPanels();
 		return sw;
 	}
 
 	/*
-	public JButton getReleaseServiceButton() {
-		releaseServiceButton = new BasicArrowButton(BasicArrowButton.WEST);
-		releaseServiceButton.addActionListener(new ActionListener() {
+	 * public JButton getReleaseServiceButton() { releaseServiceButton = new
+	 * BasicArrowButton(BasicArrowButton.WEST);
+	 * releaseServiceButton.addActionListener(new ActionListener() {
+	 * 
+	 * @Override public void actionPerformed(ActionEvent e) { ServiceEntry
+	 * oldService = (ServiceEntry) currentServices.getSelectedValue();
+	 * myService.send(boundServiceName, "releaseService", oldService.name); }
+	 * 
+	 * });
+	 * 
+	 * return releaseServiceButton; }
+	 */
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ServiceEntry oldService = (ServiceEntry) currentServices.getSelectedValue();
-				myService.send(boundServiceName, "releaseService", oldService.name);
-			}
-
-		});
-
-		return releaseServiceButton;
-	}
-	*/
-	
 	@Override
 	public void attachGUI() {
 		subscribe("resolveSuccess", "resolveSuccess", String.class);
@@ -442,14 +417,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		subscribe("resolveBegin", "resolveBegin", String.class);
 		subscribe("resolveEnd", "resolveEnd");
 		subscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
-		
-		
-		
+
 		subscribe("registered", "registered", ServiceWrapper.class);
 		subscribe("released", "released", ServiceWrapper.class);
 		subscribe("failedDependency", "failedDependency", String.class);
-		subscribe("proposedUpdates", "proposedUpdates",
-				ServiceInfo.class);
+		subscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 	}
 
 	@Override
@@ -459,7 +431,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 		unsubscribe("resolveBegin", "resolveBegin", String.class);
 		unsubscribe("resolveEnd", "resolveEnd");
 		unsubscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
-		
+
 		unsubscribe("registered", "registered", ServiceWrapper.class);
 		unsubscribe("released", "released", ServiceWrapper.class);
 		unsubscribe("failedDependency", "failedDependency", String.class);
@@ -467,9 +439,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 	}
 
 	public void failedDependency(String dep) {
-		JOptionPane.showMessageDialog(null,
-				"<html>Unable to load Service...<br>" + dep + "</html>",
-				"Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, "<html>Unable to load Service...<br>" + dep + "</html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	class ServiceEntry {
@@ -498,15 +468,14 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			setIconTextGap(12);
 		}
 
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
-			//log.info("getListCellRendererComponent - begin");
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			// log.info("getListCellRendererComponent - begin");
 			ServiceEntry entry = (ServiceEntry) value;
 
-			setText("<html><font color=#" + Style.listBackground + ">" + entry.name
-					+ "</font></html>");
+			setText("<html><font color=#" + Style.listBackground + ">" + entry.name + "</font></html>");
 
-			//ImageIcon icon = Util.getScaledIcon(Util.getImage((entry.type + ".png").toLowerCase(), "unknown.png"), 0.50);
+			// ImageIcon icon = Util.getScaledIcon(Util.getImage((entry.type +
+			// ".png").toLowerCase(), "unknown.png"), 0.50);
 			ImageIcon icon = Util.getScaledIcon(Util.getImage((entry.type + ".png"), "unknown.png"), 0.50);
 			setIcon(icon);
 
@@ -518,16 +487,14 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				setForeground(Style.listForeground);
 			}
 
-			//log.info("getListCellRendererComponent - end");
+			// log.info("getListCellRendererComponent - end");
 			return this;
 		}
 	}
 
-
 	/**
-	 * Swing is not thread-safe we
-	 * need to wrap the swing calls into a runnable and post them !
-	 * http://stackoverflow
+	 * Swing is not thread-safe we need to wrap the swing calls into a runnable
+	 * and post them ! http://stackoverflow
 	 * .com/questions/4547113/jlist-setlistdata-threading-issues Thank you
 	 * Robert & Stack-overflow for something which I was tearing my hair out for
 	 * a day !!!
@@ -561,7 +528,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 				log.info(i);
 				se = new ServiceEntry(null, sscn[i], false);
 
-				possibleServicesModel.addRow(new Object[] {se,""});
+				possibleServicesModel.addRow(new Object[] { se, "" });
 			}
 
 			possibleServicesModel.fireTableDataChanged();
@@ -572,101 +539,94 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 	class CellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
-		
-		
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean selected, boolean focused, int row,
-				int column) {
 
-			//Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			//setBorder(BorderFactory.createEmptyBorder());
-			//log.info(value.getClass().getCanonicalName());
-			
-			setEnabled(table == null || table.isEnabled()); 
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focused, int row, int column) {
+
+			// Component c = super.getTableCellRendererComponent(table, value,
+			// isSelected, hasFocus, row, column);
+			// setBorder(BorderFactory.createEmptyBorder());
+			// log.info(value.getClass().getCanonicalName());
+
+			setEnabled(table == null || table.isEnabled());
 			ServiceInfo info = ServiceInfo.getInstance();
-			ServiceEntry entry = (ServiceEntry)table.getValueAt(row, 0);
-			// FIXME - "org.myrobotlab.service." +  is not allowed "anywhere" - cept in overloaded methods
-			boolean available = !(info.hasUnfulfilledDependencies ("org.myrobotlab.service." + entry.type));
+			ServiceEntry entry = (ServiceEntry) table.getValueAt(row, 0);
+			// FIXME - "org.myrobotlab.service." + is not allowed "anywhere" -
+			// cept in overloaded methods
+			boolean available = !(info.hasUnfulfilledDependencies("org.myrobotlab.service." + entry.type));
 			boolean upgradeAvailable = false;
-			
+
 			String upgradeString = "<html><h6>upgrade<br>";
 			List<Dependency> deps = info.checkForUpgrade("org.myrobotlab.service." + entry.type);
-			if (deps.size() > 0)
-			{
+			if (deps.size() > 0) {
 				upgradeAvailable = true;
-				for (int i=0; i < deps.size(); ++i)
-				{
+				for (int i = 0; i < deps.size(); ++i) {
 					upgradeString += deps.get(i).module + " " + deps.get(i).version;
-					
-					if (i < deps.size() -1)
-					{
+
+					if (i < deps.size() - 1) {
 						upgradeString += "<br>";
 					}
-					
+
 				}
 				upgradeString += "</h6></html>";
 			}
-			
-			if (value.getClass().equals(ServiceEntry.class))
-			{
+
+			if (value.getClass().equals(ServiceEntry.class)) {
 				setHorizontalAlignment(JLabel.LEFT);
-				setIcon(Util.getScaledIcon(Util.getImage( (entry.type +
-						 ".png"), "unknown.png"), 0.50));
+				setIcon(Util.getScaledIcon(Util.getImage((entry.type + ".png"), "unknown.png"), 0.50));
 				setText(entry.type);
-				//setToolTipText("<html><body bgcolor=\"#E6E6FA\">" + entry.type+ " <a href=\"http://myrobotlab.org\">blah</a></body></html>");
-				
-			} else if (value.getClass().equals(String.class))  {
+				// setToolTipText("<html><body bgcolor=\"#E6E6FA\">" +
+				// entry.type+
+				// " <a href=\"http://myrobotlab.org\">blah</a></body></html>");
+
+			} else if (value.getClass().equals(String.class)) {
 				setIcon(null);
 				setHorizontalAlignment(JLabel.LEFT);
 
-				if (!available)
-				{
+				if (!available) {
 					setText("<html><h6>not<br>installed&nbsp;</h6></html>");
 				} else {
-					if (upgradeAvailable)
-					{
+					if (upgradeAvailable) {
 						setText(upgradeString);
 					} else {
 						setText("<html><h6>latest&nbsp;</h6></html>");
 					}
-				}				
+				}
 
 			} else {
 				log.error("unknown class");
 			}
-					
-			if (possibleServices.isRowSelected(row)) { 
+
+			if (possibleServices.isRowSelected(row)) {
 				setBackground(Style.listHighlight);
-				setForeground(Style.listForeground); 
-			 } else {
-			
+				setForeground(Style.listForeground);
+			} else {
+
 				if (!available) {
 					setForeground(Style.listForeground);
-					setBackground(Style.possibleServicesNotInstalled); 
+					setBackground(Style.possibleServicesNotInstalled);
 				} else {
-					if (upgradeAvailable)
-					{
-						//Component c = super.getTableCellRendererComponent(table, value, selected, focused, row, column-1);
-						//c.setForeground(Style.foreground);
-						//c.setForeground(Style.possibleServicesUpdate);
+					if (upgradeAvailable) {
+						// Component c =
+						// super.getTableCellRendererComponent(table, value,
+						// selected, focused, row, column-1);
+						// c.setForeground(Style.foreground);
+						// c.setForeground(Style.possibleServicesUpdate);
 						setForeground(Style.listForeground);
-						setBackground(Style.possibleServicesUpdate);						
+						setBackground(Style.possibleServicesUpdate);
 					} else {
 						setForeground(Style.listForeground);
 						setBackground(Style.possibleServicesStable);
 					}
 				}
-			 }
-			
+			}
 
+			// setBorder(BorderFactory.createEmptyBorder());
 
-			//setBorder(BorderFactory.createEmptyBorder());
-			
 			return this;
 		}
 	}
-	
+
 	class FilterListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent cmd) {
@@ -694,21 +654,18 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		ServiceEntry c  = (ServiceEntry)possibleServicesModel.getValueAt(popupRow, 0);
+		ServiceEntry c = (ServiceEntry) possibleServicesModel.getValueAt(popupRow, 0);
 		String cmd = event.getActionCommand();
 		Object o = event.getSource();
-		if (releaseMenuItem == o)
-		{
+		if (releaseMenuItem == o) {
 			myService.send(boundServiceName, "releaseService", releasedTarget.name);
 			return;
 		}
-		
-		if ("info".equals(cmd))
-		{
+
+		if ("info".equals(cmd)) {
 			BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + c.type);
-			
-		}  else if ("install".equals(cmd))
-		{
+
+		} else if ("install".equals(cmd)) {
 			int selectedRow = possibleServices.getSelectedRow();
 
 			String newService = ((ServiceEntry) possibleServices.getValueAt(selectedRow, 0)).toString();
@@ -716,17 +673,14 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			String fullTypeName = "org.myrobotlab.service." + newService;
 			if (serviceInfo.hasUnfulfilledDependencies(fullTypeName)) {
 				// dependencies needed !!!
-				String msg = "<html>This Service has dependencies which are not yet loaded,<br>"
-						+ "do you wish to download them now?";
+				String msg = "<html>This Service has dependencies which are not yet loaded,<br>" + "do you wish to download them now?";
 				JOptionPane.setRootFrame(myService.getFrame());
-				int result = JOptionPane.showConfirmDialog(
-						(Component) null, msg, "alert",
-						JOptionPane.OK_CANCEL_OPTION);
+				int result = JOptionPane.showConfirmDialog((Component) null, msg, "alert", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
 
-				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);						
+				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);
 			} else {
 				// no unfulfilled dependencies - good to go
 				addNewService(newService);
@@ -737,96 +691,83 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener  {
 			String newService = ((ServiceEntry) possibleServices.getValueAt(selectedRow, 0)).toString();
 			addNewService(newService);
 		} else if ("upgrade".equals(cmd)) {
-			myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);						
+			myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);
 		} else {
 			log.error("unknown command " + cmd);
 		}
-		
+
 		// end actionCmd
 
 	}
-	
+
 	ProgressDialog progressDialog = null;
-	
-	public void addNewService(String newService)
-	{
+
+	public void addNewService(String newService) {
 		JFrame frame = new JFrame();
 		frame.setTitle("add new service");
-		String name = JOptionPane.showInputDialog(frame,
-				"new service name");
+		String name = JOptionPane.showInputDialog(frame, "new service name");
 
 		if (name != null && name.length() > 0) {
-			myService.send(boundServiceName, "createAndStart", name,
-					newService);
+			myService.send(boundServiceName, "createAndStart", name, newService);
 
 		}
 	}
-	
+
 	JDialog updateDialog = null;
 	List<String> resolveErrors = null;
 
-	public String resolveBegin (String className) // per dependency module
+	public String resolveBegin(String className) // per dependency module
 	{
 		// FIXME - start dialog - warn previously internet connection necessary
 		// no proxy
-		if (progressDialog == null)
-		{
+		if (progressDialog == null) {
 			progressDialog = new ProgressDialog(myService.getFrame());
 			progressDialog.setVisible(true);
 		}
-		
+
 		resolveErrors = null;
 		progressDialog.addInfo("checking for latest version of " + className);
 		progressDialog.addInfo("attempting to retrieve " + className + " info");
 
 		return className;
 	}
-	
-	
-	public List<String> resolveError (List<String> errors)
-	{
-		if (progressDialog == null)
-		{
+
+	public List<String> resolveError(List<String> errors) {
+		if (progressDialog == null) {
 			progressDialog = new ProgressDialog(myService.getFrame());
 		}
 		// FIXME - dialog - there are errors which - cancel? or terminate
 		resolveErrors = errors;
 		progressDialog.addErrorInfo("ERROR - " + errors);
-		//JOptionPane.showMessageDialog(myService.getFrame(), "could not resolve", "error " + errors, JOptionPane.ERROR_MESSAGE);
+		// JOptionPane.showMessageDialog(myService.getFrame(),
+		// "could not resolve", "error " + errors, JOptionPane.ERROR_MESSAGE);
 		return resolveErrors;
 	}
-	
-	public String resolveSuccess (String className)
-	{
-		progressDialog.addInfo(String.format("%s is installed",className));
+
+	public String resolveSuccess(String className) {
+		progressDialog.addInfo(String.format("%s is installed", className));
 		return className;
 	}
-	
+
 	boolean localRepoChange = false;
-	public String newArtifactsDownloaded (String className)
-	{
+
+	public String newArtifactsDownloaded(String className) {
 		localRepoChange = true;
-		progressDialog.addInfo(String.format("%s - new artifacts downloaded",className));
+		progressDialog.addInfo(String.format("%s - new artifacts downloaded", className));
 		return className;
 	}
-	
-	
 
-	
-	public void resolveEnd ()
-	{
+	public void resolveEnd() {
 		progressDialog.addInfo("finished processing updates ");
-//		progressDialog.setVisible(false);
-//		progressDialog.dispose();  FIXME - needs an "OK" to terminate
+		// progressDialog.setVisible(false);
+		// progressDialog.dispose(); FIXME - needs an "OK" to terminate
 
-		if (resolveErrors != null)
-		{
+		if (resolveErrors != null) {
 			log.info("there were errors");
 			progressDialog.addErrorInfo("there were errors " + resolveErrors);
 		} else {
 			progressDialog.finished();
-			if (localRepoChange)
-			{
+			if (localRepoChange) {
 				GUIService.restart(null);
 			}
 		}

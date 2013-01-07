@@ -56,9 +56,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterMouse extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterMouse.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterMouse.class.getCanonicalName());
 
 	int stepSize = 1;
 	CvPoint startPoint = null;
@@ -146,11 +145,11 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 								// on the bottom perimeter
 			mousePos = new CvPoint(image.width() / 2, image.height() - 1);
 			startPoint = new CvPoint(image.width() / 2 - 1, image.height() - 1); // put
-																				// start
-																				// point
-																				// left
-																				// of
-																				// mousePos
+																					// start
+																					// point
+																					// left
+																					// of
+																					// mousePos
 			width = image.width() - 1;
 			height = image.height() - 1;
 		}
@@ -162,7 +161,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 			src = cvCreateImage(cvGetSize(image), 8, 1);
 		}
 
-		if (image.nChannels()== 3) {
+		if (image.nChannels() == 3) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
@@ -196,13 +195,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 			p0.y(p.y());
 			p1.x(p.x());
 			p1.y(p.y());
-			cvDrawLine(image, p0, p1, pathColor
-					, 1, 1, 0);
+			cvDrawLine(image, p0, p1, pathColor, 1, 1, 0);
 		}
 		/*
 		 * Iterator<String> sgi = path.keySet().iterator(); while
-		 * (sgi.hasNext()) { Node n = path.get(sgi.next()); p0.x() = n.x(); p0.y() =
-		 * n.y(); p1.x() = n.x(); p1.y() = n.y(); cvDrawLine(image, p0,
+		 * (sgi.hasNext()) { Node n = path.get(sgi.next()); p0.x() = n.x();
+		 * p0.y() = n.y(); p1.x() = n.x(); p1.y() = n.y(); cvDrawLine(image, p0,
 		 * p1, pathColor, 1, 1, 0); }
 		 */
 		return image;
@@ -223,15 +221,13 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case SOUTH: {
 					// check SOUTHEAST
 					// Log.error("SOUTHEAST");
-					if ((mousePos.x() + 1 > width || mousePos.y() + 1 > height)
-							|| cvGet2D(src, mousePos.y() + 1,
-									mousePos.x() + 1).getVal(0) != BLACK) {
+					if ((mousePos.x() + 1 > width || mousePos.y() + 1 > height) || cvGet2D(src, mousePos.y() + 1, mousePos.x() + 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = SOUTHEAST;
 					} else {
 						// move SOUTHEAST
-						mousePos.x(mousePos.x()+1);
-						mousePos.y(mousePos.y()+1);
+						mousePos.x(mousePos.x() + 1);
+						mousePos.y(mousePos.y() + 1);
 						lastWall = WEST;
 						doneSweeping = true;
 					}
@@ -241,14 +237,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case SOUTHEAST: {
 					// check EAST
 					// Log.error("EAST");
-					if (mousePos.x() + 1 > width
-							|| cvGet2D(src, mousePos.y(), mousePos.x() + 1)
-									.getVal(0) != BLACK) {
+					if (mousePos.x() + 1 > width || cvGet2D(src, mousePos.y(), mousePos.x() + 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = EAST;
 					} else {
 						// move EAST
-						mousePos.x(mousePos.x()+1);
+						mousePos.x(mousePos.x() + 1);
 						lastWall = SOUTH;
 						doneSweeping = true;
 					}
@@ -259,15 +253,13 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case EAST: {
 					// check NORTHEAST
 					// Log.error("NORTHEAST");
-					if ((mousePos.x() + 1 > width || mousePos.y() == 0)
-							|| cvGet2D(src, mousePos.y() - 1,
-									mousePos.x() + 1).getVal(0) != BLACK) {
+					if ((mousePos.x() + 1 > width || mousePos.y() == 0) || cvGet2D(src, mousePos.y() - 1, mousePos.x() + 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = NORTHEAST;
 					} else {
 						// move NORTHEAST
-						mousePos.x(mousePos.x()+1);
-						mousePos.y(mousePos.y()-1);
+						mousePos.x(mousePos.x() + 1);
+						mousePos.y(mousePos.y() - 1);
 						lastWall = SOUTH;
 						doneSweeping = true;
 					}
@@ -277,14 +269,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case NORTHEAST: {
 					// check NORTH
 					// Log.error("NORTH");
-					if (mousePos.y() == 0
-							|| cvGet2D(src, mousePos.y() - 1, mousePos.x())
-									.getVal(0) != BLACK) {
+					if (mousePos.y() == 0 || cvGet2D(src, mousePos.y() - 1, mousePos.x()).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = NORTH;
 					} else {
 						// move NORTH
-						mousePos.y(mousePos.y()-1);
+						mousePos.y(mousePos.y() - 1);
 						lastWall = EAST;
 						doneSweeping = true;
 					}
@@ -295,15 +285,13 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case NORTH: {
 					// check NORTHWEST
 					// Log.error("NORTHWEST");
-					if ((mousePos.x() == 0 || mousePos.y() == 0)
-							|| cvGet2D(src, mousePos.y() - 1,
-									mousePos.x() - 1).getVal(0) != BLACK) {
+					if ((mousePos.x() == 0 || mousePos.y() == 0) || cvGet2D(src, mousePos.y() - 1, mousePos.x() - 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = NORTHWEST;
 					} else {
 						// move NORTHWEST
-						mousePos.x(mousePos.x()-1);
-						mousePos.y(mousePos.y()-1);
+						mousePos.x(mousePos.x() - 1);
+						mousePos.y(mousePos.y() - 1);
 						lastWall = EAST;
 						doneSweeping = true;
 					}
@@ -313,14 +301,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case NORTHWEST: {
 					// Log.error("WEST");
 					// check WEST
-					if (mousePos.x() == 0
-							|| cvGet2D(src, mousePos.y(), mousePos.x() - 1)
-									.getVal(0) != BLACK) {
+					if (mousePos.x() == 0 || cvGet2D(src, mousePos.y(), mousePos.x() - 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = WEST;
 					} else {
 						// move WEST
-						mousePos.x(mousePos.x()-1);
+						mousePos.x(mousePos.x() - 1);
 						lastWall = NORTH;
 						doneSweeping = true;
 					}
@@ -331,15 +317,13 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case WEST: {
 					// Log.error("SOUTHWEST " + mousePos);
 					// check SOUTHWEST
-					if ((mousePos.x() == 0 || mousePos.y() + 1 > height)
-							|| cvGet2D(src, mousePos.y() + 1,
-									mousePos.x() - 1).getVal(0) != BLACK) {
+					if ((mousePos.x() == 0 || mousePos.y() + 1 > height) || cvGet2D(src, mousePos.y() + 1, mousePos.x() - 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = SOUTHWEST;
 					} else {
 						// move SOUTHWEST
-						mousePos.x(mousePos.x()-1);
-						mousePos.y(mousePos.y()+1);
+						mousePos.x(mousePos.x() - 1);
+						mousePos.y(mousePos.y() + 1);
 						lastWall = NORTH;
 						doneSweeping = true;
 					}
@@ -349,14 +333,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case SOUTHWEST: {
 					// Log.error("SOUTH");
 					// check SOUTH
-					if (mousePos.y() + 1 > height
-							|| cvGet2D(src, mousePos.y() + 1, mousePos.x())
-									.getVal(0) != BLACK) {
+					if (mousePos.y() + 1 > height || cvGet2D(src, mousePos.y() + 1, mousePos.x()).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = SOUTH;
 					} else {
 						// move SOUTH
-						mousePos.y(mousePos.y()+1);
+						mousePos.y(mousePos.y() + 1);
 						lastWall = NORTH;
 						doneSweeping = true;
 					}
@@ -397,14 +379,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case SOUTH: {
 					// check EAST
 					// Log.error("EAST");
-					if (mousePos.x() + 1 > width
-							|| cvGet2D(src, mousePos.y(), mousePos.x() + 1)
-									.getVal(0) != BLACK) {
+					if (mousePos.x() + 1 > width || cvGet2D(src, mousePos.y(), mousePos.x() + 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = EAST;
 					} else {
 						// move EAST
-						mousePos.x(mousePos.x()+1);
+						mousePos.x(mousePos.x() + 1);
 						lastWall = SOUTH;
 						doneSweeping = true;
 					}
@@ -414,14 +394,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case EAST: {
 					// check NORTH
 					// Log.error("NORTH");
-					if (mousePos.y() == 0
-							|| cvGet2D(src, mousePos.y() - 1, mousePos.x())
-									.getVal(0) != BLACK) {
+					if (mousePos.y() == 0 || cvGet2D(src, mousePos.y() - 1, mousePos.x()).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = NORTH;
 					} else {
 						// move NORTH
-						mousePos.y(mousePos.y()-1);
+						mousePos.y(mousePos.y() - 1);
 						lastWall = EAST;
 						doneSweeping = true;
 					}
@@ -431,14 +409,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case NORTH: {
 					// Log.error("WEST");
 					// check WEST
-					if (mousePos.x() == 0
-							|| cvGet2D(src, mousePos.y(), mousePos.x() - 1)
-									.getVal(0) != BLACK) {
+					if (mousePos.x() == 0 || cvGet2D(src, mousePos.y(), mousePos.x() - 1).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = WEST;
 					} else {
 						// move WEST
-						mousePos.x(mousePos.x()-1);
+						mousePos.x(mousePos.x() - 1);
 						lastWall = NORTH;
 						doneSweeping = true;
 					}
@@ -448,14 +424,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 				case WEST: {
 					// Log.error("SOUTH");
 					// check SOUTH
-					if (mousePos.y() + 1 > height
-							|| cvGet2D(src, mousePos.y() + 1, mousePos.x())
-									.getVal(0) != BLACK) {
+					if (mousePos.y() + 1 > height || cvGet2D(src, mousePos.y() + 1, mousePos.x()).getVal(0) != BLACK) {
 						// wall - check next
 						lastWall = SOUTH;
 					} else {
 						// move SOUTH
-						mousePos.y(mousePos.y()+1);
+						mousePos.y(mousePos.y() + 1);
 						lastWall = NORTH;
 						doneSweeping = true;
 					}

@@ -63,11 +63,10 @@ public class Runtime extends Service {
 	private static boolean needsRestart = false;
 	private static boolean checkForDependencies = true; // TODO implement - Ivy
 														// related
-	
+
 	private static String runtimeName;
 
 	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
-
 
 	// ---- rte members end ------------------------------
 
@@ -130,15 +129,15 @@ public class Runtime extends Service {
 
 	/**
 	 * Get a handle to this singleton.
+	 * 
 	 * @return
 	 */
 	public static Runtime getInstance() {
 		if (instance == null) {
-			synchronized(instanceLockObject) {
+			synchronized (instanceLockObject) {
 				if (instance == null) {
 					// TODO should this be configurable?
-					if (runtimeName == null)
-					{
+					if (runtimeName == null) {
 						runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
 					}
 					instance = new Runtime(runtimeName);
@@ -149,10 +148,10 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Stops all service-related running items.
-	 * This releases the singleton referenced by this class, but it does not guarantee that the old
-	 * service will be GC'd.
-	 * FYI - if stopServices deos not remove INSTANCE - it is not re-entrant in junit tests
+	 * Stops all service-related running items. This releases the singleton
+	 * referenced by this class, but it does not guarantee that the old service
+	 * will be GC'd. FYI - if stopServices deos not remove INSTANCE - it is not
+	 * re-entrant in junit tests
 	 */
 	@Override
 	public void stopService() {
@@ -193,25 +192,20 @@ public class Runtime extends Service {
 
 		return 0;
 	}
-/*
- * BLOCKS ON BAD READ or Process termination
- 	static public void createProcess(String[] cmdline) throws IOException
-	{
-		Process process = new ProcessBuilder(cmdline).start();
-	       InputStream is = process.getInputStream();
-	       InputStreamReader isr = new InputStreamReader(is);
-	       BufferedReader br = new BufferedReader(isr);
-	       String line;
 
-	       System.out.printf("Output of running %s is:", 
-	          Arrays.toString(cmdline));
+	/*
+	 * BLOCKS ON BAD READ or Process termination static public void
+	 * createProcess(String[] cmdline) throws IOException { Process process =
+	 * new ProcessBuilder(cmdline).start(); InputStream is =
+	 * process.getInputStream(); InputStreamReader isr = new
+	 * InputStreamReader(is); BufferedReader br = new BufferedReader(isr);
+	 * String line;
+	 * 
+	 * System.out.printf("Output of running %s is:", Arrays.toString(cmdline));
+	 * 
+	 * while ((line = br.readLine()) != null) { System.out.println(line); } }
+	 */
 
-	       while ((line = br.readLine()) != null) {
-	         System.out.println(line);
-	       }
-	}
-*/	
-	
 	/**
 	 * dorky pass-throughs to the real JVM Runtime
 	 * 
@@ -268,7 +262,8 @@ public class Runtime extends Service {
 	// these definitions
 	/**
 	 * ONLY CALLED BY registerServices2 ... would be a bug if called from
-	 * foreign service - (no platform! - unless ServiceEnvironment already exists) 
+	 * foreign service - (no platform! - unless ServiceEnvironment already
+	 * exists)
 	 * 
 	 * 
 	 * @param url
@@ -301,32 +296,29 @@ public class Runtime extends Service {
 		return s;
 	}
 
-	
 	/**
-	 * called by remote/foreign systems to register a new service
-	 * through a subscription
+	 * called by remote/foreign systems to register a new service through a
+	 * subscription
 	 * 
 	 * @param sw
 	 */
-	public synchronized void register(ServiceWrapper sw)
-	{
+	public synchronized void register(ServiceWrapper sw) {
 		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
-		if (se == null)
-		{
+		if (se == null) {
 			log.error("no service environment");
 			return;
 		}
-		
-		if (se.serviceDirectory.containsKey(sw.name))
-		{
+
+		if (se.serviceDirectory.containsKey(sw.name)) {
 			log.info(String.format("%s already registered"));
 			return;
 		}
-		// FIXME - does the refrence of this service wrapper need to point back to the 
+		// FIXME - does the refrence of this service wrapper need to point back
+		// to the
 		// service environment its referencing?
 		// sw.host = se; - can't do this because its final
-		
+
 		se.serviceDirectory.put(sw.name, sw);
 		registry.put(sw.name, sw);
 		if (instance != null) {
@@ -334,13 +326,12 @@ public class Runtime extends Service {
 		}
 
 	}
-	
-	
-	
+
 	/**
-	 * registers an initial ServiceEnvironment which is a complete set of Services from a
-	 * foreign instance of MRL. It returns whether changes have been made. This
-	 * is necessary to determine if the register should be echoed back.
+	 * registers an initial ServiceEnvironment which is a complete set of
+	 * Services from a foreign instance of MRL. It returns whether changes have
+	 * been made. This is necessary to determine if the register should be
+	 * echoed back.
 	 * 
 	 * @param url
 	 * @param s
@@ -361,7 +352,8 @@ public class Runtime extends Service {
 		s.accessURL = url; // NEW - update
 		hosts.put(url, s);
 
-		// TODO we're doing this same loop inside areEqual() call above - can they be consolidated?
+		// TODO we're doing this same loop inside areEqual() call above - can
+		// they be consolidated?
 		Iterator<String> it = s.serviceDirectory.keySet().iterator();
 		String serviceName;
 		while (it.hasNext()) {
@@ -369,21 +361,21 @@ public class Runtime extends Service {
 			log.info(String.format("adding %1$s to registry", serviceName));
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
 			instance.invoke("registered", s.serviceDirectory.get(serviceName));
-			
+
 			ServiceWrapper sw = getServiceWrapper(serviceName);
-			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType()))
-			{
+			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType())) {
 				log.info(String.format("found runtime %s", serviceName));
 				instance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
 			}
-			
+
 		}
 
 		return true;
 	}
 
 	/**
-	 * Checks if s has the same service directory content as the environment at url.
+	 * Checks if s has the same service directory content as the environment at
+	 * url.
 	 * 
 	 * @param s
 	 * @param url
@@ -532,22 +524,21 @@ public class Runtime extends Service {
 		// FIXME - temporary for testing
 		// if (getVMName().equals(DALVIK))
 		// {
-		//inclusiveExportFilterEnabled = false;
+		// inclusiveExportFilterEnabled = false;
 		/*
-		addInclusiveExportFilterServiceType("RemoteAdapter");
-		addInclusiveExportFilterServiceType("SensorMonitor");
-		addInclusiveExportFilterServiceType("Clock");
-		addInclusiveExportFilterServiceType("Logging");
-		addInclusiveExportFilterServiceType("Python");
-		addInclusiveExportFilterServiceType("Arduino");
-		addInclusiveExportFilterServiceType("GUIService");
-		addInclusiveExportFilterServiceType("Runtime");
-		// }
-		*/
+		 * addInclusiveExportFilterServiceType("RemoteAdapter");
+		 * addInclusiveExportFilterServiceType("SensorMonitor");
+		 * addInclusiveExportFilterServiceType("Clock");
+		 * addInclusiveExportFilterServiceType("Logging");
+		 * addInclusiveExportFilterServiceType("Python");
+		 * addInclusiveExportFilterServiceType("Arduino");
+		 * addInclusiveExportFilterServiceType("GUIService");
+		 * addInclusiveExportFilterServiceType("Runtime"); // }
+		 */
 		inclusiveExportFilterEnabled = true;
 		addInclusiveExportFilterServiceType("Clock");
 		addInclusiveExportFilterServiceType("GUIService");
-		
+
 		// FIXME - can't do this HAS TO BE A COPY !!!!
 		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled) {
 			return local; // FIXME - still need to construct new SWs
@@ -568,7 +559,8 @@ public class Runtime extends Service {
 			log.debug(String.format("adding %1$s to export", name));
 			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(sw.getServiceType())) {
 				log.debug(String.format("service: %1$s", sw.getServiceType()));
-				// create new structure - otherwise it won't be correctly filtered
+				// create new structure - otherwise it won't be correctly
+				// filtered
 				si = sw.get();
 			} else {
 				continue;
@@ -597,16 +589,14 @@ public class Runtime extends Service {
 	public static void addInclusiveExportFilterServiceType(String shortClassName) {
 		inclusiveExportFilter.put(String.format("org.myrobotlab.service.%1$s", shortClassName), shortClassName);
 	}
-	
-	public static boolean isLocal(String serviceName)
-	{
+
+	public static boolean isLocal(String serviceName) {
 		ServiceWrapper sw = getServiceWrapper(serviceName);
-		if (sw == null)
-		{
+		if (sw == null) {
 			log.error(String.format("%s not defined - can't determine if its local"));
 			return false;
 		}
-		
+
 		return sw.isLocal();
 	}
 
@@ -642,13 +632,12 @@ public class Runtime extends Service {
 		if (url == null) {
 			sw.get().stopService();// if its a local Service shut it
 									// down
-		}				
+		}
 		ServiceEnvironment se = hosts.get(url);
 		instance.invoke("released", se.serviceDirectory.get(name));
 		registry.remove(name);
 		se.serviceDirectory.remove(name);
-		if (se.serviceDirectory.size() == 0)
-		{
+		if (se.serviceDirectory.size() == 0) {
 			log.info("service directory empty - removing host");
 			hosts.remove(se); // TODO - invoke message
 		}
@@ -665,32 +654,28 @@ public class Runtime extends Service {
 	{
 		boolean ret = true;
 		ServiceEnvironment se = hosts.get(url);
-		if (se == null)
-		{
+		if (se == null) {
 			log.warn(String.format("attempt to release %1$s not successful - it does not exist", url));
 			return false;
 		}
 		log.info(String.format("releasing url %1$s", url));
-		String[] services = (String[])se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
+		String[] services = (String[]) se.serviceDirectory.keySet().toArray(new String[se.serviceDirectory.keySet().size()]);
 		String runtimeName = null;
 		ServiceInterface service;
-		for (int i = 0; i < services.length; ++i)
-		{
-			service =  registry.get(services[i]).get();
-			if (service != null && "Runtime".equals(service.getShortTypeName()))
-			{
+		for (int i = 0; i < services.length; ++i) {
+			service = registry.get(services[i]).get();
+			if (service != null && "Runtime".equals(service.getShortTypeName())) {
 				runtimeName = service.getName();
 				log.info(String.format("delaying release of Runtime %1$s", runtimeName));
 				continue;
 			}
 			ret &= release(services[i]);
 		}
-		
-		if (runtimeName != null)
-		{
+
+		if (runtimeName != null) {
 			ret &= release(runtimeName);
 		}
-		
+
 		return ret;
 	}
 
@@ -707,7 +692,7 @@ public class Runtime extends Service {
 	public static void releaseAll() /* local only? */
 	{
 		log.debug("releaseAll");
-		
+
 		// FIXME - release all by calling sub methods & normalize code
 
 		// FIXME - this is a bit of a lie
@@ -715,8 +700,7 @@ public class Runtime extends Service {
 		// but you can't send the info if everything has been released :P
 
 		ServiceEnvironment se = hosts.get(null); // local services only
-		if (se == null)
-		{
+		if (se == null) {
 			log.info("releaseAll called when everything is released, all done here");
 			return;
 		}
@@ -851,7 +835,8 @@ public class Runtime extends Service {
 				try {
 					// todo - should we flush first?
 					out.close();
-				} catch (Exception e) {}
+				} catch (Exception e) {
+				}
 			}
 		}
 
@@ -882,7 +867,8 @@ public class Runtime extends Service {
 				try {
 					// TODO do we need to flush first?
 					in.close();
-				} catch (Exception e) {}
+				} catch (Exception e) {
+				}
 			}
 		}
 
@@ -926,34 +912,22 @@ public class Runtime extends Service {
 		String n;
 		ArrayList<MRLListener> nes;
 		MRLListener listener;
-		
-		StringBuffer sb = new StringBuffer()
-			.append("<NotifyEntries>");
+
+		StringBuffer sb = new StringBuffer().append("<NotifyEntries>");
 		while (it.hasNext()) {
 			serviceName = it.next();
 			sw = registry.get(serviceName);
-			sb.append("<service name=\"")
-				.append(sw.getName())
-				.append("\" serviceEnironment=\"")
-				.append(sw.getAccessURL())
-				.append("\">");
+			sb.append("<service name=\"").append(sw.getName()).append("\" serviceEnironment=\"").append(sw.getAccessURL()).append("\">");
 			Iterator<String> nit = sw.getNotifyListKeySet().iterator();
 
 			while (nit.hasNext()) {
 				n = nit.next();
-				sb.append("<addListener map=\"")
-					.append(n)
-					.append("\">");
+				sb.append("<addListener map=\"").append(n).append("\">");
 				nes = sw.getNotifyList(n);
 				for (int i = 0; i < nes.size(); ++i) {
 					listener = nes.get(i);
-					sb.append("<MRLListener outMethod=\"")
-						.append(listener.outMethod)
-						.append("\" name=\"")
-						.append(listener.name)
-						.append("\" inMethod=\"")
-						.append(listener.outMethod)
-						.append("\" />");
+					sb.append("<MRLListener outMethod=\"").append(listener.outMethod).append("\" name=\"").append(listener.name).append("\" inMethod=\"")
+							.append(listener.outMethod).append("\" />");
 				}
 				sb.append("</addListener>");
 			}
@@ -1081,7 +1055,7 @@ public class Runtime extends Service {
 		String v = FileIO.getResourceFile("version.txt");
 		return v.trim();
 	}
-	
+
 	/**
 	 * 
 	 * @param cmdline
@@ -1104,8 +1078,7 @@ public class Runtime extends Service {
 
 			for (int i = 0; i < cmdline.getArgumentCount("-service"); i += 2) {
 
-				log.info(String.format("attempting to invoke : org.myrobotlab.service.%1$s named %2$s",
-						cmdline.getSafeArgument("-service", i + 1, ""),
+				log.info(String.format("attempting to invoke : org.myrobotlab.service.%1$s named %2$s", cmdline.getSafeArgument("-service", i + 1, ""),
 						cmdline.getSafeArgument("-service", i, "")));
 
 				String name = cmdline.getSafeArgument("-service", i, "");
@@ -1202,15 +1175,13 @@ public class Runtime extends Service {
 
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
-		
 
 		try {
-			
-			if (cmdline.containsKey("-runtimeName"))
-			{
+
+			if (cmdline.containsKey("-runtimeName")) {
 				runtimeName = cmdline.getSafeArgument("-runtimeName", 0, "MRL");
 			}
-			
+
 			if (cmdline.containsKey("-logToConsole")) {
 				addAppender(LogAppender.Console);
 			} else if (cmdline.containsKey("-logToRemote")) {
@@ -1220,11 +1191,9 @@ public class Runtime extends Service {
 			} else {
 				addAppender(LogAppender.File);
 			}
-			
-			
+
 			setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "INFO")));
-			
-			
+
 			log.info(cmdline);
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
@@ -1241,9 +1210,9 @@ public class Runtime extends Service {
 			} else {
 				createServices(cmdline);
 			}
-			
+
 			invokeCommands(cmdline);
-			
+
 		} catch (Exception e) {
 			Service.logException(e);
 			try {
@@ -1254,30 +1223,28 @@ public class Runtime extends Service {
 			}
 		}
 	}
-	
-	static public void invokeCommands(CMDLine cmdline)
-	{
+
+	static public void invokeCommands(CMDLine cmdline) {
 		int argCount = cmdline.getArgumentCount("-invoke");
 		if (argCount > 1) {
 
 			StringBuffer params = new StringBuffer();
-			
+
 			ArrayList<String> invokeList = cmdline.getArgumentList("-invoke");
-			Object[] data = new Object[argCount-2];
-			for (int i = 2; i < argCount; ++i)
-			{
-				data[i-2] = invokeList.get(i);
-				params.append(String.format("%s ",invokeList.get(i)));
+			Object[] data = new Object[argCount - 2];
+			for (int i = 2; i < argCount; ++i) {
+				data[i - 2] = invokeList.get(i);
+				params.append(String.format("%s ", invokeList.get(i)));
 			}
-			
+
 			String name = cmdline.getArgument("-invoke", 0);
 			String method = cmdline.getArgument("-invoke", 1);
-			
+
 			log.info(String.format("attempting to invoke : %s.%s(%s)\n", name, method, params.toString()));
 			getInstance().send(name, method, data);
-		
+
 		}
-		
+
 	}
 
 	/**
@@ -1293,10 +1260,12 @@ public class Runtime extends Service {
 			return null;
 		}
 		s.startService();
-		// new assumption - if you have a display - you probably want to display it
-		// also allows complete dynamic loading of GUIService without any GUIService 
+		// new assumption - if you have a display - you probably want to display
+		// it
+		// also allows complete dynamic loading of GUIService without any
+		// GUIService
 		// references - so the android project does not whine...
-		s.display(); 
+		s.display();
 		return s;
 	}
 
@@ -1407,15 +1376,14 @@ public class Runtime extends Service {
 
 			// TODO - determine if there have been new classes added from ivy
 			log.debug("ABOUT TO LOAD CLASS");
-			// TODO reduce the amount of log calls and put them in one log statement
+			// TODO reduce the amount of log calls and put them in one log
+			// statement
 			log.info("loader for this class " + Runtime.class.getClassLoader().getClass().getCanonicalName());
 			log.info("parent " + Runtime.class.getClassLoader().getParent().getClass().getCanonicalName());
 			log.info("system class loader " + ClassLoader.getSystemClassLoader());
-			log.info("parent should be null"
-					+ ClassLoader.getSystemClassLoader().getParent().getClass().getCanonicalName());
+			log.info("parent should be null" + ClassLoader.getSystemClassLoader().getParent().getClass().getCanonicalName());
 			log.info("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
-			log.info("thread context parent "
-					+ Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
+			log.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
 			log.info("refreshing classloader");
 
 			Class<?> cls = Class.forName(fullTypeName);
@@ -1438,8 +1406,7 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static String dump() {
-		StringBuffer sb = new StringBuffer()
-			.append("\nhosts:\n");
+		StringBuffer sb = new StringBuffer().append("\nhosts:\n");
 
 		Iterator<URI> hkeys = hosts.keySet().iterator();
 		URI url;
@@ -1450,11 +1417,9 @@ public class Runtime extends Service {
 		while (hkeys.hasNext()) {
 			url = hkeys.next();
 			se = hosts.get(url);
-			sb.append("\t")
-				.append(url);
+			sb.append("\t").append(url);
 			if ((se.accessURL != url) && (!url.equals(se.accessURL))) {
-				sb.append(" key not equal to data ")
-					.append(se.accessURL);
+				sb.append(" key not equal to data ").append(se.accessURL);
 			}
 			sb.append("\n");
 
@@ -1463,18 +1428,13 @@ public class Runtime extends Service {
 			while (it2.hasNext()) {
 				serviceName = it2.next();
 				sw = se.serviceDirectory.get(serviceName);
-				sb.append("\t\t")
-					.append(serviceName);
+				sb.append("\t\t").append(serviceName);
 				if ((sw.name != sw.name) && (!serviceName.equals(sw.name))) {
-					sb.append(" key not equal to data ")
-						.append(sw.name);
+					sb.append(" key not equal to data ").append(sw.name);
 				}
 
 				if ((sw.host.accessURL != url) && (!sw.host.accessURL.equals(url))) {
-					sb.append(" service wrapper host accessURL ")
-						.append(sw.host.accessURL)
-						.append(" not equal to ")
-						.append(url);
+					sb.append(" service wrapper host accessURL ").append(sw.host.accessURL).append(" not equal to ").append(url);
 				}
 				sb.append("\n");
 			}
@@ -1486,10 +1446,7 @@ public class Runtime extends Service {
 		while (rkeys.hasNext()) {
 			serviceName = rkeys.next();
 			sw = registry.get(serviceName);
-			sb.append("\n")
-				.append(serviceName)
-				.append(" ")
-				.append(sw.host.accessURL);
+			sb.append("\n").append(serviceName).append(" ").append(sw.host.accessURL);
 		}
 
 		return sb.toString();
@@ -1569,131 +1526,124 @@ public class Runtime extends Service {
 
 	/**
 	 * event fired when a new artifact is download
+	 * 
 	 * @param module
 	 * @return
 	 */
-	public String newArtifactsDownloaded (String module)
-	{
+	public String newArtifactsDownloaded(String module) {
 		return module;
 	}
-	
+
 	/**
 	 * 
 	 */
 	public void resolveEnd() {
 	}
-	
-	// FIXME - you don't need that many "typed" messages - resolve, resolveError, ... etc
+
+	// FIXME - you don't need that many "typed" messages - resolve,
+	// resolveError, ... etc
 	// just use & parse "message"
-	
-	public static String message(String msg)
-	{
+
+	public static String message(String msg) {
 		getInstance().invoke("publishMessage", msg);
 		log.info(msg);
 		return msg;
 	}
-	
-	public String publishMessage(String msg)
-	{
+
+	public String publishMessage(String msg) {
 		return msg;
 	}
-	
 
-	public static String getBleedingEdgeVersionString()
-	{
+	public static String getBleedingEdgeVersionString() {
 		try {
 			String listURL = "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/";
 			log.info(String.format("getting list of dist %s", listURL));
 			HTTPRequest http;
 			http = new HTTPRequest(listURL);
 			String s = http.getString();
-			log.info(String.format("recieved [%s]",s));
+			log.info(String.format("recieved [%s]", s));
 			log.info("parsing");
 			int p0 = s.lastIndexOf("intermediate");
 			int p1 = s.indexOf("</a>", p0);
-			String intermediate = s.substring(p0,p1);
+			String intermediate = s.substring(p0, p1);
 			log.info(intermediate);
 			return intermediate.trim();
 		} catch (Exception e) {
 			Service.logException(e);
 		}
-		
+
 		return null;
 	}
-	
-	public static void getBleedingEdgeMyRobotLabJar()
-	{
-		
+
+	public static void getBleedingEdgeMyRobotLabJar() {
+
 		try {
 			log.info("getBleedingEdgeMyRobotLabJar");
 			String intermediate = getBleedingEdgeVersionString();
-			//http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/*zip*/intermediate.757.20120902.1502.zip
-			//String latestBuildURL =  "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/"+intermediate+"/*zip*/"+intermediate+".zip";
+			// http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/*zip*/intermediate.757.20120902.1502.zip
+			// String latestBuildURL =
+			// "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/"+intermediate+"/*zip*/"+intermediate+".zip";
 			// http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/libraries/jar/myrobotlab.jar
-			String latestMRLJar =  "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/"+intermediate+"/libraries/jar/myrobotlab.jar";
+			String latestMRLJar = "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/" + intermediate + "/libraries/jar/myrobotlab.jar";
 			log.info(String.format("getting latest build from %s", latestMRLJar));
 			HTTPRequest zip = new HTTPRequest(latestMRLJar);
 			byte[] jarfile = zip.getBinary();
-			
+
 			File updateDir = new File("update");
 			updateDir.mkdir();
 			File backupDir = new File("backup");
 			backupDir.mkdir();
-			
-			FileOutputStream out = new FileOutputStream("update/myrobotlab.jar");  
-			try {  
-			    out.write(jarfile);  		    
+
+			FileOutputStream out = new FileOutputStream("update/myrobotlab.jar");
+			try {
+				out.write(jarfile);
 				log.info("getBleedingEdgeMyRobotLabJar - done - since there is an update you will probably want to run scripts/update.(sh)(bat) to replace the jar");
 			} catch (Exception e) {
 				Service.logException(e);
-			} finally {  
-			    out.close();  
-			}  
-			
-			// 
-					
+			} finally {
+				out.close();
+			}
+
+			//
+
 		} catch (IOException e) {
 			Service.logException(e);
 		}
 	}
-	
-	
+
 	static public void restart(String restartScript) {
 		log.info("new components - restart?");
 
-			Runtime.releaseAll();
-			try {
-				if (restartScript == null) {
-					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
-					} else {
-						java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");
-					}
+		Runtime.releaseAll();
+		try {
+			if (restartScript == null) {
+				if (Platform.isWindows()) {
+					java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");
 				} else {
-					if (Platform.isWindows()) {
-						java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
-					} else {
-						String command = String.format("./scripts/%s.sh", restartScript);
-						File exe = new File(command);  // FIXME - NORMALIZE !!!!!
-						if (!exe.setExecutable(true))
-						{
-							log.error(String.format("could not set %s to executable permissions", command));
-						}
-						java.lang.Runtime.getRuntime().exec(command);
-					}
+					java.lang.Runtime.getRuntime().exec("./myrobotlab.sh");
 				}
-			} catch (Exception ex) {
-				Service.logException(ex);
+			} else {
+				if (Platform.isWindows()) {
+					java.lang.Runtime.getRuntime().exec(String.format("cmd /c start scripts\\%s.cmd", restartScript));
+				} else {
+					String command = String.format("./scripts/%s.sh", restartScript);
+					File exe = new File(command); // FIXME - NORMALIZE !!!!!
+					if (!exe.setExecutable(true)) {
+						log.error(String.format("could not set %s to executable permissions", command));
+					}
+					java.lang.Runtime.getRuntime().exec(command);
+				}
 			}
-			System.exit(0);
+		} catch (Exception ex) {
+			Service.logException(ex);
+		}
+		System.exit(0);
 
 	}
-	
-	static public ServiceInterface getService(String name)
-	{
+
+	static public ServiceInterface getService(String name) {
 		ServiceWrapper sw = getServiceWrapper(name);
-		if (sw == null)
-		{
+		if (sw == null) {
 			log.error(String.format("getService %s not found", name));
 			return null;
 		}

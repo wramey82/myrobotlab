@@ -34,6 +34,7 @@ public interface SensorDataPublisher {
 	public final static String publishPin = "publishPin";
 
 	public Pin publishPin(Pin p);
+
 	public ArrayList<Pin> getPinList();
 
 }

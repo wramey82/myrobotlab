@@ -23,9 +23,7 @@
  * 
  * */
 
-
 package org.myrobotlab.opencv;
-
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
@@ -44,9 +42,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterFauvist extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterFauvist.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterFauvist.class.getCanonicalName());
 
 	IplImage gray = null;
 	IplImage inlines = null;

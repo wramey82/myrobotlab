@@ -29,27 +29,33 @@ import java.util.ArrayList;
 
 import org.myrobotlab.service.data.Pin;
 
-
 public interface MotorController {
 
 	/**
-	 * Remote attachment activation - used by services not in the same instance to attach a Motor
-	 * to a MotorController
+	 * Remote attachment activation - used by services not in the same instance
+	 * to attach a Motor to a MotorController
 	 * 
 	 * @param motorName
 	 * @param motorData
 	 */
-	public boolean motorAttach(String motorName, Object... motorData); // PWMPin=9;directionPin=10; ?? would motorAttach(String motorName, Object...data) be better?
-	
-		
+	public boolean motorAttach(String motorName, Object... motorData); // PWMPin=9;directionPin=10;
+																		// ??
+																		// would
+																		// motorAttach(String
+																		// motorName,
+																		// Object...data)
+																		// be
+																		// better?
+
 	/**
-	 * This is basic information to request from a Controller.  
-	 * A list of pins on the controller so GUIs or other services
-	 * can figure out if there are any appropriate
+	 * This is basic information to request from a Controller. A list of pins on
+	 * the controller so GUIs or other services can figure out if there are any
+	 * appropriate
+	 * 
 	 * @return
 	 */
 	public ArrayList<Pin> getPinList();
-	
+
 	/**
 	 * moveTo - move the Motor a relative amount the amount can be negative or
 	 * positive an integer value is expected
@@ -64,15 +70,13 @@ public interface MotorController {
 
 	/**
 	 * 
-	 * request for motor to move
-	 * the motor can be queried for the new powerlevel and the 
-	 * controller shall appropriately change power level and direction
+	 * request for motor to move the motor can be queried for the new powerlevel
+	 * and the controller shall appropriately change power level and direction
 	 * if necessary
 	 * 
 	 * @param name
 	 */
 	public void motorMove(String name);
-
 
 	/**
 	 * MotorDetach - detach the Motor from a specific pin on the controller
@@ -81,12 +85,13 @@ public interface MotorController {
 	 *            - name of the Motor
 	 * @return void
 	 */
-	public boolean motorDetach (String name);
-	
+	public boolean motorDetach(String name);
+
 	public String getName();
-	
+
 	/**
 	 * method to return motor information
+	 * 
 	 * @param motorName
 	 * @return
 	 */

@@ -42,8 +42,7 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
  * It knows nothing about protocols, serialization methods, or communication methods.
  */
 
-public class Outbox implements Runnable, Serializable 
-{
+public class Outbox implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Outbox.class.getCanonicalName());
 
@@ -71,27 +70,23 @@ public class Outbox implements Runnable, Serializable
 	public void setCommunicationManager(CommunicationInterface c) {
 		this.comm = c;
 	}
-	
-	public void start()
-	{
-		for (int i = outboxThreadPool.size(); i < initialThreadCount; ++i)
-		{	
-			Thread t =  new Thread(this, myService.getName() + "_outbox_" + i);
+
+	public void start() {
+		for (int i = outboxThreadPool.size(); i < initialThreadCount; ++i) {
+			Thread t = new Thread(this, myService.getName() + "_outbox_" + i);
 			outboxThreadPool.add(t);
 			t.start();
-		}				
+		}
 	}
-	
-	public void stop()
-	{
+
+	public void stop() {
 		isRunning = false;
-		for (int i = 0; i < outboxThreadPool.size(); ++i)
-		{	
-			Thread t =  outboxThreadPool.get(i);
+		for (int i = 0; i < outboxThreadPool.size(); ++i) {
+			Thread t = outboxThreadPool.get(i);
 			t.interrupt();
 			outboxThreadPool.remove(i);
 			t = null;
-		}						
+		}
 	}
 
 	@Override
@@ -102,7 +97,7 @@ public class Outbox implements Runnable, Serializable
 			synchronized (msgBox) {
 				try {
 					while (msgBox.size() == 0) {
-						//log.debug("outbox run WAITING ");
+						// log.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
 					}
 				} catch (InterruptedException ex) {
@@ -120,9 +115,7 @@ public class Outbox implements Runnable, Serializable
 			// all of this needs to be controlled by Service paramters
 			// TODO - clean up - (name || hostname && serviceport) &&
 			// outboxMsgHandling == RELAY
-			if (msg.getName().length() > 0
-					&& myService.outboxMsgHandling.compareTo(Service.RELAY) == 0
-					|| "S".equals(msg.msgType)) {
+			if (msg.getName().length() > 0 && myService.outboxMsgHandling.compareTo(Service.RELAY) == 0 || "S".equals(msg.msgType)) {
 				log.info("configured to RELAY " + msg.getName());
 				comm.send(msg);
 
@@ -130,12 +123,16 @@ public class Outbox implements Runnable, Serializable
 
 			if (notifyList.size() != 0) {
 
-				// key is now sendingMethod.destName.methodName - parameterType are
+				// key is now sendingMethod.destName.methodName - parameterType
+				// are
 				// left out until invoke time
-				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod); // Get the value for
-															// the sourceMethod
+				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod); // Get
+																					// the
+																					// value
+																					// for
+				// the sourceMethod
 				if (subList == null) {
-					log.debug("no static route for " + msg.sender + "." + msg.sendingMethod); 
+					log.debug("no static route for " + msg.sender + "." + msg.sendingMethod);
 					// This will cause issues in broadcasts
 					continue;
 				}
@@ -155,8 +152,7 @@ public class Outbox implements Runnable, Serializable
 					comm.send(msg);
 				}
 			} else {
-				log.debug(msg.getName() + "/" + msg.method + "#"
-						+ msg.getParameterSignature() + " notifyList is empty");
+				log.debug(msg.getName() + "/" + msg.method + "#" + msg.getParameterSignature() + " notifyList is empty");
 				continue;
 			}
 
@@ -170,22 +166,21 @@ public class Outbox implements Runnable, Serializable
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
 				try {
-					//log.debug("outbox enque msg WAITING ");
+					// log.debug("outbox enque msg WAITING ");
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
 					log.debug("outbox add enque msg INTERRUPTED ");
 				}
 
-			// we warn if over 10 messages are in the queue - but we will still process them
+			// we warn if over 10 messages are in the queue - but we will still
+			// process them
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				log.warn(" outbox BUFFER OVERRUN size "
-						+ msgBox.size());
+				log.warn(" outbox BUFFER OVERRUN size " + msgBox.size());
 			}
 			msgBox.addFirst(msg);
-			
-			if (log.isDebugEnabled())
-			{
+
+			if (log.isDebugEnabled()) {
 				log.debug(String.format("msg [%s.%s (%s)]", msg.name, msg.method, msg.getParameterSignature()));
 			}
 			msgBox.notifyAll(); // must own the lock

@@ -44,7 +44,7 @@ public class TestCatcherGUI extends ServiceGUI {
 	public TestCatcherGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		display.add(new JLabel("catchInteger : "), gc);
@@ -62,7 +62,7 @@ public class TestCatcherGUI extends ServiceGUI {
 	// directory
 	// autoBind(ServiceName) would send all NotificationEntries to a service
 	public void bindCatchInteger() {
-		MRLListener MRLListener = new MRLListener("catchInteger", myService.getName(), "catchInteger",  new Class[]{Integer.class});
+		MRLListener MRLListener = new MRLListener("catchInteger", myService.getName(), "catchInteger", new Class[] { Integer.class });
 		myService.send(boundServiceName, "addListener", MRLListener);
 	}
 
@@ -76,12 +76,10 @@ public class TestCatcherGUI extends ServiceGUI {
 				public void actionPerformed(ActionEvent e) {
 					if (bindCatchIntegerButton.getText().compareTo("connect") == 0) {
 						bindCatchIntegerButton.setText("disconnect");
-						subscribe("catchInteger", "catchInteger",
-								SerializableImage.class);
+						subscribe("catchInteger", "catchInteger", SerializableImage.class);
 					} else {
 						bindCatchIntegerButton.setText("connect");
-						unsubscribe("catchInteger", "catchInteger",
-								SerializableImage.class);
+						unsubscribe("catchInteger", "catchInteger", SerializableImage.class);
 					}
 				}
 

@@ -52,11 +52,10 @@ public class VideoWidget extends ServiceGUI {
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
 	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 	boolean allowFork = false;
-	//JComboBox localSources = null;
-	
 
-	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork)
-	{
+	// JComboBox localSources = null;
+
+	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork) {
 		this(boundFilterName, myService);
 		this.allowFork = allowFork;
 	}
@@ -64,25 +63,21 @@ public class VideoWidget extends ServiceGUI {
 	public VideoWidget(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
 
 	public ArrayList<VideoWidget> getExports() {
 		return exports;
 	}
 
-	
-	
 	public JComboBox getServices(JComboBox cb) {
 		if (cb == null) {
 			cb = new JComboBox();
 		}
-				
-		//Runtime.getServicesFromInterface(interfaceName);
+
+		// Runtime.getServicesFromInterface(interfaceName);
 		ServiceEnvironment se = Runtime.getLocalServices();
 		Map<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(se.serviceDirectory);
 		Iterator<String> it = sortedMap.keySet().iterator();
-		
+
 		// String [] namesAndClasses = new String[sortedMap.size()];
 		while (it.hasNext()) {
 			String serviceName = it.next();
@@ -92,98 +87,88 @@ public class VideoWidget extends ServiceGUI {
 		return cb;
 	}
 
-
-
 	@Override
 	public void attachGUI() {
 		subscribe("publishFrame", "displayFrame", SerializableImage.class);
 	}
 
-	
 	public void attachGUI(String srcMethod, String dstMethod, Class<?> c) {
 		subscribe(srcMethod, dstMethod, c);
 	}
-	
-	
+
 	@Override
 	public void detachGUI() {
 		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);
 	}
 
-	//VideoDisplayPanel vid = new VideoDisplayPanel("output"); 
+	// VideoDisplayPanel vid = new VideoDisplayPanel("output");
 
 	int videoDisplayXPos = 0;
 	int videoDisplayYPos = 0;
 
-	@Override // FIXME - do in constructor for krikey sakes !
+	@Override
+	// FIXME - do in constructor for krikey sakes !
 	public void init() {
 		init(null);
 	}
-	
-	public void init(ImageIcon icon)
-	{
+
+	public void init(ImageIcon icon) {
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(boundServiceName + " " + " video widget");
 		display.setBorder(title);
-		
-		addVideoDisplayPanel("output"); 
+
+		addVideoDisplayPanel("output");
 	}
-	
-	public VideoDisplayPanel addVideoDisplayPanel(String source)
-	{
+
+	public VideoDisplayPanel addVideoDisplayPanel(String source) {
 		return addVideoDisplayPanel(source, null);
 	}
 
-	public VideoDisplayPanel addVideoDisplayPanel(String source, ImageIcon icon)
-	{
+	public VideoDisplayPanel addVideoDisplayPanel(String source, ImageIcon icon) {
 		// FIXME FIXME FIXME - should be FlowLayout No?
-		
-		if (videoDisplayXPos%2 == 0)
-		{
+
+		if (videoDisplayXPos % 2 == 0) {
 			videoDisplayXPos = 0;
 			++videoDisplayYPos;
 		}
-		
+
 		gc.gridx = videoDisplayXPos;
 		gc.gridy = videoDisplayYPos;
 
-		VideoDisplayPanel vp = new VideoDisplayPanel(source, this,myService, boundServiceName);
-		
+		VideoDisplayPanel vp = new VideoDisplayPanel(source, this, myService, boundServiceName);
+
 		// add it to the map of displays
-		displays.put(source, vp);		
-		
+		displays.put(source, vp);
+
 		// add it to the display
 		display.add(vp.myDisplay, gc);
-		
-		++videoDisplayXPos;		
+
+		++videoDisplayXPos;
 		display.invalidate();
 		myService.pack();
-		
+
 		return vp;
 	}
-	
-	public void removeVideoDisplayPanel(String source)
-	{
-		if (!displays.containsKey(source))
-		{
+
+	public void removeVideoDisplayPanel(String source) {
+		if (!displays.containsKey(source)) {
 			log.error("cannot remove VideoDisplayPanel " + source);
 			return;
 		}
-		
+
 		VideoDisplayPanel vdp = displays.remove(source);
-		display.remove(vdp.myDisplay);		
-		//--videoDisplayXPos;		
+		display.remove(vdp.myDisplay);
+		// --videoDisplayXPos;
 		display.invalidate();
 		myService.pack();
 	}
-	
-	public void removeAllVideoDisplayPanels ()
-	{
+
+	public void removeAllVideoDisplayPanels() {
 		Iterator<String> itr = displays.keySet().iterator();
 		while (itr.hasNext()) {
 			String n = itr.next();
 			log.error("removing " + n);
-			//removeVideoDisplayPanel(n);
+			// removeVideoDisplayPanel(n);
 			VideoDisplayPanel vdp = displays.get(n);
 			display.remove(vdp.myDisplay);
 		}
@@ -191,38 +176,35 @@ public class VideoWidget extends ServiceGUI {
 		videoDisplayXPos = 0;
 		videoDisplayYPos = 0;
 	}
-	
-	
-	
-	public void displayFrame(byte[] imgBytes)
-	{
+
+	public void displayFrame(byte[] imgBytes) {
 		try {
-			ByteArrayInputStream in = new ByteArrayInputStream (imgBytes);
+			ByteArrayInputStream in = new ByteArrayInputStream(imgBytes);
 			BufferedImage bi = ImageIO.read(in);
 			displayFrame(bi);
 		} catch (IOException e) {
 			Service.logException(e);
 		}
 	}
-	
-	/* 
+
+	/*
 	 * displayFrame(BufferedImage img) is for handling non-serializable images
-	 * from the Graphics Service - its an optimization kludge
-	 * another optimization is to create a single SerializableImage as a container
-	 * and replace only the new BufferedImage 
+	 * from the Graphics Service - its an optimization kludge another
+	 * optimization is to create a single SerializableImage as a container and
+	 * replace only the new BufferedImage
 	 */
 	SerializableImage container = new SerializableImage();
+
 	public void displayFrame(BufferedImage img) {
 		container.setImage(img);
 		container.source = "output";
 		displays.get("output").displayFrame(container);
 	}
-	
+
 	// multiplex images if desired
 	public void displayFrame(SerializableImage img) {
 
-		if (displays.containsKey(img.source))
-		{
+		if (displays.containsKey(img.source)) {
 			displays.get(img.source).displayFrame(img);
 		} else {
 			displays.get("output").displayFrame(img); // catchall

@@ -29,30 +29,31 @@ import java.text.DecimalFormat;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Vector3d;
 
-
 /**
- * This is the base class for all agent's kinematic.
- * A Kinematic performs the translation and rotation of the agent under the control of specific parameter.
+ * This is the base class for all agent's kinematic. A Kinematic performs the
+ * translation and rotation of the agent under the control of specific
+ * parameter.
  * 
  */
 public abstract class KinematicModel {
-    
 
+	/**
+	 * Compute instant translation and rotation vectors .
+	 * 
+	 * @param elapsedSecond
+	 *            time elapsed
+	 * @param rotation
+	 *            current rotation
+	 * @param instantTranslation
+	 *            to store translation
+	 * @param instantRotation
+	 *            to store rotation
+	 */
+	protected abstract void update(double elapsedSecond, Transform3D rotation, Vector3d instantTranslation, Vector3d instantRotation);
 
-    /** Compute instant translation and rotation vectors .
-     * 
-     * @param elapsedSecond time elapsed
-     * @param rotation current rotation
-     * @param instantTranslation to store translation
-     * @param instantRotation to store rotation
-     */ 
-    protected abstract void   update(double elapsedSecond,Transform3D rotation,Vector3d instantTranslation,Vector3d instantRotation);
+	/** Resets all control parameters to their initial values. */
+	protected abstract void reset();
 
-    
-   /** Resets all control parameters to their initial values. */       
-   protected abstract void reset();
-
-    
-   /** Returns string representation of the kinematicModel */       
-    protected abstract String toString(DecimalFormat format);
+	/** Returns string representation of the kinematicModel */
+	protected abstract String toString(DecimalFormat format);
 }

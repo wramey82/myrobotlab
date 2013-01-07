@@ -53,16 +53,16 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	VideoWidget video0;
 	Keyboard keyboard;
-	
+
 	IPCamera myIPCamera;
 
 	JButton connect;
 	JButton capture;
 	JLabel connected;
 	JLabel notConnected;
-	
+
 	JPanel info;
-	
+
 	DirectionWidget direction = new DirectionWidget();
 	DirectionEventListener del = new DirectionEventListener();
 
@@ -92,14 +92,15 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_RIGHT);
 			} else if ("stop".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_STOP_RIGHT);
-				//myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_CENTER);
+				// myService.send(boundServiceName, "move",
+				// IPCamera.FOSCAM_MOVE_CENTER);
 			} else if ("connect".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "connect", host.getText(), user.getText(), password.getText());
 			} else if ("capture".equals(ae.getActionCommand())) {
-				JButton b = (JButton)ae.getSource();
-				if ("stop capture".equals(b.getText()))
-				{	b.setText("capture");
-					myService.send(boundServiceName, "stopCapture");					
+				JButton b = (JButton) ae.getSource();
+				if ("stop capture".equals(b.getText())) {
+					b.setText("capture");
+					myService.send(boundServiceName, "stopCapture");
 				} else {
 					b.setText("stop capture");
 					myService.send(boundServiceName, "capture");
@@ -111,14 +112,14 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	public IPCameraGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myIPCamera = (IPCamera)Runtime.getServiceWrapper(boundServiceName).service;
+		myIPCamera = (IPCamera) Runtime.getServiceWrapper(boundServiceName).service;
 		direction.setDirectionListener(del);
 	}
 
 	JTextField host = new JTextField("192.168.0.68", 8);
 	JTextField user = new JTextField("admin", 8);
 	JPasswordField password = new JPasswordField("xxxxx", 8);
-	
+
 	public void init() {
 
 		video0 = new VideoWidget(boundServiceName, myService, false);
@@ -129,7 +130,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 		display.add(video0.display, gc);
 		gc.gridheight = 1;
-		
+
 		gc.gridx = 1;
 		display.add(new JLabel("ip"), gc);
 		++gc.gridx;
@@ -141,7 +142,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		++gc.gridx;
 		display.add(user, gc);
 		++gc.gridy;
-		
+
 		gc.gridx = 1;
 		display.add(new JLabel("password  "), gc);
 		++gc.gridx;
@@ -153,21 +154,24 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		connect.addActionListener(del);
 		display.add(connect, gc);
 		++gc.gridx;
-		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));// TODO move to IPCamera
+		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));// TODO
+																														// move
+																														// to
+																														// IPCamera
 		notConnected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_grey.png")));
 		display.add(notConnected, gc);
 		display.add(connected, gc);
 		connected.setVisible(false);
-		
+
 		++gc.gridy;
-		
+
 		gc.gridx = 1;
 		++gc.gridy;
 		gc.gridwidth = 2;
 		display.add(direction, gc);
 
 		info = new JPanel();
-		
+
 		capture = new JButton("capture");
 		capture.setActionCommand("capture");
 		capture.addActionListener(del);
@@ -188,8 +192,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss:SSS");
 
 		public void keyPressed(KeyEvent keyEvent) {
-			myService.send(boundServiceName, "keyPressed",
-					keyEvent.getKeyCode());
+			myService.send(boundServiceName, "keyPressed", keyEvent.getKeyCode());
 		}
 
 		public void keyReleased(KeyEvent keyEvent) {
@@ -202,29 +205,27 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	};
 
-	public void isConnected(Boolean b)
-	{
-		if (b)
-		{
+	public void isConnected(Boolean b) {
+		if (b) {
 			connected.setVisible(true);
 			notConnected.setVisible(false);
 		} else {
 			connected.setVisible(false);
 			notConnected.setVisible(true);
 		}
-		
+
 	}
-	
+
 	/**
 	 * The return of IPCamera.getStatus which is used to test connectivity
+	 * 
 	 * @param s
 	 */
-	public void getStatus(String s)
-	{
+	public void getStatus(String s) {
 		info.removeAll();
 		info.add(new JLabel(s));
 	}
-	
+
 	public void displayFrame(SerializableImage img) {
 
 		video0.displayFrame(img);
@@ -245,8 +246,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		unsubscribe("setEnableControls", "setEnableControls", Boolean.class);
 	}
 
-	public void setEnableControls(Boolean v)
-	{
+	public void setEnableControls(Boolean v) {
 		// from service -> prevents control on the service level
 		// event comes back and updates gui
 		direction.btnN.setEnabled(v);
@@ -254,9 +254,9 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		direction.btnE.setEnabled(v);
 		direction.btnW.setEnabled(v);
 		direction.btnStop.setEnabled(v);
-		//direction.setEnabled(v);
+		// direction.setEnabled(v);
 	}
-	
+
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		// TODO Auto-generated method stub

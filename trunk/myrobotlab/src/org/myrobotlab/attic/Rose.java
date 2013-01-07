@@ -82,11 +82,11 @@ public class Rose extends Service {
 	public void setMessageRoutes() {
 		/*
 		 * 
-		 * // tracking camera.addListener("publish", tracker.getName(), "center",
-		 * CvPoint.class.getCanonicalName()); tracker.addListener("correctX",
-		 * pan.getName(), "move", Integer.class.getCanonicalName());
-		 * tracker.addListener("correctY", tilt.getName(), "move",
-		 * Integer.class.getCanonicalName());
+		 * // tracking camera.addListener("publish", tracker.getName(),
+		 * "center", CvPoint.class.getCanonicalName());
+		 * tracker.addListener("correctX", pan.getName(), "move",
+		 * Integer.class.getCanonicalName()); tracker.addListener("correctY",
+		 * tilt.getName(), "move", Integer.class.getCanonicalName());
 		 */
 
 		// event set the polygons i see when there are new polygons
@@ -197,9 +197,11 @@ public class Rose extends Service {
 
 			Thread.sleep(2000);
 
-			tilt.attach(arduino.getName(), 6); // TODO - should have failed/thrown
-											// !!! make bug Servo does not have
-											// a analogWrite fn! out
+			tilt.attach(arduino.getName(), 6); // TODO - should have
+												// failed/thrown
+												// !!! make bug Servo does not
+												// have
+												// a analogWrite fn! out
 			pan.attach(arduino.getName(), 5); // TODO - allow gui to attach
 
 			center();

@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.serial.gnu;
 
 import gnu.io.SerialPort;
@@ -48,8 +47,7 @@ import org.apache.log4j.Logger;
 
 public class BinaryCommPort extends SerialPort {
 
-	public final static Logger log = Logger.getLogger(BinaryCommPort.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(BinaryCommPort.class.getCanonicalName());
 
 	private LineDriver lineDriver = null;
 
@@ -120,15 +118,13 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public void addEventListener(SerialPortEventListener arg0)
-			throws TooManyListenersException {
+	public void addEventListener(SerialPortEventListener arg0) throws TooManyListenersException {
 		// TODO Auto-generated method stub
 		log.info("addEventListener");
 	}
 
 	@Override
-	public int getBaudBase() throws UnsupportedCommOperationException,
-			IOException {
+	public int getBaudBase() throws UnsupportedCommOperationException, IOException {
 		log.info("getBaudBase");
 		// TODO ????????
 		return 9600;
@@ -153,8 +149,7 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public int getDivisor() throws UnsupportedCommOperationException,
-			IOException {
+	public int getDivisor() throws UnsupportedCommOperationException, IOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -310,15 +305,13 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public boolean setBaudBase(int arg0)
-			throws UnsupportedCommOperationException, IOException {
+	public boolean setBaudBase(int arg0) throws UnsupportedCommOperationException, IOException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean setCallOutHangup(boolean arg0)
-			throws UnsupportedCommOperationException {
+	public boolean setCallOutHangup(boolean arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -330,22 +323,19 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public boolean setDivisor(int arg0)
-			throws UnsupportedCommOperationException, IOException {
+	public boolean setDivisor(int arg0) throws UnsupportedCommOperationException, IOException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean setEndOfInputChar(byte arg0)
-			throws UnsupportedCommOperationException {
+	public boolean setEndOfInputChar(byte arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void setFlowControlMode(int arg0)
-			throws UnsupportedCommOperationException {
+	public void setFlowControlMode(int arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 
 	}
@@ -357,8 +347,7 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public boolean setParityErrorChar(byte arg0)
-			throws UnsupportedCommOperationException {
+	public boolean setParityErrorChar(byte arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -370,15 +359,13 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public void setSerialPortParams(int arg0, int arg1, int arg2, int arg3)
-			throws UnsupportedCommOperationException {
+	public void setSerialPortParams(int arg0, int arg1, int arg2, int arg3) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public boolean setUARTType(String arg0, boolean arg1)
-			throws UnsupportedCommOperationException {
+	public boolean setUARTType(String arg0, boolean arg1) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -402,22 +389,19 @@ public class BinaryCommPort extends SerialPort {
 	}
 
 	@Override
-	public void enableReceiveFraming(int arg0)
-			throws UnsupportedCommOperationException {
+	public void enableReceiveFraming(int arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void enableReceiveThreshold(int arg0)
-			throws UnsupportedCommOperationException {
+	public void enableReceiveThreshold(int arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void enableReceiveTimeout(int arg0)
-			throws UnsupportedCommOperationException {
+	public void enableReceiveTimeout(int arg0) throws UnsupportedCommOperationException {
 		// TODO Auto-generated method stub
 
 	}

@@ -13,24 +13,20 @@ import org.myrobotlab.serial.SerialDeviceFrameworkFactory;
 
 public class SerialDeviceFactoryGNU implements SerialDeviceFrameworkFactory {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
-	public ArrayList<String> getSerialDeviceNames()
-	{
+	public ArrayList<String> getSerialDeviceNames() {
 		// rxtx - you have to enumerate through port identifiers (bleh)
 		ArrayList<String> names = new ArrayList<String>();
 		ArrayList<SerialDevice> devices = getSerialDevices();
-		for (int i = 0; i < devices.size(); ++i)
-		{
+		for (int i = 0; i < devices.size(); ++i) {
 			names.add(devices.get(i).getName());
 		}
-		
+
 		return names;
 	}
 
-	public SerialDevice getSerialDevice(String name, int rate, int databits,
-			int stopbits, int parity) throws SerialDeviceException {
+	public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialDeviceException {
 
 		CommPortIdentifier portId;
 		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
@@ -44,10 +40,10 @@ public class SerialDeviceFactoryGNU implements SerialDeviceFrameworkFactory {
 		}
 		return null;
 	}
-	
 
 	/**
 	 * An ugly way of "simply" getting names
+	 * 
 	 * @return
 	 */
 	private ArrayList<SerialDevice> getSerialDevices() {

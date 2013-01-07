@@ -42,13 +42,11 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	static final long serialVersionUID = 1L;
 
 	CommunicationNodeList list = new CommunicationNodeList();
-	
+
 	public RemoteAdapterGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
-	
+
 	public void init() {
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -59,44 +57,48 @@ public class RemoteAdapterGUI extends ServiceGUI {
 		display.add(new JLabel("number of messages : 1388"), gc);
 		gc.gridx = 0;
 		++gc.gridy;
-		//list.setPreferredSize(new Dimension(arg0, arg1))
+		// list.setPreferredSize(new Dimension(arg0, arg1))
 		gc.gridwidth = 4;
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		display.add(list, gc);
 		/*
-	    list.model.add(0, (Object)new CommunicationNodeEntry("0.0.0.0:6432 -> 192.168.0.5:6767 latency 32ms rx 30 tx 120 msg 5 UDP", "3.gif"));
-	    list.model.add(0, (Object)new CommunicationNodeEntry("192.168.0.3:6767 disconnected ", "3.gif"));
-	    list.model.add(0, (Object)new CommunicationNodeEntry("0.0.0.0:6432 -> 192.168.0.4:6767 latency 14ms rx 12 tx 430 msg 5 UDP", "3.gif"));
-	    list.model.add(0, (Object)new CommunicationNodeEntry("0.0.0.0:6432 -> 192.168.0.7:6767 latency 05ms rx 14 tx 742 msg 5 UDP", "3.gif"));
-	    */
+		 * list.model.add(0, (Object)new CommunicationNodeEntry(
+		 * "0.0.0.0:6432 -> 192.168.0.5:6767 latency 32ms rx 30 tx 120 msg 5 UDP"
+		 * , "3.gif")); list.model.add(0, (Object)new
+		 * CommunicationNodeEntry("192.168.0.3:6767 disconnected ", "3.gif"));
+		 * list.model.add(0, (Object)new CommunicationNodeEntry(
+		 * "0.0.0.0:6432 -> 192.168.0.4:6767 latency 14ms rx 12 tx 430 msg 5 UDP"
+		 * , "3.gif")); list.model.add(0, (Object)new CommunicationNodeEntry(
+		 * "0.0.0.0:6432 -> 192.168.0.7:6767 latency 05ms rx 14 tx 742 msg 5 UDP"
+		 * , "3.gif"));
+		 */
 		updateNodeList();
 
 	}
 
-	public void updateNodeList()
-	{
+	public void updateNodeList() {
 		HashMap<URI, ServiceEnvironment> services = Runtime.getServiceEnvironments();
 		log.info("service count " + Runtime.getRegistry().size());
-				
+
 		Iterator<URI> it = services.keySet().iterator();
-		
+
 		list.model.removeAllElements();
 
 		while (it.hasNext()) {
 			URI url = it.next();
 			if (url != null) {
-				list.model.add(0, (Object)new CommunicationNodeEntry(url.toString(), "3.gif"));
+				list.model.add(0, (Object) new CommunicationNodeEntry(url.toString(), "3.gif"));
 			}
 		}
 
 	}
-	
+
 	public void getState(RemoteAdapter data) {
 		if (data != null) {
 			updateNodeList();
 		}
 	}
-	
+
 	@Override
 	public void attachGUI() {
 		subscribe("publishState", "getState", RemoteAdapter.class);
@@ -106,6 +108,5 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", RemoteAdapter.class);
 	}
-
 
 }

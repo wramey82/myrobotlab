@@ -28,52 +28,60 @@ public interface SerialDevice {
 
 	// identification
 	public abstract String getName();
-	//public abstract String getCurrentOwner();
-	//public abstract int getPortType();
-	//public abstract boolean isCurrentlyOwned();
-	public abstract int	available();
-	
+
+	// public abstract String getCurrentOwner();
+	// public abstract int getPortType();
+	// public abstract boolean isCurrentlyOwned();
+	public abstract int available();
+
 	// open / close
 	public abstract void open() throws SerialDeviceException;
-	//public abstract SerialDevice open(FileDescriptor f) throws SerialDeviceException; 
-	//public abstract SerialDevice open(String TheOwner, int i) throws SerialDeviceException;
+
+	// public abstract SerialDevice open(FileDescriptor f) throws
+	// SerialDeviceException;
+	// public abstract SerialDevice open(String TheOwner, int i) throws
+	// SerialDeviceException;
 	public abstract boolean isOpen();
 
 	public abstract void close();
-	
-	// input/output 
-	//public abstract InputStream getInputStream() throws IOException;
-	//public abstract OutputStream getOutputStream() throws IOException;
+
+	// input/output
+	// public abstract InputStream getInputStream() throws IOException;
+	// public abstract OutputStream getOutputStream() throws IOException;
 
 	// serial parameters
 	public abstract void setParams(int b, int d, int s, int p) throws SerialDeviceException;
-	
-	// special serial methods/states
-//	public abstract boolean isDTR();
-	public abstract void setDTR(boolean state);
-	public abstract void setRTS(boolean state);
-//	public abstract boolean isCTS();
-//	public abstract boolean isDSR();
-//	public abstract boolean isCD();
-//	public abstract boolean isRI();
-//	public abstract boolean isRTS();
 
+	// special serial methods/states
+	// public abstract boolean isDTR();
+	public abstract void setDTR(boolean state);
+
+	public abstract void setRTS(boolean state);
+
+	// public abstract boolean isCTS();
+	// public abstract boolean isDSR();
+	// public abstract boolean isCD();
+	// public abstract boolean isRI();
+	// public abstract boolean isRTS();
 
 	// reading/listening events
 	public abstract void addEventListener(SerialDeviceEventListener lsnr) throws TooManyListenersException;
-	
+
 	public abstract void notifyOnDataAvailable(boolean enable);
 
-
-	// write methods 
+	// write methods
 	public abstract void write(int data) throws IOException;
+
 	public abstract void write(byte data) throws IOException;
+
 	public abstract void write(char data) throws IOException;
+
 	public abstract void write(int[] data) throws IOException;
+
 	public abstract void write(byte[] data) throws IOException;
+
 	public abstract void write(String data) throws IOException;
-	
+
 	public abstract int read() throws IOException;
 
-	
 }

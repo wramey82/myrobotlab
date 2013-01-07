@@ -44,8 +44,8 @@ public class Joystick extends Service {
 	public static final int NUM_BUTTONS = 12;
 
 	public static final int BUTTON_OFF = 0;
-	public static final int BUTTON_ON  = 1;
-	
+	public static final int BUTTON_ON = 1;
+
 	// public stick and hat compass positions
 	public static final int NUM_COMPASS_DIRS = 9;
 
@@ -95,40 +95,41 @@ public class Joystick extends Service {
 				/* Poll the controller */
 				controller.poll();
 
-				//StringBuffer buffer = new StringBuffer();
+				// StringBuffer buffer = new StringBuffer();
 
 				// TODO - selectively publish ... publish Direction? Yes
 				/* For each component, get it's name, and it's current value */
-				
+
 				for (int i = 0; i < components.length; i++) {
-					
+
 					/*
-					if (i > 0) {
-						buffer.append(", ");
-					}
-					*/
-					
+					 * if (i > 0) { buffer.append(", "); }
+					 */
+
 					Component component = components[i];
 					Identifier id = component.getIdentifier();
-					
+
 					String n = components[i].getName();
 					float data = components[i].getPollData();
 
 					// buffer.append(n);
-					// TODO - invoke based on invoke(String.trim(component.getName()), mapMultiplier(getName()), mapOffset(getName()) - REFACTOR REFACTOR !!!
+					// TODO - invoke based on
+					// invoke(String.trim(component.getName()),
+					// mapMultiplier(getName()), mapOffset(getName()) - REFACTOR
+					// REFACTOR !!!
 					if (Identifier.Axis.Z.equals(id)) {
 						if (lastValues[i] != data) {
 							if (ZAxisTransform) {
-								invoke("ZAxis", (int)(ZAxisMultiplier * data) + ZAxisOffset);
+								invoke("ZAxis", (int) (ZAxisMultiplier * data) + ZAxisOffset);
 							} else {
 								invoke("ZAxisRaw", data);
 							}
 						}
-						
+
 					} else if (Identifier.Axis.RZ.equals(id)) {
 						if (lastValues[i] != data) {
 							if (ZRotTransform) {
-								invoke("ZRotation", (int)(ZRotMultiplier * data) + ZRotOffset);
+								invoke("ZRotation", (int) (ZRotMultiplier * data) + ZRotOffset);
 							} else {
 								invoke("ZRotationRaw", data);
 							}
@@ -136,15 +137,15 @@ public class Joystick extends Service {
 					} else if (Identifier.Axis.X.equals(id)) {
 						if (lastValues[i] != data) {
 							if (XAxisTransform) {
-								invoke("XAxis", (int)(XAxisMultiplier * data) + XAxisOffset);
+								invoke("XAxis", (int) (XAxisMultiplier * data) + XAxisOffset);
 							} else {
 								invoke("XAxisRaw", data);
 							}
 						}
 					} else if (Identifier.Axis.Y.equals(id)) {
-						if (lastValues[i] != data) {							
+						if (lastValues[i] != data) {
 							if (YAxisTransform) {
-								invoke("YAxis", (int)(YAxisMultiplier * data) + YAxisOffset);
+								invoke("YAxis", (int) (YAxisMultiplier * data) + YAxisOffset);
 							} else {
 								invoke("YAxisRaw", data);
 							}
@@ -152,12 +153,13 @@ public class Joystick extends Service {
 					} else if (Identifier.Axis.POV.equals(id)) {
 						if (lastValues[i] != data) {
 							if (hatTransform) {
-								invoke("hatSwitch", (int)(hatMultiplier * data) + hatOffset);
+								invoke("hatSwitch", (int) (hatMultiplier * data) + hatOffset);
 							} else {
 								invoke("hatSwitchRaw", data);
 							}
 						}
-						// WTF ??? - A on Linux _0 on Windows, really? I mean really? Why?
+						// WTF ??? - A on Linux _0 on Windows, really? I mean
+						// really? Why?
 					} else if (Identifier.Button.A.equals(id) || Identifier.Button._0.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
@@ -183,7 +185,7 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button4", pos);
 						}
-					} else if (Identifier.Button.Z.equals(id) ||Identifier.Button._5.equals(id)) {
+					} else if (Identifier.Button.Z.equals(id) || Identifier.Button._5.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button5", pos);
@@ -198,22 +200,22 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button7", pos);
 						}
-					} else if (Identifier.Button.LEFT_THUMB2.equals(id) ||Identifier.Button._8.equals(id)) {
+					} else if (Identifier.Button.LEFT_THUMB2.equals(id) || Identifier.Button._8.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button8", pos);
 						}
-					} else if (Identifier.Button.RIGHT_THUMB2.equals(id) ||Identifier.Button._9.equals(id)) {
+					} else if (Identifier.Button.RIGHT_THUMB2.equals(id) || Identifier.Button._9.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button9", pos);
 						}
-					} else if (Identifier.Button.SELECT.equals(id) ||Identifier.Button._10.equals(id)) {
+					} else if (Identifier.Button.SELECT.equals(id) || Identifier.Button._10.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button10", pos);
 						}
-					} else if (Identifier.Button.UNKNOWN.equals(id) ||Identifier.Button._11.equals(id)) {
+					} else if (Identifier.Button.UNKNOWN.equals(id) || Identifier.Button._11.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
 							invoke("button11", pos);
@@ -223,27 +225,21 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button12", pos);
 						}
-					} 
+					}
 
 					lastValues[i] = data;
 
 					/*
-					buffer.append(": ");
-					if (components[i].isAnalog()) {
-						// Get the value at the last poll of this component 
-						buffer.append(components[i].getPollData());
-					} else {
-						buffer.append(components[i].getPollData());
-						if (components[i].getPollData() == 1.0f) {
-							buffer.append("On");
-						} else {
-							buffer.append("Off");
-						}
-					}
-					*/
+					 * buffer.append(": "); if (components[i].isAnalog()) { //
+					 * Get the value at the last poll of this component
+					 * buffer.append(components[i].getPollData()); } else {
+					 * buffer.append(components[i].getPollData()); if
+					 * (components[i].getPollData() == 1.0f) {
+					 * buffer.append("On"); } else { buffer.append("Off"); } }
+					 */
 				}
 
-				//log.info(buffer.toString());
+				// log.info(buffer.toString());
 				/*
 				 * Sleep for 20 millis, this is just so the example doesn't
 				 * thrash the system. FIXME - can a polling system be avoided -
@@ -264,9 +260,10 @@ public class Joystick extends Service {
 
 		for (int i = 0; i < controllers.length; i++) {
 			log.info(String.format("Found input device: %d %s", i, controllers[i].getName()));
-			//if (controllers[i].getType() == Controller.Type.GAMEPAD || controllers[i].getType() == Controller.Type.STICK) {
-				controllerNames.put(String.format("%d - %s", i, controllers[i].getName()), i);
-			//}
+			// if (controllers[i].getType() == Controller.Type.GAMEPAD ||
+			// controllers[i].getType() == Controller.Type.STICK) {
+			controllerNames.put(String.format("%d - %s", i, controllers[i].getName()), i);
+			// }
 			// search for gamepad or joystick
 		}
 	}
@@ -284,12 +281,11 @@ public class Joystick extends Service {
 		return false;
 	}
 
-
 	public boolean setController(int index) {
 		log.info(String.format("attaching controller %d", index));
 		if (index > -1 && index < controllers.length) {
 			controller = controllers[index];
-			//findRumblers(controller);
+			// findRumblers(controller);
 			log.info("here 1");
 			findCompIndices(controller);
 			log.info("here 2");
@@ -311,8 +307,7 @@ public class Joystick extends Service {
 
 	public void startPolling() {
 
-		if (pollingThread != null)
-		{
+		if (pollingThread != null) {
 			stopPolling();
 		}
 		pollingThread = new InputPollingThread(String.format("%s_polling", getName()));
@@ -354,8 +349,7 @@ public class Joystick extends Service {
 	 * Search the array of controllers until a suitable game pad controller is
 	 * found (either of type GAMEPAD or STICK).
 	 */
-	private Controller findGamePad(Controller[] cs)
-	{
+	private Controller findGamePad(Controller[] cs) {
 		Controller.Type type;
 		int i = 0;
 		while (i < cs.length) {
@@ -377,8 +371,7 @@ public class Joystick extends Service {
 	 * Search through comps[] for id, returning the corresponding array index,
 	 * or -1
 	 */
-	private int findCompIndex(Component[] comps, Component.Identifier id, String nm)
-	{
+	private int findCompIndex(Component[] comps, Component.Identifier id, String nm) {
 		Component c;
 		for (int i = 0; i < comps.length; i++) {
 			c = comps[i];
@@ -397,8 +390,7 @@ public class Joystick extends Service {
 	 * buttonsIdx[]. Ignore excessive buttons. If there aren't enough buttons,
 	 * then fill the empty spots in buttonsIdx[] with -1's.
 	 */
-	private void findButtons(Component[] comps)
-	{
+	private void findButtons(Component[] comps) {
 		buttonsIdx = new int[NUM_BUTTONS];
 		int numButtons = 0;
 		Component c;
@@ -608,8 +600,7 @@ public class Joystick extends Service {
 
 	// ------------------- trigger a rumbler -------------------
 
-	public void setRumbler(boolean switchOn)
-	{
+	public void setRumbler(boolean switchOn) {
 		if (rumblerIdx != -1) {
 			if (switchOn)
 				rumblers[rumblerIdx].rumble(0.8f); // almost full on for last
@@ -624,17 +615,17 @@ public class Joystick extends Service {
 	public boolean isRumblerOn() {
 		return rumblerOn;
 	}
-	
+
 	// ----Component Publishing Begin ---------
 	public Integer XAxis(Integer value) {
 		return value;
 	}
 
 	public Float XAxisRaw(Float value) {
-		log.debug(String.format("XAxisRaw %s",value));
+		log.debug(String.format("XAxisRaw %s", value));
 		return value;
 	}
-	
+
 	public Integer YAxis(Integer value) {
 		return value;
 	}
@@ -642,7 +633,7 @@ public class Joystick extends Service {
 	public Float YAxisRaw(Float value) {
 		return value;
 	}
-	
+
 	public Integer ZAxis(Integer value) {
 		return value;
 	}
@@ -650,7 +641,7 @@ public class Joystick extends Service {
 	public Float ZAxisRaw(Float value) {
 		return value;
 	}
-	
+
 	public Integer ZRotation(Integer value) {
 		return value;
 	}
@@ -658,175 +649,148 @@ public class Joystick extends Service {
 	public Float ZRotationRaw(Float value) {
 		return value;
 	}
-	
-	public Integer hatSwitch(Integer value)
-	{
-		return value;
-	}
-	
-	public Float hatSwitchRaw(Float value)
-	{
+
+	public Integer hatSwitch(Integer value) {
 		return value;
 	}
 
-	
-	public Integer button0 (Integer value)
-	{
+	public Float hatSwitchRaw(Float value) {
 		return value;
 	}
 
-	public Integer button1 (Integer value)
-	{
+	public Integer button0(Integer value) {
 		return value;
 	}
 
-	public Integer button2 (Integer value)
-	{
+	public Integer button1(Integer value) {
 		return value;
 	}
 
-	public Integer button3 (Integer value)
-	{
-		return value;
-	}
-	
-	public Integer button4 (Integer value)
-	{
+	public Integer button2(Integer value) {
 		return value;
 	}
 
-	public Integer button5 (Integer value)
-	{
+	public Integer button3(Integer value) {
 		return value;
 	}
 
-	public Integer button6 (Integer value)
-	{
+	public Integer button4(Integer value) {
 		return value;
 	}
 
-	public Integer button7 (Integer value)
-	{
-		return value;
-	}
-	
-	public Integer button8 (Integer value)
-	{
+	public Integer button5(Integer value) {
 		return value;
 	}
 
-	public Integer button9 (Integer value)
-	{
+	public Integer button6(Integer value) {
 		return value;
 	}
 
-	public Integer button10 (Integer value)
-	{
+	public Integer button7(Integer value) {
 		return value;
 	}
 
-	public Integer button11 (Integer value)
-	{
+	public Integer button8(Integer value) {
 		return value;
 	}
-	
-	public Integer button12 (Integer value)
-	{
+
+	public Integer button9(Integer value) {
 		return value;
 	}
-	
+
+	public Integer button10(Integer value) {
+		return value;
+	}
+
+	public Integer button11(Integer value) {
+		return value;
+	}
+
+	public Integer button12(Integer value) {
+		return value;
+	}
+
 	// ----Component Publishing End ---------
 	boolean hatTransform = false;
 	int hatMultiplier = 1;
 	int hatOffset = 0;
-	
-	public void setHatTransform(Integer multiplier, Integer offset)
-	{
+
+	public void setHatTransform(Integer multiplier, Integer offset) {
 		hatTransform = true;
 		hatMultiplier = multiplier;
 		hatOffset = offset;
 	}
-	
-	public void resetHatTransform()
-	{
+
+	public void resetHatTransform() {
 		hatTransform = false;
 		hatMultiplier = 1;
 		hatOffset = 0;
 	}
-	
+
 	boolean XAxisTransform = false;
 	int XAxisMultiplier = 1;
 	int XAxisOffset = 0;
-	
-	public void setXAxisTransform(Integer multiplier, Integer offset)
-	{
+
+	public void setXAxisTransform(Integer multiplier, Integer offset) {
 		XAxisTransform = true;
 		XAxisMultiplier = multiplier;
 		XAxisOffset = offset;
 	}
-	
-	public void resetXAxisTransform()
-	{
+
+	public void resetXAxisTransform() {
 		XAxisTransform = false;
 		XAxisMultiplier = 1;
 		XAxisOffset = 0;
 	}
-	
+
 	boolean YAxisTransform = false;
 	int YAxisMultiplier = 1;
 	int YAxisOffset = 0;
-	
-	public void setYAxisTransform(Integer multiplier, Integer offset)
-	{
+
+	public void setYAxisTransform(Integer multiplier, Integer offset) {
 		YAxisTransform = true;
 		YAxisMultiplier = multiplier;
 		YAxisOffset = offset;
 	}
-	
-	public void resetYAxisTransform()
-	{
+
+	public void resetYAxisTransform() {
 		YAxisTransform = false;
 		YAxisMultiplier = 1;
 		YAxisOffset = 0;
 	}
-	
-	
+
 	boolean ZAxisTransform = false;
 	int ZAxisMultiplier = 1;
 	int ZAxisOffset = 0;
-	
-	public void setZAxisTransform(Integer multiplier, Integer offset)
-	{
+
+	public void setZAxisTransform(Integer multiplier, Integer offset) {
 		ZAxisTransform = true;
 		ZAxisMultiplier = multiplier;
 		ZAxisOffset = offset;
 	}
-	
-	public void resetZAxisTransform()
-	{
+
+	public void resetZAxisTransform() {
 		ZAxisTransform = false;
 		ZAxisMultiplier = 1;
 		ZAxisOffset = 0;
 	}
-	
+
 	boolean ZRotTransform = false;
 	int ZRotMultiplier = 1;
 	int ZRotOffset = 0;
-	
-	public void setZRotTransform(Integer multiplier, Integer offset)
-	{
+
+	public void setZRotTransform(Integer multiplier, Integer offset) {
 		ZRotTransform = true;
 		ZRotMultiplier = multiplier;
 		ZRotOffset = offset;
 	}
-	
-	public void resetZRotTransform()
-	{
+
+	public void resetZRotTransform() {
 		ZRotTransform = false;
 		ZRotMultiplier = 1;
 		ZRotOffset = 0;
 	}
-	
+
 	public static void main(String args[]) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);

@@ -132,8 +132,10 @@ public class ConfigurationManager implements Serializable {
 	final String host;
 	final String serviceName;
 	final String serviceRoot;
-//	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> data = new ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>();
-//	static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> dataPrevious = null;
+	// static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>> data
+	// = new ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>();
+	// static ConcurrentHashMap<String, ConcurrentHashMap<String, Object>>
+	// dataPrevious = null;
 	static HashMap<String, HashMap<String, Object>> data = new HashMap<String, HashMap<String, Object>>();
 	static HashMap<String, HashMap<String, Object>> dataPrevious = null;
 	// boolean throwIfEmpty = false;
@@ -367,8 +369,7 @@ public class ConfigurationManager implements Serializable {
 		try {
 			ret = Integer.parseInt(v);
 		} catch (NumberFormatException ex) {
-			throw new CFGError("getInt " + path + "'s value " + v
-					+ " is not valid");
+			throw new CFGError("getInt " + path + "'s value " + v + " is not valid");
 		}
 
 		return ret;
@@ -395,8 +396,7 @@ public class ConfigurationManager implements Serializable {
 		try {
 			ret = Float.parseFloat(v);
 		} catch (NumberFormatException ex) {
-			throw new CFGError("getFloat " + path + "'s value " + v
-					+ " is not valid");
+			throw new CFGError("getFloat " + path + "'s value " + v + " is not valid");
 		}
 
 		return ret;
@@ -415,8 +415,7 @@ public class ConfigurationManager implements Serializable {
 			float v = Float.parseFloat(value);
 			return v;
 		} catch (NumberFormatException e) {
-			throw new CFGError("float " + name + "'s value " + value
-					+ " is not a valid it");
+			throw new CFGError("float " + name + "'s value " + value + " is not a valid it");
 		}
 	}
 
@@ -486,12 +485,12 @@ public class ConfigurationManager implements Serializable {
 	public Object set(String name, Object value) {
 		return set(serviceRoot, name, value);
 		/*
-		 * if (data.containsKey(serviceRoot)) { HashMap<String,Object>
-		 * p = data.get(serviceRoot); p.put(name, value); } else {
-		 * HashMap<String,Object> p = new
-		 * HashMap<String,Object>(); if (value == null) { throw new
-		 * CFGError("set " + name + " can not set null as value"); } p.put(name,
-		 * value); data.put(serviceRoot, p); }
+		 * if (data.containsKey(serviceRoot)) { HashMap<String,Object> p =
+		 * data.get(serviceRoot); p.put(name, value); } else {
+		 * HashMap<String,Object> p = new HashMap<String,Object>(); if (value ==
+		 * null) { throw new CFGError("set " + name +
+		 * " can not set null as value"); } p.put(name, value);
+		 * data.put(serviceRoot, p); }
 		 */
 
 	}
@@ -517,22 +516,19 @@ public class ConfigurationManager implements Serializable {
 	 */
 	public Object set(String name, Boolean value) {
 		if (value == null)
-			throw (new CFGError("near primitive object " + name
-					+ " can not be set to null"));
+			throw (new CFGError("near primitive object " + name + " can not be set to null"));
 		return set(name, value.booleanValue());
 	}
 
 	public Object set(String name, Integer value) {
 		if (value == null)
-			throw (new CFGError("near primitive object " + name
-					+ " can not be set to null"));
+			throw (new CFGError("near primitive object " + name + " can not be set to null"));
 		return set(name, value.intValue());
 	}
 
 	public Object set(String name, Float value) {
 		if (value == null)
-			throw (new CFGError("near primitive object " + name
-					+ " can not be set to null"));
+			throw (new CFGError("near primitive object " + name + " can not be set to null"));
 		return set(name, value.floatValue());
 	}
 
@@ -540,8 +536,7 @@ public class ConfigurationManager implements Serializable {
 		DateFormat df = new SimpleDateFormat("yyyyMMdd:HHmmssSSS");
 
 		if (value == null) {
-			CFGError e = new CFGError("set (" + name
-					+ ", (Date) null) not valid ");
+			CFGError e = new CFGError("set (" + name + ", (Date) null) not valid ");
 			throw e;
 		}
 		if (value != null) {
@@ -632,7 +627,8 @@ public class ConfigurationManager implements Serializable {
 
 	}
 
-	// TODO save will save out the configuration associated with the current root
+	// TODO save will save out the configuration associated with the current
+	// root
 	public void save(String filename) {
 		try {
 			FileWriter outfile = new FileWriter(filename);
@@ -738,26 +734,22 @@ public class ConfigurationManager implements Serializable {
 			StringBuffer sb = new StringBuffer();
 			// Set<String> names = keySet(); // The set of names in the map.
 
-			
 			Iterator it = null;
 
-/*			
-			TODO !!!! - change Outer/Inner map to REAL TREE map of maps!!!!!!
-			String rootPrefix = "";
-			if (getRoot() == null || getRoot().length() == 0)
-			{	// root level
-				it = data.keySet().iterator();
-			} else {
-				// host level
-				it = data.get(getRoot()).keySet().iterator();
-				rootPrefix = getRoot() + PATH_DELIMETER;
-			}
-*/			
+			/*
+			 * TODO !!!! - change Outer/Inner map to REAL TREE map of maps!!!!!!
+			 * String rootPrefix = ""; if (getRoot() == null ||
+			 * getRoot().length() == 0) { // root level it =
+			 * data.keySet().iterator(); } else { // host level it =
+			 * data.get(getRoot()).keySet().iterator(); rootPrefix = getRoot() +
+			 * PATH_DELIMETER; }
+			 */
 			it = data.keySet().iterator();
-							
+
 			// TODO - make keys
 			while (it.hasNext()) {
-//				String rootKey = rootPrefix + (String) it.next();  TODO TREE is map of map
+				// String rootKey = rootPrefix + (String) it.next(); TODO TREE
+				// is map of map
 				String rootKey = (String) it.next();
 				Iterator inner = data.get(rootKey).keySet().iterator();
 				HashMap<String, Object> innerProperties = data.get(rootKey);
@@ -768,8 +760,7 @@ public class ConfigurationManager implements Serializable {
 					String fullKey = rootKey + PATH_DELIMETER + elementKey;
 					// sb.append(it.next() + PATH_DELIMETER + inner.next() + "="
 					// + data.get(it.next()).get(inner.next()) );
-					sb.append(fullKey + "=" + innerProperties.get(elementKey)
-							+ "\n");
+					sb.append(fullKey + "=" + innerProperties.get(elementKey) + "\n");
 				}
 			}
 
@@ -781,8 +772,7 @@ public class ConfigurationManager implements Serializable {
 		return toString(null);
 	}
 
-	public void loadFromXML(InputStream in) throws IOException,
-			InvalidPropertiesFormatException {
+	public void loadFromXML(InputStream in) throws IOException, InvalidPropertiesFormatException {
 		// data.loadFromXML(in);
 	}
 
@@ -790,8 +780,7 @@ public class ConfigurationManager implements Serializable {
 		// data.storeToXML(os, comment);
 	}
 
-	void storeToXML(OutputStream os, String comment, String encoding)
-			throws IOException {
+	void storeToXML(OutputStream os, String comment, String encoding) throws IOException {
 		// data.storeToXML(os, comment, encoding);
 	}
 
@@ -800,8 +789,7 @@ public class ConfigurationManager implements Serializable {
 	}
 
 	public Object getLocalServiceHandle(final String name) {
-		return (Object) get("service/" + name + "/localServiceHandle",
-				(Object) null);
+		return (Object) get("service/" + name + "/localServiceHandle", (Object) null);
 	}
 
 	public ServiceEntry getServiceEntry(final String name) {
@@ -813,8 +801,7 @@ public class ConfigurationManager implements Serializable {
 			se.serviceClass = get("service/" + name + "/serviceClass");
 			se.servicePort = getInt("service/" + name + "/servicePort");
 			se.lastModified = getDate("service/" + name + "/lastModified");
-			se.localServiceHandle = get("service/" + name
-					+ "/localServiceHandle", (Object) null);
+			se.localServiceHandle = get("service/" + name + "/localServiceHandle", (Object) null);
 			se.toolTip = get("service/" + name + "/toolTip");
 
 			return se;
@@ -836,32 +823,28 @@ public class ConfigurationManager implements Serializable {
 	}
 
 	/*
-	public MethodEntry getMethodEntry(final String serviceName, final String method) 
-	{
-		MethodEntry me = new MethodEntry();
-		String meName = get("service/" + serviceName + "/method/" + method, null);
-				
-		if (meName != null) {
-			//me.getName() = signature;
-			me.getName() = (String) get("service/" + serviceName + "/method/" + method + "/name", (Object) null);
-			me.returnType = (Class) get("service/" + serviceName + "/method/" + method + "/returnType", (Object) null);
-			me.parameterTypes = (Class[]) get("service/" + serviceName + "/method/" + method + "/parameterTypes", (Object) null);
-			return me;
-		}
+	 * public MethodEntry getMethodEntry(final String serviceName, final String
+	 * method) { MethodEntry me = new MethodEntry(); String meName =
+	 * get("service/" + serviceName + "/method/" + method, null);
+	 * 
+	 * if (meName != null) { //me.getName() = signature; me.getName() = (String)
+	 * get("service/" + serviceName + "/method/" + method + "/name", (Object)
+	 * null); me.returnType = (Class) get("service/" + serviceName + "/method/"
+	 * + method + "/returnType", (Object) null); me.parameterTypes = (Class[])
+	 * get("service/" + serviceName + "/method/" + method + "/parameterTypes",
+	 * (Object) null); return me; }
+	 * 
+	 * return null; }
+	 */
 
-		return null;
-	}
-	*/
-
-	public InterfaceEntry getInterfaceEntry(final String serviceName,
-			final String name) {
+	public InterfaceEntry getInterfaceEntry(final String serviceName, final String name) {
 		InterfaceEntry me = new InterfaceEntry();
-		String meName = get("service/" + serviceName + "/interface/" + name,
-				null);
+		String meName = get("service/" + serviceName + "/interface/" + name, null);
 		if (meName != null) {
 			me.name = name;
 			/* silly but reserved for future use */
-			// me.getName() = (Class)get("service/" + serviceName + "/interface/" +
+			// me.getName() = (Class)get("service/" + serviceName +
+			// "/interface/" +
 			// name + "/name", (Object)null);
 			return me;
 		}
@@ -901,25 +884,23 @@ public class ConfigurationManager implements Serializable {
 
 	}
 
-	public HashMap<String, MethodEntry> getMethodMap(String serviceName) 
-	{
+	public HashMap<String, MethodEntry> getMethodMap(String serviceName) {
 		HashMap<String, MethodEntry> mem = new HashMap<String, MethodEntry>();
 
 		Iterator<String> it = keySet("service/" + serviceName + "/methods").iterator();
-//		Iterator<String> it = keySet("service/" + serviceName + "/method").iterator();
+		// Iterator<String> it = keySet("service/" + serviceName +
+		// "/method").iterator();
 		while (it.hasNext()) {
 			String signature = it.next();
 			MethodEntry me = MethodEntry.parseSignature(signature);
 			mem.put(signature, me);
 		}
-	
+
 		/*
-		it = keySet("service/" + serviceName + "/method").iterator();
-		while (it.hasNext()) {
-			String methodName = it.next();
-			mem.put(methodName, getMethodEntry(serviceName, methodName));
-		}
-		*/
+		 * it = keySet("service/" + serviceName + "/method").iterator(); while
+		 * (it.hasNext()) { String methodName = it.next(); mem.put(methodName,
+		 * getMethodEntry(serviceName, methodName)); }
+		 */
 
 		return mem;
 	}
@@ -932,8 +913,7 @@ public class ConfigurationManager implements Serializable {
 			Iterator<String> it = s.iterator();
 			while (it.hasNext()) {
 				String interfaceName = it.next();
-				mem.put(interfaceName, getInterfaceEntry(serviceName,
-						interfaceName));
+				mem.put(interfaceName, getInterfaceEntry(serviceName, interfaceName));
 			}
 		}
 
@@ -966,19 +946,30 @@ public class ConfigurationManager implements Serializable {
 
 	public void setServiceEntry(ServiceEntry se) {
 		setServiceEntry(
-				// se.host, host is not specified - because it "should" be a
-				// host level configuration that put it in
-				se.host, se.name, se.serviceClass, se.servicePort,
-				se.lastModified, se.localServiceHandle, se.toolTip);
+		// se.host, host is not specified - because it "should" be a
+		// host level configuration that put it in
+				se.host, se.name, se.serviceClass, se.servicePort, se.lastModified, se.localServiceHandle, se.toolTip);
 
 		if (se.methods != null) {
 			Iterator<String> it = se.methods.keySet().iterator();
 			while (it.hasNext()) {
 				MethodEntry me = se.methods.get(it.next());
-				setMethod(host, se.name, me.name, me.returnType,
-						me.parameterTypes); // FYI ! - if you have dependencies
-											// on types they will get dragged
-											// into Applet displays
+				setMethod(host, se.name, me.name, me.returnType, me.parameterTypes); // FYI
+																						// !
+																						// -
+																						// if
+																						// you
+																						// have
+																						// dependencies
+																						// on
+																						// types
+																						// they
+																						// will
+																						// get
+																						// dragged
+																						// into
+																						// Applet
+																						// displays
 			}
 		}
 
@@ -996,22 +987,19 @@ public class ConfigurationManager implements Serializable {
 
 	// setServiceEntry should be used with a host level cfg manager - e.g.
 	// ConfigurationManger cfg = new ConfigurationManager("localhost");
-	public void setServiceEntry(final String host, final String name,
-			final String serviceClass, final int servicePort,
-			final Date lastModified, final Object localServiceHandle, final String toolTip) {
+	public void setServiceEntry(final String host, final String name, final String serviceClass, final int servicePort, final Date lastModified, final Object localServiceHandle,
+			final String toolTip) {
 		// ConfigurationManager cfg = new ConfigurationManager();
 		set("service/" + name, "");
 		set("service/" + name + "/host", host);
 		set("service/" + name + "/serviceClass", serviceClass);
 		set("service/" + name + "/servicePort", servicePort);
 		set("service/" + name + "/lastModified", lastModified);
-		if (toolTip != null)
-		{
+		if (toolTip != null) {
 			set("service/" + name + "/toolTip", toolTip);
 		}
 		if (localServiceHandle != null) {
-			set("service/" + name + "/localServiceHandle",
-					(Object) localServiceHandle);
+			set("service/" + name + "/localServiceHandle", (Object) localServiceHandle);
 		}
 	}
 
@@ -1020,29 +1008,28 @@ public class ConfigurationManager implements Serializable {
 	// must be set with a host level config
 	// public void setMethod(final String host, final String serviceName, final
 	// String methodName, final String direction , final String dataClass )
-	public void setMethod(final String host, final String serviceName,
-			final String methodName, final Class returnType,
-			final Class[] parameterTypes) {
-		
-		String signature = MethodEntry.getSignature(methodName, parameterTypes, returnType);
-		//String signature = MethodEntry.getPrettySignature(methodName, parameterTypes, returnType);
-		//String signature = methodName;
+	public void setMethod(final String host, final String serviceName, final String methodName, final Class returnType, final Class[] parameterTypes) {
 
-		//set("service/" + serviceName + "/methods/" + signature, "");
-		
+		String signature = MethodEntry.getSignature(methodName, parameterTypes, returnType);
+		// String signature = MethodEntry.getPrettySignature(methodName,
+		// parameterTypes, returnType);
+		// String signature = methodName;
+
+		// set("service/" + serviceName + "/methods/" + signature, "");
+
 		set("service", "");
 		set("service/" + serviceName + "/methods/" + signature, "");
 		set("service/" + serviceName + "/methods/" + signature + "/name", methodName);
-		set("service/" + serviceName + "/methods/" + signature + "/returnType",returnType);
+		set("service/" + serviceName + "/methods/" + signature + "/returnType", returnType);
 		set("service/" + serviceName + "/methods/" + signature + "/parameterTypes", parameterTypes);
-		//set("service/" + serviceName + "/method/" + methodName + "/signature", signature);
+		// set("service/" + serviceName + "/method/" + methodName +
+		// "/signature", signature);
 	}
 
-	public void setInterface(final String host, final String serviceName,
-			final String interfaceName) {
+	public void setInterface(final String host, final String serviceName, final String interfaceName) {
 		set("service", "");
 		set("service/" + serviceName + "/interface/" + interfaceName, "");
-		set("service/" + serviceName + "/interface/" + interfaceName + "/name",interfaceName);
+		set("service/" + serviceName + "/interface/" + interfaceName + "/name", interfaceName);
 		// set("service/" + serviceName +"/interface/" + interfaceName,
 		// interfaceName);
 		// set("service/" + serviceName +"/method/" + methodName + "/direction",

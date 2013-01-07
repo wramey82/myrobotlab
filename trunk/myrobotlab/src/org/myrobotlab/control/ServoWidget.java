@@ -44,8 +44,7 @@ import org.myrobotlab.service.interfaces.GUI;
 //public class ServoWidget extends JPanel {
 public class ServoWidget extends ServiceGUI {
 
-	public final static Logger log = Logger.getLogger(ServoWidget.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(ServoWidget.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel dataLabel = null;
@@ -59,7 +58,7 @@ public class ServoWidget extends ServiceGUI {
 	public ServoWidget(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		// build input begin ------------------
@@ -105,8 +104,7 @@ public class ServoWidget extends ServiceGUI {
 					dataLabel.setText("" + slider.getValue());
 
 					if (myService != null) {
-						myService.send(boundServiceName, "moveTo", new Integer(
-								slider.getValue()));
+						myService.send(boundServiceName, "moveTo", new Integer(slider.getValue()));
 					} else {
 						log.error("can not send message myService is null");
 					}
@@ -116,7 +114,6 @@ public class ServoWidget extends ServiceGUI {
 		}
 		return slider;
 	}
-
 
 	private class DigitalButton extends JButton implements ActionListener {
 		private static final long serialVersionUID = 1L;

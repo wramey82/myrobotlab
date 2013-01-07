@@ -36,14 +36,14 @@ import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class TweedleBotGUI extends ServiceGUI {
-	
+
 	// if is local - can get a reference (experimental)
-	RobotPlatform localReference = null; 
+	RobotPlatform localReference = null;
 
 	JLabel speed = new JLabel("0.0");
 
 	// bindings begin --------------
-	
+
 	JLabel dimensionX = new JLabel("0.0");;
 	JLabel dimensionY = new JLabel("0.0");
 	JLabel dimensionZ = new JLabel("0.0");
@@ -55,12 +55,12 @@ public class TweedleBotGUI extends ServiceGUI {
 	JLabel targetX = new JLabel("0.0");
 	JLabel targetY = new JLabel("0.0");
 	JLabel targetZ = new JLabel("0.0");
-	
+
 	JLabel dhT = new JLabel("0.0");
 	JLabel speedLast = new JLabel("0.0");
 
 	JLabel power = new JLabel("0.0");
-	
+
 	JLabel headingCurrent = new JLabel("0.0");
 	JLabel headingTarget = new JLabel("0.0");
 	JLabel headingLast = new JLabel("0.0");
@@ -71,13 +71,11 @@ public class TweedleBotGUI extends ServiceGUI {
 	JLabel directionTarget = new JLabel("0.0");
 
 	JLabel inMotion = new JLabel("false");
-	
 
 	public TweedleBotGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
 
 		// position
@@ -90,7 +88,7 @@ public class TweedleBotGUI extends ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		//display.add(new JLabel("position (x,y,z)"));
+		// display.add(new JLabel("position (x,y,z)"));
 		p.add(new JLabel("(x,y) ("), gc);
 		++gc.gridx;
 		p.add(positionX, gc);
@@ -106,15 +104,14 @@ public class TweedleBotGUI extends ServiceGUI {
 		p.add(new JLabel("inMotion "), gc);
 		++gc.gridx;
 		p.add(inMotion, gc);
-		
+
 		display.add(p);
 
-		
 		// heading
 		title = BorderFactory.createTitledBorder("heading");
 		p = new JPanel(new GridBagLayout());
 		p.setBorder(title);
-		
+
 		gc.gridx = 0;
 		gc.gridy = 0;
 
@@ -132,16 +129,15 @@ public class TweedleBotGUI extends ServiceGUI {
 		p.add(new JLabel("dT "), gc);
 		++gc.gridx;
 		p.add(dhT, gc);
-		
+
 		gc.gridx = 0;
 		++gc.gridy;
 		p.add(new JLabel("speed "), gc);
 		++gc.gridx;
 		p.add(headingSpeed, gc);
 
-		
 		display.add(p);
-		
+
 		// target
 		title = BorderFactory.createTitledBorder("target");
 		p = new JPanel(new GridBagLayout());
@@ -159,29 +155,29 @@ public class TweedleBotGUI extends ServiceGUI {
 		p.add(targetY, gc);
 		++gc.gridx;
 		p.add(new JLabel(")"), gc);
-		
-		gc.gridx=0;
-		++gc.gridy;
-		p.add(new JLabel("bearing "),gc);
-		++gc.gridx;
-		p.add(headingTarget,gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
-		p.add(new JLabel("delta "),gc);
+		p.add(new JLabel("bearing "), gc);
 		++gc.gridx;
-		p.add(headingDelta,gc);
+		p.add(headingTarget, gc);
 
 		gc.gridx = 0;
 		++gc.gridy;
-		p.add(new JLabel("direction "),gc);
+		p.add(new JLabel("delta "), gc);
 		++gc.gridx;
-		p.add(directionTarget ,gc);
-		
+		p.add(headingDelta, gc);
+
+		gc.gridx = 0;
+		++gc.gridy;
+		p.add(new JLabel("direction "), gc);
+		++gc.gridx;
+		p.add(directionTarget, gc);
+
 		display.add(p);
 
-//		targetY.setPreferredSize(new Dimension(d.width+60,d.height));;
-		
+		// targetY.setPreferredSize(new Dimension(d.width+60,d.height));;
+
 	}
 
 	@Override
@@ -193,47 +189,42 @@ public class TweedleBotGUI extends ServiceGUI {
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", RobotPlatform.class);
 	}
-	
-	// new state function begin ---------------	
+
+	// new state function begin ---------------
 	// binding function TODO - do reflectively with default components?
-	public void getState(RobotPlatform t)
-	{
-		//dimensionX.setText(t.dimensionX.toString());
-		//dimensionY.setText(t.dimensionY.toString());
-		//dimensionZ.setText(t.dimensionZ.toString());
+	public void getState(RobotPlatform t) {
+		// dimensionX.setText(t.dimensionX.toString());
+		// dimensionY.setText(t.dimensionY.toString());
+		// dimensionZ.setText(t.dimensionZ.toString());
 
 		positionX.setText(Integer.toString(t.positionX));
 		positionY.setText(Integer.toString(t.positionY));
 
 		targetX.setText(Integer.toString(t.targetX));
 		targetY.setText(Integer.toString(t.targetY));
-				
+
 		dhT.setText(Long.toString(t.updateHeadingTime - t.updateHeadingTimeLast));
 
-		// TODO separate left & right power or a ratio factor for unbalanced wheels/motors
+		// TODO separate left & right power or a ratio factor for unbalanced
+		// wheels/motors
 		// TODO - possibly let motor deal with it?
-		//power.setText(t.power.toString());
-		
+		// power.setText(t.power.toString());
+
 		headingCurrent.setText(Integer.toString(t.headingCurrent));
 		headingTarget.setText(Integer.toString(t.headingTarget));
 		headingLast.setText(Integer.toString(t.headingLast));
 		headingDelta.setText(Integer.toString(t.headingDelta));
-		if (t.headingDelta < 0)
-		{
+		if (t.headingDelta < 0) {
 			directionTarget.setText("left");
-		} else if (t.headingDelta > 0)
-		{
-			directionTarget.setText("right");			
+		} else if (t.headingDelta > 0) {
+			directionTarget.setText("right");
 		} else {
-			directionTarget.setText("locked");						
+			directionTarget.setText("locked");
 		}
 		headingSpeed.setText(Integer.toString(t.headingSpeed));
-		
+
 		headingSpeed.setText(Integer.toString(t.headingSpeed));
-		
-		
-		
+
 	}
 
-	
 }

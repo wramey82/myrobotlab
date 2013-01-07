@@ -53,8 +53,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class FrogLeg extends Service {
 
-	public final static Logger log = Logger.getLogger(FrogLeg.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FrogLeg.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	public final static int IR_PIN = 1;
@@ -105,16 +104,11 @@ public class FrogLeg extends Service {
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "500", 500, 500, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "600", 600, 600, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
+		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "500", 500, 500, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "600", 600, 600, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
 		sensors.addListener("publish", this.getName(), "publish", Trigger.class);
 		camera.addListener("publish", gp.getName(), "evalCallBack", Rectangle.class);
 
@@ -193,7 +187,8 @@ public class FrogLeg extends Service {
 		camera.removeFilter("LKOpticalTrack");
 
 		// remove triggers
-		// camera.removeListener(outMethod, serviceName, inMethod, paramType); //
+		// camera.removeListener(outMethod, serviceName, inMethod, paramType);
+		// //
 		// TODO - make removable by query best
 		camera.removeListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
@@ -226,12 +221,11 @@ public class FrogLeg extends Service {
 
 			// add the optical track filters
 			opticalTrackFilter();
-			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", (Object[])null);
+			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", (Object[]) null);
 			camera.addListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
-			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
-					/ 2);
+			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height / 2);
 			Object[] params = new Object[1];
 			params[0] = (Object) p;
 
@@ -312,13 +306,10 @@ public class FrogLeg extends Service {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {
 				Y = Math.tan(0.01745 * (54.7 + (240 - p.y()) / 5.6)) * 17;
-				X = Math.sqrt(Y * Y + 17 * 17)
-						* Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
+				X = Math.sqrt(Y * Y + 17 * 17) * Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
 				if (!unique.containsKey((int) X + "," + (int) Y)) {
 					unique.put((int) X + "," + (int) Y, p);
-					ret += "Sketchup.active_model.entities.add_line ["
-							+ (int) X + ", " + (int) Y + ", " + 0 + "], ["
-							+ (int) X + ", " + (int) Y + ", " + 8 + "]\n";
+					ret += "Sketchup.active_model.entities.add_line [" + (int) X + ", " + (int) Y + ", " + 0 + "], [" + (int) X + ", " + (int) Y + ", " + 8 + "]\n";
 				}
 				// Log.error(p.x + "," + (int)z + "," + p.y);
 				// Math.sqrt(a)
@@ -368,10 +359,10 @@ public class FrogLeg extends Service {
 	public void stopCapture() {
 		camera.removeListener("publish", this.getName(), "capture", Rectangle.class);
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "experiment in genetic programming";
 	}
-	
+
 }

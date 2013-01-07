@@ -42,7 +42,7 @@ public class Arm extends Service {
 
 	int armLength = 0;
 	int formArmLength = 0;
-	
+
 	public Arm(String n) {
 		super(n, Arm.class.getCanonicalName());
 	}

@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.mapper.sim.Simulator;
 import org.myrobotlab.mapper.sim.World;
+
 /*
  * A Container for all the control panels (world, simulator).
  * @author Louis Hugues
@@ -39,18 +40,18 @@ public class ControlWindow extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	public ControlWindow(World world,  Simulator simulator){
-    	    super("Control");
-    	    createGui(world,simulator);
-    	}
-    	
-    	private void createGui(World world,Simulator simulator){
-    	    
-    	    JPanel panel = new JPanel();
-    	    setContentPane(panel);
-    	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    	    panel.add(new WorldControlGUI(world,simulator));
-       	panel.add(new SimulatorControlGUI((JFrame)getParent(),simulator));
-    	    pack();
-    	}
+	public ControlWindow(World world, Simulator simulator) {
+		super("Control");
+		createGui(world, simulator);
+	}
+
+	private void createGui(World world, Simulator simulator) {
+
+		JPanel panel = new JPanel();
+		setContentPane(panel);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(new WorldControlGUI(world, simulator));
+		panel.add(new SimulatorControlGUI((JFrame) getParent(), simulator));
+		pack();
+	}
 }

@@ -14,29 +14,27 @@ public class Chumby extends Service {
 	public Chumby(String n) {
 		super(n, Chumby.class.getCanonicalName());
 	}
-	
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used to generate pulses";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		Chumby chumby = new Chumby("chumby");
 		chumby.startService();
-		
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 	}
-
 
 }

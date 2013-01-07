@@ -800,7 +800,8 @@ public class Sketch {
 
 	/**
 	 * Handle export to applet.
-	 * @throws Throwable 
+	 * 
+	 * @throws Throwable
 	 */
 	public boolean exportApplet(String appletPath, boolean usingProgrammer) throws Throwable {
 
@@ -868,12 +869,10 @@ public class Sketch {
 		}
 
 		if (size > maxsize)
-			throw new RunnerException(
-					"Sketch too big; see http://www.arduino.cc/en/Guide/Troubleshooting#size for tips on reducing it.");
+			throw new RunnerException("Sketch too big; see http://www.arduino.cc/en/Guide/Troubleshooting#size for tips on reducing it.");
 	}
 
-	protected String upload(String buildPath, String suggestedClassName, boolean usingProgrammer)
-			throws Throwable {
+	protected String upload(String buildPath, String suggestedClassName, boolean usingProgrammer) throws Throwable {
 
 		Uploader uploader;
 
@@ -957,9 +956,8 @@ public class Sketch {
 		if (folder.exists())
 			return;
 
-		showWarning("Sketch Disappeared", "The sketch folder has disappeared.\n "
-				+ "Will attempt to re-save in the same location,\n" + "but anything besides the code will be lost.",
-				null);
+		showWarning("Sketch Disappeared", "The sketch folder has disappeared.\n " + "Will attempt to re-save in the same location,\n"
+				+ "but anything besides the code will be lost.", null);
 		try {
 			folder.mkdirs();
 			modified = true;
@@ -970,9 +968,8 @@ public class Sketch {
 			calcModified();
 
 		} catch (Exception e) {
-			showWarning("Could not re-save sketch", "Could not properly re-save the sketch. "
-					+ "You may be in trouble at this point,\n" + "and it might be time to copy and paste "
-					+ "your code to another text editor.", e);
+			showWarning("Could not re-save sketch", "Could not properly re-save the sketch. " + "You may be in trouble at this point,\n"
+					+ "and it might be time to copy and paste " + "your code to another text editor.", e);
 		}
 	}
 
@@ -1152,8 +1149,7 @@ public class Sketch {
 		String newName = sanitizeName(origName);
 
 		if (!newName.equals(origName)) {
-			String msg = "The sketch name had to be modified. Sketch names can only consist\n"
-					+ "of ASCII characters and numbers (but cannot start with a number).\n"
+			String msg = "The sketch name had to be modified. Sketch names can only consist\n" + "of ASCII characters and numbers (but cannot start with a number).\n"
 					+ "They should also be less less than 64 characters long.";
 			System.out.println(msg);
 		}
@@ -1189,8 +1185,7 @@ public class Sketch {
 			buffer.append('_');
 		}
 		for (int i = 0; i < c.length; i++) {
-			if (((c[i] >= '0') && (c[i] <= '9')) || ((c[i] >= 'a') && (c[i] <= 'z'))
-					|| ((c[i] >= 'A') && (c[i] <= 'Z'))) {
+			if (((c[i] >= '0') && (c[i] <= '9')) || ((c[i] >= 'a') && (c[i] <= 'z')) || ((c[i] >= 'A') && (c[i] <= 'Z'))) {
 				buffer.append(c[i]);
 
 			} else {

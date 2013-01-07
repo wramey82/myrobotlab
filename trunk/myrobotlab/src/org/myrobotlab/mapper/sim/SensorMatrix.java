@@ -24,55 +24,62 @@
  */
 package org.myrobotlab.mapper.sim;
 
-
 /**
  * A luminance Matrix : a 2d array of normalized luminances. It can be obtained
  * from a vision sensor (Eye).
  */
-public class SensorMatrix extends SensorData{
+public class SensorMatrix extends SensorData {
 
-    private float array[];
-    public int width;
-    public int height;
+	private float array[];
+	public int width;
+	public int height;
 
-    public SensorMatrix(int width, int height) {
-        this.width = width;
-        this.height = height;
-        array = new float[width * height];
-    }
+	public SensorMatrix(int width, int height) {
+		this.width = width;
+		this.height = height;
+		array = new float[width * height];
+	}
 
-    public SensorMatrix(SensorMatrix lm) {
-        this.width = lm.width;
-        this.height = lm.height;
-        this.array = (float[]) lm.array.clone();
-    }
+	public SensorMatrix(SensorMatrix lm) {
+		this.width = lm.width;
+		this.height = lm.height;
+		this.array = (float[]) lm.array.clone();
+	}
 
-    /** Return the matrix height in pixels. */
-    public int getHeight(){ return height;}
-    /** Return the matrix width in pixels. */
-    public int getWidth(){return width;}
-    /** Access matrix element. */
-    public float get(int x, int y) {
-        return array[x + y * width];
-    }
+	/** Return the matrix height in pixels. */
+	public int getHeight() {
+		return height;
+	}
 
-    /**
-     * Access matrix element.
-     * 
-     * @param xf x coord in range 0..1
-     * @param yf y coord in range 0..1
-     * @return
-     */
-    public float get(float xf, float yf) {
-        return array[(int) (xf * width) + (int) (yf * height) * width];
-    }
+	/** Return the matrix width in pixels. */
+	public int getWidth() {
+		return width;
+	}
 
-    public float[] getArray() {
-        return array;
-    }
-    
-    public Object clone(){
-        return new SensorMatrix(this);
-    }
-   
+	/** Access matrix element. */
+	public float get(int x, int y) {
+		return array[x + y * width];
+	}
+
+	/**
+	 * Access matrix element.
+	 * 
+	 * @param xf
+	 *            x coord in range 0..1
+	 * @param yf
+	 *            y coord in range 0..1
+	 * @return
+	 */
+	public float get(float xf, float yf) {
+		return array[(int) (xf * width) + (int) (yf * height) * width];
+	}
+
+	public float[] getArray() {
+		return array;
+	}
+
+	public Object clone() {
+		return new SensorMatrix(this);
+	}
+
 }

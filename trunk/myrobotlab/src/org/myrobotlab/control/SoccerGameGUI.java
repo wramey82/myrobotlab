@@ -51,8 +51,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(SoccerGameGUI.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SoccerGameGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
@@ -84,8 +83,7 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 	public SoccerGameGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
 
 		keyboard = new Keyboard();
@@ -140,7 +138,7 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 		++gc.gridy;
 		gc.gridx = 0;
 		// ImageIcon pic = new ImageIcon("soccerball.jpg");
-		ImageIcon pic = createImageIcon("soccerball.jpg","its a soccer ball, duh");
+		ImageIcon pic = createImageIcon("soccerball.jpg", "its a soccer ball, duh");
 		display.add(new JLabel(pic), gc);
 
 		gc.gridx = 1;
@@ -213,8 +211,7 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myService.send(boundServiceName, "announce", announceValue
-						.getText());
+				myService.send(boundServiceName, "announce", announceValue.getText());
 			}
 
 		});
@@ -230,8 +227,7 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 				announceValue.setVisible(true);
 				announceButton.setVisible(true);
 			}
-			myService.send(boundServiceName, "playerCommand", keyEvent
-					.getKeyCode());
+			myService.send(boundServiceName, "playerCommand", keyEvent.getKeyCode());
 
 		}
 

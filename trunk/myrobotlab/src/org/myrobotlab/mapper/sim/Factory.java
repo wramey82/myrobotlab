@@ -24,12 +24,11 @@
  */
 package org.myrobotlab.mapper.sim;
 
-
 /**
  * Not used yet
- *
+ * 
  */
 public abstract class Factory {
-    
-//TODO 
+
+	// TODO
 }

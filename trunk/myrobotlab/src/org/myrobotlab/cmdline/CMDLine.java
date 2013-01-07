@@ -88,8 +88,7 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 		return containsKey(pSwitch);
 	}
 
-	public String getSafeArgument(final String pSwitch, int iIdx,
-			final String pDefault) {
+	public String getSafeArgument(final String pSwitch, int iIdx, final String pDefault) {
 		String sRet = new String("");
 
 		if (pDefault != null) {
@@ -100,8 +99,7 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 			return sRet;
 
 		String r = getArgument(pSwitch, iIdx);
-		if ((r == null || r.length() == 0) && (pDefault != null && pDefault.length() != 0))
-		{
+		if ((r == null || r.length() == 0) && (pDefault != null && pDefault.length() != 0)) {
 			return pDefault;
 		} else {
 			return r;
@@ -122,9 +120,8 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 		return "";
 
 	}
-	
-	public ArrayList<String> getArgumentList(final String pSwitch)
-	{
+
+	public ArrayList<String> getArgumentList(final String pSwitch) {
 		return get(pSwitch).m_strings;
 	}
 
@@ -156,25 +153,22 @@ public class CMDLine extends HashMap<String, CcmdParam> {
 
 	}
 
-	public String toString()
-	{
+	public String toString() {
 		StringBuffer ret = new StringBuffer();
-		for (int i = 0; i < args.length; ++i)
-		{
+		for (int i = 0; i < args.length; ++i) {
 			ret.append(args[i]).append(" ");
 		}
-		
+
 		return ret.toString();
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
-		if (cmdline.containsKey("-test"))
-		{
+		if (cmdline.containsKey("-test")) {
 			String service = cmdline.getSafeArgument("-service", 0, "");
 		}
-	}	
+	}
 }

@@ -25,10 +25,15 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -37,37 +42,71 @@ public class TrackingGUI extends ServiceGUI {
 	static final long serialVersionUID = 1L;
 	JLabel cnt = new JLabel("0");
 	JLabel latency = new JLabel("0");
+	JTextField status = new JTextField("", 20);
+	VideoWidget video0 = null;
 
 	public TrackingGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
-	public void init() 
-	{
-		JPanel p = new JPanel();
+	public void init() {
+		video0 = new VideoWidget(boundServiceName, myService, false);
+		video0.init();
+
+		status.setEditable(false);
+
+		JPanel p = new JPanel(new GridLayout(0, 2));
 		p.add(new JLabel("cnt "));
 		p.add(cnt);
 		p.add(new JLabel("latency "));
 		p.add(latency);
-		display.add(p);
+
+		display.setLayout(new BorderLayout());
+		display.add(video0.getDisplay(), BorderLayout.CENTER);
+		display.add(p, BorderLayout.EAST);
+		display.add(status, BorderLayout.SOUTH);
+	}
+
+	public void displayFrame(SerializableImage img) {
+		video0.displayFrame(img);
+	}
+
+	public void setStatus(final String newStatus) {
+		// SwingUtilities.invokeLater(new Runnable() {
+		// public void run() {
+		status.setText(newStatus); // JTextArea is thread safe
+		// }
+		// });
 	}
 
 	@Override
 	public void attachGUI() {
 		subscribe("publishState", "getState", Tracking.class);
+		subscribe("publishStatus", "setStatus", String.class);
+		subscribe("publishFrame", "displayFrame", SerializableImage.class);
+		video0.attachGUI(); // default attachment
 	}
 
 	@Override
 	public void detachGUI() {
-		subscribe("publishState", "getState", Tracking.class);
+		unsubscribe("publishState", "getState", Tracking.class);
+		unsubscribe("publishStatus", "setStatus", String.class);
+		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);
+		video0.detachGUI(); // default attachment
+
 	}
-	
+
+	public VideoWidget getLocalDisplay() {
+		// TODO Auto-generated method stub
+		return video0; // else return video1
+	}
+
 	public void getState(final Tracking tracker) {
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {			
-				
-				cnt.setText(String.format("%d ",tracker.cnt));
-				latency.setText(String.format("%d ms",tracker.latency));
+			public void run() {
+
+				cnt.setText(String.format("%d ", tracker.cnt));
+				latency.setText(String.format("%d ms", tracker.latency));
 			}
 		});
 	}

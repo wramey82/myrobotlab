@@ -1,20 +1,17 @@
 package org.myrobotlab.tracking;
 
-public class ObjectFinder  extends Thread {
-	
+public class ObjectFinder extends Thread {
+
 	private boolean isRunning = false;
-	
-	public void run()
-	{
+
+	public void run() {
 		isRunning = true;
-		while(isRunning)
-		{
-			
+		while (isRunning) {
+
 		}
 	}
-	
-	public void release()
-	{
+
+	public void release() {
 		isRunning = false;
 	}
 

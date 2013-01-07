@@ -8,11 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * @author gperry
- *
+ * 
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-
 public @interface ToolTip {
 	public String value();
 }

@@ -47,8 +47,7 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
@@ -96,8 +95,7 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 		lo_diff = CV_RGB(1, 12, 13);// cvScalar(20, 0.0, 0.5, 1.0);
 		up_diff = CV_RGB(1, 12, 13);
 
-		cvFloodFill(image, startPoint, fillColor,
-				lo_diff, up_diff, null, 4, null);
+		cvFloodFill(image, startPoint, fillColor, lo_diff, up_diff, null, 4, null);
 
 		fillColor = cvScalar(0.0, 255.0, 0.0, 1.0);
 		cvDrawRect(image, startPoint, startPoint, fillColor, 2, 1, 0);

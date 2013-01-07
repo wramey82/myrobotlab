@@ -40,53 +40,48 @@ public class FSM extends Service {
 
 	public final static Logger log = Logger.getLogger(FSM.class.getCanonicalName());
 
-	
 	HashMap<String, EventData> transistionStates = new HashMap<String, EventData>();
-	
+
 	// TODO - subsumption
-	public class EventData
-	{
+	public class EventData {
 		String name;
 		String method;
 		Object[] data;
 		HashMap<String, Boolean> supressedStates;
 	}
-	
+
 	public FSM(String n) {
 		super(n, FSM.class.getCanonicalName());
 	}
-	
-	public String inState(String newState)
-	{
-		if (transistionStates.containsKey(newState))
-		{
+
+	public String inState(String newState) {
+		if (transistionStates.containsKey(newState)) {
 			EventData ed = transistionStates.get(newState);
 			send(ed.name, ed.method, ed.data);
 		}
 		return newState;
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used to generate pulses";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		FSM fsm = new FSM("fsm");
 		fsm.startService();
-		
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 	}
-
 
 }

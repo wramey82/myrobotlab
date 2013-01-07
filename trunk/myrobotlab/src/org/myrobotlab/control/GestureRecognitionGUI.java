@@ -43,7 +43,7 @@ import org.myrobotlab.service.interfaces.GUI;
 public class GestureRecognitionGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	
+
 	VideoWidget video;
 
 	JButton captureButton = new JButton("capture");
@@ -52,56 +52,52 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 	JButton GestureRecognitionButton = new JButton("point cloud");
 	JButton depthCloudButton = new JButton("depth");
 	JButton imageCloudButton = new JButton("image");
-	
+
 	JPanel eastPanel = new JPanel();
-	
+
 	public GestureRecognitionGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 		video = new VideoWidget(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
-		
+
 		video.init();
-		
+
 		display.setLayout(new BorderLayout());
 		display.add(video.getDisplay(), BorderLayout.CENTER);
-		
-		eastPanel.setLayout(new GridLayout(6,1));
+
+		eastPanel.setLayout(new GridLayout(6, 1));
 		eastPanel.add(captureButton);
 		eastPanel.add(recordButton);
 		eastPanel.add(playbackButton);
 		eastPanel.add(depthCloudButton);
 		eastPanel.add(imageCloudButton);
-		
+
 		display.add(eastPanel, BorderLayout.EAST);
-		
+
 		captureButton.addActionListener(this);
 		recordButton.addActionListener(this);
 		playbackButton.addActionListener(this);
-		
+
 	}
 
-	
-	public void getState(GestureRecognition openni)
-	{
+	public void getState(GestureRecognition openni) {
 		// TODO - update state
 	}
 
-	public void publishFrame (SerializableImage si)
-	{
+	public void publishFrame(SerializableImage si) {
 		video.displayFrame(si);
 	}
-	
+
 	@Override
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
-		subscribe("publishState", "getState", GestureRecognition.class); 
-//		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
-		subscribe("publishFrame", "publishFrame", SerializableImage.class); 
+		subscribe("publishState", "getState", GestureRecognition.class);
+		// subscribe("publishFrame", "publishFrame", ShortBuffer.class);
+		subscribe("publishFrame", "publishFrame", SerializableImage.class);
 		myService.send(boundServiceName, "publishState");
-		
+
 	}
 
 	@Override
@@ -109,34 +105,27 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 		unsubscribe("publishState", "getState", GestureRecognition.class);
 	}
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		if (o == captureButton)
-		{
-			if (captureButton.getText().equals("capture"))
-			{
+		if (o == captureButton) {
+			if (captureButton.getText().equals("capture")) {
 				myService.send(boundServiceName, "capture");
 				captureButton.setText("stop capture");
 			} else {
 				myService.send(boundServiceName, "stopCapture");
 				captureButton.setText("capture");
 			}
-		} else if (o == recordButton) 
-		{
-			if (recordButton.getText().equals("record"))
-			{
+		} else if (o == recordButton) {
+			if (recordButton.getText().equals("record")) {
 				myService.send(boundServiceName, "record");
 				recordButton.setText("stop recording");
 			} else {
-				myService.send(boundServiceName, "stopRecording");				
+				myService.send(boundServiceName, "stopRecording");
 				recordButton.setText("record");
 			}
-		} else if (o == playbackButton) 
-		{
-			if (playbackButton.getText().equals("playback"))
-			{
+		} else if (o == playbackButton) {
+			if (playbackButton.getText().equals("playback")) {
 				myService.send(boundServiceName, "playback");
 				playbackButton.setText("stop playback");
 			} else {

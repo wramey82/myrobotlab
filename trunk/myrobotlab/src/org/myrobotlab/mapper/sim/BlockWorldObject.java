@@ -23,38 +23,34 @@
  * $Source: /cvsroot/simbad/src/simbad/sim/BlockWorldObject.java,v $
  */
 package org.myrobotlab.mapper.sim;
+
 import javax.media.j3d.Material;
 import javax.vecmath.Color3f;
-
 
 /**
  * Base Object for all simple block world objects (box,wall.).
  */
 public class BlockWorldObject extends StaticObject {
-   
 
- 
+	/** Set the object color */
+	public void setColor(Color3f color) {
+		Material mat = appearance.getMaterial();
+		Color3f ambient = new Color3f(color);
+		ambient.scale(0.3f);
+		mat.setAmbientColor(ambient);
+		color.clampMax(0.8f);
+		mat.setDiffuseColor(color);
+		// No specular color
+		Color3f specular = new Color3f(0, 0, 0);
+		mat.setSpecularColor(specular);
 
-    /** Set the object color */
-    public void setColor(Color3f color){
-        Material mat = appearance.getMaterial();
-        Color3f ambient = new Color3f(color);
-        ambient.scale(0.3f);
-        mat.setAmbientColor(ambient);
-        color.clampMax(0.8f);
-        mat.setDiffuseColor(color);
-        // No specular color
-        Color3f specular = new Color3f(0,0,0);
-        mat.setSpecularColor(specular);
-        
-        mat.setShininess(1f);
-        
-    }
-    /** Rotates the object counter clockwise. */
-    public void rotate90(int ntimes){
-        this.rotateY(ntimes*Math.PI/2.0);
-    }
-    
-   
-    
+		mat.setShininess(1f);
+
+	}
+
+	/** Rotates the object counter clockwise. */
+	public void rotate90(int ntimes) {
+		this.rotateY(ntimes * Math.PI / 2.0);
+	}
+
 }

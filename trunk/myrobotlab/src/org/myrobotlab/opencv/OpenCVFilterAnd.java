@@ -35,14 +35,11 @@ import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
-
 public class OpenCVFilterAnd extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterAnd.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterAnd.class.getCanonicalName());
 
 	IplImage buffer = null;
 	IplImage negativeImage = null;
@@ -65,11 +62,6 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 		return null;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public IplImage process(IplImage image) {

@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class ServiceEntry implements Serializable {
 
 	// TODO - make immutable?
-	
+
 	private static final long serialVersionUID = 1L;
 	public String host;
 	public int servicePort;

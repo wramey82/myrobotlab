@@ -66,8 +66,7 @@ public class Points3DPanel extends JPanel
 	private BranchGroup sceneBG;
 	private BoundingSphere bounds; // for environment nodes
 
-	public Points3DPanel(PointsShape ptsShape)
-	{
+	public Points3DPanel(PointsShape ptsShape) {
 		setLayout(new BorderLayout());
 		setOpaque(false);
 
@@ -184,7 +183,7 @@ public class Points3DPanel extends JPanel
 		TransformGroup posnTG = new TransformGroup();
 		Transform3D t3d = new Transform3D();
 		// t3d.setScale(0.5);
-//		t3d.setTranslation(new Vector3d(-3.2f, 2.4f, 0.0f));// 6.40 / 2
+		// t3d.setTranslation(new Vector3d(-3.2f, 2.4f, 0.0f));// 6.40 / 2
 		t3d.setTranslation(new Vector3d(0f, 0f, 0.0f));// 6.40 / 2
 		posnTG.setTransform(t3d);
 		posnTG.addChild(ptsShape);
@@ -202,7 +201,7 @@ public class Points3DPanel extends JPanel
 		ap.setPolygonAttributes(polyAttrbutes);
 
 		Box kinect = new Box(0.6f, 0.1f, 0.2f, ap);
-		
+
 		// scale and move start position to (-4,0,0) // change later
 		TransformGroup posnTG = new TransformGroup();
 		Transform3D t3d = new Transform3D();
@@ -210,63 +209,62 @@ public class Points3DPanel extends JPanel
 		t3d.setTranslation(new Vector3d(0f, 2.4f, 6.0f));
 		posnTG.setTransform(t3d);
 		posnTG.addChild(kinect);
-		
+
 		Color3f red = new Color3f(1.0f, 0.0f, 0.0f);
-		
+
 		// line pattern dot-dash
 		ColoringAttributes ca = new ColoringAttributes(red, ColoringAttributes.NICEST);
-	    Point3f[] dotDashPts = new Point3f[2];
-	    dotDashPts[0] = new Point3f(0.0f, 0.0f, 0.0f);
-	    dotDashPts[1] = new Point3f(4.9f, 4.7f, -5.0f);
-	    LineArray dotDash = new LineArray(2, LineArray.COORDINATES);
-	    dotDash.setCoordinates(0, dotDashPts);
-	    LineAttributes dotDashLa = new LineAttributes();
-	    dotDashLa.setLineWidth(4.0f);
-	    dotDashLa.setLinePattern(LineAttributes.PATTERN_DASH);
-	    Appearance dotDashApp = new Appearance();
-	    dotDashApp.setLineAttributes(dotDashLa);
-	    dotDashApp.setColoringAttributes(ca);
-	    Shape3D dotDashShape = new Shape3D(dotDash, dotDashApp);
-	    posnTG.addChild(dotDashShape);		
-		
-		//Shape3D pyramid = createPyramid();
-		//posnTG.addChild(pyramid);
+		Point3f[] dotDashPts = new Point3f[2];
+		dotDashPts[0] = new Point3f(0.0f, 0.0f, 0.0f);
+		dotDashPts[1] = new Point3f(4.9f, 4.7f, -5.0f);
+		LineArray dotDash = new LineArray(2, LineArray.COORDINATES);
+		dotDash.setCoordinates(0, dotDashPts);
+		LineAttributes dotDashLa = new LineAttributes();
+		dotDashLa.setLineWidth(4.0f);
+		dotDashLa.setLinePattern(LineAttributes.PATTERN_DASH);
+		Appearance dotDashApp = new Appearance();
+		dotDashApp.setLineAttributes(dotDashLa);
+		dotDashApp.setColoringAttributes(ca);
+		Shape3D dotDashShape = new Shape3D(dotDash, dotDashApp);
+		posnTG.addChild(dotDashShape);
+
+		// Shape3D pyramid = createPyramid();
+		// posnTG.addChild(pyramid);
 
 		sceneBG.addChild(posnTG);
 	}
-	
+
 	Shape3D createPyramid() {
-	    IndexedTriangleArray pyGeom = new IndexedTriangleArray(5,
-	        GeometryArray.COORDINATES | GeometryArray.COLOR_3, 12);
+		IndexedTriangleArray pyGeom = new IndexedTriangleArray(5, GeometryArray.COORDINATES | GeometryArray.COLOR_3, 12);
 
-	    pyGeom.setCoordinate(0, new Point3f(0.0f, 0.7f, 0.0f));
-	    pyGeom.setCoordinate(1, new Point3f(-0.4f, 0.0f, -0.4f));
-	    pyGeom.setCoordinate(2, new Point3f(-0.4f, 0.0f, 0.4f));
-	    pyGeom.setCoordinate(3, new Point3f(0.4f, 0.0f, 0.4f));
-	    pyGeom.setCoordinate(4, new Point3f(0.4f, 0.0f, -0.4f));
+		pyGeom.setCoordinate(0, new Point3f(0.0f, 0.7f, 0.0f));
+		pyGeom.setCoordinate(1, new Point3f(-0.4f, 0.0f, -0.4f));
+		pyGeom.setCoordinate(2, new Point3f(-0.4f, 0.0f, 0.4f));
+		pyGeom.setCoordinate(3, new Point3f(0.4f, 0.0f, 0.4f));
+		pyGeom.setCoordinate(4, new Point3f(0.4f, 0.0f, -0.4f));
 
-	    pyGeom.setCoordinateIndex(0, 0);
-	    pyGeom.setCoordinateIndex(1, 1);
-	    pyGeom.setCoordinateIndex(2, 2);
-	    pyGeom.setCoordinateIndex(3, 0);
-	    pyGeom.setCoordinateIndex(4, 2);
-	    pyGeom.setCoordinateIndex(5, 3);
-	    pyGeom.setCoordinateIndex(6, 0);
-	    pyGeom.setCoordinateIndex(7, 3);
-	    pyGeom.setCoordinateIndex(8, 4);
-	    pyGeom.setCoordinateIndex(9, 0);
-	    pyGeom.setCoordinateIndex(10, 4);
-	    pyGeom.setCoordinateIndex(11, 1);
+		pyGeom.setCoordinateIndex(0, 0);
+		pyGeom.setCoordinateIndex(1, 1);
+		pyGeom.setCoordinateIndex(2, 2);
+		pyGeom.setCoordinateIndex(3, 0);
+		pyGeom.setCoordinateIndex(4, 2);
+		pyGeom.setCoordinateIndex(5, 3);
+		pyGeom.setCoordinateIndex(6, 0);
+		pyGeom.setCoordinateIndex(7, 3);
+		pyGeom.setCoordinateIndex(8, 4);
+		pyGeom.setCoordinateIndex(9, 0);
+		pyGeom.setCoordinateIndex(10, 4);
+		pyGeom.setCoordinateIndex(11, 1);
 
-	    Color3f c = new Color3f(0.6f, 0.5f, 0.55f);
-	    pyGeom.setColor(0, c);
-	    pyGeom.setColor(1, c);
-	    pyGeom.setColor(2, c);
-	    pyGeom.setColor(3, c);
-	    pyGeom.setColor(4, c);
+		Color3f c = new Color3f(0.6f, 0.5f, 0.55f);
+		pyGeom.setColor(0, c);
+		pyGeom.setColor(1, c);
+		pyGeom.setColor(2, c);
+		pyGeom.setColor(3, c);
+		pyGeom.setColor(4, c);
 
-	    Shape3D pyramid = new Shape3D(pyGeom);
-	    return pyramid;
-	  }
+		Shape3D pyramid = new Shape3D(pyGeom);
+		return pyramid;
+	}
 
 } // end of Points3DPanel class

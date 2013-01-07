@@ -13,29 +13,27 @@ public class Drupal extends Service {
 	public Drupal(String n) {
 		super(n, Drupal.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		Drupal template = new Drupal("template");
 		template.startService();
 		/*
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
-		*/
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
 	}
-
 
 }

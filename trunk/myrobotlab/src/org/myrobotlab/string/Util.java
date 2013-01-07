@@ -1,6 +1,5 @@
 package org.myrobotlab.string;
 
-
 public class Util {
 
 	public static String removeChar(String s, char c) {
@@ -28,17 +27,15 @@ public class Util {
 	}
 
 	public static String StringToMethodName(String english) {
-		StringBuffer methodName = new StringBuffer(); 
+		StringBuffer methodName = new StringBuffer();
 		boolean afterWhitespace = false;
 		for (int i = 0; i <= english.length() - 1; i++) {
 			Character temp = english.charAt(i);
 			if (temp != ' ') {
-				if (i == 0)
-				{
+				if (i == 0) {
 					temp = Character.toLowerCase(temp);
-				} else if (afterWhitespace)
-				{
-					temp = Character.toUpperCase(temp);					
+				} else if (afterWhitespace) {
+					temp = Character.toUpperCase(temp);
 				}
 
 				methodName.append(temp);
@@ -47,17 +44,17 @@ public class Util {
 				afterWhitespace = true;
 			}
 		}
-		
+
 		return methodName.toString();
 	}
-	
+
 	public static void main(String[] args) throws ClassNotFoundException {
 
 		String methodName = Util.StringToMethodName("hello all you freaks");
 		methodName = Util.StringToMethodName("thisIsATest over here");
 		methodName = Util.StringToMethodName("This would be a nifty method name");
 		methodName = Util.StringToMethodName("I have whitespace");
-		
+
 		methodName.toString();
 	}
 

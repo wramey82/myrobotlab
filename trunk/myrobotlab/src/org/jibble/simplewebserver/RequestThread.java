@@ -14,10 +14,9 @@ $Id: ServerSideScriptEngine.java,v 1.4 2004/02/01 13:37:35 pjm2 Exp $
 
  */
 
-				// TODO support HTTP 1.1
-				// TODO token & session
-				// TODO - parse into name-value map
-
+// TODO support HTTP 1.1
+// TODO token & session
+// TODO - parse into name-value map
 
 package org.jibble.simplewebserver;
 
@@ -75,13 +74,11 @@ public class RequestThread extends Thread {
 		_rootDir = rootDir;
 	}
 
-	private static void sendHeader(BufferedOutputStream out, int code, String contentType, long contentLength,
-			long lastModified) throws IOException {
-		out.write(("HTTP/1.0 " + code + " OK\r\n" + "Date: " + new Date().toString() + "\r\n" // TODO - 1.1 give me keepalive
-				+ "Server: JibbleWebServer/1.0\r\n" + "Content-Type: " + contentType + "\r\n"
-				+ "Expires: Thu, 01 Dec 1994 16:00:00 GMT\r\n"
-				+ ((contentLength != -1) ? "Content-Length: " + contentLength + "\r\n" : "") + "Last-modified: "
-				+ new Date(lastModified).toString() + "\r\n" + "\r\n").getBytes());
+	private static void sendHeader(BufferedOutputStream out, int code, String contentType, long contentLength, long lastModified) throws IOException {
+		out.write(("HTTP/1.0 " + code + " OK\r\n" + "Date: " + new Date().toString()
+				+ "\r\n" // TODO - 1.1 give me keepalive
+				+ "Server: JibbleWebServer/1.0\r\n" + "Content-Type: " + contentType + "\r\n" + "Expires: Thu, 01 Dec 1994 16:00:00 GMT\r\n"
+				+ ((contentLength != -1) ? "Content-Length: " + contentLength + "\r\n" : "") + "Last-modified: " + new Date(lastModified).toString() + "\r\n" + "\r\n").getBytes());
 	}
 
 	private static void sendError(BufferedOutputStream out, int code, String message) throws IOException {
@@ -102,31 +99,26 @@ public class RequestThread extends Thread {
 
 	// return message array
 	LinkedList<Message> messages = new LinkedList<Message>();
-	
-	public void addMsg(String method, Object...data)
-	{
+
+	public void addMsg(String method, Object... data) {
 		Message msg = myService.createMessage("chrome", method, data);
-		msg.historyList = new ArrayList<RoutingEntry>(); 
+		msg.historyList = new ArrayList<RoutingEntry>();
 		messages.add(msg);
 	}
-	
-	public void sendJSONMsg(String method, Object...data)
-	{
+
+	public void sendJSONMsg(String method, Object... data) {
 		try {
 			Message msg = myService.createMessage("chrome", method, data);
-			msg.historyList = new ArrayList<RoutingEntry>(); 
-			
+			msg.historyList = new ArrayList<RoutingEntry>();
+
 			// if we are responsible for security
 			// then wrap all messages into a security
 			// envelope
-			if (manageLogin && messages.size() > 0)
-			{
+			if (manageLogin && messages.size() > 0) {
 				int newSize = msg.data.length + messages.size();
 				Object[] msgArray = new Object[newSize];
-				for (int i = 0; i < newSize; ++i)
-				{
-					if (i < data.length)
-					{
+				for (int i = 0; i < newSize; ++i) {
+					if (i < data.length) {
 						msgArray[i] = data[i];
 					} else {
 						msgArray[i] = messages.get(i - (msg.data.length));
@@ -134,7 +126,7 @@ public class RequestThread extends Thread {
 				}
 				msg.data = msgArray;
 			}
-			
+
 			String json = gson.toJson(msg);
 			sendHeader(out, 200, "text/json", json.getBytes().length, (new Date()).getTime());
 			out.write(json.getBytes());
@@ -143,8 +135,7 @@ public class RequestThread extends Thread {
 			Service.logException(e);
 		}
 	}
-	
-	
+
 	public void run() {
 		InputStream reader = null;
 		try {
@@ -153,8 +144,7 @@ public class RequestThread extends Thread {
 			out = new BufferedOutputStream(_socket.getOutputStream());
 
 			String request = in.readLine();
-			if (request == null || !request.startsWith("GET ")
-					|| !(request.endsWith("HTTP/1.0") || request.endsWith("HTTP/1.1"))) {
+			if (request == null || !request.startsWith("GET ") || !(request.endsWith("HTTP/1.0") || request.endsWith("HTTP/1.1"))) {
 				// Invalid request type (no "GET")
 				sendError(out, 500, "Invalid Method.");
 				return;
@@ -178,7 +168,6 @@ public class RequestThread extends Thread {
 				msgstr = URLDecoder.decode(msgstr, "UTF-8");
 				msg = gson.fromJson(msgstr, Message.class);
 
-
 				if (manageLogin && "login".equals(msg.method)) {
 					String err = authenticate((String) msg.data[0], (String) msg.data[1], loginType);
 					if (err != null) {
@@ -186,10 +175,10 @@ public class RequestThread extends Thread {
 						sendJSONMsg("msg", ""); // LOOK - no token sent !
 					} else {
 						String token = "329rfuj0f89923urj39tugj49tu0g8u8ur80";
-						
+
 						addMsg("setContext", "select.players");
 						addMsg("authenticated", token);
-						sendJSONMsg("msg", token);						
+						sendJSONMsg("msg", token);
 					}
 				}
 
@@ -231,8 +220,7 @@ public class RequestThread extends Thread {
 				File[] files = file.listFiles();
 				sendHeader(out, 200, "text/html", -1, System.currentTimeMillis());
 				String title = "Index of " + path;
-				out.write(("<html><head><title>" + title + "</title></head><body><h3>Index of " + path + "</h3><p>\n")
-						.getBytes());
+				out.write(("<html><head><title>" + title + "</title></head><body><h3>Index of " + path + "</h3><p>\n").getBytes());
 				for (int i = 0; i < files.length; i++) {
 					file = files[i];
 					String filename = file.getName();
@@ -240,8 +228,7 @@ public class RequestThread extends Thread {
 					if (file.isDirectory()) {
 						description = "&lt;DIR&gt;";
 					}
-					out.write(("<a href=\"" + path + filename + "\">" + filename + "</a> " + description + "<br>\n")
-							.getBytes());
+					out.write(("<a href=\"" + path + filename + "\">" + filename + "</a> " + description + "<br>\n").getBytes());
 				}
 				out.write(("</p><hr><p>" + SimpleWebServer.VERSION + "</p></body><html>").getBytes());
 			} else {
@@ -262,7 +249,7 @@ public class RequestThread extends Thread {
 
 					// invoke the gson parser
 					if (".json".equals(ext)) {
-						
+
 						/*
 						 * Object[] data = new Object[2]; data[0]="name";
 						 * data[1]="password"; Message msg =
@@ -316,8 +303,7 @@ public class RequestThread extends Thread {
 				log.info("logon for " + loginName);
 				// url get page - get token
 				HTTPRequest loginPage;
-				loginPage = new HTTPRequest("http://myrobotlab.org/authenticate.php?loginName=" + loginName
-						+ "&loginPass=" + loginPass + "");
+				loginPage = new HTTPRequest("http://myrobotlab.org/authenticate.php?loginName=" + loginName + "&loginPass=" + loginPass + "");
 				String response = loginPage.getString();
 				if (!loginPage.hasError() && response.indexOf("authenticated") != -1) {
 					sessions.put(loginName, new Session());

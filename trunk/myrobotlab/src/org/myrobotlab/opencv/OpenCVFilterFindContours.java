@@ -67,7 +67,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	public final static Logger log = Logger.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
 
 	// TODO - CONSIDER NOT Publishing OpenCV.Polygon but Publish CvSeq instead
-	
+
 	IplImage dst = null;
 	BufferedImage frameBuffer = null;
 	Rectangle rectangle = new Rectangle();
@@ -106,7 +106,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 		cfg.set("minArea", 150);
 		cfg.set("maxArea", -1);
 		cfg.set("useMinArea", true);
@@ -116,7 +116,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	public ArrayList<OpenCV.Polygon> polygons = new ArrayList<OpenCV.Polygon>();
 
 	CvSeq contourPointer = new CvSeq();
-	//int sizeofCvContour = com.sun.jna.Native.getNativeSize(CvContour.ByValue.class);
+	// int sizeofCvContour =
+	// com.sun.jna.Native.getNativeSize(CvContour.ByValue.class);
 
 	CvPoint drawPoint0 = new CvPoint(0, 0);
 	CvPoint drawPoint1 = new CvPoint(0, 0);
@@ -124,10 +125,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	boolean minArea = true;
 	boolean maxArea = true;
-	
+
 	@Override
 	public IplImage process(IplImage image) {
-
 
 		if (image == null) {
 			log.error("image is null");
@@ -146,15 +146,18 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		display = image.clone();
 
-		if (image.nChannels()== 3) {
+		if (image.nChannels() == 3) {
 			cvCvtColor(image, gray, CV_BGR2GRAY);
 		} else {
 			gray = image.clone();
 		}
 
-		cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), 0 ,CV_CHAIN_APPROX_SIMPLE);
-		// new cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-		// old cvFindContours(gray, cvStorage, contourPointer, sizeofCvContour, 0 ,CV_CHAIN_APPROX_SIMPLE);
+		cvFindContours(gray, cvStorage, contourPointer, Loader.sizeof(CvContour.class), 0, CV_CHAIN_APPROX_SIMPLE);
+		// new cvFindContours(gray, cvStorage, contourPointer,
+		// Loader.sizeof(CvContour.class), CV_RETR_LIST,
+		// CV_CHAIN_APPROX_SIMPLE);
+		// old cvFindContours(gray, cvStorage, contourPointer, sizeofCvContour,
+		// 0 ,CV_CHAIN_APPROX_SIMPLE);
 
 		// log.error("getStructure");
 		CvSeq contour = contourPointer;
@@ -162,8 +165,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		polygons.clear();
 
-		while (contour != null && !contour.isNull()) {			
-			if (contour.elem_size() > 0) { // TODO - limit here for "TOOOO MANY !!!!"
+		while (contour != null && !contour.isNull()) {
+			if (contour.elem_size() > 0) { // TODO - limit here for
+											// "TOOOO MANY !!!!"
 
 				// log.error("cvApproxPoly");
 
@@ -189,37 +193,26 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// CvScalar.BLACK, -1, cxcore.CV_FILLED, CV_AA);
 
 				// publish polygons
-				// CvScalar avg = cxcore.cvAvg(image, polyMask); - good idea - but not implemented
-				
+				// CvScalar avg = cxcore.cvAvg(image, polyMask); - good idea -
+				// but not implemented
+
 				// size filter
-				if (cfg.getBoolean("useMinArea"))
-				{
-					minArea = (rect.width() * rect.height() > cfg.getInt("minArea"))?true:false;
+				if (cfg.getBoolean("useMinArea")) {
+					minArea = (rect.width() * rect.height() > cfg.getInt("minArea")) ? true : false;
 				}
 
-				if (cfg.getBoolean("useMaxArea"))
-				{
-					maxArea = (rect.width() * rect.height() < cfg.getInt("maxArea"))?true:false;
-				} 
-				
-				
-				if (minArea && maxArea)
-				{
-					CvSeq points = cvApproxPoly(contour,
-							Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP,
-							cvContourPerimeter(contour) * 0.02, 1);
-					
-					polygons.add(new OpenCV.Polygon(rect, null, 
-							(cvCheckContourConvexity(points) == 1) ? true:false, 
-							cvPoint(rect.x() + rect.width() / 2, rect.y()
-							+ rect.height() / 2), points.total()));
+				if (cfg.getBoolean("useMaxArea")) {
+					maxArea = (rect.width() * rect.height() < cfg.getInt("maxArea")) ? true : false;
+				}
 
-					cvPutText(display, " " + points.total() + " "
-							+ (rect.x() + rect.width() / 2) + ","
-							+ (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height() + "="
-							+ (rect.width() * rect.height()) + " " + " "
-							+ cvCheckContourConvexity(points), cvPoint(
-							rect.x() + rect.width() / 2, rect.y()), font,
+				if (minArea && maxArea) {
+					CvSeq points = cvApproxPoly(contour, Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contour) * 0.02, 1);
+
+					polygons.add(new OpenCV.Polygon(rect, null, (cvCheckContourConvexity(points) == 1) ? true : false, cvPoint(rect.x() + rect.width() / 2,
+							rect.y() + rect.height() / 2), points.total()));
+
+					cvPutText(display, " " + points.total() + " " + (rect.x() + rect.width() / 2) + "," + (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height()
+							+ "=" + (rect.width() * rect.height()) + " " + " " + cvCheckContourConvexity(points), cvPoint(rect.x() + rect.width() / 2, rect.y()), font,
 							CvScalar.WHITE);
 				}
 
@@ -231,12 +224,13 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// (int)avg.getGreen() + "," + (int)avg.getBlue(),
 				// cvPoint(rect.x() + rect.width()/2,rect.y()), font,
 				// CV_RGB(255, 0, 0));
-				// cvPutText(display, " " + points.total() + " " + rect.x() + "," +
+				// cvPutText(display, " " + points.total() + " " + rect.x() +
+				// "," +
 				// rect.y() + " "+ (rect.x() * rect.height()/1000) + " " +
 				// OpenCVFilterAverageColor.getColorName2(avg) + " " +
 				// cv.cvCheckContourConvexity(points), cvPoint(rect.x() +
 				// rect.width()/2,rect.y()), font, CvScalar.WHITE);
-				
+
 				drawPoint0.x(rect.x());
 				drawPoint0.y(rect.y());
 
@@ -244,7 +238,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				drawPoint1.y(rect.y() + rect.height());
 
 				cvDrawRect(display, drawPoint0, drawPoint1, CvScalar.RED, 1, 8, 0);
-				
+
 				++cnt;
 
 				// TODO - if publish rect

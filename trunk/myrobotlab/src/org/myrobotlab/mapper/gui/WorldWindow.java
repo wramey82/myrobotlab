@@ -30,27 +30,26 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.mapper.sim.World;
 
-
 /**
  * This window is used to visualise the 3D world.
  */
 public final class WorldWindow extends JInternalFrame {
-  
+
 	private static final long serialVersionUID = 1L;
 	World world;
- 
-    public WorldWindow(World world) {
-        super("world");
-        this.world = world;
-        initialize();
-    }
 
-    private void initialize() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add("Center",world.getCanvas3D());
-         setContentPane(panel);
-        setSize(400, 400);
-        setResizable(true);
-    }
+	public WorldWindow(World world) {
+		super("world");
+		this.world = world;
+		initialize();
+	}
+
+	private void initialize() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add("Center", world.getCanvas3D());
+		setContentPane(panel);
+		setSize(400, 400);
+		setResizable(true);
+	}
 }

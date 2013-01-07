@@ -52,22 +52,21 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	// http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#Calculating_color_histograms
 
 	IplImage hsv = null;
-	
+
 	IplImage hue = null;
 	IplImage hueMask = null;
-	
+
 	IplImage value = null;
 	IplImage valueMask = null;
-	
+
 	IplImage saturation = null;
 	IplImage saturationMask = null;
 	IplImage temp = null;
-	
+
 	IplImage mask = null;
-	
+
 	IplImage ret = null;
 
-	
 	BufferedImage frameBuffer = null;
 
 	CvScalar hueMax = null;
@@ -78,15 +77,14 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 
 	CvScalar saturationMax = null;
 	CvScalar saturationMin = null;
-	
+
 	final static int HUE_MASK = 1;
 	final static int VALUE_MASK = 2;
 	final static int SATURATION_MASK = 4;
-	
+
 	// data for gui <--> filter exchange
-	public boolean useHue = false; 
-	
-	
+	public boolean useHue = false;
+
 	public OpenCVFilterInRange(OpenCV service, String name) {
 		super(service, name);
 	}
@@ -103,17 +101,17 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	}
 
 	int useMask = 0;
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 		cfg.set("hueMin", 0.0f);
 		cfg.set("hueMax", 256.0f);
 		cfg.set("valueMin", 0.0f);
 		cfg.set("valueMax", 256.0f);
 		cfg.set("saturationMin", 0.0f);
 		cfg.set("saturationMax", 256.0f);
-		
+
 		cfg.set("useHue", false);
 		cfg.set("useValue", false);
 		cfg.set("useSaturation", false);
@@ -130,10 +128,9 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	public void samplePoint(Integer x, Integer y) {
 
 		frameBuffer = hsv.getBufferedImage();
-		int rgb = frameBuffer.getRGB(x,y);
+		int rgb = frameBuffer.getRGB(x, y);
 		Color c = new Color(rgb);
-		log.error(x + "," + y + " h " + c.getRed()
-				+ " s " + c.getGreen() + " v " + c.getBlue());
+		log.error(x + "," + y + " h " + c.getRed() + " s " + c.getGreen() + " v " + c.getBlue());
 	}
 
 	@Override
@@ -152,34 +149,34 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			temp = cvCreateImage(cvGetSize(image), 8, 1);
 			mask = cvCreateImage(cvGetSize(image), 8, 1);
 		}
-		
+
 		// load up desired mask case
-		useMask = cfg.getBoolean("useSaturation")?1:0;
+		useMask = cfg.getBoolean("useSaturation") ? 1 : 0;
 		useMask = useMask << 1;
-		useMask =  useMask | (cfg.getBoolean("useValue")?1:0);
+		useMask = useMask | (cfg.getBoolean("useValue") ? 1 : 0);
 		useMask = useMask << 1;
-		useMask = useMask | (cfg.getBoolean("useHue")?1:0);
-		
+		useMask = useMask | (cfg.getBoolean("useHue") ? 1 : 0);
+
 		if (image == null) {
 			log.error("image is null");
 		}
 
 		// convert to more stable HSV
-		//cvCvtColor(image, hsv, CV_RGB2HSV); // # 41
-		// #define  CV_BGR2HSV     40 - not defined in javacv
-		//cvResetImageCOI(image);// added reset - still get Input COI is not supported
-		cvSetImageCOI( hsv, 0 ); // added reset - still get Input COI is not supported
-		cvCvtColor(image, hsv, CV_BGR2HSV);   
+		// cvCvtColor(image, hsv, CV_RGB2HSV); // # 41
+		// #define CV_BGR2HSV 40 - not defined in javacv
+		// cvResetImageCOI(image);// added reset - still get Input COI is not
+		// supported
+		cvSetImageCOI(hsv, 0); // added reset - still get Input COI is not
+								// supported
+		cvCvtColor(image, hsv, CV_BGR2HSV);
 
-		if ((useMask & HUE_MASK) == 1)
-		{
+		if ((useMask & HUE_MASK) == 1) {
 			// copy out hue
 			cvSetImageCOI(hsv, 1);
 			cvCopy(hsv, hue);
 
 			// cfg values if changed
-			if (hueMin.magnitude() != cfg.getFloat("hueMin")
-					|| hueMax.magnitude() != cfg.getFloat("hueMax")) {
+			if (hueMin.magnitude() != cfg.getFloat("hueMin") || hueMax.magnitude() != cfg.getFloat("hueMax")) {
 				hueMin = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
 				hueMax = cvScalar(cfg.getFloat("hueMax"), 0.0, 0.0, 0.0);
 			}
@@ -188,32 +185,28 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			cvInRangeS(hue, hueMin, hueMax, hueMask);
 		}
 
-		if ((useMask & VALUE_MASK) == 2)
-		{
+		if ((useMask & VALUE_MASK) == 2) {
 			// copy out value
 			cvSetImageCOI(hsv, 3);
 			cvCopy(hsv, value);
 
 			// look for changed config - update if changed
-			if (valueMin.magnitude() != cfg.getFloat("valueMin")
-					|| valueMax.magnitude() != cfg.getFloat("valueMax")) {
+			if (valueMin.magnitude() != cfg.getFloat("valueMin") || valueMax.magnitude() != cfg.getFloat("valueMax")) {
 				valueMin = cvScalar(cfg.getFloat("valueMin"), 0.0, 0.0, 0.0);
 				valueMax = cvScalar(cfg.getFloat("valueMax"), 0.0, 0.0, 0.0);
 			}
-	
+
 			// create value mask
 			cvInRangeS(value, valueMin, valueMax, valueMask);
-		}			
-			
-		if ((useMask & SATURATION_MASK) == 4)
-		{
+		}
+
+		if ((useMask & SATURATION_MASK) == 4) {
 			// copy out saturation
 			cvSetImageCOI(hsv, 2);
 			cvCopy(hsv, saturation);
 
 			// look for changed config - update if changed
-			if (saturationMin.magnitude() != cfg.getFloat("saturationMin")
-					|| saturationMax.magnitude() != cfg.getFloat("saturationMax")) {
+			if (saturationMin.magnitude() != cfg.getFloat("saturationMin") || saturationMax.magnitude() != cfg.getFloat("saturationMax")) {
 				saturationMin = cvScalar(cfg.getFloat("saturationMin"), 0.0, 0.0, 0.0);
 				saturationMax = cvScalar(cfg.getFloat("saturationMax"), 0.0, 0.0, 0.0);
 			}
@@ -221,52 +214,51 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			// create saturation mask
 			cvInRangeS(saturation, saturationMin, saturationMax, saturationMask);
 		}
-				
-		switch (useMask)
-		{
-			case 0: // !hue !value !sat
-				ret = image;
-				break;				
-			
-			case 1: // hue !value !sat
-				ret = hueMask;
-				break;				
-			
-			case 2: // !hue value !sat
-				ret = valueMask;
-				break;				
-			
-			case 3: // hue value !sat
-				cvAnd(hueMask, valueMask, mask, null);
-				ret = mask;
-				break;
 
-			case 4: // !hue !value sat
-				ret = saturationMask;
-				break;
+		switch (useMask) {
+		case 0: // !hue !value !sat
+			ret = image;
+			break;
 
-			case 5: // hue !value sat
-				cvAnd(hueMask, saturationMask, mask, null);
-				//cvAnd(saturationMask, hueMask, mask, null);
-				ret = mask;
-				break;
+		case 1: // hue !value !sat
+			ret = hueMask;
+			break;
 
-			case 6: // !hue value sat
-				cvAnd(valueMask, saturationMask, mask, null);
-				ret = mask;
-				break;
-				
-			case 7: // hue value sat
-				cvAnd(hueMask, valueMask, temp, null);
-				cvAnd(temp, saturationMask, mask, null); // ??
-				ret = mask;
-				break;
-				
-			default:
-				log.error("unknown useMask " + useMask);
-				break;
+		case 2: // !hue value !sat
+			ret = valueMask;
+			break;
+
+		case 3: // hue value !sat
+			cvAnd(hueMask, valueMask, mask, null);
+			ret = mask;
+			break;
+
+		case 4: // !hue !value sat
+			ret = saturationMask;
+			break;
+
+		case 5: // hue !value sat
+			cvAnd(hueMask, saturationMask, mask, null);
+			// cvAnd(saturationMask, hueMask, mask, null);
+			ret = mask;
+			break;
+
+		case 6: // !hue value sat
+			cvAnd(valueMask, saturationMask, mask, null);
+			ret = mask;
+			break;
+
+		case 7: // hue value sat
+			cvAnd(hueMask, valueMask, temp, null);
+			cvAnd(temp, saturationMask, mask, null); // ??
+			ret = mask;
+			break;
+
+		default:
+			log.error("unknown useMask " + useMask);
+			break;
 		}
-		
+
 		return ret;
 
 	}

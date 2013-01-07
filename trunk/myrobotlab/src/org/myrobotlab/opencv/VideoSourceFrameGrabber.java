@@ -11,28 +11,25 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class VideoSourceFrameGrabber extends FrameGrabber {
 
 	/*
-	 * excellent reference - http://www.jpegcameras.com/
-	 * foscam url http://host/videostream.cgi?user=username&pwd=password
-	 * 			  http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password
-	 * android ip cam  http://192.168.0.57:8080/videofeed
+	 * excellent reference - http://www.jpegcameras.com/ foscam url
+	 * http://host/videostream.cgi?user=username&pwd=password
+	 * http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password android ip
+	 * cam http://192.168.0.57:8080/videofeed
 	 */
-	
+
 	LinkedList<SerializableImage> imgq = new LinkedList<SerializableImage>();
-	
+
 	public final static Logger log = Logger.getLogger(VideoSourceFrameGrabber.class.getCanonicalName());
 
-
-	public VideoSourceFrameGrabber (String name)
-	{
-	}
-	
-	
-	@Override
-	public void start()  {
+	public VideoSourceFrameGrabber(String name) {
 	}
 
 	@Override
-	public void stop()  {
+	public void start() {
+	}
+
+	@Override
+	public void stop() {
 	}
 
 	@Override
@@ -40,44 +37,44 @@ public class VideoSourceFrameGrabber extends FrameGrabber {
 	}
 
 	@Override
-	public IplImage grab()  {
-		
-			IplImage image = null;
-			synchronized (imgq) {
+	public IplImage grab() {
 
-				while (image == null) { // while no messages && no messages that are
-										// blocking
-					if (imgq.size() == 0) {
-						try {
-							imgq.wait();
-						} catch (InterruptedException e) {
-						} // must own the lock
-					} else {
-						image = IplImage.createFrom(imgq.removeLast().getImage());
-					}
-				}
-				imgq.notifyAll();
-			}
-
-			return image;
-	}
-	
-	int maxQueue = 100;
-	
-	public void add(SerializableImage image) {
-	
+		IplImage image = null;
 		synchronized (imgq) {
-			if (imgq.size() > maxQueue)
-			{
-				log.warn (String.format("Image Source BUFFER OVERRUN size %d dropping frames", imgq.size()));
+
+			while (image == null) { // while no messages && no messages that are
+									// blocking
+				if (imgq.size() == 0) {
+					try {
+						imgq.wait();
+					} catch (InterruptedException e) {
+					} // must own the lock
+				} else {
+					image = IplImage.createFrom(imgq.removeLast().getImage());
+				}
+			}
+			imgq.notifyAll();
+		}
+
+		return image;
+	}
+
+	int maxQueue = 100;
+
+	public void add(SerializableImage image) {
+
+		synchronized (imgq) {
+			if (imgq.size() > maxQueue) {
+				log.warn(String.format("Image Source BUFFER OVERRUN size %d dropping frames", imgq.size()));
 				try {
-					// FIXME ??? it's not nice to keep the inbound thread waiting No ???
+					// FIXME ??? it's not nice to keep the inbound thread
+					// waiting No ???
 					imgq.wait();
 				} catch (InterruptedException e) {
-				} 
+				}
 			} else {
 				imgq.addFirst(image);
-				imgq.notifyAll(); // must own the lock				
+				imgq.notifyAll(); // must own the lock
 			}
 		}
 

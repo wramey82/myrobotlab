@@ -21,19 +21,20 @@ import org.myrobotlab.service.GoogleSTT;
 import com.google.gson.Gson;
 
 /**
- * Each transcription is handled in a separate thread to ensure that the program remains responsive while the thread is waiting for 
- * a response from the server.
- * Lifted from a great page http://stt.getflourish.com/
- * by Mr. Florian Schulz.
- * More info in Chromium source :)
- * http://src.chromium.org/svn/trunk/src/content/browser/speech/speech_recognition_request.cc
+ * Each transcription is handled in a separate thread to ensure that the program
+ * remains responsive while the thread is waiting for a response from the
+ * server. Lifted from a great page http://stt.getflourish.com/ by Mr. Florian
+ * Schulz. More info in Chromium source :)
+ * http://src.chromium.org/svn/trunk/src/
+ * content/browser/speech/speech_recognition_request.cc
+ * 
  * @author Florian Schulz
  */
 
 public class TranscriptionThread extends Thread {
 
 	public final static Logger log = Logger.getLogger(GoogleSTT.class.getCanonicalName());
-	
+
 	boolean running;
 
 	private float confidence;
@@ -44,8 +45,7 @@ public class TranscriptionThread extends Thread {
 
 	private String record;
 	private String lang;
-	
-	
+
 	public TranscriptionThread(String n, String lang) {
 		super(n);
 		this.lang = lang;
@@ -63,18 +63,11 @@ public class TranscriptionThread extends Thread {
 		// notification with .addListener and .wait
 		transcribe(this.record);
 		/*
-		while (true) {
-			if (running) {
-				transcribe(this.record);
-				running = false;
-			} else {
-				try {
-					sleep(500); // <- TODO - wait/addListener/block - lets not do this 1/2 sec pause
-				} catch (InterruptedException e) {
-				}
-			}
-		}
-		*/
+		 * while (true) { if (running) { transcribe(this.record); running =
+		 * false; } else { try { sleep(500); // <- TODO - wait/addListener/block
+		 * - lets not do this 1/2 sec pause } catch (InterruptedException e) { }
+		 * } }
+		 */
 	}
 
 	public boolean isRunning() {
@@ -83,7 +76,8 @@ public class TranscriptionThread extends Thread {
 
 	/**
 	 * 
-	 * @param path location of the audio file encoded as FLAC
+	 * @param path
+	 *            location of the audio file encoded as FLAC
 	 * @return transcription of the audio file as String
 	 */
 	public String transcribe(String path) {
@@ -91,15 +85,19 @@ public class TranscriptionThread extends Thread {
 
 		File file = new File(path);
 
-		lang = "en-US";		
+		lang = "en-US";
 		String response = "";
 		HTTPRequest rs;
 		try {
 			Service.logTime("t1", "pre new client");
-			// TODO - add Android headers 
+			// TODO - add Android headers
 			rs = new HTTPRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter=2&lang=" + lang + "&maxresults=6");
 			Service.logTime("t1", "post new client");
-			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // TODO - from targetLineData ?
+			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // TODO
+																				// -
+																				// from
+																				// targetLineData
+																				// ?
 			rs.setParameter("file", file);// <-- woosh 6 seconds?
 			Service.logTime("t1", "post file in param");
 
@@ -111,7 +109,7 @@ public class TranscriptionThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		String s = "";
 
 		Gson gson = new Gson();
@@ -151,15 +149,17 @@ public class TranscriptionThread extends Thread {
 					break;
 				}
 			} else {
-				if (this.status == 0) status = GoogleSTT.SUCCESS;
-				else status = GoogleSTT.ERROR;
+				if (this.status == 0)
+					status = GoogleSTT.SUCCESS;
+				else
+					status = GoogleSTT.ERROR;
 			}
 		} else {
 			s = "Speech could not be interpreted! Try to shorten the recording.";
 			status = GoogleSTT.ERROR;
 		}
-		if(debug) {
-			System.out.println(getTime() + " " + s);	
+		if (debug) {
+			System.out.println(getTime() + " " + s);
 		}
 		return this.utterance;
 	}
@@ -183,42 +183,39 @@ public class TranscriptionThread extends Thread {
 			return "";
 		}
 	}
-	
-	public float getConfidence () 
-	{
+
+	public float getConfidence() {
 		return this.confidence;
 	}
-	public String getUtterance ()
-	{
+
+	public String getUtterance() {
 		return this.utterance;
 	}
-	public int getStatus () {
+
+	public int getStatus() {
 		return this.status;
 	}
+
 	/**
 	 * @return true if audio processing was successfull
 	 */
-	public boolean isAvailable()
-	{
+	public boolean isAvailable() {
 		return this.available;
 	}
+
 	private String getTime() {
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        Date date = new Date();
-        return dateFormat.format(date);
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		return dateFormat.format(date);
 	}
 
-
-	
-	
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-		TranscriptionThread t = new TranscriptionThread("transcriber","en-US");
-		t.transcribe("test2.flac");		
-		
+
+		TranscriptionThread t = new TranscriptionThread("transcriber", "en-US");
+		t.transcribe("test2.flac");
+
 	}
-	
 
 }

@@ -27,26 +27,27 @@ package org.myrobotlab.mapper.sim;
 /**
  * A Simple lock for mutual exclusion.
  */
-public class Lock  {
-    boolean locked = false;;
-    
-    
-    Lock(){    }
- 
-    /** Obtain the lock. Only one thread at each time.*/ 
-    public synchronized void lock(){
-        while(locked){
-            try {
-                wait();
-            } catch (InterruptedException e) {             
-            }
-            
-        }
-        locked = true;
-    }
-    /** Release the lock.*/
-    public synchronized void unlock(){
-        locked = false;
-        notifyAll();
-    }
+public class Lock {
+	boolean locked = false;;
+
+	Lock() {
+	}
+
+	/** Obtain the lock. Only one thread at each time. */
+	public synchronized void lock() {
+		while (locked) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+			}
+
+		}
+		locked = true;
+	}
+
+	/** Release the lock. */
+	public synchronized void unlock() {
+		locked = false;
+		notifyAll();
+	}
 }

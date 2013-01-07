@@ -67,8 +67,7 @@ import edu.cmu.sphinx.util.props.PropertyException;
 public class Sphinx extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Sphinx.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Sphinx.class.getCanonicalName());
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
@@ -134,13 +133,10 @@ public class Sphinx extends Service {
 		// simplexml = simplexml.replaceAll("resource:/resource/",
 		// cfgDir.replaceAll("\\\\", "/"));
 		simplexml = simplexml.replaceAll("resource:/resource/", ".myrobotlab");
-		simplexml = simplexml.replaceAll(
-				"name=\"grammarName\" value=\"simple\"",
-				"name=\"grammarName\" value=\"" + this.getName() + "\"");
+		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\"" + this.getName() + "\"");
 		save("xml", simplexml);
 
-		String gramdef = "#JSGF V1.0;\n" + "grammar " + getName() + ";\n"
-				+ "public <greet> = (" + grammar + ");";
+		String gramdef = "#JSGF V1.0;\n" + "grammar " + getName() + ";\n" + "public <greet> = (" + grammar + ");";
 		save("gram", gramdef);
 
 		return true;
@@ -185,8 +181,7 @@ public class Sphinx extends Service {
 	 * @throws InstantiationException
 	 * @throws IOException
 	 */
-	void swapGrammar(String newGrammarName) throws PropertyException,
-			InstantiationException, IOException {
+	void swapGrammar(String newGrammarName) throws PropertyException, InstantiationException, IOException {
 		log.debug("Swapping to grammar " + newGrammarName);
 		Linguist linguist = (Linguist) cm.lookup("flatLinguist");
 		linguist.deallocate();
@@ -209,16 +204,14 @@ public class Sphinx extends Service {
 			try {
 				isRunning = true;
 
-				String newPath = cfgDir + File.separator + myService.getName()
-						+ ".xml";
+				String newPath = cfgDir + File.separator + myService.getName() + ".xml";
 				File localGramFile = new File(newPath);
 
 				if (localGramFile.exists()) {
 					cm = new ConfigurationManager(newPath);
 				} else {
 					// resource in jar default
-					cm = new ConfigurationManager(this.getClass().getResource(
-							"/resource/Sphinx/simple.xml"));
+					cm = new ConfigurationManager(this.getClass().getResource("/resource/Sphinx/simple.xml"));
 				}
 
 				// start the word recognizer
@@ -266,7 +259,6 @@ public class Sphinx extends Service {
 
 	}
 
-	
 	public void stopListening() {
 		isListening = false;
 		if (speechProcessor != null) {
@@ -276,31 +268,28 @@ public class Sphinx extends Service {
 	}
 
 	// FYI - grammar must be created BEFORE we start to listen
-	public void startListening() 
-	{
+	public void startListening() {
 		startListening(null); // use existing grammar
 	}
-	
+
 	public void startListening(String grammar) {
-		if (speechProcessor != null)
-		{
+		if (speechProcessor != null) {
 			log.warn("already listening");
 			return;
 		}
-		if (grammar != null)
-		{
+		if (grammar != null) {
 			createGrammar(grammar);
 		}
 		speechProcessor = new SpeechProcessor(this);
 		speechProcessor.start();
 	}
-	
+
 	/**
 	 * method to suppress recognition listening events This is important when
 	 * Sphinx is listening --> then Speaking, typically you don't want Sphinx to
 	 * listen to its own speech, it causes a feedback loop and with Sphinx not
-	 * really very accurate, it leads to weirdness -- additionally it does
-	 * not recreate the speech processor - so its not as heavy handed
+	 * really very accurate, it leads to weirdness -- additionally it does not
+	 * recreate the speech processor - so its not as heavy handed
 	 */
 	public void pauseListening() {
 		isListening = false;
@@ -309,7 +298,6 @@ public class Sphinx extends Service {
 	public void resumeListening() {
 		isListening = true;
 	}
-	
 
 	/**
 	 * Defines the standard behavior for a node. The standard behavior is:
@@ -355,8 +343,7 @@ public class Sphinx extends Service {
 			String tag = super.onRecognize(result);
 
 			if (tag != null) {
-				System.out.println("\n " + result.getBestFinalResultNoFiller()
-						+ '\n');
+				System.out.println("\n " + result.getBestFinalResultNoFiller() + '\n');
 				if (tag.equals("exit")) {
 					System.out.println("Goodbye! Thanks for visiting!\n");
 					System.exit(0);
@@ -466,25 +453,19 @@ public class Sphinx extends Service {
 		// more than one implementation of STT - at the moment there is only one
 
 		// type checking
-		if (sw == null
-				|| !sw.getServiceType().equals("org.myrobotlab.service.Speech")) {
-			log.error(String
-					.format("can not attach to %s because its not registered or of the wrong type",
-							serviceName));
+		if (sw == null || !sw.getServiceType().equals("org.myrobotlab.service.Speech")) {
+			log.error(String.format("can not attach to %s because its not registered or of the wrong type", serviceName));
 			return false;
 		}
 
 		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", serviceName, "isSpeaking", Boolean.class);
 
-		log.info(String
-				.format("attached Speech service %s to Sphinx service %s with default message routes",
-						serviceName, getName()));
+		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", serviceName, getName()));
 		return true;
 	}
 
-	public void onCommand(String command, String targetName,
-			String targetMethod, Object... data) {
+	public void onCommand(String command, String targetName, String targetMethod, Object... data) {
 		Message msg = new Message();
 		msg.name = targetName;
 		msg.method = targetMethod;

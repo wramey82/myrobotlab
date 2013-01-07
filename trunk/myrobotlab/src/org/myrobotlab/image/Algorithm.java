@@ -49,11 +49,9 @@ public class Algorithm {
 		int w = images[0].getWidth();
 		int h = images[0].getHeight();
 
-		BufferedImage average = new BufferedImage(w, h,
-				BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage average = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
 
-		WritableRaster raster = average.getRaster()
-				.createCompatibleWritableRaster();
+		WritableRaster raster = average.getRaster().createCompatibleWritableRaster();
 
 		for (int y = 0; y < h; ++y)
 			for (int x = 0; x < w; ++x) {
@@ -75,8 +73,7 @@ public class Algorithm {
 		return average(image, targetArea, 1);
 	}
 
-	public static Color average(BufferedImage image, Rectangle targetArea,
-			int density) {
+	public static Color average(BufferedImage image, Rectangle targetArea, int density) {
 
 		// Assuming that all images have the same dimensions
 		int w = targetArea.width + targetArea.x;

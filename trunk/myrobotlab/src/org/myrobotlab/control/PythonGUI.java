@@ -114,7 +114,8 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	// FIXME - should be part of separate "Editor" class
 	static public class EditorPanel {
 		String filename;
-		TextEditorPane editor;// = new TextEditorPane(); <-- cant be null constructor
+		TextEditorPane editor;// = new TextEditorPane(); <-- cant be null
+								// constructor
 		JScrollPane panel;// = createEditorPane();
 
 		public EditorPanel(Script script) {
@@ -123,10 +124,9 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 				editor = new TextEditorPane(editor.INSERT_MODE, false, FileLocation.create(new File(filename)));
 				editor.setText(script.getCode());
 				editor.setCaretPosition(0);
-				
+
 				panel = createEditorPane();
-			} catch(Exception e)
-			{
+			} catch (Exception e) {
 				Service.logException(e);
 			}
 		}
@@ -162,14 +162,12 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 			return new RTextScrollPane(editor);
 		}
-		
-		public String getFilename()
-		{
+
+		public String getFilename() {
 			return filename;
 		}
-		
-		public TextEditorPane getEditor()
-		{
+
+		public TextEditorPane getEditor() {
 			return editor;
 		}
 	}
@@ -248,13 +246,12 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 			addNewEditorPanel(script);
 		}
 	}
-	
 
 	public EditorPanel addNewEditorPanel(Script script) {
 		EditorPanel panel = new EditorPanel(script);
 		editorTabs.addTab(panel.getDisplayName(), panel.panel);
 		log.info(panel.getEditor().getFileFullPath());
-		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 		TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
 		tc.addMouseListener(this);
 		editorTabs.setTabComponentAt(editorTabs.getTabCount() - 1, tc);
@@ -293,11 +290,10 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		unsubscribe("startRecording", "startRecording", String.class);
 	}
 
-	public void startRecording(String filename)
-	{
+	public void startRecording(String filename) {
 		addNewEditorPanel(new Script(filename, ""));
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -508,7 +504,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	private JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("java", javaConsole.getScrollPane());
-		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 
 		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
 
@@ -546,7 +542,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @return the menu bar filled with the top-level options.
 	 */
 	private JMenuBar createTopMenuBar() {
-		JMenuBar menuBar = new JMenuBar(); 
+		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("file");
 		menuBar.add(fileMenu);
 		fileMenu.setMnemonic(fileMenuMnemonic);
@@ -605,21 +601,18 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		myService.send(boundServiceName, "stop");
 		myService.send(boundServiceName, "attachPythonConsole");
 	}
-	
-	
-	public void closeFile()
-	{
+
+	public void closeFile() {
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
-			if (p.editor.isDirty())
-			{
+			if (p.editor.isDirty()) {
 				saveAsFile();
-			} 
-			
+			}
+
 			p = scripts.get(currentScriptName);
 			scripts.remove(p);
 			editorTabs.remove(p.panel);
-			
+
 		} else {
 			log.error(String.format("can't closeFile %s", currentScriptName));
 		}
@@ -631,7 +624,13 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void saveAsFile() {
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
-			if (FileUtil.saveAs(top, p.editor.getText(), currentScriptName)) // FIXME - don't create new if unnecessary
+			if (FileUtil.saveAs(top, p.editor.getText(), currentScriptName)) // FIXME
+																				// -
+																				// don't
+																				// create
+																				// new
+																				// if
+																				// unnecessary
 			{
 				currentScriptName = FileUtil.getLastFileSaved();
 				scripts.remove(p);
@@ -651,15 +650,21 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void saveFile() {
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
-			if (FileUtil.save(top, p.editor.getText(), currentScriptName)) // FIXME - don't create new if unnecessary
+			if (FileUtil.save(top, p.editor.getText(), currentScriptName)) // FIXME
+																			// -
+																			// don't
+																			// create
+																			// new
+																			// if
+																			// unnecessary
 			{
 				currentScriptName = FileUtil.getLastFileSaved();
 				scripts.remove(p);
 				editorTabs.remove(p.panel);
 				EditorPanel np = addNewEditorPanel(new Script(currentScriptName, p.editor.getText()));
 				editorTabs.setSelectedComponent(np.panel);
-			
-//				sdfafafdds
+
+				// sdfafafdds
 			}
 		} else {
 			log.error(String.format("cant saveFile %s", currentScriptName));
@@ -668,8 +673,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		// TODO do we need to handle errors with permissions?
 
 	}
-	
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -680,35 +684,30 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 		log.info("makeReadyForRelease");
 
-		//Iterator<String> it = scripts.keySet().iterator();
+		// Iterator<String> it = scripts.keySet().iterator();
 		Iterator<Entry<String, EditorPanel>> it = scripts.entrySet().iterator();
 		while (it.hasNext()) {
 
-			Map.Entry pairs = (Map.Entry)it.next();
+			Map.Entry pairs = (Map.Entry) it.next();
 
-			TextEditorPane e = ((EditorPanel)pairs.getValue()).getEditor();
+			TextEditorPane e = ((EditorPanel) pairs.getValue()).getEditor();
 			log.info(String.format("checking script %s", e.getFileFullPath()));
 			if (e.isDirty()) {
 				try {
 					log.info(String.format("saving script / file %s", e.getFileFullPath()));
 					e.save();
-				} catch (Exception ex)
-				{
+				} catch (Exception ex) {
 					Service.logException(ex);
 				}
 				/*
-				FileLocation fl = FileLocation.create(e.getFileFullPath());
-				String filename = JOptionPane.showInputDialog(myService.getFrame(), "Save File?", name);
-				if (filename != null) {
-					fl = FileLocation.create(filename);
-					try {
-						e.saveAs(fl);
-					} catch (IOException e1) {
-						Service.logException(e1);
-						// TODO Auto-generated catch block
-					}
-				}
-				*/
+				 * FileLocation fl = FileLocation.create(e.getFileFullPath());
+				 * String filename =
+				 * JOptionPane.showInputDialog(myService.getFrame(),
+				 * "Save File?", name); if (filename != null) { fl =
+				 * FileLocation.create(filename); try { e.saveAs(fl); } catch
+				 * (IOException e1) { Service.logException(e1); // TODO
+				 * Auto-generated catch block } }
+				 */
 			}
 		}
 
@@ -717,37 +716,36 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent me) {
 		// TODO Auto-generated method stub
 		Object o = me.getSource();
-		if (o instanceof TabControl)
-		{
-			TabControl tc = (TabControl) o; 
+		if (o instanceof TabControl) {
+			TabControl tc = (TabControl) o;
 			currentScriptName = tc.getFilename();
 		}
-		//log.info(me);
+		// log.info(me);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

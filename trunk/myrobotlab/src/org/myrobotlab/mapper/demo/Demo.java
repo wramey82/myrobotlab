@@ -26,12 +26,9 @@ package org.myrobotlab.mapper.demo;
 
 import org.myrobotlab.mapper.sim.EnvironmentDescription;
 
-
 /**
  * The Base class for all demos.
  */
 public class Demo extends EnvironmentDescription {
-    
-    
 
 }

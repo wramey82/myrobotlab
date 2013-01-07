@@ -32,30 +32,27 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.service.Houston;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class HoustonGUI extends ServiceGUI implements ActionListener{
+public class HoustonGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(HoustonGUI.class.getCanonicalName());
 
-	
 	public HoustonGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 	}
 
+	public void getState(Houston houston) {
 
-	public void getState(Houston houston)
-	{
-	
 	}
 
-
-	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <- Class.forName(type)
+	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <-
+	// Class.forName(type)
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", HoustonGUI.class); 
+		subscribe("publishState", "getState", HoustonGUI.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -67,7 +64,7 @@ public class HoustonGUI extends ServiceGUI implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

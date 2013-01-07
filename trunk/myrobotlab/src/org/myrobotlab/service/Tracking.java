@@ -33,6 +33,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.tracking.ControlSystem;
 
@@ -40,22 +41,19 @@ public class Tracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Tracking.class
-			.getCanonicalName());
-	
+	public final static Logger log = Logger.getLogger(Tracking.class.getCanonicalName());
+
 	// TODO - Avoidance / Navigation Service
 	// ground plane
 	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
 
-
 	/*
-	 * TODO - Calibrate - do good features points - select closest to center - record point - move 1 x -> record delta & latency -> move to edge -> 
-	 * 			take multiple samples for non-linear control
-	 * TODO - do not use CVPoint nor AWT Points !
-	 * 
+	 * TODO - Calibrate - do good features points - select closest to center -
+	 * record point - move 1 x -> record delta & latency -> move to edge -> take
+	 * multiple samples for non-linear control TODO - do not use CVPoint nor AWT
+	 * Points !
 	 */
-	
-	
+
 	// TODO center vs - lock
 	/*
 	 * 
@@ -97,20 +95,19 @@ public class Tracking extends Service {
 	 * NEEDS needs to be smoother - less jerky needs to create new points needs
 	 * to make a roi from motion needs to focus at the top of the motion
 	 */
-	
+
 	/*
-	TODO - abstract to support OpenNI
-	ObjectFinder finder = new ObjectFinder();
-	ObjectTracker tracker = new ObjectTracker();
-	*/
+	 * TODO - abstract to support OpenNI ObjectFinder finder = new
+	 * ObjectFinder(); ObjectTracker tracker = new ObjectTracker();
+	 */
 	transient OpenCV opencv;
 	transient ControlSystem control = new ControlSystem();
-		
+
 	public static final String STATUS_IDLE = "IDLE";
 	public static final String STATUS_CALIBRATING = "CALIBRATING";
-	
+
 	public String status = STATUS_IDLE;
-	
+
 	// statistics
 	public int updateModulus = 100;
 	public long cnt = 0;
@@ -123,98 +120,148 @@ public class Tracking extends Service {
 
 	public Point2Df lastPoint;
 	public Point2Df targetPoint;
-	
+
 	public ArrayList<Point2Df> points = new ArrayList<Point2Df>();
-	
+
 	public Rectangle deadzone = new Rectangle();
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-	
-	public boolean calibrate()
-	{
-/*		
-		if (opencv == null)
-		{
-			log.error("must set an object finder");
-			return false;
-		}
-		
-		if (!control.isReady())
-		{
-			log.error("control system is not ready");
-			return false;
-		}
-		
-		control.center();
-*/		
+
+	public boolean calibrate() {
+		/*
+		 * if (opencv == null) { log.error("must set an object finder"); return
+		 * false; }
+		 * 
+		 * if (!control.isReady()) { log.error("control system is not ready");
+		 * return false; }
+		 * 
+		 * control.center();
+		 */
 		// clear filters
 		opencv.removeFilters();
-		
+
 		// get good features
-		opencv.addFilter("pd","PyramidDown");
-		opencv.addFilter("gft","GoodFeaturesToTrack");
-		opencv.publishFilterData("gft");
-		opencv.setDisplayFilter("gft");
+		opencv.addFilter("pd", "PyramidDown");
+		opencv.addFilter("gft", "GoodFeaturesToTrack");
+		// opencv.publishFilterData("gft"); FIXME - doesnt work yet
+		opencv.setDisplayFilter("gft"); // <-- IMPORTANT this sets the frame
+										// which will get published - you can
+										// select off of any named filter which
+										// you want data from
+		setStatus("letting camera warm up and balance");
 		opencv.capture();
 
 		// pause - warm up camera
+		setStatus("letting camera warm up and balance");
 		sleep(2000);
-		
-		// find closes to the center 
-		
-		// set tracking point there
-		
-		// set filters
-		opencv.addFilter("pyramidDown1","PyramidDown"); // needed ??? test
-		opencv.addFilter("lkOpticalTrack1","LKOpticalTrack");
-		opencv.setDisplayFilter("lkOpticalTrack1");
-		
+
+		// set the message route - TODO - encapsulate this in an OpenCV method?
 		subscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
-		//sendBlockingWithTimeout(1000, name, method, data)
-		
-		//opencv.setCameraIndex(1);
-		
-		// start capture
-		opencv.capture();
-		
-		// pause
-		sleep(2000);
-		
+		subscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
+
+		// TODO - these are nice methods - need to incorporate a framework which
+		// supports them
+		double[] goodfeatures = GoodFeaturesToTrack();
+		SerializableImage goodfeaturesImage = getOpenCVImageData();
+		goodfeaturesImage.source = "GoodFeaturesToTrack";
+
+		targetPoint = findPointFarthestFromCenter(goodfeatures);
+
+		invoke("publishFrame", goodfeaturesImage);
+
+		int width = goodfeaturesImage.getImage().getWidth();
+		int height = goodfeaturesImage.getImage().getHeight();
+		setStatus(String.format("setting LK tracking point at %s - %d, %d", targetPoint.toString(), (int) (targetPoint.x * width), (int) (targetPoint.y * height)));
+		// find closes to the center
+
+		// set tracking point there
+
+		// set filters
+		opencv.removeFilters();
+		opencv.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
+		opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
+		opencv.setDisplayFilter("lkOpticalTrack1");
+
 		// set point
-		opencv.invokeFilterMethod("lkOpticalTrack1","samplePoint", 0.5f, 0.5f);
-		
+		opencv.invokeFilterMethod("lkOpticalTrack1", "samplePoint", targetPoint.x, targetPoint.y);
+
+		SerializableImage lk = getOpenCVImageData();
+		lk.source = "LKOpticalTrack";
+		invoke("publishFrame", goodfeaturesImage);
+
+		// sendBlockingWithTimeout(1000, name, method, data)
+		// opencv.setCameraIndex(1);
+
 		// subscribe
 		subscribe("publish", opencv.getName(), "updateTrackingPoint", Point2Df.class);
-		
+
 		// don't move - calculate error & latency
-		
+
 		// move minimum amount (int)
-		
-		// determine difference - > build PID map
-		
+
+		// determine difference - > build PID map or use PID
+
 		return true;
 	}
-	
-	
-	
 
-	BlockingQueue<double[]> footData = new LinkedBlockingQueue<double[]>();
+	public SerializableImage publishFrame(SerializableImage image) {
+		return image;
+	}
+
+	float targetDistance = 0.0f;
+	Point2Df goodFeaturePoint = null;
+
+	/**
+	 * @param data
+	 *            - input data of good features
+	 * @return a point on the edge of the view farthest from center
+	 */
+	Point2Df findPointFarthestFromCenter(double[] data) {
+		float farthestX = 0.0f;
+		float farthestY = 0.0f;
+
+		float distance = 0.0f;
+		targetDistance = 0.0f;
+		int index = 0;
+
+		for (int i = 0; i < data.length / 2; ++i) {
+			distance = (float) Math.sqrt(Math.pow((0.5 - data[i]), 2) + Math.pow((0.5 - data[i + 1]), 2));
+			if (distance > targetDistance) {
+				targetDistance = distance;
+				index = i;
+			}
+
+		}
+
+		Point2Df p = new Point2Df((float) data[index], (float) data[index + 1]);
+		log.info(String.format("findPointFarthestFromCenter %s", p));
+		return p;
+	}
+
+	public double[] GoodFeaturesToTrack(double[] data) {
+		opencvData.add(data);
+		return data;
+	}
+
+	BlockingQueue<double[]> opencvData = new LinkedBlockingQueue<double[]>();
+	BlockingQueue<SerializableImage> opencvImageData = new LinkedBlockingQueue<SerializableImage>();
 	boolean interrupted = false;
 
-	// TODO - bundle epi-filter & config data with this method in OpenCV for those who what to block on a method
+	// TODO - bundle epi-filter & config data with this method in OpenCV for
+	// those who what to block on a method
 	public double[] GoodFeaturesToTrack() {
 		double[] goodfeatures = null;
 		try {
-			footData.clear(); 
+			opencvData.clear();
 			while (!interrupted) {
-				goodfeatures = footData.take();
-				return goodfeatures;	
+				goodfeatures = opencvData.take();
+				return goodfeatures;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -222,75 +269,90 @@ public class Tracking extends Service {
 
 		return null;
 	}
-	
-	
+
+	public SerializableImage setOpenCVImage(SerializableImage data) {
+		opencvImageData.add(data);
+		return data;
+	}
+
+	public SerializableImage getOpenCVImageData() {
+		SerializableImage image = null;
+		try {
+			opencvData.clear();
+			while (!interrupted) {
+				image = opencvImageData.take();
+				return image;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	// FIXME - remove OpenCV definitions
 	final public void updateTrackingPoint(Point2Df pt) {
 		++cnt;
-		
-		if (cnt % updateModulus == 0)
-		{
+
+		if (cnt % updateModulus == 0) {
 			broadcastState();
 		}
-		
+
 		latency = System.currentTimeMillis() - pt.timestamp;
-		
+
 		log.debug(String.format("pt %s", pt));
 		/*
-		trackX((int)pt.x);
-		trackY((int)pt.y);
-		*/
+		 * trackX((int)pt.x); trackY((int)pt.y);
+		 */
 	}
 
+	public void setStatus(String status) {
+		log.info(status);
+		invoke("publishStatus", status);
+	}
+
+	public String publishStatus(String status) {
+		return status;
+	}
 
 	@Override
 	public String getToolTip() {
 		return "proportional control, tracking, and translation - full PID not implemented yet :P";
 	}
-	
-	// TODO - support interfaces 
+
+	// TODO - support interfaces
 	/*
-	public boolean attach (String serviceName, Object...data)
-	{
-		log.info(String.format("attaching %s", serviceName));
-		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
-		if (sw == null)
-		{
-			log.error(String.format("could not attach % - not found in registry", serviceName));
-			return false;
-		}
-		if (sw.getServiceType().equals("org.myrobotlab.service.OpenCV")) 
-		{
-			subscribe("publish", serviceName, "updateTrackingPoint", Point2Df.class);
-			return true;
-		}
-	
-		log.error(String.format("%s - don't know how to attach %s", getName(), serviceName));
-		return false;
-	}
-	*/
-	
-	public void attachObjectTracker(OpenCV opencv)
-	{
+	 * public boolean attach (String serviceName, Object...data) {
+	 * log.info(String.format("attaching %s", serviceName)); ServiceWrapper sw =
+	 * Runtime.getServiceWrapper(serviceName); if (sw == null) {
+	 * log.error(String.format("could not attach % - not found in registry",
+	 * serviceName)); return false; } if
+	 * (sw.getServiceType().equals("org.myrobotlab.service.OpenCV")) {
+	 * subscribe("publish", serviceName, "updateTrackingPoint", Point2Df.class);
+	 * return true; }
+	 * 
+	 * log.error(String.format("%s - don't know how to attach %s", getName(),
+	 * serviceName)); return false; }
+	 */
+
+	public void attachObjectTracker(OpenCV opencv) {
 		this.opencv = opencv;
 	}
-	
-	public void attachControlX(Servo servo)
-	{
+
+	public void attachControlX(Servo servo) {
 		control.setServoX(servo);
 	}
-	
-	public void attachControlY(Servo servo)
-	{
+
+	public void attachControlY(Servo servo) {
 		control.setServoY(servo);
 	}
-		
+
 	public static void main(String[] args) {
 
 		// ground plane
 		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
 		// radio lab - map cells location cells yatta yatta
-		// lkoptical disparity motion Time To Contact 
+		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
@@ -303,9 +365,9 @@ public class Tracking extends Service {
 		 * logException(e); }
 		 */
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv","OpenCV");
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
 		opencv.startService();
-	
+
 		// opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
@@ -327,42 +389,36 @@ public class Tracking extends Service {
 		 */
 
 		// FIXME way to test with faux controlsystem
-		
-/*		
-		Arduino mega = (Arduino)Runtime.createAndStart("mega", "Arduino");
-		mega.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
-		mega.setSerialDevice("COM9", 57600, 8, 1, 0);
-		
-		Servo pan =  (Servo)Runtime.createAndStart("pan", "Servo");
-		Servo tilt =  (Servo)Runtime.createAndStart("tilt", "Servo");
-		
-		mega.servoAttach("pan", 32);
-		mega.servoAttach("tilt", 6);
-*/		
+
+		/*
+		 * Arduino mega = (Arduino)Runtime.createAndStart("mega", "Arduino");
+		 * mega.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
+		 * mega.setSerialDevice("COM9", 57600, 8, 1, 0);
+		 * 
+		 * Servo pan = (Servo)Runtime.createAndStart("pan", "Servo"); Servo tilt
+		 * = (Servo)Runtime.createAndStart("tilt", "Servo");
+		 * 
+		 * mega.servoAttach("pan", 32); mega.servoAttach("tilt", 6);
+		 */
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
-		
+
 		tracker.attachObjectTracker(opencv);
-//		tracker.attachControlX(pan);
-//		tracker.attachControlY(tilt);
+		// tracker.attachControlX(pan);
+		// tracker.attachControlY(tilt);
 
-
-		//IPCamera ip = new IPCamera("ip");
-		//ip.startService();
+		// IPCamera ip = new IPCamera("ip");
+		// ip.startService();
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-		
+
 		tracker.calibrate();
-		//opencv.addFilter("pyramdDown", "PyramidDown");
-		//opencv.addFilter("floodFill", "FloodFill");
+		// opencv.addFilter("pyramdDown", "PyramidDown");
+		// opencv.addFilter("floodFill", "FloodFill");
 
-		//opencv.capture();
-		
-
-
+		// opencv.capture();
 
 	}
 
-	
 }

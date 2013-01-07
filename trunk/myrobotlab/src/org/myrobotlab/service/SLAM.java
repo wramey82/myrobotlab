@@ -30,11 +30,11 @@ import org.myrobotlab.framework.Service;
 
 /**
  * 
- * Reference : 
- * http://www.oursland.net/projects/fastslam/ - implementation and online demo
- * http://openslam.org/
+ * Reference : http://www.oursland.net/projects/fastslam/ - implementation and
+ * online demo http://openslam.org/
+ * 
  * @author grog
- *
+ * 
  */
 public class SLAM extends Service {
 
@@ -49,10 +49,9 @@ public class SLAM extends Service {
 	public void loadDefaultConfiguration() {
 	}
 
-
 	@Override
 	public String getToolTip() {
 		return "<html>addendum of WiiDAR - SLAM (not implemented)</html>";
 	}
-	
+
 }

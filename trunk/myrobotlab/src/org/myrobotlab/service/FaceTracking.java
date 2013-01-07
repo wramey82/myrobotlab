@@ -40,145 +40,136 @@ public class FaceTracking extends Service {
 	public final static Logger log = Logger.getLogger(FaceTracking.class.getCanonicalName());
 
 	/*
-	 *  TODO - dead zone - scan / search
+	 * TODO - dead zone - scan / search
 	 */
 	Servo tilt = new Servo("tilt");
 	Servo pan = new Servo("pan");
-	OpenCV camera = (OpenCV)Runtime.create("camera","OpenCV");
-	
+	OpenCV camera = (OpenCV) Runtime.create("camera", "OpenCV");
+
 	Arduino arduino = new Arduino("arduino");
-	
+
 	Logging logger = new Logging("logger");
-	
+
 	Speech speech = new Speech("speech");
-	
+
 	transient PID xpid = new PID();
 	transient PID ypid = new PID();
-	
+
 	String state = null;
-	
+
 	public FaceTracking(String n) {
 		super(n, FaceTracking.class.getCanonicalName());
-		
+
 		speech.startService();
 		tilt.startService();
 		pan.startService();
 		camera.startService();
 		logger.startService();
 		arduino.startService();
-		//pan.attach(arduino.getName(), 13);
+		// pan.attach(arduino.getName(), 13);
 
 		camera.addListener("publish", getName(), "input");
 		camera.addListener("isTracking", getName(), "isTracking", Boolean.class);
 		camera.addListener("sizeChange", getName(), "sizeChange", Dimension.class);
-		//addListener("pan", "logger", "log");
-		//addListener("tilt", "logger", "log");
+		// addListener("pan", "logger", "log");
+		// addListener("tilt", "logger", "log");
 		addListener("pan", "pan", "move");
 		addListener("tilt", "tilt", "move");
-		
+
 		xpid.SetTunings(0.05f, 0f, 0.6f);
 		xpid.Setpoint = 320;
 
 		ypid.SetTunings(0.05f, 0f, 0.6f);
 		ypid.Setpoint = 120;
-		
+
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
 	}
-	
-	public void startTracking()
-	{
+
+	public void startTracking() {
 	}
-	
-	public void stopTracking()
-	{
+
+	public void stopTracking() {
 	}
 
 	// TODO - put cfg
 	int width = 640;
 	int height = 480;
-	int centerX = width/2;
-	int centerY = height/2;
+	int centerX = width / 2;
+	int centerY = height / 2;
 	int errorX = 0;
 	int errorY = 0;
-	
-	public void sizeChange(Dimension d)
-	{
+
+	public void sizeChange(Dimension d) {
 		width = d.width;
 		height = d.height;
-		xpid.Setpoint = width/2;
-		ypid.Setpoint = height/2;
+		xpid.Setpoint = width / 2;
+		ypid.Setpoint = height / 2;
 
 	}
-	
+
 	public class PID {
-		
-		/*working variables*/
+
+		/* working variables */
 		public long lastTime;
 		public float Input, Output, Setpoint;
 		public float errSum, lastErr;
 		public float kp, ki, kd;
-		
-		void Compute()
-		{
-		   /*How long since we last calculated*/
-		   long now = System.currentTimeMillis();
-		   float timeChange = (float)(now - lastTime);
-		 
-		   /*Compute all the working error variables*/
-		   float error = Setpoint - Input;
-		   errSum += (error * timeChange);
-		   float dErr = (error - lastErr) / timeChange;
-		 
-		   /*Compute PID Output*/
-		   Output = kp * error + ki * errSum + kd * dErr;
-		 
-		   /*Remember some variables for next time*/
-		   lastErr = error;
-		   lastTime = now;
+
+		void Compute() {
+			/* How long since we last calculated */
+			long now = System.currentTimeMillis();
+			float timeChange = (float) (now - lastTime);
+
+			/* Compute all the working error variables */
+			float error = Setpoint - Input;
+			errSum += (error * timeChange);
+			float dErr = (error - lastErr) / timeChange;
+
+			/* Compute PID Output */
+			Output = kp * error + ki * errSum + kd * dErr;
+
+			/* Remember some variables for next time */
+			lastErr = error;
+			lastTime = now;
 		}
-		 
-		void SetTunings(float Kp, float Ki, float Kd)
-		{
-		   kp = Kp;
-		   ki = Ki;
-		   kd = Kd;
-		}	
+
+		void SetTunings(float Kp, float Ki, float Kd) {
+			kp = Kp;
+			ki = Ki;
+			kd = Kd;
+		}
 	}
-	
-	public void input (CvPoint point)
-	{
+
+	public void input(CvPoint point) {
 
 		xpid.Input = point.x();
 		xpid.Compute();
-		
+
 		ypid.Input = point.y();
 		ypid.Compute();
-		
 
-		int correctX = (int)xpid.Output;
-		int correctY = (int)ypid.Output;
-		
-		//log.error(point.x() + "," + point.y() + " correct x " + correctX + " correct y " + correctY);
-		
-		if (correctX == 0 && correctY == 0)
-		{
-			if (state == null)
-			{
-				// I found my num num			
+		int correctX = (int) xpid.Output;
+		int correctY = (int) ypid.Output;
+
+		// log.error(point.x() + "," + point.y() + " correct x " + correctX +
+		// " correct y " + correctY);
+
+		if (correctX == 0 && correctY == 0) {
+			if (state == null) {
+				// I found my num num
 				log.error("I found my num num");
 				speak("I found my num num");
 				state = "foundSomethingNew";
-			} else if (!"centered".equals(state)){
+			} else if (!"centered".equals(state)) {
 				log.error("I'm hooked up, num num num");
 				speak("I got my num num");
 			}
 			state = "centered";
-		} else {		
-			if (!"tracking".equals(state))
-			{
+		} else {
+			if (!"tracking".equals(state)) {
 				log.error("I wan't dat");
 				speak("I wan't dat");
 
@@ -188,95 +179,86 @@ public class FaceTracking extends Service {
 			state = "tracking";
 		}
 	}
-	
-	public void isTracking(Boolean b)
-	{
-		if (b == true)
-		{
+
+	public void isTracking(Boolean b) {
+		if (b == true) {
 			log.error("num num - I' gonna get it");
 			speak("I'm gonna get my num num");
 		} else {
-			//if (!"lostTracking".equals(state))
+			// if (!"lostTracking".equals(state))
 			// wah wah - search routine
-			log.error("wah wah - where is it?"); 
+			log.error("wah wah - where is it?");
 			speak("boo who who - where is my num num?");
 			state = "lostTracking";
 		}
 	}
-	
-	public void speak(String s)
-	{
+
+	public void speak(String s) {
 		send("speechAudioFile", "playWAV", s);
-		if (canSpeak) speech.speak(s); // TODO bury in framework so Speech Service variable maintains canSpeak
+		if (canSpeak)
+			speech.speak(s); // TODO bury in framework so Speech Service
+								// variable maintains canSpeak
 	}
-	
+
 	boolean canSpeak = true;
-	public void playingFile(Boolean b)
-	{
-		if (b)
-		{
+
+	public void playingFile(Boolean b) {
+		if (b) {
 			canSpeak = false;
 		} else {
 			canSpeak = true;
 		}
 	}
-	
-	public Integer tilt (Integer position)
-	{
+
+	public Integer tilt(Integer position) {
 		return position;
 	}
 
-	public Integer pan (Integer position)
-	{
+	public Integer pan(Integer position) {
 		return position;
 	}
-	
-	/* Un-needed
-	public FaceTracking publishState()
-	{
-		return this;
-	}
-	*/
+
+	/*
+	 * Un-needed public FaceTracking publishState() { return this; }
+	 */
 
 	// TODO - reflectively do it in Service? !?
 	// No - the overhead of a Service warrants a data only proxy - so to
 	// a single container class "ClockData data = new ClockData()" could allow
-	// easy maintenance and extensibility - possibly even reflective sync if names are maintained   
-	public FaceTracking setState(FaceTracking o)
-	{
+	// easy maintenance and extensibility - possibly even reflective sync if
+	// names are maintained
+	public FaceTracking setState(FaceTracking o) {
 		return o;
 	}
-	
+
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
-				
-		
+
 		FaceTracking ft = new FaceTracking("face tracker");
 		ft.startService();
 
 		ft.camera.addFilter("Gray", "Gray");
 		ft.camera.addFilter("PyramidDown2", "PyramidDown");
 		ft.camera.addFilter("MatchTemplate", "MatchTemplate");
-		//ft.camera.addFilter("PyramidDown2", "PyramidDown");
-		//ft.camera.useInput = "camera";
+		// ft.camera.addFilter("PyramidDown2", "PyramidDown");
+		// ft.camera.useInput = "camera";
 		ft.camera.capture();
-		
-		//ft.arduino.se - TODO setPort("/dev/ttyUSB0");
-		
-		//ft.tilt.attach(ft.arduino.getName(), 12);
-		//ft.pan.attach(ft.arduino.getName(), 13);
-		
+
+		// ft.arduino.se - TODO setPort("/dev/ttyUSB0");
+
+		// ft.tilt.attach(ft.arduino.getName(), 12);
+		// ft.pan.attach(ft.arduino.getName(), 13);
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used for tracking";
 	}
-
 
 }

@@ -17,11 +17,11 @@ public class LoggingGUI extends ServiceGUI implements ActionListener {
 
 	JTextArea log = new JTextArea(20, 40);
 	ImageButton clearButton;
-	
+
 	public LoggingGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 		display.setLayout(new BorderLayout());
 
@@ -29,39 +29,37 @@ public class LoggingGUI extends ServiceGUI implements ActionListener {
 		JPanel toolbar = new JPanel(new BorderLayout());
 		toolbar.add(clearButton, BorderLayout.EAST);
 		display.add(toolbar, BorderLayout.PAGE_START);
-		
+
 		log.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(log);
-		
+
 		display.add(scrollPane, BorderLayout.CENTER);
 	}
 
-	public void log (Message m)
-	{
-		
+	public void log(Message m) {
+
 		StringBuffer data = null;
-		
-		if (m.data != null)
-		{
+
+		if (m.data != null) {
 			data = new StringBuffer();
-			for (int i = 0; i < m.data.length; ++i)
-			{
+			for (int i = 0; i < m.data.length; ++i) {
 				data.append(m.data[i]);
-				if (m.data.length > 1)
-				{
+				if (m.data.length > 1) {
 					data.append(" ");
 				}
 			}
 		}
-		
+
 		log.append(m.sender + "." + m.sendingMethod + "->" + data + "\n");
-		
-		log.setCaretPosition(log.getDocument().getLength()); // FIXME - do it the new Java 1.6 way
+
+		log.setCaretPosition(log.getDocument().getLength()); // FIXME - do it
+																// the new Java
+																// 1.6 way
 	}
-	
+
 	@Override
 	public void attachGUI() {
-		subscribe("log", "log", Message.class);		
+		subscribe("log", "log", Message.class);
 	}
 
 	@Override
@@ -72,11 +70,10 @@ public class LoggingGUI extends ServiceGUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		Object o = action.getSource();
-		if (o == clearButton)
-		{
+		if (o == clearButton) {
 			log.setText("");
 		}
-		
+
 	}
 
 }

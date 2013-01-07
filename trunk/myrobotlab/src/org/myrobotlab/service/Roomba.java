@@ -41,8 +41,7 @@ public class Roomba extends Service implements SerialDeviceService {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Roomba.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Roomba.class.getCanonicalName());
 
 	transient RoombaCommSerialDevice roombacomm = null;
 
@@ -83,8 +82,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	@Override
-	public boolean setSerialDevice(String name, int rate, int databits,
-			int stopbits, int parity) {
+	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -207,11 +205,8 @@ public class Roomba extends Service implements SerialDeviceService {
 	 * Turns on/off the various LEDs. Low-level command. FIXME: this is too
 	 * complex
 	 */
-	public void setLEDs(boolean status_green, boolean status_red, boolean spot,
-			boolean clean, boolean max, boolean dirt, int power_color,
-			int power_intensity) {
-		roombacomm.setLEDs(status_green, status_red, spot, clean, max, dirt,
-				power_color, power_intensity);
+	public void setLEDs(boolean status_green, boolean status_red, boolean spot, boolean clean, boolean max, boolean dirt, int power_color, int power_intensity) {
+		roombacomm.setLEDs(status_green, status_red, spot, clean, max, dirt, power_color, power_intensity);
 	}
 
 	public void setPortname(String p) {
@@ -532,8 +527,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		}
 	}
 
-	public void spiro2(int velocity, int radius, int radius2, int waittime,
-			int waittime2) {
+	public void spiro2(int velocity, int radius, int radius2, int waittime, int waittime2) {
 		int w, dr;
 
 		boolean done = false;
@@ -590,8 +584,7 @@ public class Roomba extends Service implements SerialDeviceService {
 				continue;
 			}
 
-			System.out.println(System.currentTimeMillis() + ":"
-					+ roombacomm.sensorsAsString());
+			System.out.println(System.currentTimeMillis() + ":" + roombacomm.sensorsAsString());
 
 			roombacomm.pause(pausetime);
 		}
@@ -634,115 +627,103 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	public void printSensors() {
-		System.out.println(System.currentTimeMillis() + ":" + "bump:"
-				+ (roombacomm.bumpLeft() ? "l" : "_") + (roombacomm.bumpRight() ? "r" : "_")
-				+ " wheel:" + (roombacomm.wheelDropLeft() ? "l" : "_")
-				+ (roombacomm.wheelDropCenter() ? "c" : "_")
-				+ (roombacomm.wheelDropLeft() ? "r" : "_"));
-		
-	}
-	
-	public boolean bump()
-	{
-		return roombacomm.bump();
-	}
-	
-	public void test()
-	{
-        // must pause after every playNote to let to note sound
-        System.out.println("Playing some notes");
-        roombacomm.playNote( 72, 10 );
-        roombacomm.pause( 200 );
-        roombacomm.playNote( 79, 10 );
-        roombacomm.pause( 200 );
-        roombacomm.playNote( 76, 10 );
-        roombacomm.pause( 200 );
-        
-        // test Logo-like functions (blocking)
-        // speed is in mm/s, go* is in mm, spin is in degrees
-        roombacomm.setSpeed( 100 );     // can be positive or negative
-        roombacomm.goStraight( 100 );   // can be positive or negative
-        roombacomm.goForward( 100 );    // negative numbers not allowed
-        roombacomm.goBackward( 200 );   // negative numbers not allowed
-        
-        roombacomm.setSpeed( 150 );
-        roombacomm.spin( -360 );        // can be positive or negative
-        roombacomm.spinRight( 360 );    // negative numbers not allowed
-        roombacomm.spinLeft( 360 );     // negative numbers not allowed
-        
-        // test non-blocking functions
-        roombacomm.goStraightAt(200);   // speed argument
-        roombacomm.pause(1000);
-        roombacomm.goForwardAt(200);   // speed argument
-        roombacomm.pause(1000);
-        roombacomm.goBackwardAt(400);   // speed argument
-        roombacomm.pause(1000);
-        
-        roombacomm.spinLeftAt( -15 );    // mm/s or degs/sec ?
-        roombacomm.pause(1000);
-        roombacomm.spinRightAt( 15 );
-        roombacomm.pause(1000);
+		System.out.println(System.currentTimeMillis() + ":" + "bump:" + (roombacomm.bumpLeft() ? "l" : "_") + (roombacomm.bumpRight() ? "r" : "_") + " wheel:"
+				+ (roombacomm.wheelDropLeft() ? "l" : "_") + (roombacomm.wheelDropCenter() ? "c" : "_") + (roombacomm.wheelDropLeft() ? "r" : "_"));
+
 	}
 
-	  
-    public void purr() {
-        System.out.println("purr");
-        roombacomm.playSong( 5 );
-        for( int i=0; i<5; i++ ) {
-            roombacomm.spinLeftAt( 75 );
-            roombacomm.pause( 100 );
-            roombacomm.spinRightAt( 75 );
-            roombacomm.pause( 100 );
-            roombacomm.stop();
-        }
-    }
-    
-    public void createTribblePurrSong() {
-        int song[] = 
-            { 68,4, 67,4, 66,4, 65,4,
-              64,4, 63,4, 62,4, 61,4,
-              60,4, 59,4, 60,4, 61,4,
-            };
-        roombacomm.createSong( 5, song );
-    }
-    
-    public void bark() {
-        System.out.println("bark");
-        roombacomm.vacuum(true);
-        roombacomm.playNote( 50, 5 );
-        roombacomm.pause(150);
-        roombacomm.vacuum(false);
-    }
-    
-    public void tribble()
-    {
-     createTribblePurrSong();
-        
-        System.out.println("Press return to exit.");
-        boolean done = false;
-        while( !done ) { 
-            
-            purr();
-            
-            if( Math.random() < 0.1 )
-                bark();
-            
-            roombacomm.pause(1500 + (int)(Math.random()*500) );           
-            //done = keyIsPressed();            
-        }
-        
-    }
-    
-    public void waggle(int velocity, int radius, int waittime)
-    {
-        for( int i=0; i<5; i++ ) {
-            roombacomm.drive( velocity, radius );
-            roombacomm.pause(waittime);
-            roombacomm.drive( velocity, -radius );
-            roombacomm.pause(waittime);
-        }
-    }
-    
+	public boolean bump() {
+		return roombacomm.bump();
+	}
+
+	public void test() {
+		// must pause after every playNote to let to note sound
+		System.out.println("Playing some notes");
+		roombacomm.playNote(72, 10);
+		roombacomm.pause(200);
+		roombacomm.playNote(79, 10);
+		roombacomm.pause(200);
+		roombacomm.playNote(76, 10);
+		roombacomm.pause(200);
+
+		// test Logo-like functions (blocking)
+		// speed is in mm/s, go* is in mm, spin is in degrees
+		roombacomm.setSpeed(100); // can be positive or negative
+		roombacomm.goStraight(100); // can be positive or negative
+		roombacomm.goForward(100); // negative numbers not allowed
+		roombacomm.goBackward(200); // negative numbers not allowed
+
+		roombacomm.setSpeed(150);
+		roombacomm.spin(-360); // can be positive or negative
+		roombacomm.spinRight(360); // negative numbers not allowed
+		roombacomm.spinLeft(360); // negative numbers not allowed
+
+		// test non-blocking functions
+		roombacomm.goStraightAt(200); // speed argument
+		roombacomm.pause(1000);
+		roombacomm.goForwardAt(200); // speed argument
+		roombacomm.pause(1000);
+		roombacomm.goBackwardAt(400); // speed argument
+		roombacomm.pause(1000);
+
+		roombacomm.spinLeftAt(-15); // mm/s or degs/sec ?
+		roombacomm.pause(1000);
+		roombacomm.spinRightAt(15);
+		roombacomm.pause(1000);
+	}
+
+	public void purr() {
+		System.out.println("purr");
+		roombacomm.playSong(5);
+		for (int i = 0; i < 5; i++) {
+			roombacomm.spinLeftAt(75);
+			roombacomm.pause(100);
+			roombacomm.spinRightAt(75);
+			roombacomm.pause(100);
+			roombacomm.stop();
+		}
+	}
+
+	public void createTribblePurrSong() {
+		int song[] = { 68, 4, 67, 4, 66, 4, 65, 4, 64, 4, 63, 4, 62, 4, 61, 4, 60, 4, 59, 4, 60, 4, 61, 4, };
+		roombacomm.createSong(5, song);
+	}
+
+	public void bark() {
+		System.out.println("bark");
+		roombacomm.vacuum(true);
+		roombacomm.playNote(50, 5);
+		roombacomm.pause(150);
+		roombacomm.vacuum(false);
+	}
+
+	public void tribble() {
+		createTribblePurrSong();
+
+		System.out.println("Press return to exit.");
+		boolean done = false;
+		while (!done) {
+
+			purr();
+
+			if (Math.random() < 0.1)
+				bark();
+
+			roombacomm.pause(1500 + (int) (Math.random() * 500));
+			// done = keyIsPressed();
+		}
+
+	}
+
+	public void waggle(int velocity, int radius, int waittime) {
+		for (int i = 0; i < 5; i++) {
+			roombacomm.drive(velocity, radius);
+			roombacomm.pause(waittime);
+			roombacomm.drive(velocity, -radius);
+			roombacomm.pause(waittime);
+		}
+	}
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);

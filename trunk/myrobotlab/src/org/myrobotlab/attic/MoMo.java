@@ -50,8 +50,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 public class MoMo extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(MoMo.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(MoMo.class.getCanonicalName());
 
 	public final static int IR_PIN = 1;
 
@@ -105,16 +104,11 @@ public class MoMo extends Service {
 		sensors.startService();
 
 		mouth.getCFG().set("isATT", true);
-		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "500", 500, 500, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
-		sensors.addTrigger(arduino.getName(), "600", 600, 600, Trigger.BOUNDRY, Trigger.STATE_LOW,
-				IR_PIN);
+		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "500", 500, 500, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
+		sensors.addTrigger(arduino.getName(), "600", 600, 600, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
 		sensors.addListener("publish", this.getName(), "publish", Trigger.class);
 
 		// creating static route from ear/speech recognition to special action
@@ -123,10 +117,10 @@ public class MoMo extends Service {
 		// Motors attached to Arduino
 		// left motor inverted to keep it simple for me
 		// neck.attach(arduino.getName(), 10, 12);
-		//right.attach(arduino.getName(), 9, 8);
+		// right.attach(arduino.getName(), 9, 8);
 		// left.attach(arduino.getName(), 11, 13);
-		//left.attach(arduino.getName(), 10, 11);
-		//left.invertDirection();
+		// left.attach(arduino.getName(), 10, 11);
+		// left.invertDirection();
 
 		// 2 encoders attached
 		// right.attachEncoder(arduino.getName(), 2);
@@ -164,15 +158,14 @@ public class MoMo extends Service {
 		} else if (speech.compareTo("board") == 0) {
 			// lookAtBoard();
 			mouth.speak("board");
-		} else if ((speech.compareTo("stop") == 0)
-				|| (speech.compareTo("halt") == 0)) {
+		} else if ((speech.compareTo("stop") == 0) || (speech.compareTo("halt") == 0)) {
 			// lookAtBoard();
 			left.stopAndLock();
 			right.stopAndLock();
 			mouth.speak("locked");
 		} else if (speech.compareTo("go") == 0) {
-			//left.incrementPower(0.3f);
-			//right.incrementPower(0.3f);
+			// left.incrementPower(0.3f);
+			// right.incrementPower(0.3f);
 			// center();
 		} else if (speech.compareTo("center") == 0) {
 			// center();
@@ -190,10 +183,10 @@ public class MoMo extends Service {
 			// report();
 		} else if (speech.compareTo("left") == 0) {
 			// report();
-			//left.incrementPower(0.1f);
+			// left.incrementPower(0.1f);
 		} else if (speech.compareTo("right") == 0) {
 			// report();
-			//right.incrementPower(0.1f);
+			// right.incrementPower(0.1f);
 		} else if (speech.compareTo("clear") == 0) {
 			// filterOff();
 		} else {
@@ -236,8 +229,7 @@ public class MoMo extends Service {
 	public void findFloor(ColoredPoint[] points) {
 		log.info("here");
 
-		if (points[0].getRed() != 128 && points[0].getGreen() != 0
-				&& points[0].getBlue() != 0) {
+		if (points[0].getRed() != 128 && points[0].getGreen() != 0 && points[0].getBlue() != 0) {
 			stopReverseRightTurn();
 		}
 	}
@@ -249,8 +241,8 @@ public class MoMo extends Service {
 			right.stop();
 			mouth.speak("stop");
 
-			//left.incrementPower(0.45f); // TODO - moveTo -3 inches
-			//right.incrementPower(0.45f);
+			// left.incrementPower(0.45f); // TODO - moveTo -3 inches
+			// right.incrementPower(0.45f);
 
 			Thread.sleep(1000);
 			left.stop(); // TODO decompose
@@ -270,8 +262,7 @@ public class MoMo extends Service {
 		// opticalTrackFilter ();
 
 		// add the call back
-		camera.addListener("publish", this.getName(),
-				"adjustPowerMaintainStraightCourse", CvPoint2D32f.class);
+		camera.addListener("publish", this.getName(), "adjustPowerMaintainStraightCourse", CvPoint2D32f.class);
 
 	}
 
@@ -303,7 +294,8 @@ public class MoMo extends Service {
 			xPower = maxPower;
 		}
 
-		//Log.error("track " + centerX + "," + centerY + " " + currentX + "," + currentY + " speed " + xPower);
+		// Log.error("track " + centerX + "," + centerY + " " + currentX + "," +
+		// currentY + " speed " + xPower);
 
 		if (centerX > currentX) {
 			// left.incrementPower(-0.01f);
@@ -324,7 +316,7 @@ public class MoMo extends Service {
 			right.stop();
 		}
 		oldPoints = points;
-		//log.error("left " + left.getPower() + " right " + right.getPower());
+		// log.error("left " + left.getPower() + " right " + right.getPower());
 	}
 
 	public void watchForMovement() {
@@ -339,7 +331,8 @@ public class MoMo extends Service {
 		camera.removeFilter("LKOpticalTrack");
 
 		// remove triggers
-		// camera.removeListener(outMethod, serviceName, inMethod, paramType); //
+		// camera.removeListener(outMethod, serviceName, inMethod, paramType);
+		// //
 		// TODO - make removable by query best
 		camera.removeListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
@@ -356,7 +349,7 @@ public class MoMo extends Service {
 		// if (!tracking)
 		{
 			// remove movement trigger
-			camera.removeListener("publish", this.getName(), "foundMovement",Rectangle.class);
+			camera.removeListener("publish", this.getName(), "foundMovement", Rectangle.class);
 
 			// begin tracking
 			tracking = true;
@@ -372,12 +365,11 @@ public class MoMo extends Service {
 
 			// add the optical track filters
 			opticalTrackFilter();
-			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", (Object[])null);
+			camera.invokeFilterMethod("LKOpticalTrack", "clearPoints", (Object[]) null);
 			camera.addListener("publish", this.getName(), "trackPoint", CvPoint2D32f[].class);
 
 			// add a LK point in the center of the motion
-			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height
-					/ 2);
+			Point p = new Point(rect.x + rect.width / 2, rect.y + rect.height / 2);
 			Object[] params = new Object[1];
 			params[0] = (Object) p;
 
@@ -432,9 +424,7 @@ public class MoMo extends Service {
 	public void generateSketchupFile() {
 		String ret = "\n";
 		for (int i = 0; i < x0.length; ++i) {
-			ret += "Sketchup.active_model.entities.add_line [" + x1[i].x + ", "
-					+ x1[i].y + ", " + (30 - (x1[i].x - x0[i].x)) + "], ["
-					+ x0[i].x + ", " + x0[i].y + ", "
+			ret += "Sketchup.active_model.entities.add_line [" + x1[i].x + ", " + x1[i].y + ", " + (30 - (x1[i].x - x0[i].x)) + "], [" + x0[i].x + ", " + x0[i].y + ", "
 					+ (30 - (x1[i].x - x0[i].x)) + "]\n";
 		}
 		log.error(ret);
@@ -442,25 +432,25 @@ public class MoMo extends Service {
 
 	public void keyCommand(String cmd) {
 		if (cmd.compareTo("Up") == 0) {
-			//right.incrementPower(0.1f);
-			//left.incrementPower(0.1f);
+			// right.incrementPower(0.1f);
+			// left.incrementPower(0.1f);
 		} else if (cmd.compareTo("Down") == 0) {
-			//right.incrementPower(-0.1f);
-			//left.incrementPower(-0.1f);
+			// right.incrementPower(-0.1f);
+			// left.incrementPower(-0.1f);
 		} else if (cmd.compareTo("Left") == 0) {
-			//left.incrementPower(-0.1f);
-			//right.incrementPower(0.1f);
+			// left.incrementPower(-0.1f);
+			// right.incrementPower(0.1f);
 		} else if (cmd.compareTo("Right") == 0) {
-			//right.incrementPower(-0.1f);
-			//left.incrementPower(0.1f);
+			// right.incrementPower(-0.1f);
+			// left.incrementPower(0.1f);
 		} else if (cmd.compareTo("Space") == 0) {
 			right.stopAndLock();
 			left.stopAndLock();
 		} else if (cmd.compareTo("W") == 0) {
 			watchForMovement();
 		} else if (cmd.compareTo("U") == 0) {
-			///right.unLock();
-			//left.unLock();
+			// /right.unLock();
+			// left.unLock();
 		} else if (cmd.compareTo("9") == 0) {
 			// shaker.invoke("moveTo",130);
 		} else if (cmd.compareTo("8") == 0) {
@@ -470,27 +460,20 @@ public class MoMo extends Service {
 		} else if (cmd.compareTo("6") == 0) {
 			// shaker.invoke("moveTo",20);
 		} else if (cmd.compareTo("R") == 0) {
-			camera.removeListener("publish", this.getName(), "sampleEndPoints",
-					CvPoint2D32f[].class);
+			camera.removeListener("publish", this.getName(), "sampleEndPoints", CvPoint2D32f[].class);
 			beginSampled = false;
-			camera.addListener("publish", this.getName(), "sampleBeginPoints",
-					CvPoint2D32f[].class);
+			camera.addListener("publish", this.getName(), "sampleBeginPoints", CvPoint2D32f[].class);
 		} else if (cmd.compareTo("T") == 0) {
-			camera.removeListener("publish", this.getName(), "sampleBeginPoints",
-					CvPoint2D32f[].class);
+			camera.removeListener("publish", this.getName(), "sampleBeginPoints", CvPoint2D32f[].class);
 			endSampled = false;
-			camera.addListener("publish", this.getName(), "sampleEndPoints",
-					CvPoint2D32f[].class);
+			camera.addListener("publish", this.getName(), "sampleEndPoints", CvPoint2D32f[].class);
 
 		} else if (cmd.compareTo("M") == 0) {
 			camera.addFilter("Mouse", "Mouse");
-			camera.addListener("publish", this.getName(), "mousePoints",
-					CvPoint2D32f[].class);
+			camera.addListener("publish", this.getName(), "mousePoints", CvPoint2D32f[].class);
 		} else if (cmd.compareTo("G") == 0) {
-			camera.removeListener("publish", this.getName(), "sampleBeginPoints",
-					CvPoint2D32f[].class);
-			camera.removeListener("publish", this.getName(), "sampleEndPoints",
-					CvPoint2D32f[].class);
+			camera.removeListener("publish", this.getName(), "sampleBeginPoints", CvPoint2D32f[].class);
+			camera.removeListener("publish", this.getName(), "sampleEndPoints", CvPoint2D32f[].class);
 			generateSketchupFile();
 		}
 
@@ -509,23 +492,19 @@ public class MoMo extends Service {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {
 				Y = Math.tan(0.01745 * (54.7 + (240 - p.y()) / 5.6)) * 17;
-				X = Math.sqrt(Y * Y + 17 * 17)
-						* Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
+				X = Math.sqrt(Y * Y + 17 * 17) * Math.sin(0.01745 * -1 * (160 - p.x()) / 5.6);
 				if (!unique.containsKey((int) X + "," + (int) Y)) {
 					unique.put((int) X + "," + (int) Y, p);
-					ret += "Sketchup.active_model.entities.add_line ["
-							+ (int) X + ", " + (int) Y + ", " + 0 + "], ["
-							+ (int) X + ", " + (int) Y + ", " + 8 + "]\n";
+					ret += "Sketchup.active_model.entities.add_line [" + (int) X + ", " + (int) Y + ", " + 0 + "], [" + (int) X + ", " + (int) Y + ", " + 8 + "]\n";
 				}
 				// Log.error(p.x + "," + (int)z + "," + p.y);
 				// Math.sqrt(a)
 			}
 		}
 
-		//Log.error(ret);
+		// Log.error(ret);
 		camera.removeFilter("Mouse");
-		camera.removeListener("publish", this.getName(), "mousePoints",
-				CvPoint2D32f[].class);
+		camera.removeListener("publish", this.getName(), "mousePoints", CvPoint2D32f[].class);
 
 	}
 
@@ -549,8 +528,7 @@ public class MoMo extends Service {
 		}
 
 		if (a.max == 600) {
-			mouth
-					.speak("impact is eminant. automatic override in progress. dammit where are my wheels.");
+			mouth.speak("impact is eminant. automatic override in progress. dammit where are my wheels.");
 		}
 		// mouth.speak("hello");
 		// log.error("hello");
@@ -560,34 +538,27 @@ public class MoMo extends Service {
 
 	// TODO - Remote.export(camera) ....
 	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-/*		
-		ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
-															// only 1 TODO -
-															// kludge - fix me
-		super.registerServices(sdu);
-
-		ServiceEntry se;
-		sdu.serviceEntryList_.clear();
-
-		se = hostcfg.getFullServiceEntry("momo");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("camera");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("sensors");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		se = hostcfg.getFullServiceEntry("arduino");
-		se.localServiceHandle = null;
-		sdu.serviceEntryList_.add(se);
-
-		sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,
-				sdu.remoteServicePort, sdu);
-*/				
+		/*
+		 * ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1
+		 * and // only 1 TODO - // kludge - fix me super.registerServices(sdu);
+		 * 
+		 * ServiceEntry se; sdu.serviceEntryList_.clear();
+		 * 
+		 * se = hostcfg.getFullServiceEntry("momo"); se.localServiceHandle =
+		 * null; sdu.serviceEntryList_.add(se);
+		 * 
+		 * se = hostcfg.getFullServiceEntry("camera"); se.localServiceHandle =
+		 * null; sdu.serviceEntryList_.add(se);
+		 * 
+		 * se = hostcfg.getFullServiceEntry("sensors"); se.localServiceHandle =
+		 * null; sdu.serviceEntryList_.add(se);
+		 * 
+		 * se = hostcfg.getFullServiceEntry("arduino"); se.localServiceHandle =
+		 * null; sdu.serviceEntryList_.add(se);
+		 * 
+		 * sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,
+		 * sdu.remoteServicePort, sdu);
+		 */
 
 	}
 
@@ -595,5 +566,5 @@ public class MoMo extends Service {
 	public String getToolTip() {
 		return "behavioral service experiment";
 	}
-	
+
 }

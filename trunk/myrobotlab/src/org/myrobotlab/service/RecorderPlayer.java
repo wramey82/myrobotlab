@@ -40,8 +40,7 @@ import org.myrobotlab.framework.Service;
 public class RecorderPlayer extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(RecorderPlayer.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(RecorderPlayer.class.getCanonicalName());
 	public ArrayList<Message> msgs = new ArrayList<Message>();
 	public HashMap<String, ArrayList<Message>> msgMap = new HashMap<String, ArrayList<Message>>();
 
@@ -71,9 +70,7 @@ public class RecorderPlayer extends Service {
 
 			if (i + 1 < msgs.size()) {
 				Message nextMsg = msgs.get(i + 1);
-				deltaMsgTime = Integer
-						.parseInt(nextMsg.timeStamp.substring(10))
-						- Integer.parseInt(m.timeStamp.substring(10));
+				deltaMsgTime = Integer.parseInt(nextMsg.timeStamp.substring(10)) - Integer.parseInt(m.timeStamp.substring(10));
 			}
 
 			try {
@@ -84,7 +81,6 @@ public class RecorderPlayer extends Service {
 			}
 		}
 	}
-
 
 	public void saveAs(String filename) {
 		try {
@@ -123,8 +119,7 @@ public class RecorderPlayer extends Service {
 						// out.write(params[j].toString());
 						d += "|" + params[j].toString();
 					}
-					out.write(msgs.get(i).timeStamp + "|"
-							+ msgs.get(i).getParameterSignature() + d + "\n");
+					out.write(msgs.get(i).timeStamp + "|" + msgs.get(i).getParameterSignature() + d + "\n");
 				}
 				out.close();
 				outfile.close();
@@ -149,7 +144,7 @@ public class RecorderPlayer extends Service {
 
 			String s;
 			while ((s = in.readLine()) != null) {
-				
+
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -165,17 +160,15 @@ public class RecorderPlayer extends Service {
 		targetServiceName = serviceName;
 	}
 
-	public boolean preProcessHook(Message m)
-	{
+	public boolean preProcessHook(Message m) {
 		m.historyList.clear();
 		msgs.add(m);
 		return true;
 	}
-	
 
 	@Override
 	public String getToolTip() {
 		return "<html>service for recording and playing back messages (not fully implemented)</html>";
 	}
-	
+
 }

@@ -1,8 +1,8 @@
 package org.myrobotlab.service.data;
 
 public class PinState {
-	
-	//type
+
+	// type
 	public static final int DIGITAL = 0x0;
 	public static final int ANALOG = 0x1;
 	public static final int ANALOGDIGITAL = 0x2;
@@ -12,10 +12,10 @@ public class PinState {
 	public static final int INPUT = 0x0;
 
 	public static final int UNKNOWN = 0xFF;
-	
+
 	/**
-	 * type - represents the physical type of pin - on an Arduino they
-	 * can be DIGTAL (read/write), ANALOG (read only), ANALOGDIGITAL (pwm read/write)
+	 * type - represents the physical type of pin - on an Arduino they can be
+	 * DIGTAL (read/write), ANALOG (read only), ANALOGDIGITAL (pwm read/write)
 	 */
 	public int type = UNKNOWN;
 	public int mode = UNKNOWN;

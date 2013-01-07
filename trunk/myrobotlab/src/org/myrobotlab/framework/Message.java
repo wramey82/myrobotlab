@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 /**
  * @author GroG
- *
+ * 
  */
 public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -40,50 +40,48 @@ public class Message implements Serializable {
 	/**
 	 * unique identifier for this message - TODO remove
 	 */
-	public String msgID; 
+	public String msgID;
 	/**
 	 * datetimestamp when message is created GMT
 	 */
 	public String timeStamp;
 	/**
-	 * globally unique name of destination Service.  This will be the Service
+	 * globally unique name of destination Service. This will be the Service
 	 * endpoint of this Message.
 	 */
 	public String name;
 	/**
-	 * name of the sending Service which sent this Message 
+	 * name of the sending Service which sent this Message
 	 */
-	public String sender; 
+	public String sender;
 	/**
-	 * originating source method which generated this Message 
+	 * originating source method which generated this Message
 	 */
-	public String sendingMethod; 
+	public String sendingMethod;
 	/**
-	 * history of the message, its routing stops and Services it passed
-	 * through.  This is important to prevent endless looping of messages.
+	 * history of the message, its routing stops and Services it passed through.
+	 * This is important to prevent endless looping of messages.
 	 */
 	public ArrayList<RoutingEntry> historyList;
 	/**
-	 * status is currently used for BLOCKING message calls
-	 * the current valid state it can be in is null | BLOCKING | RETURN
-	 * FIXME - this should be msgType not status
+	 * status is currently used for BLOCKING message calls the current valid
+	 * state it can be in is null | BLOCKING | RETURN FIXME - this should be
+	 * msgType not status
 	 */
 	public String status;
 	public String msgType; // Broadcast|Blocking|Blocking Return - deprecated
 	/**
-	 * the method which will be invoked on the destination @see Service 
+	 * the method which will be invoked on the destination @see Service
 	 */
 	public String method;
 
-	
 	/**
-	 *  the data which will be sent to the destination method
-	 *  data payload - if invoking a service request this
-	 *  would be the parameter (list) - this would the
-	 *  return type data if the message is outbound
+	 * the data which will be sent to the destination method data payload - if
+	 * invoking a service request this would be the parameter (list) - this
+	 * would the return type data if the message is outbound
 	 */
-	public Object[] data; 
-	
+	public Object[] data;
+
 	public Message() {
 		timeStamp = new String(); // FIXME - remove silly assignments !!!
 		name = new String();
@@ -110,8 +108,7 @@ public class Message implements Serializable {
 		data = other.data;
 	}
 
-	final public String getParameterSignature()
-	{
+	final public String getParameterSignature() {
 		return getParameterSignature(data);
 	}
 
@@ -122,15 +119,15 @@ public class Message implements Serializable {
 
 		StringBuffer ret = new StringBuffer();
 		for (int i = 0; i < data.length; ++i) {
-			if (data[i] != null)
-			{
-				Class<?> c = data[i].getClass(); // not all data types are safe toString() e.g. SerializableImage
-				if (c == String.class || c == Integer.class || c == Boolean.class || c == Float.class)
-				{
+			if (data[i] != null) {
+				Class<?> c = data[i].getClass(); // not all data types are safe
+													// toString() e.g.
+													// SerializableImage
+				if (c == String.class || c == Integer.class || c == Boolean.class || c == Float.class) {
 					ret.append(data[i].toString());
 				} else {
 					String type = data[i].getClass().getCanonicalName();
-					String shortTypeName = type.substring(type.lastIndexOf(".")+1);
+					String shortTypeName = type.substring(type.lastIndexOf(".") + 1);
 					ret.append(shortTypeName);
 				}
 
@@ -146,11 +143,10 @@ public class Message implements Serializable {
 
 	}
 
-
-	final public void setData(Object ... params) {
+	final public void setData(Object... params) {
 		this.data = params;
 	}
-	
+
 	/*
 	 * Default format was xml is now JSON TODO - make toStringStyler like spring
 	 */
@@ -163,7 +159,8 @@ public class Message implements Serializable {
 		ret.append("\"name\":" + "\"" + name + "\"");
 		ret.append("\"sender\":" + "\"" + sender + "\"");
 		ret.append("\"sendingMethod\":" + "\"" + sendingMethod + "\"");
-		//ret.append("\"historyList\":" + "\"" + historyList.toString() + "\"");
+		// ret.append("\"historyList\":" + "\"" + historyList.toString() +
+		// "\"");
 		ret.append("\"status\":" + "\"" + status + "\"");
 		ret.append("\"msgType\":" + "\"" + msgType + "\"");
 		ret.append("\"method\":" + "\"" + method + "\"");

@@ -83,7 +83,7 @@ public abstract class Uploader {
 
 		myArduino.disconnect();
 		myArduino.broadcastState();
-		//serialPort.dispose(); // FIXME - open/close vs - just stay open?
+		// serialPort.dispose(); // FIXME - open/close vs - just stay open?
 
 	}
 
@@ -98,14 +98,12 @@ public abstract class Uploader {
 		try {
 			String[] commandArray = new String[commandDownloader.size()];
 			commandDownloader.toArray(commandArray);
-			
-			if (commandArray.length > 0)
-			{
+
+			if (commandArray.length > 0) {
 				String exeFile = commandArray[0];
 				log.info(String.format("making %s executable", exeFile));
 				File exe = new File(exeFile);
-				if (!exe.setExecutable(true))
-				{
+				if (!exe.setExecutable(true)) {
 					log.error(String.format("could not set %s to executable permissions", exeFile));
 				}
 			}
@@ -122,10 +120,11 @@ public abstract class Uploader {
 			myArduino.setCompilingProgress(40);
 			myArduino.message(String.format("%s\n", uploadCmd));
 
-//			org.myrobotlab.service.Runtime.createProcess(commandArray);
-			// FIXME - normalize with Compiler - move MessageSiphon into "logging" package
+			// org.myrobotlab.service.Runtime.createProcess(commandArray);
+			// FIXME - normalize with Compiler - move MessageSiphon into
+			// "logging" package
 			// Siphon with .addErrorScanner("!thank you")
-			
+
 			Process process = Runtime.getRuntime().exec(commandArray);
 			new MessageSiphon(process.getInputStream(), myArduino);
 			new MessageSiphon(process.getErrorStream(), myArduino);

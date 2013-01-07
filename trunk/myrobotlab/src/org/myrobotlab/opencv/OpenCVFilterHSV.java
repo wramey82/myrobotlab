@@ -56,7 +56,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterHSV extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public final static Logger log = Logger.getLogger(OpenCVFilterHSV.class.getCanonicalName());
 
 	IplImage hsv = null;
@@ -65,7 +65,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	IplImage saturation = null;
 	IplImage mask = null;
 	BufferedImage frameBuffer = null;
-	//int convert = CV_BGR2HSV; // TODO - convert to all schemes
+	// int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 
 	public OpenCVFilterHSV(OpenCV service, String name) {
@@ -97,8 +97,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 			}
 
 			if (frameCounter % 10 == 0) {
-				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x,
-						y) & 0x00ffffff);
+				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff);
 			}
 			g.setColor(Color.green);
 			frameBuffer.getRGB(x, y);
@@ -157,9 +156,9 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		// cvCopy(hsv, hue );
 
 		/*
-		 * http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#Calculating_color_histograms
-		 * //Split out hue component and store in hue cxcore.cvSplit(hsv, hue,
-		 * null, null, null);
+		 * http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#
+		 * Calculating_color_histograms //Split out hue component and store in
+		 * hue cxcore.cvSplit(hsv, hue, null, null, null);
 		 */
 
 		/*

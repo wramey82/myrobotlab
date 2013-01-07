@@ -28,7 +28,6 @@ import javax.swing.JLabel;
 
 import org.myrobotlab.service.interfaces.GUI;
 
-
 public class SpeechGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
@@ -36,7 +35,7 @@ public class SpeechGUI extends ServiceGUI {
 	public SpeechGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 		display.add(new JLabel("no gui"));
 	}

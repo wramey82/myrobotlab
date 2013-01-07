@@ -39,20 +39,17 @@ import org.myrobotlab.service.OpenCV;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
-
 public class OpenCVFilterCanny extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterCanny.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterCanny.class.getCanonicalName());
 
 	IplImage gray = null;
 	IplImage inlines = null;
 	BufferedImage frameBuffer = null;
-	//double lowThreshold = 0.0;
-	//double highThreshold = 50.0;
+	// double lowThreshold = 0.0;
+	// double highThreshold = 50.0;
 	int apertureSize = 0;
 
 	public OpenCVFilterCanny(OpenCV service, String name) {
@@ -62,7 +59,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 
-		frameBuffer = inlines.getBufferedImage(); 														
+		frameBuffer = inlines.getBufferedImage();
 		return frameBuffer;
 	}
 
@@ -104,11 +101,11 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 		/*
 		 * lowThreshold = 600.0; highThreshold = 1220.0; apertureSize = 5;
 		 */
-		//lowThreshold = 90.0;
-		//highThreshold = 110.0;
-		//apertureSize = 3;
-		apertureSize = cfg.getInt("apertureSize"); 
-		cvCanny(gray, inlines, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), cfg.getInt("apertureSize") );
+		// lowThreshold = 90.0;
+		// highThreshold = 110.0;
+		// apertureSize = 3;
+		apertureSize = cfg.getInt("apertureSize");
+		cvCanny(gray, inlines, cfg.getFloat("lowThreshold"), cfg.getFloat("highThreshold"), cfg.getInt("apertureSize"));
 
 		return inlines;
 	}

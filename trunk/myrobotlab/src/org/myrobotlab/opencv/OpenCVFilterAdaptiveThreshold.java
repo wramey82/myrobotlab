@@ -43,8 +43,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterAdaptiveThreshold.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(OpenCVFilterAdaptiveThreshold.class.getCanonicalName());
 	IplImage gray = null;
 
 	public OpenCVFilterAdaptiveThreshold(OpenCV service, String name) {
@@ -60,12 +59,6 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 	public String getDescription() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		cfg.set("lowThreshold", 130.0f);
-		cfg.set("highThreshold", 255.0f);
 	}
 
 	/*
@@ -104,8 +97,7 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 	public IplImage process(IplImage image) {
 
 		if (gray == null) {
-			gray = cvCreateImage(cvGetSize(image), 8,
-					CV_THRESH_BINARY);
+			gray = cvCreateImage(cvGetSize(image), 8, CV_THRESH_BINARY);
 		}
 
 		// CV_THRESH_BINARY
@@ -114,17 +106,17 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 		// CV_THRESH_TOZERO
 		// CV_THRESH_TOZERO_INV
 
-		//cxcore.cvSetImageCOI(image, 1);
-		
+		// cxcore.cvSetImageCOI(image, 1);
+
 		// http://www710.univ-lyon1.fr/~bouakaz/OpenCV-0.9.5/docs/ref/OpenCVRef_ImageProcessing.htm
-		//cv.cvThreshold(image, image, cfg.getFloat("lowThreshold"),  cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
+		// cv.cvThreshold(image, image, cfg.getFloat("lowThreshold"),
+		// cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
 
 		// must be gray for adaptive
-		
-		cvCvtColor( image, gray, CV_BGR2GRAY );
-		cvAdaptiveThreshold(gray, gray, 255, CV_ADAPTIVE_THRESH_MEAN_C,
-		CV_THRESH_BINARY, 7,30);
-		
+
+		cvCvtColor(image, gray, CV_BGR2GRAY);
+		cvAdaptiveThreshold(gray, gray, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 7, 30);
+
 		return image;
 	}
 

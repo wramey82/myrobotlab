@@ -21,171 +21,151 @@ import org.myrobotlab.mapper.sim.Wall;
  * 
  * 
  * 
- * Dependencies :
- * 	Java3D
- * 	simbad-1.4.jar
+ *         Dependencies : Java3D simbad-1.4.jar
  * 
- * Reference :
- * http://simbad.sourceforge.net/guide.php#robotapi
- * http://www.ibm.com/developerworks/java/library/j-robots/ - simbad & subsumption
- * JMonkey
+ *         Reference : http://simbad.sourceforge.net/guide.php#robotapi
+ *         http://www.ibm.com/developerworks/java/library/j-robots/ - simbad &
+ *         subsumption JMonkey
  */
 public class SLAMBad extends Service {
 
 	private static final long serialVersionUID = 1L;
-	//Simbad simbad = new Simbad(new MyEnv() ,false);
+	// Simbad simbad = new Simbad(new MyEnv() ,false);
 	Simbad simbad;
-	
+
 	public final static Logger log = Logger.getLogger(SLAMBad.class.getCanonicalName());
 
 	public static class MyEnv extends EnvironmentDescription {
-	    public MyEnv(){
-	        add(new Arch(new Vector3d(3,0,-3),this));
-	        /*
-	        for (int i = 0; i < 20; ++i)
-	        {
-	        	double x = (Math.random() * 20) - 10;
-	        	double y = (Math.random() * 20) - 10;
-	        	float xdim = (float)(Math.random() * 4) - 2;
-	        	float ydim = (float)(Math.random() * 4) - 2;
-	        	float zdim = (float)(Math.random() * 10);
-		        //add(new Box(new Vector3d(x, 0, y), new Vector3f(xdim, 1, ydim),this));
-	        	Wall wall;
-	        	if (Math.random()*100 > 50)
-	        	{
-	        		wall= new Wall(new Vector3d(x, 0, y), zdim, 0.1f, 0.5f, this);
-	        	}  else {
-	        		wall= new Wall(new Vector3d(x, 0, y),  0.f, zdim, 0.5f, this);
-	        	}
-	        	wall.setColor(new Color3f(new Color(Color.HSBtoRGB((float)Math.random(),  0.9f, 0.7f))));
-		        add(wall);
-		        
-	        }
-	        */
-	        add(new MyRobot(new Vector3d(0, 0, 0),"my robot"));
-	    }
-	    
-	    public void addWall()
-	    {
-	    	
-	    	/*
-	        for (int i = 0; i < 20; ++i)
-	        {
-	        	double x = (Math.random() * 20) - 10;
-	        	double y = (Math.random() * 20) - 10;
-	        	float xdim = (float)(Math.random() * 4) - 2;
-	        	float ydim = (float)(Math.random() * 4) - 2;
-	        	float zdim = (float)(Math.random() * 10);
-		        //add(new Box(new Vector3d(x, 0, y), new Vector3f(xdim, 1, ydim),this));
-	        	Wall wall;
-	        	if (Math.random()*100 > 50)
-	        	{
-	        		wall= new Wall(new Vector3d(x, 0, y), zdim, 0.1f, 0.5f, this);
-	        	}  else {
-	        		wall= new Wall(new Vector3d(x, 0, y),  0.f, zdim, 0.5f, this);
-	        	}
-	        	wall.setColor(new Color3f(new Color(Color.HSBtoRGB((float)Math.random(),  0.9f, 0.7f))));
-		        add(wall);
-		        
-	        }
-	        */
-	    }
-	}	
-	
+		public MyEnv() {
+			add(new Arch(new Vector3d(3, 0, -3), this));
+			/*
+			 * for (int i = 0; i < 20; ++i) { double x = (Math.random() * 20) -
+			 * 10; double y = (Math.random() * 20) - 10; float xdim =
+			 * (float)(Math.random() * 4) - 2; float ydim =
+			 * (float)(Math.random() * 4) - 2; float zdim =
+			 * (float)(Math.random() * 10); //add(new Box(new Vector3d(x, 0, y),
+			 * new Vector3f(xdim, 1, ydim),this)); Wall wall; if
+			 * (Math.random()*100 > 50) { wall= new Wall(new Vector3d(x, 0, y),
+			 * zdim, 0.1f, 0.5f, this); } else { wall= new Wall(new Vector3d(x,
+			 * 0, y), 0.f, zdim, 0.5f, this); } wall.setColor(new Color3f(new
+			 * Color(Color.HSBtoRGB((float)Math.random(), 0.9f, 0.7f))));
+			 * add(wall);
+			 * 
+			 * }
+			 */
+			add(new MyRobot(new Vector3d(0, 0, 0), "my robot"));
+		}
+
+		public void addWall() {
+
+			/*
+			 * for (int i = 0; i < 20; ++i) { double x = (Math.random() * 20) -
+			 * 10; double y = (Math.random() * 20) - 10; float xdim =
+			 * (float)(Math.random() * 4) - 2; float ydim =
+			 * (float)(Math.random() * 4) - 2; float zdim =
+			 * (float)(Math.random() * 10); //add(new Box(new Vector3d(x, 0, y),
+			 * new Vector3f(xdim, 1, ydim),this)); Wall wall; if
+			 * (Math.random()*100 > 50) { wall= new Wall(new Vector3d(x, 0, y),
+			 * zdim, 0.1f, 0.5f, this); } else { wall= new Wall(new Vector3d(x,
+			 * 0, y), 0.f, zdim, 0.5f, this); } wall.setColor(new Color3f(new
+			 * Color(Color.HSBtoRGB((float)Math.random(), 0.9f, 0.7f))));
+			 * add(wall);
+			 * 
+			 * }
+			 */
+		}
+	}
+
 	public static class MyRobot extends Agent {
-	    public MyRobot (Vector3d position, String name) {     
-	        super(position,name);
-	    }
-	    public void initBehavior() {}
-	    
-	    public void performBehavior() {
-	        if (collisionDetected()) {
-	            // stop the robot
-	            setTranslationalVelocity(0.0);
-	            setRotationalVelocity(0);
-	        } else {
-	            // progress at 0.5 m/s
-	            setTranslationalVelocity(0.5);
-	            // frequently change orientation 
-	            if ((getCounter() % 100)==0) 
-	               setRotationalVelocity(Math.PI/2 * (0.5 - Math.random()));
-	        }
-	    }
-	}	
+		public MyRobot(Vector3d position, String name) {
+			super(position, name);
+		}
+
+		public void initBehavior() {
+		}
+
+		public void performBehavior() {
+			if (collisionDetected()) {
+				// stop the robot
+				setTranslationalVelocity(0.0);
+				setRotationalVelocity(0);
+			} else {
+				// progress at 0.5 m/s
+				setTranslationalVelocity(0.5);
+				// frequently change orientation
+				if ((getCounter() % 100) == 0)
+					setRotationalVelocity(Math.PI / 2 * (0.5 - Math.random()));
+			}
+		}
+	}
+
 	public SLAMBad(String n) {
 		super(n, SLAMBad.class.getCanonicalName());
 	}
-	
-	public void startService()
-	{
+
+	public void startService() {
 		super.startService();
-		if (simbad == null)
-		{
+		if (simbad == null) {
 			startSimulator();
 		}
 	}
-	
+
 	MyEnv env;
-	
-	public void addWall(Double x, Double y, Double z, Float x1, Float y1, Float z1)
-	{
+
+	public void addWall(Double x, Double y, Double z, Float x1, Float y1, Float z1) {
 		Wall wall = new Wall(new Vector3d(x, y, z), x1, y1, z1, env);
-		wall.setColor(new Color3f(new Color(0,0,0,0)));
+		wall.setColor(new Color3f(new Color(0, 0, 0, 0)));
 		simbad.attach(wall);
 	}
-	
-	public void addRandomWall()
-	{
-    	double x = (Math.random() * 20) - 10;
-    	double y = (Math.random() * 20) - 10;
-    	
-    	float xdim = (float)(Math.random() * 4);
-    	float ydim = (float)(Math.random() * 4);
-    	float zdim = (float)(Math.random() * 2);
+
+	public void addRandomWall() {
+		double x = (Math.random() * 20) - 10;
+		double y = (Math.random() * 20) - 10;
+
+		float xdim = (float) (Math.random() * 4);
+		float ydim = (float) (Math.random() * 4);
+		float zdim = (float) (Math.random() * 2);
 
 		Wall wall = new Wall(new Vector3d(x, 0, y), xdim, zdim, ydim, env);
-    	wall.setColor(new Color3f(new Color(Color.HSBtoRGB((float)Math.random(),  0.9f, 0.7f))));
-		simbad.attach(wall);		
+		wall.setColor(new Color3f(new Color(Color.HSBtoRGB((float) Math.random(), 0.9f, 0.7f))));
+		simbad.attach(wall);
 	}
-	
-	public void startSimulator()
-	{
-		
+
+	public void startSimulator() {
+
 		env = new MyEnv();
-		simbad = new Simbad(env ,false);
+		simbad = new Simbad(env, false);
 		env.add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1), env));
 		simbad.setVisible(true);
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}
-	
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);
-		
+
 		MyEnv env = new MyEnv();
-		
-		Simbad simbad = new Simbad(env ,false);
-		
+
+		Simbad simbad = new Simbad(env, false);
+
 		env.add(new Box(new Vector3d(3, 0, 0), new Vector3f(1, 1, 1), env));
-		//simbad.
+		// simbad.
 		/*
-		Simbad template = new Simbad("simulator");
-		template.startService();
-		*/
-		
+		 * Simbad template = new Simbad("simulator"); template.startService();
+		 */
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 	}
-
 
 }

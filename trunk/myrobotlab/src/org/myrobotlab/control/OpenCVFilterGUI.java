@@ -33,36 +33,26 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
-import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.OpenCV.FilterWrapper;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class OpenCVFilterGUI {
 	public final static Logger log = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());
 
 	final String name;
-	public JPanel display = new JPanel(new GridBagLayout());
+	JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;
 	final GUI myGUI;
-	//protected OpenCV myService;  // WTF ??? - violates all the rules
-	//protected OpenCVFilter myOpenCVFilter;
 	final public GridBagConstraints gc = new GridBagConstraints();
 
-	//OpenCVFilterGoodFeaturesToTrack boundFilter = null;	
 	FilterWrapper boundFilter = null;
-	
-	
-	public OpenCVFilterGUI(String boundFilterName, String boundServiceName,
-			GUIService myGUI) {
+
+	public OpenCVFilterGUI(String boundFilterName, String boundServiceName, GUIService myGUI) {
 		name = boundFilterName;
 		this.boundServiceName = boundServiceName;
 		this.myGUI = myGUI;
-		//this.myService = (OpenCV)Runtime.getService(boundServiceName).service;
-		//this.myOpenCVFilter = myService.getFilter(name);
-		
+
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(name);
 		display.setBorder(title);
@@ -70,20 +60,16 @@ public abstract class OpenCVFilterGUI {
 	}
 
 	// @Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
-
-	}
+	public abstract void attachGUI();
 
 	// @Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
+	public abstract void detachGUI();
 
+	public abstract void getFilterState(FilterWrapper filter);
+
+	public JPanel getDisplay() {
+		return display;
 	}
-	
-	public abstract void setFilterData(FilterWrapper filter);
-
-	public abstract JPanel getDisplay();
 
 	public abstract void apply();
 

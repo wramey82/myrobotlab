@@ -32,8 +32,7 @@ import org.myrobotlab.serial.SerialDeviceException;
  */
 public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceGNU.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SerialDeviceGNU.class.getCanonicalName());
 
 	private gnu.io.SerialPort port;
 
@@ -49,13 +48,11 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	protected EventListenerList listenerList = new EventListenerList();
 	private CommPortIdentifier commPortId;
 
-	public SerialDeviceGNU(CommPortIdentifier portId)
-			throws SerialDeviceException {
+	public SerialDeviceGNU(CommPortIdentifier portId) throws SerialDeviceException {
 		this.commPortId = portId;
 	}
 
-	public SerialDeviceGNU(CommPortIdentifier portId, int rate, int databits,
-			int stopbits, int parity) {
+	public SerialDeviceGNU(CommPortIdentifier portId, int rate, int databits, int stopbits, int parity) {
 		this.commPortId = portId;
 		this.rate = rate;
 		this.databits = databits;
@@ -64,9 +61,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	}
 
 	public String getPortString() {
-		return String.format(("%s/%d/%d/%d/%d"), port.getName(),
-				port.getBaudRate(), port.getDataBits(), port.getParity(),
-				port.getStopBits());
+		return String.format(("%s/%d/%d/%d/%d"), port.getName(), port.getBaudRate(), port.getDataBits(), port.getParity(), port.getStopBits());
 	}
 
 	@Override
@@ -79,17 +74,15 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		log.debug(String.format("closing %s", commPortId.getName()));
 
 		if (port == null) {
-			log.warn(String.format("serial device %s already closed",
-					commPortId.getName()));
+			log.warn(String.format("serial device %s already closed", commPortId.getName()));
 			return;
 		}
-		//port.removeEventListener();
-		//port.close();
+		// port.removeEventListener();
+		// port.close();
 
 		Object[] listeners = listenerList.getListenerList();
 		for (int i = 1; i < listeners.length; i += 2) {
-			listenerList.remove(EventListener.class,
-					(EventListener) listeners[i]);
+			listenerList.remove(EventListener.class, (EventListener) listeners[i]);
 		}
 
 		log.info(String.format("closing SerialDevice %s", getPortString()));
@@ -108,16 +101,15 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		output = null;
 		if (port != null) {
 			/*
-			 * cheesy way to close serial port
-			 * since it will sometimes hang forever
-			 * Hangs on Ubuntu 12.04.1 LTS - IcedTea6 1.11.4
+			 * cheesy way to close serial port since it will sometimes hang
+			 * forever Hangs on Ubuntu 12.04.1 LTS - IcedTea6 1.11.4
 			 */
 			new Thread() {
 
 				@Override
 				public void run() {
 					SerialPort hangMe = port;
-					hangMe.removeEventListener(); 
+					hangMe.removeEventListener();
 					hangMe.close();
 					hangMe = null;
 				}
@@ -149,22 +141,18 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	}
 
 	@Override
-	public void setParams(int rate, int databits, int stopbits, int parity)
-			throws SerialDeviceException {
+	public void setParams(int rate, int databits, int stopbits, int parity) throws SerialDeviceException {
 		try {
-			log.debug(String.format("setSerialPortParams %d %d %d %d", rate,
-					databits, stopbits, parity));
+			log.debug(String.format("setSerialPortParams %d %d %d %d", rate, databits, stopbits, parity));
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 		} catch (UnsupportedCommOperationException e) {
-			throw new SerialDeviceException("unsupported comm operation "
-					+ e.getMessage());
+			throw new SerialDeviceException("unsupported comm operation " + e.getMessage());
 		}
 	}
 
 	public int getBaudRate() {
 		return port.getBaudRate();
 	}
-
 
 	public int getDataBits() {
 		return port.getDataBits();
@@ -218,8 +206,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	}
 
 	@Override
-	public void addEventListener(SerialDeviceEventListener lsnr)
-			throws TooManyListenersException {
+	public void addEventListener(SerialDeviceEventListener lsnr) throws TooManyListenersException {
 		// proxy events
 		listenerList.add(SerialDeviceEventListener.class, lsnr);
 		port.addEventListener(this);
@@ -228,13 +215,11 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 	@Override
 	public void serialEvent(SerialPortEvent spe) {
 
-		fireSerialDeviceEvent(new SerialDeviceEvent(port, spe.getEventType(),
-				spe.getOldValue(), spe.getNewValue()));
+		fireSerialDeviceEvent(new SerialDeviceEvent(port, spe.getEventType(), spe.getOldValue(), spe.getNewValue()));
 	}
 
 	// This methods allows classes to unregister for MyEvents
-	public void removeSerialDeviceEventListener(
-			SerialDeviceEventListener listener) {
+	public void removeSerialDeviceEventListener(SerialDeviceEventListener listener) {
 		log.debug("removeSerialDeviceEventListener");
 		listenerList.remove(SerialDeviceEventListener.class, listener);
 	}
@@ -321,8 +306,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			throw new SerialDeviceException("port in use " + e.getMessage());
 		} catch (UnsupportedCommOperationException e) {
 			Service.logException(e);
-			throw new SerialDeviceException(
-					"UnsupportedCommOperationException " + e.getMessage());
+			throw new SerialDeviceException("UnsupportedCommOperationException " + e.getMessage());
 		} catch (IOException e) {
 			Service.logException(e);
 			throw new SerialDeviceException("IOException " + e.getMessage());
@@ -331,14 +315,13 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 	@Override
 	public int read() throws IOException {
-		//return (byte)input.read();
+		// return (byte)input.read();
 		return input.read();
 	}
 
 	@Override
 	public int available() {
-		if (input != null)
-		{
+		if (input != null) {
 			try {
 				return input.available();
 			} catch (IOException e) {

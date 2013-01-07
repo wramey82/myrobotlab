@@ -76,14 +76,14 @@ import org.myrobotlab.service.Arduino;
  * uhhh... Processing is an awesome project.. This class is an abomination...
  * Arduino is an awesome project.. it's IDE code base is a large dung pile...
  * 
- * This should use Properties again - using Resource bundles would be an appropriate
- * way to manage UTF-8 / Unicode
+ * This should use Properties again - using Resource bundles would be an
+ * appropriate way to manage UTF-8 / Unicode
  * 
  */
 public class Preferences implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	//final String PREFS_FILE = "preferences.txt";
+	// final String PREFS_FILE = "preferences.txt";
 	Hashtable<String, Object> defaults;
 	Hashtable<String, Object> table = new Hashtable<String, Object>();;
 	File preferencesFile;
@@ -256,53 +256,50 @@ public class Preferences implements Serializable {
 	public void setInteger(String key, int value) {
 		set(key, String.valueOf(value));
 	}
-	
-	public static void main (String[] args) throws FileNotFoundException, IOException
-	{
-		//Properties props = new Properties();
-		//props.load(new FileInputStream("arduino/lib/preferences.txt"));
-		//props.save(new FileOutputStream("arduino.properties"), "latest and greatest");
-		
+
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		// Properties props = new Properties();
+		// props.load(new FileInputStream("arduino/lib/preferences.txt"));
+		// props.save(new FileOutputStream("arduino.properties"),
+		// "latest and greatest");
+
 		String propFile = "arduino/lib/preferences.txt";
 		Properties props = new Properties();
-		/*set some properties here*/
+		/* set some properties here */
 		props.load(new FileInputStream("arduino/lib/preferences.txt"));
-		
-		
-		//new TreeMap(props);
-		
+
+		// new TreeMap(props);
+
 		FileOutputStream fos = new FileOutputStream("sorted.properties");
 		OutputStreamWriter out = new OutputStreamWriter(fos);
-		
+
 		List<String> n = new ArrayList(props.keySet());
 		Collections.sort(n);
-		for (int i = 0; i < n.size(); ++i)
-		{
-			out.write(String.format("%s=%s\n" +
-					"", n.get(i), props.get(n.get(i))));
+		for (int i = 0; i < n.size(); ++i) {
+			out.write(String.format("%s=%s\n" + "", n.get(i), props.get(n.get(i))));
 		}
 		out.close();
 
-		//new TreeSet<Object>(super.keySet())
-		
+		// new TreeSet<Object>(super.keySet())
+
 		Properties tmp = new Properties() {
 
-		  @Override
-		  public Set<Object> keySet()
-		  {
-		    return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
-		  }
+			@Override
+			public Set<Object> keySet() {
+				return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
+			}
 
 		};
 		tmp.putAll(props);
 		try {
-		    FileOutputStream xmlStream = new FileOutputStream("arduino.props.xml");
-		    /*this comes out SORTED! */
-		    tmp.storeToXML(xmlStream,"");
-		    tmp.store(new FileOutputStream("arduino.properties"), "latest and greatest");
-		   // tmp.save(new FileOutputStream("arduino.properties"), "latest and greatest");
+			FileOutputStream xmlStream = new FileOutputStream("arduino.props.xml");
+			/* this comes out SORTED! */
+			tmp.storeToXML(xmlStream, "");
+			tmp.store(new FileOutputStream("arduino.properties"), "latest and greatest");
+			// tmp.save(new FileOutputStream("arduino.properties"),
+			// "latest and greatest");
 		} catch (IOException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 

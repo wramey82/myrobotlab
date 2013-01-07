@@ -41,9 +41,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterErode extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterErode.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterErode.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
@@ -78,9 +77,8 @@ public class OpenCVFilterErode extends OpenCVFilter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.opencv_core
-	 * .IplImage, java.util.HashMap)
+	 * @see org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.
+	 * opencv_core .IplImage, java.util.HashMap)
 	 * 
 	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
 	 * iterations=1 ); A Source image. C Destination image. B Structuring

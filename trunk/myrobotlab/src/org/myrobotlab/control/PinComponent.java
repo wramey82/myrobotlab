@@ -42,9 +42,9 @@ public class PinComponent {
 
 	public final static Logger log = Logger.getLogger(PinComponent.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
-	
+
 	public final String boundServiceName;
-	
+
 	public final int pinNumber;
 	boolean isAnalog = false;
 	boolean isPWM = false;
@@ -59,25 +59,24 @@ public class PinComponent {
 
 	JLabel pinLabel = null;
 	public JLabel data = null;
-	
+
 	boolean isVertical = false;
 	public final Service myService;
-	
+
 	// types of DigitalButtons
 	public final static int TYPE_ONOFF = 0;
 	public final static int TYPE_INOUT = 1;
 	public final static int TYPE_ACTIVEINACTIVE = 2;
 	public final static int TYPE_TRACE = 3;
-	
-	// values 
+
+	// values
 	public static final int HIGH = 0x1;
 	public static final int LOW = 0x0;
 	public static final int OUTPUT = 0x1;
 	public static final int INPUT = 0x0;
-	
-	public PinComponent(Service myService, String boundServiceName, Pin pin, boolean isVertical)
-	{
-		this(myService, boundServiceName, pin.pin, pin.type == Pin.PWM_VALUE, pin.type == Pin.ANALOG_VALUE,  isVertical);
+
+	public PinComponent(Service myService, String boundServiceName, Pin pin, boolean isVertical) {
+		this(myService, boundServiceName, pin.pin, pin.type == Pin.PWM_VALUE, pin.type == Pin.ANALOG_VALUE, isVertical);
 	}
 
 	public PinComponent(Service myService, String boundServiceName, int pinNumber, boolean isPWM, boolean isAnalog, boolean isVertical) {
@@ -87,64 +86,43 @@ public class PinComponent {
 		this.pinNumber = pinNumber;
 		this.myService = myService;
 		this.isVertical = isVertical;
-	
+
 		data = new JLabel("0");
-		
+
 		pinLabel = new JLabel("pin " + pinNumber);
-		pinLabel.setPreferredSize(new Dimension(40,13));		
-		
+		pinLabel.setPreferredSize(new Dimension(40, 13));
+
 		if (!isVertical) {
-			inOut = new  DigitalButton(this, 
-					"out",  Color.decode("0x418dd9"), Color.white, 
-					"in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);						
-			
-			onOff = new  DigitalButton(this, 
-					"off",  Color.gray, Color.white, 
-					"on", Color.green, Color.black, TYPE_ONOFF);
-			
-			activeInActive = new  DigitalButton(this, 
-					"inactive",  Color.decode("0x418dd9"), Color.white, 
-					"active", Color.red, Color.white, TYPE_ACTIVEINACTIVE);
+			inOut = new DigitalButton(this, "out", Color.decode("0x418dd9"), Color.white, "in", Color.white, Color.decode("0x418dd9"), TYPE_INOUT);
+
+			onOff = new DigitalButton(this, "off", Color.gray, Color.white, "on", Color.green, Color.black, TYPE_ONOFF);
+
+			activeInActive = new DigitalButton(this, "inactive", Color.decode("0x418dd9"), Color.white, "active", Color.red, Color.white, TYPE_ACTIVEINACTIVE);
 		} else {
-			inOut = new  DigitalButton(this, 
-					"out", Util.getImageIcon("out.png"),
-					"in", Util.getImageIcon("in.png"),
-					TYPE_INOUT);						
-			
-			onOff = new  DigitalButton(this, 
-					"off", Util.getImageIcon("off.png"),
-					"on", Util.getImageIcon("on.png"),
-					TYPE_ONOFF);
-			
-			activeInActive = new  DigitalButton(this, 
-					"inactive", Util.getImageIcon("inactive.png"),
-					"active", Util.getImageIcon("active.png"),
-					TYPE_ACTIVEINACTIVE);
-			
+			inOut = new DigitalButton(this, "out", Util.getImageIcon("out.png"), "in", Util.getImageIcon("in.png"), TYPE_INOUT);
+
+			onOff = new DigitalButton(this, "off", Util.getImageIcon("off.png"), "on", Util.getImageIcon("on.png"), TYPE_ONOFF);
+
+			activeInActive = new DigitalButton(this, "inactive", Util.getImageIcon("inactive.png"), "active", Util.getImageIcon("active.png"), TYPE_ACTIVEINACTIVE);
+
 		}
-		if (isAnalog)
-		{
-			trace = new  DigitalButton(this, 
-					"A"+ (pinNumber), "offTrace",  Color.decode("0x418dd9"), Color.white, 
-					"A"+ (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
+		if (isAnalog) {
+			trace = new DigitalButton(this, "A" + (pinNumber), "offTrace", Color.decode("0x418dd9"), Color.white, "A" + (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
 		} else {
-			trace = new  DigitalButton(this, 
-					"D"+ (pinNumber), "offTrace", Color.decode("0x418dd9"), Color.white, 
-					"D"+ (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
-			
+			trace = new DigitalButton(this, "D" + (pinNumber), "offTrace", Color.decode("0x418dd9"), Color.white, "D" + (pinNumber), "onTrace", Color.red, Color.white, TYPE_TRACE);
+
 		}
-		
-		if (isPWM)
-		{
+
+		if (isPWM) {
 			pwmSlider = getPWMSlider();
 		}
-		
+
 	}
 
 	// TODO - remove
 	private JSlider getPWMSlider() {
 		if (pwmSlider == null) {
-			int orientation = (isVertical)?JSlider.VERTICAL:JSlider.HORIZONTAL;
+			int orientation = (isVertical) ? JSlider.VERTICAL : JSlider.HORIZONTAL;
 			pwmSlider = new JSlider(orientation, 0, 255, 0);
 			pwmSlider.setOpaque(false);
 			pwmSlider.addChangeListener(new ChangeListener() {

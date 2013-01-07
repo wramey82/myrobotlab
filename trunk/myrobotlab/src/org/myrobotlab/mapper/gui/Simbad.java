@@ -223,9 +223,8 @@ public class Simbad extends JFrame implements ActionListener {
 	public static Simbad getSimbadInstance() {
 		return simbadInstance;
 	}
-	
-	public void attach(BaseObject obj3d)
-	{
+
+	public void attach(BaseObject obj3d) {
 		world.attach(obj3d);
 	}
 

@@ -41,9 +41,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterSmooth extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterSmooth.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterSmooth.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;

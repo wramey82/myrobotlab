@@ -60,18 +60,19 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 	JComboBox controller = null;
 	JComboBox pin = null;
-	
-	// TODO - sync initially by requesting entire ACEduinoMotorShield service object - can you get cfg? that way?
+
+	// TODO - sync initially by requesting entire ACEduinoMotorShield service
+	// object - can you get cfg? that way?
 	JTextField posMin = new JTextField("0");
 	JTextField posMax = new JTextField("180");
-	
+
 	ACEduinoMotorShield myServo = null;
 
 	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-        myServo = (ACEduinoMotorShield)Runtime.getServiceWrapper(boundServiceName).service;
+		myServo = (ACEduinoMotorShield) Runtime.getServiceWrapper(boundServiceName).service;
 	}
-	
+
 	public void init() {
 
 		left.addActionListener(new ActionListener() {
@@ -157,7 +158,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 		display.add(control);
 		display.add(input);
-		
+
 		gc.gridx = 0;
 		++gc.gridy;
 
@@ -170,9 +171,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 		display.add(limits, gc);
 
-		
 	}
-	
 
 	private JSlider getAnalogValue() {
 		if (slider == null) {
@@ -182,8 +181,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 					boundPos.setText("" + slider.getValue());
 
 					if (myService != null) {
-						myService.send(boundServiceName, "moveTo", new Integer(
-								slider.getValue()));
+						myService.send(boundServiceName, "moveTo", new Integer(slider.getValue()));
 					} else {
 						log.error("can not send message myService is null");
 					}
@@ -206,11 +204,10 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 		public void actionPerformed(ActionEvent e) {
 			if (getText().equals("attach")) {
 				setText("detach");
-				myService.send(boundServiceName, "attach", controller
-						.getSelectedItem().toString(), pin.getSelectedItem());
+				myService.send(boundServiceName, "attach", controller.getSelectedItem().toString(), pin.getSelectedItem());
 			} else {
 				setText("attach");
-				myService.send(boundServiceName, "detach", (Object[])null);
+				myService.send(boundServiceName, "detach", (Object[]) null);
 			}
 		}
 	}
@@ -230,8 +227,6 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 			myService.send(boundServiceName, "setPosMax", Integer.parseInt(posMax.getText()));
 		}
 	}
-	
-	
 
 	public Vector<String> getAllServoControllers() {
 		Vector<String> v = new Vector<String>();
@@ -243,8 +238,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 			if (intfcs == null)
 				continue;
 			for (int j = 0; j < intfcs.size(); ++j) {
-				if (intfcs.get(j).compareTo(
-						"org.myrobotlab.service.interfaces.ServoController") == 0) {
+				if (intfcs.get(j).compareTo("org.myrobotlab.service.interfaces.ServoController") == 0) {
 					v.addElement(sm.get(i));
 				}
 			}
@@ -252,19 +246,14 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 		}
 		return v;
 	}
-	
-	public void getState(ACEduinoMotorShield servo)
-	{
+
+	public void getState(ACEduinoMotorShield servo) {
 		/*
-		controller.setSelectedItem(servo.getControllerName());
-		pin.setSelectedItem(servo.getPin());
-		if (servo.isAttached())
-		{
-			attachButton.setText("detach");
-		} else {
-			attachButton.setText("attach");
-		}
-		*/
+		 * controller.setSelectedItem(servo.getControllerName());
+		 * pin.setSelectedItem(servo.getPin()); if (servo.isAttached()) {
+		 * attachButton.setText("detach"); } else {
+		 * attachButton.setText("attach"); }
+		 */
 	}
 
 	public void attachGUI() {
@@ -274,7 +263,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", ACEduinoMotorShield.class);		
+		unsubscribe("publishState", "getState", ACEduinoMotorShield.class);
 	}
-	
+
 }

@@ -46,9 +46,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterSampleImage extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterSampleImage.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterSampleImage.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
@@ -95,7 +94,7 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 			URL url = new URL(path);
 			BufferedImage fileImage = ImageIO.read(url);
 		} catch (IOException e) {
-			//Log.error("could not load image " + path);
+			// Log.error("could not load image " + path);
 			e.printStackTrace();
 		}
 	}
@@ -111,24 +110,20 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 		CvPoint p1 = new CvPoint(image.width(), image.height());
 
 		CvScalar fillColor = cvScalar(0.0, 0.0, 0.0, 1.0);
-		cvDrawRect(image, p0, p1, fillColor, 240,
-				1, 0);
+		cvDrawRect(image, p0, p1, fillColor, 240, 1, 0);
 
 		p0 = new CvPoint(110, 80);
 		p1 = new CvPoint(150, 130);
 
 		fillColor = cvScalar(0.0, 256.0, 0.0, 0.0);
-		cvDrawRect(image, new CvPoint(160, 120),
-				new CvPoint(164, 124), fillColor, 2, 1, 0);
+		cvDrawRect(image, new CvPoint(160, 120), new CvPoint(164, 124), fillColor, 2, 1, 0);
 
 		/*
-		 * cvDrawRect(image, p0, p1, fillColor, 2,
-		 * 1, 0); fillColor = cvScalar(130.0, 40.0, 120.0, 1.0);
-		 * cvDrawRect(image, new CvPoint(158,140), new
-		 * CvPoint(220,160), fillColor, 2, 1, 0); fillColor
-		 * = cvScalar(160.0, 140.0, 20.0, 1.0); cvDrawRect(image, new
-		 * CvPoint(20,200), new CvPoint(40,230),
-		 * fillColor, 2, 1, 0);
+		 * cvDrawRect(image, p0, p1, fillColor, 2, 1, 0); fillColor =
+		 * cvScalar(130.0, 40.0, 120.0, 1.0); cvDrawRect(image, new
+		 * CvPoint(158,140), new CvPoint(220,160), fillColor, 2, 1, 0);
+		 * fillColor = cvScalar(160.0, 140.0, 20.0, 1.0); cvDrawRect(image, new
+		 * CvPoint(20,200), new CvPoint(40,230), fillColor, 2, 1, 0);
 		 */
 		return image;
 	}

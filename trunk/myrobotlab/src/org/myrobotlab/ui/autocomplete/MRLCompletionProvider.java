@@ -38,23 +38,23 @@ import org.myrobotlab.service.GUIService;
 
 /**
  * @author SwedaKonsult
- *
+ * 
  */
-public class MRLCompletionProvider extends  JavaCompletionProvider {
+public class MRLCompletionProvider extends JavaCompletionProvider {
 	/**
 	 * Logger for this guy.
 	 */
 	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
-	
+
 	/**
-	 * Overriding base class declaration in order to load methods
-	 * that should be easy to find and use in Python. Still calls
-	 * out the base class in order to load the Java keywords.
+	 * Overriding base class declaration in order to load methods that should be
+	 * easy to find and use in Python. Still calls out the base class in order
+	 * to load the Java keywords.
 	 */
 	@Override
 	protected void loadCompletions() {
 		super.loadCompletions();
-		
+
 		try {
 			loadInformationFromClasses(Locator.getClasses("org.myrobotlab.service"));
 		} catch (IOException e) {
@@ -74,38 +74,34 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		}
 		StringBuffer modifiersDescription = new StringBuffer();
 		if (Modifier.isStatic(modifiers)) {
-			modifiersDescription.append("<li>")
-				.append("static")
-				.append("</li>");
+			modifiersDescription.append("<li>").append("static").append("</li>");
 		}
 		if (Modifier.isSynchronized(modifiers)) {
-			modifiersDescription.append("<li>")
-			.append("synchronized")
-			.append("</li>");
+			modifiersDescription.append("<li>").append("synchronized").append("</li>");
 		}
-		
+
 		if (modifiersDescription.length() == 0) {
 			return "";
 		}
-		modifiersDescription.insert(0, "<br><br><b><i>Modifiers:</i></b><ul>")
-			.append("</ul>");
+		modifiersDescription.insert(0, "<br><br><b><i>Modifiers:</i></b><ul>").append("</ul>");
 		return modifiersDescription;
 	}
-	
+
 	/**
 	 * Get the class name part of the full descriptor.
 	 * 
-	 * @param fullClassName the class name including package name.
+	 * @param fullClassName
+	 *            the class name including package name.
 	 * @return the class name parsed out of the full name.
 	 */
 	private CharSequence getClassName(String fullClassName) {
 		return fullClassName.subSequence(fullClassName.lastIndexOf('.') + 1, fullClassName.length());
 	}
-	
+
 	/**
-	 * Load all constants/static fields available and set them up with the
-	 * class name prefixing the variable name in order to be able to suggest
-	 * when the class name is typed in.
+	 * Load all constants/static fields available and set them up with the class
+	 * name prefixing the variable name in order to be able to suggest when the
+	 * class name is typed in.
 	 * 
 	 * @param implementation
 	 */
@@ -122,30 +118,22 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		String fieldTypeName;
 		String fullClassName = implementation.getName();
 		String className = getClassName(fullClassName).toString();
-		//log.error(className);
+		// log.error(className);
 
-		if (!(className.contains("$")))
-		{
-			for (Field f: fields) {
-				if (f.getName() == "main" || !Modifier.isPublic(f.getModifiers())){// || !Modifier.isStatic(f.getModifiers())) {
+		if (!(className.contains("$"))) {
+			for (Field f : fields) {
+				if (f.getName() == "main" || !Modifier.isPublic(f.getModifiers())) {// ||
+																					// !Modifier.isStatic(f.getModifiers()))
+																					// {
 					continue;
 				}
 				// TODO: grab the generics for this field
 				genericsString.delete(0, genericsString.length());
-				
+
 				fieldTypeName = f.getType().getName();
-				completer = new BasicCompletion(this,
-						String.format("%s.%s", className, f.getName()),
-						getClassName(fieldTypeName).toString(),
-						String.format("<html><body>"
-									+ "<b>%1$s %2$s.%3$s"
-									+ "%4$s"
-									+ "</b> %5$s</body></html>",
-								fieldTypeName,
-								className,
-								f.getName(),
-								genericsString,
-								buildModifiersDescriptionForGUI(f.getModifiers())));
+				completer = new BasicCompletion(this, String.format("%s.%s", className, f.getName()), getClassName(fieldTypeName).toString(), String.format("<html><body>"
+						+ "<b>%1$s %2$s.%3$s" + "%4$s" + "</b> %5$s</body></html>", fieldTypeName, className, f.getName(), genericsString,
+						buildModifiersDescriptionForGUI(f.getModifiers())));
 				addCompletion(completer);
 			}
 		}
@@ -153,9 +141,11 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 	}
 
 	/**
-	 * Helper method that recurses implementation to find all
-	 * public methods declared.
-	 * @param implementation the class to analyze
+	 * Helper method that recurses implementation to find all public methods
+	 * declared.
+	 * 
+	 * @param implementation
+	 *            the class to analyze
 	 */
 	private void loadClassMethods(Class<?> implementation) {
 		if (implementation == null) {
@@ -176,63 +166,50 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		String fullClassName = implementation.getName();
 		String className = getClassName(fullClassName).toString();
 		boolean isStatic;
-		if (!(className.contains("$")))
-		{
+		if (!(className.contains("$"))) {
 
-		for (Method m: methods) {
-			if (m.getName() == "main" || !Modifier.isPublic(m.getModifiers())) {
-				continue;
-			}
-			paramsString.delete(0, paramsString.length());
-			params = m.getParameterTypes();
-			arrayLength = params.length;
-			isStatic = Modifier.isStatic(m.getModifiers());
-			if (isStatic) {
-				shortParamsString.delete(0, shortParamsString.length());
-			}
-			if (arrayLength > 0) {
-				for (loop = 0; loop < arrayLength; loop++) {
-					if (loop > 0) {
-						paramsString.append(",");
-					}
-					if (isStatic) {
-						shortParamsString.append(getClassName(params[loop].getName()));
-					}
-					paramsString.append(params[loop].getName());
-					// TODO: should grab the generics for each parameter
+			for (Method m : methods) {
+				if (m.getName() == "main" || !Modifier.isPublic(m.getModifiers())) {
+					continue;
 				}
-			}
-			genericsString.delete(0, genericsString.length());
-			
-//			if (isStatic) {
+				paramsString.delete(0, paramsString.length());
+				params = m.getParameterTypes();
+				arrayLength = params.length;
+				isStatic = Modifier.isStatic(m.getModifiers());
+				if (isStatic) {
+					shortParamsString.delete(0, shortParamsString.length());
+				}
+				if (arrayLength > 0) {
+					for (loop = 0; loop < arrayLength; loop++) {
+						if (loop > 0) {
+							paramsString.append(",");
+						}
+						if (isStatic) {
+							shortParamsString.append(getClassName(params[loop].getName()));
+						}
+						paramsString.append(params[loop].getName());
+						// TODO: should grab the generics for each parameter
+					}
+				}
+				genericsString.delete(0, genericsString.length());
+
+				// if (isStatic) {
 				matchString = String.format("%s.%s(", getClassName(fullClassName), m.getName());
 				extraString = shortParamsString.toString();
-/*			} else {
-				matchString = String.format(".%s(", m.getName());
-				extraString = m.getName();
+				/*
+				 * } else { matchString = String.format(".%s(", m.getName());
+				 * extraString = m.getName(); }
+				 */
+				// TODO: grab the generics for this method
+				completer = new BasicCompletion(this, matchString, extraString, String.format("<html><body>" + "<b>%1$s %2$s.%3$s" + "%5$s(%4$s)"
+						+ "</b> %6$s <br> <a href=\"http://myrobotlab.org/service/%2$s\">more help</a> </body></html>", m.getReturnType().getName(), className, m.getName(),
+						paramsString, genericsString, buildModifiersDescriptionForGUI(m.getModifiers())));
+				addCompletion(completer);
 			}
-*/			
-			// TODO: grab the generics for this method
-			completer = new BasicCompletion(this,
-					matchString,
-					extraString,
-					String.format("<html><body>"
-								+ "<b>%1$s %2$s.%3$s"
-								+ "%5$s(%4$s)"
-								+ "</b> %6$s <br> <a href=\"http://myrobotlab.org/service/%2$s\">more help</a> </body></html>",
-							m.getReturnType().getName(),
-							className,
-							m.getName(),
-							paramsString,
-							genericsString,
-							buildModifiersDescriptionForGUI(m.getModifiers())
-							));
-			addCompletion(completer);
-		}
 		}
 		completer = null;
 	}
-	
+
 	/**
 	 * Load all information we want for the UI from the class.
 	 * 
@@ -242,7 +219,7 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		loadClassMethods(implementation);
 		loadClassFields(implementation);
 	}
-	
+
 	/**
 	 * Load everything from the classes in the list.
 	 * 
@@ -252,7 +229,7 @@ public class MRLCompletionProvider extends  JavaCompletionProvider {
 		if (classList == null || classList.size() == 0) {
 			return;
 		}
-		for (Class<?> c: classList) {
+		for (Class<?> c : classList) {
 			loadInformationFromClass(c);
 		}
 	}

@@ -11,12 +11,11 @@ import java.util.HashSet;
 import org.myrobotlab.logging.Logger;
 
 /**
- * Class to help make life easier when instantiating objects using
- * the String name of the class along with an optional array of
- * constructor parameters.
+ * Class to help make life easier when instantiating objects using the String
+ * name of the class along with an optional array of constructor parameters.
  * 
  * @author SwedaKonsult
- *
+ * 
  */
 public class Instantiator {
 	/**
@@ -28,21 +27,21 @@ public class Instantiator {
 	 * Allow for checking if a boxed primitive is being used.
 	 */
 	public final static HashSet<Class<?>> primitiveTypes;
-	
+
 	static {
 		log = Logger.getLogger(Instantiator.class);
-		
+
 		primitiveTypes = new HashSet<Class<?>>(8);
-	    primitiveTypes.add(Boolean.class);
-	    primitiveTypes.add(Character.class);
-	    primitiveTypes.add(Byte.class);
-	    primitiveTypes.add(Short.class);
-	    primitiveTypes.add(Integer.class);
-	    primitiveTypes.add(Long.class);
-	    primitiveTypes.add(Float.class);
-	    primitiveTypes.add(Double.class);
+		primitiveTypes.add(Boolean.class);
+		primitiveTypes.add(Character.class);
+		primitiveTypes.add(Byte.class);
+		primitiveTypes.add(Short.class);
+		primitiveTypes.add(Integer.class);
+		primitiveTypes.add(Long.class);
+		primitiveTypes.add(Float.class);
+		primitiveTypes.add(Double.class);
 	}
-	
+
 	/**
 	 * Create an instance of the classname.
 	 * 
@@ -57,7 +56,7 @@ public class Instantiator {
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends T> c = (Class<? extends T>) Class.forName(classname);
-			return Instantiator.<T>getNewInstance(c, params);
+			return Instantiator.<T> getNewInstance(c, params);
 		} catch (ClassCastException e) {
 			log.error("Error", e);
 		} catch (ClassNotFoundException e) {
@@ -69,11 +68,12 @@ public class Instantiator {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Create an instance of Class.
 	 * 
-	 * @param c any class that extends the expected return type T
+	 * @param c
+	 *            any class that extends the expected return type T
 	 * @param params
 	 * @return null if anything fails
 	 */
@@ -101,14 +101,13 @@ public class Instantiator {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Return an empty/default boxed primitive.
-	 * This is somewhat heavy since it creates a boxed instance of
-	 * the primitive.
+	 * Return an empty/default boxed primitive. This is somewhat heavy since it
+	 * creates a boxed instance of the primitive.
 	 * 
 	 * @param cls
-	 * @return 
+	 * @return
 	 */
 	public static Object getPrimitive(Class<?> cls) {
 		if (cls.isAssignableFrom(Integer.class)) {
@@ -138,20 +137,20 @@ public class Instantiator {
 	}
 
 	/**
-	 * Invoke in the context of this Service.
-	 * It is suggested to use one of the primitive overload methods when the expected
-	 * result is a primitive. This is for 2 reasons:
-	 * (1) the primitive will be boxed in this case which means more overhead
-	 * (2) if something fails a NULL is returned which results in an exception on the calling end 
-	 * 	
+	 * Invoke in the context of this Service. It is suggested to use one of the
+	 * primitive overload methods when the expected result is a primitive. This
+	 * is for 2 reasons: (1) the primitive will be boxed in this case which
+	 * means more overhead (2) if something fails a NULL is returned which
+	 * results in an exception on the calling end
+	 * 
 	 * @param method
 	 * @param params
 	 * @return null if anything fails
-	 * @throws NullPointerException if the expected return type is a primitive
+	 * @throws NullPointerException
+	 *             if the expected return type is a primitive
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T invokeMethod(Object object, String method, Object... params) 
-	{
+	public static <T> T invokeMethod(Object object, String method, Object... params) {
 		if (object == null || method == null || method.isEmpty()) {
 			return null;
 		}
@@ -173,7 +172,7 @@ public class Instantiator {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Test if the item is a boxed primitive.
 	 * 
@@ -185,7 +184,8 @@ public class Instantiator {
 	}
 
 	/**
-	 * Parse the Class out of the passed-in objects. If an object is null, null will be used.
+	 * Parse the Class out of the passed-in objects. If an object is null, null
+	 * will be used.
 	 * 
 	 * @param params
 	 * @return

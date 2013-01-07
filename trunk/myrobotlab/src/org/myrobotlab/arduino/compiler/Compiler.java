@@ -58,8 +58,8 @@ public class Compiler {
 	/**
 	 * This is *not* the "Processing" libraries path, this is the Java libraries
 	 * path, as in java.library.path=BlahBlah, which identifies search paths for
-	 * DLLs or JNILIBs. (bullshit)
-	 * did I say bullshit? - this variable is never even read ... ever .. i mean wtf ?
+	 * DLLs or JNILIBs. (bullshit) did I say bullshit? - this variable is never
+	 * even read ... ever .. i mean wtf ?
 	 */
 	private String libraryPath;
 
@@ -192,8 +192,8 @@ public class Compiler {
 		// 4. link it all together into the .elf file
 
 		myArduino.setCompilingProgress(60);
-		List<String> baseCommandLinker = new ArrayList<String>(Arrays.asList(new String[] { avrBasePath + "avr-gcc", "-Os", "-Wl,--gc-sections", "-mmcu=" + boardPreferences.get("build.mcu"),
-				"-o", buildPath + File.separator + programName + ".elf" }));
+		List<String> baseCommandLinker = new ArrayList<String>(Arrays.asList(new String[] { avrBasePath + "avr-gcc", "-Os", "-Wl,--gc-sections",
+				"-mmcu=" + boardPreferences.get("build.mcu"), "-o", buildPath + File.separator + programName + ".elf" }));
 
 		for (File file : objectFiles) {
 			baseCommandLinker.add(file.getAbsolutePath());
@@ -233,10 +233,10 @@ public class Compiler {
 		execAsynchronously(commandObjcopy);
 
 		myArduino.setCompilingProgress(90);
-		
+
 		myArduino.setCompilingProgress(100);
 		myArduino.message("done.");
-		
+
 		return true;
 	}
 
@@ -290,7 +290,7 @@ public class Compiler {
 
 		Process process;
 
-		//command = new String[]{"ls.exe"};
+		// command = new String[]{"ls.exe"};
 		try {
 			process = Runtime.getRuntime().exec(command);
 		} catch (IOException e) {
@@ -312,13 +312,14 @@ public class Compiler {
 				if (err.thread != null)
 					err.thread.join();
 				result = process.waitFor();
-				//myArduino.message("result is " + result);
+				// myArduino.message("result is " + result);
 				compiling = false;
 			} catch (InterruptedException ignored) {
 			}
 		}
-		
-		// FIXME - garbage - inducing program control via re-throwing exceptions - very ugly !
+
+		// FIXME - garbage - inducing program control via re-throwing exceptions
+		// - very ugly !
 
 		// an error was queued up by message(), barf this back to compile(),
 		// which will barf it back to Editor. if you're having trouble
@@ -337,7 +338,7 @@ public class Compiler {
 
 		if (result != 0) {
 			RunnerException re = new RunnerException("Error compiling.");
-			re.hideStackTrace(); 
+			re.hideStackTrace();
 			throw re;
 		}
 	}
@@ -583,7 +584,8 @@ public class Compiler {
 			preprocessor.write();
 			CPPFilename = programName + ".cpp";
 
-		} catch (FileNotFoundException fnfe) { // FIXME - simple exception handling + feedback to gui
+		} catch (FileNotFoundException fnfe) { // FIXME - simple exception
+												// handling + feedback to gui
 			fnfe.printStackTrace();
 			String msg = "Build folder disappeared or could not be written";
 			throw new RunnerException(msg);

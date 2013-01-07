@@ -42,7 +42,8 @@ import org.myrobotlab.framework.Service;
  *   http://www.arduino.cc/playground/Main/RotaryEncoders
  *   
  */
-public class PICAXE extends Service //implements SerialPortEventListener, DigitalIO, AnalogIO, ServoController 
+public class PICAXE extends Service // implements SerialPortEventListener,
+									// DigitalIO, AnalogIO, ServoController
 {
 
 	private static final long serialVersionUID = 1L;
@@ -53,39 +54,35 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	public int interval = 1000;
 	public PulseDataType pulseDataType = PulseDataType.none;
 	public String pulseDataString = null;
-	public int pulseDataInteger;	
+	public int pulseDataInteger;
 	public transient PICAXEThread myPICAXE = null;
 
 	// types
-	public enum PulseDataType {none, integer, increment, string};
+	public enum PulseDataType {
+		none, integer, increment, string
+	};
 
-	
-	public class PICAXEThread implements Runnable
-	{
+	public class PICAXEThread implements Runnable {
 		public Thread thread = null;
 		public boolean isRunning = true;
-		
-		PICAXEThread()
-		{
-			thread = new Thread(this,getName() + "_ticking_thread");
+
+		PICAXEThread() {
+			thread = new Thread(this, getName() + "_ticking_thread");
 			thread.start();
 		}
-				
-		public void run()
-		{			
+
+		public void run() {
 			try {
-				while (isRunning == true)
-				{
-					if (pulseDataType == PulseDataType.increment)
-					{
+				while (isRunning == true) {
+					if (pulseDataType == PulseDataType.increment) {
 						invoke("pulse", pulseDataInteger);
 						++pulseDataInteger;
 					} else if (pulseDataType == PulseDataType.integer) {
 						invoke("pulse", pulseDataInteger);
 					} else if (pulseDataType == PulseDataType.none) {
-						invoke("pulse");						
+						invoke("pulse");
 					} else if (pulseDataType == PulseDataType.string) {
-						invoke("pulse", pulseDataString);												
+						invoke("pulse", pulseDataString);
 					}
 
 					Thread.sleep(interval);
@@ -100,30 +97,25 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	public PICAXE(String n) {
 		super(n, PICAXE.class.getCanonicalName());
 	}
-	
+
 	@Override
 	public void loadDefaultConfiguration() {
-		
+
 	}
-	
-	// TODO - how 
-	public void setPulseDataType (PulseDataType t)
-	{
-		pulseDataType = t;		
+
+	// TODO - how
+	public void setPulseDataType(PulseDataType t) {
+		pulseDataType = t;
 	}
-	
-	public void startPICAXE()
-	{
-		if (myPICAXE == null)
-		{
+
+	public void startPICAXE() {
+		if (myPICAXE == null) {
 			myPICAXE = new PICAXEThread();
 		}
 	}
-	
-	public void stopPICAXE()
-	{
-		if (myPICAXE != null) 
-		{
+
+	public void stopPICAXE() {
+		if (myPICAXE != null) {
 			log.info("stopping " + getName() + " myPICAXE");
 			myPICAXE.isRunning = false;
 			myPICAXE.thread.interrupt();
@@ -134,36 +126,30 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 
 	// TODO - enum pretty unsuccessful as
 	// type does not make it through Action
-	public void setType (String t)
-	{
-		if (t.compareTo("none") == 0)
-		{
+	public void setType(String t) {
+		if (t.compareTo("none") == 0) {
 			pulseDataType = PulseDataType.none;
-		} else if (t.compareTo("increment") == 0)
-		{
+		} else if (t.compareTo("increment") == 0) {
 			pulseDataType = PulseDataType.increment;
-			
-		} else if (t.compareTo("string") == 0)
-		{
+
+		} else if (t.compareTo("string") == 0) {
 			pulseDataType = PulseDataType.string;
-			
-		} else if (t.compareTo("integer") == 0)
-		{
+
+		} else if (t.compareTo("integer") == 0) {
 			pulseDataType = PulseDataType.integer;
-			
+
 		} else {
 			log.error("unknown type " + t);
 		}
 	}
-	
-	public void setType (PulseDataType t)
-	{
+
+	public void setType(PulseDataType t) {
 		pulseDataType = t;
 	}
 
 	public void pulse() {
 	}
-	
+
 	public Integer pulse(Integer count) {
 		log.info("pulse " + count);
 		return count;
@@ -172,47 +158,42 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	public String pulse(String d) {
 		return d;
 	}
-	
+
 	// new state functions begin --------------------------
-	public PICAXE publishState()
-	{
+	public PICAXE publishState() {
 		return this;
 	}
 
 	// TODO - reflectively do it in Service? !?
 	// No - the overhead of a Service warrants a data only proxy - so to
 	// a single container class "PICAXEData data = new PICAXEData()" could allow
-	// easy maintenance and extensibility - possibly even reflective sync if names are maintained   
-	public PICAXE setState(PICAXE o)
-	{
+	// easy maintenance and extensibility - possibly even reflective sync if
+	// names are maintained
+	public PICAXE setState(PICAXE o) {
 		this.interval = o.interval;
 		this.pulseDataInteger = o.pulseDataInteger;
 		this.pulseDataString = o.pulseDataString;
-		//this.myPICAXE = o.myPICAXE;  
+		// this.myPICAXE = o.myPICAXE;
 		this.pulseDataType = o.pulseDataType;
 		return o;
 	}
-	
-	public PICAXE getState()
-	{
+
+	public PICAXE getState() {
 		return this;
 	}
-	
-	
-	public String setPulseDataString(String s)
-	{
+
+	public String setPulseDataString(String s) {
 		pulseDataString = s;
 		return s;
 	}
 
-	public Integer setPulseDataInteger (Integer s)
-	{
+	public Integer setPulseDataInteger(Integer s) {
 		pulseDataInteger = s;
 		return s;
 	}
-	
+
 	// new state functions end ----------------------------
-	
+
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
 	}
@@ -220,69 +201,51 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
-						
-		//RemoteAdapter remote = new RemoteAdapter("remote");
-		//remote.startService(); 
+
+		// RemoteAdapter remote = new RemoteAdapter("remote");
+		// remote.startService();
 		// test
-		
+
 		PICAXE PICAXE = new PICAXE("PICAXE");
 		PICAXE.startService();
-		
+
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 
-						
-//		Logging log = new Logging("log");
-//		log.startService();
-		
-//		PICAXE.addListener("pulse", "log", "log", Integer.class);
+		// Logging log = new Logging("log");
+		// log.startService();
 
-//		GUIService gui = new GUIService("gui");
-//		gui.startService();	
-//		gui.display();
+		// PICAXE.addListener("pulse", "log", "log", Integer.class);
 
+		// GUIService gui = new GUIService("gui");
+		// gui.startService();
+		// gui.display();
 
-/*		
-		FileOutputStream fos = null;
-		ObjectOutputStream out = null;
-		try
-		{
-			
-		       fos = new FileOutputStream("test.backup");
-		       out = new ObjectOutputStream(fos);
-		       out.writeObject(remote);
-		       out.writeObject(log);
-		       out.writeObject(PICAXE);
-		       out.writeObject(gui);
-		       out.close();
-		    
-			
-		       FileInputStream fis = new FileInputStream("test.backup");
-		       ObjectInputStream in = new ObjectInputStream(fis);
-		       Logging log = (Logging)in.readObject();
-		       PICAXE PICAXE = (PICAXE)in.readObject();
-		       GUIService gui = (GUIService)in.readObject();
-		       in.close();
-		       
-		       log.startService();
+		/*
+		 * FileOutputStream fos = null; ObjectOutputStream out = null; try {
+		 * 
+		 * fos = new FileOutputStream("test.backup"); out = new
+		 * ObjectOutputStream(fos); out.writeObject(remote);
+		 * out.writeObject(log); out.writeObject(PICAXE); out.writeObject(gui);
+		 * out.close();
+		 * 
+		 * 
+		 * FileInputStream fis = new FileInputStream("test.backup");
+		 * ObjectInputStream in = new ObjectInputStream(fis); Logging log =
+		 * (Logging)in.readObject(); PICAXE PICAXE = (PICAXE)in.readObject();
+		 * GUIService gui = (GUIService)in.readObject(); in.close();
+		 * 
+		 * log.startService();
+		 * 
+		 * PICAXE.startService(); PICAXE.startPICAXE();
+		 * 
+		 * gui.startService(); gui.display();
+		 * 
+		 * 
+		 * } catch (Exception e) { log.error(e.getMessage());
+		 * log.error(stackToString(e)); }
+		 */
 
-		       PICAXE.startService();
-		       PICAXE.startPICAXE();
-		       
-		       gui.startService();
-		       gui.display();
-		    
-		       
-		} catch (Exception e)
-		{
-			log.error(e.getMessage());
-			log.error(stackToString(e));
-		}
-
-		*/
-
-		
 	}
 
 	@Override
@@ -290,11 +253,10 @@ public class PICAXE extends Service //implements SerialPortEventListener, Digita
 		stopPICAXE();
 		super.stopService();
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "(not implemented yet) used to interface PICAXE";
 	}
 
-	
 }

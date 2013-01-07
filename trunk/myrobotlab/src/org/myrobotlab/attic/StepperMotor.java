@@ -31,8 +31,7 @@ import org.myrobotlab.framework.Service;
 public class StepperMotor extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(StepperMotor.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(StepperMotor.class.getCanonicalName());
 	public final static String DIRECTION_CCW = "CCW"; // TODO - should this be
 														// in config?
 	public final static String DIRECTION_CW = "CW";
@@ -71,6 +70,5 @@ public class StepperMotor extends Service {
 	public String getToolTip() {
 		return "<html>stepper motor service (not implemented)</html>";
 	}
-	
 
 }

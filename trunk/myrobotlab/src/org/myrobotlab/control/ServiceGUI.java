@@ -41,33 +41,33 @@ public abstract class ServiceGUI {
 	public final static Logger log = Logger.getLogger(ServiceGUI.class.getCanonicalName());
 
 	// FIXME - Why a GUI interface - Swing will be Swing (too much abstraction)
-	// FIXME - cheesy - have resizer in GUIService too because its a lame updating the interface all the time
-	//final static public ComponentResizer resizer = new ComponentResizer();
-	
+	// FIXME - cheesy - have resizer in GUIService too because its a lame
+	// updating the interface all the time
+	// final static public ComponentResizer resizer = new ComponentResizer();
+
 	public final String boundServiceName;
 	final GUI myService;
 
 	GridBagConstraints gc = new GridBagConstraints();
-	// index of tab in the tab panel -1 would be not displayed or displayed in custom tab
-	public int myIndex = -1; 
+	// index of tab in the tab panel -1 would be not displayed or displayed in
+	// custom tab
+	public int myIndex = -1;
 
 	public JPanel display = new JPanel();
 
-	public abstract void init();	
-/*
-	public class DetachListener implements ActionListener
-	{
+	public abstract void init();
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			log.error("undock " + boundServiceName);
-			//releaseServiceButton.setVisible(false); - FIXME same functionality
-			myService.undockPanel(boundServiceName);
-		}
-		
-	}
-	*/
-		
+	/*
+	 * public class DetachListener implements ActionListener {
+	 * 
+	 * @Override public void actionPerformed(ActionEvent e) {
+	 * log.error("undock " + boundServiceName);
+	 * //releaseServiceButton.setVisible(false); - FIXME same functionality
+	 * myService.undockPanel(boundServiceName); }
+	 * 
+	 * }
+	 */
+
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
@@ -78,80 +78,71 @@ public abstract class ServiceGUI {
 		gc.gridx = 0;
 		gc.gridy = 0;
 
-		//resizer.registerComponent(display);
-		//resizer.registerComponent(widgetFrame);
-		
+		// resizer.registerComponent(display);
+		// resizer.registerComponent(widgetFrame);
+
 		display.setLayout(new GridBagLayout());
 
-		//gc.fill = GridBagConstraints.HORIZONTAL;
+		// gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 	}
-	
+
 	/**
-	 * hook for GUI framework to query each panel before release
-	 * checking if any panel needs user input before shutdown
+	 * hook for GUI framework to query each panel before release checking if any
+	 * panel needs user input before shutdown
+	 * 
 	 * @return
 	 */
-	public boolean isReadyForRelease()
-	{
+	public boolean isReadyForRelease() {
 		return true;
 	}
-	
+
 	/**
-	 * call-back from framework for qui to get ready 
-	 * for shutdown
+	 * call-back from framework for qui to get ready for shutdown
 	 */
-	public void makeReadyForRelease()
-	{
-		
+	public void makeReadyForRelease() {
+
 	}
-	
-	public JPanel getDisplay()
-	{
+
+	public JPanel getDisplay() {
 		return display;
 	}
 
 	/*
 	 * Service functions
 	 */
-	public void subscribe(String inOutMethod) 
-	{
+	public void subscribe(String inOutMethod) {
 		subscribe(inOutMethod, inOutMethod, null);
 	}
 
-	public void subscribe(String inMethod, String outMethod) 
-	{
+	public void subscribe(String inMethod, String outMethod) {
 		subscribe(inMethod, outMethod, null);
 	}
-	
-	public void subscribe(String outMethod, String inMethod, Class<?> parameterType) 
-	{
+
+	public void subscribe(String outMethod, String inMethod, Class<?> parameterType) {
 		MRLListener listener = null;
 		if (parameterType != null) {
-			listener = new MRLListener(outMethod, myService.getName(), inMethod, new Class[]{parameterType});
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, new Class[] { parameterType });
 		} else {
 			listener = new MRLListener(outMethod, myService.getName(), inMethod, null);
 		}
-		
+
 		myService.send(boundServiceName, "addListener", listener);
 
 	}
 
 	// TODO - more closely model java event system with addNotification or
 	// addListener
-	public void unsubscribe(String inOutMethod) 
-	{
-		unsubscribe(inOutMethod, inOutMethod, (Class<?>[])null);
+	public void unsubscribe(String inOutMethod) {
+		unsubscribe(inOutMethod, inOutMethod, (Class<?>[]) null);
 	}
 
-	public void unsubscribe(String inMethod, String outMethod) 
-	{
-		unsubscribe(inMethod, outMethod, (Class<?>[])null);
+	public void unsubscribe(String inMethod, String outMethod) {
+		unsubscribe(inMethod, outMethod, (Class<?>[]) null);
 	}
 
-	public void unsubscribe(String outMethod, String inMethod,
-			Class<?>... parameterType) {
+	public void unsubscribe(String outMethod, String inMethod, Class<?>... parameterType) {
 
 		MRLListener listener = null;
 		if (parameterType != null) {
@@ -162,13 +153,12 @@ public abstract class ServiceGUI {
 		myService.send(boundServiceName, "removeListener", listener);
 
 	}
-	
+
 	public abstract void attachGUI();
 
 	public abstract void detachGUI();
-	
-	public int test (int i, double d)
-	{
+
+	public int test(int i, double d) {
 		int x = 0;
 		return x;
 	}

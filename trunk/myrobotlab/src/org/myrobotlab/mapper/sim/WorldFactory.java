@@ -24,9 +24,8 @@
  */
 package org.myrobotlab.mapper.sim;
 
-
-
 /**
  *
  */
-public class WorldFactory extends Factory {}
+public class WorldFactory extends Factory {
+}

@@ -50,8 +50,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(FrogLegGUI.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(FrogLegGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
@@ -79,8 +78,7 @@ public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 	public FrogLegGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
 
 		video0 = new VideoWidget(boundServiceName, myService);
@@ -154,12 +152,10 @@ public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 
 			// myService.send(boundServiceName, "keyCommand",
 			// keyEvent.getKeyCode());
-			myService.send(boundServiceName, "keyCommand", KeyEvent
-					.getKeyText(keyEvent.getKeyCode()));
+			myService.send(boundServiceName, "keyCommand", KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode()
-					+ " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
+			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 
@@ -172,13 +168,11 @@ public class FrogLegGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 		/*
-		private void printIt(String title, KeyEvent keyEvent) {
-			//int keyCode = keyEvent.getKeyCode();
-			//String keyText = KeyEvent.getKeyText(keyCode);
-			// log.error(title + " : " + keyText + " / " +
-			// keyEvent.getKeyChar());
-		}
-		*/
+		 * private void printIt(String title, KeyEvent keyEvent) { //int keyCode
+		 * = keyEvent.getKeyCode(); //String keyText =
+		 * KeyEvent.getKeyText(keyCode); // log.error(title + " : " + keyText +
+		 * " / " + // keyEvent.getKeyChar()); }
+		 */
 	};
 
 	public void setLogin(String login) {

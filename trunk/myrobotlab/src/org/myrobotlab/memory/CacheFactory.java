@@ -13,24 +13,24 @@ import org.myrobotlab.reflection.Instantiator;
  * Singleton.
  * 
  * @author SwedaKonsult
- *
+ * 
  */
 public class CacheFactory {
 	/**
 	 * Keep this as a singleton
 	 */
 	private final static CacheFactory me = new CacheFactory();
-	
+
 	/**
 	 * The default initial size of the Cache created.
 	 */
 	private final static int DEFAULT_INITIAL_SIZE = 10;
-	
+
 	/**
 	 * Cache the caches.
 	 */
 	private final ConcurrentMap<String, Cache> caches;
-	
+
 	/**
 	 * Private constructor.
 	 */
@@ -38,7 +38,7 @@ public class CacheFactory {
 		// TODO need to load configuration about caches
 		caches = new ConcurrentHashMap<String, Cache>();
 	}
-	
+
 	/**
 	 * Get a handle to this factory.
 	 * 
@@ -47,12 +47,13 @@ public class CacheFactory {
 	public static CacheFactory getFactory() {
 		return me;
 	}
-	
+
 	/**
-	 * Create a cache using a specific class.
-	 * This assumes that the constructor does not take any parameters.
+	 * Create a cache using a specific class. This assumes that the constructor
+	 * does not take any parameters.
 	 * 
-	 * @param forClass the cache class that should be used
+	 * @param forClass
+	 *            the cache class that should be used
 	 * @return
 	 */
 	public Cache createCache(Class<? extends Cache> forClass) {
@@ -63,7 +64,7 @@ public class CacheFactory {
 		if (cache != null) {
 			return cache;
 		}
-		cache = Instantiator.<Cache>getNewInstance(forClass, new Object[0]);
+		cache = Instantiator.<Cache> getNewInstance(forClass, new Object[0]);
 		caches.put(createKey(forClass), cache);
 		return cache;
 	}
@@ -76,7 +77,7 @@ public class CacheFactory {
 	private Cache createDefaultCache() {
 		return new LocalCache(DEFAULT_INITIAL_SIZE);
 	}
-	
+
 	/**
 	 * Build up the key used for caching.
 	 * 
@@ -95,7 +96,7 @@ public class CacheFactory {
 	 */
 	private Cache getExistingCache(Class<? extends Object> forClass) {
 		String key = createKey(forClass);
-		if(caches.containsKey(key)) {
+		if (caches.containsKey(key)) {
 			return caches.get(key);
 		}
 		key = forClass.getPackage().getName();

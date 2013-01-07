@@ -50,8 +50,7 @@ import org.myrobotlab.service.data.IPAndPort;
 public class SoccerGame extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SoccerGame.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(SoccerGame.class.getCanonicalName());
 
 	RemoteAdapter remote = new RemoteAdapter("remote");
 	ArrayList<Player> players = new ArrayList<Player>();
@@ -97,16 +96,14 @@ public class SoccerGame extends Service {
 
 	public Object[] makeHTMLErrorParam(String text) {
 		Object[] param = new Object[1];
-		param[0] = "<html><body><font color=\"red\">" + text
-				+ "</font></body></html>";
+		param[0] = "<html><body><font color=\"red\">" + text + "</font></body></html>";
 		log.error(text);
 		return param;
 	}
 
 	public Object[] makeHTMLOKParam(String text) {
 		Object[] param = new Object[1];
-		param[0] = "<html><body><font color=\"green\">" + text
-				+ "</font></body></html>";
+		param[0] = "<html><body><font color=\"green\">" + text + "</font></body></html>";
 		log.error(text);
 		return param;
 	}
@@ -128,7 +125,7 @@ public class SoccerGame extends Service {
 				player = new Player("player0" + i);
 			}
 
-			//player.game = this;
+			// player.game = this;
 			player.startService();
 			players.add(player);
 		}
@@ -161,7 +158,10 @@ public class SoccerGame extends Service {
 		// set up global message routes begin--
 		// when the remote adapter finds a client disconnecting - send a msg to
 		// the SoccerGame to disconnect them
-		remote.addListener("connectionBroken", this.getName(), "connectionBrokenEvent", IPAndPort.class); // TODO - TAKE CLASS
+		remote.addListener("connectionBroken", this.getName(), "connectionBrokenEvent", IPAndPort.class); // TODO
+																											// -
+																											// TAKE
+																											// CLASS
 		// set up global message routes end--
 
 		// start services begin----------------
@@ -191,18 +191,20 @@ public class SoccerGame extends Service {
 		for (i = 0; i < numberOfPlayers; ++i) {
 			if (!players.get(i).isConnected) {
 				newPlayer = players.get(i);
-				//newPlayer.IPAddress = sdu.remoteHostname;
-				//newPlayer.port = sdu.remoteServicePort;
+				// newPlayer.IPAddress = sdu.remoteHostname;
+				// newPlayer.port = sdu.remoteServicePort;
 				newPlayer.isConnected = true;
-				//log.info(sdu.remoteHostname + " has been assigned player0" + i);
+				// log.info(sdu.remoteHostname + " has been assigned player0" +
+				// i);
 				break;
 				// time for player reset
 			}
 		}
 
 		ServiceEntry client = null;
-		//ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1 and
-															// only 1
+		// ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1
+		// and
+		// only 1
 
 		// put on time queue ? - if not available
 
@@ -211,43 +213,35 @@ public class SoccerGame extends Service {
 		// temporarily register requesting client cause - we need to communicate
 		// back to them
 		// hostcfg.save("pre.sdu.txt");
-		//super.registerServices(sdu); - depricated
+		// super.registerServices(sdu); - depricated
 		// hostcfg.save("post.sdu.txt");
 
 		String login = "";
 		/*
-		String login = sdu.login;
-		log.info("login request from " + login + " @ " + sdu.remoteHostname
-				+ ":" + sdu.remoteServicePort);
-				*/
+		 * String login = sdu.login; log.info("login request from " + login +
+		 * " @ " + sdu.remoteHostname + ":" + sdu.remoteServicePort);
+		 */
 
 		if (newPlayer == null) {
-			send(
-					client.name,
-					"setRemoteConnectionStatus",
-					makeHTMLErrorParam("too many players - no new players now ... sorry"));
+			send(client.name, "setRemoteConnectionStatus", makeHTMLErrorParam("too many players - no new players now ... sorry"));
 			return;
 		}
 
 		if (currentPlayers.containsKey(login)) {
-			send(client.name, "setRemoteConnectionStatus",
-					makeHTMLErrorParam(login
-							+ " already has control of player "
-							+ currentPlayers.get(login).getName()));
+			send(client.name, "setRemoteConnectionStatus", makeHTMLErrorParam(login + " already has control of player " + currentPlayers.get(login).getName()));
 			return;
 		}
 
 		/*
 		 * if (!security.containsKey(sdu.login) || ((String)
 		 * security.get(sdu.login)).compareTo(sdu.password) != 0) {
-		 * send(client.getName(), "setRemoteConnectionStatus", makeHTMLErrorParam
-		 * ("login " + sdu.login + "failed")); log.error("login " + sdu.login +
-		 * "/" + sdu.password + "failed"); return; }
+		 * send(client.getName(), "setRemoteConnectionStatus",
+		 * makeHTMLErrorParam ("login " + sdu.login + "failed"));
+		 * log.error("login " + sdu.login + "/" + sdu.password + "failed");
+		 * return; }
 		 */
 
-		send(client.name, "setRemoteConnectionStatus",
-				makeHTMLOKParam("connected to " + newPlayer.getName()
-						+ " welcome to the game !"));
+		send(client.name, "setRemoteConnectionStatus", makeHTMLOKParam("connected to " + newPlayer.getName() + " welcome to the game !"));
 
 		// TODO - prepare to dump service description if user no good
 		// assign number to player
@@ -255,11 +249,11 @@ public class SoccerGame extends Service {
 		// put in gui view service
 
 		ServiceEntry se;
-		//sdu.serviceEntryList_.clear();
+		// sdu.serviceEntryList_.clear();
 
 		se = hostcfg.getServiceEntry(newPlayer.getName());
 		se.localServiceHandle = null;
-		//sdu.serviceEntryList_.add(se);
+		// sdu.serviceEntryList_.add(se);
 
 		if (newPlayer.type.compareTo("cameraman") == 0) {
 			/*
@@ -277,11 +271,9 @@ public class SoccerGame extends Service {
 			 * null; sdu.serviceEntryList_.add(se);
 			 */
 
-			broadCastToPlayers("addLogEntry", newPlayer.login
-					+ " is a cameraman");
+			broadCastToPlayers("addLogEntry", newPlayer.login + " is a cameraman");
 			broadCastToPlayers("addLogEntry", "starting new game");
-			broadCastToPlayers("addLogEntry", " game over in " + gameSeconds
-					+ " seconds");
+			broadCastToPlayers("addLogEntry", " game over in " + gameSeconds + " seconds");
 
 			timer = new Timer();
 			timer.schedule(new EndGame(), gameSeconds * 1000);
@@ -289,12 +281,11 @@ public class SoccerGame extends Service {
 
 		// associate login & player #
 		newPlayer.setGUIName(client.name);
-		
+
 		/*
-		newPlayer.login = sdu.login;
-		newPlayer.IPAddress = sdu.remoteHostname;
-		newPlayer.port = sdu.remoteServicePort;
-		*/
+		 * newPlayer.login = sdu.login; newPlayer.IPAddress =
+		 * sdu.remoteHostname; newPlayer.port = sdu.remoteServicePort;
+		 */
 
 		currentPlayers.put(login, newPlayer);
 		// send back service info
@@ -321,7 +312,8 @@ public class SoccerGame extends Service {
 
 		// GUI INFO
 		// ESTABLH CONNECTIVITY TO THE REMOTE GUI !!
-		//sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,sdu.remoteServicePort, sdu);
+		// sendServiceDirectoryUpdate("", "", client.getName(),
+		// sdu.hostname,sdu.remoteServicePort, sdu);
 		// GUI BEING CREATED
 
 		// set message routes between player & gui
@@ -342,11 +334,8 @@ public class SoccerGame extends Service {
 			newPlayer.team = "red";
 		}
 
-		announce(newPlayer.login + " is here on the " + newPlayer.team
-				+ " team!");
-		broadCastMsgToPlayers("addLogEntry", "<font color=\"" + newPlayer.team
-				+ "\">" + newPlayer.login + "</font> is here on the "
-				+ newPlayer.team + " team!");
+		announce(newPlayer.login + " is here on the " + newPlayer.team + " team!");
+		broadCastMsgToPlayers("addLogEntry", "<font color=\"" + newPlayer.team + "\">" + newPlayer.login + "</font> is here on the " + newPlayer.team + " team!");
 
 	}
 
@@ -364,8 +353,7 @@ public class SoccerGame extends Service {
 			--blueTeam;
 		}
 
-		broadCastMsgToPlayers("addLogEntry", " removing <font =\"" + p.team
-				+ "\">" + p.login + "</font> from the game");
+		broadCastMsgToPlayers("addLogEntry", " removing <font =\"" + p.team + "\">" + p.login + "</font> from the game");
 
 		currentPlayers.remove(p.login);
 		p.IPAddress = "";
@@ -383,8 +371,7 @@ public class SoccerGame extends Service {
 		// update others
 
 		log.error("connection broke - " + conn.IPAddress + ":" + conn.port);
-		log.error("connection broke - removing " + conn.IPAddress + ":"
-				+ conn.port);
+		log.error("connection broke - removing " + conn.IPAddress + ":" + conn.port);
 
 		hostcfg.removeServiceEntries(conn.IPAddress, conn.port);
 
@@ -394,8 +381,7 @@ public class SoccerGame extends Service {
 			// if (p != null && p.IPAddress == null || p != null &&
 			// p.IPAddress.compareTo(conn.IPAddress) == 0 && p.port ==
 			// conn.port)
-			if (p.IPAddress.compareTo(conn.IPAddress) == 0
-					&& p.port == conn.port) {
+			if (p.IPAddress.compareTo(conn.IPAddress) == 0 && p.port == conn.port) {
 				removePlayerFromPlay(p);
 			}
 
@@ -480,10 +466,10 @@ public class SoccerGame extends Service {
 		game.startService();
 		game.startGame();
 	}
-	
+
 	@Override
 	public String getToolTip() {
 		return "<html>beginning of LMR soccars</html>";
 	}
-	
+
 }

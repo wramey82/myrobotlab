@@ -8,5 +8,5 @@ public class Heartbeat {
 	public String sender;
 	public Date sent;
 	public Date echoed;
-	
+
 }

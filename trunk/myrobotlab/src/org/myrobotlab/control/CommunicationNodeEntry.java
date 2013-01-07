@@ -12,21 +12,21 @@ public class CommunicationNodeEntry extends JPanel {
 	String host;
 	ImageIcon image;
 
-	  public CommunicationNodeEntry(String host, String imagePath) {
-	    this.host = host;
-	    this.image = Util.getResourceIcon("c0.png");
-	  }
+	public CommunicationNodeEntry(String host, String imagePath) {
+		this.host = host;
+		this.image = Util.getResourceIcon("c0.png");
+	}
 
-	  public String getTitle() {
-	    return host;
-	  }
+	public String getTitle() {
+		return host;
+	}
 
-	  public ImageIcon getImage() {
-	    return image;
-	  }
+	public ImageIcon getImage() {
+		return image;
+	}
 
-	  // Override standard toString method to give a useful result
-	  public String toString() {
-	    return host;
-	  }	
+	// Override standard toString method to give a useful result
+	public String toString() {
+		return host;
+	}
 }

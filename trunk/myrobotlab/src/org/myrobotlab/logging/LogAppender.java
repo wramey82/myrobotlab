@@ -4,7 +4,7 @@ package org.myrobotlab.logging;
  * Appenders to be used with logging.
  * 
  * @author christer
- *
+ * 
  */
 public enum LogAppender {
 	None {
@@ -32,7 +32,7 @@ public enum LogAppender {
 			return "remote";
 		}
 	};
-	
+
 	/**
 	 * Safely parse the input parameter. Default: None.
 	 * 
@@ -55,13 +55,14 @@ public enum LogAppender {
 			return None;
 		}
 	}
-	
+
 	/**
 	 * Safely parse the input parameter. Default: None.
 	 * 
 	 * @param str
 	 * @return
-	 * @throws IllegalArgumentException if there is no match
+	 * @throws IllegalArgumentException
+	 *             if there is no match
 	 */
 	public static LogAppender parse(String str) {
 		if (str == null || str.length() < 4) {
@@ -79,7 +80,7 @@ public enum LogAppender {
 		if (str.equals(Remote.toString())) {
 			return Remote;
 		}
-		if (str.equals(None.toString())){
+		if (str.equals(None.toString())) {
 			return None;
 		}
 		throw new IllegalArgumentException(str);

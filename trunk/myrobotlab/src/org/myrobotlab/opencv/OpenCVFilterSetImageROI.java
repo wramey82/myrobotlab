@@ -38,9 +38,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
 
 	public OpenCVFilterSetImageROI(OpenCV service, String name) {
 		super(service, name);

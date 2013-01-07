@@ -52,64 +52,58 @@ public class PointCloudGUI extends ServiceGUI implements ActionListener {
 	JButton pointCloudButton = new JButton("point cloud");
 	JButton depthCloudButton = new JButton("depth");
 	JButton imageCloudButton = new JButton("image");
-	
+
 	JPanel eastPanel = new JPanel();
-	
+
 	public PointCloudGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	
+
 	public void init() {
-		//openni = (OpenNI)Runtime.getService(boundServiceName).service;
-		
+		// openni = (OpenNI)Runtime.getService(boundServiceName).service;
+
 		display.setLayout(new BorderLayout());
 		display.add(panel3d, BorderLayout.CENTER);
-		
-		eastPanel.setLayout(new GridLayout(6,1));
+
+		eastPanel.setLayout(new GridLayout(6, 1));
 		eastPanel.add(captureButton);
 		eastPanel.add(recordButton);
 		eastPanel.add(playbackButton);
 		eastPanel.add(pointCloudButton);
 		eastPanel.add(depthCloudButton);
 		eastPanel.add(imageCloudButton);
-		
+
 		display.add(eastPanel, BorderLayout.EAST);
-		
+
 		captureButton.addActionListener(this);
 		recordButton.addActionListener(this);
 		playbackButton.addActionListener(this);
 		/*
-		JPanel viewer = new JPanel();
-		viewer.setLayout(new BorderLayout());
-		viewer.add(panel3d, BorderLayout.CENTER);
-		*/
-		
+		 * JPanel viewer = new JPanel(); viewer.setLayout(new BorderLayout());
+		 * viewer.add(panel3d, BorderLayout.CENTER);
+		 */
+
 	}
 
-	
-	public void getState(PointCloud openni)
-	{
-		if (openni != null)
-		{
-	
+	public void getState(PointCloud openni) {
+		if (openni != null) {
+
 		}
-		
+
 	}
 
-	public void publishFrame (SensorData kd)
-	{
+	public void publishFrame(SensorData kd) {
 		ptsShape.updateDepthCoords(kd);
 	}
-	
+
 	@Override
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
-		subscribe("publishState", "getState", PointCloud.class); 
-//		subscribe("publishFrame", "publishFrame", ShortBuffer.class); 
-		subscribe("publishFrame", "publishFrame", SensorData.class); 
+		subscribe("publishState", "getState", PointCloud.class);
+		// subscribe("publishFrame", "publishFrame", ShortBuffer.class);
+		subscribe("publishFrame", "publishFrame", SensorData.class);
 		myService.send(boundServiceName, "publishState");
-		
+
 	}
 
 	@Override
@@ -117,34 +111,27 @@ public class PointCloudGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("publishState", "getState", PointCloud.class);
 	}
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		if (o == captureButton)
-		{
-			if (captureButton.getText().equals("capture"))
-			{
+		if (o == captureButton) {
+			if (captureButton.getText().equals("capture")) {
 				myService.send(boundServiceName, "capture");
 				captureButton.setText("stop capture");
 			} else {
 				myService.send(boundServiceName, "stopCapture");
 				captureButton.setText("capture");
 			}
-		} else if (o == recordButton) 
-		{
-			if (recordButton.getText().equals("record"))
-			{
+		} else if (o == recordButton) {
+			if (recordButton.getText().equals("record")) {
 				myService.send(boundServiceName, "record");
 				recordButton.setText("stop recording");
 			} else {
-				myService.send(boundServiceName, "stopRecording");				
+				myService.send(boundServiceName, "stopRecording");
 				recordButton.setText("record");
 			}
-		} else if (o == playbackButton) 
-		{
-			if (playbackButton.getText().equals("playback"))
-			{
+		} else if (o == playbackButton) {
+			if (playbackButton.getText().equals("playback")) {
 				myService.send(boundServiceName, "playback");
 				playbackButton.setText("stop playback");
 			} else {

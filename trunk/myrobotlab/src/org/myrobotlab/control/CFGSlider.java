@@ -39,8 +39,7 @@ import org.myrobotlab.service.data.NameValuePair;
 public class CFGSlider extends JPanel {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(CFGSlider.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(CFGSlider.class.getCanonicalName());
 
 	String boundService;
 	Service myService = null;
@@ -55,8 +54,7 @@ public class CFGSlider extends JPanel {
 	int max = 100;
 	int startValue = 0;
 
-	public CFGSlider(String boundService, String CFGName, int min, int max,
-			int startValue, Service myService) {
+	public CFGSlider(String boundService, String CFGName, int min, int max, int startValue, Service myService) {
 		super();
 		this.boundService = boundService;
 		this.min = min;
@@ -73,7 +71,7 @@ public class CFGSlider extends JPanel {
 			slider.addChangeListener(new javax.swing.event.ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
 					outputLabel.setText("" + slider.getValue());
-					NameValuePair nvp = new NameValuePair(CFGName,Integer.toString(slider.getValue()));
+					NameValuePair nvp = new NameValuePair(CFGName, Integer.toString(slider.getValue()));
 					if (myService != null) {
 						// myService.send(boundService, "setCFG", nvp);
 						myService.send(boundService, "setCFG", nvp);

@@ -28,31 +28,32 @@ import javax.vecmath.Vector3f;
 import org.myrobotlab.mapper.sim.Agent;
 import org.myrobotlab.mapper.sim.Box;
 
-
-/** This the simplest Demo. Robot has no sensors.
- * The robot progress until it reaches a box.
-*
- */ 
+/**
+ * This the simplest Demo. Robot has no sensors. The robot progress until it
+ * reaches a box.
+ * 
+ */
 public class SimplestDemo extends Demo {
-    
-    public class Robot extends Agent {
-        
-        public Robot(Vector3d position, String name) {
-            super(position, name);
-        }
-        
-        /** Initialize Agent's Behavior */
-        public void initBehavior() {
-            setTranslationalVelocity(1f);
-        }
-        
-        /** Perform one step of Agent's Behavior */
-        public void performBehavior() {
- 
-        }
-    }    
-        public SimplestDemo() {
-            add(new Box(new Vector3d(10, 0, 0), new Vector3f(3f, 3f, 3f), this));
-            add(new Robot(new Vector3d(0, 0, 0), "robot"));
-        }
-    }
+
+	public class Robot extends Agent {
+
+		public Robot(Vector3d position, String name) {
+			super(position, name);
+		}
+
+		/** Initialize Agent's Behavior */
+		public void initBehavior() {
+			setTranslationalVelocity(1f);
+		}
+
+		/** Perform one step of Agent's Behavior */
+		public void performBehavior() {
+
+		}
+	}
+
+	public SimplestDemo() {
+		add(new Box(new Vector3d(10, 0, 0), new Vector3f(3f, 3f, 3f), this));
+		add(new Robot(new Vector3d(0, 0, 0), "robot"));
+	}
+}

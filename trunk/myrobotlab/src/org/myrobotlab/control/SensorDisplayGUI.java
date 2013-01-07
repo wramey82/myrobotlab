@@ -40,7 +40,7 @@ public class SensorDisplayGUI extends ServiceGUI {
 	public SensorDisplayGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		RadarWidget radar = new RadarWidget();

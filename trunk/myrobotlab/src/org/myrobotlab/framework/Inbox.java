@@ -36,8 +36,7 @@ public class Inbox implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Inbox.class
-			.getCanonicalName());
+	public final static Logger log = Logger.getLogger(Inbox.class.getCanonicalName());
 
 	String name;
 	LinkedList<Message> msgBox = new LinkedList<Message>();
@@ -81,7 +80,7 @@ public class Inbox implements Serializable {
 			while (msg == null) { // while no messages && no messages that are
 									// blocking
 				if (msgBox.size() == 0) {
-					//log.debug("Inbox WAITING " + name);
+					// log.debug("Inbox WAITING " + name);
 					msgBox.wait(); // must own the lock
 				} else {
 					msg = msgBox.removeLast();
@@ -130,8 +129,7 @@ public class Inbox implements Serializable {
 	public void add(Message msg) {
 		// to prevent messaging infinite loops
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
-			log.error("*dumping duplicate message msgid " + name + "."
-					+ msg.method + " " + msg.msgID);
+			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);
 			log.error(msg.historyList);
 			return;
 		}
@@ -145,7 +143,8 @@ public class Inbox implements Serializable {
 			while (blocking && msgBox.size() == maxQueue) // queue "full"
 			{
 				try {
-					//log.warn("inbox enque msg WAITING since inbox " + maxQueue + " is full" + name);
+					// log.warn("inbox enque msg WAITING since inbox " +
+					// maxQueue + " is full" + name);
 					msgBox.wait(); // Limit the size
 				} catch (InterruptedException ex) {
 					log.debug("inbox enque msg INTERRUPTED " + name);

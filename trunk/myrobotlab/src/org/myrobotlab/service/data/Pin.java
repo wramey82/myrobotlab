@@ -32,18 +32,22 @@ import org.apache.log4j.Logger;
 public class Pin implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(Pin.class);
-	public static final int DIGITAL_VALUE = 1; // normalized with data coming from Arduino.DIGITAL_READ_POLLING_START 
-	public static final int PWM_VALUE = 2; 
-	public static final int ANALOG_VALUE = 3;  // normalized with data coming from Adruino.ANALOG_READ_POLLING_START
-	
-	public int pin; 	
-	public int type; 	
-	public int value; 
+	public static final int DIGITAL_VALUE = 1; // normalized with data coming
+												// from
+												// Arduino.DIGITAL_READ_POLLING_START
+	public static final int PWM_VALUE = 2;
+	public static final int ANALOG_VALUE = 3; // normalized with data coming
+												// from
+												// Adruino.ANALOG_READ_POLLING_START
+
+	public int pin;
+	public int type;
+	public int value;
 	public String source;
 
 	public Pin() {
 	}
-	
+
 	public Pin(int pin, int type, int value, String source) {
 		this.pin = pin;
 		this.type = type;

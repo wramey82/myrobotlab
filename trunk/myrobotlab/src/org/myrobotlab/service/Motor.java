@@ -73,7 +73,9 @@ public class Motor extends Service implements MotorControl {
 	boolean locked = false; // for locking the motor in a stopped position
 	private MotorController controller = null; // board name
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#getPowerLevel()
 	 */
 	@Override
@@ -85,7 +87,9 @@ public class Motor extends Service implements MotorControl {
 		this.directionInverted = invert;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#isDirectionInverted()
 	 */
 	@Override
@@ -110,7 +114,9 @@ public class Motor extends Service implements MotorControl {
 	}
 
 	// --------- Motor (front end) API Begin ----------------------------
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#move(float)
 	 */
 	@Override
@@ -132,7 +138,9 @@ public class Motor extends Service implements MotorControl {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#moveTo(java.lang.Integer)
 	 */
 	@Override
@@ -140,7 +148,9 @@ public class Motor extends Service implements MotorControl {
 		// FIXME - implement - needs encoder
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#setMaxPower(float)
 	 */
 	@Override
@@ -152,7 +162,9 @@ public class Motor extends Service implements MotorControl {
 		maxPower = max;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#stop()
 	 */
 	@Override
@@ -160,7 +172,9 @@ public class Motor extends Service implements MotorControl {
 		move(0.0f);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#unLock()
 	 */
 	@Override
@@ -174,7 +188,9 @@ public class Motor extends Service implements MotorControl {
 		locked = true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#stopAndLock()
 	 */
 	@Override
@@ -214,7 +230,7 @@ public class Motor extends Service implements MotorControl {
 						instance.move(this.power);
 						inMotion = true;
 
-						Thread.sleep((int)(this.duration * 1000));
+						Thread.sleep((int) (this.duration * 1000));
 
 						instance.stop();
 						inMotion = false;
@@ -227,7 +243,9 @@ public class Motor extends Service implements MotorControl {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#moveFor(float, int)
 	 */
 	@Override
@@ -237,7 +255,9 @@ public class Motor extends Service implements MotorControl {
 	}
 
 	// TODO - operate from thread pool
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#moveFor(float, int, boolean)
 	 */
 	@Override
@@ -265,7 +285,7 @@ public class Motor extends Service implements MotorControl {
 			inMotion = true;
 
 			try {
-				Thread.sleep((int)(duration * 1000));
+				Thread.sleep((int) (duration * 1000));
 			} catch (InterruptedException e) {
 				logException(e);
 			}
@@ -276,25 +296,25 @@ public class Motor extends Service implements MotorControl {
 		}
 
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.myrobotlab.service.X#attach(org.myrobotlab.service.interfaces.MotorController)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.myrobotlab.service.X#attach(org.myrobotlab.service.interfaces.
+	 * MotorController)
 	 */
 	@Override
-	public boolean setController(MotorController controller)
-	{
+	public boolean setController(MotorController controller) {
 		this.controller = controller;
 		attached(true);
 		return true;
 	}
-	
-	public String getControllerName()
-	{
-		if (controller != null)
-		{
+
+	public String getControllerName() {
+		if (controller != null) {
 			return controller.getName();
 		}
-		
+
 		return null;
 	}
 
@@ -308,7 +328,9 @@ public class Motor extends Service implements MotorControl {
 		broadcastState();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#isAttached()
 	 */
 	@Override
@@ -316,21 +338,22 @@ public class Motor extends Service implements MotorControl {
 		return isAttached;
 	}
 
-	
-	public static void main(String[] args)  {
+	public static void main(String[] args) {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
 		Runtime.createAndStart("arduino", "Arduino");
 		Runtime.createAndStart("python", "Python");
-		//Runtime.createAndStart("adafruit", "AdafruitMotorShield");
+		// Runtime.createAndStart("adafruit", "AdafruitMotorShield");
 		Runtime.createAndStart("motor01", "Motor");
 		Runtime.createAndStart("gui", "GUIService");
-	
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.myrobotlab.service.X#detach()
 	 */
 	@Override

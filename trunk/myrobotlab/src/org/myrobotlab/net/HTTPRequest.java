@@ -673,7 +673,7 @@ public class HTTPRequest {
 	public byte[] getBinary() {
 		// URL u = new URL("http://www.java2s.com/binary.dat");
 		// URLConnection uc = url.openConnection();
-		
+
 		String contentType = connection.getContentType();
 		int contentLength = connection.getContentLength();
 
@@ -749,16 +749,22 @@ public class HTTPRequest {
 	public String getError() {
 		return error;
 	}
-	
+
 	/*
-	 * Graciously lifted from - http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
+	 * Graciously lifted from -
+	 * http://stackoverflow.com/questions/2793150/how-to
+	 * -use-java-net-urlconnection-to-fire-and-handle-http-requests
 	 */
-	static public String postFile(String url, String userid, String fieldName, File textFile) throws Exception
-	{
+	static public String postFile(String url, String userid, String fieldName, File textFile) throws Exception {
 		String param = "value";
-		//File textFile = new File("/path/to/file.txt");
-		//File binaryFile = new File("/path/to/file.bin");
-		String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value.
+		// File textFile = new File("/path/to/file.txt");
+		// File binaryFile = new File("/path/to/file.bin");
+		String boundary = Long.toHexString(System.currentTimeMillis()); // Just
+																		// generate
+																		// some
+																		// unique
+																		// random
+																		// value.
 		String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
 		URLConnection connection = new URL(url).openConnection();
@@ -767,66 +773,71 @@ public class HTTPRequest {
 		PrintWriter writer = null;
 		try {
 			String charset = "ISO-8859-1";
-		    OutputStream output = connection.getOutputStream();
-		    writer = new PrintWriter(new OutputStreamWriter(output, charset), true); // true = autoFlush, important!
-		    
+			OutputStream output = connection.getOutputStream();
+			writer = new PrintWriter(new OutputStreamWriter(output, charset), true); // true
+																						// =
+																						// autoFlush,
+																						// important!
 
-		    // Send text file.
-		    writer.append("--" + boundary).append(CRLF);
-		    writer.append("Content-Disposition: form-data; name=\""+fieldName+"\"; filename=\"" + textFile.getName() + "\"").append(CRLF);
-		    writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
-		    writer.append(CRLF).flush();
-		    BufferedReader reader = null;
-		    try {
-		        reader = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), charset));
-		        for (String line; (line = reader.readLine()) != null;) {
-		            writer.append(line).append(CRLF);
-		        }
-		    } finally {
-		        if (reader != null) try { reader.close(); } catch (IOException logOrIgnore) {}
-		    }
-		    
-		    // Send normal param.
-		    
-		    writer.append("--" + boundary).append(CRLF);
-		    writer.append("Content-Disposition: form-data; name=\"user\"").append(CRLF);
-		    writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
-		    writer.append(CRLF);
-		    writer.append(userid).append(CRLF).flush();
+			// Send text file.
+			writer.append("--" + boundary).append(CRLF);
+			writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + textFile.getName() + "\"").append(CRLF);
+			writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
+			writer.append(CRLF).flush();
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), charset));
+				for (String line; (line = reader.readLine()) != null;) {
+					writer.append(line).append(CRLF);
+				}
+			} finally {
+				if (reader != null)
+					try {
+						reader.close();
+					} catch (IOException logOrIgnore) {
+					}
+			}
 
-		    writer.flush();
+			// Send normal param.
 
-		    /*
-		    // Send binary file.
-		    writer.append("--" + boundary).append(CRLF);
-		    writer.append("Content-Disposition: form-data; name=\"binaryFile\"; filename=\"" + binaryFile.getName() + "\"").append(CRLF);
-		    writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(binaryFile.getName())).append(CRLF);
-		    writer.append("Content-Transfer-Encoding: binary").append(CRLF);
-		    writer.append(CRLF).flush();
-		    InputStream input = null;
-		    try {
-		        input = new FileInputStream(binaryFile);
-		        byte[] buffer = new byte[1024];
-		        for (int length = 0; (length = input.read(buffer)) > 0;) {
-		            output.write(buffer, 0, length);
-		        }
-		        output.flush(); // Important! Output cannot be closed. Close of writer will close output as well.
-		    } finally {
-		        if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
-		    }
-		    writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
-			*/
-		    
-		    // End of multipart/form-data.
-		    writer.append("--" + boundary + "--").append(CRLF);
-		    writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
-		    
-		    byte[] data;
+			writer.append("--" + boundary).append(CRLF);
+			writer.append("Content-Disposition: form-data; name=\"user\"").append(CRLF);
+			writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
+			writer.append(CRLF);
+			writer.append(userid).append(CRLF).flush();
+
+			writer.flush();
+
+			/*
+			 * // Send binary file. writer.append("--" + boundary).append(CRLF);
+			 * writer.append(
+			 * "Content-Disposition: form-data; name=\"binaryFile\"; filename=\""
+			 * + binaryFile.getName() + "\"").append(CRLF);
+			 * writer.append("Content-Type: " +
+			 * URLConnection.guessContentTypeFromName
+			 * (binaryFile.getName())).append(CRLF);
+			 * writer.append("Content-Transfer-Encoding: binary").append(CRLF);
+			 * writer.append(CRLF).flush(); InputStream input = null; try {
+			 * input = new FileInputStream(binaryFile); byte[] buffer = new
+			 * byte[1024]; for (int length = 0; (length = input.read(buffer)) >
+			 * 0;) { output.write(buffer, 0, length); } output.flush(); //
+			 * Important! Output cannot be closed. Close of writer will close
+			 * output as well. } finally { if (input != null) try {
+			 * input.close(); } catch (IOException logOrIgnore) {} }
+			 * writer.append(CRLF).flush(); // CRLF is important! It indicates
+			 * end of binary boundary.
+			 */
+
+			// End of multipart/form-data.
+			writer.append("--" + boundary + "--").append(CRLF);
+			writer.append(CRLF).flush(); // CRLF is important! It indicates end
+											// of binary boundary.
+
+			byte[] data;
 			InputStream in = null;
 			in = new BufferedInputStream(connection.getInputStream());
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(16384);
 			try {
-				
 
 				int BUFFER_SIZE = 16384;
 				byte[] tmp = new byte[BUFFER_SIZE];
@@ -850,41 +861,42 @@ public class HTTPRequest {
 			}
 
 			return s;
-		    
+
 		} finally {
-		    if (writer != null) writer.close();
+			if (writer != null)
+				writer.close();
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+
 		HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "GroG", "file", new File("myrobotlab.log"));
-		
+
 		/*
-
-		HTTPRequest http = new HTTPRequest("http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/");
-		String s = http.getString();
-		log.info(s);
-
-		String language = "en";
-		String toSpeak = "hello";
-		URI uri = new URI("http", null, "translate.google.com", 80, "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
-
-		URL url = uri.toURL();
-
-		HttpURLConnection.setFollowRedirects(true);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		System.out.println("Response code = " + connection.getResponseCode());
-		String header = connection.getHeaderField("location");
-		if (header != null)
-			System.out.println("Redirected to " + header);
-
-		HTTPRequest request = new HTTPRequest(uri.toURL());
-		request.getBinary();
-		*/
+		 * 
+		 * HTTPRequest http = new HTTPRequest(
+		 * "http://www.mkyong.com/java/how-do-convert-byte-array-to-string-in-java/"
+		 * ); String s = http.getString(); log.info(s);
+		 * 
+		 * String language = "en"; String toSpeak = "hello"; URI uri = new
+		 * URI("http", null, "translate.google.com", 80, "/translate_tts", "tl="
+		 * + language + "&q=" + toSpeak, null);
+		 * 
+		 * URL url = uri.toURL();
+		 * 
+		 * HttpURLConnection.setFollowRedirects(true); HttpURLConnection
+		 * connection = (HttpURLConnection) url.openConnection();
+		 * System.out.println("Response code = " +
+		 * connection.getResponseCode()); String header =
+		 * connection.getHeaderField("location"); if (header != null)
+		 * System.out.println("Redirected to " + header);
+		 * 
+		 * HTTPRequest request = new HTTPRequest(uri.toURL());
+		 * request.getBinary();
+		 */
 	}
 
 }

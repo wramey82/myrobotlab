@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
@@ -45,13 +44,11 @@ import org.myrobotlab.service.OpenCV;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger
-			.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
 
 	IplImage hsv = null;
 	IplImage hue = null;
@@ -103,20 +100,18 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 		frameBuffer = hsv.getBufferedImage();
 		int rgb = frameBuffer.getRGB(x, y);
 		Color c = new Color(rgb);
-		log.error(x + "," + y + " h " + c.getRed()
-				+ " s " + c.getGreen() + " v " + c.getBlue());
+		log.error(x + "," + y + " h " + c.getRed() + " s " + c.getGreen() + " v " + c.getBlue());
 	}
-/*
-	
-	public void samplePoint(MouseEvent event) {
 
-		frameBuffer = hsv.getBufferedImage();
-		int rgb = frameBuffer.getRGB(event.getX(), event.getY());
-		Color c = new Color(rgb);
-		log.error(event.getX() + "," + event.getY() + " h " + c.getRed()
-				+ " s " + c.getGreen() + " v " + c.getBlue());
-	}
-*/
+	/*
+	 * 
+	 * public void samplePoint(MouseEvent event) {
+	 * 
+	 * frameBuffer = hsv.getBufferedImage(); int rgb =
+	 * frameBuffer.getRGB(event.getX(), event.getY()); Color c = new Color(rgb);
+	 * log.error(event.getX() + "," + event.getY() + " h " + c.getRed() + " s "
+	 * + c.getGreen() + " v " + c.getBlue()); }
+	 */
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -164,8 +159,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 		// convert BGR to HSV
 		cvCvtColor(image, hsv, CV_BGR2HSV);
-		cvInRangeS(hsv, hsv_min, hsv_max,
-				thresholded);
+		cvInRangeS(hsv, hsv_min, hsv_max, thresholded);
 		// cxcore.cvInRangeS(hsv, hsv_min2, hsv_max2,
 		// thresholded2);
 		// cxcore.cvOr(thresholded, thresholded2, thresholded, null);

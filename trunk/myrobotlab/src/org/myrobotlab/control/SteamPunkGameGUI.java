@@ -41,7 +41,7 @@ public class SteamPunkGameGUI extends ServiceGUI implements ActionListener, KeyL
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(SteamPunkGameGUI.class.getCanonicalName());
-	
+
 	JButton keyboardControl = new JButton("keyboard control");
 	JButton startGame = new JButton("start game");
 
@@ -49,9 +49,9 @@ public class SteamPunkGameGUI extends ServiceGUI implements ActionListener, KeyL
 		super(boundServiceName, myService);
 	}
 
-	public void init() {        
-        keyboardControl.addKeyListener(this);
-        JPanel buttonPanel = new JPanel();
+	public void init() {
+		keyboardControl.addKeyListener(this);
+		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(keyboardControl);
 		buttonPanel.add(startGame);
 		startGame.addActionListener(this);
@@ -75,8 +75,7 @@ public class SteamPunkGameGUI extends ServiceGUI implements ActionListener, KeyL
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
-		if (o == startGame)
-		{
+		if (o == startGame) {
 			myService.send(boundServiceName, "startGame");
 			startGame.setEnabled(false);
 		}
@@ -86,42 +85,35 @@ public class SteamPunkGameGUI extends ServiceGUI implements ActionListener, KeyL
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if(      keyCode == KeyEvent.VK_SPACE ) {
-            myService.send(boundServiceName, "stop");
-        }
-        else if( keyCode == KeyEvent.VK_UP ) {
-            myService.send(boundServiceName, "forward");
-        }
-        else if( keyCode == KeyEvent.VK_DOWN ) {
-            myService.send(boundServiceName, "backward");
-        }
-        else if( keyCode == KeyEvent.VK_LEFT ) {
-            myService.send(boundServiceName, "spinleft");
-        }
-        else if( keyCode == KeyEvent.VK_RIGHT ) {
-            myService.send(boundServiceName, "spinright");
-        }
-        else if( keyCode == KeyEvent.VK_COMMA ) {
-            myService.send(boundServiceName, "speedDown");
-        }
-        else if( keyCode == KeyEvent.VK_PERIOD ) {
-            myService.send(boundServiceName, "speedUp");
-        }
-        else if( keyCode == KeyEvent.VK_R ) {
-            myService.send(boundServiceName, "reset");
-        }
+		int keyCode = e.getKeyCode();
+		if (keyCode == KeyEvent.VK_SPACE) {
+			myService.send(boundServiceName, "stop");
+		} else if (keyCode == KeyEvent.VK_UP) {
+			myService.send(boundServiceName, "forward");
+		} else if (keyCode == KeyEvent.VK_DOWN) {
+			myService.send(boundServiceName, "backward");
+		} else if (keyCode == KeyEvent.VK_LEFT) {
+			myService.send(boundServiceName, "spinleft");
+		} else if (keyCode == KeyEvent.VK_RIGHT) {
+			myService.send(boundServiceName, "spinright");
+		} else if (keyCode == KeyEvent.VK_COMMA) {
+			myService.send(boundServiceName, "speedDown");
+		} else if (keyCode == KeyEvent.VK_PERIOD) {
+			myService.send(boundServiceName, "speedUp");
+		} else if (keyCode == KeyEvent.VK_R) {
+			myService.send(boundServiceName, "reset");
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

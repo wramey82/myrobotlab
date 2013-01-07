@@ -57,10 +57,9 @@ import org.myrobotlab.service.Python;
 import org.myrobotlab.service.interfaces.GUI;
 
 /**
- * Editor 
+ * Editor
  * 
- * General purpose swing editor
- * TODO generalize for Python & Arduino
+ * General purpose swing editor TODO generalize for Python & Arduino
  * 
  * @author GroG
  * 
@@ -79,8 +78,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 	JScrollPane editorScrollPane;
 	final JTabbedPane editorTabs;
 
-	public JProgressBar progress = new JProgressBar(0,100);
-	
+	public JProgressBar progress = new JProgressBar(0, 100);
+
 	JSplitPane splitPane;
 
 	final JLabel statusLabel;
@@ -89,24 +88,24 @@ public class Editor extends ServiceGUI implements ActionListener {
 	// TODO - check for outside modification with lastmoddate
 	File currentFile;
 	String currentFilename;
-	
-	// menu
-	JMenu fileMenu 		= createFileMenu();
-	JMenu editMenu 		= createEditMenu();
-	JMenu examplesMenu 	= new JMenu("Examples");;
-	JMenu toolsMenu 	= createToolsMenu();
-	JMenu helpMenu 		= createHelpMenu();
 
-	JMenuBar menuBar 	= createMenuBar();
-	JPanel   buttonBar = new JPanel();
-	
-	JPanel menuPanel 	= createMenuPanel();
-	
+	// menu
+	JMenu fileMenu = createFileMenu();
+	JMenu editMenu = createEditMenu();
+	JMenu examplesMenu = new JMenu("Examples");;
+	JMenu toolsMenu = createToolsMenu();
+	JMenu helpMenu = createHelpMenu();
+
+	JMenuBar menuBar = createMenuBar();
+	JPanel buttonBar = new JPanel();
+
+	JPanel menuPanel = createMenuPanel();
+
 	// button bar buttons
 	ImageButton executeButton;
 	ImageButton restartButton;
 	ImageButton openFileButton;
-	ImageButton saveFileButton;	
+	ImageButton saveFileButton;
 
 	// consoles
 	JTabbedPane consoleTabs;
@@ -115,9 +114,9 @@ public class Editor extends ServiceGUI implements ActionListener {
 	// autocompletion
 	final CompletionProvider provider;
 	final AutoCompletion ac;
-	
+
 	String syntaxStyle;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -128,13 +127,14 @@ public class Editor extends ServiceGUI implements ActionListener {
 		super(boundServiceName, myService);
 
 		this.syntaxStyle = syntaxStyle;
-		
-		console = new Console(); 
+
+		console = new Console();
 
 		provider = createCompletionProvider();
 		ac = new AutoCompletion(provider);
 
-		// FYI - files are on the "Arduino" service not on the GUI - these potentially are remote objects
+		// FYI - files are on the "Arduino" service not on the GUI - these
+		// potentially are remote objects
 		currentFile = null;
 		currentFilename = null;
 
@@ -147,13 +147,14 @@ public class Editor extends ServiceGUI implements ActionListener {
 		statusLabel = new JLabel("Status:");
 		status = new JLabel("");
 		top = myService.getFrame();
-		
-		textArea.getInputMap().put( KeyStroke.getKeyStroke( "F3" ), "find-action" );
-		textArea.getInputMap().put( KeyStroke.getKeyStroke( "ctrl F" ), "find-action" );
+
+		textArea.getInputMap().put(KeyStroke.getKeyStroke("F3"), "find-action");
+		textArea.getInputMap().put(KeyStroke.getKeyStroke("ctrl F"), "find-action");
 		/*
-		RSyntaxTextAreaFindAndReplaceable findAndReplaceable = new RSyntaxTextAreaFindAndReplaceable();
-		editArea.getActionMap().put( "find-action", new FindAndReplaceDialog( findAndReplaceable ) );
-		*/
+		 * RSyntaxTextAreaFindAndReplaceable findAndReplaceable = new
+		 * RSyntaxTextAreaFindAndReplaceable(); editArea.getActionMap().put(
+		 * "find-action", new FindAndReplaceDialog( findAndReplaceable ) );
+		 */
 	}
 
 	@Override
@@ -186,12 +187,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 			saveAsFile();
 		} else if (m.getText().equals("Find")) {
 			new FindAndReplaceDialog(this);
-		} 
-		/*
-		else if (m.getActionCommand().equals("examples")) {
-			textArea.setText(FileIO.getResourceFile(String.format("python/examples/%1$s", m.getText())));
 		}
-		*/
+		/*
+		 * else if (m.getActionCommand().equals("examples")) {
+		 * textArea.setText(FileIO
+		 * .getResourceFile(String.format("python/examples/%1$s",
+		 * m.getText()))); }
+		 */
 	}
 
 	@Override
@@ -229,7 +231,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		splitPane = createMainPane();
 
 		display.add(splitPane, BorderLayout.CENTER);
-		
+
 		JPanel s = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		s.add(statusLabel);
 		s.add(status);
@@ -243,17 +245,17 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 */
 	JSplitPane createMainPane() {
 		JSplitPane pane = new JSplitPane();
-		
+
 		JPanel lowerPanel = new JPanel();
 		lowerPanel.setLayout(new BorderLayout());
-		
+
 		consoleTabs = createTabsPane();
 		lowerPanel.add(consoleTabs, BorderLayout.CENTER);
 		progress.setForeground(Color.green);
 		lowerPanel.add(progress, BorderLayout.SOUTH);
 		editorScrollPane = createEditorPane();
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane,lowerPanel);
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorScrollPane, lowerPanel);
 		pane.setDividerLocation(440);
 
 		return pane;
@@ -276,7 +278,6 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return new RTextScrollPane(textArea);
 	}
 
-
 	JMenu createFileMenu() {
 		JMenu menu = new JMenu("File");
 		menu.setMnemonic(fileMenuMnemonic);
@@ -295,13 +296,13 @@ public class Editor extends ServiceGUI implements ActionListener {
 		editMenu.addSeparator();
 		editMenu.add(createMenuItem("Cut"));
 		editMenu.add(createMenuItem("Copy"));
-		//editMenu.add(createMenuItem("save", saveMenuMnemonic, "control S", null));
+		// editMenu.add(createMenuItem("save", saveMenuMnemonic, "control S",
+		// null));
 		editMenu.addSeparator();
 		editMenu.add(createMenuItem("Find", openMenuMnemonic, "CTRL+F", "Find"));
-		//editMenu.add(createMenuItem("Format"));
+		// editMenu.add(createMenuItem("Format"));
 		return editMenu;
 	}
-
 
 	JMenu createToolsMenu() {
 		toolsMenu = new JMenu("Tools");
@@ -312,8 +313,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		helpMenu = new JMenu("Help");
 		return helpMenu;
 	}
-	
-	
+
 	CompletionProvider createCompletionProvider() {
 		// TODO -> LanguageSupportFactory.get().register(editor);
 
@@ -355,8 +355,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @param actionCommand
 	 * @return
 	 */
-	JMenuItem createMenuItem(String label, int vKey,
-			String accelerator, String actionCommand) {
+	JMenuItem createMenuItem(String label, int vKey, String accelerator, String actionCommand) {
 		JMenuItem mi = null;
 		if (vKey == -1) {
 			mi = new JMenuItem(label);
@@ -377,7 +376,6 @@ public class Editor extends ServiceGUI implements ActionListener {
 		return mi;
 	}
 
-	
 	JPanel createMenuPanel() {
 
 		JPanel menuPanel = new JPanel(new BorderLayout());
@@ -390,15 +388,12 @@ public class Editor extends ServiceGUI implements ActionListener {
 	JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("console", console.getScrollPane());
-		GUIService gui = (GUIService)myService;// FIXME - bad bad bad ... 
+		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui,
-				pane, console.getScrollPane(), boundServiceName, "console"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, console.getScrollPane(), boundServiceName, "console"));
 
 		return pane;
 	}
-
-
 
 	/**
 	 * Build up the top text menu bar.
@@ -406,7 +401,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @return the menu bar filled with the top-level options.
 	 */
 	JMenuBar createMenuBar() {
-		menuBar = new JMenuBar();		
+		menuBar = new JMenuBar();
 
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
@@ -439,8 +434,8 @@ public class Editor extends ServiceGUI implements ActionListener {
 		executeButton.activate();
 		restartButton.deactivate();
 		console.startLogging(); // Hmm... noticed this is only local JVM
-									// :) the Python console can be pushed
-									// over the network
+								// :) the Python console can be pushed
+								// over the network
 		myService.send(boundServiceName, "attachPythonConsole");
 		myService.send(boundServiceName, "exec", textArea.getText());
 	}
@@ -471,21 +466,18 @@ public class Editor extends ServiceGUI implements ActionListener {
 		if (FileUtil.save(top, textArea.getText(), currentFilename))
 			currentFilename = FileUtil.getLastFileSaved();
 	}
-	
-	public ImageButton addImageButtonToButtonBar(String resourceDir, String name, ActionListener al)
-	{
-		ImageButton ret = new ImageButton(resourceDir,name, al);
+
+	public ImageButton addImageButtonToButtonBar(String resourceDir, String name, ActionListener al) {
+		ImageButton ret = new ImageButton(resourceDir, name, al);
 		buttonBar.add(ret);
 		return ret;
 	}
-	
-	public void setStatus(String s)
-	{
+
+	public void setStatus(String s) {
 		status.setText(s);
 	}
 
-	public RSyntaxTextArea getTextArea()
-	{
+	public RSyntaxTextArea getTextArea() {
 		return textArea;
 	}
 }

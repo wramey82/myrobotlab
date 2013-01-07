@@ -37,19 +37,16 @@ import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
 
-
 public class OpenCVFilterFGBG extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	
-	public final static Logger log = Logger.getLogger(OpenCVFilterFGBG.class
-			.getCanonicalName());
+
+	public final static Logger log = Logger.getLogger(OpenCVFilterFGBG.class.getCanonicalName());
 
 	CvMemStorage storage = null;
 	BackgroundSubtractorMOG2 bg_model = null;
 	boolean update_bg_model = true;
 	IplImage fgmask, fgimg;
-
 
 	public OpenCVFilterFGBG(OpenCV service, String name) {
 		super(service, name);
@@ -73,7 +70,6 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 
 	}
 
-
 	@Override
 	public IplImage process(IplImage img) {
 
@@ -81,21 +77,19 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 			fgimg = cvCreateImage(cvGetSize(img), 8, 3);
 		}
 
-				
-        bg_model.apply(img, fgmask, update_bg_model ? -1 : 0);
-        
-        //cvCopy(src, dst)
-        //fgimg = Scalar::all(0);
-        //img.copyTo(fgimg, fgmask);
+		bg_model.apply(img, fgmask, update_bg_model ? -1 : 0);
 
-        IplImage bgimg = null;
-        bg_model.getBackgroundImage(bgimg);
+		// cvCopy(src, dst)
+		// fgimg = Scalar::all(0);
+		// img.copyTo(fgimg, fgmask);
 
-        /*
-        imshow("image", img);
-        imshow("foreground mask", fgmask);
-        imshow("foreground image", fgimg);
-		*/
+		IplImage bgimg = null;
+		bg_model.getBackgroundImage(bgimg);
+
+		/*
+		 * imshow("image", img); imshow("foreground mask", fgmask);
+		 * imshow("foreground image", fgimg);
+		 */
 
 		return fgimg;
 	}

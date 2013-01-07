@@ -56,23 +56,23 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	VideoWidget video = null;
 	BufferedImage graph = null;
 	Graphics g = null;
-	
+
 	public GraphicsGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
+
 	public void init() {
 
 		JButton cg = new JButton("create graph");
 		cg.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				myService.send(boundServiceName, "createGraph");
 			}
 		});
-		
-		video = new VideoWidget(boundServiceName, myService);	
+
+		video = new VideoWidget(boundServiceName, myService);
 		video.init();
 		display.add(cg);
 		display.add(video.display, gc);
@@ -87,95 +87,84 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	@Override
 	public void attachGUI() {
 		video.attachGUI();
-		//subscribe(outMethod, inMethod, parameterType)
-		myService.send(boundServiceName,"attach", (Object)myService.getName());
+		// subscribe(outMethod, inMethod, parameterType)
+		myService.send(boundServiceName, "attach", (Object) myService.getName());
 	}
 
 	@Override
 	public void detachGUI() {
 		video.detachGUI();
-		myService.send(boundServiceName,"detach");
+		myService.send(boundServiceName, "detach");
 	}
 
-	public void createGraph (Dimension d)
-	{
+	public void createGraph(Dimension d) {
 		graph = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
 		g = graph.getGraphics();
 		video.displayFrame(graph);
 	}
 
 	// wrappers begin --------------------------
-	public void drawLine(Integer x1, Integer y1, Integer x2, Integer y2)
-	{
+	public void drawLine(Integer x1, Integer y1, Integer x2, Integer y2) {
 		g.drawLine(x1, y1, x2, y2);
 		refreshDisplay();
-		//video.displayFrame(graph);
-	}
-	
-	public void drawString(String str, Integer x, Integer y)
-	{
-		g.drawString(str, x, y);
-		//video.displayFrame(graph);
+		// video.displayFrame(graph);
 	}
 
-	public void drawRect(Integer x, Integer y, Integer width, Integer height)
-	{
-		g.drawRect(x, y, width, height);
-		//video.displayFrame(graph);
+	public void drawString(String str, Integer x, Integer y) {
+		g.drawString(str, x, y);
+		// video.displayFrame(graph);
 	}
-	
-	public void drawGrid (int width, int height)
-	{
-		for (int i = 0; i < graph.getHeight(); i+=height)
-		{
+
+	public void drawRect(Integer x, Integer y, Integer width, Integer height) {
+		g.drawRect(x, y, width, height);
+		// video.displayFrame(graph);
+	}
+
+	public void drawGrid(int width, int height) {
+		for (int i = 0; i < graph.getHeight(); i += height) {
 			g.drawLine(0, i, graph.getWidth(), i);
 		}
 
-		for (int i = 0; i < graph.getWidth(); i+=width)
-		{
+		for (int i = 0; i < graph.getWidth(); i += width) {
 			g.drawLine(i, 0, i, graph.getHeight());
 		}
-		
+
 		Color old = g.getColor();
 		g.setColor(Color.RED);
-		
+
 		// center - x y + heading degree
-		//g.drawArc(300, 300, 10, 10, 0, 360);
-		g.drawOval(295, 295, 10, 10); // cg.drawOval(xCenter-r, yCenter-r, 2*r, 2*r);
+		// g.drawArc(300, 300, 10, 10, 0, 360);
+		g.drawOval(295, 295, 10, 10); // cg.drawOval(xCenter-r, yCenter-r, 2*r,
+										// 2*r);
 		g.drawLine(300, 300, 300, 290); // polar to cart
 		g.setColor(old);
 	}
 
-	public void fillOval(Integer x, Integer y, Integer width, Integer height)
-	{
+	public void fillOval(Integer x, Integer y, Integer width, Integer height) {
 		g.fillOval(x, y, width, height);
 	}
 
-	public void fillRect(Integer x, Integer y, Integer width, Integer height)
-	{
+	public void fillRect(Integer x, Integer y, Integer width, Integer height) {
 		g.fillRect(x, y, width, height);
 	}
-	
-	public void clearRect(Integer x, Integer y, Integer width, Integer height)
-	{
+
+	public void clearRect(Integer x, Integer y, Integer width, Integer height) {
 		g.clearRect(x, y, width, height);
-		//video.displayFrame(graph);
+		// video.displayFrame(graph);
 	}
 
-	public void setColor(Color c)
-	{
+	public void setColor(Color c) {
 		g.setColor(c);
-		//video.displayFrame(graph);
+		// video.displayFrame(graph);
 	}
-	
+
 	// wrappers end --------------------------
-	
+
 	// refresh display
-	public void refreshDisplay()
-	{
+	public void refreshDisplay() {
 		video.displayFrame(graph);
 	}
-	
+
 	// TODO - encapsulate this
 	// MouseListener mouseListener = new MouseAdapter() {
 	public void setCurrentFilterMouseListener() {
@@ -186,14 +175,13 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
+						System.out.println("Double-clicked on: " + o.toString());
 					}
 				}
 			}
 		};
 
-		//traces.addMouseListener(mouseListener);
+		// traces.addMouseListener(mouseListener);
 	}
 
 	@Override

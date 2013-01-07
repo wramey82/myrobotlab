@@ -244,15 +244,15 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		@Override
 		public void run() {
 			try {
-			while (isRunning) {
+				while (isRunning) {
 					Thread.sleep(heartbeatIntervalMilliSeconds);
-				Message msg = new Message();
-				msg.method = "echoHeartbeat";
-				Heartbeat heartbeat = new Heartbeat();
-				heartbeat.sender = myService.getName();
-				msg.data = new Object[]{new Heartbeat()};
-//				comm.send(name, msg);
-			}
+					Message msg = new Message();
+					msg.method = "echoHeartbeat";
+					Heartbeat heartbeat = new Heartbeat();
+					heartbeat.sender = myService.getName();
+					msg.data = new Object[] { new Heartbeat() };
+					// comm.send(name, msg);
+				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -272,14 +272,14 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
 	public ArrayList<URI> getClients() {
 		ArrayList<URI> ret = new ArrayList<URI>();
 		for (URI key : clientList.keySet()) {
 			ret.add(key);
 		}
-		
+
 		return ret;
 	}
 

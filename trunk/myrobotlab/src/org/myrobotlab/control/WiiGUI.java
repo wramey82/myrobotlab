@@ -39,8 +39,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.values.IRSource;
 
-public class WiiGUI extends ServiceGUI implements ListSelectionListener,
-		VideoGUISource {
+public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = Logger.getLogger(WiiGUI.class.toString());
@@ -61,8 +60,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	int currentDirection = UNKNOWN;
 	int lastDirection = UNKNOWN;
 
-	Number sensitivity = new Number("sensitivity", 5, 1, 5,
-			"ir camera sensitivity");
+	Number sensitivity = new Number("sensitivity", 5, 1, 5, "ir camera sensitivity");
 
 	public Random rand = new Random();
 	public IRData lastIRData = null;
@@ -76,8 +74,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 		video0 = new VideoWidget(boundServiceName, myService);
 		video0.init();
 
-		camImage = new BufferedImage(width / divisor, height / divisor,
-				BufferedImage.TYPE_INT_RGB);
+		camImage = new BufferedImage(width / divisor, height / divisor, BufferedImage.TYPE_INT_RGB);
 
 		cam = camImage.getGraphics();
 
@@ -141,8 +138,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 				cam.fillArc(x, y, ir.getSize() * 3, ir.getSize() * 3, 0, 360);
 				// cam.drawString(ire.event.getWiimoteId() + " s" + ir.getSize()
 				// + " " + ir.getX() + "," + ir.getY(), x + 5, y);
-				cam.drawString(ire.event.getWiimoteId() + " " + ir.getX() + ","
-						+ ir.getY() + " s" + ir.getSize(), x - 30, y);
+				cam.drawString(ire.event.getWiimoteId() + " " + ir.getX() + "," + ir.getY() + " s" + ir.getSize(), x - 30, y);
 			}
 
 		}
@@ -192,8 +188,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 					int index = theList.locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Object o = theList.getModel().getElementAt(index);
-						System.out
-								.println("Double-clicked on: " + o.toString());
+						System.out.println("Double-clicked on: " + o.toString());
 					}
 				}
 			}
@@ -209,6 +204,5 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener,
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 	}
-
 
 }

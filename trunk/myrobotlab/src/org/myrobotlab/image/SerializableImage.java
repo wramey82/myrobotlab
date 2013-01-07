@@ -23,7 +23,6 @@
  * 
  * */
 
-
 package org.myrobotlab.image;
 
 import java.awt.image.BufferedImage;
@@ -40,7 +39,7 @@ public class SerializableImage implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private BufferedImage image = null;
 	public String source = "";
-	public Date timestamp = new Date();
+	public long timestamp;
 
 	public SerializableImage() {
 		super();
@@ -53,10 +52,10 @@ public class SerializableImage implements Serializable {
 
 	public SerializableImage(BufferedImage im, String source) {
 		this();
-		this.source = source; 
+		this.source = source;
 		setImage(im);
 	}
-	
+
 	public BufferedImage getImage() {
 		return image;
 	}
@@ -69,8 +68,7 @@ public class SerializableImage implements Serializable {
 		ImageIO.write(getImage(), "jpg", new MemoryCacheImageOutputStream(out));
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		setImage(ImageIO.read(new MemoryCacheImageInputStream(in)));
 	}
 }

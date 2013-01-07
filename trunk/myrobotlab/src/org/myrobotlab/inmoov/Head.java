@@ -6,34 +6,30 @@ import org.myrobotlab.service.Servo;
 
 public class Head {
 
-
 	public Servo neck;
 	public Servo rothead;
-	
-	public void initialize(Arduino arduino)
-	{
-		neck = (Servo)Runtime.createAndStart("neck", "Servo");
-		rothead = (Servo)Runtime.createAndStart("rothead", "Servo");
-		
+
+	public void initialize(Arduino arduino) {
+		neck = (Servo) Runtime.createAndStart("neck", "Servo");
+		rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
+
 		arduino.servoAttach(neck.getName(), 12);
 		arduino.servoAttach(rothead.getName(), 13);
 
 		// initial position
 		rest();
-				
+
 		// notify gui
 		neck.broadcastState();
-		rothead.broadcastState();		
+		rothead.broadcastState();
 	}
-	
-	public void move(Integer neck, Integer rothead)
-	{
+
+	public void move(Integer neck, Integer rothead) {
 		this.neck.moveTo(neck);
 		this.rothead.moveTo(rothead);
 	}
-	
-	public String getScript(String inMoovServiceName)
-	{
+
+	public String getScript(String inMoovServiceName) {
 		return String.format("%s.moveHead(%d,%d)\n", inMoovServiceName, neck.getPosition(), rothead.getPosition());
 	}
 
@@ -46,9 +42,8 @@ public class Head {
 		neck.moveTo(90);
 		rothead.moveTo(90);
 	}
-	
-	public void broadcastState()
-	{
+
+	public void broadcastState() {
 		neck.broadcastState();
 		rothead.broadcastState();
 	}

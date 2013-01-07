@@ -53,129 +53,126 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 	VideoWidget bestFitVideo = null;
 	VideoWidget newImageVideo = null;
-	//VideoWidget video1 = null;
-	//VideoWidget video2 = null;
+	// VideoWidget video1 = null;
+	// VideoWidget video2 = null;
 	BufferedImage graph = null;
 	Graphics g = null;
 	JLabel matchIndex = new JLabel("0");
 	JLabel matchWord = new JLabel();
-	
+
 	public FSMTestGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
-	
-	public class StateActionListener implements ActionListener
-	{
+
+	public class StateActionListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JButton button = (JButton) e.getSource();
-			myService.send(boundServiceName, "heard", button.getText());			
+			myService.send(boundServiceName, "heard", button.getText());
 		}
-		
+
 	}
-	
+
 	public void init() {
 
 		StateActionListener state = new StateActionListener();
-		
+
 		JButton b = new JButton("look");
 		b.addActionListener(state);
-		display.add(b, gc);		
-		
+		display.add(b, gc);
+
 		++gc.gridx;
 		b = new JButton("ball");
 		b.addActionListener(state);
-		display.add(b, gc);		
+		display.add(b, gc);
 
 		++gc.gridx;
 		b = new JButton("hand");
 		b.addActionListener(state);
-		display.add(b, gc);		
+		display.add(b, gc);
 
 		++gc.gridx;
 		b = new JButton("box");
 		b.addActionListener(state);
-		display.add(b, gc);		
+		display.add(b, gc);
 
 		++gc.gridx;
 		b = new JButton("cup");
 		b.addActionListener(state);
-		display.add(b, gc);		
-		
+		display.add(b, gc);
+
 		++gc.gridx;
 		b = new JButton("save");
 		b.addActionListener(state);
-		display.add(b, gc);		
+		display.add(b, gc);
 
 		gc.gridx = 0;
 
 		++gc.gridy;
-		display.add(matchWord, gc);		
-		
+		display.add(matchWord, gc);
+
 		++gc.gridy;
-		display.add(new JLabel("match index : "), gc);		
+		display.add(new JLabel("match index : "), gc);
 
 		++gc.gridx;
-		display.add(matchIndex, gc);		
-		
+		display.add(matchIndex, gc);
+
 		gc.gridx = 0;
 		++gc.gridy;
-		
-		bestFitVideo = new VideoWidget(boundServiceName, myService);	
+
+		bestFitVideo = new VideoWidget(boundServiceName, myService);
 		bestFitVideo.init();
-		display.add(bestFitVideo.display, gc);		
+		display.add(bestFitVideo.display, gc);
 
 		gc.gridwidth = 10;
 		++gc.gridx;
-		newImageVideo = new VideoWidget(boundServiceName, myService);	
+		newImageVideo = new VideoWidget(boundServiceName, myService);
 		newImageVideo.init();
-		display.add(newImageVideo.display, gc);		
-		
-		/*		
-		++gc.gridy;
-		video1 = new VideoWidget(boundServiceName, myService);	
-		video1.init();
-		display.add(video1.display, gc);
+		display.add(newImageVideo.display, gc);
 
-		
-		++gc.gridx;
-		video2 = new VideoWidget(boundServiceName, myService);	
-		video2.init();
-		display.add(video2.display, gc);
-*/
+		/*
+		 * ++gc.gridy; video1 = new VideoWidget(boundServiceName, myService);
+		 * video1.init(); display.add(video1.display, gc);
+		 * 
+		 * 
+		 * ++gc.gridx; video2 = new VideoWidget(boundServiceName, myService);
+		 * video2.init(); display.add(video2.display, gc);
+		 */
 
 	}
 
-	public void displayMatch(MatchResult result)
-	{
+	public void displayMatch(MatchResult result) {
 		matchWord.setText(result.word);
 		matchIndex.setText("" + result.matchIndex);
-		result.bestFit.cropped.source = "output"; // TODO - BAD - your modifying real data for trivial local purposes
+		result.bestFit.cropped.source = "output"; // TODO - BAD - your modifying
+													// real data for trivial
+													// local purposes
 		bestFitVideo.displayFrame(result.bestFit.cropped);
-		result.newImage.cropped.source = "output"; // TODO - BAD - your modifying real data for trivial local purposes
+		result.newImage.cropped.source = "output"; // TODO - BAD - your
+													// modifying real data for
+													// trivial local purposes
 		newImageVideo.displayFrame(result.newImage.cropped);
 	}
-	
+
 	// TODO - com....Sensor interface
 	public void displayVideo0(HashMap<String, Node> memory) {
-		
-		
+
 		Iterator<String> itr = memory.keySet().iterator();
 		Node unknown = memory.get(FSMTest.UNKNOWN);
-		log.error( unknown.imageData.get(0).cvBoundingBox);
-		log.error( unknown.imageData.get(0).boundingBox);
-		
+		log.error(unknown.imageData.get(0).cvBoundingBox);
+		log.error(unknown.imageData.get(0).boundingBox);
+
 		while (itr.hasNext()) {
 			String n = itr.next();
 			Node node = memory.get(n);
-			for (int i = 0; i < node.imageData.size(); ++i)
-			{	
+			for (int i = 0; i < node.imageData.size(); ++i) {
 				KinectImageNode kin = node.imageData.get(i);
-				//kin.extraDataLabel
+				// kin.extraDataLabel
 				VideoDisplayPanel vdp = bestFitVideo.addVideoDisplayPanel(n);
 				vdp.extraDataLabel.setText(node.word + " match:" + kin.lastGoodFitIndex);
-				// TODO - write bounding box - mask & crop image - do this at node level?
+				// TODO - write bounding box - mask & crop image - do this at
+				// node level?
 				// in filter
 				SerializableImage si = kin.cameraFrame;
 				si.source = node.word;
@@ -188,62 +185,54 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 			}
 		}
 	}
-	
+
 	/*
-	public void displayVideo1(Node node) {
-		displayVideo(video1, node);
-	}
-	
-	public void displayVideo2(Node node) {
-		displayVideo(video2, node);
-	}
-*/
-	
-	public void clearVideo0 ()
-	{
+	 * public void displayVideo1(Node node) { displayVideo(video1, node); }
+	 * 
+	 * public void displayVideo2(Node node) { displayVideo(video2, node); }
+	 */
+
+	public void clearVideo0() {
 		bestFitVideo.removeAllVideoDisplayPanels();
 	}
-	/*	
-	
-	public void displayVideo(VideoWidget v, Node node)
-	{
-		for (int i = 0; i < node.imageData.size(); ++i)
-		{			
-			v.displayFrame(OpenCV.publishFrame("unknown " + i,node.imageData.get(i).cvCameraFrame.getBufferedImage()));			
-		}
-	}
-	
-	public void displayMatchResult (IplImage img)
-	{
-		video2.displayFrame(OpenCV.publishFrame("matched result", img.getBufferedImage()));
-	}
-*/	
+
+	/*
+	 * 
+	 * public void displayVideo(VideoWidget v, Node node) { for (int i = 0; i <
+	 * node.imageData.size(); ++i) {
+	 * v.displayFrame(OpenCV.publishFrame("unknown " +
+	 * i,node.imageData.get(i).cvCameraFrame.getBufferedImage())); } }
+	 * 
+	 * public void displayMatchResult (IplImage img) {
+	 * video2.displayFrame(OpenCV.publishFrame("matched result",
+	 * img.getBufferedImage())); }
+	 */
 	@Override
 	public void attachGUI() {
-		//bestFitVideo.attachGUI(); // is this necessary - it ju
-		//newImageVideo.attachGUI();
-//		video1.attachGUI();
-//		video2.attachGUI();
-		//subscribe(outMethod, inMethod, parameterType)
-		//subscribe("publishVideo0", "displayVideo0", HashMap.class);
+		// bestFitVideo.attachGUI(); // is this necessary - it ju
+		// newImageVideo.attachGUI();
+		// video1.attachGUI();
+		// video2.attachGUI();
+		// subscribe(outMethod, inMethod, parameterType)
+		// subscribe("publishVideo0", "displayVideo0", HashMap.class);
 		subscribe("publishMatch", "displayMatch", MatchResult.class);
-		//subscribe("clearVideo0"); // FIXME - bad notation .. come on !
-		//subscribe("publishVideo1", "displayVideo1", Node.class);
-		//subscribe("publishVideo2", "displayVideo2", Node.class);
-		//subscribe("publishMatchResult", "displayMatchResult", IplImage.class);
-		myService.send(boundServiceName,"attach", (Object)myService.getName());
+		// subscribe("clearVideo0"); // FIXME - bad notation .. come on !
+		// subscribe("publishVideo1", "displayVideo1", Node.class);
+		// subscribe("publishVideo2", "displayVideo2", Node.class);
+		// subscribe("publishMatchResult", "displayMatchResult",
+		// IplImage.class);
+		myService.send(boundServiceName, "attach", (Object) myService.getName());
 	}
 
 	@Override
 	public void detachGUI() {
-		//bestFitVideo.detachGUI();
-		//unsubscribe("publishVideo0", "displayVideo0", HashMap.class);
-		//unsubscribe("clearVideo0"); // FIXME - bad notation .. come on !
-		//video1.detachGUI();
-		//video2.detachGUI();
-		myService.send(boundServiceName,"detach");
+		// bestFitVideo.detachGUI();
+		// unsubscribe("publishVideo0", "displayVideo0", HashMap.class);
+		// unsubscribe("clearVideo0"); // FIXME - bad notation .. come on !
+		// video1.detachGUI();
+		// video2.detachGUI();
+		myService.send(boundServiceName, "detach");
 	}
-
 
 	@Override
 	public VideoWidget getLocalDisplay() {

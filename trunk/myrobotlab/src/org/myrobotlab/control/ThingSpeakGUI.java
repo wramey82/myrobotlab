@@ -50,14 +50,14 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	JLabel intervalSeconds = new JLabel("");
 	JLabel lastUpdate = new JLabel("");
 	JButton save = new JButton("save");
-	
+
 	public ThingSpeakGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		
+
 	}
 
 	public void init() {
-		JPanel input = new JPanel(new GridLayout(0,2));
+		JPanel input = new JPanel(new GridLayout(0, 2));
 		input.add(new JLabel("write key"));
 		input.add(writeKey);
 		input.add(new JLabel("update interval"));
@@ -65,26 +65,25 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 		input.add(new JLabel("last update"));
 		input.add(lastUpdate);
 
-		
 		input.add(save);
-		
+
 		save.addActionListener(this);
 		display.add(input);
-		
+
 	}
 
 	public void getState(final ThingSpeak thing) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				
+
 				writeKey.setText(thing.getWriteKey());
 				intervalSeconds.setText(thing.getIntervalSeconds().toString());
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
-		        Date resultdate = new Date(thing.getLastUpdate());
-		        lastUpdate.setText(sdf.format(resultdate));
+				Date resultdate = new Date(thing.getLastUpdate());
+				lastUpdate.setText(sdf.format(resultdate));
 
 			}
-			});
+		});
 	}
 
 	@Override
@@ -101,8 +100,7 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
-		if (o == save)
-		{
+		if (o == save) {
 			myService.send(boundServiceName, "saveConfig");
 		}
 	}
