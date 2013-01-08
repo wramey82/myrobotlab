@@ -177,7 +177,6 @@ public class Python extends Service {
 			String serviceName = it.next();
 			ServiceWrapper sw = svcs.get(serviceName);
 
-			// load the import
 			initScript.append(String.format("from org.myrobotlab.service import %s\n", sw.getShortTypeName()));
 
 			// get a handle on running service
@@ -194,7 +193,15 @@ public class Python extends Service {
 	}
 
 	public void registered(ServiceWrapper s) {
-		String registerScript = String.format("from org.myrobotlab.service import %s\n", s.getShortTypeName());
+		
+		String registerScript = "";
+				
+		// load the import
+		if (!"unknown".equals(s.getShortTypeName())) // FIXME - RuntimeGlobals & static values for "unknown"
+		{
+			registerScript = String.format("from org.myrobotlab.service import %s\n", s.getShortTypeName());
+		} 
+
 		registerScript += String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", s.getName(), s.getName());
 		exec(registerScript, false);
 	}
