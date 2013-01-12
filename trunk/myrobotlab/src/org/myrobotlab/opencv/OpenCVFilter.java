@@ -31,23 +31,25 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-@Root
+
 public abstract class OpenCVFilter implements Serializable {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilter.class.toString());
 
 	private static final long serialVersionUID = 1L;
 	protected ConfigurationManager cfg = null; // TODO - remove
-	@Element
 	final public String name;
-	OpenCV myService = null;
+	OpenCV myService = null; // FIXME - How does this work on remote ?!?!? - is a zombie method .send called ???
 	HashMap<String, Object> storage = null;
+	
+	int imageWidth;
+	int imageHeight;
+	int imageChannels;
 
 	final static public String INPUT_IMAGE_NAME = "inputImageName";
 	final static public String OUTPUT_IMAGE_NAME = "outputImageName";
@@ -86,53 +88,36 @@ public abstract class OpenCVFilter implements Serializable {
 
 	// storage accessors end
 
-	// TODO - remove begin ------------------------
-	public Object setCFG(String name, Float value) // hmm what TODO ? Object
-													// won't work Object[]
-													// perhaps
-	{
-		return cfg.set(name, value);
-	}
-
-	public Object setCFG(String name, Integer value) // hmm what TODO ? Object
-														// won't work Object[]
-														// perhaps
-	{
-		return cfg.set(name, value);
-	}
-
-	public Object setCFG(String name, Boolean value) // hmm what TODO ? Object
-														// won't work Object[]
-														// perhaps
-	{
-		return cfg.set(name, value);
-	}
-
-	public Object setCFG(String name, String value) // hmm what TODO ? Object
-													// won't work Object[]
-													// perhaps
-	{
-		return cfg.set(name, value);
-	}
-
-	/*
-	 * public Object setCFG(String name, Object value) // hmm what TODO ? Object
-	 * won't work Object[] perhaps { return cfg.set(name, value); }
-	 */
-
-	// TODO - remove end ------------------------
-
-	// TODO - remove use Annotations
-	public abstract String getDescription();
-
 	public abstract IplImage process(IplImage image);
 
 	public abstract BufferedImage display(IplImage image, Object[] data);
 	
-	public void loadDefaultConfiguration() {
-		
+	// daBomb
+	public OpenCVFilter setState(OpenCVFilter other)
+	{
+		return (OpenCVFilter) Service.copyShallowFrom(this, other);
 	}
 
-	// TODO - dispose()??
+	public IplImage preProcess(IplImage frame) {
+		// TODO size or re-init based on change of channel or size - lastWidth lastHeight
+		if (frame.width() != imageWidth || frame.nChannels() != imageChannels)
+		{
+			imageChanged(frame);
+		}
+		return frame;
+	}
+	
+	public abstract void imageChanged(IplImage frame);
+
+	
+	/**
+	 *  release memory or other resources in filter - this method is called
+	 *  when the filter is removed
+	 */
+	public void release()
+	{
+		
+	}
+	// FIXME - dispose of filter removal
 
 }

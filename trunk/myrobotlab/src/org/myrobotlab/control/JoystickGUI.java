@@ -46,6 +46,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.control.widget.JoystickButtonsPanel;
+import org.myrobotlab.control.widget.JoystickCompassPanel;
 import org.myrobotlab.service.Joystick;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;

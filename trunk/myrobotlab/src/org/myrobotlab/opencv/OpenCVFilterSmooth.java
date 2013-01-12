@@ -59,15 +59,6 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
-	@Override
 	public IplImage process(IplImage image) {
 
 		// cvDrawRect(image, startPoint, startPoint,
@@ -76,6 +67,12 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 
 		return image;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

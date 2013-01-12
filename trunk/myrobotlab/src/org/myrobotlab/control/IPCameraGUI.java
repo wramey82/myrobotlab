@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.widget.DirectionWidget;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.IPCamera;
 import org.myrobotlab.service.Runtime;

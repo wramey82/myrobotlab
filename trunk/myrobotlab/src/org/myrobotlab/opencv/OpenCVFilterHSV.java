@@ -107,17 +107,6 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		return frameBuffer;
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	/*
 	 * public void samplePoint(MouseEvent event) {
@@ -183,6 +172,12 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 
 		return hsv;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

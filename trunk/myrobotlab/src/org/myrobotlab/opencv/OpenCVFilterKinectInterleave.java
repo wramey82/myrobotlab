@@ -86,19 +86,6 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 		 */
 	}
 
-	@Override
-	public String getDescription() { // TODO - implement in GUI
-		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid" + " decomposition. First it convolves source image with the specified filter and then"
-				+ " downsamples the image by rejecting even rows and columns. So the destination image" + " is four times smaller than the source imag";
-
-		return desc;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	// CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
 	// CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
@@ -146,6 +133,12 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 		 */
 
 		return dst;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

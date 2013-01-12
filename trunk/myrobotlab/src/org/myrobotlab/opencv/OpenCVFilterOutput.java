@@ -48,17 +48,6 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// invert ???
-	}
-
-	@Override
 	public IplImage process(IplImage image) {
 
 		return image;
@@ -69,6 +58,12 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 		frameBuffer = frame.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

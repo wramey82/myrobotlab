@@ -22,7 +22,7 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
 
-import org.myrobotlab.control.Style;
+import org.myrobotlab.control.widget.Style;
 
 import com.sun.j3d.utils.geometry.Text2D;
 

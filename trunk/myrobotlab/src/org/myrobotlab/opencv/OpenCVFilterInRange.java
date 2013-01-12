@@ -50,40 +50,49 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterInRange.class.getCanonicalName());
 	// http://cgi.cse.unsw.edu.au/~cs4411/wiki/index.php?title=OpenCV_Guide#Calculating_color_histograms
+	
+	int useMask = 0;
 
-	IplImage hsv = null;
+	public final static int HUE_MASK = 1;
+	public final static int VALUE_MASK = 2;
+	public final static int SATURATION_MASK = 4;
 
-	IplImage hue = null;
-	IplImage hueMask = null;
-
-	IplImage value = null;
-	IplImage valueMask = null;
-
-	IplImage saturation = null;
-	IplImage saturationMask = null;
-	IplImage temp = null;
-
-	IplImage mask = null;
-
-	IplImage ret = null;
-
-	BufferedImage frameBuffer = null;
-
-	CvScalar hueMax = null;
-	CvScalar hueMin = null;
-
-	CvScalar valueMax = null;
-	CvScalar valueMin = null;
-
-	CvScalar saturationMax = null;
-	CvScalar saturationMin = null;
-
-	final static int HUE_MASK = 1;
-	final static int VALUE_MASK = 2;
-	final static int SATURATION_MASK = 4;
-
-	// data for gui <--> filter exchange
 	public boolean useHue = false;
+	public float hueMinValue = 0.0f;
+	public float hueMaxValue = 256.0f;
+
+	public boolean useValue = false;
+	public float valueMinValue = 0.0f;
+	public float valueMaxValue = 256.0f;
+
+	public boolean useSaturation = false;
+	public float saturationMinValue = 0.0f;
+	public float saturationMaxValue = 256.0f;
+	
+	transient IplImage hsv = null;
+
+	transient IplImage hue = null;
+	transient IplImage hueMask = null;
+
+	transient IplImage value = null;
+	transient IplImage valueMask = null;
+
+	transient IplImage saturation = null;
+	transient IplImage saturationMask = null;
+	transient IplImage temp = null;
+
+	transient IplImage mask = null;
+
+	transient IplImage ret = null;
+
+	transient BufferedImage frameBuffer = null;
+	
+	transient CvScalar hueMin = cvScalar(hueMinValue, 0.0, 0.0, 0.0);
+	transient CvScalar hueMax = cvScalar(hueMaxValue, 0.0, 0.0, 0.0);
+	transient CvScalar valueMin = cvScalar(valueMinValue, 0.0, 0.0, 0.0);
+	transient CvScalar valueMax = cvScalar(valueMaxValue, 0.0, 0.0, 0.0);
+	transient CvScalar saturationMin = cvScalar(saturationMinValue, 0.0, 0.0, 0.0);
+	transient CvScalar saturationMax = cvScalar(saturationMaxValue, 0.0, 0.0, 0.0);
 
 	public OpenCVFilterInRange(OpenCV service, String name) {
 		super(service, name);
@@ -93,36 +102,6 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 
 		return ret.getBufferedImage(); // TODO - ran out of memory here
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	int useMask = 0;
-
-	@Override
-	public void loadDefaultConfiguration() {
-
-		cfg.set("hueMin", 0.0f);
-		cfg.set("hueMax", 256.0f);
-		cfg.set("valueMin", 0.0f);
-		cfg.set("valueMax", 256.0f);
-		cfg.set("saturationMin", 0.0f);
-		cfg.set("saturationMax", 256.0f);
-
-		cfg.set("useHue", false);
-		cfg.set("useValue", false);
-		cfg.set("useSaturation", false);
-
-		hueMin = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
-		hueMax = cvScalar(cfg.getFloat("hueMax"), 0.0, 0.0, 0.0);
-		valueMin = cvScalar(cfg.getFloat("valueMin"), 0.0, 0.0, 0.0);
-		valueMax = cvScalar(cfg.getFloat("valueMax"), 0.0, 0.0, 0.0);
-		saturationMin = cvScalar(cfg.getFloat("saturationMin"), 0.0, 0.0, 0.0);
-		saturationMax = cvScalar(cfg.getFloat("saturationMax"), 0.0, 0.0, 0.0);
-
 	}
 
 	public void samplePoint(Integer x, Integer y) {
@@ -151,11 +130,11 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 		}
 
 		// load up desired mask case
-		useMask = cfg.getBoolean("useSaturation") ? 1 : 0;
+		useMask = useSaturation ? 1 : 0;
 		useMask = useMask << 1;
-		useMask = useMask | (cfg.getBoolean("useValue") ? 1 : 0);
+		useMask = useMask | (useValue ? 1 : 0);
 		useMask = useMask << 1;
-		useMask = useMask | (cfg.getBoolean("useHue") ? 1 : 0);
+		useMask = useMask | (useHue ? 1 : 0);
 
 		if (image == null) {
 			log.error("image is null");
@@ -176,9 +155,9 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			cvCopy(hsv, hue);
 
 			// cfg values if changed
-			if (hueMin.magnitude() != cfg.getFloat("hueMin") || hueMax.magnitude() != cfg.getFloat("hueMax")) {
-				hueMin = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
-				hueMax = cvScalar(cfg.getFloat("hueMax"), 0.0, 0.0, 0.0);
+			if (hueMin.magnitude() != hueMinValue || hueMax.magnitude() != hueMaxValue) {
+				hueMin = cvScalar(hueMinValue, 0.0, 0.0, 0.0);
+				hueMax = cvScalar(hueMaxValue, 0.0, 0.0, 0.0);
 			}
 
 			// create hue mask
@@ -191,9 +170,9 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			cvCopy(hsv, value);
 
 			// look for changed config - update if changed
-			if (valueMin.magnitude() != cfg.getFloat("valueMin") || valueMax.magnitude() != cfg.getFloat("valueMax")) {
-				valueMin = cvScalar(cfg.getFloat("valueMin"), 0.0, 0.0, 0.0);
-				valueMax = cvScalar(cfg.getFloat("valueMax"), 0.0, 0.0, 0.0);
+			if (valueMin.magnitude() != valueMinValue || valueMax.magnitude() != valueMaxValue) {
+				valueMin = cvScalar(valueMinValue, 0.0, 0.0, 0.0);
+				valueMax = cvScalar(valueMaxValue, 0.0, 0.0, 0.0);
 			}
 
 			// create value mask
@@ -206,9 +185,9 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 			cvCopy(hsv, saturation);
 
 			// look for changed config - update if changed
-			if (saturationMin.magnitude() != cfg.getFloat("saturationMin") || saturationMax.magnitude() != cfg.getFloat("saturationMax")) {
-				saturationMin = cvScalar(cfg.getFloat("saturationMin"), 0.0, 0.0, 0.0);
-				saturationMax = cvScalar(cfg.getFloat("saturationMax"), 0.0, 0.0, 0.0);
+			if (saturationMin.magnitude() != saturationMinValue || saturationMax.magnitude() != saturationMaxValue) {
+				saturationMin = cvScalar(saturationMinValue, 0.0, 0.0, 0.0);
+				saturationMax = cvScalar(saturationMaxValue, 0.0, 0.0, 0.0);
 			}
 
 			// create saturation mask
@@ -261,6 +240,12 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 
 		return ret;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

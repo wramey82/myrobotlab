@@ -144,7 +144,7 @@ public class Tracking extends Service {
 		 * control.center();
 		 */
 		// clear filters
-		opencv.removeFilters();
+		opencv.removeAllFilters();
 
 		// get good features
 		opencv.addFilter("pd", "PyramidDown");
@@ -183,7 +183,7 @@ public class Tracking extends Service {
 		// set tracking point there
 
 		// set filters
-		opencv.removeFilters();
+		opencv.removeAllFilters();
 		opencv.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
 		opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
 		opencv.setDisplayFilter("lkOpticalTrack1");

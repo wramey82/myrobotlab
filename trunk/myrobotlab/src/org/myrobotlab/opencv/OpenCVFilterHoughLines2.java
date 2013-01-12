@@ -73,19 +73,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 		return image.getBufferedImage();
 	}
-
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	CvPoint p0 = new CvPoint(0, 0);
 	CvPoint p1 = new CvPoint(0, 0);
 
@@ -144,6 +132,12 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		// cxcore.cvPutText(image, "x", cvPoint(10, 14), font, CvScalar.WHITE);
 
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

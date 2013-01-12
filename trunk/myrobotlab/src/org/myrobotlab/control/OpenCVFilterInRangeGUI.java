@@ -32,102 +32,47 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.control.widget.SliderWithText;
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilterInRange;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
-public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
-
-	// TODO - look into binding with CFG - although will only work locally
+public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeListener {
 
 	JCheckBox useHue = new JCheckBox();
-	JSlider2 hueMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
-	JSlider2 hueMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
+	SliderWithText hueMin = new SliderWithText(JSlider.VERTICAL, 0, 256, 0);
+	SliderWithText hueMax = new SliderWithText(JSlider.VERTICAL, 0, 256, 256);
 
 	JCheckBox useSaturation = new JCheckBox();
-	JSlider2 satMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
-	JSlider2 satMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
+	SliderWithText saturationMin = new SliderWithText(JSlider.VERTICAL, 0, 256, 0);
+	SliderWithText saturationMax = new SliderWithText(JSlider.VERTICAL, 0, 256, 256);
 
 	JCheckBox useValue = new JCheckBox();
-	JSlider2 valMin = new JSlider2(JSlider.VERTICAL, 0, 256, 0);
-	JSlider2 valMax = new JSlider2(JSlider.VERTICAL, 0, 256, 256);
-
-	public class JSlider2 extends JSlider {
-		private static final long serialVersionUID = 1L;
-		JLabel value = new JLabel();
-
-		public JSlider2(int vertical, int i, int j, int k) {
-			super(vertical, i, j, k);
-			value.setText("" + k);
-		}
-
-	}
-
-	public class AdjustSlider implements ChangeListener {
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			JSlider2 slider = (JSlider2) e.getSource();
-			Object[] params = new Object[3];
-			params[0] = name;
-			params[1] = slider.getName();
-			params[2] = slider.getValue();
-			myGUI.send(boundServiceName, "setFilterCFG", params);
-			slider.value.setText("" + slider.getValue());
-		}
-	}
-
-	public class AdjustCheckBox implements ChangeListener {
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			JCheckBox t = (JCheckBox) e.getSource();
-			Object[] params = new Object[3];
-			params[0] = name;
-			params[1] = t.getName();
-			if (t.getModel().isSelected()) {
-				params[2] = true;
-			} else {
-				params[2] = false;
-			}
-			myGUI.send(boundServiceName, "setFilterCFG", params);
-		}
-	}
-
-	AdjustSlider change = new AdjustSlider();
-	AdjustCheckBox checkBoxChange = new AdjustCheckBox();
+	SliderWithText valueMin = new SliderWithText(JSlider.VERTICAL, 0, 256, 0);
+	SliderWithText valueMax = new SliderWithText(JSlider.VERTICAL, 0, 256, 256);
 
 	OpenCVFilterInRange myFilter = null;
-
+	
 	public OpenCVFilterInRangeGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 		// myFilter = (OpenCVFilterInRange) myOpenCVFilter;
 		// myFilter.useHue = true;
 
-		hueMin.setName("hueMin");
-		hueMax.setName("hueMax");
-		satMin.setName("saturationMin");
-		satMax.setName("saturationMax");
-		valMin.setName("valueMin");
-		valMax.setName("valueMax");
-		useHue.setName("useHue");
-		useSaturation.setName("useSaturation");
-		useValue.setName("useValue");
+		hueMin.addChangeListener(this);
+		hueMax.addChangeListener(this);
+		valueMin.addChangeListener(this);
+		valueMax.addChangeListener(this);
+		saturationMin.addChangeListener(this);
+		saturationMax.addChangeListener(this);
 
-		hueMin.addChangeListener(change);
-		hueMax.addChangeListener(change);
-		valMin.addChangeListener(change);
-		valMax.addChangeListener(change);
-		satMin.addChangeListener(change);
-		satMax.addChangeListener(change);
-
-		useHue.addChangeListener(checkBoxChange);
-		useSaturation.addChangeListener(checkBoxChange);
-		useValue.addChangeListener(checkBoxChange);
+		useHue.addChangeListener(this);
+		useSaturation.addChangeListener(this);
+		useValue.addChangeListener(this);
 
 		TitledBorder title;
 		JPanel j = new JPanel(new GridBagLayout());
@@ -166,14 +111,14 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		j.add(new JLabel("  min max"), gc);
 		++gc.gridy;
 		gc.gridx = 0;
-		j.add(satMin, gc);
+		j.add(saturationMin, gc);
 		++gc.gridx;
-		j.add(satMax, gc);
+		j.add(saturationMax, gc);
 		++gc.gridy;
 		gc.gridx = 0;
-		j.add(satMin.value, gc);
+		j.add(saturationMin.value, gc);
 		++gc.gridx;
-		j.add(satMax.value, gc);
+		j.add(saturationMax.value, gc);
 		display.add(j);
 
 		j = new JPanel(new GridBagLayout());
@@ -189,40 +134,81 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI {
 		j.add(new JLabel(" min max"), gc);
 		++gc.gridy;
 		gc.gridx = 0;
-		j.add(valMin, gc);
+		j.add(valueMin, gc);
 		++gc.gridx;
-		j.add(valMax, gc);
+		j.add(valueMax, gc);
 		++gc.gridy;
 		gc.gridx = 0;
-		j.add(valMin.value, gc);
+		j.add(valueMin.value, gc);
 		++gc.gridx;
-		j.add(valMax.value, gc);
+		j.add(valueMax.value, gc);
 		display.add(j);
 
 	}
 
 	@Override
-	public void apply() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void getFilterState(FilterWrapper filter) {
-		// TODO Auto-generated method stub
-		log.info(filter);
-	}
-
-	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		log.info("attachGUI");
+		
 	}
 
 	@Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-
+		log.info("detachGUI");
+		
 	}
+
+	@Override
+	public void getFilterState(final FilterWrapper filterWrapper) {
+		boundFilter = filterWrapper;
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				OpenCVFilterInRange bf = (OpenCVFilterInRange)filterWrapper.filter;
+			}
+		});
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		Object o = e.getSource();
+		OpenCVFilterInRange bf = (OpenCVFilterInRange) boundFilter.filter;
+		
+		if (o == useHue)
+		{
+			bf.useHue = useHue.getModel().isSelected();
+		} else if (o == hueMin) {
+			bf.hueMinValue = hueMin.getValue();
+			hueMin.setText(hueMin.getValue());
+		} else if (o == hueMax) {
+			bf.hueMaxValue = hueMax.getValue();
+			hueMax.setText(hueMax.getValue());
+		}
+		
+		if (o == useValue)
+		{
+			bf.useValue = useValue.getModel().isSelected();
+		} else if (o == valueMin) {
+			bf.valueMinValue = valueMin.getValue();
+			valueMin.setText(valueMin.getValue());
+		} else if (o == valueMax) {
+			bf.valueMaxValue = valueMax.getValue();
+			valueMax.setText(valueMax.getValue());
+		}
+		
+
+		if (o == useSaturation)
+		{
+			bf.useSaturation = useSaturation.getModel().isSelected();
+		} else if (o == saturationMin) {
+			bf.saturationMinValue = saturationMin.getValue();
+			saturationMin.setText(saturationMin.getValue());
+		} else if (o == saturationMax) {
+			bf.saturationMaxValue = saturationMax.getValue();
+			saturationMax.setText(saturationMax.getValue());
+		}
+		
+		setFilterState(bf);
+	}
+
 
 }

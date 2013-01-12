@@ -58,18 +58,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 		return fgimg.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public IplImage process(IplImage img) {
 
@@ -92,6 +81,12 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 		 */
 
 		return fgimg;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

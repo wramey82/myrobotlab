@@ -97,18 +97,6 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		return buffer.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -207,6 +195,12 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 		buffer = img;
 		return buffer;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

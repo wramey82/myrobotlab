@@ -62,18 +62,6 @@ public class OpenCVFilterErode extends OpenCVFilter {
 		return buffer.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -114,6 +102,12 @@ public class OpenCVFilterErode extends OpenCVFilter {
 		// cvDilate( gray, gray, 0, 1 );
 
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -55,6 +55,9 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import org.myrobotlab.control.widget.DigitalButton;
+import org.myrobotlab.control.widget.EditorArduino;
+import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.serial.SerialDevice;

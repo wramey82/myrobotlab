@@ -33,6 +33,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.widget.DigitalButton;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.data.IOData;
@@ -46,7 +47,7 @@ public class PinComponent {
 	public final String boundServiceName;
 
 	public final int pinNumber;
-	boolean isAnalog = false;
+	public boolean isAnalog = false;
 	boolean isPWM = false;
 	JLabel counter = null;
 

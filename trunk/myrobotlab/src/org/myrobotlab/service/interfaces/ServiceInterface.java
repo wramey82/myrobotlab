@@ -26,6 +26,8 @@ public interface ServiceInterface {
 	public String getToolTip();
 
 	public boolean hasDisplay();
+	
+	public boolean allowExport();
 
 	public void display();
 	// public Class<?> getServiceClass();

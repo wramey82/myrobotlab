@@ -25,12 +25,11 @@
 
 package org.myrobotlab.control;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
+import org.myrobotlab.opencv.FilterWrapper;
+import org.myrobotlab.opencv.OpenCVFilterDilate;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterDilateGUI extends OpenCVFilterGUI {
 
@@ -51,15 +50,13 @@ public class OpenCVFilterDilateGUI extends OpenCVFilterGUI {
 
 	}
 
-	public void apply() {
-		log.debug("apply");
-
-	}
-
 	@Override
-	public void getFilterState(FilterWrapper filter) {
-		// TODO Auto-generated method stub
-
+	public void getFilterState(final FilterWrapper filterWrapper) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				OpenCVFilterDilate bf = (OpenCVFilterDilate)filterWrapper.filter;
+			}
+		});
 	}
 
 }

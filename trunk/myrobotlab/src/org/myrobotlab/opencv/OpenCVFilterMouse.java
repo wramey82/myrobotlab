@@ -107,18 +107,6 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 		return frameBuffer;
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	double BLACK = 0.0;
 	boolean doneMoving = false;
 	boolean doneSweeping = false;
@@ -450,6 +438,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 			}
 		} // while (!doneMoving)
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

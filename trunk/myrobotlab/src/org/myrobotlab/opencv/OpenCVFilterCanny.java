@@ -23,6 +23,7 @@
  * 
  * */
 
+// http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
@@ -45,12 +46,13 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterCanny.class.getCanonicalName());
 
-	IplImage gray = null;
-	IplImage inlines = null;
-	BufferedImage frameBuffer = null;
-	// double lowThreshold = 0.0;
-	// double highThreshold = 50.0;
-	int apertureSize = 0;
+	public int apertureSize = 5;
+	public double lowThreshold = 0.0;
+	public double highThreshold = 50.0;
+
+	transient IplImage gray = null;
+	transient IplImage inlines = null;
+	transient BufferedImage frameBuffer = null;
 
 	public OpenCVFilterCanny(OpenCV service, String name) {
 		super(service, name);
@@ -61,19 +63,6 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 
 		frameBuffer = inlines.getBufferedImage();
 		return frameBuffer;
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		cfg.set("lowThreshold", 0.0f);
-		cfg.set("highThreshold", 50.0f);
-		cfg.set("apertureSize", 5);
-
 	}
 
 	CvPoint p0 = new CvPoint(0, 0);
@@ -104,10 +93,16 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 		// lowThreshold = 90.0;
 		// highThreshold = 110.0;
 		// apertureSize = 3;
-		apertureSize = cfg.getInt("apertureSize");
-		cvCanny(gray, inlines, cfg.getFloat("lowThreshold"), cfg.getFloat("highThreshold"), cfg.getInt("apertureSize"));
+		//log.warn(String.format("%f, %f, %d", lowThreshold, highThreshold, apertureSize));
+		cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
 
 		return inlines;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

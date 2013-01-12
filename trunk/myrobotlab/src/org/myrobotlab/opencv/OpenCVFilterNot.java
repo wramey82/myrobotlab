@@ -53,22 +53,16 @@ public class OpenCVFilterNot extends OpenCVFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public IplImage process(IplImage image) {
 		buffer = image.clone();
 		cvNot(image, buffer);
 		return buffer;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

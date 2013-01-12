@@ -57,18 +57,6 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public IplImage process(IplImage image) {
 
 		// what can you expect? nothing? - if data != null then error?
@@ -86,6 +74,12 @@ public class OpenCVFilterGray extends OpenCVFilter {
 		}
 
 		return gray;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

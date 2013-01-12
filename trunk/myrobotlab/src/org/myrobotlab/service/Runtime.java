@@ -51,10 +51,6 @@ public class Runtime extends Service {
 	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
 	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
 
-	static private boolean inclusiveExportFilterEnabled = false;
-	static private boolean exclusiveExportFilterEnabled = false;
-	static private HashMap<String, String> inclusiveExportFilter = new HashMap<String, String>();
-	static private HashMap<String, String> exclusiveExportFilter = new HashMap<String, String>();
 
 	// FIXME - this should be a GUI thing only ! or getPrettyMethods or static
 	// filterMethods
@@ -465,12 +461,10 @@ public class Runtime extends Service {
 		Iterator<URI> it = hosts.keySet().iterator();
 		ServiceEnvironment se;
 		Iterator<String> it2;
-		String serviceName;
 		while (it.hasNext()) {
 			se = hosts.get(it.next());
 			it2 = se.serviceDirectory.keySet().iterator();
 			while (it2.hasNext()) {
-				serviceName = it2.next();
 				++cnt;
 			}
 		}
@@ -521,29 +515,6 @@ public class Runtime extends Service {
 
 		ServiceEnvironment local = hosts.get(null);
 
-		// FIXME - temporary for testing
-		// if (getVMName().equals(DALVIK))
-		// {
-		// inclusiveExportFilterEnabled = false;
-		/*
-		 * addInclusiveExportFilterServiceType("RemoteAdapter");
-		 * addInclusiveExportFilterServiceType("SensorMonitor");
-		 * addInclusiveExportFilterServiceType("Clock");
-		 * addInclusiveExportFilterServiceType("Logging");
-		 * addInclusiveExportFilterServiceType("Python");
-		 * addInclusiveExportFilterServiceType("Arduino");
-		 * addInclusiveExportFilterServiceType("GUIService");
-		 * addInclusiveExportFilterServiceType("Runtime"); // }
-		 */
-		inclusiveExportFilterEnabled = true;
-		addInclusiveExportFilterServiceType("Clock");
-		addInclusiveExportFilterServiceType("GUIService");
-
-		// FIXME - can't do this HAS TO BE A COPY !!!!
-		if (!inclusiveExportFilterEnabled && !exclusiveExportFilterEnabled) {
-			return local; // FIXME - still need to construct new SWs
-		}
-
 		// URI is null but the "acceptor" will fill in the correct URI/ID
 		ServiceEnvironment export = new ServiceEnvironment(null);
 
@@ -557,8 +528,8 @@ public class Runtime extends Service {
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
 			log.debug(String.format("adding %1$s to export", name));
-			if (inclusiveExportFilterEnabled && inclusiveExportFilter.containsKey(sw.getServiceType())) {
-				log.debug(String.format("service: %1$s", sw.getServiceType()));
+			if (sw.get().allowExport()) {
+				log.debug(String.format("exporting service: $s", sw.getServiceType()));
 				// create new structure - otherwise it won't be correctly
 				// filtered
 				si = sw.get();
@@ -571,23 +542,6 @@ public class Runtime extends Service {
 		}
 
 		return export;
-	}
-
-	/**
-	 * 
-	 * @param packageName
-	 * @param className
-	 */
-	public static void addInclusiveExportFilterServiceType(String packageName, String className) {
-		inclusiveExportFilter.put(String.format("%1$s.%2$s", packageName, className), className);
-	}
-
-	/**
-	 * 
-	 * @param shortClassName
-	 */
-	public static void addInclusiveExportFilterServiceType(String shortClassName) {
-		inclusiveExportFilter.put(String.format("org.myrobotlab.service.%1$s", shortClassName), shortClassName);
 	}
 
 	public static boolean isLocal(String serviceName) {

@@ -248,17 +248,6 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		return null;
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -273,6 +262,12 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		update_mhi(image, motion, 30);
 
 		return motion;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

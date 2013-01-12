@@ -32,7 +32,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
-import org.myrobotlab.control.JavaCompletionProvider;
+import org.myrobotlab.control.widget.JavaCompletionProvider;
 import org.myrobotlab.reflection.Locator;
 import org.myrobotlab.service.GUIService;
 

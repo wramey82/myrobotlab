@@ -26,29 +26,30 @@
 package org.myrobotlab.control;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.control.widget.SliderWithText;
 import org.myrobotlab.framework.MRLListener;
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilterGoodFeaturesToTrack;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 
-	JSlider2 maxPointCount = new JSlider2(JSlider.HORIZONTAL, 0, 256, 30);
-	JSlider2 minDistance = new JSlider2(JSlider.HORIZONTAL, 0, 256, 10);
-	JSlider2 qualityLevel = new JSlider2(JSlider.HORIZONTAL, 0, 100, 0.05f);
-	JSlider2 blockSize = new JSlider2(JSlider.HORIZONTAL, 1, 10, 3);
+	SliderWithText maxPointCount = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 30);
+	SliderWithText minDistance = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 10);
+	SliderWithText qualityLevel = new SliderWithText(JSlider.HORIZONTAL, 0, 100, 0.05f);
+	SliderWithText blockSize = new SliderWithText(JSlider.HORIZONTAL, 1, 10, 3);
 	AdjustSlider change = new AdjustSlider();
 
 	public class AdjustSlider implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			JSlider2 slider = (JSlider2) e.getSource();
+			SliderWithText slider = (SliderWithText) e.getSource();
 			Object[] params = new Object[3];
 			params[0] = name;
 			params[1] = slider.getName();
@@ -72,7 +73,7 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 					filter.blockSize = blockSize.getValue();
 				}
 
-				myGUI.send(boundServiceName, "setFilterData", boundFilter);
+				myGUI.send(boundServiceName, "setFilterState", boundFilter);
 			} // else - adjust gui text only
 
 		}
@@ -135,46 +136,39 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		display.add(blockSize.value, gc);
 
 		// set the hook
-		MRLListener listener = new MRLListener("publishFilterData", myService.getName(), "setFilterData", new Class[] { FilterWrapper.class });
+		MRLListener listener = new MRLListener("publishFilterState", myService.getName(), "setFilterState", new Class[] { FilterWrapper.class });
 		myService.send(boundServiceName, "addListener", listener);
 		// thread wait?
 		// send the event
-		myService.send(boundServiceName, "publishFilterData", boundFilterName);
+		myService.send(boundServiceName, "publishFilterState", boundFilterName);
 	}
 
-	@Override
-	public void apply() {
-	}
-
-	@Override
-	public void getFilterState(FilterWrapper boundFilter) {
-		if (this.boundFilter == null) {
-			this.boundFilter = boundFilter;
-		}
-
-		OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack) boundFilter.filter;
-		maxPointCount.setValueIsAdjusting(true);
-		minDistance.setValueIsAdjusting(true);
-		qualityLevel.setValueIsAdjusting(true);
-		blockSize.setValueIsAdjusting(true);
-
-		maxPointCount.setValue(bf.maxPointCount);
-
-		minDistance.setValue((int) bf.minDistance);
-
-		qualityLevel.setValue((int) bf.qualityLevel * 100);
-		qualityLevel.value.setText("" + bf.qualityLevel);
-
-		blockSize.setValue((int) bf.blockSize);
-
-		blockSize.setValueIsAdjusting(false);
-		qualityLevel.setValueIsAdjusting(false);
-		minDistance.setValueIsAdjusting(false);
-		maxPointCount.setValueIsAdjusting(false);
-	}
-
-	public void updateState() {
-		// send setState
+	public void getFilterState(final FilterWrapper filterWrapper) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				
+				OpenCVFilterGoodFeaturesToTrack bf = (OpenCVFilterGoodFeaturesToTrack)filterWrapper.filter;
+		
+				maxPointCount.setValueIsAdjusting(true);
+				minDistance.setValueIsAdjusting(true);
+				qualityLevel.setValueIsAdjusting(true);
+				blockSize.setValueIsAdjusting(true);
+		
+				maxPointCount.setValue(bf.maxPointCount);
+		
+				minDistance.setValue((int) bf.minDistance);
+		
+				qualityLevel.setValue((int) bf.qualityLevel * 100);
+				qualityLevel.value.setText(String.format("%d",bf.qualityLevel));
+		
+				blockSize.setValue((int) bf.blockSize);
+		
+				blockSize.setValueIsAdjusting(false);
+				qualityLevel.setValueIsAdjusting(false);
+				minDistance.setValueIsAdjusting(false);
+				maxPointCount.setValueIsAdjusting(false);
+			}
+		});	
 	}
 
 	@Override
@@ -188,5 +182,6 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 		// TODO Auto-generated method stub
 
 	}
+
 
 }
