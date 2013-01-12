@@ -52,14 +52,12 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.SimpleTimeZone;
 
 import org.apache.log4j.Level;
@@ -67,11 +65,11 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterAverageColor;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.CanvasFrame;
@@ -158,10 +156,18 @@ public class OpenCV extends Service {
 	 * the actual filters The "commit" action will take care of invalid states
 	 * do to partial work flows
 	 */
-	LinkedHashMap<String, OpenCVFilter> addFilters = new LinkedHashMap<String, OpenCVFilter>();
-	ArrayList<String> removeFilters = new ArrayList<String>();
-	@ElementMap
-	LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
+	//LinkedHashMap<String, OpenCVFilter> addFilters = new LinkedHashMap<String, OpenCVFilter>();
+	//ArrayList<String> removeFilters = new ArrayList<String>();
+	//@ElementMap
+	//LinkedHashMap<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
+	// filters is thread safe ! - 2 accessory threads - videoprocessor & opencv inbox
+	ArrayList<OpenCVFilter> filters 		= new ArrayList<OpenCVFilter>(); 
+	ArrayList<String> removefilters 	= new ArrayList<String>(); 
+	ArrayList<OpenCVFilter> addfilters 		= new ArrayList<OpenCVFilter>(); 
+	// not thread safe - chose not to use concurrenthashmap because small jvm's e.g. gnu-classpath doe not support it
+	// should only be used by opencv inbox OR gui thread but not at the same time - gui when operating locally & opencv inbox when remote
+	HashMap<String, OpenCVFilter> filterIndex = new HashMap<String, OpenCVFilter>(); 
+	
 	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
 
 	// published objects
@@ -216,20 +222,6 @@ public class OpenCV extends Service {
 		load();
 	}
 
-	public void loadDefaultConfiguration() {
-
-		// cfg.set("cameraIndex", 0);
-		// cfg.set("pixelsPerDegree", 7);
-		// cfg.set("useInput", "null");
-		// cfg.set("inputFile", "outfile1.avi");
-		// cfg.set("inputMovieFileLoop", true);
-		// cfg.set("outputMovieFileName", "out.avi");
-		// cfg.set("performanceTiming", false);
-		// cfg.set("publishFrame", true);
-		// cfg.set("useCanvasFrame", false);
-		// cfg.set("displayFilter", "output");
-	}
-
 	@Override
 	public void stopService() {
 		if (videoProcess != null) {
@@ -259,115 +251,6 @@ public class OpenCV extends Service {
 		return image;
 	}
 
-	// public void invokeFilterMethod (String filterName, String method,
-	// MouseEvent me)
-	/*
-	 * Callback from the GUI to the appropriate filter funnel through here
-	 */
-	public void invokeFilterMethod(String filterName, String method, Object... params) {
-		// log.error("invokeFilterMethod here");
-		if (filters.containsKey(filterName)) {
-			invoke(filters.get(filterName), method, params);
-		} else {
-			log.error("invokeFilterMethod " + filterName + " does not exist");
-		}
-
-	}
-
-	public void setFilterData(FilterWrapper filterData) {
-		if (filters.containsKey(filterData.name)) {
-			Service.copyShallowFrom(filters.get(filterData.name), filterData.filter);
-		} else {
-			log.error("setFilterData " + filterData.name + " does not exist");
-		}
-
-	}
-
-	// FIXME - good idea - but you cant replace a full filter - it has memory
-	// JNI objects
-	// marke them as transient? -
-	public final class FilterWrapper implements Serializable {
-		private static final long serialVersionUID = 1L;
-		public final String name;
-		public final OpenCVFilter filter;
-
-		public FilterWrapper(String name, OpenCVFilter filter) {
-			this.name = name;
-			this.filter = filter;
-		}
-	}
-
-	public FilterWrapper publishFilterData(String name) {
-		if (filters.containsKey(name)) {
-			return new FilterWrapper(name, filters.get(name));
-		} else {
-			log.error("setFilterData " + name + " does not exist");
-		}
-
-		return null;
-	}
-
-	// FIXME - DEPRICATE - or (egads - rework????)
-	public Object setFilterCFG(String filterName, String cfgName, Float value) {
-		// we need to check both lists - as filters may not have been added to
-		// the workflow yet
-		log.info(String.format("setFilterCFG %s %s %f", filterName, cfgName, value));
-		if (filters.containsKey(filterName)) {
-			return filters.get(filterName).setCFG(cfgName, value);
-		}
-		if (addFilters.containsKey(filterName)) {
-			return addFilters.get(filterName).setCFG(cfgName, value);
-		}
-
-		log.error("setFilterCFG " + filterName + " does not exist");
-		return null;
-	}
-
-	public Object setFilterCFG(String filterName, String cfgName, Integer value) {
-		// we need to check both lists - as filters may not have been added to
-		// the workflow yet
-		log.info(String.format("setFilterCFG %s %s %d", filterName, cfgName, value));
-		if (filters.containsKey(filterName)) {
-			return filters.get(filterName).setCFG(cfgName, value);
-		}
-		if (addFilters.containsKey(filterName)) {
-			return addFilters.get(filterName).setCFG(cfgName, value);
-		}
-
-		log.error("setFilterCFG " + filterName + " does not exist");
-		return null;
-	}
-
-	public Object setFilterCFG(String filterName, String cfgName, Boolean value) {
-		// we need to check both lists - as filters may not have been added to
-		// the workflow yet
-		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, (value) ? "True" : "False"));
-
-		if (filters.containsKey(filterName)) {
-			return filters.get(filterName).setCFG(cfgName, value);
-		}
-		if (addFilters.containsKey(filterName)) {
-			return addFilters.get(filterName).setCFG(cfgName, value);
-		}
-
-		log.error("setFilterCFG " + filterName + " does not exist");
-		return null;
-	}
-
-	public Object setFilterCFG(String filterName, String cfgName, String value) {
-		// we need to check both lists - as filters may not have been added to
-		// the workflow yet
-		log.info(String.format("setFilterCFG %s %s %s", filterName, cfgName, value));
-		if (filters.containsKey(filterName)) {
-			return filters.get(filterName).setCFG(cfgName, value);
-		}
-		if (addFilters.containsKey(filterName)) {
-			return addFilters.get(filterName).setCFG(cfgName, value);
-		}
-
-		log.error("setFilterCFG " + filterName + " does not exist");
-		return null;
-	}
 
 	public boolean capturing = false;
 
@@ -405,6 +288,7 @@ public class OpenCV extends Service {
 
 			StringBuffer screenText = new StringBuffer();
 			capturing = true;
+			boolean filtersChanged = false;
 
 			if (useCanvasFrame) {
 				cf = new CanvasFrame("CanvasFrame");
@@ -474,34 +358,55 @@ public class OpenCV extends Service {
 				}
 
 				logTime("read");
+				
+				
+				// process add requests
+				if (addfilters.size() != 0)
+				{
+					OpenCVFilter newFilter = addfilters.get(0);
+					filters.add(newFilter);
+					addfilters.remove(0); // only non thread-safe removal - believe its ok
+					filtersChanged = true;
+				}
+				
 
 				if (frame != null) {
-					Iterator<String> itr = filters.keySet().iterator();
-
+					Iterator<OpenCVFilter> itr = filters.iterator();
 					while (capturing && itr.hasNext()) {
-						String name = itr.next();
+						OpenCVFilter filter = itr.next();
 
-						// TODO - don't use parameter frame - filter from the
-						// storage only !
-						OpenCVFilter filter = filters.get(name);
+						// process remove requests
+						if (removefilters.size() != 0  && filter != null)
+						{
+							String removeName = removefilters.get(0);
+							if (removeName.equals(filter.name))
+							{
+								itr.remove();
+								removefilters.remove(0); // only non thread-safe removal - believe its ok
+								filtersChanged = true;
+							}
+						}
+						
+						frame = filter.preProcess(frame);
 						frame = filter.process(frame);
 
+						String filterName = filter.name;
 						// fork frame off - if destination is local frame
 						// overwrites can occur
 						// a true fork is a copy
-						if (multiplex.containsKey(name)) {
+						if (multiplex.containsKey(filterName)) {
 							// FIXME - change of size will crash
-							if (multiplex.get(name) == null) {
-								multiplex.put(name, cvCreateImage(cvGetSize(frame), frame.depth(), frame.nChannels()));
+							if (multiplex.get(filterName) == null) {
+								multiplex.put(filterName, cvCreateImage(cvGetSize(frame), frame.depth(), frame.nChannels()));
 							}
-							IplImage forked = multiplex.get(name);
+							IplImage forked = multiplex.get(filterName);
 							cvCopy(frame, forked);
-							invoke("publishFrame", name, forked.getBufferedImage());
+							invoke("publishFrame", filterName, forked.getBufferedImage());
 							// published = true;
 						}
 
 						// frame is selected in gui - publish this filters frame
-						if (!published && displayFilter.equals(name)) {
+						if (!published && displayFilter.equals(filterName)) {
 							published = true;
 							if (publishFrame) {
 								invoke("publishFrame", displayFilter, filter.display(frame, null));
@@ -510,23 +415,17 @@ public class OpenCV extends Service {
 
 					}
 
-					if (removeAllFilters) {
-						removeAllFilters();
-					}
-
-					// check if new filters are being added
-					if (addFilters.size() > 0) {
-						appendFilters();
-					}
-
-					if (removeFilters.size() > 0) {
-						removeFilter();
-					}
-
 					if (frame.width() != lastImageWidth) {
 						invoke("sizeChange", new Dimension(frame.width(), frame.height()));
 						lastImageWidth = frame.width();
 					}
+					
+					if (filtersChanged)
+					{
+						broadcastState();
+						filtersChanged = false;
+					}
+
 
 					// different data type
 					if (publishIplImage) {
@@ -612,11 +511,6 @@ public class OpenCV extends Service {
 	public String publish(String value) {
 		return value;
 	}
-
-	/*
-	 * public CvPoint2D32f[] publish(CvPoint2D32f[] features) { return features;
-	 * }
-	 */
 
 	// CPP interface does not use array - but hides implementation
 	public CvPoint2D32f publish(CvPoint2D32f features) {
@@ -744,103 +638,138 @@ public class OpenCV extends Service {
 		Object[] params = new Object[2];
 		params[0] = this;
 		params[1] = name;
-		OpenCVFilter filter = (OpenCVFilter) getNewInstance(type, params);
-		filter.loadDefaultConfiguration();
-		addFilters.put(name, filter);
-		log.info(String.format("added new filter %s, %s", name, newFilter));
-		// filters.put(name, filter);
+		
+		OpenCVFilter filter = null;
+		try {
+			filter = (OpenCVFilter) getNewInstance(type, params);
+			if (!capturing) {
+				// add directly if video processor is not running
+				filters.add(filter);
+			} else {
+				// else add it to the add queue
+				addfilters.add(filter);
+			}
+			log.info(String.format("added new filter %s, %s", name, newFilter));
 
-		broadcastState(); // let everyone know
-	}
-
-	// TO be used only by the VideoProcessor thread --- BEGIN ----
-	private void appendFilters() {
-		Iterator<String> itr = addFilters.keySet().iterator();
-
-		while (itr.hasNext()) {
-			String name = itr.next();
-			filters.put(name, addFilters.get(name));
+			broadcastState(); // let everyone know
+		} catch (Exception e){
+			logException(e);
 		}
 
-		addFilters.clear();
+
 	}
 
-	private void removeFilter() {
-		for (int i = 0; i < removeFilters.size(); ++i) {
-			filters.remove(removeFilters.get(i));
-		}
 
-		removeFilters.clear();
-		broadcastState(); // let everyone know
-	}
-
-	private void removeAllFilters() {
+	public void removeAllFilters() {
 		filters.clear();
-		removeAllFilters = false;
 		broadcastState(); // let everyone know
 	}
 
-	// TO be used only by the VideoProcessor thread --- END ----
 
 	public void removeFilter(String name) {
-		// filters.remove(name);
-		removeFilters.add(name);
+		if (!capturing) {
+			// if not capturing remove directly
+			Iterator<OpenCVFilter> itr = filters.iterator();
+			 while(itr.hasNext())
+			 {
+				 OpenCVFilter filter = itr.next();
+				 if (filter.name.equals(name))
+				 {
+					 itr.remove();
+					 return;
+				 }
+			 }
+			 
+			 log.error(String.format("removeFilter could not find %s filter", name));
+			 
+		} else {
+			// add to the remove queue
+			removefilters.add(name);
+			
+		}
 		broadcastState(); // let everyone know
-	}
-
-	private boolean removeAllFilters = false;
-
-	public void removeFilters() {
-		// filters.clear();
-		/*
-		 * Iterator<String> itr = filters.keySet().iterator(); while
-		 * (itr.hasNext()) { filters.remove(itr.next()); }
-		 */
-		removeAllFilters = true;
-		broadcastState(); // let everyone know
+		
 	}
 
 	public IplImage getLastFrame() {
 		return frame;
 	}
 
-	// public LinkedHashMap<String, OpenCVFilter> getFilters() {
-	public LinkedHashMap<String, OpenCVFilter> getFilters() {
-		// FIXME - part of the system relies on chaning specific data regarding
-		// filters
-		// at the moment most of the access is ok and should be done with
-		// getFilter(String name)
-		// so the structure of the LinkedHashMap can not be changed - this
-		// function should hand back a "copy"
-		// not the actual filters
-		LinkedHashMap<String, OpenCVFilter> ret = new LinkedHashMap<String, OpenCVFilter>();
-
-		ret.putAll(filters);
-		ret.putAll(addFilters);
-
-		// FIXME - since the capture thread is the one moving from addFilters to
-		// filters
-		// there is a chance the ret will have a duplicate
-		return ret;
+	public ArrayList<OpenCVFilter> getFiltersCopy() {
+		//		return new ArrayList<OpenCVFilter>(filters);
+		return filters;
 	}
 
 	public OpenCVFilter getFilter(String name) {
-		// the kludge propagates
-		if (addFilters.containsKey(name)) {
-			return addFilters.get(name);
-		} else if (filters.containsKey(name)) {
-			return filters.get(name);
-		} else {
-			log.error("no filter with name " + name);
-			return null;
+		OpenCVFilter ret = null;
+
+		Iterator<OpenCVFilter> itr = filters.iterator();
+		while (itr.hasNext()) {
+			OpenCVFilter filter = itr.next();
+			if (filter.name.equals(name)) {
+				return filter;
+			}
 		}
+		log.error(String.format("removeFilter could not find %s filter", name));
+		return null;
 	}
 
 	@Override
 	public String getToolTip() {
-		return "<html>OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
+		return "OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
+	}
+	
+
+	// filter dynamic data exchange begin ------------------
+	public void broadcastFilterState() {
+		invoke("publishFilterState");
+	}
+	
+	
+	/**
+	 * @param otherFilter - data from remote source
+	 * 
+	 * This updates the filter with all the non-transient data in a remote copy
+	 * through a reflective field update.  If your filter has JNI members or pointer references
+	 * it will break, mark all of these.
+	 */
+	public void setFilterState(FilterWrapper otherFilter) {
+		
+		OpenCVFilter filter = getFilter(otherFilter.name);
+		if (filter != null) {
+			Service.copyShallowFrom(filter, otherFilter.filter);
+		} else {
+			log.error(String.format("setFilterState - could not find %s ", otherFilter.name ));
+		}
+
 	}
 
+	/**
+	 * Callback from the GUI to the appropriate filter funnel through here
+	 */
+	public void invokeFilterMethod(String filterName, String method, Object... params) {
+		OpenCVFilter filter = getFilter(filterName);
+		if (filter != null) {
+			invoke(filter, method, params);
+		} else {
+			log.error("invokeFilterMethod " + filterName + " does not exist");
+		}
+	}
+
+	
+	public FilterWrapper publishFilterState(String name) {
+		OpenCVFilter filter = getFilter(name);
+		if (filter != null) {
+			return new FilterWrapper(name, filter);
+		} else {
+			log.error(String.format("publishFilterState %s does not exist ",name));
+		}
+
+		return null;
+	}
+	// filter  dynamic data exchange end ------------------
+
+	
 	public static void main(String[] args) {
 
 		// TODO - Avoidance / Navigation Service
@@ -861,6 +790,7 @@ public class OpenCV extends Service {
 		 */
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		Runtime.createAndStart("remote", "RemoteAdapter");
 		// opencv.startService();
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
@@ -870,18 +800,21 @@ public class OpenCV extends Service {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		opencv.addFilter("pd", "PyramidDown");
+//		opencv.addFilter("pd", "PyramidDown");
 		// opencv.addFilter("gft", "GoodFeaturesToTrack");
 		// opencv.publishFilterData("gft");
 		// opencv.setDisplayFilter("gft");
-		opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
-		opencv.setDisplayFilter("lkOpticalTrack1");
+		//opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
 
-		opencv.capture();
+//		opencv.capture();
 
-		GUIService gui = new GUIService("gui");
+		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();
 		gui.display();
+
+//		opencv.addFilter("ir","InRange");
+//		opencv.setDisplayFilter("ir");
+
 		// opencv.addFilter("pyramdDown", "PyramidDown");
 		// opencv.addFilter("floodFill", "FloodFill");
 

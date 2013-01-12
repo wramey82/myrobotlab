@@ -55,15 +55,6 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
-	@Override
 	public IplImage process(IplImage image) {
 
 		maskName = "kd";
@@ -76,6 +67,12 @@ public class OpenCVFilterMask extends OpenCVFilter {
 		}
 
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

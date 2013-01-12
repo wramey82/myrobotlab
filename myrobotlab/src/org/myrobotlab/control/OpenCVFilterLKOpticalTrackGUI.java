@@ -30,22 +30,22 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.control.widget.SliderWithText;
 import org.myrobotlab.framework.MRLListener;
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements ActionListener, ChangeListener {
 
-	JSlider2 maxPointCount = new JSlider2(JSlider.HORIZONTAL, 0, 256, 30);
-	JSlider2 minDistance = new JSlider2(JSlider.HORIZONTAL, 0, 256, 10);
-	JSlider2 qualityLevel = new JSlider2(JSlider.HORIZONTAL, 0, 100, 0.05f);
-	JSlider2 blockSize = new JSlider2(JSlider.HORIZONTAL, 1, 10, 3);
+	SliderWithText maxPointCount = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 30);
+	SliderWithText minDistance = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 10);
+	SliderWithText qualityLevel = new SliderWithText(JSlider.HORIZONTAL, 0, 100, 0.05f);
+	SliderWithText blockSize = new SliderWithText(JSlider.HORIZONTAL, 1, 10, 3);
 	JButton getGoodFeatures = new JButton("get features");
 
 	public OpenCVFilterLKOpticalTrackGUI(String boundFilterName, String boundServiceName, GUIService myService) {
@@ -110,15 +110,11 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 		display.add(getGoodFeatures, gc);
 
 		// set the hook
-		MRLListener listener = new MRLListener("publishFilterData", myService.getName(), "setFilterData", new Class[] { FilterWrapper.class });
+		MRLListener listener = new MRLListener("publishFilterState", myService.getName(), "setFilterState", new Class[] { FilterWrapper.class });
 		myService.send(boundServiceName, "addListener", listener);
 		// thread wait?
 		// send the event
-		myService.send(boundServiceName, "publishFilterData", boundFilterName);
-	}
-
-	@Override
-	public void apply() {
+		myService.send(boundServiceName, "publishFilterState", boundFilterName);
 	}
 
 	@Override
@@ -148,52 +144,51 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 		maxPointCount.setValueIsAdjusting(false);
 	}
 
-	public void updateState() {
-		// send setState
-	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		JSlider2 slider = (JSlider2) e.getSource();
-		Object[] params = new Object[3];
-		params[0] = name;
-		params[1] = slider.getName();
-		params[2] = slider.getValue();
-
-		if (!slider.getValueIsAdjusting()) {
-			OpenCVFilterLKOpticalTrack filter = (OpenCVFilterLKOpticalTrack) boundFilter.filter;
-			if (slider.getName().equals("qualityLevel")) {
-				// params[2] = slider.getValue() * 2 + 1;
-				// qualityLevel.value.setText("" +
-				// (float)qualityLevel.getValue()/100);
-				// filter.qualityLevel = (float)qualityLevel.getValue()/100;
-			} else if (slider.getName().equals("maxCount")) {
-				maxPointCount.value.setText("" + maxPointCount.getValue());
-				filter.maxPointCount = maxPointCount.getValue();
-			} else if (slider.getName().equals("minDistance")) {
-				minDistance.value.setText("" + minDistance.getValue());
-				// filter.minDistance = minDistance.getValue();
-			} else if (slider.getName().equals("blockSize")) {
-				blockSize.value.setText("" + blockSize.getValue());
-				// filter.blockSize = blockSize.getValue();
-			}
-
-			myGUI.send(boundServiceName, "setFilterData", boundFilter);
-		} // else - adjust gui text only
-
+		if (boundFilter != null) {
+			SliderWithText slider = (SliderWithText) e.getSource();
+			Object[] params = new Object[3];
+			params[0] = name;
+			params[1] = slider.getName();
+			params[2] = slider.getValue();
+	
+			if (!slider.getValueIsAdjusting()) {
+				OpenCVFilterLKOpticalTrack filter = (OpenCVFilterLKOpticalTrack) boundFilter.filter;
+				if (slider.getName().equals("qualityLevel")) {
+					// params[2] = slider.getValue() * 2 + 1;
+					// qualityLevel.value.setText("" +
+					// (float)qualityLevel.getValue()/100);
+					// filter.qualityLevel = (float)qualityLevel.getValue()/100;
+				} else if (slider.getName().equals("maxCount")) {
+					maxPointCount.value.setText("" + maxPointCount.getValue());
+					filter.maxPointCount = maxPointCount.getValue();
+				} else if (slider.getName().equals("minDistance")) {
+					minDistance.value.setText("" + minDistance.getValue());
+					// filter.minDistance = minDistance.getValue();
+				} else if (slider.getName().equals("blockSize")) {
+					blockSize.value.setText("" + blockSize.getValue());
+					// filter.blockSize = blockSize.getValue();
+				}
+	
+				myGUI.send(boundServiceName, "setFilterState", boundFilter);
+			} // else - adjust gui text only
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		OpenCVFilterLKOpticalTrack filter = (OpenCVFilterLKOpticalTrack) boundFilter.filter;
 		// filter.i
-		myGUI.send(boundServiceName, "setFilterData", boundFilter);
+		myGUI.send(boundServiceName, "setFilterState", boundFilter);
+
 	}
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		//myGUI.subscribe("publishFilterState", "getFilterState", OpenCVFilterLKOpticalTrack.class);
+		myGUI.send(boundServiceName, "publishState");
 	}
 
 	@Override

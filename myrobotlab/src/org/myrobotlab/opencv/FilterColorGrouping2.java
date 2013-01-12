@@ -92,11 +92,7 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 	int greenGroupDelta = 40;
 	int blueGroupDelta = 40;
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	/*
 	 * @Override public void loadDefaultConfiguration() {
@@ -363,6 +359,12 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -25,8 +25,8 @@
 
 package org.myrobotlab.control;
 
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterFindContoursGUI extends OpenCVFilterGUI {
 

@@ -42,6 +42,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.Arduino;

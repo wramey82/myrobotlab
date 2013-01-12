@@ -29,8 +29,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
-import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
@@ -44,79 +42,33 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
 
-	transient IplImage dst = null;
-	BufferedImage frameBuffer = null;
-	int filter = 7;
+	final static int CV_GAUSSIAN_5X5 = 7;
 
+	transient IplImage dst = null;
+	transient BufferedImage frameBuffer = null;
+	
 	public OpenCVFilterPyramidDown(OpenCV service, String name) {
 		super(service, name);
 	}
-
-	int x = 0;
-	int y = 0;
-	int clickCounter = 0;
-	int frameCounter = 0;
-	Graphics g = null;
-	String lastHexValueOfPoint = "";
-
-	public void samplePoint(Integer inX, Integer inY) {
-		++clickCounter;
-		x = inX;
-		y = inY;
-
-	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, Object[] data) {
 
-		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
-		/*
-		 * ++frameCounter; if (x != 0 && clickCounter % 2 == 0) { if (g == null)
-		 * { g = frameBuffer.getGraphics(); }
-		 * 
-		 * if (frameCounter % 10 == 0) { lastHexValueOfPoint =
-		 * Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff); }
-		 * g.setColor(Color.green); frameBuffer.getRGB(x, y);
-		 * g.drawString(lastHexValueOfPoint, x, y); }
-		 */
-		// dst.release();
-		return frameBuffer;
+		return dst.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() { // TODO - implement in GUI
-		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid" + " decomposition. First it convolves source image with the specified filter and then"
-				+ " downsamples the image by rejecting even rows and columns. So the destination image" + " is four times smaller than the source imag";
-
-		return desc;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public IplImage process(IplImage image) {
 
-		if (image == null) {
-			log.error("image is null");
-		}
-
-		// if (dst == null || dst.width() != image.width() || dst.nChannels() !=
-		// image.nChannels()) {
-		// FIXME - in an attempt to make more robust ie having different filters
-		// "removed" above this filter
-		// such that a change of width or channels will occur you've made a huge
-		// memory leak
-		if (dst == null || dst.width() != image.width() / 2 || dst.nChannels() != image.nChannels()) {
-			dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(), image.nChannels());
-		}
-
-		cvPyrDown(image, dst, filter);
+		cvPyrDown(image, dst, CV_GAUSSIAN_5X5);
 
 		return dst;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		dst = cvCreateImage(cvSize(frame.width() / 2, frame.height() / 2), frame.depth(), frame.nChannels());
 	}
 
 }

@@ -31,6 +31,7 @@ import java.awt.GridBagLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import org.myrobotlab.control.widget.RadarWidget;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class SensorDisplayGUI extends ServiceGUI {

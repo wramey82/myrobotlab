@@ -46,9 +46,9 @@ public abstract class ServiceGUI {
 	// final static public ComponentResizer resizer = new ComponentResizer();
 
 	public final String boundServiceName;
-	final GUI myService;
+	public final GUI myService;
 
-	GridBagConstraints gc = new GridBagConstraints();
+	public GridBagConstraints gc = new GridBagConstraints();
 	// index of tab in the tab panel -1 would be not displayed or displayed in
 	// custom tab
 	public int myIndex = -1;

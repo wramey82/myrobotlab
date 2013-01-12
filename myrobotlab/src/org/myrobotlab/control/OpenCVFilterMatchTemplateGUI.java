@@ -26,11 +26,10 @@
 package org.myrobotlab.control;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFilterMatchTemplateGUI extends OpenCVFilterGUI {
 
@@ -43,33 +42,22 @@ public class OpenCVFilterMatchTemplateGUI extends OpenCVFilterGUI {
 		display.add(kernel);
 	}
 
-	// @Override
+	@Override
 	public void attachGUI() {
-		log.debug("attachGUI");
-
-	}
-
-	// @Override
-	public void detachGUI() {
-		log.debug("detachGUI");
-
-	}
-
-	public JPanel getDisplay() {
-		log.debug("display");
-		return display;
-
-	}
-
-	public void apply() {
-		log.debug("apply");
-
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
-	public void getFilterState(FilterWrapper filter) {
+	public void detachGUI() {
 		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void getFilterState(FilterWrapper filterWrapper) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

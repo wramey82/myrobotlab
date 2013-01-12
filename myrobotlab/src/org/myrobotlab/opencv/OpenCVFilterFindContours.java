@@ -96,14 +96,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		return frameBuffer;
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		String desc = null;
-
-		return desc;
-	}
-
+	/*
 	@Override
 	public void loadDefaultConfiguration() {
 
@@ -112,7 +105,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		cfg.set("useMinArea", true);
 		cfg.set("useMaxArea", false);
 	}
-
+*/
 	public ArrayList<OpenCV.Polygon> polygons = new ArrayList<OpenCV.Polygon>();
 
 	CvSeq contourPointer = new CvSeq();
@@ -258,6 +251,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		// log.error("x");
 		cvClearMemStorage(cvStorage);
 		return display;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

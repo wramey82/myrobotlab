@@ -63,6 +63,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.widget.ProgressDialog;
+import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.framework.Dependency;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;

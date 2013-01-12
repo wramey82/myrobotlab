@@ -23,6 +23,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;

@@ -32,6 +32,8 @@ import java.util.Iterator;
 
 import javax.swing.JLabel;
 
+import org.myrobotlab.control.widget.CommunicationNodeEntry;
+import org.myrobotlab.control.widget.CommunicationNodeList;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;

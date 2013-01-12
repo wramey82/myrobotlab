@@ -111,6 +111,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	protected transient Thread thisThread = null;
 	Outbox outbox = null;
 	Inbox inbox = null;
+	
+	@Element
+	private boolean allowExport = false; 
+	
 	public URI url = null;
 
 	public boolean performanceTiming = false;
@@ -534,7 +538,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
 	}
 
-	abstract public void loadDefaultConfiguration();
+	public void loadDefaultConfiguration()
+	{}
 
 	/**
 	 * sleep without the throw
@@ -776,10 +781,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param classname
 	 * @param param
 	 * @return
+	 * @throws ClassNotFoundException 
+	 * @throws NoSuchMethodException 
+	 * @throws SecurityException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws IllegalArgumentException 
 	 */
-	static public Object getNewInstance(String classname, Object[] param) {
+	static public Object getNewInstance(String classname, Object... param) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		Class<?> c;
-		try {
+		//try {
 			c = Class.forName(classname);
 			Class<?>[] paramTypes = new Class[param.length];
 			for (int i = 0; i < param.length; ++i) {
@@ -788,11 +800,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Constructor<?> mc = c.getConstructor(paramTypes);
 			return mc.newInstance(param); // Dynamically instantiate it
 
-		} catch (Exception e) {
-			logException(e);
-		}
+		//} catch (Exception e) {
+		//	logException(e);
+		//}
 
-		return null;
+		//return null;
 	}
 
 	// parameterType is not used for any critical look-up - but can be used at
@@ -2088,6 +2100,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public void stopHeartbeat() {
 
+	}
+	
+	public boolean allowExport()
+	{
+		return allowExport;
+	}
+	
+	public void allowExport(boolean b)
+	{
+		allowExport = b;
 	}
 
 	/**

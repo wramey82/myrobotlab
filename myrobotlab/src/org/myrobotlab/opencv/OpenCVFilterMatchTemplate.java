@@ -59,19 +59,20 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
 
+	int i = 0;
 	public IplImage template = null;
 	IplImage res = null;
 	double[] minVal = new double[1];
 	double[] maxVal = new double[1];
-	CvPoint minLoc = new CvPoint();
-	CvPoint maxLoc = new CvPoint();
+	
+	transient CvPoint minLoc = new CvPoint();
+	transient CvPoint maxLoc = new CvPoint();
 
-	CvPoint tempRect0 = new CvPoint();
-	CvPoint tempRect1 = new CvPoint();
+	transient CvPoint tempRect0 = new CvPoint();
+	transient CvPoint tempRect1 = new CvPoint();
 
-	CvPoint centeroid = new CvPoint(0, 0);
+	transient CvPoint centeroid = new CvPoint(0, 0);
 
-	int i = 0;
 
 	public OpenCVFilterMatchTemplate(OpenCV service, String name) {
 		super(service, name);
@@ -109,17 +110,6 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 		}
 		// }
 		++clickCount;
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// Read in the template to be used for matching:
-		// template = cvLoadImage("template.jpg");
 	}
 
 	CvPoint textpt = new CvPoint(10, 20);
@@ -203,6 +193,12 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 		return image;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

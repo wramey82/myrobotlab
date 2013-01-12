@@ -130,19 +130,6 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		super(service, name);
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		/*
-		 * // TODO Auto-generated method stub cfg.set("filterType",
-		 * OpenCVFilterLKOpticalTrack.class.getCanonicalName());
-		 * cfg.set("featurePointCount", 30); cfg.set("pixelsPerDegree", 7);
-		 */
-	}
 
 	@Override
 	public BufferedImage display(IplImage frame, Object[] data) {
@@ -359,5 +346,11 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	CvPoint dp0 = new CvPoint();
 	CvPoint dp1 = new CvPoint();
 	int validPoints = 0;
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

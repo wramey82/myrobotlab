@@ -73,14 +73,6 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-	}
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -104,6 +96,12 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 		// cvDrawRect(image, startPoint, startPoint, fillColor, 2, 1, 0);
 		return image;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

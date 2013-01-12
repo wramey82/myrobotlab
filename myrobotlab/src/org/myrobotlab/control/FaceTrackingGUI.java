@@ -38,6 +38,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.service.FaceTracking;
 import org.myrobotlab.service.interfaces.GUI;
 

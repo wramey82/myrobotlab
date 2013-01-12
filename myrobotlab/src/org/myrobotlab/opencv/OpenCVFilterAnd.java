@@ -41,10 +41,10 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterAnd.class.getCanonicalName());
 
-	IplImage buffer = null;
-	IplImage negativeImage = null;
-
 	int frameCount = 0;
+	
+	transient IplImage buffer = null;
+	transient IplImage negativeImage = null;
 
 	public OpenCVFilterAnd(OpenCV service, String name) {
 		super(service, name);
@@ -54,12 +54,6 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 
 		return buffer.getBufferedImage(); // TODO - ran out of memory here
-	}
-
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 
@@ -85,6 +79,12 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 
 		return buffer;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

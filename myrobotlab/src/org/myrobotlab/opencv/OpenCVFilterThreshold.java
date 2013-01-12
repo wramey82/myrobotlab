@@ -55,18 +55,13 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+/*
 	@Override
 	public void loadDefaultConfiguration() {
 		cfg.set("lowThreshold", 130.0f);
 		cfg.set("highThreshold", 255.0f);
 	}
-
+*/
 	/*
 	 * Threshold Applies fixed-level threshold to array elements
 	 * 
@@ -124,6 +119,12 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 		 * CV_THRESH_BINARY, 7,30);
 		 */
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

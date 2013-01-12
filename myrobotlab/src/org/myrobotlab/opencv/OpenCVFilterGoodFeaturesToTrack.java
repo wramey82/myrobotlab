@@ -91,16 +91,6 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	}
 
 	@Override
-	// TODO - use annotations
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
-	@Override
 	public IplImage process(IplImage frame) {
 		if (grey == null) {
 
@@ -166,6 +156,12 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 		return frame.getBufferedImage(); // TODO - ran out of memory here
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

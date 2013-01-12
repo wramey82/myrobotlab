@@ -49,18 +49,6 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	IplImage src = null;
 	IplImage dst = null;
 
@@ -97,6 +85,12 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 		cvDilate(src, dst, null, 1);
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

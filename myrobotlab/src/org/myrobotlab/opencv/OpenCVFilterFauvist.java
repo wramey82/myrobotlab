@@ -64,18 +64,6 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 		return frameBuffer;
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	CvPoint p0 = new CvPoint(0, 0);
 	CvPoint p1 = new CvPoint(0, 0);
 
@@ -107,6 +95,12 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 		cvCanny(gray, inlines, lowThreshold, highThreshold, apertureSize);
 
 		return inlines;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

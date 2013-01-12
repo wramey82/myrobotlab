@@ -45,8 +45,6 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -54,36 +52,27 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-@Root
+
 public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterAverageColor.class.getCanonicalName());
 
-	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
-	@Element
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
-	// from SOHDARService
-	// configuration
-
-	CvPoint startPoint = new CvPoint(180, 120);
-	CvScalar fillColor = cvScalar(0.0, 0.0, 0.0, 1.0);
-	CvScalar lo_diff = CV_RGB(20.0, 20.0, 20.0);// cvScalar(20, 0.0, 0.5, 1.0);
-	CvScalar up_diff = CV_RGB(20.0, 20.0, 20.0);
-
-	Graphics2D graphics = null;
-
-	CvRect roi = cvRect(100, 40, 200, 100);
-	CvPoint p0 = new CvPoint(100, 40);
-	CvPoint p1 = new CvPoint(200, 100);
-
-	CvScalar avg = null;
 	String colorName = "";
 	String lastColorName = "";
+
+	transient IplImage buffer = null;
+	transient BufferedImage frameBuffer = null;
+
+	transient CvScalar fillColor = cvScalar(0.0, 0.0, 0.0, 1.0);
+
+	transient CvRect roi = cvRect(100, 40, 200, 100);
+	transient CvPoint p0 = new CvPoint(100, 40);
+	transient CvPoint p1 = new CvPoint(200, 100);
+
+	transient CvScalar avg = null;
 
 	int roiX = 0;
 	int roiY = 0;
@@ -172,11 +161,6 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		cvDrawRect(image, cvPoint(roiX, roiY), cvPoint(roiX + roiWidth, roiY + roiHeight), fillColor, 1, 1, 0);
 
 		return image.getBufferedImage();
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
 	}
 
 	CvScalar[][] colorGrid = null;
@@ -285,5 +269,11 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 		return colorNameCube[red][green][blue];
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 }

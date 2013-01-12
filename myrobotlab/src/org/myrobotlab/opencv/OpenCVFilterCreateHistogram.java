@@ -57,17 +57,6 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -75,6 +64,12 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 		// what can you expect? nothing? - if data != null then error?
 
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

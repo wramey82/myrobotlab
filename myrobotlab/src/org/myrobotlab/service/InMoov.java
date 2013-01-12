@@ -485,7 +485,7 @@ public class InMoov extends Service {
 		}
 
 		isTracking = false;
-		eye.removeFilters();
+		eye.removeAllFilters();
 		eye.stopCapture();
 	}
 

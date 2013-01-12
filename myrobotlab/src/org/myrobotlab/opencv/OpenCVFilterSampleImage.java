@@ -80,15 +80,6 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 		return bi;
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void loadImage(String path) {
 		try {
 			URL url = new URL(path);
@@ -126,6 +117,12 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 		 * CvPoint(20,200), new CvPoint(40,230), fillColor, 2, 1, 0);
 		 */
 		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

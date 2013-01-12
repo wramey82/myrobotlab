@@ -85,16 +85,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 		return frameBuffer;
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
+	
 	public void samplePoint(Integer x, Integer y) {
 
 		frameBuffer = hsv.getBufferedImage();
@@ -166,6 +157,12 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 		return thresholded;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

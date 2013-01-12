@@ -46,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
+import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.ServiceWrapper;

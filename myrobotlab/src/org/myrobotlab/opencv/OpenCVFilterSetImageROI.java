@@ -50,20 +50,9 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
-	IplImage src = null;
-	IplImage dst = null;
+	transient IplImage src = null;
+	transient IplImage dst = null;
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -102,6 +91,12 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 		// }
 
 		return image; // TODO - src dst or image? consistency?
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

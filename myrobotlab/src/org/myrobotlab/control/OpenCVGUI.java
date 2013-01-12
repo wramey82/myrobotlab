@@ -53,17 +53,19 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.control.widget.PhotoReelWidget;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.OpenCV;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
@@ -274,7 +276,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 	}
 
-	public void setFilterData(FilterWrapper filterData) {
+	public void setFilterState(FilterWrapper filterData) {
 		if (filters.containsKey(filterData.name)) {
 			OpenCVFilterGUI gui = filters.get(filterData.name);
 			gui.getFilterState(filterData);
@@ -316,25 +318,25 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		return addFilterButton;
 	}
 
-	public void addFilterToGUI(String name, String type) {
+	public OpenCVFilterGUI addFilterToGUI(String name, OpenCVFilter f) {
+		
+		String type = f.getClass().getSimpleName();
+		type = type.substring(prefix.length());
+		
 		currentFilterListModel.addElement(name);
 
 		String guiType = "org.myrobotlab.control.OpenCVFilter" + type + "GUI";
-		Object[] params = new Object[3];
-		params[0] = name;
-		params[1] = boundServiceName;
-		params[2] = myService;
-		OpenCVFilterGUI filter = (OpenCVFilterGUI) Service.getNewInstance(guiType, params); // TODO
-																							// -
-																							// Object[]
-																							// parameters
-
-		// filter.display(); // TODO - ServiceGUI enforce the ability to
-		// do modalDisplay() on all??!
-		if (filter != null) {
-			filters.put(name, filter);
+		OpenCVFilterGUI filtergui = null;
+		try {
+			filtergui = (OpenCVFilterGUI) Service.getNewInstance(guiType, name, boundServiceName, myService);
+			filtergui.initFilterState(f); // set the bound filter
+		} catch (Exception e)
+		{
+			log.info(String.format("filter %s does not have a gui defined", type));
 		}
-
+		
+		filters.put(name, filtergui);
+		return filtergui;
 	}
 
 	public JButton getRemoveFilterButton() {
@@ -564,21 +566,27 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	 */
 	final static String prefix = "OpenCVFilter";
 
-	public void getState(OpenCV opencv) {
+	public void getState(final OpenCV opencv) {
+		//SwingUtilities.invokeLater(new Runnable() {
+		//	public void run() {
+
 		if (opencv != null) {
 			filters.clear();
 
-			Iterator<String> itr = opencv.getFilters().keySet().iterator();
+			Iterator<OpenCVFilter> itr = opencv.getFiltersCopy().iterator();
 
 			currentFilterListModel.clear();
 			while (itr.hasNext()) {
 				String name;
 				try {
-					name = itr.next();
-					OpenCVFilter f = opencv.getFilters().get(name);
-					String type = f.getClass().getSimpleName();
-					type = type.substring(prefix.length());
-					addFilterToGUI(name, type);
+					OpenCVFilter f = itr.next();
+					name = f.name;
+	
+					OpenCVFilterGUI guifilter = addFilterToGUI(name, f);
+					// set the state of the filter gui - first one is free :)
+					if (guifilter != null){
+						guifilter.getFilterState(new FilterWrapper(name, f));
+					}
 
 				} catch (Exception e) {
 					Service.logException(e);
@@ -611,6 +619,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		}
 
 		cameraIndex.setSelectedIndex(opencv.cameraIndex);
+		
+//			}
+//		});
+			
 	}
 
 	@Override

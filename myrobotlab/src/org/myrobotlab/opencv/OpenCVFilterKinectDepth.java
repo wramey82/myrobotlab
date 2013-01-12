@@ -48,12 +48,14 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
+	int filter = 7;
+	boolean createMask = false;
+	
 	transient IplImage dst = null;
 	transient IplImage src = null;
 	transient IplImage mask = null;
-	BufferedImage frameBuffer = null;
-	int filter = 7;
-	boolean createMask = false;
+	transient BufferedImage frameBuffer = null;
+
 
 	public OpenCVFilterKinectDepth(OpenCV service, String name) {
 		super(service, name);
@@ -82,24 +84,6 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-	// TODO - provide "Link" to myrobotlab.org/OpenCVFilterKinectDepth (javadoc
-	// link) - NON javadoc - link to javadoc through name!
-	@Override
-	public String getDescription() { // TODO - implement in GUI
-		String desc = "The function PyrDown performs downsampling step of Gaussian pyramid" + " decomposition. First it convolves source image with the specified filter and then"
-				+ " downsamples the image by rejecting even rows and columns. So the destination image" + " is four times smaller than the source imag";
-
-		return desc;
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
-	// CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
-	// CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
 
 	@Override
 	public IplImage process(IplImage image) {
@@ -156,6 +140,12 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		 */
 
 		// return dst;
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

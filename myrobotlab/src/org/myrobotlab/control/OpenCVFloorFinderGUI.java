@@ -36,8 +36,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 
 public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 
@@ -122,27 +122,21 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 	}
 
 	@Override
-	public void apply() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void getFilterState(FilterWrapper filter) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void attachGUI() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void detachGUI() {
 		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void getFilterState(FilterWrapper filterWrapper) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

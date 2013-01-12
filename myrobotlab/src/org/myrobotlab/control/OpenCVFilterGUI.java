@@ -33,8 +33,9 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
+import org.myrobotlab.opencv.FilterWrapper;
+import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.OpenCV.FilterWrapper;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class OpenCVFilterGUI {
@@ -45,8 +46,9 @@ public abstract class OpenCVFilterGUI {
 	final String boundServiceName;
 	final GUI myGUI;
 	final public GridBagConstraints gc = new GridBagConstraints();
-
+	
 	FilterWrapper boundFilter = null;
+
 
 	public OpenCVFilterGUI(String boundFilterName, String boundServiceName, GUIService myGUI) {
 		name = boundFilterName;
@@ -56,27 +58,31 @@ public abstract class OpenCVFilterGUI {
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(name);
 		display.setBorder(title);
-
+	}
+	
+	/**
+	 * @param filter - initialize
+	 */
+	public void initFilterState(OpenCVFilter filter)
+	{
+		boundFilter = new FilterWrapper(name, filter);
+	}
+	
+	public void setFilterState(OpenCVFilter filter)
+	{
+		myGUI.send(boundServiceName, "setFilterState", new FilterWrapper(name, filter));
 	}
 
-	// @Override
 	public abstract void attachGUI();
 
-	// @Override
 	public abstract void detachGUI();
 
-	public abstract void getFilterState(FilterWrapper filter);
+	public abstract void getFilterState(final FilterWrapper filterWrapper);
 
 	public JPanel getDisplay() {
 		return display;
 	}
 
-	public abstract void apply();
-
-	// extends FilterOpenCVGUI -
-	// abstract Apply()
-	// abstract OK()
-	// abstract DDX()
 	public String toString() {
 		return name;
 	}

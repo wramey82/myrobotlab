@@ -42,6 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Clock.PulseDataType;
 import org.myrobotlab.service.Runtime;

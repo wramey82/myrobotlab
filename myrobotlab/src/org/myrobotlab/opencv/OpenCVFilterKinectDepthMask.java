@@ -90,21 +90,21 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	// ArrayList<KinectImageNode>();
 	public ArrayList<KinectImageNode> nodes = null;
 
-	BufferedImage frameBuffer = null;
-	CvMemStorage cvStorage = null;
 
 	public boolean drawBoundingBoxes = false;
 	public boolean publishNodes = false;
 
-	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
 	// cvDrawRect has to have 2 points - no cvDrawRect can't draw a cvRect ???
 	// http://code.google.com/p/opencvx/ - apparently - I'm not the only one who
 	// thinks this is silly
 	// http://opencvx.googlecode.com/svn/trunk/cvdrawrectangle.h
+	transient BufferedImage frameBuffer = null;
+	transient CvMemStorage cvStorage = null;
 
-	CvPoint p0 = new CvPoint(0, 0);
-	CvPoint p1 = new CvPoint(0, 0);
+	transient CvPoint p0 = new CvPoint(0, 0);
+	transient CvPoint p1 = new CvPoint(0, 0);
 
 	public OpenCVFilterKinectDepthMask(OpenCV service, String name) {
 		super(service, name);
@@ -114,17 +114,6 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	public BufferedImage display(IplImage image, Object[] data) {
 
 		return image.getBufferedImage(); // TODO - ran out of memory here
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	int useMask = 0;
-
-	@Override
-	public void loadDefaultConfiguration() {
 	}
 
 	String imageKey = "kinectDepth";
@@ -314,6 +303,12 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		return itemp2;
 
+	}
+
+	@Override
+	public void imageChanged(IplImage frame) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
