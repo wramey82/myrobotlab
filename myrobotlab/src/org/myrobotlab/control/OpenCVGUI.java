@@ -319,10 +319,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	}
 
 	public OpenCVFilterGUI addFilterToGUI(String name, OpenCVFilter f) {
-		
+
 		String type = f.getClass().getSimpleName();
 		type = type.substring(prefix.length());
-		
+
 		currentFilterListModel.addElement(name);
 
 		String guiType = "org.myrobotlab.control.OpenCVFilter" + type + "GUI";
@@ -330,11 +330,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		try {
 			filtergui = (OpenCVFilterGUI) Service.getNewInstance(guiType, name, boundServiceName, myService);
 			filtergui.initFilterState(f); // set the bound filter
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.info(String.format("filter %s does not have a gui defined", type));
 		}
-		
+
 		filters.put(name, filtergui);
 		return filtergui;
 	}
@@ -567,62 +566,64 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	final static String prefix = "OpenCVFilter";
 
 	public void getState(final OpenCV opencv) {
-		//SwingUtilities.invokeLater(new Runnable() {
-		//	public void run() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		if (opencv != null) {
-			filters.clear();
+				if (opencv != null) {
+					filters.clear();
 
-			Iterator<OpenCVFilter> itr = opencv.getFiltersCopy().iterator();
+					Iterator<OpenCVFilter> itr = opencv.getFiltersCopy().iterator();
 
-			currentFilterListModel.clear();
-			while (itr.hasNext()) {
-				String name;
-				try {
-					OpenCVFilter f = itr.next();
-					name = f.name;
-	
-					OpenCVFilterGUI guifilter = addFilterToGUI(name, f);
-					// set the state of the filter gui - first one is free :)
-					if (guifilter != null){
-						guifilter.getFilterState(new FilterWrapper(name, f));
+					currentFilterListModel.clear();
+					while (itr.hasNext()) {
+						String name;
+						try {
+							OpenCVFilter f = itr.next();
+							name = f.name;
+
+							OpenCVFilterGUI guifilter = addFilterToGUI(name, f);
+							// set the state of the filter gui - first one is
+							// free :)
+							if (guifilter != null) {
+								guifilter.getFilterState(new FilterWrapper(name, f));
+							}
+
+						} catch (Exception e) {
+							Service.logException(e);
+							break;
+						}
+
 					}
 
-				} catch (Exception e) {
-					Service.logException(e);
-					break;
+					currentFilters.repaint();
+
+					for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i) {
+						String currentObject = prefixPath + (String) grabberTypeSelect.getItemAt(i);
+						if (currentObject.equals(opencv.grabberType)) {
+							grabberTypeSelect.setSelectedIndex(i);
+							break;
+						}
+
+					}
+
+					if (opencv.capturing) {
+						capture.setText("stop"); // will be a bug if changed to
+													// jpg
+					} else {
+						capture.setText("capture");
+					}
+
+					inputFile.setText(opencv.inputFile);
+
+				} else {
+					log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
 				}
 
-			}
-
-			currentFilters.repaint();
-
-			for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i) {
-				String currentObject = prefixPath + (String) grabberTypeSelect.getItemAt(i);
-				if (currentObject.equals(opencv.grabberType)) {
-					grabberTypeSelect.setSelectedIndex(i);
-					break;
-				}
+				cameraIndex.setSelectedIndex(opencv.cameraIndex);
 
 			}
+		});
 
-			if (opencv.capturing) {
-				capture.setText("stop"); // will be a bug if changed to jpg
-			} else {
-				capture.setText("capture");
-			}
-
-			inputFile.setText(opencv.inputFile);
-
-		} else {
-			log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
-		}
-
-		cameraIndex.setSelectedIndex(opencv.cameraIndex);
-		
-//			}
-//		});
-			
 	}
 
 	@Override
