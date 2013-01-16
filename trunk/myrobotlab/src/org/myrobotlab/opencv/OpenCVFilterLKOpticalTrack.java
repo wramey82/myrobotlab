@@ -60,9 +60,10 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
+	
+	public boolean useFloatValues = false;
 
 	int i;
-	boolean needToInitialize = true;
 
 	// quality - Multiplier for the maxmin eigenvalue; specifies minimal
 	// accepted quality of image corners
@@ -78,28 +79,34 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	int useHarris = 0;
 	// Free parameter of Harris detector; used only if useHarris != 0
 	double k = 0.0;
+	
+	int add_remove_pt = 0;
+
 
 	public int win_size = 20;
-	public int maxPointCount = 30;
+	public int maxPointCount = 2;
 
 	byte[] status = new byte[maxPointCount];
-	float[] error = null;
+	float[] error = new float[maxPointCount];
 	int count = 0;
 	int flags = 0;
+	int validPoints = 0;
 
-	boolean needTrackingPoints = true;
+	public boolean needTrackingPoints = true;
 
 	boolean publishOpenCVObjects = false; // TODO put in Parent
 
 	HashMap<String, Integer> stableIterations = null;
-	IntByReference cornerCount = new IntByReference(maxPointCount);
 	int[] corner_count = { maxPointCount };
-
+	
 	// non serializable JavaCV / JNI related
+	transient IntByReference cornerCount = new IntByReference(maxPointCount);
 	transient CvPoint2D32f corners = null; // new way?
 
 	transient CvPoint pt = new CvPoint(0, 0);
 	transient CvPoint circle_pt = new CvPoint(0, 0);
+	transient CvPoint dp0 = new CvPoint();
+	transient CvPoint dp1 = new CvPoint();
 
 	transient IntByReference featurePointCount = new IntByReference(maxPointCount);
 
@@ -120,63 +127,16 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	// init related
 	transient CvSize cvWinSize;
-	transient CvTermCriteria termCrit;
+	transient CvTermCriteria termCrit = cvTermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
 
 	// display related
 	transient Graphics2D graphics = null;
 	transient BufferedImage frameBuffer = null;
+	
 
 	public OpenCVFilterLKOpticalTrack(OpenCV service, String name) {
 		super(service, name);
 	}
-
-
-	@Override
-	public BufferedImage display(IplImage frame, Object[] data) {
-
-		frameBuffer = frame.getBufferedImage();
-		graphics = frameBuffer.createGraphics();
-		graphics.setColor(Color.green);
-
-		int validPoints = 0;
-		int pixelX;
-		int pixelY;
-		float x;
-		float y;
-
-		for (int i = 0; i < count; ++i) {
-
-			x = current_features.position(i).x();
-			y = current_features.position(i).y();
-			pixelX = (int) x;
-			pixelY = (int) y;
-
-			if (status[i] == 1) {
-				++validPoints;
-				if (graphics != null) {
-					graphics.setColor(Color.red);
-					graphics.drawLine(pixelX - 2, pixelY, pixelX + 2, pixelY);
-					graphics.drawLine(pixelX, pixelY + 2, pixelX, pixelY - 2);
-					graphics.drawString(String.format("%f,%f", x / frame.width(), y / frame.height()), pixelX, pixelY);
-				}
-			}
-		}
-
-		if (graphics != null) {
-			graphics.drawString("valid " + validPoints, 10, 10);
-		}
-
-		// TODO - check if this is correct dispose after ever new frame?
-		if (graphics != null) {
-			graphics.dispose();
-		}
-		graphics = null;
-
-		return frameBuffer;
-
-	}
-
-	int add_remove_pt = 0;
 
 	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
@@ -194,66 +154,68 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	}
 
 	public void samplePoint(Float x, Float y) {
-		if (width == 0 || height == 0) {
-			log.error("width and height need to be set");
-			return;
-		}
 
-		samplePoint((int) (x * width), (int) (y * height));
+		samplePoint((int) (x * width()), (int) (y * height()));
 
 	}
 
-	/*
-	 * public void samplePoint(Point p) { if (count < maxPointCount) {
-	 * pt.x(p.x); pt.y(p.y); add_remove_pt = 1; } }
-	 */
 	public void clearPoints() {
 		count = 0;
 	}
 
-	int width = 0;
-	int height = 0;
+
+	@Override
+	public BufferedImage display(IplImage frame, Object[] data) {
+
+		frameBuffer = frame.getBufferedImage();
+		graphics = frameBuffer.createGraphics();
+		graphics.setColor(Color.green);
+
+		int validPoints = 0;
+		int pixelX;
+		int pixelY;
+		float x;
+		float y;
+
+		for (int i = 0; i < maxPointCount; ++i) {
+
+			x = current_features.position(i).x();
+			y = current_features.position(i).y();
+			pixelX = (int) x;
+			pixelY = (int) y;
+
+			if (status[i] == 1) {
+				++validPoints;
+				if (graphics != null) {
+					graphics.setColor(Color.red);
+					graphics.drawLine(pixelX - 2, pixelY, pixelX + 2, pixelY);
+					graphics.drawLine(pixelX, pixelY + 2, pixelX, pixelY - 2);
+					if (useFloatValues)
+					{
+						graphics.drawString(String.format("%.3f,%.3f", x / frame.width(), y / frame.height()), pixelX, pixelY);
+					} else {
+						graphics.drawString(String.format("%d,%d", pixelX, pixelY), pixelX, pixelY);						
+					}
+				}
+			}
+		}
+
+		if (graphics != null) {
+			graphics.drawString("valid " + validPoints, 10, 10);
+		}
+
+		// TODO - check if this is correct dispose after ever new frame?
+		if (graphics != null) {
+			graphics.dispose();
+		}
+		graphics = null;
+
+		return frameBuffer;
+	}
+
 
 	@Override
 	public IplImage process(IplImage frame) {
-		if (frame == null) {
-			return null;
-		}
-
-		if (needToInitialize) {
-
-			// was in init
-			featurePointCount.setValue(maxPointCount);
-			cvWinSize = cvSize(win_size, win_size);
-			termCrit = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
-
-			/* allocate all the buffers */
-			image = cvCreateImage(cvGetSize(frame), 8, 3);
-			image.origin(frame.origin());
-			grey = cvCreateImage(cvGetSize(frame), 8, 1);
-			prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
-			pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
-			prev_pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
-
-			mask = null; // TODO - create maskROI FROM motion template !!!
-			current_features = new CvPoint2D32f(maxPointCount);
-			previous_features = new CvPoint2D32f(maxPointCount);
-			saved_features = new CvPoint2D32f(maxPointCount);
-
-			// init get good features
-			corners = new CvPoint2D32f(maxPointCount);
-
-			flags = 0;
-			eig = cvCreateImage(cvGetSize(grey), 32, 1);
-			temp = cvCreateImage(cvGetSize(grey), 32, 1);
-			add_remove_pt = 0;
-			cornerCount.setValue(maxPointCount);
-			needToInitialize = false;
-
-			width = frame.width();
-			height = frame.height();
-
-		}
 
 		if (frame.nChannels() == 3) {
 			cvCvtColor(frame, grey, CV_BGR2GRAY);
@@ -267,7 +229,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			count = maxPointCount;
 			// cvGoodFeaturesToTrack(grey, eig, temp, current_features,
 			// featurePointCount, quality, min_distance, mask, 3, 0, 0.04);
-			cvGoodFeaturesToTrack(grey, eig, temp, corners, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
+			cvGoodFeaturesToTrack(grey, eig, temp, current_features, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
 			count = featurePointCount.getValue();
 			needTrackingPoints = false;
@@ -277,11 +239,13 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 								// features are found
 		{
 
-			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, current_features, count, cvWinSize, 3, status, error, termCrit, flags);
+			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, current_features, count, cvSize(win_size, win_size), 3, status, error, termCrit, flags);
 
 			flags |= CV_LKFLOW_PYR_A_READY;
 			int k = 0;
-
+			
+			
+/*
 			for (i = k = 0; i < count; i++) {
 				if (add_remove_pt == 1) {
 					double dx = pt.x() - current_features.position(i).x();
@@ -304,8 +268,11 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 				// cxcore.cvCircle( frame, circle_pt, 1,
 				// cxcore.CV_RGB(255, 0,0), -1, 8,0);
 			}
-			count = k;
-			if (count > 0) {
+//			count = k;
+  
+ 
+ */
+			if (count > 0 && publish) {
 				if (publishOpenCVObjects) {
 					myService.invoke("publish", (Object) current_features);
 				} else {
@@ -343,14 +310,37 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		return frame;
 	}
 
-	CvPoint dp0 = new CvPoint();
-	CvPoint dp1 = new CvPoint();
-	int validPoints = 0;
 
 	@Override
 	public void imageChanged(IplImage frame) {
-		// TODO Auto-generated method stub
 		
+		// initialize
+		featurePointCount.setValue(maxPointCount);
+		cvWinSize = cvSize(win_size, win_size);
+		termCrit = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
+
+		// allocate all the buffers 
+		image = cvCreateImage(cvGetSize(frame), 8, 3);
+		image.origin(frame.origin());
+		grey = cvCreateImage(cvGetSize(frame), 8, 1);
+		prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
+		pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
+		prev_pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
+
+		mask = null; // TODO - create maskROI FROM motion template !!!
+		current_features = new CvPoint2D32f(maxPointCount);
+		previous_features = new CvPoint2D32f(maxPointCount);
+		saved_features = new CvPoint2D32f(maxPointCount);
+
+		// init get good features
+		corners = new CvPoint2D32f(maxPointCount);
+
+		flags = 0;
+		eig = cvCreateImage(cvGetSize(grey), 32, 1);
+		temp = cvCreateImage(cvGetSize(grey), 32, 1);
+		add_remove_pt = 0;
+		cornerCount.setValue(maxPointCount);
+
 	}
 
 }

@@ -46,7 +46,7 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 	SliderWithText minDistance = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 10);
 	SliderWithText qualityLevel = new SliderWithText(JSlider.HORIZONTAL, 0, 100, 0.05f);
 	SliderWithText blockSize = new SliderWithText(JSlider.HORIZONTAL, 1, 10, 3);
-	JButton getGoodFeatures = new JButton("get features");
+	JButton getFeatures = new JButton("get features");
 
 	public OpenCVFilterLKOpticalTrackGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
@@ -60,7 +60,7 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 		minDistance.addChangeListener(this);
 		qualityLevel.addChangeListener(this);
 		blockSize.addChangeListener(this);
-		getGoodFeatures.addActionListener(this);
+		getFeatures.addActionListener(this);
 
 		gc.gridy = 0;
 		gc.gridx = 0;
@@ -107,7 +107,7 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 
 		++gc.gridy;
 		gc.gridx = 0;
-		display.add(getGoodFeatures, gc);
+		display.add(getFeatures, gc);
 
 		// set the hook
 		MRLListener listener = new MRLListener("publishFilterState", myService.getName(), "setFilterState", new Class[] { FilterWrapper.class });
@@ -179,7 +179,16 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
 		OpenCVFilterLKOpticalTrack filter = (OpenCVFilterLKOpticalTrack) boundFilter.filter;
+		
+		if (o == getFeatures)
+		{
+			filter.needTrackingPoints = true;
+		}
+		
+		
+		
 		// filter.i
 		myGUI.send(boundServiceName, "setFilterState", boundFilter);
 
