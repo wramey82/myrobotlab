@@ -47,6 +47,8 @@ public abstract class OpenCVFilter implements Serializable {
 	OpenCV myService = null; // FIXME - How does this work on remote ?!?!? - is a zombie method .send called ???
 	HashMap<String, Object> storage = null;
 	
+	public boolean publish = false;
+	
 	int imageWidth;
 	int imageHeight;
 	int imageChannels;
@@ -102,9 +104,27 @@ public abstract class OpenCVFilter implements Serializable {
 		// TODO size or re-init based on change of channel or size - lastWidth lastHeight
 		if (frame.width() != imageWidth || frame.nChannels() != imageChannels)
 		{
+			imageWidth = frame.width();
+			imageChannels = frame.nChannels();
+			imageHeight = frame.height();
 			imageChanged(frame);
 		}
 		return frame;
+	}
+	
+	public int width()
+	{
+		return imageWidth;
+	}
+	
+	public int height()
+	{
+		return imageHeight;
+	}
+	
+	public int channels()
+	{
+		return imageChannels;
 	}
 	
 	public abstract void imageChanged(IplImage frame);

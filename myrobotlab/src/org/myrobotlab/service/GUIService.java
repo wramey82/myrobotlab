@@ -64,6 +64,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.ConsoleAppender;
@@ -628,7 +629,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Override
 	public void pack() {
-		frame.pack();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				frame.pack();
+			}
+		});
 	}
 
 	@Override

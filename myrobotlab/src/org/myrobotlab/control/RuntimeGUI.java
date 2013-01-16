@@ -104,10 +104,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		@Override
 		public JToolTip createToolTip() {
 			JToolTip tooltip = super.createToolTip();
-			// tooltip.setFont(tooltip.getFont().deriveFont(Font. BOLD, 32));
-			// tooltip.setForeground(Style.foreground);
-			// tooltip.setBackground(Style.background);
-			// tooltip.setOpaque(false);
 			return tooltip;
 		}
 
@@ -139,14 +135,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		possibleServicesModel.addColumn("");
 		possibleServicesModel.addColumn("");
 		possibleServices.setRowHeight(24);
-		// possibleServices.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		// possibleServices.setShowHorizontalLines(false);
-		// possibleServices.setShowVerticalLines(false);
 		possibleServices.setIntercellSpacing(new Dimension(0, 0));
 		possibleServices.setShowGrid(false);
 
-		// possibleServices.setGridColor(Style.possibleServicesStable);
-		// possibleServices.setGridColor(Style.possibleServicesDev);
 		possibleServices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		TableColumn col = possibleServices.getColumnModel().getColumn(0);
@@ -156,14 +147,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		possibleServices.setDefaultRenderer(ImageIcon.class, cellRenderer);
 		possibleServices.setDefaultRenderer(ServiceEntry.class, cellRenderer);
 		possibleServices.setDefaultRenderer(String.class, cellRenderer);
-
-		/*
-		 * possibleServices.setCellSelectionEnabled(false);
-		 * possibleServices.setColumnSelectionAllowed(false);
-		 * possibleServices.setRowSelectionAllowed(true);
-		 * possibleServices.setSelectionMode
-		 * (ListSelectionModel.SINGLE_SELECTION);
-		 */
 
 		possibleServices.addMouseListener(new MouseAdapter() {
 			// isPopupTrigger over OSs - use masks
@@ -269,12 +252,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
 		popup.add(releaseMenuItem);
 
-		/*
-		 * menuItem = new JMenuItem("upgrade");
-		 * menuItem.addActionListener(this); menuItem.setVisible(false);
-		 * popup.add(menuItem);
-		 */
-
 		getPossibleServicesThreadSafe(null);
 
 		GridBagConstraints inputgc = new GridBagConstraints();
@@ -362,15 +339,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		}
 	}
 
-	/*
-	 * public JButton getAddServiceButton() { addServiceButton = new
-	 * BasicArrowButton(BasicArrowButton.EAST);
-	 * addServiceButton.setActionCommand("install");
-	 * addServiceButton.addActionListener(this);
-	 * 
-	 * return addServiceButton; }
-	 */
-
 	public ServiceWrapper registered(ServiceWrapper sw) {
 		String typeName;
 		if (sw.service == null) {
@@ -397,20 +365,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		// myService.loadTabPanels();
 		return sw;
 	}
-
-	/*
-	 * public JButton getReleaseServiceButton() { releaseServiceButton = new
-	 * BasicArrowButton(BasicArrowButton.WEST);
-	 * releaseServiceButton.addActionListener(new ActionListener() {
-	 * 
-	 * @Override public void actionPerformed(ActionEvent e) { ServiceEntry
-	 * oldService = (ServiceEntry) currentServices.getSelectedValue();
-	 * myService.send(boundServiceName, "releaseService", oldService.name); }
-	 * 
-	 * });
-	 * 
-	 * return releaseServiceButton; }
-	 */
 
 	@Override
 	public void attachGUI() {
@@ -545,11 +499,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focused, int row, int column) {
 
-			// Component c = super.getTableCellRendererComponent(table, value,
-			// isSelected, hasFocus, row, column);
-			// setBorder(BorderFactory.createEmptyBorder());
-			// log.info(value.getClass().getCanonicalName());
-
 			setEnabled(table == null || table.isEnabled());
 			ServiceInfo info = ServiceInfo.getInstance();
 			ServiceEntry entry = (ServiceEntry) table.getValueAt(row, 0);
@@ -609,11 +558,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 					setBackground(Style.possibleServicesNotInstalled);
 				} else {
 					if (upgradeAvailable) {
-						// Component c =
-						// super.getTableCellRendererComponent(table, value,
-						// selected, focused, row, column-1);
-						// c.setForeground(Style.foreground);
-						// c.setForeground(Style.possibleServicesUpdate);
 						setForeground(Style.listForeground);
 						setBackground(Style.possibleServicesUpdate);
 					} else {

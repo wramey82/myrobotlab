@@ -90,6 +90,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		display.add(clockDisplayPanel, BorderLayout.CENTER);
 		display.add(clockControlPanel, BorderLayout.SOUTH);
 
+		startClock.addActionListener(this);
 		startCountDown.addActionListener(this);
 		clockControlPanel.add(startCountDown);
 		clockControlPanel.add(startClock);
@@ -216,11 +217,12 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 		long sec = amtRemaining / 1000 % 60;
 		long min = amtRemaining / (60 * 1000) % 60;
-		long hrs = amtRemaining / (60 * 60 * 1000);
+		long hrs = amtRemaining / (60 * 60 * 1000) % 12;
 
-		clockControlPanel.setVisible(false);
+		//clockControlPanel.setVisible(false);
 		// color:#2BFF00;
-		msgDisplay.setText("<html><p style=\"font-size:10px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
+		//msgDisplay.setText("<html><p style=\"font-size:10px;text-align:center;\">until core meltdown<br/>have a nice day !</p></html>");
+		msgDisplay.setText("");
 		clockDisplay.setOpaque(true);
 		msgDisplay.setOpaque(true);
 		clockDisplay.setBackground(new Color(0x2BFF00));
@@ -239,6 +241,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	public void attachGUI() {
 		subscribe("countdown", "countdown", Long.class);
 		subscribe("publishState", "getState", Clock.class);
+		subscribe("pulse", "pulse");
+		
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -246,6 +250,12 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	public void detachGUI() {
 		unsubscribe("countdown", "countdown", Long.class);
 		unsubscribe("publishState", "getState", Clock.class);
+		unsubscribe("pulse", "pulse");
+	}
+	
+	public void pulse()
+	{
+		countdown(System.currentTimeMillis());
 	}
 
 }

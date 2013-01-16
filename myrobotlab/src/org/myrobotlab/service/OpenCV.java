@@ -45,8 +45,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvCreateVideoWriter;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvWriteFrame;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -74,14 +72,14 @@ import org.simpleframework.xml.Root;
 
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
+import com.googlecode.javacv.FrameRecorder;
+import com.googlecode.javacv.OpenCVFrameRecorder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_highgui.CvVideoWriter;
 
 @Root
 public class OpenCV extends Service {
@@ -94,15 +92,18 @@ public class OpenCV extends Service {
 	int lastImageWidth = 0;
 
 	public final static String INPUT_SOURCE_CAMERA = "camera";
-	public final static String INPUT_SOURCE_FILE = "file";
+	public final static String INPUT_SOURCE_MOVIE_FILE = "file";
 	public final static String INPUT_SOURCE_NETWORK = "network";
+	public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
+	
+	public boolean IsRecordingOutput = false;
 
 	// GRABBER BEGIN --------------------------
 	@Element
 	public String inputSource = INPUT_SOURCE_CAMERA;
 	@Element
 	public String grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-	FrameGrabber grabber = null;
+	transient FrameGrabber grabber = null;
 
 	// grabber cfg
 	@Element(required = false)
@@ -125,10 +126,10 @@ public class OpenCV extends Service {
 	private boolean publishIplImage = false;
 
 	// mask for each named filter
-	public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
+	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
 
 	// multi-plexing keys
-	public HashMap<String, IplImage> multiplex = new HashMap<String, IplImage>();
+	transient public HashMap<String, IplImage> multiplex = new HashMap<String, IplImage>();
 
 	transient public HashMap<String, Object> storage = new HashMap<String, Object>();
 
@@ -172,7 +173,7 @@ public class OpenCV extends Service {
 	// should only be used by opencv inbox OR gui thread but not at the same
 	// time - gui when operating locally & opencv inbox when remote
 
-	HashMap<String, CvVideoWriter> outputFileStreams = new HashMap<String, CvVideoWriter>();
+	HashMap<String, FrameRecorder> outputFileStreams = new HashMap<String, FrameRecorder>();
 
 	// published objects
 
@@ -191,7 +192,7 @@ public class OpenCV extends Service {
 			this.vertices = vertices;
 		}
 
-		// TODO - static functions in Speech service
+		// TODO - static functions in Speech service - this has to be done in another service
 		public String getShapeWord() {
 			if (vertices > 3 && vertices < 6 && isConvex) {
 				return "square";
@@ -291,7 +292,6 @@ public class OpenCV extends Service {
 
 			StringBuffer screenText = new StringBuffer();
 			capturing = true;
-			boolean filtersChanged = false;
 
 			if (useCanvasFrame) {
 				cf = new CanvasFrame("CanvasFrame");
@@ -299,17 +299,22 @@ public class OpenCV extends Service {
 
 			try {
 
+				//inputSource = INPUT_SOURCE_IMAGE_FILE;
+				
 				Class<?>[] paramTypes = new Class[1];
 				Object[] params = new Object[1];
 
 				if (INPUT_SOURCE_CAMERA.equals(inputSource)) {
 					paramTypes[0] = Integer.TYPE;
 					params[0] = cameraIndex;
-				} else if (INPUT_SOURCE_FILE.equals(inputSource)) {
+				} else if (INPUT_SOURCE_MOVIE_FILE.equals(inputSource)) {
+					paramTypes[0] = String.class;
+					params[0] = inputFile;
+				} else if (INPUT_SOURCE_IMAGE_FILE.equals(inputSource)) {
 					paramTypes[0] = String.class;
 					params[0] = inputFile;
 				}
-
+				
 				Class<?> nfg = Class.forName(grabberType);
 				// TODO - get correct constructor for Capture Configuration..
 				Constructor<?> c = nfg.getConstructor(paramTypes);
@@ -320,10 +325,10 @@ public class OpenCV extends Service {
 					grabber.setFormat(format);
 				}
 
-				log.error("using " + grabber.getClass().getCanonicalName());
+				log.error(String.format("using %s", grabber.getClass().getCanonicalName()));
 
 				if (grabber == null) {
-					log.error("no viable capture or frame grabber with input " + grabberType);
+					log.error(String.format("no viable capture or frame grabber with input %s", grabberType));
 					stop();
 				}
 
@@ -398,15 +403,15 @@ public class OpenCV extends Service {
 
 						} // capturing && itr.hasNext()
 					}
+					
+					if (IsRecordingOutput == true)
+					{
+						record("output", frame);
+					}
 
 					if (frame.width() != lastImageWidth) {
 						invoke("sizeChange", new Dimension(frame.width(), frame.height()));
 						lastImageWidth = frame.width();
-					}
-
-					if (filtersChanged) {
-						broadcastState();
-						filtersChanged = false;
 					}
 
 					// different data type
@@ -566,32 +571,53 @@ public class OpenCV extends Service {
 		videoProcess.start();
 	}
 
-	public void captureOutput(String filename, IplImage frame) {
-		// TODO - configurable to grabber input and filtered output
-		CvSize imgSize = new CvSize();
-		imgSize.width(frame.width());
-		imgSize.height(frame.height());
-		double fps = 16;
-		int isColor = 1;
+	public void record(String filename, IplImage frame) {
+		try {
 
-		// could not stop - Compiler did not align stack variables. Libavcodec
-		// has been miscompiled
+		
+		/*  FIXME 
+		
+		 FFmpegFrameRecorder recorder = new FFmpegFrameRecorder("/sdcard/test.mp4",320,214);
+	    try {
+	    	recorder.setAudioCodec(AV_CODEC_ID_AAC);			
+	        recorder.setAudioBitrate(32000);
+		recorder.setAudioChannels(2);
+		recorder.setVideoCodec(AV_CODEC_ID_MPEG4);			
+		recorder.setFrameRate(10);					
+		recorder.setPixelFormat(PIX_FMT_YUV420P);
+		recorder.setFormat("mp4");	        
+	        recorder.start();	        
+	        recorder.record(ByteBuffer.wrap(buffer));
+	        recorder.stop();	
+	        Log.d("Recorder","Stopped");
+	        recorder.release();
+	       }
+	    catch (Exception e){
+	        e.printStackTrace();
+	      } 
+
+		
+		 */
+
 
 		if (!outputFileStreams.containsKey(filename)) {
-			CvVideoWriter writer = cvCreateVideoWriter(cfg.get("outputMovieFileName"), CV_FOURCC('M', 'J', 'P', 'G'),
-			// CV_FOURCC('F', 'L', 'V', '1'),
-					fps, imgSize, isColor);
-
-			outputFileStreams.put(filename, writer);
+			//FFmpegFrameRecorder recorder = new FFmpegFrameRecorder (String.format("%s.avi",filename), frame.width(), frame.height());
+			FrameRecorder recorder = new OpenCVFrameRecorder(String.format("%s.avi",filename), frame.width(), frame.height());
+			//recorder.setCodecID(CV_FOURCC('M','J','P','G'));
+			recorder.setFrameRate(15);
+			recorder.setPixelFormat(1);
+			recorder.start();
+			outputFileStreams.put(filename, recorder);
 		}
 
-		cvWriteFrame(outputFileStreams.get(filename), frame);
-
-		// cvReleaseVideoWriter(&writer);
-		// cvReleaseCapture(&input);
+		outputFileStreams.get(filename).record(frame);
+		
+		} catch(Exception e) {
+			logException(e);
+		}
 	}
 
-	public void releaseCaptureOutput(String filename) {
+	public void stopRecording(String filename) {
 		// cvReleaseVideoWriter(outputFileStreams.get(filename).pointerByReference());
 	}
 
@@ -737,6 +763,11 @@ public class OpenCV extends Service {
 		return null;
 	}
 
+	public void recordOutput(boolean b)
+	{
+		IsRecordingOutput = b;
+	}
+	
 	// filter dynamic data exchange end ------------------
 
 	public static void main(String[] args) {
@@ -769,13 +800,14 @@ public class OpenCV extends Service {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		// opencv.addFilter("pd", "PyramidDown");
+		 opencv.addFilter("pd", "PyramidDown");
 		// opencv.addFilter("gft", "GoodFeaturesToTrack");
 		// opencv.publishFilterData("gft");
 		// opencv.setDisplayFilter("gft");
-		// opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
+		 opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
+		 opencv.setDisplayFilter("lkOpticalTrack1");
 
-		// opencv.capture();
+		//opencv.capture();
 
 		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();
