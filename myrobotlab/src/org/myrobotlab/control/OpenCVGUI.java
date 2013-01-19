@@ -118,6 +118,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 	// output
 	JButton recordButton = new JButton("record");
+	JButton recordFrameButton = new JButton("record frame");
 	
 	OpenCV myOpenCV;
 
@@ -236,7 +237,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		
 		display.add(output, gc);
 		output.add(recordButton);
+		output.add(recordFrameButton);
+		
 		recordButton.addActionListener(this);
+		recordFrameButton.addActionListener(this);
 
 		// build input end ------------------
 
@@ -640,8 +644,9 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				myService.send(boundServiceName, "recordOutput", false);
 				recordButton.setText("record");
 			}
+		} else if (o == recordFrameButton) {
+			myService.send(boundServiceName, "recordSingleFrame", true);
 		}
-		
 	}
 
 }

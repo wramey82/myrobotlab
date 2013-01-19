@@ -44,7 +44,6 @@ package org.myrobotlab.service;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
-import static com.googlecode.javacv.cpp.opencv_highgui.CV_FOURCC;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -63,6 +62,7 @@ import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterAverageColor;
@@ -96,7 +96,8 @@ public class OpenCV extends Service {
 	public final static String INPUT_SOURCE_NETWORK = "network";
 	public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
-	public boolean IsRecordingOutput = false;
+	private boolean isRecordingOutput = false;
+	private boolean recordSingleFrame = false;
 
 	// GRABBER BEGIN --------------------------
 	@Element
@@ -404,9 +405,14 @@ public class OpenCV extends Service {
 						} // capturing && itr.hasNext()
 					}
 					
-					if (IsRecordingOutput == true)
+					if (isRecordingOutput == true)
 					{
 						record("output", frame);
+					}
+					
+					if (recordSingleFrame == true)
+					{
+						recordSingleFrame(frame, frameIndex);
 					}
 
 					if (frame.width() != lastImageWidth) {
@@ -571,6 +577,11 @@ public class OpenCV extends Service {
 		videoProcess.start();
 	}
 
+	public void recordSingleFrame(IplImage frame, int frameIndex) {
+		Util.writeBufferedImage(frame.getBufferedImage(), String.format("%s.%d.jpg", getName(), frameIndex));
+		recordSingleFrame = false;
+	}	
+	
 	public void record(String filename, IplImage frame) {
 		try {
 
@@ -763,9 +774,14 @@ public class OpenCV extends Service {
 		return null;
 	}
 
-	public void recordOutput(boolean b)
+	public void recordOutput(Boolean b)
 	{
-		IsRecordingOutput = b;
+		isRecordingOutput = b;
+	}
+	
+	public void recordSingleFrame(Boolean b)
+	{
+		recordSingleFrame = b;
 	}
 	
 	// filter dynamic data exchange end ------------------
