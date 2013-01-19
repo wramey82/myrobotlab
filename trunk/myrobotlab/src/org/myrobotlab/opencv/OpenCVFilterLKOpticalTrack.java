@@ -83,7 +83,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	int add_remove_pt = 0;
 
 
-	public int win_size = 20;
+	public int win_size = 31;
 	public int maxPointCount = 2;
 
 	byte[] status = new byte[maxPointCount];
@@ -120,7 +120,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	transient IplImage temp = null;
 	transient IplImage mask = null;
 
-	transient CvPoint2D32f current_features = null;
+	transient CvPoint2D32f features = null;
 	transient CvPoint2D32f previous_features = null;
 	transient CvPoint2D32f saved_features = null;
 	transient CvPoint2D32f swap_points = null;
@@ -179,8 +179,8 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 		for (int i = 0; i < maxPointCount; ++i) {
 
-			x = current_features.position(i).x();
-			y = current_features.position(i).y();
+			x = features.position(i).x();
+			y = features.position(i).y();
 			pixelX = (int) x;
 			pixelY = (int) y;
 
@@ -229,7 +229,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			count = maxPointCount;
 			// cvGoodFeaturesToTrack(grey, eig, temp, current_features,
 			// featurePointCount, quality, min_distance, mask, 3, 0, 0.04);
-			cvGoodFeaturesToTrack(grey, eig, temp, current_features, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
+			cvGoodFeaturesToTrack(grey, eig, temp, features, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
 			count = featurePointCount.getValue();
 			needTrackingPoints = false;
@@ -239,12 +239,15 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 								// features are found
 		{
 
-			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, current_features, count, cvSize(win_size, win_size), 3, status, error, termCrit, flags);
+			
+			//calcOpticalFlowPyrLK  (prev_grey, grey,                  points[0], points[1],    status, err, winSize, 3, termcrit, 0, 0.001);
+			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, features, count, cvSize(win_size, win_size), 3, status, error, termCrit, flags);
+
 
 			flags |= CV_LKFLOW_PYR_A_READY;
 			int k = 0;
 			
-			
+		
 /*
 			for (i = k = 0; i < count; i++) {
 				if (add_remove_pt == 1) {
@@ -274,19 +277,19 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
  */
 			if (count > 0 && publish) {
 				if (publishOpenCVObjects) {
-					myService.invoke("publish", (Object) current_features);
+					myService.invoke("publish", (Object) features);
 				} else {
-					CvPoint2D32f p = current_features;
+					CvPoint2D32f p = features;
 					myService.invoke("publish", new Point2Df(p.x() / frame.width(), p.y() / frame.height()));
 				}
 			}
 		}
 
 		if (add_remove_pt == 1 && count < maxPointCount) {
-			current_features.position(count).x(pt.x());
-			current_features.position(count).y(pt.y());
+			features.position(count).x(pt.x());
+			features.position(count).y(pt.y());
 			count++;
-			cvFindCornerSubPix(grey, current_features.position(count - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1),
+			cvFindCornerSubPix(grey, features.position(count - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1),
 					cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03));
 			add_remove_pt = 0;
 		}
@@ -300,8 +303,8 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		pyramid = swap_temp;
 
 		swap_points = previous_features;
-		previous_features = current_features;
-		current_features = swap_points;
+		previous_features = features;
+		features = swap_points;
 
 		// TODO - possible instead of having a "display" but to
 		// add the changes depending on config
@@ -328,7 +331,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		prev_pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
 
 		mask = null; // TODO - create maskROI FROM motion template !!!
-		current_features = new CvPoint2D32f(maxPointCount);
+		features = new CvPoint2D32f(maxPointCount);
 		previous_features = new CvPoint2D32f(maxPointCount);
 		saved_features = new CvPoint2D32f(maxPointCount);
 
