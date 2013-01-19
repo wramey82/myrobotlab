@@ -60,11 +60,5 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.jssc/jssc/0.9.0/jssc.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/x86.64.windows/org.OpenNI.jar"/>
-
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacpp.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-linux-x86.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
