@@ -86,9 +86,9 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	public int win_size = 31;
 	public int maxPointCount = 2;
 
-	byte[] status = new byte[maxPointCount];
-	float[] error = new float[maxPointCount];
-	int count = 0;
+	byte[] status = new byte[maxPointCount]; // FIXME - re-init image Changed
+	float[] error = new float[maxPointCount]; // FIXME - re-init image Changed
+	int count[]  = { maxPointCount }; // FIXME - re-init image Changed
 	int flags = 0;
 	int validPoints = 0;
 
@@ -140,7 +140,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
-		if (count < maxPointCount) {
+		if (count[0] < maxPointCount) {
 			// current_features[count++] = new
 			// cxcore.CvPoint2D32f(event.getPoint().x(), event.getPoint().y());
 			pt.x(x);
@@ -160,7 +160,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	}
 
 	public void clearPoints() {
-		count = 0;
+		count[0] = 0;
 	}
 
 
@@ -226,22 +226,22 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		if (needTrackingPoints) // warm up camera TODO CFG
 		{
 
-			count = maxPointCount;
+			count[0] = maxPointCount;
 			// cvGoodFeaturesToTrack(grey, eig, temp, current_features,
 			// featurePointCount, quality, min_distance, mask, 3, 0, 0.04);
 			cvGoodFeaturesToTrack(grey, eig, temp, features, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
-			count = featurePointCount.getValue();
+			count[0] = featurePointCount.getValue();
 			needTrackingPoints = false;
 			log.info("good features found " + featurePointCount.getValue() + " points");
 
-		} else if (count > 0) // weird logic - but guarantees a swap after
+		} else if (count[0] > 0) // weird logic - but guarantees a swap after
 								// features are found
 		{
 
 			
 			//calcOpticalFlowPyrLK  (prev_grey, grey,                  points[0], points[1],    status, err, winSize, 3, termcrit, 0, 0.001);
-			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, features, count, cvSize(win_size, win_size), 3, status, error, termCrit, flags);
+			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, features, count[0], cvSize(win_size, win_size), 3, status, error, termCrit, flags);
 
 
 			flags |= CV_LKFLOW_PYR_A_READY;
@@ -275,7 +275,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
   
  
  */
-			if (count > 0 && publish) {
+			if (count[0] > 0 && publish) {
 				if (publishOpenCVObjects) {
 					myService.invoke("publish", (Object) features);
 				} else {
@@ -285,11 +285,11 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			}
 		}
 
-		if (add_remove_pt == 1 && count < maxPointCount) {
-			features.position(count).x(pt.x());
-			features.position(count).y(pt.y());
-			count++;
-			cvFindCornerSubPix(grey, features.position(count - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1),
+		if (add_remove_pt == 1 && count[0] < maxPointCount) {
+			features.position(count[0]).x(pt.x());
+			features.position(count[0]).y(pt.y());
+			count[0]++;
+			cvFindCornerSubPix(grey, features.position(count[0] - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1),
 					cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03));
 			add_remove_pt = 0;
 		}
