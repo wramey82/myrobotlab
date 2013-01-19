@@ -8,7 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 
-import org.myrobotlab.logging.Logger;
+import org.apache.log4j.Logger;
+
 
 /**
  * Class to help make life easier when instantiating objects using the String

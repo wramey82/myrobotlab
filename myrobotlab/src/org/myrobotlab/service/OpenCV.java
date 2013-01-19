@@ -807,6 +807,7 @@ public class OpenCV extends Service {
 		 opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
 		 opencv.setDisplayFilter("lkOpticalTrack1");
 
+		 Runtime.createAndStart("python", "Python");
 		//opencv.capture();
 
 		GUIService gui = new GUIService("opencv_gui");
