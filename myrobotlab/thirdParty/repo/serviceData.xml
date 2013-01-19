@@ -434,6 +434,7 @@
             <string>org.simpleframework.xml</string>
             <string>com.sun.speech.freetts</string>
             <string>org.apache.commons.httpclient</string>
+	        <string>javazoom.jl.player</string>
          </list>
       </dependsOn>
    </serviceType>
