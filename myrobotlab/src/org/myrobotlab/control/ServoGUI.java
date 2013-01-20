@@ -81,9 +81,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	private class SliderListener implements ChangeListener {
 		public void stateChanged(javax.swing.event.ChangeEvent e) {
 
-			// if (!slider.getValueIsAdjusting()) TODO !!!!! exciting !!!
-
-			boundPos.setText("" + slider.getValue());
+			boundPos.setText(String.format("%d",slider.getValue()));
 
 			if (myService != null) {
 				myService.send(boundServiceName, "moveTo", Integer.valueOf(slider.getValue()));
@@ -113,13 +111,6 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		input.add(slider, gc);
 		slider.addChangeListener(sliderListener);
 
-		++gc.gridx;
-		input.add(new JLabel(" "));
-		++gc.gridx;
-		boundPos = new JLabel("90");
-
-		input.add(boundPos, gc);
-
 		gc.gridwidth = 2;
 		gc.gridx = 1;
 		++gc.gridy;
@@ -144,22 +135,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		control.add(controller, gc);
 
 		++gc.gridx;
-		control.add(new JLabel("pin"), gc); // TODO build pin arrangement for
-											// Arduino - getValidPinsForServo in
-											// Interface
-
-		// FIXME - controller selection - generates a getPins() which populates
-		// pin JComboBox
-		/*
-		 * Vector<Integer> p = new Vector<Integer>(); p.addElement(1);
-		 * p.addElement(2); p.addElement(3); p.addElement(4); p.addElement(5);
-		 * p.addElement(6); p.addElement(7); p.addElement(8); p.addElement(9);
-		 * p.addElement(10); p.addElement(11); p.addElement(12);
-		 * p.addElement(13);
-		 */
-
-		// pin = new JComboBox(p);
-
+		control.add(new JLabel("pin"), gc); 
+		
 		++gc.gridx;
 		control.add(pin, gc);
 
@@ -176,6 +153,11 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		limits.add(new JLabel(" max "));
 		limits.add(posMax);
 
+		limits.add(new JLabel(" "));
+		boundPos = new JLabel("90");
+
+		limits.add(boundPos);
+		
 		display.add(limits, gc);
 
 		left.addActionListener(this);
