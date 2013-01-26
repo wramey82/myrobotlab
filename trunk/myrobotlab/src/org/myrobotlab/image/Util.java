@@ -411,5 +411,11 @@ public class Util {
 			return null;
 		}
 	}
+	
+	public static Color getGradient (int pos, int total)
+	{
+		float gradient = 1.0f / total;
+		return new Color(Color.HSBtoRGB((pos * (gradient)), 0.8f, 0.7f));
+	}
 
 }

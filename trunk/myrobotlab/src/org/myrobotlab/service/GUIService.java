@@ -424,28 +424,31 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.info("here");
 		}
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
-
-		if (gui != null) {
-			gui.init();
-			serviceGUIMap.put(serviceName, gui);
-			tabPanelMap.put(serviceName, gui.getDisplay());
-			gui.attachGUI();
-
-			tabs.addTab(serviceName, gui.getDisplay());
-
-			if (sw.isLocal()) {
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
-			} else {
-				// create hash color for hsv from accessURI
-				Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d", Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
-				int index = tabs.indexOfTab(serviceName);
-				tabs.setBackgroundAt(index, hsv);
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
-			}
-
-		} else {
-			log.warn("could not construct a " + guiClass + " object");
+		
+		if (gui == null)
+		{
+			log.warn("could not construct a " + guiClass + " object - creating generic template");
+			gui = (ServiceGUI) getNewInstance("org.myrobotlab.control._TemplateServiceGUI", se.getName(), this);
 		}
+
+		gui.init();
+		serviceGUIMap.put(serviceName, gui);
+		tabPanelMap.put(serviceName, gui.getDisplay());
+		gui.attachGUI();
+
+		tabs.addTab(serviceName, gui.getDisplay());
+
+		if (sw.isLocal()) {
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
+		} else {
+			// create hash color for hsv from accessURI
+			Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d", Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+			int index = tabs.indexOfTab(serviceName);
+			tabs.setBackgroundAt(index, hsv);
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
+		}
+
+		
 
 		return gui;
 	}

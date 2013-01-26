@@ -43,6 +43,13 @@ public class TrackingGUI extends ServiceGUI {
 	JLabel cnt = new JLabel("0");
 	JLabel latency = new JLabel("0");
 	JTextField status = new JTextField("", 20);
+	JLabel xp = new JLabel("0");
+	JLabel xi = new JLabel("0");
+	JLabel xd = new JLabel("0");
+	JLabel yp = new JLabel("0");
+	JLabel yi = new JLabel("0");
+	JLabel yd = new JLabel("0");
+	
 	VideoWidget video0 = null;
 
 	public TrackingGUI(final String boundServiceName, final GUI myService) {
@@ -52,6 +59,7 @@ public class TrackingGUI extends ServiceGUI {
 	public void init() {
 		video0 = new VideoWidget(boundServiceName, myService, false);
 		video0.init();
+		//video0.allowFork = true;
 
 		status.setEditable(false);
 
@@ -60,6 +68,19 @@ public class TrackingGUI extends ServiceGUI {
 		p.add(cnt);
 		p.add(new JLabel("latency "));
 		p.add(latency);
+		p.add(new JLabel("xp "));
+		p.add(xp);
+		p.add(new JLabel("xi "));
+		p.add(xi);
+		p.add(new JLabel("xd "));
+		p.add(xd);
+		
+		p.add(new JLabel("yp "));
+		p.add(yp);
+		p.add(new JLabel("yi "));
+		p.add(yi);
+		p.add(new JLabel("yd "));
+		p.add(yd);
 
 		display.setLayout(new BorderLayout());
 		display.add(video0.getDisplay(), BorderLayout.CENTER);

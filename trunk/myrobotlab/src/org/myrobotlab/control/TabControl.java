@@ -93,6 +93,12 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 * 
 	 */
 	public void undockPanel() {
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+
+		
 		parent.remove(myPanel);
 		if (boundServiceName.equals(getText())) {
 
@@ -134,6 +140,9 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		undocked.pack();
 		myService.getFrame().pack();
 		myService.save();
+
+			}
+		});
 
 	}
 

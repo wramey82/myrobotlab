@@ -25,6 +25,8 @@
 
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV;
 
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 
@@ -48,10 +51,13 @@ public abstract class OpenCVFilter implements Serializable {
 	HashMap<String, Object> storage = null;
 	
 	public boolean publish = false;
+	public boolean publishOpenCVObjects = false;
+	public boolean useFloatValues = true;
 	
-	int imageWidth;
-	int imageHeight;
-	int imageChannels;
+	int width;
+	int height;
+	int channels;
+	CvSize imageSize;
 
 	final static public String INPUT_IMAGE_NAME = "inputImageName";
 	final static public String OUTPUT_IMAGE_NAME = "outputImageName";
@@ -102,30 +108,17 @@ public abstract class OpenCVFilter implements Serializable {
 
 	public IplImage preProcess(IplImage frame) {
 		// TODO size or re-init based on change of channel or size - lastWidth lastHeight
-		if (frame.width() != imageWidth || frame.nChannels() != imageChannels)
+		if (frame.width() != width || frame.nChannels() != channels)
 		{
-			imageWidth = frame.width();
-			imageChannels = frame.nChannels();
-			imageHeight = frame.height();
+			width = frame.width();
+			channels = frame.nChannels();
+			height = frame.height();
+			imageSize = cvGetSize(frame);
 			imageChanged(frame);
 		}
 		return frame;
 	}
 	
-	public int width()
-	{
-		return imageWidth;
-	}
-	
-	public int height()
-	{
-		return imageHeight;
-	}
-	
-	public int channels()
-	{
-		return imageChannels;
-	}
 	
 	public abstract void imageChanged(IplImage frame);
 

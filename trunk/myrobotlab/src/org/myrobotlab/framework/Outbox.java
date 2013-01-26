@@ -116,7 +116,7 @@ public class Outbox implements Runnable, Serializable {
 			// TODO - clean up - (name || hostname && serviceport) &&
 			// outboxMsgHandling == RELAY
 			if (msg.getName().length() > 0 && myService.outboxMsgHandling.compareTo(Service.RELAY) == 0 || "S".equals(msg.msgType)) {
-				log.info("configured to RELAY " + msg.getName());
+				log.debug("configured to RELAY " + msg.getName());
 				comm.send(msg);
 
 			}
