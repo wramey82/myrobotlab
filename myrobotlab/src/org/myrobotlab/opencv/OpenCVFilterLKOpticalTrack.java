@@ -27,323 +27,258 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvFindCornerSubPix;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
-import static com.googlecode.javacv.cpp.opencv_video.CV_LKFLOW_PYR_A_READY;
 import static com.googlecode.javacv.cpp.opencv_video.cvCalcOpticalFlowPyrLK;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
 
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.CvTermCriteria;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.sun.jna.ptr.IntByReference;
 
 public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = Logger.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
-	
-	public boolean useFloatValues = false;
 
-	int i;
-
+	// good features related - use good features filter ????
 	// quality - Multiplier for the maxmin eigenvalue; specifies minimal
 	// accepted quality of image corners
-	double qualityLevel = 0.05;
+	public double qualityLevel = 0.05;
 	// minDistance - Limit, specifying minimum possible distance between
 	// returned corners; Euclidian distance is used
-	double minDistance = 5.0;
+	public double minDistance = 5.0;
 	// blockSize - Size of the averaging block, passed to underlying
 	// cvCornerMinEigenVal or cvCornerHarris used by the function
-	int blockSize = 3;
+	public int blockSize = 3;
 	// If nonzero, Harris operator (cvCornerHarris) is used instead of default
 	// cvCornerMinEigenVal.
-	int useHarris = 0;
+	public int useHarris = 0;
 	// Free parameter of Harris detector; used only if useHarris != 0
-	double k = 0.0;
+	public double k = 0.0;
 	
-	int add_remove_pt = 0;
+	public boolean clearPoints = false;
 
+	public ArrayList<Point2Df> pointsToPublish = new ArrayList<Point2Df>();
 
-	public int win_size = 31;
-	public int maxPointCount = 2;
+	public int MAX_POINT_COUNT = 30;
+	public boolean needTrackingPoints = false;
+	public boolean nightMode = false;
+	public boolean addRemovePt = false;
+	public int windowSize = 15;
 
-	byte[] status = new byte[maxPointCount]; // FIXME - re-init image Changed
-	float[] error = new float[maxPointCount]; // FIXME - re-init image Changed
-	int count[]  = { maxPointCount }; // FIXME - re-init image Changed
-	int flags = 0;
-	int validPoints = 0;
-
-	public boolean needTrackingPoints = true;
-
-	boolean publishOpenCVObjects = false; // TODO put in Parent
-
-	HashMap<String, Integer> stableIterations = null;
-	int[] corner_count = { maxPointCount };
+	private int[] count = { 0 };
+	byte[] status;
+	float[] error;
 	
-	// non serializable JavaCV / JNI related
-	transient IntByReference cornerCount = new IntByReference(maxPointCount);
-	transient CvPoint2D32f corners = null; // new way?
+	private boolean addRemovePoint = false;
 
-	transient CvPoint pt = new CvPoint(0, 0);
-	transient CvPoint circle_pt = new CvPoint(0, 0);
-	transient CvPoint dp0 = new CvPoint();
-	transient CvPoint dp1 = new CvPoint();
+	private Point2Df samplePoint = new Point2Df();
 
-	transient IntByReference featurePointCount = new IntByReference(maxPointCount);
-
-	transient IplImage image = null;
-	transient IplImage grey = null;
-	transient IplImage prev_grey = null;
-	transient IplImage pyramid = null;
-	transient IplImage prev_pyramid = null;
-	transient IplImage swap_temp = null;
-	transient IplImage eig = null;
-	transient IplImage temp = null;
-	transient IplImage mask = null;
-
-	transient CvPoint2D32f features = null;
-	transient CvPoint2D32f previous_features = null;
-	transient CvPoint2D32f saved_features = null;
-	transient CvPoint2D32f swap_points = null;
-
-	// init related
-	transient CvSize cvWinSize;
-	transient CvTermCriteria termCrit = cvTermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03);
-
-	// display related
+	// display graphic structures
 	transient Graphics2D graphics = null;
 	transient BufferedImage frameBuffer = null;
-	
+
+	// opencv data structures
+	transient CvTermCriteria termCriteria;
+	transient CvSize winSize;
+	transient IplImage preGrey, grey, eig, tmp, prePyramid, pyramid, swap, mask, image;
+	transient CvPoint2D32f prePoints, points, swapPoints;
 
 	public OpenCVFilterLKOpticalTrack(OpenCV service, String name) {
 		super(service, name);
 	}
 
+	@Override
+	public void imageChanged(IplImage frame) {
+
+		points = new CvPoint2D32f(MAX_POINT_COUNT);
+		prePoints = new CvPoint2D32f(MAX_POINT_COUNT);
+
+		eig = IplImage.create(imageSize, IPL_DEPTH_32F, 1);
+		tmp = IplImage.create(imageSize, IPL_DEPTH_32F, 1);
+
+		termCriteria = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
+
+		winSize = cvSize(windowSize, windowSize);
+
+		// CvSize pyr_sz = cvSize(preGrey.width + 8, grey.height / 3);
+		// prePyramid = cvCreateImage(pyr_sz, IPL_DEPTH_32F, 1);
+		// pyramid = cvCreateImage(pyr_sz, IPL_DEPTH_32F, 1);
+
+		status = new byte[MAX_POINT_COUNT];
+		error = new float[MAX_POINT_COUNT];
+	}
+
 	public void samplePoint(Integer x, Integer y) {
-		// MouseEvent me = (MouseEvent)params[0];
-		if (count[0] < maxPointCount) {
-			// current_features[count++] = new
-			// cxcore.CvPoint2D32f(event.getPoint().x(), event.getPoint().y());
-			pt.x(x);
-			pt.y(y);
-			add_remove_pt = 1;
+		if (count[0] < MAX_POINT_COUNT) {
+			samplePoint.x = x;
+			samplePoint.y = y;
+			addRemovePoint = true;
 		} else {
 			clearPoints();
 		}
-
-		// add_remove_pt = 0;
 	}
 
 	public void samplePoint(Float x, Float y) {
-
-		samplePoint((int) (x * width()), (int) (y * height()));
-
+		samplePoint((int) (x * width), (int) (y * height));
 	}
 
 	public void clearPoints() {
 		count[0] = 0;
+		clearPoints = false;
 	}
-
 
 	@Override
 	public BufferedImage display(IplImage frame, Object[] data) {
-
 		frameBuffer = frame.getBufferedImage();
 		graphics = frameBuffer.createGraphics();
 		graphics.setColor(Color.green);
+		float x, y;
+		int xPixel, yPixel;
+		for (int i = 0; i < pointsToPublish.size(); ++i) {
+			Point2Df point = pointsToPublish.get(i);
+			x = point.x;
+			y = point.y;
 
-		int validPoints = 0;
-		int pixelX;
-		int pixelY;
-		float x;
-		float y;
-
-		for (int i = 0; i < maxPointCount; ++i) {
-
-			x = features.position(i).x();
-			y = features.position(i).y();
-			pixelX = (int) x;
-			pixelY = (int) y;
-
-			if (status[i] == 1) {
-				++validPoints;
-				if (graphics != null) {
-					graphics.setColor(Color.red);
-					graphics.drawLine(pixelX - 2, pixelY, pixelX + 2, pixelY);
-					graphics.drawLine(pixelX, pixelY + 2, pixelX, pixelY - 2);
-					if (useFloatValues)
-					{
-						graphics.drawString(String.format("%.3f,%.3f", x / frame.width(), y / frame.height()), pixelX, pixelY);
-					} else {
-						graphics.drawString(String.format("%d,%d", pixelX, pixelY), pixelX, pixelY);						
-					}
-				}
+			// graphics.setColor(Color.red);
+			if (useFloatValues) {
+				xPixel = (int) (x * width);
+				yPixel = (int) (y * height);
+				graphics.drawLine(xPixel - 2, yPixel, xPixel + 2, yPixel);
+				graphics.drawLine(xPixel, yPixel + 2, xPixel, yPixel - 2);
+				graphics.drawString(String.format("%.3f,%.3f", x, y), xPixel, yPixel);
+			} else {
+				xPixel = (int) x;
+				yPixel = (int) y;
+				graphics.drawLine(xPixel - 2, yPixel, xPixel + 2, yPixel);
+				graphics.drawLine(xPixel, yPixel + 2, xPixel, yPixel - 2);
+				graphics.drawString(String.format("%d,%d", xPixel, yPixel), xPixel, yPixel);
 			}
 		}
 
-		if (graphics != null) {
-			graphics.drawString("valid " + validPoints, 10, 10);
-		}
-
-		// TODO - check if this is correct dispose after ever new frame?
-		if (graphics != null) {
-			graphics.dispose();
-		}
-		graphics = null;
+		graphics.drawString(String.format("valid %d", pointsToPublish.size()), 10, 10);
 
 		return frameBuffer;
 	}
 
-
 	@Override
 	public IplImage process(IplImage frame) {
 
-		if (frame.nChannels() == 3) {
+		if (channels == 3) {
+			grey = IplImage.create(imageSize, 8, 1); // FIXME copy don't create
 			cvCvtColor(frame, grey, CV_BGR2GRAY);
 		} else {
-			cvCopy(frame, grey);
+			grey = frame;
+		}
+		
+		if (clearPoints)
+		{
+			clearPoints();
+			pointsToPublish.clear();
 		}
 
-		if (needTrackingPoints) // warm up camera TODO CFG
-		{
-
-			count[0] = maxPointCount;
-			// cvGoodFeaturesToTrack(grey, eig, temp, current_features,
-			// featurePointCount, quality, min_distance, mask, 3, 0, 0.04);
-			cvGoodFeaturesToTrack(grey, eig, temp, features, corner_count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
-
-			count[0] = featurePointCount.getValue();
-			needTrackingPoints = false;
-			log.info("good features found " + featurePointCount.getValue() + " points");
-
-		} else if (count[0] > 0) // weird logic - but guarantees a swap after
-								// features are found
-		{
-
-			
-			//calcOpticalFlowPyrLK  (prev_grey, grey,                  points[0], points[1],    status, err, winSize, 3, termcrit, 0, 0.001);
-			cvCalcOpticalFlowPyrLK(prev_grey, grey, prev_pyramid, pyramid, previous_features, features, count[0], cvSize(win_size, win_size), 3, status, error, termCrit, flags);
-
-
-			flags |= CV_LKFLOW_PYR_A_READY;
-			int k = 0;
-			
+		if (addRemovePoint && count[0] < MAX_POINT_COUNT) {
+			prePoints.position(count[0]).x(samplePoint.x);
+			prePoints.position(count[0]).y(samplePoint.y);
+			count[0]++;
+			// why bother
+			//cvFindCornerSubPix(grey, features.position(count[0] - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1), cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03));
+			addRemovePoint = false;
+		}
 		
-/*
-			for (i = k = 0; i < count; i++) {
-				if (add_remove_pt == 1) {
-					double dx = pt.x() - current_features.position(i).x();
-					double dy = pt.y() - current_features.position(i).y();
+		if (preGrey != null) { // need at least 2 images to track
 
-					if (dx * dx + dy * dy <= 25) // what the hell?
-					{
-						add_remove_pt = 0;
+			int win_size = 15;
+
+			if (needTrackingPoints) { // use good features filter ?
+				count[0] = MAX_POINT_COUNT;
+				cvGoodFeaturesToTrack(preGrey, eig, tmp, prePoints, count, 0.05, 5.0, mask, 3, 0, 0.04);
+				// why should I find sub-pixel resolution ???
+				// cvFindCornerSubPix(preGrey, prePoints, count[0],
+				// cvSize(win_size, win_size), cvSize(-1, -1),
+				// cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20,
+				// 0.03));
+				needTrackingPoints = false;
+			}
+
+			if (count[0] > 0) {
+
+				// Call Lucas Kanade algorithm
+				// clear status and error arrays
+				for (int i = 0; i < MAX_POINT_COUNT; ++i) {
+					status[i] = 0;
+					error[i] = 0.0f;
+				}
+
+//				CvPoint2D32f points = new CvPoint2D32f(MAX_POINT_COUNT); // WTF?
+																			
+
+				cvCalcOpticalFlowPyrLK(preGrey, grey, null, null, prePoints, points, count[0], cvSize(win_size, win_size), 5, status, error,
+						cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.3), 0);
+
+				/*
+				 * getting ready to publish - so let's use Pojos - not JNI
+				 * OpenCV nor Swing because remote consumers may not have those
+				 * definitions available (e.g. Android)
+				 */
+				pointsToPublish = new ArrayList<Point2Df>();
+				int validPointCount = 0;
+				float x, y;
+				for (int i = 0; i < count[0]; i++) {
+					if (status[i] == 0 || error[i] > 550) {
+						// System.out.println("Error is " + error[i] + "/n");
 						continue;
 					}
-				}
+					++validPointCount;
+					prePoints.position(i);
+					points.position(i);
+	
+					x = points.x();
+					y = points.y();
+					log.debug(String.format("%d %s, %s", i, x, y));
 
-				if (status[i] == 0)
-					continue;
-				++k;
-				current_features.position(k).x(current_features.position(i).x());
-				current_features.position(k).y(current_features.position(i).y());
-				// circle_pt.x((int) current_features[i].x());
-				// circle_pt.y((int) current_features[i].y());
-				// cxcore.cvCircle( frame, circle_pt, 1,
-				// cxcore.CV_RGB(255, 0,0), -1, 8,0);
-			}
-//			count = k;
-  
- 
- */
-			if (count[0] > 0 && publish) {
-				if (publishOpenCVObjects) {
-					myService.invoke("publish", (Object) features);
-				} else {
-					CvPoint2D32f p = features;
-					myService.invoke("publish", new Point2Df(p.x() / frame.width(), p.y() / frame.height()));
+					// puting new points in previous buffer
+					prePoints.put(points.get());
+
+					// you have to "re-position" after a get ?? YOWZA
+					// points.position(i);
+					if (useFloatValues) {
+						pointsToPublish.add(new Point2Df(x / width, y / height));
+					} else {
+						pointsToPublish.add(new Point2Df(x, y));
+					}
+					// cvLine(imgC, p0, p1, CV_RGB(255, 0, 0), 2, 8, 0);
 				}
+				count[0] = validPointCount;
+				
+				myService.invoke("publish", pointsToPublish); 
+
 			}
+
 		}
 
-		if (add_remove_pt == 1 && count[0] < maxPointCount) {
-			features.position(count[0]).x(pt.x());
-			features.position(count[0]).y(pt.y());
-			count[0]++;
-			cvFindCornerSubPix(grey, features.position(count[0] - 1), 1, cvSize(win_size, win_size), cvSize(-1, -1),
-					cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03));
-			add_remove_pt = 0;
-		}
 
-		swap_temp = prev_grey;
-		prev_grey = grey;
-		grey = swap_temp;
-
-		swap_temp = prev_pyramid;
-		prev_pyramid = pyramid;
-		pyramid = swap_temp;
-
-		swap_points = previous_features;
-		previous_features = features;
-		features = swap_points;
-
-		// TODO - possible instead of having a "display" but to
-		// add the changes depending on config
-		// display(frame);
+		// swap
+		// TODO - release what preGrey pointed to?
+		preGrey = grey;
+		// prePyramid = pyramid;
 
 		return frame;
-	}
-
-
-	@Override
-	public void imageChanged(IplImage frame) {
-		
-		// initialize
-		featurePointCount.setValue(maxPointCount);
-		cvWinSize = cvSize(win_size, win_size);
-		termCrit = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
-
-		// allocate all the buffers 
-		image = cvCreateImage(cvGetSize(frame), 8, 3);
-		image.origin(frame.origin());
-		grey = cvCreateImage(cvGetSize(frame), 8, 1);
-		prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
-		pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
-		prev_pyramid = cvCreateImage(cvGetSize(frame), 8, 1);
-
-		mask = null; // TODO - create maskROI FROM motion template !!!
-		features = new CvPoint2D32f(maxPointCount);
-		previous_features = new CvPoint2D32f(maxPointCount);
-		saved_features = new CvPoint2D32f(maxPointCount);
-
-		// init get good features
-		corners = new CvPoint2D32f(maxPointCount);
-
-		flags = 0;
-		eig = cvCreateImage(cvGetSize(grey), 32, 1);
-		temp = cvCreateImage(cvGetSize(grey), 32, 1);
-		add_remove_pt = 0;
-		cornerCount.setValue(maxPointCount);
-
 	}
 
 }

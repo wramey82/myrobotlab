@@ -20,41 +20,55 @@ public class ControlSystem {
 	public final static Logger log = Logger.getLogger(ControlSystem.class.getCanonicalName());
 
 	// private boolean isRunning = false;
-	private Servo pan;
-	private Servo tilt;
+	private Servo x;
+	private Servo y;
+	
 
-	/*
-	 * public void run() { isRunning = true; while(isRunning) {
-	 * 
-	 * } }
-	 * 
-	 * 
-	 * public void release() { isRunning = false; }
-	 */
-
-	public void setServoX(Servo x) {
-		this.pan = x;
+	// default 2 servos
+	public void init()
+	{
+		this.x = new Servo("x");
+		this.y = new Servo("y");
+	}
+	
+	// externally defined servos
+	public void init(Servo x, Servo y)
+	{
+		this.x = x;
+		this.y = y;
 	}
 
-	public void setServoY(Servo y) {
-		this.tilt = y;
+	public void moveXTo(double pos) {
+		x.moveTo((int)Math.round(pos));
 	}
 
-	public void moveXTo(int pos) {
-		pan.moveTo(pos);
+	public void moveYTo(double pos) {
+		y.moveTo((int)Math.round(pos));
 	}
 
-	public void moveYTo(int pos) {
-		tilt.moveTo(pos);
+	public int getMinX()
+	{
+		return x.getPositionMin();
 	}
 
-	public void center() {
-		tilt.moveTo(90);
-		pan.moveTo(90);
+	public int getMaxX()
+	{
+		return x.getPositionMax();
 	}
 
+	public int getMinY()
+	{
+		return y.getPositionMin();
+	}
+
+	public int getMaxY()
+	{
+		return y.getPositionMax();
+	}
+
+	
 	public boolean isReady() {
-		if (pan != null && tilt != null && pan.isAttached() && tilt.isAttached()) {
+		if (x != null && y != null && x.isAttached() && y.isAttached()) {
 			return true;
 		}
 

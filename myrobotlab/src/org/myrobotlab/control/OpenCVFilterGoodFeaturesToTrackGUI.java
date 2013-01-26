@@ -159,7 +159,7 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 				minDistance.setValue((int) bf.minDistance);
 		
 				qualityLevel.setValue((int) bf.qualityLevel * 100);
-				qualityLevel.value.setText(String.format("%d",bf.qualityLevel));
+				qualityLevel.value.setText(String.format("%f",bf.qualityLevel));
 		
 				blockSize.setValue((int) bf.blockSize);
 		

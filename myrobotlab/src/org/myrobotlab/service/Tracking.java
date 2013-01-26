@@ -43,6 +43,10 @@ public class Tracking extends Service {
 
 	public final static Logger log = Logger.getLogger(Tracking.class.getCanonicalName());
 
+	// References :
+	// image stitching - http://www.youtube.com/watch?v=a5OK6bwke3I using surf -
+	// with nice readout of fps, matches, surf pts etc
+
 	// TODO - Avoidance / Navigation Service
 	// ground plane
 	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
@@ -100,6 +104,8 @@ public class Tracking extends Service {
 	 * TODO - abstract to support OpenNI ObjectFinder finder = new
 	 * ObjectFinder(); ObjectTracker tracker = new ObjectTracker();
 	 */
+
+	transient PID xpid, ypid;
 	transient OpenCV opencv;
 	transient ControlSystem control = new ControlSystem();
 
@@ -127,6 +133,10 @@ public class Tracking extends Service {
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
+
+		// FIXME - start OpenCV here based on config !
+		xpid = new PID("xpid");
+		ypid = new PID("ypid");
 	}
 
 	@Override
@@ -147,31 +157,31 @@ public class Tracking extends Service {
 		opencv.removeAllFilters();
 
 		// get good features
-		opencv.addFilter("pd", "PyramidDown");
-		opencv.addFilter("gft", "GoodFeaturesToTrack");
+		opencv.addFilter("pyramidDown", "PyramidDown");
+		opencv.addFilter("goodFeaturesToTrack", "GoodFeaturesToTrack");
 		// opencv.publishFilterData("gft"); FIXME - doesnt work yet
-		opencv.setDisplayFilter("gft"); // <-- IMPORTANT this sets the frame
-										// which will get published - you can
-										// select off of any named filter which
-										// you want data from
+		opencv.setDisplayFilter("goodFeaturesToTrack"); // <-- IMPORTANT this
+														// sets the frame
+		// which will get published - you can
+		// select off of any named filter which
+		// you want data from
 		setStatus("letting camera warm up and balance");
 		opencv.capture();
 
 		// pause - warm up camera
 		setStatus("letting camera warm up and balance");
-		sleep(2000);
+		sleep(4000);
 
 		// set the message route - TODO - encapsulate this in an OpenCV method?
-		subscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
-		subscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
 
 		// TODO - these are nice methods - need to incorporate a framework which
 		// supports them
-		double[] goodfeatures = GoodFeaturesToTrack();
+		ArrayList<Point2Df> goodfeatures = GoodFeaturesToTrack();
 		SerializableImage goodfeaturesImage = getOpenCVImageData();
-		goodfeaturesImage.source = "GoodFeaturesToTrack";
+		goodfeaturesImage.source = "goodFeaturesToTrack";
 
-		targetPoint = findPointFarthestFromCenter(goodfeatures);
+		// FIXME - NOT EDGE 8% away ? AND HIGH GoodFeaturesTrak value !!!
+		targetPoint = findPoint(goodfeatures, DIRECTION_CLOSEST_TO_CENTER, 0.5);
 
 		invoke("publishFrame", goodfeaturesImage);
 
@@ -185,21 +195,23 @@ public class Tracking extends Service {
 		// set filters
 		opencv.removeAllFilters();
 		opencv.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
-		opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
-		opencv.setDisplayFilter("lkOpticalTrack1");
+		opencv.addFilter("lkOpticalTrack", "LKOpticalTrack");
+		opencv.setDisplayFilter("lkOpticalTrack");
+
+		sleep(500); // allow the filters to fall into place
 
 		// set point
-		opencv.invokeFilterMethod("lkOpticalTrack1", "samplePoint", targetPoint.x, targetPoint.y);
+		opencv.invokeFilterMethod("lkOpticalTrack", "samplePoint", targetPoint.x, targetPoint.y);
 
 		SerializableImage lk = getOpenCVImageData();
-		lk.source = "LKOpticalTrack";
+		lk.source = "lkOpticalTrack";
 		invoke("publishFrame", goodfeaturesImage);
 
 		// sendBlockingWithTimeout(1000, name, method, data)
 		// opencv.setCameraIndex(1);
 
 		// subscribe
-		subscribe("publish", opencv.getName(), "updateTrackingPoint", Point2Df.class);
+		subscribe("publish", opencv.getName(), "updateTrackingPoint", ArrayList.class);
 
 		// don't move - calculate error & latency
 
@@ -214,53 +226,113 @@ public class Tracking extends Service {
 		return image;
 	}
 
-	float targetDistance = 0.0f;
+	double targetDistance = 0.0f;
 	Point2Df goodFeaturePoint = null;
+
+	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
+	final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
+	final static public String DIRECTION_FARTHEST_LEFT = "DIRECTION_FARTHEST_LEFT";
+	final static public String DIRECTION_FARTHEST_RIGHT = "DIRECTION_FARTHEST_RIGHT";
+	final static public String DIRECTION_FARTHEST_TOP = "DIRECTION_FARTHEST_TOP";
+	final static public String DIRECTION_FARTHEST_BOTTOM = "DIRECTION_FARTHEST_BOTTOM";
+
+	Point2Df findPoint(ArrayList<Point2Df> data, String direction) {
+		return findPoint(data, direction, null);
+	}
 
 	/**
 	 * @param data
 	 *            - input data of good features
 	 * @return a point on the edge of the view farthest from center
 	 */
-	Point2Df findPointFarthestFromCenter(double[] data) {
-		float farthestX = 0.0f;
-		float farthestY = 0.0f;
+	Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
 
-		float distance = 0.0f;
-		targetDistance = 0.0f;
+		double distance = 0;
 		int index = 0;
 
-		for (int i = 0; i < data.length / 2; ++i) {
-			distance = (float) Math.sqrt(Math.pow((0.5 - data[i]), 2) + Math.pow((0.5 - data[i + 1]), 2));
-			if (distance > targetDistance) {
-				targetDistance = distance;
-				index = i;
+		if (data == null || data.size() == 0) {
+			log.error("no data");
+			return null;
+		}
+
+		if (minValue == null) {
+			minValue = 0.0;
+		}
+
+		if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
+			targetDistance = 1;
+		} else {
+			targetDistance = 0;
+		}
+
+		for (int i = 0; i < data.size(); ++i) {
+			Point2Df point = data.get(i);
+
+			if (DIRECTION_FARTHEST_FROM_CENTER.equals(direction)) {
+				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
+				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_LEFT.equals(direction)) {
+				distance = point.x;
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_RIGHT.equals(direction)) {
+				distance = point.x;
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_TOP.equals(direction)) {
+				distance = point.y;
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_BOTTOM.equals(direction)) {
+				distance = point.y;
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
 			}
 
 		}
 
-		Point2Df p = new Point2Df((float) data[index], (float) data[index + 1]);
+		Point2Df p = data.get(index);
 		log.info(String.format("findPointFarthestFromCenter %s", p));
 		return p;
 	}
 
-	public double[] GoodFeaturesToTrack(double[] data) {
+	// call back for point data
+	public ArrayList<Point2Df> GoodFeaturesToTrack(ArrayList<Point2Df> data) {
 		opencvData.add(data);
 		return data;
 	}
 
-	BlockingQueue<double[]> opencvData = new LinkedBlockingQueue<double[]>();
+	BlockingQueue<ArrayList<Point2Df>> opencvData = new LinkedBlockingQueue<ArrayList<Point2Df>>();
 	BlockingQueue<SerializableImage> opencvImageData = new LinkedBlockingQueue<SerializableImage>();
 	boolean interrupted = false;
 
 	// TODO - bundle epi-filter & config data with this method in OpenCV for
 	// those who what to block on a method
-	public double[] GoodFeaturesToTrack() {
-		double[] goodfeatures = null;
+	public ArrayList<Point2Df> GoodFeaturesToTrack() {
+		ArrayList<Point2Df> goodfeatures = null;
 		try {
 			opencvData.clear();
+			subscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
 			while (!interrupted) {
 				goodfeatures = opencvData.take();
+				unsubscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
 				return goodfeatures;
 			}
 		} catch (InterruptedException e) {
@@ -279,8 +351,10 @@ public class Tracking extends Service {
 		SerializableImage image = null;
 		try {
 			opencvData.clear();
+			subscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
 			while (!interrupted) {
 				image = opencvImageData.take();
+				unsubscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
 				return image;
 			}
 		} catch (InterruptedException e) {
@@ -291,16 +365,29 @@ public class Tracking extends Service {
 	}
 
 	// FIXME - remove OpenCV definitions
-	final public void updateTrackingPoint(Point2Df pt) {
+	final public void updateTrackingPoint(ArrayList<Point2Df> data) {
 		++cnt;
 
-		if (cnt % updateModulus == 0) {
-			broadcastState();
+
+		if (data.size() > 0) {
+			targetPoint = data.get(0);
+			latency = System.currentTimeMillis() - targetPoint.timestamp;
+			log.debug(String.format("pt %s", targetPoint));
+			
+			xpid.setInput(targetPoint.x);
+			ypid.setInput(targetPoint.y);
+
+			control.moveXTo(xpid.Compute());
+			control.moveYTo(ypid.Compute());
+			
+			lastPoint = targetPoint;
+
 		}
 
-		latency = System.currentTimeMillis() - pt.timestamp;
+		if (cnt % updateModulus == 0) {
+			broadcastState(); // update graphics ?
+		}
 
-		log.debug(String.format("pt %s", pt));
 		/*
 		 * trackX((int)pt.x); trackY((int)pt.y);
 		 */
@@ -339,12 +426,37 @@ public class Tracking extends Service {
 		this.opencv = opencv;
 	}
 
-	public void attachControlX(Servo servo) {
-		control.setServoX(servo);
+	public void initTracking() {
+		// object tracker
+		// clear filters
+		// add filters ? PyramidDown?
+
+		// initialize - begin ----------
+		// set center
+		xpid.setSetpoint(0.5);
+		ypid.setSetpoint(0.5);
+
+		xpid.setInputRange(0, 1);
+		ypid.setInputRange(0, 1);
+
+		// FIXME based on values from Servo Limits !!!
+		xpid.setOutputRange(0, 1); // controller does the translation for
+									// specific implementation servo, motor,
+									// other
+		ypid.setOutputRange(0, 1);
+		// initialize - end ----------
+
 	}
 
-	public void attachControlY(Servo servo) {
-		control.setServoY(servo);
+	// threaded ?
+	public void trackPoint(Point2Df point) {
+
+		xpid.setInput(point.x);
+		ypid.setInput(point.y);
+
+		control.moveXTo(xpid.Compute());
+		control.moveYTo(ypid.Compute());
+
 	}
 
 	public static void main(String[] args) {

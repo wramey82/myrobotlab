@@ -54,8 +54,6 @@ public class PID extends Service {
 
 	double tolerance = 1.0;
 
-	boolean isContinuous = false;
-
 	double errorSum = 0;
 	double lastError = 0;
 
@@ -95,7 +93,7 @@ public class PID extends Service {
 		return output;
 	}
 
-	public void setInput(int i) {
+	public void setInput(double i) {
 		// TODO - limit with min/max
 		input = i;
 		lastTime = System.currentTimeMillis();
@@ -122,14 +120,6 @@ public class PID extends Service {
 	 */
 	public void setTolerance(double percent) {
 		this.tolerance = percent;
-	}
-
-	public void setContinuous() {
-		setContinuous(true);
-	}
-
-	public void setContinuous(boolean v) {
-		isContinuous = v;
 	}
 
 	public boolean onTarget() {
