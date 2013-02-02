@@ -50,9 +50,7 @@ public class SensorMonitor extends Service {
 		super(n, SensorMonitor.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public final void addTrigger(Trigger trigger) {
 		if (trigger.pinData.source == null) {

@@ -98,10 +98,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 		super(n, PICAXE.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
 
-	}
 
 	// TODO - how
 	public void setPulseDataType(PulseDataType t) {

@@ -44,9 +44,7 @@ public class GeneticProgramming extends Service {
 		super(n, GeneticProgramming.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	Thread p = null;
 

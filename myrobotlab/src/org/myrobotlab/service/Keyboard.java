@@ -14,11 +14,6 @@ public class Keyboard extends Service {
 		super(n, Keyboard.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	public String keyCommand(String cmd) {
 		return cmd;
 	}

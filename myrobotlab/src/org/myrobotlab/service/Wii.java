@@ -83,9 +83,7 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 		super(n, Wii.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	// TODO - support shutdown()
 	public void onButtonsEvent(WiimoteButtonsEvent arg0) {

@@ -19,11 +19,6 @@ public class MagaBot extends Service {
 		super(n, MagaBot.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	SerialDevice serialDevice = null;
 	private boolean isInitialized = false;
 

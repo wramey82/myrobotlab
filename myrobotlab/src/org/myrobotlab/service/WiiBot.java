@@ -51,9 +51,7 @@ public class WiiBot extends Service {
 		super(n, WiiBot.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void startRobot() {
 		arduino = new Arduino("arduino");

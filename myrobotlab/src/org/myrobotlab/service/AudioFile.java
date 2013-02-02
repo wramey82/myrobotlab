@@ -56,9 +56,7 @@ public class AudioFile extends Service {
 		super(n, AudioFile.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void play(String name) {
 		playFile("audioFile/" + name + ".mp3", false);

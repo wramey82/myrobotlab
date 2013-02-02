@@ -86,9 +86,7 @@ public class RemoteAdapter extends Service {
 		super(n, RemoteAdapter.class.getCanonicalName(), hostname);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	@Override
 	public boolean isReady() {

@@ -22,11 +22,6 @@ public class Serializer extends Service {
 		super(n, Serializer.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	public boolean store(Node n) {
 
 		Connection conn = null;

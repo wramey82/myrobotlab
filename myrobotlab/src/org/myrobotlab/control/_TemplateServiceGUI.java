@@ -49,13 +49,13 @@ public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", _TemplateServiceGUI.class);
+		//subscribe("publishState", "getState", _TemplateServiceGUI.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", _TemplateServiceGUI.class);
+		//unsubscribe("publishState", "getState", _TemplateServiceGUI.class);
 	}
 
 	@Override

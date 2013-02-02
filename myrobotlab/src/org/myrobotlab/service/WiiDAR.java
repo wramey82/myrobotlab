@@ -147,9 +147,7 @@ public class WiiDAR extends Service {
 		super(n, WiiDAR.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	// publishing points begin ---------------
 	public Integer setServoLeftMax(Integer max) {

@@ -58,9 +58,7 @@ public class PlayerStage extends Service {
 		super(n, PlayerStage.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	// define minimum/maximum allowed values for the SONAR sensors
 	static float SONAR_MIN_VALUE = 0.2f;

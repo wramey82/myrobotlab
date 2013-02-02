@@ -179,10 +179,7 @@ public class ChessGame extends Service {
 		return s;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
 
-	}
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		org.apache.log4j.BasicConfigurator.configure();

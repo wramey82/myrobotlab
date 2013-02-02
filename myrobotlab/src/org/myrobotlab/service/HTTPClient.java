@@ -55,12 +55,6 @@ public class HTTPClient extends Service {
 		super(n, HTTPClient.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
 	public static String parse(String in, String beginTag, String endTag) {
 		int pos0 = in.indexOf(beginTag);
 		int pos1 = in.indexOf(endTag, pos0);

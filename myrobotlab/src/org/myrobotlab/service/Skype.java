@@ -13,12 +13,7 @@ public class Skype extends Service {
 	public Skype(String n) {
 		super(n, Skype.class.getCanonicalName());
 	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
+	
 	@Override
 	public String getToolTip() {
 		return "used as a general template";

@@ -45,11 +45,6 @@ public class GestureRecognition extends Service implements VideoSource {
 	}
 
 	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}

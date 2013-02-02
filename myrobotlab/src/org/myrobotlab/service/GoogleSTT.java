@@ -110,9 +110,7 @@ public class GoogleSTT extends Service {
 		encoder = new FLAC_FileEncoder();
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	private AudioFormat getAudioFormat() {
 		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);

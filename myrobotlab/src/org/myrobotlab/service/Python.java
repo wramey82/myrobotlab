@@ -303,11 +303,6 @@ public class Python extends Service {
 		return "Python IDE";
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	/**
 	 * 
 	 * @param data

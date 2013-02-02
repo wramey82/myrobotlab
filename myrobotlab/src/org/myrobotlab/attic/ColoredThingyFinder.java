@@ -111,10 +111,6 @@ public class ColoredThingyFinder extends Service {
 		super(n, ColoredThingyFinder.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-		cfg.set("interval", 1000);
-	}
 
 	public String setServoX(String name) {
 		servoX = name;

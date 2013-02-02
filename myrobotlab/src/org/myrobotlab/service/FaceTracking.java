@@ -84,9 +84,7 @@ public class FaceTracking extends Service {
 
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void startTracking() {
 	}

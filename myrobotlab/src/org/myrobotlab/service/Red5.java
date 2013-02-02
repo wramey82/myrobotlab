@@ -15,11 +15,6 @@ public class Red5 extends Service {
 	}
 
 	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	@Override
 	public String getToolTip() {
 		return "Red5 video/audio streaming service";
 	}

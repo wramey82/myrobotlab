@@ -59,11 +59,7 @@ public class Android extends Service implements SensorEventListener {
 		log.info("got registered event " + n);
 		return n;
 	}
-	
-	@Override
-	public void loadDefaultConfiguration() {	
-	}
-	
+		
 	public void setContext(Context context)
 	{
 		this.context = context;

@@ -428,11 +428,6 @@ public class InMoov extends Service {
 	}
 
 	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	@Override
 	public String getToolTip() {
 		return "the InMoov Service";
 	}

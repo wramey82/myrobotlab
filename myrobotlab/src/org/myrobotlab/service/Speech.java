@@ -113,9 +113,6 @@ public class Speech extends Service {
 		googleLanguageMap.put("portuguese", "pt");
 	}
 
-	public void loadDefaultConfiguration() {
-	}
-
 	// having this synchronization and frontend type
 	// will probably negate the need for a isSpeaking event
 	@SuppressWarnings("unused")

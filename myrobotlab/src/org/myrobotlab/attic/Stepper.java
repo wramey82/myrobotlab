@@ -72,10 +72,6 @@ public class Stepper extends Service {
 		super(name, Stepper.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void attach(String controllerName, int PWRPin, int DIRPin) {
 		this.controllerName = controllerName;
 		this.PWRPin = PWRPin;

@@ -47,9 +47,7 @@ public class Arm extends Service {
 		super(n, Arm.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void startRobot() {
 	}

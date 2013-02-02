@@ -45,9 +45,7 @@ public class SLAM extends Service {
 		super(n, SLAM.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	@Override
 	public String getToolTip() {

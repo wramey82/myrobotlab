@@ -61,9 +61,7 @@ public class AudioCapture extends Service {
 		super(n, AudioCapture.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	// This method creates and returns an
 	// AudioFormat object for a given set

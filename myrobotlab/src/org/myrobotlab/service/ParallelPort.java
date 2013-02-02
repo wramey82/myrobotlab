@@ -36,21 +36,16 @@ import org.myrobotlab.framework.Service;
 
 public class ParallelPort extends Service {
 
+	private static OutputStream outputStream;;
+	private static gnu.io.ParallelPort parallelPort;
+	private static CommPortIdentifier port;
+
+
 	private static final long serialVersionUID = 1L;
 
 	public ParallelPort(String name) {
 		super(name, ParallelPort.class.getCanonicalName());
 	}
-
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-
-	}
-
-	private static OutputStream outputStream;;
-	private static gnu.io.ParallelPort parallelPort;
-	private static CommPortIdentifier port;
 
 	// CONSTANTS
 	public static final String PARALLEL_PORT = "LPT1";

@@ -41,9 +41,7 @@ public class JFugue extends Service {
 		super(n, JFugue.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void play(String s) {
 		player.play(s);

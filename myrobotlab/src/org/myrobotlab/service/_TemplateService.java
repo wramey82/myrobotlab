@@ -15,11 +15,6 @@ public class _TemplateService extends Service {
 	}
 
 	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}

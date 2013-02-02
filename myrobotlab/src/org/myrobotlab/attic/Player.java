@@ -56,12 +56,6 @@ public class Player extends Service {
 		super(n, Player.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-		// TODO Auto-generated method stub
-		// cfg.set("playerType", "player"); TODO - mess with this later
-	}
-
 	public String setGUIName(String guiname) {
 		GUIName = guiname;
 		return GUIName;

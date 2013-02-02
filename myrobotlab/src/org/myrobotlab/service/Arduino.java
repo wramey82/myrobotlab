@@ -359,9 +359,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return serialDeviceNames;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);

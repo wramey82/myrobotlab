@@ -65,9 +65,7 @@ public class Servo extends Service implements ServoControl {
 		load();
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	@Override
 	public boolean setController(ServoController controller) {

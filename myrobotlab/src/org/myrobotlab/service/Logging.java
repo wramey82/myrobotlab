@@ -48,9 +48,7 @@ public class Logging extends Service {
 		super(n, Logging.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public Message log(Message m) {
 		log.info("log message from " + m.sender + "." + m.data); // TODO -

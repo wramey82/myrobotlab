@@ -31,11 +31,6 @@ public class Proxy extends Service {
 	}
 
 	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	@Override
 	public String getToolTip() {
 		return "a Proxy service capable of proxying classes which can not or should not be created";
 	}
