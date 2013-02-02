@@ -339,7 +339,7 @@ mail.to=someone@somewhere.com
 			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
 			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
 			<classpath>
-				<fileset dir="./libraries/jar">
+				<fileset dir="${dist}/libraries/jar">
 					<include name="*.jar" />
 				</fileset>
 			</classpath>
