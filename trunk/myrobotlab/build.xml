@@ -346,7 +346,7 @@ mail.to=someone@somewhere.com
 		</javadoc>
 	</target>
 
-	<target name="upload" depends="report" description="upload to google code" >
+	<target name="upload" depends="report, javadoc" description="upload to google code" >
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
