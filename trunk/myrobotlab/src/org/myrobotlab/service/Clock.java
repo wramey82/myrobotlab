@@ -166,10 +166,7 @@ public class Clock extends Service {
 		super(n, Clock.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
 
-	}
 
 	// TODO - how
 	public void setPulseDataType(PulseDataType t) {

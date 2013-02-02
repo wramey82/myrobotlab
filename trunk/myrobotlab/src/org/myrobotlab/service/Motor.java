@@ -109,9 +109,7 @@ public class Motor extends Service implements MotorControl {
 		super(name, Motor.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	// --------- Motor (front end) API Begin ----------------------------
 	/*

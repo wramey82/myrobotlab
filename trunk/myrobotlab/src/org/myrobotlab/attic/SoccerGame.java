@@ -80,10 +80,6 @@ public class SoccerGame extends Service {
 		super(n, SoccerGame.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	/*
 	 * class Pinger implements Runnable {
 	 * 

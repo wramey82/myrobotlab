@@ -67,9 +67,7 @@ public class Graphics extends Service {
 		this.guiServiceName = null;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void createGraph() {
 		createGraph(width, height);

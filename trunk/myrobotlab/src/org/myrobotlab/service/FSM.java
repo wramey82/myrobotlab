@@ -62,10 +62,7 @@ public class FSM extends Service {
 		return newState;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
 
-	}
 
 	@Override
 	public String getToolTip() {

@@ -3,7 +3,6 @@ package org.myrobotlab.service;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.data.Pin;
@@ -54,10 +53,6 @@ public class ThingSpeak extends Service {
 
 	public void saveConfig() {
 		save();
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
 	}
 
 	@Override

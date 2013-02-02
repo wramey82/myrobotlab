@@ -54,9 +54,7 @@ public class RecorderPlayer extends Service {
 		super(n, RecorderPlayer.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void play() {
 		int deltaMsgTime = 0;

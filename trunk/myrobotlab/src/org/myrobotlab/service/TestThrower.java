@@ -53,9 +53,7 @@ public class TestThrower extends Service {
 		super(n, TestThrower.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public Integer catchInteger(Integer count) {
 		log.info("***THROWER CATCH*** catchInteger " + count);

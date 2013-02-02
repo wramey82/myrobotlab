@@ -52,11 +52,6 @@ public class SoccerGame extends Service {
 		}
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	// TODO - public exec (Message ? ) handler
 	public void logon(String name, String password) {
 		log.info("logon " + name + " password " + password);

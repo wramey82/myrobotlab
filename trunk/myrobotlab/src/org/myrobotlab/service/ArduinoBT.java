@@ -235,9 +235,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 	
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	/**
 	 * serialSend communicate to the arduino using our simple language 3 bytes 3

@@ -107,7 +107,9 @@ public class Tracking extends Service {
 
 	transient PID xpid, ypid;
 	transient OpenCV opencv;
-	transient ControlSystem control = new ControlSystem();
+	//transient ControlSystem control = new ControlSystem();
+	transient Arduino arduino;
+	transient Servo x, y;
 
 	public static final String STATUS_IDLE = "IDLE";
 	public static final String STATUS_CALIBRATING = "CALIBRATING";
@@ -115,7 +117,7 @@ public class Tracking extends Service {
 	public String status = STATUS_IDLE;
 
 	// statistics
-	public int updateModulus = 100;
+	public int updateModulus = 20;
 	public long cnt = 0;
 	public long latency = 0;
 
@@ -130,17 +132,12 @@ public class Tracking extends Service {
 	public ArrayList<Point2Df> points = new ArrayList<Point2Df>();
 
 	public Rectangle deadzone = new Rectangle();
+	
+	int currentXServoPos;
+	int currentYServoPos;
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
-
-		// FIXME - start OpenCV here based on config !
-		xpid = new PID("xpid");
-		ypid = new PID("ypid");
-	}
-
-	@Override
-	public void loadDefaultConfiguration() {
 	}
 
 	public boolean calibrate() {
@@ -191,6 +188,8 @@ public class Tracking extends Service {
 		// find closes to the center
 
 		// set tracking point there
+		// initialize setpoints - set output range
+		initTracking(); 
 
 		// set filters
 		opencv.removeAllFilters();
@@ -229,6 +228,7 @@ public class Tracking extends Service {
 	double targetDistance = 0.0f;
 	Point2Df goodFeaturePoint = null;
 
+	// directional constants
 	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
 	final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
 	final static public String DIRECTION_FARTHEST_LEFT = "DIRECTION_FARTHEST_LEFT";
@@ -323,6 +323,15 @@ public class Tracking extends Service {
 	BlockingQueue<SerializableImage> opencvImageData = new LinkedBlockingQueue<SerializableImage>();
 	boolean interrupted = false;
 
+	private double computeX;
+
+	private double computeY;
+
+	private int lastXServoPos;
+
+	private int lastYServoPos;
+
+	// TODO - data structure which bundles the frame with the data ! - very helpful
 	// TODO - bundle epi-filter & config data with this method in OpenCV for
 	// those who what to block on a method
 	public ArrayList<Point2Df> GoodFeaturesToTrack() {
@@ -364,21 +373,111 @@ public class Tracking extends Service {
 		return null;
 	}
 
+
+	public void setStatus(String status) {
+		log.info(status);
+		invoke("publishStatus", status);
+	}
+
+	/**
+	 * publishing point for information to be sent to the gui
+	 * @param status -  status info
+	 * @return
+	 */
+	public String publishStatus(String status) {
+		return status;
+	}
+
+	@Override
+	public String getToolTip() {
+		return "proportional control, tracking, and translation";
+	}
+
+	
+	// set SubServiceNames....
+	// TODO - framework?
+	public void createAndStartSubServices()
+	{
+		arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		xpid = (PID)Runtime.createAndStart("xpid", "PID");
+		ypid = (PID)Runtime.createAndStart("ypid", "PID");
+		opencv = (OpenCV)Runtime.createAndStart("opencv", "OpenCV");
+		x = (Servo)Runtime.createAndStart("x", "Servo");
+		y = (Servo)Runtime.createAndStart("y", "Servo");
+	}
+	
+
+	public void initTracking() {
+		// init arduino :P - work on interface on how-to do all on default yet allow
+		// access to control specifics - e.g. work on this main - work on Runtime script & work on InMoov - with the little amount of effort & code
+		x.moveTo(90);
+		y.moveTo(5);
+		
+		currentXServoPos = x.getPosition();
+		currentYServoPos = y.getPosition();
+		lastXServoPos = currentXServoPos;
+		lastYServoPos = currentYServoPos;
+		
+		// set initial Kp Kd Ki - TODO - use values derived from calibration
+		xpid.setPID(10, 5, 1);
+		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
+		xpid.setMode(PID.MODE_AUTOMATIC);
+		xpid.setOutputRange(-10, 10); // <- not correct - based on maximum
+		xpid.setSampleTime(30);
+
+		ypid.setPID(10, 5, 1);
+		ypid.setControllerDirection(PID.DIRECTION_DIRECT);
+		ypid.setMode(PID.MODE_AUTOMATIC);
+		ypid.setOutputRange(-10, 10);
+		ypid.setSampleTime(30);
+		
+		// set center
+		xpid.setSetpoint(0.5);
+		ypid.setSetpoint(0.5);
+
+		// initialize - end ----------
+
+	}
+	
+	
 	// FIXME - remove OpenCV definitions
 	final public void updateTrackingPoint(ArrayList<Point2Df> data) {
 		++cnt;
-
-
 		if (data.size() > 0) {
 			targetPoint = data.get(0);
-			latency = System.currentTimeMillis() - targetPoint.timestamp;
+			latency = System.currentTimeMillis() - targetPoint.timestamp; // describe this time delta
 			log.debug(String.format("pt %s", targetPoint));
 			
 			xpid.setInput(targetPoint.x);
 			ypid.setInput(targetPoint.y);
-
-			control.moveXTo(xpid.Compute());
-			control.moveYTo(ypid.Compute());
+			
+			if (xpid.compute())
+			{
+				computeX = xpid.getOutput();
+				currentXServoPos += (int)computeX;
+				if (currentXServoPos != lastXServoPos)
+				{
+					x.moveTo(currentXServoPos);
+					lastXServoPos = currentXServoPos;
+				}
+				// TODO - canidate for "move(int)" ?
+				
+			} else {
+				log.warn("x data under-run");
+			}
+			
+			if (ypid.compute()) 
+			{
+				computeY = ypid.getOutput();
+				currentYServoPos += (int)computeY;
+				if (currentYServoPos != lastYServoPos)
+				{
+					y.moveTo(currentYServoPos);
+					lastYServoPos = currentYServoPos;
+				}
+			} else {
+				log.warn("y data under-run");
+			}
 			
 			lastPoint = targetPoint;
 
@@ -386,78 +485,11 @@ public class Tracking extends Service {
 
 		if (cnt % updateModulus == 0) {
 			broadcastState(); // update graphics ?
+			log.error(String.format("%f %f", computeX, computeY));
 		}
 
-		/*
-		 * trackX((int)pt.x); trackY((int)pt.y);
-		 */
 	}
 
-	public void setStatus(String status) {
-		log.info(status);
-		invoke("publishStatus", status);
-	}
-
-	public String publishStatus(String status) {
-		return status;
-	}
-
-	@Override
-	public String getToolTip() {
-		return "proportional control, tracking, and translation - full PID not implemented yet :P";
-	}
-
-	// TODO - support interfaces
-	/*
-	 * public boolean attach (String serviceName, Object...data) {
-	 * log.info(String.format("attaching %s", serviceName)); ServiceWrapper sw =
-	 * Runtime.getServiceWrapper(serviceName); if (sw == null) {
-	 * log.error(String.format("could not attach % - not found in registry",
-	 * serviceName)); return false; } if
-	 * (sw.getServiceType().equals("org.myrobotlab.service.OpenCV")) {
-	 * subscribe("publish", serviceName, "updateTrackingPoint", Point2Df.class);
-	 * return true; }
-	 * 
-	 * log.error(String.format("%s - don't know how to attach %s", getName(),
-	 * serviceName)); return false; }
-	 */
-
-	public void attachObjectTracker(OpenCV opencv) {
-		this.opencv = opencv;
-	}
-
-	public void initTracking() {
-		// object tracker
-		// clear filters
-		// add filters ? PyramidDown?
-
-		// initialize - begin ----------
-		// set center
-		xpid.setSetpoint(0.5);
-		ypid.setSetpoint(0.5);
-
-		xpid.setInputRange(0, 1);
-		ypid.setInputRange(0, 1);
-
-		// FIXME based on values from Servo Limits !!!
-		xpid.setOutputRange(0, 1); // controller does the translation for
-									// specific implementation servo, motor,
-									// other
-		ypid.setOutputRange(0, 1);
-		// initialize - end ----------
-
-	}
-
-	// threaded ?
-	public void trackPoint(Point2Df point) {
-
-		xpid.setInput(point.x);
-		ypid.setInput(point.y);
-
-		control.moveXTo(xpid.Compute());
-		control.moveYTo(ypid.Compute());
-
-	}
 
 	public static void main(String[] args) {
 
@@ -466,70 +498,53 @@ public class Tracking extends Service {
 		// radio lab - map cells location cells yatta yatta
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
+		
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		/*
-		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
-		 * catch (Exception e) { // TODO Auto-generated catch block
-		 * logException(e); }
-		 */
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
-		opencv.startService();
-
-		// opencv.startService();
-		// opencv.addFilter("PyramidDown1", "PyramidDown");
-		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
-		// opencv.addFilter("InRange1", "InRange");
-		// opencv.setFrameGrabberType("camera");
-		// opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
-
-		// opencv.getDepth = true; // FIXME DEPRICATE ! no longer needed
-		// opencv.capture();
-
-		/*
-		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
-		 * 
-		 * Servo pan = new Servo("pan"); pan.startService();
-		 * 
-		 * Servo tilt = new Servo("tilt"); tilt.startService();
-		 */
-
-		// FIXME way to test with faux controlsystem
-
-		/*
-		 * Arduino mega = (Arduino)Runtime.createAndStart("mega", "Arduino");
-		 * mega.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
-		 * mega.setSerialDevice("COM9", 57600, 8, 1, 0);
-		 * 
-		 * Servo pan = (Servo)Runtime.createAndStart("pan", "Servo"); Servo tilt
-		 * = (Servo)Runtime.createAndStart("tilt", "Servo");
-		 * 
-		 * mega.servoAttach("pan", 32); mega.servoAttach("tilt", 6);
-		 */
+		// appropriate way to set sub-services - 
+		// 		1. query ? if they exist by name - if not create them ?  single Runtime.createAndStart
+		//		setNames option to set the names before creation ?
+		//		a framework method - createSubServices ? - or delayed until "used" ? requested at use everytime ? - refactor getService
+		
+		// stitched frame map - visual memory
+		// at least 2 overlap good features
+		// polygon shape of keypoints (registration)	 - match shape - size - scale - scale is proportional to position
+		
+		// coordinates - relative heading
+		// 
+		
+		
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
 
-		tracker.attachObjectTracker(opencv);
-		// tracker.attachControlX(pan);
-		// tracker.attachControlY(tilt);
+		tracker.arduino.setBoard("atmega328");
+		tracker.arduino.setSerialDevice("COM12",57600,8,1,0);
+		Service.sleep(500);
 
-		// IPCamera ip = new IPCamera("ip");
-		// ip.startService();
+		tracker.arduino.servoAttach("x",5);
+		tracker.arduino.servoAttach("y",4);
+
+		tracker.x.moveTo(90);
+		tracker.y.moveTo(5);
+
+		Service.sleep(500);
+		
+		tracker.x.moveTo(100);
+		tracker.y.moveTo(5);
+		
+		Service.sleep(500);
+
+		tracker.x.moveTo(90);
+		tracker.y.moveTo(5);
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
 		tracker.calibrate();
-		// opencv.addFilter("pyramdDown", "PyramidDown");
-		// opencv.addFilter("floodFill", "FloodFill");
-
-		// opencv.capture();
+	
 
 	}
 

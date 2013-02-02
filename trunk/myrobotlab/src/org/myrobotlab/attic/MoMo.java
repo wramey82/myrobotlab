@@ -82,10 +82,6 @@ public class MoMo extends Service {
 		super(n, MoMo.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void startRobot() {
 
 		right.startService();

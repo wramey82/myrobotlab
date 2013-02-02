@@ -84,10 +84,6 @@ public class FrogLeg extends Service {
 		super(n, FrogLeg.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void startRobot() {
 
 		// arduino.start();

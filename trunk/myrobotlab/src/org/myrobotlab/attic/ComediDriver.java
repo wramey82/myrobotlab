@@ -45,10 +45,6 @@ public class ComediDriver extends Service {
 		System.loadLibrary("IOPort");
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void foobar() {
 		log.warn("foobar");
 	}

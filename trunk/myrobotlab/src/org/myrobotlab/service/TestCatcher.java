@@ -48,9 +48,6 @@ public class TestCatcher extends Service {
 		super(n, TestCatcher.class.getCanonicalName(), hostname);
 	}
 
-	public void loadDefaultConfiguration() {
-	}
-
 	public void catchNothing() {
 		log.info("***CATCH*** catchNothing ");
 		Integer c = 1;

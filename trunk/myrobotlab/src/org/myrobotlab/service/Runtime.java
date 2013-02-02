@@ -156,14 +156,6 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
-	 */
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
-	/**
 	 * Get the tool tip for this class.
 	 */
 	@Override

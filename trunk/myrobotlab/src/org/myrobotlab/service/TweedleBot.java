@@ -150,9 +150,7 @@ public class TweedleBot extends Service {
 		left.attach(arduino.getName(), leftPin);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public TweedleBot publishState(TweedleBot t) {
 		return t;

@@ -321,9 +321,7 @@ public class Joystick extends Service {
 		}
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	@Override
 	public String getToolTip() {

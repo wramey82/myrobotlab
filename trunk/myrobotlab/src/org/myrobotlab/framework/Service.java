@@ -241,9 +241,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			initialize();
 		}
 
-		// service instance level defaults
-		loadDefaultConfiguration();
-
 		// over-ride service level with service file
 		cfg.load(String.format("%1$s.%2$s.properties", host, name));
 
@@ -256,30 +253,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		registerLocalService(url);
 	}
 
-	/*
-	 * Interesting hack found on stack overflow - which mod's the Classloader to
-	 * add another directory
-	 * http://stackoverflow.com/questions/5419039/is-djava-
-	 * library-path-equivalent-to-system-setpropertyjava-library-path public
-	 * static void addDir(String s) throws IOException { try { // This enables
-	 * the java.library.path to be modified at runtime // From a Sun engineer at
-	 * http://forums.sun.com/thread.jspa?threadID=707176 // Field field =
-	 * ClassLoader.class.getDeclaredField("usr_paths");
-	 * field.setAccessible(true); String[] paths = (String[])field.get(null);
-	 * for (int i = 0; i < paths.length; i++) { if (s.equals(paths[i])) {
-	 * return; } } String[] tmp = new String[paths.length+1];
-	 * System.arraycopy(paths,0,tmp,0,paths.length); tmp[paths.length] = s;
-	 * field.set(null,tmp); System.setProperty("java.library.path",
-	 * System.getProperty("java.library.path") + File.pathSeparator + s); }
-	 * catch (IllegalAccessException e) { throw new
-	 * IOException("Failed to get permissions to set library path"); } catch
-	 * (NoSuchFieldException e) { throw new
-	 * IOException("Failed to get field handle to set library path"); } }
-	 */
-
-	/**
-	 * 
-	 */
+	
 	public static synchronized void initialize() {
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
@@ -306,15 +280,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("java.class.path [%1$s]", System.getProperty("java.class.path")));
 		log.info(String.format("java.library.path [%1$s]", libararyPath));
 		log.info(String.format("user.dir [%1$s]", userDir));
-		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576)); // 1024
-																							// x
-																							// 1024
-																							// =
-																							// 1K
-																							// x
-																							// 1K
-																							// =
-																							// 1Meg
+		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576)); 
 		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
 
 		// load root level configuration
@@ -538,8 +504,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
 	}
 
-	public void loadDefaultConfiguration()
-	{}
 
 	/**
 	 * sleep without the throw
@@ -572,6 +536,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void startService() {
+		createAndStartSubServices();
 		if (!isRunning()) {
 			outbox.start();
 			if (thisThread == null) {
@@ -582,6 +547,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		} else {
 			log.warn("startService request: service " + name + " is already running");
 		}
+	}
+	
+	/**
+	 * location for dependent service creation
+	 * overridden by services for there specific dependency
+	 * fulfillment 
+	 */
+	public void createAndStartSubServices()
+	{
+		
 	}
 
 	// override for extended functionality

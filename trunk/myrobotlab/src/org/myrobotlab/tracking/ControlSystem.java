@@ -23,14 +23,6 @@ public class ControlSystem {
 	private Servo x;
 	private Servo y;
 	
-
-	// default 2 servos
-	public void init()
-	{
-		this.x = new Servo("x");
-		this.y = new Servo("y");
-	}
-	
 	// externally defined servos
 	public void init(Servo x, Servo y)
 	{
@@ -46,6 +38,14 @@ public class ControlSystem {
 		y.moveTo((int)Math.round(pos));
 	}
 
+	public void moveXTo(int pos) {
+		x.moveTo(pos);
+	}
+
+	public void moveYTo(int pos) {
+		y.moveTo(pos);
+	}
+	
 	public int getMinX()
 	{
 		return x.getPositionMin();

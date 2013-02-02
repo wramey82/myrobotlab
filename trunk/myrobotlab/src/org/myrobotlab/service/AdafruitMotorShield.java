@@ -84,11 +84,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		attach();
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-
-	}
-
 	public void startService() {
 		super.startService();
 		myArduino.startService();

@@ -159,9 +159,7 @@ public class RobotPlatform extends Service {
 		super(n, RobotPlatform.class.getCanonicalName(), serviceDomain);
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public void attach(Motor left, Motor right) {
 		this.left = left;

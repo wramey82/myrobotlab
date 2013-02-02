@@ -56,10 +56,6 @@ public class Rose extends Service {
 		super(n, Rose.class.getCanonicalName());
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
-
 	public void startServices() {
 		camera = new OpenCV("camera");
 		gui = new GUIService("gui");

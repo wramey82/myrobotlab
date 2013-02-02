@@ -83,8 +83,6 @@ public class Sphinx extends Service {
 		super(n, Sphinx.class.getCanonicalName());
 	}
 
-	public void loadDefaultConfiguration() {
-	}
 
 	/**
 	 * The main output for this service. "word" is the word recognized. This has

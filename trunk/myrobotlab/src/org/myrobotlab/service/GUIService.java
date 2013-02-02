@@ -188,9 +188,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return true;
 	}
 
-	@Override
-	public void loadDefaultConfiguration() {
-	}
+
 
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
@@ -220,6 +218,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param service
 	 * @return
 	 */
+	// FIXME - use instanciator !!!
 	static public Object getNewInstance(String classname, String boundServiceName, GUI service) {
 		try {
 			Object[] params = new Object[2];
@@ -229,21 +228,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			c = Class.forName(classname);
 			Constructor<?> mc = c.getConstructor(new Class[] { String.class, GUI.class });
 			return mc.newInstance(params);
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			logException(e);
-		} catch (SecurityException e) {
-			logException(e);
-		} catch (NoSuchMethodException e) {
-			logException(e);
-		} catch (IllegalArgumentException e) {
-			logException(e);
-		} catch (InstantiationException e) {
-			logException(e);
-		} catch (IllegalAccessException e) {
-			logException(e);
-		} catch (InvocationTargetException e) {
-			logException(e);
-		}
+		} 
+		
 		return null;
 	}
 
