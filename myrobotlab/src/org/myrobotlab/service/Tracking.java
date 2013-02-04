@@ -418,8 +418,8 @@ public class Tracking extends Service {
 	public void initTracking() {
 		// init arduino :P - work on interface on how-to do all on default yet allow
 		// access to control specifics - e.g. work on this main - work on Runtime script & work on InMoov - with the little amount of effort & code
-		x.moveTo(90);
-		y.moveTo(5);
+		//x.moveTo(90);
+		//y.moveTo(5);
 		
 		currentXServoPos = x.getPosition();
 		currentYServoPos = y.getPosition();
