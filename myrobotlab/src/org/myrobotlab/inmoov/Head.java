@@ -3,11 +3,14 @@ package org.myrobotlab.inmoov;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
+import org.myrobotlab.service.Tracking;
 
 public class Head {
 
 	public Servo neck;
 	public Servo rothead;
+	public Arduino headArduino;
+	public Tracking tracking;
 
 	public void initialize(Arduino arduino) {
 		neck = (Servo) Runtime.createAndStart("neck", "Servo");
@@ -22,6 +25,16 @@ public class Head {
 		// notify gui
 		neck.broadcastState();
 		rothead.broadcastState();
+	
+		tracking = (Tracking) Runtime.create("tracking", "Tracking");
+		// FIXME - make better
+		tracking.xName = "rothead";
+		tracking.yName = "neck";
+		tracking.opencvName = "eye";
+		
+		tracking.startService();
+		
+		
 	}
 
 	public void move(Integer neck, Integer rothead) {
