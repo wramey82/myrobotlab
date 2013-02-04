@@ -32,10 +32,11 @@ public class InMoov extends Service {
 	HashMap<String, ArrayList<Arduino>> arduinos = new HashMap<String, ArrayList<Arduino>>();
 
 	// head
-	public Sphinx ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
-	public Speech mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-	public OpenCV eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
-	public Python python = (Python) Runtime.createAndStart("python", "Python");
+	public Sphinx ear;
+	public Speech mouth;
+	public OpenCV eye;
+	public Python python;
+	public Tracking tracking;
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
@@ -50,6 +51,15 @@ public class InMoov extends Service {
 
 		// get a handle on the python service
 		// python = (Python)Runtime.createAndStart("python", "Python");
+	}
+	
+	public void createAndStartSubServices()
+	{
+		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
+		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
+		eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
+		python = (Python) Runtime.createAndStart("python", "Python");
+		
 	}
 
 	// ----------- normalization begin ---------------------
@@ -456,6 +466,7 @@ public class InMoov extends Service {
 		ear.stopListening();
 	}
 
+	/*
 	boolean isTracking = false;
 
 	public void startTracking() {
@@ -484,16 +495,43 @@ public class InMoov extends Service {
 		eye.stopCapture();
 	}
 
+*/
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
+/*
+		Arduino arduino = new Arduino("arduino");
 
+		arduino.setBoard("atmega328");
+		arduino.setSerialDevice("COM12",57600,8,1,0);
+		
+		inMoov.initializeBrain();
+		
+		inMoov.initializeHead(arduino);
+*/		
+		/*
+		Arduino arduino = new Arduino("arduinox");
+		arduino.setBoard("atmega328");
+		arduino.setSerialDevice("COM12",57600,8,1,0);
+		
+		inMoov.initializeHead(arduino);
+		*/
+		
+		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		arduino.setBoard("atmega328");
+		arduino.setSerialDevice("COM12",57600,8,1,0);
+		
+		inMoov.initializeHead(arduino);
 		// Runtime.createAndStart("python", "Python");
-		ServiceInterface si = Runtime.createAndStart("gui", "GUIService");
-		si.display();
+		ServiceInterface gui = Runtime.createAndStart("gui", "GUIService");
+		gui.display();
+		
+		inMoov.eye.setCameraIndex(1);
+		inMoov.head.tracking.calibrate();
+		
 
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();

@@ -393,17 +393,25 @@ public class Tracking extends Service {
 		return "proportional control, tracking, and translation";
 	}
 
+	// GOOD - make it better ! Encapsulate in Hash'd data structure
+	// with a setSubServiceName("arduio", "x") - for foreign structures
+	public String arduinoName = "arduino";
+	public String xpidName = "xpid";
+	public String ypidName = "ypid";
+	public String xName = "x";
+	public String yName = "y";
+	public String opencvName = "opencv";
 	
 	// set SubServiceNames....
 	// TODO - framework?
 	public void createAndStartSubServices()
 	{
-		arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
-		xpid = (PID)Runtime.createAndStart("xpid", "PID");
-		ypid = (PID)Runtime.createAndStart("ypid", "PID");
-		opencv = (OpenCV)Runtime.createAndStart("opencv", "OpenCV");
-		x = (Servo)Runtime.createAndStart("x", "Servo");
-		y = (Servo)Runtime.createAndStart("y", "Servo");
+		arduino = (Arduino)Runtime.createAndStart(arduinoName, "Arduino");
+		xpid = (PID)Runtime.createAndStart(xpidName, "PID");
+		ypid = (PID)Runtime.createAndStart(ypidName, "PID");
+		opencv = (OpenCV)Runtime.createAndStart(opencvName, "OpenCV");
+		x = (Servo)Runtime.createAndStart(xName, "Servo");
+		y = (Servo)Runtime.createAndStart(yName, "Servo");
 	}
 	
 
@@ -539,6 +547,8 @@ public class Tracking extends Service {
 		tracker.x.moveTo(90);
 		tracker.y.moveTo(5);
 
+		tracker.opencv.setCameraIndex(1);
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
