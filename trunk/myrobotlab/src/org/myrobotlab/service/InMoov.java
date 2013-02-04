@@ -37,6 +37,10 @@ public class InMoov extends Service {
 	public OpenCV eye;
 	public Python python;
 	public Tracking tracking;
+	public Arduino headArduino;
+	
+	public Servo rothead;
+	public Servo neck;
 
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
@@ -213,8 +217,10 @@ public class InMoov extends Service {
 		if (arduino == null) {
 			log.error("arduino not valid");
 		}
+		headArduino = arduino;
 		head = new Head();
-		head.initialize(arduino);
+		head.initialize(this);
+		//head.initialize(arduino);
 	}
 
 	// ----------- normalization end ---------------------
@@ -530,7 +536,7 @@ public class InMoov extends Service {
 		gui.display();
 		
 		inMoov.eye.setCameraIndex(1);
-		inMoov.head.tracking.calibrate();
+		inMoov.tracking.calibrate();
 		
 
 		/*
