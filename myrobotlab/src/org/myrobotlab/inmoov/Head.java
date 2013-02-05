@@ -14,6 +14,7 @@ public class Head {
 	public Tracking tracking;
 	*/
 	private InMoov inmoov;
+	public boolean allowMove = true;
 
 	public void initialize(InMoov inmoov) {
 		this.inmoov = inmoov;
@@ -42,6 +43,10 @@ public class Head {
 	}
 
 	public void move(Integer neck, Integer rothead) {
+		if (!allowMove)
+		{
+			return;
+		}
 		inmoov.neck.moveTo(neck);
 		inmoov.rothead.moveTo(rothead);
 	}

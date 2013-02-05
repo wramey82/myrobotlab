@@ -12,29 +12,31 @@ public class Houston extends Service {
 
 	// create service for Houston
 
-	Servo lshoulder = null;
-	Servo lbicep = null;
-	Servo lelbow = null;
+	Servo lshoulder;
+	Servo lbicep;
+	Servo lelbow;
 
-	Servo rshoulder = null;
-	Servo rbicep = null;
-	Servo relbow = null;
+	Servo rshoulder;
+	Servo rbicep;
+	Servo relbow;
 
 	// 4 motors
-	Motor lfmotor = null;
-	Motor rfmotor = null;
-	Motor lbmotor = null;
-	Motor rbmotor = null;
+	Motor lfmotor;
+	Motor rfmotor;
+	Motor lbmotor;
+	Motor rbmotor;
 
-	Sphinx ear = null;
-	Speech mouth = null;
+	Sphinx ear;
+	Speech mouth;
 
-	OpenCV eye = null;
+	OpenCV eye;
 
-	PointCloud openni = null;
+	PointCloud openni;
 
-	Arduino arduino = null;
+	Arduino arduino;
 
+	Tracking tracking;
+	
 	public Houston(String n) {
 		super(n, Houston.class.getCanonicalName());
 	}

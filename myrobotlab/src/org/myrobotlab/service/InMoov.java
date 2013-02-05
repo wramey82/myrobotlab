@@ -471,7 +471,16 @@ public class InMoov extends Service {
 	public void stopListening() {
 		ear.stopListening();
 	}
+	
+	public void allowHeadMovementFromScript()
+	{
+		head.allowMove = true;
+	}
 
+	public void stopHeadMovementFromScript()
+	{
+		head.allowMove = false;
+	}
 	/*
 	boolean isTracking = false;
 

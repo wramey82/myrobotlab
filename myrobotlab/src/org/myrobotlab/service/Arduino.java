@@ -1365,8 +1365,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		 * log.info("mod 100"); } }
 		 */
 
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
+		//Arduino arduino = new Arduino("arduino");
+		Arduino arduino = (Arduino)Runtime.create("arduino", "Arduino");
+		//arduino.startService();
 
 		Runtime.createAndStart("python", "Python");
 
