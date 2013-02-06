@@ -1,5 +1,6 @@
 package org.myrobotlab.inmoov;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
@@ -46,6 +47,7 @@ public class Hand {
 		pinky = (Servo) Runtime.createAndStart(String.format("pinky%s", key), "Servo");
 		wrist = (Servo) Runtime.createAndStart(String.format("wrist%s", key), "Servo");
 
+		Service.sleep(500);
 		// attach the controller
 		arduino.servoAttach(thumb.getName(), 2);
 		arduino.servoAttach(index.getName(), 3);

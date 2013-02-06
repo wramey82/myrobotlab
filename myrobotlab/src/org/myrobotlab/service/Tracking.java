@@ -107,7 +107,7 @@ public class Tracking extends Service {
 
 	transient PID xpid, ypid;
 	transient OpenCV opencv;
-	//transient ControlSystem control = new ControlSystem();
+	// transient ControlSystem control = new ControlSystem();
 	transient Arduino arduino;
 	transient Servo x, y;
 
@@ -132,7 +132,7 @@ public class Tracking extends Service {
 	public ArrayList<Point2Df> points = new ArrayList<Point2Df>();
 
 	public Rectangle deadzone = new Rectangle();
-	
+
 	int currentXServoPos;
 	int currentYServoPos;
 
@@ -189,7 +189,7 @@ public class Tracking extends Service {
 
 		// set tracking point there
 		// initialize setpoints - set output range
-		initTracking(); 
+		initTracking();
 
 		// set filters
 		opencv.removeAllFilters();
@@ -331,7 +331,8 @@ public class Tracking extends Service {
 
 	private int lastYServoPos;
 
-	// TODO - data structure which bundles the frame with the data ! - very helpful
+	// TODO - data structure which bundles the frame with the data ! - very
+	// helpful
 	// TODO - bundle epi-filter & config data with this method in OpenCV for
 	// those who what to block on a method
 	public ArrayList<Point2Df> GoodFeaturesToTrack() {
@@ -373,7 +374,6 @@ public class Tracking extends Service {
 		return null;
 	}
 
-
 	public void setStatus(String status) {
 		log.info(status);
 		invoke("publishStatus", status);
@@ -381,7 +381,9 @@ public class Tracking extends Service {
 
 	/**
 	 * publishing point for information to be sent to the gui
-	 * @param status -  status info
+	 * 
+	 * @param status
+	 *            - status info
 	 * @return
 	 */
 	public String publishStatus(String status) {
@@ -401,31 +403,40 @@ public class Tracking extends Service {
 	public String xName = "x";
 	public String yName = "y";
 	public String opencvName = "opencv";
-	
+
+	private Integer xmin;
+
+	private Integer xmax;
+
+	private Integer ymin;
+
+	private Integer ymax;
+
 	// set SubServiceNames....
 	// TODO - framework?
-	public void createAndStartSubServices()
-	{
-		arduino = (Arduino)Runtime.createAndStart(arduinoName, "Arduino");
-		xpid = (PID)Runtime.createAndStart(xpidName, "PID");
-		ypid = (PID)Runtime.createAndStart(ypidName, "PID");
-		opencv = (OpenCV)Runtime.createAndStart(opencvName, "OpenCV");
-		x = (Servo)Runtime.createAndStart(xName, "Servo");
-		y = (Servo)Runtime.createAndStart(yName, "Servo");
+	public void createAndStartSubServices() {
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		xpid = (PID) Runtime.createAndStart(xpidName, "PID");
+		ypid = (PID) Runtime.createAndStart(ypidName, "PID");
+		opencv = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
+		x = (Servo) Runtime.createAndStart(xName, "Servo");
+		y = (Servo) Runtime.createAndStart(yName, "Servo");
 	}
-	
 
 	public void initTracking() {
-		// init arduino :P - work on interface on how-to do all on default yet allow
-		// access to control specifics - e.g. work on this main - work on Runtime script & work on InMoov - with the little amount of effort & code
-		//x.moveTo(90);
-		//y.moveTo(5);
-		
+		// init arduino :P - work on interface on how-to do all on default yet
+		// allow
+		// access to control specifics - e.g. work on this main - work on
+		// Runtime script & work on InMoov - with the little amount of effort &
+		// code
+		// x.moveTo(90);
+		// y.moveTo(5);
+
 		currentXServoPos = x.getPosition();
 		currentYServoPos = y.getPosition();
 		lastXServoPos = currentXServoPos;
 		lastYServoPos = currentYServoPos;
-		
+
 		// set initial Kp Kd Ki - TODO - use values derived from calibration
 		xpid.setPID(10, 5, 1);
 		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
@@ -438,53 +449,74 @@ public class Tracking extends Service {
 		ypid.setMode(PID.MODE_AUTOMATIC);
 		ypid.setOutputRange(-10, 10);
 		ypid.setSampleTime(30);
-		
-		// set center
-		xpid.setSetpoint(0.5);
-		ypid.setSetpoint(0.5);
 
+		// set center
+		xpid.setSetpoint(xSetpoint);
+		ypid.setSetpoint(ySetpoint);
+
+		xmin = x.getPositionMin();
+		xmax = x.getPositionMax();
+
+		ymin = y.getPositionMin();
+		ymax = y.getPositionMax();
 		// initialize - end ----------
 
 	}
-	
-	
+
+	double xSetpoint = 0.5;
+	double ySetpoint = 0.5;
+
 	// FIXME - remove OpenCV definitions
 	final public void updateTrackingPoint(ArrayList<Point2Df> data) {
 		++cnt;
 		if (data.size() > 0) {
 			targetPoint = data.get(0);
-			latency = System.currentTimeMillis() - targetPoint.timestamp; // describe this time delta
+			latency = System.currentTimeMillis() - targetPoint.timestamp; // describe
+																			// this
+																			// time
+																			// delta
 			log.debug(String.format("pt %s", targetPoint));
-			
+
 			xpid.setInput(targetPoint.x);
 			ypid.setInput(targetPoint.y);
-			
-			if (xpid.compute())
-			{
-				computeX = xpid.getOutput();
-				currentXServoPos += (int)computeX;
-				if (currentXServoPos != lastXServoPos)
-				{
-					x.moveTo(currentXServoPos);
-					lastXServoPos = currentXServoPos;
-				}
-				// TODO - canidate for "move(int)" ?
-				
+
+			// TODO - work on removing currentX/YServoPos - and use the servo's
+			// directly ???
+			// if I'm at my min & and the target is further min - don't compute
+			// pid
+			if ((currentXServoPos == xmin && xSetpoint - targetPoint.x < 0) || (currentXServoPos == xmax && xSetpoint - targetPoint.x > 0)) {
+				log.warn("at x limit, and target is outside of limit");
 			} else {
-				log.warn("x data under-run");
+
+				if (xpid.compute()) {
+					computeX = xpid.getOutput();
+					currentXServoPos += (int) computeX;
+					if (currentXServoPos != lastXServoPos) {
+						x.moveTo(currentXServoPos);
+						currentXServoPos = x.getPosition();
+						lastXServoPos = currentXServoPos;
+					}
+					// TODO - canidate for "move(int)" ?
+
+				} else {
+					log.warn("x data under-run");
+				}
 			}
-			
-			if (ypid.compute()) 
-			{
-				computeY = ypid.getOutput();
-				currentYServoPos += (int)computeY;
-				if (currentYServoPos != lastYServoPos)
-				{
-					y.moveTo(currentYServoPos);
-					lastYServoPos = currentYServoPos;
-				}
+
+			if ((currentYServoPos == ymin && ySetpoint - targetPoint.y < 0) || (currentYServoPos == ymax && ySetpoint - targetPoint.y > 0)) {
+				log.warn("at y limit, and target is outside of limit");
 			} else {
-				log.warn("y data under-run");
+				if (ypid.compute()) {
+					computeY = ypid.getOutput();
+					currentYServoPos += (int) computeY;
+					if (currentYServoPos != lastYServoPos) {
+						y.moveTo(currentYServoPos);
+						currentYServoPos = y.getPosition();
+						lastYServoPos = currentYServoPos;
+					}
+				} else {
+					log.warn("y data under-run");
+				}
 			}
 			
 			lastPoint = targetPoint;
@@ -498,7 +530,6 @@ public class Tracking extends Service {
 
 	}
 
-
 	public static void main(String[] args) {
 
 		// ground plane
@@ -506,55 +537,55 @@ public class Tracking extends Service {
 		// radio lab - map cells location cells yatta yatta
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
-		
+
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
+		// appropriate way to set sub-services -
+		// 1. query ? if they exist by name - if not create them ? single
+		// Runtime.createAndStart
+		// setNames option to set the names before creation ?
+		// a framework method - createSubServices ? - or delayed until "used" ?
+		// requested at use everytime ? - refactor getService
 
-		// appropriate way to set sub-services - 
-		// 		1. query ? if they exist by name - if not create them ?  single Runtime.createAndStart
-		//		setNames option to set the names before creation ?
-		//		a framework method - createSubServices ? - or delayed until "used" ? requested at use everytime ? - refactor getService
-		
 		// stitched frame map - visual memory
 		// at least 2 overlap good features
-		// polygon shape of keypoints (registration)	 - match shape - size - scale - scale is proportional to position
-		
+		// polygon shape of keypoints (registration) - match shape - size -
+		// scale - scale is proportional to position
+
 		// coordinates - relative heading
-		// 
-		
-		
+		//
+
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
 
 		tracker.arduino.setBoard("atmega328");
-		tracker.arduino.setSerialDevice("COM12",57600,8,1,0);
+		tracker.arduino.setSerialDevice("COM12", 57600, 8, 1, 0);
 		Service.sleep(500);
 
-		tracker.arduino.servoAttach("x",5);
-		tracker.arduino.servoAttach("y",4);
+		tracker.arduino.servoAttach("x", 13);
+		tracker.arduino.servoAttach("y", 12);
 
 		tracker.x.moveTo(90);
 		tracker.y.moveTo(5);
 
 		Service.sleep(500);
-		
+
 		tracker.x.moveTo(100);
 		tracker.y.moveTo(5);
-		
+
 		Service.sleep(500);
 
 		tracker.x.moveTo(90);
 		tracker.y.moveTo(5);
 
 		tracker.opencv.setCameraIndex(1);
-		
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
 		tracker.calibrate();
-	
 
 	}
 
