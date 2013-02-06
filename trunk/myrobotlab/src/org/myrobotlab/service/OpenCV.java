@@ -399,21 +399,31 @@ public class OpenCV extends Service {
 								published = true;
 								if (publishFrame) {
 									invoke("publishFrame", displayFilter, filter.display(frame, null));
+									
+									if (isRecordingOutput == true)
+									{
+										// FIXME - from IplImage -> BufferedImage -> IplImage  GAH ! - use Xuggle maybe?
+										record("output", IplImage.createFrom(filter.display(frame, null)));
+									}
+									
+									if (recordSingleFrame == true)
+									{
+										recordSingleFrame(filter.display(frame, null), frameIndex);
+									}
+									 
 								}
 							}
 
 						} // capturing && itr.hasNext()
 					}
-					
+/*					
 					if (isRecordingOutput == true)
 					{
 						record("output", frame);
 					}
+*/					
 					
-					if (recordSingleFrame == true)
-					{
-						recordSingleFrame(frame, frameIndex);
-					}
+
 
 					if (frame.width() != lastImageWidth) {
 						invoke("sizeChange", new Dimension(frame.width(), frame.height()));
@@ -577,8 +587,8 @@ public class OpenCV extends Service {
 		videoProcess.start();
 	}
 
-	public void recordSingleFrame(IplImage frame, int frameIndex) {
-		Util.writeBufferedImage(frame.getBufferedImage(), String.format("%s.%d.jpg", getName(), frameIndex));
+	public void recordSingleFrame(BufferedImage frame, int frameIndex) {
+		Util.writeBufferedImage(frame, String.format("%s.%d.jpg", getName(), frameIndex));
 		recordSingleFrame = false;
 	}	
 	
