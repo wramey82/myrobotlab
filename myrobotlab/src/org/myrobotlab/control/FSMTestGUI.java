@@ -40,7 +40,7 @@ import javax.swing.JLabel;
 import org.apache.log4j.Logger;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.memory.Node;
+import org.myrobotlab.memory.NodeDeprecate;
 import org.myrobotlab.service.FSMTest;
 import org.myrobotlab.service.FSMTest.MatchResult;
 import org.myrobotlab.service.interfaces.GUI;
@@ -156,16 +156,16 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	}
 
 	// TODO - com....Sensor interface
-	public void displayVideo0(HashMap<String, Node> memory) {
+	public void displayVideo0(HashMap<String, NodeDeprecate> memory) {
 
 		Iterator<String> itr = memory.keySet().iterator();
-		Node unknown = memory.get(FSMTest.UNKNOWN);
+		NodeDeprecate unknown = memory.get(FSMTest.UNKNOWN);
 		log.error(unknown.imageData.get(0).cvBoundingBox);
 		log.error(unknown.imageData.get(0).boundingBox);
 
 		while (itr.hasNext()) {
 			String n = itr.next();
-			Node node = memory.get(n);
+			NodeDeprecate node = memory.get(n);
 			for (int i = 0; i < node.imageData.size(); ++i) {
 				KinectImageNode kin = node.imageData.get(i);
 				// kin.extraDataLabel

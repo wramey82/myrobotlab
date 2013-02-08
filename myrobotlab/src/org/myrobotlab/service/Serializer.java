@@ -9,7 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.memory.Node;
+import org.myrobotlab.memory.NodeDeprecate;
 
 // CANNOT BE SERIALIZED YET !!!!!! - 
 public class Serializer extends Service {
@@ -22,7 +22,7 @@ public class Serializer extends Service {
 		super(n, Serializer.class.getCanonicalName());
 	}
 
-	public boolean store(Node n) {
+	public boolean store(NodeDeprecate n) {
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -94,7 +94,7 @@ public class Serializer extends Service {
 			serializer.database = cmdline.getSafeArgument("-database", 0, "");
 		}
 
-		Node n = new Node();
+		NodeDeprecate n = new NodeDeprecate();
 		n.word = "hand";
 		serializer.store(n);
 		serializer.startService();

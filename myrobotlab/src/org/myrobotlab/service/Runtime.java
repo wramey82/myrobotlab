@@ -1502,18 +1502,25 @@ public class Runtime extends Service {
 
 	public static String getBleedingEdgeVersionString() {
 		try {
-			String listURL = "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/";
+			String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=2&q=&sort=uploaded&colspec=Filename%20Summary%20Uploaded%20ReleaseDate%20Size%20DownloadCount";
 			log.info(String.format("getting list of dist %s", listURL));
 			HTTPRequest http;
 			http = new HTTPRequest(listURL);
 			String s = http.getString();
 			log.info(String.format("recieved [%s]", s));
 			log.info("parsing");
-			int p0 = s.lastIndexOf("intermediate");
-			int p1 = s.indexOf("</a>", p0);
-			String intermediate = s.substring(p0, p1);
-			log.info(intermediate);
-			return intermediate.trim();
+			String myrobotlabBleedingEdge = "myrobotlab.bleeding.edge.";
+			int p0 = s.lastIndexOf(myrobotlabBleedingEdge);
+			if (p0 > 0)
+			{
+				 p0 += myrobotlabBleedingEdge.length();
+				 int p1 = s.indexOf(".jar", p0);
+				 String intermediate = s.substring(p0, p1);
+				 log.info(intermediate);
+				 return intermediate.trim();
+			} else {
+				log.error(String.format("could not parse results for %s in getBleedingEdgeVersionString", listURL));
+			}
 		} catch (Exception e) {
 			Service.logException(e);
 		}
@@ -1525,12 +1532,8 @@ public class Runtime extends Service {
 
 		try {
 			log.info("getBleedingEdgeMyRobotLabJar");
-			String intermediate = getBleedingEdgeVersionString();
-			// http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/*zip*/intermediate.757.20120902.1502.zip
-			// String latestBuildURL =
-			// "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/"+intermediate+"/*zip*/"+intermediate+".zip";
-			// http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/intermediate.757.20120902.1502/libraries/jar/myrobotlab.jar
-			String latestMRLJar = "http://myrobotlab.dyndns.org:8080/job/myrobotlab/ws/myrobotlab/dist/" + intermediate + "/libraries/jar/myrobotlab.jar";
+			String version = getBleedingEdgeVersionString();
+			String latestMRLJar = "http://myrobotlab.googlecode.com/files/myrobotlab.bleeding.edge." + version + ".jar";
 			log.info(String.format("getting latest build from %s", latestMRLJar));
 			HTTPRequest zip = new HTTPRequest(latestMRLJar);
 			byte[] jarfile = zip.getBinary();
