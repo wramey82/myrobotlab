@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
@@ -29,6 +30,8 @@ import org.myrobotlab.service.Runtime;
 public class AboutDialog extends JDialog implements ActionListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
+	public final static Logger log = Logger.getLogger(AboutDialog.class.getCanonicalName());
+
 	JButton bleedingEdge = null;
 	JButton noWorky = null;
 	JButton ok = null;
@@ -102,9 +105,16 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 		} else if (source == bleedingEdge) {
 			String newVersion = Runtime.getBleedingEdgeVersionString();
 			String currentVersion = Runtime.version();
-			if (currentVersion.equals(newVersion)) {
+			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
+			if (newVersion == null)
+			{
+				log.info("newVersion == null - nothing available");
 				JOptionPane.showMessageDialog(parent, "There are no updates available at this time");
+			} else if (currentVersion.equals(newVersion)) {
+				log.info("equals - no updates");
+				JOptionPane.showMessageDialog(parent, "There are no new updates available at this time");
 			} else {
+				log.info("not equals - offer update");
 				// Custom button text
 				Object[] options = { "Yes, hit me daddy-O!", "No way, I'm scared" };
 				int n = JOptionPane.showOptionDialog(parent, String.format("A fresh new version is ready, do you want this one? %s", newVersion), "Bleeding Edge Check",

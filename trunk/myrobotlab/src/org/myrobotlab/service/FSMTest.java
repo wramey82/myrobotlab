@@ -31,7 +31,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.memory.Node;
+import org.myrobotlab.memory.NodeDeprecate;
 import org.myrobotlab.opencv.OpenCVFilterKinectDepthMask;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -56,7 +56,7 @@ public class FSMTest extends Service {
 
 	// state info
 	boolean isSpeaking = false;
-	HashMap<String, Node> memory = new HashMap<String, Node>();
+	HashMap<String, NodeDeprecate> memory = new HashMap<String, NodeDeprecate>();
 
 	// necessary services
 	OpenCV opencv = null;
@@ -343,7 +343,7 @@ public class FSMTest extends Service {
 		} else if (context.equals(GET_ASSOCIATIVE_WORD) && phrases.get(GET_ASSOCIATIVE_WORD).containsKey(data)) {
 
 			speech.speak("i will associate this with " + data);
-			Node n = memory.get(UNKNOWN);
+			NodeDeprecate n = memory.get(UNKNOWN);
 			log.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
 			n = memory.remove(UNKNOWN); // TODO - work with multiple unknowns
 			log.error(n.imageData.get(0).cvBoundingBox + "," + n.imageData.get(0).boundingBox);
@@ -355,7 +355,7 @@ public class FSMTest extends Service {
 			} else {
 				// i have bound it to something i previously new about
 				speech.speak("i have categorized it under " + n.word);
-				Node n2 = memory.get(n.word);
+				NodeDeprecate n2 = memory.get(n.word);
 				n2.imageData.add(n.imageData.get(0)); // FIXME - messy
 			}
 			// speech.speak("i have " + memory.size() + " thing" +
@@ -379,10 +379,10 @@ public class FSMTest extends Service {
 			// remove last KinectImageData from the "contextWord"
 			// moving node out of word context and into the UNKNOWN
 			// changing state back to GET_ASSOCIATIVE_WORD
-			Node n = memory.get(lastAssociativeWord);
+			NodeDeprecate n = memory.get(lastAssociativeWord);
 			// remove last image data
 			KinectImageNode kin = n.imageData.remove(n.imageData.size() - 1);
-			Node unknown = new Node();
+			NodeDeprecate unknown = new NodeDeprecate();
 			unknown.word = UNKNOWN;
 			unknown.imageData.add(kin);
 			memory.put(UNKNOWN, unknown);
@@ -411,7 +411,7 @@ public class FSMTest extends Service {
 			// invoke("changeState", FOUND_POLYGONS);
 			changeState(FOUND_POLYGONS);
 
-			Node n = new Node();
+			NodeDeprecate n = new NodeDeprecate();
 			n.word = UNKNOWN;
 			n.imageData = p;
 			memory.put(UNKNOWN, n);
@@ -425,7 +425,7 @@ public class FSMTest extends Service {
 	}
 
 	public void processPolygons() {
-		Node object = memory.get(UNKNOWN);
+		NodeDeprecate object = memory.get(UNKNOWN);
 		invoke("", object);
 
 		if (object.imageData.size() != 1) {
@@ -446,7 +446,7 @@ public class FSMTest extends Service {
 		// run through - find best match - TODO - many other algorithms and
 		// techniques
 		Iterator<String> itr = memory.keySet().iterator();
-		Node unknown = memory.get(UNKNOWN);
+		NodeDeprecate unknown = memory.get(UNKNOWN);
 		log.error(unknown.imageData.get(0).cvBoundingBox);
 		log.error(unknown.imageData.get(0).boundingBox);
 		int bestFit = 1000;
@@ -459,7 +459,7 @@ public class FSMTest extends Service {
 			if (n.equals(UNKNOWN)) {
 				continue; // we won't compare the unknown thingy with itself
 			}
-			Node toSearch = memory.get(n);
+			NodeDeprecate toSearch = memory.get(n);
 			fit = match(toSearch, unknown, index);
 
 			toSearch.imageData.get(0).lastGoodFitIndex = fit;
@@ -477,7 +477,7 @@ public class FSMTest extends Service {
 			// announce - TODO - add map "i think it might be", i'm pretty sure
 			// its a,
 			speech.speak("i think it is a " + bestFitName);
-			Node n = memory.get(bestFitName);
+			NodeDeprecate n = memory.get(bestFitName);
 			n.imageData.add(unknown.imageData.get(0)); // FIXME - messy
 			// with a match ratio of ....
 			// is that correct?
@@ -509,7 +509,7 @@ public class FSMTest extends Service {
 	// FIXME - bury in KinectDepthMask or other OpenCV filter to
 	// get it working on the same thread only ...
 	// Don't use CVObjects out of OpenCV
-	int match(Node toSearch, Node unknown, Integer index) {
+	int match(NodeDeprecate toSearch, NodeDeprecate unknown, Integer index) {
 
 		// at the moment only uses one unknown image
 		KinectImageNode templateImageData = unknown.imageData.get(0);
@@ -603,7 +603,7 @@ public class FSMTest extends Service {
 		return p;
 	}
 
-	public HashMap<String, Node> publishVideo0(HashMap<String, Node> memory) {
+	public HashMap<String, NodeDeprecate> publishVideo0(HashMap<String, NodeDeprecate> memory) {
 		return memory;
 	}
 
@@ -629,15 +629,15 @@ public class FSMTest extends Service {
 	public void clearVideo0() {
 	}
 
-	public Node publishVideo0(Node o) {
+	public NodeDeprecate publishVideo0(NodeDeprecate o) {
 		return o;
 	}
 
-	public Node publishVideo1(Node o) {
+	public NodeDeprecate publishVideo1(NodeDeprecate o) {
 		return o;
 	}
 
-	public Node publishVideo2(Node o) {
+	public NodeDeprecate publishVideo2(NodeDeprecate o) {
 		return o;
 	}
 
@@ -686,7 +686,7 @@ public class FSMTest extends Service {
 
 		while (itr.hasNext()) {
 			String n = itr.next();
-			Node node = memory.get(n);
+			NodeDeprecate node = memory.get(n);
 			html.append("<tr><td>");
 			html.append(node.word);
 			html.append("</td><td>");
@@ -777,7 +777,7 @@ public class FSMTest extends Service {
 							memory.get(word).imageData.add(kin);
 						} else {
 							ArrayList<KinectImageNode> imgData = new ArrayList<KinectImageNode>();
-							Node n = new Node();
+							NodeDeprecate n = new NodeDeprecate();
 							n.word = word;
 							n.imageData = imgData;
 							n.imageData.add(kin);

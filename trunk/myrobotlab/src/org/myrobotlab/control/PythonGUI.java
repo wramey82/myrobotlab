@@ -394,6 +394,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		menu = new JMenu("Robots");
 		menu.add(createMenuItem("houston.py", "examples"));
 		menu.add(createMenuItem("inMoovHandRobot.py", "examples"));
+		menu.add(createMenuItem("inMoovTalkMovement.py", "examples"));
 		examples.add(menu);
 
 		menu = new JMenu("Vision");

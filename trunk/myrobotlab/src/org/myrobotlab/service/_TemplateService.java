@@ -19,6 +19,18 @@ public class _TemplateService extends Service {
 		return "used as a general template";
 	}
 
+	@Override 
+	public void stopService()
+	{
+		super.stopService();
+	}
+	
+	@Override
+	public void releaseService()
+	{
+		super.releaseService();
+	}
+
 	public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.WARN);

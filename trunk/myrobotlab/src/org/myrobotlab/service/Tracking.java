@@ -34,8 +34,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.data.Point2Df;
-import org.myrobotlab.tracking.ControlSystem;
 
 public class Tracking extends Service {
 
@@ -177,6 +177,11 @@ public class Tracking extends Service {
 		SerializableImage goodfeaturesImage = getOpenCVImageData();
 		goodfeaturesImage.source = "goodFeaturesToTrack";
 
+		// test node
+		Node node = new Node();
+		node.put("goodfeatures", goodfeatures);
+		node.put("goodfeaturesImage", goodfeaturesImage);
+		
 		// FIXME - NOT EDGE 8% away ? AND HIGH GoodFeaturesTrak value !!!
 		targetPoint = findPoint(goodfeatures, DIRECTION_CLOSEST_TO_CENTER, 0.5);
 
