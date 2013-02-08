@@ -1,25 +1,17 @@
-<!-- <project name="myrobotlab" default="dist" basedir="."> -->
 <!--
 	Dependencies:
 		Windows:
 			svnversion.exe from Collabnet
 		Linux:
 			svnversion	
-	
-	TODO - make default properties - (incapable of making a release - but all name/bogus values are there
-	TODO - build.properties inside repo with comments (static local computer settings username & password etc) - & build path outside
-			such that defaults are constructed - something safe to check in but allows easy modification for secure local builds
-	TODO : release fullRelease transfer/upload	localBuild(default)
-	FIXME - remove copy of jar's and .ivy cache from root - replace with ivy
-	resolution or mrl - update (name)
-	TODO - use more Ivy
-	TODO - removed .ivy cache copy
-	TODO - copy the "one and only" serviceData.xml to .myrobotlab directory of the build
-	TODO - move haarcascades.zip & lbpcascase.zip to opencv repo dependency
+			
+	FIXME - thirdParty/lib/sloppy **/*.jar classpath - needs to be export of eclipse's .classpath
+	TODO - use more Ivy to actually manage dependencies
 	TODO use Ivy to place "integration" libraries into build directory for GUIService & Service
-	
-	change  names
-	
+	TODO task - publishRelease & publishBleedingEdge
+	TODO test on multiple platforms Linux etc
+	TODO build native code with virtual vms - put in CI system
+		
 	flow 
 	(clean)
 	release <- possibly
@@ -28,11 +20,14 @@
 	test
 	report   (dist)
 	post
-	doc
-	release
+	javadoc
+	publishBleedingEdge
+	publishRelease
 	
 	References:
+	http://imwill.com/svntask-examples-for-apache-ant/#.URQiPKXAfzw
 	http://onjava.com/pub/a/onjava/2003/12/17/ant_bestpractices.html
+	http://stackoverflow.com/questions/4257869/java-project-layout-best-practices-for-ant-based-builds
 	http://www.qasimrasheed.com/post.cfm/eclipse-configure-ant-home
 	http://java.dzone.com/articles/how-use-svn-tasks-with-ant
 	http://stackoverflow.com/questions/1727616/custom-junit-report
@@ -40,23 +35,30 @@
 	http://enitsys.sourceforge.net/ant-classloadertask/
 	http://www.shinylight.com/2009/10/03/ant-script-to-deploy/
 	
+	publishBleedingEdge
+	publishRelease
+	
+	definitions
+	${version} 	= ${rev}.${DSTAMP}.${TSTAMP}
+	${label} 	= "myrobotlab.${version}
+	
+	FIXME - make "update" work in IDE
 -->
 
-<project name="myrobotlab" default="upload" basedir=".">
+<project name="myrobotlab" default="publishRelease" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 	
 	<!-- 
 		${build.properties} external build properties - you can override the location of the build properties file
 		by using JVM param -Dbuild.properties=newpathlocation or in the ant build call e.g. ant -propertyfile <newPathName> 
 	-->
-	<property name="build.properties" 				location="build.properties" />
+	<property name="build.properties" location="build.properties" />
 	
 	<!-- TODO - junit tests multiple virtualbox os-->
 	<!-- set global properties for this build -->
 	<property name="src" 				location="src" />
 	<property name="build.root.dir" 	location="build" />
-	<!--  <property name="build.type" 		value="dev" /> can't set this cause Ant is silly and doesn't have real variables -->
-	<property name="dist.root.dir" 		location="dist" />
+	<property name="dist.root.dir" 		location="${build.root.dir}/dist" />
 	
 	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
 	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
@@ -125,32 +127,8 @@ mail.to=someone@somewhere.com
 	<!-- needed to get mail to work -->
 	<taskdef name="classloadertask" classname="org.apache.tools.ant.taskdefs.ClassloaderTask" classpathref="ant_ext.classpath"/> 
 	<classloadertask classpathref="ant_ext.classpath" loader="thread"/> 
-		
-	<target name="svnbranch" depends="init" description="creates a new branch for individual project using svnant task">    
-
-		<property name="svn.branch.message" value="Creating new branch for trunk with new branch name ${label} "/>
-		<!-- TODO make message input & possibly another friendly release name {squirty, zippy, breeze, ...} -->
-  		<property name="src.url"  value="${svn.base.url}/trunk/"/>
-		<property name="dest.url" value="${svn.base.url}/branches/${label}"/>
-		
-		<echo message="${svn.branch.message}"/>
-		<echo message="${src.url}"/>
-		<echo message="${dest.url}"/>
-
-		<svn javahl="${svnant.javahl}" svnkit="${svnant.svnkit}"   
-		        username="${svn.username}" password="${svn.password}">
-		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>       								              
-		</svn>
-	</target>
 	
-	<target name="release" description="for releases - will branch the repo and post the artifacts">
-	    <input message="Please enter version:" addproperty="targetVersion" />
-	    <echo message="targetVersion: ${targetVersion}" />	    
-		<property name="build.type" 		value="release" />
-		<antcall target="init" />
-	</target>
 	
-
 	<!-- build the appropriate label -->
 	<target name="init">
 	    <!-- load file properties -->
@@ -177,7 +155,7 @@ mail.to=someone@somewhere.com
 		<tempfile property="temp.file"/>
 		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
 		character for a windows file system -->
-		<echo message="${targetVersion}.${repository.revision}" file="${temp.file}" />
+		<echo message="${repository.revision}" file="${temp.file}" />
 		<loadfile srcfile="${temp.file}" property="rev">
 			<filterchain>
 				<replaceregex pattern=":" replace="." />
@@ -185,16 +163,18 @@ mail.to=someone@somewhere.com
 		</loadfile>
 		<delete file="${temp.file}" />
 		<echo message="rev ${rev}" />
-		<property name="label" value="${rev}.${DSTAMP}.${TSTAMP}" />
+		<property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />
+		<property name="label" value="myrobotlab.${version}" />
+		<echo message="version ${version}" />
 		<echo message="label ${label}" />
-
+		
 		<!-- Create the build directory structure used by compile -->
 		<!-- TODO set all subsequent directories or resources with appended label -->
 		<!-- TODO branch on the label in release -->
 		
-		<property name="build"	location="${build.root.dir}/${label}"/>
-		<property name="dist"	location="${dist.root.dir}/${label}"/>
-		<property name="report.dir" 		location="report/${label}" />
+		<property name="build"			location="${build.root.dir}/${label}"/>
+		<property name="dist"			location="${dist.root.dir}/${label}"/>
+		<property name="report.dir" 	location="${dist.root.dir}/report" />
 				
 		<mkdir dir="${build.root.dir}" />
 		<mkdir dir="${build}" />
@@ -221,7 +201,7 @@ mail.to=someone@somewhere.com
 			<fileset dir="${src}/resource" />
 		</copy>
 
-		<echo file="${build}/resource/version.txt">${label}</echo>
+		<echo file="${build}/resource/version.txt">${version}</echo>
 
 		<copy todir="${dist}">
 			<fileset dir="${resource.root}" />
@@ -247,7 +227,7 @@ mail.to=someone@somewhere.com
 					<attribute name="Specification-Version" value="${targetVersion}" />
 					<attribute name="Specification-Vendor" value="myrobotlab" />
 					<attribute name="Implementation-Title" value="myrobotlab" />
-					<attribute name="Implementation-Version" value="${label}" />
+					<attribute name="Implementation-Version" value="${version}" />
 					<attribute name="Implementation-Vendor" value="myrobotlab.org" />
 				</section>
 			</manifest>
@@ -334,7 +314,6 @@ mail.to=someone@somewhere.com
 	
 	<!-- thankfully created in Eclipse -->
 	<target name="javadoc">
-	    
 		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
 			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
 			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
@@ -345,15 +324,24 @@ mail.to=someone@somewhere.com
 			</classpath>
 		</javadoc>
 	</target>
-
-	<target name="upload" depends="report, javadoc" description="upload to google code" >
+	
+	<target name="publishBleedingEdge" depends="report" description="publish bleeding edge to google code" >
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
 		 -->
 		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload" classpathref="ant_ext.classpath"/>
-		<!--   gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}/myrobotlab.jar" targetfilename="myrobotlab.jar" summary="latest jar for bleeding edge updates" labels="OpSys-All" -->
-		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="${label}.zip" summary="complete package - ${svn.comment}" labels="OpSys-All" />
+		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}/libraries/jar/myrobotlab.jar" targetfilename="myrobotlab.bleeding.edge.${version}.jar" summary="bleeding edge - ${svn.comment}" labels="OpSys-All" />
+	</target>
+	
+
+	<target name="publishRelease" depends="report" description="publish release to google code" >
+	    <!-- 
+		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
+		<input message="Please enter upload password:" addproperty="gc.upload.password" />
+		 -->
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload" classpathref="ant_ext.classpath"/>
+		<gcupload username="${env.gc.upload.userid}" password="${env.gc.upload.password}" projectname="myrobotlab" verbose="true" filename="${dist.root.dir}/${label}.zip" targetfilename="myrobotlab.${version}.zip" summary="complete package - ${svn.comment}" labels="OpSys-All,Featured" />
 	</target>
 
 		<!-- TODO - upload javadoc, check in javadoc? -->
@@ -365,4 +353,28 @@ mail.to=someone@somewhere.com
 	  </java>
 	  </target>
 -->
+<!-- 
+	<target name="svnbranch" depends="init" description="creates a new branch for individual project using svnant task">    
+		<property name="svn.branch.message" value="Creating new branch for trunk with new branch name ${label} "/>
+  		<property name="src.url"  value="${svn.base.url}/trunk/"/>
+		<property name="dest.url" value="${svn.base.url}/branches/${label}"/>
+		
+		<echo message="${svn.branch.message}"/>
+		<echo message="${src.url}"/>
+		<echo message="${dest.url}"/>
+
+		<svn javahl="${svnant.javahl}" svnkit="${svnant.svnkit}"   
+		        username="${svn.username}" password="${svn.password}">
+		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>       								              
+		</svn>
+	</target>
+	
+	<target name="release" description="for releases - will branch the repo and post the artifacts">
+	    <input message="Please enter version:" addproperty="targetVersion" />
+	    <echo message="targetVersion: ${targetVersion}" />	    
+		<property name="build.type" 		value="release" />
+		<antcall target="init" />
+	</target>
+	
+ -->
 </project>

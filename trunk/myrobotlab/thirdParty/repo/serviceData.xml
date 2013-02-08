@@ -208,6 +208,8 @@
             <string>edu.cmu.sphinx</string>
             <string>gnu.io.rxtx</string>
             <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
          </list>
       </dependsOn>
    </serviceType>

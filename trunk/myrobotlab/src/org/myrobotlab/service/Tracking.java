@@ -105,6 +105,14 @@ public class Tracking extends Service {
 	 * ObjectFinder(); ObjectTracker tracker = new ObjectTracker();
 	 */
 
+
+	// TODO - Avoidance / Navigation Service
+	// ground plane
+	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
+	// radio lab - map cells location cells yatta yatta
+	// lkoptical disparity motion Time To Contact
+	// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
+	
 	transient PID xpid, ypid;
 	transient OpenCV opencv;
 	// transient ControlSystem control = new ControlSystem();
