@@ -14,7 +14,11 @@ import org.OpenNI.License;
 import org.OpenNI.MapOutputMode;
 import org.OpenNI.OutArg;
 import org.OpenNI.ScriptNode;
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.VideoSink;
@@ -24,7 +28,7 @@ public class GestureRecognition extends Service implements VideoSource {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(GestureRecognition.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GestureRecognition.class.getCanonicalName());
 
 	// public UserTracker viewer;
 
@@ -221,7 +225,7 @@ public class GestureRecognition extends Service implements VideoSource {
 	}
 
 	public static void main(String s[]) {
-		org.apache.log4j.BasicConfigurator.configure();
+		LoggingFactory.getInstance().configure();
 
 		GestureRecognition gr = new GestureRecognition("gr");
 		gr.startService();

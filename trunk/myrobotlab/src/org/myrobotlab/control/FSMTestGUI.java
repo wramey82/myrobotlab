@@ -37,7 +37,9 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.NodeDeprecate;
@@ -49,7 +51,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(FSMTestGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(FSMTestGUI.class.toString());
 
 	VideoWidget bestFitVideo = null;
 	VideoWidget newImageVideo = null;
@@ -160,8 +162,8 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
 		Iterator<String> itr = memory.keySet().iterator();
 		NodeDeprecate unknown = memory.get(FSMTest.UNKNOWN);
-		log.error(unknown.imageData.get(0).cvBoundingBox);
-		log.error(unknown.imageData.get(0).boundingBox);
+		log.error("cvBoundingBox {}",unknown.imageData.get(0).cvBoundingBox);
+		log.error("boundingBox {}",unknown.imageData.get(0).boundingBox);
 
 		while (itr.hasNext()) {
 			String n = itr.next();

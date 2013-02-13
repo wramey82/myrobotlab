@@ -25,15 +25,19 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.chess.HMove;
 import org.myrobotlab.control.ChessGameGUI;
 import org.myrobotlab.framework.Service;
 
 public class ChessGame extends Service {
 
-	public final static Logger log = Logger.getLogger(ChessGame.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ChessGame.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	public ChessGame(String n) {
@@ -182,8 +186,8 @@ public class ChessGame extends Service {
 
 
 	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		log.info(ChessGameGUI.cleanMove("a2-a3q"));
 
@@ -196,7 +200,7 @@ public class ChessGame extends Service {
 		// OpenCV camera = new OpenCV("camera");
 		// camera.startService();
 
-		Logging log = new Logging("log");
+		Log log = new Log("log");
 		log.startService();
 
 		GUIService gui = new GUIService("gui");

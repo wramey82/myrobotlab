@@ -25,8 +25,12 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.jfugue.Player;
 import org.jfugue.Rhythm;
 import org.myrobotlab.framework.Service;
@@ -34,7 +38,7 @@ import org.myrobotlab.framework.Service;
 public class JFugue extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(JFugue.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(JFugue.class.getCanonicalName());
 	transient public Player player = new Player();
 
 	public JFugue(String n) {
@@ -68,8 +72,8 @@ public class JFugue extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		JFugue jfugue = new JFugue("jfugue");
 		jfugue.play("C D E F G A B");

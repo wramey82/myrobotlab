@@ -38,7 +38,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.service.Runtime;
@@ -49,7 +51,7 @@ import com.mxgraph.view.mxGraph;
 
 public class GUIServiceInMethodDialog extends JDialog implements ActionListener {
 
-	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
 
 	private static final long serialVersionUID = 1L;
 
@@ -121,7 +123,7 @@ public class GUIServiceInMethodDialog extends JDialog implements ActionListener 
 		myService.setPeriod0(".");
 		myService.setDstMethodName(method);
 
-		log.info(e);
+		log.info("{}", e);
 
 		// myService.srcMethodName = method.split(regex)
 		// myService.parameterList =

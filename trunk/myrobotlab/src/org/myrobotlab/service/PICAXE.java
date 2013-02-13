@@ -25,8 +25,12 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /*
@@ -48,7 +52,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(PICAXE.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(PICAXE.class.getCanonicalName());
 
 	// fields
 	public int interval = 1000;
@@ -196,8 +200,8 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		// RemoteAdapter remote = new RemoteAdapter("remote");
 		// remote.startService();
@@ -209,8 +213,6 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
 
-		// Logging log = new Logging("log");
-		// log.startService();
 
 		// PICAXE.addListener("pulse", "log", "log", Integer.class);
 
@@ -226,11 +228,6 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 		 * out.writeObject(log); out.writeObject(PICAXE); out.writeObject(gui);
 		 * out.close();
 		 * 
-		 * 
-		 * FileInputStream fis = new FileInputStream("test.backup");
-		 * ObjectInputStream in = new ObjectInputStream(fis); Logging log =
-		 * (Logging)in.readObject(); PICAXE PICAXE = (PICAXE)in.readObject();
-		 * GUIService gui = (GUIService)in.readObject(); in.close();
 		 * 
 		 * log.startService();
 		 * 

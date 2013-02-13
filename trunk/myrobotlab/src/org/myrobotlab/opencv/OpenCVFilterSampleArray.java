@@ -27,7 +27,9 @@ package org.myrobotlab.opencv;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.service.OpenCV;
 
@@ -37,7 +39,7 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterSampleArray.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSampleArray.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;

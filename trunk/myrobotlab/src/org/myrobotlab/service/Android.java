@@ -2,8 +2,12 @@ package org.myrobotlab.service;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.android.MRL;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -25,7 +29,7 @@ public class Android extends Service implements SensorEventListener {
 	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
 
 	private Context context;
-	public final static Logger log = Logger.getLogger(Android.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Android.class.getCanonicalName());
 	
 
 	public Android(String n) {
@@ -198,8 +202,8 @@ public class Android extends Service implements SensorEventListener {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
 		Android android = new Android("android");
 		android.startService();

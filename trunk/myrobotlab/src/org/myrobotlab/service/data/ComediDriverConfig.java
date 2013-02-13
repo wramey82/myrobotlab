@@ -28,11 +28,15 @@ package org.myrobotlab.service.data;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 
 public class ComediDriverConfig implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ComediDriverConfig.class);
+	public final static Logger log = LoggerFactory.getLogger(ComediDriverConfig.class);
 
 	public int ID;
 	public HashMap<String, IOSequence> sequenceMap_; // map of named sequences
@@ -70,7 +74,7 @@ public class ComediDriverConfig implements Serializable {
 	public static String name() {
 		if (log.isDebugEnabled()) {
 			StringBuilder logString = new StringBuilder("ComediDriverConfig.getName()()");
-			log.debug(logString);
+			log.debug("{}",logString);
 		} // if
 
 		String ret = new String("ComediDriverConfig");

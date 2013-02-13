@@ -27,13 +27,17 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 public class TestThrower extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(TestThrower.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(TestThrower.class.getCanonicalName());
 	public int cnt = 0;
 	public int pulseLimit = 20;
 	public int pitchCnt = 0;

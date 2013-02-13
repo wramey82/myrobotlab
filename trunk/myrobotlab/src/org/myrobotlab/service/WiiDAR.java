@@ -27,8 +27,12 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.data.Pin;
@@ -38,7 +42,7 @@ import org.myrobotlab.service.data.Pin;
 public class WiiDAR extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(WiiDAR.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WiiDAR.class.getCanonicalName());
 
 	// TODO - possibly initialize - must contend with gui as well as arduino wii
 	// & servo
@@ -473,8 +477,8 @@ public class WiiDAR extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		WiiDAR wiidar = new WiiDAR("wiidar");
 		wiidar.startService();

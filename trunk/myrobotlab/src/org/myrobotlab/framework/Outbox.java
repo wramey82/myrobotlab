@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 
 /*
@@ -44,7 +46,7 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
 
 public class Outbox implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Outbox.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Outbox.class.getCanonicalName());
 
 	Service myService = null;
 	LinkedList<Message> msgBox = new LinkedList<Message>();

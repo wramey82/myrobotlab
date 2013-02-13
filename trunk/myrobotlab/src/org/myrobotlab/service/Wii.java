@@ -30,8 +30,12 @@ import gnu.io.SerialPortEventListener;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.gnu.BinaryCommPort.LineDriver;
 
@@ -58,7 +62,7 @@ import wiiusej.wiiusejevents.wiiuseapievents.StatusEvent;
 public class Wii extends Service implements WiimoteListener, SerialPortEventListener, LineDriver {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Wii.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Wii.class.getCanonicalName());
 
 	Wiimote[] wiimotes = null;
 	Wiimote wiimote = null;
@@ -87,7 +91,7 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 
 	// TODO - support shutdown()
 	public void onButtonsEvent(WiimoteButtonsEvent arg0) {
-		log.debug(arg0);
+		log.debug("{}",arg0);
 		// if (arg0.isButtonAPressed()){
 		// WiiUseApiManager.shutdown();
 		// }
@@ -132,7 +136,7 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 		// log.debug(arg0);
 		++cnt;
 		if (cnt % 100 == 0) {
-			log.error(cnt);
+			log.error("cnt {}",cnt);
 		}
 		IRData ir = new IRData(System.currentTimeMillis(), arg0);
 		// t.add(ir);
@@ -144,27 +148,27 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 	}
 
 	public void onMotionSensingEvent(MotionSensingEvent arg0) {
-		log.debug(arg0);
+		log.debug("motion sensing event {}",arg0);
 	}
 
 	public void onExpansionEvent(ExpansionEvent arg0) {
-		log.debug(arg0);
+		log.debug("expansion event {}",arg0);
 	}
 
 	public void onStatusEvent(StatusEvent arg0) {
-		log.debug(arg0);
+		log.debug("status event {}",arg0);
 	}
 
 	public void onDisconnectionEvent(DisconnectionEvent arg0) {
-		log.debug(arg0);
+		log.debug("disconnect event {}",arg0);
 	}
 
 	public void onNunchukInsertedEvent(NunchukInsertedEvent arg0) {
-		log.debug(arg0);
+		log.debug("NunchukInsertedEvent {}",arg0);
 	}
 
 	public void onNunchukRemovedEvent(NunchukRemovedEvent arg0) {
-		log.debug(arg0);
+		log.debug("NunchukRemovedEvent {}",arg0);
 	}
 
 	public Wiimote[] getWiimotes() {
@@ -308,8 +312,8 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Wii wii = new Wii("wii");
 

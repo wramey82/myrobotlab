@@ -32,14 +32,16 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class OpenCVFilterGUI {
-	public final static Logger log = Logger.getLogger(OpenCVFilterGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterGUI.class.getCanonicalName());
 
 	final String name;
 	JPanel display = new JPanel(new GridBagLayout());

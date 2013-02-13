@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public final class FindFile { // implements FilenameFilter
 	/*
@@ -20,7 +23,7 @@ public final class FindFile { // implements FilenameFilter
 	 * private Pattern pattern = null;
 	 */
 
-	public final static Logger log = Logger.getLogger(FindFile.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FindFile.class.getCanonicalName());
 
 	public static List<File> find(String criteria) throws FileNotFoundException {
 		return find(null, criteria, true, false);
@@ -100,8 +103,8 @@ public final class FindFile { // implements FilenameFilter
 	}
 
 	public static void main(String... aArgs) throws FileNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		// TODO - there was methods to do this already in java.io
 		List<File> files = FindFile.find(".ivy", "resolved.*\\.xml$");

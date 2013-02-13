@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler;
 import org.myrobotlab.arduino.compiler.PdePreprocessor;
@@ -46,7 +48,7 @@ import org.myrobotlab.service.Arduino;
 
 public class Sketch {
 	Arduino myArduino;
-	public final static Logger log = Logger.getLogger(Sketch.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Sketch.class.getCanonicalName());
 
 	static private File tempBuildFolder;
 

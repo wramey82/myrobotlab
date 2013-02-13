@@ -30,13 +30,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class Inbox implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Inbox.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Inbox.class.getCanonicalName());
 
 	String name;
 	LinkedList<Message> msgBox = new LinkedList<Message>();
@@ -130,7 +132,7 @@ public class Inbox implements Serializable {
 		// to prevent messaging infinite loops
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
 			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);
-			log.error(msg.historyList);
+			log.error("history list {}", msg.historyList);
 			return;
 		}
 

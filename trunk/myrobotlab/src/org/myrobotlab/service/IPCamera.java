@@ -8,8 +8,12 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.opencv.IPCameraFrameGrabber;
@@ -34,7 +38,7 @@ public class IPCamera extends Service {
 
 	private boolean enableControls = true;
 
-	public final static Logger log = Logger.getLogger(IPCamera.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(IPCamera.class.getCanonicalName());
 
 	public final static int FOSCAM_MOVE_UP = 0;
 	public final static int FOSCAM_MOVE_STOP_UP = 1;
@@ -173,7 +177,7 @@ public class IPCamera extends Service {
 			}
 			in.close();
 
-			log.debug(ret.indexOf("var id"));
+			log.debug(String.format("%d",ret.indexOf("var id")));
 
 			if (ret.indexOf("var id") != -1) {
 				ret = new StringBuffer("connected");
@@ -224,8 +228,8 @@ public class IPCamera extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		IPCamera foscam = new IPCamera("foscam");
 		foscam.startService();

@@ -23,8 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.jibble.simplewebserver.SimpleWebServer;
 import org.myrobotlab.framework.Service;
 
@@ -36,7 +40,7 @@ public class WebServer extends Service {
 
 	private HashMap<String, String> handler = new HashMap<String, String>();
 
-	public final static Logger log = Logger.getLogger(WebServer.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WebServer.class.getCanonicalName());
 
 	public WebServer(String n) {
 		super(n, WebServer.class.getCanonicalName());
@@ -79,8 +83,8 @@ public class WebServer extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		WebServer web = new WebServer("web");
 		web.startService();

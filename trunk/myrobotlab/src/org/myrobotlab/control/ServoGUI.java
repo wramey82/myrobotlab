@@ -45,7 +45,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.data.Pin;
@@ -54,7 +56,7 @@ import org.myrobotlab.service.interfaces.ServoController;
 
 public class ServoGUI extends ServiceGUI implements ActionListener, MouseListener {
 
-	public final static Logger log = Logger.getLogger(ServoGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ServoGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;
@@ -248,7 +250,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 				// myService.send(controllerName, "getPinList");
 				@SuppressWarnings("unchecked")
 				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList", null);
-				log.info(pinList.size());
+				log.info("{}", pinList.size());
 
 				pinModel.removeAllElements();
 				// FIXME - get Local services relative to the servo

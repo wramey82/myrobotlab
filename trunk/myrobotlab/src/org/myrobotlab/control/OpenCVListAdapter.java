@@ -10,13 +10,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 
 public class OpenCVListAdapter extends MouseAdapter implements ActionListener {
 	
-	public final static Logger log = Logger.getLogger(OpenCVListAdapter.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVListAdapter.class.getCanonicalName());
 	
 	JPopupMenu popup = new JPopupMenu();
 	JMenuItem infoMenuItem  = new JMenuItem("info");

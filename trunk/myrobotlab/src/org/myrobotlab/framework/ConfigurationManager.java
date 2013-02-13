@@ -47,7 +47,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 /**
  * ConfigurationManager OUTERMAP INNERMAP ??
@@ -121,7 +123,7 @@ import org.apache.log4j.Logger;
 public class ConfigurationManager implements Serializable {
 	static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(ConfigurationManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(ConfigurationManager.class.toString());
 	public final static String PATH_DELIMETER = "/";
 	public final static String ELEMENT_DELIMETER = ",";
 

@@ -49,12 +49,15 @@ import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.TriangleArray;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+
 import org.myrobotlab.service.data.SensorData;
 
 public class PointsShape extends Shape3D implements GeometryUpdater {
 
-	public final static Logger log = Logger.getLogger(PointsShape.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(PointsShape.class.getCanonicalName());
 
 	/**
 	 * resolution of depth image; change to match setting in DepthReader the
@@ -362,7 +365,7 @@ public class PointsShape extends Shape3D implements GeometryUpdater {
 		try {
 			sem.acquire(); // wait for update to finish in updateData()
 		} catch (InterruptedException e) {
-			log.error(e);
+			Logging.logException(e);
 		}
 	} // end of updateDepthCoords()
 

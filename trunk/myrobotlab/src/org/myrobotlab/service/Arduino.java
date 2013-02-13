@@ -42,7 +42,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler;
@@ -90,7 +94,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		MessageConsumer {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Arduino.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Arduino.class.getCanonicalName());
 	public static final int REVISION = 100;
 
 	public static final String BOARD_TYPE_UNO = "uno";
@@ -1356,8 +1360,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		// Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		// LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		/*
 		 * for (int i = 0; i < 10000; ++i) { if (i%1 == 0) { log.info("mod 1");

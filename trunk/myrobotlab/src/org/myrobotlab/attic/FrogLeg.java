@@ -35,8 +35,11 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
@@ -53,7 +56,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 
 public class FrogLeg extends Service {
 
-	public final static Logger log = Logger.getLogger(FrogLeg.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FrogLeg.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	public final static int IR_PIN = 1;
@@ -131,8 +134,8 @@ public class FrogLeg extends Service {
 	// TODO - do in Service
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		FrogLeg frogleg = new FrogLeg("frogleg");
 		frogleg.startService();
@@ -239,11 +242,11 @@ public class FrogLeg extends Service {
 	}
 
 	public void trackPoints(CvPoint2D32f[] points) {
-		log.error(points[0]);
+		log.error("{}",points[0]);
 	}
 
 	public void samplePoints(CvPoint2D32f[] points) {
-		log.warn(points[0]);
+		log.warn("{}",points[0]);
 	}
 
 	boolean beginSampled = false;
@@ -297,7 +300,7 @@ public class FrogLeg extends Service {
 
 		String ret = "\n";
 
-		log.error(points.size());
+		log.error("{}",points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {

@@ -39,8 +39,12 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -48,7 +52,7 @@ import org.myrobotlab.framework.Service;
  */
 public class HTTPClient extends Service {
 
-	public final static Logger log = Logger.getLogger(HTTPClient.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(HTTPClient.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	public HTTPClient(String n) {
@@ -285,13 +289,13 @@ public class HTTPClient extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		// HTTPClient http = (HTTPClient)Runtime.create ("http",
 		// (Class<?>)HTTPClient.class);
 		HTTPData data = HTTPClient.get("http://localhost/");
-		log.info(data);
+		log.info(data.toString());
 	}
 
 }

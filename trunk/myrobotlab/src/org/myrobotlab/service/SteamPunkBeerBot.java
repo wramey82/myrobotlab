@@ -1,7 +1,11 @@
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 public class SteamPunkBeerBot extends Service {
@@ -13,7 +17,7 @@ public class SteamPunkBeerBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(SteamPunkBeerBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SteamPunkBeerBot.class.getCanonicalName());
 
 	public SteamPunkBeerBot(String n) {
 		super(n, SteamPunkBeerBot.class.getCanonicalName());
@@ -42,8 +46,8 @@ public class SteamPunkBeerBot extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		SteamPunkBeerBot game = new SteamPunkBeerBot("game");
 		game.startService();

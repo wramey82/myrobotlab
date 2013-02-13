@@ -59,7 +59,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.opencv.FilterWrapper;
@@ -74,7 +76,7 @@ import com.googlecode.javacv.FrameGrabber;
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource, ActionListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(OpenCVGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVGUI.class.toString());
 	public String prefixPath = "com.googlecode.javacv.";
 	
 

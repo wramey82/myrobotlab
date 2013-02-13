@@ -29,7 +29,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -38,7 +40,7 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterDilate.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterDilate.class.getCanonicalName());
 
 	public OpenCVFilterDilate(OpenCV service, String name) {
 		super(service, name);

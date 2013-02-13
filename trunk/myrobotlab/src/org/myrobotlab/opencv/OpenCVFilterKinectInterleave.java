@@ -34,7 +34,9 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
@@ -44,7 +46,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterKinectInterleave.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterKinectInterleave.class.getCanonicalName());
 
 	transient IplImage dst = null;
 	transient IplImage src = null;

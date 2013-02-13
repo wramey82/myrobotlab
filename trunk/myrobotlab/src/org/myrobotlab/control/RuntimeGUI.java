@@ -62,7 +62,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.ProgressDialog;
 import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.framework.Dependency;
@@ -76,7 +78,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
-	public final static Logger log = Logger.getLogger(RuntimeGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RuntimeGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	HashMap<String, ServiceEntry> nameToServiceEntry = new HashMap<String, ServiceEntry>();
@@ -481,7 +483,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 			ServiceEntry se = null;
 
 			for (int i = 0; i < ses.length; ++i) {
-				log.info(i);
+				log.info("possible service {}", i);
 				se = new ServiceEntry(null, sscn[i], false);
 
 				possibleServicesModel.addRow(new Object[] { se, "" });

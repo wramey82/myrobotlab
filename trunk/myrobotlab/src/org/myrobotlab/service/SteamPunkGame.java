@@ -2,8 +2,12 @@ package org.myrobotlab.service;
 
 import java.util.Date;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.Pin;
 
@@ -26,7 +30,7 @@ public class SteamPunkGame extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(SteamPunkGame.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SteamPunkGame.class.getCanonicalName());
 
 	public SteamPunkGame(String n) {
 		super(n, SteamPunkGame.class.getCanonicalName());
@@ -177,8 +181,8 @@ public class SteamPunkGame extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		SteamPunkGame game = new SteamPunkGame("game");
 		game.startService();

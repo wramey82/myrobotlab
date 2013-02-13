@@ -33,14 +33,16 @@ import java.awt.event.KeyListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.SteamPunkGame;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class SteamPunkGameGUI extends ServiceGUI implements ActionListener, KeyListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SteamPunkGameGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SteamPunkGameGUI.class.getCanonicalName());
 
 	JButton keyboardControl = new JButton("keyboard control");
 	JButton startGame = new JButton("start game");

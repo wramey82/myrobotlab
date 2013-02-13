@@ -37,7 +37,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
 
@@ -49,7 +51,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterGoodFeaturesToTrack.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterGoodFeaturesToTrack.class.getCanonicalName());
 
 	IplImage grey = null;
 	IplImage eig = null;

@@ -40,7 +40,9 @@ import javax.swing.JLayeredPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.AdafruitMotorShield;
 import org.myrobotlab.service.Arduino;
@@ -49,7 +51,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(AdafruitMotorShieldGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AdafruitMotorShieldGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	private AdafruitMotorShield myAdafruitMotorShield = null;

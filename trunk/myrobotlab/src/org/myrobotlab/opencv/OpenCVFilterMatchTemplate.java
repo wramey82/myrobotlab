@@ -43,7 +43,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
@@ -57,7 +59,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
 
 	int i = 0;
 	public IplImage template = null;

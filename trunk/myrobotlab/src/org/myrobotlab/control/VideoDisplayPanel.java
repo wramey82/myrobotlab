@@ -17,14 +17,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
 
 // TODO - too big for inner class
 public class VideoDisplayPanel implements ActionListener {
-	public final static Logger log = Logger.getLogger(VideoDisplayPanel.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(VideoDisplayPanel.class.getCanonicalName());
 
 	VideoWidget parent;
 	String boundFilterName;

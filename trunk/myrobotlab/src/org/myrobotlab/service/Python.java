@@ -6,8 +6,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -76,7 +80,7 @@ public class Python extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static transient Logger log = Logger.getLogger(Python.class.getCanonicalName());
+	public final static transient Logger log = LoggerFactory.getLogger(Python.class.getCanonicalName());
 	// using a HashMap means no duplicates
 	private static final Set<String> commandMap;
 	// TODO this needs to be moved into an actual cache if it is to be used
@@ -462,8 +466,8 @@ public class Python extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		// String f = "C:\\Program Files\\blah.1.py";
 		// log.info(getName(f));

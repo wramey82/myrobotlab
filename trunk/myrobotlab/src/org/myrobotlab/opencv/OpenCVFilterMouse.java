@@ -39,7 +39,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -57,7 +59,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterMouse.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterMouse.class.getCanonicalName());
 
 	int stepSize = 1;
 	CvPoint startPoint = null;
@@ -168,7 +170,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 		myService.invoke("publish", (Object) path);
 
-		log.error(path.size());
+		log.error("{}", path.size());
 		return image;
 	}
 

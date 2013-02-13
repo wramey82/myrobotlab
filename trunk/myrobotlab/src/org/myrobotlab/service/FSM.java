@@ -27,8 +27,12 @@ package org.myrobotlab.service;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.simpleframework.xml.Root;
 
@@ -38,7 +42,7 @@ public class FSM extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(FSM.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FSM.class.getCanonicalName());
 
 	HashMap<String, EventData> transistionStates = new HashMap<String, EventData>();
 
@@ -70,8 +74,8 @@ public class FSM extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		FSM fsm = new FSM("fsm");
 		fsm.startService();

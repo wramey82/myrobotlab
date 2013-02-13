@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.OpenCV.Polygon;
@@ -42,7 +44,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ColoredThingyFinder extends Service {
 
-	public final static Logger log = Logger.getLogger(ColoredThingyFinder.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ColoredThingyFinder.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	String servoX = null;

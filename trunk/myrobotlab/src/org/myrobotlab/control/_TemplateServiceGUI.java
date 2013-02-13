@@ -28,14 +28,16 @@ package org.myrobotlab.control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(_TemplateServiceGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(_TemplateServiceGUI.class.getCanonicalName());
 
 	public _TemplateServiceGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);

@@ -1,7 +1,11 @@
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -12,7 +16,7 @@ import org.myrobotlab.framework.Service;
 public class Proxy extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Proxy.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Proxy.class.getCanonicalName());
 
 	private String mimicName = null;
 	private String mimicType = null;
@@ -36,8 +40,8 @@ public class Proxy extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Proxy template = new Proxy("proxy");
 		template.startService();

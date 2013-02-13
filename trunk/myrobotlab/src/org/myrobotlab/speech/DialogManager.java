@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.RuleGrammar;
@@ -27,6 +26,8 @@ import javax.speech.recognition.RuleParse;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
 import edu.cmu.sphinx.jsgf.JSGFGrammar;
@@ -48,7 +49,7 @@ import edu.cmu.sphinx.util.props.S4Component;
  */
 public class DialogManager implements Configurable {
 
-	public final static Logger log = Logger.getLogger(DialogManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(DialogManager.class);
 
 	/**
 	 * The property that defines the name of the grammar component to be used by
@@ -169,7 +170,7 @@ public class DialogManager implements Configurable {
 	 * .props.PropertySheet)
 	 */
 	public void newProperties(PropertySheet ps) throws PropertyException {
-		logger = ps.getLogger();
+		//logger = ps.getLogger();
 		grammar = (JSGFGrammar) ps.getComponent(PROP_JSGF_GRAMMAR);
 		microphone = (Microphone) ps.getComponent(PROP_MICROPHONE);
 		recognizer = (Recognizer) ps.getComponent(PROP_RECOGNIZER);

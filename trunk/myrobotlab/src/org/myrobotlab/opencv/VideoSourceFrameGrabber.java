@@ -2,7 +2,9 @@ package org.myrobotlab.opencv;
 
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.SerializableImage;
 
 import com.googlecode.javacv.FrameGrabber;
@@ -19,7 +21,7 @@ public class VideoSourceFrameGrabber extends FrameGrabber {
 
 	LinkedList<SerializableImage> imgq = new LinkedList<SerializableImage>();
 
-	public final static Logger log = Logger.getLogger(VideoSourceFrameGrabber.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(VideoSourceFrameGrabber.class.getCanonicalName());
 
 	public VideoSourceFrameGrabber(String name) {
 	}

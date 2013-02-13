@@ -54,16 +54,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
-import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.logging.LogAppender;
-import org.myrobotlab.logging.LogLevel;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
@@ -74,6 +66,7 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -99,7 +92,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// this.getClass().getCanonicalName() + "/" + name;
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Service.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(Service.class);
 	protected String host = null; // TODO - should be final??? helpful in
 									// testing??? TODO - put in
 									// RuntimeEnvironment???
@@ -339,7 +332,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		StringBuffer sb = new StringBuffer(40).append("timer ").append(timerName).append(" ").append(System.currentTimeMillis() - timerMap.get(timerName)).append(" ms ")
 				.append(tag);
 
-		log.error(sb);
+		log.error(sb.toString());
 	}
 
 	/**
@@ -1023,7 +1016,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public Object invoke(String method, Object[] params) {
 		// log invoking call
-		if (Logger.getRootLogger().getLevel() == Level.DEBUG) {
+		
+		if (log.isDebugEnabled()) {
 			StringBuilder paramTypeString = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; ++i) {
@@ -1812,146 +1806,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return (Service) copyShallowFrom(this, s);
 	}
 
-	// ---------------- logging begin ---------------------------
-	/**
-	 * dynamically set the logging level
-	 * 
-	 * @param level
-	 *            DEBUG | INFO | WARN | ERROR | FATAL
-	 */
-	public final static void setLogLevel(LogLevel level) {
-		setLogLevel(null, level);
-	}
-
-	/**
-	 * @param level
-	 *            string input controls logging level
-	 */
-	public final static void setLogLevel(String object, LogLevel level) {
-		log.debug(String.format("setLogLevel %1$s %2$s", object, level));
-		Logger logger;
-		if (object == null || object.length() == 0) {
-			logger = Logger.getRootLogger();
-		} else {
-			logger = Logger.getLogger(object);
-		}
-		setLoggerLevel(logger, level);
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @return
-	 */
-	public static LogLevel getLogLevel(String object) {
-		Logger logger;
-		if (object == null || object.length() == 0) {
-			logger = Logger.getRootLogger();
-		} else {
-			logger = Logger.getLogger(object);
-		}
-
-		Level logLevel = logger.getLevel();
-		if (logLevel == Level.INFO) {
-			return LogLevel.Info;
-		} else if (logLevel == Level.WARN) {
-			return LogLevel.Warn;
-		} else if (logLevel == Level.ERROR) {
-			return LogLevel.Error;
-		} else if (logLevel == Level.FATAL) {
-			return LogLevel.Fatal;
-		} else if (logLevel == Level.DEBUG) {
-			return LogLevel.Debug;
-		}
-
-		return null;
-	}
-
-	/**
-	 * dynamically set the level of the current Service logger in case you want
-	 * to change the logging level of say an OpenCV Service to a different level
-	 * than a Clock Service
-	 * 
-	 * @param level
-	 *            DEBUG | INFO | WARN | ERROR | FATAL
-	 */
-	public void setMyLogLevel(LogLevel level) {
-		Logger logger = Logger.getLogger(this.getClass().toString());
-		setLoggerLevel(logger, level);
-	}
-
-	/**
-	 * 
-	 * @param type
-	 */
-	public static void addAppender(LogAppender type) {
-		addAppender(type, null, null);
-	}
-
-	/**
-	 * 
-	 * @param type
-	 * @param host
-	 * @param port
-	 */
-	public static void addAppender(LogAppender type, String host, String port) {
-		// same format as BasicConfigurator.configure()
-		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
-		Appender appender = null;
-
-		// TODO the type should be an enumeration so that we can make this a
-		// switch statement (unless Python dependencies don't allow for it)
-		try {
-			switch (type) {
-			case Console:
-				appender = new ConsoleAppender(layout);
-				appender.setName(LogAppender.Console.toString());
-				break;
-			case ConsoleGui:
-				// FIXME must be done by a GUI
-				// appender = new SocketAppender(host, Integer.parseInt(port));
-				// appender.setName(LogAppender.Remote);
-				break;
-			case Remote:
-				appender = new SocketAppender(host, Integer.parseInt(port));
-				appender.setName(LogAppender.Remote.toString());
-				break;
-			case File:
-				appender = new RollingFileAppender(layout, String.format("%1$s%2$smyrobotlab.log", System.getProperty("user.dir"), File.separator), false);
-				appender.setName(LogAppender.File.toString());
-				break;
-			default:
-				log.error(String.format("attempting to add unkown type of Appender %1$s", type));
-				return;
-			}
-		} catch (Exception e) {
-			System.out.println(Service.stackToString(e));
-		}
-
-		if (appender != null) {
-			Logger.getRootLogger().addAppender(appender);
-		}
-
-		if (type.equals(LogAppender.None.toString())) {
-			Logger.getRootLogger().removeAllAppenders();
-		}
-
-	}
-
-	/**
-	 * 
-	 * @param name
-	 */
-	public static void remoteAppender(LogAppender name) {
-		Logger.getRootLogger().removeAppender(name.toString());
-	}
-
-	/**
-	 * 
-	 */
-	public static void removeAllAppenders() {
-		Logger.getRootLogger().removeAllAppenders();
-	}
 
 	/**
 	 * 
@@ -2004,38 +1858,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return if successful
 	 * 
 	 */
-	/*
-	 * public boolean attach (String serviceName) {
-	 * log.warn(String.format("don't know how to attach to service %s",
-	 * serviceName)); return false; }
-	 */
-
-	/**
-	 * Helper method to translate between our LogLevel enumeration and what the
-	 * logging system (Log4j at this point) uses.
-	 * 
-	 * @param logger
-	 * @param level
-	 */
-	private static void setLoggerLevel(Logger logger, LogLevel level) {
-		switch (level) {
-		case Info:
-			logger.setLevel(Level.INFO);
-			break;
-		case Warn:
-			logger.setLevel(Level.WARN);
-			break;
-		case Error:
-			logger.setLevel(Level.ERROR);
-			break;
-		case Fatal:
-			logger.setLevel(Level.FATAL);
-			break;
-		default:
-			logger.setLevel(Level.DEBUG);
-			break;
-		}
-	}
+	
 
 	public String getServiceResourceFile(String subpath) {
 		return FileIO.getResourceFile(String.format("%s/%s", this.getShortTypeName(), subpath));

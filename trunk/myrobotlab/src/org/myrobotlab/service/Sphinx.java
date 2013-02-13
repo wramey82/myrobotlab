@@ -48,8 +48,12 @@ import java.util.Set;
 
 import javax.speech.recognition.GrammarException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -67,7 +71,7 @@ import edu.cmu.sphinx.util.props.PropertyException;
 public class Sphinx extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Sphinx.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Sphinx.class.getCanonicalName());
 
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
@@ -474,8 +478,8 @@ public class Sphinx extends Service {
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Sphinx ear = new Sphinx("ear");
 		ear.createGrammar("hello | up | down | yes | no");

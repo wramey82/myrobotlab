@@ -13,7 +13,10 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+
 import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.FrameGrabber;
@@ -27,7 +30,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	 * http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password android ip
 	 * cam http://192.168.0.57:8080/videofeed
 	 */
-	public final static Logger log = Logger.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
 
 	private URL url;
 	private URLConnection connection;
@@ -39,7 +42,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		try {
 			url = new URL(urlstr);
 		} catch (MalformedURLException e) {
-			log.error(e);
+			Logging.logException(e);
 		}
 	}
 

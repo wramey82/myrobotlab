@@ -39,8 +39,12 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.Communicator;
@@ -64,7 +68,7 @@ import org.myrobotlab.service.interfaces.Communicator;
 public class RemoteAdapter extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(RemoteAdapter.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RemoteAdapter.class.getCanonicalName());
 
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
@@ -309,13 +313,13 @@ public class RemoteAdapter extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Runtime.main(args);
 		/*
 		 * Runtime.createAndStart("remote0", "RemoteAdapter");
-		 * Runtime.createAndStart("log0", "Logging");
+		 * Runtime.createAndStart("log0", "Log");
 		 * Runtime.createAndStart("python0", "Python");
 		 */
 		

@@ -25,7 +25,11 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -149,7 +153,7 @@ public class RobotPlatform extends Service {
 	 * error being 1.5 second lag
 	 */
 
-	public final static Logger log = Logger.getLogger(RobotPlatform.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RobotPlatform.class.getCanonicalName());
 
 	public RobotPlatform(String n) {
 		this(n, null);
@@ -495,8 +499,8 @@ public class RobotPlatform extends Service {
 	/*
 	 * public static void main(String[] args) {
 	 * 
-	 * org.apache.log4j.BasicConfigurator.configure();
-	 * Logger.getRootLogger().setLevel(Level.WARN);
+	 * LoggingFactory.getInstance().configure();
+	 * LoggingFactory.getInstance().setLevel(Level.WARN);
 	 * 
 	 * GUIService gui = new GUIService("gui"); DifferentialDrive platform = new
 	 * DifferentialDrive("platform"); platform.startService();

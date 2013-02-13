@@ -37,7 +37,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.gp.GPMessageBestFound;
 import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 import org.myrobotlab.gp.RealPoint;
@@ -48,7 +50,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(GeneticProgrammingGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(GeneticProgrammingGUI.class.toString());
 
 	VideoWidget video = null;
 	Graphics g = null;

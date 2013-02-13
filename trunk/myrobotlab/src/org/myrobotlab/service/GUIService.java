@@ -69,9 +69,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
@@ -84,8 +87,10 @@ import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.logging.LogAppender;
-import org.myrobotlab.logging.LogLevel;
+import org.myrobotlab.logging.Appender;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -121,7 +126,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GUIService.class.getCanonicalName());
 
 	public String graphXML = "";
 
@@ -326,7 +331,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			}
 
 			// }
-			log.info(c);
+			log.info(c.toString());
 		}
 
 		frame.pack();
@@ -798,30 +803,36 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			send(runtime.getName(), "checkForUpdates");
 		} else if ("update all".equals(cmd)) {
 			Runtime.updateAll();
-		} else if (cmd.equals(LogLevel.Debug.toString()) || cmd.equals(LogLevel.Info.toString()) || cmd.equals(LogLevel.Warn.toString()) || cmd.equals(LogLevel.Error.toString())
-				|| cmd.equals(LogLevel.Fatal.toString())) {
+		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR)
+				|| cmd.equals(Level.FATAL)) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)
-			setLogLevel(LogLevel.parse(cmd));
+			Logging logging = LoggingFactory.getInstance();
+			logging.setLevel(cmd);
 		} else if ("connect".equals(cmd)) {
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
 			lastHost = dlg.host.getText();
 			lastPort = dlg.port.getText();
-		} else if (cmd.equals(LogAppender.None.toString())) {
-			removeAllAppenders();
-		} else if (cmd.equals(LogAppender.Remote.toString())) {
+		} else if (cmd.equals(Appender.NONE)) {
+			Logging logging = LoggingFactory.getInstance();
+			logging.removeAllAppenders();
+		} else if (cmd.equals(Appender.REMOTE)) {
 			JCheckBoxMenuItem m = (JCheckBoxMenuItem) ae.getSource();
 			if (m.isSelected()) {
 				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
 				lastHost = dlg.host.getText();
 				lastPort = dlg.port.getText();
-				addAppender(LogAppender.Remote, dlg.host.getText(), dlg.port.getText());
+				Logging logging = LoggingFactory.getInstance();
+				logging.addAppender(Appender.REMOTE, dlg.host.getText(), dlg.port.getText());
 			} else {
-				Service.remoteAppender(LogAppender.Remote);
+				Logging logging = LoggingFactory.getInstance();
+				logging.removeAppender(Appender.REMOTE);
 			}
-		} else if (cmd.equals(LogAppender.File.toString())) {
-			addAppender(LogAppender.File);
-		} else if (cmd.equals(LogAppender.None.toString())) {
-			addAppender(LogAppender.None);
+		} else if (cmd.equals(Appender.FILE)) { // FIXME - refactor it all out (it recovered from enums !
+			Logging logging = LoggingFactory.getInstance();
+			logging.addAppender(Appender.FILE);
+		} else if (cmd.equals(Appender.NONE)) {
+			Logging logging = LoggingFactory.getInstance();
+			logging.addAppender(Appender.NONE);
 		} else if ("explode".equals(cmd)) {
 			// display();
 		} else if (source == recording) {
@@ -896,22 +907,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.info(o.getClass().toString());
 		}
 
-		JCheckBoxMenuItem mi = new JCheckBoxMenuItem(LogAppender.None.toString());
+		JCheckBoxMenuItem mi = new JCheckBoxMenuItem(Appender.NONE);
 		mi.setSelected(!console && !file && !remote);
 		mi.addActionListener(this);
 		parentMenu.add(mi);
 
-		mi = new JCheckBoxMenuItem(LogAppender.Console.toString());
+		mi = new JCheckBoxMenuItem(Appender.CONSOLE);
 		mi.setSelected(console);
 		mi.addActionListener(this);
 		parentMenu.add(mi);
 
-		mi = new JCheckBoxMenuItem(LogAppender.File.toString());
+		mi = new JCheckBoxMenuItem(Appender.FILE);
 		mi.setSelected(file);
 		mi.addActionListener(this);
 		parentMenu.add(mi);
 
-		mi = new JCheckBoxMenuItem(LogAppender.Remote.toString());
+		mi = new JCheckBoxMenuItem(Appender.REMOTE);
 		mi.setSelected(remote);
 		mi.addActionListener(this);
 		parentMenu.add(mi);
@@ -925,34 +936,33 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	private void buildLogLevelMenu(JMenu parentMenu) {
 		ButtonGroup logLevelGroup = new ButtonGroup();
 
-		Logger root = Logger.getRootLogger();
-		String level = root.getLevel().toString();
+		String level = LoggingFactory.getInstance().getLevel();
 
-		JRadioButtonMenuItem mi = new JRadioButtonMenuItem(LogLevel.Debug.toString());
+		JRadioButtonMenuItem mi = new JRadioButtonMenuItem(Level.DEBUG);
 		mi.setSelected(("DEBUG".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);
 		parentMenu.add(mi);
 
-		mi = new JRadioButtonMenuItem(LogLevel.Info.toString());
+		mi = new JRadioButtonMenuItem(Level.INFO);
 		mi.setSelected(("INFO".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);
 		parentMenu.add(mi);
 
-		mi = new JRadioButtonMenuItem(LogLevel.Warn.toString());
+		mi = new JRadioButtonMenuItem(Level.WARN);
 		mi.setSelected(("WARN".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);
 		parentMenu.add(mi);
 
-		mi = new JRadioButtonMenuItem(LogLevel.Error.toString());
+		mi = new JRadioButtonMenuItem(Level.ERROR);
 		mi.setSelected(("ERROR".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);
 		parentMenu.add(mi);
 
-		mi = new JRadioButtonMenuItem(LogLevel.Fatal.toString());
+		mi = new JRadioButtonMenuItem(Level.FATAL); // TODO - deprecate to WTF :)
 		mi.setSelected(("FATAL".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);
@@ -973,8 +983,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		Logging logging = LoggingFactory.getInstance();
+		logging.setLevel(Level.INFO);
 		/*
 		 * //float x = 539248398 >> 10; float x = 10f % 539248398; log.info(x);
 		 * float y = 5383823987f % 10f; log.info(y);

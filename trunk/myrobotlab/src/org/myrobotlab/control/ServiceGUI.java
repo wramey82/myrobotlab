@@ -32,13 +32,15 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.interfaces.GUI;
 
 public abstract class ServiceGUI {
 
-	public final static Logger log = Logger.getLogger(ServiceGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ServiceGUI.class.getCanonicalName());
 
 	// FIXME - Why a GUI interface - Swing will be Swing (too much abstraction)
 	// FIXME - cheesy - have resizer in GUIService too because its a lame

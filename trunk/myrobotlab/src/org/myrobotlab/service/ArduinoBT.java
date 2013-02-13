@@ -34,7 +34,11 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.data.IOData;
@@ -75,7 +79,7 @@ import android.util.Log;
 public class ArduinoBT extends Service implements //SerialPortEventListener,
 		SensorDataPublisher, DigitalIO, AnalogIO, ServoController, MotorController {
 	
-	public final static Logger log = Logger.getLogger(ArduinoBT.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ArduinoBT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	
 	// debugging
@@ -487,7 +491,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	public Pin publishPin(Pin p) {
-		log.info(p);
+		log.debug("pin {}",p);
 		return p;
 	}
 

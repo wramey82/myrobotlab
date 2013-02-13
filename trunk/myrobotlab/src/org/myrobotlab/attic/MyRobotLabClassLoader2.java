@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import java.util.Hashtable;
 
 import org.myrobotlab.cmdline.CMDLine;
+import org.myrobotlab.logging.LoggingFactory;
 
 // http://nucleussystems.com/blog/tag/urlclassloader
 
@@ -72,7 +73,7 @@ import org.myrobotlab.cmdline.CMDLine;
 public class MyRobotLabClassLoader2 extends URLClassLoader {
 
 	// public final static Logger log =
-	// Logger.getLogger(MyRobotLabClassLoader.class.toString());
+	// LoggerFactory.getLogger(MyRobotLabClassLoader.class.toString());
 	ClassLoader parent;
 	private static MyRobotLabClassLoader2 instance;
 
@@ -186,8 +187,7 @@ public class MyRobotLabClassLoader2 extends URLClassLoader {
 	public static void main(String[] args) {
 		try {
 
-			// org.apache.log4j.BasicConfigurator.configure();
-			// Logger.getRootLogger().setLevel(Level.DEBUG);
+			LoggingFactory.getInstance().configure();
 
 			// setting the context to a new custom class loader
 			System.out.println("setting classloader to singleton instance of MyRobotLabClassLoader");

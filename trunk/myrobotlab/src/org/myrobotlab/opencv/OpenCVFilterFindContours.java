@@ -47,7 +47,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacpp.Loader;
@@ -64,7 +66,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
 
 	// TODO - CONSIDER NOT Publishing OpenCV.Polygon but Publish CvSeq instead
 

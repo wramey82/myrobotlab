@@ -22,8 +22,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -58,7 +62,7 @@ import org.myrobotlab.framework.Service;
  */
 
 public class HTTPRequest {
-	public final static Logger log = Logger.getLogger(HTTPRequest.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(HTTPRequest.class.getCanonicalName());
 
 	URLConnection connection;
 	OutputStream osstr = null;
@@ -870,8 +874,9 @@ public class HTTPRequest {
 
 	public static void main(String[] args) throws Exception {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logging logging = LoggingFactory.getInstance();
+		logging.configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "GroG", "file", new File("myrobotlab.log"));
 

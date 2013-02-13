@@ -42,7 +42,9 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.Runtime;
@@ -50,7 +52,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class GUIServiceOutMethodDialog extends JDialog implements ActionListener {
 
-	public final static Logger log = Logger.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GUIServiceOutMethodDialog.class.getCanonicalName());
 
 	private static final long serialVersionUID = 1L;
 
@@ -171,7 +173,7 @@ public class GUIServiceOutMethodDialog extends JDialog implements ActionListener
 						// anno.intValue());
 					} catch (Exception e) {
 						list.setToolTipText("method or class not available");
-						log.error(e);
+						log.error("{}", e);
 					}
 
 					// list.setToolTipText(data.get(index).toString());

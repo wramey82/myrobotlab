@@ -2,7 +2,9 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -10,7 +12,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ImageFileFrameGrabber extends FrameGrabber {
 
-	public final static Logger log = Logger.getLogger(ImageFileFrameGrabber.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ImageFileFrameGrabber.class.getCanonicalName());
 	
 	private IplImage image;
 

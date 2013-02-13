@@ -16,8 +16,11 @@ import org.apache.ivy.Main;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
 import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.util.cli.CommandLineParser;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.fileLib.Zip;
@@ -36,7 +39,7 @@ import org.simpleframework.xml.core.Persister;
 public class ServiceInfo implements Serializable {
 	// TODO this should be something a little more unique - tied to version?
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ServiceInfo.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(ServiceInfo.class.toString());
 
 	/**
 	 * This singleton.
@@ -734,7 +737,7 @@ public class ServiceInfo implements Serializable {
 						filename = String.format("libraries%1$szip%1$s%2$s.zip", File.separator, artifact.getName());
 						Zip.unzip(filename, "./");
 					}
-					log.info(artifacts[j]);
+					log.info("artifacts {}",artifacts[j]);
 				}
 			}
 		} catch (Exception e) {
@@ -745,8 +748,8 @@ public class ServiceInfo implements Serializable {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		boolean update = true;
 		ServiceInfo info = ServiceInfo.getInstance();
@@ -767,10 +770,10 @@ public class ServiceInfo implements Serializable {
 
 		// perform actions
 
-		log.info(info.getRepoLatestDependencies("org.myrobotlab"));
-		log.info(info.getRepoLatestDependencies("org.apache.log4j"));
-		log.info(info.getRepoLatestDependencies("edu.cmu.sphinx"));
-		log.info(info.getRepoLatestDependencies("org.apache.ivy"));
+		log.info("latest dependencies {}", info.getRepoLatestDependencies("org.myrobotlab"));
+		log.info("{}", info.getRepoLatestDependencies("org.apache.log4j"));
+		log.info("{}", info.getRepoLatestDependencies("edu.cmu.sphinx"));
+		log.info("{}", info.getRepoLatestDependencies("org.apache.ivy"));
 
 		try {
 			java.lang.Runtime.getRuntime().exec("cmd /c start myrobotlab.bat");

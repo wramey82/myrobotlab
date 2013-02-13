@@ -25,8 +25,12 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
@@ -38,7 +42,7 @@ public class Servo extends Service implements ServoControl {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Servo.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Servo.class.getCanonicalName());
 
 	ServoController controller = null;
 
@@ -235,8 +239,8 @@ public class Servo extends Service implements ServoControl {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		// FIXME - routing of servo.attach("arduino", 3);
 

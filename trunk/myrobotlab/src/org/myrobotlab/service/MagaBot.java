@@ -2,8 +2,12 @@ package org.myrobotlab.service;
 
 import java.io.IOException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceException;
@@ -13,7 +17,7 @@ public class MagaBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(MagaBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(MagaBot.class.getCanonicalName());
 
 	public MagaBot(String n) {
 		super(n, MagaBot.class.getCanonicalName());
@@ -56,8 +60,8 @@ public class MagaBot extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		MagaBot template = new MagaBot("template");
 		template.startService();

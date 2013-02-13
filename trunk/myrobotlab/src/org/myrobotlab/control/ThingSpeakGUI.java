@@ -37,14 +37,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.ThingSpeak;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ThingSpeakGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ThingSpeakGUI.class.getCanonicalName());
 
 	JTextField writeKey = new JTextField(15);
 	JLabel intervalSeconds = new JLabel("");

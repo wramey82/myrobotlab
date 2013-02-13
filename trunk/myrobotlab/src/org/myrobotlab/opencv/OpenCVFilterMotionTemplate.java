@@ -57,7 +57,9 @@ import static com.googlecode.javacv.cpp.opencv_video.cvUpdateMotionHistory;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
@@ -72,7 +74,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterMotionTemplate.class.getCanonicalName());
 
 	// various tracking parameters (in seconds)
 	final double MHI_DURATION = 1;

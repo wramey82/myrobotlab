@@ -31,7 +31,9 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -39,7 +41,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterMask extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(OpenCVFilterMask.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterMask.class.getCanonicalName());
 	transient IplImage dst = null;
 	public String maskName = "";
 

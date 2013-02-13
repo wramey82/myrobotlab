@@ -9,11 +9,13 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class FileUtil {
 
-	public final static Logger log = Logger.getLogger(FileUtil.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FileUtil.class.getCanonicalName());
 
 	static private String lastFileOpened;
 	static private String lastFileSaved;

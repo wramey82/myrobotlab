@@ -40,7 +40,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.DirectionWidget;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.IPCamera;
@@ -49,7 +51,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(IPCameraGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(IPCameraGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	VideoWidget video0;
@@ -70,7 +72,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 	public class DirectionEventListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-			log.info(ae);
+			log.info("{}", ae);
 			if ("n".equals(ae.getActionCommand())) {
 				myService.send(boundServiceName, "move", IPCamera.FOSCAM_MOVE_UP);
 			} else if ("listener".equals(ae.getActionCommand())) {

@@ -12,21 +12,21 @@ import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.service.interfaces.GUI;
 
-public class LoggingGUI extends ServiceGUI implements ActionListener {
+public class LogGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 
 	JTextArea log = new JTextArea(20, 40);
 	ImageButton clearButton;
 
-	public LoggingGUI(final String boundServiceName, final GUI myService) {
+	public LogGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
 	public void init() {
 		display.setLayout(new BorderLayout());
 
-		clearButton = new ImageButton("Logging", "clear", this);
+		clearButton = new ImageButton("Log", "clear", this);
 		JPanel toolbar = new JPanel(new BorderLayout());
 		toolbar.add(clearButton, BorderLayout.EAST);
 		display.add(toolbar, BorderLayout.PAGE_START);

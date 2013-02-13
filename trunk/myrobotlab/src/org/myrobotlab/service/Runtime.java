@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
@@ -26,11 +25,19 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.logging.LogAppender;
-import org.myrobotlab.logging.LogLevel;
+import org.myrobotlab.logging.Appender;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
+
 
 /**
  * 
@@ -81,7 +88,7 @@ public class Runtime extends Service {
 	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
-	public final static Logger log = Logger.getLogger(Runtime.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Runtime.class);
 
 	/**
 	 * Object used to synchronize initializing this singleton.
@@ -1122,25 +1129,28 @@ public class Runtime extends Service {
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
+		Logging logging = LoggingFactory.getInstance();
+		
 		try {
 
 			if (cmdline.containsKey("-runtimeName")) {
 				runtimeName = cmdline.getSafeArgument("-runtimeName", 0, "MRL");
 			}
 
+			
 			if (cmdline.containsKey("-logToConsole")) {
-				addAppender(LogAppender.Console);
+				logging.addAppender(Appender.CONSOLE);
 			} else if (cmdline.containsKey("-logToRemote")) {
 				String host = cmdline.getSafeArgument("-logToRemote", 0, "localhost");
 				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445");
-				addAppender(LogAppender.Remote, host, port);
+				logging.addAppender(Appender.REMOTE, host, port);
 			} else {
-				addAppender(LogAppender.File);
+				logging.addAppender(Appender.FILE);
 			}
-
-			setLogLevel(LogLevel.tryParse(cmdline.getSafeArgument("-logLevel", 0, "INFO")));
-
-			log.info(cmdline);
+		
+			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
+			
+			log.info(cmdline.toString());
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
 			// hack to reconcile the different ways os handle and expect

@@ -31,7 +31,9 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.OpenCV;
@@ -42,7 +44,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public abstract class OpenCVFilter implements Serializable {
 
-	public final static Logger log = Logger.getLogger(OpenCVFilter.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilter.class.toString());
 
 	private static final long serialVersionUID = 1L;
 	protected ConfigurationManager cfg = null; // TODO - remove

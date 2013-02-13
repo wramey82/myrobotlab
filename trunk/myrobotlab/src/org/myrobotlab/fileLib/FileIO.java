@@ -44,18 +44,19 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.zip.ZipException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
 
 public class FileIO {
 
-	public final static Logger log = Logger.getLogger(FileIO.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FileIO.class.getCanonicalName());
 
 	public final static String fileToString(File file) {
 		String result = null;
@@ -230,7 +231,15 @@ public class FileIO {
 
 	static public String getResouceLocation() {
 		URL url = File.class.getResource("/resource");
-		return url.toString();
+		int x = 5 + 3;
+		log.info("{}",x);
+		// FIXME - DALVIK issue !
+		if (url == null)
+		{
+			return null; // FIXME DALVIK issue
+		} else {
+			return url.toString();
+		}
 	}
 
 	static public String getRootLocation() {
@@ -239,7 +248,13 @@ public class FileIO {
 	}
 
 	static public boolean inJar() {
+		String location = getResouceLocation();
+		if (location != null)
+		{
 		return getResouceLocation().startsWith("jar:");
+		} else {
+			return false;
+		}
 	}
 
 	static public String getResourceJarPath() {
@@ -288,8 +303,9 @@ public class FileIO {
 
 	public static void main(String[] args) throws ZipException, IOException {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		//LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		ArrayList<String> files = listInternalContents("resource/images");
 		for (int i = 0; i < files.size(); ++i) {

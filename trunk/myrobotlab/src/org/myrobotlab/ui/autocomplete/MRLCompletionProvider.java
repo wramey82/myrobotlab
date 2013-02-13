@@ -29,7 +29,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.myrobotlab.control.widget.JavaCompletionProvider;
@@ -44,7 +46,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 	/**
 	 * Logger for this guy.
 	 */
-	public final static Logger log = Logger.getLogger(GUIService.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GUIService.class.getCanonicalName());
 
 	/**
 	 * Overriding base class declaration in order to load methods that should be

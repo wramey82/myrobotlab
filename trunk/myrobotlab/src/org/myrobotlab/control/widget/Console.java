@@ -7,10 +7,9 @@ import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
-import org.myrobotlab.logging.LogAppender;
+import org.myrobotlab.logging.LoggingFactory;
 
 // http://www.javaworld.com/javaworld/jw-12-2004/jw-1220-toolbox.html?page=5
 public class Console extends AppenderSkeleton {
@@ -29,7 +28,7 @@ public class Console extends AppenderSkeleton {
 	}
 
 	/**
-	 * to begin logging call this function Logging must not begin before the GUI
+	 * to begin logging call this function Log must not begin before the GUI
 	 * has finished drawing. For some reason, if log entries are written to a
 	 * JScrollPane before the gui has complted the whole gui will tank
 	 * 
@@ -38,14 +37,16 @@ public class Console extends AppenderSkeleton {
 	public void startLogging() {
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		setLayout(layout);
-		setName(LogAppender.ConsoleGui.toString());
-		Logger.getRootLogger().addAppender(this);
+		setName("ConsoleGUI");
+		//setName(Appender.ConsoleGui.toString());
+		//Logger.getRootLogger().addAppender(this);
+		LoggingFactory.getInstance().addAppender(this);
 
 		logging = true;
 	}
 
 	public void stopLogging() {
-		Logger.getRootLogger().removeAppender(this);
+		LoggingFactory.getInstance().removeAppender(this);
 		logging = false;
 	}
 
@@ -76,7 +77,7 @@ public class Console extends AppenderSkeleton {
 
 	@Override
 	public void close() {
-		Logger.getRootLogger().removeAppender(this);
+		LoggingFactory.getInstance().removeAppender(this);
 	}
 
 	@Override

@@ -45,12 +45,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.interfaces.GUI;
 
 public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(KeyboardGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(KeyboardGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JList currentPlayers;

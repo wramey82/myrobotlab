@@ -12,8 +12,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.GoogleSTT;
@@ -33,7 +36,7 @@ import com.google.gson.Gson;
 
 public class TranscriptionThread extends Thread {
 
-	public final static Logger log = Logger.getLogger(GoogleSTT.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GoogleSTT.class.getCanonicalName());
 
 	boolean running;
 
@@ -210,8 +213,8 @@ public class TranscriptionThread extends Thread {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		TranscriptionThread t = new TranscriptionThread("transcriber", "en-US");
 		t.transcribe("test2.flac");

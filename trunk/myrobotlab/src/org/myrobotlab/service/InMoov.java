@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.inmoov.Arm;
 import org.myrobotlab.inmoov.Hand;
@@ -18,7 +22,7 @@ public class InMoov extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(InMoov.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(InMoov.class.getCanonicalName());
 
 	String bodyPartContext = null;
 
@@ -512,8 +516,8 @@ public class InMoov extends Service {
 
 */
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();

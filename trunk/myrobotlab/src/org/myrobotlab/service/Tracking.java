@@ -30,8 +30,12 @@ import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
@@ -41,7 +45,7 @@ public class Tracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Tracking.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Tracking.class.getCanonicalName());
 
 	// References :
 	// image stitching - http://www.youtube.com/watch?v=a5OK6bwke3I using surf -
@@ -551,8 +555,8 @@ public class Tracking extends Service {
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		// appropriate way to set sub-services -
 		// 1. query ? if they exist by name - if not create them ? single

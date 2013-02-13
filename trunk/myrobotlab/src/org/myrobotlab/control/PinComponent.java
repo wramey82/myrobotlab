@@ -32,7 +32,9 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.DigitalButton;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
@@ -41,7 +43,7 @@ import org.myrobotlab.service.data.Pin;
 
 public class PinComponent {
 
-	public final static Logger log = Logger.getLogger(PinComponent.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(PinComponent.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	public final String boundServiceName;
