@@ -2,7 +2,7 @@ from jarray import array
 from java.lang import String
 from java.lang import Class
 from org.myrobotlab.service import Clock
-from org.myrobotlab.service import Logging
+from org.myrobotlab.service import Log
 from org.myrobotlab.service import Runtime
 from org.myrobotlab.framework import Message
 
@@ -21,10 +21,10 @@ from org.myrobotlab.framework import Message
 # Name it "clock".
 clock = Runtime.create("clock","Clock")
 clock.startService()
-# Create a running instance of the Logging Service.
+# Create a running instance of the Log Service.
 # <<URL>>
 # Name it "log".
-log = Runtime.create("log","Logging")
+log = Runtime.create("log","Log")
 log.startService()
 
 # ----------------------------------

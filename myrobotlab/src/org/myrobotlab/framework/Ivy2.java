@@ -61,7 +61,9 @@ import org.apache.ivy.util.url.CredentialsStore;
 import org.apache.ivy.util.url.URLHandler;
 import org.apache.ivy.util.url.URLHandlerDispatcher;
 import org.apache.ivy.util.url.URLHandlerRegistry;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 /**
  * Copied from Ivy's "Main" class - with the idea of being able to hook into the
@@ -73,7 +75,7 @@ import org.apache.log4j.Logger;
  */
 public class Ivy2 {
 
-	public final static Logger log = Logger.getLogger(Ivy2.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Ivy2.class.getCanonicalName());
 
 	private static final int HELP_WIDTH = 80;
 	private static ResolveReport report = null;

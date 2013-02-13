@@ -27,11 +27,15 @@ package org.myrobotlab.service.data;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 
 public class Pin implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Pin.class);
+	public final static Logger log = LoggerFactory.getLogger(Pin.class);
 	public static final int DIGITAL_VALUE = 1; // normalized with data coming
 												// from
 												// Arduino.DIGITAL_READ_POLLING_START

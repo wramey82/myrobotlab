@@ -31,7 +31,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -40,7 +42,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
 
 	final static int CV_GAUSSIAN_5X5 = 7;
 

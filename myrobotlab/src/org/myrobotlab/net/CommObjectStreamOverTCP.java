@@ -49,7 +49,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Runtime;
@@ -57,7 +59,7 @@ import org.myrobotlab.service.interfaces.Communicator;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
-	public final static Logger log = Logger.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();

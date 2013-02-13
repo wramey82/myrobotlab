@@ -27,11 +27,15 @@ package org.myrobotlab.service.data;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 
 public class IOData implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(IOData.class);
+	public final static Logger log = LoggerFactory.getLogger(IOData.class);
 
 	public int address;
 	public int value;

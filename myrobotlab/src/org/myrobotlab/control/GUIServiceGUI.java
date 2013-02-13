@@ -238,7 +238,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			for (int i = 0; i < services.length; ++i) {
 				// serviceCells
 				Object s = services[i];
-				log.info(s);
+				log.info("service {}",s);
 
 				mxCell m = (mxCell) services[i];
 				GUIServiceGraphVertex v = (GUIServiceGraphVertex) m.getValue();

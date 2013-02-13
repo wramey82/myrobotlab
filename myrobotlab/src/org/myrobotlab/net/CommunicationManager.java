@@ -28,7 +28,9 @@ package org.myrobotlab.net;
 import java.io.Serializable;
 import java.net.URI;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.framework.Service;
@@ -40,7 +42,7 @@ import org.myrobotlab.service.interfaces.Communicator;
 public class CommunicationManager implements Serializable, CommunicationInterface {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(CommunicationManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(CommunicationManager.class.toString());
 	Service myService = null;
 	Outbox outbox = null;
 

@@ -32,7 +32,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -43,7 +45,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(OpenCVFilterThreshold.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterThreshold.class.getCanonicalName());
 	IplImage gray = null;
 
 	public OpenCVFilterThreshold(OpenCV service, String name) {

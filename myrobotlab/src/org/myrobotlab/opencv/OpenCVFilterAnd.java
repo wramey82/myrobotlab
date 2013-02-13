@@ -30,7 +30,9 @@ import static com.googlecode.javacv.cpp.opencv_core.cvNot;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -39,7 +41,7 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterAnd.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterAnd.class.getCanonicalName());
 
 	int frameCount = 0;
 	

@@ -441,7 +441,7 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 	}
 
 	public void hatSwitchRaw(Float value) {
-		log.debug(value);
+		log.debug("{}", value);
 		hatPanel.setDir(value);
 		hatPanel.repaint();
 		hatOutput.setText(String.format("%.3f", value));

@@ -25,13 +25,15 @@
 
 package org.myrobotlab.attic;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 
 public class StepperMotor extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(StepperMotor.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(StepperMotor.class.getCanonicalName());
 	public final static String DIRECTION_CCW = "CCW"; // TODO - should this be
 														// in config?
 	public final static String DIRECTION_CW = "CW";

@@ -22,7 +22,9 @@
 
 package org.myrobotlab.roomba;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 /**
  * The abstract base for all Roomba communications.
@@ -62,7 +64,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class RoombaComm {
 
-	public final static Logger log = Logger.getLogger(RoombaComm.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RoombaComm.class.getCanonicalName());
 
 	/** version of the library */
 	static public final String VERSION = "0.96";

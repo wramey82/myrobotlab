@@ -33,8 +33,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 import com.sun.speech.freetts.Voice;
@@ -70,7 +75,7 @@ public class Speech extends Service {
 	 */
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Speech.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Speech.class.getCanonicalName());
 
 	// TODO - seperate all of the var into appropriate parts - ie Global ATT
 	// Google FreeTTS
@@ -304,7 +309,7 @@ public class Speech extends Service {
 			myVoice.allocate();
 			log.info("voice allocated");
 		} catch (Exception e) {
-			log.error(e);
+			Logging.logException(e);
 		}
 
 		if (initialized) {
@@ -386,8 +391,8 @@ public class Speech extends Service {
 
 	// codes - http://code.google.com/apis/language/translate/v2/using_rest.html
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Speech speech = new Speech("speech");
 		speech.startService();

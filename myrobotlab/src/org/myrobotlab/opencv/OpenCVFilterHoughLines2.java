@@ -39,7 +39,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvHoughLines2;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacpp.Pointer;
@@ -53,7 +55,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
 
 	IplImage gray = null;
 	BufferedImage frameBuffer = null;

@@ -37,7 +37,9 @@ import java.io.OutputStream;
 import java.util.Random;
 import java.util.TooManyListenersException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 // System.nanoTime()
 // http://blogs.sun.com/dholmes/entry/inside_the_hotspot_vm_clocks
@@ -47,7 +49,7 @@ import org.apache.log4j.Logger;
 
 public class BinaryCommPort extends SerialPort {
 
-	public final static Logger log = Logger.getLogger(BinaryCommPort.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(BinaryCommPort.class.getCanonicalName());
 
 	private LineDriver lineDriver = null;
 
@@ -97,7 +99,7 @@ public class BinaryCommPort extends SerialPort {
 				lineDriver.pulseUp();
 				Thread.sleep(50); // extra time just to be nice
 
-				log.info(s);
+				log.info("{}",s);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

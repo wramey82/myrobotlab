@@ -22,7 +22,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
@@ -43,7 +45,7 @@ import org.myrobotlab.service.Runtime;
  */
 public class TabControl extends JLabel implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(TabControl.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(TabControl.class.getCanonicalName());
 
 	JPopupMenu popup = new JPopupMenu();
 	JTabbedPane parent;

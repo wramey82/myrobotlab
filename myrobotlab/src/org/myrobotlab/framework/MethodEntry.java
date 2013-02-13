@@ -28,12 +28,14 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class MethodEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ConfigurationManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(ConfigurationManager.class.toString());
 
 	public String name;
 	public Class<?> returnType;

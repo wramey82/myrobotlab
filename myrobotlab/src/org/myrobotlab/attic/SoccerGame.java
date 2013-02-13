@@ -35,7 +35,9 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEntry;
@@ -50,7 +52,7 @@ import org.myrobotlab.service.data.IPAndPort;
 public class SoccerGame extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SoccerGame.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SoccerGame.class.getCanonicalName());
 
 	RemoteAdapter remote = new RemoteAdapter("remote");
 	ArrayList<Player> players = new ArrayList<Player>();
@@ -142,7 +144,7 @@ public class SoccerGame extends Service {
 		Enumeration<?> e = security.propertyNames();
 
 		for (; e.hasMoreElements();) {
-			log.info(e.nextElement());
+			log.info("{}",e.nextElement());
 		}
 		// security end -----------------------
 

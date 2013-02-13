@@ -27,8 +27,12 @@ package org.myrobotlab.service;
 
 import java.awt.Dimension;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -37,7 +41,7 @@ public class FaceTracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(FaceTracking.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FaceTracking.class.getCanonicalName());
 
 	/*
 	 * TODO - dead zone - scan / search
@@ -48,7 +52,7 @@ public class FaceTracking extends Service {
 
 	Arduino arduino = new Arduino("arduino");
 
-	Logging logger = new Logging("logger");
+	Log logger = new Log("logger");
 
 	Speech speech = new Speech("speech");
 
@@ -230,8 +234,8 @@ public class FaceTracking extends Service {
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
 		FaceTracking ft = new FaceTracking("face tracker");
 		ft.startService();

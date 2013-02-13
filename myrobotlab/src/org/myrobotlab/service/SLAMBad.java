@@ -6,8 +6,12 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.mapper.gui.Simbad;
 import org.myrobotlab.mapper.sim.Agent;
@@ -33,7 +37,7 @@ public class SLAMBad extends Service {
 	// Simbad simbad = new Simbad(new MyEnv() ,false);
 	Simbad simbad;
 
-	public final static Logger log = Logger.getLogger(SLAMBad.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SLAMBad.class.getCanonicalName());
 
 	public static class MyEnv extends EnvironmentDescription {
 		public MyEnv() {
@@ -145,8 +149,8 @@ public class SLAMBad extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		MyEnv env = new MyEnv();
 

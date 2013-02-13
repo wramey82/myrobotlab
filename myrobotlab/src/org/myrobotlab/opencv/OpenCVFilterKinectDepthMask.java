@@ -56,7 +56,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.service.OpenCV;
 
@@ -73,7 +75,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterKinectDepthMask.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterKinectDepthMask.class.getCanonicalName());
 
 	IplImage kinectDepth = null;
 	IplImage ktemp = null;
@@ -269,9 +271,9 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						cvResetImageROI(node.cvCameraFrame);
 						node.cropped = OpenCV.publishFrame("", node.cvCropped.getBufferedImage());
 
-						log.error(rect);
-						log.error(node.cvBoundingBox);
-						log.error(node.boundingBox);
+						log.error("{}",rect);
+						log.error("{}",node.cvBoundingBox);
+						log.error("{}",node.boundingBox);
 						nodes.add(node);
 
 						if (drawBoundingBoxes) {

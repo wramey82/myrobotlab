@@ -26,8 +26,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.SimpleJob;
 import org.quartz.JobDataMap;
@@ -46,7 +50,7 @@ public class Scheduler extends Service {
 
 	org.quartz.Scheduler scheduler = null;
 
-	public final static Logger log = Logger.getLogger(Scheduler.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Scheduler.class.getCanonicalName());
 
 	String group = "group1";
 
@@ -265,8 +269,8 @@ public class Scheduler extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		String jobName = "hello03";
 		String triggerName = "trigger04";
@@ -276,7 +280,7 @@ public class Scheduler extends Service {
 		sched.startScheduler();
 		sched.scheduleSimpleJob(jobName, triggerName, "0/10 * * * * ?");
 
-		log.info(sched.getJobDetail("hello"));
+		log.info(sched.getJobDetail("hello").toString());
 
 		List<String> groups = sched.getJobGroupNames();
 		for (int i = 0; i < groups.size(); ++i) {
@@ -294,7 +298,7 @@ public class Scheduler extends Service {
 		}
 
 		List<TriggerKey> triggersInGroup = sched.getAllTriggerKeys();
-		log.info(triggersInGroup.size());
+		log.info("{}",triggersInGroup.size());
 
 		// sched.stopScheduler();
 		// sched.stopService();

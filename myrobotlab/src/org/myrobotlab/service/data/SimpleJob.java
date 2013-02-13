@@ -2,7 +2,11 @@ package org.myrobotlab.service.data;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -11,7 +15,7 @@ public class SimpleJob implements Job {
 
 	// private static org.slf4j.Logger _log =
 	// LoggerFactory.getLogger(SimpleJob.class);
-	public final static Logger log = Logger.getLogger(SimpleJob.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SimpleJob.class.getCanonicalName());
 
 	/**
 	 * <p>

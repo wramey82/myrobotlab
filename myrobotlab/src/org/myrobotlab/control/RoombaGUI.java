@@ -50,7 +50,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.Util;
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.service.Roomba;
@@ -59,7 +61,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class RoombaGUI extends ServiceGUI implements ListSelectionListener, ActionListener, ChangeListener, KeyListener {
 
-	public final static Logger log = Logger.getLogger(RoombaGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RoombaGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	// private Roomba myRoomba = null;

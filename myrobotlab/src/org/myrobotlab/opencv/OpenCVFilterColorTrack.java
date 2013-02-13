@@ -38,7 +38,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
@@ -48,7 +50,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterColorTrack.class.getCanonicalName());
 
 	IplImage hsv = null;
 	IplImage hue = null;

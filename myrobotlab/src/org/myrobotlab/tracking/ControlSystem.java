@@ -1,6 +1,8 @@
 package org.myrobotlab.tracking;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Tracking;
 
@@ -17,7 +19,7 @@ import org.myrobotlab.service.Tracking;
  */
 public class ControlSystem {
 
-	public final static Logger log = Logger.getLogger(ControlSystem.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ControlSystem.class.getCanonicalName());
 
 	// private boolean isRunning = false;
 	private Servo x;

@@ -25,8 +25,12 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.WiiDAR.Point;
@@ -38,7 +42,7 @@ import org.myrobotlab.service.interfaces.SensorDataPublisher;
 public class WiiBot extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(WiiBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WiiBot.class.getCanonicalName());
 
 	Arduino arduino = null;
 	Wii wii = new Wii("wii");
@@ -185,8 +189,8 @@ public class WiiBot extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		WiiBot wiibot = new WiiBot("wiibot");
 		wiibot.startService();

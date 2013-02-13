@@ -55,15 +55,19 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.speech.TranscriptionThread;
 import org.tritonus.share.sampled.FloatSampleBuffer;
 
 public class GoogleSTT extends Service {
 
-	public final static Logger log = Logger.getLogger(GoogleSTT.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GoogleSTT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	// microphone capture
@@ -332,8 +336,8 @@ public class GoogleSTT extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		GoogleSTT stt = new GoogleSTT("stt");
 		// stt.startService();

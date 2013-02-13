@@ -40,7 +40,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
 
@@ -53,7 +55,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterLKOpticalTrack.class.getCanonicalName());
 
 	// good features related - use good features filter ????
 	// quality - Multiplier for the maxmin eigenvalue; specifies minimal

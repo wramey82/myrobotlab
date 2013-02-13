@@ -23,8 +23,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Service;
@@ -47,7 +51,7 @@ public class FSMTest extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(FSMTest.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FSMTest.class.getCanonicalName());
 
 	// Context related
 	String context = null; // current context identifier
@@ -447,8 +451,8 @@ public class FSMTest extends Service {
 		// techniques
 		Iterator<String> itr = memory.keySet().iterator();
 		NodeDeprecate unknown = memory.get(UNKNOWN);
-		log.error(unknown.imageData.get(0).cvBoundingBox);
-		log.error(unknown.imageData.get(0).boundingBox);
+		log.error(unknown.imageData.get(0).cvBoundingBox.toString());
+		log.error(unknown.imageData.get(0).boundingBox.toString());
 		int bestFit = 1000;
 		int fit = 0;
 		String bestFitName = null;
@@ -801,8 +805,8 @@ public class FSMTest extends Service {
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
 		FSMTest fsm = new FSMTest("fsm");
 		fsm.startService();

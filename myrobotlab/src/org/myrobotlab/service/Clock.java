@@ -30,8 +30,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -41,7 +45,7 @@ public class Clock extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Clock.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 
 	transient ArrayList<ClockEvent> events = new ArrayList<ClockEvent>(); // FIXME
 																			// -
@@ -193,7 +197,8 @@ public class Clock extends Service {
 	 * @return
 	 */
 	public Long countdown(Long amtRemaining) {
-		log.info(amtRemaining);
+		if (amtRemaining != null)
+		log.info(amtRemaining.toString());
 		return amtRemaining;
 	}
 
@@ -299,7 +304,9 @@ public class Clock extends Service {
 	}
 
 	public Date finished(Date finishedDate) {
-		log.info(finishedDate);
+		if (finishedDate != null)
+		log.info("finish date {}", finishedDate);
+		else log.info("finish date is null");
 		return finishedDate;
 	}
 
@@ -349,8 +356,8 @@ public class Clock extends Service {
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Clock clock = new Clock("clock");
 		clock.startService();

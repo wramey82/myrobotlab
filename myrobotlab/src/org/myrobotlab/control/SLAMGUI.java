@@ -37,7 +37,9 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
@@ -47,7 +49,7 @@ import wiiusej.wiiusejevents.physicalevents.IREvent;
 public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SLAMGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(SLAMGUI.class.toString());
 
 	VideoWidget video = null;
 	Graphics g = null;

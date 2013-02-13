@@ -5,8 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.memory.NodeDeprecate;
@@ -16,7 +20,7 @@ public class Serializer extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Serializer.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Serializer.class.getCanonicalName());
 
 	public Serializer(String n) {
 		super(n, Serializer.class.getCanonicalName());
@@ -79,8 +83,8 @@ public class Serializer extends Service {
 	String password = null;
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Serializer serializer = new Serializer("serializer");
 

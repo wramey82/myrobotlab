@@ -35,13 +35,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.ConfigurationManager;
 
 public class ServiceDirectoryTable extends JPanel {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ServiceDirectoryTable.class.getCanonicalName()); // @jve:decl-index=0:
+	public final static Logger log = LoggerFactory.getLogger(ServiceDirectoryTable.class.getCanonicalName()); // @jve:decl-index=0:
 	JTable serviceTable = null;
 	JButton refresh = null;
 	static ConfigurationManager hostcfg; // @jve:decl-index=0:

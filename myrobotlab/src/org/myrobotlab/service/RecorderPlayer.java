@@ -33,14 +33,18 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 
 public class RecorderPlayer extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(RecorderPlayer.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RecorderPlayer.class.getCanonicalName());
 	public ArrayList<Message> msgs = new ArrayList<Message>();
 	public HashMap<String, ArrayList<Message>> msgMap = new HashMap<String, ArrayList<Message>>();
 

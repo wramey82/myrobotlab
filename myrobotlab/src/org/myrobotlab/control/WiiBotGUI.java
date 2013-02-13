@@ -36,12 +36,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.interfaces.GUI;
 
 public class WiiBotGUI extends ServiceGUI implements ListSelectionListener {
 
-	public final static Logger log = Logger.getLogger(WiiBotGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WiiBotGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	Keyboard keyboard = new Keyboard();

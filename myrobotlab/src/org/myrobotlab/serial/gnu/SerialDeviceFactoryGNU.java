@@ -5,7 +5,9 @@ import gnu.io.CommPortIdentifier;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFactory;
@@ -13,7 +15,7 @@ import org.myrobotlab.serial.SerialDeviceFrameworkFactory;
 
 public class SerialDeviceFactoryGNU implements SerialDeviceFrameworkFactory {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
 	public ArrayList<String> getSerialDeviceNames() {
 		// rxtx - you have to enumerate through port identifiers (bleh)

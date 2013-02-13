@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+
 import org.myrobotlab.framework.Platform;
 
 /**
@@ -16,7 +20,7 @@ import org.myrobotlab.framework.Platform;
  */
 public class SerialDeviceFactory {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceFactory.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SerialDeviceFactory.class.getCanonicalName());
 
 	final public static String TYPE_GNU = "org.myrobotlab.serial.gnu.SerialDeviceFactoryGNU";
 	final public static String TYPE_JSSC = "org.myrobotlab.serial.jssc.SerialDeviceFactoryJSSC";
@@ -105,8 +109,9 @@ public class SerialDeviceFactory {
 	}
 
 	public static void main(String[] args) throws IOException {
-		org.apache.log4j.BasicConfigurator.configure();
-		// Logger.getRootLogger().setLevel(Level.DEBUG);
+		Logging logging = LoggingFactory.getInstance();
+		logging.configure();
+		// LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		ArrayList<String> names = SerialDeviceFactory.getSerialDeviceNames(TYPE_GNU);
 		for (int i = 0; i < names.size(); ++i) {
@@ -127,14 +132,14 @@ public class SerialDeviceFactory {
 																										// someone
 																										// else
 			sd.open();
-			log.info(sd.isOpen());
-			log.info(sd.isOpen());
+			log.info("{}",sd.isOpen());
+			log.info("{}",sd.isOpen());
 			sd.write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
 			sd.close();
-			log.info(sd.isOpen());
+			log.info("{}",sd.isOpen());
 			sd.open();
 			sd.write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
-			log.info(sd.isOpen());
+			log.info("{}",sd.isOpen());
 		} catch (SerialDeviceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

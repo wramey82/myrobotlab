@@ -30,7 +30,9 @@ import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
@@ -41,7 +43,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterFGBG.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFGBG.class.getCanonicalName());
 
 	CvMemStorage storage = null;
 	BackgroundSubtractorMOG2 bg_model = null;

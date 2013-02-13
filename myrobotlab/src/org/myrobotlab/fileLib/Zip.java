@@ -16,8 +16,11 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 
 public class Zip {
@@ -25,7 +28,7 @@ public class Zip {
 	final public static String RESOURCE = "RESOURCE";
 	final public static String FILE = "FILE";
 	static int BUFFER_SIZE = 2048;
-	public final static Logger log = Logger.getLogger(Zip.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(Zip.class.toString());
 
 	static public void extractFromSelf() throws IOException {
 		extractFromSelf(".");
@@ -224,8 +227,8 @@ public class Zip {
 
 	public static void main(String[] args) throws ZipException, IOException {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		ArrayList<String> files = listDirectoryContents("myrobotlab.jar", "resource/Python/");
 		for (int i = 0; i < files.size(); ++i) {
@@ -237,7 +240,7 @@ public class Zip {
 	// public static void main(String[] args) throws ZipException, IOException {
 	// // TODO Auto-generated method stub
 	// // extractFolder("ziptest.zip");
-	// Logging.init();
+	// Log.init();
 	// // extractFromResource("/resource/ziptest.zip", "binx");
 	// // extractFromFile("./VivaClient.jar", "binx", "resource/");
 	// extractFromSelf("/resource", "binz");

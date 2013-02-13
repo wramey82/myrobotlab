@@ -31,7 +31,9 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.Number;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Wii.IRData;
@@ -43,7 +45,7 @@ import wiiusej.values.IRSource;
 public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(WiiGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(WiiGUI.class.toString());
 
 	VideoWidget video0 = null;
 	Graphics cam = null;

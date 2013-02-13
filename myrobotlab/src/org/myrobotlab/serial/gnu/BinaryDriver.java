@@ -28,12 +28,14 @@ package org.myrobotlab.serial.gnu;
 import gnu.io.CommDriver;
 import gnu.io.CommPort;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.serial.gnu.BinaryCommPort.LineDriver;
 
 public class BinaryDriver implements CommDriver {
 
-	public final static Logger log = Logger.getLogger(BinaryDriver.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(BinaryDriver.class.getCanonicalName());
 	private BinaryCommPort bcp;
 
 	public BinaryDriver(LineDriver ld) {

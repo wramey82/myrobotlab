@@ -28,11 +28,13 @@ package org.myrobotlab.image;
 import java.awt.Color;
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class ColoredPoint implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(ColoredPoint.class);
+	public final static Logger log = LoggerFactory.getLogger(ColoredPoint.class);
 
 	public int x;
 	public int y;

@@ -30,7 +30,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.OpenCV;
 
@@ -63,7 +65,7 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 		super(service, name);
 	}
 
-	public final static Logger log = Logger.getLogger(FilterColorGrouping3.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(FilterColorGrouping3.class.getCanonicalName());
 
 	ConfigurationManager cfg;
 	Rectangle target = null;
@@ -384,7 +386,7 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 		} // y
 
 		Graphics2D g = output.createGraphics();
-		log.info(groupList.size());
+		log.info("groupList size {}", groupList.size());
 		for (int i = 0; i < groupList.size(); ++i) {
 			Group group = groupList.get(i);
 			/*

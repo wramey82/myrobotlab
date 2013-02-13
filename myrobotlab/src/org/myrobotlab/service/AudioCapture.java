@@ -42,13 +42,17 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 public class AudioCapture extends Service {
 
-	public final static Logger log = Logger.getLogger(AudioCapture.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AudioCapture.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean stopCapture = false;
 	ByteArrayOutputStream byteArrayOutputStream;
@@ -211,8 +215,8 @@ public class AudioCapture extends Service {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		AudioCapture audioIn = new AudioCapture("audioIn");
 		audioIn.startService();

@@ -8,7 +8,7 @@
  * Copyright (C) Dec 7, 2011, Stephen L. Reed, Texai.org. (Fixed April 22, 2012, Samuel Audet)
  *
  * This file is a translation from the OpenCV example http://www.shervinemami.info/faceRecognition.html, ported
- * to Java using the JavaCV library.  Notable changes are the addition of the Java Logging framework and the
+ * to Java using the JavaCV library.  Notable changes are the addition of the Java Log framework and the
  * installation of image files in a data directory child of the working directory. Some of the code has
  * been expanded to make debugging easier.  Expected results are 100% recognition of the lower3.txt test
  * image index set against the all10.txt training image index set.  See http://en.wikipedia.org/wiki/Eigenface

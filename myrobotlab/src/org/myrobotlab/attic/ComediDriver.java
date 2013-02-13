@@ -25,7 +25,9 @@
 
 package org.myrobotlab.attic;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.ComediDriverConfig;
 import org.myrobotlab.service.data.IOAddress;
@@ -36,7 +38,7 @@ public class ComediDriver extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(ComediDriver.class);
+	public final static Logger log = LoggerFactory.getLogger(ComediDriver.class);
 
 	public ComediDriverConfig config;
 
@@ -66,7 +68,7 @@ public class ComediDriver extends Service {
 		String namedSequence = inNamedSequence.toString();
 
 		log.info("write");
-		log.info(config.sequenceMap_);
+		log.info("{}", config.sequenceMap_);
 		if (!config.sequenceMap_.containsKey(namedSequence)) {
 			log.error("repeat " + namedSequence + " sequence was requested but " + namedSequence + " does not exist in config");
 			return;

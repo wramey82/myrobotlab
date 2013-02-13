@@ -33,7 +33,9 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -46,7 +48,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterKinectDepth.class.getCanonicalName());
 
 	int filter = 7;
 	boolean createMask = false;

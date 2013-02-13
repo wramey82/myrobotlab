@@ -27,15 +27,19 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.StopWatch;
 
 public class TestCatcher extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(TestCatcher.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(TestCatcher.class.getCanonicalName());
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();
 	public ArrayList<Integer> lowCatchList = new ArrayList<Integer>();
 	public ArrayList<String> stringCatchList = new ArrayList<String>();
@@ -83,7 +87,7 @@ public class TestCatcher extends Service {
 
 	public Integer bothHandsCatchInteger(Integer firstBall, Integer secondBall) {
 		log.info("***CATCH*** bothHandsCatchInteger " + firstBall + "," + secondBall);
-		log.info(catchList.size());
+		log.info("catchList.size={}",catchList.size());
 
 		synchronized (catchList) {
 			catchList.add(firstBall);
@@ -201,8 +205,8 @@ public class TestCatcher extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");

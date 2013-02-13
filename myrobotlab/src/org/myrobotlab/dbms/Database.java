@@ -25,7 +25,9 @@
 
 package org.myrobotlab.dbms;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class Database {
 
@@ -38,7 +40,7 @@ public class Database {
 
 	private DatabaseConfig Config_ = new DatabaseConfig();
 
-	private final static Logger log = Logger.getLogger(Database.class);
+	private final static Logger log = LoggerFactory.getLogger(Database.class);
 
 	public String getConnectionUrl() {
 		if (Config_.RDBMSType.compareTo("MYSQL") == 0) // TODO enum here

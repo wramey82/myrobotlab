@@ -2,14 +2,22 @@ package org.myrobotlab.service;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.data.Pin;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-//import org.slf4j.Logger;
+//
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 //import org.slf4j.LoggerFactory;
 
 /**
@@ -26,7 +34,7 @@ public class ThingSpeak extends Service {
 
 	// public final static Logger log =
 	// LoggerFactory.getLogger(ThingSpeak.class.getCanonicalName());
-	public final static Logger log = Logger.getLogger(ThingSpeak.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ThingSpeak.class.getCanonicalName());
 	// http://api.thingspeak.com/update?key=AO4DMKQZY4RLWNNU&field1=pin&field2=A0&field3=value&field4=345&status=boink6
 
 	String updateURL = "http://api.thingspeak.com/update";
@@ -127,8 +135,8 @@ public class ThingSpeak extends Service {
 	}
 
 	public static void main(String[] args) {
-		// org.apache.log4j.BasicConfigurator.configure();
-		// Logger.getRootLogger().setLevel(Level.WARN);
+		// LoggingFactory.getInstance().configure();
+		// LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		// BasicConfigurator.
 

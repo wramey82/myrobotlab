@@ -36,13 +36,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RoutingEntry;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.WebServer;
+import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 
@@ -52,7 +53,7 @@ import com.google.gson.Gson;
  */
 public class RequestThread extends Thread {
 
-	public final static Logger log = Logger.getLogger(RequestThread.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RequestThread.class.getCanonicalName());
 
 	WebServer myService;
 	private File _rootDir;
@@ -182,7 +183,7 @@ public class RequestThread extends Thread {
 					}
 				}
 
-				log.info(msg);
+				log.info("msg {}",msg);
 				msg.historyList = new ArrayList<RoutingEntry>();
 				myService.getOutbox().add(msg);
 				String json = gson.toJson(msg);

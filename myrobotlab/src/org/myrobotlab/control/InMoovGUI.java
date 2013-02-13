@@ -34,7 +34,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.interfaces.GUI;
@@ -42,7 +44,7 @@ import org.myrobotlab.service.interfaces.GUI;
 public class InMoovGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(InMoovGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(InMoovGUI.class.getCanonicalName());
 
 	JLayeredPane imageMap;
 

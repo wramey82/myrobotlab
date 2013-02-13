@@ -11,7 +11,10 @@ import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -44,7 +47,7 @@ import org.myrobotlab.framework.Service;
  */
 public class GP extends Observable implements Runnable {
 
-	public final static Logger log = Logger.getLogger(GP.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GP.class.getCanonicalName());
 
 	public Number populationSize;
 	public Number maxDepthForNewIndividuals;
@@ -309,7 +312,7 @@ public class GP extends Observable implements Runnable {
 					function = (Function) mc.newInstance(myService);
 
 				} catch (Exception e) {
-					log.error(e);
+					Logging.logException(e);
 					function = null;
 				}
 				createArgumentsForFunction(function, allowableDepth - 1, fullP);

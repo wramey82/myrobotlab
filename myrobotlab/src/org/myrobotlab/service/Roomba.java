@@ -25,8 +25,12 @@ package org.myrobotlab.service;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.roomba.RoombaCommSerialDevice;
@@ -41,7 +45,7 @@ public class Roomba extends Service implements SerialDeviceService {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Roomba.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Roomba.class.getCanonicalName());
 
 	transient RoombaCommSerialDevice roombacomm = null;
 
@@ -720,8 +724,8 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Roomba roomba = new Roomba("roomba");
 		roomba.startService();

@@ -28,8 +28,12 @@ package org.myrobotlab.service;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
@@ -123,7 +127,7 @@ public class TweedleBot extends Service {
 
 	public Arduino arduino;
 
-	public final static Logger log = Logger.getLogger(TweedleBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(TweedleBot.class.getCanonicalName());
 
 	public TweedleBot(String n) {
 		this(n, null);
@@ -333,8 +337,8 @@ public class TweedleBot extends Service {
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		TweedleBot dee = new TweedleBot("dee");
 		dee.start();

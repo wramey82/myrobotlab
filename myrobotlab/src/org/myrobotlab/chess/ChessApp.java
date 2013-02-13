@@ -30,7 +30,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.op.chess.ChessBoard;
 
 public final class ChessApp extends JApplet implements Constants, VetoableChangeListener, PropertyChangeListener {
@@ -39,7 +41,7 @@ public final class ChessApp extends JApplet implements Constants, VetoableChange
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(ChessApp.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ChessApp.class.getCanonicalName());
 
 	private Board board = new Board();
 	private Search searcher = new Search();

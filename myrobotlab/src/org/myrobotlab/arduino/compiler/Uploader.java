@@ -31,7 +31,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.arduino.Serial;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
@@ -39,7 +41,7 @@ import org.myrobotlab.service.Arduino;
 public abstract class Uploader {
 	static final String BUGS_URL = "https://developer.berlios.de/bugs/?group_id=3590";
 	static final String SUPER_BADNESS = "Compiler error, please submit this code to " + BUGS_URL;
-	public final static Logger log = Logger.getLogger(Uploader.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Uploader.class.getCanonicalName());
 
 	Arduino myArduino;
 	RunnerException exception;

@@ -19,7 +19,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
@@ -30,7 +33,7 @@ import org.myrobotlab.service.Runtime;
 public class AboutDialog extends JDialog implements ActionListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(AboutDialog.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AboutDialog.class.getCanonicalName());
 
 	JButton bleedingEdge = null;
 	JButton noWorky = null;
@@ -178,7 +181,8 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 	}
 
 	public static void main(String[] args) throws Exception {
-		org.apache.log4j.BasicConfigurator.configure();
+		LoggingFactory.getInstance().configure();
+
 		// HTTPRequest logPoster = new HTTPRequest(new
 		// URL("http://myrobotlab.org/myrobotlab_log/postLogFile.php"));
 		HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "GroG", "file", new File("myrobotlab.log"));

@@ -28,7 +28,9 @@ package org.myrobotlab.opencv;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -37,7 +39,7 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterOutput.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterOutput.class.getCanonicalName());
 
 	// display related
 	Graphics2D graphics = null;

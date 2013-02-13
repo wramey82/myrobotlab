@@ -54,7 +54,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.Runtime;
@@ -75,7 +77,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SensorMonitorGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(SensorMonitorGUI.class.toString());
 
 	JList traces;
 	JList triggers;

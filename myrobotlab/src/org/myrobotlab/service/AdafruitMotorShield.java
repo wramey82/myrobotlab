@@ -11,8 +11,12 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Pin;
@@ -74,7 +78,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	final int AF_DCMOTOR_SET_SPEED = 51;
 	final int AF_DCMOTOR_RUN_COMMAND = 52;
 
-	public final static Logger log = Logger.getLogger(AdafruitMotorShield.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
@@ -328,8 +332,8 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		fruity.attach();

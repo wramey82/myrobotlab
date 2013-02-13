@@ -43,7 +43,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.JList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
@@ -51,7 +53,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(GraphicsGUI.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(GraphicsGUI.class.toString());
 
 	VideoWidget video = null;
 	BufferedImage graph = null;

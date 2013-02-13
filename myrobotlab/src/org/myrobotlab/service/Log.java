@@ -25,27 +25,31 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 
-public class Logging extends Service {
+public class Log extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(Logging.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Log.class.getCanonicalName());
 
 	/*
 	 * TODO - allow options to record and playback message log - serialize to
 	 * disk etc
 	 */
 
-	public Logging(String n) {
+	public Log(String n) {
 		this(n, null);
 	}
 
-	public Logging(String n, String serviceDomain) {
-		super(n, Logging.class.getCanonicalName(), serviceDomain);
+	public Log(String n, String serviceDomain) {
+		super(n, Log.class.getCanonicalName(), serviceDomain);
 	}
 
 
@@ -69,10 +73,10 @@ public class Logging extends Service {
 	// TODO - do in Service
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Logging toy = new Logging("logger");
+		Log toy = new Log("logger");
 		toy.startService();
 
 		RemoteAdapter remote = new RemoteAdapter("remote");

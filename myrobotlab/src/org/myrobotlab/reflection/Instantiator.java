@@ -8,7 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 
 /**
@@ -30,7 +32,7 @@ public class Instantiator {
 	public final static HashSet<Class<?>> primitiveTypes;
 
 	static {
-		log = Logger.getLogger(Instantiator.class);
+		log = LoggerFactory.getLogger(Instantiator.class);
 
 		primitiveTypes = new HashSet<Class<?>>(8);
 		primitiveTypes.add(Boolean.class);

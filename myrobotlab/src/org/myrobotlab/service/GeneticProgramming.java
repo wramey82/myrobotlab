@@ -27,7 +27,11 @@ package org.myrobotlab.service;
 
 import java.awt.Rectangle;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.gp.GP;
 import org.myrobotlab.gp.GPMessageBestFound;
@@ -35,7 +39,7 @@ import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 
 public class GeneticProgramming extends Service {
 
-	public final static Logger log = Logger.getLogger(GeneticProgramming.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GeneticProgramming.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
 	GP gp1 = null;

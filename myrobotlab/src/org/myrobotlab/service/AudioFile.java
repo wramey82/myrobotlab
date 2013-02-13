@@ -41,14 +41,18 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javazoom.jl.player.Player;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 public class AudioFile extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(AudioFile.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AudioFile.class.getCanonicalName());
 	transient Player player;
 	transient AePlayWave wavPlayer = new AePlayWave();
 
@@ -105,7 +109,7 @@ public class AudioFile extends Service {
 			}
 
 		} catch (Exception e) {
-			log.error(e);
+			Service.logException(e);
 			log.error("Problem playing file " + filename);
 			return;
 		}
@@ -246,8 +250,8 @@ public class AudioFile extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		AudioFile player = new AudioFile("player");
 		player.startService();

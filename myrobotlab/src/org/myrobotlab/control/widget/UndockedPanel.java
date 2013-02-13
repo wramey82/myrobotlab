@@ -5,13 +5,15 @@ import java.io.Serializable;
 
 import javax.swing.JFrame;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 @Root
 public class UndockedPanel implements Serializable {
-	public final static Logger log = Logger.getLogger(UndockedPanel.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(UndockedPanel.class.getCanonicalName());
 
 	private static final long serialVersionUID = 1L;
 	@Element

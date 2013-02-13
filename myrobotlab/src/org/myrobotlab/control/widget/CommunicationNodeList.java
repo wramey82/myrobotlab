@@ -8,8 +8,11 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 public class CommunicationNodeList extends JPanel {
@@ -31,7 +34,7 @@ public class CommunicationNodeList extends JPanel {
 		// add(button, BorderLayout.SOUTH);
 	}
 
-	public final static Logger log = Logger.getLogger(OpenCV.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCV.class.getCanonicalName());
 
 	/*
 	 * // An inner class to respond to clicks on the Print button class
@@ -47,8 +50,8 @@ public class CommunicationNodeList extends JPanel {
 	 */
 
 	public static void main(String s[]) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		JFrame frame = new JFrame("List Example");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

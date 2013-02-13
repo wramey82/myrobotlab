@@ -25,7 +25,11 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Logger;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -39,7 +43,7 @@ import org.myrobotlab.framework.Service;
 public class SLAM extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(SLAM.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SLAM.class.getCanonicalName());
 
 	public SLAM(String n) {
 		super(n, SLAM.class.getCanonicalName());

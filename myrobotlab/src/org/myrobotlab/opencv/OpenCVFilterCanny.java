@@ -34,7 +34,9 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -44,7 +46,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterCanny.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterCanny.class.getCanonicalName());
 
 	public int apertureSize = 5;
 	public double lowThreshold = 0.0;

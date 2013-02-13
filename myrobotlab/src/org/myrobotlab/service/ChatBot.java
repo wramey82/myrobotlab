@@ -1,7 +1,11 @@
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 /**
@@ -19,7 +23,7 @@ public class ChatBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(ChatBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ChatBot.class.getCanonicalName());
 
 	public ChatBot(String n) {
 		super(n, ChatBot.class.getCanonicalName());
@@ -31,8 +35,8 @@ public class ChatBot extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		ChatBot template = new ChatBot("chatbot");
 		template.startService();

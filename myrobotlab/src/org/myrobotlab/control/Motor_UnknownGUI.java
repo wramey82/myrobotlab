@@ -1,12 +1,14 @@
 package org.myrobotlab.control;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 
 public class Motor_UnknownGUI extends MotorControllerPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(MotorControllerPanel.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(MotorControllerPanel.class.getCanonicalName());
 
 	Object[] data = null;
 

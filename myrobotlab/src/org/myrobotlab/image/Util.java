@@ -49,7 +49,9 @@ import java.lang.reflect.Field;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 
@@ -241,7 +243,7 @@ public class Util {
 	 * & 0xff; System.out.println("argb: " + alpha + ", " + red + ", " + green +
 	 * ", " + blue); }
 	 */
-	public final static Logger log = Logger.getLogger(Util.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Util.class.getCanonicalName());
 
 	// static HashMap <int,>
 	// array [r][g][b]

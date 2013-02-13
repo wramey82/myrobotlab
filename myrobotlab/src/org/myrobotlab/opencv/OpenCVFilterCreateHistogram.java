@@ -31,7 +31,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.service.OpenCV;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -40,7 +42,7 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
 
 	IplImage buffer = null;
 	BufferedImage frameBuffer = null;

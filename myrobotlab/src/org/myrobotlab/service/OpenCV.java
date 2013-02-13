@@ -57,8 +57,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SimpleTimeZone;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
@@ -86,7 +90,7 @@ public class OpenCV extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(OpenCV.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCV.class.getCanonicalName());
 
 	int frameIndex = 0;
 	int lastImageWidth = 0;
@@ -804,8 +808,8 @@ public class OpenCV extends Service {
 		// radio lab - map cells location cells yatta yatta
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.WARN);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		/*
 		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);

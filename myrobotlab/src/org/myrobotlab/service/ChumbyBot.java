@@ -1,7 +1,11 @@
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
@@ -11,7 +15,7 @@ public class ChumbyBot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(ChumbyBot.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ChumbyBot.class.getCanonicalName());
 
 	OpenCV camera = new OpenCV("camera");
 	Servo servo = new Servo("pan");
@@ -153,8 +157,8 @@ public class ChumbyBot extends Service {
 	}
 
 	public static void main(String[] args) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		ChumbyBot chumbybot = new ChumbyBot("chumbybot");
 		chumbybot.startService();

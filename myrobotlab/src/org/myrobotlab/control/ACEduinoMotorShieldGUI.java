@@ -39,7 +39,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.ACEduinoMotorShield;
@@ -47,7 +49,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
-	public final static Logger log = Logger.getLogger(ACEduinoMotorShieldGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ACEduinoMotorShieldGUI.class.getCanonicalName());
 	static final long serialVersionUID = 1L;
 
 	JLabel boundPos = null;

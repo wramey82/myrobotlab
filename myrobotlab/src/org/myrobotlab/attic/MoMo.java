@@ -30,7 +30,9 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.image.ColoredPoint;
@@ -50,12 +52,12 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 public class MoMo extends Service {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = Logger.getLogger(MoMo.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(MoMo.class.getCanonicalName());
 
 	public final static int IR_PIN = 1;
 
 	/*
-	 * static { Logger.getRootLogger().setLevel(Level.WARN); }
+	 * static { LoggingFactory.getInstance().setLevel(Level.WARN); }
 	 */
 
 	Sphinx ear = new Sphinx("ear");
@@ -383,11 +385,11 @@ public class MoMo extends Service {
 	}
 
 	public void trackPoints(CvPoint2D32f[] points) {
-		log.error(points[0]);
+		log.error("{}",points[0]);
 	}
 
 	public void samplePoints(CvPoint2D32f[] points) {
-		log.warn(points[0]);
+		log.warn("{}",points[0]);
 	}
 
 	boolean beginSampled = false;
@@ -483,7 +485,7 @@ public class MoMo extends Service {
 
 		String ret = "\n";
 
-		log.error(points.size());
+		log.error("{}",points.size());
 		for (int i = 0; i < points.size(); ++i) {
 			CvPoint p = points.get(i);
 			if (p.x() != 0 && p.x() != 319 && p.y() != 0 && p.y() != 239) {

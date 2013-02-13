@@ -15,7 +15,9 @@ import java.util.TooManyListenersException;
 
 import javax.swing.event.EventListenerList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.myrobotlab.logging.LoggerFactory;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
@@ -32,7 +34,7 @@ import org.myrobotlab.serial.SerialDeviceException;
  */
 public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
-	public final static Logger log = Logger.getLogger(SerialDeviceGNU.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SerialDeviceGNU.class.getCanonicalName());
 
 	private gnu.io.SerialPort port;
 

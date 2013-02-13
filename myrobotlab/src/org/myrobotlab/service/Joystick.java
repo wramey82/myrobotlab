@@ -33,8 +33,12 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Rumbler;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 
 public class Joystick extends Service {
@@ -59,7 +63,7 @@ public class Joystick extends Service {
 	public static final int SOUTH = 7;
 	public static final int SE = 8;
 
-	public final static Logger log = Logger.getLogger(Joystick.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(Joystick.class.getCanonicalName());
 
 	public final static String Z_AXIS = "Z_AXIS";
 	public final static String Z_ROTATION = "Z_ROTATION";
@@ -790,8 +794,8 @@ public class Joystick extends Service {
 	}
 
 	public static void main(String args[]) {
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		// First you need to create controller.
 		// http://theuzo007.wordpress.com/2012/09/02/joystick-in-java-with-jinput/

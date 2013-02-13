@@ -25,8 +25,12 @@
 
 package org.myrobotlab.service;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.myrobotlab.logging.Level;
+
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
@@ -45,7 +49,7 @@ public class Motor extends Service implements MotorControl {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = Logger.getLogger(Motor.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(Motor.class.toString());
 
 	/**
 	 * state of Motor being attached to a motor controller
@@ -338,8 +342,8 @@ public class Motor extends Service implements MotorControl {
 
 	public static void main(String[] args) {
 
-		org.apache.log4j.BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Runtime.createAndStart("arduino", "Arduino");
 		Runtime.createAndStart("python", "Python");
