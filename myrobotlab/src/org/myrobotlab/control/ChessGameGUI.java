@@ -48,7 +48,7 @@ import org.myrobotlab.chess.Board;
 import org.myrobotlab.chess.Constants;
 import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.interfaces.GUI;
 import org.op.chess.ChessBoard;
 
@@ -406,7 +406,7 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 			youGotToMoveItMoveIt(null, m2, false);
 		} catch (PropertyVetoException e) {
 			// TODO Auto-generated catch block
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		return m2;
@@ -425,7 +425,7 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 													// not
 		} catch (PropertyVetoException e) {
 			// TODO Auto-generated catch block
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		return s;

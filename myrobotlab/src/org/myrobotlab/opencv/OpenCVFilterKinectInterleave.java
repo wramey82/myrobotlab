@@ -31,13 +31,12 @@ import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -53,8 +52,8 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
-	public OpenCVFilterKinectInterleave(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterKinectInterleave(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	int x = 0;
@@ -72,7 +71,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 		/*
 		 * frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory
@@ -93,7 +92,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	// CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image.nChannels() == 3) // rgb
 		{
@@ -138,7 +137,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

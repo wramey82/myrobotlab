@@ -49,11 +49,10 @@ import java.lang.reflect.Field;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.slf4j.Logger;
 
 /**
  * utilities with a swing dependency
@@ -76,7 +75,7 @@ public class Util {
 				icon = ImageIO.read(imgURL);
 				return icon;
 			} catch (IOException e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 
@@ -87,7 +86,7 @@ public class Util {
 				icon = ImageIO.read(imgURL);
 				return icon;
 			} catch (IOException e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 
@@ -345,7 +344,7 @@ public class Util {
 			fos.write(baos.toByteArray());
 			fos.close();
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 	}

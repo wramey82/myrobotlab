@@ -39,8 +39,8 @@ import java.util.LinkedList;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.RoutingEntry;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.WebServer;
 import org.slf4j.Logger;
@@ -133,7 +133,7 @@ public class RequestThread extends Thread {
 			out.write(json.getBytes());
 			out.flush();
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -284,7 +284,7 @@ public class RequestThread extends Thread {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			if (reader != null) {
 				try {
 					reader.close();
@@ -320,7 +320,7 @@ public class RequestThread extends Thread {
 			// open id
 
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			err = e.getMessage();
 		}
 

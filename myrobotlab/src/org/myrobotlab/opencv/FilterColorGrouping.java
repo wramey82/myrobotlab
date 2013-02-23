@@ -433,7 +433,7 @@ public final class FilterColorGrouping {
 		return null;
 	}
 
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -51,6 +51,7 @@ import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
@@ -129,7 +130,7 @@ public class FileIO {
 		} catch (EOFException e) {
 			// Do nothing if it is the end of file.
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		} finally {
 			try {
 				isr.close();
@@ -199,7 +200,7 @@ public class FileIO {
 				output.close();
 			}
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -216,7 +217,7 @@ public class FileIO {
 				input.close();
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return null;
 		}
 	}

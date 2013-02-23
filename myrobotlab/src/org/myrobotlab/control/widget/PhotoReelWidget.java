@@ -176,12 +176,11 @@ public class PhotoReelWidget extends ServiceGUI {
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
 		}
-		boundFilterName = img.source;
+		boundFilterName = img.getSource();
 		myIcon.setImage(img.getImage());
 		screen.setIcon(myIcon);
 		if (lastImage != null) {
-			if (img.timestamp != 0)
-				deltaTime.setText("" + (img.timestamp - lastImage.timestamp));
+				deltaTime.setText("" + (img.getTimestamp() - lastImage.getTimestamp()));
 		}
 		lastImage = img;
 		lastIcon.setImage(img.getImage());
@@ -231,8 +230,9 @@ public class PhotoReelWidget extends ServiceGUI {
 	}
 
 	public void publishTemplate(SerializableImage img) {
-		if (img.source != null && img.source.length() > 0) {
-			publishTemplate(img.source, img);
+		String source = img.getSource();
+		if (source != null) {
+			publishTemplate(img.getSource(), img);
 		} else {
 			publishTemplate("unknown", img);
 		}

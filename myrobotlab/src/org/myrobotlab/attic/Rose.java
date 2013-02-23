@@ -28,17 +28,15 @@ package org.myrobotlab.attic;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.AudioFile;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
-import org.myrobotlab.service.OpenCV.Polygon;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Sphinx;
+import org.slf4j.Logger;
 
 public class Rose extends Service {
 
@@ -52,7 +50,7 @@ public class Rose extends Service {
 	Servo tilt = null;
 	AudioFile mouth = null;
 	Sphinx ear = null;
-	ArrayList<Polygon> shapesISee = null;
+	//ArrayList<Polygon> shapesISee = null;
 
 	public Rose(String n) {
 		super(n, Rose.class.getCanonicalName());
@@ -152,7 +150,7 @@ public class Rose extends Service {
 			filterOn();
 			mouth.play("state/looking");
 		} else if (speech.compareTo("find") == 0) {
-			report();
+//			report();
 		} else if (speech.compareTo("clear") == 0) {
 			filterOff();
 		} else {
@@ -214,6 +212,7 @@ public class Rose extends Service {
 
 	}
 
+	/*
 	public void report() {
 		// stop looking for objects
 		camera.removeListener("publish", this.getName(), "setPolygons", ArrayList.class);
@@ -245,11 +244,12 @@ public class Rose extends Service {
 		camera.addListener("publish", this.getName(), "setPolygons", ArrayList.class);
 
 	}
-
+*/
+	/*
 	public void setPolygons(ArrayList<Polygon> polygons) {
-		shapesISee = polygons;
+	//	shapesISee = polygons;
 	}
-
+*/
 	public static void main(String[] args) {
 		Rose rose = new Rose("rose");
 		rose.Test1();

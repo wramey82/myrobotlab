@@ -30,11 +30,11 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -47,24 +47,26 @@ public class OpenCVFilterMask extends OpenCVFilter {
 
 	// TODO - get list of masks for gui
 
-	public OpenCVFilterMask(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterMask(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return dst.getBufferedImage();
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
+		IplImage mask = sources.get(String.format("%s_MASK", name));
+		
 		maskName = "kd";
-		if (myService.masks.containsKey(maskName)) {
+		if (mask != null) {
 			if (dst == null || dst.width() != image.width() || image.nChannels() != image.nChannels()) {
 				dst = cvCreateImage(cvSize(image.width(), image.height()), image.depth(), image.nChannels());
 			}
-			cvCopy(image, dst, myService.masks.get(maskName));
+			cvCopy(image, dst, mask);
 			return dst;
 		}
 
@@ -72,7 +74,7 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

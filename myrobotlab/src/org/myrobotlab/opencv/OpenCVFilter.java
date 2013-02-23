@@ -29,14 +29,12 @@ import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -47,69 +45,54 @@ public abstract class OpenCVFilter implements Serializable {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilter.class.toString());
 
 	private static final long serialVersionUID = 1L;
-	protected ConfigurationManager cfg = null; // TODO - remove
 	final public String name;
-	OpenCV myService = null; // FIXME - How does this work on remote ?!?!? - is a zombie method .send called ???
-	HashMap<String, Object> storage = null;
-	
+
 	public boolean publish = false;
 	public boolean publishOpenCVObjects = false;
 	public boolean useFloatValues = true;
+	
+	public boolean publishDisplay = false;
+	public boolean publishData = true;
+	public boolean publishImage = true;
+	public boolean publishIplImage = false;
 	
 	int width;
 	int height;
 	int channels;
 	CvSize imageSize;
 
-	final static public String INPUT_IMAGE_NAME = "inputImageName";
-	final static public String OUTPUT_IMAGE_NAME = "outputImageName";
-	final static public String USE_INPUT_IMAGE_NAME = "useInputImageName";
-	final static public String USE_OUTPUT_IMAGE_NAME = "useOutputImageName";
-	final static public String ROI_NAME = "roiName";
-	final static public String USE_ROI = "useROI";
-
-	static HashMap<String, Object> globalData = new HashMap<String, Object>();
-
-	public static final String FILTER_CFG_ROOT = "displayFilter/filter/";
-	public final String FILTER_INSTANCE_CFG_ROOT;
-
-	public OpenCVFilter(OpenCV service, String filterName) {
-		this.name = filterName;
-		this.myService = service;
-		this.storage = myService.storage;
-		this.FILTER_INSTANCE_CFG_ROOT = myService.getCFG().getServiceRoot() + "/" + FILTER_CFG_ROOT + name;
-		cfg = new ConfigurationManager(FILTER_INSTANCE_CFG_ROOT);
-		cfg.set(INPUT_IMAGE_NAME, "output");
-		cfg.set(OUTPUT_IMAGE_NAME, "output");
-		cfg.set(USE_INPUT_IMAGE_NAME, false);
-		cfg.set(USE_OUTPUT_IMAGE_NAME, false);
-		cfg.set(ROI_NAME, "roi");
-		cfg.set(USE_ROI, false);
-	}
-
-	// storage accessors begin
-	public IplImage getIplImage(String name) {
-		if (storage.containsKey(name)) {
-			return (IplImage) storage.get(name);
-		}
-		log.error("request for " + name + " IplImage in storage - not found");
-		return null;
-	}
-
-	// storage accessors end
-
-	public abstract IplImage process(IplImage image);
-
-	public abstract BufferedImage display(IplImage image, Object[] data);
+	public String sourceKey;
+	HashMap<String, IplImage> sources;
+	VideoProcessor vp;
 	
-	// daBomb
+	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {
+		this.name = filterName;
+		this.vp = vp;
+		this.sources = sources;
+		this.sourceKey = sourceKey;
+	}
+
+	public abstract IplImage process(IplImage image, OpenCVData data);
+	public abstract BufferedImage display(IplImage image);
+	public abstract void imageChanged(IplImage image);
+
+	public VideoProcessor getVideoProcessor()
+	{
+		return vp;
+	}
+	
+	public HashMap<String, IplImage> getSources()
+	{
+		return sources;
+	}
+	
 	public OpenCVFilter setState(OpenCVFilter other)
 	{
 		return (OpenCVFilter) Service.copyShallowFrom(this, other);
 	}
 
-	public IplImage preProcess(IplImage frame) {
-		// TODO size or re-init based on change of channel or size - lastWidth lastHeight
+	public IplImage preProcess(IplImage frame, OpenCVData data) {
+		data.setFilterName(this.name);
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
 			width = frame.width();
@@ -122,17 +105,21 @@ public abstract class OpenCVFilter implements Serializable {
 	}
 	
 	
-	public abstract void imageChanged(IplImage frame);
-
+	public void invoke(String method, Object...params)
+	{
+		vp.getOpencv().invoke(method, params);
+	}
 	
-	/**
-	 *  release memory or other resources in filter - this method is called
-	 *  when the filter is removed
-	 */
+	
+	public ArrayList<String> getPossibleSources()
+	{
+		ArrayList<String> ret = new ArrayList<String>();
+		ret.add(name);
+		return ret;
+	}
+	
 	public void release()
 	{
-		
 	}
-	// FIXME - dispose of filter removal
 
 }

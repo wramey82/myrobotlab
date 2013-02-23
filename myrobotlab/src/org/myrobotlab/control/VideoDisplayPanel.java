@@ -154,12 +154,11 @@ public class VideoDisplayPanel implements ActionListener {
 		 * 
 		 * img.source is the name of the bound filter
 		 */
-		if (img.source == null) {
-			img.source = "output";
-		}
+		String source = img.getSource();
+		long timestamp = img.getTimestamp();
 
-		if (parent.allowFork && !parent.displays.containsKey(img.source)) {
-			parent.addVideoDisplayPanel(img.source);// dynamically spawn a
+		if (parent.allowFork && !parent.displays.containsKey(source)) {
+			parent.addVideoDisplayPanel(source);// dynamically spawn a
 													// display if a new source
 													// is found
 			getSources();
@@ -169,15 +168,14 @@ public class VideoDisplayPanel implements ActionListener {
 			screen.setIcon(lastIcon);
 		}
 
-		if (!sourceNameLabel.getText().equals(img.source)) {
-			sourceNameLabel.setText(img.source);
+		if (!sourceNameLabel.getText().equals(source)) {
+			sourceNameLabel.setText(source);
 		}
 
 		myIcon.setImage(img.getImage());
 		screen.setIcon(myIcon);
 		if (lastImage != null) {
-			if (img.timestamp != 0)
-				deltaTime.setText(String.format("%d", img.timestamp - lastImage.timestamp));
+				deltaTime.setText(String.format("%d", timestamp - lastImage.getTimestamp()));
 		}
 
 		lastImage = img;

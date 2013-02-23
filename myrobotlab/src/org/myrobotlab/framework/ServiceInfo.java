@@ -16,18 +16,18 @@ import org.apache.ivy.Main;
 import org.apache.ivy.core.report.ArtifactDownloadReport;
 import org.apache.ivy.core.report.ResolveReport;
 import org.apache.ivy.util.cli.CommandLineParser;
-import org.myrobotlab.logging.Level;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.fileLib.Zip;
 import org.myrobotlab.framework.ServiceData.CategoryList;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
 
 // TODO - command line refresh - repo management & configuration options "latest" etc
 /**
@@ -242,7 +242,7 @@ public class ServiceInfo implements Serializable {
 				serviceData.thirdPartyLibs.put(org, dependency);
 			}
 		} catch (FileNotFoundException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 
@@ -334,7 +334,7 @@ public class ServiceInfo implements Serializable {
 			}
 			// ---- end fragile & ugly parsing -----
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			errors.add(e.getMessage());
 		}
 		return null;
@@ -355,7 +355,7 @@ public class ServiceInfo implements Serializable {
 				return true;
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			errors.add(e.getMessage());
 		}
 		return false;
@@ -534,7 +534,7 @@ public class ServiceInfo implements Serializable {
 		try {
 			serializer.read(o, cfg);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -586,7 +586,7 @@ public class ServiceInfo implements Serializable {
 			File cfg = new File(Service.getCFGDir() + File.separator + filename);
 			serializer.write(data, cfg);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -700,7 +700,7 @@ public class ServiceInfo implements Serializable {
 				try {
 					Ivy2.run(parser, cmd.toArray(new String[cmd.size()]));
 				} catch (Exception e) {
-					Service.logException(e);
+					Logging.logException(e);
 				}
 
 				report = Ivy2.getReport();
@@ -741,7 +741,7 @@ public class ServiceInfo implements Serializable {
 				}
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			ret = false;
 		}
 		return ret;

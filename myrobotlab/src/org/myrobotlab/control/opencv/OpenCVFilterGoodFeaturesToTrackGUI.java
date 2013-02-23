@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -170,18 +170,5 @@ public class OpenCVFilterGoodFeaturesToTrackGUI extends OpenCVFilterGUI {
 			}
 		});	
 	}
-
-	@Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-
-	}
-
 
 }

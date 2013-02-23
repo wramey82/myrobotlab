@@ -104,7 +104,7 @@ public class TrackingGUI extends ServiceGUI {
 	public void attachGUI() {
 		subscribe("publishState", "getState", Tracking.class);
 		subscribe("publishStatus", "setStatus", String.class);
-		subscribe("publishFrame", "displayFrame", SerializableImage.class);
+		subscribe("publishDisplay", "displayFrame", SerializableImage.class);
 		video0.attachGUI(); // default attachment
 	}
 
@@ -112,7 +112,7 @@ public class TrackingGUI extends ServiceGUI {
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", Tracking.class);
 		unsubscribe("publishStatus", "setStatus", String.class);
-		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);
+		unsubscribe("publishDisplay", "displayFrame", SerializableImage.class);
 		video0.detachGUI(); // default attachment
 
 	}

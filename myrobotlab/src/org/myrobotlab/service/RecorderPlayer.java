@@ -61,7 +61,7 @@ public class RecorderPlayer extends Service {
 
 
 	public void play() {
-		int deltaMsgTime = 0;
+		long deltaMsgTime = 0;
 		targetServiceName = "tilt";
 
 		for (int i = 0; i < msgs.size(); ++i) {
@@ -72,7 +72,7 @@ public class RecorderPlayer extends Service {
 
 			if (i + 1 < msgs.size()) {
 				Message nextMsg = msgs.get(i + 1);
-				deltaMsgTime = Integer.parseInt(nextMsg.timeStamp.substring(10)) - Integer.parseInt(m.timeStamp.substring(10));
+				deltaMsgTime = nextMsg.timeStamp - m.timeStamp;
 			}
 
 			try {

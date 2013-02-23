@@ -33,11 +33,11 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -56,12 +56,12 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	transient IplImage inlines = null;
 	transient BufferedImage frameBuffer = null;
 
-	public OpenCVFilterCanny(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterCanny(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		frameBuffer = inlines.getBufferedImage();
 		return frameBuffer;
@@ -71,7 +71,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	CvPoint p1 = new CvPoint(0, 0);
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image == null) {
 			log.error("image is null");
@@ -102,7 +102,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

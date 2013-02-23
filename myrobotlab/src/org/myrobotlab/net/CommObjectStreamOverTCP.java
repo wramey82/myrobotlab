@@ -49,13 +49,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.slf4j.Logger;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
@@ -100,9 +100,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						Object o = in.readObject();
 						msg = (Message) o;
 					} catch (Exception e) {
-						Service.logException(e);
+						Logging.logException(e);
 						msg = null;
-						Service.logException(e);
+						Logging.logException(e);
 						log.error(url + " connection failure - shutting down");
 						log.error("removing url from registry");
 						Runtime.release(url);
@@ -139,7 +139,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				log.error("TCPThread threw");
 				isRunning = false;
 				socket = null;
-				Service.logException(e);
+				Logging.logException(e);
 			}
 
 			// connection has been broken
@@ -158,7 +158,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				out.flush();
 
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 
@@ -181,7 +181,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				phone = new TCPThread(url, null);
 				clientList.put(url, phone);
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 				log.error("could not connect to " + url);
 				return;
 			}
@@ -207,7 +207,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				}
 
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 				log.error("could not connect to " + url);
 			}
 		}

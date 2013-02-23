@@ -57,14 +57,14 @@ import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNIN
 import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
@@ -81,7 +81,6 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 
-	IplImage buffer = null;
 	BufferedImage frameBuffer = null;
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
@@ -89,14 +88,14 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 														// from SOHDARService
 														// configuration
 
-	public OpenCVFilterFaceDetect(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
-		return buffer.getBufferedImage();
+		return image.getBufferedImage();
 	}
 
 	/*
@@ -133,7 +132,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	int i;
 
 	@Override
-	public IplImage process(IplImage img) {
+	public IplImage process(IplImage image, OpenCVData data) {
+
 
 		if (cascade == null) {
 			// Preload the opencv_objdetect module to work around a known bug.
@@ -146,7 +146,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 			if (cascade == null) {
 				log.error("Could not load classifier cascade");
-				return img;
+				return image;
 			}
 		}
 
@@ -165,10 +165,10 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// sequence of faces.
 			// Detect the objects and store them in the sequence
 
-			// CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2,
+			// CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2,
 			// CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
 
-			CvSeq faces = cvHaarDetectObjects(img, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
+			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
 
 			// Loop the number of faces found.
 			for (i = 0; i < (faces != null ? faces.total() : 0); i++) {
@@ -183,24 +183,23 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				pt2.y((r.y() + r.height()) * scale);
 
 				// Draw the rectangle in the input image
-				cvRectangle(img, pt1, pt2, CV_RGB(255, 0, 0), 3, 8, 0);
+				cvRectangle(image, pt1, pt2, CV_RGB(255, 0, 0), 3, 8, 0);
 				centeroid.x(r.x() + r.width() * scale / 2);
 				centeroid.y(r.y() + r.height() * scale / 2);
 				/*
 				 * ch1.x = centeroid.x + 1; ch1.y = centeroid.y; ch2.x =
 				 * centeroid.x - 1; ch2.y = centeroid.y;
 				 */
-				cvDrawLine(img, centeroid, centeroid, CV_RGB(255, 0, 0), 3, 8, 0);
-				myService.invoke("publish", centeroid);
+				cvDrawLine(image, centeroid, centeroid, CV_RGB(255, 0, 0), 3, 8, 0);
+				invoke("publish", centeroid);
 			}
 		}
 
-		buffer = img;
-		return buffer;
+		return image;
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

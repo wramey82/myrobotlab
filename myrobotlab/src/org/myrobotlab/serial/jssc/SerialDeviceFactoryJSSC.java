@@ -4,17 +4,14 @@ package org.myrobotlab.serial.jssc;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import jssc.SerialPort;
-import jssc.SerialPortException;
 import jssc.SerialPortList;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.serial.SerialDeviceFrameworkFactory;
+import org.slf4j.Logger;
 
 public class SerialDeviceFactoryJSSC implements SerialDeviceFrameworkFactory {
 
@@ -38,7 +35,7 @@ public class SerialDeviceFactoryJSSC implements SerialDeviceFrameworkFactory {
 															// problem???
 			return sd;
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			e.printStackTrace();
 		}
 		return null;

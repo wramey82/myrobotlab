@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,28 +32,59 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.myrobotlab.control.widget.SliderWithText;
 import org.myrobotlab.opencv.FilterWrapper;
-import org.myrobotlab.opencv.OpenCVFilterCanny;
 import org.myrobotlab.service.GUIService;
 
-public class OpenCVFilterCannyGUI extends OpenCVFilterGUI implements ChangeListener {
+public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 
-	SliderWithText lowThreshold = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 0);
-	SliderWithText highThreshold = new SliderWithText(JSlider.HORIZONTAL, 0, 256, 256);
-	SliderWithText apertureSize = new SliderWithText(JSlider.HORIZONTAL, 1, 3, 1); // docs say 1 3 5 7 ... but 1 craches - will use 3 5 or 7
+	JSlider2 lowThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 0);
+	JSlider2 highThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 256);
+	JSlider2 apertureSize = new JSlider2(JSlider.HORIZONTAL, 1, 3, 1);
 
-	public OpenCVFilterCannyGUI(String boundFilterName, String boundServiceName, GUIService myService) {
+	public class JSlider2 extends JSlider {
+		private static final long serialVersionUID = 1L;
+		JLabel value = new JLabel();
+
+		public JSlider2(int vertical, int i, int j, int k) {
+			super(vertical, i, j, k);
+			value.setText("" + k);
+		}
+
+	}
+
+	public class AdjustSlider implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			JSlider2 slider = (JSlider2) e.getSource();
+			Object[] params = new Object[3];
+			params[0] = name;
+			params[1] = slider.getName();
+			params[2] = slider.getValue();
+			if (slider.getName().compareTo("apertureSize") == 0) {
+				params[2] = slider.getValue() * 2 + 1;
+			}
+			myGUI.send(boundServiceName, "setFilterCFG", params);
+			slider.value.setText("" + slider.getValue());
+		}
+	}
+
+	AdjustSlider change = new AdjustSlider();
+
+	public OpenCVFloorFinderGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
-		lowThreshold.addChangeListener(this);
-		highThreshold.addChangeListener(this);
-		apertureSize.addChangeListener(this);
+		lowThreshold.setName("lowThreshold");
+		highThreshold.setName("highThreshold");
+		apertureSize.setName("apertureSize");
+
+		lowThreshold.addChangeListener(change);
+		highThreshold.addChangeListener(change);
+		apertureSize.addChangeListener(change);
 
 		GridBagConstraints gc2 = new GridBagConstraints();
 
@@ -90,49 +121,9 @@ public class OpenCVFilterCannyGUI extends OpenCVFilterGUI implements ChangeListe
 
 	}
 
-	// FIXME - update components :)
 	@Override
-	public void getFilterState(final FilterWrapper filterWrapper) {
-		boundFilter = filterWrapper;
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				OpenCVFilterCanny bf = (OpenCVFilterCanny)filterWrapper.filter;
-			}
-		});
-
-	}
-
-	@Override
-	public void attachGUI() {
+	public void getFilterState(FilterWrapper filterWrapper) {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stateChanged(ChangeEvent e) {
-
-		Object o = e.getSource();
-		OpenCVFilterCanny bf = (OpenCVFilterCanny) boundFilter.filter;
-		
-		if (o == apertureSize)
-		{
-			bf.apertureSize = apertureSize.getValue() * 2 + 1;
-			apertureSize.setText(bf.apertureSize);
-		} else if (o == highThreshold) {
-			bf.highThreshold = highThreshold.getValue();
-			highThreshold.setText(highThreshold.getValue());
-		} else if (o == lowThreshold) {
-			bf.lowThreshold = lowThreshold.getValue();
-			lowThreshold.setText(lowThreshold.getValue());
-		}
-		
-		setFilterState(bf);
 		
 	}
 

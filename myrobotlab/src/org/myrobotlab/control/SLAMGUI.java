@@ -68,7 +68,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoG
 
 		img = new BufferedImage(width / 2, height / 2, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
-		video.displayFrame(img);
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 
 		video = new VideoWidget(boundServiceName, myService);
 		video.init();
@@ -100,7 +100,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoG
 	public void attachGUI() {
 		video.attachGUI();
 		subscribe("publishIR", "publishIR", IREvent.class);
-		video.displayFrame(img);
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 	}
 
 	int x;

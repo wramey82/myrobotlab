@@ -43,12 +43,12 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.slf4j.Logger;
 
 public class CommObjectStreamOverUDP extends Communicator implements Serializable {
 
@@ -80,7 +80,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				this.socket = socket;
 				this.start();
 			} catch (SocketException e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 
@@ -151,7 +151,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 					} catch (Exception e) {
 						msg = null;
-						Service.logException(e);
+						Logging.logException(e);
 					}
 
 				}
@@ -164,7 +164,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 				log.error("UDPThread threw");
 				isRunning = false;
 				socket = null;
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}// run
 
@@ -195,7 +195,7 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 			phone.send(url, msg);
 
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return;
 		}
 	}

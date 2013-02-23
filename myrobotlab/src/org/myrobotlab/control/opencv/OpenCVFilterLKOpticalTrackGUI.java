@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -199,16 +199,5 @@ public class OpenCVFilterLKOpticalTrackGUI extends OpenCVFilterGUI implements Ac
 		myGUI.send(boundServiceName, "setFilterState", boundFilter);
 	}
 
-	@Override
-	public void attachGUI() {
-		//myGUI.subscribe("publishFilterState", "getFilterState", OpenCVFilterLKOpticalTrack.class);
-		myGUI.send(boundServiceName, "publishState");
-	}
-
-	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-
-	}
 
 }

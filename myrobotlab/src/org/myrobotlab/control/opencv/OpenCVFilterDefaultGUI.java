@@ -23,41 +23,54 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
-import javax.swing.JButton;
-import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.opencv.FilterWrapper;
+import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
 
-public class OpenCVFilterMatchTemplateGUI extends OpenCVFilterGUI {
+public class OpenCVFilterDefaultGUI extends OpenCVFilterGUI implements ActionListener {
 
-	JButton button = new JButton("smooth me");
-	JTextField kernel = new JTextField("3");
-
-	public OpenCVFilterMatchTemplateGUI(String boundFilterName, String boundServiceName, GUIService myService) {
+		
+	public OpenCVFilterDefaultGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
-		display.add(button);
-		display.add(kernel);
+		
+		display.add(new JLabel("no available parameters"));
 	}
 
-	@Override
+	// @Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
+		log.debug("attachGUI");
+
 	}
 
-	@Override
+	// @Override
 	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
+		log.debug("detachGUI");
+
 	}
 
 	@Override
-	public void getFilterState(FilterWrapper filterWrapper) {
-		// TODO Auto-generated method stub
+	public void getFilterState(final FilterWrapper filterWrapper) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				OpenCVFilter bf = filterWrapper.filter;
+			}
+		});
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		OpenCVFilter bf =  boundFilter.filter;
 		
+		setFilterState(bf);
 	}
 
 }

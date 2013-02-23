@@ -37,16 +37,12 @@ import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -118,12 +114,12 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		return ret;
 	}
 
-	public OpenCVFilterAverageColor(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterAverageColor(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		/*
 		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);
 		 * graphics.drawString("R/H " + (int)avg.getRed() + " G/S " +
@@ -170,7 +166,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	CvPoint poi = null;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 		// cvCvtColor(image, buffer, CV_BGR2HSV);
 		roi = null;
 		roiX = 170;
@@ -208,7 +204,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 						/*
 						 * if (publishColorName &&
 						 * colorName.compareTo(lastColorName) != 0) {
-						 * myService.invoke("publish", colorName); }
+						 * invoke("publish", colorName); }
 						 */
 						lastColorName = colorName;
 
@@ -223,7 +219,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 			cvResetImageROI(image);
 			colorName = getColorName(avg);
 			if (publishColorName && colorName.compareTo(lastColorName) != 0) {
-				myService.invoke("publish", colorName);
+				invoke("publish", colorName);
 			}
 			lastColorName = colorName;
 		}
@@ -274,7 +270,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

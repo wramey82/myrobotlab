@@ -90,7 +90,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		graph.setColor(Color.green);
 
-		screen.displayFrame(graphImage);
+		screen.displayFrame(new SerializableImage(graphImage, boundServiceName));
 
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -272,7 +272,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, Vide
 				history.remove(0);
 			}
 
-			screen.displayFrame(graphImage);
+			screen.displayFrame(new SerializableImage(graphImage, boundServiceName));
 
 		} else {
 			log.error("points null");
@@ -422,7 +422,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, Vide
 		hist.add(p);
 
 		// screen image
-		screen.displayFrame(graphImage);
+		screen.displayFrame(new SerializableImage(graphImage, boundServiceName));
 		/*
 		 * // send it to OpenCV if (cnt%20 == 0) {
 		 * myService.invoke("processImage", Utils.copyImage(graphImage)); }

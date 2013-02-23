@@ -34,13 +34,12 @@ import java.net.UnknownHostException;
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.GUIService;
+import org.slf4j.Logger;
 
 public class Client extends JApplet {
 
@@ -115,7 +114,7 @@ public class Client extends JApplet {
 			log.error("Couldn't get Internet appletAddress: Unknown appletHostAddress");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		this.setContentPane(getJContentPane());

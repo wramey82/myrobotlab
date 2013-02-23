@@ -15,14 +15,13 @@ import java.util.TooManyListenersException;
 
 import javax.swing.event.EventListenerList;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
 import org.myrobotlab.serial.SerialDeviceException;
+import org.slf4j.Logger;
 
 /**
  * @author GroG
@@ -304,13 +303,13 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 			input = port.getInputStream();
 			log.info(String.format("opened %s", commPortId.getName()));
 		} catch (PortInUseException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			throw new SerialDeviceException("port in use " + e.getMessage());
 		} catch (UnsupportedCommOperationException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			throw new SerialDeviceException("UnsupportedCommOperationException " + e.getMessage());
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			throw new SerialDeviceException("IOException " + e.getMessage());
 		}
 	}

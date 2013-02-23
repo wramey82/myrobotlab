@@ -90,13 +90,13 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	// movement
 	HashMap<String, Float> values = new HashMap<String, Float>();
 
-	public OpenCVFilterGoodFeaturesToTrack(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterGoodFeaturesToTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
-		grey = cvCreateImage(cvGetSize(frame), 8, 1);
+	public void imageChanged(IplImage image) {
+		grey = cvCreateImage(cvGetSize(image), 8, 1);
 		eig = cvCreateImage(cvGetSize(grey), 32, 1);
 		temp = cvCreateImage(cvGetSize(grey), 32, 1);
 
@@ -105,13 +105,13 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage frame) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (channels == 3) {
 			grey = IplImage.create(imageSize, 8, 1);
-			cvCvtColor(frame, grey, CV_BGR2GRAY);
+			cvCvtColor(image, grey, CV_BGR2GRAY);
 		} else {
-			grey = frame;
+			grey = image;
 		}
 
 		
@@ -130,7 +130,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 		// if (corner_count > 0) {
 		if (publishOpenCVObjects) {
-			myService.invoke("publish", (Object) corners);
+			invoke("publish", (Object) corners);
 		} else {
 
 			double[] da = corners.get();
@@ -171,15 +171,15 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 					points.add(np);
 
 				}
-				myService.invoke("publish", points);
+				invoke("publish", points);
 			}
 		}
 
-		return frame;
+		return image;
 	}
 
 	@Override
-	public BufferedImage display(IplImage frame, Object[] data) {
+	public BufferedImage display(IplImage frame) {
 
 		BufferedImage frameBuffer = frame.getBufferedImage();
 		Graphics2D graphics = frameBuffer.createGraphics();

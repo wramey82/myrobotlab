@@ -40,13 +40,11 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_TM_SQDIFF;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvMatchTemplate;
 
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -54,6 +52,12 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 // TODO - http://opencv.willowgarage.com/wiki/FastMatchTemplate
+// FIXME - get template from exterior source
+// FIXME - named inputs output - defaults "created"  filterName_input  filternName_output - 
+// must create a "input filter (non filter) and a non-filter output
+// Think about the difference between publishing vs blocking on data from different thread
+// its probably best that this thread run unhindered and therefore "publishing"
+// publish list !  - source should be <opencv>_<filtername>_<output/input?>
 
 public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
@@ -61,12 +65,12 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterMatchTemplate.class.getCanonicalName());
 
-	int i = 0;
-	public IplImage template = null;
-	IplImage res = null;
 	double[] minVal = new double[1];
 	double[] maxVal = new double[1];
 	
+	transient public IplImage template = null;
+
+	transient IplImage res = null;
 	transient CvPoint minLoc = new CvPoint();
 	transient CvPoint maxLoc = new CvPoint();
 
@@ -76,12 +80,12 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	transient CvPoint centeroid = new CvPoint(0, 0);
 
 
-	public OpenCVFilterMatchTemplate(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterMatchTemplate(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return image.getBufferedImage();
 		/*
@@ -121,7 +125,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	boolean isTracking = false;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 		// cvMatchTemplate(iamge, arg1, arg2, arg3);
 
 		/*
@@ -153,8 +157,8 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 			cvSetImageROI(image, rect);
 			cvCopy(image, template, null);
 			cvResetImageROI(image);
-			myService.invoke("publishTemplate", name, template.getBufferedImage());
-			myService.invoke("publishIplImageTemplate", template); // FYI -
+			invoke("publishTemplate", name, template.getBufferedImage());
+			invoke("publishIplImageTemplate", template); // FYI -
 																	// IplImage
 																	// is not
 																	// serializable
@@ -178,16 +182,16 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 				cvPutText(image, "locked", textpt, font, CV_RGB(254, 254, 254));
 				centeroid.x(tempRect0.x() + ((tempRect1.x() - tempRect0.x()) / 2));
 				centeroid.y(tempRect0.y() + ((tempRect1.y() - tempRect0.y()) / 2));
-				myService.invoke("publish", centeroid);
+				invoke("publish", centeroid);
 				if (isTracking != true) // message clutter optimization
 				{
-					myService.invoke("isTracking", true);
+					invoke("isTracking", true);
 				}
 				isTracking = true;
 
 			} else {
 				if (isTracking != false) {
-					myService.invoke("isTracking", false);
+					invoke("isTracking", false);
 				}
 				isTracking = false;
 			}
@@ -198,7 +202,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

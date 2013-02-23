@@ -98,12 +98,12 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	ArrayList<CvPoint> path = new ArrayList<CvPoint>();
 	HashMap<String, CvPoint> unique = new HashMap<String, CvPoint>();
 
-	public OpenCVFilterMouse(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterMouse(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		frameBuffer = image.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;
@@ -120,7 +120,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	IplImage src = null;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image == null) {
 			log.error("image is null");
@@ -168,7 +168,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 		drawPath(image);
 
-		myService.invoke("publish", (Object) path);
+		invoke("publish", (Object) path);
 
 		log.error("{}", path.size());
 		return image;
@@ -443,7 +443,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

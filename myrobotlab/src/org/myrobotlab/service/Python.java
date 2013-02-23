@@ -6,19 +6,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
+import org.slf4j.Logger;
 
 /**
  * @author GroG
@@ -154,7 +153,7 @@ public class Python extends Service {
 				executing = true;
 				interp.exec(code);
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			} finally {
 				executing = false;
 				invoke("finishedExecutingScript");
@@ -283,7 +282,7 @@ public class Python extends Service {
 			// interp.exec(code);
 
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 

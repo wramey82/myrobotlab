@@ -42,15 +42,14 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -70,8 +69,8 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	// int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 
-	public OpenCVFilterHSV(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterHSV(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	int x = 0;
@@ -89,7 +88,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		frameBuffer = hsv.getBufferedImage(); // TODO - ran out of memory here
 		++frameCounter;
@@ -123,7 +122,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	CvScalar hueMin = cvScalar(255.0, 0.0, 0.0, 0.0);
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		// what can you expect? nothing? - if data != null then error?
 
@@ -177,7 +176,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

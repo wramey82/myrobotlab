@@ -120,7 +120,7 @@ public class FilterSobel {
 		return image;
 	}
 
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return null;
 	}
 

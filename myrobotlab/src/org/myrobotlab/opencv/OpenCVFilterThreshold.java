@@ -31,29 +31,29 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterThreshold extends OpenCVFilter {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterThreshold.class.getCanonicalName());
 	IplImage gray = null;
+	
+	public float lowThreshold = 0.0f;
+	public float highThreshold = 256.0f;
 
-	public OpenCVFilterThreshold(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterThreshold(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 	}
 
@@ -97,11 +97,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	 */
 
 	@Override
-	public IplImage process(IplImage image) {
-
-		if (gray == null) {
-			gray = cvCreateImage(cvGetSize(image), 8, CV_THRESH_BINARY);
-		}
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		// CV_THRESH_BINARY
 		// CV_THRESH_BINARY_INV
@@ -112,7 +108,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 		// cxcore.cvSetImageCOI(image, 1);
 
 		// http://www710.univ-lyon1.fr/~bouakaz/OpenCV-0.9.5/docs/ref/OpenCVRef_ImageProcessing.htm
-		cvThreshold(image, image, cfg.getFloat("lowThreshold"), cfg.getFloat("highThreshold"), CV_THRESH_BINARY);
+		cvThreshold(image, image, lowThreshold, highThreshold, CV_THRESH_BINARY);
 
 		// must be gray for adaptive
 		/*
@@ -124,9 +120,8 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
-		// TODO Auto-generated method stub
-		
+	public void imageChanged(IplImage image) {
+		gray = cvCreateImage(cvGetSize(image), 8, CV_THRESH_BINARY);
 	}
 
 }

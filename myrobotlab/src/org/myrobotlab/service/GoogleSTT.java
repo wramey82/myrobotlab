@@ -55,14 +55,13 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.speech.TranscriptionThread;
+import org.slf4j.Logger;
 import org.tritonus.share.sampled.FloatSampleBuffer;
 
 public class GoogleSTT extends Service {
@@ -271,15 +270,15 @@ public class GoogleSTT extends Service {
 		// only interrupt if available
 		// transcription.interrupt();
 
-		Service.logTime("t1", "start");
-		Service.logTime("t1", "pre new transcription " + path);
+		Logging.logTime("t1", "start");
+		Logging.logTime("t1", "pre new transcription " + path);
 		TranscriptionThread transcription = new TranscriptionThread(this.getName() + "_transcriber", language);
 		transcription.debug = true;
-		Service.logTime("t1", "pre new thread start");
+		Logging.logTime("t1", "pre new thread start");
 		transcription.start();
-		Service.logTime("t1", "pre transcription");
+		Logging.logTime("t1", "pre transcription");
 		transcription.startTranscription(path);
-		Service.logTime("t1", "post transcription");
+		Logging.logTime("t1", "post transcription");
 
 		// threads.add(transcription);
 	}

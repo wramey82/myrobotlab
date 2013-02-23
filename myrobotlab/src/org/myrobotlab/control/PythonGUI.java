@@ -62,6 +62,7 @@ import org.myrobotlab.control.widget.FileUtil;
 import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Python;
 import org.myrobotlab.service.Python.Script;
@@ -130,7 +131,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 
 				panel = createEditorPane();
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 
@@ -701,7 +702,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 					log.info(String.format("saving script / file %s", e.getFileFullPath()));
 					e.save();
 				} catch (Exception ex) {
-					Service.logException(ex);
+					Logging.logException(ex);
 				}
 				/*
 				 * FileLocation fl = FileLocation.create(e.getFileFullPath());
@@ -709,7 +710,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 				 * JOptionPane.showInputDialog(myService.getFrame(),
 				 * "Save File?", name); if (filename != null) { fl =
 				 * FileLocation.create(filename); try { e.saveAs(fl); } catch
-				 * (IOException e1) { Service.logException(e1); // TODO
+				 * (IOException e1) { Logging.logException(e1); // TODO
 				 * Auto-generated catch block } }
 				 */
 			}

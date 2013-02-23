@@ -30,11 +30,10 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -49,28 +48,32 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient BufferedImage frameBuffer = null;
 	
-	public OpenCVFilterPyramidDown(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterPyramidDown(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 	
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return dst.getBufferedImage();
 	}
 
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
-		cvPyrDown(image, dst, CV_GAUSSIAN_5X5);
+		//if (width > 1 && height > 1)
+		//{
+			cvPyrDown(image, dst, CV_GAUSSIAN_5X5);
+		//}
 
 		return dst;
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
-		dst = cvCreateImage(cvSize(frame.width() / 2, frame.height() / 2), frame.depth(), frame.nChannels());
+	public void imageChanged(IplImage image) {
+		
+		dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(), image.nChannels());
 	}
 
 }

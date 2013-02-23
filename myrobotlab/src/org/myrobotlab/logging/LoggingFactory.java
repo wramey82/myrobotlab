@@ -12,7 +12,7 @@ public class LoggingFactory {
 			return logging;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			Service.logException(e); // 
+			Logging.logException(e); // 
 			//Logging.loge
 			// TODO Auto-generated catch block
 			// FIXME - log it

@@ -65,7 +65,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 			}
 			input = connection.getInputStream();
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 			connection = null;
 			url = null;
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -92,9 +92,9 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		try {
 			return IplImage.createFrom(grabBufferedImage());
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return null;
 	}

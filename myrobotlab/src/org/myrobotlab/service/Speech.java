@@ -374,7 +374,7 @@ public class Speech extends Service {
 				fos.write(data.method.getResponseBody());
 
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 
 		}

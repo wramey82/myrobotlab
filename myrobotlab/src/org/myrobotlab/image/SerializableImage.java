@@ -28,7 +28,6 @@ package org.myrobotlab.image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageInputStream;
@@ -37,38 +36,55 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 public class SerializableImage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private BufferedImage image = null;
-	public String source = "";
-	public long timestamp;
+	private BufferedImage image;
+	private String source;
+	private long timestamp;
 
+	/*
 	public SerializableImage() {
-		super();
 	}
 
 	public SerializableImage(BufferedImage im) {
-		this();
-		setImage(im);
+		this.image = im;
 	}
-
-	public SerializableImage(BufferedImage im, String source) {
-		this();
+*/
+	public SerializableImage(BufferedImage image, String source) {
 		this.source = source;
-		setImage(im);
+		this.image = image;
+		this.timestamp = System.currentTimeMillis();
 	}
-
-	public BufferedImage getImage() {
+	
+	public BufferedImage getImage()
+	{
 		return image;
 	}
-
-	public void setImage(BufferedImage img) {
-		this.image = img;
+	
+	public String getSource()
+	{
+		return source;
+	}
+	
+	public long getTimestamp()
+	{
+		return timestamp;
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		ImageIO.write(getImage(), "jpg", new MemoryCacheImageOutputStream(out));
+		ImageIO.write(image, "jpg", new MemoryCacheImageOutputStream(out));
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		setImage(ImageIO.read(new MemoryCacheImageInputStream(in)));
+		image = (ImageIO.read(new MemoryCacheImageInputStream(in)));
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	public void setImage(BufferedImage image) {
+		this.image = image;
+	}
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 }

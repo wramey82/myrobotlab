@@ -39,12 +39,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
@@ -92,7 +92,6 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	private Point2Df samplePoint = new Point2Df();
 
 	// display graphic structures
-	transient Graphics2D graphics = null;
 	transient BufferedImage frameBuffer = null;
 
 	// opencv data structures
@@ -101,12 +100,12 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	transient IplImage preGrey, grey, eig, tmp, prePyramid, pyramid, swap, mask, image;
 	transient CvPoint2D32f prePoints, points, swapPoints;
 
-	public OpenCVFilterLKOpticalTrack(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterLKOpticalTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 
 		points = new CvPoint2D32f(MAX_POINT_COUNT);
 		prePoints = new CvPoint2D32f(MAX_POINT_COUNT);
@@ -146,9 +145,9 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage frame, Object[] data) {
+	public BufferedImage display(IplImage frame) {
 		frameBuffer = frame.getBufferedImage();
-		graphics = frameBuffer.createGraphics();
+		Graphics2D graphics = frameBuffer.createGraphics();
 		graphics.setColor(Color.green);
 		float x, y;
 		int xPixel, yPixel;
@@ -179,13 +178,13 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage frame) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (channels == 3) {
 			grey = IplImage.create(imageSize, 8, 1); // FIXME copy don't create
-			cvCvtColor(frame, grey, CV_BGR2GRAY);
+			cvCvtColor(image, grey, CV_BGR2GRAY);
 		} else {
-			grey = frame;
+			grey = image;
 		}
 		
 		if (clearPoints)
@@ -268,7 +267,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 				}
 				count[0] = validPointCount;
 				
-				myService.invoke("publish", pointsToPublish); 
+				invoke("publish", pointsToPublish); 
 
 			}
 
@@ -280,7 +279,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		preGrey = grey;
 		// prePyramid = pyramid;
 
-		return frame;
+		return image;
 	}
 
 }

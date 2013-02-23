@@ -81,7 +81,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGU
 
 		cam = camImage.getGraphics();
 
-		video0.displayFrame(camImage);
+		video0.displayFrame(new SerializableImage(camImage, boundServiceName));
 
 		gc.gridx = 0;
 		gc.gridy = 0;
@@ -124,7 +124,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGU
 	public void attachGUI() {
 		video0.attachGUI();
 		subscribe("publishIR", "publishIR", IRData.class);
-		video0.displayFrame(camImage);
+		video0.displayFrame(new SerializableImage(camImage, boundServiceName));
 	}
 
 	int x;
@@ -171,7 +171,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGU
 
 		lastIRData = ire;
 
-		video0.displayFrame(camImage);
+		video0.displayFrame(new SerializableImage(camImage, boundServiceName));
 
 	}
 

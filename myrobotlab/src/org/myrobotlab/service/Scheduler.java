@@ -26,13 +26,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.SimpleJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -43,6 +41,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.slf4j.Logger;
 
 public class Scheduler extends Service {
 
@@ -123,7 +122,7 @@ public class Scheduler extends Service {
 			 */
 			// scheduler.getJobDetail(arg0)
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -142,7 +141,7 @@ public class Scheduler extends Service {
 			scheduler.scheduleJob(j, cronTrigger);
 			return true;
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return false;
 	}
@@ -151,7 +150,7 @@ public class Scheduler extends Service {
 		try {
 			return scheduler.getJobGroupNames();
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return null;
 	}
@@ -198,7 +197,7 @@ public class Scheduler extends Service {
 		try {
 			return scheduler.getJobDetail(new JobKey(job)); // default group
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return null;
 	}
@@ -248,7 +247,7 @@ public class Scheduler extends Service {
 			scheduler.start();
 
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -258,7 +257,7 @@ public class Scheduler extends Service {
 				scheduler.shutdown();
 			}
 		} catch (SchedulerException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 	}

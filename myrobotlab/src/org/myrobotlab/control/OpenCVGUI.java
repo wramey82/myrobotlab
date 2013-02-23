@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -35,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -59,17 +61,20 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
+import org.myrobotlab.control.opencv.ComboBoxModel;
+import org.myrobotlab.control.opencv.OpenCVFilterGUI;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
+import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
 
@@ -78,12 +83,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(OpenCVGUI.class.toString());
 	public String prefixPath = "com.googlecode.javacv.";
-	
 
 	BasicArrowButton addFilterButton = new BasicArrowButton(BasicArrowButton.EAST);
 	BasicArrowButton removeFilterButton = new BasicArrowButton(BasicArrowButton.WEST);
 
-	
 	OpenCVListAdapter popup = new OpenCVListAdapter(this);
 
 	JList possibleFilters;
@@ -103,7 +106,6 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	JLabel modeLabel = new JLabel("mode");
 	JButton inputFileButton = new JButton("open file");
 
-	
 	JComboBox IPCameraType = new JComboBox(new String[] { "foscam FI8918W" });
 
 	ButtonGroup groupRadio = new ButtonGroup();
@@ -114,14 +116,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 	JComboBox cameraIndex = new JComboBox(new Integer[] { 0, 1, 2, 3, 4, 5 });
 
-	JPanel filterParameters = new JPanel();
+	JPanel filterParameters = new JPanel(new BorderLayout());
 
-	LinkedHashMap<String, OpenCVFilterGUI> filters = new LinkedHashMap<String, OpenCVFilterGUI>();
+	LinkedHashMap<String, OpenCVFilterGUI> guiFilters = new LinkedHashMap<String, OpenCVFilterGUI>();
 
 	// output
 	JButton recordButton = new JButton("record");
 	JButton recordFrameButton = new JButton("record frame");
-	
+
 	OpenCV myOpenCV;
 
 	public OpenCVGUI(final String boundServiceName, final GUI myService) {
@@ -153,10 +155,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		kinectImageOrDepth.addActionListener(this);
 
-		String plist[] = { "And", "AverageColor", "Canny", "CreateHistogram", "ColorTrack", "Dilate", "Erode", "FGBG", "FaceDetect", "Fauvist", "FindContours", "FloodFill",
-				"FloorFinder", "GoodFeaturesToTrack", "Gray", "HoughLines2", "HSV", "InRange", "KinectDepth", "KinectDepthMask", "KinectInterleave", "LKOpticalTrack", "Mask",
-				"MatchTemplate", "MotionTemplate", "Mouse", "Not", "PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr", "ResetImageROI", "SampleArray", "SampleImage",
-				"SetImageROI", "Smooth", "Threshold" };
+		String plist[] = { "AddMask", "And", "AverageColor", "BackgroundSubtractorMOG2", "Canny", "CreateHistogram", "ColorTrack", "Dilate", "Erode", "FGBG", "FaceDetect", "Fauvist",
+				"FindContours", "FloodFill", "FloorFinder", "GoodFeaturesToTrack", "Gray", "HoughLines2", "HSV", "InRange", "KinectDepth", "KinectDepthMask", "KinectInterleave",
+				"LKOpticalTrack", "Mask", "MatchTemplate", "MotionTemplate", "Mouse", "Not", "PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr", "ResetImageROI",
+				"SampleArray", "SampleImage", "SetImageROI", "Smooth", "Split", "Threshold" };
 
 		possibleFilters = new JList(plist);
 		possibleFilters.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -231,16 +233,16 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		display.add(input, gc);
 
 		gc.gridy = 3;
-		
+
 		JPanel output = new JPanel();
-		
+
 		title = BorderFactory.createTitledBorder("output");
 		output.setBorder(title);
-		
+
 		display.add(output, gc);
 		output.add(recordButton);
 		output.add(recordFrameButton);
-		
+
 		recordButton.addActionListener(this);
 		recordFrameButton.addActionListener(this);
 
@@ -249,18 +251,18 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		// build filters begin ------------------
 		addFilterButton.addActionListener(this);
 		removeFilterButton.addActionListener(this);
-		
-		JPanel filters = new JPanel();
+
+		JPanel filterPanel = new JPanel();
 		title = BorderFactory.createTitledBorder("filters: available - current");
-		filters.setBorder(title);
-		filters.add(possibleFiltersScrollPane);
-		filters.add(removeFilterButton);
-		filters.add(addFilterButton);
-		filters.add(currentFiltersScrollPane);
+		filterPanel.setBorder(title);
+		filterPanel.add(possibleFiltersScrollPane);
+		filterPanel.add(removeFilterButton);
+		filterPanel.add(addFilterButton);
+		filterPanel.add(currentFiltersScrollPane);
 
 		gc.gridx = 1;
 		gc.gridy = 0;
-		display.add(filters, gc);
+		display.add(filterPanel, gc);
 
 		title = BorderFactory.createTitledBorder("filter parameters");
 		filterParameters.setBorder(title);
@@ -282,8 +284,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	}
 
 	public void setFilterState(FilterWrapper filterData) {
-		if (filters.containsKey(filterData.name)) {
-			OpenCVFilterGUI gui = filters.get(filterData.name);
+		if (guiFilters.containsKey(filterData.name)) {
+			OpenCVFilterGUI gui = guiFilters.get(filterData.name);
 			gui.getFilterState(filterData);
 		} else {
 			log.error(filterData.name + " does not contain a gui");
@@ -299,7 +301,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			return null;
 		}
 	}
-	
+
 	public void addFilter() {
 		JFrame frame = new JFrame();
 		frame.setTitle("add new filter");
@@ -311,7 +313,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		// addFilterToGUI(name, type);
 	}
-
+	
 	public OpenCVFilterGUI addFilterToGUI(String name, OpenCVFilter f) {
 
 		String type = f.getClass().getSimpleName();
@@ -319,18 +321,47 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		currentFilterListModel.addElement(name);
 
-		String guiType = "org.myrobotlab.control.OpenCVFilter" + type + "GUI";
+		// get a gui filter
+		String guiType = "org.myrobotlab.control.opencv.OpenCVFilter" + type + "GUI";
+		String defaultGUIType = "org.myrobotlab.control.opencv.OpenCVFilterDefaultGUI";
 		OpenCVFilterGUI filtergui = null;
 		try {
+			// try creating one based on type
 			filtergui = (OpenCVFilterGUI) Service.getNewInstance(guiType, name, boundServiceName, myService);
-			filtergui.initFilterState(f); // set the bound filter
 		} catch (Exception e) {
-			log.info(String.format("filter %s does not have a gui defined", type));
+			// try creating a default one
+			try {
+				log.info(String.format("filter %s does not have a gui defined", type));
+				filtergui = (OpenCVFilterGUI) Service.getNewInstance(defaultGUIType, name, boundServiceName, myService);
+			} catch (Exception e2) {
+				Logging.logException(e2);
+				log.error("could not create default filter gui");
+				return null;
+			}
 		}
+		
+		// add new input to sources
+		ArrayList<String> newSources = f.getPossibleSources();
+		//DefaultComboBoxModel model = ComboBoxModel.getModel();
+		for (int i = 0; i < newSources.size(); ++i )
+		{
+			ComboBoxModel.addElement(name, newSources.get(i));
+		}
+		
+		// set source of gui's input to 
 
-		filters.put(name, filtergui);
+		filtergui.initFilterState(f); // set the bound filter
+		guiFilters.put(name, filtergui);
+		currentFilters.setSelectedIndex(currentFilterListModel.size()-1);
 		return filtergui;
 	}
+	
+
+	public void removeFilterFromGUI(String name) {
+		currentFilterListModel.removeElement(name);
+		ComboBoxModel.removeSource(name);		
+	}
+	
 
 	private ActionListener captureListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
@@ -342,39 +373,40 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			// the model is to set all the data of the gui just before the
 			// capture
 			// request is sent
+			VideoProcessor vp = myOpenCV.videoProcessor;
+
 			if ("IPCamera".equals((String) grabberTypeSelect.getSelectedItem())) {
 				prefixPath = "org.myrobotlab.image.";
-				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
+				vp.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
 			} else {
 				prefixPath = "com.googlecode.javacv.";
 			}
 
-			myOpenCV.grabberType = prefixPath + (String) grabberTypeSelect.getSelectedItem() + "FrameGrabber";
+			vp.grabberType = prefixPath + (String) grabberTypeSelect.getSelectedItem() + "FrameGrabber";
 
-			if (fileRadio.isSelected()) {		
+			if (fileRadio.isSelected()) {
 				String fileName = inputFile.getText();
-				myOpenCV.inputFile = fileName;
+				vp.inputFile = fileName;
 				String extension = "";
-				
+
 				int i = fileName.lastIndexOf('.');
 				if (i > 0) {
-				    extension = fileName.substring(i+1);
+					extension = fileName.substring(i + 1);
 				}
-				
-				if (("jpg").equals(extension) || ("png").equals(extension))
-			    {
-			    	myOpenCV.inputSource = OpenCV.INPUT_SOURCE_IMAGE_FILE;
-			    	myOpenCV.grabberType = "org.myrobotlab.opencv.ImageFileFrameGrabber";
 
-			    } else {
-			    	myOpenCV.inputSource = OpenCV.INPUT_SOURCE_MOVIE_FILE;
-			    }
-												
+				if (("jpg").equals(extension) || ("png").equals(extension)) {
+					vp.inputSource = OpenCV.INPUT_SOURCE_IMAGE_FILE;
+					vp.grabberType = "org.myrobotlab.opencv.ImageFileFrameGrabber";
+
+				} else {
+					vp.inputSource = OpenCV.INPUT_SOURCE_MOVIE_FILE;
+				}
+
 			} else if (cameraRadio.isSelected()) {
-				myOpenCV.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
-				myOpenCV.cameraIndex = (Integer) cameraIndex.getSelectedItem();
+				vp.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
+				vp.cameraIndex = (Integer) cameraIndex.getSelectedItem();
 			} else {
-				log.error("input source is " + myOpenCV.inputSource);
+				log.error("input source is " + vp.inputSource);
 			}
 
 			myService.send(boundServiceName, "setState", myOpenCV);
@@ -465,7 +497,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	public void displayFrame(SerializableImage img) {
 		video0.displayFrame(img);
 	}
-	
+
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		// log.debug(e);
@@ -473,7 +505,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			String filterName = (String) currentFilters.getSelectedValue();
 			if (filterName != null) {
 				myService.send(boundServiceName, "setDisplayFilter", filterName);
-				OpenCVFilterGUI f = filters.get(filterName);
+				OpenCVFilterGUI f = guiFilters.get(filterName);
 				if (f != null) {
 					filterParameters.removeAll();
 					filterParameters.add(f.getDisplay());
@@ -545,61 +577,93 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			public void run() {
 
 				if (opencv != null) {
-					filters.clear();
+					VideoProcessor vp = opencv.videoProcessor;
+					
+//					DefaultComboBoxModel model = ComboBoxModel.getModel();
+//					model.removeAllElements(); WTF ? got a null pointer in the REAL filter?
+//					filters.clear();
+//					currentFilterListModel.clear();
 
+					// merge - gui filters to what it looks like in service
+					// the structure is too delicate to do it brute force .clear + .add
+					
+					// add new filters from service into gui
 					Iterator<OpenCVFilter> itr = opencv.getFiltersCopy().iterator();
-
-					currentFilterListModel.clear();
+					HashMap<String, String> allSvcFilterNames = new HashMap<String, String>();
 					while (itr.hasNext()) {
 						String name;
 						try {
 							OpenCVFilter f = itr.next();
 							name = f.name;
 
-							OpenCVFilterGUI guifilter = addFilterToGUI(name, f);
-							// set the state of the filter gui - first one is
-							// free :)
-							if (guifilter != null) {
-								guifilter.getFilterState(new FilterWrapper(name, f));
+							// adding filters in gui - which are in the service
+							if (!guiFilters.containsKey(name))
+							{
+								OpenCVFilterGUI guifilter = addFilterToGUI(name, f);
+								// set the state of the filter gui - first one is
+								// free :)
+								if (guifilter != null) {
+									guifilter.getFilterState(new FilterWrapper(name, f));
+								}
 							}
+							
+							allSvcFilterNames.put(name, name);
 
 						} catch (Exception e) {
-							Service.logException(e);
+							Logging.logException(e);
 							break;
 						}
 
+					}
+					
+					// remove filters not found in service from gui
+					Iterator<String> guifltr = guiFilters.keySet().iterator();
+					while (guifltr.hasNext()) {
+						String guifltrname = guifltr.next();
+						if (!allSvcFilterNames.containsKey(guifltrname))
+						{
+							removeFilterFromGUI(guifltrname);
+							//guiFilters.remove(name);
+							guifltr.remove();
+						}
 					}
 
 					currentFilters.repaint();
 
 					for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i) {
 						String currentObject = prefixPath + (String) grabberTypeSelect.getItemAt(i);
-						if (currentObject.equals(opencv.grabberType)) {
+						if (currentObject.equals(vp.grabberType)) {
 							grabberTypeSelect.setSelectedIndex(i);
 							break;
 						}
-
 					}
 
-					if (opencv.capturing) {
-						capture.setText("stop"); 
+					if (vp.capturing) {
+						capture.setText("stop");
 					} else {
 						capture.setText("capture");
 					}
 
-					inputFile.setText(opencv.inputFile);
+					inputFile.setText(vp.inputFile);
+					cameraIndex.setSelectedIndex(vp.cameraIndex);
+					String inputSource = opencv.videoProcessor.inputSource;
+					if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource))
+					{
+						cameraRadio.setSelected(true);
+					} else if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource))
+					{
+						fileRadio.setSelected(true);
+					}
 
 				} else {
 					log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
 				}
 
-				cameraIndex.setSelectedIndex(opencv.cameraIndex);
-
 			}
 		});
 
 	}
-
+	
 	@Override
 	public void attachGUI() {
 		// TODO - bury in GUI Framework?
@@ -607,7 +671,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		myService.send(boundServiceName, "publishState");
 
 		video0.attachGUI(); // default attachment
-		//templateDisplay.attachGUI(); // default attachment
+		// templateDisplay.attachGUI(); // default attachment
 	}
 
 	@Override
@@ -615,12 +679,13 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		unsubscribe("publishState", "getState", OpenCV.class);
 
 		video0.detachGUI();
-		//stemplateDisplay.detachGUI();
+		// stemplateDisplay.detachGUI();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
+		VideoProcessor vp = myOpenCV.videoProcessor;
 		if (o == addFilterButton) {
 			addFilter();
 		} else if (o == removeFilterButton) {
@@ -631,13 +696,12 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		} else if (o == kinectImageOrDepth) {
 			String mode = (String) kinectImageOrDepth.getSelectedItem();
 			if ("depth".equals(mode)) {
-				myOpenCV.format = "depth";
+				vp.format = "depth";
 			} else {
-				myOpenCV.format = "image";
+				vp.format = "image";
 			} // FIXME - broadcastState ???
 		} else if (o == recordButton) {
-			if (recordButton.getText().equals("record"))
-			{
+			if (recordButton.getText().equals("record")) {
 				// start recording
 				myService.send(boundServiceName, "recordOutput", true);
 				recordButton.setText("stop recording");

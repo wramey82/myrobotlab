@@ -70,8 +70,8 @@ public class IPCamera extends Service {
 					BufferedImage bi = grabber.grabBufferedImage();
 					log.debug("grabbed");
 					if (bi != null) {
-						log.debug("publishFrame");
-						invoke("publishFrame", new Object[] { host, bi });
+						log.debug("publishDisplay");
+						invoke("publishDisplay", new Object[] { host, bi });
 					}
 				}
 			} catch (Exception e) {
@@ -82,8 +82,7 @@ public class IPCamera extends Service {
 	}
 
 	public final static SerializableImage publishFrame(String source, BufferedImage img) {
-		SerializableImage si = new SerializableImage(img);
-		si.source = source;
+		SerializableImage si = new SerializableImage(img, source);
 		return si;
 	}
 

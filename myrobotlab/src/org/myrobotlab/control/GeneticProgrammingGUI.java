@@ -82,7 +82,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionLi
 	public void init() {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g = img.getGraphics();
-		video.displayFrame(img);
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 
 		// TODO - data needs to come from service and/or Mouse
 		fitnessCases[0] = new RealPoint(123, 164);
@@ -194,7 +194,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionLi
 		subscribe("publishInd", "publishInd", GPMessageEvaluatingIndividual.class);
 		subscribe("publish", "publish", GPMessageBestFound.class);
 		drawFitnessGoal();
-		video.displayFrame(img);
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 	}
 
 	void drawPath(RealPoint[] path) {
@@ -235,8 +235,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionLi
 
 		drawPath(ind.data);
 
-		video.displayFrame(img);
-
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 		return ind;
 	}
 
@@ -257,8 +256,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionLi
 
 		bestProgram.setText(best.program);
 
-		video.displayFrame(img);
-
+		video.displayFrame(new SerializableImage(img, boundServiceName));
 		return best;
 	}
 

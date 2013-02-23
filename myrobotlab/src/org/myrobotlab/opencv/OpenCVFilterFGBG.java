@@ -29,11 +29,11 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -50,25 +50,25 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	boolean update_bg_model = true;
 	IplImage fgmask, fgimg;
 
-	public OpenCVFilterFGBG(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterFGBG(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return fgimg.getBufferedImage();
 	}
 
 	
 	@Override
-	public IplImage process(IplImage img) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (fgimg == null) {
-			fgimg = cvCreateImage(cvGetSize(img), 8, 3);
+			fgimg = cvCreateImage(cvGetSize(image), 8, 3);
 		}
 
-		bg_model.apply(img, fgmask, update_bg_model ? -1 : 0);
+		bg_model.apply(image, fgmask, update_bg_model ? -1 : 0);
 
 		// cvCopy(src, dst)
 		// fgimg = Scalar::all(0);
@@ -86,7 +86,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

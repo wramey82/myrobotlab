@@ -27,12 +27,13 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Random;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -42,57 +43,38 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterDilate.class.getCanonicalName());
 
-	public OpenCVFilterDilate(OpenCV service, String name) {
-		super(service, name);
+	public int numberOfIterations = 1;
+
+	public OpenCVFilterDilate(VideoProcessor vp, String name, HashMap<String, IplImage> source, String sourceKey) {
+		super(vp, name, source, sourceKey);
+	}
+
+	Random rand = new Random();
+
+	@Override
+	public BufferedImage display(IplImage image) {
+
+		
+		BufferedImage frameBuffer = image.getBufferedImage();
+		Graphics2D g2 = frameBuffer.createGraphics();
+		
+		g2.drawString("hello", rand.nextInt(300), rand.nextInt(200));
+		
+		return frameBuffer;
+		
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
-		return image.getBufferedImage();
-	}
+	public IplImage process(IplImage image, OpenCVData data) {
 
-	IplImage src = null;
-	IplImage dst = null;
-
-	@Override
-	public IplImage process(IplImage image) {
-
-		cfg.set(USE_INPUT_IMAGE_NAME, false);
-		cfg.set(USE_OUTPUT_IMAGE_NAME, false);
-
-		if (cfg.getBoolean(USE_INPUT_IMAGE_NAME)) {
-			String srcName = cfg.get(INPUT_IMAGE_NAME);
-			if (globalData.containsKey(srcName)) {
-				src = (IplImage) globalData.get(srcName);
-			} else {
-				src = image.clone();
-				globalData.put(srcName, src);
-			}
-		} else {
-			src = image;
-		}
-
-		if (cfg.getBoolean(USE_OUTPUT_IMAGE_NAME)) {
-			String dstName = cfg.get(OUTPUT_IMAGE_NAME);
-			if (globalData.containsKey(dstName)) {
-				dst = (IplImage) globalData.get(dstName);
-			} else {
-				dst = image.clone();
-				globalData.put(dstName, dst);
-			}
-
-		} else {
-			dst = src;
-		}
-
-		cvDilate(src, dst, null, 1);
+		cvDilate(image, image, null, numberOfIterations);
 		return image;
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

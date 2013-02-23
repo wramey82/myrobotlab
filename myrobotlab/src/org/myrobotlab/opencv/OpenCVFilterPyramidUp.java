@@ -30,11 +30,11 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrUp;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -48,19 +48,19 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
-	public OpenCVFilterPyramidUp(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterPyramidUp(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image == null) {
 			log.error("image is null");
@@ -76,7 +76,7 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}
