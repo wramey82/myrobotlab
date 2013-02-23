@@ -12,14 +12,16 @@
 	TODO test on multiple platforms Linux etc
 	TODO build native code with virtual vms - put in CI system
 		
-	flow 
-	(clean)
-	release <- possibly
+	tasks
+		
 	init
-	build/compile
-	test
-	report   (dist)
-	post
+	compile
+	dist
+	scp.maahr - deprecate
+	clean
+	junit
+	report
+	mail
 	javadoc
 	publishBleedingEdge
 	publishRelease
@@ -70,18 +72,7 @@
 	<property name="svn.username" 				value="" />
 	<property name="svn.password" 				value="" />
 				
-<!--  
-# == MAIL INFO ==================================================================
-# Currently using GMAIL for now.
-mail.host=smtp.gmail.com
-mail.port=465
-mail.subjectalert=[STAGING ANT Build] Test build
-mail.ssl=yes
-mail.username=USERNAME
-mail.password=PASSWORD
-mail.from=someone@somewhere.com
-mail.to=someone@somewhere.com
--->
+    <!-- mail task properties -->
 	<property name="mail.host" 				value="smtp.gmail.com" />
 	<property name="mail.port" 				value="464" />
 	<property name="mail.subjectalert" 		value="Test build" />
@@ -91,15 +82,18 @@ mail.to=someone@somewhere.com
 	<property name="mail.from" 				value="build@myrobotlab.org" />
 	<property name="mail.tolist" 			value="" /><!-- get from local properties file -->
 	<property environment="env" />
+	
+	<!-- publish release properties -->
 	<property name="gc.upload.userid" 		value="${env.gc.upload.userid}"/>  
 	<property name="gc.upload.password" 	value="${env.gc.upload.password}"/>  
 	
-	<exec executable="svn" dir="." outputproperty="svn.comment">
+	<exec executable="svn" dir="." outputproperty="svn.comment" description="get changeset/version number">
      <arg line="propget --revprop svn:log -r HEAD"/>
 	</exec>
+	
 	<echo>The svn comment is: ${svn.comment}</echo>
 		
-	<!-- class path for build -->
+	<!-- FIXME use .classpath -->
 	<path id="compile.classpath">
 		<fileset dir="./thirdParty/repo">
 			<include name="**/*.jar" />
@@ -116,15 +110,15 @@ mail.to=someone@somewhere.com
 		</fileset>
 	</path>
 	
-	<path id="ant_ext.classpath">
+	<path id="ant_ext.classpath" description="for ant extentions">
  		<fileset dir="./thirdParty/build/ant_ext">     
   		<include name="**/*.jar" />
  		</fileset>
 	</path>
 	
+	<!-- ant subversion extention -->
 	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="ant_ext.classpath" />
 	
-	<!-- needed to get mail to work -->
 	<taskdef name="classloadertask" classname="org.apache.tools.ant.taskdefs.ClassloaderTask" classpathref="ant_ext.classpath"/> 
 	<classloadertask classpathref="ant_ext.classpath" loader="thread"/> 
 	
@@ -239,7 +233,7 @@ mail.to=someone@somewhere.com
 	</target>
 
 	<!-- scp updates begin -->
-	<target name="scp.maahr" depends="dist">
+	<target name="scp.maahr" depends="dist" description="ssh updates to test systems - should be removed - and running system should be scheduled to check for updates">
 		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
 		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
 		<scp file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@maahr:/home/gperry/releases/myrobotlab-0013" />
@@ -352,29 +346,6 @@ mail.to=someone@somewhere.com
 	  <arg line=""/>
 	  </java>
 	  </target>
--->
-<!-- 
-	<target name="svnbranch" depends="init" description="creates a new branch for individual project using svnant task">    
-		<property name="svn.branch.message" value="Creating new branch for trunk with new branch name ${label} "/>
-  		<property name="src.url"  value="${svn.base.url}/trunk/"/>
-		<property name="dest.url" value="${svn.base.url}/branches/${label}"/>
-		
-		<echo message="${svn.branch.message}"/>
-		<echo message="${src.url}"/>
-		<echo message="${dest.url}"/>
+	-->
 
-		<svn javahl="${svnant.javahl}" svnkit="${svnant.svnkit}"   
-		        username="${svn.username}" password="${svn.password}">
-		<copy srcUrl="${src.url}" destUrl="${dest.url}" message="${svn.branch.message}"/>       								              
-		</svn>
-	</target>
-	
-	<target name="release" description="for releases - will branch the repo and post the artifacts">
-	    <input message="Please enter version:" addproperty="targetVersion" />
-	    <echo message="targetVersion: ${targetVersion}" />	    
-		<property name="build.type" 		value="release" />
-		<antcall target="init" />
-	</target>
-	
- -->
 </project>
