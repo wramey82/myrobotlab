@@ -27,11 +27,11 @@ package org.myrobotlab.opencv;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -45,25 +45,25 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 	Graphics2D graphics = null;
 	BufferedImage frameBuffer = null;
 
-	public OpenCVFilterOutput(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterOutput(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		return image;
 	}
 
 	@Override
-	public BufferedImage display(IplImage frame, Object[] data) {
+	public BufferedImage display(IplImage frame) {
 		frameBuffer = frame.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;
 
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -28,16 +28,13 @@ package org.myrobotlab.attic;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.OpenCV.Polygon;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -259,8 +256,7 @@ public class ColoredThingyFinder extends Service {
 	}
 
 	public SerializableImage publishFrame(String source, BufferedImage img) {
-		SerializableImage si = new SerializableImage(img);
-		si.source = source;
+		SerializableImage si = new SerializableImage(img, source);
 		return si;
 	}
 
@@ -286,7 +282,7 @@ public class ColoredThingyFinder extends Service {
 			// log.error((int)p0.x + "," + (int)p0.y + " " + (int)p1.x + "," +
 			// (int)p1.y + " " + (int)(p0.x - p1.x) + " " + (int)(p0.y - p1.y));
 		}
-		invoke("publishFrame", "cal", frameBuffer);
+		invoke("publishDisplay", "cal", frameBuffer);
 	}
 
 	public void sayWhatYouFound() {
@@ -304,6 +300,8 @@ public class ColoredThingyFinder extends Service {
 		send(opencv, "addFilter", "findContours", "FindContours");
 
 	}
+	
+	/*
 
 	public ArrayList<Polygon> polygonsInMyHead = null;
 
@@ -333,7 +331,7 @@ public class ColoredThingyFinder extends Service {
 		// TODO - say listening?
 
 	}
-
+*/
 	public String say(String word) {
 		return word;
 	}

@@ -23,7 +23,7 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
 import java.awt.GridBagLayout;
 
@@ -144,18 +144,6 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeLis
 		j.add(valueMax.value, gc);
 		display.add(j);
 
-	}
-
-	@Override
-	public void attachGUI() {
-		log.info("attachGUI");
-		
-	}
-
-	@Override
-	public void detachGUI() {
-		log.info("detachGUI");
-		
 	}
 
 	@Override

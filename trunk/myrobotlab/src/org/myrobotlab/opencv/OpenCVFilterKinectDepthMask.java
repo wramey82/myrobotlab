@@ -55,12 +55,12 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
+import java.util.HashMap;
 
 import org.myrobotlab.image.KinectImageNode;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvContour;
@@ -108,12 +108,12 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	transient CvPoint p0 = new CvPoint(0, 0);
 	transient CvPoint p1 = new CvPoint(0, 0);
 
-	public OpenCVFilterKinectDepthMask(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterKinectDepthMask(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return image.getBufferedImage(); // TODO - ran out of memory here
 	}
@@ -136,7 +136,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	boolean isMaxArea = true;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		/*
 		 * 
@@ -152,7 +152,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// TODO - clean up - remove input parameters? only use storage?
 		if (imageKey != null) {
-			kinectDepth = getIplImage(imageKey);
+			IplImage kinectDepth = sources.get(OpenCV.SOURCE_KINECT_DEPTH);
 		} else {
 			kinectDepth = image;
 		}
@@ -202,9 +202,9 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 		cvResetImageROI(black);
 		cvCopy(itemp, itemp2, black);
 
-		myService.invoke("publishFrame", "input", itemp.getBufferedImage());
-		myService.invoke("publishFrame", "kinectDepth", ktemp.getBufferedImage());
-		myService.invoke("publishFrame", "kinectMask", mask.getBufferedImage());
+		invoke("publishDisplay", "input", itemp.getBufferedImage());
+		invoke("publishDisplay", "kinectDepth", ktemp.getBufferedImage());
+		invoke("publishDisplay", "kinectMask", mask.getBufferedImage());
 
 		// TODO - publish KinectImageNode ArrayList
 		// find contours ---- begin ------------------------------------
@@ -296,7 +296,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 				}
 				contour = contour.h_next();
 			} // while (contour != null && !contour.isNull())
-			myService.invoke("publish", (Object) nodes);
+			invoke("publish", (Object) nodes);
 		} // if (publishNodes)
 
 		cvClearMemStorage(cvStorage);
@@ -308,7 +308,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

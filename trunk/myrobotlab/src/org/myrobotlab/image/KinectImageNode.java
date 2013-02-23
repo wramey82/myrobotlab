@@ -41,8 +41,8 @@ public class KinectImageNode implements Serializable {
 	}
 
 	public void convertToSerializableTypes() {
-		cameraFrame = new SerializableImage(cvCameraFrame.getBufferedImage());
-		mask = new SerializableImage(cvMask.getBufferedImage());
+		cameraFrame = new SerializableImage(cvCameraFrame.getBufferedImage(), "camera");
+		mask = new SerializableImage(cvMask.getBufferedImage(), "frame");
 	}
 
 }

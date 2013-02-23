@@ -23,41 +23,40 @@
  * 
  * */
 
-package org.myrobotlab.control;
+// http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
+package org.myrobotlab.opencv;
 
-import javax.swing.JButton;
-import javax.swing.JTextField;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.myrobotlab.opencv.FilterWrapper;
-import org.myrobotlab.service.GUIService;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
-public class OpenCVFilterSmoothGUI extends OpenCVFilterGUI {
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-	JButton button = new JButton("smooth me");
-	JTextField kernel = new JTextField("3");
+public class OpenCVFilterInput extends OpenCVFilter {
 
-	public OpenCVFilterSmoothGUI(String boundFilterName, String boundServiceName, GUIService myService) {
-		super(boundFilterName, boundServiceName, myService);
-		display.add(button);
-		display.add(kernel);
-	}
-	
-	@Override
-	public void getFilterState(FilterWrapper filter) {
-		// TODO Auto-generated method stub
+	private static final long serialVersionUID = 1L;
 
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterInput.class.getCanonicalName());
+
+	public OpenCVFilterInput(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey) {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
+	public BufferedImage display(IplImage image) {
+		return image.getBufferedImage();
 	}
 
 	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
+	public IplImage process(IplImage image, OpenCVData data) {
+		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage image) {
 	}
 
 }

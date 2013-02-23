@@ -25,14 +25,12 @@
 
 package org.myrobotlab.opencv;
 
-import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
-
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -42,12 +40,12 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterResetImageROI.class.getCanonicalName());
 
-	public OpenCVFilterResetImageROI(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterResetImageROI(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 	}
 
@@ -55,8 +53,9 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 	IplImage dst = null;
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
+		/*
 		cfg.set(USE_INPUT_IMAGE_NAME, false);
 		cfg.set(USE_OUTPUT_IMAGE_NAME, false);
 
@@ -89,12 +88,12 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 		// {
 		cvResetImageROI(dst);
 		// }
-
+*/
 		return image; // TODO - src dst or image? consistency?
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

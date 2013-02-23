@@ -102,7 +102,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	public void createGraph(Dimension d) {
 		graph = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
 		g = graph.getGraphics();
-		video.displayFrame(graph);
+		video.displayFrame(new SerializableImage(graph, boundServiceName));
 	}
 
 	// wrappers begin --------------------------
@@ -164,7 +164,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 
 	// refresh display
 	public void refreshDisplay() {
-		video.displayFrame(graph);
+		video.displayFrame(new SerializableImage(graph, boundServiceName));
 	}
 
 	// TODO - encapsulate this

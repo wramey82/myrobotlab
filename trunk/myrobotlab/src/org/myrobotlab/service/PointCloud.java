@@ -23,14 +23,13 @@ import org.OpenNI.IRGenerator;
 import org.OpenNI.License;
 import org.OpenNI.MapOutputMode;
 import org.OpenNI.StatusException;
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.SensorData;
+import org.slf4j.Logger;
 
 public class PointCloud extends Service {
 
@@ -145,7 +144,7 @@ public class PointCloud extends Service {
 			while (capturing) {
 				published = false;
 				++frameIndex;
-				logTime("start");
+				//Logging.logTime(timerName, tag)
 
 				try {
 					if (!isPlayingFromFile) {
@@ -183,7 +182,7 @@ public class PointCloud extends Service {
 				}
 
 				if (publishFrame) {
-					invoke("publishFrame", kd); // TODO - multiple formats
+					invoke("publishDisplay", kd); // TODO - multiple formats
 					published = true;
 				} // TODO convert to buffered image?
 					// log.error(" time");

@@ -23,20 +23,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.memory.NodeDeprecate;
 import org.myrobotlab.opencv.OpenCVFilterKinectDepthMask;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -122,12 +121,12 @@ public class FSMTest extends Service {
 		opencv.addListener("publishIplImage", getName(), "publishIplImage", IplImage.class);
 
 		// filter setup
-		opencv.getDepth = true;
+		opencv.videoProcessor.getDepth = true;
 		opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
 		filter = (OpenCVFilterKinectDepthMask) opencv.getFilter("KinectDepthMask1");
 
 		// start vision
-		opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+		opencv.videoProcessor.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		gui.display();
 		opencv.capture();
 
@@ -728,7 +727,7 @@ public class FSMTest extends Service {
 			out.write(html.toString());
 			out.close();
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 	}
@@ -752,8 +751,8 @@ public class FSMTest extends Service {
 				log.error(f.getAbsolutePath());
 				// SerializableImage si =
 				// (SerializableImage)FileIO.readBinary(f.getAbsolutePath());
-				SerializableImage si = new SerializableImage(Util.readBufferedImage(f.getAbsolutePath()));
-				si.source = word; // TODO - what else? "filesystem" ? date?
+				SerializableImage si = new SerializableImage(Util.readBufferedImage(f.getAbsolutePath()), word);
+
 				if (si != null) {
 					Rectangle r = (Rectangle) FileIO.readBinary(path + File.separatorChar + "boundingBox_" + index);
 

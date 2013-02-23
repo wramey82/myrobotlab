@@ -29,12 +29,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
+import java.util.HashMap;
 
 import org.myrobotlab.framework.ConfigurationManager;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -59,10 +59,12 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
  * 
  */
 
-public final class FilterColorGrouping2 extends OpenCVFilter {
 
-	public FilterColorGrouping2(OpenCV service, String name) {
-		super(service, name);
+public final class FilterColorGrouping2 extends OpenCVFilter {
+	private static final long serialVersionUID = 1L;
+
+	public FilterColorGrouping2(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -352,19 +354,19 @@ public final class FilterColorGrouping2 extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

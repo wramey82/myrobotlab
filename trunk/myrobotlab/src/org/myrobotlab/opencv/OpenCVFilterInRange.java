@@ -36,13 +36,12 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -96,12 +95,12 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	transient CvScalar saturationMin = cvScalar(saturationMinValue, 0.0, 0.0, 0.0);
 	transient CvScalar saturationMax = cvScalar(saturationMaxValue, 0.0, 0.0, 0.0);
 
-	public OpenCVFilterInRange(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterInRange(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return ret.getBufferedImage(); // TODO - ran out of memory here
 	}
@@ -115,7 +114,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		ret = image;
 
@@ -245,7 +244,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

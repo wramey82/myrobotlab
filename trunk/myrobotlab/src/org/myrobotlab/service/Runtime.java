@@ -781,7 +781,7 @@ public class Runtime extends Service {
 			out.writeObject(registry);
 			out.writeObject(hideMethods);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		} finally {
 			if (out != null) {
@@ -813,7 +813,7 @@ public class Runtime extends Service {
 			registry = (HashMap<String, ServiceWrapper>) in.readObject();
 			hideMethods = (HashMap<String, String>) in.readObject();
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		} finally {
 			if (in != null) {
@@ -1170,7 +1170,7 @@ public class Runtime extends Service {
 			invokeCommands(cmdline);
 
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e1) {
@@ -1255,7 +1255,7 @@ public class Runtime extends Service {
 			// ClassLoader.getSystemClassLoader());
 			return createService(name, typeName);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return null;
 	}
@@ -1350,7 +1350,7 @@ public class Runtime extends Service {
 			log.info("returning " + fullTypeName);
 			return (Service) newService;
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return null;
 	}
@@ -1532,7 +1532,7 @@ public class Runtime extends Service {
 				log.error(String.format("could not parse results for %s in getBleedingEdgeVersionString", listURL));
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		return null;
@@ -1558,7 +1558,7 @@ public class Runtime extends Service {
 				out.write(jarfile);
 				log.info("getBleedingEdgeMyRobotLabJar - done - since there is an update you will probably want to run scripts/update.(sh)(bat) to replace the jar");
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			} finally {
 				out.close();
 			}
@@ -1566,7 +1566,7 @@ public class Runtime extends Service {
 			//
 
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
 
@@ -1594,7 +1594,7 @@ public class Runtime extends Service {
 				}
 			}
 		} catch (Exception ex) {
-			Service.logException(ex);
+			Logging.logException(ex);
 		}
 		System.exit(0);
 

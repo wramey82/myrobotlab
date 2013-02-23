@@ -33,15 +33,14 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -68,12 +67,12 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	CvScalar hsv_min2 = null;
 	CvScalar hsv_max2 = null;
 
-	public OpenCVFilterColorTrack(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterColorTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		/*
 		 * if (thresholded2 != null) { frameBuffer =
@@ -107,7 +106,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	 */
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		// what can you expect? nothing? - if data != null then error?
 
@@ -162,7 +161,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

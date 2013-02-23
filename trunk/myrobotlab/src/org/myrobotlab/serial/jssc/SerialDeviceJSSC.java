@@ -11,14 +11,13 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
 import org.myrobotlab.serial.SerialDeviceException;
+import org.slf4j.Logger;
 
 /**
  * @author GroG
@@ -256,7 +255,7 @@ public class SerialDeviceJSSC implements SerialDevice, SerialPortEventListener {
 			port.setParams(rate, databits, stopbits, parity);
 			log.info(String.format("opened %s", port.getPortName()));
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			throw new SerialDeviceException("port in use " + e.getMessage());
 		}
 	}

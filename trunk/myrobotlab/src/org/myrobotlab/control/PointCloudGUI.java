@@ -100,8 +100,8 @@ public class PointCloudGUI extends ServiceGUI implements ActionListener {
 	public void attachGUI() {
 		// subscribe & ask for the initial state of the service
 		subscribe("publishState", "getState", PointCloud.class);
-		// subscribe("publishFrame", "publishFrame", ShortBuffer.class);
-		subscribe("publishFrame", "publishFrame", SensorData.class);
+		// subscribe("publishDisplay", "publishDisplay", ShortBuffer.class);
+		subscribe("publishDisplay", "publishDisplay", SensorData.class);
 		myService.send(boundServiceName, "publishState");
 
 	}

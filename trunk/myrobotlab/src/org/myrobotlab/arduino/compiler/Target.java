@@ -30,7 +30,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Arduino;
 
 public class Target implements Serializable {
@@ -60,7 +60,7 @@ public class Target implements Serializable {
 				}
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			System.err.println("Error loading boards from " + boardsFile + ": " + e);
 		}
 
@@ -78,7 +78,7 @@ public class Target implements Serializable {
 				}
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			System.err.println("Error loading programmers from " + programmersFile + ": " + e);
 		}
 	}

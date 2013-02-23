@@ -34,24 +34,21 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.Vector;
 
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ToolTip;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.data.IOData;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.PinState;
 import org.myrobotlab.service.interfaces.AnalogIO;
 import org.myrobotlab.service.interfaces.DigitalIO;
-import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import org.slf4j.Logger;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -432,7 +429,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 			broadcastState(); // state has changed let everyone know
 			return ret;
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return false;
 	}
@@ -454,7 +451,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 		try {
 			deviceName.setSerialPortParams(baudRate, dataBits, stopBits, parity);
 		} catch (UnsupportedCommOperationException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		*/
 		

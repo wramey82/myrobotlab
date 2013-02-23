@@ -30,13 +30,12 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -59,8 +58,8 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	transient BufferedImage frameBuffer = null;
 
 
-	public OpenCVFilterKinectDepth(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterKinectDepth(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	int x = 0;
@@ -82,15 +81,15 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 	}
 
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
-		IplImage kinectDepth = getIplImage("kinectDepth");
+		IplImage kinectDepth = sources.get(OpenCV.SOURCE_KINECT_DEPTH);
 
 		// allowing publish & fork
 		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
@@ -98,7 +97,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		}
 
 		cvPyrDown(kinectDepth, dst, filter);
-		myService.invoke("publishFrame", "kinectDepth", dst.getBufferedImage());
+		invoke("publishDisplay", "kinectDepth", dst.getBufferedImage());
 		// end fork
 
 		return image;
@@ -145,7 +144,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

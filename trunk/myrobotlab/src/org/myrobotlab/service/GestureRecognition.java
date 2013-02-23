@@ -108,7 +108,7 @@ public class GestureRecognition extends Service implements VideoSource {
 		configOpenNI();
 	}
 
-	SerializableImage simg = new SerializableImage();
+	SerializableImage simg;
 	private BufferedImage bimg;
 
 	class OpenNIThread extends Thread {
@@ -131,8 +131,8 @@ public class GestureRecognition extends Service implements VideoSource {
 				DataBufferByte dataBuffer = new DataBufferByte(imgbytes, IM_WIDTH * IM_HEIGHT);
 				Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
 				bimg.setData(raster);
-				simg.setImage(bimg);
-				invoke("publishFrame", simg);
+				simg = new SerializableImage(bimg, getName());
+				invoke("publishDisplay", simg);
 				for (int i = 0; i < sinks.size(); ++i) {
 					sinks.get(i).add(simg);
 				}

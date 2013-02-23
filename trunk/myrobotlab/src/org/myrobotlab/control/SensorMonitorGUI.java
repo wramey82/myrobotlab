@@ -55,6 +55,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.slf4j.Logger;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.control.widget.JIntegerField;
@@ -483,7 +484,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 		}
 
-		video.displayFrame(sensorImage);
+		video.displayFrame(new SerializableImage(sensorImage, boundServiceName));
 	}
 
 	@Override

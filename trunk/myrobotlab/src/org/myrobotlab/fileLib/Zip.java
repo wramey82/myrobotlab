@@ -17,11 +17,10 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.Service;
 
 public class Zip {
 
@@ -108,7 +107,7 @@ public class Zip {
 				}
 			}
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 			throw e;
 		} finally {
 			in.close();

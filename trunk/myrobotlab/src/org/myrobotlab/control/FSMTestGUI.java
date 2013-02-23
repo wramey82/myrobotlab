@@ -147,13 +147,9 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	public void displayMatch(MatchResult result) {
 		matchWord.setText(result.word);
 		matchIndex.setText("" + result.matchIndex);
-		result.bestFit.cropped.source = "output"; // TODO - BAD - your modifying
-													// real data for trivial
-													// local purposes
+		
 		bestFitVideo.displayFrame(result.bestFit.cropped);
-		result.newImage.cropped.source = "output"; // TODO - BAD - your
-													// modifying real data for
-													// trivial local purposes
+		
 		newImageVideo.displayFrame(result.newImage.cropped);
 	}
 
@@ -177,7 +173,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 				// node level?
 				// in filter
 				SerializableImage si = kin.cameraFrame;
-				si.source = node.word;
+				si.setSource(node.word);
 				Graphics g = si.getImage().getGraphics();
 				g.setColor(Color.WHITE);
 				Rectangle r = kin.boundingBox;

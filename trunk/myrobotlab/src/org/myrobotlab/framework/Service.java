@@ -56,6 +56,7 @@ import java.util.SimpleTimeZone;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
@@ -110,8 +111,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public URI url = null;
 
-	public boolean performanceTiming = false;
-
 	protected CommunicationInterface cm = null;
 	/**
 	 * @deprecated
@@ -119,17 +118,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	protected ConfigurationManager cfg = null;
 	protected ConfigurationManager hostcfg = null;
 
-	// performance timing
-	public long startTimeMilliseconds = 0;
-
 	// relay directives
 	static public final String PROCESS = "PROCESS";
 	static public final String RELAY = "RELAY";
 	static public final String IGNORE = "IGNORE";
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
-
-	public static HashMap<String, Long> timerMap = null;
 
 	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
@@ -302,38 +296,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param tag
-	 */
-	public void logTime(String tag) {
-		if (startTimeMilliseconds == 0) {
-			startTimeMilliseconds = System.currentTimeMillis();
-		}
-		if (performanceTiming) {
-			log.error(String.format("performance clock :%1$d ms %2$s", System.currentTimeMillis() - startTimeMilliseconds, tag));
-		}
-	}
-
-	/**
-	 * 
-	 * @param timerName
-	 * @param tag
-	 */
-	static public void logTime(String timerName, String tag) {
-		if (timerMap == null) {
-			timerMap = new HashMap<String, Long>();
-		}
-
-		if (!timerMap.containsKey(timerName) || "start".equals(tag)) {
-			timerMap.put(timerName, System.currentTimeMillis());
-		}
-
-		StringBuffer sb = new StringBuffer(40).append("timer ").append(timerName).append(" ").append(System.currentTimeMillis() - timerMap.get(timerName)).append(" ms ")
-				.append(tag);
-
-		log.error(sb.toString());
-	}
 
 	/**
 	 * method of serializing default will be simple xml to name file
@@ -345,7 +307,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			File cfg = new File(String.format("%1$s%2$s%3$s.xml", cfgDir, File.separator, this.getName()));
 			serializer.write(this, cfg);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -364,7 +326,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			File cfg = new File(String.format("%1$s%2$s%3$s", cfgDir, File.separator, cfgFileName));
 			serializer.write(o, cfg);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -382,7 +344,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			FileIO.stringToFile(String.format("%1$s%2$s%3$s.%4$s", cfgDir, File.separator, this.getName(), cfgFileName), data);
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 		return true;
@@ -420,7 +382,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 			log.info(String.format("cfg file %1$s does not exist", filename));
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 		return false;
 	}
@@ -1070,7 +1032,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// put return object onEvent
 			out(method, retobj);
 		} catch (NoSuchMethodException e) {
-			log.warn(String.format("%1$s#%2$s NoSuchMethodException - attempting upcasting", c.getCanonicalName(), method));
+			log.warn(String.format("%s.%s NoSuchMethodException - attempting upcasting", 
+					c.getSimpleName(),
+					MethodEntry.getPrettySignature(method, paramTypes, null)));
 
 			// search for possible upcasting methods
 			// scary ! resolution rules are undefined - first "found" first
@@ -1104,13 +1068,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					return retobj;
 				} catch (Exception e1) {
 					log.error(String.format("boom goes method %1$s", m.getName()));
-					Service.logException(e1);
+					Logging.logException(e1);
 				}
 			}
 
 			log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		return retobj;
@@ -1391,18 +1355,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Date d = new Date();
 
-		if (msg.msgID == null) {
-			msg.msgID = TSFormatter.format(d); // FIXME - wouldn't long
-												// timestamp be better ?
-												// System.currentTimeMillis()
-		}
 		if (name != null) {
 			msg.name = name; // destination instance name
 		}
 		msg.sender = this.getName();
-		msg.timeStamp = TSFormatter.format(d); // FIXME - wouldn't long
-												// timestamp be better ?
-												// System.currentTimeMillis()
 		msg.data = data;
 		msg.method = method;
 
@@ -1606,7 +1562,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					targetClass.getDeclaredField(f.getName()).set(target, f.get(source));
 				}
 			} catch (Exception e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 		return target;

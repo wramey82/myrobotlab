@@ -28,8 +28,9 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.slf4j.Logger;
 
 
 public class MethodEntry implements Serializable {
@@ -85,7 +86,7 @@ public class MethodEntry implements Serializable {
 			}
 
 		} catch (ClassNotFoundException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		return me;
@@ -194,15 +195,23 @@ public class MethodEntry implements Serializable {
 		sb.append(name);
 		sb.append("(");
 		for (int i = 0; i < parameterTypes.length; ++i) {
-			String p = parameterTypes[i].getCanonicalName();
-			sb.append(p.substring(p.lastIndexOf('.') + 1));
+			if (parameterTypes[i] == null)
+			{
+				sb.append("null");
+			} else {
+				String p = parameterTypes[i].getSimpleName();
+				sb.append(p);
+			}
 			if (i < parameterTypes.length - 1) {
 				sb.append(",");
 			}
 		}
 		sb.append(") : ");
-		String r = returnType.getCanonicalName();
-		sb.append(r.substring(r.lastIndexOf('.') + 1));
+		if (returnType != null)
+		{
+		String r = returnType.getSimpleName();
+		sb.append(r);
+		}
 		return sb.toString();
 	}
 

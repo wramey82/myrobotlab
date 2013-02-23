@@ -42,11 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
 
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
 import org.myrobotlab.arduino.compiler.Compiler;
@@ -59,6 +54,9 @@ import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.ToolTip;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
@@ -77,6 +75,7 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Root;
+import org.slf4j.Logger;
 
 /**
  * Implementation of a Arduino Service connected to MRL through a serial port.
@@ -272,7 +271,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			File sketchbookLibraries = getSketchbookLibrariesFolder();
 			addLibraries(sketchbookLibraries);
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		compiler = new Compiler(this);
@@ -1125,7 +1124,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				message(String.format("%s is already open, close first before opening again", serialDevice.getName()));
 			}
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			return false;
 		}
 

@@ -23,27 +23,39 @@
  * 
  * */
 
-package org.myrobotlab.control;
+package org.myrobotlab.control.opencv;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.opencv.FilterWrapper;
+import org.myrobotlab.opencv.OpenCVFilterCanny;
+import org.myrobotlab.opencv.OpenCVFilterThreshold;
 import org.myrobotlab.service.GUIService;
 
-public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
+public class OpenCVFilterThresholdGUI extends OpenCVFilterGUI {
 
 	JSlider2 lowThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 0);
 	JSlider2 highThreshold = new JSlider2(JSlider.HORIZONTAL, 0, 256, 256);
 	JSlider2 apertureSize = new JSlider2(JSlider.HORIZONTAL, 1, 3, 1);
+
+	JComboBox type = new JComboBox(new String[] { "CV_THRESH_BINARY", "CV_THRESH_BINARY_INV", "CV_THRESH_TRUNC", "CV_THRESH_TOZERO", "CV_THRESH_TOZERO_INV" });
+
+	// CV_THRESH_BINARY
+	// CV_THRESH_BINARY_INV
+	// CV_THRESH_TRUNC
+	// CV_THRESH_TOZERO
+	// CV_THRESH_TOZERO_INV
 
 	public class JSlider2 extends JSlider {
 		private static final long serialVersionUID = 1L;
@@ -60,31 +72,34 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
+			
+			OpenCVFilterCanny bf = (OpenCVFilterCanny) boundFilter.filter;
+			
 			JSlider2 slider = (JSlider2) e.getSource();
-			Object[] params = new Object[3];
-			params[0] = name;
-			params[1] = slider.getName();
-			params[2] = slider.getValue();
-			if (slider.getName().compareTo("apertureSize") == 0) {
-				params[2] = slider.getValue() * 2 + 1;
-			}
-			myGUI.send(boundServiceName, "setFilterCFG", params);
+			
+			if (slider.getName().equals("lowThreshold"))
+			{
+				bf.lowThreshold = slider.getValue();
+			} else if (slider.getName().equals("lowThreshold")) {
+				bf.highThreshold = slider.getValue();
+			} 
+			
 			slider.value.setText("" + slider.getValue());
+			
+			setFilterState(bf);
 		}
 	}
 
 	AdjustSlider change = new AdjustSlider();
 
-	public OpenCVFloorFinderGUI(String boundFilterName, String boundServiceName, GUIService myService) {
+	public OpenCVFilterThresholdGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
 		lowThreshold.setName("lowThreshold");
 		highThreshold.setName("highThreshold");
-		apertureSize.setName("apertureSize");
 
 		lowThreshold.addChangeListener(change);
 		highThreshold.addChangeListener(change);
-		apertureSize.addChangeListener(change);
 
 		GridBagConstraints gc2 = new GridBagConstraints();
 
@@ -113,30 +128,32 @@ public class OpenCVFloorFinderGUI extends OpenCVFilterGUI {
 		gc2.gridx = 0;
 
 		j = new JPanel(new GridBagLayout());
-		title = BorderFactory.createTitledBorder("apertureSize");
+		title = BorderFactory.createTitledBorder("type");
 		j.setBorder(title);
-		j.add(apertureSize);
-		j.add(apertureSize.value);
+		// j.add(apertureSize);
+		// j.add(apertureSize.value);
+		j.add(type);
 		display.add(j, gc2);
 
 	}
 
-	@Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void getFilterState(final FilterWrapper filterWrapper) {
+		boundFilter = filterWrapper;
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				OpenCVFilterThreshold bf = (OpenCVFilterThreshold)filterWrapper.filter;
+				lowThreshold.setValueIsAdjusting(true);
+				lowThreshold.setValue((int)bf.lowThreshold);
+				lowThreshold.setValueIsAdjusting(false);
 
-	@Override
-	public void getFilterState(FilterWrapper filterWrapper) {
-		// TODO Auto-generated method stub
-		
+				highThreshold.setValueIsAdjusting(true);
+				highThreshold.setValue((int)bf.highThreshold);
+				highThreshold.setValueIsAdjusting(false);
+			}
+		});
+
 	}
 
 }

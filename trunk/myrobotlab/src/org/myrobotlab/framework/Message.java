@@ -25,13 +25,24 @@
 
 package org.myrobotlab.framework;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
 /**
  * @author GroG
  * 
  */
+@Root
 public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static String BLOCKING = "B";
@@ -40,39 +51,48 @@ public class Message implements Serializable {
 	/**
 	 * unique identifier for this message - TODO remove
 	 */
+	@Element
 	public String msgID;
 	/**
 	 * datetimestamp when message is created GMT
 	 */
-	public String timeStamp;
+	@Element
+	public long timeStamp;
 	/**
 	 * globally unique name of destination Service. This will be the Service
 	 * endpoint of this Message.
 	 */
+	@Element
 	public String name;
 	/**
 	 * name of the sending Service which sent this Message
 	 */
+	@Element
 	public String sender;
 	/**
 	 * originating source method which generated this Message
 	 */
+	@Element
 	public String sendingMethod;
 	/**
 	 * history of the message, its routing stops and Services it passed through.
 	 * This is important to prevent endless looping of messages.
 	 */
+	@Element
 	public ArrayList<RoutingEntry> historyList;
 	/**
 	 * status is currently used for BLOCKING message calls the current valid
 	 * state it can be in is null | BLOCKING | RETURN FIXME - this should be
 	 * msgType not status
 	 */
+	@Element
 	public String status;
+	@Element
 	public String msgType; // Broadcast|Blocking|Blocking Return - deprecated
 	/**
 	 * the method which will be invoked on the destination @see Service
 	 */
+	@Element
 	public String method;
 
 	/**
@@ -80,10 +100,12 @@ public class Message implements Serializable {
 	 * invoking a service request this would be the parameter (list) - this
 	 * would the return type data if the message is outbound
 	 */
+	@ElementList(name="data")
 	public Object[] data;
 
 	public Message() {
-		timeStamp = new String(); // FIXME - remove silly assignments !!!
+		msgID = String.format("%d",System.currentTimeMillis()); // currently just a timestamp - but it can be more unique if needed
+		timeStamp = System.currentTimeMillis(); // FIXME - remove silly assignments !!!
 		name = new String();
 		sender = new String();
 		sendingMethod = new String();
@@ -184,4 +206,23 @@ public class Message implements Serializable {
 		return name;
 	}
 
+	public static void main(String[] args) throws InterruptedException {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		
+		Message msg = new Message();
+		msg.method = "myMethod";
+		msg.sendingMethod = "publishImage";
+		msg.timeStamp = System.currentTimeMillis();
+		msg.data = new Object[]{"hello"};
+		
+		Serializer serializer = new Persister();
+
+		try {
+			File cfg = new File(String.format("msg.xml"));
+			serializer.write(msg, cfg);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
 }

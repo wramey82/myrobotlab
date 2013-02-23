@@ -33,13 +33,13 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
@@ -68,12 +68,12 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	 * purple = HSV 128 255 150 128, 0, 0, 1 = blue = HSV 128 255 150 (navy)
 	 */
 
-	public OpenCVFilterSampleImage(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterSampleImage(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		BufferedImage bi = image.getBufferedImage();
 		/*
 		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);
@@ -93,7 +93,7 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 		// cvCvtColor(image, buffer, CV_BGR2HSV);
 		// avg = cxcore.cvAvg(image, null);
 		// cvFillPoly( image, pt, arr, 2, random_color(&rng), line_type, 0 );
@@ -122,7 +122,7 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

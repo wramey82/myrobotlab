@@ -33,8 +33,11 @@ package org.myrobotlab.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -42,13 +45,12 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 public class AudioCapture extends Service {
 
@@ -108,7 +110,7 @@ public class AudioCapture extends Service {
 			Thread captureThread = new Thread(new CaptureThread());
 			captureThread.start();
 		} catch (Exception e) {
-			log.error(Service.stackToString(e));
+			Logging.logException(e);
 		}// end catch
 	}// end captureAudio method
 
@@ -116,6 +118,13 @@ public class AudioCapture extends Service {
 		stopCapture = true;
 	}
 
+	public void save(String filename) throws IOException
+	{
+		
+		File file = new File(filename);
+		AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, file);
+	}
+	
 	public ByteArrayOutputStream publishCapture() {
 		return byteArrayOutputStream;
 	}
@@ -217,14 +226,19 @@ public class AudioCapture extends Service {
 	public static void main(String[] args) throws InterruptedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
+		
 		AudioCapture audioIn = new AudioCapture("audioIn");
 		audioIn.startService();
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		
 		audioIn.captureAudio();
 		Thread.sleep(3000);
 		audioIn.stopAudioCapture();
 		audioIn.playAudio();
 
+	
 		/*
 		 * AudioInputStream stream = AudioSystem.getAudioInputStream(new File(
 		 * "bump.wav")); // stream = AudioSystem.getAudioInputStream(new URL( //

@@ -187,7 +187,8 @@ public class Tracking extends Service {
 		// supports them
 		ArrayList<Point2Df> goodfeatures = GoodFeaturesToTrack();
 		SerializableImage goodfeaturesImage = getOpenCVImageData();
-		goodfeaturesImage.source = "goodFeaturesToTrack";
+		
+		//goodfeaturesImage.source = "goodFeaturesToTrack";
 
 		// test node
 		Node node = new Node();
@@ -197,7 +198,7 @@ public class Tracking extends Service {
 		// FIXME - NOT EDGE 8% away ? AND HIGH GoodFeaturesTrak value !!!
 		targetPoint = findPoint(goodfeatures, DIRECTION_CLOSEST_TO_CENTER, 0.5);
 
-		invoke("publishFrame", goodfeaturesImage);
+		invoke("publishDisplay", goodfeaturesImage);
 
 		int width = goodfeaturesImage.getImage().getWidth();
 		int height = goodfeaturesImage.getImage().getHeight();
@@ -220,8 +221,8 @@ public class Tracking extends Service {
 		opencv.invokeFilterMethod("lkOpticalTrack", "samplePoint", targetPoint.x, targetPoint.y);
 
 		SerializableImage lk = getOpenCVImageData();
-		lk.source = "lkOpticalTrack";
-		invoke("publishFrame", goodfeaturesImage);
+		//lk.source = "lkOpticalTrack";
+		invoke("publishDisplay", goodfeaturesImage);
 
 		// sendBlockingWithTimeout(1000, name, method, data)
 		// opencv.setCameraIndex(1);
@@ -378,10 +379,10 @@ public class Tracking extends Service {
 		SerializableImage image = null;
 		try {
 			opencvData.clear();
-			subscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
+			subscribe("publishDisplay", opencv.getName(), "setOpenCVImage", SerializableImage.class);
 			while (!interrupted) {
 				image = opencvImageData.take();
-				unsubscribe("publishFrame", opencv.getName(), "setOpenCVImage", SerializableImage.class);
+				unsubscribe("publishDisplay", opencv.getName(), "setOpenCVImage", SerializableImage.class);
 				return image;
 			}
 		} catch (InterruptedException e) {

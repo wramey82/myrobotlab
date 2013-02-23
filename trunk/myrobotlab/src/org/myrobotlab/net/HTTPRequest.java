@@ -6,15 +6,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -23,12 +20,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.Service;
 
 /**
  * Client HTTP Request class This class helps to send POST HTTP requests with
@@ -84,11 +79,11 @@ public class HTTPRequest {
 	}
 
 	protected void write(String s) throws IOException {
-		Service.logTime("t1", "write-connect");
+		Logging.logTime("t1", "write-connect");
 		connect();
-		Service.logTime("t1", "write-post connect");
+		Logging.logTime("t1", "write-post connect");
 		os.write(s.getBytes());
-		Service.logTime("t1", "post write s.getBytes");
+		Logging.logTime("t1", "post write s.getBytes");
 	}
 
 	protected void newline() throws IOException {
@@ -259,7 +254,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public void setParameter(String name, String filename, InputStream is) throws IOException {
-		Service.logTime("t1", "setParameter begin (after new fileinput)");
+		Logging.logTime("t1", "setParameter begin (after new fileinput)");
 		boundary();
 		writeName(name);
 		write("; filename=\"");
@@ -267,12 +262,12 @@ public class HTTPRequest {
 		write('"');
 		newline();
 		write("Content-Type: ");
-		Service.logTime("t1", "pre guessContentTypeFromName");
+		Logging.logTime("t1", "pre guessContentTypeFromName");
 		String type = URLConnection.guessContentTypeFromName(filename);
 		if (type == null)
 			type = "application/octet-stream";
 		writeln(type);
-		Service.logTime("t1", "post guessContentTypeFromName");
+		Logging.logTime("t1", "post guessContentTypeFromName");
 		newline();
 		pipe(is, os);
 		newline();
@@ -288,9 +283,9 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public void setParameter(String name, File file) throws IOException {
-		Service.logTime("t1", "pre set file");
+		Logging.logTime("t1", "pre set file");
 		setParameter(name, file.getPath(), new FileInputStream(file));
-		Service.logTime("t1", "post set file");
+		Logging.logTime("t1", "post set file");
 	}
 
 	/**
@@ -699,7 +694,7 @@ public class HTTPRequest {
 				bos.write(tmp, 0, ret);
 			}
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		data = bos.toByteArray();
@@ -720,7 +715,7 @@ public class HTTPRequest {
 		 * 
 		 * if (offset != contentLength) { throw new IOException("Only read " +
 		 * offset + " bytes; Expected " + contentLength + " bytes"); } } catch
-		 * (IOException e1) { Service.logException(e1); error = e1.getMessage();
+		 * (IOException e1) { Logging.logException(e1); error = e1.getMessage();
 		 * } }
 		 */
 
@@ -850,7 +845,7 @@ public class HTTPRequest {
 					bos.write(tmp, 0, ret);
 				}
 			} catch (IOException e) {
-				Service.logException(e);
+				Logging.logException(e);
 			}
 
 			data = bos.toByteArray();

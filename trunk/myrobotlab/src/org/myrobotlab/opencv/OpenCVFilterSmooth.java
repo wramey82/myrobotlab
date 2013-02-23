@@ -30,13 +30,13 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_GAUSSIAN;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvSmooth;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -51,17 +51,17 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 
-	public OpenCVFilterSmooth(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterSmooth(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		// cvDrawRect(image, startPoint, startPoint,
 		// fillColor, 2, 1, 0);
@@ -72,7 +72,7 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

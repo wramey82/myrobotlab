@@ -28,11 +28,11 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_core.cvOr;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -46,18 +46,18 @@ public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 	// IplImage out = null;
 	IplImage[] memory = new IplImage[5];
 
-	public OpenCVFilterRepetitiveOr(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterRepetitiveOr(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 
 		return buffer.getBufferedImage(); // TODO - ran out of memory here
 	}
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		// what can you expect? nothing? - if data != null then error?
 		/*
@@ -75,7 +75,7 @@ public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -25,22 +25,17 @@
 
 package org.myrobotlab.control;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
@@ -89,7 +84,7 @@ public class VideoWidget extends ServiceGUI {
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishFrame", "displayFrame", SerializableImage.class);
+		subscribe("publishDisplay", "displayFrame", SerializableImage.class);
 	}
 
 	public void attachGUI(String srcMethod, String dstMethod, Class<?> c) {
@@ -98,7 +93,7 @@ public class VideoWidget extends ServiceGUI {
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishFrame", "displayFrame", SerializableImage.class);
+		unsubscribe("publishDisplay", "displayFrame", SerializableImage.class);
 	}
 
 	// VideoDisplayPanel vid = new VideoDisplayPanel("output");
@@ -177,35 +172,25 @@ public class VideoWidget extends ServiceGUI {
 		videoDisplayYPos = 0;
 	}
 
+	/*
 	public void displayFrame(byte[] imgBytes) {
 		try {
 			ByteArrayInputStream in = new ByteArrayInputStream(imgBytes);
 			BufferedImage bi = ImageIO.read(in);
 			displayFrame(bi);
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 	}
+	*/
 
-	/*
-	 * displayFrame(BufferedImage img) is for handling non-serializable images
-	 * from the Graphics Service - its an optimization kludge another
-	 * optimization is to create a single SerializableImage as a container and
-	 * replace only the new BufferedImage
-	 */
-	SerializableImage container = new SerializableImage();
-
-	public void displayFrame(BufferedImage img) {
-		container.setImage(img);
-		container.source = "output";
-		displays.get("output").displayFrame(container);
-	}
 
 	// multiplex images if desired
 	public void displayFrame(SerializableImage img) {
 
-		if (displays.containsKey(img.source)) {
-			displays.get(img.source).displayFrame(img);
+		String source = img.getSource();
+		if (displays.containsKey(source)) {
+			displays.get(source).displayFrame(img);
 		} else {
 			displays.get("output").displayFrame(img); // catchall
 		}

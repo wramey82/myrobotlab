@@ -41,13 +41,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javazoom.jl.player.Player;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 public class AudioFile extends Service {
 
@@ -109,7 +108,7 @@ public class AudioFile extends Service {
 			}
 
 		} catch (Exception e) {
-			Service.logException(e);
+			Logging.logException(e);
 			log.error("Problem playing file " + filename);
 			return;
 		}

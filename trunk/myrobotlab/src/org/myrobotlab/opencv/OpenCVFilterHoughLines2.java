@@ -38,11 +38,11 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvHoughLines2;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Pointer;
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
@@ -67,12 +67,12 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
 	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
-	public OpenCVFilterHoughLines2(OpenCV service, String name) {
-		super(service, name);
+	public OpenCVFilterHoughLines2(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		return image.getBufferedImage();
 	}
 	
@@ -80,7 +80,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 	CvPoint p1 = new CvPoint(0, 0);
 
 	@Override
-	public IplImage process(IplImage image) {
+	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image == null) {
 			log.error("image is null");
@@ -137,7 +137,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 	}
 
 	@Override
-	public void imageChanged(IplImage frame) {
+	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
 		
 	}

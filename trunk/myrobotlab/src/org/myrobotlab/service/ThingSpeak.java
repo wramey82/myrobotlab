@@ -2,20 +2,13 @@ package org.myrobotlab.service;
 
 import java.io.IOException;
 
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.data.Pin;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
-//
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 //import org.slf4j.LoggerFactory;
@@ -96,7 +89,7 @@ public class ThingSpeak extends Service {
 			log.info(String.format("ThingSpeak returned %s", result));
 
 		} catch (IOException e) {
-			Service.logException(e);
+			Logging.logException(e);
 		}
 
 		Integer ret = Integer.parseInt(result);

@@ -17,7 +17,7 @@ package org.myrobotlab.net;
 
 import java.util.Arrays;
 
-import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Logging;
 
 public class BareBonesBrowserLaunch {
 
@@ -47,7 +47,7 @@ public class BareBonesBrowserLaunch {
 			} catch (Exception e) {
 				// JOptionPane.showMessageDialog(null, errMsg + "\n" +
 				// e.toString());
-				Service.logException(e);
+				Logging.logException(e);
 			}
 		}
 	}

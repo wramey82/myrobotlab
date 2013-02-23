@@ -89,7 +89,7 @@ public class FilterInvert {
 
 	}
 
-	public BufferedImage display(IplImage image, Object[] data) {
+	public BufferedImage display(IplImage image) {
 		// TODO Auto-generated method stub
 		return null;
 	}
