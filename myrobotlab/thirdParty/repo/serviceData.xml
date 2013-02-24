@@ -196,8 +196,10 @@
       <description>service to control the InMoov robot
       </description>  
          <list>
+            <string>org.apache.commons.logging</string>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
             <string>org.apache.commons.httpclient</string>
             <string>org.apache.commons.codec</string>
             <string>org.apache.commons.logging</string>
@@ -210,7 +212,7 @@
             <string>cc.arduino</string>
             <string>org.openni</string>
             <string>javazoom.jl.player</string>
-         </list>
+		</list>
       </dependsOn>
    </serviceType>
    <serviceType string="org.myrobotlab.service.IPCamera" workingLevel="4">
