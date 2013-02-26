@@ -298,6 +298,7 @@
             <string>com.googlecode.javacv</string>
             <string>net.sourceforge.opencv</string>
             <string>com.sun.jna</string>
+            <string>org.openni</string>
          </list>
       </dependsOn>
    </serviceType>
