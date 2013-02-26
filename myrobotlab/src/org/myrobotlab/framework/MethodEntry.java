@@ -32,7 +32,6 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
-
 public class MethodEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -194,23 +193,23 @@ public class MethodEntry implements Serializable {
 		StringBuffer sb = new StringBuffer();
 		sb.append(name);
 		sb.append("(");
-		for (int i = 0; i < parameterTypes.length; ++i) {
-			if (parameterTypes[i] == null)
-			{
-				sb.append("null");
-			} else {
-				String p = parameterTypes[i].getSimpleName();
-				sb.append(p);
-			}
-			if (i < parameterTypes.length - 1) {
-				sb.append(",");
+		if (parameterTypes != null) {
+			for (int i = 0; i < parameterTypes.length; ++i) {
+				if (parameterTypes[i] == null) {
+					sb.append("null");
+				} else {
+					String p = parameterTypes[i].getSimpleName();
+					sb.append(p);
+				}
+				if (i < parameterTypes.length - 1) {
+					sb.append(",");
+				}
 			}
 		}
 		sb.append(") : ");
-		if (returnType != null)
-		{
-		String r = returnType.getSimpleName();
-		sb.append(r);
+		if (returnType != null) {
+			String r = returnType.getSimpleName();
+			sb.append(r);
 		}
 		return sb.toString();
 	}

@@ -78,7 +78,7 @@ public class VideoProcessor implements Runnable {
 
 	// display
 	transient IplImage frame;
-	private boolean publishOpenCVData;
+	private boolean publishOpenCVData = true;
 
 	public VideoProcessor()
 	{
@@ -171,7 +171,7 @@ public class VideoProcessor implements Runnable {
 				}
 				
 				// TODO - option to accumulate? - e.g. don't new
-				data = new OpenCVData(); 
+				data = new OpenCVData(opencv.getName()); 
 
 				// Logging.logTime("read");
 
@@ -213,12 +213,6 @@ public class VideoProcessor implements Runnable {
 								recordImage(filter, image);
 						}
 
-						// publish accumulated data
-						if (publishOpenCVData)
-						{
-							opencv.invoke("publishOpenCVData", data);
-						}
-						
 						// publish display
 						if (filter.name.equals(displayFilter) || filter.publishDisplay) {
 							BufferedImage display = filter.display(image); // FIXME - change to SerilizabelImage
@@ -226,6 +220,14 @@ public class VideoProcessor implements Runnable {
 						}
 					} // capturing && itr.hasNext()
 				} // synchronized (filters)
+				
+				// publish accumulated data
+				if (publishOpenCVData)
+				{
+					opencv.invoke("publishOpenCVData", data);
+				}
+				
+
 
 			} catch (Exception e) {
 				Logging.logException(e);

@@ -274,6 +274,8 @@ public class Sphinx extends Service {
 		startListening(null); // use existing grammar
 	}
 
+	// FIXME - re-entrant - make it create new speechProcessor
+	// assume its a new grammar
 	public void startListening(String grammar) {
 		if (speechProcessor != null) {
 			log.warn("already listening");
@@ -481,9 +483,11 @@ public class Sphinx extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Sphinx ear = new Sphinx("ear");
-		ear.createGrammar("hello | up | down | yes | no");
-		ear.startService();
+		Sphinx ear = (Sphinx)Runtime.createAndStart("ear", "Sphinx");
+		ear.startListening("hello | up | down | yes | no");
+		//Sphinx ear = new Sphinx("ear");
+		// ear.createGrammar("hello | up | down | yes | no");
+		//ear.startService();
 
 	}
 

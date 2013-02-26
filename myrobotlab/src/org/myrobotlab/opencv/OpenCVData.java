@@ -17,12 +17,18 @@ public class OpenCVData implements Serializable {
 	public static final String KEY_BOUNDING_BOX_ARRAY = "KEY_BOUNDING_BOX_ARRAY";
 	
 	private HashMap<String, Object> data = new HashMap<String, Object>();
+	public String name;
 	String filterName;
 	
 	long timestamp;
 	
 	public OpenCVData()
 	{
+	}
+	
+	public OpenCVData(String name)
+	{
+		this.name = name;
 	}
 	
 	public OpenCVData(SerializableImage image)

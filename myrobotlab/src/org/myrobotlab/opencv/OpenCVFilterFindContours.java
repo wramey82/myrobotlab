@@ -112,6 +112,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				g.drawRect(box.x, box.y, box.width, box.height);
 			}
 			g.drawString(String.format("cnt %d",boxes.size()), 10, 10);
+		} else {
+			g.drawString("null", 10, 10);
 		}
 		return frameBuffer;
 	}
