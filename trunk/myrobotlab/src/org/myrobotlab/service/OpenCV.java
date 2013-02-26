@@ -378,6 +378,7 @@ public class OpenCV extends Service {
 		opencv.addFilter("erode", "Erode");
 		opencv.addFilter("dilate", "Dilate");
 		opencv.addFilter("findContours", "FindContours");
+		opencv.addFilter("addMask", "AddMask");
 	
 		// opencv.addFilter("gft", "GoodFeaturesToTrack");
 		// opencv.publishFilterData("gft");

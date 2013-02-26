@@ -32,9 +32,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 
@@ -1438,6 +1435,8 @@ public class Runtime extends Service {
 	public static void installLatestAll() {
 		// FIXME - implement & updateAll which updates all "installed"
 		// serviceInfo.getRepoServiceData();
+		
+//		ServiceInfo.getInstance().getRepoLatestDependencies(org)
 
 	}
 

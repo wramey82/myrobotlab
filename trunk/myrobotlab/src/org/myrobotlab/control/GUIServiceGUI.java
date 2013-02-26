@@ -527,7 +527,9 @@ public class GUIServiceGUI extends ServiceGUI {
 		log.info("buildLocalServiceGraph-end");
 	}
 
-	public void buildLocalServiceRoutes() {
+	// FIXME - return a "copy" of registry ????
+	// versus sunchronize on it?
+	public synchronized void  buildLocalServiceRoutes() { 
 		Iterator<String> it = Runtime.getRegistry().keySet().iterator();
 
 		Object parent = graph.getDefaultParent();

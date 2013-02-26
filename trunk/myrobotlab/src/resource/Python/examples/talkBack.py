@@ -24,16 +24,13 @@ from org.myrobotlab.service import Runtime
 # FYI - The memory requirements for Sphinx are a bit hefty and depending on the
 # platform additional JVM arguments might be necessary e.g. -Xmx256m
 
-# create an ear
-ear = Runtime.create("ear","Sphinx")
-
-# create the grammar you would like recognized
-# this must be done before the service is started
-ear.createGrammar("hello | forward | back | stop | go |turn left | turn right | spin | power off")
-ear.startService()
-
-# start the mouth
+# create ear and mouth
+ear = Runtime.createAndStart("ear","Sphinx")
 mouth = Runtime.createAndStart("mouth","Speech")
+
+# start listening for the words we are interested in
+ear.startListening("hello | forward | back | stop | go |turn left | turn right | spin | power off")
+
 
 # set up a message route from the ear --to--> python method "heard"
 ear.addListener("recognized", python.name, "heard", String().getClass()); 
