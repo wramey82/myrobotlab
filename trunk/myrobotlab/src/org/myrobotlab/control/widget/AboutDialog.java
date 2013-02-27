@@ -113,8 +113,8 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 			{
 				log.info("newVersion == null - nothing available");
 				JOptionPane.showMessageDialog(parent, "There are no updates available at this time");
-			} else if (currentVersion.equals(newVersion)) {
-				log.info("equals - no updates");
+			} else if (currentVersion.compareTo(newVersion) >= 0) {
+				log.info("equals or old bleeding - no updates - currentVersion.compareTo(newVersion) = {}", currentVersion.compareTo(newVersion));
 				JOptionPane.showMessageDialog(parent, "There are no new updates available at this time");
 			} else {
 				log.info("not equals - offer update");
@@ -183,6 +183,9 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 	public static void main(String[] args) throws Exception {
 		LoggingFactory.getInstance().configure();
 
+		log.info("[{}]","1060M.20130227.0733".compareTo("1059M.20130227.0722"));
+		log.info("[{}]","1059M.20130227.0722".compareTo("1060M.20130227.0733"));
+		
 		// HTTPRequest logPoster = new HTTPRequest(new
 		// URL("http://myrobotlab.org/myrobotlab_log/postLogFile.php"));
 		HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "GroG", "file", new File("myrobotlab.log"));
