@@ -1511,7 +1511,9 @@ public class Runtime extends Service {
 
 	public static String getBleedingEdgeVersionString() {
 		try {
-			String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=2&q=&sort=uploaded&colspec=Filename%20Summary%20Uploaded%20ReleaseDate%20Size%20DownloadCount";
+			// 
+			//String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=2&q=&sort=uploaded&colspec=Filename%20Summary%20Uploaded%20ReleaseDate%20Size%20DownloadCount";
+			String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=1&q=&colspec=Filename+Summary+Uploaded+ReleaseDate+Size+DownloadCount";
 			log.info(String.format("getting list of dist %s", listURL));
 			HTTPRequest http;
 			http = new HTTPRequest(listURL);
@@ -1519,7 +1521,7 @@ public class Runtime extends Service {
 			log.info(String.format("recieved [%s]", s));
 			log.info("parsing");
 			String myrobotlabBleedingEdge = "myrobotlab.bleeding.edge.";
-			int p0 = s.lastIndexOf(myrobotlabBleedingEdge);
+			int p0 = s.indexOf(myrobotlabBleedingEdge);
 			if (p0 > 0)
 			{
 				 p0 += myrobotlabBleedingEdge.length();
