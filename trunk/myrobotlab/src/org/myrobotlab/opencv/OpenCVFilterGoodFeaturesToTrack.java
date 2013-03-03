@@ -34,14 +34,13 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -133,17 +132,19 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 			invoke("publish", (Object) corners);
 		} else {
 
-			double[] da = corners.get();
-			if (da.length % 2 != 0) {
-				log.error("incorrect corner count");
-			} else {
+			//double[] da = corners.get();
+			
 				ArrayList<Point2Df> points = new ArrayList<Point2Df>();
 				Float value = null;
-				for (int i = 0; i < count[0]; i += 2) {
+				int x,y;
+				for (int i = 0; i < count[0]; ++i) {
+					corners.position(i);
+					x = (int) corners.x();
+					y = (int) corners.y();
 					// da[i] = da[i] / frame.width();
 					// da[i + 1] = da[i + 1] / frame.height();
 					// x = Math.round(a)
-					String key = String.format("%d.%d", (int) da[i], (int) da[i + 1]);
+					String key = String.format("%d.%d", x, y);
 					if (values.containsKey(key)) {
 						value = values.get(key);
 						++value;
@@ -159,9 +160,9 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 					
 					if (useFloatValues)
 					{
-						np = new Point2Df((float) da[i]/width, (float) da[i + 1]/height, value);
+						np = new Point2Df((float) x/width, (float) y/height, value);
 					} else {
-						np = new Point2Df((float) da[i], (float) da[i + 1], value);
+						np = new Point2Df((float) x, (float) y, value);
 					}
 
 					if (np.value > oldest.value) {
@@ -172,12 +173,14 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 				}
 				invoke("publish", points);
-			}
+			
 		}
 
 		return image;
 	}
 
+	DecimalFormat df = new DecimalFormat("0.###");
+	
 	@Override
 	public BufferedImage display(IplImage frame) {
 
@@ -187,12 +190,13 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		int x, y;
 		graphics.setColor(Color.green);
 
-		for (int i = 0; i < count[0]; i++) {
+		for (int i = 0; i < count[0]; ++i) {
 			/*
 			 * since there is no subpixel selection - we don't need to round -
 			 * we can cast x = Math.round(corners.x()); y =
 			 * Math.round(corners.y());
 			 */
+			corners.position(i);
 			x = (int) corners.x();
 			y = (int) corners.y();
 
@@ -207,7 +211,9 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 						graphics.setColor(new Color(Color.HSBtoRGB(scale, 0.8f, 0.7f)));
 					}
 					graphics.drawOval(x, y, 3, 1);
-					graphics.drawString(String.format("%f", scale), x, y);
+					//graphics.drawString(String.format("%f", scale), x, y);
+					graphics.drawString(String.format("%s", df.format(scale)), x, y);
+
 				} else {
 					log.error(key); // FIXME FIXME FIXME ----  WHY THIS SHOULDN"T HAPPEN BUT IT HAPPENS ALL THE TIME
 				}

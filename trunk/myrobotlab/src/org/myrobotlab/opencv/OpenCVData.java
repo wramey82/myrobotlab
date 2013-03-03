@@ -4,8 +4,10 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.data.Point2Df;
 
 public class OpenCVData implements Serializable {
 
@@ -15,6 +17,7 @@ public class OpenCVData implements Serializable {
 	public static final String KEY_IMAGE = "KEY_IMAGE";
 	public static final String KEY_IPLIMAGE = "KEY_IPLIMAGE";
 	public static final String KEY_BOUNDING_BOX_ARRAY = "KEY_BOUNDING_BOX_ARRAY";
+	public static final String KEY_POINT_ARRAY = "KEY_POINT_ARRAY";
 	
 	private HashMap<String, Object> data = new HashMap<String, Object>();
 	public String name;
@@ -24,6 +27,12 @@ public class OpenCVData implements Serializable {
 	
 	public OpenCVData()
 	{
+		
+	}
+	
+	public Set<String> keySet()
+	{
+		return data.keySet();
 	}
 	
 	public OpenCVData(String name)
@@ -54,7 +63,7 @@ public class OpenCVData implements Serializable {
 	@SuppressWarnings("unchecked")
 	public void add(Rectangle boundingBox) {
 
-		String key = String.format("%s_%s", filterName, KEY_BOUNDING_BOX_ARRAY);
+		String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
 		ArrayList<Rectangle> list;
 		if (!data.containsKey(key))
 		{
@@ -70,12 +79,36 @@ public class OpenCVData implements Serializable {
 	@SuppressWarnings("unchecked")
 	public ArrayList<Rectangle> getBoundingBoxArray()
 	{
-		String key = String.format("%s_%s", filterName, KEY_BOUNDING_BOX_ARRAY);
+		String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
 		return (ArrayList<Rectangle>)data.get(key);
 	}
 
+	
+	public void add(ArrayList<Point2Df> pointArray) {
+
+		String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
+		data.put(key, pointArray);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<Point2Df> getPointArray()
+	{
+		String key = String.format("%s.%s", filterName, KEY_POINT_ARRAY);
+		return (ArrayList<Point2Df>)data.get(key);
+	}
+	
 	public void setFilterName(String name) {
 		this.filterName = name;
+	}
+
+	public void set(ArrayList<Point2Df> pointsToPublish) {
+		String key = String.format("%s.%s", filterName, KEY_POINT_ARRAY);
+		data.put(key, pointsToPublish);
+	}
+
+	public SerializableImage getInputImage() {
+		return (SerializableImage)data.get(KEY_IMAGE);
 	}
 
 }

@@ -238,7 +238,7 @@ public class GUIServiceGUI extends ServiceGUI {
 			for (int i = 0; i < services.length; ++i) {
 				// serviceCells
 				Object s = services[i];
-				log.info("service {}",s);
+				log.info("service {}", s);
 
 				mxCell m = (mxCell) services[i];
 				GUIServiceGraphVertex v = (GUIServiceGraphVertex) m.getValue();
@@ -529,46 +529,47 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	// FIXME - return a "copy" of registry ????
 	// versus sunchronize on it?
-	public synchronized void  buildLocalServiceRoutes() { 
+	public synchronized void buildLocalServiceRoutes() {
 		Iterator<String> it = Runtime.getRegistry().keySet().iterator();
-
 		Object parent = graph.getDefaultParent();
 
-		while (it.hasNext()) {
-			String serviceName = it.next();
+		//synchronized (Runtime.getRegistry()) { // FIXED?  newly added
+			while (it.hasNext()) {
+				String serviceName = it.next();
 
-			ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
-			if (s != null) {
-				Iterator<String> ri = s.getNotifyListKeySet().iterator();
-				while (ri.hasNext()) {
-					ArrayList<MRLListener> nl = s.getNotifyList(ri.next());
-					for (int i = 0; i < nl.size(); ++i) {
-						MRLListener listener = nl.get(i);
+				ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
+				if (s != null) {
+					Iterator<String> ri = s.getNotifyListKeySet().iterator();
+					while (ri.hasNext()) {
+						ArrayList<MRLListener> nl = s.getNotifyList(ri.next());
+						for (int i = 0; i < nl.size(); ++i) {
+							MRLListener listener = nl.get(i);
 
-						// createArrow(sw.getName(), listener.getName(),
-						// methodString);
-						// graph.getChildVertices(arg0)parent.
-						// graph.getChildVertices(graph.getDefaultParent());
-						// ROUTING LABELS
-						if (showRouteLabels) {
-							mxCell c = (mxCell) graph.insertEdge(parent, null, formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod),
-									serviceCells.get(s.getName()), serviceCells.get(listener.name));
-						} else {
-							mxCell c = (mxCell) graph.insertEdge(parent, null, "", serviceCells.get(s.getName()), serviceCells.get(listener.name));
+							// createArrow(sw.getName(), listener.getName(),
+							// methodString);
+							// graph.getChildVertices(arg0)parent.
+							// graph.getChildVertices(graph.getDefaultParent());
+							// ROUTING LABELS
+							if (showRouteLabels) {
+								mxCell c = (mxCell) graph.insertEdge(parent, null, formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod),
+										serviceCells.get(s.getName()), serviceCells.get(listener.name));
+							} else {
+								mxCell c = (mxCell) graph.insertEdge(parent, null, "", serviceCells.get(s.getName()), serviceCells.get(listener.name));
+							}
+
+							// mxGeometry g = c.getGeometry();
+							// c.setGeometry(g);
+							// too chatty log.info(c);
+
 						}
-
-						// mxGeometry g = c.getGeometry();
-						// c.setGeometry(g);
-						// too chatty log.info(c);
-
 					}
+				} else {
+					log.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
 				}
-			} else {
-				log.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
-			}
-			// }
+				// }
 
-		}
+			}
+		//}
 
 	}
 

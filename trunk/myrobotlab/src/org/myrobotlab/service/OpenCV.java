@@ -80,6 +80,19 @@ public class OpenCV extends Service {
 	public final static String INPUT_SOURCE_NETWORK = "network";
 	public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
+	// TODO - OpenCV constants / enums ?
+	public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
+	public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
+	public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
+
+	// directional constants
+	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
+	final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
+	final static public String DIRECTION_FARTHEST_LEFT = "DIRECTION_FARTHEST_LEFT";
+	final static public String DIRECTION_FARTHEST_RIGHT = "DIRECTION_FARTHEST_RIGHT";
+	final static public String DIRECTION_FARTHEST_TOP = "DIRECTION_FARTHEST_TOP";
+	final static public String DIRECTION_FARTHEST_BOTTOM = "DIRECTION_FARTHEST_BOTTOM";
+
 	public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
 
 	// yep its public - cause a whole lotta data
@@ -133,9 +146,15 @@ public class OpenCV extends Service {
 		return si;
 	}
 	
-	// publishing the big kahuna
+	// publishing the big kahuna <output>
 	public final static OpenCVData publishOpenCVData(OpenCVData data) {
 		return data;
+	}
+	
+	// the big switch <input>
+	public void publishOpenCVData(boolean b)
+	{
+		videoProcessor.publishOpenCVData = b;
 	}
 	
 	// multiplexing
@@ -412,5 +431,86 @@ public class OpenCV extends Service {
 		return boundingBox;
 
 	}
+	
+	// blocking method
+	public OpenCVData getOpenCVData()
+	{
+		return videoProcessor.getOpenCVData();
+	}
+	
+	public OpenCVData getGoodFeatures()
+	{
+		return videoProcessor.getGoodFeatures();
+	}
+
+	public static Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
+
+		double distance = 0;
+		int index = 0;
+		double targetDistance = 0.0f;
+
+		if (data == null || data.size() == 0) {
+			log.error("no data");
+			return null;
+		}
+
+		if (minValue == null) {
+			minValue = 0.0;
+		}
+
+		if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
+			targetDistance = 1;
+		} else {
+			targetDistance = 0;
+		}
+
+		for (int i = 0; i < data.size(); ++i) {
+			Point2Df point = data.get(i);
+
+			if (DIRECTION_FARTHEST_FROM_CENTER.equals(direction)) {
+				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
+				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_LEFT.equals(direction)) {
+				distance = point.x;
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_RIGHT.equals(direction)) {
+				distance = point.x;
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_TOP.equals(direction)) {
+				distance = point.y;
+				if (distance < targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			} else if (DIRECTION_FARTHEST_BOTTOM.equals(direction)) {
+				distance = point.y;
+				if (distance > targetDistance && point.value >= minValue) {
+					targetDistance = distance;
+					index = i;
+				}
+			}
+
+		}
+
+		Point2Df p = data.get(index);
+		log.info(String.format("findPointFarthestFromCenter %s", p));
+		return p;
+	}
+
 
 }

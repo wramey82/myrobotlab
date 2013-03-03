@@ -102,6 +102,9 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 	public OpenCVFilterLKOpticalTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
+		// LKOptical does not change image
+		// no reason to publish - use input image
+		publishImage = false; 
 	}
 
 	@Override
@@ -267,7 +270,12 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 				}
 				count[0] = validPointCount;
 				
-				invoke("publish", pointsToPublish); 
+				if (publishData)
+				{
+					data.set(pointsToPublish);
+				}
+				
+				//invoke("publish", pointsToPublish); 
 
 			}
 

@@ -549,7 +549,7 @@ public class InMoov extends Service {
 		gui.display();
 		
 		inMoov.eye.setCameraIndex(1);
-		inMoov.tracking.calibrate();
+		//inMoov.tracking.trackLKPoint();
 		
 
 		/*
