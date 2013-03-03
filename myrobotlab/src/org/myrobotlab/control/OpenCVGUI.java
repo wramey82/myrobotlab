@@ -141,10 +141,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		for (int i = 0; i < FrameGrabber.list.size(); ++i) {
 			String ss = FrameGrabber.list.get(i);
 			String fg = ss.substring(ss.lastIndexOf(".") + 1);
-			// filter out the two I've never seen
-			if (!"DC1394".equals(fg) && !"FlyCapture".equals(fg)) {
-				frameGrabberList.add(fg);
-			}
+			frameGrabberList.add(fg);
 		}
 
 		frameGrabberList.add("IPCamera");

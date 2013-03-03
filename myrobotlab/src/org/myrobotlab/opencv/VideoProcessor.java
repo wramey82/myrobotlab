@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SimpleTimeZone;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -24,8 +26,14 @@ import com.googlecode.javacv.OpenCVFrameRecorder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
+import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
+import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
+
 @Root
 public class VideoProcessor implements Runnable {
+
+	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
 
 	int frameIndex = 0;
 	public boolean capturing = false;
@@ -45,25 +53,20 @@ public class VideoProcessor implements Runnable {
 	public int cameraIndex = 0;
 	@Element
 	public String inputFile = "http://localhost/videostream.cgi";
+	@Element
+	public boolean publishOpenCVData = true;
 	// GRABBER END --------------------------
+	@Element
+	private boolean useBlockingData = false;
 
-	OpenCVData data = new OpenCVData(); 
-
-	transient Thread videoThread = null;
-	private transient OpenCV opencv;
-	public OpenCV getOpencv() {
-		return opencv;
-	}
-
-	public void setOpencv(OpenCV opencv) {
-		this.opencv = opencv;
-	}
-
-	transient FrameGrabber grabber = null;
-
+	OpenCVData data = new OpenCVData();
+	BlockingQueue<OpenCVData> blockingData = new LinkedBlockingQueue<OpenCVData>();
 	HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
-	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
+	private transient OpenCV opencv;
+	transient FrameGrabber grabber = null;
+	transient Thread videoThread = null;
+
 	private ArrayList<OpenCVFilter> filters = new ArrayList<OpenCVFilter>();
 
 	SimpleDateFormat sdf = new SimpleDateFormat();
@@ -73,18 +76,23 @@ public class VideoProcessor implements Runnable {
 	HashMap<String, FrameRecorder> outputFileStreams = new HashMap<String, FrameRecorder>();
 
 	public String displayFilter = "input";
-	//String initialInputKey = "_OUTPUT";
+	// String initialInputKey = "_OUTPUT";
 	String initialInputKey = "zod";
 
 	// display
 	transient IplImage frame;
-	private boolean publishOpenCVData = true;
 
-	public VideoProcessor()
-	{
-		// parameterless constructor for simple xml		
+	public VideoProcessor() {
+		// parameterless constructor for simple xml
 	}
-	
+
+	public OpenCV getOpencv() {
+		return opencv;
+	}
+
+	public void setOpencv(OpenCV opencv) {
+		this.opencv = opencv;
+	}
 
 	public void start() {
 		log.info("starting capture");
@@ -158,7 +166,7 @@ public class VideoProcessor implements Runnable {
 		// grabbler.setImageWidth()
 		// grabber.setImageHeight(320);
 		// grabber.setImageHeight(240);
-		
+
 		while (capturing) {
 			try {
 
@@ -169,9 +177,9 @@ public class VideoProcessor implements Runnable {
 				if (getDepth) {
 					sources.put(OpenCV.SOURCE_KINECT_DEPTH, ((OpenKinectFrameGrabber) grabber).grabDepth());
 				}
-				
+
 				// TODO - option to accumulate? - e.g. don't new
-				data = new OpenCVData(opencv.getName()); 
+				data = new OpenCVData(opencv.getName());
 
 				// Logging.logTime("read");
 
@@ -184,8 +192,7 @@ public class VideoProcessor implements Runnable {
 
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
-						if (image == null)
-						{
+						if (image == null) {
 							log.error(filter.name);
 						}
 
@@ -196,38 +203,40 @@ public class VideoProcessor implements Runnable {
 						sources.put(filter.name, image);
 
 						// no conversion OpenCV image
-						if (filter.publishIplImage)
-						{
-							data.put(String.format("%s_%s", filter.name, OpenCVData.KEY_IPLIMAGE),image);
+						if (filter.publishIplImage) {
+							data.put(String.format("%s_%s", filter.name, OpenCVData.KEY_IPLIMAGE), image);
 						}
-						
+
 						// Java serializable image
-						if (filter.publishImage)
-						{
+						if (filter.publishImage) {
 							data.put(filter.name, new SerializableImage(frame.getBufferedImage(), filter.name));
 						}
-						
+
 						// if selected || use has chosen to publish multiple
-						if (isRecordingOutput || recordSingleFrame)
-						{
-								recordImage(filter, image);
+						if (isRecordingOutput || recordSingleFrame) {
+							recordImage(filter, image);
 						}
 
 						// publish display
 						if (filter.name.equals(displayFilter) || filter.publishDisplay) {
-							BufferedImage display = filter.display(image); // FIXME - change to SerilizabelImage
+							BufferedImage display = filter.display(image); // FIXME
+																			// -
+																			// change
+																			// to
+																			// SerilizabelImage
 							opencv.invoke("publishDisplay", displayFilter, display);
 						}
 					} // capturing && itr.hasNext()
 				} // synchronized (filters)
-				
+
 				// publish accumulated data
-				if (publishOpenCVData)
-				{
+				if (publishOpenCVData) {
 					opencv.invoke("publishOpenCVData", data);
 				}
-				
 
+				if (useBlockingData) {
+					blockingData.add(data);
+				}
 
 			} catch (Exception e) {
 				Logging.logException(e);
@@ -245,25 +254,24 @@ public class VideoProcessor implements Runnable {
 		}
 	}
 
-	
-	public void recordImage(OpenCVFilter filter, IplImage image)
-	{
+	public void recordImage(OpenCVFilter filter, IplImage image) {
 		// filter - and "recording" based on what person "see in the display"
 		if (filter.name.equals(displayFilter) || filter.publishDisplay) {
-			BufferedImage display = filter.display(image); // FIXME - change to SerilizabelImage
+			BufferedImage display = filter.display(image); // FIXME - change to
+															// SerilizabelImage
 			opencv.invoke("publishDisplay", displayFilter, display);
-	
+
 			if (isRecordingOutput == true) {
 				// FIXME - from IplImage->BufferedImage->IplImage :P
 				record("output", IplImage.createFrom(display));
 			}
-	
+
 			if (recordSingleFrame == true) {
 				recordSingleFrame(display, frameIndex);
 			}
-		}		
+		}
 	}
-	
+
 	public void addFilter(String name, String newFilter) {
 
 		log.info(String.format("request to addFilter %s, %s", name, newFilter));
@@ -302,7 +310,14 @@ public class VideoProcessor implements Runnable {
 
 	public void removeAllFilters() {
 		synchronized (filters) {
-			filters.clear();
+			Iterator<OpenCVFilter> itr = filters.iterator();
+			while (itr.hasNext()) {
+				OpenCVFilter filter = itr.next();
+				if (!filter.name.equals("input")) {
+					itr.remove();
+					return;
+				}
+			}
 		}
 	}
 
@@ -346,6 +361,55 @@ public class VideoProcessor implements Runnable {
 		Util.writeBufferedImage(frame, String.format("%s.%d.jpg", opencv.getName(), frameIndex));
 		recordSingleFrame = false;
 	}
+
+	// FIXME
+	public OpenCVData getOpenCVData() {
+		OpenCVData data = null;
+		try {
+			blockingData.clear();
+
+			boolean oldPublishOpenCVData = publishOpenCVData;
+			publishOpenCVData = true; 
+			useBlockingData = true;
+			data = blockingData.take(); // TODO - poll or timeout value parameter
+			publishOpenCVData = oldPublishOpenCVData;
+			useBlockingData = false;
+			return data;
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public OpenCVData getGoodFeatures()
+	{
+		removeAllFilters();
+		//addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
+		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
+		//setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
+		
+		OpenCVData d = getOpenCVData();
+		log.info("good features {}", d.keySet());
+		removeAllFilters();
+		
+		return d;
+		
+	}
+	
+	// FIXME - TODO -
+	/*
+	 * public ArrayList<Point2Df> GoodFeaturesToTrack() { ArrayList<Point2Df>
+	 * goodfeatures = null; try { filters.clear(); opencvData.clear();
+	 * subscribe("publish", opencv.getName(), "GoodFeaturesToTrack",
+	 * double[].class); while (!interrupted) { goodfeatures = opencvData.take();
+	 * unsubscribe("publish", opencv.getName(), "GoodFeaturesToTrack",
+	 * double[].class); return goodfeatures; } } catch (InterruptedException e)
+	 * { e.printStackTrace(); }
+	 * 
+	 * return null; }
+	 */
 
 	public void record(String filename, IplImage frame) {
 		try {

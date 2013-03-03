@@ -193,8 +193,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return true;
 	}
 
-
-
 	public HashMap<String, ServiceGUI> getServiceGUIMap() {
 		return serviceGUIMap;
 	}
@@ -235,8 +233,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			return mc.newInstance(params);
 		} catch (Exception e) {
 			logException(e);
-		} 
-		
+		}
+
 		return null;
 	}
 
@@ -255,10 +253,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		sortedMap = new TreeMap<String, ServiceWrapper>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
-
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			addTab(serviceName);
+		synchronized (sortedMap) { // FIXED YAY !!!!
+			while (it.hasNext()) {
+				String serviceName = it.next();
+				addTab(serviceName);
+			}
 		}
 
 		frame.pack();
@@ -417,9 +416,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.info("here");
 		}
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
-		
-		if (gui == null)
-		{
+
+		if (gui == null) {
 			log.warn("could not construct a " + guiClass + " object - creating generic template");
 			gui = (ServiceGUI) getNewInstance("org.myrobotlab.control._TemplateServiceGUI", se.getName(), this);
 		}
@@ -440,8 +438,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			tabs.setBackgroundAt(index, hsv);
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
 		}
-
-		
 
 		return gui;
 	}
@@ -803,8 +799,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			send(runtime.getName(), "checkForUpdates");
 		} else if ("update all".equals(cmd)) {
 			Runtime.updateAll();
-		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR)
-				|| cmd.equals(Level.FATAL)) {
+		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR) || cmd.equals(Level.FATAL)) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)
 			Logging logging = LoggingFactory.getInstance();
 			logging.setLevel(cmd);
@@ -827,7 +822,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				Logging logging = LoggingFactory.getInstance();
 				logging.removeAppender(Appender.REMOTE);
 			}
-		} else if (cmd.equals(Appender.FILE)) { // FIXME - refactor it all out (it recovered from enums !
+		} else if (cmd.equals(Appender.FILE)) { // FIXME - refactor it all out
+												// (it recovered from enums !
 			Logging logging = LoggingFactory.getInstance();
 			logging.addAppender(Appender.FILE);
 		} else if (cmd.equals(Appender.NONE)) {
@@ -962,7 +958,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		logLevelGroup.add(mi);
 		parentMenu.add(mi);
 
-		mi = new JRadioButtonMenuItem(Level.FATAL); // TODO - deprecate to WTF :)
+		mi = new JRadioButtonMenuItem(Level.FATAL); // TODO - deprecate to WTF
+													// :)
 		mi.setSelected(("FATAL".equals(level)));
 		mi.addActionListener(this);
 		logLevelGroup.add(mi);

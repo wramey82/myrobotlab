@@ -1404,4 +1404,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	}
 
+	public boolean setSerialDevice(String comPort) {
+		return setSerialDevice(comPort, 57600, 8, 1, 0);
+	}
+
 }

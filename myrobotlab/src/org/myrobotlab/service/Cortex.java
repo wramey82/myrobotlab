@@ -42,7 +42,7 @@ public class Cortex extends Service {
 	
 	ArrayList<Rectangle> boundingBoxes;
 
-	transient OpenCV opencv;
+	transient OpenCV eye;
 	transient Sphinx ear;
 	transient Speech mouth;
 	
@@ -66,13 +66,13 @@ public class Cortex extends Service {
 	// FIXME - need a createSubServices in constructor ???
 	// FIXME - better, robust, more flexible way to handle naming of subservices
 	public void createAndStartSubServices() {
-		opencv = (OpenCV) Runtime.createAndStart(eyeName, "OpenCV");
+		eye = (OpenCV) Runtime.createAndStart(eyeName, "OpenCV");
 		ear = (Sphinx) Runtime.createAndStart(earName, "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
 
 		startListening(String.format("%s", STATE_WHAT_DO_YOU_SEE)); // FIXME - incorporate into ear
 		
-		subscribe("publishOpenCVData", opencv.getName(), "getOpenCVData", OpenCVData.class);
+		subscribe("publishOpenCVData", eye.getName(), "getOpenCVData", OpenCVData.class);
 	}
 
 	//------------  Event Methods Executed By Different Threads Begin -----------
@@ -134,14 +134,14 @@ public class Cortex extends Service {
 	}
 
 	public void fadeBackground() {
-		opencv.removeAllFilters();
-		opencv.addFilter("pyramidDown", "PyramidDown");
-		opencv.addFilter("mog2", "BackgroundSubtractorMOG2");
-		opencv.addFilter("erode", "Erode");
-		opencv.addFilter("dilate", "Dilate");
-		opencv.addFilter("findContours", "FindContours");
+		eye.removeAllFilters();
+		eye.addFilter("pyramidDown", "PyramidDown");
+		eye.addFilter("mog2", "BackgroundSubtractorMOG2");
+		eye.addFilter("erode", "Erode");
+		eye.addFilter("dilate", "Dilate");
+		eye.addFilter("findContours", "FindContours");
 		
-		opencv.capture();
+		eye.capture();
 		
 		// wait to stabilize
 		//while()

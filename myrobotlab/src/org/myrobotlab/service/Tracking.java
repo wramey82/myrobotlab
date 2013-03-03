@@ -25,395 +25,29 @@
 
 package org.myrobotlab.service;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.memory.Node;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.data.Point2Df;
+import org.simpleframework.xml.Element;
+import org.slf4j.Logger;
+import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
+import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
+import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
 
 public class Tracking extends Service {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Tracking.class.getCanonicalName());
-
-	// References :
-	// image stitching - http://www.youtube.com/watch?v=a5OK6bwke3I using surf -
-	// with nice readout of fps, matches, surf pts etc
-
-	// TODO - Avoidance / Navigation Service
-	// ground plane
-	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
-
-	/*
-	 * TODO - Calibrate - do good features points - select closest to center -
-	 * record point - move 1 x -> record delta & latency -> move to edge -> take
-	 * multiple samples for non-linear control TODO - do not use CVPoint nor AWT
-	 * Points !
-	 */
-
-	// TODO center vs - lock
-	/*
-	 * 
-	 * There is several kinds of tracking - centering on a point creating a
-	 * bounding box - keeping as many points as possible within the bounding box
-	 * getting a set of points - filtering/eliminating stragglers & setting new
-	 * points
-	 * 
-	 * motion establishes initial ROI - publishes ROI tracker? gets ROI sends
-	 * ROI to opencv and requests for set of points within ROI set of tracking
-	 * points are published iterative tracking - points or camera is in motion
-	 * points which do not move together are eliminated
-	 * 
-	 * if a set of points reach a threshold - tracker attempts to center the
-	 * centeroid of points
-	 * 
-	 * 
-	 * parameters: DeadZone
-	 * 
-	 * 
-	 * also - you may or may not know where the servos are to keep it
-	 * generalized - assume you don't although there would be advantages if
-	 * "something" knew where they were... relative v.s. absolute coordinates
-	 * 
-	 * BIG JUMP assess error recalculate multiplication factor small correction
-	 * 
-	 * CONCEPT - calibrate with background - background should have its own set
-	 * of key/tracking points
-	 * 
-	 * Better head gimble - less jumping around
-	 * 
-	 * Single formula to trac because the X Y access of the servos do not
-	 * necessarily align with the X Y axis of opencv - so the ration to move to
-	 * the right may correspond to -3X +1Y to move along the opencv X axis
-	 * 
-	 * 
-	 * Background set array of points & saved picture
-	 * 
-	 * NEEDS needs to be smoother - less jerky needs to create new points needs
-	 * to make a roi from motion needs to focus at the top of the motion
-	 */
-
-	/*
-	 * TODO - abstract to support OpenNI ObjectFinder finder = new
-	 * ObjectFinder(); ObjectTracker tracker = new ObjectTracker();
-	 */
-
-
-	// TODO - Avoidance / Navigation Service
-	// ground plane
-	// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
-	// radio lab - map cells location cells yatta yatta
-	// lkoptical disparity motion Time To Contact
-	// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 	
-	transient PID xpid, ypid;
-	transient OpenCV opencv;
-	// transient ControlSystem control = new ControlSystem();
-	transient Arduino arduino;
-	transient Servo x, y;
-
-	public static final String STATUS_IDLE = "IDLE";
-	public static final String STATUS_CALIBRATING = "CALIBRATING";
-
-	public String status = STATUS_IDLE;
-
-	// statistics
-	public int updateModulus = 20;
-	public long cnt = 0;
-	public long latency = 0;
-
-	boolean tracking = true;
-
-	float XMultiplier = (float) 0.15; // 0.14 ~ 0.16 PID
-	float YMultiplier = (float) 0.15;
-
-	public Point2Df lastPoint;
-	public Point2Df targetPoint;
-
-	public ArrayList<Point2Df> points = new ArrayList<Point2Df>();
-
-	public Rectangle deadzone = new Rectangle();
-
-	int currentXServoPos;
-	int currentYServoPos;
-
-	public Tracking(String n) {
-		super(n, Tracking.class.getCanonicalName());
-	}
-
-	public boolean calibrate() {
-		/*
-		 * if (opencv == null) { log.error("must set an object finder"); return
-		 * false; }
-		 * 
-		 * if (!control.isReady()) { log.error("control system is not ready");
-		 * return false; }
-		 * 
-		 * control.center();
-		 */
-		// clear filters
-		opencv.removeAllFilters();
-
-		// get good features
-		opencv.addFilter("pyramidDown", "PyramidDown");
-		opencv.addFilter("goodFeaturesToTrack", "GoodFeaturesToTrack");
-		// opencv.publishFilterData("gft"); FIXME - doesnt work yet
-		opencv.setDisplayFilter("goodFeaturesToTrack"); // <-- IMPORTANT this
-														// sets the frame
-		// which will get published - you can
-		// select off of any named filter which
-		// you want data from
-		setStatus("letting camera warm up and balance");
-		opencv.capture();
-
-		// pause - warm up camera
-		setStatus("letting camera warm up and balance");
-		sleep(4000);
-
-		// set the message route - TODO - encapsulate this in an OpenCV method?
-
-		// TODO - these are nice methods - need to incorporate a framework which
-		// supports them
-		ArrayList<Point2Df> goodfeatures = GoodFeaturesToTrack();
-		SerializableImage goodfeaturesImage = getOpenCVImageData();
-		
-		//goodfeaturesImage.source = "goodFeaturesToTrack";
-
-		// test node
-		Node node = new Node();
-		node.put("goodfeatures", goodfeatures);
-		node.put("goodfeaturesImage", goodfeaturesImage);
-		
-		// FIXME - NOT EDGE 8% away ? AND HIGH GoodFeaturesTrak value !!!
-		targetPoint = findPoint(goodfeatures, DIRECTION_CLOSEST_TO_CENTER, 0.5);
-
-		invoke("publishDisplay", goodfeaturesImage);
-
-		int width = goodfeaturesImage.getImage().getWidth();
-		int height = goodfeaturesImage.getImage().getHeight();
-		setStatus(String.format("setting LK tracking point at %s - %d, %d", targetPoint.toString(), (int) (targetPoint.x * width), (int) (targetPoint.y * height)));
-		// find closes to the center
-
-		// set tracking point there
-		// initialize setpoints - set output range
-		initTracking();
-
-		// set filters
-		opencv.removeAllFilters();
-		opencv.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
-		opencv.addFilter("lkOpticalTrack", "LKOpticalTrack");
-		opencv.setDisplayFilter("lkOpticalTrack");
-
-		sleep(500); // allow the filters to fall into place
-
-		// set point
-		opencv.invokeFilterMethod("lkOpticalTrack", "samplePoint", targetPoint.x, targetPoint.y);
-
-		SerializableImage lk = getOpenCVImageData();
-		//lk.source = "lkOpticalTrack";
-		invoke("publishDisplay", goodfeaturesImage);
-
-		// sendBlockingWithTimeout(1000, name, method, data)
-		// opencv.setCameraIndex(1);
-
-		// subscribe
-		subscribe("publish", opencv.getName(), "updateTrackingPoint", ArrayList.class);
-
-		// don't move - calculate error & latency
-
-		// move minimum amount (int)
-
-		// determine difference - > build PID map or use PID
-
-		return true;
-	}
-
-	public SerializableImage publishFrame(SerializableImage image) {
-		return image;
-	}
-
-	double targetDistance = 0.0f;
-	Point2Df goodFeaturePoint = null;
-
-	// directional constants
-	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
-	final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
-	final static public String DIRECTION_FARTHEST_LEFT = "DIRECTION_FARTHEST_LEFT";
-	final static public String DIRECTION_FARTHEST_RIGHT = "DIRECTION_FARTHEST_RIGHT";
-	final static public String DIRECTION_FARTHEST_TOP = "DIRECTION_FARTHEST_TOP";
-	final static public String DIRECTION_FARTHEST_BOTTOM = "DIRECTION_FARTHEST_BOTTOM";
-
-	Point2Df findPoint(ArrayList<Point2Df> data, String direction) {
-		return findPoint(data, direction, null);
-	}
-
-	/**
-	 * @param data
-	 *            - input data of good features
-	 * @return a point on the edge of the view farthest from center
-	 */
-	Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
-
-		double distance = 0;
-		int index = 0;
-
-		if (data == null || data.size() == 0) {
-			log.error("no data");
-			return null;
-		}
-
-		if (minValue == null) {
-			minValue = 0.0;
-		}
-
-		if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
-			targetDistance = 1;
-		} else {
-			targetDistance = 0;
-		}
-
-		for (int i = 0; i < data.size(); ++i) {
-			Point2Df point = data.get(i);
-
-			if (DIRECTION_FARTHEST_FROM_CENTER.equals(direction)) {
-				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
-				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_LEFT.equals(direction)) {
-				distance = point.x;
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_RIGHT.equals(direction)) {
-				distance = point.x;
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_TOP.equals(direction)) {
-				distance = point.y;
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_BOTTOM.equals(direction)) {
-				distance = point.y;
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			}
-
-		}
-
-		Point2Df p = data.get(index);
-		log.info(String.format("findPointFarthestFromCenter %s", p));
-		return p;
-	}
-
-	// call back for point data
-	public ArrayList<Point2Df> GoodFeaturesToTrack(ArrayList<Point2Df> data) {
-		opencvData.add(data);
-		return data;
-	}
-
-	BlockingQueue<ArrayList<Point2Df>> opencvData = new LinkedBlockingQueue<ArrayList<Point2Df>>();
-	BlockingQueue<SerializableImage> opencvImageData = new LinkedBlockingQueue<SerializableImage>();
-	boolean interrupted = false;
-
-	private double computeX;
-
-	private double computeY;
-
-	private int lastXServoPos;
-
-	private int lastYServoPos;
-
-	// TODO - data structure which bundles the frame with the data ! - very
-	// helpful
-	// TODO - bundle epi-filter & config data with this method in OpenCV for
-	// those who what to block on a method
-	public ArrayList<Point2Df> GoodFeaturesToTrack() {
-		ArrayList<Point2Df> goodfeatures = null;
-		try {
-			opencvData.clear();
-			subscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
-			while (!interrupted) {
-				goodfeatures = opencvData.take();
-				unsubscribe("publish", opencv.getName(), "GoodFeaturesToTrack", double[].class);
-				return goodfeatures;
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public SerializableImage setOpenCVImage(SerializableImage data) {
-		opencvImageData.add(data);
-		return data;
-	}
-
-	public SerializableImage getOpenCVImageData() {
-		SerializableImage image = null;
-		try {
-			opencvData.clear();
-			subscribe("publishDisplay", opencv.getName(), "setOpenCVImage", SerializableImage.class);
-			while (!interrupted) {
-				image = opencvImageData.take();
-				unsubscribe("publishDisplay", opencv.getName(), "setOpenCVImage", SerializableImage.class);
-				return image;
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public void setStatus(String status) {
-		log.info(status);
-		invoke("publishStatus", status);
-	}
-
-	/**
-	 * publishing point for information to be sent to the gui
-	 * 
-	 * @param status
-	 *            - status info
-	 * @return
-	 */
-	public String publishStatus(String status) {
-		return status;
-	}
-
-	@Override
-	public String getToolTip() {
-		return "proportional control, tracking, and translation";
-	}
-
-	// GOOD - make it better ! Encapsulate in Hash'd data structure
+	
+	// GOOD - TODO make it better ! Encapsulate in Hash'd data structure
 	// with a setSubServiceName("arduio", "x") - for foreign structures
 	public String arduinoName = "arduino";
 	public String xpidName = "xpid";
@@ -421,40 +55,164 @@ public class Tracking extends Service {
 	public String xName = "x";
 	public String yName = "y";
 	public String opencvName = "opencv";
+	
+	@Element
+	public int xServoPin = 13;
+	@Element
+	public int yServoPin = 12;
+	@Element
+	String serialPort = "COM12";
+	
+	// TODO enum - allows meta data? like description of state ???
+	public final static String STATE_LK_TRACKING_POINT = "lucas kanade tracking";
+	public final static String STATE_IDLE = "idle";
+	public final static String STATE_NEED_TO_INITIALIZE = "initializing";
+	public static final String STATUS_CALIBRATING = "calibrating";
+	private static final String STATE_FINDING_GOOD_FEATURES = "finding good features";
 
+	private String state = STATE_NEED_TO_INITIALIZE;
+	
+	@Element
+	int xRestPos;
+	@Element
+	int yRestPos;
+	
+	// peer services
+	transient PID xpid, ypid;
+	transient OpenCV eye;
+	transient Arduino arduino;
+	transient Servo x, y;
+
+	// statistics
+	public int updateModulus = 20;
+	public long cnt = 0;
+	public long latency = 0;
+
+	// MRL points
+	public Point2Df lastPoint;
+	public Point2Df targetPoint;
+	
+	// "center" set points
+	@Element
+	double xSetpoint = 0.5;
+	@Element
+	double ySetpoint = 0.5;
+
+	// servo related
+	int currentXServoPos;
+	int currentYServoPos;
+	private int lastXServoPos;
+	private int lastYServoPos;
+	
+	// tracking variables
 	private Integer xmin;
-
 	private Integer xmax;
-
 	private Integer ymin;
-
 	private Integer ymax;
+	private double computeX;
+	private double computeY;
 
+	// TODO - make initialization re-entrant
+	boolean cameraInitialized = false;
+	boolean servosInitialized = false;
+	boolean arduinoInitialized = false;
+	boolean systemTest = false;
+
+	boolean interrupted = false;
+	
+	OpenCVData goodFeatures;
+
+	
+	public Tracking(String n) {
+		super(n, Tracking.class.getCanonicalName());
+	}
+	
 	// set SubServiceNames....
 	// TODO - framework?
 	public void createAndStartSubServices() {
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
 		xpid = (PID) Runtime.createAndStart(xpidName, "PID");
 		ypid = (PID) Runtime.createAndStart(ypidName, "PID");
-		opencv = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
+		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
 		x = (Servo) Runtime.createAndStart(xName, "Servo");
 		y = (Servo) Runtime.createAndStart(yName, "Servo");
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
 	}
+	
+	// the big kahuna input feed
+	public OpenCVData setOpenCVData (OpenCVData data)
+	{
+		//log.info("data from opencv - state {}", state);
+		
+		if (state.equals(STATE_LK_TRACKING_POINT))
+		{
+			///trackLKPoint(data);
+			updateTrackingPoint(data);
+		} else if (state.equals(STATE_FINDING_GOOD_FEATURES))
+		{
+			goodFeatures = data;
+			videoOff();
+			setState(STATE_IDLE);
+		}
+		return data;
+	}
+	
+	// blocking method
+	
+	// turn on the camera - but keep the video in feed off
+	public void initInput()
+	{
+		videoOff();
+		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
+		eye.capture();
+		
+		setStatus("letting camera warm up and balance");
+		sleep(4000);
 
+	}
+	
+	public void initControl()
+	{
+		setStatus("initializing control");
+		
+		arduino.setBoard("atmega328");
+		arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
+		Service.sleep(500);
+
+		arduino.servoAttach("x", xServoPin);
+		arduino.servoAttach("y", yServoPin);
+
+		Service.sleep(500);
+
+		x.moveTo(xRestPos);
+		y.moveTo(yRestPos);
+
+		Service.sleep(500);
+
+		x.moveTo(xRestPos + 5);
+		y.moveTo(yRestPos + 5);
+
+		Service.sleep(500);
+		
+		x.moveTo(xRestPos);
+		y.moveTo(yRestPos);
+		
+		currentXServoPos = xRestPos;
+		currentYServoPos = yRestPos;
+		lastXServoPos = xRestPos;
+		lastYServoPos = yRestPos;
+	}
+	
+	public void rest()
+	{
+		x.moveTo(xRestPos);
+		y.moveTo(yRestPos);
+	}
+	
+	
+	
 	public void initTracking() {
-		// init arduino :P - work on interface on how-to do all on default yet
-		// allow
-		// access to control specifics - e.g. work on this main - work on
-		// Runtime script & work on InMoov - with the little amount of effort &
-		// code
-		// x.moveTo(90);
-		// y.moveTo(5);
 
-		currentXServoPos = x.getPosition();
-		currentYServoPos = y.getPosition();
-		lastXServoPos = currentXServoPos;
-		lastYServoPos = currentYServoPos;
-
+		setStatus("initializing tracking");
 		// set initial Kp Kd Ki - TODO - use values derived from calibration
 		xpid.setPID(10, 5, 1);
 		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
@@ -480,19 +238,96 @@ public class Tracking extends Service {
 		// initialize - end ----------
 
 	}
+	
+	public void getGoodFeatures()
+	{
+		/*
+		eye.removeAllFilters();
+		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
+		eye.addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
+		eye.setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
+		*/
+		OpenCVData d = eye.getGoodFeatures();
+		log.info("good features {}", d.keySet());
+		
+		SerializableImage img = d.getInputImage();
+		
+		//invoke("publishStatus", status);
+		setState(STATE_FINDING_GOOD_FEATURES);
+	}
+	
+	public void trackLKPoint()
+	{
+		trackLKPoint(null);
+	}
+	
+	public void trackLKPoint(Point2Df targetPoint) {
 
-	double xSetpoint = 0.5;
-	double ySetpoint = 0.5;
+		// set filters
+		eye.removeAllFilters();
+		eye.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
+		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
+		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
+
+		// FIXME - clear points
+		// eye.invokeFilterMethod("clearPoints", method, params)
+		
+		// set point
+		if (targetPoint != null)
+		{
+			eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", targetPoint.x, targetPoint.y);
+		}
+
+		setState(STATE_LK_TRACKING_POINT);
+		videoOn();
+	}
+
+
+
+	public void setState(String newState) {
+		state = newState;
+		setStatus(state);
+	}
+	
+	public void setStatus(String status) {
+		log.info(status);
+		invoke("publishStatus", status);
+	}
+
+	// ---------------  publish methods begin ----------------------------
+	public SerializableImage publishFrame(SerializableImage image) {
+		return image;
+	}
+
+	public String publishStatus(String status) {
+		return status;
+	}
+	
+	@Override
+	public String getToolTip() {
+		return "proportional control, tracking, and translation";
+	}
+
+	// ---------------  publish methods end ----------------------------
+
+
+	// FIXME - lost tracking event !!!!
 
 	// FIXME - remove OpenCV definitions
-	final public void updateTrackingPoint(ArrayList<Point2Df> data) {
+	final public void updateTrackingPoint(OpenCVData cvData) {
+		
+		cvData.setFilterName(FILTER_LK_OPTICAL_TRACK);
+		ArrayList<Point2Df> data = cvData.getPointArray();
+		if (data == null)
+		{
+			log.info("data arriving, but no point array - tracking point missing?");
+			return;
+		}
 		++cnt;
 		if (data.size() > 0) {
 			targetPoint = data.get(0);
-			latency = System.currentTimeMillis() - targetPoint.timestamp; // describe
-																			// this
-																			// time
-																			// delta
+			// describe this time delta
+			latency = System.currentTimeMillis() - targetPoint.timestamp; 
 			log.debug(String.format("pt %s", targetPoint));
 
 			xpid.setInput(targetPoint.x);
@@ -547,64 +382,72 @@ public class Tracking extends Service {
 		}
 
 	}
+	
+	public void videoOn()
+	{
+		//setStatus("switching video on");
+		eye.publishOpenCVData(true);
+	}
+	
+	public void videoOff()
+	{
+		//setStatus("switching video off");
+		eye.publishOpenCVData(false);
+	}
+	
 
+	public void setRestPosition(int xpos, int ypos) {
+		this.xRestPos = xpos;
+		this.yRestPos = ypos;
+	}
+
+	
 	public static void main(String[] args) {
-
-		// ground plane
-		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
-		// radio lab - map cells location cells yatta yatta
-		// lkoptical disparity motion Time To Contact
-		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		// appropriate way to set sub-services -
-		// 1. query ? if they exist by name - if not create them ? single
-		// Runtime.createAndStart
-		// setNames option to set the names before creation ?
-		// a framework method - createSubServices ? - or delayed until "used" ?
-		// requested at use everytime ? - refactor getService
-
-		// stitched frame map - visual memory
-		// at least 2 overlap good features
-		// polygon shape of keypoints (registration) - match shape - size -
-		// scale - scale is proportional to position
-
-		// coordinates - relative heading
-		//
-
 		Tracking tracker = new Tracking("tracking");
 		tracker.startService();
-
-		tracker.arduino.setBoard("atmega328");
-		tracker.arduino.setSerialDevice("COM12", 57600, 8, 1, 0);
-		Service.sleep(500);
-
-		tracker.arduino.servoAttach("x", 13);
-		tracker.arduino.servoAttach("y", 12);
-
-		tracker.x.moveTo(90);
-		tracker.y.moveTo(5);
-
-		Service.sleep(500);
-
-		tracker.x.moveTo(100);
-		tracker.y.moveTo(5);
-
-		Service.sleep(500);
-
-		tracker.x.moveTo(90);
-		tracker.y.moveTo(5);
-
-		tracker.opencv.setCameraIndex(1);
-
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
-		tracker.calibrate();
+		tracker.setRestPosition(90, 5);
+		tracker.setSerialPort("COM12");
+		tracker.setXServoPin(13);
+		tracker.setYServoPin(12);
+		tracker.setCameraIndex(1);
+		
+		tracker.initTracking();
+		tracker.initControl();
+		tracker.initInput();
+		
+		tracker.trackLKPoint();
+		
+		log.info("here");
+				
+		//tracker.getGoodFeatures();
 
+		//tracker.trackLKPoint();
+
+	}
+
+	public void setCameraIndex(int i) {
+		eye.setCameraIndex(i);
+	}
+
+	public void setYServoPin(int y) {
+		yServoPin = y;
+	}
+
+	public void setXServoPin(int x) {
+		xServoPin = x;
+	}
+
+	public void setSerialPort(String portName) {
+		serialPort = portName;
 	}
 
 }
