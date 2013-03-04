@@ -401,7 +401,23 @@ public class Tracking extends Service {
 		this.yRestPos = ypos;
 	}
 
+	public void setCameraIndex(int i) {
+		eye.setCameraIndex(i);
+	}
+
+	public void setYServoPin(int y) {
+		yServoPin = y;
+	}
+
+	public void setXServoPin(int x) {
+		xServoPin = x;
+	}
+
+	public void setSerialPort(String portName) {
+		serialPort = portName;
+	}
 	
+
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
@@ -432,22 +448,6 @@ public class Tracking extends Service {
 
 		//tracker.trackLKPoint();
 
-	}
-
-	public void setCameraIndex(int i) {
-		eye.setCameraIndex(i);
-	}
-
-	public void setYServoPin(int y) {
-		yServoPin = y;
-	}
-
-	public void setXServoPin(int x) {
-		xServoPin = x;
-	}
-
-	public void setSerialPort(String portName) {
-		serialPort = portName;
 	}
 
 }

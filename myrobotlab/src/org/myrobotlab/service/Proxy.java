@@ -1,12 +1,14 @@
 package org.myrobotlab.service;
 
-import org.myrobotlab.logging.Level;
+import java.util.HashMap;
 
+import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.MessageListener;
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 /**
  * simple Java class which allows interaction of classes which can not be
@@ -21,6 +23,7 @@ public class Proxy extends Service {
 	private String mimicName = null;
 	private String mimicType = null;
 	private Service target = null;
+	private HashMap<MessageListener, Object> listeners = new HashMap<MessageListener, Object>();
 
 	// TODO - override getName & getType depending on OS/JVM
 
@@ -32,6 +35,22 @@ public class Proxy extends Service {
 		target = s;
 		mimicName = s.getName();
 		// mimicType = s.getClass(). FIXME - no direct getClass calls..
+	}
+	
+	public void addMessageListener (MessageListener listener)
+	{
+		listeners.put(listener, null);
+	}
+	
+	public void removeMessageListener (MessageListener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	public void in(Message msg) {
+		for (MessageListener listener : listeners.keySet()) {
+			listener.receive(msg);
+		}
 	}
 
 	@Override

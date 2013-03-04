@@ -789,7 +789,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		} else {
 			ArrayList<MRLListener> nel = new ArrayList<MRLListener>();
 			nel.add(listener);
-			log.info(String.format("adding addListener from %1$s%2$s to %3$s.%4$s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
+			log.info(String.format("adding addListener from %s.%s to %s.%s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
 			outbox.notifyList.put(listener.outMethod.toString(), nel);
 		}
 
@@ -983,7 +983,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			StringBuilder paramTypeString = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; ++i) {
-					paramTypeString.append(params[i].getClass().getCanonicalName());
+					if (params[i] == null)
+					{
+						paramTypeString.append("null");
+					} else {
+						paramTypeString.append(params[i].getClass().getCanonicalName());
+					}
 					if (params.length != i + 1) {
 						paramTypeString.append(",");
 					}
@@ -1194,6 +1199,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			logException(e);
 		}
 	}
+	
+	/**
+	 * uses the Runtime to send a message on behalf of "name"'d service
+	 * @param senderName
+	 * @param name
+	 * @param method
+	 * @param data
+	 */
+	public static void proxySend(String senderName, String name, String method, Object... data) {
+		Message msg = Runtime.getInstance().createMessage(name, method, data);
+		msg.sender = senderName;
+		msg.sendingMethod = "send";
+		Runtime.getInstance().getOutbox().add(msg);
+	}	
 
 	/**
 	 * boxing - the right way - thank you Java 5
@@ -1212,21 +1231,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		if (isRecording) {
 			try {
-
-				/*
-				 * recording.writeObject(msg); recordingXML.write(String.format(
-				 * "<Message name=\"%s\" method=\"%s\" sender=\"%s\" sendingMethod=\"%s\" "
-				 * , msg.name, msg.method, msg.sender,
-				 * msg.sendingMethod).getBytes()); if (data != null) {
-				 * recordingXML.write("><data>".getBytes()); for (int i = 0; i <
-				 * data.length; ++i) { recordingXML.write(String.format(
-				 * "<param%s type=\"%s\" data=\"%s\" />", i,
-				 * data[i].getClass().getCanonicalName(),
-				 * data[i].toString()).getBytes()); }
-				 * recordingXML.write("</data></Message>\n".getBytes()); } else
-				 * { recordingXML.write("/>\n".getBytes()); }
-				 */
-
+				
 				// python
 				String msgName = (msg.name.equals(Runtime.getInstance().getName())) ? "runtime" : msg.name;
 				recordingPython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
@@ -1237,11 +1242,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 								|| d.getClass() == Short.class || d.getClass() == Short.class) {
 							recordingPython.write(d.toString().getBytes());
 
-						} else if (d.getClass() == String.class || d.getClass() == Character.class) { // FIXME
-																										// Character
-																										// probably
-																										// blows
-																										// up
+							// FIXME Character probably blows up
+						} else if (d.getClass() == String.class || d.getClass() == Character.class) { 
 							recordingPython.write(String.format("\"%s\"", d).getBytes());
 						} else {
 							recordingPython.write("object".getBytes());
@@ -1763,12 +1765,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 
-	/**
-	 * 
-	 */
-	public String getShortTypeName() {
+	@Override
+	public String getSimpleName() {
+		/*
 		String serviceClassName = this.getClass().getCanonicalName();
 		return serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
+		*/
+		return this.getClass().getSimpleName(); 
 	}
 
 	public String getTypeName() {
@@ -1817,7 +1820,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 
 	public String getServiceResourceFile(String subpath) {
-		return FileIO.getResourceFile(String.format("%s/%s", this.getShortTypeName(), subpath));
+		return FileIO.getResourceFile(String.format("%s/%s", this.getSimpleName(), subpath));
 	}
 
 	/**

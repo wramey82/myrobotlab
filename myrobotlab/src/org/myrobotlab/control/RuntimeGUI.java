@@ -325,7 +325,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 			ServiceWrapper sw = services.get(serviceName);
-			String shortClassName = sw.service.getShortTypeName();
+			String shortClassName = sw.service.getSimpleName();
 			if (sw.host != null && sw.host.accessURL != null) {
 				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
 				currentServicesModel.addElement(se);
@@ -346,7 +346,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		if (sw.service == null) {
 			typeName = "unknown";
 		} else {
-			typeName = sw.service.getShortTypeName();
+			typeName = sw.service.getSimpleName();
 		}
 		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, typeName, (sw.host != null && sw.host.accessURL != null));
 		currentServicesModel.addElement(newServiceEntry);

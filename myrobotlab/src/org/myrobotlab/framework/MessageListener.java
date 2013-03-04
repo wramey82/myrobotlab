@@ -27,6 +27,6 @@ package org.myrobotlab.framework;
 
 public interface MessageListener {
 
-	public void messageReceived(Message event);
+	public void receive(Message msg);
 
 }

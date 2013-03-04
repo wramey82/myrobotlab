@@ -255,7 +255,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 			// Service Frame
 			ServiceWrapper sw = Runtime.getServiceWrapper(getText());
 			if ("info".equals(cmd)) {
-				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getShortTypeName());
+				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName());
 
 			} else if ("detach".equals(cmd)) {
 				undockPanel();
@@ -266,7 +266,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 			// Sub Tabbed sub pane
 			ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);
 			if ("info".equals(cmd)) {
-				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getShortTypeName() + "#" + getText());
+				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName() + "#" + getText());
 
 			} else if ("detach".equals(cmd)) {
 				undockPanel();
