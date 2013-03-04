@@ -41,7 +41,7 @@ public class Android extends Service implements SensorEventListener {
 		// new Services starting or release or importing
 		Runtime.getInstance().addListener(n, "registered", String.class);
 		MRL.getInstance().addServiceActivityIntent(Runtime.getInstance().getName(),
-				Runtime.getInstance().getShortTypeName());
+				Runtime.getInstance().getSimpleName());
 		
 		// TODO - generate reflectively
 		// TODO - dynamically reflect to load map

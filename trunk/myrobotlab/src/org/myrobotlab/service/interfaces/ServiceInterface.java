@@ -21,7 +21,7 @@ public interface ServiceInterface {
 
 	public ArrayList<MRLListener> getNotifyList(String key);
 
-	public String getShortTypeName();
+	public String getSimpleName();
 
 	public String getToolTip();
 
@@ -30,5 +30,9 @@ public interface ServiceInterface {
 	public boolean allowExport();
 
 	public void display();
-	// public Class<?> getServiceClass();
+	
+	public void subscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
+	
+	public void unsubscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
+	
 }

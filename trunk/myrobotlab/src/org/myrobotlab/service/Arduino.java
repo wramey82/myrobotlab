@@ -574,8 +574,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		serialSend(ANALOG_WRITE, address, value);
 	}
 
+	/**
+	 * This method is called with Pin data whene a pin value is changed on the Arduino board
+	 * the Arduino must be told to poll the desired pin(s).
+	 * This is done with a analogReadPollingStart(pin) or digitalReadPollingStart()
+	 */
 	public Pin publishPin(Pin p) {
 		// log.debug(p);
+		pinList.get(p.pin).value = p.value;
 		return p;
 	}
 

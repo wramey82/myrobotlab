@@ -150,7 +150,7 @@ public class Runtime extends Service {
 	/**
 	 * Stops all service-related running items. This releases the singleton
 	 * referenced by this class, but it does not guarantee that the old service
-	 * will be GC'd. FYI - if stopServices deos not remove INSTANCE - it is not
+	 * will be GC'd. FYI - if stopServices does not remove INSTANCE - it is not
 	 * re-entrant in junit tests
 	 */
 	@Override
@@ -288,6 +288,27 @@ public class Runtime extends Service {
 		return s;
 	}
 
+	/**
+	 * the bare bones needed to register - just a name - if that's the case
+	 * a MessagingListingService is created.
+	 * This would be created by a Java application which was not really a service
+	 * 
+	 * @param name
+	 */
+	/* deprecated - use Proxy service
+	public static synchronized void register(String name) {
+		MessageListenerService mls = new MessageListenerService(name);
+		ServiceWrapper sw = new ServiceWrapper(mls);
+
+		// FIXME
+		// can't this be static
+		// seems a kudge here...
+		Runtime.getInstance().register(sw);
+	}
+	*/
+	
+	
+	
 	/**
 	 * called by remote/foreign systems to register a new service through a
 	 * subscription
@@ -614,7 +635,7 @@ public class Runtime extends Service {
 		ServiceInterface service;
 		for (int i = 0; i < services.length; ++i) {
 			service = registry.get(services[i]).get();
-			if (service != null && "Runtime".equals(service.getShortTypeName())) {
+			if (service != null && "Runtime".equals(service.getSimpleName())) {
 				runtimeName = service.getName();
 				log.info(String.format("delaying release of Runtime %1$s", runtimeName));
 				continue;

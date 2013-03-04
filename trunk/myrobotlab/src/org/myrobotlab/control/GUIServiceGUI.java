@@ -462,9 +462,9 @@ public class GUIServiceGUI extends ServiceGUI {
 				displayName = serviceName + "\n" + "unknown";
 				toolTip = "";
 			} else {
-				canonicalName = sw.get().getShortTypeName();
+				canonicalName = sw.get().getSimpleName();
 				displayName = serviceName + "\n\n\n\n\n.";// +
-				// sw.get().getShortTypeName();
+				// sw.get().getSimpleName();
 				toolTip = sw.getToolTip();
 			}
 
