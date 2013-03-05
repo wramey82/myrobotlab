@@ -28,11 +28,12 @@ package org.myrobotlab.control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.SwingUtilities;
 
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 
@@ -47,6 +48,11 @@ public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 	}
 
 	public void getState(_TemplateService template) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+			}
+		});
 	}
 
 	@Override

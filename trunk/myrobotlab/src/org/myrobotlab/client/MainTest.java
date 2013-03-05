@@ -23,11 +23,11 @@ public class MainTest implements MessageListener {
 	 */
 	@Override
 	public void receive(Message msg) {
-//		System.out.println(String.format("incoming msg %s.%s --> %s.%s", msg.sender, msg.sendingMethod, msg.name, msg.method));
+		System.out.println(String.format("incoming msg %s.%s --> %s.%s", msg.sender, msg.sendingMethod, msg.name, msg.method));
 		if (msg.method.equals("ourData"))
 		{
 			Pin pin = (Pin)msg.data[0];
-//			System.out.println(String.format("pin event pin %d from %s is now value %d", pin.pin, pin.source, pin.value));
+			System.out.println(String.format("pin event pin %d from %s is now value %d", pin.pin, pin.source, pin.value));
 		}// else if (msg.method.equals("otherMethod"))
 		{
 			// handle other subscriptions methods here...
