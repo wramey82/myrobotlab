@@ -214,13 +214,13 @@ public class Tracking extends Service {
 
 		setStatus("initializing tracking");
 		// set initial Kp Kd Ki - TODO - use values derived from calibration
-		xpid.setPID(10, 5, 1);
+		xpid.setPID(10.0, 5.0, 1.0);
 		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
 		xpid.setMode(PID.MODE_AUTOMATIC);
 		xpid.setOutputRange(-10, 10); // <- not correct - based on maximum
 		xpid.setSampleTime(30);
 
-		ypid.setPID(10, 5, 1);
+		ypid.setPID(10.0, 5.0, 1.0);
 		ypid.setControllerDirection(PID.DIRECTION_DIRECT);
 		ypid.setMode(PID.MODE_AUTOMATIC);
 		ypid.setOutputRange(-10, 10);

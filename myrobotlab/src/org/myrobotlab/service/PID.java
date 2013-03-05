@@ -141,7 +141,7 @@ public class PID extends Service {
 	 * *******************************
 	 * *********************************************
 	 */
-	void setPID(double Kp, double Ki, double Kd) {
+	public void setPID(Double Kp, Double Ki, Double Kd) {
 		if (Kp < 0 || Ki < 0 || Kd < 0)
 			return;
 
@@ -251,13 +251,13 @@ public class PID extends Service {
 	 * *************
 	 * ***************************************************************
 	 */
-	void setControllerDirection(int Direction) {
-		if (inAuto && Direction != controllerDirection) {
+	public void setControllerDirection(Integer direction) {
+		if (inAuto && direction != controllerDirection) {
 			kp = (0 - kp);
 			ki = (0 - ki);
 			kd = (0 - kd);
 		}
-		controllerDirection = Direction;
+		controllerDirection = direction;
 	}
 
 	@Override
@@ -282,23 +282,23 @@ public class PID extends Service {
 		return setpoint;
 	}
 
-	double getKp() {
+	public double getKp() {
 		return dispKp;
 	}
 
-	double getKi() {
+	public double getKi() {
 		return dispKi;
 	}
 
-	double getKd() {
+	public double getKd() {
 		return dispKd;
 	}
 
-	int getMode() {
+	public int getMode() {
 		return inAuto ? MODE_AUTOMATIC : MODE_MANUAL;
 	}
 
-	int getDirection() {
+	public int getControllerDirection() {
 		return controllerDirection;
 	}
 
@@ -319,13 +319,17 @@ public class PID extends Service {
 		log.info("info");
 		
 		PID pid = new PID("pid");
-		// pid.startService();
-		pid.setPID(2, 5, 1);
+		pid.startService();
+		pid.setPID(2.0, 5.0, 1.0);
 		pid.setControllerDirection(DIRECTION_DIRECT);
 		pid.setMode(MODE_AUTOMATIC);
 		pid.setOutputRange(0, 255);
 		pid.setSetpoint(100);
 		pid.setSampleTime(40);
+		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 
 		for (int i = 0; i < 200; ++i) {
 			pid.setInput(i);
