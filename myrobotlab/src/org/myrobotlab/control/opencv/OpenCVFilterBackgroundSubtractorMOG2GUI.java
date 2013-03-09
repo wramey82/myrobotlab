@@ -55,7 +55,7 @@ public class OpenCVFilterBackgroundSubtractorMOG2GUI extends OpenCVFilterGUI imp
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				OpenCVFilterBackgroundSubtractorMOG2 bf = (OpenCVFilterBackgroundSubtractorMOG2)filterWrapper.filter;
-				if (bf.learn == -1)
+				if (bf.learningRate == -1)
 				{
 					learn.setText(watchText);
 				} else {
@@ -75,10 +75,10 @@ public class OpenCVFilterBackgroundSubtractorMOG2GUI extends OpenCVFilterGUI imp
 			if (watchText.equals(learn.getText()))
 			{
 				learn.setText(learnText);
-				bf.learn = 0;
+				bf.learningRate = 0;
 			} else {
 				learn.setText(watchText);
-				bf.learn = -1;
+				bf.learningRate = -1;
 			}
 		}
 		

@@ -84,7 +84,11 @@ public class OpenCV extends Service {
 	public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
 	public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
 	public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
-
+	public static final String FILTER_BACKGROUND_SUBTRACTOR_MOG2 = "BackgroundSubtractorMOG2";
+	public static final String FILTER_ERODE = "Erode";
+	public static final String FILTER_DILATE = "Dilate";
+	public static final String FILTER_FIND_CONTOURS = "FindContours";
+	
 	// directional constants
 	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
 	final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
@@ -268,6 +272,11 @@ public class OpenCV extends Service {
 		masks.put(name, mask);
 	}
 
+	public void addFilter(String filterName) {
+
+		videoProcessor.addFilter(filterName, filterName);
+		broadcastState(); // let everyone know
+	}
 	public void addFilter(String name, String newFilter) {
 
 		videoProcessor.addFilter(name, newFilter);
@@ -393,7 +402,7 @@ public class OpenCV extends Service {
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
 		opencv.addFilter("pyramidDown", "PyramidDown");
-		opencv.addFilter("mog2", "BackgroundSubtractorMOG2");
+		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
 		opencv.addFilter("erode", "Erode");
 		opencv.addFilter("dilate", "Dilate");
 		opencv.addFilter("findContours", "FindContours");

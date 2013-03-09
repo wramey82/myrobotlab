@@ -40,13 +40,22 @@ public class OpenCVFilterBackgroundSubtractorMOG2 extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double learn = -1; // 0 trigger || -1 learn and fade
+	public double learningRate = -1; // 0 trigger || -1 learn and fade
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterBackgroundSubtractorMOG2.class.getCanonicalName());
 
 	transient BufferedImage frameBuffer = null;
 	transient BackgroundSubtractorMOG2 mog;
 	
+	public void learn()
+	{
+		learningRate = -1;
+	}
+	
+	public void search()
+	{
+		learningRate = 0;
+	}
 	
 	public OpenCVFilterBackgroundSubtractorMOG2(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
@@ -61,7 +70,7 @@ public class OpenCVFilterBackgroundSubtractorMOG2 extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
-		mog.apply(image, foreground, learn); // 0 trigger || -1 learn and fade
+		mog.apply(image, foreground, learningRate); // 0 trigger || -1 learn and fade
 		return foreground;
 	}
 	
