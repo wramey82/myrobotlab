@@ -25,6 +25,14 @@
 
 package org.myrobotlab.service;
 
+import static org.myrobotlab.service.OpenCV.FILTER_BACKGROUND_SUBTRACTOR_MOG2;
+import static org.myrobotlab.service.OpenCV.FILTER_DILATE;
+import static org.myrobotlab.service.OpenCV.FILTER_ERODE;
+import static org.myrobotlab.service.OpenCV.FILTER_FIND_CONTOURS;
+import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
+import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
+
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import org.myrobotlab.framework.Service;
@@ -33,12 +41,11 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilterBackgroundSubtractorMOG2;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
-import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
-import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
-import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
+
 
 public class Tracking extends Service {
 
@@ -68,7 +75,14 @@ public class Tracking extends Service {
 	public final static String STATE_IDLE = "idle";
 	public final static String STATE_NEED_TO_INITIALIZE = "initializing";
 	public static final String STATUS_CALIBRATING = "calibrating";
-	private static final String STATE_FINDING_GOOD_FEATURES = "finding good features";
+	public static final String STATE_FINDING_GOOD_FEATURES = "finding good features";
+	public static final String STATE_LEARNING_BACKGROUND = "learning background";
+	public static final String STATE_SEARCH_FOREGROUND = "search foreground";
+	public static final String STATE_SEARCHING_FOREGROUND = "searching foreground";
+	public static final String STATE_WAITING_FOR_OBJECTS_TO_STABILIZE = "waiting for objects to stabilize";
+	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR =  "waiting for objects to disappear";
+	public static final String STATE_STABILIZED = "stabilized";
+
 
 	private String state = STATE_NEED_TO_INITIALIZE;
 	
@@ -138,6 +152,8 @@ public class Tracking extends Service {
 		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
 	}
 	
+	OpenCVData objectsOfInterest = null;
+	
 	// the big kahuna input feed
 	public OpenCVData setOpenCVData (OpenCVData data)
 	{
@@ -152,6 +168,15 @@ public class Tracking extends Service {
 			goodFeatures = data;
 			videoOff();
 			setState(STATE_IDLE);
+			
+		} else if (state.equals(STATE_LEARNING_BACKGROUND))
+		{
+			waitInterval = 5000;
+			waitForObjects(data);
+		} else if (state.equals(STATE_SEARCHING_FOREGROUND))
+		{
+			waitInterval = 5000;
+			waitForObjects(data);
 		}
 		return data;
 	}
@@ -166,7 +191,7 @@ public class Tracking extends Service {
 		eye.capture();
 		
 		setStatus("letting camera warm up and balance");
-		sleep(4000);
+		sleep(2000);
 
 	}
 	
@@ -256,16 +281,18 @@ public class Tracking extends Service {
 		setState(STATE_FINDING_GOOD_FEATURES);
 	}
 	
+	// ------------------- tracking & detecting methods begin ---------------------
 	public void trackLKPoint()
 	{
 		trackLKPoint(null);
 	}
 	
+	// TODO - put in OpenCV as a Composite Filter
 	public void trackLKPoint(Point2Df targetPoint) {
 
 		// set filters
 		eye.removeAllFilters();
-		eye.addFilter("pyramidDown1", "PyramidDown"); // needed ??? test
+		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN); // needed ??? test
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
@@ -282,6 +309,75 @@ public class Tracking extends Service {
 		videoOn();
 	}
 
+	public void learnBackGround() {
+
+		// set filters
+		eye.removeAllFilters();
+		eye.addFilter(FILTER_PYRAMID_DOWN);
+		eye.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
+		eye.addFilter(FILTER_ERODE);
+		eye.addFilter(FILTER_DILATE);
+		eye.addFilter(FILTER_FIND_CONTOURS);
+
+		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
+
+		setState(STATE_LEARNING_BACKGROUND);
+		videoOn();
+	}
+	
+	public void searchForeground() {
+
+		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).search();
+
+		setState(STATE_SEARCHING_FOREGROUND);
+		videoOn();
+	}
+	
+	long lastTimestamp = 0;
+	long waitInterval = 5000;
+	int lastNumberOfObjects = 0;
+
+	
+	
+	public void waitForObjects(OpenCVData data)
+	{
+		data.setFilterName(FILTER_FIND_CONTOURS);
+		ArrayList<Rectangle> objects = data.getBoundingBoxArray();
+		int numberOfNewObjects = (objects == null)?0:objects.size();
+		
+		if (numberOfNewObjects != lastNumberOfObjects)
+		{
+			log.info("number of objects changed - reset clock");
+			lastTimestamp = System.currentTimeMillis();
+		}
+		
+		if (waitInterval < System.currentTimeMillis() - lastTimestamp)
+		{
+			// number of objects have stated the same
+			if (STATE_LEARNING_BACKGROUND.equals(state))
+			{
+				if (numberOfNewObjects == 0)
+				{
+					// ready to search foreground
+					searchForeground();
+				}
+			} else {
+				
+				// stable state changes with # objects
+				//setState(STATE_STABILIZED);
+				//log.info("number of objects {}",numberOfNewObjects);
+				if (numberOfNewObjects > 0)
+				{
+					log.info("process {} objects", numberOfNewObjects);
+				}
+			}
+		}
+		
+		lastNumberOfObjects = numberOfNewObjects;
+		
+	}
+
+	// ------------------- tracking & detecting methods end ---------------------
 
 
 	public void setState(String newState) {
@@ -437,10 +533,13 @@ public class Tracking extends Service {
 		tracker.setCameraIndex(1);
 		
 		tracker.initTracking();
-		tracker.initControl();
+//		tracker.initControl();
 		tracker.initInput();
 		
-		tracker.trackLKPoint();
+		tracker.learnBackGround();
+		//tracker.searchForeground();
+		
+//		tracker.trackLKPoint();
 		
 		log.info("here");
 				

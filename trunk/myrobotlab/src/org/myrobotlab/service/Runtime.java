@@ -138,7 +138,8 @@ public class Runtime extends Service {
 				if (instance == null) {
 					// TODO should this be configurable?
 					if (runtimeName == null) {
-						runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
+						//runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
+						runtimeName = "runtime";
 					}
 					instance = new Runtime(runtimeName);
 				}
