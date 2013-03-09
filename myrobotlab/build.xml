@@ -307,7 +307,7 @@
  	</target>
 	
 	<!-- thankfully created in Eclipse -->
-	<target name="javadoc">
+	<target name="javadoc" depends="report">
 		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
 			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
 			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
