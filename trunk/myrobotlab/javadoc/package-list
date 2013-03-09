@@ -5,6 +5,7 @@ org.myrobotlab.chess
 org.myrobotlab.client
 org.myrobotlab.cmdline
 org.myrobotlab.control
+org.myrobotlab.control.opencv
 org.myrobotlab.control.widget
 org.myrobotlab.dbms
 org.myrobotlab.fileLib
