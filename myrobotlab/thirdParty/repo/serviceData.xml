@@ -345,11 +345,12 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Propellor" workingLevel="0">
+   <serviceType string="org.myrobotlab.service.Propeller" workingLevel="0">
       <dependsOn>
-        <description>service for the Propellor micro-controller
+        <description>service for the Propeller micro-controller
         </description>
          <list>
+            <string>gnu.io.rxtx</string>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
          </list>
