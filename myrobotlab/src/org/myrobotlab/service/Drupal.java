@@ -252,14 +252,12 @@ public class Drupal extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		// Drupal.shout("letsmakerobots.com", "mr.turing", "zardoz7",
 		// "Hello there.");
 //		String s = Drupal.getShoutBox("myrobotlab.org");
 		
 		Drupal drupal = new Drupal("myrobotlab.org");
 		drupal.host = "myrobotlab.org";
 		drupal.username = "mr.turing";
-		drupal.password = "zardoz7";
 		drupal.chatResponseSearchString = "turing ";
 		drupal.startChatterBot();
 		
