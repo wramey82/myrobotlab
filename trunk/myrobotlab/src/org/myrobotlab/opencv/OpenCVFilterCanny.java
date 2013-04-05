@@ -61,7 +61,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		frameBuffer = inlines.getBufferedImage();
 		return frameBuffer;

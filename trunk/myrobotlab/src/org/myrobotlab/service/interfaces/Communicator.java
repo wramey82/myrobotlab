@@ -27,14 +27,14 @@ package org.myrobotlab.service.interfaces;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.net.CommData;
 
 public abstract class Communicator {
 
-	public abstract void send(final URI url, final Message msg); // TODO -
-																	// manage
-																	// throws
+	public abstract void send(final URI url, final Message msg); 
 
 	public abstract void stopService();
 
@@ -44,6 +44,6 @@ public abstract class Communicator {
 
 	public abstract void stopHeartbeat();
 
-	public abstract ArrayList<URI> getClients();
-
+	public abstract HashMap<URI, CommData> getClients();
+	
 }

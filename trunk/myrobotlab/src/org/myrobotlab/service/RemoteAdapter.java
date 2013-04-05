@@ -137,7 +137,7 @@ public class RemoteAdapter extends Service {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
 					URI url = new URI("tcp://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
-					log.info("new connection [" + url + "]");
+					log.info("new connection [{}]", url);
 					comm.addClient(url, clientSocket);
 					broadcastState();
 				}
@@ -314,7 +314,7 @@ public class RemoteAdapter extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
 		Runtime.main(args);
 		/*
@@ -325,7 +325,7 @@ public class RemoteAdapter extends Service {
 		
 		Runtime.createAndStart("remote", "RemoteAdapter");
 		Runtime.createAndStart("rgui", "GUIService");
-		Runtime.createAndStart("controller", "Python");
+		//Runtime.createAndStart("controller", "Python");
 
 	}
 }

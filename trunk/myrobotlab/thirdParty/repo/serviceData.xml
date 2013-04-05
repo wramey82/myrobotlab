@@ -366,6 +366,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.RasPi" workingLevel="1">
+      <dependsOn>
+        <description>a service to allow access to the Raspberry Pi's GPIO and I2C offered in Pi4J
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.pi4j.pi4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.RobotPlatform" workingLevel="1">
       <dependsOn>
         <description>a general platform service based on a differential drive system, can use motors or continuous servos

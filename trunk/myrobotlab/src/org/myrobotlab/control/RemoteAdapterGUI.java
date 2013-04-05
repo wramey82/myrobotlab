@@ -28,21 +28,23 @@ package org.myrobotlab.control;
 import java.awt.GridBagConstraints;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.control.widget.CommunicationNodeEntry;
 import org.myrobotlab.control.widget.CommunicationNodeList;
-import org.myrobotlab.framework.ServiceEnvironment;
+import org.myrobotlab.net.CommData;
 import org.myrobotlab.service.RemoteAdapter;
-import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class RemoteAdapterGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
-
+	JLabel numClients = new JLabel("0");
+	
 	CommunicationNodeList list = new CommunicationNodeList();
 
 	public RemoteAdapterGUI(final String boundServiceName, final GUI myService) {
@@ -52,53 +54,49 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	public void init() {
 		gc.gridx = 0;
 		gc.gridy = 0;
-		display.add(new JLabel("number of connections : 5"), gc);
-		gc.gridy = 1;
-		display.add(new JLabel("last activity : arduino.digitaWrite"), gc);
-		gc.gridy = 2;
-		display.add(new JLabel("number of messages : 1388"), gc);
-		gc.gridx = 0;
+		display.add(new JLabel("number of connections :"), gc);
+		++gc.gridy;
+		display.add(new JLabel("last activity : "), gc);
+		++gc.gridy;
+		display.add(new JLabel("number of messages : "), gc);
 		++gc.gridy;
 		// list.setPreferredSize(new Dimension(arg0, arg1))
 		gc.gridwidth = 4;
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		display.add(list, gc);
-		/*
-		 * list.model.add(0, (Object)new CommunicationNodeEntry(
-		 * "0.0.0.0:6432 -> 192.168.0.5:6767 latency 32ms rx 30 tx 120 msg 5 UDP"
-		 * , "3.gif")); list.model.add(0, (Object)new
-		 * CommunicationNodeEntry("192.168.0.3:6767 disconnected ", "3.gif"));
-		 * list.model.add(0, (Object)new CommunicationNodeEntry(
-		 * "0.0.0.0:6432 -> 192.168.0.4:6767 latency 14ms rx 12 tx 430 msg 5 UDP"
-		 * , "3.gif")); list.model.add(0, (Object)new CommunicationNodeEntry(
-		 * "0.0.0.0:6432 -> 192.168.0.7:6767 latency 05ms rx 14 tx 742 msg 5 UDP"
-		 * , "3.gif"));
-		 */
-		updateNodeList();
+		
+		updateNodeList(null);
 
 	}
 
-	public void updateNodeList() {
-		HashMap<URI, ServiceEnvironment> services = Runtime.getServiceEnvironments();
-		log.info("service count " + Runtime.getRegistry().size());
-
-		Iterator<URI> it = services.keySet().iterator();
-
-		list.model.removeAllElements();
-
-		while (it.hasNext()) {
-			URI url = it.next();
-			if (url != null) {
-				list.model.add(0, (Object) new CommunicationNodeEntry(url.toString(), "3.gif"));
+	public void updateNodeList(RemoteAdapter remote) {
+		if (remote != null)
+		{
+			
+			Communicator cm = remote.getComm().getComm();
+			
+			HashMap<URI, CommData> clients = cm.getClients();
+			
+			for (Map.Entry<URI,CommData> o : clients.entrySet())
+			{
+				//Map.Entry<String,SerializableImage> pairs = o;
+				URI uri = o.getKey();
+				CommData data = o.getValue();
+				list.model.add(0, (Object) new CommunicationNodeEntry(uri, data));
 			}
-		}
+			
+			numClients.setText(String.format("%d",clients.size()));
 
+		}
 	}
 
-	public void getState(RemoteAdapter data) {
-		if (data != null) {
-			updateNodeList();
-		}
+	public void getState(final RemoteAdapter remote) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+					updateNodeList(remote);
+			}
+		});
 	}
 
 	@Override

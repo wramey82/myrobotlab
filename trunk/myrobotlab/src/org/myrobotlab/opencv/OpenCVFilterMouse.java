@@ -103,7 +103,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		frameBuffer = image.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;

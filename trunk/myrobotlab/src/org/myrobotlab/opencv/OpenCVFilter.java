@@ -53,8 +53,8 @@ public abstract class OpenCVFilter implements Serializable {
 	
 	public boolean publishDisplay = false;
 	public boolean publishData = true;
-	public boolean publishImage = true;
-	public boolean publishIplImage = false;
+	public boolean publishImage = false;
+	//public boolean publishIplImage = false;
 	
 	int width;
 	int height;
@@ -73,7 +73,7 @@ public abstract class OpenCVFilter implements Serializable {
 	}
 
 	public abstract IplImage process(IplImage image, OpenCVData data);
-	public abstract BufferedImage display(IplImage image);
+	public abstract BufferedImage display(IplImage image, OpenCVData data);
 	public abstract void imageChanged(IplImage image);
 
 	public VideoProcessor getVideoProcessor()

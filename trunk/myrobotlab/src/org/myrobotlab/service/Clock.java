@@ -109,18 +109,15 @@ public class Clock extends Service {
 				while (isClockRunning == true) {
 					Date now = new Date();
 
-					if (pulseDataType == PulseDataType.increment) // TODO
-																	// refactor
-																	// to
-																	// pulse(Object
-																	// ?) ???
+					// TODO refactor to pulse(Object ...)
+					if (pulseDataType == PulseDataType.increment) 
 					{
 						invoke("pulse", pulseDataInteger);
 						++pulseDataInteger;
 					} else if (pulseDataType == PulseDataType.integer) {
 						invoke("pulse", pulseDataInteger);
 					} else if (pulseDataType == PulseDataType.none) {
-						invoke("pulse");
+						invoke("pulse");	
 					} else if (pulseDataType == PulseDataType.string) {
 						invoke("pulse", pulseDataString);
 					} else if (pulseDataType == PulseDataType.date) {
@@ -135,16 +132,8 @@ public class Clock extends Service {
 					while (i.hasNext()) {
 						ClockEvent event = i.next();
 						if (now.after(event.time)) {
-							send(event.name, event.method, event.data); // TODO
-																		// -
-																		// repeat
-																		// -
-																		// dont
-																		// delete
-																		// - set
-																		// time
-																		// forward
-																		// interval
+							// TODO repeat - don't delete set time forward interval
+							send(event.name, event.method, event.data);
 							i.remove();
 						}
 					}
@@ -168,6 +157,7 @@ public class Clock extends Service {
 
 	public Clock(String n) {
 		super(n, Clock.class.getCanonicalName());
+		log.info("here");
 	}
 
 
@@ -357,7 +347,7 @@ public class Clock extends Service {
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Clock clock = new Clock("clock");
 		clock.startService();

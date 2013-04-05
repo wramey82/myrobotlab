@@ -182,7 +182,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	DecimalFormat df = new DecimalFormat("0.###");
 	
 	@Override
-	public BufferedImage display(IplImage frame) {
+	public BufferedImage display(IplImage frame, OpenCVData data) {
 
 		BufferedImage frameBuffer = frame.getBufferedImage();
 		Graphics2D graphics = frameBuffer.createGraphics();

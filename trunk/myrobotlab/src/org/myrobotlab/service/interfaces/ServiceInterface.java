@@ -31,6 +31,10 @@ public interface ServiceInterface {
 
 	public void display();
 	
+	public boolean save();
+	
+	public boolean load();
+	
 	public void subscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
 	
 	public void unsubscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);

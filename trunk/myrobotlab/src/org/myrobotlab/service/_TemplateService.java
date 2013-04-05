@@ -4,17 +4,23 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.memory.Memory;
+import org.myrobotlab.memory.MemoryChangeListener;
+import org.myrobotlab.memory.Node;
 import org.slf4j.Logger;
 
 
-public class _TemplateService extends Service {
+public class _TemplateService extends Service implements MemoryChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(_TemplateService.class.getCanonicalName());
 
+	public Memory memory = new Memory();
+	
 	public _TemplateService(String n) {
-		super(n, _TemplateService.class.getCanonicalName());
+		super(n, _TemplateService.class.getCanonicalName());	
+		memory.addMemoryChangeListener(this);
 	}
 
 	@Override
@@ -34,16 +40,52 @@ public class _TemplateService extends Service {
 		super.releaseService();
 	}
 
+	@Override
+	// callback from memory tree - becomes a broadcast
+	public void onPut(String parentPath, Node node) {
+		invoke("putNode", parentPath, node);
+	}
+	
+	// TODO - broadcast onAdd event - this will sync gui
+	public Node.NodeContext putNode(String parentPath, Node node) {
+		return new Node.NodeContext(parentPath, node);
+	}
+
+	public void publish(String path, Node node) {
+		invoke("publishNode", new Node.NodeContext(path, node));
+	}
+
+	public Node.NodeContext publishNode(Node.NodeContext nodeContext) {
+		return nodeContext;
+	}
+
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		_TemplateService template = new _TemplateService("template");
 		template.startService();
+
+		Memory m = template.memory;
+			
+		
+		m.put("", new Node("k1"));
+		m.put("/k1", new Node("k2")); // TODO - check last '/' - if exists remove it ...
+		m.put("/k1/k2", new Node("k3"));
+		
+		log.info("/k1/k2");
+		
+		m.toXMLFile("m1.xml");
+		
+		Runtime.createAndStart("gui", "GUIService");
+
+		m.crawlAndPublish();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
 	}
+
 
 }

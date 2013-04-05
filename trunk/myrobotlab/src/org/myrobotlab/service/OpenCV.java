@@ -53,6 +53,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
@@ -62,6 +63,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
@@ -88,6 +90,7 @@ public class OpenCV extends Service {
 	public static final String FILTER_ERODE = "Erode";
 	public static final String FILTER_DILATE = "Dilate";
 	public static final String FILTER_FIND_CONTOURS = "FindContours";
+	public static final String FILTER_FACE_DETECT = "FaceDetect";
 	
 	// directional constants
 	final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
@@ -96,6 +99,10 @@ public class OpenCV extends Service {
 	final static public String DIRECTION_FARTHEST_RIGHT = "DIRECTION_FARTHEST_RIGHT";
 	final static public String DIRECTION_FARTHEST_TOP = "DIRECTION_FARTHEST_TOP";
 	final static public String DIRECTION_FARTHEST_BOTTOM = "DIRECTION_FARTHEST_BOTTOM";
+	
+	final static public String FOREGROUND = "foreground";
+	final static public String BACKGROUND = "background";
+	
 
 	public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
 
@@ -123,7 +130,7 @@ public class OpenCV extends Service {
 		load();
 	
 		videoProcessor.setOpencv(this);
-		videoProcessor.addFilter("input", "Input");
+		//videoProcessor.addFilter("input", "Input");
 	}
 
 	@Override
@@ -188,6 +195,40 @@ public class OpenCV extends Service {
 
 	public void setDisplayFilter(String name) {
 		videoProcessor.displayFilter = name;
+	}
+	
+	public OpenCVData add(SerializableImage image)
+	{
+		IplImage src = IplImage.createFrom(image.getImage());
+		//return new SerializableImage(dst.getBufferedImage(), image.getSource());
+		return add(src);
+	}
+	
+	/**
+	 * blocking safe exchange of data between different threads
+	 * external thread adds image data which can be retrieved
+	 * from the blockingData queue
+	 * 
+	 * @param image
+	 */
+	public OpenCVData add(IplImage image)
+	{
+		FrameGrabber grabber = videoProcessor.getGrabber();
+		if (grabber == null || grabber.getClass() != BlockingQueueGrabber.class)
+		{
+			log.error("can't add an image to the video processor - grabber must be not null and BlockingQueueGrabber");
+			return null;
+		}
+		
+		BlockingQueueGrabber bqgrabber = (BlockingQueueGrabber)grabber;
+		bqgrabber.add(image);
+		
+		try {
+			OpenCVData ret = videoProcessor.blockingData.take();
+			return ret;
+		} catch (InterruptedException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -371,65 +412,7 @@ public class OpenCV extends Service {
 		int intValue = 7;
 	}
 
-	public static void main(String[] args) {
-
-		// TODO - Avoidance / Navigation Service
-		// ground plane
-		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
-		// radio lab - map cells location cells yatta yatta
-		// lkoptical disparity motion Time To Contact
-		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
-		
-		/*
-		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
-		 * catch (Exception e) { // TODO Auto-generated catch block
-		 * logException(e); }
-		 */
-
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
-		//Runtime.createAndStart("remote", "RemoteAdapter");
-		// opencv.startService();
-		// opencv.addFilter("PyramidDown1", "PyramidDown");
-		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
-		// opencv.addFilter("InRange1", "InRange");
-		// opencv.setFrameGrabberType("camera");
-		// opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
-
-		opencv.addFilter("pyramidDown", "PyramidDown");
-		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
-		opencv.addFilter("erode", "Erode");
-		opencv.addFilter("dilate", "Dilate");
-		opencv.addFilter("findContours", "FindContours");
-		opencv.addFilter("addMask", "AddMask");
 	
-		// opencv.addFilter("gft", "GoodFeaturesToTrack");
-		// opencv.publishFilterData("gft");
-		// opencv.setDisplayFilter("gft");
-		// opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
-		// opencv.setDisplayFilter("lkOpticalTrack1");
-
-		// Runtime.createAndStart("python", "Python");
-		// opencv.capture();
-
-		GUIService gui = new GUIService("opencv_gui");
-		gui.startService();
-		gui.display();
-
-		// opencv.addFilter("ir","InRange");
-		// opencv.setDisplayFilter("ir");
-
-		// opencv.addFilter("pyramdDown", "PyramidDown");
-		// opencv.addFilter("floodFill", "FloodFill");
-
-		// opencv.capture();
-
-	}
 
 	public static Rectangle cvToAWT(CvRect rect) {
 		Rectangle boundingBox = new Rectangle();
@@ -522,4 +505,71 @@ public class OpenCV extends Service {
 	}
 
 
+	public static void main(String[] args) {
+
+		// TODO - Avoidance / Navigation Service
+		// ground plane
+		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
+		// radio lab - map cells location cells yatta yatta
+		// lkoptical disparity motion Time To Contact
+		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
+		
+		/*
+		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
+		 * catch (Exception e) { // TODO Auto-generated catch block
+		 * logException(e); }
+		 */
+
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		Python python = (Python) Runtime.createAndStart("python", "Python");
+		//Runtime.createAndStart("remote", "RemoteAdapter");
+		// opencv.startService();
+		// opencv.addFilter("PyramidDown1", "PyramidDown");
+		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
+		// opencv.addFilter("InRange1", "InRange");
+		// opencv.setFrameGrabberType("camera");
+		// opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
+		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
+		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
+
+		opencv.addFilter("pyramidDown", "PyramidDown");
+/*		
+		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
+		opencv.addFilter("erode", "Erode");
+		opencv.addFilter("dilate", "Dilate");
+		opencv.addFilter("findContours", "FindContours");
+		opencv.addFilter("addMask", "AddMask");
+*/		
+	
+		// opencv.addFilter("gft", "GoodFeaturesToTrack");
+		// opencv.publishFilterData("gft");
+		// opencv.setDisplayFilter("gft");
+		// opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
+		// opencv.setDisplayFilter("lkOpticalTrack1");
+
+		// Runtime.createAndStart("python", "Python");
+		// opencv.capture();
+
+		GUIService gui = new GUIService("opencv_gui");
+		gui.startService();
+		gui.display();
+
+		// opencv.addFilter("ir","InRange");
+		// opencv.setDisplayFilter("ir");
+
+		// opencv.addFilter("pyramdDown", "PyramidDown");
+		// opencv.addFilter("floodFill", "FloodFill");
+
+		// opencv.capture();
+
+	}
+
+	public void useBlockingData(Boolean b) {
+		videoProcessor.useBlockingData = true;
+	}
+	
 }

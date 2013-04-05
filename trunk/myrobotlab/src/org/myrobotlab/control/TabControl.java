@@ -1,6 +1,7 @@
 package org.myrobotlab.control;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -22,15 +23,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
+import org.slf4j.Logger;
 
 /**
  * @author Gro-G
@@ -221,6 +221,10 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if (myService != null)
+		{
+			myService.lastTabVisited = this.getText();
+		}
 		dispatchMouseEvent(e);
 	}
 

@@ -148,7 +148,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage frame) {
+	public BufferedImage display(IplImage frame, OpenCVData data) {
 		frameBuffer = frame.getBufferedImage();
 		Graphics2D graphics = frameBuffer.createGraphics();
 		graphics.setColor(Color.green);

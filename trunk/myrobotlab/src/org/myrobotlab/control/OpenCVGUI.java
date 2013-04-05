@@ -77,6 +77,7 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
+import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource, ActionListener {
 
@@ -515,6 +516,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 					filterParameters.validate();
 				}
 			} else {
+				myService.send(boundServiceName, "setDisplayFilter", INPUT_KEY);
 				// TODO - send message to OpenCV - that no filter should be sent
 				// to publish
 				filterParameters.removeAll();

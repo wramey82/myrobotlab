@@ -27,10 +27,8 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Random;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -49,19 +47,10 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 		super(vp, name, source, sourceKey);
 	}
 
-	Random rand = new Random();
-
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
-		
-		BufferedImage frameBuffer = image.getBufferedImage();
-		Graphics2D g2 = frameBuffer.createGraphics();
-		
-		g2.drawString("hello", rand.nextInt(300), rand.nextInt(200));
-		
-		return frameBuffer;
-		
+		return image.getBufferedImage();
 	}
 
 	@Override
@@ -73,8 +62,6 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	@Override
 	public void imageChanged(IplImage image) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

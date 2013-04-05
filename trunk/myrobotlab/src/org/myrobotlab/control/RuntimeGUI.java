@@ -483,7 +483,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 			ServiceEntry se = null;
 
 			for (int i = 0; i < ses.length; ++i) {
-				log.info("possible service {}", i);
+				//log.info("possible service {}", i);
 				se = new ServiceEntry(null, sscn[i], false);
 
 				possibleServicesModel.addRow(new Object[] { se, "" });

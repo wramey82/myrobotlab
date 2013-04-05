@@ -1,32 +1,36 @@
 package org.myrobotlab.control.widget;
 
+import java.net.URI;
+
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.myrobotlab.image.Util;
+import org.myrobotlab.net.CommData;
 
 public class CommunicationNodeEntry extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	String host;
+	URI uri;
+	CommData data;
 	ImageIcon image;
 
-	public CommunicationNodeEntry(String host, String imagePath) {
-		this.host = host;
+	public CommunicationNodeEntry(URI uri, CommData data) {
+		this.uri = uri;
+		this.data = data;
 		this.image = Util.getResourceIcon("c0.png");
 	}
 
 	public String getTitle() {
-		return host;
+		return uri.toString();
 	}
 
 	public ImageIcon getImage() {
 		return image;
 	}
 
-	// Override standard toString method to give a useful result
 	public String toString() {
-		return host;
+		return uri.toString();
 	}
 }

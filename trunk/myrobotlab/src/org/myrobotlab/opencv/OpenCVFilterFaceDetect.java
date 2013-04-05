@@ -45,25 +45,21 @@ package org.myrobotlab.opencv;
  import com.googlecode.javacv.cpp.opencv_core.IplImage;
  */
 
-import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
-import static com.googlecode.javacv.cpp.opencv_core.cvDrawLine;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
 import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
-import static com.googlecode.javacv.cpp.opencv_core.cvRectangle;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
 import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Loader;
@@ -81,48 +77,35 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 
-	BufferedImage frameBuffer = null;
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
-														// from SOHDARService
-														// configuration
-
-	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, HashMap<String, IplImage> source, String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
-		return image.getBufferedImage();
+		ArrayList<Rectangle> bb = data.getBoundingBoxArray();
+		if (bb != null)
+		{
+			BufferedImage bi = image.getBufferedImage();
+			Graphics2D g2d = bi.createGraphics();
+			g2d.setColor(Color.RED);
+			for (int i = 0; i < bb.size(); ++i)
+			{
+				Rectangle rect = bb.get(i);
+				g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+			}
+			return bi;
+		} else {
+			return image.getBufferedImage();
+		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.image.OpenCVFilter#process(com.googlecode.javacv.cpp.
-	 * opencv_core .IplImage, java.util.HashMap)
-	 * 
-	 * void cvErode( const CvArr* A, CvArr* C, IplConvKernel* B=0, int
-	 * iterations=1 ); A Source image. C Destination image. B Structuring
-	 * element used for erosion. If it is NULL, a 3×3 rectangular structuring
-	 * element is used. iterations Number of times erosion is applied. The
-	 * function cvErode erodes the source image using the specified structuring
-	 * element B that determines the shape of a pixel neighborhood over which
-	 * the minimum is taken:
-	 * 
-	 * C=erode(A,B): C(x,y)=min((x',y') in B(x,y))A(x',y') The function supports
-	 * the in-place mode when the source and destination pointers are the same.
-	 * Erosion can be applied several times iterations parameter. Erosion on a
-	 * color image means independent transformation of all the channels.
-	 */
-
-	// Create memory for calculations
-	CvMemStorage storage = null; // TODO - was static
+	CvMemStorage storage = null;
 
 	// Create a new Haar classifier
 	CvHaarClassifierCascade cascade = null; // TODO - was static
+
 	int scale = 1;
 	CvPoint pt1 = new CvPoint(0, 0);
 	CvPoint pt2 = new CvPoint(0, 0);
@@ -134,6 +117,38 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
+		// Clear the memory storage which was used before
+		cvClearMemStorage(storage);
+
+		// Find whether the cascade is loaded, to find the faces. If yes, then:
+		if (cascade != null) {
+
+			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
+
+			if (faces != null) {
+				ArrayList<Rectangle> bb = new ArrayList<Rectangle>();
+				// Loop the number of faces found.
+				for (i = 0; i < faces.total(); i++) {
+
+					CvRect r = new CvRect(cvGetSeqElem(faces, i));
+
+					Rectangle rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
+					bb.add(rect);
+				}
+				
+				data.put(bb);
+			}
+		}
+
+		return image;
+	}
+
+	@Override
+	public void imageChanged(IplImage image) {
+		// Allocate the memory storage TODO make this globalData
+		if (storage == null) {
+			storage = cvCreateMemStorage(0);
+		}
 
 		if (cascade == null) {
 			// Preload the opencv_objdetect module to work around a known bug.
@@ -146,62 +161,9 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 			if (cascade == null) {
 				log.error("Could not load classifier cascade");
-				return image;
 			}
 		}
 
-		// Allocate the memory storage TODO make this globalData
-		if (storage == null) {
-			storage = cvCreateMemStorage(0);
-		}
-
-		// Clear the memory storage which was used before
-		cvClearMemStorage(storage);
-
-		// Find whether the cascade is loaded, to find the faces. If yes, then:
-		if (cascade != null) {
-
-			// There can be more than one face in an image. So create a growable
-			// sequence of faces.
-			// Detect the objects and store them in the sequence
-
-			// CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2,
-			// CV_HAAR_DO_CANNY_PRUNING, cvSize(40, 40));
-
-			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
-
-			// Loop the number of faces found.
-			for (i = 0; i < (faces != null ? faces.total() : 0); i++) {
-				// Create a new rectangle for drawing the face
-				// CvRect r = (CvRect)cvGetSeqElem( faces, i );
-				CvRect r = new CvRect(cvGetSeqElem(faces, i));
-
-				// Find the dimensions of the face,and scale it if necessary
-				pt1.x(r.x() * scale);
-				pt2.x((r.x() + r.width()) * scale);
-				pt1.y(r.y() * scale);
-				pt2.y((r.y() + r.height()) * scale);
-
-				// Draw the rectangle in the input image
-				cvRectangle(image, pt1, pt2, CV_RGB(255, 0, 0), 3, 8, 0);
-				centeroid.x(r.x() + r.width() * scale / 2);
-				centeroid.y(r.y() + r.height() * scale / 2);
-				/*
-				 * ch1.x = centeroid.x + 1; ch1.y = centeroid.y; ch2.x =
-				 * centeroid.x - 1; ch2.y = centeroid.y;
-				 */
-				cvDrawLine(image, centeroid, centeroid, CV_RGB(255, 0, 0), 3, 8, 0);
-				invoke("publish", centeroid);
-			}
-		}
-
-		return image;
-	}
-
-	@Override
-	public void imageChanged(IplImage image) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

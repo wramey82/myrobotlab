@@ -40,7 +40,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -70,11 +69,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.LogManager;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
@@ -85,18 +79,20 @@ import org.myrobotlab.control.widget.ConnectDialog;
 import org.myrobotlab.control.widget.Console;
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.string.Util;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
+import org.slf4j.Logger;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -132,11 +128,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public transient JFrame frame = null;
 
+	@Element
+	public String lastTabVisited;
+
 	/**
 	 * class to save the position and size of undocked panels
 	 * 
 	 */
-
 	@ElementMap(entry = "serviceType", value = "dependsOn", attribute = true, inline = true, required = false)
 	public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
 
@@ -185,8 +183,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		commandMap.put("guiUpdated", null);
 		commandMap.put("setRemoteConnectionStatus", null);
 
-		load();
-
+		load();// <-- HA was looking all over for it
 	}
 
 	public boolean hasDisplay() {
@@ -500,6 +497,15 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			frame.setJMenuBar(buildMenu());
 			frame.setVisible(true);
 			frame.pack();
+			if (tabPanelMap.containsKey(lastTabVisited))
+			{
+				try {
+					tabs.setSelectedComponent(tabPanelMap.get(lastTabVisited));
+				} catch(Exception e) {
+					Logging.logException(e);
+				}
+			}
+			
 			isDisplaying = true;
 		}
 
@@ -745,9 +751,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		mi.addActionListener(this);
 		systemMenu.add(mi);
 
+		JMenuItem save = new JMenuItem("save");
+		save.setActionCommand("save");
+		systemMenu.add(save);
+		save.addActionListener(this);
+
 		JMenu m = new JMenu("logging");
 		systemMenu.add(m);
-
+		
 		JMenu m2 = new JMenu("level");
 		m.add(m2);
 		buildLogLevelMenu(m2);
@@ -793,7 +804,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		String cmd = ae.getActionCommand();
 		Object source = ae.getSource();
 		if ("save".equals(cmd)) {
-			Runtime.save("myrobotlab.mrl");
+			Runtime.saveAll();
+			// FIXME - deprecate & remove
+			//Runtime.save("myrobotlab.mrl");
 		} else if ("check for updates".equals(cmd)) {
 			Runtime runtime = Runtime.getInstance();
 			send(runtime.getName(), "checkForUpdates");

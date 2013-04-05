@@ -25,30 +25,24 @@
 
 package org.myrobotlab.control;
 
-import java.util.ArrayList;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class VideoWidget extends ServiceGUI {
 
 	HashMap<String, VideoDisplayPanel> displays = new HashMap<String, VideoDisplayPanel>();
-	ArrayList<VideoWidget> exports = new ArrayList<VideoWidget>();
 	boolean allowFork = false;
-
-	// JComboBox localSources = null;
+	Dimension normalizedSize = null;
+	int videoDisplayXPos = 0;
+	int videoDisplayYPos = 0;
 
 	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork) {
 		this(boundFilterName, myService);
@@ -59,27 +53,9 @@ public class VideoWidget extends ServiceGUI {
 		super(boundServiceName, myService);
 	}
 
-	public ArrayList<VideoWidget> getExports() {
-		return exports;
-	}
-
-	public JComboBox getServices(JComboBox cb) {
-		if (cb == null) {
-			cb = new JComboBox();
-		}
-
-		// Runtime.getServicesFromInterface(interfaceName);
-		ServiceEnvironment se = Runtime.getLocalServices();
-		Map<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(se.serviceDirectory);
-		Iterator<String> it = sortedMap.keySet().iterator();
-
-		// String [] namesAndClasses = new String[sortedMap.size()];
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			cb.addItem(serviceName);
-		}
-
-		return cb;
+	public void setNormalizedSize(int x, int y)
+	{
+		normalizedSize = new Dimension(x, y);
 	}
 
 	@Override
@@ -96,10 +72,6 @@ public class VideoWidget extends ServiceGUI {
 		unsubscribe("publishDisplay", "displayFrame", SerializableImage.class);
 	}
 
-	// VideoDisplayPanel vid = new VideoDisplayPanel("output");
-
-	int videoDisplayXPos = 0;
-	int videoDisplayYPos = 0;
 
 	@Override
 	// FIXME - do in constructor for krikey sakes !
@@ -153,7 +125,6 @@ public class VideoWidget extends ServiceGUI {
 
 		VideoDisplayPanel vdp = displays.remove(source);
 		display.remove(vdp.myDisplay);
-		// --videoDisplayXPos;
 		display.invalidate();
 		myService.pack();
 	}
@@ -172,28 +143,26 @@ public class VideoWidget extends ServiceGUI {
 		videoDisplayYPos = 0;
 	}
 
-	/*
-	public void displayFrame(byte[] imgBytes) {
-		try {
-			ByteArrayInputStream in = new ByteArrayInputStream(imgBytes);
-			BufferedImage bi = ImageIO.read(in);
-			displayFrame(bi);
-		} catch (IOException e) {
-			Logging.logException(e);
-		}
-	}
-	*/
-
-
 	// multiplex images if desired
 	public void displayFrame(SerializableImage img) {
 
 		String source = img.getSource();
 		if (displays.containsKey(source)) {
 			displays.get(source).displayFrame(img);
+		} else if (allowFork) {
+			VideoDisplayPanel vdp = addVideoDisplayPanel(img.getSource());
+			vdp.displayFrame(img);
+		} else {
+			displays.get("output").displayFrame(img); // FIXME - kludgy !!!
+		}
+		/*
+		else if (displays.size() == 0) {
+			VideoDisplayPanel vdp = addVideoDisplayPanel(img.getSource());
+			vdp.displayFrame(img);
 		} else {
 			displays.get("output").displayFrame(img); // catchall
 		}
+		*/
 
 	}
 }

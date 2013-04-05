@@ -68,7 +68,7 @@ public class OpenCVFilterFloodFill extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		// CvScalar avg = cxcore.cvAvg(image, null);
 		// cv.cvFloodFill(image, startPoint, fillColor,
 		// lo_diff, up_diff, null, 4, null);

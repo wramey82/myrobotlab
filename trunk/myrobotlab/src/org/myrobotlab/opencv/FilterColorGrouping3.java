@@ -412,7 +412,7 @@ public final class FilterColorGrouping3 extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		// TODO Auto-generated method stub
 		return null;
 	}
