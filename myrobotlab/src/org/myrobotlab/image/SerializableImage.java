@@ -33,12 +33,19 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
+
+@Root
 public class SerializableImage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private BufferedImage image;
 	private String source;
 	private long timestamp;
+
+	@Element
+	private String id;
 
 	/*
 	public SerializableImage() {
@@ -52,11 +59,22 @@ public class SerializableImage implements Serializable {
 		this.source = source;
 		this.image = image;
 		this.timestamp = System.currentTimeMillis();
+		this.id = String.format("%s.%d", this.source, this.timestamp);
 	}
 	
 	public BufferedImage getImage()
 	{
 		return image;
+	}
+	
+	public int getHeight()
+	{
+		return image.getHeight();
+	}
+	
+	public int getWidth()
+	{
+		return image.getWidth();
 	}
 	
 	public String getSource()

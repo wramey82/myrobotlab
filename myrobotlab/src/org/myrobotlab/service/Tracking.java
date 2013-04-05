@@ -25,6 +25,8 @@
 
 package org.myrobotlab.service;
 
+import static org.myrobotlab.service.OpenCV.BACKGROUND;
+import static org.myrobotlab.service.OpenCV.FOREGROUND;
 import static org.myrobotlab.service.OpenCV.FILTER_BACKGROUND_SUBTRACTOR_MOG2;
 import static org.myrobotlab.service.OpenCV.FILTER_DILATE;
 import static org.myrobotlab.service.OpenCV.FILTER_ERODE;
@@ -32,8 +34,15 @@ import static org.myrobotlab.service.OpenCV.FILTER_FIND_CONTOURS;
 import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
 import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
 
+import static org.myrobotlab.service.Cortex.MEMORY_OPENCV_DATA;
+import static org.myrobotlab.service.Cortex.MEMORY_TIMESTAMP;
+import static org.myrobotlab.service.Cortex.MEMORY_TYPE;
+
+
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -46,6 +55,7 @@ import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
+// TODO - attach() ???  Static name peer key list ???
 
 public class Tracking extends Service {
 
@@ -53,7 +63,7 @@ public class Tracking extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(Tracking.class.getCanonicalName());
 	
-	
+	// static Service.requestName();
 	// GOOD - TODO make it better ! Encapsulate in Hash'd data structure
 	// with a setSubServiceName("arduio", "x") - for foreign structures
 	public String arduinoName = "arduino";
@@ -62,6 +72,7 @@ public class Tracking extends Service {
 	public String xName = "x";
 	public String yName = "y";
 	public String opencvName = "opencv";
+	//public String processorName = "processor";
 	
 	@Element
 	public int xServoPin = 13;
@@ -70,7 +81,15 @@ public class Tracking extends Service {
 	@Element
 	String serialPort = "COM12";
 	
+	long lastTimestamp = 0;
+	long waitInterval = 5000;
+	int lastNumberOfObjects = 0;
+	
 	// TODO enum - allows meta data? like description of state ???
+	public static final String STATE_INITIALIZING_INPUT = "initializing input";
+	public static final String STATE_INITIALIZING_CONTROL = "initializing control";
+	public static final String STATE_INITIALIZING_TRACKING = "initializing tracking";
+	
 	public final static String STATE_LK_TRACKING_POINT = "lucas kanade tracking";
 	public final static String STATE_IDLE = "idle";
 	public final static String STATE_NEED_TO_INITIALIZE = "initializing";
@@ -83,6 +102,9 @@ public class Tracking extends Service {
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR =  "waiting for objects to disappear";
 	public static final String STATE_STABILIZED = "stabilized";
 
+	// memory constants
+	public final static String LOCATION_X = "LOCATION_X";
+	public final static String LOCATION_Y = "LOCATION_Y";
 
 	private String state = STATE_NEED_TO_INITIALIZE;
 	
@@ -91,6 +113,7 @@ public class Tracking extends Service {
 	@Element
 	int yRestPos;
 	
+	// FIXME - HOW TO HANDLE !?!?!?
 	// peer services
 	transient PID xpid, ypid;
 	transient OpenCV eye;
@@ -104,7 +127,6 @@ public class Tracking extends Service {
 
 	// MRL points
 	public Point2Df lastPoint;
-	public Point2Df targetPoint;
 	
 	// "center" set points
 	@Element
@@ -125,14 +147,6 @@ public class Tracking extends Service {
 	private Integer ymax;
 	private double computeX;
 	private double computeY;
-
-	// TODO - make initialization re-entrant
-	boolean cameraInitialized = false;
-	boolean servosInitialized = false;
-	boolean arduinoInitialized = false;
-	boolean systemTest = false;
-
-	boolean interrupted = false;
 	
 	OpenCVData goodFeatures;
 
@@ -142,7 +156,8 @@ public class Tracking extends Service {
 	}
 	
 	// set SubServiceNames....
-	// TODO - framework?
+	// TODO - framework? requestService(name, type)
+	// TODO renameService()  globalRename(name, newName)
 	public void createAndStartSubServices() {
 		xpid = (PID) Runtime.createAndStart(xpidName, "PID");
 		ypid = (PID) Runtime.createAndStart(ypidName, "PID");
@@ -152,41 +167,38 @@ public class Tracking extends Service {
 		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
 	}
 	
-	OpenCVData objectsOfInterest = null;
-	
 	// the big kahuna input feed
 	public OpenCVData setOpenCVData (OpenCVData data)
 	{
 		//log.info("data from opencv - state {}", state);
-		
-		if (state.equals(STATE_LK_TRACKING_POINT))
+		if (STATE_IDLE.equals(state))
 		{
-			///trackLKPoint(data);
-			updateTrackingPoint(data);
-		} else if (state.equals(STATE_FINDING_GOOD_FEATURES))
+			// we are idle - might as well do something
+			// FIXME - reduce to nothing if done again
+			// FIXME - NON-RENTRANT
+			setForegroundBackgroundFilter();
+			// TODO - begin searching for new things !!!!
+		} else if (STATE_LK_TRACKING_POINT.equals(state))
 		{
-			goodFeatures = data;
-			videoOff();
-			setState(STATE_IDLE);
-			
-		} else if (state.equals(STATE_LEARNING_BACKGROUND))
+			// check non-blocking queue for better tracking point !!!
+			updateTrackingPoint(data);	
+		} else if (STATE_LEARNING_BACKGROUND.equals(state))
 		{
-			waitInterval = 5000;
+			waitInterval = 3000;
 			waitForObjects(data);
-		} else if (state.equals(STATE_SEARCHING_FOREGROUND))
+		} else if (STATE_SEARCHING_FOREGROUND.equals(state))
 		{
-			waitInterval = 5000;
+			waitInterval = 3000;
 			waitForObjects(data);
 		}
 		return data;
 	}
 	
-	// blocking method
-	
-	// turn on the camera - but keep the video in feed off
+	// ----------- init routines begin ---------------
 	public void initInput()
 	{
-		videoOff();
+		setState(STATE_INITIALIZING_INPUT);
+//		videoOff(); eye data
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		eye.capture();
 		
@@ -197,7 +209,7 @@ public class Tracking extends Service {
 	
 	public void initControl()
 	{
-		setStatus("initializing control");
+		setState(STATE_INITIALIZING_CONTROL);
 		
 		arduino.setBoard("atmega328");
 		arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
@@ -226,18 +238,10 @@ public class Tracking extends Service {
 		lastXServoPos = xRestPos;
 		lastYServoPos = yRestPos;
 	}
-	
-	public void rest()
-	{
-		x.moveTo(xRestPos);
-		y.moveTo(yRestPos);
-	}
-	
-	
-	
+		
 	public void initTracking() {
 
-		setStatus("initializing tracking");
+		setState(STATE_INITIALIZING_TRACKING);
 		// set initial Kp Kd Ki - TODO - use values derived from calibration
 		xpid.setPID(10.0, 5.0, 1.0);
 		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
@@ -260,18 +264,29 @@ public class Tracking extends Service {
 
 		ymin = y.getPositionMin();
 		ymax = y.getPositionMax();
-		// initialize - end ----------
 
 	}
 	
+	// ----------- init routines end ---------------
+
+	public void rest()
+	{
+		x.moveTo(xRestPos);
+		y.moveTo(yRestPos);
+	}
+	
+
+	/*  FOUND/FIND BETTER TRACKING POINTS - 
+	 * needs to be done  in the cortex
+	 
 	public void getGoodFeatures()
 	{
-		/*
+		
 		eye.removeAllFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
 		eye.addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
 		eye.setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
-		*/
+		
 		OpenCVData d = eye.getGoodFeatures();
 		log.info("good features {}", d.keySet());
 		
@@ -280,6 +295,7 @@ public class Tracking extends Service {
 		//invoke("publishStatus", status);
 		setState(STATE_FINDING_GOOD_FEATURES);
 	}
+	*/
 	
 	// ------------------- tracking & detecting methods begin ---------------------
 	public void trackLKPoint()
@@ -309,7 +325,7 @@ public class Tracking extends Service {
 		videoOn();
 	}
 
-	public void learnBackGround() {
+	public void setForegroundBackgroundFilter() {
 
 		// set filters
 		eye.removeAllFilters();
@@ -318,6 +334,14 @@ public class Tracking extends Service {
 		eye.addFilter(FILTER_ERODE);
 		eye.addFilter(FILTER_DILATE);
 		eye.addFilter(FILTER_FIND_CONTOURS);
+
+		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
+
+		setState(STATE_LEARNING_BACKGROUND);
+		videoOn();
+	}
+
+	public void learnBackground() {
 
 		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
 
@@ -333,11 +357,7 @@ public class Tracking extends Service {
 		videoOn();
 	}
 	
-	long lastTimestamp = 0;
-	long waitInterval = 5000;
-	int lastNumberOfObjects = 0;
-
-	
+	double sizeIndexForBackgroundForegroundFlip = 0.10;
 	
 	public void waitForObjects(OpenCVData data)
 	{
@@ -345,19 +365,49 @@ public class Tracking extends Service {
 		ArrayList<Rectangle> objects = data.getBoundingBoxArray();
 		int numberOfNewObjects = (objects == null)?0:objects.size();
 		
+		// if I'm not currently learning the background and
+		// countour == background ??
+		// set state to learn background
+		if (!STATE_LEARNING_BACKGROUND.equals(state) && numberOfNewObjects == 1)
+		{
+			SerializableImage img = data.getImage();
+			if (img == null)
+			{
+				log.error("here");
+				return;
+			}
+			double width = img.getWidth();
+			double height = img.getHeight();
+			
+			Rectangle rect = objects.get(0);
+			
+			//publish(data.getImages());
+			
+			if ((width - rect.width)/width < sizeIndexForBackgroundForegroundFlip && (height - rect.height)/height < sizeIndexForBackgroundForegroundFlip)
+			{
+				learnBackground();
+				setStatus(String.format("%s - object found was nearly whole view - foreground background flip", state));
+			}
+			
+		}
+		
 		if (numberOfNewObjects != lastNumberOfObjects)
 		{
-			log.info("number of objects changed - reset clock");
+			setStatus(String.format("%s - unstable change from %d to %d objects - reset clock - was stable for %d ms limit is %d ms", state, lastNumberOfObjects, numberOfNewObjects ,System.currentTimeMillis() -lastTimestamp, waitInterval));
 			lastTimestamp = System.currentTimeMillis();
 		}
 		
 		if (waitInterval < System.currentTimeMillis() - lastTimestamp)
 		{
+			setLocation(data);
 			// number of objects have stated the same
 			if (STATE_LEARNING_BACKGROUND.equals(state))
 			{
 				if (numberOfNewObjects == 0)
 				{
+					// process background
+					data.putAttribute(BACKGROUND);
+					invoke("toProcess", data);
 					// ready to search foreground
 					searchForeground();
 				}
@@ -366,19 +416,36 @@ public class Tracking extends Service {
 				// stable state changes with # objects
 				//setState(STATE_STABILIZED);
 				//log.info("number of objects {}",numberOfNewObjects);
+				// TODO - SHOULD NOT PUT IN MEMORY -
+				// LET OTHER THREAD DO IT
 				if (numberOfNewObjects > 0)
 				{
-					log.info("process {} objects", numberOfNewObjects);
-				}
+					data.putAttribute(FOREGROUND);
+					invoke("toProcess", data);
+				}// else TODO - processBackground(data) <- on a regular interval (addToSet) !!!!!!
 			}
 		}
 		
 		lastNumberOfObjects = numberOfNewObjects;
 		
 	}
+	
+	// TODO - enhance with location - not just heading
+	// TODO - array of attributes expanded Object[] ... ???
+	// TODO - use GEOTAG - LAT LONG ALT DIRECTION LOCATION CITY GPS TIME OFFSET
+	public OpenCVData setLocation(OpenCVData data)
+	{
+		data.setX(currentXServoPos);
+		data.setY(currentYServoPos);
+		return data;
+	}
 
 	// ------------------- tracking & detecting methods end ---------------------
 
+	public void setIdle()
+	{
+		setState(STATE_IDLE);
+	}
 
 	public void setState(String newState) {
 		state = newState;
@@ -391,8 +458,26 @@ public class Tracking extends Service {
 	}
 
 	// ---------------  publish methods begin ----------------------------
+	public OpenCVData toProcess (OpenCVData data){
+		return data;
+	}
+	
 	public SerializableImage publishFrame(SerializableImage image) {
 		return image;
+	}
+
+	// ubermap !!!
+	public void publish(HashMap<String,SerializableImage> images) {
+		for (Map.Entry<String,SerializableImage> o : images.entrySet())
+		{
+			//Map.Entry<String,SerializableImage> pairs = o;
+			log.info(o.getKey());
+			publish(o.getValue());
+		}
+	}
+	
+	public void publish(SerializableImage image) {
+		invoke("publishFrame", image);
 	}
 
 	public String publishStatus(String status) {
@@ -408,18 +493,21 @@ public class Tracking extends Service {
 
 
 	// FIXME - lost tracking event !!!!
-
-	// FIXME - remove OpenCV definitions
 	final public void updateTrackingPoint(OpenCVData cvData) {
 		
+		// extract tracking info
 		cvData.setFilterName(FILTER_LK_OPTICAL_TRACK);
 		ArrayList<Point2Df> data = cvData.getPointArray();
+		
 		if (data == null)
 		{
+			// lost track event ?!?
 			log.info("data arriving, but no point array - tracking point missing?");
 			return;
 		}
 		++cnt;
+		Point2Df targetPoint;
+		
 		if (data.size() > 0) {
 			targetPoint = data.get(0);
 			// describe this time delta
@@ -479,6 +567,7 @@ public class Tracking extends Service {
 
 	}
 	
+	// ----------------- required config & necessary important global switches begin --------------------------
 	public void videoOn()
 	{
 		//setStatus("switching video on");
@@ -536,10 +625,15 @@ public class Tracking extends Service {
 //		tracker.initControl();
 		tracker.initInput();
 		
-		tracker.learnBackGround();
+		
+		tracker.setIdle();
+		
+		tracker.videoOn();
+		
+//		tracker.learnBackGround();
 		//tracker.searchForeground();
 		
-//		tracker.trackLKPoint();
+		tracker.trackLKPoint(new Point2Df(50,50));
 		
 		log.info("here");
 				

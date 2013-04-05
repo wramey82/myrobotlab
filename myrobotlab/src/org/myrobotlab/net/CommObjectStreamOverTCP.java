@@ -63,13 +63,17 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
+	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
+	
 	Service myService = null;
+	
+	boolean useHeartbeat = false;
 
 	public class TCPThread extends Thread {
 
 		URI url;
 		transient Socket socket = null;
-
+		CommData data = new CommData();
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 
@@ -127,6 +131,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
 							continue;
 						}
+						++data.rx;
 						myService.getInbox().add(msg);
 					}
 				}
@@ -156,6 +161,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			try {
 				out.writeObject(msg);
 				out.flush();
+				++data.tx;
 
 			} catch (Exception e) {
 				Logging.logException(e);
@@ -189,9 +195,6 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 		phone.send(url, msg);
 	}
-
-	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
-	boolean useHeartbeat = false;
 
 	public synchronized void addClient(URI url, Object commData) {
 		if (!clientList.containsKey(url)) {
@@ -275,14 +278,17 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	}
 
+
 	@Override
-	public ArrayList<URI> getClients() {
-		ArrayList<URI> ret = new ArrayList<URI>();
+	public HashMap<URI, CommData> getClients() {
+		
+		HashMap<URI, CommData> data = new HashMap<URI, CommData>();
 		for (URI key : clientList.keySet()) {
-			ret.add(key);
+			TCPThread tcp = clientList.get(key);
+			data.put(key, tcp.data);
 		}
 
-		return ret;
+		return data;
 	}
 
 }

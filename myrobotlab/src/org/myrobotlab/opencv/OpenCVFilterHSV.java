@@ -88,7 +88,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		frameBuffer = hsv.getBufferedImage(); // TODO - ran out of memory here
 		++frameCounter;

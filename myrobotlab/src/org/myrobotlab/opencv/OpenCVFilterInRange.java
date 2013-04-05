@@ -100,7 +100,7 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		return ret.getBufferedImage(); // TODO - ran out of memory here
 	}

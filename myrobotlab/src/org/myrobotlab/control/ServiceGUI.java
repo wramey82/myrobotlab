@@ -115,17 +115,17 @@ public abstract class ServiceGUI {
 	 * Service functions
 	 */
 	public void subscribe(String inOutMethod) {
-		subscribe(inOutMethod, inOutMethod, null);
+		subscribe(inOutMethod, inOutMethod, (Class<?>[]) null);
 	}
 
 	public void subscribe(String inMethod, String outMethod) {
-		subscribe(inMethod, outMethod, null);
+		subscribe(inMethod, outMethod,  (Class<?>[]) null);
 	}
 
-	public void subscribe(String outMethod, String inMethod, Class<?> parameterType) {
+	public void subscribe(String outMethod, String inMethod, Class<?>... parameterType) {
 		MRLListener listener = null;
 		if (parameterType != null) {
-			listener = new MRLListener(outMethod, myService.getName(), inMethod, new Class[] { parameterType });
+			listener = new MRLListener(outMethod, myService.getName(), inMethod, parameterType);
 		} else {
 			listener = new MRLListener(outMethod, myService.getName(), inMethod, null);
 		}

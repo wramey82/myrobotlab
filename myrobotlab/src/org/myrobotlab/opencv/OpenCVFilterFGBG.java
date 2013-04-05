@@ -55,7 +55,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		return fgimg.getBufferedImage();
 	}

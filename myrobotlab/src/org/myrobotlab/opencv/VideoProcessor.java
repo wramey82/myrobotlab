@@ -1,5 +1,7 @@
 package org.myrobotlab.opencv;
 
+import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
+
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
@@ -26,15 +28,12 @@ import com.googlecode.javacv.OpenCVFrameRecorder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
-import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
-import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
-
 @Root
 public class VideoProcessor implements Runnable {
 
 	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
 
+	
 	int frameIndex = 0;
 	public boolean capturing = false;
 
@@ -57,14 +56,14 @@ public class VideoProcessor implements Runnable {
 	public boolean publishOpenCVData = true;
 	// GRABBER END --------------------------
 	@Element
-	private boolean useBlockingData = false;
+	public boolean useBlockingData = false;
 
 	OpenCVData data = new OpenCVData();
-	BlockingQueue<OpenCVData> blockingData = new LinkedBlockingQueue<OpenCVData>();
+	public BlockingQueue<OpenCVData> blockingData = new LinkedBlockingQueue<OpenCVData>();
 	HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	private transient OpenCV opencv;
-	transient FrameGrabber grabber = null;
+	private transient FrameGrabber grabber = null;
 	transient Thread videoThread = null;
 
 	private ArrayList<OpenCVFilter> filters = new ArrayList<OpenCVFilter>();
@@ -75,9 +74,16 @@ public class VideoProcessor implements Runnable {
 
 	HashMap<String, FrameRecorder> outputFileStreams = new HashMap<String, FrameRecorder>();
 
-	public String displayFilter = "input";
+
 	// String initialInputKey = "_OUTPUT";
-	String initialInputKey = "zod";
+	public static final String INPUT_KEY = "input";
+	public static final String OUTPUT_KEY = "output";
+	
+	/**
+	 * selected display filter
+	 * unselected defaults to input
+	 */
+	public String displayFilter = INPUT_KEY; 
 
 	// display
 	transient IplImage frame;
@@ -180,15 +186,16 @@ public class VideoProcessor implements Runnable {
 
 				// TODO - option to accumulate? - e.g. don't new
 				data = new OpenCVData(opencv.getName());
-
+				data.put(INPUT_KEY, new SerializableImage(frame.getBufferedImage(), INPUT_KEY));
 				// Logging.logTime("read");
 
 				synchronized (filters) {
 					Iterator<OpenCVFilter> itr = filters.iterator();
-					sources.put(initialInputKey, frame);
+					sources.put(INPUT_KEY, frame);
 					while (capturing && itr.hasNext()) {
 
 						OpenCVFilter filter = itr.next();
+						data.setFilterName(filter.name);
 
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
@@ -196,20 +203,21 @@ public class VideoProcessor implements Runnable {
 							log.error(filter.name);
 						}
 
+						// pre process for image size & channel changes
 						image = filter.preProcess(image, data);
 						image = filter.process(image, data);
 
 						// process the image - push into source as new output
 						sources.put(filter.name, image);
-
-						// no conversion OpenCV image
-						if (filter.publishIplImage) {
-							data.put(String.format("%s_%s", filter.name, OpenCVData.KEY_IPLIMAGE), image);
-						}
-
-						// Java serializable image
-						if (filter.publishImage) {
-							data.put(filter.name, new SerializableImage(frame.getBufferedImage(), filter.name));
+						
+						// if told to publish or last image
+						if (filter.publishImage || !itr.hasNext()) {
+// FIXME - memory waste ???							
+							// FIXME - correct way to clone BufferedImage
+							// FIXME - first bufferedImage put into data does not need to be cloned
+							IplImage copy = image.clone();
+							SerializableImage out = new SerializableImage(copy.getBufferedImage(), filter.name);
+							data.put(filter.name, out);
 						}
 
 						// if selected || use has chosen to publish multiple
@@ -217,13 +225,17 @@ public class VideoProcessor implements Runnable {
 							recordImage(filter, image);
 						}
 
+						// FIXME - different concept of user-viewing versus a published frame
+						// its preferrable to have computer consumed published data in segregated binary forms
+						// like arrays of points or arrays of boundingboxes
+						// however to view - a user wants to see the overlay
 						// publish display
-						if (filter.name.equals(displayFilter) || filter.publishDisplay) {
-							BufferedImage display = filter.display(image); // FIXME
-																			// -
-																			// change
-																			// to
-																			// SerilizabelImage
+						if (displayFilter.equals(INPUT_KEY))
+						{
+							opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());							
+						} else if (filter.name.equals(displayFilter) || filter.publishDisplay) {
+							BufferedImage display = filter.display(image, data); 
+							// FIXME - change to Serialiable image
 							opencv.invoke("publishDisplay", displayFilter, display);
 						}
 					} // capturing && itr.hasNext()
@@ -257,7 +269,7 @@ public class VideoProcessor implements Runnable {
 	public void recordImage(OpenCVFilter filter, IplImage image) {
 		// filter - and "recording" based on what person "see in the display"
 		if (filter.name.equals(displayFilter) || filter.publishDisplay) {
-			BufferedImage display = filter.display(image); // FIXME - change to
+			BufferedImage display = filter.display(image, null); // FIXME - change to
 															// SerilizabelImage
 			opencv.invoke("publishDisplay", displayFilter, display);
 
@@ -287,7 +299,7 @@ public class VideoProcessor implements Runnable {
 			// default join to the last filter
 			// if there are no filters - then grab _OUTPUT
 
-			String inputkey = initialInputKey;
+			String inputkey = INPUT_KEY;
 			if (filters.size() > 0) {
 				OpenCVFilter f = filters.get(filters.size() - 1);
 				inputkey = String.format("%s", f.name);
@@ -313,10 +325,10 @@ public class VideoProcessor implements Runnable {
 			Iterator<OpenCVFilter> itr = filters.iterator();
 			while (itr.hasNext()) {
 				OpenCVFilter filter = itr.next();
-				if (!filter.name.equals("input")) {
+//ZOD				if (!filter.name.equals("input")) {
 					itr.remove();
-					return;
-				}
+//					return;
+//				}
 			}
 		}
 	}
@@ -455,5 +467,13 @@ public class VideoProcessor implements Runnable {
 
 	public void recordSingleFrame(Boolean b) {
 		recordSingleFrame = b;
+	}
+
+	public FrameGrabber getGrabber() {
+		return grabber;
+	}
+
+	public void setGrabber(FrameGrabber grabber) {
+		this.grabber = grabber;
 	}
 }

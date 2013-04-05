@@ -73,6 +73,7 @@ public class Runtime extends Service {
 	// ---- Runtime members begin -----------------
 	public final static ServiceInfo serviceInfo = ServiceInfo.getInstance();
 
+	/*
 	@Element
 	public String proxyHost;
 	@Element
@@ -81,7 +82,8 @@ public class Runtime extends Service {
 	public String proxyUserName;
 	@Element
 	public String proxyPassword;
-
+	*/
+	
 	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
@@ -545,13 +547,13 @@ public class Runtime extends Service {
 			si = null;
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
-			log.debug(String.format("adding %1$s to export", name));
 			if (sw.get().allowExport()) {
-				log.debug(String.format("exporting service: $s", sw.getServiceType()));
+				log.info(String.format("exporting service: %s of type %s", name, sw.getServiceType()));
 				// create new structure - otherwise it won't be correctly
 				// filtered
 				si = sw.get();
 			} else {
+				log.info(String.format("%s will not be exported", name));
 				continue;
 			}
 			sw2 = new ServiceWrapper(name, si, export);
@@ -1630,6 +1632,26 @@ public class Runtime extends Service {
 			return null;
 		}
 		return sw.get();
+	}
+	
+	/**
+	 * save all configuration from all local services
+	 * 
+	 * @return
+	 */
+	static public boolean saveAll()
+	{
+		boolean ret = true;
+		ServiceEnvironment se = getLocalServices();
+		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		String serviceName;
+		while (it.hasNext()) {
+			serviceName = it.next();
+			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			ret &= sw.service.save();
+		}
+		
+		return ret;
 	}
 
 }

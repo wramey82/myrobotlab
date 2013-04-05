@@ -53,7 +53,7 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		return frameBuffer;
 	}
 

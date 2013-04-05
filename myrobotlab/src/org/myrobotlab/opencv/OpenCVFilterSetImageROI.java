@@ -48,7 +48,7 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		return image.getBufferedImage();
 	}
 

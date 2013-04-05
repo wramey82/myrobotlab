@@ -118,7 +118,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		/*
 		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);
 		 * graphics.drawString("R/H " + (int)avg.getRed() + " G/S " +

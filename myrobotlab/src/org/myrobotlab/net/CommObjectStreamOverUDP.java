@@ -40,7 +40,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Message;
@@ -56,11 +55,13 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
 	static public transient HashMap<URI, UDPThread> clientList = new HashMap<URI, UDPThread>();
+	
 	Service myService = null;
 
 	public class UDPThread extends Thread {
 		URI url;
 		transient DatagramSocket socket = null;
+		CommData data = new CommData();
 
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
@@ -237,14 +238,17 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 
 	}
 
+
 	@Override
-	public ArrayList<URI> getClients() {
-		ArrayList<URI> ret = new ArrayList<URI>();
+	public HashMap<URI, CommData> getClients() {
+		
+		HashMap<URI, CommData> data = new HashMap<URI, CommData>();
 		for (URI key : clientList.keySet()) {
-			ret.add(key);
+			UDPThread tcp = clientList.get(key);
+			data.put(key, tcp.data);
 		}
 
-		return ret;
+		return data;
 	}
 
 }

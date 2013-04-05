@@ -56,7 +56,7 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage frame) {
+	public BufferedImage display(IplImage frame, OpenCVData data) {
 		frameBuffer = frame.getBufferedImage(); // TODO - ran out of memory here
 		return frameBuffer;
 

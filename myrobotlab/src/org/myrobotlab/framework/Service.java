@@ -107,7 +107,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	Inbox inbox = null;
 	
 	@Element
-	private boolean allowExport = false; 
+	protected boolean allowExport = true; 
 	
 	public URI url = null;
 
@@ -144,7 +144,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private transient OutputStream recordingPython;
 
 	/**
-	 * 
+	 * TODO - deprecate - use annotations
 	 */
 	abstract public String getToolTip();
 
@@ -167,7 +167,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * 
+	 * local service constructor - initializes with null host env
 	 * @param instanceName
 	 * @param serviceClass
 	 */
@@ -175,9 +175,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		this(instanceName, serviceClass, null);
 	}
 
-	/**
-	 * 
-	 */
 	public String getName() {
 		return name;
 	}
@@ -190,23 +187,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public Service(String instanceName, String serviceClass, String inHost) {
 
-		// if I'm not a Runtime - then
-		// start the Runtime
+		// if I'm not a Runtime - then start the Runtime
 		if (!Runtime.isRuntime(this)) {
 			Runtime.getInstance();
 		}
 
 		if (inHost != null) {
 			try {
-				url = new URI(inHost); // TODO - initialize once
-										// RuntimeEnvironment
+				url = new URI(inHost); 
 			} catch (Exception e) {
 				log.error(String.format("%1$s not a valid URI", inHost));
 			}
 		}
-		// determine host name
-		host = getHostName(inHost);// TODO - initialize once RuntimeEnvironment
-
+		
+		host = getHostName(inHost);
 		name = instanceName;
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
@@ -220,8 +214,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		// service instance defaults
 		loadServiceDefaultConfiguration();
-
-		// TODO - if a gui is involved you may want to prompt
 
 		// over-ride process level with host file
 		if (!hostInitialized) {
@@ -1704,7 +1696,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, int port, ServiceDirectoryUpdate sdu) {
 		try {
-			log.info(name + " sendServiceDirectoryUpdate ");
+			log.info("{} sendServiceDirectoryUpdate ", getName());
 			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
 			StringBuffer urlstr = new StringBuffer().append("tcp://");
 
@@ -1733,7 +1725,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
 			sdu.url = url;
 
-			send(remoteURL, "registerServices", sdu);
+			// FIXME - make a configurable gateway !!!
+			Runtime.getInstance().send(remoteURL, "registerServices", sdu);
 		} catch (Exception e) {
 			logException(e);
 		}
@@ -1870,7 +1863,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * This method is a rounting method used to attach service to other services
+	 * This method is a rounting method used to attach a service to other services
 	 * - the implementation of this method depends on what needs to be done in
 	 * order to attach one service to another
 	 * 

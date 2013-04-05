@@ -72,7 +72,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		/*
 		 * if (thresholded2 != null) { frameBuffer =

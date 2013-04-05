@@ -1,31 +1,20 @@
 package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
-// TODO - too big for inner class
-public class VideoDisplayPanel implements ActionListener {
+public class VideoDisplayPanel {
 	public final static Logger log = LoggerFactory.getLogger(VideoDisplayPanel.class.getCanonicalName());
 
 	VideoWidget parent;
@@ -35,14 +24,11 @@ public class VideoDisplayPanel implements ActionListener {
 	final GUI myService;
 
 	JPanel myDisplay = new JPanel();
-	JComboBox sources = new JComboBox();
 	JLabel screen = new JLabel();
 	JLabel mouseInfo = new JLabel("mouse x y");
 	JLabel resolutionInfo = new JLabel("width x height");
 	JLabel deltaTime = new JLabel("0");
 
-	JButton attach = new JButton("attach");
-	JButton fork = new JButton("fork");
 	JLabel sourceNameLabel = new JLabel("");
 	public JLabel extraDataLabel = new JLabel("");
 
@@ -62,13 +48,7 @@ public class VideoDisplayPanel implements ActionListener {
 			params[0] = e.getX();
 			params[1] = e.getY();
 
-			// d[0] = e; // TODO - "invokeFilterMethod" to mouseClick - not
-			// OpenCV specific
-			// myService.send(boundServiceName, "invokeFilterMethod",
-			// sourceNameLabel.getText(), "samplePoint", d);
 			myService.send(boundServiceName, "invokeFilterMethod", sourceNameLabel.getText(), "samplePoint", params);
-			// myService.send(boundServiceName, "invokeFilterMethod",
-			// sourceNameLabel.getText(), "samplePoint", e.getX(), e.getY());
 		}
 
 		@Override
@@ -112,27 +92,7 @@ public class VideoDisplayPanel implements ActionListener {
 
 		screen.addMouseListener(vml);
 		myIcon.setImageObserver(screen); // Good(necessary) Optimization
-
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder(boundServiceName + " " + boundFilterName + " video widget");
-		myDisplay.setBorder(title);
-
-		JPanel north = new JPanel();
-		fork.addActionListener(this);
-
-		if (!parent.allowFork) {
-			fork.setVisible(false);
-		}
-
-		sources.setVisible(false);
-		attach.addActionListener(this);
-
-		attach.setVisible(false);
-		north.add(fork);
-		north.add(sources);
-		north.add(attach);
-
-		myDisplay.add(BorderLayout.NORTH, north);
+	
 		myDisplay.add(BorderLayout.CENTER, screen);
 
 		JPanel south = new JPanel();
@@ -157,13 +117,6 @@ public class VideoDisplayPanel implements ActionListener {
 		String source = img.getSource();
 		long timestamp = img.getTimestamp();
 
-		if (parent.allowFork && !parent.displays.containsKey(source)) {
-			parent.addVideoDisplayPanel(source);// dynamically spawn a
-													// display if a new source
-													// is found
-			getSources();
-		}
-
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
 		}
@@ -172,7 +125,12 @@ public class VideoDisplayPanel implements ActionListener {
 			sourceNameLabel.setText(source);
 		}
 
-		myIcon.setImage(img.getImage());
+		if (parent.normalizedSize != null)
+		{
+			myIcon.setImage(img.getImage().getScaledInstance(parent.normalizedSize.width, parent.normalizedSize.height, 0));
+		} else {
+			myIcon.setImage(img.getImage());
+		}
 		screen.setIcon(myIcon);
 		if (lastImage != null) {
 				deltaTime.setText(String.format("%d", timestamp - lastImage.getTimestamp()));
@@ -180,12 +138,6 @@ public class VideoDisplayPanel implements ActionListener {
 
 		lastImage = img;
 		lastIcon.setImage(img.getImage());
-
-		if (parent.exports.size() > 0) {
-			for (int i = 0; i < parent.exports.size(); ++i) {
-				// exports.get(i).displayFrame(filterName, img); FIXME
-			}
-		}
 
 		if (lastImageWidth != img.getImage().getWidth()) {
 			screen.invalidate();
@@ -198,32 +150,6 @@ public class VideoDisplayPanel implements ActionListener {
 
 	}
 
-	public void getSources() {
-
-		Map<String, VideoDisplayPanel> sortedMap = new TreeMap<String, VideoDisplayPanel>(parent.displays);
-		Iterator<String> it = sortedMap.keySet().iterator();
-
-		sources.removeAllItems();
-
-		while (it.hasNext()) {
-			String serviceName = it.next();
-			sources.addItem(serviceName);
-		}
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String id = ((JButton) e.getSource()).getText();
-		if (id.equals("fork")) {
-			String filter = (String) sources.getSelectedItem();
-			parent.addVideoDisplayPanel(filter);
-			myService.send(boundServiceName, "fork", filter);
-
-		} else {
-			log.error("unhandled button event - " + id);
-		}
-
-	}
 
 } // VideoDisplayPanel
 

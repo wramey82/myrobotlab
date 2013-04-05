@@ -83,9 +83,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	boolean isMinArea;
 	boolean isMaxArea;
-	
-	OpenCVData myData;
-	
+		
 	transient IplImage grey = null;
 	//transient IplImage display = null;
 	transient IplImage dst = null;
@@ -100,12 +98,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) { 
+	public BufferedImage display(IplImage image, OpenCVData data) { 
 		
 		BufferedImage frameBuffer = image.getBufferedImage();
 		Graphics2D g = frameBuffer.createGraphics();
 		g.setColor(Color.green);
-		ArrayList<Rectangle> boxes = myData.getBoundingBoxArray();
+		ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
 		if (boxes != null){
 			for (Rectangle box:boxes)
 			{
@@ -121,7 +119,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
-		myData = data;
+		// FIXME 3 channel search ???
 		if (image.nChannels() == 3) {
 			cvCvtColor(image, grey, CV_BGR2GRAY);
 		} else {

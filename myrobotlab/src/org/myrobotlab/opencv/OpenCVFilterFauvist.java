@@ -59,7 +59,7 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		frameBuffer = inlines.getBufferedImage(); // TODO - ran out of memory
 													// here

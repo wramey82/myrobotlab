@@ -73,7 +73,7 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		BufferedImage bi = image.getBufferedImage();
 		/*
 		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);

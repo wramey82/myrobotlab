@@ -245,7 +245,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 
 		return null;
 	}

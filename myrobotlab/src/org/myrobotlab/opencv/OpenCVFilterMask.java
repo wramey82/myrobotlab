@@ -52,7 +52,7 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image) {
+	public BufferedImage display(IplImage image, OpenCVData data) {
 		return dst.getBufferedImage();
 	}
 
