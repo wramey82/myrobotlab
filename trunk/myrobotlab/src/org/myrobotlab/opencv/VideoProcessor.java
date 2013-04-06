@@ -369,9 +369,11 @@ public class VideoProcessor implements Runnable {
 		return null;
 	}
 
-	public void recordSingleFrame(BufferedImage frame, int frameIndex) {
-		Util.writeBufferedImage(frame, String.format("%s.%d.jpg", opencv.getName(), frameIndex));
+	public String recordSingleFrame(BufferedImage frame, int frameIndex) {
+		String filename = String.format("%s.%d.jpg", opencv.getName(), frameIndex);
+		Util.writeBufferedImage(frame, filename);
 		recordSingleFrame = false;
+		return filename;
 	}
 
 	// FIXME
