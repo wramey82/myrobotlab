@@ -1,5 +1,6 @@
 package org.myrobotlab.service;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,18 +89,18 @@ public class Python extends Service {
 
 	transient PythonInterpreter interp = null;
 	transient PIThread interpThread = null;
+	// FIXME - this is messy !
+	transient HashMap<String, Script> scripts = new HashMap<String, Script>();
 
 	String inputScript = null;
 	String setupScript = null;
 	String msgHandlerScript = null;
 	private Script currentScript = new Script("untitled.py", "");
-
-	HashMap<String, Script> scripts = new HashMap<String, Script>();
-
 	boolean pythonConsoleInitialized = false;
 	String initialServiceScript = "";
 
-	public static class Script {
+	public static class Script implements Serializable{
+		private static final long serialVersionUID = 1L;
 		private String name;
 		private String code;
 
