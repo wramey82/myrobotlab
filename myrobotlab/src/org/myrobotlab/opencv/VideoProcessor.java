@@ -57,6 +57,8 @@ public class VideoProcessor implements Runnable {
 	// GRABBER END --------------------------
 	@Element
 	public boolean useBlockingData = false;
+	
+	String lastRecordedFrameFileName;
 
 	OpenCVData data = new OpenCVData();
 	public BlockingQueue<OpenCVData> blockingData = new LinkedBlockingQueue<OpenCVData>();
@@ -372,8 +374,14 @@ public class VideoProcessor implements Runnable {
 	public String recordSingleFrame(BufferedImage frame, int frameIndex) {
 		String filename = String.format("%s.%d.jpg", opencv.getName(), frameIndex);
 		Util.writeBufferedImage(frame, filename);
+		lastRecordedFrameFileName = filename;
 		recordSingleFrame = false;
 		return filename;
+	}
+	
+	public String getLastRecordedFrameFileName()
+	{
+		return lastRecordedFrameFileName;
 	}
 
 	// FIXME
@@ -448,6 +456,7 @@ public class VideoProcessor implements Runnable {
 				// FFmpegFrameRecorder recorder = new FFmpegFrameRecorder
 				// (String.format("%s.avi",filename), frame.width(),
 				// frame.height());
+				
 				FrameRecorder recorder = new OpenCVFrameRecorder(String.format("%s.avi", filename), frame.width(), frame.height());
 				// recorder.setCodecID(CV_FOURCC('M','J','P','G'));
 				recorder.setFrameRate(15);
@@ -463,8 +472,23 @@ public class VideoProcessor implements Runnable {
 		}
 	}
 
+	// FIXME - different thread issue !!!! solve with Runnable swing like solution
 	public void recordOutput(Boolean b) {
 		isRecordingOutput = b;
+		String filename = "output"; // TODO FIXME
+		if (!b && outputFileStreams.containsKey(filename))
+		{
+			FrameRecorder recorder = outputFileStreams.get(filename);
+			try {
+				log.error("****about to stop recorder*****");
+				recorder.stop();
+				log.error("****about to release recorder*****");
+				recorder.release();
+				log.error("****released recorder - Yay*****");
+			} catch (com.googlecode.javacv.FrameRecorder.Exception e) {
+				Logging.logException(e);
+			}
+		}
 	}
 
 	public void recordSingleFrame(Boolean b) {
