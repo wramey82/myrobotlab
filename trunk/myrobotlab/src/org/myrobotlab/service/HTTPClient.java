@@ -60,6 +60,10 @@ public class HTTPClient extends Service {
 	}
 
 	public static String parse(String in, String beginTag, String endTag) {
+		if (in == null)
+		{
+			return null;
+		}
 		int pos0 = in.indexOf(beginTag);
 		int pos1 = in.indexOf(endTag, pos0);
 

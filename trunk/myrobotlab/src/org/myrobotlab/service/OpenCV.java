@@ -224,7 +224,7 @@ public class OpenCV extends Service {
 		bqgrabber.add(image);
 		
 		try {
-			OpenCVData ret = videoProcessor.blockingData.take();
+			OpenCVData ret = (OpenCVData)videoProcessor.blockingData.take();
 			return ret;
 		} catch (InterruptedException e) {
 			return null;
@@ -399,13 +399,8 @@ public class OpenCV extends Service {
 		videoProcessor.recordOutput(b);
 	}
 
-	public void recordSingleFrame(Boolean b) {
-		videoProcessor.recordSingleFrame(b);
-	}
-	
-	public String getLastRecordedFrameFileName()
-	{
-		return videoProcessor.getLastRecordedFrameFileName();
+	public String recordSingleFrame(Boolean b) {
+		return videoProcessor.recordSingleFrame(b);
 	}
 
 	// filter dynamic data exchange end ------------------

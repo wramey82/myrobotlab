@@ -58,10 +58,9 @@ public class VideoProcessor implements Runnable {
 	@Element
 	public boolean useBlockingData = false;
 	
-	String lastRecordedFrameFileName;
-
 	OpenCVData data = new OpenCVData();
-	public BlockingQueue<OpenCVData> blockingData = new LinkedBlockingQueue<OpenCVData>();
+	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
+	
 	HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	private transient OpenCV opencv;
@@ -372,17 +371,19 @@ public class VideoProcessor implements Runnable {
 	}
 
 	public String recordSingleFrame(BufferedImage frame, int frameIndex) {
-		String filename = String.format("%s.%d.jpg", opencv.getName(), frameIndex);
-		Util.writeBufferedImage(frame, filename);
-		lastRecordedFrameFileName = filename;
-		recordSingleFrame = false;
-		return filename;
+		try {
+			String filename = String.format("%s.%d.jpg", opencv.getName(), frameIndex);
+			Util.writeBufferedImage(frame, filename);
+			// FIXME - MESSY - WHAT IF THIS IS ATTEMPTED TO PROCESS THROUGH FILTERS !!!
+			blockingData.put(filename);
+			recordSingleFrame = false;
+			return filename;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return null;
 	}
 	
-	public String getLastRecordedFrameFileName()
-	{
-		return lastRecordedFrameFileName;
-	}
 
 	// FIXME
 	public OpenCVData getOpenCVData() {
@@ -393,7 +394,7 @@ public class VideoProcessor implements Runnable {
 			boolean oldPublishOpenCVData = publishOpenCVData;
 			publishOpenCVData = true; 
 			useBlockingData = true;
-			data = blockingData.take(); // TODO - poll or timeout value parameter
+			data = (OpenCVData)blockingData.take(); // TODO - poll or timeout value parameter
 			publishOpenCVData = oldPublishOpenCVData;
 			useBlockingData = false;
 			return data;
@@ -491,8 +492,24 @@ public class VideoProcessor implements Runnable {
 		}
 	}
 
-	public void recordSingleFrame(Boolean b) {
+	public String recordSingleFrame(Boolean b) {
 		recordSingleFrame = b;
+		// blocking until filename is set
+		// waiting for return of frame
+		
+		try {
+			Object o = blockingData.take();
+			if (o.getClass() == String.class)
+			{
+				return (String)o;
+			} else {
+				log.error("SHITE !!! - grabbed something which wasn't mine!!!");
+			}
+		} catch (InterruptedException e) {
+			Logging.logException(e);
+		}
+		
+		return null;
 	}
 
 	public FrameGrabber getGrabber() {
