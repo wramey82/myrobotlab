@@ -402,6 +402,11 @@ public class OpenCV extends Service {
 	public void recordSingleFrame(Boolean b) {
 		videoProcessor.recordSingleFrame(b);
 	}
+	
+	public String getLastRecordedFrameFileName()
+	{
+		return videoProcessor.getLastRecordedFrameFileName();
+	}
 
 	// filter dynamic data exchange end ------------------
 	
