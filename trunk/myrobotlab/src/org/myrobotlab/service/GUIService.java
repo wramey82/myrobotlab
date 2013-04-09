@@ -130,6 +130,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	@Element
 	public String lastTabVisited;
+	@Element
+	public String lastHost = "127.0.0.1";
+	@Element
+	public String lastPort = "6767";
 
 	/**
 	 * class to save the position and size of undocked panels
@@ -602,9 +606,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	}
 
-	public String lastHost = "127.0.0.1";
-	public String lastPort = "6767";
-
 	public void about() {
 		new AboutDialog(frame);
 	}
@@ -756,6 +757,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		systemMenu.add(save);
 		save.addActionListener(this);
 
+		JMenuItem load = new JMenuItem("load");
+		load.setActionCommand("load");
+		systemMenu.add(load);
+		load.addActionListener(this);
+		
 		JMenu m = new JMenu("logging");
 		systemMenu.add(m);
 		
@@ -805,8 +811,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		Object source = ae.getSource();
 		if ("save".equals(cmd)) {
 			Runtime.saveAll();
-			// FIXME - deprecate & remove
-			//Runtime.save("myrobotlab.mrl");
+		} else if ("load".equals(cmd)) {
+			Runtime.loadAll();
 		} else if ("check for updates".equals(cmd)) {
 			Runtime runtime = Runtime.getInstance();
 			send(runtime.getName(), "checkForUpdates");

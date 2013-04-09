@@ -89,6 +89,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	JMenuItem startMenuItem = null;
 	JMenuItem upgradeMenuItem = null;
 	JMenuItem releaseMenuItem = null;
+	
+	String possibleServiceFilter = null;
 
 	DefaultListModel currentServicesModel = new DefaultListModel();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
@@ -254,7 +256,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
 		popup.add(releaseMenuItem);
 
-		getPossibleServicesThreadSafe(null);
+//		getPossibleServices(null);
 
 		GridBagConstraints inputgc = new GridBagConstraints();
 
@@ -380,6 +382,11 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		subscribe("released", "released", ServiceWrapper.class);
 		subscribe("failedDependency", "failedDependency", String.class);
 		subscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
+
+		subscribe("getServiceShortClassNames", "onPossibleServicesRefresh", String[].class);
+
+		getPossibleServices(null);
+
 	}
 
 	@Override
@@ -394,6 +401,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("released", "released", ServiceWrapper.class);
 		unsubscribe("failedDependency", "failedDependency", String.class);
 		unsubscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
+
+		unsubscribe("getServiceShortClassNames", "onPossibleServicesRefresh", String[].class);
 	}
 
 	public void failedDependency(String dep) {
@@ -457,12 +466,70 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	 * Robert & Stack-overflow for something which I was tearing my hair out for
 	 * a day !!!
 	 */
-	public void getPossibleServicesThreadSafe(String filter) {
-		Runnable worker = new PossibleServicesRunnable(filter);
+	// FIXED - is threadsafe now
+	public void getPossibleServices(final String filter) {
+		possibleServiceFilter = filter;
+		myService.send(boundServiceName, "getServiceShortClassNames", filter);
+		/*
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				for (int i = possibleServicesModel.getRowCount(); i > 0; --i) {
+					possibleServicesModel.removeRow(i - 1);
+				}
+
+				possibleServicesModel.getRowCount();
+
+				// FIXME
+				String[] sscn = Runtime.getServiceShortClassNames(filter);
+				ServiceEntry[] ses = new ServiceEntry[sscn.length];
+				ServiceEntry se = null;
+
+				for (int i = 0; i < ses.length; ++i) {
+					//log.info("possible service {}", i);
+					se = new ServiceEntry(null, sscn[i], false);
+
+					possibleServicesModel.addRow(new Object[] { se, "" });
+				}
+
+				possibleServicesModel.fireTableDataChanged();
+				possibleServices.invalidate();
+			}
+			});
+			*/
+	}
+	
+	public void onPossibleServicesRefresh(final String[] sscn)
+	{
+		log.info("here");
 		// FIXED - a new AWT Thread is spawned off to do the rendering
-		SwingUtilities.invokeLater(worker);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				for (int i = possibleServicesModel.getRowCount(); i > 0; --i) {
+					possibleServicesModel.removeRow(i - 1);
+				}
+
+				possibleServicesModel.getRowCount();
+
+				// FIXME
+				//String[] sscn = Runtime.getServiceShortClassNames(filter);
+				ServiceEntry[] ses = new ServiceEntry[sscn.length];
+				ServiceEntry se = null;
+
+				for (int i = 0; i < ses.length; ++i) {
+					//log.info("possible service {}", i);
+					se = new ServiceEntry(null, sscn[i], false);
+
+					possibleServicesModel.addRow(new Object[] { se, "" });
+				}
+
+				possibleServicesModel.fireTableDataChanged();
+				possibleServices.invalidate();
+			}
+			});
 	}
 
+	
+/*
 	class PossibleServicesRunnable implements Runnable {
 		private String filter;
 
@@ -478,6 +545,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
 			possibleServicesModel.getRowCount();
 
+			// FIXME
 			String[] sscn = Runtime.getServiceShortClassNames(filter);
 			ServiceEntry[] ses = new ServiceEntry[sscn.length];
 			ServiceEntry se = null;
@@ -494,6 +562,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		}
 
 	}
+	*/
 
 	class CellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
@@ -580,9 +649,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		public void actionPerformed(ActionEvent cmd) {
 			log.info(cmd.getActionCommand());
 			if ("all".equals(cmd.getActionCommand())) {
-				getPossibleServicesThreadSafe(null);
+				getPossibleServices(null);
 			} else {
-				getPossibleServicesThreadSafe(cmd.getActionCommand());
+				getPossibleServices(cmd.getActionCommand());
 			}
 		}
 
@@ -596,7 +665,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	 * @return
 	 */
 	public ServiceInfo proposedUpdates(ServiceInfo si) {
-		getPossibleServicesThreadSafe(null);
+		getPossibleServices(null);
 		return si;
 	}
 

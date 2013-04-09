@@ -31,6 +31,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.python.modules.synchronize;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
@@ -103,9 +104,13 @@ public class Runtime extends Service {
 	 * 
 	 * @param n
 	 */
-	private Runtime(String n) {
+	public Runtime(String n) {
 		super(n, Runtime.class.getCanonicalName());
 
+		synchronized (instanceLockObject)  {
+			instance = this;
+		}
+		
 		hideMethods.put("main", null);
 		hideMethods.put("loadDefaultConfiguration", null);
 		hideMethods.put("getToolTip", null);
@@ -327,7 +332,7 @@ public class Runtime extends Service {
 		}
 
 		if (se.serviceDirectory.containsKey(sw.name)) {
-			log.info(String.format("%s already registered"));
+			log.info("{} already registered", sw.name);
 			return;
 		}
 		// FIXME - does the refrence of this service wrapper need to point back
@@ -1335,9 +1340,7 @@ public class Runtime extends Service {
 	 */
 	static public synchronized ServiceInterface createService(String name, String fullTypeName) {
 		log.debug("Runtime.createService");
-		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) // ||
-																										// !cls.isInstance(Service.class))
-																										// \
+		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) 
 		{
 			log.error(String.format("%1$s not a type or %2$s not defined ", fullTypeName, name));
 			return null;
@@ -1654,4 +1657,23 @@ public class Runtime extends Service {
 		return ret;
 	}
 
+	/**
+	 * load all configuration from all local services
+	 * 
+	 * @return
+	 */
+	static public boolean loadAll()
+	{
+		boolean ret = true;
+		ServiceEnvironment se = getLocalServices();
+		Iterator<String> it = se.serviceDirectory.keySet().iterator();
+		String serviceName;
+		while (it.hasNext()) {
+			serviceName = it.next();
+			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
+			ret &= sw.service.load();
+		}
+		
+		return ret;
+	}
 }

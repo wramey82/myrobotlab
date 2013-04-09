@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 
-public class RaspPi extends Service  {
+public class RasPi extends Service  {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(RaspPi.class.getCanonicalName());
-	GpioController gpio = GpioFactory.getInstance();
+	public final static Logger log = LoggerFactory.getLogger(RasPi.class.getCanonicalName());
+	//GpioController gpio = GpioFactory.getInstance();
 	
-	public RaspPi(String n) {
-		super(n, RaspPi.class.getCanonicalName());	
+	public RasPi(String n) {
+		super(n, RasPi.class.getCanonicalName());	
 	}
 
 	@Override
@@ -27,10 +27,13 @@ public class RaspPi extends Service  {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		RaspPi raspi = new RaspPi("raspi");
-		raspi.startService();
+		Runtime.createAndStart("raspiRun", "Runtime");
+		Runtime.createAndStart("raspi", "RasPi");
+		Runtime.createAndStart("rasGUI", "GUIService");
+		Runtime.createAndStart("remote", "RemoteAdapter");
+		
 
 	}
 
