@@ -187,8 +187,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public Service(String instanceName, String serviceClass, String inHost) {
 
-		// if I'm not a Runtime - then start the Runtime
-		if (!Runtime.isRuntime(this)) {
+		// if I'm not a Runtime and not explicitly requesting a Runtime - then start a Runtime
+		if (!Runtime.isRuntime(this) && !serviceClass.equals("org.myrobotlab.service.Runtime")) {
 			Runtime.getInstance();
 		}
 

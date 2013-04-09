@@ -18,6 +18,7 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 /**
@@ -83,20 +84,25 @@ public class Python extends Service {
 	public final static transient Logger log = LoggerFactory.getLogger(Python.class.getCanonicalName());
 	// using a HashMap means no duplicates
 	private static final Set<String> commandMap;
-	// TODO this needs to be moved into an actual cache if it is to be used
-	// Cache of compile python code
-	private static final transient HashMap<String, PyObject> objectCache;
 
 	transient PythonInterpreter interp = null;
 	transient PIThread interpThread = null;
 	// FIXME - this is messy !
 	transient HashMap<String, Script> scripts = new HashMap<String, Script>();
+	// TODO this needs to be moved into an actual cache if it is to be used
+	// Cache of compile python code
+	private static final transient HashMap<String, PyObject> objectCache;
 
+	@Element
 	String inputScript = null;
+	@Element
 	String setupScript = null;
+	@Element
 	String msgHandlerScript = null;
+	@Element
 	private Script currentScript = new Script("untitled.py", "");
 	boolean pythonConsoleInitialized = false;
+	@Element
 	String initialServiceScript = "";
 
 	public static class Script implements Serializable{
