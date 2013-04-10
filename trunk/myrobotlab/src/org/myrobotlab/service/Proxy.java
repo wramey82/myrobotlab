@@ -22,7 +22,7 @@ public class Proxy extends Service {
 
 	private String mimicName = null;
 	private String mimicType = null;
-	private Service target = null;
+	//private Service target = null;
 	private HashMap<MessageListener, Object> listeners = new HashMap<MessageListener, Object>();
 
 	// TODO - override getName & getType depending on OS/JVM
@@ -31,9 +31,9 @@ public class Proxy extends Service {
 		super(n, Proxy.class.getCanonicalName());
 	}
 
-	public void setTargetService(Service s) {
-		target = s;
-		mimicName = s.getName();
+	public void setTargetService(String mimicName) {
+		//target = s;
+		this.mimicName = mimicName;
 		// mimicType = s.getClass(). FIXME - no direct getClass calls..
 	}
 	

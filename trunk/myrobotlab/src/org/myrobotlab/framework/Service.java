@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
@@ -129,6 +130,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
+	
+	// using a HashMap means no duplicates
+	protected Set<String> methodSet;
+
 
 	SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
@@ -187,6 +192,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public Service(String instanceName, String serviceClass, String inHost) {
 
+		// load all string signatures of our methods
+		// FIXME - use Method - currently does not support parameters
+		if (methodSet == null)
+		{
+			methodSet = getMessageSet();
+		}
+		
 		// if I'm not a Runtime and not explicitly requesting a Runtime - then start a Runtime
 		if (!Runtime.isRuntime(this) && !serviceClass.equals("org.myrobotlab.service.Runtime")) {
 			Runtime.getInstance();
@@ -1043,7 +1055,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// TODO - optimize "setState" function since it is a framework
 			// method - do not go through the search !
 			Method[] allMethods = c.getMethods(); // ouch
-			log.warn(String.format("ouch! need to search through %1$d methods", allMethods.length));
+			log.warn(String.format("ouch! need to search through %d methods", allMethods.length));
 
 			for (Method m : allMethods) {
 				String mname = m.getName();
@@ -1857,7 +1869,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return allowExport;
 	}
 	
-	public void allowExport(boolean b)
+	public void allowExport(Boolean b)
 	{
 		allowExport = b;
 	}
@@ -1873,6 +1885,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public boolean attach(String name, Object... data) {
 		return false;
+	}
+	
+	public HashSet<String> getMessageSet()
+	{
+		HashSet<String> ret = new HashSet<String>();
+		Method[] methods = this.getClass().getMethods();
+		log.info("%s loading %d non-routable methods", getName(), methods.length);
+		for (int i = 0; i < methods.length; ++i) {
+			ret.add(methods[i].getName());
+			log.debug("method {}.{} is not routable", getName(), methods[i].getName());
+		}
+		
+		return ret;
 	}
 
 }

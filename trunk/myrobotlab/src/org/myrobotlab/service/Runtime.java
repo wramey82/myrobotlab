@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
@@ -31,8 +30,6 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
-import org.python.modules.synchronize;
-import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 

@@ -73,7 +73,8 @@ import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
  * Python GUI
  * 
  * @author SwedaKonsult
- * 
+ *  
+ *  use - http://famfamfam.com/lab/icons/silk/previews/index_abc.png - SILK ICONS
  */
 public class PythonGUI extends ServiceGUI implements ActionListener, MouseListener {
 

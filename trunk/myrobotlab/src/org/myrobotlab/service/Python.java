@@ -1,11 +1,8 @@
 package org.myrobotlab.service;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
@@ -82,8 +79,6 @@ public class Python extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static transient Logger log = LoggerFactory.getLogger(Python.class.getCanonicalName());
-	// using a HashMap means no duplicates
-	private static final Set<String> commandMap;
 
 	transient PythonInterpreter interp = null;
 	transient PIThread interpThread = null;
@@ -92,6 +87,10 @@ public class Python extends Service {
 	// TODO this needs to be moved into an actual cache if it is to be used
 	// Cache of compile python code
 	private static final transient HashMap<String, PyObject> objectCache;
+
+	static {
+		objectCache = new HashMap<String, PyObject>();
+	}
 
 	@Element
 	String inputScript = null;
@@ -132,18 +131,6 @@ public class Python extends Service {
 
 		public void setCode(String code) {
 			this.code = code;
-		}
-	}
-
-	static {
-		objectCache = new HashMap<String, PyObject>();
-		commandMap = new HashSet<String>();
-		// Load up the command map
-		Method[] methods = Python.class.getMethods();
-		for (int i = 0; i < methods.length; ++i) {
-			commandMap.add(methods[i].getName());
-			// log.info(String.format("will filter method %1$s",
-			// methods[i].getName()));
 		}
 	}
 
@@ -335,7 +322,7 @@ public class Python extends Service {
 	public boolean preProcessHook(Message msg) {
 		// let the messages for this service
 		// get processed normally
-		if (commandMap.contains(msg.method)) {
+		if (methodSet.contains(msg.method)) {
 			return true;
 		}
 		// otherwise its target is for the

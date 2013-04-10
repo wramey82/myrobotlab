@@ -80,7 +80,6 @@ public class Sphinx extends Service {
 	DialogManager dialogManager = null;
 	transient SpeechProcessor speechProcessor = null;
 	HashMap<String, Message> commandMap = new HashMap<String, Message>();
-
 	private boolean isListening = false;
 
 	public Sphinx(String n) {

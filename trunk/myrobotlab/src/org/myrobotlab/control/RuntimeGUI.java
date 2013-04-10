@@ -229,25 +229,25 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
-		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
+		menuItem.setIcon(Util.getImageIcon("help.png"));
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
 
 		installMenuItem = new JMenuItem("install");
 		installMenuItem.addActionListener(this);
-		installMenuItem.setIcon(Util.getScaledIcon(Util.getImage("install.png"), 0.50));
+		installMenuItem.setIcon(Util.getImageIcon("install.png"));
 		// menuItem.setVisible(false);
 		popup.add(installMenuItem);
 
 		startMenuItem = new JMenuItem("start");
 		startMenuItem.addActionListener(this);
-		startMenuItem.setIcon(Util.getScaledIcon(Util.getImage("start.png"), 0.50));
+		startMenuItem.setIcon(Util.getImageIcon("start.png"));
 		// menuItem.setVisible(false);
 		popup.add(startMenuItem);
 
 		upgradeMenuItem = new JMenuItem("upgrade");
 		upgradeMenuItem.addActionListener(this);
-		upgradeMenuItem.setIcon(Util.getScaledIcon(Util.getImage("upgrade.png"), 0.50));
+		upgradeMenuItem.setIcon(Util.getImageIcon("upgrade.png"));
 		// menuItem.setVisible(false);
 		popup.add(upgradeMenuItem);
 
