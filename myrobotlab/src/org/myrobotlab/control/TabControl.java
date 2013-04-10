@@ -55,6 +55,8 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	TabControlWindowAdapter windowAdapter = new TabControlWindowAdapter();
 	// JFrame top;
 	GUIService myService;
+	
+	JMenuItem allowExportMenuItem;
 
 	String filename = null;
 
@@ -68,13 +70,9 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 * closes window and puts the panel back into the tabbed pane
 	 */
 	public void dockPanel() {
-		// docking panel will move the data of the frame to serializable
-		// position
-		myService.undockedPanels.get(boundServiceName).savePosition(); // FIXME
-																		// -
-																		// very
-																		// hacked
-																		// !
+		// docking panel will move the data of the frame to serializable position
+		// FIXME - very hacked
+		myService.undockedPanels.get(boundServiceName).savePosition(); 
 		myService.undockedPanels.get(boundServiceName).isDocked = true;
 
 		parent.add(myPanel);
@@ -181,20 +179,26 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		// build menu
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
-		menuItem.setIcon(Util.getScaledIcon(Util.getImage("help.png"), 0.50));
+		menuItem.setIcon(Util.getImageIcon("help.png"));
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
 
 		JMenuItem detachMenuItem = new JMenuItem("detach");
 		detachMenuItem.addActionListener(this);
-		detachMenuItem.setIcon(Util.getScaledIcon(Util.getImage("detach.png"), 0.50));
+		detachMenuItem.setIcon(Util.getImageIcon("detach.png"));
 		popup.add(detachMenuItem);
 
 		JMenuItem releaseMenuItem = new JMenuItem("release");
 		releaseMenuItem.addActionListener(this);
-		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
+		releaseMenuItem.setIcon(Util.getImageIcon("release.png"));
 		popup.add(releaseMenuItem);
 
+		allowExportMenuItem = new JMenuItem("prevent export");
+		allowExportMenuItem.setActionCommand("prevent export");
+		allowExportMenuItem.addActionListener(this);
+		allowExportMenuItem.setIcon(Util.getImageIcon("preventExport.png"));
+		popup.add(allowExportMenuItem);
+		
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -265,6 +269,16 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 				undockPanel();
 			} else if ("release".equals(cmd)) {
 				myService.send(Runtime.getInstance().getName(), "releaseService", boundServiceName);
+			} else if ("prevent export".equals(cmd)) {
+				myService.send(boundServiceName, "allowExport", false);
+				allowExportMenuItem.setIcon(Util.getImageIcon("allowExport.png"));
+				allowExportMenuItem.setActionCommand("allow export");
+				allowExportMenuItem.setText("allow export");
+			} else if ("allow export".equals(cmd)) {
+				myService.send(boundServiceName, "allowExport", true);
+				allowExportMenuItem.setIcon(Util.getImageIcon("preventExport.png"));
+				allowExportMenuItem.setActionCommand("prevent export");
+				allowExportMenuItem.setText("prevent export");
 			}
 		} else {
 			// Sub Tabbed sub pane

@@ -147,6 +147,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 */
 	public transient JTabbedPane tabs = new JTabbedPane();
 
+	transient JMenuItem recording = new JMenuItem("start recording");
+	transient JMenuItem loadRecording = new JMenuItem("load recording");
+
 	/**
 	 * the GUIService's gui
 	 */
@@ -162,7 +165,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 */
 	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();
 	transient Map<String, ServiceWrapper> sortedMap = null;
-	HashMap<String, Object> commandMap = new HashMap<String, Object>();
 
 	transient GridBagConstraints gc = null;
 
@@ -170,23 +172,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
-
-		/*
-		 * The commandMap is a list of GUIService functions which should be
-		 * processed by GUIService rather than routed to control Panels FIXME
-		 * !!! - dynamically generate "all" top level functions getMethods +
-		 * Service ?
-		 */
-
-		commandMap.put("registerServicesEvent", null);
-		commandMap.put("registerServices", null);
-		commandMap.put("loadTabPanels", null);
-		commandMap.put("registerServicesNotify", null);
-		commandMap.put("addListener", null);
-		commandMap.put("removeListener", null);
-		commandMap.put("guiUpdated", null);
-		commandMap.put("setRemoteConnectionStatus", null);
-
 		load();// <-- HA was looking all over for it
 	}
 
@@ -199,7 +184,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	public boolean preProcessHook(Message m) {
-		if (commandMap.containsKey(m.method)) {
+		if (methodSet.contains(m.method)) {
 			return true;
 		}
 
@@ -791,8 +776,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return menuBar;
 	}
 
-	JMenuItem recording = new JMenuItem("start recording");
-	JMenuItem loadRecording = new JMenuItem("load recording");
 
 	public JMenu buildRecordingMenu(JMenu parentMenu) {
 

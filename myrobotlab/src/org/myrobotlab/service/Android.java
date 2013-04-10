@@ -26,8 +26,6 @@ public class Android extends Service implements SensorEventListener {
 	//private View view;
 	private long lastUpdate;
 
-	HashMap<String, Object> commandMap = new HashMap<String, Object>(); 
-
 	private Context context;
 	public final static Logger log = LoggerFactory.getLogger(Android.class.getCanonicalName());
 	
@@ -42,19 +40,6 @@ public class Android extends Service implements SensorEventListener {
 		Runtime.getInstance().addListener(n, "registered", String.class);
 		MRL.getInstance().addServiceActivityIntent(Runtime.getInstance().getName(),
 				Runtime.getInstance().getSimpleName());
-		
-		// TODO - generate reflectively
-		// TODO - dynamically reflect to load map
-		commandMap.put("registerServicesEvent", null);
-		commandMap.put("registerServices", null);
-		commandMap.put("loadTabPanels", null);
-		commandMap.put("registerServicesNotify", null);
-		commandMap.put("addListener", null);
-		commandMap.put("removeListener", null);
-		commandMap.put("guiUpdated", null);
-		commandMap.put("registered", null);
-		commandMap.put("released", null);
-		commandMap.put("setRemoteConnectionStatus", null);
 
 	}
 	
@@ -155,7 +140,7 @@ public class Android extends Service implements SensorEventListener {
 
 	public boolean preProcessHook(Message m)
 	{
-		if (commandMap.containsKey(m.method))
+		if (methodSet.contains(m.method))
 		{
 			return true;
 		} 
