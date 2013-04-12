@@ -1,5 +1,7 @@
 package org.myrobotlab.framework;
 
+import java.io.Serializable;
+
 import org.simpleframework.xml.Element;
 
 /**
@@ -8,7 +10,7 @@ import org.simpleframework.xml.Element;
  * @author GroG
  * 
  */
-public class Dependency {
+public class Dependency implements Serializable {
 	// TODO these should have getters and setters instead
 	@Element
 	public String organisation;

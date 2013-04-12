@@ -47,14 +47,7 @@ public class Clock extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 
-	transient ArrayList<ClockEvent> events = new ArrayList<ClockEvent>(); // FIXME
-																			// -
-																			// should
-																			// be
-																			// serializable
-																			// -
-																			// but
-																			// isnt
+	transient ArrayList<ClockEvent> events = new ArrayList<ClockEvent>();
 
 	public static class ClockEvent {
 
@@ -123,8 +116,8 @@ public class Clock extends Service {
 					} else if (pulseDataType == PulseDataType.date) {
 						// invoke("pulse", new Date());
 
-						long diff = stopDate.getTime() - now.getTime();
-						invoke("countdown", diff);
+						//long diff = stopDate.getTime() - now.getTime();
+						//invoke("countdown", diff);
 
 					}
 
@@ -198,8 +191,6 @@ public class Clock extends Service {
 		}
 
 		isClockRunning = true;
-		invoke("publishState"); // TODO - a "bit" heavy handed? appropriate I
-								// think
 	}
 
 	public void stopClock() {
@@ -211,7 +202,7 @@ public class Clock extends Service {
 		}
 
 		isClockRunning = false;
-		invoke("publishState"); // TODO - a "bit" heavy handed? appropriate I
+		//invoke("publishState"); // TODO - a "bit" heavy handed? appropriate I
 								// think
 	}
 

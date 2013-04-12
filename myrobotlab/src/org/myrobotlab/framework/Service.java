@@ -308,7 +308,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Serializer serializer = new Persister();
 
 		try {
-			File cfg = new File(String.format("%1$s%2$s%3$s.xml", cfgDir, File.separator, this.getName()));
+			File cfg = new File(String.format("%s%s%s.xml", cfgDir, File.separator, this.getName()));
 			serializer.write(this, cfg);
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -1702,13 +1702,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * Outbound sendServiceDirectoryUpdate - initial request to connect and
+	 * Outbound connect - initial request to connect and
 	 * register services with a remote system FIXME - change to register - with
 	 * full signature
 	 */
-	public void sendServiceDirectoryUpdate(String login, String password, String name, String remoteHost, int port, ServiceDirectoryUpdate sdu) {
+	// FIXME - change name to "connect" - must change string too
+	public void connect(String login, String password, String name, String remoteHost, int port) {
 		try {
-			log.info("{} sendServiceDirectoryUpdate ", getName());
+			log.info("{} connect ", getName());
 			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
 			StringBuffer urlstr = new StringBuffer().append("tcp://");
 
@@ -1729,8 +1730,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			URI remoteURL = null;
 			remoteURL = new URI(urlstr.toString());
 
-			// if (sdu == null) { bug
-			sdu = new ServiceDirectoryUpdate();
+			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
 			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
 			// }
 

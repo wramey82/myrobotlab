@@ -128,7 +128,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public transient JFrame frame = null;
 
-	@Element
+	@Element(required=false)
 	public String lastTabVisited;
 	@Element
 	public String lastHost = "127.0.0.1";
@@ -792,15 +792,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public void actionPerformed(ActionEvent ae) {
 		String cmd = ae.getActionCommand();
 		Object source = ae.getSource();
+		// get local runtime instance
+		Runtime runtime = Runtime.getInstance();
 		if ("save".equals(cmd)) {
-			Runtime.saveAll();
+			runtime.saveAll();
 		} else if ("load".equals(cmd)) {
-			Runtime.loadAll();
+			runtime.loadAll();
 		} else if ("check for updates".equals(cmd)) {
-			Runtime runtime = Runtime.getInstance();
+			runtime = Runtime.getInstance();
 			send(runtime.getName(), "checkForUpdates");
 		} else if ("update all".equals(cmd)) {
-			Runtime.updateAll();
+			runtime.updateAll();
 		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR) || cmd.equals(Level.FATAL)) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)
 			Logging logging = LoggingFactory.getInstance();
@@ -999,14 +1001,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		 * log.info(d); log.info(String.format("0.%d",Math.abs(d.hashCode())));
 		 */
 		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
-
-		// gui2.sendServiceDirectoryUpdate(login, password, name, remoteHost,
-		// port, sdu) <--FIXME no sdu
-		// FIXME - change to sendRegistration ....
-		// gui2.sendServiceDirectoryUpdate(null, null, null, "localhost", 6767,
-		// null);
-		// gui2.sendServiceDirectoryUpdate(null, null, null, "10.192.198.34",
-		// 6767, null);
 
 		gui2.startService();
 		// gui2.display();

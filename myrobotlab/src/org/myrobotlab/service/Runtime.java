@@ -69,7 +69,7 @@ public class Runtime extends Service {
 	// ---- rte members end ------------------------------
 
 	// ---- Runtime members begin -----------------
-	public final static ServiceInfo serviceInfo = ServiceInfo.getInstance();
+	public final ServiceInfo serviceInfo = new ServiceInfo();
 
 	/*
 	@Element
@@ -94,7 +94,7 @@ public class Runtime extends Service {
 	/**
 	 * The singleton of this class.
 	 */
-	private static Runtime instance = null;
+	private static Runtime localInstance = null;
 
 	/**
 	 * Constructor.
@@ -105,7 +105,7 @@ public class Runtime extends Service {
 		super(n, Runtime.class.getCanonicalName());
 
 		synchronized (instanceLockObject)  {
-			instance = this;
+			localInstance = this;
 		}
 		
 		hideMethods.put("main", null);
@@ -137,19 +137,19 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static Runtime getInstance() {
-		if (instance == null) {
+		if (localInstance == null) {
 			synchronized (instanceLockObject) {
-				if (instance == null) {
+				if (localInstance == null) {
 					// TODO should this be configurable?
 					if (runtimeName == null) {
 						//runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
 						runtimeName = "runtime";
 					}
-					instance = new Runtime(runtimeName);
+					localInstance = new Runtime(runtimeName);
 				}
 			}
 		}
-		return instance;
+		return localInstance;
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class Runtime extends Service {
 	@Override
 	public void stopService() {
 		super.stopService();
-		instance = null;
+		localInstance = null;
 	}
 
 	/**
@@ -278,16 +278,16 @@ public class Runtime extends Service {
 
 		if (se.serviceDirectory.containsKey(s.getName())) {
 			log.error(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
-			if (instance != null) {
-				instance.invoke("collision", s.getName());
+			if (localInstance != null) {
+				localInstance.invoke("collision", s.getName());
 			}
 			return s;
 		}
 		ServiceWrapper sw = new ServiceWrapper(s, se);
 		se.serviceDirectory.put(s.getName(), sw);
 		registry.put(s.getName(), sw);
-		if (instance != null) {
-			instance.invoke("registered", sw);
+		if (localInstance != null) {
+			localInstance.invoke("registered", sw);
 		}
 
 		return s;
@@ -311,8 +311,6 @@ public class Runtime extends Service {
 		Runtime.getInstance().register(sw);
 	}
 	*/
-	
-	
 	
 	/**
 	 * called by remote/foreign systems to register a new service through a
@@ -339,8 +337,8 @@ public class Runtime extends Service {
 
 		se.serviceDirectory.put(sw.name, sw);
 		registry.put(sw.name, sw);
-		if (instance != null) {
-			instance.invoke("registered", sw);
+		if (localInstance != null) {
+			localInstance.invoke("registered", sw);
 		}
 
 	}
@@ -376,14 +374,14 @@ public class Runtime extends Service {
 		String serviceName;
 		while (it.hasNext()) {
 			serviceName = it.next();
-			log.info(String.format("adding %1$s to registry", serviceName));
+			log.info(String.format("adding %s to registry", serviceName));
 			registry.put(serviceName, s.serviceDirectory.get(serviceName));
-			instance.invoke("registered", s.serviceDirectory.get(serviceName));
+			localInstance.invoke("registered", s.serviceDirectory.get(serviceName));
 
 			ServiceWrapper sw = getServiceWrapper(serviceName);
 			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType())) {
 				log.info(String.format("found runtime %s", serviceName));
-				instance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
+				localInstance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
 			}
 
 		}
@@ -439,7 +437,7 @@ public class Runtime extends Service {
 			log.error(String.format("unregister %2$s does note exist for %1$s.%2$s", url, name));
 			return;
 		}
-		instance.invoke("released", se.serviceDirectory.get(name));
+		localInstance.invoke("released", se.serviceDirectory.get(name));
 		se.serviceDirectory.remove(name);
 	}
 
@@ -610,7 +608,7 @@ public class Runtime extends Service {
 									// down
 		}
 		ServiceEnvironment se = hosts.get(url);
-		instance.invoke("released", se.serviceDirectory.get(name));
+		localInstance.invoke("released", se.serviceDirectory.get(name));
 		registry.remove(name);
 		se.serviceDirectory.remove(name);
 		if (se.serviceDirectory.size() == 0) {
@@ -686,7 +684,7 @@ public class Runtime extends Service {
 		while (seit.hasNext()) {
 			serviceName = seit.next();
 			sw = se.serviceDirectory.get(serviceName);
-			instance.invoke("released", se.serviceDirectory.get(serviceName));
+			localInstance.invoke("released", se.serviceDirectory.get(serviceName));
 		}
 
 		seit = se.serviceDirectory.keySet().iterator();
@@ -789,20 +787,11 @@ public class Runtime extends Service {
 			fos = new FileOutputStream(filename);
 			out = new ObjectOutputStream(fos);
 
-			/*
-			 * Iterator<String> it = se.serviceDirectory.keySet().iterator();
-			 * while (it.hasNext()) { String sen = it.next(); ServiceWrapper sw
-			 * = se.serviceDirectory.get(sen); log.info("saving " +
-			 * sw.service.getName()); out.writeObject(sw); //Iterator<String>
-			 * seit = se.keySet().iterator(); }
-			 */
-
-			// out.writeObject(remote);
-			// out.writeObject(instance);
 			out.writeObject(hosts);
 
 			out.writeObject(registry);
 			out.writeObject(hideMethods);
+			out.flush();
 		} catch (Exception e) {
 			Logging.logException(e);
 			return false;
@@ -1080,10 +1069,18 @@ public class Runtime extends Service {
 				gui.display();
 			}
 			return;
-		} else if (cmdline.hasSwitch("-list")) {
-			System.out.println(getServiceShortClassNames());
+		} /* LIST ???
+		
+			else if (cmdline.hasSwitch("-list")) {
+			Runtime runtime = Runtime.getInstance();
+			if (runtime == null)
+			{
+				
+			} else {
+				System.out.println(getServiceShortClassNames());
+			}
 			return;
-		}
+		} */
 		help();
 	}
 
@@ -1091,8 +1088,8 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 */
-	static public String[] getServiceShortClassNames() {
-		return getServiceShortClassNames(null);
+	public String[] getServiceShortClassNames() {
+		return getServiceShortClassNames("all");
 	}
 
 	/**
@@ -1100,8 +1097,8 @@ public class Runtime extends Service {
 	 * @param filter
 	 * @return
 	 */
-	static public String[] getServiceShortClassNames(String filter) {
-		return ServiceInfo.getInstance().getShortClassNames(filter);
+	public String[] getServiceShortClassNames(String filter) {
+		return serviceInfo.getShortClassNames(filter);
 	}
 
 	/**
@@ -1184,22 +1181,31 @@ public class Runtime extends Service {
 
 			if (cmdline.containsKey("-update")) {
 				// force all updates
-				updateAll();
+				Runtime runtime = Runtime.getInstance();
+				if (runtime != null) {
+					runtime.updateAll();
+				} else {
+					log.error("runtime is null");
+				}
 				return;
 			} else {
 				createServices(cmdline);
 			}
 
 			invokeCommands(cmdline);
+			
+			// outbound - auto-connect
+			if (cmdline.containsKey("-connect")) {
+				String host = cmdline.getSafeArgument("-connect", 0, "localhost");
+				String portStr = cmdline.getSafeArgument("-connect", 1, "6767");
+				int port = Integer.parseInt(portStr);
+				Runtime.getInstance().connect(null, null, null, host, port);
+			}
 
 		} catch (Exception e) {
 			Logging.logException(e);
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			System.out.print(Logging.stackToString(e));
+			Service.sleep(2000);
 		}
 	}
 
@@ -1294,7 +1300,7 @@ public class Runtime extends Service {
 	 * Services - Ivy will attempt to check & fufill dependencies by downloading
 	 * jars from the repo
 	 */
-	static public void updateAll() {
+	public void updateAll() {
 
 		boolean getNewRepoData = true;
 
@@ -1433,14 +1439,17 @@ public class Runtime extends Service {
 	 * this method attempts to connect to the repo and populate information
 	 * regarding the latest ServiceDescriptors and their latest dependencies
 	 */
-	public static void checkForUpdates() {
+	public void checkForUpdates() {
 
+		// assume your dealing with the local system
+		Runtime runtime = getInstance();
+		
 		// serviceInfo.getRepoServiceData();
 		// get local data
-		serviceInfo.getLocalServiceData();
+		runtime.serviceInfo.getLocalServiceData();
 
 		// get remote data
-		serviceInfo.getRepoData();
+		runtime.serviceInfo.getRepoData();
 
 		// addListener ready for updates
 		getInstance().invoke("proposedUpdates", serviceInfo);
@@ -1469,10 +1478,8 @@ public class Runtime extends Service {
 	 * @param fullTypeName
 	 */
 	public void update(String fullTypeName) {
-		ServiceInfo.getInstance().getLocalServiceData();
-
-		ServiceInfo.getInstance().resolve(fullTypeName);
-
+		serviceInfo.getLocalServiceData();
+		serviceInfo.resolve(fullTypeName);
 	}
 
 	/**
@@ -1672,5 +1679,10 @@ public class Runtime extends Service {
 		}
 		
 		return ret;
+	}
+	
+	public ServiceInfo getServiceInfo()
+	{
+		return serviceInfo;
 	}
 }

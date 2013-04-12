@@ -79,7 +79,8 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("connect".endsWith(e.getActionCommand())) {
-			myService.sendServiceDirectoryUpdate(null, null, null, host.getText(), Integer.parseInt(port.getText()), null);
+			// FIXME - refactor name
+			myService.connect(null, null, null, host.getText(), Integer.parseInt(port.getText()));
 		}
 
 		myService.lastHost = host.getText();
