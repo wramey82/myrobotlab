@@ -89,7 +89,7 @@ public class GUIServiceGUI extends ServiceGUI {
 
 	ButtonListener buttonListener = new ButtonListener();
 
-	boolean showRoutes = true;
+	boolean showRoutes = false; // DEPRICATE - ITS NOT NORMALIZED !!!!
 	boolean showRouteLabels = false;
 	boolean showAccessURLs = false;
 	public HashMap<String, mxCell> serviceCells = new HashMap<String, mxCell>();
@@ -98,7 +98,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	mxGraphComponent graphComponent = null;
 
 	JButton rebuildButton = new JButton("rebuild");
-	JButton hideRoutesButton = new JButton("hide routes");
+	JButton hideRoutesButton = new JButton("show routes");
 	JButton accessURLButton = new JButton("show access URLs");
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
@@ -533,44 +533,34 @@ public class GUIServiceGUI extends ServiceGUI {
 		Iterator<String> it = Runtime.getRegistry().keySet().iterator();
 		Object parent = graph.getDefaultParent();
 
-		//synchronized (Runtime.getRegistry()) { // FIXED?  newly added
-			while (it.hasNext()) {
-				String serviceName = it.next();
+		// FIXME either getServiceWrapper & getNotifyList need to return copies
+		// - or they need
+		// to be implemented with type safe collections -
+		// "copies are probably preferred"
+		while (it.hasNext()) {
+			String serviceName = it.next();
 
-				ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
-				if (s != null) {
-					Iterator<String> ri = s.getNotifyListKeySet().iterator();
-					while (ri.hasNext()) {
-						ArrayList<MRLListener> nl = s.getNotifyList(ri.next());
-						for (int i = 0; i < nl.size(); ++i) {
-							MRLListener listener = nl.get(i);
+			ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
+			if (s != null) {
+				Iterator<String> ri = s.getNotifyListKeySet().iterator();
+				while (ri.hasNext()) {
+					ArrayList<MRLListener> nl = s.getNotifyList(ri.next());
+					for (int i = 0; i < nl.size(); ++i) {
+						MRLListener listener = nl.get(i);
 
-							// createArrow(sw.getName(), listener.getName(),
-							// methodString);
-							// graph.getChildVertices(arg0)parent.
-							// graph.getChildVertices(graph.getDefaultParent());
-							// ROUTING LABELS
-							if (showRouteLabels) {
-								mxCell c = (mxCell) graph.insertEdge(parent, null, formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod),
-										serviceCells.get(s.getName()), serviceCells.get(listener.name));
-							} else {
-								mxCell c = (mxCell) graph.insertEdge(parent, null, "", serviceCells.get(s.getName()), serviceCells.get(listener.name));
-							}
-
-							// mxGeometry g = c.getGeometry();
-							// c.setGeometry(g);
-							// too chatty log.info(c);
-
+						// ROUTING LABELS
+						if (showRouteLabels) {
+							mxCell c = (mxCell) graph.insertEdge(parent, null, formatMethodString(listener.outMethod, listener.paramTypes, listener.inMethod),
+									serviceCells.get(s.getName()), serviceCells.get(listener.name));
+						} else {
+							mxCell c = (mxCell) graph.insertEdge(parent, null, "", serviceCells.get(s.getName()), serviceCells.get(listener.name));
 						}
 					}
-				} else {
-					log.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
 				}
-				// }
-
+			} else {
+				log.error("can not add graphic routes, since " + serviceName + "'s type is unknown");
 			}
-		//}
-
+		}
 	}
 
 	public static String formatMethodString(String out, Class<?>[] paramTypes, String in) {

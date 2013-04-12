@@ -80,6 +80,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 	Servo myServo = null;
 
+	SliderListener sliderListener = new SliderListener();
+
 	private class SliderListener implements ChangeListener {
 		public void stateChanged(javax.swing.event.ChangeEvent e) {
 
@@ -93,7 +95,6 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		}
 	}
 
-	SliderListener sliderListener = new SliderListener();
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);

@@ -6,9 +6,6 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-
 public class RasPi extends Service  {
 
 	private static final long serialVersionUID = 1L;
@@ -27,14 +24,15 @@ public class RasPi extends Service  {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
-		Runtime.createAndStart("raspiRun", "Runtime");
-		Runtime.createAndStart("raspi", "RasPi");
-		Runtime.createAndStart("rasGUI", "GUIService");
-		Runtime.createAndStart("remote", "RemoteAdapter");
+		int i = 7;
 		
-
+		Runtime.createAndStart(String.format("ras%d", i), "Runtime");
+		//Runtime.createAndStart(String.format("rasPi%d", i), "RasPi");
+		Runtime.createAndStart(String.format("rasGUI%d",i), "GUIService");
+		Runtime.createAndStart(String.format("rasClock%d",i), "Clock");
+		Runtime.createAndStart(String.format("rasRemote%d", i), "RemoteAdapter");
 	}
 
 

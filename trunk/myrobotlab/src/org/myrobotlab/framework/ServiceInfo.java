@@ -41,10 +41,7 @@ public class ServiceInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(ServiceInfo.class.toString());
 
-	/**
-	 * This singleton.
-	 */
-	private static ServiceInfo instance = null;
+	//private static ServiceInfo instance = null;
 	/**
 	 * Lock object for creating the singleton instance.
 	 */
@@ -59,7 +56,7 @@ public class ServiceInfo implements Serializable {
 	/**
 	 * Singleton constructor
 	 */
-	private ServiceInfo() {
+	public ServiceInfo() {
 		errors = new ArrayList<String>();
 		// TODO this should probably be a config value
 		ivyFileName = "ivychain.xml";
@@ -163,6 +160,7 @@ public class ServiceInfo implements Serializable {
 	 * 
 	 * @return
 	 */
+	/*
 	public static ServiceInfo getInstance() {
 		if (instance == null) {
 			synchronized (instanceObject) {
@@ -173,6 +171,7 @@ public class ServiceInfo implements Serializable {
 		}
 		return instance;
 	}
+	*/
 
 	/**
 	 * Get all the keys.
@@ -411,7 +410,7 @@ public class ServiceInfo implements Serializable {
 		ServiceData.CategoryList cats;
 		while (it.hasNext()) {
 			sn = it.next();
-			if (filter == null) {
+			if (filter == null || filter.equals("") || filter.equals("all")) {
 				sorted.add(sn.substring(sn.lastIndexOf('.') + 1));
 				continue;
 			}
@@ -752,7 +751,7 @@ public class ServiceInfo implements Serializable {
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		boolean update = true;
-		ServiceInfo info = ServiceInfo.getInstance();
+		ServiceInfo info = new ServiceInfo();//.getInstance();
 
 		// set defaults [update all | update none] depending on context
 

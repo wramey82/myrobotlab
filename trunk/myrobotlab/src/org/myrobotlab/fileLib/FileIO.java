@@ -196,6 +196,7 @@ public class FileIO {
 			ObjectOutput output = new ObjectOutputStream(buffer);
 			try {
 				output.writeObject(toSave);
+				output.flush();
 			} finally {
 				output.close();
 			}

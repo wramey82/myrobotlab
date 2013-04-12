@@ -39,6 +39,8 @@
 
 package org.myrobotlab.net;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -46,11 +48,11 @@ import java.io.Serializable;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
@@ -84,9 +86,12 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				socket = new Socket(url.getHost(), url.getPort());
 			}
 			this.socket = socket;
-			out = new ObjectOutputStream(socket.getOutputStream());
+			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
+			out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 			out.flush();// some flush before using :)
-			in = new ObjectInputStream(socket.getInputStream());
+			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
+			// in = new ObjectInputStream(socket.getInputStream());
+			in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 			this.start(); // starting listener
 		}
 
@@ -99,9 +104,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				while (socket != null && isRunning) {
 
 					Message msg = null;
-
+					Object o = null;
 					try {
-						Object o = in.readObject();
+						o = in.readObject();
 						msg = (Message) o;
 					} catch (Exception e) {
 						Logging.logException(e);
@@ -123,12 +128,25 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					if (msg == null) {
 						log.error("msg deserialized to null");
 					} else {
+						// FIXME - normalize to single method - check for data type too ? !!!
 						if (msg.method.equals("registerServices")) {
 							// FIXME - the only reason this is pulled off the
 							// comm line here
 							// is initial registerServices do not usually come
 							// with a "name"
 							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
+							continue;
+						} else if (msg.method.equals("register"))
+						{
+							try {
+								ServiceWrapper sw = (ServiceWrapper)msg.data[0];
+								if (sw.host.accessURL == null) {
+									sw.host.accessURL = new URI(String.format("tcp://%s:%s",socket.getInetAddress().getHostAddress(), socket.getPort()));
+								}
+								Runtime.getInstance().register(sw);
+							} catch(Exception e){
+								Logging.logException(e);
+							}
 							continue;
 						}
 						++data.rx;
@@ -155,14 +173,12 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			return socket;
 		}
 
-		public synchronized void send(URI url2, Message msg) { // FIX'd !!! you
-																// had to
-																// synchronize !
+		public synchronized void send(URI url2, Message msg) { 
 			try {
+				log.error("{}",msg);
 				out.writeObject(msg);
 				out.flush();
 				++data.tx;
-
 			} catch (Exception e) {
 				Logging.logException(e);
 			}

@@ -1,5 +1,6 @@
 package org.myrobotlab.framework;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -13,7 +14,7 @@ import org.simpleframework.xml.Root;
  */
 
 @Root
-public class ServiceData {
+public class ServiceData implements Serializable {
 
 	/**
 	 * list of relationships from Service to dependency key. Dependency
@@ -36,7 +37,7 @@ public class ServiceData {
 	@ElementMap(entry = "org", value = "dependency", attribute = true, inline = true, required = false)
 	public TreeMap<String, Dependency> thirdPartyLibs = new TreeMap<String, Dependency>();
 
-	public static class CategoryList {
+	public static class CategoryList implements Serializable {
 		@ElementList(entry = "include", inline = true)
 		public ArrayList<String> services = new ArrayList<String>();
 

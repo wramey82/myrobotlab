@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.control.widget.JIntegerField;
@@ -77,6 +78,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		pulseDataInteger.setText("10");
 	}
 
 	public void init() {
@@ -150,17 +152,9 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 				myClock.interval = Integer.parseInt(interval.getText());
 				myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
 				myClock.pulseDataString = pulseDataString.getText();
-
-				// set the state of the bound service - whether local or remote
-				myService.send(boundServiceName, "setState", myClock); // double
-																		// set
-																		// on
-																		// local
-				// publish the fact you set the state -
-				// TODO - should this a function which calls both functions ?
-				myService.send(boundServiceName, "publishState"); // TODO - bury
-																	// in
-																	// Service.SetState?
+				
+				myService.send(boundServiceName, "setState", myClock);
+				myService.send(boundServiceName, "publishState"); 
 				myService.send(boundServiceName, "startClock");
 
 			} else {
@@ -178,7 +172,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	// FIXME - is get/set state interact with Runtime registry ???
 	// it probably should
-	public void getState(Clock c) {
+	public void getState(final Clock c) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
 		// Setting the clockControlPanel fields based on incoming Clock data
 		// if the Clock is local - the actual clock is sent
 		// if the Clock is remote - a data proxy is sent
@@ -208,6 +205,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 			}
 
 		}
+			}
+		});
 
 	}
 

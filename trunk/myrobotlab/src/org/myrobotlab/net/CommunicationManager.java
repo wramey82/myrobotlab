@@ -71,7 +71,7 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 
 		ServiceWrapper sw = Runtime.getServiceWrapper(msg.getName());
 		if (sw == null) {
-			log.error(msg.getName() + " service does not exist - should clean up " + msg.sender);
+			log.error(String.format("Runtime.getServiceWrapper could not return %s.%s for sender %s ", msg.name, msg.method, msg.sender));
 			return;
 		}
 		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url)) {
