@@ -594,7 +594,7 @@ public class ServiceTest {
 	@Test
 	public final void serialize() {
 		log.warn("serializing begin--------------------");
-		String[] serviceNames = Runtime.getServiceShortClassNames();
+		String[] serviceNames = Runtime.getInstance().getServiceShortClassNames();
 		
 		for (int i=0;i < serviceNames.length; ++i)
 		{
