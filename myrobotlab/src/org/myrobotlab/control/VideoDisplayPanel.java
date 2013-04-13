@@ -121,7 +121,7 @@ public class VideoDisplayPanel {
 			screen.setIcon(lastIcon);
 		}
 
-		if (!sourceNameLabel.getText().equals(source)) {
+		if (source != null && !sourceNameLabel.getText().equals(source)) {
 			sourceNameLabel.setText(source);
 		}
 
