@@ -3,6 +3,7 @@ package org.myrobotlab.opencv;
 import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 @Root
-public class VideoProcessor implements Runnable {
+public class VideoProcessor implements Runnable, Serializable {
 
 	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
 
@@ -59,6 +60,7 @@ public class VideoProcessor implements Runnable {
 	public boolean useBlockingData = false;
 	
 	OpenCVData data = new OpenCVData();
+	
 	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
 	
 	HashMap<String, IplImage> sources = new HashMap<String, IplImage>();

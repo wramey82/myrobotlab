@@ -108,6 +108,7 @@ public class OpenCV extends Service {
 
 	// yep its public - cause a whole lotta data
 	// will get set on it before a setState
+
 	@Element
 	public VideoProcessor videoProcessor = new VideoProcessor();;
 	

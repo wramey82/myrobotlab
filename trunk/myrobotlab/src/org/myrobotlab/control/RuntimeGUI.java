@@ -72,9 +72,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.GUI;
-import org.quartz.jobs.ee.jms.SendDestinationMessageJob;
 import org.slf4j.Logger;
 
 public class RuntimeGUI extends ServiceGUI implements ActionListener {
@@ -478,7 +476,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	 */
 	public void getPossibleServices(final String filter) {
 		possibleServiceFilter = filter;
-//		myService.send(boundServiceName, "getServiceShortClassNames", filter);
+		myService.send(boundServiceName, "getServiceShortClassNames", filter);
 	}
 	
 	public void onPossibleServicesRefresh(final String[] sscn)
