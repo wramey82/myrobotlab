@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control.opencv;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
@@ -74,6 +75,10 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeLis
 		useSaturation.addChangeListener(this);
 		useValue.addChangeListener(this);
 
+		display.setLayout(new BorderLayout());
+		JPanel p = new JPanel();
+		//JPanel display = new JPanel();
+		
 		TitledBorder title;
 		JPanel j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("hue");
@@ -96,7 +101,7 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeLis
 		j.add(hueMin.value, gc);
 		++gc.gridx;
 		j.add(hueMax.value, gc);
-		display.add(j);
+		p.add(j);
 
 		j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("saturation");
@@ -119,7 +124,7 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeLis
 		j.add(saturationMin.value, gc);
 		++gc.gridx;
 		j.add(saturationMax.value, gc);
-		display.add(j);
+		p.add(j);
 
 		j = new JPanel(new GridBagLayout());
 		title = BorderFactory.createTitledBorder("value");
@@ -142,7 +147,9 @@ public class OpenCVFilterInRangeGUI extends OpenCVFilterGUI implements ChangeLis
 		j.add(valueMin.value, gc);
 		++gc.gridx;
 		j.add(valueMax.value, gc);
-		display.add(j);
+		p.add(j);
+		
+		display.add(p, BorderLayout.CENTER);
 
 	}
 

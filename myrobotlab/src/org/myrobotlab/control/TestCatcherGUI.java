@@ -30,9 +30,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class TestCatcherGUI extends ServiceGUI {
@@ -74,6 +76,8 @@ public class TestCatcherGUI extends ServiceGUI {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					myService.send(boundServiceName, "catchNothing");
+					/*
 					if (bindCatchIntegerButton.getText().compareTo("connect") == 0) {
 						bindCatchIntegerButton.setText("disconnect");
 						subscribe("catchInteger", "catchInteger", SerializableImage.class);
@@ -81,6 +85,7 @@ public class TestCatcherGUI extends ServiceGUI {
 						bindCatchIntegerButton.setText("connect");
 						unsubscribe("catchInteger", "catchInteger", SerializableImage.class);
 					}
+					*/
 				}
 
 			});
@@ -90,17 +95,22 @@ public class TestCatcherGUI extends ServiceGUI {
 		return bindCatchIntegerButton;
 
 	}
-
-	@Override
-	public void attachGUI() {
-		// TODO Auto-generated method stub
+	
+	public void getState(TestCatcher catcher)
+	{
+		log.info(catcher.data);
+		//SwingUtilities.invokeLater(new Runnable() {
 
 	}
 
 	@Override
-	public void detachGUI() {
-		// TODO Auto-generated method stub
+	public void attachGUI() {
+		subscribe("publishState", "getState", TestCatcher.class);
+	}
 
+	@Override
+	public void detachGUI() {
+		unsubscribe("publishState", "getState", TestCatcher.class);
 	}
 
 }

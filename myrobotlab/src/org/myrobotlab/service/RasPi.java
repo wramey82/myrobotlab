@@ -26,11 +26,11 @@ public class RasPi extends Service  {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
-		int i = 7;
+		int i = 0;
 		
 		Runtime.createAndStart(String.format("ras%d", i), "Runtime");
 		//Runtime.createAndStart(String.format("rasPi%d", i), "RasPi");
-		Runtime.createAndStart(String.format("rasGUI%d",i), "GUIService");
+		//Runtime.createAndStart(String.format("rasGUI%d",i), "GUIService");
 		Runtime.createAndStart(String.format("rasClock%d",i), "Clock");
 		Runtime.createAndStart(String.format("rasRemote%d", i), "RemoteAdapter");
 	}

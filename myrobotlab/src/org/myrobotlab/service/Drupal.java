@@ -271,7 +271,7 @@ public class Drupal extends Service {
 		drupal.host = "myrobotlab.org";
 		//drupal.host = "letsmakerobots.com";
 		drupal.username = "mr.turing";
-		drupal.password = "zardoz7";
+		drupal.password = "password1";
 		drupal.chatResponseSearchString = "turing ";
 		drupal.startChatterBot();
 

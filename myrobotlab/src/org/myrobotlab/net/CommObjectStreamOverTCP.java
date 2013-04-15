@@ -55,6 +55,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
@@ -108,6 +109,8 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					try {
 						o = in.readObject();
 						msg = (Message) o;
+						log.error(String.format("%s rx %s.%s -tcp-> %s.%s",  myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+						log.info("here");
 					} catch (Exception e) {
 						Logging.logException(e);
 						msg = null;
@@ -175,7 +178,26 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 		public synchronized void send(URI url2, Message msg) { 
 			try {
-				log.error("{}",msg);
+				if (String.format("%s.%s", msg.sender, msg.sendingMethod).equals("clock.publishState"))
+				{
+					log.info("here");
+					/*
+					Clock clock2 = new Clock("zod");
+					clock2.data = "WHERES MY CAR";
+					clock2.isClockRunning = true;
+					clock2.interval = 6666;
+					msg.data[0] = clock2;
+					*/
+					Clock c = (Clock)msg.data[0];
+					c.stopService();
+					c.data="WHERES MY CAR";
+					c.interval=6969;
+					c.isClockRunning =true;
+					//out.writeObject(msg.data[0]);
+					//out.flush();
+				}
+				log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				//log.error("{}",msg);
 				out.writeObject(msg);
 				out.flush();
 				++data.tx;

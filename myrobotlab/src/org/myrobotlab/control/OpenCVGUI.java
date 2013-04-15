@@ -264,7 +264,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		title = BorderFactory.createTitledBorder("filter parameters");
 		filterParameters.setBorder(title);
-		filterParameters.setPreferredSize(new Dimension(340, 360));
+//		filterParameters.setPreferredSize(new Dimension(340, 360));
+		filterParameters.setPreferredSize(new Dimension(340, 400));
 		gc.gridx = 1;
 		gc.gridy = 1;
 		gc.gridheight = 3;

@@ -322,7 +322,7 @@ public class Runtime extends Service {
 		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
 		if (se == null) {
-			log.error("no service environment");
+			log.error("no service environment for {}", sw.getAccessURL());
 			return;
 		}
 
