@@ -1861,7 +1861,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void stopHeartbeat() {
-
 	}
 	
 	public boolean allowExport()

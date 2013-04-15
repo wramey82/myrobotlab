@@ -27,14 +27,12 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.StopWatch;
 
 public class TestCatcher extends Service {
 
@@ -43,6 +41,7 @@ public class TestCatcher extends Service {
 	public ArrayList<Integer> catchList = new ArrayList<Integer>();
 	public ArrayList<Integer> lowCatchList = new ArrayList<Integer>();
 	public ArrayList<String> stringCatchList = new ArrayList<String>();
+	public String data = null;
 
 	public TestCatcher(String n) {
 		super(n, TestCatcher.class.getCanonicalName());
@@ -53,12 +52,15 @@ public class TestCatcher extends Service {
 	}
 
 	public void catchNothing() {
+		data = "***CATCH*** catchNothing ";
 		log.info("***CATCH*** catchNothing ");
 		Integer c = 1;
 		synchronized (catchList) {
 			catchList.add(c);
 			catchList.notify();
 		}
+		
+		broadcastState();
 
 	}
 
@@ -208,6 +210,8 @@ public class TestCatcher extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
+		Runtime runtime = new Runtime("catchRuntime");
+		runtime.startService();
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");
 		// GUIService gui = new GUIService("gui");

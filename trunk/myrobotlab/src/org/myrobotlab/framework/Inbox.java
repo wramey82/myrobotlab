@@ -120,17 +120,17 @@ public class Inbox implements Serializable {
 
 	// FIXME - implement with HashSet or HashMap !!!!
 	public boolean duplicateMsg(ArrayList<RoutingEntry> history) {
-		for (int i = 0; i < history.size(); ++i) {
+/*		for (int i = 0; i < history.size(); ++i) {
 			if (history.get(i).name.equals(name)) {
 				return true;
 			}
 		}
-
+*/
 		return false;
 	}
 
 	public void add(Message msg) {
-		// to prevent messaging infinite loops
+		// FIXME - implement as HashSet<>
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
 			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);
 			log.error("history list {}", msg.historyList);

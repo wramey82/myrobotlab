@@ -33,52 +33,34 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.service.Clock;
-import org.myrobotlab.service.Clock.PulseDataType;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 
 public class ClockGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	JButton startClock = new JButton("start clock");
-	JButton startCountDown = new JButton("start count down");
 
 	JPanel clockDisplayPanel = new JPanel(new BorderLayout());
 	JPanel clockControlPanel = new JPanel();
 
 	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:30px;\">00:00:00</p></html>");
+	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
 	JLabel msgDisplay = new JLabel("");
 
-	ButtonGroup group = new ButtonGroup();
-
-	Date countDownTo = null;
-
-	JRadioButton none = new JRadioButton("none");
-	JRadioButton increment = new JRadioButton("increment");
-	JRadioButton integer = new JRadioButton("integer");
-	JRadioButton string = new JRadioButton("string");
-
-	JTextField interval = new JTextField("1000");
+	JTextField interval = new JTextField("100000");
 	JTextField pulseDataString = new JTextField(10);
-	JIntegerField pulseDataInteger = new JIntegerField(10);
-
-	Clock myClock = null;
 
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		pulseDataInteger.setText("10");
 	}
 
 	public void init() {
@@ -93,8 +75,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		display.add(clockControlPanel, BorderLayout.SOUTH);
 
 		startClock.addActionListener(this);
-		startCountDown.addActionListener(this);
-		clockControlPanel.add(startCountDown);
 		clockControlPanel.add(startClock);
 		clockControlPanel.add(new JLabel("  interval  "));
 		clockControlPanel.add(interval);
@@ -106,34 +86,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		title = BorderFactory.createTitledBorder("pulse data");
 		pulseData.setBorder(title);
 
-		none.setActionCommand("none");
-		none.setSelected(true);
-		none.addActionListener(this);
-
-		increment.setActionCommand("increment");
-		increment.addActionListener(this);
-
-		integer.setActionCommand("integer");
-		integer.addActionListener(this);
-
-		string.setActionCommand("string");
-		string.addActionListener(this);
-
-		// Group the radio buttons.
-		group.add(none);
-		group.add(increment);
-		group.add(integer);
-		group.add(string);
-
-		pulseData.add(none);
-		pulseData.add(increment);
-		pulseData.add(integer);
-		pulseData.add(pulseDataInteger);
-		pulseData.add(string);
 		pulseData.add(pulseDataString);
 		clockControlPanel.add(pulseData);
-
-		myClock = (Clock) Runtime.getServiceWrapper(boundServiceName).service;
 
 	}
 
@@ -141,63 +95,28 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 
-		if (o == none || o == increment || o == integer || o == string) {
-			myClock.setType(((JRadioButton) e.getSource()).getText());
-		}
-
 		if (o == startClock) {
 			if (startClock.getText().compareTo("start clock") == 0) {
-				startClock.setText("stop clock");
-
-				myClock.interval = Integer.parseInt(interval.getText());
-				myClock.pulseDataInteger = Integer.parseInt(pulseDataInteger.getText());
-				myClock.pulseDataString = pulseDataString.getText();
 				
-				myService.send(boundServiceName, "setState", myClock);
-				myService.send(boundServiceName, "publishState"); 
+				myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
 				myService.send(boundServiceName, "startClock");
 
 			} else {
-				startClock.setText("start clock");
 				myService.send(boundServiceName, "stopClock");
 			}
 		}
-
-		if (o == startCountDown) {
-
-			countDownTo = Clock.getFutureDate(5, 0);
-			myService.send(boundServiceName, "startCountDown", countDownTo);
-		}
+//		myService.send(boundServiceName, "publishState"); 
 	}
 
-	// FIXME - is get/set state interact with Runtime registry ???
-	// it probably should
 	public void getState(final Clock c) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
-		// Setting the clockControlPanel fields based on incoming Clock data
-		// if the Clock is local - the actual clock is sent
-		// if the Clock is remote - a data proxy is sent
-		if (c != null) {
-			if (c.pulseDataType == PulseDataType.increment) {
-				increment.setSelected(true);
-			} else if (c.pulseDataType == PulseDataType.integer) {
-				integer.setSelected(true);
-
-			} else if (c.pulseDataType == PulseDataType.string) {
-				string.setSelected(true);
-
-			} else if (c.pulseDataType == PulseDataType.none) {
-				none.setSelected(true);
-			}
-
-			pulseDataString.setText(c.pulseDataString);
-
-			pulseDataInteger.setInt(c.pulseDataInteger);
-
 			interval.setText((c.interval + ""));
+			log.error("data={}", c.data);
 
+			log.error("isClockRunning {}",c.isClockRunning);
+			
 			if (c.isClockRunning) {
 				startClock.setText("stop clock");
 			} else {
@@ -205,12 +124,11 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 			}
 
 		}
-			}
+			
 		});
 
 	}
 
-	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
 
 	public void countdown(Long amtRemaining) {
 
@@ -234,15 +152,13 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		myService.send(boundServiceName, "addClockEvent", time, name, method, data);
 	}
 
-	// FIXME sendNotifyStateRequest("publishState", "getState", String type); <-
-	// Class.forName(type)
 	@Override
 	public void attachGUI() {
 		subscribe("countdown", "countdown", Long.class);
 		subscribe("publishState", "getState", Clock.class);
 		subscribe("pulse", "pulse");
 		
-		myService.send(boundServiceName, "publishState");
+		//myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
