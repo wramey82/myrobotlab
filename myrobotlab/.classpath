@@ -60,5 +60,9 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.jssc/jssc/0.9.0/jssc.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/x86.64.windows/org.OpenNI.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.chatterbot/1.2.1/chatter-bot-api.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.googlcode.jsonsimple/1.1/json_simple-1.1.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.pi4j.pi4j/0.0.5/pi4j-core.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.pi4j.pi4j/0.0.5/pi4j-gpio-extension.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
