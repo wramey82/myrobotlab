@@ -100,7 +100,7 @@ public class PID extends Service {
 	 * *****************
 	 * ***************************************************************
 	 */
-	boolean compute() {
+	public boolean compute() {
 		if (!inAuto)
 			return false;
 		long now = System.currentTimeMillis();
@@ -168,7 +168,7 @@ public class PID extends Service {
 	 * ************
 	 * ****************************************************************
 	 */
-	void setSampleTime(int NewSampleTime) {
+	public void setSampleTime(int NewSampleTime) {
 		if (NewSampleTime > 0) {
 			double ratio = (double) NewSampleTime / (double) sampleTime;
 			ki *= ratio;
@@ -187,7 +187,7 @@ public class PID extends Service {
 	 * can all be done here.
 	 * ************************************************************************
 	 */
-	void setOutputRange(double Min, double Max) {
+	public void setOutputRange(double Min, double Max) {
 		if (Min >= Max)
 			return;
 		outMin = Min;
@@ -214,7 +214,7 @@ public class PID extends Service {
 	 * **********************************************
 	 * ******************************
 	 */
-	void setMode(int Mode) {
+	public void setMode(int Mode) {
 		boolean newAuto = (Mode == MODE_AUTOMATIC);
 		if (newAuto == !inAuto) { /* we just went from manual to auto */
 			init();
@@ -229,7 +229,7 @@ public class PID extends Service {
 	 * ********************************************
 	 * ********************************
 	 */
-	void init() {
+	public void init() {
 		ITerm = output;
 		lastInput = input;
 		if (ITerm > outMax)
