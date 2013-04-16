@@ -1,7 +1,9 @@
 from java.lang import String
 from java.lang import Class
+from java.awt import Rectangle
 from org.myrobotlab.service import Runtime
 from org.myrobotlab.service import OpenCV
+from org.myrobotlab.opencv import OpenCVData
 from com.googlecode.javacv.cpp.opencv_core import CvPoint;
 from org.myrobotlab.service import OpenCV
 
@@ -27,13 +29,23 @@ opencv.addFilter("FaceDetect1", "FaceDetect")
 # In this particular case when the service named "opencv" finds a face it will publish
 # a CvPoint.  The CvPoint can be access by msg_opencv_publish.data[0]
 def input():
-    print 'found face at (x,y) ', msg_opencv_publish.data[0].x(), msg_opencv_publish.data[0].y()
-    return object
+
+    #print 'found face at (x,y) ', msg_opencv_publishOpenCVData.data[0].x(), msg_opencv_publish.data[0].y()
+    opencvData = msg_opencv_publishOpenCVData.data[0]
+    print 'h1'
+    if (opencvData.getBoundingBoxArray().size() > 0) :
+    	rect = opencvData.getBoundingBoxArray().get(0)
+    	print 'face found in box ', rect.x, rect.y, rect.width, rect.height
+    	Rectangle 
+    	print 'hello!'
+    	return object
 
 # create a message route from opencv to python so we can see the coordinate locations
-opencv.addListener("publish", python.name, "input", CvPoint().getClass()); 
+opencv.addListener("publishOpenCVData", python.name, "input", OpenCVData().getClass()); 
 
 # set the input source to the first camera
 opencv.capture()
+
+
 
 
