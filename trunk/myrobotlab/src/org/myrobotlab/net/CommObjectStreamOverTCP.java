@@ -39,8 +39,6 @@
 
 package org.myrobotlab.net;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -55,22 +53,21 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
 public class CommObjectStreamOverTCP extends Communicator implements Serializable {
 
-	public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
+	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	boolean isRunning = false;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
 	
-	Service myService = null;
-	
+	transient Service myService = null;
 	boolean useHeartbeat = false;
+	boolean heartbeatRunning = false;
 
 	public class TCPThread extends Thread {
 
@@ -87,16 +84,22 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				socket = new Socket(url.getHost(), url.getPort());
 			}
 			this.socket = socket;
+			// TODO - could used buffered input / ouput - but I'm still stinging from some
+			// bug I don't understand where it appears a newly contructed clock was sent
+			// without the data being updated :(   holding off any "optimizations" until I figure out
+			// what is going on
 			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
-			out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+			//out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+			out = new ObjectOutputStream((socket.getOutputStream()));
 			out.flush();// some flush before using :)
 			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
-			// in = new ObjectInputStream(socket.getInputStream());
-			in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+			in = new ObjectInputStream(socket.getInputStream());
+			//in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+			//in = new ObjectInputStream((socket.getInputStream()));
 			this.start(); // starting listener
 		}
 
-		// run / listen for more msgs
+		// listening for msgs
 		@Override
 		public void run() {
 			try {
@@ -109,9 +112,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					try {
 						o = in.readObject();
 						msg = (Message) o;
-						log.error(String.format("%s rx %s.%s -tcp-> %s.%s",  myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-						log.info("here");
+						log.info(String.format("%s rx %s.%s -tcp-> %s.%s",  myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 					} catch (Exception e) {
+						// FIXME - more intelligent ERROR handling - recover if possible !!!!
 						Logging.logException(e);
 						msg = null;
 						Logging.logException(e);
@@ -178,28 +181,23 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 		public synchronized void send(URI url2, Message msg) { 
 			try {
+				/*  DEBUG TRAP 
 				if (String.format("%s.%s", msg.sender, msg.sendingMethod).equals("clock.publishState"))
 				{
 					log.info("here");
-					/*
-					Clock clock2 = new Clock("zod");
-					clock2.data = "WHERES MY CAR";
-					clock2.isClockRunning = true;
-					clock2.interval = 6666;
-					msg.data[0] = clock2;
-					*/
 					Clock c = (Clock)msg.data[0];
-					c.stopService();
-					c.data="WHERES MY CAR";
-					c.interval=6969;
-					c.isClockRunning =true;
-					//out.writeObject(msg.data[0]);
-					//out.flush();
+					c.data = "SET IN COMM TCP";
+					
+					log.error("{} {}", c.data, c.interval);
+					log.error("****** sending object {} ********", System.identityHashCode(c));
+					log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 				}
-				log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				//log.error("{}",msg);
-				out.writeObject(msg);
+				*/
+				
+				log.info(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				out.writeObject(msg); 
 				out.flush();
+				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE OUT !!!!!!!
 				++data.tx;
 			} catch (Exception e) {
 				Logging.logException(e);
@@ -271,7 +269,6 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		isRunning = false;
 	}
 
-	boolean heartbeatRunning = false;
 
 	class Heart extends Thread {
 		URI url;

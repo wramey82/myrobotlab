@@ -32,8 +32,6 @@ import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
-
-
 /**
  * 
  * Runtime is responsible for the creation and removal of all Services and the
@@ -53,7 +51,6 @@ public class Runtime extends Service {
 	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
 	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
 
-
 	// FIXME - this should be a GUI thing only ! or getPrettyMethods or static
 	// filterMethods
 	static private HashMap<String, String> hideMethods = new HashMap<String, String>();
@@ -72,16 +69,15 @@ public class Runtime extends Service {
 	public final ServiceInfo serviceInfo = new ServiceInfo();
 
 	/*
-	@Element
-	public String proxyHost;
-	@Element
-	public String proxyPort;
-	@Element
-	public String proxyUserName;
-	@Element
-	public String proxyPassword;
-	*/
-	
+	 * @Element public String proxyHost;
+	 * 
+	 * @Element public String proxyPort;
+	 * 
+	 * @Element public String proxyUserName;
+	 * 
+	 * @Element public String proxyPassword;
+	 */
+
 	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
@@ -104,10 +100,10 @@ public class Runtime extends Service {
 	public Runtime(String n) {
 		super(n, Runtime.class.getCanonicalName());
 
-		synchronized (instanceLockObject)  {
+		synchronized (instanceLockObject) {
 			localInstance = this;
 		}
-		
+
 		hideMethods.put("main", null);
 		hideMethods.put("loadDefaultConfiguration", null);
 		hideMethods.put("getToolTip", null);
@@ -142,7 +138,8 @@ public class Runtime extends Service {
 				if (localInstance == null) {
 					// TODO should this be configurable?
 					if (runtimeName == null) {
-						//runtimeName = String.format("MRL%1$d", new Random().nextInt(99999));
+						// runtimeName = String.format("MRL%1$d", new
+						// Random().nextInt(99999));
 						runtimeName = "runtime";
 					}
 					localInstance = new Runtime(runtimeName);
@@ -294,24 +291,22 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * the bare bones needed to register - just a name - if that's the case
-	 * a MessagingListingService is created.
-	 * This would be created by a Java application which was not really a service
+	 * the bare bones needed to register - just a name - if that's the case a
+	 * MessagingListingService is created. This would be created by a Java
+	 * application which was not really a service
 	 * 
 	 * @param name
 	 */
-	/* deprecated - use Proxy service
-	public static synchronized void register(String name) {
-		MessageListenerService mls = new MessageListenerService(name);
-		ServiceWrapper sw = new ServiceWrapper(mls);
+	/*
+	 * deprecated - use Proxy service public static synchronized void
+	 * register(String name) { MessageListenerService mls = new
+	 * MessageListenerService(name); ServiceWrapper sw = new
+	 * ServiceWrapper(mls);
+	 * 
+	 * // FIXME // can't this be static // seems a kudge here...
+	 * Runtime.getInstance().register(sw); }
+	 */
 
-		// FIXME
-		// can't this be static
-		// seems a kudge here...
-		Runtime.getInstance().register(sw);
-	}
-	*/
-	
 	/**
 	 * called by remote/foreign systems to register a new service through a
 	 * subscription
@@ -1069,18 +1064,14 @@ public class Runtime extends Service {
 				gui.display();
 			}
 			return;
-		} /* LIST ???
-		
-			else if (cmdline.hasSwitch("-list")) {
-			Runtime runtime = Runtime.getInstance();
-			if (runtime == null)
-			{
-				
-			} else {
-				System.out.println(getServiceShortClassNames());
-			}
-			return;
-		} */
+		} /*
+		 * LIST ???
+		 * 
+		 * else if (cmdline.hasSwitch("-list")) { Runtime runtime =
+		 * Runtime.getInstance(); if (runtime == null) {
+		 * 
+		 * } else { System.out.println(getServiceShortClassNames()); } return; }
+		 */
 		help();
 	}
 
@@ -1150,14 +1141,13 @@ public class Runtime extends Service {
 		cmdline.splitLine(args);
 
 		Logging logging = LoggingFactory.getInstance();
-		
+
 		try {
 
 			if (cmdline.containsKey("-runtimeName")) {
 				runtimeName = cmdline.getSafeArgument("-runtimeName", 0, "MRL");
 			}
 
-			
 			if (cmdline.containsKey("-logToConsole")) {
 				logging.addAppender(Appender.CONSOLE);
 			} else if (cmdline.containsKey("-logToRemote")) {
@@ -1167,9 +1157,9 @@ public class Runtime extends Service {
 			} else {
 				logging.addAppender(Appender.FILE);
 			}
-		
+
 			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
-			
+
 			log.info(cmdline.toString());
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
@@ -1193,7 +1183,7 @@ public class Runtime extends Service {
 			}
 
 			invokeCommands(cmdline);
-			
+
 			// outbound - auto-connect
 			if (cmdline.containsKey("-connect")) {
 				String host = cmdline.getSafeArgument("-connect", 0, "localhost");
@@ -1343,8 +1333,7 @@ public class Runtime extends Service {
 	 */
 	static public synchronized ServiceInterface createService(String name, String fullTypeName) {
 		log.debug("Runtime.createService");
-		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) 
-		{
+		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) {
 			log.error(String.format("%1$s not a type or %2$s not defined ", fullTypeName, name));
 			return null;
 		}
@@ -1443,7 +1432,7 @@ public class Runtime extends Service {
 
 		// assume your dealing with the local system
 		Runtime runtime = getInstance();
-		
+
 		// serviceInfo.getRepoServiceData();
 		// get local data
 		runtime.serviceInfo.getLocalServiceData();
@@ -1468,8 +1457,8 @@ public class Runtime extends Service {
 	public static void installLatestAll() {
 		// FIXME - implement & updateAll which updates all "installed"
 		// serviceInfo.getRepoServiceData();
-		
-//		ServiceInfo.getInstance().getRepoLatestDependencies(org)
+
+		// ServiceInfo.getInstance().getRepoLatestDependencies(org)
 
 	}
 
@@ -1542,8 +1531,9 @@ public class Runtime extends Service {
 
 	public static String getBleedingEdgeVersionString() {
 		try {
-			// 
-			//String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=2&q=&sort=uploaded&colspec=Filename%20Summary%20Uploaded%20ReleaseDate%20Size%20DownloadCount";
+			//
+			// String listURL =
+			// "http://code.google.com/p/myrobotlab/downloads/list?can=2&q=&sort=uploaded&colspec=Filename%20Summary%20Uploaded%20ReleaseDate%20Size%20DownloadCount";
 			String listURL = "http://code.google.com/p/myrobotlab/downloads/list?can=1&q=&colspec=Filename+Summary+Uploaded+ReleaseDate+Size+DownloadCount";
 			log.info(String.format("getting list of dist %s", listURL));
 			HTTPRequest http;
@@ -1553,13 +1543,12 @@ public class Runtime extends Service {
 			log.info("parsing");
 			String myrobotlabBleedingEdge = "myrobotlab.bleeding.edge.";
 			int p0 = s.indexOf(myrobotlabBleedingEdge);
-			if (p0 > 0)
-			{
-				 p0 += myrobotlabBleedingEdge.length();
-				 int p1 = s.indexOf(".jar", p0);
-				 String intermediate = s.substring(p0, p1);
-				 log.info(intermediate);
-				 return intermediate.trim();
+			if (p0 > 0) {
+				p0 += myrobotlabBleedingEdge.length();
+				int p1 = s.indexOf(".jar", p0);
+				String intermediate = s.substring(p0, p1);
+				log.info(intermediate);
+				return intermediate.trim();
 			} else {
 				log.error(String.format("could not parse results for %s in getBleedingEdgeVersionString", listURL));
 			}
@@ -1640,14 +1629,13 @@ public class Runtime extends Service {
 		}
 		return sw.get();
 	}
-	
+
 	/**
 	 * save all configuration from all local services
 	 * 
 	 * @return
 	 */
-	static public boolean saveAll()
-	{
+	static public boolean saveAll() {
 		boolean ret = true;
 		ServiceEnvironment se = getLocalServices();
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
@@ -1657,7 +1645,7 @@ public class Runtime extends Service {
 			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
 			ret &= sw.service.save();
 		}
-		
+
 		return ret;
 	}
 
@@ -1666,8 +1654,7 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 */
-	static public boolean loadAll()
-	{
+	static public boolean loadAll() {
 		boolean ret = true;
 		ServiceEnvironment se = getLocalServices();
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
@@ -1677,12 +1664,23 @@ public class Runtime extends Service {
 			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
 			ret &= sw.service.load();
 		}
-		
+
 		return ret;
 	}
-	
-	public ServiceInfo getServiceInfo()
-	{
+
+	public ServiceInfo getServiceInfo() {
 		return serviceInfo;
+	}
+
+	public static void startSecondJVM(Class<? extends Object> clazz, boolean redirectStream) throws Exception {
+		System.out.println(clazz.getCanonicalName());
+		String separator = System.getProperty("file.separator");
+		String classpath = System.getProperty("java.class.path");
+		String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
+		ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp", classpath, clazz.getCanonicalName());
+		processBuilder.redirectErrorStream(redirectStream);
+		Process process = processBuilder.start();
+		process.waitFor();
+		System.out.println("Fin");
 	}
 }

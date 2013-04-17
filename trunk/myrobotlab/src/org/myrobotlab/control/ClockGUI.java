@@ -38,7 +38,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.Clock;
@@ -56,8 +55,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
 	JLabel msgDisplay = new JLabel("");
 
-	JTextField interval = new JTextField("100000");
-	JTextField pulseDataString = new JTextField(10);
+	JTextField interval = new JTextField("1000");
+	JTextField data = new JTextField(10);
 
 	public ClockGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
@@ -86,7 +85,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		title = BorderFactory.createTitledBorder("pulse data");
 		pulseData.setBorder(title);
 
-		pulseData.add(pulseDataString);
+		pulseData.add(data);
 		clockControlPanel.add(pulseData);
 
 	}
@@ -99,38 +98,45 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 			if (startClock.getText().compareTo("start clock") == 0) {
 				
 				myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
+				myService.send(boundServiceName, "setData", data.getText());
 				myService.send(boundServiceName, "startClock");
 
 			} else {
 				myService.send(boundServiceName, "stopClock");
 			}
 		}
-//		myService.send(boundServiceName, "publishState"); 
+		myService.send(boundServiceName, "publishState"); 
 	}
 
 	public void getState(final Clock c) {
+		/* setText is ThreadSafe - no need to invoke SwingUtilities
+		 * 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+			*/
 
 			interval.setText((c.interval + ""));
-			log.error("data={}", c.data);
-
-			log.error("isClockRunning {}",c.isClockRunning);
+			data.setText(c.data);
 			
 			if (c.isClockRunning) {
 				startClock.setText("stop clock");
+				data.setEnabled(false);
+				interval.setEnabled(false);
 			} else {
 				startClock.setText("start clock");
+				data.setEnabled(true);
+				interval.setEnabled(true);
 			}
-
+			
+		/*
 		}
 			
 		});
-
+		*/
 	}
 
 
-	public void countdown(Long amtRemaining) {
+	public void countdown(Long amtRemaining, String pulseData) {
 
 		long sec = amtRemaining / 1000 % 60;
 		long min = amtRemaining / (60 * 1000) % 60;
@@ -144,6 +150,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		msgDisplay.setOpaque(true);
 		clockDisplay.setBackground(new Color(0x2BFF00));
 		msgDisplay.setBackground(new Color(0x2BFF00));
+		msgDisplay.setText(pulseData);
 
 		clockDisplay.setText(String.format(displayFormat, hrs, min, sec));
 	}
@@ -158,7 +165,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		subscribe("publishState", "getState", Clock.class);
 		subscribe("pulse", "pulse");
 		
-		//myService.send(boundServiceName, "publishState");
+		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
@@ -168,9 +175,9 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("pulse", "pulse");
 	}
 	
-	public void pulse()
+	public void pulse(String data)
 	{
-		countdown(System.currentTimeMillis());
+		countdown(System.currentTimeMillis(), data);
 	}
 
 }

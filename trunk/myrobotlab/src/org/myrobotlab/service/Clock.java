@@ -36,7 +36,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.ClockEvent;
 import org.slf4j.Logger;
 
-
 public class Clock extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -44,13 +43,13 @@ public class Clock extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 
 	public boolean isClockRunning;
-	public int interval = 100000;
+	public int interval = 1100;
 	public String data = null;
 
-//	public transient ClockThread myClock = null;
+	public transient ClockThread myClock = null;
 
 	ArrayList<ClockEvent> events = new ArrayList<ClockEvent>();
-/*
+
 	public class ClockThread implements Runnable {
 		public Thread thread = null;
 
@@ -73,7 +72,7 @@ public class Clock extends Service {
 							i.remove();
 						}
 					}
-					invoke("pulse", data);
+					invoke("pulse");
 					Thread.sleep(interval);
 				}
 			} catch (InterruptedException e) {
@@ -82,48 +81,47 @@ public class Clock extends Service {
 			}
 		}
 	}
-*/
+	
 	public Clock(String n) {
 		super(n, Clock.class.getCanonicalName());
 	}
 
 	public void startClock() {
-		data = "HELLO WORLD";
-		interval = 777;
-		isClockRunning = true;
-		/*
 		if (myClock == null) {
 			isClockRunning = true;
 			myClock = new ClockThread();
-			broadcastState();
+			// have requestors broadcast state !
+			//broadcastState(); 
 		}
-		*/
 		broadcastState();
 	}
 
 	public void stopClock() {
-		/*
+			
 		if (myClock != null) {
 			log.info("stopping " + getName() + " myClock");
 			isClockRunning = false;
 			myClock.thread.interrupt();
 			myClock.thread = null;
 			myClock = null;
-			broadcastState();
+			// have requestors broadcast state !
+			//broadcastState();
 		}
 		
-		isClockRunning = false;
-		broadcastState();
-		*/
+		isClockRunning = false;		
 	}
-	
-	public String pulse()
-	{
+
+	public String pulse() {
 		return data;
 	}
 
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
+	}
+	
+	public void setData(String data)
+	{
+		this.data = data;
 	}
 
 	@Override
@@ -146,17 +144,18 @@ public class Clock extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		Runtime runtime = new Runtime("ras");
+		int i = 3;
+		
+		Runtime runtime = new Runtime(String.format("ras%d", i));
 		runtime.startService();
-		Clock clock = new Clock("clock");
-		clock.startService();
+		//Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
+		
 
-//		Clock clock2 = (Clock)clock.clone();
-		// clock.addClockEvent(Clock.getFutureDate(30), "clock", "booYa", new
-		// Object[] { "BOOYA!!!" });
-		// clock.startCountDownTimer();
-		Runtime.createAndStart("remote", "RemoteAdapter");
-		//Runtime.createAndStart("gui", "GUIService");
+		Clock clock = new Clock(String.format("clock%d", i));
+		clock.startService();
+		
+		Runtime.createAndStart(String.format("rasGUI%d", i), "GUIService");
+		runtime.connect(null, null, null, "127.0.0.1", 6767);
 
 	}
 
