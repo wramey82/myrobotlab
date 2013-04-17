@@ -37,6 +37,7 @@ import org.myrobotlab.control.widget.CommunicationNodeEntry;
 import org.myrobotlab.control.widget.CommunicationNodeList;
 import org.myrobotlab.net.CommData;
 import org.myrobotlab.service.RemoteAdapter;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.GUI;
 
@@ -72,8 +73,12 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	public void updateNodeList(RemoteAdapter remote) {
 		if (remote != null)
 		{
+			// FIXME - handle this better !!!
+			CommunicationInterface cf = remote.getComm();
 			
-			Communicator cm = remote.getComm().getComm();
+			if (cf != null)
+			{
+			Communicator cm = cf.getComm();
 			
 			HashMap<URI, CommData> clients = cm.getClients();
 			
@@ -86,6 +91,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 			}
 			
 			numClients.setText(String.format("%d",clients.size()));
+			}
 
 		}
 	}

@@ -554,6 +554,8 @@ public class OpenCV extends Service {
 
 		// Runtime.createAndStart("python", "Python");
 		// opencv.capture();
+		
+		Runtime.createAndStart("remote", "RemoteAdapter");
 
 		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();

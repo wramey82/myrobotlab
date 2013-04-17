@@ -92,9 +92,137 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// PROCESS ip:port WORKS !
 	// host + ":" + servicePort + serviceClass + "/" +
 	// this.getClass().getCanonicalName() + "/" + name;
+/*
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((MESSAGE_RECORDING_FORMAT_BINARY == null) ? 0 : MESSAGE_RECORDING_FORMAT_BINARY.hashCode());
+		result = prime * result + ((MESSAGE_RECORDING_FORMAT_XML == null) ? 0 : MESSAGE_RECORDING_FORMAT_XML.hashCode());
+		result = prime * result + ((TSFormatter == null) ? 0 : TSFormatter.hashCode());
+		result = prime * result + (allowExport ? 1231 : 1237);
+		result = prime * result + ((anonymousMsgRequest == null) ? 0 : anonymousMsgRequest.hashCode());
+		result = prime * result + ((cal == null) ? 0 : cal.hashCode());
+		result = prime * result + ((cfg == null) ? 0 : cfg.hashCode());
+		result = prime * result + ((cm == null) ? 0 : cm.hashCode());
+		result = prime * result + ((host == null) ? 0 : host.hashCode());
+		result = prime * result + ((hostcfg == null) ? 0 : hostcfg.hashCode());
+		result = prime * result + ((inbox == null) ? 0 : inbox.hashCode());
+		result = prime * result + (isRunning ? 1231 : 1237);
+		result = prime * result + ((lastRecordingFilename == null) ? 0 : lastRecordingFilename.hashCode());
+		result = prime * result + ((methodSet == null) ? 0 : methodSet.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((outbox == null) ? 0 : outbox.hashCode());
+		result = prime * result + ((outboxMsgHandling == null) ? 0 : outboxMsgHandling.hashCode());
+		result = prime * result + ((serviceClass == null) ? 0 : serviceClass.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Service other = (Service) obj;
+		if (MESSAGE_RECORDING_FORMAT_BINARY == null) {
+			if (other.MESSAGE_RECORDING_FORMAT_BINARY != null)
+				return false;
+		} else if (!MESSAGE_RECORDING_FORMAT_BINARY.equals(other.MESSAGE_RECORDING_FORMAT_BINARY))
+			return false;
+		if (MESSAGE_RECORDING_FORMAT_XML == null) {
+			if (other.MESSAGE_RECORDING_FORMAT_XML != null)
+				return false;
+		} else if (!MESSAGE_RECORDING_FORMAT_XML.equals(other.MESSAGE_RECORDING_FORMAT_XML))
+			return false;
+		if (TSFormatter == null) {
+			if (other.TSFormatter != null)
+				return false;
+		} else if (!TSFormatter.equals(other.TSFormatter))
+			return false;
+		if (allowExport != other.allowExport)
+			return false;
+		if (anonymousMsgRequest == null) {
+			if (other.anonymousMsgRequest != null)
+				return false;
+		} else if (!anonymousMsgRequest.equals(other.anonymousMsgRequest))
+			return false;
+		if (cal == null) {
+			if (other.cal != null)
+				return false;
+		} else if (!cal.equals(other.cal))
+			return false;
+		if (cfg == null) {
+			if (other.cfg != null)
+				return false;
+		} else if (!cfg.equals(other.cfg))
+			return false;
+		if (cm == null) {
+			if (other.cm != null)
+				return false;
+		} else if (!cm.equals(other.cm))
+			return false;
+		if (host == null) {
+			if (other.host != null)
+				return false;
+		} else if (!host.equals(other.host))
+			return false;
+		if (hostcfg == null) {
+			if (other.hostcfg != null)
+				return false;
+		} else if (!hostcfg.equals(other.hostcfg))
+			return false;
+		if (inbox == null) {
+			if (other.inbox != null)
+				return false;
+		} else if (!inbox.equals(other.inbox))
+			return false;
+		if (isRunning != other.isRunning)
+			return false;
+		if (lastRecordingFilename == null) {
+			if (other.lastRecordingFilename != null)
+				return false;
+		} else if (!lastRecordingFilename.equals(other.lastRecordingFilename))
+			return false;
+		if (methodSet == null) {
+			if (other.methodSet != null)
+				return false;
+		} else if (!methodSet.equals(other.methodSet))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (outbox == null) {
+			if (other.outbox != null)
+				return false;
+		} else if (!outbox.equals(other.outbox))
+			return false;
+		if (outboxMsgHandling == null) {
+			if (other.outboxMsgHandling != null)
+				return false;
+		} else if (!outboxMsgHandling.equals(other.outboxMsgHandling))
+			return false;
+		if (serviceClass == null) {
+			if (other.serviceClass != null)
+				return false;
+		} else if (!serviceClass.equals(other.serviceClass))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		return true;
+	}
+*/
+	
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(Service.class);
+	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
 	protected String host = null; // TODO - should be final??? helpful in
 									// testing??? TODO - put in
 									// RuntimeEnvironment???
@@ -104,20 +232,21 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public final String serviceClass; // TODO - remove
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
-	Outbox outbox = null;
-	Inbox inbox = null;
+	
+	transient Outbox outbox = null;
+	transient Inbox inbox = null;
 	
 	@Element
 	protected boolean allowExport = true; 
 	
 	public URI url = null;
 
-	protected CommunicationInterface cm = null;
+	transient protected CommunicationInterface cm = null;
 	/**
 	 * @deprecated
 	 */
-	protected ConfigurationManager cfg = null;
-	protected ConfigurationManager hostcfg = null;
+	transient protected ConfigurationManager cfg = null;
+	transient protected ConfigurationManager hostcfg = null;
 
 	// relay directives
 	static public final String PROCESS = "PROCESS";
@@ -135,8 +264,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	protected Set<String> methodSet;
 
 
-	SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-	Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+	transient SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+	transient Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 
 	// recordings
 	static private boolean isRecording = false;
