@@ -268,7 +268,7 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Logging" workingLevel="3">
+   <serviceType string="org.myrobotlab.service.Log" workingLevel="3">
       <dependsOn>
         <description>a service capable of logging framework messages
       	 </description>  
