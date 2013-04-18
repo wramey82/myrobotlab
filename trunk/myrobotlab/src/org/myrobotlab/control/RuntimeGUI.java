@@ -642,7 +642,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 					return;
 				}
 
-				myService.send(Runtime.getInstance().getName(), "update", "org.myrobotlab.service." + c.type);
+				myService.send(boundServiceName, "update", "org.myrobotlab.service." + c.type);
 			} else {
 				// no unfulfilled dependencies - good to go
 				addNewService(newService);

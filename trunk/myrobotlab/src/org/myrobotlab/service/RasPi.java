@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.RaspiPin;
 
 public class RasPi extends Service  {
 
@@ -15,6 +17,10 @@ public class RasPi extends Service  {
 
 	public final static Logger log = LoggerFactory.getLogger(RasPi.class.getCanonicalName());
 	transient public final GpioController gpio = GpioFactory.getInstance();
+	GpioPinDigitalOutput gpio01;
+	GpioPinDigitalOutput gpio03;
+	
+	private boolean initialized = false;
 	
 	public RasPi(String n) {
 		super(n, RasPi.class.getCanonicalName());	
@@ -23,6 +29,32 @@ public class RasPi extends Service  {
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
+	}
+	
+	public void init()
+	{
+		if (initialized)
+		{
+			return;
+		}
+		gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
+		gpio03 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03);
+		
+
+		// provision gpio pin #02 as an input pin with its internal pull down resistor enabled
+        //final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+        
+        /*
+		GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02,             // PIN NUMBER
+                "MyButton",                   // PIN FRIENDLY NAME (optional)
+                PinPullResistance.PULL_DOWN); // PIN RESISTANCE (optional)
+       */
+		initialized = true;
+	}
+	
+	public void blinkTest()
+	{
+		gpio01.blink(500, 15000);
 	}
 
 	public static void main(String[] args) {

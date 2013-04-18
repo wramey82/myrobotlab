@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.SwingUtilities;
 
-import org.myrobotlab.control.widget.MemoryWidget;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.RasPi;
@@ -43,18 +42,15 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(RasPiGUI.class.getCanonicalName());
 
-	MemoryWidget tree = new MemoryWidget(this);
 
 	public RasPiGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		
-		display.add(tree.getDisplay());
 	}
 
 	public void init() {
 	}
 
-	public void getState(RasPi template) {
+	public void getState(RasPi raspi) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
@@ -64,7 +60,7 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", RasPiGUI.class);
+		subscribe("publishState", "getState", RasPi.class);
 		subscribe("publishNode", "publishNode", String.class, Node.class);
 		subscribe("putNode", "putNode", Node.NodeContext.class);
 		myService.send(boundServiceName, "publishState");
@@ -72,7 +68,7 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", RasPiGUI.class);
+		unsubscribe("publishState", "getState", RasPi.class);
 	}
 
 	@Override
@@ -81,32 +77,6 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 
 	}
 	
-
-	// FIXME !!!! SHOULD BE IN NodeGUI !!!!
-	// Add a Node to the GUI - since a GUI Tree 
-	// is constructed to model the memory Tree
-	// this is a merge between what the user is interested in
-	// and what is in memory
-	// memory will grow an update the parts which a user
-	// expand - perhaps configuration will allow auto-expand
-	// versus user controlled expand of nodes on tree
-	public void putNode(Node.NodeContext context)
-	{
-		tree.put(context.parentPath, context.node);
-	}
-	
-	public void publishNode(Node.NodeContext nodeContext)
-	{
-		// update or add
-		// remember the display node tree does not match the structure
-		// of the memory tree
-		String parentPath = nodeContext.parentPath;
-		Node node = nodeContext.node;
-		
-		tree.put(parentPath, node);
-		
-		// FIXME - TODO - refresh Node data !!! versus re-build gui
-	}
 
 	@Override
 	public void displayStatus(String status) {
