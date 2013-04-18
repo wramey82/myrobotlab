@@ -375,7 +375,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			VideoProcessor vp = myOpenCV.videoProcessor;
 
 			if ("IPCamera".equals((String) grabberTypeSelect.getSelectedItem())) {
-				prefixPath = "org.myrobotlab.image.";
+				prefixPath = "org.myrobotlab.opencv.";
 				vp.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
 			} else {
 				prefixPath = "com.googlecode.javacv.";
