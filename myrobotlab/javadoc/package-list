@@ -7,6 +7,7 @@ org.myrobotlab.cmdline
 org.myrobotlab.control
 org.myrobotlab.control.opencv
 org.myrobotlab.control.widget
+org.myrobotlab.cortex
 org.myrobotlab.dbms
 org.myrobotlab.fileLib
 org.myrobotlab.framework
