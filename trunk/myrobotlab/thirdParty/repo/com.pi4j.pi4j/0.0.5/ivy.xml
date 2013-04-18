@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <ivy-module version="1.0">
-    <info organisation="com.pi4j.pi4j" module="jna" status="release" revision="0.0.5">
+    <info organisation="com.pi4j.pi4j" module="pi4j" status="release" revision="0.0.5">
     </info>
     <configurations>
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
