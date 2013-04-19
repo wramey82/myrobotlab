@@ -591,7 +591,7 @@ public class Runtime extends Service {
 	 */
 	public static boolean release(String name) /* release local Service */
 	{
-		log.info(String.format("releasing service %1$s", name));
+		log.warn("releasing service {}", name);
 		ServiceWrapper sw = getServiceWrapper(name);
 		if (sw == null || !sw.isValid()) {
 			log.error("no service wrapper for " + name);
@@ -610,7 +610,7 @@ public class Runtime extends Service {
 			log.info("service directory empty - removing host");
 			hosts.remove(se); // TODO - invoke message
 		}
-		log.info(String.format("released %1$s", name));
+		log.warn("released{}", name);
 		return true;
 	}
 
@@ -624,7 +624,7 @@ public class Runtime extends Service {
 		boolean ret = true;
 		ServiceEnvironment se = hosts.get(url);
 		if (se == null) {
-			log.warn(String.format("attempt to release %1$s not successful - it does not exist", url));
+			log.warn("attempt to release {} not successful - it does not exist", url);
 			return false;
 		}
 		log.info(String.format("releasing url %1$s", url));
@@ -878,7 +878,9 @@ public class Runtime extends Service {
 			serviceName = it.next();
 			sw = registry.get(serviceName);
 			sb.append("<service name=\"").append(sw.getName()).append("\" serviceEnironment=\"").append(sw.getAccessURL()).append("\">");
-			Iterator<String> nit = sw.getNotifyListKeySet().iterator();
+			ArrayList<String> nlks = sw.getNotifyListKeySet();
+			if (nlks != null) {
+			Iterator<String> nit = nlks.iterator();
 
 			while (nit.hasNext()) {
 				n = nit.next();
@@ -891,7 +893,9 @@ public class Runtime extends Service {
 				}
 				sb.append("</addListener>");
 			}
+			}
 			sb.append("</service>");
+			
 		}
 		sb.append("</NotifyEntries>");
 

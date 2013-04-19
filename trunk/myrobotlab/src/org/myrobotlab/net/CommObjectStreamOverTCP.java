@@ -44,13 +44,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
@@ -61,10 +64,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
-	boolean isRunning = false;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
-	
+
 	transient Service myService = null;
 	boolean useHeartbeat = false;
 	boolean heartbeatRunning = false;
@@ -76,26 +78,35 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		CommData data = new CommData();
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
+		public final String name; // name of the creator, who created this thread
+		boolean isRunning = false;
+
 
 		public TCPThread(URI url, Socket socket) throws UnknownHostException, IOException {
-			super("tcp " + url);
+			super(String.format("%s.tcp -> %s", myService.getName(), url));
+			this.name = myService.getName();
 			this.url = url;
 			if (socket == null) {
 				socket = new Socket(url.getHost(), url.getPort());
 			}
 			this.socket = socket;
-			// TODO - could used buffered input / ouput - but I'm still stinging from some
-			// bug I don't understand where it appears a newly contructed clock was sent
-			// without the data being updated :(   holding off any "optimizations" until I figure out
+			// TODO - could used buffered input / ouput - but I'm still stinging
+			// from some
+			// bug I don't understand where it appears a newly contructed clock
+			// was sent
+			// without the data being updated :( holding off any "optimizations"
+			// until I figure out
 			// what is going on
 			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
-			//out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+			// out = new ObjectOutputStream(new
+			// BufferedOutputStream(socket.getOutputStream()));
 			out = new ObjectOutputStream((socket.getOutputStream()));
 			out.flush();// some flush before using :)
 			// http://stackoverflow.com/questions/3365261/does-a-buffered-objectinputstream-exist
 			in = new ObjectInputStream(socket.getInputStream());
-			//in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-			//in = new ObjectInputStream((socket.getInputStream()));
+			// in = new ObjectInputStream(new
+			// BufferedInputStream(socket.getInputStream()));
+			// in = new ObjectInputStream((socket.getInputStream()));
 			this.start(); // starting listener
 		}
 
@@ -105,36 +116,27 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			try {
 				isRunning = true;
 
-				while (socket != null && isRunning) {
+				// FIXME - isRunning is a bad idea - its a single instance ,however, there may be multiple
+				// TCPThreads !!!
+				while (socket != null && isRunning) { 
 
 					Message msg = null;
 					Object o = null;
 					try {
 						o = in.readObject();
 						msg = (Message) o;
-						log.info(String.format("%s rx %s.%s -tcp-> %s.%s",  myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+						log.error(String.format("%s rx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 					} catch (Exception e) {
-						// FIXME - more intelligent ERROR handling - recover if possible !!!!
-						Logging.logException(e);
+						// FIXME - more intelligent ERROR handling - recover if
+						// possible !!!!
 						msg = null;
-						Logging.logException(e);
-						log.error(url + " connection failure - shutting down");
-						log.error("removing url from registry");
-						Runtime.release(url);
-						log.error("removing client from clientList");
-						clientList.remove(url);
-						log.error("shutting down thread");
-						isRunning = false;
-						log.error("attempting to close streams");
-						in.close();
-						out.close();
-						log.error("attempting to close socket");
-						socket.close();
+						releaseConnect(e);
 					}
 					if (msg == null) {
 						log.error("msg deserialized to null");
 					} else {
-						// FIXME - normalize to single method - check for data type too ? !!!
+						// FIXME - normalize to single method - check for data
+						// type too ? !!!
 						if (msg.method.equals("registerServices")) {
 							// FIXME - the only reason this is pulled off the
 							// comm line here
@@ -142,15 +144,14 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 							// with a "name"
 							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
 							continue;
-						} else if (msg.method.equals("register"))
-						{
+						} else if (msg.method.equals("register")) {
 							try {
-								ServiceWrapper sw = (ServiceWrapper)msg.data[0];
+								ServiceWrapper sw = (ServiceWrapper) msg.data[0];
 								if (sw.host.accessURL == null) {
-									sw.host.accessURL = new URI(String.format("tcp://%s:%s",socket.getInetAddress().getHostAddress(), socket.getPort()));
+									sw.host.accessURL = new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort()));
 								}
 								Runtime.getInstance().register(sw);
-							} catch(Exception e){
+							} catch (Exception e) {
 								Logging.logException(e);
 							}
 							continue;
@@ -175,32 +176,57 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			// myService.invoke("connectionBroken", url); FIXME
 		}
 
+		// FIXME - UDP must do this too? - put in common location
+		public void releaseConnect(Exception e) {
+			try {
+				// FIXME - more intelligent ERROR handling - recover if possible
+				// !!!!
+				Logging.logException(e);
+				log.error("removing {} from registry", url);
+				Runtime.release(url);
+				log.error("removing {} client from clientList", url);
+				clientList.remove(url);
+				log.error("shutting down thread");
+				isRunning = false;
+				log.error("attempting to close streams");
+				in.close();
+				out.close();
+				log.error("attempting to close socket");
+				socket.close();
+			} catch (Exception f) {
+				// do nothing - closing down a bad connection, I don't want
+				// another thrown
+			}
+		}
+
 		public Socket getSocket() {
 			return socket;
 		}
 
-		public synchronized void send(URI url2, Message msg) { 
+		public synchronized void send(URI url2, Message msg) {
 			try {
-				/*  DEBUG TRAP 
-				if (String.format("%s.%s", msg.sender, msg.sendingMethod).equals("clock.publishState"))
-				{
-					log.info("here");
-					Clock c = (Clock)msg.data[0];
-					c.data = "SET IN COMM TCP";
-					
-					log.error("{} {}", c.data, c.interval);
-					log.error("****** sending object {} ********", System.identityHashCode(c));
-					log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				}
-				*/
-				
+				/*
+				 * DEBUG TRAP if (String.format("%s.%s", msg.sender,
+				 * msg.sendingMethod).equals("clock.publishState")) {
+				 * log.info("here"); Clock c = (Clock)msg.data[0]; c.data =
+				 * "SET IN COMM TCP";
+				 * 
+				 * log.error("{} {}", c.data, c.interval);
+				 * log.error("****** sending object {} ********",
+				 * System.identityHashCode(c));
+				 * log.error(String.format("%s tx %s.%s -tcp-> %s.%s",
+				 * myService.getName(), msg.sender, msg.sendingMethod, msg.name,
+				 * msg.method)); }
+				 */
+
 				log.info(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				out.writeObject(msg); 
+				out.writeObject(msg);
 				out.flush();
-				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE OUT !!!!!!!
+				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE
+								// OUT !!!!!!!
 				++data.tx;
 			} catch (Exception e) {
-				Logging.logException(e);
+				releaseConnect(e);
 			}
 		}
 
@@ -255,6 +281,22 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	@Override
 	public void stopService() {
 		// TODO Auto-generated method stub
+		for (Map.Entry<URI,TCPThread> o : clientList.entrySet())
+		{
+			//Map.Entry<String,SerializableImage> pairs = o;
+			URI uri = o.getKey();
+			TCPThread thread = o.getValue();
+			if (thread.name.equals(myService.getName()))
+		 	{
+			log.warn("%s shutting down tcp thread %s", myService.getName(), o.getKey());
+			thread.isRunning = false;
+			thread.interrupt();
+		 	}
+			// FIXME - sloppy - too many variables
+			
+		}
+		
+		/*
 		if (clientList != null) {
 			for (int i = 0; i < clientList.size(); ++i) {
 				TCPThread r = clientList.get(i);
@@ -264,11 +306,14 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				r = null;
 			}
 		}
+		*/
+		// FIXME - WTF is this garbage?
+		/*
 		clientList.clear();
 		clientList = new HashMap<URI, TCPThread>();
 		isRunning = false;
+		*/
 	}
-
 
 	class Heart extends Thread {
 		URI url;
@@ -313,10 +358,9 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	}
 
-
 	@Override
 	public HashMap<URI, CommData> getClients() {
-		
+
 		HashMap<URI, CommData> data = new HashMap<URI, CommData>();
 		for (URI key : clientList.keySet()) {
 			TCPThread tcp = clientList.get(key);

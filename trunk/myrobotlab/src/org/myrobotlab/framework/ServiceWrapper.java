@@ -26,7 +26,7 @@ public class ServiceWrapper implements Serializable {
 		return name;
 	}
 
-	public Set<String> getNotifyListKeySet() {
+	public ArrayList<String> getNotifyListKeySet() {
 		return service.getNotifyListKeySet();
 	}
 
