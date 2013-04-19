@@ -144,7 +144,7 @@ public class Clock extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		int i = 3;
+		int i = 2;
 		
 		Runtime runtime = new Runtime(String.format("ras%d", i));
 		runtime.startService();

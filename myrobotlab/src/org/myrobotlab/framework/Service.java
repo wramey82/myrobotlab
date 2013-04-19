@@ -608,6 +608,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public void stopService() {
 		isRunning = false;
+		// stopping the phone
 		getComm().getComm().stopService();
 		outbox.stop();
 		if (thisThread != null) {
@@ -1398,9 +1399,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	// BOXING - End --------------------------------------
 	public Object sendBlocking(String name, String method) {
-		return sendBlocking(name, method, null);
+		return sendBlocking(name, method, (Object[])null);
 	}
 
+	public Object sendBlocking(String name, String method, Object... data) {
+		return sendBlocking(name, 1000, method, data); // default 1 sec timeout - TODO - make configurable
+	}
 	/**
 	 * 
 	 * @param name
@@ -1408,7 +1412,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param data
 	 * @return
 	 */
-	public Object sendBlocking(String name, String method, Object[] data) {
+	public Object sendBlocking(String name, Integer timeout, String method, Object... data) {
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
 		msg.status = Message.BLOCKING;
@@ -1424,32 +1428,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// block until message comes back
 			synchronized (returnContainer) {
 				outbox.add(msg);
-				returnContainer.wait();
-			}
-		} catch (InterruptedException e) {
-			logException(e);
-		}
-
-		return returnContainer[0];
-	}
-
-	public Object sendBlockingWithTimeout(Integer timeout, String name, String method, Object[] data) {
-		Message msg = createMessage(name, method, data);
-		msg.sender = this.getName();
-		msg.status = Message.BLOCKING;
-
-		Object[] returnContainer = new Object[1];
-		/*
-		 * if (inbox.blockingList.contains(msg.msgID)) { log.error("DUPLICATE");
-		 * }
-		 */
-		inbox.blockingList.put(msg.msgID, returnContainer);
-
-		try {
-			// block until message comes back
-			synchronized (returnContainer) {
-				outbox.add(msg);
-				returnContainer.wait(timeout);
+				returnContainer.wait(timeout); // NEW !!! TIMEOUT !!!!
 			}
 		} catch (InterruptedException e) {
 			logException(e);
@@ -1925,16 +1904,40 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	/**
 	 * 
 	 */
-	public Set<String> getNotifyListKeySet() {
-		return getOutbox().notifyList.keySet();
+	public ArrayList<String> getNotifyListKeySet() {
+		ArrayList<String> ret = new ArrayList<String>();
+		if (getOutbox() == null)
+		{
+			// this is remote system - it has a null outbox, because its
+			// been serialized with a transient outbox
+			// and your in a skeleton
+			// use the runtime to send a message
+			@SuppressWarnings("unchecked")
+			ArrayList<String> remote = (ArrayList<String>)Runtime.getInstance().sendBlocking(getName(), "getNotifyListKeySet");
+			return remote;
+		} else {
+			ret.addAll(getOutbox().notifyList.keySet());
+		}
+		return ret;
 	}
 
 	/**
 	 * 
 	 */
 	public ArrayList<MRLListener> getNotifyList(String key) {
-		// TODO refactor Outbox inteface
-		return getOutbox().notifyList.get(key);
+		if (getOutbox() == null)
+		{
+			// this is remote system - it has a null outbox, because its
+			// been serialized with a transient outbox
+			// and your in a skeleton
+			// use the runtime to send a message
+			@SuppressWarnings("unchecked") // FIXME - parameters !
+			ArrayList<MRLListener> remote = (ArrayList<MRLListener>)Runtime.getInstance().sendBlocking(getName(), "getNotifyList", new Object[]{key});
+			return remote;
+			
+		} else {
+			return getOutbox().notifyList.get(key);
+		}
 	}
 
 	/**

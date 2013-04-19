@@ -119,13 +119,14 @@ public class Inbox implements Serializable {
 	}
 
 	// FIXME - implement with HashSet or HashMap !!!!
+	// ******* TEST WITHOUT DUPE CHECKING *********
 	public boolean duplicateMsg(ArrayList<RoutingEntry> history) {
-/*		for (int i = 0; i < history.size(); ++i) {
+		for (int i = 0; i < history.size(); ++i) {
 			if (history.get(i).name.equals(name)) {
 				return true;
 			}
 		}
-*/
+
 		return false;
 	}
 

@@ -17,7 +17,7 @@ public interface ServiceInterface {
 
 	public void releaseService();
 
-	public Set<String> getNotifyListKeySet();
+	public ArrayList<String> getNotifyListKeySet();
 
 	public ArrayList<MRLListener> getNotifyList(String key);
 
