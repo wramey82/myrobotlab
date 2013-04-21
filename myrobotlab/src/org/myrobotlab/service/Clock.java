@@ -142,20 +142,20 @@ public class Clock extends Service {
 
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
-		int i = 2;
+		int i = 0;
 		
 		Runtime runtime = new Runtime(String.format("ras%d", i));
 		runtime.startService();
 		//Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
 		
 
-		Clock clock = new Clock(String.format("clock%d", i));
+		Clock clock = new Clock(String.format("c%d", i));
 		clock.startService();
 		
 		Runtime.createAndStart(String.format("rasGUI%d", i), "GUIService");
-		runtime.connect(null, null, null, "127.0.0.1", 6767);
+		clock.connect(null, null, "127.0.0.1", 6767);
 
 	}
 

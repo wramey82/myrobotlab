@@ -353,6 +353,7 @@ public class Runtime extends Service {
 		if (!hosts.containsKey(url)) {
 			log.info(String.format("adding new ServiceEnvironment %1$s", url));
 		} else {
+			// FIXME ? - replace regardless ??? 
 			if (areEqual(s, url)) {
 				log.info(String.format("ServiceEnvironment %1$s already exists - with same count and names", url));
 				return false;
@@ -1193,7 +1194,7 @@ public class Runtime extends Service {
 				String host = cmdline.getSafeArgument("-connect", 0, "localhost");
 				String portStr = cmdline.getSafeArgument("-connect", 1, "6767");
 				int port = Integer.parseInt(portStr);
-				Runtime.getInstance().connect(null, null, null, host, port);
+				Runtime.getInstance().connect(null, null, host, port);
 			}
 
 		} catch (Exception e) {

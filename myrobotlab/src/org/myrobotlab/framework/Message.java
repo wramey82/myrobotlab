@@ -55,7 +55,7 @@ public class Message implements Serializable {
 	@Element
 	public String msgID;
 	/**
-	 * datetimestamp when message is created GMT
+	 * datetimestamp when message is created GMT - hashCode?
 	 */
 	@Element
 	public long timeStamp;
@@ -174,7 +174,7 @@ public class Message implements Serializable {
 
 	public Message() {
 		msgID = String.format("%d",System.currentTimeMillis()); // currently just a timestamp - but it can be more unique if needed
-		timeStamp = System.currentTimeMillis(); // FIXME - remove silly assignments !!!
+		timeStamp = System.currentTimeMillis();
 		name = new String();
 		sender = new String();
 		sendingMethod = new String();
@@ -188,15 +188,20 @@ public class Message implements Serializable {
 
 	final public void set(final Message other) {
 		msgID = other.msgID;
-		timeStamp = other.timeStamp;
+		
+		timeStamp = System.currentTimeMillis();// other.timeStamp;
 		name = other.getName();
 		sender = other.sender;
 		sendingMethod = other.sendingMethod;
-		historyList = other.historyList;
+		// FIXED - not valid making a copy of a message
+		// to send and copying there history list
+		//historyList = other.historyList; 
+		historyList = new ArrayList<RoutingEntry>();
 		status = other.status;
 		msgType = other.msgType;
 		method = other.method;
-		data = other.data;
+		// you know the dangers of reference copy
+		data = other.data; 
 	}
 
 	final public String getParameterSignature() {

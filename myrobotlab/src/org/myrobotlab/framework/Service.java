@@ -370,7 +370,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		TSFormatter.setCalendar(cal);
 
 		registerServices();// FIXME - deprecate - remove !
-		registerLocalService(url);
+		registerLocalService(url); // the one which is used - 
 	}
 
 	
@@ -1697,25 +1697,22 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param hostAddress
 	 * @param port
 	 * @param msg
+	 * 
+	 * FIXME - put into Runtime to normalize and simplify
 	 */
 	public void registerServices(String hostAddress, int port, Message msg) {
 		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceDirectoryUpdate)) {
+			log.error("inbound registerServices not valid");
 			return;
 		}
 		try {
 			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
 			// TODO allow for SSL connections
-			StringBuffer sb = new StringBuffer().append("tcp://") // FIXME -
-																	// assumption
-																	// you know
-																	// what
-																	// protocol
-																	// this
-																	// going out
-																	// on
-					.append(hostAddress) // FIXME - the remoteURL - should not
-											// be used ! it should be contructed
-											// at the protocol level
+			// FIXME assumption you know what protocol this going out on
+			// FIXME the remote url should not be constructed here -
+			// it should be assembled at the protol level - where it was accepted
+			StringBuffer sb = new StringBuffer().append("tcp://") 
+					.append(hostAddress) 
 					.append(":").append(port);
 			sdu.remoteURL = new URI(sb.toString());
 
@@ -1740,15 +1737,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
-	/**
-	 * FIXME - registerLocalService() - calls RuntimeEnvironment(null, this)
-	 * 
-	 * @param host
-	 *            always null for local service
-	 */
+
 	public synchronized void registerLocalService(URI url) {
 		Runtime.register(this, url); // problem with this in it does not
-										// broadcast
+									// broadcast
 	}
 
 	// TODO - DEPRICATE !!!!
@@ -1811,11 +1803,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * Outbound connect - initial request to connect and
-	 * register services with a remote system FIXME - change to register - with
-	 * full signature
+	 * register services with a remote system 
 	 */
-	// FIXME - change name to "connect" - must change string too
-	public void connect(String login, String password, String name, String remoteHost, int port) {
+	public void connect(String login, String password, String remoteHost, int port) {
 		try {
 			log.info("{} connect ", getName());
 			// FIXME - change to URI - use default protocol tcp:// mrl:// udp://
@@ -1829,9 +1819,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				urlstr.append(password).append("@");
 			}
 
-			InetAddress inetAddress = null;
-			// InetAddress.getByName("208.29.194.106");
-			inetAddress = InetAddress.getByName(remoteHost);
+			InetAddress inetAddress = InetAddress.getByName(remoteHost);
 
 			urlstr.append(inetAddress.getHostAddress()).append(":").append(port);
 
@@ -1840,7 +1828,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
 			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
-			// }
 
 			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
 			sdu.url = url;
