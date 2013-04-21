@@ -81,7 +81,7 @@ public class Welcome extends ServiceGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			myService.connect(loginValue.getText(), loginPasswordValue.getText(), null, hostnameValue.getText(), servicePortValue.getInt()); 
+			myService.connect(loginValue.getText(), loginPasswordValue.getText(), hostnameValue.getText(), servicePortValue.getInt()); 
 		}
 
 	}

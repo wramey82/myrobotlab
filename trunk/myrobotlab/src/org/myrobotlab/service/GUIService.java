@@ -184,10 +184,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	public boolean preProcessHook(Message m) {
+		// FIXME - problem with collisions of this service's methods
+		// and dialog methods ?!?!?
+		
+		// if the method name is == to a method in the GUIService
 		if (methodSet.contains(m.method)) {
+			// process the message like a regular service
+			log.error(String.format("%s.preProcessHook.true-continue processing %s.%s --> %s.%s", getName(), m.sender, m.sendingMethod, m.name, m.method));
 			return true;
 		}
 
+		log.error(String.format("%s.preProcessHook.false-stop processing %s.%s --> %s.%s", getName(), m.sender, m.sendingMethod, m.name, m.method));
+		
+		// otherwise send the message to the dialog with the senders name
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
 		if (sg == null) {
 			log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());

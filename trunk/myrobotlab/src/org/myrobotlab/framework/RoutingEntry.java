@@ -34,14 +34,14 @@ public class RoutingEntry implements Serializable {
 	public int ID;
 	public String name; // routing name - any service which recieves a message
 						// will add its name to the history
-	public Date timestamp; // timestamp of message arrival
+	public long timestamp; // timestamp of message arrival
 
 	// option constants
 
 	// ctors begin ----
 	public RoutingEntry() {
 		name = new String();
-		timestamp = new Date();
+		timestamp = System.currentTimeMillis();
 	}
 
 	public RoutingEntry(final RoutingEntry other) {

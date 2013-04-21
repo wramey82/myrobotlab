@@ -101,7 +101,7 @@ public class Outbox implements Runnable, Serializable {
 					while (msgBox.size() == 0) {
 						// log.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
-					}
+					}	
 				} catch (InterruptedException ex) {
 					log.debug("outbox run INTERRUPTED ");
 					// msgBox.notifyAll();
@@ -109,6 +109,7 @@ public class Outbox implements Runnable, Serializable {
 					continue;
 				}
 				msg = msgBox.removeLast();
+				log.error(String.format("%s.outbox.run(msg) %s.%s -- %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 				log.debug("removed from msgBox size now " + msgBox.size());
 				msgBox.notifyAll();
 			}
@@ -118,7 +119,7 @@ public class Outbox implements Runnable, Serializable {
 			// TODO - clean up - (name || hostname && serviceport) &&
 			// outboxMsgHandling == RELAY
 			if (msg.getName().length() > 0 && myService.outboxMsgHandling.compareTo(Service.RELAY) == 0 || "S".equals(msg.msgType)) {
-				log.debug("configured to RELAY " + msg.getName());
+				log.debug("{} configured to RELAY ", msg.getName());
 				comm.send(msg);
 
 			}
@@ -151,6 +152,9 @@ public class Outbox implements Runnable, Serializable {
 						// with and without Serialization
 						msg = new Message(msg);
 					}
+					
+					log.error(String.format("%s.outbox.com.send(msg) %s.%s --> %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+
 					comm.send(msg);
 				}
 			} else {
@@ -164,6 +168,7 @@ public class Outbox implements Runnable, Serializable {
 	// TODO - config to put message in block mode - with no buffer overrun
 	// TODO - config to drop message without buffer overrun e.g. like UDP
 	public void add(Message msg) {
+		log.error(String.format("%s.outbox.add(msg) %s.%s --> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 		synchronized (msgBox) {
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"

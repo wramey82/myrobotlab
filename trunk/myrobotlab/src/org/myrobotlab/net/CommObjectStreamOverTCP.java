@@ -78,12 +78,12 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 		CommData data = new CommData();
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
-		public final String name; // name of the creator, who created this thread
+		public final String name; // name of the creator, who created this
+									// thread
 		boolean isRunning = false;
 
-
 		public TCPThread(URI url, Socket socket) throws UnknownHostException, IOException {
-			super(String.format("%s.tcp -> %s", myService.getName(), url));
+			super(String.format("%s_%s", myService.getName(), url));
 			this.name = myService.getName();
 			this.url = url;
 			if (socket == null) {
@@ -116,16 +116,17 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			try {
 				isRunning = true;
 
-				// FIXME - isRunning is a bad idea - its a single instance ,however, there may be multiple
+				// FIXME - isRunning is a bad idea - its a single instance
+				// ,however, there may be multiple
 				// TCPThreads !!!
-				while (socket != null && isRunning) { 
+				while (socket != null && isRunning) {
 
 					Message msg = null;
 					Object o = null;
 					try {
 						o = in.readObject();
 						msg = (Message) o;
-						log.error(String.format("%s rx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+						log.error(String.format("%s rx %s.%s <-tcp- %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 					} catch (Exception e) {
 						// FIXME - more intelligent ERROR handling - recover if
 						// possible !!!!
@@ -157,7 +158,8 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 							continue;
 						}
 						++data.rx;
-						myService.getInbox().add(msg);
+						// myService.getInbox().add(msg);
+						myService.getOutbox().add(msg);
 					}
 				}
 
@@ -205,21 +207,17 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 		public synchronized void send(URI url2, Message msg) {
 			try {
+				// --- DEBUG TRAP --
 				/*
-				 * DEBUG TRAP if (String.format("%s.%s", msg.sender,
-				 * msg.sendingMethod).equals("clock.publishState")) {
-				 * log.info("here"); Clock c = (Clock)msg.data[0]; c.data =
-				 * "SET IN COMM TCP";
-				 * 
-				 * log.error("{} {}", c.data, c.interval);
-				 * log.error("****** sending object {} ********",
-				 * System.identityHashCode(c));
-				 * log.error(String.format("%s tx %s.%s -tcp-> %s.%s",
-				 * myService.getName(), msg.sender, msg.sendingMethod, msg.name,
-				 * msg.method)); }
-				 */
+				if (String.format("%s.%s", msg.sender, msg.sendingMethod).equals("clock2.publishState")) {
+					log.info("here");
+					
+					//log.error("****** sending object {} ********", System.identityHashCode(c));
+					//log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				}
+				*/
 
-				log.info(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 				out.writeObject(msg);
 				out.flush();
 				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE
@@ -281,38 +279,29 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 	@Override
 	public void stopService() {
 		// TODO Auto-generated method stub
-		for (Map.Entry<URI,TCPThread> o : clientList.entrySet())
-		{
-			//Map.Entry<String,SerializableImage> pairs = o;
+		for (Map.Entry<URI, TCPThread> o : clientList.entrySet()) {
+			// Map.Entry<String,SerializableImage> pairs = o;
 			URI uri = o.getKey();
 			TCPThread thread = o.getValue();
-			if (thread.name.equals(myService.getName()))
-		 	{
-			log.warn("%s shutting down tcp thread %s", myService.getName(), o.getKey());
-			thread.isRunning = false;
-			thread.interrupt();
-		 	}
-			// FIXME - sloppy - too many variables
-			
-		}
-		
-		/*
-		if (clientList != null) {
-			for (int i = 0; i < clientList.size(); ++i) {
-				TCPThread r = clientList.get(i);
-				if (r != null) {
-					r.interrupt();
-				}
-				r = null;
+			if (thread.name.equals(myService.getName())) {
+				log.warn("%s shutting down tcp thread %s", myService.getName(), o.getKey());
+				thread.isRunning = false;
+				thread.interrupt();
 			}
+			// FIXME - sloppy - too many variables
+
 		}
-		*/
+
+		/*
+		 * if (clientList != null) { for (int i = 0; i < clientList.size(); ++i)
+		 * { TCPThread r = clientList.get(i); if (r != null) { r.interrupt(); }
+		 * r = null; } }
+		 */
 		// FIXME - WTF is this garbage?
 		/*
-		clientList.clear();
-		clientList = new HashMap<URI, TCPThread>();
-		isRunning = false;
-		*/
+		 * clientList.clear(); clientList = new HashMap<URI, TCPThread>();
+		 * isRunning = false;
+		 */
 	}
 
 	class Heart extends Thread {

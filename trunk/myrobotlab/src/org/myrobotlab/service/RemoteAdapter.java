@@ -39,17 +39,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.slf4j.Logger;
 
 /***
  * 
@@ -168,6 +164,9 @@ public class RemoteAdapter extends Service {
 			}
 		}
 
+		// FIXME FIXME FIXME - large amount of changes to tcp - application
+		// logic which handles the "Messaging" should be common to both
+		// tcp & udp
 		public void run() {
 
 			try {
@@ -202,6 +201,7 @@ public class RemoteAdapter extends Service {
 						} else {
 							getOutbox().add(msg);
 						}
+				
 
 					} catch (ClassNotFoundException e) {
 						logException(e);

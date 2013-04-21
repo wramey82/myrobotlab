@@ -80,7 +80,7 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if ("connect".endsWith(e.getActionCommand())) {
 			// FIXME - refactor name
-			myService.connect(null, null, null, host.getText(), Integer.parseInt(port.getText()));
+			myService.connect(null, null, host.getText(), Integer.parseInt(port.getText()));
 		}
 
 		myService.lastHost = host.getText();
