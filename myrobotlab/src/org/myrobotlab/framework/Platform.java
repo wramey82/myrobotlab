@@ -94,5 +94,15 @@ public class Platform implements Serializable {
 	public static boolean isWindows() {
 		return getOS().equals(WINDOWS);
 	}
+	
+	public static String getClassPathSeperator()
+	{
+		if (isWindows())
+		{
+			return ";";
+		} else {
+			return ":";
+		}
+	}
 
 }

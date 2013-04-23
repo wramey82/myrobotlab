@@ -419,6 +419,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		gui.init();
 		serviceGUIMap.put(serviceName, gui);
+		// FIXME - add method gui.setService(registry.get(boundServiceName))
 		tabPanelMap.put(serviceName, gui.getDisplay());
 		gui.attachGUI();
 
@@ -428,13 +429,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
 		} else {
 			// create hash color for hsv from accessURI
-			Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d", Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+			//Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d", Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+			Color hsv = getColorFromURI(sw.getAccessURL());
 			int index = tabs.indexOfTab(serviceName);
 			tabs.setBackgroundAt(index, hsv);
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
 		}
 
 		return gui;
+	}
+	
+	public static Color getColorFromURI(Object uri)
+	{
+		StringBuffer sb = new StringBuffer(String.format("%d", Math.abs(uri.hashCode())));
+		Color c = new Color(Color.HSBtoRGB(Float.parseFloat("0." + sb.reverse().toString()), 0.8f, 0.7f));
+		return c;
 	}
 
 	public static List<Component> getAllComponents(final Container c) {

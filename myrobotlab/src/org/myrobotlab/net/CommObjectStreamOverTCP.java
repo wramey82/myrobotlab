@@ -44,7 +44,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -52,8 +51,8 @@ import java.util.Map;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
@@ -139,11 +138,19 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						// FIXME - normalize to single method - check for data
 						// type too ? !!!
 						if (msg.method.equals("registerServices")) {
-							// FIXME - the only reason this is pulled off the
-							// comm line here
-							// is initial registerServices do not usually come
-							// with a "name"
-							myService.registerServices(socket.getInetAddress().getHostAddress(), socket.getPort(), msg);
+							
+							// construct the acces uri
+							StringBuffer sb = new StringBuffer().append("tcp://").append(socket.getInetAddress().getHostAddress()).append(":").append(socket.getPort());
+
+							try {
+								URI uri = new URI(sb.toString());
+								// affix accessURL to the ServiceEnvironment
+								ServiceEnvironment se = (ServiceEnvironment)msg.data[0];
+								se.accessURL = uri;
+								Runtime.getInstance().registerServices(msg);
+							} catch (Exception e) {
+								Logging.logException(e);
+							}
 							continue;
 						} else if (msg.method.equals("register")) {
 							try {
@@ -209,13 +216,16 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			try {
 				// --- DEBUG TRAP --
 				/*
-				if (String.format("%s.%s", msg.sender, msg.sendingMethod).equals("clock2.publishState")) {
-					log.info("here");
-					
-					//log.error("****** sending object {} ********", System.identityHashCode(c));
-					//log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				}
-				*/
+				 * if (String.format("%s.%s", msg.sender,
+				 * msg.sendingMethod).equals("clock2.publishState")) {
+				 * log.info("here");
+				 * 
+				 * //log.error("****** sending object {} ********",
+				 * System.identityHashCode(c));
+				 * //log.error(String.format("%s tx %s.%s -tcp-> %s.%s",
+				 * myService.getName(), msg.sender, msg.sendingMethod, msg.name,
+				 * msg.method)); }
+				 */
 
 				log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 				out.writeObject(msg);

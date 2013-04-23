@@ -31,7 +31,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 // http://zerioh.tripod.com/ressources/sockets.html
@@ -116,7 +115,6 @@ class CommObjectStreamOverTCP extends Thread implements Communicator {
 	/* (non-Javadoc)
 	 * @see org.myrobotlab.client.Communicator#register(java.lang.String, int, org.myrobotlab.client.Receiver)
 	 */
-	@Override
 	final public boolean register(String host, int port, Receiver client) {
 		
 		try {
@@ -124,13 +122,14 @@ class CommObjectStreamOverTCP extends Thread implements Communicator {
 			this.port = port;
 			this.client = client;
 			
-			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-			sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
+			//ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
+			//sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
 			// pushing bogus Service with name into SDU
-			ServiceWrapper sw = new ServiceWrapper(getName(), null,sdu.serviceEnvironment);
-			sdu.serviceEnvironment.serviceDirectory.put(getName(), sw);
+			ServiceEnvironment local = new ServiceEnvironment(null);
+			ServiceWrapper sw = new ServiceWrapper(getName(), null, local);
+			local.serviceDirectory.put(getName(), sw);
 
-			send(null, "registerServices", "register", new Object[]{sdu});
+			send(null, "registerServices", "register", new Object[]{local});
 
 			// start listening on the new socket
 			// listenerUDP = new CommObjectStreamOverUDP("udp_" + host + "_" + port);

@@ -10,7 +10,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 
@@ -108,13 +107,14 @@ class CommObjectStreamOverUDP extends Thread implements Communicator {
 			this.port = port;
 			this.client = client;
 			
-			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-			sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
+			//ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
+			//sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
 			// pushing bogus Service with name into SDU
-			ServiceWrapper sw = new ServiceWrapper(getName(), null,sdu.serviceEnvironment);
-			sdu.serviceEnvironment.serviceDirectory.put(getName(), sw);
+			ServiceEnvironment local = new ServiceEnvironment(null);
+			ServiceWrapper sw = new ServiceWrapper(getName(), null, local);
+			local.serviceDirectory.put(getName(), sw);
 
-			send(null, "registerServices", "registerUDP", new Object[]{sdu});
+			send(null, "registerServices", "registerUDP", new Object[]{local});
 
 			// start listening on the new datagramSocket
 			// listenerUDP = new CommObjectStreamOverUDP("udp_" + host + "_" + port);
