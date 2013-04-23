@@ -19,16 +19,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
+import org.slf4j.Logger;
 
 public class AboutDialog extends JDialog implements ActionListener, MouseListener {
 
@@ -39,7 +39,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 	JButton noWorky = null;
 	JButton ok = null;
 	JFrame parent = null;
-	JLabel versionLabel = new JLabel(Runtime.version());
+	JLabel versionLabel = new JLabel(FileIO.getResourceFile("version.txt"));
 
 	public AboutDialog(JFrame parent) {
 		super(parent, "about", true);
@@ -107,7 +107,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 			dispose();
 		} else if (source == bleedingEdge) {
 			String newVersion = Runtime.getBleedingEdgeVersionString();
-			String currentVersion = Runtime.version();
+			String currentVersion = FileIO.getResourceFile("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
 			if (newVersion == null)
 			{

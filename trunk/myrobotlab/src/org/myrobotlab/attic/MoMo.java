@@ -30,12 +30,9 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceDirectoryUpdate;
 import org.myrobotlab.image.ColoredPoint;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Motor;
@@ -45,6 +42,7 @@ import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.Speech;
 import org.myrobotlab.service.Sphinx;
 import org.myrobotlab.service.data.Trigger;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
@@ -532,32 +530,6 @@ public class MoMo extends Service {
 		// log.error("hello");
 		// right.stopAndLock();
 		// left.stopAndLock();
-	}
-
-	// TODO - Remote.export(camera) ....
-	public synchronized void registerServices(ServiceDirectoryUpdate sdu) {
-		/*
-		 * ServiceEntry client = sdu.serviceEntryList_.get(0); // should have 1
-		 * and // only 1 TODO - // kludge - fix me super.registerServices(sdu);
-		 * 
-		 * ServiceEntry se; sdu.serviceEntryList_.clear();
-		 * 
-		 * se = hostcfg.getFullServiceEntry("momo"); se.localServiceHandle =
-		 * null; sdu.serviceEntryList_.add(se);
-		 * 
-		 * se = hostcfg.getFullServiceEntry("camera"); se.localServiceHandle =
-		 * null; sdu.serviceEntryList_.add(se);
-		 * 
-		 * se = hostcfg.getFullServiceEntry("sensors"); se.localServiceHandle =
-		 * null; sdu.serviceEntryList_.add(se);
-		 * 
-		 * se = hostcfg.getFullServiceEntry("arduino"); se.localServiceHandle =
-		 * null; sdu.serviceEntryList_.add(se);
-		 * 
-		 * sendServiceDirectoryUpdate("", "", client.getName(), sdu.hostname,
-		 * sdu.remoteServicePort, sdu);
-		 */
-
 	}
 
 	@Override

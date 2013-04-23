@@ -369,8 +369,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		TSFormatter.setCalendar(cal);
 
-		registerServices();// FIXME - deprecate - remove !
-		registerLocalService(url); // the one which is used - 
+		// FIXME - deprecate - remove !
+		registerServices();
+	
+		Runtime.register(this, url);
 	}
 
 	
@@ -387,7 +389,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("os.arch [%1$s] getArch [%2$s]", System.getProperty("os.arch"), Platform.getArch()));
 		log.info(String.format("getBitness [%1$d]", Platform.getBitness()));
 		log.info(String.format("java.vm.name [%1$s] getVMName [%2$s]", vmName, Platform.getVMName()));
-		log.info(String.format("version [%s]", Runtime.version()));
+		log.info(String.format("version [%s]", FileIO.getResourceFile("version.txt")));
 		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
@@ -1682,66 +1684,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return target;
 	}
 
-	/**
-	 * Inbound registerServices is the method initially called to contact a
-	 * remote process. Often is will be a GUI sending this request over the wire
-	 * to be received in another process by a RemoteAdapter. if the registration
-	 * of foreign Services is successful, the request is echoed back to the
-	 * sender, such that all Services ready for export are shared.
-	 * 
-	 * it is also invoked by RemoteAdapters as they recieve the initial request
-	 * the remote URI is filled in from the other end of the socket info Since
-	 * the foreign Services do not necessarily know how they are identified the
-	 * ServiceEnvironment & Service accessURL are filled in here
-	 * 
-	 * @param hostAddress
-	 * @param port
-	 * @param msg
-	 * 
-	 * FIXME - put into Runtime to normalize and simplify
-	 */
-	public void registerServices(String hostAddress, int port, Message msg) {
-		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceDirectoryUpdate)) {
-			log.error("inbound registerServices not valid");
-			return;
-		}
-		try {
-			ServiceDirectoryUpdate sdu = (ServiceDirectoryUpdate) msg.data[0];
-			// TODO allow for SSL connections
-			// FIXME assumption you know what protocol this going out on
-			// FIXME the remote url should not be constructed here -
-			// it should be assembled at the protol level - where it was accepted
-			StringBuffer sb = new StringBuffer().append("tcp://") 
-					.append(hostAddress) 
-					.append(":").append(port);
-			sdu.remoteURL = new URI(sb.toString());
-
-			sdu.url = url;
-
-			sdu.serviceEnvironment.accessURL = sdu.remoteURL;
-			log.info(String.format("%1$s recieved service directory update from %2$s", name, sdu.remoteURL));
-
-			if (!Runtime.register(sdu.remoteURL, sdu.serviceEnvironment)) {
-				return;
-			}
-			// if successfully registered with "new" Services - echo a
-			// registration back
-			ServiceDirectoryUpdate echoLocal = new ServiceDirectoryUpdate();
-			echoLocal.remoteURL = sdu.url;
-			echoLocal.serviceEnvironment = Runtime.getLocalServicesForExport();
-			// send echo of local services back to sender
-			send(msg.sender, "registerServices", echoLocal);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logException(e);
-		}
-	}
 
 
-	public synchronized void registerLocalService(URI url) {
-		Runtime.register(this, url); // problem with this in it does not
-									// broadcast
-	}
 
 	// TODO - DEPRICATE !!!!
 	/**
@@ -1826,14 +1770,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			URI remoteURL = null;
 			remoteURL = new URI(urlstr.toString());
 
-			ServiceDirectoryUpdate sdu = new ServiceDirectoryUpdate();
-			sdu.serviceEnvironment = Runtime.getLocalServicesForExport();
-
-			sdu.remoteURL = remoteURL; // nice but not right nor trustworthy
-			sdu.url = url;
+			ServiceEnvironment mrlInstance = Runtime.getLocalServicesForExport();
 
 			// FIXME - make a configurable gateway !!!
-			Runtime.getInstance().send(remoteURL, "registerServices", sdu);
+			Runtime.getInstance().send(remoteURL, "registerServices", mrlInstance);
 		} catch (Exception e) {
 			logException(e);
 		}

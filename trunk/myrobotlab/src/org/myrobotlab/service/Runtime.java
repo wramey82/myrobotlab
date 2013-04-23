@@ -1,29 +1,36 @@
 package org.myrobotlab.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -56,8 +63,6 @@ public class Runtime extends Service {
 	static private HashMap<String, String> hideMethods = new HashMap<String, String>();
 
 	private static boolean needsRestart = false;
-	private static boolean checkForDependencies = true; // TODO implement - Ivy
-														// related
 
 	private static String runtimeName;
 
@@ -115,6 +120,36 @@ public class Runtime extends Service {
 
 		// starting this
 		startService();
+	}
+
+	Platform getLocalPlatform() {
+		return getPlatform(null);
+	}
+
+	Platform getPlatform(URI uri) {
+		ServiceEnvironment local = hosts.get(uri);
+		if (local != null) {
+			return local.platform;
+		}
+
+		log.error("can't get local platform in service environment");
+
+		return null;
+	}
+
+	String getLocalVersion() {
+		return getVersion(null);
+	}
+
+	String getVersion(URI uri) {
+		ServiceEnvironment local = hosts.get(uri);
+		if (local != null) {
+			return local.version;
+		}
+
+		log.error("can't get local version in service environment");
+
+		return null;
 	}
 
 	// TODO - put this method in ServiceInterface
@@ -315,6 +350,12 @@ public class Runtime extends Service {
 	 */
 	public synchronized void register(ServiceWrapper sw) {
 		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
+
+		if (registry.containsKey(sw.name)) {
+			log.warn("{} already defined - will not re-register", sw.name);
+			return;
+		}
+
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
 		if (se == null) {
 			log.error("no service environment for {}", sw.getAccessURL());
@@ -344,28 +385,25 @@ public class Runtime extends Service {
 	 * been made. This is necessary to determine if the register should be
 	 * echoed back.
 	 * 
-	 * @param url
+	 * @param uri
 	 * @param s
 	 * @return false if it already matches
 	 */
-	public static synchronized boolean register(URI url, ServiceEnvironment s) {
-		// TODO what do we do if url is null?
-		if (!hosts.containsKey(url)) {
-			log.info(String.format("adding new ServiceEnvironment %1$s", url));
+	public static synchronized boolean register(ServiceEnvironment s) {
+		URI uri = s.accessURL;
+		if (!hosts.containsKey(uri)) {
+			log.info(String.format("adding new ServiceEnvironment {}", uri));
 		} else {
-			// FIXME ? - replace regardless ??? 
-			if (areEqual(s, url)) {
-				log.info(String.format("ServiceEnvironment %1$s already exists - with same count and names", url));
+			// FIXME ? - replace regardless ???
+			if (areEqual(s)) {
+				log.info(String.format("ServiceEnvironment {} already exists - with same count and names", uri));
 				return false;
 			}
-			log.info(String.format("replacing ServiceEnvironment %1$s", url.toString()));
+			log.info(String.format("replacing ServiceEnvironment {}", uri.toString()));
 		}
 
-		s.accessURL = url; // NEW - update
-		hosts.put(url, s);
+		hosts.put(uri, s);
 
-		// TODO we're doing this same loop inside areEqual() call above - can
-		// they be consolidated?
 		Iterator<String> it = s.serviceDirectory.keySet().iterator();
 		String serviceName;
 		while (it.hasNext()) {
@@ -393,7 +431,8 @@ public class Runtime extends Service {
 	 * @param url
 	 * @return
 	 */
-	private static boolean areEqual(ServiceEnvironment s, URI url) {
+	private static boolean areEqual(ServiceEnvironment s) {
+		URI url = s.accessURL;
 		ServiceEnvironment se = hosts.get(url);
 		if (se.serviceDirectory.size() != s.serviceDirectory.size()) {
 			return false;
@@ -658,8 +697,9 @@ public class Runtime extends Service {
 	 * released
 	 * 
 	 * FIXME - send SHUTDOWN event to all running services
+	 * with a timeout period - end with System.exit()
 	 */
-	public static void releaseAll() /* local only? */
+	public static void releaseAll() /* local only? YES !!! LOCAL ONLY !! */
 	{
 		log.debug("releaseAll");
 
@@ -881,22 +921,22 @@ public class Runtime extends Service {
 			sb.append("<service name=\"").append(sw.getName()).append("\" serviceEnironment=\"").append(sw.getAccessURL()).append("\">");
 			ArrayList<String> nlks = sw.getNotifyListKeySet();
 			if (nlks != null) {
-			Iterator<String> nit = nlks.iterator();
+				Iterator<String> nit = nlks.iterator();
 
-			while (nit.hasNext()) {
-				n = nit.next();
-				sb.append("<addListener map=\"").append(n).append("\">");
-				nes = sw.getNotifyList(n);
-				for (int i = 0; i < nes.size(); ++i) {
-					listener = nes.get(i);
-					sb.append("<MRLListener outMethod=\"").append(listener.outMethod).append("\" name=\"").append(listener.name).append("\" inMethod=\"")
-							.append(listener.outMethod).append("\" />");
+				while (nit.hasNext()) {
+					n = nit.next();
+					sb.append("<addListener map=\"").append(n).append("\">");
+					nes = sw.getNotifyList(n);
+					for (int i = 0; i < nes.size(); ++i) {
+						listener = nes.get(i);
+						sb.append("<MRLListener outMethod=\"").append(listener.outMethod).append("\" name=\"").append(listener.name).append("\" inMethod=\"")
+								.append(listener.outMethod).append("\" />");
+					}
+					sb.append("</addListener>");
 				}
-				sb.append("</addListener>");
-			}
 			}
 			sb.append("</service>");
-			
+
 		}
 		sb.append("</NotifyEntries>");
 
@@ -1002,7 +1042,7 @@ public class Runtime extends Service {
 	 * 
 	 */
 	static void help() {
-		System.out.println("Runtime " + version());
+		System.out.println(String.format("Runtime %s", FileIO.getResourceFile("version.txt")));
 		System.out.println("-h       			# help ");
 		System.out.println("-list        		# list services");
 		System.out.println("-logToConsole       # redirects logging to console");
@@ -1010,15 +1050,6 @@ public class Runtime extends Service {
 		System.out.println("-service [Service Name] [Service] ...");
 		System.out.println("example:");
 		System.out.println(helpString);
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public static String version() {
-		String v = FileIO.getResourceFile("version.txt");
-		return v.trim();
 	}
 
 	/**
@@ -1033,7 +1064,7 @@ public class Runtime extends Service {
 		}
 
 		if (cmdline.containsKey("-v") || cmdline.containsKey("--version")) {
-			version();
+			System.out.print(FileIO.getResourceFile("version.txt"));
 			return;
 		}
 
@@ -1677,6 +1708,111 @@ public class Runtime extends Service {
 		return serviceInfo;
 	}
 
+	//public static String newRMLInstanceCommandLineTemplate = " -classpath \"./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s\" -Djava.library.path=\"./libraries/native/%2$s%1$s\" org.myrobotlab.service.Runtime -service %4$s -logToConsole";
+
+	public static ArrayList<String> buildMLRCommandLine(HashMap<String, String> services, String runtimeName) {
+		
+		ArrayList<String> ret = new ArrayList<String>();
+
+		// library path
+		String platform = String.format("%s.%s.%s", Platform.getArch(), Platform.getBitness(), Platform.getOS());
+		String libraryPath = String.format("-Djava.library.path=\"./libraries/native/%s\"", platform);	
+		ret.add(libraryPath);
+		
+		// class path
+		String systemClassPath = System.getProperty("java.class.path");	 
+		ret.add("-classpath");
+		String classPath = String.format("./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s", Platform.getClassPathSeperator(), platform, systemClassPath) ;
+		ret.add(classPath);
+		
+		ret.add("org.myrobotlab.service.Runtime");
+		
+		//----- application level params --------------
+		
+		// services
+		if (services.size() > 0) {
+			ret.add("-service");
+			for (Map.Entry<String,String> o : services.entrySet())
+			{
+				ret.add(o.getKey());
+				ret.add(o.getValue());
+			}
+		}
+		
+		// runtime name
+		if (runtimeName != null)
+		{
+			ret.add("-runtimeName");
+			ret.add(runtimeName);
+		}
+		
+		
+		// logLevel
+		
+		
+		// logToConsole
+		//ret.add("-logToConsole");
+		
+
+		
+		return ret;
+	}
+	
+	// TODO - load it up in gui & send it out
+	public static void spawnRemoteMRL(String runtimeName) {
+		HashMap<String, String> services = new HashMap<String, String>();
+		services.put("remote", "RemoteAdapter");
+		newMRLInstance(buildMLRCommandLine(services, runtimeName));
+	}	
+
+	public static void newMRLInstance(ArrayList<String> args) {
+		try {
+			
+			
+			String separator = System.getProperty("file.separator");
+			//String classpath = System.getProperty("java.class.path");
+			String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
+			// ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp",
+			// classpath, clazz.getCanonicalName());
+			args.add(0, path);
+			
+			log.info(Arrays.toString(args.toArray()));
+			ProcessBuilder processBuilder = new ProcessBuilder(args);
+			processBuilder.directory(new File(System.getProperty("user.dir")));
+			processBuilder.redirectErrorStream(true);
+			Process process = processBuilder.start();
+			//System.out.print(process.getOutputStream());
+			
+		      // TODO - Read out dir output
+			/*
+	        InputStream is = process.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
+	        //System.out.printf("Output of running %s is:\n", Arrays.toString(buildMLRCommandLine()));
+	        while ((line = br.readLine()) != null) {
+	            System.out.println(line);
+	        }
+	        */
+	        
+	        //Wait to get exit value
+			/*
+	        try {
+	            int exitValue = process.waitFor();
+	            System.out.println("\n\nExit Value is " + exitValue);
+	        } catch (InterruptedException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
+	        
+			process.waitFor();
+			System.out.println("Fin");
+			*/
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
 	public static void startSecondJVM(Class<? extends Object> clazz, boolean redirectStream) throws Exception {
 		System.out.println(clazz.getCanonicalName());
 		String separator = System.getProperty("file.separator");
@@ -1688,4 +1824,45 @@ public class Runtime extends Service {
 		process.waitFor();
 		System.out.println("Fin");
 	}
+
+	/**
+	 * Inbound registerServices is the method initially called to contact a
+	 * remote process. Often is will be a GUI sending this request over the wire
+	 * to be received in another process by a RemoteAdapter. if the registration
+	 * of foreign Services is successful, the request is echoed back to the
+	 * sender, such that all Services ready for export are shared.
+	 * 
+	 * it is also invoked by RemoteAdapters as they recieve the initial request
+	 * the remote URI is filled in from the other end of the socket info Since
+	 * the foreign Services do not necessarily know how they are identified the
+	 * ServiceEnvironment & Service accessURL are filled in here
+	 * 
+	 * @param hostAddress
+	 * @param port
+	 * @param msg
+	 * 
+	 *            FIXME - put into Runtime to normalize and simplify
+	 */
+	public void registerServices(Message msg) {
+		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceEnvironment)) {
+			log.error("inbound registerServices not valid");
+			return;
+		}
+		try {
+			ServiceEnvironment mrlInstance = (ServiceEnvironment) msg.data[0];
+
+			if (!Runtime.register(mrlInstance)) {
+				return;
+			}
+			// if successfully registered with "new" Services - echo a
+			// registration back
+			ServiceEnvironment echoLocal = Runtime.getLocalServicesForExport();
+			// send echo of local services back to sender
+			send(msg.sender, "registerServices", echoLocal);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logException(e);
+		}
+	}
+
 }

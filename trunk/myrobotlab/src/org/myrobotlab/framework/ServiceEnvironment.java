@@ -22,6 +22,8 @@ public class ServiceEnvironment implements Serializable {
 	 * depending on what Services will work on which platform
 	 */
 	public Platform platform;
+	
+	public String version;
 
 	public ServiceEnvironment(URI url) {
 		this.accessURL = url;
