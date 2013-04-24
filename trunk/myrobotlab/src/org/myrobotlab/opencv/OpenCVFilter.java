@@ -59,10 +59,11 @@ public abstract class OpenCVFilter implements Serializable {
 	int width;
 	int height;
 	int channels;
-	CvSize imageSize;
+	transient CvSize imageSize;
 
 	public String sourceKey;
-	HashMap<String, IplImage> sources;
+	// FIXME - this has to be transient !  IpImages is non-serializable !!!
+	transient HashMap<String, IplImage> sources;
 	VideoProcessor vp;
 	
 	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {

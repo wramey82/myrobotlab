@@ -39,10 +39,13 @@
 
 package org.myrobotlab.net;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.WriteAbortedException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -134,9 +137,22 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 						*/
 						//chase network bugs 
 						// log.error(String.format("%s rx %s.%s <-tcp- %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+						/* NOT WORTH CATCHING STREAM WONT RECOVER
+					} catch (ClassCastException e) {
+						myService.setError("ClassCastException");
+					} catch (EOFException e) {
+						myService.setError("EOFException");
+						*/
 					} catch (Exception e) {
+						if (e.getClass() == NotSerializableException.class || e.getClass() == WriteAbortedException.class)
+						{
+							myService.setError("someone tried to send something but it does not fit through the pipe");
+						} else {
+							myService.setError(e.getMessage());
+						}
 						// FIXME - more intelligent ERROR handling - recover if
 						// possible !!!!
+						Logging.logException(e);
 						msg = null;
 						releaseConnect(e);
 					}
@@ -242,7 +258,15 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE
 								// OUT !!!!!!!
 				++data.tx;
+			
 			} catch (Exception e) {
+				if (e.getClass() == NotSerializableException.class || e.getClass() == WriteAbortedException.class)
+				{
+					myService.setError(String.format("oops tried to send a %s but it does not fit through the pipe", msg.data[0].getClass().getCanonicalName()));
+				} /*else {  HIDES FIRST RELEVANT MESSAGE
+					myService.setError(e.getMessage());
+				}*/
+				Logging.logException(e);
 				releaseConnect(e);
 			}
 		}

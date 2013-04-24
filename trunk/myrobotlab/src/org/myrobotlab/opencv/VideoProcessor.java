@@ -32,6 +32,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 @Root
 public class VideoProcessor implements Runnable, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
 
 	
@@ -63,7 +65,7 @@ public class VideoProcessor implements Runnable, Serializable {
 	
 	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
 	
-	HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
+	transient HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	private transient OpenCV opencv;
 	private transient FrameGrabber grabber = null;
@@ -247,6 +249,12 @@ public class VideoProcessor implements Runnable, Serializable {
 				// publish accumulated data
 				if (publishOpenCVData) {
 					opencv.invoke("publishOpenCVData", data);
+				}
+				
+				// no filters - no filters selected
+				if (filters.size() == 0)
+				{
+					opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());
 				}
 
 				if (useBlockingData) {

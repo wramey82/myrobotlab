@@ -35,7 +35,6 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -46,8 +45,8 @@ public class OpenCVFilterGray extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterGray.class.getCanonicalName());
 
-	IplImage gray = null;
-	IplImage color = null;
+	transient IplImage gray = null;
+	transient IplImage color = null;
 
 	public OpenCVFilterGray(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);

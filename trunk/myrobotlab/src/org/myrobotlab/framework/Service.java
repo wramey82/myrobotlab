@@ -1961,6 +1961,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		invoke("publishStatus", "error", msg);
 	}
 	
+	public void setWarning(String msg)
+	{
+		log.error(msg);
+		invoke("publishStatus", "warn", msg);
+	}
+
 	public String publishStatus(String status, String msg)
 	{
 		return String.format("%s %s %s", status, getName(), msg);
