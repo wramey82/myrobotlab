@@ -125,7 +125,15 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					try {
 						o = in.readObject();
 						msg = (Message) o;
-						log.error(String.format("%s rx %s.%s <-tcp- %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+						
+						/*
+						if (data.authenticated) && needsAuthentication
+						{
+							// check authentication
+						}
+						*/
+						//chase network bugs 
+						// log.error(String.format("%s rx %s.%s <-tcp- %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 					} catch (Exception e) {
 						// FIXME - more intelligent ERROR handling - recover if
 						// possible !!!!
@@ -227,7 +235,8 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				 * msg.method)); }
 				 */
 
-				log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				//chase network bugs 
+				//log.error(String.format("%s tx %s.%s -tcp-> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 				out.writeObject(msg);
 				out.flush();
 				out.reset(); // magic line OMG - that took WAY TO LONG TO FIGURE
@@ -281,7 +290,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 			} catch (Exception e) {
 				Logging.logException(e);
-				log.error("could not connect to " + url);
+				myService.setError(String.format("could not connect to %s", url.toString()));
 			}
 		}
 	}
@@ -298,20 +307,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				thread.isRunning = false;
 				thread.interrupt();
 			}
-			// FIXME - sloppy - too many variables
-
 		}
-
-		/*
-		 * if (clientList != null) { for (int i = 0; i < clientList.size(); ++i)
-		 * { TCPThread r = clientList.get(i); if (r != null) { r.interrupt(); }
-		 * r = null; } }
-		 */
-		// FIXME - WTF is this garbage?
-		/*
-		 * clientList.clear(); clientList = new HashMap<URI, TCPThread>();
-		 * isRunning = false;
-		 */
 	}
 
 	class Heart extends Thread {

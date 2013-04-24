@@ -112,6 +112,7 @@ public class Clock extends Service {
 	}
 
 	public String pulse() {
+		setError("hello");
 		return data;
 	}
 
@@ -142,7 +143,7 @@ public class Clock extends Service {
 
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		
 		//Runtime.spawnRemoteMRL("mrl1");

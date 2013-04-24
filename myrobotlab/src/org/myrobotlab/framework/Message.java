@@ -78,6 +78,8 @@ public class Message implements Serializable {
 	/**
 	 * history of the message, its routing stops and Services it passed through.
 	 * This is important to prevent endless looping of messages.
+	 * Turns out ArrayList is quicker than HashSet on small sets
+	 * http://www.javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html
 	 */
 	@Element
 	public ArrayList<RoutingEntry> historyList;

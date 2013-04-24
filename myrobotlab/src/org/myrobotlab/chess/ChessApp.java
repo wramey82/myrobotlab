@@ -120,7 +120,7 @@ public final class ChessApp extends JApplet implements Constants, VetoableChange
 		JPanel p3 = new JPanel();
 		p3.setLayout(new GridLayout(2, 1));
 		p3.add(principalVariation);
-		p3.add(new JLabel("Copyright � 2002 Peter Hunter. All rights reserved."));
+		p3.add(new JLabel("Copyright 2002 Peter Hunter. All rights reserved."));
 
 		Container cp = getContentPane();
 		cp.setLayout(new BorderLayout());
