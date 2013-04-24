@@ -136,7 +136,7 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 		JPanel p3 = new JPanel();
 		p3.setLayout(new GridLayout(2, 1));
 		p3.add(principalVariation);
-		p3.add(new JLabel("Copyright � 2002 Peter Hunter. All rights reserved."));
+		p3.add(new JLabel("Copyright 2002 Peter Hunter. All rights reserved."));
 
 		// Container cp = getContentPane();
 		display.setLayout(new BorderLayout());

@@ -25,6 +25,7 @@
 
 package org.myrobotlab.service;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -190,11 +191,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// if the method name is == to a method in the GUIService
 		if (methodSet.contains(m.method)) {
 			// process the message like a regular service
-			log.error(String.format("%s.preProcessHook.true-continue processing %s.%s --> %s.%s", getName(), m.sender, m.sendingMethod, m.name, m.method));
 			return true;
 		}
-
-		log.error(String.format("%s.preProcessHook.false-stop processing %s.%s --> %s.%s", getName(), m.sender, m.sendingMethod, m.name, m.method));
 		
 		// otherwise send the message to the dialog with the senders name
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
@@ -422,6 +420,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// FIXME - add method gui.setService(registry.get(boundServiceName))
 		tabPanelMap.put(serviceName, gui.getDisplay());
 		gui.attachGUI();
+		
+		// TODO - all auto-subscribtions could be done here
+		subscribe("publishStatus", se.getName(), "getStatus", String.class);
 
 		tabs.addTab(serviceName, gui.getDisplay());
 
@@ -473,6 +474,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	// I'm going with the "easy" approach
 
 	boolean isDisplaying = false;
+	JLabel status = new JLabel("status");
 
 	public void display() {
 		if (!isDisplaying) {
@@ -486,14 +488,21 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 				frame = new JFrame();
 			}
 
+			// FIXME - deprecate
 			gc = new GridBagConstraints();
 
 			frame.addWindowListener(this);
 			frame.setTitle("myrobotlab - " + getName());
 
 			buildTabPanels();
+			
+			JPanel main = new JPanel(new BorderLayout());
+			main.add(tabs, BorderLayout.CENTER);
+			main.add(status, BorderLayout.SOUTH);
+			status.setOpaque(true);
 
-			frame.add(tabs);
+			frame.add(main);
+			
 
 			URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 			Toolkit kit = Toolkit.getDefaultToolkit();
@@ -999,6 +1008,17 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.info("chose not to restart");
 			return;
 		}
+	}
+	
+	public void getStatus(String status)
+	{
+		if (status.startsWith("error"))
+		{
+			this.status.setBackground(Color.red);
+		} else {
+			this.status.setBackground(Color.gray);
+		}
+		this.status.setText(status);
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {

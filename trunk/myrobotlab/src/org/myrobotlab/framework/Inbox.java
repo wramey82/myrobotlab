@@ -116,7 +116,8 @@ public class Inbox implements Serializable {
 			msgBox.notifyAll();
 		}
 		
-		log.error(String.format("%s.inbox.getMsg() %s.%s() from %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
+		//chase network bugs 
+		//log.error(String.format("%s.inbox.getMsg() %s.%s() from %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
 		return msg;
 	}
 
@@ -137,7 +138,8 @@ public class Inbox implements Serializable {
 
 	public void add(Message msg) {
 		// FIXME - implement as HashSet<>
-		log.error(String.format("%s.inbox.add(msg) %s.%s <-- %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
+		//chase network bugs 
+		//log.error(String.format("%s.inbox.add(msg) %s.%s <-- %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
 		
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
 			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);

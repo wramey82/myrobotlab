@@ -72,7 +72,6 @@ public class RemoteAdapter extends Service {
 	// when correct interfaces and base classes are done
 	transient TCPListener tcpListener = null;
 	transient UDPListener udpListener = null;
-	// transient UDPStringListener udpStringListener = null;
 
 	// FIXME - all port & ip data needs to be only in the threads
 	public int TCPPort = 6767;
@@ -88,12 +87,8 @@ public class RemoteAdapter extends Service {
 		super(n, RemoteAdapter.class.getCanonicalName(), hostname);
 	}
 
-
-
 	@Override
 	public boolean isReady() {
-		// TODO - selectively enable and/or check
-		// TODO - check other threads
 		if (tcpListener.serverSocket != null) {
 			return tcpListener.serverSocket.isBound();
 		}
@@ -130,14 +125,15 @@ public class RemoteAdapter extends Service {
 				serverSocket = new ServerSocket(TCPPort, 10);
 
 				log.info(getName() + " TCPListener listening on " + serverSocket.getLocalSocketAddress());
+				myService.setStatus(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
 
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
 					URI url = new URI("tcp://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
-					log.info("new connection [{}]", url);
+					myService.setStatus(String.format("new connection %s", url.toString()));
 					comm.addClient(url, clientSocket);
-					broadcastState();
+					//broadcastState(); don't broadcast unless requested to
 				}
 
 				serverSocket.close();
@@ -229,15 +225,6 @@ public class RemoteAdapter extends Service {
 		// FIXME - block until isReady on the ServerSocket
 		if (!isRunning()) {
 			super.startService();
-			/*
-			 * FIXME No longer support auto-listening with TCP or UDPStrings
-			 * this needs to refined such that you can explicitly set the
-			 * listening type/protocol additionally there should be a explicit
-			 * setting to do outbound communication or set outbound
-			 * type/protocol based on a datatype mapping udpStringListener = new
-			 * UDPStringListener(getName() + "_udpStringListener", this);
-			 * udpStringListener.start();
-			 */
 			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
 			udpListener.start();
 			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
@@ -300,11 +287,6 @@ public class RemoteAdapter extends Service {
 				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 					ret.add(inetAddress);
-					/*
-					 * if (!inetAddress.isLoopbackAddress() &&
-					 * !inetAddress.isLinkLocalAddress()) {
-					 * System.out.println(inetAddress.getHostAddress()); }
-					 */
 				}
 			}
 			;

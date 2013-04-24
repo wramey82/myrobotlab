@@ -7,5 +7,7 @@ public class CommData {
 	// implmented with String to be immutable / thread safe
 	public String method;
 	public String sender;
+	
+	public boolean authenticated = false;
 
 }

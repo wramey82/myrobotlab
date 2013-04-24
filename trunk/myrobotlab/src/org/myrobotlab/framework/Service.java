@@ -1945,6 +1945,27 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return false;
 	}
 	
+	/**
+	 * set status broadcasts an information string to any subscribers
+	 * @param msg
+	 */
+	public void setStatus(String msg)
+	{
+		log.info(msg);
+		invoke("publishStatus", "info",  msg);
+	}
+
+	public void setError(String msg)
+	{
+		log.error(msg);
+		invoke("publishStatus", "error", msg);
+	}
+	
+	public String publishStatus(String status, String msg)
+	{
+		return String.format("%s %s %s", status, getName(), msg);
+	}
+	
 	public HashSet<String> getMessageSet()
 	{
 		HashSet<String> ret = new HashSet<String>();

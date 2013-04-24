@@ -109,8 +109,9 @@ public class Outbox implements Runnable, Serializable {
 					continue;
 				}
 				msg = msgBox.removeLast();
-				log.error(String.format("%s.outbox.run(msg) %s.%s -- %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				log.debug("removed from msgBox size now " + msgBox.size());
+				//chase network bugs 
+				//log.error(String.format("%s.outbox.run(msg) %s.%s -- %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+				// log.debug(String.format("removed from msgBox size now %d", msgBox.size()));
 				msgBox.notifyAll();
 			}
 
@@ -153,7 +154,8 @@ public class Outbox implements Runnable, Serializable {
 						msg = new Message(msg);
 					}
 					
-					log.error(String.format("%s.outbox.com.send(msg) %s.%s --> %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+					//chase network bugs 
+					//log.error(String.format("%s.outbox.com.send(msg) %s.%s --> %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 
 					comm.send(msg);
 				}
@@ -168,7 +170,8 @@ public class Outbox implements Runnable, Serializable {
 	// TODO - config to put message in block mode - with no buffer overrun
 	// TODO - config to drop message without buffer overrun e.g. like UDP
 	public void add(Message msg) {
-		log.error(String.format("%s.outbox.add(msg) %s.%s --> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+		//chase network bugs 
+		//log.error(String.format("%s.outbox.add(msg) %s.%s --> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
 		synchronized (msgBox) {
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
