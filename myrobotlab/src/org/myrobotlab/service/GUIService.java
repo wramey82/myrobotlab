@@ -1010,15 +1010,23 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}
 	
-	public void getStatus(String status)
+	public void getStatus(String msg)
 	{
-		if (status.startsWith("error"))
+		if (msg.startsWith("error"))
 		{
-			this.status.setBackground(Color.red);
+			status.setOpaque(true);
+			status.setForeground(Color.white);
+			status.setBackground(Color.red);
+		} else if (msg.startsWith("error"))
+		{
+			status.setOpaque(true);
+			status.setForeground(Color.white);
+			status.setBackground(Color.yellow);
 		} else {
-			this.status.setBackground(Color.gray);
+			status.setForeground(Color.black);
+			status.setOpaque(false);
 		}
-		this.status.setText(status);
+		status.setText(msg);
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {

@@ -1,12 +1,9 @@
 package org.myrobotlab.service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
@@ -30,7 +27,6 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
 import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
