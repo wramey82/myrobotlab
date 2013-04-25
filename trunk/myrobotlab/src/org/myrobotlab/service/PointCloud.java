@@ -26,7 +26,6 @@ import org.OpenNI.StatusException;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.SensorData;
 import org.slf4j.Logger;
@@ -182,7 +181,7 @@ public class PointCloud extends Service {
 				}
 
 				if (publishFrame) {
-					invoke("publishDisplay", kd); // TODO - multiple formats
+					invoke("publishFrame", kd); // TODO - multiple formats
 					published = true;
 				} // TODO convert to buffered image?
 					// log.error(" time");
@@ -393,7 +392,7 @@ public class PointCloud extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
-		PointCloud openni = new PointCloud("openni");
+		PointCloud openni = new PointCloud("pc");
 		openni.startService();
 
 		Runtime.createAndStart("gui", "GUIService");
