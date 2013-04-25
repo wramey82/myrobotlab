@@ -485,7 +485,7 @@ public class InMoov extends Service {
 	{
 		head.allowMove = false;
 	}
-	/*
+	
 	boolean isTracking = false;
 
 	public void startTracking() {
@@ -514,7 +514,7 @@ public class InMoov extends Service {
 		eye.stopCapture();
 	}
 
-*/
+
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
