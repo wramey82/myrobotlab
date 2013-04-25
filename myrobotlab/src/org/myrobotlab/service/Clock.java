@@ -27,6 +27,7 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.myrobotlab.framework.Service;
@@ -145,10 +146,13 @@ public class Clock extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
+		HashSet<String> test = new HashSet<String>();
+		test.add("tcp");
+		test.add("udp");
 		
 		//Runtime.spawnRemoteMRL("mrl1");
 		
-		int i = 0;
+		int i = 1;
 		
 		Runtime.createAndStart(String.format("client%d", i), "Runtime");
 		Runtime.createAndStart(String.format("clock%d", i), "Clock");

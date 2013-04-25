@@ -56,6 +56,7 @@ import com.sun.j3d.utils.universe.ViewingPlatform;
 public class Points3DPanel extends JPanel
 // Holds the 3D canvas
 {
+	private static final long serialVersionUID = 1L;
 	private static final int PWIDTH = 512; // size of panel
 	private static final int PHEIGHT = 512;
 	private static final int BOUNDSIZE = 100; // larger than world
@@ -99,7 +100,7 @@ public class Points3DPanel extends JPanel
 
 		lightScene(); // add the lights
 		addBackground(); // add the sky
-		sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
+//		sceneBG.addChild(new CheckerFloor().getBG()); // add the floor
 
 		addPointsShape(ptsShape);
 		addKinectShape();

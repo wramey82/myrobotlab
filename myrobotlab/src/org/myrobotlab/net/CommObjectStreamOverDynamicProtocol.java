@@ -62,9 +62,9 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
-public class CommObjectStreamOverTCP extends Communicator implements Serializable {
+public class CommObjectStreamOverDynamicProtocol extends Communicator implements Serializable {
 
-	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
+	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverDynamicProtocol.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();
@@ -236,10 +236,16 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 			return socket;
 		}
 
+		public synchronized void send(URI url2, Message msg) {
+			// requestProtocol - requested from protocol hashset
+			// null = default
+			
+		}
+		
 		// TODO implement communication switching by
 		// asking for protocol preference - retrieved from Notify
 		// so that subscribers request preference !
-		public synchronized void send(URI url2, Message msg) {
+		public synchronized void send(URI url2, Message msg, String requestProtoco) {
 			try {
 				// --- DEBUG TRAP --
 				/*
@@ -276,7 +282,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	} // TCP Thread
 
-	public CommObjectStreamOverTCP(Service service) {
+	public CommObjectStreamOverDynamicProtocol(Service service) {
 		this.myService = service;
 	}
 
@@ -339,11 +345,11 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 
 	class Heart extends Thread {
 		URI url;
-		CommObjectStreamOverTCP comm;
+		CommObjectStreamOverDynamicProtocol comm;
 		boolean isRunning = false;
 		int heartbeatIntervalMilliSeconds = 1000;
 
-		Heart(URI url, CommObjectStreamOverTCP comm) {
+		Heart(URI url, CommObjectStreamOverDynamicProtocol comm) {
 			this.url = url;
 			this.comm = comm;
 		}

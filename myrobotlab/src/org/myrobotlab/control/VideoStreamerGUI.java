@@ -27,34 +27,27 @@ package org.myrobotlab.control;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
 import javax.swing.SwingUtilities;
 
-import org.myrobotlab.control.widget.MemoryWidget;
-import org.myrobotlab.control.widget.NodeGUI;
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.memory.Node;
-import org.myrobotlab.opencv.OpenCVData;
-import org.myrobotlab.service._TemplateService;
+import org.myrobotlab.service.VideoStreamer;
 import org.myrobotlab.service.interfaces.GUI;
-import org.myrobotlab.service.interfaces.MemoryDisplay;
 import org.slf4j.Logger;
 
-public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
+public class VideoStreamerGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(_TemplateServiceGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(VideoStreamerGUI.class.getCanonicalName());
 
-	public _TemplateServiceGUI(final String boundServiceName, final GUI myService) {
+	public VideoStreamerGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
 	public void init() {
 	}
 
-	public void getState(_TemplateService template) {
+	public void getState(VideoStreamer streamer) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
@@ -64,13 +57,13 @@ public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", _TemplateService.class);
+		//subscribe("publishState", "getState", VideoStreamer.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
-		unsubscribe("publishState", "getState", _TemplateService.class);
+		//unsubscribe("publishState", "getState", VideoStreamer.class);
 	}
 
 	@Override
@@ -78,6 +71,6 @@ public class _TemplateServiceGUI extends ServiceGUI implements ActionListener {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 
 }

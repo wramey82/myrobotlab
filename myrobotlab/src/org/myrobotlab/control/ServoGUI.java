@@ -248,7 +248,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 			String controllerName = (String) controller.getSelectedItem();
 			log.info(String.format("controller event %s", controllerName));
 			if (controllerName != null && controllerName.length() > 0) {
-				// myService.send(controllerName, "getPinList");
+
 				@SuppressWarnings("unchecked")
 				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList", null);
 				log.info("{}", pinList.size());
