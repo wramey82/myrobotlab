@@ -175,8 +175,9 @@
 		<mkdir dir="${dist.root.dir}" />
 		<mkdir dir="${dist}" />
 		
+		<!-- remember env vars are passed to ant with prefix env.  !!!! jenkins wants gc.upload.userid etc -->
 		<echo message="uid ${env.gc.upload.userid}"/>
-		<echo message="pwd ${env.gc.upload.password}"/>
+		<!-- <echo message="pwd ${env.gc.upload.password}"/> -->
 		
 	</target>
 
@@ -329,7 +330,7 @@
 	</target>
 	
 
-	<target name="publishRelease" depends="report" description="publish release to google code" >
+	<target name="publishRelease" depends="publishBleedingEdge" description="publish release to google code" >
 	    <!-- 
 		<input message="Please enter upload userid:" addproperty="gc.upload.userid" />
 		<input message="Please enter upload password:" addproperty="gc.upload.password" />
