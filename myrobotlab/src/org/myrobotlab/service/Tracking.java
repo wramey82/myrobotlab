@@ -317,7 +317,7 @@ public class Tracking extends Service {
 		}
 
 		setState(STATE_LK_TRACKING_POINT);
-		videoOn();
+//		videoOn();
 	}
 
 	public void setForegroundBackgroundFilter() {
@@ -333,7 +333,7 @@ public class Tracking extends Service {
 		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
-		videoOn();
+//		videoOn();
 	}
 
 	public void learnBackground() {
@@ -341,7 +341,7 @@ public class Tracking extends Service {
 		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
-		videoOn();
+//		videoOn();
 	}
 	
 	public void searchForeground() {
@@ -349,7 +349,7 @@ public class Tracking extends Service {
 		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).search();
 
 		setState(STATE_SEARCHING_FOREGROUND);
-		videoOn();
+//		videoOn();
 	}
 	
 	double sizeIndexForBackgroundForegroundFlip = 0.10;
@@ -563,13 +563,13 @@ public class Tracking extends Service {
 	}
 	
 	// ----------------- required config & necessary important global switches begin --------------------------
-	public void videoOn()
+	public void startVideoStream()
 	{
 		//setStatus("switching video on");
 		eye.publishOpenCVData(true);
 	}
 	
-	public void videoOff()
+	public void stopVideoStream()
 	{
 		//setStatus("switching video off");
 		eye.publishOpenCVData(false);
@@ -617,13 +617,17 @@ public class Tracking extends Service {
 		tracker.setCameraIndex(1);
 		
 		tracker.initTracking();
-//		tracker.initControl();
+		tracker.initControl();
 		tracker.initInput();
+		
+		tracker.startVideoStream();
+		
+		tracker.trackLKPoint();
 		
 		
 		tracker.setIdle();
 		
-		tracker.videoOn();
+		tracker.startVideoStream();
 		
 //		tracker.learnBackGround();
 		//tracker.searchForeground();
