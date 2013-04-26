@@ -278,7 +278,7 @@ public class InMoov extends Service {
 
 	}
 
-	public void initializeBrain() {
+	public void initializeHead() {
 
 	}
 
@@ -486,8 +486,10 @@ public class InMoov extends Service {
 		head.allowMove = false;
 	}
 	
+	/*
 	boolean isTracking = false;
 
+	
 	public void startTracking() {
 		if (isTracking) {
 			log.warn("already tracking");
@@ -513,7 +515,7 @@ public class InMoov extends Service {
 		eye.removeAllFilters();
 		eye.stopCapture();
 	}
-
+	*/
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();

@@ -12,7 +12,9 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.python.core.Py;
 import org.python.core.PyObject;
+import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.simpleframework.xml.Element;
@@ -218,6 +220,9 @@ public class Python extends Service {
 	}
 
 	// PyObject interp.eval(String s) - for verifying?
+	
+	String rootPath = null;
+	String modulesDir = "pythonModules";
 
 	/**
 	 * 
@@ -226,6 +231,14 @@ public class Python extends Service {
 		// TODO - check if exists - destroy / de-initialize if necessary
 		PySystemState.initialize();
 		interp = new PythonInterpreter();
+		
+		PySystemState sys = Py.getSystemState();
+		if (rootPath != null) {
+			sys.path.append(new PyString(rootPath));
+		}
+		if (modulesDir != null) {
+        sys.path.append(new PyString(modulesDir));
+		}
 
 		// add self reference
 		// Python scripts can refer to this service as 'python' regardless

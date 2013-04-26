@@ -147,7 +147,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 			tracking.setIdle();
 
-			tracking.videoOn();
+			tracking.startVideoStream();
 			subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);
 
 			processor.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
@@ -292,7 +292,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 	// ---------publish end ----------
 
 	public void videoOff() {
-		tracking.videoOff();
+		tracking.stopVideoStream();
 	}
 
 	public void crawlAndPublish() {
