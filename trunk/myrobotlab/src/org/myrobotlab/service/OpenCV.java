@@ -59,6 +59,7 @@ import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.data.Point2Df;
+import org.myrobotlab.service.interfaces.VideoSource;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
@@ -70,17 +71,17 @@ import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 @Root
-public class OpenCV extends Service {
+public class OpenCV extends VideoSource {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCV.class.getCanonicalName());
 
 	// FIXME - make more simple
-	public final static String INPUT_SOURCE_CAMERA = "camera";
-	public final static String INPUT_SOURCE_MOVIE_FILE = "file";
-	public final static String INPUT_SOURCE_NETWORK = "network";
-	public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
+	transient public final static String INPUT_SOURCE_CAMERA = "camera";
+	transient public final static String INPUT_SOURCE_MOVIE_FILE = "file";
+	transient public final static String INPUT_SOURCE_NETWORK = "network";
+	transient public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
 	// TODO - OpenCV constants / enums ?
 	public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
@@ -104,7 +105,7 @@ public class OpenCV extends Service {
 	final static public String BACKGROUND = "background";
 	
 
-	public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
+	transient public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
 
 	// yep its public - cause a whole lotta data
 	// will get set on it before a setState
@@ -142,24 +143,23 @@ public class OpenCV extends Service {
 		super.stopService();
 	}
 
-	// TODO - refactor and remove some of these publishing points
-	public final static SerializableImage publishDisplay(String source, BufferedImage img)
+	public final SerializableImage publishDisplay(String source, BufferedImage img)
 	{
 		return new SerializableImage(img, source);
 	}
 	
-	public final static SerializableImage publishFrame(String source, BufferedImage img) {
+	public final SerializableImage publishFrame(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img, source);
 		return si;
 	}
 
-	public final static SerializableImage publishMask(String source, BufferedImage img) {
+	public final SerializableImage publishMask(String source, BufferedImage img) {
 		SerializableImage si = new SerializableImage(img, source);
 		return si;
 	}
 	
 	// publishing the big kahuna <output>
-	public final static OpenCVData publishOpenCVData(OpenCVData data) {
+	public final OpenCVData publishOpenCVData(OpenCVData data) {
 		return data;
 	}
 	

@@ -619,15 +619,18 @@ public class Tracking extends Service {
 		tracker.initTracking();
 		tracker.initControl();
 		tracker.initInput();
-		
-		tracker.startVideoStream();
-		
+				
 		tracker.trackLKPoint();
 		
 		
 		tracker.setIdle();
+		tracker.startVideoStream();
+		
+		tracker.stopVideoStream();
 		
 		tracker.startVideoStream();
+		
+		
 		
 //		tracker.learnBackGround();
 		//tracker.searchForeground();

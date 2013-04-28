@@ -39,7 +39,6 @@
 
 package org.myrobotlab.net;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;

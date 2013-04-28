@@ -262,14 +262,14 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 						node.boundingBox = new Rectangle(rect.x(), rect.y(), rect.width(), rect.height());
 
 						// convert camera frame
-						node.cameraFrame = OpenCV.publishFrame("", node.cvCameraFrame.getBufferedImage());
+//FIXME						node.cameraFrame = OpenCV.publishFrame("", node.cvCameraFrame.getBufferedImage());
 
 						// cropped
 						cvSetImageROI(node.cvCameraFrame, node.cvBoundingBox);
 						node.cvCropped = cvCreateImage(cvSize(node.cvBoundingBox.width(), node.cvBoundingBox.height()), 8, 3);
 						cvCopy(node.cvCameraFrame, node.cvCropped);
 						cvResetImageROI(node.cvCameraFrame);
-						node.cropped = OpenCV.publishFrame("", node.cvCropped.getBufferedImage());
+//FIXME						node.cropped = OpenCV.publishFrame("", node.cvCropped.getBufferedImage());
 
 						log.error("{}",rect);
 						log.error("{}",node.cvBoundingBox);

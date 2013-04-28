@@ -488,6 +488,16 @@
          </list>
       </dependsOn>
    </serviceType>
+     <serviceType string="org.myrobotlab.service.VideoStreamer" workingLevel="1">
+      <dependsOn>
+         <description>Video stream - no dependencies - pure Java
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.WebServer" workingLevel="3">
       <dependsOn>
          <description>embedded web server - allows control through AJAX and web services - initially created for the Robosoccer project 
