@@ -1,72 +1,119 @@
 package org.myrobotlab.service;
 
-import org.myrobotlab.framework.Service;
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.memory.Memory;
-import org.myrobotlab.memory.MemoryChangeListener;
-import org.myrobotlab.memory.Node;
+import org.myrobotlab.net.MjpegServer;
+import org.myrobotlab.service.interfaces.VideoSink;
 import org.slf4j.Logger;
 
+/**
+ * @author GroG
+ * 
+ *         Refeences of cool code snippets etc :
+ *         
+ *         http://www.java2s.com/Code/Java/Network-Protocol/
+ *         AsimpletinynicelyembeddableHTTP10serverinJava.htm
+ *         
+ *         and most importantly Wireshark !!!  cuz it ROCKS for getting the truth !!!
+ *         
+ *         
+ * 
+ */
 
-public class VideoStreamer extends Service {
+
+public class VideoStreamer extends VideoSink {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(VideoStreamer.class.getCanonicalName());
 
-	public VideoStreamer(String n) {
-		super(n, VideoStreamer.class.getCanonicalName());	
+	public int listeningPort = 9090;
+	MjpegServer server;
+	public boolean mergeSteams = true;
+
+	public VideoStreamer(String name) {
+		super(name);
+	}
+	
+	public void setPort(int port)
+	{
+		listeningPort = port;
+	}
+	
+	public void start()
+	{
+		start(listeningPort);
 	}
 
-	public static class VideoWebClient extends Thread
-	{
-		
+	public void start(int port) {
+		listeningPort = port;
+		try {
+			server = new MjpegServer(listeningPort);
+			server.start();
+		} catch (IOException e) {
+			Logging.logException(e);
+		}
 	}
-	
-	
+
+	public void stop() {
+		server.stop();
+	}
+
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}
 
-	@Override 
-	public void stopService()
-	{
+	@Override
+	public void stopService() {
 		super.stopService();
 	}
-	
+
 	@Override
-	public void releaseService()
-	{
+	public void releaseService() {
 		super.releaseService();
 	}
-	
-	// add a stream - interfaces with a servic
-	// which has publishDisplay
-	public void addVideoStream(String name)
-	{
-		// subscribe to publishDisplay
-		subscribe("publishDisplay", name, "publishDisplay", SerializableImage.class);
-	}
-	
-	public void publishDisplay(SerializableImage img)
-	{
-		// add to hashed - blocking queue?
+
+	public void publishDisplay(SerializableImage img) {
+		
+		if (mergeSteams)
+		{
+			img.setSource("output");
+		}
+		
+		if (!server.videoFeeds.containsKey(img.getSource())) {
+			server.videoFeeds.put(img.getSource(), (BlockingQueue<SerializableImage>) new LinkedBlockingQueue<SerializableImage>());
+		}
+
+		BlockingQueue<SerializableImage> buffer = server.videoFeeds.get(img.getSource());
+		// if its backed up over 10 frames we are dumping it
+		if (buffer.size() < 10) {
+			buffer.add(img);
+		}
 	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		VideoStreamer template = new VideoStreamer("template");
-		template.startService();
-		
+		VideoStreamer streamer = (VideoStreamer)Runtime.createAndStart("streamer", "VideoStreamer");
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+
+		streamer.start();
+		streamer.attach(opencv);
+
+		opencv.addFilter("pyramidDown", "PyramidDown");
+		opencv.capture();
+
 		Runtime.createAndStart("gui", "GUIService");
 
 	}
-
 
 }

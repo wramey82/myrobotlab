@@ -59,7 +59,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 					String key = ct.get(i);
 					int j = key.indexOf("boundary=");
 					if (j != -1) {
-						boundryKey = key.substring(j + 9);
+						boundryKey = key.substring(j + 9); // FIXME << fragile
 					}
 				}
 			}

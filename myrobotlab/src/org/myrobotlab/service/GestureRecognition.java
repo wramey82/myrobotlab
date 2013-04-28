@@ -24,7 +24,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.interfaces.VideoSink;
 import org.myrobotlab.service.interfaces.VideoSource;
 
-public class GestureRecognition extends Service implements VideoSource {
+public class GestureRecognition extends Service {
 
 	private static final long serialVersionUID = 1L;
 
@@ -134,7 +134,7 @@ public class GestureRecognition extends Service implements VideoSource {
 				simg = new SerializableImage(bimg, getName());
 				invoke("publishDisplay", simg);
 				for (int i = 0; i < sinks.size(); ++i) {
-					sinks.get(i).add(simg);
+// FIXME - videosource/sink					sinks.get(i).add(simg);
 				}
 			}
 			// frame.dispose();

@@ -772,7 +772,7 @@ public class FSMTest extends Service {
 						kin.cvCropped = cvCreateImage(cvSize(kin.cvBoundingBox.width(), kin.cvBoundingBox.height()), 8, 3);
 						cvCopy(kin.cvCameraFrame, kin.cvCropped);
 						cvResetImageROI(kin.cvCameraFrame);
-						kin.cropped = OpenCV.publishFrame("", kin.cvCropped.getBufferedImage());
+//FIXME						kin.cropped = OpenCV.publishFrame("", kin.cvCropped.getBufferedImage());
 
 						++imgCount;
 
