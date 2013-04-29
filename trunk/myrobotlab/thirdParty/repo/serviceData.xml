@@ -89,6 +89,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Cron" workingLevel="2">
+      <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>it.sauronsoftware.cron4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.FSM" workingLevel="1">
       <dependsOn>
 	 <description>Finite state machine
