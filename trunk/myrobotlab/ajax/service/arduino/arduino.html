@@ -200,6 +200,7 @@ function formToMsg(theForm)
 	msg.sender="chrome";
 	msg.sendingMethod = "myMethond";
 
+	alert('here');
 	if (theForm.elements.length > 2)
 	{
 		msg.data = new Array()
@@ -303,7 +304,6 @@ var init = function(event) {
     // ajax setup
     getMsg();
 
-
     // pin setup
     initPins();
 
@@ -334,12 +334,12 @@ var init = function(event) {
             grey.hide();
             green.show();
             pin.value = 1;
-            send("arduino", "digitalWrite", new Array(pin.number, 1));
+            send("arduino", "digitalWrite", new Array(this.id, 1));
         } else {
             grey.show();
             green.hide();
             pin.value = 0;
-            send("arduino", "digitalWrite", new Array(pin.number, 0));
+            send("arduino", "digitalWrite", new Array(this.id, 0));
         }
     });
 
@@ -363,24 +363,12 @@ $(document).ready(init);
 </table>
 <!-- ================ status end	================== -->
 
-<!-- ================ debug begin	================== -->
-<table  id="debugTable" class="debug" width="430px">
-	<thead>
-		<tr>
-			<td>#</td>
-			<td>&lt;-&gt;</td>
-			<td>name</td>
-			<td>method</td>
-			<td>data</td>
-		</tr>
-	</thead>
-</table>
-<!-- ================ debug end================== -->
+
 <!-- ================ arduino begin	================== -->
 <table>
     <tr>
     <td>analog</td>
-    <td></div></td>
+    <td></td>
     <td>digital</td>
     </tr>
 	<tr>
@@ -426,7 +414,7 @@ $(document).ready(init);
 				<tr class="pinRow" id="9"><td>
 					<img id="greenLight9" src="images/green.png" alt="" />
 					<img id="greyLight9"  src="images/grey.png" alt="" />pin 9</td></tr>
-				<tr><td><div id="slider"></td></tr>
+				<tr><td><div id="slider"></div></td></tr>
 				<tr class="pinRow" id="8"><td>
 					<img id="greenLight8" src="images/green.png" alt="" />
 					<img id="greyLight8"  src="images/grey.png" alt="" />pin 8</td></tr>
@@ -462,7 +450,19 @@ $(document).ready(init);
 <form id="digitalPinForm" action="">
 </form>
 <!-- ================ arduino end	================== -->
-
+<!-- ================ debug begin	================== -->
+<table  id="debugTable" class="debug" width="430px">
+	<thead>
+		<tr>
+			<td>#</td>
+			<td>&lt;-&gt;</td>
+			<td>name</td>
+			<td>method</td>
+			<td>data</td>
+		</tr>
+	</thead>
+</table>
+<!-- ================ debug end================== -->
 </div>
 </body>
 </html>
