@@ -26,6 +26,7 @@ import java.util.HashMap;
 import org.myrobotlab.logging.Level;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
@@ -52,7 +53,7 @@ public class WebServer extends Service {
 	}
 
 	public void startWebServer() {
-		startWebServer("./", 80);
+		startWebServer("./", 19191);
 	}
 
 	public void startWebServer(String root, int port) {
@@ -60,10 +61,15 @@ public class WebServer extends Service {
 		// webServer = new SimpleWebServer(arg0, arg1);
 		try {
 			webServer = new SimpleWebServer(new File(root), port, this);
+			log.info("started web server " + root + " port " + port);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logging.logException(e);
 		}
+	}
+	
+	public void startService() {
+		super.startService();
+		startWebServer();
 	}
 
 	public void setHandler(String name, String extention) {
@@ -94,8 +100,8 @@ public class WebServer extends Service {
 		/*
 		 * SoccerGame game = new SoccerGame("soccergame"); game.startService();
 		 */
-		Arduino arduino = new Arduino("arduino");
-		arduino.startService();
+		//Arduino arduino = new Arduino("arduino");
+		//arduino.startService();
 
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();

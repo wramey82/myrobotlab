@@ -22,7 +22,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.WebServer;
+import org.slf4j.Logger;
 
 /**
  * Copyright Paul Mutton http://www.jibble.org/
@@ -41,6 +43,9 @@ public class SimpleWebServer extends Thread {
 	private SimpleWebServer _instance = null;
 
 	public WebServer myServer;
+	
+	public final static Logger log = LoggerFactory.getLogger(SimpleWebServer.class.getCanonicalName());
+
 
 	static {
 		String image = "image/";
@@ -69,7 +74,9 @@ public class SimpleWebServer extends Thread {
 	public void run() {
 		while (_running) {
 			try {
+				log.info("waiting for accept");
 				Socket socket = _serverSocket.accept();
+				log.info("new connection {}", socket.getRemoteSocketAddress());
 				RequestThread requestThread = new RequestThread(socket, _rootDir, myServer);
 				requestThread.start();
 			} catch (IOException e) {
