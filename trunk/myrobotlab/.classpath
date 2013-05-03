@@ -64,6 +64,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlcode.jsonsimple/1.1/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.pi4j.pi4j/pi4j/0.0.5/pi4j-core.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.pi4j.pi4j/pi4j/0.0.5/pi4j-gpio-extension.jar"/>
-	<classpathentry kind="lib" path="C:/mrl/myrobotlab/thirdParty/repo/it.sauronsoftware.cron4j/cron4j/2.2.5/cron4j-2.2.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/it.sauronsoftware.cron4j/cron4j/2.2.5/cron4j-2.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
