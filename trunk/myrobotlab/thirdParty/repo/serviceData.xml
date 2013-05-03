@@ -516,7 +516,7 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
-            <string>org.jibble.simplewebserver</string>
+            <string>com.google.gson</string>
          </list>
       </dependsOn>
    </serviceType>
