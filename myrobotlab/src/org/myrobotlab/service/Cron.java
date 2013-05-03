@@ -66,7 +66,8 @@ public class Cron extends Service {
 		Log log = new Log("log");
 		log.startService();
 		
-		cron.addScheduledEvent(EVERY_MINUTE, "log", "log");
+		cron.addScheduledEvent("* * * * *","speech","speak", "hello sir, time for your coffee");
+		//cron.addScheduledEvent(EVERY_MINUTE, "log", "log");
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*

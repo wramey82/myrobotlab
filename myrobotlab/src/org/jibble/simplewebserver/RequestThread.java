@@ -150,6 +150,8 @@ public class RequestThread extends Thread {
 				sendError(out, 500, "Invalid Method.");
 				return;
 			}
+			
+			log.info("request {}", request);
 
 			int queryStrPos = request.indexOf('?');
 
@@ -161,6 +163,8 @@ public class RequestThread extends Thread {
 			} else {
 				path = request.substring(4, request.length() - 9);
 			}
+
+			log.info("queryString {}", queryString);
 
 			Message msg = null;
 			if (queryString != null) {
@@ -196,7 +200,11 @@ public class RequestThread extends Thread {
 				// out.close();
 			}
 
+			log.info("_rootDir {}", _rootDir);
+
 			File file = new File(_rootDir, URLDecoder.decode(path, "UTF-8")).getCanonicalFile();
+
+			log.info("file {}", file);
 
 			if (file.isDirectory()) {
 				// Check to see if there is an index file in the directory.
@@ -233,6 +241,7 @@ public class RequestThread extends Thread {
 				}
 				out.write(("</p><hr><p>" + SimpleWebServer.VERSION + "</p></body><html>").getBytes());
 			} else {
+
 				String ext = SimpleWebServer.getExtension(file);
 				String contentType = (String) SimpleWebServer.MIME_TYPES.get(ext);
 				if (contentType == null) {
