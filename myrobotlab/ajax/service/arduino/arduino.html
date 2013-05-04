@@ -334,12 +334,12 @@ var init = function(event) {
             grey.hide();
             green.show();
             pin.value = 1;
-            send("arduino", "digitalWrite", new Array(this.id, 1));
+            send("arduino", "digitalWrite", new Array(parseInt(this.id), 1));
         } else {
             grey.show();
             green.hide();
             pin.value = 0;
-            send("arduino", "digitalWrite", new Array(this.id, 0));
+            send("arduino", "digitalWrite", new Array(parseInt(this.id), 0));
         }
     });
 
