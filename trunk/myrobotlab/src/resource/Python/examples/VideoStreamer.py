@@ -1,6 +1,7 @@
 from org.myrobotlab.service import Runtime
 from org.myrobotlab.service import OpenCV
 from org.myrobotlab.service import VideoStreamer
+from org.myrobotlab.net import BareBonesBrowserLaunch
 
 # create a video source (opencv) & a video streamer
 opencv = Runtime.createAndStart("opencv","OpenCV")
@@ -17,3 +18,4 @@ opencv.addFilter("gray", "Gray");
 opencv.capture();
 
 # go to http://localhost:9090/output
+BareBonesBrowserLaunch.openURL("http://localhost:9090/output")
