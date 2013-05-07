@@ -81,9 +81,9 @@ public class Tracking extends Service {
 	int lastNumberOfObjects = 0;
 	
 	// TODO enum - allows meta data? like description of state ???
-	public static final String STATE_INITIALIZING_INPUT = "initializing input";
-	public static final String STATE_INITIALIZING_CONTROL = "initializing control";
-	public static final String STATE_INITIALIZING_TRACKING = "initializing tracking";
+	//public static final String STATE_INITIALIZING_INPUT = "initializing input";
+	//public static final String STATE_INITIALIZING_CONTROL = "initializing control";
+	//public static final String STATE_INITIALIZING_TRACKING = "initializing tracking";
 	
 	public final static String STATE_LK_TRACKING_POINT = "lucas kanade tracking";
 	public final static String STATE_IDLE = "idle";
@@ -104,9 +104,9 @@ public class Tracking extends Service {
 	private String state = STATE_NEED_TO_INITIALIZE;
 	
 	@Element
-	int xRestPos;
+	int xRestPos = 90;
 	@Element
-	int yRestPos;
+	int yRestPos = 90;
 	
 	// FIXME - HOW TO HANDLE !?!?!?
 	// peer services
@@ -129,9 +129,9 @@ public class Tracking extends Service {
 	@Element
 	double ySetpoint = 0.5;
 
-	// servo related
-	int currentXServoPos;
-	int currentYServoPos;
+	// internal servo related
+	private int currentXServoPos;
+	private int currentYServoPos;
 	private int lastXServoPos;
 	private int lastYServoPos;
 	
@@ -143,9 +143,6 @@ public class Tracking extends Service {
 	private double computeX;
 	private double computeY;
 	
-	OpenCVData goodFeatures;
-
-	
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
 	}
@@ -153,13 +150,23 @@ public class Tracking extends Service {
 	// set SubServiceNames....
 	// TODO - framework? requestService(name, type)
 	// TODO renameService()  globalRename(name, newName)
+	/*
 	public void createAndStartSubServices() {
 		xpid = (PID) Runtime.createAndStart(xpidName, "PID");
 		ypid = (PID) Runtime.createAndStart(ypidName, "PID");
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
-		x = (Servo) Runtime.createAndStart(xName, "Servo");
-		y = (Servo) Runtime.createAndStart(yName, "Servo");
+
 		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+	}
+	*/
+	
+	public void startService()
+	{	super.startService();
+		attach((OpenCV)null);
+		attach((Arduino)null);
+		attachServos(null, null);
+		attachPIDs(null, null);
+		setStatus("tracking online");
 	}
 	
 	// the big kahuna input feed
@@ -188,33 +195,47 @@ public class Tracking extends Service {
 		}
 		return data;
 	}
-	
-	// ----------- init routines begin ---------------
-	public void initInput()
+	// begin attach points -----------------
+	public void attach(OpenCV opencv)
 	{
-		setState(STATE_INITIALIZING_INPUT);
-//		videoOff(); eye data
+		setStatus("attaching eye");
+		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		eye.capture();
-		
 		setStatus("letting camera warm up and balance");
 		sleep(2000);
-
 	}
-	
-	public void initControl()
+	// TODO - check all service - check for validity of system !!
+	public void attach(Arduino duino)
 	{
-		setState(STATE_INITIALIZING_CONTROL);
-		
+		setStatus("attaching Arduino");
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
 		arduino.setBoard("atmega328");
 		arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
 		Service.sleep(500);
 
-		arduino.servoAttach("x", xServoPin);
-		arduino.servoAttach("y", yServoPin);
+		if (x != null) {
+			arduino.servoAttach(xName, xServoPin);
+		}
+		if (y != null) {
+			arduino.servoAttach(yName, yServoPin);
+		}
 
 		Service.sleep(500);
-
+	} 
+	
+	public void attachServos(Servo servox, Servo servoy)
+	{
+		setStatus("attaching servos");
+		x = (Servo) Runtime.createAndStart(xName, "Servo", servox);
+		y = (Servo) Runtime.createAndStart(yName, "Servo", servoy);
+		
+		if (arduino != null)
+		{
+			arduino.servoAttach(yName, yServoPin);
+			arduino.servoAttach(xName, xServoPin);
+		}
+		
 		x.moveTo(xRestPos);
 		y.moveTo(yRestPos);
 
@@ -232,12 +253,15 @@ public class Tracking extends Service {
 		currentYServoPos = yRestPos;
 		lastXServoPos = xRestPos;
 		lastYServoPos = yRestPos;
-	}
-		
-	public void initTracking() {
 
-		setState(STATE_INITIALIZING_TRACKING);
-		// set initial Kp Kd Ki - TODO - use values derived from calibration
+	}
+	
+	public void attachPIDs(PID inXpid, PID inYpid)
+	{
+		setStatus("attaching pid");
+		xpid = (PID) Runtime.createAndStart(xpidName, "PID", inXpid);
+		ypid = (PID) Runtime.createAndStart(ypidName, "PID", inYpid);
+
 		xpid.setPID(10.0, 5.0, 1.0);
 		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
 		xpid.setMode(PID.MODE_AUTOMATIC);
@@ -261,8 +285,6 @@ public class Tracking extends Service {
 		ymax = y.getPositionMax();
 
 	}
-	
-	// ----------- init routines end ---------------
 
 	public void rest()
 	{
@@ -585,12 +607,9 @@ public class Tracking extends Service {
 		eye.setCameraIndex(i);
 	}
 
-	public void setYServoPin(int y) {
-		yServoPin = y;
-	}
-
-	public void setXServoPin(int x) {
+	public void setServoPins(int x, int y) {
 		xServoPin = x;
+		yServoPin = y;
 	}
 
 	public void setSerialPort(String portName) {
@@ -604,30 +623,29 @@ public class Tracking extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Tracking tracker = new Tracking("tracking");
+		Speech mouth = new Speech("mouth");
+		mouth.subscribe("publishStatus", tracker.getName(), "speak", String.class);
+		mouth.startService();
 		tracker.startService();
+		
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
+		/*
 		tracker.setRestPosition(90, 5);
 		tracker.setSerialPort("COM12");
-		tracker.setXServoPin(13);
-		tracker.setYServoPin(12);
+		tracker.setServoPins(13, 12);
 		tracker.setCameraIndex(1);
-		
-		tracker.initTracking();
-		tracker.initControl();
-		tracker.initInput();
+		*/
 				
 		tracker.trackLKPoint();
 		
 		
 		tracker.setIdle();
 		tracker.startVideoStream();
-		
 		tracker.stopVideoStream();
-		
 		tracker.startVideoStream();
 		
 		

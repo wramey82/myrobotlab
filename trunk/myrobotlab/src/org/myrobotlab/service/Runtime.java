@@ -1255,14 +1255,25 @@ public class Runtime extends Service {
 
 	}
 
+	static public ServiceInterface createAndStart(String name, String type) {
+		return createAndStart(name, type, null);
+	}	
+	
 	/**
 	 * 
 	 * @param name
 	 * @param type
 	 * @return
 	 */
-	static public ServiceInterface createAndStart(String name, String type) {
-		ServiceInterface s = create(name, type);
+	static public ServiceInterface createAndStart(String name, String type, ServiceInterface in) {
+		ServiceInterface s = null;
+		if (in != null)
+		{
+			s = in;
+		} else {
+			s = create(name, type);
+		}
+		
 		if (s == null) {
 			log.error("cannot start service " + name);
 			return null;
