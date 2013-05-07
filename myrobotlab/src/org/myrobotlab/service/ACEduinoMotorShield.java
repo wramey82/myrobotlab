@@ -20,7 +20,7 @@ public class ACEduinoMotorShield extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(ACEduinoMotorShield.class.getCanonicalName());
+	public transient final static Logger log = LoggerFactory.getLogger(ACEduinoMotorShield.class.getCanonicalName());
 
 	// name of the Arduino
 	String controllerName;

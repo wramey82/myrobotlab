@@ -42,6 +42,14 @@ public class VideoStreamer extends VideoSink {
 		super(name);
 	}
 	
+	public void startService()
+	{
+		super.startService();
+		start();
+	}
+	
+
+	
 	public void setPort(int port)
 	{
 		listeningPort = port;
@@ -53,6 +61,7 @@ public class VideoStreamer extends VideoSink {
 	}
 
 	public void start(int port) {
+		stop();
 		listeningPort = port;
 		try {
 			server = new MjpegServer(listeningPort);
@@ -63,7 +72,11 @@ public class VideoStreamer extends VideoSink {
 	}
 
 	public void stop() {
-		server.stop();
+		if (server != null)
+		{
+			server.stop();
+		}
+		server = null;
 	}
 
 	@Override
@@ -74,6 +87,7 @@ public class VideoStreamer extends VideoSink {
 	@Override
 	public void stopService() {
 		super.stopService();
+		stop();
 	}
 
 	@Override
@@ -106,7 +120,7 @@ public class VideoStreamer extends VideoSink {
 		VideoStreamer streamer = (VideoStreamer)Runtime.createAndStart("streamer", "VideoStreamer");
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
 
-		streamer.start();
+		//streamer.start();
 		streamer.attach(opencv);
 
 		opencv.addFilter("pyramidDown", "PyramidDown");

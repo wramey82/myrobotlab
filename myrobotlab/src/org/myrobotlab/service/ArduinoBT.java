@@ -76,7 +76,7 @@ import android.util.Log;
 public class ArduinoBT extends Service implements //SerialPortEventListener,
 		SensorDataPublisher, DigitalIO, AnalogIO, ServoController, MotorController {
 	
-	public final static Logger log = LoggerFactory.getLogger(ArduinoBT.class.getCanonicalName());
+	public transient final static Logger log = LoggerFactory.getLogger(ArduinoBT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 	
 	// debugging
