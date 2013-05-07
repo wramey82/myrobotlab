@@ -27,7 +27,7 @@ public class Android extends Service implements SensorEventListener {
 	private long lastUpdate;
 
 	private Context context;
-	public final static Logger log = LoggerFactory.getLogger(Android.class.getCanonicalName());
+	public transient final static Logger log = LoggerFactory.getLogger(Android.class.getCanonicalName());
 	
 
 	public Android(String n) {

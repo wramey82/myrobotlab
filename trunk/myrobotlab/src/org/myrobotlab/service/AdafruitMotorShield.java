@@ -78,7 +78,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	final int AF_DCMOTOR_SET_SPEED = 51;
 	final int AF_DCMOTOR_RUN_COMMAND = 52;
 
-	public final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
+	public transient final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());

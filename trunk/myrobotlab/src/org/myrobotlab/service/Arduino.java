@@ -93,12 +93,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		MessageConsumer {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(Arduino.class.getCanonicalName());
-	public static final int REVISION = 100;
+	public transient final static Logger log = LoggerFactory.getLogger(Arduino.class.getCanonicalName());
+	public transient static final int REVISION = 100;
 
-	public static final String BOARD_TYPE_UNO = "uno";
-	public static final String BOARD_TYPE_ATMEGA168 = "atmega168";
-	public static final String BOARD_TYPE_ATMEGA328P = "atmega328p";
+	public transient static final String BOARD_TYPE_UNO = "uno";
+	public transient static final String BOARD_TYPE_ATMEGA168 = "atmega168";
+	public transient static final String BOARD_TYPE_ATMEGA328P = "atmega328p";
 	public static final String BOARD_TYPE_ATMEGA2560 = "atmega2560";
 	public static final String BOARD_TYPE_ATMEGA1280 = "atmega1280";
 	public static final String BOARD_TYPE_ATMEGA32U4 = "atmega32u4";
@@ -151,7 +151,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int TCCR2B = 0xA1; // register for pins 3,11
 
 	// serial protocol functions
-	public final static int MAGIC_NUMBER = 170; // 10101010
+	public transient final static int MAGIC_NUMBER = 170; // 10101010
 
 	public static final int DIGITAL_WRITE = 0;
 	// public static final int DIGITAL_VALUE = 1; // normalized with PinData

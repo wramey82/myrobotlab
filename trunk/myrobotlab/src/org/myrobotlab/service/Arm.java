@@ -34,10 +34,10 @@ import org.myrobotlab.framework.Service;
 
 public class Arm extends Service {
 
-	public final static Logger log = LoggerFactory.getLogger(Arm.class.getCanonicalName());
+	public transient final static Logger log = LoggerFactory.getLogger(Arm.class.getCanonicalName());
 
 	private static final long serialVersionUID = 1L;
-	public final static int IR_PIN = 1;
+	public transient final static int IR_PIN = 1;
 
 	Servo shoulder = new Servo("shoulder");
 	Servo elbow = new Servo("elbow");

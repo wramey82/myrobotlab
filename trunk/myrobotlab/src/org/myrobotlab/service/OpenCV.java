@@ -84,14 +84,14 @@ public class OpenCV extends VideoSource {
 	transient public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
 	// TODO - OpenCV constants / enums ?
-	public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
-	public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
-	public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
-	public static final String FILTER_BACKGROUND_SUBTRACTOR_MOG2 = "BackgroundSubtractorMOG2";
-	public static final String FILTER_ERODE = "Erode";
-	public static final String FILTER_DILATE = "Dilate";
-	public static final String FILTER_FIND_CONTOURS = "FindContours";
-	public static final String FILTER_FACE_DETECT = "FaceDetect";
+	transient public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
+	transient public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
+	transient public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
+	transient public static final String FILTER_BACKGROUND_SUBTRACTOR_MOG2 = "BackgroundSubtractorMOG2";
+	transient public static final String FILTER_ERODE = "Erode";
+	transient public static final String FILTER_DILATE = "Dilate";
+	transient public static final String FILTER_FIND_CONTOURS = "FindContours";
+	transient public static final String FILTER_FACE_DETECT = "FaceDetect";
 	
 	// directional constants
 	transient final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
