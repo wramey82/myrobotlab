@@ -627,7 +627,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void startService() {
-		createAndStartSubServices();
+		createAndStartSubServices(); // FIXME - deprecate !
 		if (!isRunning()) {
 			outbox.start();
 			if (thisThread == null) {

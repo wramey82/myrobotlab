@@ -31,9 +31,6 @@ public class InMoov extends Service {
 	public static final String both = "both";
 
 	Head head;
-	HashMap<String, ArrayList<Hand>> hands = new HashMap<String, ArrayList<Hand>>();
-	HashMap<String, ArrayList<Arm>> arms = new HashMap<String, ArrayList<Arm>>();
-	HashMap<String, ArrayList<Arduino>> arduinos = new HashMap<String, ArrayList<Arduino>>();
 
 	// head
 	public Sphinx ear;
@@ -41,24 +38,23 @@ public class InMoov extends Service {
 	public OpenCV eye;
 	public Python python;
 	public Tracking tracking;
-	public Arduino headArduino;
+	public Arduino arduinoHead;
 	
 	public Servo rothead;
 	public Servo neck;
-
+	
+	// left side
+	public Arduino arduinoLeft;
+	public Hand handLeft;
+	public Arm armLeft;
+	
+	// right side
+	public Arduino arduinoRight;
+	public Hand handRight;
+	public Arm armRight;
+	
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
-		ArrayList<Hand> bothHands = new ArrayList<Hand>();
-		hands.put(both, bothHands);
-
-		ArrayList<Arm> bothArms = new ArrayList<Arm>();
-		arms.put(both, bothArms);
-
-		ArrayList<Arduino> bothArduinos = new ArrayList<Arduino>();
-		arduinos.put(both, bothArduinos);
-
-		// get a handle on the python service
-		// python = (Python)Runtime.createAndStart("python", "Python");
 	}
 	
 	public void createAndStartSubServices()
@@ -73,141 +69,153 @@ public class InMoov extends Service {
 	// ----------- normalization begin ---------------------
 
 	public Arduino getArduino(String key) {
-		// String.format("arduino%s",key)
-		ArrayList<Arduino> arduinoList = arduinos.get(key);
-		if (arduinoList == null || arduinoList.size() != 1) {
-			log.error(String.format("%s arduino not available", key));
-			return null;
-		}
-
-		return arduinoList.get(0);
+		if (key.equals(left))
+		{
+			return arduinoLeft;
+		} else if (key.equals(right))
+		{
+			return arduinoRight;
+		} 
+		setError("getArduino ({}) not found");
+		return null;
+	}
+	
+	public void setArduino(String key, Arduino arduino) {
+		if (key.equals(left))
+		{
+			arduinoLeft = arduino;
+		} else if (key.equals(right))
+		{
+			arduinoRight = arduino;
+		} 
+		log.error("setArduino ({}, Arduino) not found");
 	}
 
 	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
 	public Arduino initializeArduino(String key, String boardType, String comPort) {
+		setStatus(String.format("initializing %s arduino", key));
 		Arduino arduino = (Arduino) Runtime.createAndStart(String.format("arduino%s", key), "Arduino");
 		arduino.setBoard(boardType);
 		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
-		// wait a second for serial ports to come online
 		sleep(1000);
-
-		// String contextKey = String.format("arduino%s",key);
-
-		ArrayList<Arduino> list = new ArrayList<Arduino>();
-		list.add(arduino);
-		arduinos.put(key, list);
-		arduinos.get(both).add(arduino);
 		return arduino;
 
 	}
 
 	public void releaseArduino(String key) {
-		ArrayList<Arduino> arduinoList = arduinos.get(key);
-		for (int i = 0; i < arduinoList.size(); ++i) {
-			Arduino a = arduinoList.get(i);
-			a.releaseService();
+		if (arduinoLeft != null)
+		{
+			arduinoLeft.releaseService();
+			arduinoLeft = null;
 		}
-
-		for (Iterator<?> it = arduinoList.iterator(); it.hasNext();) {
-			it.next();
-			it.remove();
+		if (arduinoRight != null)
+		{
+			arduinoRight.releaseService();
+			arduinoRight = null;
 		}
-
-		arduinos.remove(arduinoList);
 	}
 
 	public Hand initializeHand(String key) {
 		Arduino arduino = getArduino(key);
 
-		// String contextKey = String.format("hand%s",key);
-
-		// hand
 		Hand hand = new Hand();
+		if (key == left)
+		{
+			handLeft = hand;
+		} else if (key == right)
+		{
+			handRight = hand;
+		}
+	
 		hand.initialize(arduino, key);
-
-		ArrayList<Hand> handList = new ArrayList<Hand>();
-		handList.add(hand);
-		hands.put(key, handList);
-		hands.get(both).add(hand);
-
 		return hand;
-
+	}
+	
+	public Hand getHand(String key)
+	{
+		if (key == left)
+		{
+			return handLeft;
+		} else if (key == right)
+		{
+			return handRight;
+		}
+		setError(String.format("%s hand not found"));
+		return null;
 	}
 
 	public void releaseHand(String key) {
-		ArrayList<Hand> handList = hands.get(key);
-		for (int i = 0; i < handList.size(); ++i) {
-			handList.get(i).release();
+		if (key == left)
+		{
+			handLeft.release();
+			handLeft = null;
+			setStatus("released left hand");
+		} else if (key == right)
+		{
+			handRight.release();
+			handRight = null;
+			setStatus("released right hand");
 		}
-
-		for (Iterator<?> it = handList.iterator(); it.hasNext();) {
-			it.next();
-			it.remove();
-		}
-
-		hands.remove(handList);
+	
 	}
 
 	public Arm initializeArm(String key) {
 		Arduino arduino = getArduino(key);
-
-		// String contextKey = String.format("arm%s", key);
-		// arm
+		setStatus(String.format("initializing %s arm", key));
 		Arm arm = new Arm();
 		arm.initialize(arduino, key);
 
-		ArrayList<Arm> armList = new ArrayList<Arm>();
-		armList.add(arm);
-		arms.put(key, armList);
-		arms.get(both).add(arm);
+		if (key == left)
+		{
+			armLeft = arm;
+		} else if (key == right)
+		{
+			armRight = arm;
+		}
+	
 		return arm;
-
 	}
 
 	public void releaseArm(String key) {
-		ArrayList<Arm> armList = arms.get(key);
-		for (int i = 0; i < armList.size(); ++i) {
-			armList.get(i).release();
+		if (key == left && armLeft != null)
+		{
+			armLeft.release();
+			armLeft = null;
+			setStatus("released left arm");
+		} else if (key == right && armRight != null)
+		{
+			armRight.release();
+			armRight = null;
+			setStatus("released right arm");
 		}
-
-		for (Iterator<?> it = armList.iterator(); it.hasNext();) {
-			it.next();
-			it.remove();
-		}
-
-		arms.remove(armList);
 	}
 
 	public void release() {
-		Iterator<String> it = hands.keySet().iterator();
-		while (it.hasNext()) {
-			releaseHand(it.next());
-			it.remove();
-		}
-
-		it = arms.keySet().iterator();
-		while (it.hasNext()) {
-			releaseArm(it.next());
-			it.remove();
-		}
-
-		it = arduinos.keySet().iterator();
-		while (it.hasNext()) {
-			releaseArduino(it.next());
-			it.remove();
-		}
+		releaseArm(left);
+		releaseArm(right);
+		releaseHand(left);
+		releaseHand(right);
+		releaseArduino(left);
+		releaseArduino(left);		
 	}
 
 	public void rest() {
-		ArrayList<Arm> armList = arms.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			armList.get(i).rest();
+		if (armLeft != null)
+		{
+			armLeft.rest();
 		}
-		ArrayList<Hand> handList = hands.get(both);
-		for (int i = 0; i < handList.size(); ++i) {
-			handList.get(i).rest();
+		if (armRight != null)
+		{
+			armRight.rest();
 		}
-
+		if (handLeft != null)
+		{
+			handLeft.rest();
+		}
+		if (handRight != null)
+		{
+			handRight.rest();
+		}
 		if (head != null) {
 			head.rest();
 		}
@@ -221,7 +229,7 @@ public class InMoov extends Service {
 		if (arduino == null) {
 			log.error("arduino not valid");
 		}
-		headArduino = arduino;
+		arduinoHead = arduino;
 		head = new Head();
 		head.initialize(this);
 		//head.initialize(arduino);
@@ -230,44 +238,32 @@ public class InMoov extends Service {
 	// ----------- normalization end ---------------------
 
 	public void initialize(String side, String boardType, String comPort) {
-		// String arduinoKey = String.format("arduino%s", side);
-		// String armKey = String.format("arm%s", side);
-		// String handKey = String.format("hand%s", side);
-
-		if (!arduinos.containsKey(side)) {
 			initializeArduino(side, boardType, comPort);
-		} else {
-			log.warn(String.format("already initialized %s", side));
-		}
-
-		if (!hands.containsKey(side)) {
 			initializeHand(side);
-		} else {
-			log.warn(String.format("already initialized %s", side));
-		}
-
-		if (!arms.containsKey(side)) {
 			initializeArm(side);
-		} else {
-			log.warn(String.format("already initialized %s", side));
-		}
-
 	}
 
 	public void broadcastState() {
-		ArrayList<Arduino> arduinoList = arduinos.get(both);
-		for (int i = 0; i < arduinoList.size(); ++i) {
-			arduinoList.get(i).broadcastState();
+		if (armLeft != null)
+		{
+			armLeft.broadcastState();
 		}
-		ArrayList<Arm> armList = arms.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			armList.get(i).broadcastState();
+		if (armRight != null)
+		{
+			armRight.broadcastState();
 		}
-		ArrayList<Hand> handList = hands.get(both);
-		for (int i = 0; i < handList.size(); ++i) {
-			handList.get(i).broadcastState();
+		if (handLeft != null)
+		{
+			handLeft.broadcastState();
 		}
-
+		if (handRight != null)
+		{
+			handRight.broadcastState();
+		}
+		if (head != null)
+		{
+			head.broadcastState();
+		}
 	}
 
 	public void initialize(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
@@ -316,10 +312,13 @@ public class InMoov extends Service {
 
 	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
 
-		ArrayList<Hand> whichHands = hands.get(which);
-		for (int i = 0; i < whichHands.size(); ++i) {
-			Hand hand = whichHands.get(i);
-			hand.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		if (which == left || which == both)
+		{
+			handLeft.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		}
+		if (which == right || which == both)
+		{
+			handRight.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
 		}
 	}
 
@@ -328,26 +327,35 @@ public class InMoov extends Service {
 	}
 
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist) {
-		ArrayList<Hand> whichHands = hands.get(which);
-		for (int i = 0; i < whichHands.size(); ++i) {
-			Hand hand = whichHands.get(i);
-			hand.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		if (which == left || which == both)
+		{
+			handLeft.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		}
+		if (which == right || which == both)
+		{
+			handRight.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
 		}
 	}
 
 	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate) {
-		ArrayList<Arm> whichArms = arms.get(which);
-		for (int i = 0; i < whichArms.size(); ++i) {
-			Arm arm = whichArms.get(i);
-			arm.setSpeed(bicep, rotate, shoulder, omoplate);
+		if (which == left || which == both)
+		{
+			armLeft.setSpeed(bicep, rotate, shoulder, omoplate);
+		}
+		if (which == right || which == both)
+		{
+			armRight.setSpeed(bicep, rotate, shoulder, omoplate);
 		}
 	}
 
 	public void moveArm(String which, Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
-		ArrayList<Arm> armList = arms.get(which);
-		for (int i = 0; i < armList.size(); ++i) {
-			Arm arm = armList.get(i);
-			arm.moveTo(bicep, rotate, shoulder, omoplate);
+		if (which == left || which == both)
+		{
+			armLeft.moveTo(bicep, rotate, shoulder, omoplate);
+		}
+		if (which == right || which == both)
+		{
+			armRight.moveTo(bicep, rotate, shoulder, omoplate);
 		}
 	}
 
@@ -377,24 +385,23 @@ public class InMoov extends Service {
 		 * arduino.analogReadPollingStart(17); sleep(250);
 		 * arduino.analogReadPollingStop(17); }
 		 */
-
-		ArrayList<Arm> armList = arms.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			Arm arm = armList.get(i);
-
-			arm.bicep.moveTo(10);
-			arm.rotate.moveTo(100);
-			arm.shoulder.moveTo(40);
-			arm.omoplate.moveTo(20);
-			sleep(1);
+		
+		if (armLeft != null)
+		{
+			armLeft.moveTo(10, 100, 40, 20);
 		}
-
-		ArrayList<Hand> handList = hands.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			Hand hand = handList.get(i);
-			hand.moveTo(10, 10, 10, 10, 10, 10);
-			sleep(1);
-
+		if (armRight != null)
+		{
+			armRight.moveTo(10, 100, 40, 20);
+		}	
+		
+		if (handLeft != null)
+		{
+			handLeft.moveTo(10, 10, 10, 10, 10, 10);
+		}
+		if (handRight != null)
+		{
+			handRight.moveTo(10, 10, 10, 10, 10, 10);
 		}
 
 		rest();
@@ -427,19 +434,27 @@ public class InMoov extends Service {
 			script.append(indentSpace);
 			script.append(head.getScript(getName()));
 		}
-
-		ArrayList<Arm> armList = arms.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			Arm arm = armList.get(i);
+		
+		if (armLeft != null)
+		{
 			script.append(indentSpace);
-			script.append(arm.getScript(getName()));
+			script.append(armLeft.getScript(getName()));
 		}
-
-		ArrayList<Hand> handList = hands.get(both);
-		for (int i = 0; i < armList.size(); ++i) {
-			Hand hand = handList.get(i);
+		if (armRight != null)
+		{
 			script.append(indentSpace);
-			script.append(hand.getScript(getName()));
+			script.append(armRight.getScript(getName()));
+		}
+		
+		if (handLeft != null)
+		{
+			script.append(indentSpace);
+			script.append(handLeft.getScript(getName()));
+		}
+		if (handRight != null)
+		{
+			script.append(indentSpace);
+			script.append(handRight.getScript(getName()));
 		}
 
 		send("python", "appendScript", script.toString());

@@ -21,8 +21,8 @@ public class Head {
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
 
-		inmoov.headArduino.servoAttach(inmoov.neck.getName(), 12);
-		inmoov.headArduino.servoAttach(inmoov.rothead.getName(), 13);
+		inmoov.arduinoHead.servoAttach(inmoov.neck.getName(), 12);
+		inmoov.arduinoHead.servoAttach(inmoov.rothead.getName(), 13);
 
 		// initial position
 		rest();

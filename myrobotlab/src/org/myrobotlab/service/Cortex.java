@@ -137,13 +137,8 @@ public class Cortex extends Service implements MemoryChangeListener {
 			// defaults...
 			tracking.setRestPosition(90, 5);
 			tracking.setSerialPort("COM12");
-			tracking.setXServoPin(13);
-			tracking.setYServoPin(12);
+			tracking.setServoPins(13,12);
 			tracking.setCameraIndex(1);
-
-			tracking.initTracking();
-			// tracking.initControl();
-			tracking.initInput();
 
 			tracking.setIdle();
 
