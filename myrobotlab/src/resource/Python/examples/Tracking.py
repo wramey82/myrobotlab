@@ -6,6 +6,7 @@
 tracker = Runtime.createAndStart("tracker","Tracking")
 tracker.setRestPosition(90, 90)
 tracker.setSerialPort("COM12")
+# setServoPins (x, y) set the servo of the pan and tilt repectively
 tracker.setServoPins(13,12)
 # tracker.setCameraIndex(1) #change cameras if necessary
  
