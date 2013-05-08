@@ -538,8 +538,8 @@ public class Tracking extends Service {
 			// directly ???
 			// if I'm at my min & and the target is further min - don't compute
 			// pid
-			if ((currentXServoPos == xmin && xSetpoint - targetPoint.x < 0) || (currentXServoPos == xmax && xSetpoint - targetPoint.x > 0)) {
-				log.warn("at x limit, and target is outside of limit");
+			if ((currentXServoPos <= xmin && xSetpoint - targetPoint.x < 0) || (currentXServoPos >= xmax && xSetpoint - targetPoint.x > 0)) {
+				log.error("{} x limit out of range", currentXServoPos);
 			} else {
 
 				if (xpid.compute()) {
@@ -557,8 +557,8 @@ public class Tracking extends Service {
 				}
 			}
 
-			if ((currentYServoPos == ymin && ySetpoint - targetPoint.y < 0) || (currentYServoPos == ymax && ySetpoint - targetPoint.y > 0)) {
-				log.warn("at y limit, and target is outside of limit");
+			if ((currentYServoPos <= ymin && ySetpoint - targetPoint.y < 0) || (currentYServoPos >= ymax && ySetpoint - targetPoint.y > 0)) {
+				log.error("{} y limit out of range", currentYServoPos);
 			} else {
 				if (ypid.compute()) {
 					computeY = ypid.getOutput();
@@ -616,6 +616,16 @@ public class Tracking extends Service {
 		serialPort = portName;
 	}
 	
+	public void setXMinMax(int xmin, int xmax)
+	{
+		this.xmin = xmin;
+		this.xmax = xmax;
+	}
+	public void setYMinMax(int ymin, int ymax)
+	{
+		this.ymin = ymin;
+		this.ymax = ymax;
+	}
 
 	public static void main(String[] args) {
 

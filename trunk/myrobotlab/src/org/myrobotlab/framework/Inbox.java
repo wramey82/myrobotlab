@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
-
 public class Inbox implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -115,9 +114,10 @@ public class Inbox implements Serializable {
 			}
 			msgBox.notifyAll();
 		}
-		
-		//chase network bugs 
-		//log.error(String.format("%s.inbox.getMsg() %s.%s() from %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
+
+		// chase network bugs
+		// log.error(String.format("%s.inbox.getMsg() %s.%s() from %s.%s", name,
+		// msg.name, msg.method, msg.sender, msg.sendingMethod));
 		return msg;
 	}
 
@@ -128,7 +128,7 @@ public class Inbox implements Serializable {
 		for (int i = 0; i < history.size(); ++i) {
 			if (history.get(i).name.equals(name)) {
 				log.error("dupe message {} {}", name, history);
-				
+
 				return true;
 			}
 		}
@@ -138,9 +138,10 @@ public class Inbox implements Serializable {
 
 	public void add(Message msg) {
 		// FIXME - implement as HashSet<>
-		//chase network bugs 
-		//log.error(String.format("%s.inbox.add(msg) %s.%s <-- %s.%s", name, msg.name, msg.method, msg.sender, msg.sendingMethod));
-		
+		// chase network bugs
+		// log.error(String.format("%s.inbox.add(msg) %s.%s <-- %s.%s", name,
+		// msg.name, msg.method, msg.sender, msg.sendingMethod));
+
 		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
 			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);
 			log.error("history list {}", msg.historyList);
@@ -166,11 +167,12 @@ public class Inbox implements Serializable {
 
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				log.warn(name + " inbox BUFFER OVERRUN size " + msgBox.size());
+				log.warn(name + " inbox BUFFER OVERRUN dumping msg " + msgBox.size());
+			} else {
+				msgBox.addFirst(msg);
+				log.debug(name + ".msgBox +1 = " + msgBox.size());
+				msgBox.notifyAll(); // must own the lock
 			}
-			msgBox.addFirst(msg);
-			log.debug(name + ".msgBox +1 = " + msgBox.size());
-			msgBox.notifyAll(); // must own the lock
 		}
 
 	}
