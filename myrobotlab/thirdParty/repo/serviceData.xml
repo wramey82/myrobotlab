@@ -37,16 +37,6 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.Arm" workingLevel="0">
-      <dependsOn>
-	 <description>proposed forward / reverse kinetic arm service - needs a project
-	 </description>            
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-         </list>
-      </dependsOn>
-   </serviceType>
    <serviceType string="org.myrobotlab.service.AudioCapture" workingLevel="3">
       <dependsOn>
 	 <description>captures audio for playback
@@ -100,16 +90,6 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.FSM" workingLevel="1">
-      <dependsOn>
-	 <description>Finite state machine
-	 </description>      
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-         </list>
-      </dependsOn>
-   </serviceType>
    <serviceType string="org.myrobotlab.service.GUIService" workingLevel="5">
       <dependsOn>
       	 <description>a graphical user interface for MyRobotLab
@@ -120,27 +100,6 @@
             <string>com.mxgraph.jgraph</string>
             <string>org.fife.rsyntaxtextarea</string>
             <string>org.fife.autocomplete</string>
-         </list>
-      </dependsOn>
-   </serviceType>
-   <serviceType string="org.myrobotlab.service.GeneticProgramming" workingLevel="1">
-      <dependsOn>
-      	 <description>simple genetic programming engine
-      	 </description>
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-         </list>
-      </dependsOn>
-   </serviceType>
-   <serviceType string="org.myrobotlab.service.GestureRecognition" workingLevel="1">
-      <dependsOn>
-	 <description>gesture recognition service
-	 </description>      
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-            <string>org.openni</string>
          </list>
       </dependsOn>
    </serviceType>
@@ -345,17 +304,6 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.PlayerStage" workingLevel="0">
-      <dependsOn>
-        <description>simulator service wrapper - use SLAMBad
-        </description>
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
-            <string>javaclient3.playerstage</string>
-         </list>
-      </dependsOn>
-   </serviceType>
    <serviceType string="org.myrobotlab.service.Propeller" workingLevel="0">
       <dependsOn>
         <description>service for the Propeller micro-controller
@@ -385,16 +333,6 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>com.pi4j.pi4j</string>
-         </list>
-      </dependsOn>
-   </serviceType>
-   <serviceType string="org.myrobotlab.service.RobotPlatform" workingLevel="1">
-      <dependsOn>
-        <description>a general platform service based on a differential drive system, can use motors or continuous servos
-        </description>
-         <list>
-            <string>org.apache.log4j</string>
-            <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
