@@ -15,10 +15,10 @@ sleep(1)
 # update the gui with configuration changes
 arduino.publishState()
 
-# set the pinMode of pin 13 to output (you can change the pin number if you want)
-arduino.pinMode(13, Arduino.OUTPUT)
+# set the pinMode of pin 8 to output (you can change the pin number if you want)
+arduino.pinMode(8, Arduino.OUTPUT)
 
-# turn pin 13 on and off 10 times
+# turn pin 8 on and off 10 times
 for x in range(0, 10):
 	arduino.digitalWrite(8,1)
 	sleep(1) # sleep a second
