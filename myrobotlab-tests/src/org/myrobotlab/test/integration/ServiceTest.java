@@ -222,7 +222,7 @@ public class ServiceTest {
 		log.info(cnt + " messages sent in " + stopwatch.elapsedMillis() + " ms");
 		log.info(catcher01.catchList.size());
 
-		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", null);
+		Object o = (Object) thrower01.sendBlocking(catcher01.getName(), "returnNull", (Object[])null);
 		assertEquals(null, o);
 		
 		// release all
