@@ -187,7 +187,7 @@ public class Drupal extends Service {
 		while (!doneChatting) {
 			// wait a while
 			usedContexts.put("@ mr.turing where are you from ?", null);
-			Service.sleep(30000);
+			Service.sleep(3000);
 
 			foundContext = false;
 			String s = getShoutBox(host);
@@ -271,7 +271,7 @@ public class Drupal extends Service {
 		drupal.host = "myrobotlab.org";
 		//drupal.host = "letsmakerobots.com";
 		drupal.username = "mr.turing";
-		drupal.password = "password1";
+		drupal.password = "";
 		drupal.chatResponseSearchString = "turing ";
 		drupal.startChatterBot();
 
