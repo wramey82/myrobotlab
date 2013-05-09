@@ -1,3 +1,4 @@
+# The AFMotor API is supported through Jython 
 # this will create and start 4 motors and 1 arduino with fruity_ 
 # name prefix
 fruity = Runtime.createAndStart("fruity","AdafruitMotorShield")
