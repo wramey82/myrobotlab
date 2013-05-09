@@ -79,6 +79,19 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Cortex" workingLevel="3">
+      <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Cron" workingLevel="2">
       <dependsOn>
       	 <description>general clock and event producer
