@@ -330,7 +330,7 @@ public class ServiceTest {
 		Runtime.releaseAll();
 		log.warn("testremoveListener begin-------------");
 	}
-
+/*
 	@Test
 	public final void remoteThrow() throws InterruptedException {
 		log.warn("remoteThrow begin-------------");
@@ -343,15 +343,6 @@ public class ServiceTest {
 		remote01.startService();
 		catcher01.startService();
 		thrower01.startService();
-
-		/*
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 		
 		// set addListener list
 		thrower01.addListener("throwInteger", "catcher01", "catchInteger",Integer.class);
@@ -417,7 +408,7 @@ public class ServiceTest {
 		Thread.sleep(1000); // wait a second for OS to free bound udp port
 		log.warn("remoteThrow end-------------");
 	}
-	
+	*/
 	
 
 	@Test
