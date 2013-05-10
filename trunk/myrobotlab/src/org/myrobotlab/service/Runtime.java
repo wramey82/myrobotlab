@@ -15,7 +15,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
+
+import javax.swing.JOptionPane;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
@@ -92,6 +96,47 @@ public class Runtime extends Service {
 	 * The singleton of this class.
 	 */
 	private static Runtime localInstance = null;
+	
+	private transient static final Timer timer = new Timer();
+	private transient static int autoUpdateCheckIntervalSeconds = 30; 
+
+	public static void startAutoUpdate(int seconds) {
+		autoUpdateCheckIntervalSeconds = seconds;
+		timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+	}
+	
+	public static void stopAutoUpdate()
+	{
+		timer.cancel();
+		timer.purge();
+	}
+
+	static class AutoUpdate extends TimerTask {
+
+		@Override
+		public void run() {
+			Runtime.getInstance().setStatus("starting auto-update check");
+			
+			String newVersion = Runtime.getBleedingEdgeVersionString();
+			String currentVersion = FileIO.getResourceFile("version.txt");
+			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
+			if (newVersion == null)
+			{
+				Runtime.getInstance().setStatus("newVersion == null - nothing available");
+			} else if (currentVersion.compareTo(newVersion) >= 0) {
+				Runtime.getInstance().setStatus("no updates available");
+			} else {
+				Runtime.getInstance().setStatus(String.format("updating with %s", newVersion));
+				// Custom button text
+				timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+				Runtime.getBleedingEdgeMyRobotLabJar();
+				Runtime.restart("moveUpdate");
+
+			}
+			
+			timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+		}
+	}
 
 	/**
 	 * Constructor.
@@ -693,8 +738,8 @@ public class Runtime extends Service {
 	 * to save the Runtime for last and broadcast all the services being
 	 * released
 	 * 
-	 * FIXME - send SHUTDOWN event to all running services
-	 * with a timeout period - end with System.exit()
+	 * FIXME - send SHUTDOWN event to all running services with a timeout period
+	 * - end with System.exit()
 	 */
 	public static void releaseAll() /* local only? YES !!! LOCAL ONLY !! */
 	{
@@ -1257,8 +1302,8 @@ public class Runtime extends Service {
 
 	static public ServiceInterface createAndStart(String name, String type) {
 		return createAndStart(name, type, null);
-	}	
-	
+	}
+
 	/**
 	 * 
 	 * @param name
@@ -1267,13 +1312,12 @@ public class Runtime extends Service {
 	 */
 	static public ServiceInterface createAndStart(String name, String type, ServiceInterface in) {
 		ServiceInterface s = null;
-		if (in != null)
-		{
+		if (in != null) {
 			s = in;
 		} else {
 			s = create(name, type);
 		}
-		
+
 		if (s == null) {
 			log.error("cannot start service " + name);
 			return null;
@@ -1716,106 +1760,94 @@ public class Runtime extends Service {
 		return serviceInfo;
 	}
 
-	//public static String newRMLInstanceCommandLineTemplate = " -classpath \"./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s\" -Djava.library.path=\"./libraries/native/%2$s%1$s\" org.myrobotlab.service.Runtime -service %4$s -logToConsole";
+	// public static String newRMLInstanceCommandLineTemplate =
+	// " -classpath \"./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s\" -Djava.library.path=\"./libraries/native/%2$s%1$s\" org.myrobotlab.service.Runtime -service %4$s -logToConsole";
 
 	public static ArrayList<String> buildMLRCommandLine(HashMap<String, String> services, String runtimeName) {
-		
+
 		ArrayList<String> ret = new ArrayList<String>();
 
 		// library path
 		String platform = String.format("%s.%s.%s", Platform.getArch(), Platform.getBitness(), Platform.getOS());
-		String libraryPath = String.format("-Djava.library.path=\"./libraries/native/%s\"", platform);	
+		String libraryPath = String.format("-Djava.library.path=\"./libraries/native/%s\"", platform);
 		ret.add(libraryPath);
-		
+
 		// class path
-		String systemClassPath = System.getProperty("java.class.path");	 
+		String systemClassPath = System.getProperty("java.class.path");
 		ret.add("-classpath");
-		String classPath = String.format("./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s", Platform.getClassPathSeperator(), platform, systemClassPath) ;
+		String classPath = String.format("./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s", Platform.getClassPathSeperator(), platform, systemClassPath);
 		ret.add(classPath);
-		
+
 		ret.add("org.myrobotlab.service.Runtime");
-		
-		//----- application level params --------------
-		
+
+		// ----- application level params --------------
+
 		// services
 		if (services.size() > 0) {
 			ret.add("-service");
-			for (Map.Entry<String,String> o : services.entrySet())
-			{
+			for (Map.Entry<String, String> o : services.entrySet()) {
 				ret.add(o.getKey());
 				ret.add(o.getValue());
 			}
 		}
-		
+
 		// runtime name
-		if (runtimeName != null)
-		{
+		if (runtimeName != null) {
 			ret.add("-runtimeName");
 			ret.add(runtimeName);
 		}
-		
-		
-		// logLevel
-		
-		
-		// logToConsole
-		//ret.add("-logToConsole");
-		
 
-		
+		// logLevel
+
+		// logToConsole
+		// ret.add("-logToConsole");
+
 		return ret;
 	}
-	
+
 	// TODO - load it up in gui & send it out
 	public static void spawnRemoteMRL(String runtimeName) {
 		HashMap<String, String> services = new HashMap<String, String>();
 		services.put("remote", "RemoteAdapter");
 		newMRLInstance(buildMLRCommandLine(services, runtimeName));
-	}	
+	}
 
 	public static void newMRLInstance(ArrayList<String> args) {
 		try {
-			
-			
+
 			String separator = System.getProperty("file.separator");
-			//String classpath = System.getProperty("java.class.path");
+			// String classpath = System.getProperty("java.class.path");
 			String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
 			// ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp",
 			// classpath, clazz.getCanonicalName());
 			args.add(0, path);
-			
+
 			log.info(Arrays.toString(args.toArray()));
 			ProcessBuilder processBuilder = new ProcessBuilder(args);
 			processBuilder.directory(new File(System.getProperty("user.dir")));
 			processBuilder.redirectErrorStream(true);
 			Process process = processBuilder.start();
-			//System.out.print(process.getOutputStream());
-			
-		      // TODO - Read out dir output
+			// System.out.print(process.getOutputStream());
+
+			// TODO - Read out dir output
 			/*
-	        InputStream is = process.getInputStream();
-	        InputStreamReader isr = new InputStreamReader(is);
-	        BufferedReader br = new BufferedReader(isr);
-	        String line;
-	        //System.out.printf("Output of running %s is:\n", Arrays.toString(buildMLRCommandLine()));
-	        while ((line = br.readLine()) != null) {
-	            System.out.println(line);
-	        }
-	        */
-	        
-	        //Wait to get exit value
+			 * InputStream is = process.getInputStream(); InputStreamReader isr
+			 * = new InputStreamReader(is); BufferedReader br = new
+			 * BufferedReader(isr); String line;
+			 * //System.out.printf("Output of running %s is:\n",
+			 * Arrays.toString(buildMLRCommandLine())); while ((line =
+			 * br.readLine()) != null) { System.out.println(line); }
+			 */
+
+			// Wait to get exit value
 			/*
-	        try {
-	            int exitValue = process.waitFor();
-	            System.out.println("\n\nExit Value is " + exitValue);
-	        } catch (InterruptedException e) {
-	            // TODO Auto-generated catch block
-	            e.printStackTrace();
-	        }
-	        
-			process.waitFor();
-			System.out.println("Fin");
-			*/
+			 * try { int exitValue = process.waitFor();
+			 * System.out.println("\n\nExit Value is " + exitValue); } catch
+			 * (InterruptedException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); }
+			 * 
+			 * process.waitFor(); System.out.println("Fin");
+			 */
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
