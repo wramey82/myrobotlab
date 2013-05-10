@@ -825,10 +825,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			runtime.saveAll();
 		} else if ("load".equals(cmd)) {
 			runtime.loadAll();
+			/*
 		} else if ("check for updates".equals(cmd)) {
 			runtime = Runtime.getInstance();
 			send(runtime.getName(), "checkForUpdates");
-		} else if ("update all".equals(cmd)) {
+			*/
+		} else if ("install latest".equals(cmd)) {
 			runtime.updateAll();
 		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR) || cmd.equals(Level.FATAL)) {
 			// TODO this needs to be changed into something like tryValueOf(cmd)
@@ -897,17 +899,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @param parentMenu
 	 */
 	private void buildUpdatesMenu(JMenu parentMenu) {
-		JMenuItem mi = new JMenuItem("check for updates");
+		JMenuItem mi = new JMenuItem("install latest");
+		mi = new JMenuItem("install latest");
 		mi.addActionListener(this);
-		parentMenu.add(mi);
 
-		mi = new JMenuItem("update all");
-		mi.addActionListener(this);
-		parentMenu.add(mi);
-
-		mi = new JMenuItem("install all");
-		mi.addActionListener(this);
-		parentMenu.add(mi);
 	}
 
 	/**
