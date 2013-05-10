@@ -26,6 +26,7 @@
 package org.myrobotlab.service;
 
 import static org.myrobotlab.service.OpenCV.BACKGROUND;
+import static org.myrobotlab.service.OpenCV.PART;
 import static org.myrobotlab.service.OpenCV.FILTER_BACKGROUND_SUBTRACTOR_MOG2;
 import static org.myrobotlab.service.OpenCV.FILTER_DILATE;
 import static org.myrobotlab.service.OpenCV.FILTER_ERODE;
@@ -146,19 +147,6 @@ public class Tracking extends Service {
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
 	}
-	
-	// set SubServiceNames....
-	// TODO - framework? requestService(name, type)
-	// TODO renameService()  globalRename(name, newName)
-	/*
-	public void createAndStartSubServices() {
-		xpid = (PID) Runtime.createAndStart(xpidName, "PID");
-		ypid = (PID) Runtime.createAndStart(ypidName, "PID");
-		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
-
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
-	}
-	*/
 	
 	public void startService()
 	{	super.startService();
@@ -423,7 +411,8 @@ public class Tracking extends Service {
 				if (numberOfNewObjects == 0)
 				{
 					// process background
-					data.putAttribute(BACKGROUND);
+					//data.putAttribute(BACKGROUND);
+					data.putAttribute(PART, BACKGROUND);
 					invoke("toProcess", data);
 					// ready to search foreground
 					searchForeground();
@@ -437,7 +426,7 @@ public class Tracking extends Service {
 				// LET OTHER THREAD DO IT
 				if (numberOfNewObjects > 0)
 				{
-					data.putAttribute(FOREGROUND);
+					data.putAttribute(PART, FOREGROUND);
 					invoke("toProcess", data);
 				}// else TODO - processBackground(data) <- on a regular interval (addToSet) !!!!!!
 			}
@@ -469,11 +458,6 @@ public class Tracking extends Service {
 		setStatus(state);
 	}
 	
-	public void setStatus(String status) {
-		log.info(status);
-		invoke("publishStatus", status);
-	}
-
 	// ---------------  publish methods begin ----------------------------
 	public OpenCVData toProcess (OpenCVData data){
 		return data;
@@ -497,9 +481,6 @@ public class Tracking extends Service {
 		invoke("publishFrame", image);
 	}
 
-	public String publishStatus(String status) {
-		return status;
-	}
 	
 	@Override
 	public String getToolTip() {

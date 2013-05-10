@@ -64,11 +64,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
 
 	// FIXME - ok - use awt - use mrl pojo's if expected to serialize to Android
-	// TODO - publish MRL objects - TODO make SerializableImage bundle with Object map for data publishing
+	// TODO - publish MRL objects - TODO make SerializableImage bundle with
+	// Object map for data publishing
 	// Stabalize with attributes of Object Map defined in OpenCV
 
-	//BufferedImage frameBuffer = null;
-	
+	// BufferedImage frameBuffer = null;
+
 	boolean useMinArea = true;
 
 	public boolean publishBoundingBox = true;
@@ -83,35 +84,35 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 	boolean isMinArea;
 	boolean isMaxArea;
-		
+
 	transient IplImage grey = null;
-	//transient IplImage display = null;
+	// transient IplImage display = null;
 	transient IplImage dst = null;
 	transient CvSeq contourPointer = new CvSeq();
 	transient CvPoint drawPoint0 = new CvPoint(0, 0);
 	transient CvPoint drawPoint1 = new CvPoint(0, 0);
 	transient CvMemStorage cvStorage = null;
-	
 
-	public OpenCVFilterFindContours(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterFindContours(VideoProcessor vp, String name, HashMap<String, IplImage> source, String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) { 
-		
+	public BufferedImage display(IplImage image, OpenCVData data) {
+
 		BufferedImage frameBuffer = image.getBufferedImage();
 		Graphics2D g = frameBuffer.createGraphics();
 		g.setColor(Color.green);
-		ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
-		if (boxes != null){
-			for (Rectangle box:boxes)
-			{
-				g.drawRect(box.x, box.y, box.width, box.height);
+		if (data != null) {
+			ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
+			if (boxes != null) {
+				for (Rectangle box : boxes) {
+					g.drawRect(box.x, box.y, box.width, box.height);
+				}
+				g.drawString(String.format("cnt %d", boxes.size()), 10, 10);
+			} else {
+				g.drawString("null", 10, 10);
 			}
-			g.drawString(String.format("cnt %d",boxes.size()), 10, 10);
-		} else {
-			g.drawString("null", 10, 10);
 		}
 		return frameBuffer;
 	}
@@ -135,9 +136,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 				// FIXME - mark centeroid
 				CvRect rect = cvBoundingRect(contour, 0);
-				
+
 				minArea = 600;
-				
+
 				// find all the avg color of each polygon
 				// cxcore.cvZero(polyMask);
 				// cvDrawContours(polyMask, points, CvScalar.WHITE,
@@ -147,11 +148,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// CvScalar avg = cxcore.cvAvg(image, polyMask); - good idea -
 				// but not implemented
 
-				//log.error("{}", rect);
+				// log.error("{}", rect);
 				// size filter
 				if (useMinArea) {
 					isMinArea = (rect.width() * rect.height() > minArea) ? true : false;
-					//log.error("{} {}", isMinArea, rect.width() * rect.height());
+					// log.error("{} {}", isMinArea, rect.width() *
+					// rect.height());
 				} else {
 					useMinArea = true;
 				}
@@ -161,17 +163,17 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				} else {
 					isMaxArea = true;
 				}
-	
+
 				if (isMinArea && isMaxArea) {
-					
-					//data = new OpenCVData();
-					
+
+					// data = new OpenCVData();
+
 					if (publishBoundingBox) {
 
 						Rectangle boundingBox = OpenCV.cvToAWT(rect);
 						data.add(boundingBox);
 					}
-					
+
 					if (publishPolygon) {
 						CvSeq points = cvApproxPoly(contour, Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contour) * 0.02, 1);
 					}
@@ -179,13 +181,21 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 					// iterate through points - points.total() build awt Polygon
 					// polygons.add(polygon);
 
-					//polygons.add(new Polygon(rect, null, (cvCheckContourConvexity(points) == 1) ? true : false, cvPoint(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2), points.total()));
+					// polygons.add(new Polygon(rect, null,
+					// (cvCheckContourConvexity(points) == 1) ? true : false,
+					// cvPoint(rect.x() + rect.width() / 2, rect.y() +
+					// rect.height() / 2), points.total()));
 
-					/*  WRONG FIXME - post processing should be done in Java on the buffered image !!!!S
-					cvPutText(display, " " + points.total() + " " + (rect.x() + rect.width() / 2) + "," + (rect.y() + rect.height() / 2) + " " + rect.width() + "x" + rect.height()
-							+ "=" + (rect.width() * rect.height()) + " " + " " + cvCheckContourConvexity(points), cvPoint(rect.x() + rect.width() / 2, rect.y()), font,
-							CvScalar.WHITE);
-					*/ 
+					/*
+					 * WRONG FIXME - post processing should be done in Java on
+					 * the buffered image !!!!S cvPutText(display, " " +
+					 * points.total() + " " + (rect.x() + rect.width() / 2) +
+					 * "," + (rect.y() + rect.height() / 2) + " " + rect.width()
+					 * + "x" + rect.height() + "=" + (rect.width() *
+					 * rect.height()) + " " + " " +
+					 * cvCheckContourConvexity(points), cvPoint(rect.x() +
+					 * rect.width() / 2, rect.y()), font, CvScalar.WHITE);
+					 */
 				}
 
 				// cvPutText(display, " " + points.total() + " " + (rect.x() *
@@ -201,27 +211,26 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				// rect.width()/2,rect.y()), font, CvScalar.WHITE);
 
 				/*
-				drawPoint0.x(rect.x());
-				drawPoint0.y(rect.y());
+				 * drawPoint0.x(rect.x()); drawPoint0.y(rect.y());
+				 * 
+				 * drawPoint1.x(rect.x() + rect.width()); drawPoint1.y(rect.y()
+				 * + rect.height());
+				 * 
+				 * cvDrawRect(display, drawPoint0, drawPoint1, CvScalar.RED, 1,
+				 * 8, 0);
+				 */
 
-				drawPoint1.x(rect.x() + rect.width());
-				drawPoint1.y(rect.y() + rect.height());
-
-				cvDrawRect(display, drawPoint0, drawPoint1, CvScalar.RED, 1, 8, 0);
-				*/
-
-				
 				// invoke("publish", (Object)rectangle);
 
 			}
 			contour = contour.h_next();
 		}
 
-		//if (publishOpenCVData) invoke("publishOpenCVData", data);
+		// if (publishOpenCVData) invoke("publishOpenCVData", data);
 
 		// cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
 		// log.error("x");
-		cvClearMemStorage(cvStorage); 
+		cvClearMemStorage(cvStorage);
 		return image;
 	}
 
@@ -231,10 +240,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			cvStorage = cvCreateMemStorage(0);
 		}
 
-			grey = cvCreateImage(cvGetSize(image), 8, 1);
-			//display = cvCreateImage(cvGetSize(frame), 8, 3);
+		grey = cvCreateImage(cvGetSize(image), 8, 1);
+		// display = cvCreateImage(cvGetSize(frame), 8, 3);
 
-		
 	}
 
 }

@@ -103,6 +103,7 @@ public class OpenCV extends VideoSource {
 	
 	transient final static public String FOREGROUND = "foreground";
 	transient final static public String BACKGROUND = "background";
+	transient final static public String PART = "part";
 	
 
 	transient public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
