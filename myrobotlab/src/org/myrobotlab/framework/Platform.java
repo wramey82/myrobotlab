@@ -2,6 +2,8 @@ package org.myrobotlab.framework;
 
 import java.io.Serializable;
 
+import org.myrobotlab.fileLib.FileIO;
+
 public class Platform implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -21,17 +23,23 @@ public class Platform implements Serializable {
 	final public String arch;
 	final public int bitness;
 	final public String vmName;
+	final public String mrlVersion;
 
-	public Platform(String os, String arch, int bitness, String vmName) {
+	public Platform(String os, String arch, int bitness, String vmName, String mrlVersion) {
 		this.os = os;
 		this.arch = arch;
 		this.bitness = bitness;
 		this.vmName = vmName;
+		this.mrlVersion = mrlVersion;
 	}
 
 	// -------------pass through begin -------------------
 	public static Platform getPlatform() {
-		return new Platform(getOS(), getArch(), getBitness(), getVMName());
+		return new Platform(getOS(), getArch(), getBitness(), getVMName(), getMRLVersion());
+	}
+
+	private static String getMRLVersion() {
+		return FileIO.getResourceFile("version.txt");
 	}
 
 	public static String getOS() {
