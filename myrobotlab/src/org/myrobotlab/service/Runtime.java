@@ -105,6 +105,11 @@ public class Runtime extends Service {
 		timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 	}
 	
+	public static String getVersion()
+	{
+		return FileIO.getResourceFile("version.txt");
+	}
+	
 	public static void stopAutoUpdate()
 	{
 		timer.cancel();
@@ -233,6 +238,7 @@ public class Runtime extends Service {
 	 */
 	@Override
 	public void stopService() {
+		timer.cancel(); // stop all scheduled jobs
 		super.stopService();
 		localInstance = null;
 	}
@@ -1388,18 +1394,17 @@ public class Runtime extends Service {
 
 		// FIXME - not needed - set defaults [update all = true]
 		if (getNewRepoData) {
-			serviceInfo.getRepoServiceData("serviceData.xml");
+			serviceInfo.getRepoFile("serviceData.xml");
 		}
 		if (!serviceInfo.hasErrors()) {
 			serviceInfo.update();
-			if (!serviceInfo.hasErrors()) {
-				return;// true !
-			}
+			Runtime.getBleedingEdgeMyRobotLabJar();
+			Runtime.restart("moveUpdate");
 		}
 
 		List<String> errors = serviceInfo.getErrors();
 		for (int i = 0; i < errors.size(); ++i) {
-			log.error(errors.get(i));
+			setError(errors.get(i));
 		}
 	}
 
@@ -1679,6 +1684,8 @@ public class Runtime extends Service {
 		}
 	}
 
+	// References : 
+	// http://java.dzone.com/articles/programmatically-restart-java
 	static public void restart(String restartScript) {
 		log.info("new components - restart?");
 

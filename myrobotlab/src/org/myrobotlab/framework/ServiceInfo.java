@@ -257,7 +257,7 @@ public class ServiceInfo implements Serializable {
 
 		if (!ret) {
 			log.warn("no local file found - fetching repo version");
-			ret = getRepoServiceData("serviceData.xml");
+			ret = getRepoFile("serviceData.xml");
 			// try again :)
 			if (ret) {
 				ret &= loadXML(serviceData, "serviceData.xml");
@@ -281,7 +281,7 @@ public class ServiceInfo implements Serializable {
 		String repoFileName = "serviceData.repo.xml";
 
 		// iterate through it and get all latest dependencies
-		boolean ret = getRepoServiceData(repoFileName);
+		boolean ret = getRepoFile(repoFileName);
 		ret &= loadXML(serviceDataFromRepo, repoFileName);
 
 		// iterate through services's dependencies
@@ -344,7 +344,7 @@ public class ServiceInfo implements Serializable {
 	 * @param localFileName
 	 * @return
 	 */
-	public boolean getRepoServiceData(String localFileName) {
+	public boolean getRepoFile(String localFileName) {
 		try {
 			// TODO this should be a configuration value of some sort
 			HTTPRequest http = new HTTPRequest("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/serviceData.xml");

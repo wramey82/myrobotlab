@@ -74,9 +74,6 @@ public class RemoteAdapter extends Service {
 	transient UDPListener udpListener = null;
 
 	// FIXME - all port & ip data needs to be only in the threads
-	public int TCPPort = 6767;
-	public int UDPPort = 6767;
-	public int UDPStringPort = 6668;
 	public String serverIP = "0.0.0.0";
 
 	public RemoteAdapter(String n) {
@@ -102,9 +99,12 @@ public class RemoteAdapter extends Service {
 		transient ServerSocket serverSocket = null;
 		ObjectOutputStream out;
 		ObjectInputStream in;
+		int listeningPort;
 
-		public TCPListener(String n, RemoteAdapter s) {
-			super(n);
+
+		public TCPListener(int listeningPort, RemoteAdapter s) {
+			super(String.format("%s.tcp.%d",s.getName(), listeningPort));
+			this.listeningPort = listeningPort;
 			myService = s;
 		}
 
@@ -122,7 +122,7 @@ public class RemoteAdapter extends Service {
 		public void run() {
 			try {
 
-				serverSocket = new ServerSocket(TCPPort, 10);
+				serverSocket = new ServerSocket(listeningPort, 10);
 
 				log.info(getName() + " TCPListener listening on " + serverSocket.getLocalSocketAddress());
 				myService.setStatus(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
@@ -148,9 +148,11 @@ public class RemoteAdapter extends Service {
 
 		DatagramSocket socket = null;
 		RemoteAdapter myService = null;
+		int listeningPort;
 
-		public UDPListener(String n, RemoteAdapter s) {
-			super(n);
+		public UDPListener(int listeningPort, RemoteAdapter s) {
+			super(String.format("%s.usp.%d",s.getName(), listeningPort));
+			this.listeningPort = listeningPort;
 			myService = s;
 		}
 
@@ -166,7 +168,7 @@ public class RemoteAdapter extends Service {
 		public void run() {
 
 			try {
-				socket = new DatagramSocket(UDPPort);
+				socket = new DatagramSocket(listeningPort);
 
 				log.info(getName() + " UDPListener listening on " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 
@@ -222,25 +224,22 @@ public class RemoteAdapter extends Service {
 
 	@Override
 	public void startService() {
-		// FIXME - block until isReady on the ServerSocket
-		if (!isRunning()) {
-			super.startService();
-			udpListener = new UDPListener(getName() + "_udpMsgListener", this);
-			udpListener.start();
-			tcpListener = new TCPListener(getName() + "_tcpMsgListener", this);
-			tcpListener.start();
-			// block until actually listening
-
-		} else {
-			log.warn("RemoteAdapter " + getName() + " is already started");
-		}
+		super.startService();
+		startListening(6767);
 	}
-
-	@Override
-	public void stopService() {
-
-		super.stopService();
-
+	
+	public void startListening(int listeningPort)
+	{
+		stopListening();
+		udpListener = new UDPListener(listeningPort, this);
+		udpListener.start();
+		tcpListener = new TCPListener(listeningPort, this);
+		tcpListener.start();
+		
+	}
+	
+	public void stopListening()
+	{
 		if (tcpListener != null) {
 			tcpListener.interrupt();
 			tcpListener.shutdown();
@@ -252,12 +251,12 @@ public class RemoteAdapter extends Service {
 			udpListener = null;
 		}
 
-		if (thisThread != null) {
-			thisThread.interrupt();
-		}
+	}
 
-		thisThread = null;
-
+	@Override
+	public void stopService() {
+		stopListening();
+		super.stopService();
 	}
 
 	@Override
@@ -265,19 +264,6 @@ public class RemoteAdapter extends Service {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
 
-	// FIXME - restart listening threads whenever set port is called -
-	// otherwise its meaningless
-	public void setUDPPort(int port) {
-		UDPPort = port;
-	}
-
-	public void setTCPPort(int port) {
-		TCPPort = port;
-	}
-
-	public void setUDPStringPort(int port) {
-		UDPStringPort = port;
-	}
 
 	static public ArrayList<InetAddress> getLocalAddresses() {
 		ArrayList<InetAddress> ret = new ArrayList<InetAddress>();
