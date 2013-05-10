@@ -1,6 +1,8 @@
 package org.myrobotlab.cortex;
 
 import static org.myrobotlab.service.Cortex.MEMORY_OPENCV_DATA;
+import static org.myrobotlab.service.OpenCV.PART;
+
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -48,9 +50,9 @@ public class Algorithm {// implements Runnable {
 		// OpenCV specific info "should" be in OpenCVData ... I would think - background and foreground are OpenCV specific
 		// or could be...
 		
-		Node background = new Node(Long.toString(data.getTimestamp()));
-		background.put(MEMORY_OPENCV_DATA, data);
-		memory.put("/present/background", background);
+		Node image = new Node(Long.toString(data.getTimestamp()));
+		image.put(MEMORY_OPENCV_DATA, data);
+		memory.put(String.format("/present/%s", data.getAttribute(PART)), image);
 		
 		
 		OpenCVData processed = processor.add(data.getInputImage());
