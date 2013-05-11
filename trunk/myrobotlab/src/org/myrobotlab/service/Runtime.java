@@ -1261,6 +1261,7 @@ public class Runtime extends Service {
 			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
 
 			log.info(cmdline.toString());
+			
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
 			// hack to reconcile the different ways os handle and expect
