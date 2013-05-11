@@ -53,7 +53,7 @@ public class LoggingLog4J extends Logging {
 	 * 
 	 * @param type
 	 * @param host
-	 * @param port
+	 * @param port 
 	 */
 	public void addAppender(String type, String host, String port) {
 		// same format as .configure()
