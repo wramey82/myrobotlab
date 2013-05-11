@@ -40,7 +40,7 @@ public class LoggingLog4J extends Logging {
 			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.INFO);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param type
@@ -52,10 +52,10 @@ public class LoggingLog4J extends Logging {
 	/**
 	 * 
 	 * @param type
-	 * @param host
-	 * @param port 
+	 * @param hostOrMultiFile
+	 * @param port
 	 */
-	public void addAppender(String type, String host, String port) {
+	public void addAppender(String type, String hostOrMultiFile, String port) {
 		// same format as .configure()
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		org.apache.log4j.Appender appender = null;
@@ -67,16 +67,23 @@ public class LoggingLog4J extends Logging {
 				appender = new ConsoleAppender(layout);
 				appender.setName(type);
 			} else if (Appender.REMOTE.equals(type)) {
-				appender = new SocketAppender(host, Integer.parseInt(port));
+				appender = new SocketAppender(hostOrMultiFile, Integer.parseInt(port));
 				appender.setName(type);
 			} else if (Appender.FILE.equals(type)) {
-				SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-				Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
-				TSFormatter.setCalendar(cal);
-				
-				appender = new RollingFileAppender(layout, String.format("%s%smyrobotlab.%s.log", System.getProperty("user.dir"), File.separator, TSFormatter.format(new Date())), false);
-				appender.setName(type);
-				
+				if (hostOrMultiFile != null) {
+					SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+					Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+					TSFormatter.setCalendar(cal);
+
+					appender = new RollingFileAppender(layout, String.format("%s%smyrobotlab.%s.log", System.getProperty("user.dir"), File.separator,
+							TSFormatter.format(new Date())), false);
+					appender.setName(type);
+				} else {
+					appender = new RollingFileAppender(layout, String.format("%s%smyrobotlab.log", System.getProperty("user.dir"), File.separator), false);
+					appender.setName(type);
+
+				}
+
 			} else {
 				log.error(String.format("attempting to add unkown type of Appender %1$s", type));
 				return;
@@ -103,7 +110,6 @@ public class LoggingLog4J extends Logging {
 		Logger.getRootLogger().removeAppender(name);
 	}
 
-
 	public void removeAllAppenders() {
 		Logger.getRootLogger().removeAllAppenders();
 	}
@@ -113,21 +119,18 @@ public class LoggingLog4J extends Logging {
 		Logger root = Logger.getRootLogger();
 		String level = root.getLevel().toString();
 		// FIXME - normalize
-		// if "something"  return Level.INFO
+		// if "something" return Level.INFO
 		return level;
 	}
 
 	@Override
 	public void addAppender(Object console) {
-		Logger.getRootLogger().addAppender((AppenderSkeleton)console);
+		Logger.getRootLogger().addAppender((AppenderSkeleton) console);
 	}
 
 	@Override
 	public void removeAppender(Object console) {
-		Logger.getRootLogger().removeAppender((AppenderSkeleton)console);
+		Logger.getRootLogger().removeAppender((AppenderSkeleton) console);
 	}
-	
-	
-
 
 }
