@@ -36,6 +36,8 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
 /**
@@ -49,6 +51,7 @@ import org.slf4j.Logger;
  * the first Service created It also wraps the real JVM Runtime object
  * 
  */
+@Root
 public class Runtime extends Service {
 	// TODO this should be something a little more unique - tied to version?
 	private static final long serialVersionUID = 1L;
@@ -98,10 +101,16 @@ public class Runtime extends Service {
 	 */
 	private static Runtime localInstance = null;
 	
+	
+	// auto update begin ------
+	//@Element
+	//private static boolean isAutoUpdateEnabled = false;
 	private transient static final Timer timer = new Timer();
-	private transient static int autoUpdateCheckIntervalSeconds = 30; 
+	 // default eveery 5 minutes 
+	private static int autoUpdateCheckIntervalSeconds = 300;
 
 	public static void startAutoUpdate(int seconds) {
+		//isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 	}
@@ -1262,6 +1271,10 @@ public class Runtime extends Service {
 				} else {
 					logging.addAppender(Appender.FILE);
 				}
+			}
+			
+			if (cmdline.containsKey("-autoUpdate")) {
+				startAutoUpdate(autoUpdateCheckIntervalSeconds);
 			}
 
 			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
