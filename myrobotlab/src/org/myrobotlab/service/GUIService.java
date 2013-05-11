@@ -822,14 +822,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// get local runtime instance
 		Runtime runtime = Runtime.getInstance();
 		if ("save".equals(cmd)) {
-			runtime.saveAll();
+			Runtime.saveAll();
 		} else if ("load".equals(cmd)) {
-			runtime.loadAll();
-			/*
-		} else if ("check for updates".equals(cmd)) {
-			runtime = Runtime.getInstance();
-			send(runtime.getName(), "checkForUpdates");
-			*/
+			Runtime.loadAll();
 		} else if ("install latest".equals(cmd)) {
 			runtime.updateAll();
 		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR) || cmd.equals(Level.FATAL)) {
