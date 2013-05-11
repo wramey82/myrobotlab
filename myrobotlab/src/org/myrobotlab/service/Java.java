@@ -22,11 +22,6 @@ import edu.rice.cs.dynamicjava.interpreter.InterpreterException;
 import edu.rice.cs.plt.io.IOUtil;
 import edu.rice.cs.plt.reflect.PathClassLoader;
 import edu.rice.cs.plt.text.ArgumentParser;
-//import org.java.core.Py;
-//import org.java.core.PyObject;
-//import org.java.core.PyString;
-//import org.java.core.PySystemState;
-//import org.java.util.JavaInterpreter;
 
 /**
  * @author GroG / raver1975
@@ -108,9 +103,6 @@ public class Java extends Service {
 		public void run() {
 			try {
 				executing = true;
-				 System.out.println("----------------");
-				 System.out.println(code);
-				 System.out.println("----------------");
 				if (code != null)
 					interp.interpret(code);
 			} catch (Exception e) {
@@ -228,15 +220,6 @@ public class Java extends Service {
 			
 		};
 		interp = new Interpreter(o, new PathClassLoader(cp));
-		// interp = new Interpreter();
-
-		// PySystemState sys = Py.getSystemState();
-		// if (rootPath != null) {
-		// sys.path.append(new PyString(rootPath));
-		// }
-		// if (modulesDir != null) {
-		// sys.path.append(new PyString(modulesDir));
-		// }
 
 		// add self reference
 		// Java scripts can refer to this service as 'java' regardless
@@ -252,14 +235,10 @@ public class Java extends Service {
 						this.getName());
 		// PyObject compiled = getCompiledMethod("initializeJava",
 		// selfReferenceScript, interp);
-		// System.out.println("----------------");
-		// System.out.println(selfReferenceScript);
-		// System.out.println("----------------");
 
 		try {
 			interp.interpret(selfReferenceScript);
 		} catch (InterpreterException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -288,7 +267,6 @@ public class Java extends Service {
 	 *            replace the current script with code
 	 */
 	public void exec(String code, boolean replace) {
-		// System.out.println("<"+code);
 		log.info(String.format("exec %s", code));
 		if (interp == null) {
 			createJavaInterpreter();
@@ -365,29 +343,24 @@ public class Java extends Service {
 		// use a compiled version to make it easier on us
 		// PyObject compiledObject = getCompiledMethod(msgHandle.toString(),
 		// String.format("%1$s()", msg.method), interp);
-		// System.out.println("----------------");
 		String fi = msg.sender + "." + String.format("%1$s()", msg.method)
 				+ ";";
-		// System.out.println(fi);
-		// System.out.println("----------------");
 		try {
 			interp.interpret(fi);
 		} catch (InterpreterException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// interp.exec(compiledObject);
 
 		return false;
 	}
 
-	/**
-	 * Get a compiled version of the java call.
-	 * 
-	 * @param msg
-	 * @param interp
-	 * @return
-	 */
+	// /**
+	// * Get a compiled version of the java call.
+	// *
+	// * @param msg
+	// * @param interp
+	// * @return
+	// */
 	// private static synchronized PyObject getCompiledMethod(String name,
 	// String code, JavaInterpreter interp) {
 	// // TODO change this from a synchronized method to a few blocks to
