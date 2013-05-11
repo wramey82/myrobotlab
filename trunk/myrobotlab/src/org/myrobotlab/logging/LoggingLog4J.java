@@ -1,6 +1,10 @@
 package org.myrobotlab.logging;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.SimpleTimeZone;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.ConsoleAppender;
@@ -66,7 +70,11 @@ public class LoggingLog4J extends Logging {
 				appender = new SocketAppender(host, Integer.parseInt(port));
 				appender.setName(type);
 			} else if (Appender.FILE.equals(type)) {
-				appender = new RollingFileAppender(layout, String.format("%1$s%2$smyrobotlab.log", System.getProperty("user.dir"), File.separator), false);
+				SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+				Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+				TSFormatter.setCalendar(cal);
+				
+				appender = new RollingFileAppender(layout, String.format("%s%smyrobotlab.%s.log", System.getProperty("user.dir"), File.separator, TSFormatter.format(new Date())), false);
 				appender.setName(type);
 				
 			} else {
