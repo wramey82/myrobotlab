@@ -1256,7 +1256,12 @@ public class Runtime extends Service {
 				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445");
 				logging.addAppender(Appender.REMOTE, host, port);
 			} else {
-				logging.addAppender(Appender.FILE);
+				if (cmdline.containsKey("-multiLog"))
+				{
+					logging.addAppender(Appender.FILE, "multiLog", null);
+				} else {
+					logging.addAppender(Appender.FILE);
+				}
 			}
 
 			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
