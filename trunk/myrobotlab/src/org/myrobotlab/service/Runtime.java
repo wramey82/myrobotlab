@@ -1240,6 +1240,7 @@ public class Runtime extends Service {
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
+		
 		Logging logging = LoggingFactory.getInstance();
 
 		try {
