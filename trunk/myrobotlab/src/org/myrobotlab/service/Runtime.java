@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,8 +19,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
-
-import javax.swing.JOptionPane;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
@@ -65,6 +64,8 @@ public class Runtime extends Service {
 	private static boolean needsRestart = false;
 
 	private static String runtimeName;
+	
+	private Date startDate = new Date();
 
 	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 
@@ -108,6 +109,21 @@ public class Runtime extends Service {
 	public static String getVersion()
 	{
 		return FileIO.getResourceFile("version.txt");
+	}
+	
+	public String getUptime()
+	{
+		Date now = new Date();
+		long diff = now.getTime() - startDate.getTime();
+		 
+		long diffSeconds = diff / 1000 % 60;
+		long diffMinutes = diff / (60 * 1000) % 60;
+		long diffHours = diff / (60 * 60 * 1000) % 24;
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(diffDays).append(" days ").append(diffHours).append(" hours ").append(diffMinutes).append(" minutes ").append(diffSeconds).append(" seconds ");
+		return sb.toString();
 	}
 	
 	public static void stopAutoUpdate()
