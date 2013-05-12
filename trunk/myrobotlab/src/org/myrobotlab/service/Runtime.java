@@ -162,6 +162,7 @@ public class Runtime extends Service {
 			{
 				runtime.setStatus("newVersion == null - nothing available");
 			} else if (currentVersion.compareTo(newVersion) >= 0) {
+				log.info("no updates");
 				runtime.setStatus("no updates available");
 			} else {
 				runtime.setStatus(String.format("updating with %s", newVersion));
@@ -172,7 +173,9 @@ public class Runtime extends Service {
 
 			}
 			
+			log.info("re-setting timer begin");
 			runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+			log.info("re-setting timer end");
 		}
 	}
 
