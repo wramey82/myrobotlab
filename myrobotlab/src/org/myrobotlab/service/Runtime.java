@@ -270,7 +270,11 @@ public class Runtime extends Service {
 	 */
 	@Override
 	public void stopService() {
-		timer.cancel(); // stop all scheduled jobs
+		if (timer != null)
+		{
+			timer.cancel(); // stop all scheduled jobs
+			timer.purge();
+		}
 		super.stopService();
 		localInstance = null;
 	}
