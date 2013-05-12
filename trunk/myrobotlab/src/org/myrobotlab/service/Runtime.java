@@ -105,14 +105,19 @@ public class Runtime extends Service {
 	// auto update begin ------
 	//@Element
 	//private static boolean isAutoUpdateEnabled = false;
-	private transient static final Timer timer = new Timer();
 	 // default eveery 5 minutes 
 	private static int autoUpdateCheckIntervalSeconds = 300;
 
 	public static void startAutoUpdate(int seconds) {
+		Runtime runtime = Runtime.getInstance();
+		if (runtime.timer == null)
+		{
+			runtime.timer = new Timer(String.format("%.timer", runtime.getName()));
+		}
 		//isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
-		timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+		// only runtime can auto-update
+		runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 	}
 	
 	public static String getVersion()
@@ -137,34 +142,36 @@ public class Runtime extends Service {
 	
 	public static void stopAutoUpdate()
 	{
-		timer.cancel();
-		timer.purge();
+		Runtime runtime = Runtime.getInstance();
+		runtime.timer.cancel();
+		runtime.timer.purge();
 	}
 
 	static class AutoUpdate extends TimerTask {
 
 		@Override
 		public void run() {
-			Runtime.getInstance().setStatus("starting auto-update check");
+			Runtime runtime = Runtime.getInstance();
+			runtime.setStatus("starting auto-update check");
 			
 			String newVersion = Runtime.getBleedingEdgeVersionString();
 			String currentVersion = FileIO.getResourceFile("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
 			if (newVersion == null)
 			{
-				Runtime.getInstance().setStatus("newVersion == null - nothing available");
+				runtime.setStatus("newVersion == null - nothing available");
 			} else if (currentVersion.compareTo(newVersion) >= 0) {
-				Runtime.getInstance().setStatus("no updates available");
+				runtime.setStatus("no updates available");
 			} else {
-				Runtime.getInstance().setStatus(String.format("updating with %s", newVersion));
+				runtime.setStatus(String.format("updating with %s", newVersion));
 				// Custom button text
-				timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+				runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 				Runtime.getBleedingEdgeMyRobotLabJar();
 				Runtime.restart("moveUpdate");
 
 			}
 			
-			timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+			runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 		}
 	}
 
@@ -203,7 +210,7 @@ public class Runtime extends Service {
 			return local.platform;
 		}
 
-		log.error("can't get local platform in service environment");
+		setError("can't get local platform in service environment");
 
 		return null;
 	}
@@ -218,7 +225,7 @@ public class Runtime extends Service {
 			return local.version;
 		}
 
-		log.error("can't get local version in service environment");
+		setError("can't get local version in service environment");
 
 		return null;
 	}
@@ -324,6 +331,8 @@ public class Runtime extends Service {
 		return java.lang.Runtime.getRuntime().freeMemory();
 	}
 
+	// Reference - cpu utilization http://www.javaworld.com/javaworld/javaqa/2002-11/01-qa-1108-cpu.html
+	
 	/**
 	 * 
 	 * @return
@@ -431,7 +440,7 @@ public class Runtime extends Service {
 
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
 		if (se == null) {
-			log.error("no service environment for {}", sw.getAccessURL());
+			setError(String.format("no service environment for %s", sw.getAccessURL()));
 			return;
 		}
 
