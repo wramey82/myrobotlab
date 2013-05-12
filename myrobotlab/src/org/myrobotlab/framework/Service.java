@@ -242,7 +242,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public URI url = null;
 	
-	public transient Timer timer = null;
+	public transient final Timer timer = new Timer(String.format("%s_timer", getName()));
 
 	transient protected CommunicationInterface cm = null;
 	/**
@@ -617,7 +617,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			timer.cancel();
 			timer.purge();
 		}
-		timer = null;
+
 		isRunning = false;
 		// stopping the phone
 		getComm().getComm().stopService();

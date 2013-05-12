@@ -110,11 +110,6 @@ public class Runtime extends Service {
 
 	public static void startAutoUpdate(int seconds) {
 		Runtime runtime = Runtime.getInstance();
-		if (runtime.timer == null)
-		{
-			runtime.timer = new Timer(String.format("%s_timer", runtime.getName()));
-			
-		}
 		//isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		// only runtime can auto-update
