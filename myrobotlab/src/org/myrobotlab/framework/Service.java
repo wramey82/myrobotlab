@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SimpleTimeZone;
+import java.util.Timer;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
@@ -240,6 +241,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	protected boolean allowExport = true; 
 	
 	public URI url = null;
+	
+	public transient Timer timer = null;
 
 	transient protected CommunicationInterface cm = null;
 	/**
@@ -609,6 +612,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void stopService() {
+		if (timer != null)
+		{
+			timer.cancel();
+			timer.purge();
+		}
+		timer = null;
 		isRunning = false;
 		// stopping the phone
 		getComm().getComm().stopService();

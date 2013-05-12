@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="org.drjava.java" module="java" status="release" revision="20120818">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="asm-3.1" type="jar"/>
+        <artifact name="dynamicjava-base" type="jar"/>
+        <artifact name="plt" type="jar"/>
+    </publications>
+</ivy-module>

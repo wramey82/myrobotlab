@@ -208,6 +208,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Java" workingLevel="3">
+      <dependsOn>
+         <description>Java IDE - created by Raver1975 !  WooHoo !
+      	 </description>        
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.drjava.java</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.JFugue" workingLevel="3">
       <dependsOn>
          <description>music and tone generation service.

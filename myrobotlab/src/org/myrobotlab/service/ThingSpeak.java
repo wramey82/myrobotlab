@@ -37,7 +37,7 @@ public class ThingSpeak extends Service {
 	long lastUpdate = 0;
 
 	@Element
-	int intervalSeconds = 15;
+	int intervalSeconds = 20;
 
 	public Integer getIntervalSeconds() {
 		return intervalSeconds;
