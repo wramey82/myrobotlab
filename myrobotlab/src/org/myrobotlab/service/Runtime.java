@@ -74,6 +74,7 @@ public class Runtime extends Service {
 
 	// ---- rte members end ------------------------------
 
+	
 	// ---- Runtime members begin -----------------
 	public final ServiceInfo serviceInfo = new ServiceInfo();
 
