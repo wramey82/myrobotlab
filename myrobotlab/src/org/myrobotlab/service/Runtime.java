@@ -112,7 +112,7 @@ public class Runtime extends Service {
 		Runtime runtime = Runtime.getInstance();
 		if (runtime.timer == null)
 		{
-			runtime.timer = new Timer(String.format("%.timer", runtime.getName()));
+			runtime.timer = new Timer(String.format("%s_timer", runtime.getName()));
 		}
 		//isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
