@@ -94,6 +94,6 @@ def input():
 # create a message route from opencv to python so we can see the coordinate locations
 opencv.addListener("publishOpenCVData", python.name, "input", OpenCVData().getClass());
 
-opencv.setCameraIndex(1)
+# opencv.setCameraIndex(1)
 
 opencv.capture()
