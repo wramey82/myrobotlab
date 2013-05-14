@@ -3,18 +3,9 @@
 # change parameters depending on your pan tilt, pins and
 # Arduino details
 
-arduino = Runtime.create("arduino","Arduino")
-
-rotation = Runtime.create("rotation","Servo")
-neck = Runtime.create("neck","Servo")
-
-
 tracker = Runtime.create("tracker","Tracking")
-
 tracker.setRestPosition(90, 90)
 tracker.setSerialPort("COM7")
-
-
 
 # setXMinMax & setYMinMax (min, max) - this will set the min and maximum
 # x value it will send the servo - typically this is not needed
