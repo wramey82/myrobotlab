@@ -5,7 +5,7 @@
 
 tracker = Runtime.create("tracker","Tracking")
 tracker.setRestPosition(90, 90)
-tracker.setSerialPort("COM7")
+tracker.setSerialPort("/dev/ttyUSB1")
 
 # setXMinMax & setYMinMax (min, max) - this will set the min and maximum
 # x value it will send the servo - typically this is not needed

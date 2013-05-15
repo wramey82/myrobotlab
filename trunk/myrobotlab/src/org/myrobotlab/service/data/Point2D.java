@@ -1,7 +1,11 @@
 package org.myrobotlab.service.data;
 
+import java.io.Serializable;
 
-public class Point2D {
+
+public class Point2D implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public long timestamp;
 
