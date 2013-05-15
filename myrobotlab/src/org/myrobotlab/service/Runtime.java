@@ -1593,17 +1593,7 @@ public class Runtime extends Service {
 		return si;
 	}
 
-	/**
-	 * 
-	 */
-	public static void installLatestAll() {
-		// FIXME - implement & updateAll which updates all "installed"
-		// serviceInfo.getRepoServiceData();
-
-		// ServiceInfo.getInstance().getRepoLatestDependencies(org)
-
-	}
-
+	
 	/**
 	 * 
 	 * @param fullTypeName
