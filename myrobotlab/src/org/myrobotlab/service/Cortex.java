@@ -126,6 +126,9 @@ public class Cortex extends Service implements MemoryChangeListener {
 	}
 
 	Algorithm algorithm;
+	public String serialPort;
+	
+	//public setSerial
 	
 	public boolean attach() {
 		if (tracking == null) {
@@ -252,10 +255,10 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 	public void setState(String newState) {
 		state = newState;
-		setStatus(state);
+		info(state);
 	}
 
-	public void setStatus(String status) {
+	public void info(String status) {
 		log.info(status);
 		invoke("publishStatus", status);
 	}
@@ -300,6 +303,19 @@ public class Cortex extends Service implements MemoryChangeListener {
 	 * public void cameraOff() { tracking. }
 	 */
 
+
+	public OpenCV getProcessor() {
+		return processor;
+	}
+
+	public Memory getMemory() {
+		return memory;
+	}
+
+	public Tracking getTracking() {
+		return tracking;
+	}
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
@@ -320,16 +336,5 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 	}
 
-	public OpenCV getProcessor() {
-		return processor;
-	}
-
-	public Memory getMemory() {
-		return memory;
-	}
-
-	public Tracking getTracking() {
-		return tracking;
-	}
 
 }

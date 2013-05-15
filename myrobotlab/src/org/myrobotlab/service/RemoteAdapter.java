@@ -125,13 +125,13 @@ public class RemoteAdapter extends Service {
 				serverSocket = new ServerSocket(listeningPort, 10);
 
 				log.info(getName() + " TCPListener listening on " + serverSocket.getLocalSocketAddress());
-				myService.setStatus(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
+				myService.info(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
 
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					Communicator comm = (Communicator) cm.getComm();
 					URI url = new URI("tcp://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
-					myService.setStatus(String.format("new connection %s", url.toString()));
+					myService.info(String.format("new connection %s", url.toString()));
 					comm.addClient(url, clientSocket);
 					//broadcastState(); don't broadcast unless requested to
 				}

@@ -1958,19 +1958,28 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * set status broadcasts an information string to any subscribers
 	 * @param msg
 	 */
-	public void setStatus(String msg)
+	
+	private long lastInfo = 0;
+	private long lastWarn = 0;
+	private long lastError = 0;
+
+	public void info(String msg)
 	{
 		log.info(msg);
-		invoke("publishStatus", "info",  msg);
+		// can only read "so" fast
+		if (System.currentTimeMillis() - lastInfo > 300)
+		{
+			invoke("publishStatus", "info",  msg);
+		}
 	}
 
-	public void setError(String msg)
+	public void error(String msg)
 	{
 		log.error(msg);
 		invoke("publishStatus", "error", msg);
 	}
 	
-	public void setWarning(String msg)
+	public void warn(String msg)
 	{
 		log.error(msg);
 		invoke("publishStatus", "warn", msg);

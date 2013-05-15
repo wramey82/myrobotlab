@@ -130,10 +130,8 @@ public class OpenCV extends VideoSource {
 	public OpenCV(String n) {
 		super(n, OpenCV.class.getCanonicalName());
 		
-		load();
-	
+		load(); // FIXME - go into service frame work .. after construction .. somewhere ...
 		videoProcessor.setOpencv(this);
-		//videoProcessor.addFilter("input", "Input");
 	}
 
 	@Override
