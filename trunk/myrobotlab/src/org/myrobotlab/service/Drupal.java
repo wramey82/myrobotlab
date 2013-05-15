@@ -157,7 +157,7 @@ public class Drupal extends Service {
 	public CleverBot cleverbot = new CleverBot(cleverbotServiceName);
 
 	HashMap<String, String> usedContexts = new HashMap<String, String>();
-	boolean useGreeting = false;
+	boolean useGreeting = true;
 
 	// FIXME - NON context - when a name of someone online is addressed directly
 	// - its rude to respond

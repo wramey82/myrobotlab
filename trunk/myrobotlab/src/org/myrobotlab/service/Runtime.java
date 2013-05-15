@@ -149,19 +149,19 @@ public class Runtime extends Service {
 		@Override
 		public void run() {
 			Runtime runtime = Runtime.getInstance();
-			runtime.setStatus("starting auto-update check");
+			runtime.info("starting auto-update check");
 			
 			String newVersion = Runtime.getBleedingEdgeVersionString();
 			String currentVersion = FileIO.getResourceFile("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
 			if (newVersion == null)
 			{
-				runtime.setStatus("newVersion == null - nothing available");
+				runtime.info("newVersion == null - nothing available");
 			} else if (currentVersion.compareTo(newVersion) >= 0) {
 				log.info("no updates");
-				runtime.setStatus("no updates available");
+				runtime.info("no updates available");
 			} else {
-				runtime.setStatus(String.format("updating with %s", newVersion));
+				runtime.info(String.format("updating with %s", newVersion));
 				// Custom button text
 				runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
 				Runtime.getBleedingEdgeMyRobotLabJar();
@@ -210,7 +210,7 @@ public class Runtime extends Service {
 			return local.platform;
 		}
 
-		setError("can't get local platform in service environment");
+		error("can't get local platform in service environment");
 
 		return null;
 	}
@@ -225,7 +225,7 @@ public class Runtime extends Service {
 			return local.version;
 		}
 
-		setError("can't get local version in service environment");
+		error("can't get local version in service environment");
 
 		return null;
 	}
@@ -397,7 +397,7 @@ public class Runtime extends Service {
 			log.error(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
 			if (localInstance != null) {
 				localInstance.invoke("collision", s.getName());
-				Runtime.getInstance().setError(String.format(" name collision with %s", s.getName()));
+				Runtime.getInstance().error(String.format(" name collision with %s", s.getName()));
 			}
 			return s;
 		}
@@ -444,7 +444,7 @@ public class Runtime extends Service {
 
 		ServiceEnvironment se = hosts.get(sw.getAccessURL());
 		if (se == null) {
-			setError(String.format("no service environment for %s", sw.getAccessURL()));
+			error(String.format("no service environment for %s", sw.getAccessURL()));
 			return;
 		}
 
@@ -1453,7 +1453,7 @@ public class Runtime extends Service {
 
 		List<String> errors = serviceInfo.getErrors();
 		for (int i = 0; i < errors.size(); ++i) {
-			setError(errors.get(i));
+			error(errors.get(i));
 		}
 	}
 

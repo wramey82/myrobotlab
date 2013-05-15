@@ -97,7 +97,7 @@ public class Servo extends Service implements ServoControl {
 			controller.servoWrite(getName(), newPos);
 			position = newPos;
 		} else {
-			log.error(String.format("Servo.moveTo(%d) out of range", newPos));
+			error(String.format("Servo.moveTo(%d) out of range", newPos));
 		}
 	}
 

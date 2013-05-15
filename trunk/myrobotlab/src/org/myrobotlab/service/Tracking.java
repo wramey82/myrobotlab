@@ -150,11 +150,12 @@ public class Tracking extends Service {
 	
 	public void startService()
 	{	super.startService();
-		attach((OpenCV)null);
-		attach((Arduino)null);
-		attachServos(null, null);
-		attachPIDs(null, null);
-		setStatus("tracking online");
+	
+		if (eye == null) attach((OpenCV)null);
+		if (arduino == null) attach((Arduino)null);
+		if (x == null && y == null) attachServos(null, null);
+		if (xpid == null && ypid == null) attachPIDs(null, null);
+		info("tracking online");
 	}
 	
 	// the big kahuna input feed
@@ -186,20 +187,31 @@ public class Tracking extends Service {
 	// begin attach points -----------------
 	public void attach(OpenCV opencv)
 	{
-		setStatus("attaching eye");
+		info("attaching eye");
+		if (opencv != null)
+		{
+			opencvName = opencv.getName();
+		}
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		eye.capture();
-		setStatus("letting camera warm up and balance");
+		info("letting camera warm up and balance");
 		sleep(2000);
 	}
 	// TODO - check all service - check for validity of system !!
 	public void attach(Arduino duino)
 	{
-		setStatus("attaching Arduino");
+		info("attaching Arduino");
+		if (duino!= null)
+		{
+			arduinoName = duino.getName();
+		}
 		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
-		arduino.setBoard("atmega328");
-		arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
+		
+		// FIXME - if not connected - connect to serialDevice
+		
+		//arduino.setBoard("atmega328");
+		//arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
 		Service.sleep(500);
 
 		if (x != null) {
@@ -214,7 +226,16 @@ public class Tracking extends Service {
 	
 	public void attachServos(Servo servox, Servo servoy)
 	{
-		setStatus("attaching servos");
+		info("attaching servos");
+		if (servox != null)
+		{
+			xName = servox.getName();
+		}
+		if (servoy != null)
+		{
+			yName = servoy.getName();
+		}
+		
 		x = (Servo) Runtime.createAndStart(xName, "Servo", servox);
 		y = (Servo) Runtime.createAndStart(yName, "Servo", servoy);
 		
@@ -246,7 +267,15 @@ public class Tracking extends Service {
 	
 	public void attachPIDs(PID inXpid, PID inYpid)
 	{
-		setStatus("attaching pid");
+		info("attaching pid");
+		if (inXpid != null)
+		{
+			xpidName = inXpid.getName();
+		}
+		if (inYpid != null)
+		{
+			ypidName = inYpid.getName();
+		}
 		xpid = (PID) Runtime.createAndStart(xpidName, "PID", inXpid);
 		ypid = (PID) Runtime.createAndStart(ypidName, "PID", inYpid);
 
@@ -391,14 +420,14 @@ public class Tracking extends Service {
 			if ((width - rect.width)/width < sizeIndexForBackgroundForegroundFlip && (height - rect.height)/height < sizeIndexForBackgroundForegroundFlip)
 			{
 				learnBackground();
-				setStatus(String.format("%s - object found was nearly whole view - foreground background flip", state));
+				info(String.format("%s - object found was nearly whole view - foreground background flip", state));
 			}
 			
 		}
 		
 		if (numberOfNewObjects != lastNumberOfObjects)
 		{
-			setStatus(String.format("%s - unstable change from %d to %d objects - reset clock - was stable for %d ms limit is %d ms", state, lastNumberOfObjects, numberOfNewObjects ,System.currentTimeMillis() -lastTimestamp, waitInterval));
+			info(String.format("%s - unstable change from %d to %d objects - reset clock - was stable for %d ms limit is %d ms", state, lastNumberOfObjects, numberOfNewObjects ,System.currentTimeMillis() -lastTimestamp, waitInterval));
 			lastTimestamp = System.currentTimeMillis();
 		}
 		
@@ -455,7 +484,7 @@ public class Tracking extends Service {
 
 	public void setState(String newState) {
 		state = newState;
-		setStatus(state);
+		info(state);
 	}
 	
 	// ---------------  publish methods begin ----------------------------
@@ -520,7 +549,7 @@ public class Tracking extends Service {
 			// if I'm at my min & and the target is further min - don't compute
 			// pid
 			if ((currentXServoPos <= xmin && xSetpoint - targetPoint.x < 0) || (currentXServoPos >= xmax && xSetpoint - targetPoint.x > 0)) {
-				log.error("{} x limit out of range", currentXServoPos);
+				error(String.format("%d x limit out of range", currentXServoPos));
 			} else {
 
 				if (xpid.compute()) {
@@ -539,7 +568,7 @@ public class Tracking extends Service {
 			}
 
 			if ((currentYServoPos <= ymin && ySetpoint - targetPoint.y < 0) || (currentYServoPos >= ymax && ySetpoint - targetPoint.y > 0)) {
-				log.error("{} y limit out of range", currentYServoPos);
+				error(String.format("%d y limit out of range", currentYServoPos));
 			} else {
 				if (ypid.compute()) {
 					computeY = ypid.getOutput();

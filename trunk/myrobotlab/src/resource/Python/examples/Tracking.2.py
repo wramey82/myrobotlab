@@ -2,7 +2,6 @@
 # and their limits are programmed, they are then "bound" to
 # the tracking service
 tracker = Runtime.create("tracker","Tracking")
-arduino = Runtime.create("arduino","Arduino")
 
 # create servos BEFORE starting the tracking service
 # so we can specify values for the servos and specify names
@@ -10,26 +9,28 @@ arduino = Runtime.create("arduino","Arduino")
 
 rotation = Runtime.create("rotation","Servo")
 neck = Runtime.create("neck","Servo")
+arduino = Runtime.create("arduino","Arduino")
+arduino.setSerialDevice("COM12")
+eye = Runtime.create("eye","OpenCV")
+eye.setCameraIndex(1)
 
 # set safety limits - servos
 # will not go beyond these limits
 rotation.setPositionMin(50)
-rotation.setPositionMin(170)
+rotation.setPositionMax(170)
 
 neck.setPositionMin(50)
-neck.setPositionMin(170)
+neck.setPositionMax(170)
 
 # here we are binding are new servos with different names
 # to the tracking service.  If not specified the tracking service
 # will create a servo named x and y
 
-tracker.xName = "rotation"
-tracker.yName = "neck"
-tracker.arduinoName = "arduino"
+tracker.attach(arduino)
+tracker.attachServos(rotation, neck)
+tracker.attach(eye)
 
-tracker = Runtime.create("tracker","Tracking")
 tracker.setRestPosition(90, 90)
-tracker.setSerialPort("COM7")
 
 # setXMinMax & setYMinMax (min, max) - this will set the min and maximum
 # x value it will send the servo - typically this is not needed
@@ -43,7 +44,6 @@ tracker.setServoPins(13,12)
 # tracker.setCameraIndex(1) #change cameras if necessary
 
 tracker.startService()
- 
 tracker.trackLKPoint()
 
 #tracker.learnBackground()

@@ -362,8 +362,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return serialDeviceNames;
 	}
 
-
-
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
@@ -575,9 +573,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	/**
-	 * This method is called with Pin data whene a pin value is changed on the Arduino board
-	 * the Arduino must be told to poll the desired pin(s).
-	 * This is done with a analogReadPollingStart(pin) or digitalReadPollingStart()
+	 * This method is called with Pin data whene a pin value is changed on the
+	 * Arduino board the Arduino must be told to poll the desired pin(s). This
+	 * is done with a analogReadPollingStart(pin) or digitalReadPollingStart()
 	 */
 	public Pin publishPin(Pin p) {
 		// log.debug(p);
@@ -1374,9 +1372,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		 * log.info("mod 100"); } }
 		 */
 
-		//Arduino arduino = new Arduino("arduino");
-		Arduino arduino = (Arduino)Runtime.create("arduino", "Arduino");
-		//arduino.startService();
+		// Arduino arduino = new Arduino("arduino");
+		Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
+		// arduino.startService();
 
 		Runtime.createAndStart("python", "Python");
 

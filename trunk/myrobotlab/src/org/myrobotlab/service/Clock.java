@@ -113,7 +113,7 @@ public class Clock extends Service {
 	}
 
 	public String pulse() {
-		setError("hello");
+		error("hello");
 		return data;
 	}
 

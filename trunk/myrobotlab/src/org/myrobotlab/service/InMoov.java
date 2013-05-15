@@ -76,7 +76,7 @@ public class InMoov extends Service {
 		{
 			return arduinoRight;
 		} 
-		setError("getArduino ({}) not found");
+		error("getArduino ({}) not found");
 		return null;
 	}
 	
@@ -93,7 +93,7 @@ public class InMoov extends Service {
 
 	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
 	public Arduino initializeArduino(String key, String boardType, String comPort) {
-		setStatus(String.format("initializing %s arduino", key));
+		info(String.format("initializing %s arduino", key));
 		Arduino arduino = (Arduino) Runtime.createAndStart(String.format("arduino%s", key), "Arduino");
 		arduino.setBoard(boardType);
 		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
@@ -140,7 +140,7 @@ public class InMoov extends Service {
 		{
 			return handRight;
 		}
-		setError(String.format("%s hand not found"));
+		error(String.format("%s hand not found"));
 		return null;
 	}
 
@@ -149,19 +149,19 @@ public class InMoov extends Service {
 		{
 			handLeft.release();
 			handLeft = null;
-			setStatus("released left hand");
+			info("released left hand");
 		} else if (key == right)
 		{
 			handRight.release();
 			handRight = null;
-			setStatus("released right hand");
+			info("released right hand");
 		}
 	
 	}
 
 	public Arm initializeArm(String key) {
 		Arduino arduino = getArduino(key);
-		setStatus(String.format("initializing %s arm", key));
+		info(String.format("initializing %s arm", key));
 		Arm arm = new Arm();
 		arm.initialize(arduino, key);
 
@@ -181,12 +181,12 @@ public class InMoov extends Service {
 		{
 			armLeft.release();
 			armLeft = null;
-			setStatus("released left arm");
+			info("released left arm");
 		} else if (key == right && armRight != null)
 		{
 			armRight.release();
 			armRight = null;
-			setStatus("released right arm");
+			info("released right arm");
 		}
 	}
 

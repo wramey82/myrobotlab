@@ -146,9 +146,9 @@ public class CommObjectStreamOverDynamicProtocol extends Communicator implements
 					} catch (Exception e) {
 						if (e.getClass() == NotSerializableException.class || e.getClass() == WriteAbortedException.class)
 						{
-							myService.setError("someone tried to send something but it does not fit through the pipe");
+							myService.error("someone tried to send something but it does not fit through the pipe");
 						} else {
-							myService.setError(e.getMessage());
+							myService.error(e.getMessage());
 						}
 						// FIXME - more intelligent ERROR handling - recover if
 						// possible !!!!
@@ -271,7 +271,7 @@ public class CommObjectStreamOverDynamicProtocol extends Communicator implements
 			} catch (Exception e) {
 				if (e.getClass() == NotSerializableException.class || e.getClass() == WriteAbortedException.class)
 				{
-					myService.setError(String.format("oops tried to send a %s but it does not fit through the pipe", msg.data[0].getClass().getCanonicalName()));
+					myService.error(String.format("oops tried to send a %s but it does not fit through the pipe", msg.data[0].getClass().getCanonicalName()));
 				} /*else {  HIDES FIRST RELEVANT MESSAGE
 					myService.setError(e.getMessage());
 				}*/
@@ -323,7 +323,7 @@ public class CommObjectStreamOverDynamicProtocol extends Communicator implements
 
 			} catch (Exception e) {
 				Logging.logException(e);
-				myService.setError(String.format("could not connect to %s", url.toString()));
+				myService.error(String.format("could not connect to %s", url.toString()));
 			}
 		}
 	}
