@@ -1,15 +1,13 @@
-# a safe tracking script - servos are created seperately
-# and their limits are programmed, they are then attached
-# the tracking service
+# we can create all the peer services for tracker manually
+# giving them new names and different values
+# then we can attach them. This will give us access to 
+# change any of details of the other services. This must be 
+# done BEFORE "starting" the tracking service.  
 
 # create a tracking service
 tracker = Runtime.create("tracker","Tracking")
 
-# we can create all the peer services for tracker manually
-# giving them new names and different values
-# then we can attach them - this must be done before
-# starting the tracking service
-
+# create all the peer services
 rotation = Runtime.create("rotation","Servo")
 neck = Runtime.create("neck","Servo")
 arduino = Runtime.create("arduino","Arduino")
@@ -22,7 +20,7 @@ eye = Runtime.create("eye","OpenCV")
 eye.setCameraIndex(1)
 
 # flip the pid if needed
-xpid.invert()
+# xpid.invert()
 xpid.setOutputRange(-3, 3)
 xpid.setPID(10.0, 0, 1.0)
 xpid.setControllerDirection(1)
@@ -43,7 +41,7 @@ rotation.setPositionMax(170)
 neck.setPositionMin(50)
 neck.setPositionMax(170)
 
-# here we are attaching to non-default
+# here we are attaching to the
 # manually created peer services
 
 tracker.attach(arduino)
