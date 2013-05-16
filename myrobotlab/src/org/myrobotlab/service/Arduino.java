@@ -1135,6 +1135,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
 		message("good times...\n");
 		connected = true;
+		sleep(1); // FIXME (by dropping RXTX !!!) this is dumb the port says its open - but if you send data immediately after it FAILS ! :(
 		return true;
 	}
 

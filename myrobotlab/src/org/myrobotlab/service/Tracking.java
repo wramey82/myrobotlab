@@ -317,14 +317,14 @@ public class Tracking extends Service {
 			y.setPositionMax(ymax);
 		}
 		
-		arduino.servoAttach(yName, xPin);
-		arduino.servoAttach(xName, yPin);
+		arduino.servoAttach(xName, xPin);
+		arduino.servoAttach(yName, yPin);
 		
 		x.moveTo(xRestPos);
 		y.moveTo(yRestPos);
 
-		// Shake for me to be alive
-		/*
+		// shake and be ALIVE !
+		
 		Service.sleep(500);
 
 		x.moveTo(xRestPos + 5);
@@ -334,7 +334,6 @@ public class Tracking extends Service {
 		
 		x.moveTo(xRestPos);
 		y.moveTo(yRestPos);
-		*/
 		
 		currentXServoPos = xRestPos;
 		currentYServoPos = yRestPos;
