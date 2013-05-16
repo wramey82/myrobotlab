@@ -268,7 +268,7 @@ public class Tracking extends Service {
 		}
 		
 		/*
-		
+		TODO - finish table - find pattern
 		states
 		default init no data    				x == servox && x == null && inXPin == null
 		data from file							x == servox && x == null && inXPin != null		INVALID IF - inXPin == null
@@ -297,6 +297,25 @@ public class Tracking extends Service {
 		x = (Servo) Runtime.createAndStart(xName, "Servo", inX);
 		y = (Servo) Runtime.createAndStart(yName, "Servo", inY);
 		
+		if (xmin != null)
+		{
+			x.setPositionMin(xmin);
+		}
+		
+		if (xmax != null)
+		{
+			x.setPositionMax(xmax);
+		}
+		
+		if (ymin != null)
+		{
+			y.setPositionMin(ymin);
+		}
+		
+		if (ymax != null)
+		{
+			y.setPositionMax(ymax);
+		}
 		
 		arduino.servoAttach(yName, xPin);
 		arduino.servoAttach(xName, yPin);
