@@ -70,21 +70,10 @@ public class Tracking extends Service {
 	public String opencvName = "opencv";
 	//public String processorName = "processor";
 	
-	@Element
-	public int xServoPin = 13;
-	@Element
-	public int yServoPin = 12;
-	@Element
-	String serialPort = "COM12";
 	
 	long lastTimestamp = 0;
 	long waitInterval = 5000;
 	int lastNumberOfObjects = 0;
-	
-	// TODO enum - allows meta data? like description of state ???
-	//public static final String STATE_INITIALIZING_INPUT = "initializing input";
-	//public static final String STATE_INITIALIZING_CONTROL = "initializing control";
-	//public static final String STATE_INITIALIZING_TRACKING = "initializing tracking";
 	
 	public final static String STATE_LK_TRACKING_POINT = "lucas kanade tracking";
 	public final static String STATE_IDLE = "idle";
@@ -124,11 +113,6 @@ public class Tracking extends Service {
 	// MRL points
 	public Point2Df lastPoint;
 	
-	// "center" set points
-	@Element
-	double xSetpoint = 0.5;
-	@Element
-	double ySetpoint = 0.5;
 
 	// internal servo related
 	private int currentXServoPos;
@@ -144,18 +128,46 @@ public class Tracking extends Service {
 	private double computeX;
 	private double computeY;
 	
+	// ----- INITIALIZATION DATA BEGIN -----
+	@Element
+	public Integer xPin;
+	@Element
+	public Integer yPin;
+	@Element
+	String serialPort;
+	// "center" set points
+	@Element
+	public double xSetpoint = 0.5;
+	@Element
+	public double ySetpoint = 0.5;
+	@Element
+	public int cameraIndex = 0;
+	// ----- INITIALIZATION DATA END -----
+
+	
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
 	}
 	
+	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of course !
+	// com port
+	// IMPORTANT CONCEPT - the Typed function should have ALL THE BUSINESS LOGIC TO ATTACH 
+	// NON ANYWHERE ELSE !!
 	public void startService()
 	{	super.startService();
 	
-		if (eye == null) attach((OpenCV)null);
-		if (arduino == null) attach((Arduino)null);
-		if (x == null && y == null) attachServos(null, null);
-		if (xpid == null && ypid == null) attachPIDs(null, null);
-		info("tracking online");
+		boolean startup = true;
+		
+		startup &= attach(eye);
+		startup &= attach(arduino, serialPort);
+		startup &= attachServos(x, xPin, y, yPin);
+		startup &= attachPIDs(xpid, ypid);
+		
+		if (startup) {
+			info("tracking ready");
+		} else {
+			error("tracking could not initialize properly");
+		}
 	}
 	
 	// the big kahuna input feed
@@ -185,22 +197,37 @@ public class Tracking extends Service {
 		return data;
 	}
 	// begin attach points -----------------
-	public void attach(OpenCV opencv)
+	// FIXME - make re-entrant !!!
+	public boolean attach(OpenCV opencv)
 	{
-		info("attaching eye");
-		if (opencv != null)
+		if (eye != null)
 		{
-			opencvName = opencv.getName();
+			log.info("eye already assigned");
+			return true;
 		}
+		info("attaching eye");
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
+		eye.setCameraIndex(cameraIndex);
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		eye.capture();
-		info("letting camera warm up and balance");
-		sleep(2000);
+		eye.broadcastState();
+		return true;
+	}
+	
+	public boolean attach(Arduino duino)
+	{
+		return attach(duino, serialPort);
 	}
 	// TODO - check all service - check for validity of system !!
-	public void attach(Arduino duino)
+	public boolean attach(Arduino duino, String inSerialPort)
 	{
+		if (arduino != null)
+		{
+			log.info("arduino already attached");
+			return true;
+		}
+		serialPort = inSerialPort;
+		
 		info("attaching Arduino");
 		if (duino!= null)
 		{
@@ -208,46 +235,77 @@ public class Tracking extends Service {
 		}
 		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
 		
-		// FIXME - if not connected - connect to serialDevice
+		if (!arduino.isConnected())
+		{
+			if (serialPort == null)
+			{
+				error("no serial port specified for Arduino");
+				return false;
+			}
+			arduino.setSerialDevice(serialPort);
+		}
 		
-		//arduino.setBoard("atmega328");
-		//arduino.setSerialDevice(serialPort); // TODO throw event if no serial connection
 		Service.sleep(500);
-
-		if (x != null) {
-			arduino.servoAttach(xName, xServoPin);
+		
+		if (!arduino.isConnected())
+		{
+			error("Arduino is not connected!");
+			return false;
 		}
-		if (y != null) {
-			arduino.servoAttach(yName, yServoPin);
-		}
-
-		Service.sleep(500);
+		
+		arduino.broadcastState();
+		return true;
 	} 
 	
-	public void attachServos(Servo servox, Servo servoy)
+	public boolean attachServos(Servo inX, Integer inXPin, Servo inY, Integer inYPin)
 	{
 		info("attaching servos");
-		if (servox != null)
+		// FIXME - SEE IF NOT CONNECTED IF NOT CONNECTED ERROR - LOGIC SHOULD BE IN SERVOS!!!!!
+		if (arduino == null)
 		{
-			xName = servox.getName();
-		}
-		if (servoy != null)
-		{
-			yName = servoy.getName();
+			error("Arduino must be attached first, before servos !");
+			return false;
 		}
 		
-		x = (Servo) Runtime.createAndStart(xName, "Servo", servox);
-		y = (Servo) Runtime.createAndStart(yName, "Servo", servoy);
+		/*
 		
-		if (arduino != null)
+		states
+		default init no data    				x == servox && x == null && inXPin == null
+		data from file							x == servox && x == null && inXPin != null		INVALID IF - inXPin == null
+		replace possible valid with different  	x != null && x != servox  && servox != null && (InXPin == null || InXPin != null)
+		
+		*/
+		
+		if (inXPin == null || inYPin == null && (inX == null|| inY == null))
 		{
-			arduino.servoAttach(yName, yServoPin);
-			arduino.servoAttach(xName, xServoPin);
+			error("servo pins must be set before attaching servos!");
 		}
+		
+		if (inX != null)
+		{
+			xName = inX.getName();
+		}
+		if (inY != null)
+		{
+			yName = inY.getName();
+		}
+		
+		xPin = inXPin;
+		yPin = inYPin;
+		
+		
+		x = (Servo) Runtime.createAndStart(xName, "Servo", inX);
+		y = (Servo) Runtime.createAndStart(yName, "Servo", inY);
+		
+		
+		arduino.servoAttach(yName, xPin);
+		arduino.servoAttach(xName, yPin);
 		
 		x.moveTo(xRestPos);
 		y.moveTo(yRestPos);
 
+		// Shake for me to be alive
+		/*
 		Service.sleep(500);
 
 		x.moveTo(xRestPos + 5);
@@ -257,15 +315,20 @@ public class Tracking extends Service {
 		
 		x.moveTo(xRestPos);
 		y.moveTo(yRestPos);
+		*/
 		
 		currentXServoPos = xRestPos;
 		currentYServoPos = yRestPos;
 		lastXServoPos = xRestPos;
 		lastYServoPos = yRestPos;
 
+		x.broadcastState();
+		y.broadcastState();
+
+		return true;
 	}
 	
-	public void attachPIDs(PID inXpid, PID inYpid)
+	public boolean attachPIDs(PID inXpid, PID inYpid)
 	{
 		info("attaching pid");
 		if (inXpid != null)
@@ -300,7 +363,9 @@ public class Tracking extends Service {
 
 		ymin = y.getPositionMin();
 		ymax = y.getPositionMax();
-
+		xpid.broadcastState();
+		ypid.broadcastState();
+		return true;
 	}
 
 	public void rest()
@@ -614,12 +679,15 @@ public class Tracking extends Service {
 	}
 
 	public void setCameraIndex(int i) {
-		eye.setCameraIndex(i);
+		cameraIndex = i;
+		if (eye != null){
+			eye.setCameraIndex(i);
+		}
 	}
 
-	public void setServoPins(int x, int y) {
-		xServoPin = x;
-		yServoPin = y;
+	public void setServoPins(Integer x, Integer y) {
+		xPin = x;
+		yPin = y;
 	}
 
 	public void setSerialPort(String portName) {
@@ -643,6 +711,10 @@ public class Tracking extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Tracking tracker = new Tracking("tracking");
+		OpenCV cv = new OpenCV("cv");
+		
+		tracker.attach("cv");
+		
 		Speech mouth = new Speech("mouth");
 		mouth.subscribe("publishStatus", tracker.getName(), "speak", String.class);
 		mouth.startService();

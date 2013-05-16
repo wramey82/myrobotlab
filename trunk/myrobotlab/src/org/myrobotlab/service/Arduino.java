@@ -436,13 +436,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	// ---------------------------- ServoController begin
 	// -----------------------
-
+	// FIXME - is this re-entrant ???
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
 
 		if (serialDevice == null) {
-			log.error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
+			error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
 			return false;
 		}
 
@@ -1250,6 +1250,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	// ----------- MotorController API End ----------------
+	
+	// FIXME - too complicated.. too much code bloat .. its nice you use names BUT 
+	// IT MAKES NO SENSE TO HAVE SERVOS "connecte" ON A DIFFERENT INSTANCE
+	// SO USING ACTUAL TYPES SIMPLIFIES LIFE !
 
 	public boolean attach(String serviceName, Object... data) {
 		log.info(String.format("attaching %s", serviceName));

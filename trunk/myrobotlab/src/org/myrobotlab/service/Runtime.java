@@ -1360,6 +1360,9 @@ public class Runtime extends Service {
 	}
 
 	/**
+	 * creates and starts and returns reference to service
+	 * if a "real" service has been passed in, it will start it and return 
+	 * its reference, a reference to a "real" service wins over a name
 	 * 
 	 * @param name
 	 * @param type

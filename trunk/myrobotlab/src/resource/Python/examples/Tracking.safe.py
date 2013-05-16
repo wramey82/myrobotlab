@@ -1,11 +1,15 @@
 # a safe tracking script - servos are created seperately
-# and their limits are programmed, they are then "bound" to
+# and their limits are programmed, they are then attached
 # the tracking service
+
+# create a tracking service
 tracker = Runtime.create("tracker","Tracking")
 
 # create servos BEFORE starting the tracking service
 # so we can specify values for the servos and specify names
 # before it starts tracking
+# additionally all the other services can be created, configured
+# and manually attached if desired
 
 rotation = Runtime.create("rotation","Servo")
 neck = Runtime.create("neck","Servo")
@@ -26,8 +30,10 @@ neck.setPositionMax(170)
 # to the tracking service.  If not specified the tracking service
 # will create a servo named x and y
 
+# setServoPins (x, y) set the servo of the pan and tilt repectively
+
 tracker.attach(arduino)
-tracker.attachServos(rotation, neck)
+tracker.attachServos(rotation, 13, neck, 12)
 tracker.attach(eye)
 
 tracker.setRestPosition(90, 90)
@@ -36,14 +42,11 @@ tracker.setRestPosition(90, 90)
 # x value it will send the servo - typically this is not needed
 # because the tracking service will pull the min and max positions from 
 # the servos it attaches too
-tracker.setXMinMax(10, 170)
-tracker.setYMinMax(10, 170)
+tracker.setXMinMax(60, 170)
+tracker.setYMinMax(60, 170)
 
-# setServoPins (x, y) set the servo of the pan and tilt repectively
-tracker.setServoPins(13,12)
-# tracker.setCameraIndex(1) #change cameras if necessary
+#change cameras if necessary
+# tracker.setCameraIndex(1) 
 
 tracker.startService()
 tracker.trackLKPoint()
-
-#tracker.learnBackground()
