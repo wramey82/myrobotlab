@@ -340,6 +340,13 @@ public class Tracking extends Service {
 		lastXServoPos = xRestPos;
 		lastYServoPos = yRestPos;
 
+		// save limits for next time
+		xmin = x.getPositionMin();
+		xmax = x.getPositionMax();
+
+		ymin = y.getPositionMin();
+		ymax = y.getPositionMax();
+		
 		x.broadcastState();
 		y.broadcastState();
 
@@ -357,6 +364,13 @@ public class Tracking extends Service {
 		{
 			ypidName = inYpid.getName();
 		}
+		
+		if (xpid != null || ypid != null && (inXpid == null || inYpid == null))
+		{
+			info("xpid or ypid already set - must unset it first");
+			return true;
+		}
+		
 		xpid = (PID) Runtime.createAndStart(xpidName, "PID", inXpid);
 		ypid = (PID) Runtime.createAndStart(ypidName, "PID", inYpid);
 
@@ -365,22 +379,17 @@ public class Tracking extends Service {
 		xpid.setMode(PID.MODE_AUTOMATIC);
 		xpid.setOutputRange(-10, 10); // <- not correct - based on maximum
 		xpid.setSampleTime(30);
+		// set center
+		xpid.setSetpoint(xSetpoint);
 
 		ypid.setPID(10.0, 5.0, 1.0);
 		ypid.setControllerDirection(PID.DIRECTION_DIRECT);
 		ypid.setMode(PID.MODE_AUTOMATIC);
 		ypid.setOutputRange(-10, 10);
 		ypid.setSampleTime(30);
-
 		// set center
-		xpid.setSetpoint(xSetpoint);
 		ypid.setSetpoint(ySetpoint);
 
-		xmin = x.getPositionMin();
-		xmax = x.getPositionMax();
-
-		ymin = y.getPositionMin();
-		ymax = y.getPositionMax();
 		xpid.broadcastState();
 		ypid.broadcastState();
 		return true;

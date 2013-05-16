@@ -259,6 +259,16 @@ public class PID extends Service {
 		}
 		controllerDirection = direction;
 	}
+	
+	public void invert()
+	{
+		setControllerDirection(DIRECTION_REVERSE);
+	}
+	
+	public void direct()
+	{
+		setControllerDirection(DIRECTION_DIRECT);
+	}
 
 	@Override
 	public String getToolTip() {
