@@ -1941,17 +1941,29 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		allowExport = b;
 	}
 
+	
 	/**
-	 * This method is a rounting method used to attach a service to other services
-	 * - the implementation of this method depends on what needs to be done in
-	 * order to attach one service to another
+	 * pure string interface for control facets which only support strings - like javascript, web, etc...
+	 * @param name
+	 * @return
+	 */
+	public boolean attach(String name) {
+		return attach(name, (Object[]) null);
+	}
+
+	
+	/**
+	 * this framework attach supports string interface
+	 * it will invoke an attach on the actual service with a
+	 * "real" type
 	 * 
 	 * @param name
 	 * @param data
 	 * @return
 	 */
 	public boolean attach(String name, Object... data) {
-		return false;
+		ServiceInterface si = Runtime.getService(name);
+		return (boolean) invoke("attach", si);
 	}
 	
 	/**

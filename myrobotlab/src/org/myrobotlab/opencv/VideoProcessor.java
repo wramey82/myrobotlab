@@ -110,6 +110,11 @@ public class VideoProcessor implements Runnable, Serializable {
 		sdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
 		sdf.applyPattern("dd MMM yyyy HH:mm:ss z");
 
+		if (videoThread != null)
+		{
+			log.info("video processor already started");
+			return;
+		}
 		videoThread = new Thread(this, "OpenCV_videoProcessor");
 		videoThread.start();
 	}
@@ -157,7 +162,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				grabber.setFormat(format);
 			}
 
-			log.error(String.format("using %s", grabber.getClass().getCanonicalName()));
+			log.info(String.format("using %s", grabber.getClass().getCanonicalName()));
 
 			if (grabber == null) {
 				log.error(String.format("no viable capture or frame grabber with input %s", grabberType));
