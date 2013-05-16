@@ -241,6 +241,16 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.LeapMotion" workingLevel="4">
+      <dependsOn>
+         <description>This service will use the hand tracking capabilities of the Leap Motion device.
+      	 </description>  
+          <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Python" workingLevel="4">
       <dependsOn>
          <description>scripting engine and IDE. All services are controllable through Python.
