@@ -6,8 +6,8 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Listener;
+//import com.leapmotion.leap.Controller;
+//import com.leapmotion.leap.Listener;
 
 
 public class LeapMotion extends Service {
@@ -15,15 +15,15 @@ public class LeapMotion extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(LeapMotion.class.getCanonicalName());
-	
-	private Controller controller;
-	private Listener listener;
+	//UNDO when Leap Motion is ready to be released!
+	//private Controller controller;
+	//private Listener listener;
 	
 	public LeapMotion(String n) {
 		super(n, LeapMotion.class.getCanonicalName());	
-		controller = new Controller();
-		LeapListener listener = new LeapListener(this);
-		controller.addListener(listener);
+		//controller = new Controller();
+		//LeapListener listener = new LeapListener(this);
+		//controller.addListener(listener);
 	}
 
 	@Override
