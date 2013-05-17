@@ -2,15 +2,15 @@ package org.myrobotlab.leapmotion;
 
 import java.awt.Robot;
 
-import org.myrobotlab.service.LeapMotion2;
+import org.myrobotlab.service.LeapMotion;
 
-public class LeapListener2 { //extends Listener {
+public class LeapListener { //extends Listener {
 	Robot robot;
 	int hand1 = -5;
 	int id;
 	//LeapMotion f;
 	
-	private final LeapMotion2 myService;
+	private final LeapMotion myService;
 
 	private float distx;
 	private float disty;
@@ -18,7 +18,7 @@ public class LeapListener2 { //extends Listener {
 	private float distxz;
 	private boolean sleep;
 
-	public LeapListener2(LeapMotion2 leapMotion) {
+	public LeapListener(LeapMotion leapMotion) {
 		this.myService = leapMotion;
 	}
 
