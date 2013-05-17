@@ -23,14 +23,12 @@ eye.setCameraIndex(1)
 # xpid.invert()
 xpid.setOutputRange(-3, 3)
 xpid.setPID(10.0, 0, 1.0)
-xpid.setControllerDirection(1)
 xpid.setSetpoint(0.5) # we want the target in the middle of the x
 
 # flip the pid if needed
 # ypid.invert()
 ypid.setOutputRange(-3, 3)
 ypid.setPID(10.0, 0, 1.0)
-ypid.invert()
 ypid.setSetpoint(0.5)
 
 # set safety limits - servos
