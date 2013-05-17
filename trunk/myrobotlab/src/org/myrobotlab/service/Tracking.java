@@ -207,7 +207,15 @@ public class Tracking extends Service {
 		}
 		info("attaching eye");
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
-		eye.setCameraIndex(cameraIndex);
+		if (opencv != null)
+		{
+			// get data from the passed in opencv - passed in opencv
+			cameraIndex = opencv.getCameraIndex();
+		} else {
+			// set with our data - default opencv
+			eye.setCameraIndex(cameraIndex);
+		}
+		
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		eye.capture();
 		eye.broadcastState();

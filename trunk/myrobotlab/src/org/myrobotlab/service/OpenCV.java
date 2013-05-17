@@ -573,5 +573,9 @@ public class OpenCV extends VideoSource {
 	public void useBlockingData(Boolean b) {
 		videoProcessor.useBlockingData = true;
 	}
+
+	public int getCameraIndex() {
+		return videoProcessor.cameraIndex;
+	}
 	
 }

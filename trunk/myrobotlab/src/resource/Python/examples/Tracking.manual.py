@@ -47,7 +47,7 @@ neck.setPositionMax(170)
 tracker.attach(arduino)
 tracker.attachServos(rotation, 13, neck, 12)
 tracker.attach(eye)
-tracker.attach(xpid, ypid)
+tracker.attachPIDs(xpid, ypid)
 
 tracker.setRestPosition(90, 90)
 
