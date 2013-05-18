@@ -98,12 +98,14 @@ public class Tracking extends Service {
 	@Element
 	int yRestPos = 90;
 	
-	// FIXME - HOW TO HANDLE !?!?!?
-	// peer services
-	transient PID xpid, ypid;
-	transient OpenCV eye;
-	transient Arduino arduino;
-	transient Servo x, y;
+	// ------ PEER SERVICES BEGIN------ 
+	// peer services are always transient (i think)
+	transient public PID xpid, ypid;
+	transient public OpenCV eye;
+	transient public Arduino arduino;
+	transient public Servo x;
+	transient public Servo y;
+	// ------ PEER SERVICES END------ 
 
 	// statistics
 	public int updateModulus = 20;
@@ -409,53 +411,53 @@ public class Tracking extends Service {
 		y.moveTo(yRestPos);
 	}
 	
-
-	/*  FOUND/FIND BETTER TRACKING POINTS - 
-	 * needs to be done  in the cortex
-	 
-	public void getGoodFeatures()
-	{
-		
-		eye.removeAllFilters();
-		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
-		eye.addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
-		eye.setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
-		
-		OpenCVData d = eye.getGoodFeatures();
-		log.info("good features {}", d.keySet());
-		
-		SerializableImage img = d.getInputImage();
-		
-		//invoke("publishStatus", status);
-		setState(STATE_FINDING_GOOD_FEATURES);
-	}
-	*/
 	
 	// ------------------- tracking & detecting methods begin ---------------------
-	public void trackLKPoint()
-	{
-		trackLKPoint(null);
-	}
-	
-	// TODO - put in OpenCV as a Composite Filter
-	public void trackLKPoint(Point2Df targetPoint) {
 
+	public void startLKTracking()
+	{
 		// set filters
 		eye.removeAllFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN); // needed ??? test
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
+		setState(STATE_LK_TRACKING_POINT);
+		
+	}
+	
+	public void stopLKTracking()
+	{
+		eye.removeAllFilters();
+		setState(STATE_IDLE);
+	}
+	
+	public void trackPoint(Float x, Float y) {
+
+		if (!STATE_LK_TRACKING_POINT.equals(state))
+		{
+			startLKTracking();
+		}
 		// FIXME - clear points
 		// eye.invokeFilterMethod("clearPoints", method, params)
-		
+		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
 		// set point
-		if (targetPoint != null)
-		{
-			eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", targetPoint.x, targetPoint.y);
-		}
+	
+//		videoOn();
+	}
+	
+	// GAAAAAAH figure out if (int , int) is SUPPORTED WOULD YA !
+	public void trackPoint(Integer x, Integer y) {
 
-		setState(STATE_LK_TRACKING_POINT);
+		if (!STATE_LK_TRACKING_POINT.equals(state))
+		{
+			startLKTracking();
+		}
+		// FIXME - clear points
+		// eye.invokeFilterMethod("clearPoints", method, params)
+		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
+		// set point
+	
 //		videoOn();
 	}
 
@@ -739,6 +741,7 @@ public class Tracking extends Service {
 		this.ymin = ymin;
 		this.ymax = ymax;
 	}
+	
 
 	public static void main(String[] args) {
 
@@ -746,6 +749,7 @@ public class Tracking extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Tracking tracker = new Tracking("tracking");
+		/*
 		OpenCV cv = new OpenCV("cv");
 		
 		tracker.attach("cv");
@@ -755,6 +759,7 @@ public class Tracking extends Service {
 		mouth.startService();
 		tracker.startService();
 		
+		*/
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
@@ -767,7 +772,8 @@ public class Tracking extends Service {
 		tracker.setCameraIndex(1);
 		*/
 				
-		tracker.trackLKPoint();
+		tracker.startLKTracking();
+		tracker.trackPoint(0.5f, 0.5f);
 		
 		
 		tracker.setIdle();
@@ -780,7 +786,6 @@ public class Tracking extends Service {
 //		tracker.learnBackGround();
 		//tracker.searchForeground();
 		
-		tracker.trackLKPoint(new Point2Df(50,50));
 		
 		log.info("here");
 				

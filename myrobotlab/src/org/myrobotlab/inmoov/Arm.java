@@ -23,7 +23,7 @@ public class Arm {
 		omoplate.moveTo(10);
 	}
 
-	public void initialize(Arduino arduino, String key) {
+	public void attach(Arduino arduino, String key) {
 		// name = String.format("%sArm", key);
 		side = key;
 		bicep = (Servo) Runtime.createAndStart(String.format("bicep%s", key), "Servo");
