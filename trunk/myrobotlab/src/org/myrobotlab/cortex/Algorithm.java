@@ -67,7 +67,8 @@ public class Algorithm {// implements Runnable {
 			memory.put("/present/faces/unknown", node);
 			Rectangle rect = bb.get(0);
 			// FIXME - TODO - add good features with mask on face only 
-			tracking.trackLKPoint(new Point2Df(rect.x, rect.y));
+			//tracking.startLKTracking();
+			tracking.trackPoint(rect.x, rect.y);
 			//
 			
 		} else if (bb.size() > 1) {

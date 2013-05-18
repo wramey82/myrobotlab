@@ -9,4 +9,15 @@ tracker.setYMinMax(10, 170)
 tracker.setServoPins(13,12)
 #change cameras if necessary
 tracker.setCameraIndex(1)
-# start the tracking servicetracker.startService()# put it in LK track modetracker.trackLKPoint()
+# start the tracking servicetracker.startService()
+# set a point and track it# there are two interfaces one is float value
+# where 0.5,0.5 is middle of screen
+tracker.trackPoint(0.5, 0.5)
+# the other is integers which are pixel location
+# tracker.trackPoint(10, 120)
+
+# don't be surprised if the point does not
+# stay - it needs / wants a corner in the image
+# to presist - otherwise it might disappear
+# you can set points manually by clicking on the
+# opencv screen

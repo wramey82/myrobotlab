@@ -37,7 +37,7 @@ public class Hand {
 		wrist.moveTo(90);
 	}
 
-	public void initialize(Arduino arduino, String key) {
+	public void attach(Arduino arduino, String key) {
 		// create finger and wrist servos
 		side = key;
 		thumb = (Servo) Runtime.createAndStart(String.format("thumb%s", key), "Servo");

@@ -7,16 +7,10 @@ import org.myrobotlab.service.Tracking;
 
 public class Head {
 
-	/*
-	public Servo neck;
-	public Servo rothead;
-	public Arduino headArduino;
-	public Tracking tracking;
-	*/
 	private InMoov inmoov;
 	public boolean allowMove = true;
 
-	public void initialize(InMoov inmoov) {
+	public void attach(InMoov inmoov) {
 		this.inmoov = inmoov;
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
@@ -27,16 +21,19 @@ public class Head {
 		// initial position
 		rest();
 
+		inmoov.rothead.setPositionMin(30);
+		inmoov.rothead.setPositionMax(150);
+		inmoov.neck.setPositionMin(20);
+		inmoov.neck.setPositionMax(160);
+		
 		// notify gui
 		inmoov.neck.broadcastState();
 		inmoov.rothead.broadcastState();
 	
 		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
-		// FIXME - make better
-		inmoov.tracking.xName = "rothead";
-		inmoov.tracking.yName = "neck";
-		inmoov.tracking.opencvName = "eye";
-		
+		inmoov.tracking.x = inmoov.rothead;
+		inmoov.tracking.y = inmoov.neck;
+		inmoov.tracking.eye = inmoov.eye;		
 		inmoov.tracking.startService();
 		
 		
@@ -68,5 +65,14 @@ public class Head {
 	public void broadcastState() {
 		inmoov.neck.broadcastState();
 		inmoov.rothead.broadcastState();
+	}
+
+	public void release() {
+		inmoov.rothead.releaseService();
+		inmoov.rothead = null;
+		inmoov.neck.releaseService();
+		inmoov.neck = null;
+		inmoov.tracking.releaseService();
+		inmoov.tracking = null;
 	}
 }

@@ -1,30 +1,19 @@
 package org.myrobotlab.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.inmoov.Arm;
 import org.myrobotlab.inmoov.Hand;
 import org.myrobotlab.inmoov.Head;
-import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
+import org.slf4j.Logger;
 
 public class InMoov extends Service {
-
-	// TODO - normalize bi-lateral code parts
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(InMoov.class.getCanonicalName());
-
-	String bodyPartContext = null;
 
 	public static final String left = "left";
 	public static final String right = "right";
@@ -33,39 +22,41 @@ public class InMoov extends Service {
 	Head head;
 
 	// head
-	public Sphinx ear;
-	public Speech mouth;
-	public OpenCV eye;
-	public Python python;
-	public Tracking tracking;
-	public Arduino arduinoHead;
+	transient public Sphinx ear;
+	transient public Speech mouth;
+	transient public OpenCV eye;
+	transient public Python python;
+	transient public Tracking tracking;
+	transient public Arduino arduinoHead;
 	
-	public Servo rothead;
-	public Servo neck;
+	transient public Servo rothead;
+	transient public Servo neck;
 	
 	// left side
-	public Arduino arduinoLeft;
-	public Hand handLeft;
-	public Arm armLeft;
+	transient public Arduino arduinoLeft;
+	transient public Hand handLeft;
+	transient public Arm armLeft;
 	
 	// right side
-	public Arduino arduinoRight;
-	public Hand handRight;
-	public Arm armRight;
+	transient public Arduino arduinoRight;
+	transient public Hand handRight;
+	transient public Arm armRight;
 	
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 	}
 	
-	public void createAndStartSubServices()
+	public void startService()
 	{
+		super.startService();
+		// FIXME - big assumption they have the hardware or 
+		// desire to start these services ....
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
 		eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
-		python = (Python) Runtime.createAndStart("python", "Python");
-		
+		python = (Python) Runtime.createAndStart("python", "Python");		
 	}
-
+	
 	// ----------- normalization begin ---------------------
 
 	public Arduino getArduino(String key) {
@@ -88,34 +79,21 @@ public class InMoov extends Service {
 		{
 			arduinoRight = arduino;
 		} 
-		log.error("setArduino ({}, Arduino) not found");
+		log.error("setArduino ({}, Arduino) must be left or right");
 	}
 
 	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
-	public Arduino initializeArduino(String key, String boardType, String comPort) {
+	public Arduino attachArduino(String key, String boardType, String comPort) {
 		info(String.format("initializing %s arduino", key));
 		Arduino arduino = (Arduino) Runtime.createAndStart(String.format("arduino%s", key), "Arduino");
 		arduino.setBoard(boardType);
 		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
 		sleep(1000);
 		return arduino;
-
 	}
 
-	public void releaseArduino(String key) {
-		if (arduinoLeft != null)
-		{
-			arduinoLeft.releaseService();
-			arduinoLeft = null;
-		}
-		if (arduinoRight != null)
-		{
-			arduinoRight.releaseService();
-			arduinoRight = null;
-		}
-	}
 
-	public Hand initializeHand(String key) {
+	public Hand attachHand(String key) {
 		Arduino arduino = getArduino(key);
 
 		Hand hand = new Hand();
@@ -127,7 +105,7 @@ public class InMoov extends Service {
 			handRight = hand;
 		}
 	
-		hand.initialize(arduino, key);
+		hand.attach(arduino, key);
 		return hand;
 	}
 	
@@ -144,26 +122,11 @@ public class InMoov extends Service {
 		return null;
 	}
 
-	public void releaseHand(String key) {
-		if (key == left)
-		{
-			handLeft.release();
-			handLeft = null;
-			info("released left hand");
-		} else if (key == right)
-		{
-			handRight.release();
-			handRight = null;
-			info("released right hand");
-		}
-	
-	}
-
-	public Arm initializeArm(String key) {
+	public Arm attachArm(String key) {
 		Arduino arduino = getArduino(key);
 		info(String.format("initializing %s arm", key));
 		Arm arm = new Arm();
-		arm.initialize(arduino, key);
+		arm.attach(arduino, key);
 
 		if (key == left)
 		{
@@ -171,120 +134,75 @@ public class InMoov extends Service {
 		} else if (key == right)
 		{
 			armRight = arm;
+		} else {
+			error(String.format("%s - bad arm initialization ", key));
+			return null;
 		}
 	
 		return arm;
 	}
 
-	public void releaseArm(String key) {
-		if (key == left && armLeft != null)
-		{
-			armLeft.release();
-			armLeft = null;
-			info("released left arm");
-		} else if (key == right && armRight != null)
-		{
-			armRight.release();
-			armRight = null;
-			info("released right arm");
-		}
-	}
-
 	public void release() {
-		releaseArm(left);
-		releaseArm(right);
-		releaseHand(left);
-		releaseHand(right);
-		releaseArduino(left);
-		releaseArduino(left);		
+		if (handLeft != null) 		handLeft.release();				handLeft = null;
+		if (handRight != null) 		handRight.release();			handRight = null;
+		if (armLeft != null) 		armLeft.release();				armLeft = null;				
+		if (armRight != null) 		armRight.release();				armRight = null;
+		if (arduinoLeft != null) 	arduinoLeft.releaseService();	arduinoLeft = null;
+		if (arduinoRight != null) 	arduinoRight.releaseService();	arduinoRight = null;
+		if (head != null) 			head.release(); 				head = null;
 	}
 
 	public void rest() {
-		if (armLeft != null)
-		{
-			armLeft.rest();
-		}
-		if (armRight != null)
-		{
-			armRight.rest();
-		}
-		if (handLeft != null)
-		{
-			handLeft.rest();
-		}
-		if (handRight != null)
-		{
-			handRight.rest();
-		}
-		if (head != null) {
-			head.rest();
-		}
+		if (handLeft != null)	handLeft.rest();
+		if (handRight != null)	handRight.rest();
+		if (armLeft != null)	armLeft.rest();
+		if (armRight != null) 	armRight.rest();
+		if (head != null) head.rest();
 	}
 
-	public void initializeHead(String key) {
-		initializeHead(getArduino(key));
+	public Head attachHead()
+	{
+		return attachHead(left);
 	}
-
-	public void initializeHead(Arduino arduino) {
+	public Head attachHead(String key)
+	{
+		return attachHead(getArduino(key));
+	}
+	public Head attachHead(Arduino arduino) {
 		if (arduino == null) {
 			log.error("arduino not valid");
 		}
-		arduinoHead = arduino;
+		if (head != null)
+		{
+			log.info("head already attached - must release first");
+			return head;
+		}
 		head = new Head();
-		head.initialize(this);
-		//head.initialize(arduino);
+		head.attach(this);
+		return head;
 	}
 
 	// ----------- normalization end ---------------------
 
-	public void initialize(String side, String boardType, String comPort) {
-			initializeArduino(side, boardType, comPort);
-			initializeHand(side);
-			initializeArm(side);
+	public void attachSide(String side, String boardType, String comPort) {
+			attachArduino(side, boardType, comPort);
+			attachHand(side);
+			attachArm(side);
 	}
 
 	public void broadcastState() {
-		if (armLeft != null)
-		{
-			armLeft.broadcastState();
-		}
-		if (armRight != null)
-		{
-			armRight.broadcastState();
-		}
-		if (handLeft != null)
-		{
-			handLeft.broadcastState();
-		}
-		if (handRight != null)
-		{
-			handRight.broadcastState();
-		}
-		if (head != null)
-		{
-			head.broadcastState();
-		}
+		if (armLeft != null) armLeft.broadcastState();
+		if (armRight != null) armRight.broadcastState();
+		if (handLeft != null) handLeft.broadcastState();
+		if (handRight != null) handRight.broadcastState();
+		if (head != null) head.broadcastState();
 	}
 
-	public void initialize(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
-
+	public void attachAll(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
 		log.info(String.format("left - %s %s right - %s %s", LeftBoardType, LeftComPort, RightBoardType, RightComPort));
-		initialize(left, LeftBoardType, LeftComPort);
-		initialize(right, RightBoardType, RightComPort);
-
+		attachSide(left, LeftBoardType, LeftComPort);
+		attachSide(right, RightBoardType, RightComPort);
 	}
-
-	public void initializeHead() {
-
-	}
-
-	// lower higher concepts - 10 degree
-	// much higher
-	// remember move - save
-
-	// low level moveHand
-
-	//
 
 	public void handOpen(String which) {
 		moveHand(which, 0, 0, 0, 0, 0);
@@ -311,15 +229,8 @@ public class InMoov extends Service {
 	}
 
 	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
-
-		if (which == left || which == both)
-		{
-			handLeft.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
-		}
-		if (which == right || which == both)
-		{
-			handRight.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
-		}
+		if ((which == left  || which == both) && handLeft != null) 	handLeft.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == right || which == both) && handRight != null) handRight.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
 	}
 
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky) {
@@ -327,36 +238,18 @@ public class InMoov extends Service {
 	}
 
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist) {
-		if (which == left || which == both)
-		{
-			handLeft.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
-		}
-		if (which == right || which == both)
-		{
-			handRight.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
-		}
+		if ((which == left  || which == both) && handLeft != null) 	handLeft.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == right || which == both) && handRight != null)	handRight.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
 	}
 
 	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate) {
-		if (which == left || which == both)
-		{
-			armLeft.setSpeed(bicep, rotate, shoulder, omoplate);
-		}
-		if (which == right || which == both)
-		{
-			armRight.setSpeed(bicep, rotate, shoulder, omoplate);
-		}
+		if (which == left  || which == both) armLeft.setSpeed(bicep, rotate, shoulder, omoplate);
+		if (which == right || which == both) armRight.setSpeed(bicep, rotate, shoulder, omoplate);
 	}
 
 	public void moveArm(String which, Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
-		if (which == left || which == both)
-		{
-			armLeft.moveTo(bicep, rotate, shoulder, omoplate);
-		}
-		if (which == right || which == both)
-		{
-			armRight.moveTo(bicep, rotate, shoulder, omoplate);
-		}
+		if (which == left  || which == both) armLeft.moveTo(bicep, rotate, shoulder, omoplate);
+		if (which == right || which == both) armRight.moveTo(bicep, rotate, shoulder, omoplate);
 	}
 
 	public void moveHead(Integer neck, Integer rothead) {
@@ -377,14 +270,6 @@ public class InMoov extends Service {
 		mouth.speak("starting system check");
 
 		rest();
-		/*
-		 * TRACING APPEARS TO "MESS" THINGS UP --- POSSIBLY FIXME
-		 * ArrayList<Arduino> arduinoList = arduinos.get(both); for(int i = 0; i
-		 * < arduinoList.size(); ++i) { Arduino arduino = arduinoList.get(i);
-		 * arduino.pinMode(17, Arduino.INPUT);
-		 * arduino.analogReadPollingStart(17); sleep(250);
-		 * arduino.analogReadPollingStop(17); }
-		 */
 		
 		if (armLeft != null)
 		{
@@ -501,6 +386,12 @@ public class InMoov extends Service {
 		head.allowMove = false;
 	}
 	
+	public boolean setLanguage(String lang)
+	{
+		if (mouth == null) return false;
+		mouth.setLanguage(lang);
+		return true;
+	}
 	/*
 	boolean isTracking = false;
 
@@ -555,7 +446,7 @@ public class InMoov extends Service {
 		
 		inMoov.initializeHead(arduino);
 		*/
-		
+/*		
 		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
 		arduino.setBoard("atmega328");
 		arduino.setSerialDevice("COM12",57600,8,1,0);
@@ -566,8 +457,11 @@ public class InMoov extends Service {
 		gui.display();
 		
 		inMoov.eye.setCameraIndex(1);
+		*/
 		//inMoov.tracking.trackLKPoint();
-		
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
 
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();

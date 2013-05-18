@@ -50,4 +50,4 @@ tracker.attachPIDs(xpid, ypid)
 tracker.setRestPosition(90, 90)
 
 tracker.startService()
-tracker.trackLKPoint()
+tracker.trackPoint(0.5,0.5)
