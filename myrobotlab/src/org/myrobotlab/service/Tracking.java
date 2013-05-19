@@ -745,6 +745,7 @@ public class Tracking extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Tracking tracker = new Tracking("tracking");
+		tracker.startService();
 		/*
 		OpenCV cv = new OpenCV("cv");
 		
@@ -769,7 +770,9 @@ public class Tracking extends Service {
 		*/
 				
 		tracker.startLKTracking();
-		tracker.trackPoint(0.5f, 0.5f);
+		
+		tracker.invoke("trackPoint", 100, 100);
+		tracker.invoke("trackPoint", 0.5f, 0.5f);
 		
 		
 		tracker.setIdle();
