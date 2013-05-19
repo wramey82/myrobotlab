@@ -45,6 +45,9 @@ public class Cortex extends Service implements MemoryChangeListener {
 	public String processorName = "processor";
 	public String mouthName = "mouth";
 	public String earName = "ear";
+	Algorithm algorithm;
+	public String serialPort;
+
 
 	transient Tracking tracking;
 	transient OpenCV processor;
@@ -124,9 +127,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		ear.startListening();
 
 	}
-
-	Algorithm algorithm;
-	public String serialPort;
 	
 	//public setSerial
 	

@@ -109,7 +109,6 @@ public class InMoov extends Service {
 		}
 	
 		hand.attach(arduino, key);
-		mouth.speak(String.format("%s hand successfully attached", key));
 		return hand;
 	}
 	
@@ -269,32 +268,60 @@ public class InMoov extends Service {
 	}
 
 	public void systemCheck() {
-		// check arduinos
 
-		mouth.speak("starting system check");
-		mouth.speak("testing");
+		mouth.speakBlocking("starting system check");
+		mouth.speakBlocking("testing");
 
 		rest();
 		sleep(500);
+
+		if (arduinoRight != null)
+		{
+			mouth.speakBlocking("Right arduino");
+			if (!arduinoRight.isValid())
+			{
+				mouth.speakBlocking("is not valid");
+				mouth.speakBlocking(arduinoRight.getLastError());
+			}
+			
+		}
+		
+		if (arduinoLeft != null)
+		{
+			mouth.speakBlocking("left arduino");
+			if (!arduinoLeft.isValid())
+			{
+				mouth.speakBlocking("is not valid");
+				mouth.speakBlocking(arduinoLeft.getLastError());
+			}
+			
+		}
+		
+		if (head != null)
+		{
+			mouth.speakBlocking("head");
+			head.move(100, 100);
+		}
+		
 		if (armLeft != null)
 		{
-			mouth.speak("left arm");
+			mouth.speakBlocking("left arm");
 			armLeft.moveTo(10, 100, 40, 20);
 		}
 		if (armRight != null)
 		{
-			mouth.speak("right arm");
+			mouth.speakBlocking("right arm");
 			armRight.moveTo(10, 100, 40, 20);
 		}	
 		
 		if (handLeft != null)
 		{
-			mouth.speak("left hand");
+			mouth.speakBlocking("left hand");
 			handLeft.moveTo(10, 10, 10, 10, 10, 10);
 		}
 		if (handRight != null)
 		{
-			mouth.speak("right hand");
+			mouth.speakBlocking("right hand");
 			handRight.moveTo(10, 10, 10, 10, 10, 10);
 		}
 
@@ -306,9 +333,9 @@ public class InMoov extends Service {
 		// check ear
 
 		// check mount - all my circuits are functioning perfectly
-		mouth.speak("completed system check");
 
 		broadcastState();
+		mouth.speakBlocking("system check completed");
 	}
 
 	public String captureGesture() {

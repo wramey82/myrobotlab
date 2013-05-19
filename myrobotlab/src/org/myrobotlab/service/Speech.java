@@ -72,6 +72,10 @@ public class Speech extends Service {
 	 * this. speakMulti - This will create threads for each requests possibly
 	 * allowing every speech thread to complete in the same time. (very Cybil)
 	 * The back-end are just types of speech engines (ATT, FREETTS)
+	 * 
+	 * References :
+	 * 		Excellent reference - http://www.codeproject.com/Articles/435434/Text-to-Speech-tts-for-the-Web
+	 * 		http://www.text2speech.org/ - another possible back-end
 	 */
 
 	private static final long serialVersionUID = 1L;
@@ -118,9 +122,6 @@ public class Speech extends Service {
 		googleLanguageMap.put("portuguese", "pt");
 	}
 
-	// having this synchronization and frontend type
-	// will probably negate the need for a isSpeaking event
-	@SuppressWarnings("unused")
 	public synchronized Boolean isSpeaking(Boolean b) {
 		log.info("isSpeaking " + b);
 		isSpeaking = b;
@@ -220,10 +221,24 @@ public class Speech extends Service {
 			in(createMessage(getName(), "speakGoogle", toSpeak));
 		} else {
 			log.error("back-end speech backendType " + backendType + " not supported ");
+			return false;
 		}
 
 		return true;
 
+	}
+	
+	public boolean speakBlocking(String toSpeak)
+	{
+		if (backendType == BackendType.FREETTS) { // festival tts
+			speakFreeTTS(toSpeak);
+		} else if (backendType == BackendType.GOOGLE) { // festival tts
+			speakGoogle(toSpeak);
+		} else {
+			log.error("back-end speech backendType " + backendType + " not supported ");
+			return false;
+		}
+		return true;
 	}
 
 	// BACK-END FUNCTIONS BEGIN ------------------------------------------------
@@ -379,10 +394,6 @@ public class Speech extends Service {
 
 		}
 
-		// audio file it
-		// boolean isBlocking = true; is Blocking YAY - dont call from different
-		// service
-
 		invoke("isSpeaking", true);
 		speechAudioFile.playFile(audioFile, true);
 		sleep(600);// important pause after speech
@@ -397,10 +408,11 @@ public class Speech extends Service {
 		Speech speech = new Speech("speech");
 		speech.startService();
 		// speech.setBackendType(BACKEND_TYPE_FREETTS);
-		speech.setBackendType(BACKEND_TYPE_GOOGLE);
+		//speech.setBackendType(BACKEND_TYPE_GOOGLE);
 		// speech.setLanguage("fr");
-		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about.");
-		speech.speak("goodby! this is an attempt to generate inflection did it work?");
+		speech.speakBlocking("hello hi there hello how are you i am great you are wonderful what is up hi ya whazzzup yo");
+		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about. I love to talk I love to talk");
+		speech.speak("goodby this is an attempt to generate inflection did it work");
 		speech.speak("blah there. this is a long and detailed message");
 		speech.speak("1 2 3 4 5 6 7 8 9 10, i know how to count");
 		speech.speak("the time is 12:30");

@@ -33,7 +33,7 @@ public class Motor_ArduinoGUI extends MotorControllerPanel implements ActionList
 		this.myService = myService;
 		this.arduinoName = controllerName;
 		this.motorName = motorName;
-		Arduino o = (Arduino) myService.sendBlocking(controllerName, "publishState", null);
+		Arduino o = (Arduino) myService.sendBlocking(controllerName, "publishState", (Object[])null);
 		pinList = o.getPinList();
 
 		for (int i = 0; i < pinList.size(); ++i) {

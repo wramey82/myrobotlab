@@ -41,6 +41,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SimpleTimeZone;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.myrobotlab.arduino.PApplet;
 import org.myrobotlab.arduino.compiler.AvrdudeUploader;
@@ -131,6 +134,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	private boolean connected = false;
 
+	BlockingQueue<String> blockingData = new LinkedBlockingQueue<String>();
+
 	/**
 	 * MotorData is the combination of a Motor and any controller data needed to
 	 * implement all of MotorController API
@@ -176,6 +181,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int DIGITAL_TRIGGER_ONLY_ON = 23;
 	public static final int DIGITAL_TRIGGER_ONLY_OFF = 24;
 	public static final int SET_SERIAL_RATE = 25;
+	public static final int GET_MRLCOMM_VERSION = 26;
 
 	// servo related
 	public static final int SERVO_SWEEP = 10;
@@ -551,6 +557,22 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		serialSend(DIGITAL_WRITE, address, value);
 	}
 
+	public String getVersion() {
+		try {
+			serialSend(GET_MRLCOMM_VERSION, 0, 0);
+			blockingData.clear();
+			return blockingData.poll(1000, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			Logging.logException(e);
+			return null;
+		}
+	}
+
+	public String publishVersion(String version) {
+		blockingData.add(version);
+		return version;
+	}
+
 	// FIXME - deprecate
 	public void pinMode(IOData io) {
 		pinMode(io.address, io.value);
@@ -684,8 +706,16 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 							// msg[2] PIN
 							// msg[3] HIGHBYTE
 							// msg[4] LOWBYTE
-							Pin p = new Pin(msg[2], msg[1], (((msg[3] & 0xFF) << 8) + (msg[4] & 0xFF)), getName());
-							invoke(SensorDataPublisher.publishPin, p);
+							if ((msg[0] & 0xFF) != MAGIC_NUMBER)
+							{
+								warn("bad magic number - discarding data");
+							} else if (msg[1] == GET_MRLCOMM_VERSION)
+							{
+								invoke("publishVersion", "" + msg[2]);
+							} else {
+								Pin p = new Pin(msg[2], msg[1], (((msg[3] & 0xFF) << 8) + (msg[4] & 0xFF)), getName());
+								invoke(SensorDataPublisher.publishPin, p);
+							}
 						}
 
 						numBytes = 0;
@@ -1107,6 +1137,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return msg;
 	}
 
+	public final String expectedVersion = "1";
 	public boolean connect() {
 
 		if (serialDevice == null) {
@@ -1123,6 +1154,18 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				serialDevice.open();
 				serialDevice.addEventListener(this);
 				serialDevice.notifyOnDataAvailable(true);
+				sleep(1000);
+				
+				// TODO boolean config - supress getting version
+				String version = getVersion();
+				if (version == null)
+				{
+					warn("did not get response from arduino....");
+				} else if (!version.equals(expectedVersion)) {
+					warn(String.format("MRLComm.ino responded with version %s expected version is %s", version, expectedVersion));
+				} else {
+					info(String.format("responded with expected version %s ... goodtimes...", version));
+				}
 			} else {
 				log.warn(String.format("\n%s is already open, close first before opening again\n", serialDevice.getName()));
 				message(String.format("%s is already open, close first before opening again", serialDevice.getName()));
@@ -1135,8 +1178,17 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
 		message("good times...\n");
 		connected = true;
-		sleep(1); // FIXME (by dropping RXTX !!!) this is dumb the port says its open - but if you send data immediately after it FAILS ! :(
+	
 		return true;
+	}
+	
+	/**
+	 * valid means - connected and MRLComm was found at the correct version
+	 * @return
+	 */
+	public boolean isValid()
+	{
+		return expectedVersion.equals(getVersion());
 	}
 
 	public boolean isConnected() {
@@ -1251,8 +1303,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	// ----------- MotorController API End ----------------
-	
-	// FIXME - too complicated.. too much code bloat .. its nice you use names BUT 
+
+	// FIXME - too complicated.. too much code bloat .. its nice you use names
+	// BUT
 	// IT MAKES NO SENSE TO HAVE SERVOS "connecte" ON A DIFFERENT INSTANCE
 	// SO USING ACTUAL TYPES SIMPLIFIES LIFE !
 
@@ -1378,7 +1431,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		 */
 
 		// Arduino arduino = new Arduino("arduino");
-		Arduino arduino = (Arduino) Runtime.create("arduino", "Arduino");
+		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
 		// arduino.startService();
 
 		Runtime.createAndStart("python", "Python");
