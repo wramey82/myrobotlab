@@ -48,17 +48,14 @@ import java.util.Set;
 
 import javax.speech.recognition.GrammarException;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.speech.DialogManager;
 import org.myrobotlab.speech.NewGrammarDialogNodeBehavior;
+import org.slf4j.Logger;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
 import edu.cmu.sphinx.linguist.Linguist;
@@ -81,6 +78,7 @@ public class Sphinx extends Service {
 	transient SpeechProcessor speechProcessor = null;
 	HashMap<String, Message> commandMap = new HashMap<String, Message>();
 	private boolean isListening = false;
+	private String lockPhrase = null;
 
 	public Sphinx(String n) {
 		super(n, Sphinx.class.getCanonicalName());
@@ -190,6 +188,16 @@ public class Sphinx extends Service {
 		// cm.setProperty("jsgfGrammar", "grammarName", newGrammarName);
 		linguist.allocate();
 	}
+	
+	void lockOutAllGrammarExcept(String lockPhrase)
+	{
+		this.lockPhrase  = lockPhrase;
+	}
+	
+	void clearLock()
+	{
+		lockPhrase = null;
+	}
 
 	class SpeechProcessor extends Thread {
 		Sphinx myService = null;
@@ -237,9 +245,14 @@ public class Sphinx extends Service {
 					// log.error(result.getBestPronunciationResult());
 					if (result != null) {
 						String resultText = result.getBestFinalResultNoFiller();
+						log.info("recognized: " + resultText + '\n');
 						if (resultText.length() > 0 && isListening) {
+							if (lockPhrase != null && !lockPhrase.equals(resultText))
+							{
+								log.info(String.format("but locked on %s", lockPhrase));
+								continue;
+							}
 							invoke("recognized", resultText);
-							log.info("recognized: " + resultText + '\n');
 						}
 
 					} else {

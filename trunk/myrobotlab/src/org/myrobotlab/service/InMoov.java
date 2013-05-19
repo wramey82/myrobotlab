@@ -370,16 +370,18 @@ public class InMoov extends Service {
 
 	}
 
-	public void voiceControl(boolean b) {
+	public void lockOutAllGrammarExcept(String keyPhrase) {
 		if (ear == null)
 		{
 			warn("ear not attached");
+			return;
 		}
-		if (b) {
-			ear.resumeListening();
-		} else {
-			ear.pauseListening();
-		}
+		ear.lockOutAllGrammarExcept(keyPhrase);
+	}
+	
+	public void clearGrammarLock()
+	{
+		ear.clearLock();
 	}
 
 	public void stopListening() {

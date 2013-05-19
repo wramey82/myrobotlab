@@ -43,9 +43,9 @@ def heard():
   elif (data == "close hand"):
     inMoov.handClose("right")
   elif (data == "manual"):
-    inMoov.voiceControl(False)
+    inMoov.lockOutAllGrammarExcept("voice control")
   elif (data == "voice control"):
-    inMoov.voiceControl(False)
+    inMoov.clearGrammarLock()
   elif (data == "capture gesture"):
     inMoov.captureGesture();
 
