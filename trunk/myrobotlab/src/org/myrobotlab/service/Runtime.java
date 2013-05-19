@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -36,7 +35,6 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.ServiceInterface;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -47,7 +45,7 @@ import org.slf4j.Logger;
  * possible & running local Services It maintains state information regarding
  * foreign Runtimes It is a singleton and should be the only service of Runtime
  * running in a process The host and registry maps are used in routing
- * communication to the appropriate service (be it local or remote) It will be
+ * communication to the asppropriate service (be it local or remote) It will be
  * the first Service created It also wraps the real JVM Runtime object
  * 
  */
