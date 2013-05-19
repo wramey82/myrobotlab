@@ -450,21 +450,13 @@ public class Sphinx extends Service {
 		return talking;
 	}
 
-	public boolean attach(String serviceName) {
-		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
-		// TODO - in the future make a common interface for
-		// more than one implementation of STT - at the moment there is only one
-
-		// type checking
-		if (sw == null || !sw.getServiceType().equals("org.myrobotlab.service.Speech")) {
-			log.error(String.format("can not attach to %s because its not registered or of the wrong type", serviceName));
-			return false;
-		}
+	// TODO - make "Speech" interface if desired
+	public boolean attach(Speech mouth) {
 
 		// if I'm speaking - I shouldn't be listening
-		subscribe("isSpeaking", serviceName, "isSpeaking", Boolean.class);
+		subscribe("isSpeaking", mouth.getName(), "isSpeaking", Boolean.class);
 
-		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", serviceName, getName()));
+		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", mouth.getName(), getName()));
 		return true;
 	}
 

@@ -26,7 +26,7 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("rest | open hand | close hand | one | two | three | four | five | manual | voice control| gesture")
+inMoov.startListening("rest | open hand | close hand | one | two | three | four | five | manual | voice control| capture gesture")
 
 # voice control
 def heard():
@@ -46,6 +46,8 @@ def heard():
     inMoov.voiceControl(False)
   elif (data == "voice control"):
     inMoov.voiceControl(False)
+  elif (data == "capture gesture"):
+    inMoov.captureGesture();
 
 inMoov.moveHand("right",50,28,30,10,10,90)
 
