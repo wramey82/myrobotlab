@@ -363,7 +363,7 @@ public class InMoov extends Service {
 	}
 
 	public void startListening(String grammar) {
-		ear.attach(mouth.getName());
+		ear.attach(mouth);
 		ear.addListener("recognized", "python", "heard", String.class);
 		ear.createGrammar(grammar);
 		ear.startListening();

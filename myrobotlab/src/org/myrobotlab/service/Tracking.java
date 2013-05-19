@@ -432,35 +432,31 @@ public class Tracking extends Service {
 		setState(STATE_IDLE);
 	}
 	
-	public void trackPoint(Float x, Float y) {
+	public void trackPoint(float x, float y) {
 
 		if (!STATE_LK_TRACKING_POINT.equals(state))
 		{
 			startLKTracking();
 		}
-		// FIXME - clear points
-		// eye.invokeFilterMethod("clearPoints", method, params)
+
 		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
-		// set point
-	
-//		videoOn();
 	}
 	
 	// GAAAAAAH figure out if (int , int) is SUPPORTED WOULD YA !
-	public void trackPoint(Integer x, Integer y) {
+	public void trackPoint(int x, int y) {
 
 		if (!STATE_LK_TRACKING_POINT.equals(state))
 		{
 			startLKTracking();
 		}
-		// FIXME - clear points
-		// eye.invokeFilterMethod("clearPoints", method, params)
 		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
-		// set point
-	
-//		videoOn();
 	}
 
+	public void clearTrackingPoints()
+	{
+		 eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "clearPoints");
+	}
+	
 	public void setForegroundBackgroundFilter() {
 
 		// set filters
@@ -631,7 +627,7 @@ public class Tracking extends Service {
 		if (data == null)
 		{
 			// lost track event ?!?
-			log.info("data arriving, but no point array - tracking point missing?");
+//			log.info("data arriving, but no point array - tracking point missing?");
 			return;
 		}
 		++cnt;
