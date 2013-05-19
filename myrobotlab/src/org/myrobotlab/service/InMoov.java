@@ -89,6 +89,7 @@ public class InMoov extends Service {
 		arduino.setBoard(boardType);
 		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
 		sleep(1000);
+		setArduino(key, arduino);
 		return arduino;
 	}
 
@@ -103,9 +104,12 @@ public class InMoov extends Service {
 		} else if (key == right)
 		{
 			handRight = hand;
+		} else {
+			error(String.format("could not attach %s hand", key));
 		}
 	
 		hand.attach(arduino, key);
+		mouth.speak(String.format("%s hand successfully attached", key));
 		return hand;
 	}
 	
@@ -268,27 +272,33 @@ public class InMoov extends Service {
 		// check arduinos
 
 		mouth.speak("starting system check");
+		mouth.speak("testing");
 
 		rest();
-		
+		sleep(500);
 		if (armLeft != null)
 		{
+			mouth.speak("left arm");
 			armLeft.moveTo(10, 100, 40, 20);
 		}
 		if (armRight != null)
 		{
+			mouth.speak("right arm");
 			armRight.moveTo(10, 100, 40, 20);
 		}	
 		
 		if (handLeft != null)
 		{
+			mouth.speak("left hand");
 			handLeft.moveTo(10, 10, 10, 10, 10, 10);
 		}
 		if (handRight != null)
 		{
+			mouth.speak("right hand");
 			handRight.moveTo(10, 10, 10, 10, 10, 10);
 		}
 
+		sleep(500);
 		rest();
 
 		// check servos
@@ -360,16 +370,16 @@ public class InMoov extends Service {
 
 	}
 
-	public void startListening() {
-		ear.startListening();
-	}
-
-	public void pauseListening() {
-		ear.pauseListening();
-	}
-
-	public void resumeListening() {
-		ear.resumeListening();
+	public void voiceControl(boolean b) {
+		if (ear == null)
+		{
+			warn("ear not attached");
+		}
+		if (b) {
+			ear.resumeListening();
+		} else {
+			ear.pauseListening();
+		}
 	}
 
 	public void stopListening() {
@@ -392,36 +402,6 @@ public class InMoov extends Service {
 		mouth.setLanguage(lang);
 		return true;
 	}
-	/*
-	boolean isTracking = false;
-
-	
-	public void startTracking() {
-		if (isTracking) {
-			log.warn("already tracking");
-			return;
-		}
-
-		isTracking = true;
-		eye.addFilter("pyramidDown1", "PyramidDown");
-		eye.addFilter("lkOpticalTrack1", "LKOpticalTrack");
-		eye.setDisplayFilter("lkOpticalTrack1");
-		eye.capture();
-		sleep(500);
-		eye.invokeFilterMethod("lkOpticalTrack1", "samplePoint", 160, 120);
-	}
-
-	public void stopTracking() {
-		if (!isTracking) {
-			log.warn("already stopped tracking");
-			return;
-		}
-
-		isTracking = false;
-		eye.removeAllFilters();
-		eye.stopCapture();
-	}
-	*/
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
