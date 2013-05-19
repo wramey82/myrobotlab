@@ -1975,6 +1975,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private long lastWarn = 0;
 	private long lastError = 0;
 
+	public String lastErrorMsg;
+	
 	public void info(String msg)
 	{
 		log.info(msg);
@@ -1982,19 +1984,35 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		if (System.currentTimeMillis() - lastInfo > 300)
 		{
 			invoke("publishStatus", "info",  msg);
+			lastInfo = System.currentTimeMillis();
 		}
 	}
 
 	public void error(String msg)
 	{
+		lastErrorMsg = msg;
 		log.error(msg);
-		invoke("publishStatus", "error", msg);
+		if (System.currentTimeMillis() - lastWarn > 300)
+		{
+			invoke("publishStatus", "error", msg);
+			lastWarn = System.currentTimeMillis();
+		}
+	}
+	
+	public String getLastError()
+	{
+		return lastErrorMsg;
 	}
 	
 	public void warn(String msg)
 	{
+		lastErrorMsg = msg;
 		log.error(msg);
-		invoke("publishStatus", "warn", msg);
+		if (System.currentTimeMillis() - lastError > 300)
+		{
+			invoke("publishStatus", "warn", msg);
+			lastError = System.currentTimeMillis();
+		}
 	}
 
 	public String publishStatus(String status, String msg)

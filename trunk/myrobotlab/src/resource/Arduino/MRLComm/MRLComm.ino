@@ -65,6 +65,8 @@
 #define DIGITAL_TRIGGER_ONLY_ON          23
 #define DIGITAL_TRIGGER_ONLY_OFF         24
 #define SET_SERIAL_RATE			         25
+#define SET_SERIAL_RATE			         25
+#define GET_MRLCOMM_VERSION				 26
 
 #define COMMUNICATION_RESET	   252
 #define SOFT_RESET			   253
@@ -368,7 +370,13 @@ void loop () {
 			delay(500);
 			Serial.begin(ioCommand[2]);
 			break;
-			
+		case GET_MRLCOMM_VERSION:
+			Serial.write(MAGIC_NUMBER);
+			Serial.write(GET_MRLCOMM_VERSION);
+			Serial.write((byte)1); 
+			Serial.write((byte)0);
+			Serial.write((byte)0);
+			break;
 		case SOFT_RESET:
 			softReset();
 			break;
