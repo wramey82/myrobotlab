@@ -80,7 +80,8 @@ public class Mouse extends Service {
 						invoke("publishMouse", new MouseData((float) mousePos.x
 								/ (float) bounds.getWidth(), (float) mousePos.y
 								/ (float) bounds.getHeight()));
-
+						invoke("publishMouseRaw", new MouseData(
+								(float) mousePos.x, (float) mousePos.y));
 					}
 					oldMousePos = mousePos;
 					Thread.sleep(200);
@@ -132,7 +133,7 @@ public class Mouse extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
@@ -152,6 +153,10 @@ public class Mouse extends Service {
 		return value;
 	}
 
+	public MouseData publishMouseRaw(MouseData value) {
+		return value;
+	}
+
 	public MouseData publishMouse(MouseData value) {
 		return value;
 	}
@@ -161,9 +166,15 @@ public class Mouse extends Service {
 				(int) (value.y * (float) bounds.height));
 	}
 
+	// 0.0 - 1.0 scaled to full screen dimenstions
 	public void moveTo(float x1, float y1) {
 		robot.mouseMove((int) ((float) x1 * (float) bounds.width),
 				(int) (y1 * (float) bounds.height));
+	}
+
+	// pixel coordinates
+	public void moveTo(int x1, int y1) {
+		robot.mouseMove(x1, y1);
 	}
 
 	// buttons = use bit mask constants
