@@ -233,7 +233,7 @@ public class Speech extends Service {
 		if (backendType == BackendType.FREETTS) { // festival tts
 			speakFreeTTS(toSpeak);
 		} else if (backendType == BackendType.GOOGLE) { // festival tts
-			speakGoogle(toSpeak);
+			speakGoogle(toSpeak.replace("?","")); // needed ? is not a valid in a filename - TODO - look up all characters
 		} else {
 			log.error("back-end speech backendType " + backendType + " not supported ");
 			return false;

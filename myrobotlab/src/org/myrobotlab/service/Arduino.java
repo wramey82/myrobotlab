@@ -559,9 +559,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public String getVersion() {
 		try {
-			serialSend(GET_MRLCOMM_VERSION, 0, 0);
-			blockingData.clear();
-			return blockingData.poll(1000, TimeUnit.MILLISECONDS);
+			if (serialDevice != null)
+			{
+				serialSend(GET_MRLCOMM_VERSION, 0, 0);
+				blockingData.clear();
+				return blockingData.poll(1000, TimeUnit.MILLISECONDS);
+			} else {
+				return null;
+			}
+			
 		} catch (Exception e) {
 			Logging.logException(e);
 			return null;

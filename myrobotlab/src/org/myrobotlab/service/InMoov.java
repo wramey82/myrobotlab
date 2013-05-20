@@ -435,9 +435,13 @@ public class InMoov extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
+		
+		String test = "could not attach servo to pin 7 serial port in null - not initialized?.mp3";
+		log.info(test.replace("?:", ""));
+		
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
+		
 /*
 		Arduino arduino = new Arduino("arduino");
 
