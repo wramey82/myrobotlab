@@ -75,7 +75,7 @@ def rest():
   inMoov.setArmSpeed("right", 0.75, 0.75, 0.75, 0.75)
   inMoov.setHeadSpeed( 0.75, 0.75)
   inMoov.moveHead(90,90)
-  inMoov.moveArm("left",0,84,16,15)
+  inMoov.moveArm("left",0,85,16,15)
   inMoov.moveArm("right",0,73,29,15)
   inMoov.moveHand("left",50,28,30,10,10,90)
   inMoov.moveHand("right",10,10,10,10,10,90)
