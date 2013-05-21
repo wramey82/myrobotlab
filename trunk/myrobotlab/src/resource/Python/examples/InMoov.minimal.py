@@ -1,4 +1,6 @@
 # a very minimal script for InMoov
+# although this script is very short you can still
+# do voice control of a right hand or finger box
 inMoov = Runtime.createAndStart("inMoov", "InMoov")
 
 # attach an arduino to InMoov

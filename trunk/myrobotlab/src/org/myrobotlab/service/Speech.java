@@ -230,6 +230,7 @@ public class Speech extends Service {
 	
 	public boolean speakBlocking(String toSpeak)
 	{
+		if (toSpeak == null) return false;
 		if (backendType == BackendType.FREETTS) { // festival tts
 			speakFreeTTS(toSpeak);
 		} else if (backendType == BackendType.GOOGLE) { // festival tts

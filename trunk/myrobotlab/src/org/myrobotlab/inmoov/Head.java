@@ -1,20 +1,30 @@
 package org.myrobotlab.inmoov;
 
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Tracking;
+import org.slf4j.Logger;
 
 public class Head {
+
+	public final static Logger log = LoggerFactory.getLogger(Head.class);
 
 	private InMoov inmoov;
 	public boolean allowMove = true;
 
 	public void attach(InMoov inmoov) {
 		this.inmoov = inmoov;
+		
+		if (inmoov.arduinoHead == null)
+		{
+			inmoov.error("arduino for head not set, can not attach head");
+		}
+
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
-
+		
 		inmoov.arduinoHead.servoAttach(inmoov.neck.getName(), 12);
 		inmoov.arduinoHead.servoAttach(inmoov.rothead.getName(), 13);
 
@@ -34,6 +44,7 @@ public class Head {
 		inmoov.tracking.x = inmoov.rothead;
 		inmoov.tracking.y = inmoov.neck;
 		inmoov.tracking.eye = inmoov.eye;		
+		inmoov.tracking.arduino = inmoov.arduinoHead;
 		inmoov.tracking.startService();
 		
 		
@@ -74,5 +85,29 @@ public class Head {
 		inmoov.neck = null;
 		inmoov.tracking.releaseService();
 		inmoov.tracking = null;
+	}
+
+	public boolean isValid() {
+		if (inmoov == null)
+		{
+			log.error("head can not find inmoov");
+			return false;
+		}
+		if (inmoov.arduinoHead == null)
+		{
+			inmoov.error("can not attach to arduino head invalid");
+			return false;
+		}
+		if ((inmoov.rothead == null) || !inmoov.rothead.isAttached())
+		{
+			inmoov.error("head rotation servo not attached");
+			return false;
+		}
+		if ((inmoov.neck == null) || !inmoov.neck.isAttached())
+		{
+			inmoov.error("head neck servo not attached");
+			return false;
+		}
+		return true;
 	}
 }

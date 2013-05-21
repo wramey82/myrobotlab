@@ -210,16 +210,13 @@ public class TestCatcher extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Runtime runtime = new Runtime("catchRuntime");
-		runtime.startService();
 		TestCatcher catcher01 = new TestCatcher("catcher01");
-		RemoteAdapter remote01 = new RemoteAdapter("remote01");
-		// GUIService gui = new GUIService("gui");
-
 		catcher01.startService();
-		remote01.startService();
-		// gui.startService();
-
-		// gui.display();
+		
+		TestThrower thrower = new TestThrower("thrower");
+		thrower.startService();
+		
+		//thrower.throwInteger(count);
+		
 	}
 }
