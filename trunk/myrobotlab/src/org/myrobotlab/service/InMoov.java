@@ -125,7 +125,7 @@ public class InMoov extends Service {
 		{
 			return handRight;
 		}
-		error(String.format("%s hand not found"));
+		error(String.format("%s hand not found", key));
 		return null;
 	}
 
