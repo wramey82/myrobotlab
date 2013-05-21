@@ -74,12 +74,16 @@ public class InMoov extends Service {
 	public void setArduino(String key, Arduino arduino) {
 		if (key.equals(left))
 		{
+			if (arduino == null)
+			{
+				
+			}
 			arduinoLeft = arduino;
 		} else if (key.equals(right))
 		{
 			arduinoRight = arduino;
 		} 
-		log.error("setArduino ({}, Arduino) must be left or right");
+		log.error(String.format("setArduino (%s, Arduino) must be left or right"));
 	}
 
 	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
@@ -173,13 +177,14 @@ public class InMoov extends Service {
 	}
 	public Head attachHead(Arduino arduino) {
 		if (arduino == null) {
-			log.error("arduino not valid");
+			error("invalid arduino and not attach head");
 		}
 		if (head != null)
 		{
 			log.info("head already attached - must release first");
 			return head;
 		}
+		arduinoHead = arduino;
 		head = new Head();
 		head.attach(this);
 		return head;
@@ -300,7 +305,12 @@ public class InMoov extends Service {
 		if (head != null)
 		{
 			mouth.speakBlocking("head");
-			head.move(100, 100);
+			if (head.isValid())
+			{
+				mouth.speakBlocking(getLastError());
+			} else {
+				head.move(100, 100);
+			}
 		}
 		
 		if (armLeft != null)

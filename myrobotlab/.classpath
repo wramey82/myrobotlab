@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="org/myrobotlab/service/Android.java|org/myrobotlab/service/ArduinoBT.java|processing/app/tools/format/src/" kind="src" path="src"/>
+	<classpathentry excluding="org/myrobotlab/service/Android.java|org/myrobotlab/service/ArduinoBT.java|processing/app/tools/format/src/|org/myrobotlab/service/LeapListener.java|org/myrobotlab/service/LeapMotion.java|org/myrobotlab/leapmotion/LeapListener.java|resource/Java/examples/LeapMotion.java|resource/Java/examples/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.centralnexus.joystick/joystick/0.7/Joystick.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.google.gson/gson/1.7.1/gson-1.7.1.jar"/>

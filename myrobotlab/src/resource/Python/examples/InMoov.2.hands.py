@@ -4,9 +4,13 @@
 # with a microphone and speakers is needed for voice
 # control and speech synthesis
 
+# ADD SECOND STAGE CONFIRMATION
+#  instead of saying: you said... it would say: did you say...? and I would confirm with yes or give the voice command again
+#  face tracking in InMoov ... activated by voice ...
+
 inMoov = Runtime.createAndStart("inMoov", "InMoov")
 
-# attach an arduino to InMoov
+# attach an arduinos to InMoov
 # possible board types include uno atmega168 atmega328p atmega2560 atmega1280 atmega32u4
 # the MRLComm.ino sketch must be loaded into the Arduino for MyRobotLab control
 inMoov.attachArduino("right","uno","COM12")
