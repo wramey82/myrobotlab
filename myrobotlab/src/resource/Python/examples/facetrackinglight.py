@@ -28,16 +28,10 @@ opencv.startService()
 opencv.setCameraIndex(1)
 eye.setCameraIndex(1)
  
-# flip the pid if needed
-#xpid.invert()
+#i'm wondering if these are working??? they are by default...
 xpid.setOutputRange(-3, 3)
-xpid.setPID(10.0, 5, 1.0)
-xpid.setSetpoint(0.5) # we want the target in the middle of the x
- 
-# flip the pid if needed
-#ypid.invert()
+xpid.setSetpoint(0.5)
 ypid.setOutputRange(-3, 3)
-ypid.setPID(10.0, 5, 1.0)
 ypid.setSetpoint(0.5)
  
 # set safety limits - servos
@@ -55,6 +49,12 @@ tracker.attach(arduino)
 tracker.attachServos(rotation, 3, neck, 9)
 tracker.attach(eye)
 tracker.attachPIDs(xpid, ypid)
+tracker.xpid.setPID(10.0, 0, 0.1)
+tracker.ypid.setPID(10.0, 0, 0.1)
+# flip the pid if needed
+#tracker.xpid.invert()
+#tracker.ypid.invert()
+
  
 tracker.setRestPosition(90, 72)
  
