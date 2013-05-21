@@ -56,13 +56,13 @@ tracker.ypid.setPID(10.0, 0, 0.1)
 #tracker.ypid.invert()
 
  
-tracker.setRestPosition(90, 72)
+tracker.setRestPosition(90, 90)
  
 tracker.startService()
-tracker.stopVideoStream()
 tracker.trackPoint(0.5,0.5)
 
 opencv.addFilter("pd1", "PyramidDown")
+opencv.addFilter("gray", "Gray")
 opencv.addFilter("FaceDetect1", "FaceDetect")
  
 def input():
@@ -94,8 +94,6 @@ def input():
      newy = (y/240.0)
      print newx
      print newy
-     opencv.removeFilter("FaceDetect1")
-     tracker.stopVideoStream()
      tracker.trackPoint(newx,newy)
      return object
 # create a message route from opencv to python so we can see the coordinate locations
