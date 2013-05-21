@@ -83,7 +83,7 @@ public class InMoov extends Service {
 		{
 			arduinoRight = arduino;
 		} 
-		log.error(String.format("setArduino (%s, Arduino) must be left or right"));
+		log.error(String.format("setArduino (%s, Arduino) must be left or right", key));
 	}
 
 	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
