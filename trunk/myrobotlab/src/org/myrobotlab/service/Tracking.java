@@ -208,6 +208,7 @@ public class Tracking extends Service {
 			return true;
 		}
 		info("attaching eye");
+		//eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		if (opencv != null)
 		{
@@ -267,10 +268,13 @@ public class Tracking extends Service {
 		return true;
 	} 
 	
+	// TODO - this should resolve the difference between default and externally supplied
+	// servos - NEEDS OVERLOADING (no pins)
 	public boolean attachServos(Servo inX, Integer inXPin, Servo inY, Integer inYPin)
 	{
-		info("attaching servos");
 		// FIXME - SEE IF NOT CONNECTED IF NOT CONNECTED ERROR - LOGIC SHOULD BE IN SERVOS!!!!!
+	
+		info("attaching servos");
 		if (arduino == null)
 		{
 			error("Arduino must be attached first, before servos !");
@@ -768,7 +772,9 @@ public class Tracking extends Service {
 		tracker.setServoPins(13, 12);
 		tracker.setCameraIndex(1);
 		*/
-				
+	
+		tracker.invoke("trackPoint", 100, 100);
+		/*
 		tracker.startLKTracking();
 		
 		tracker.invoke("trackPoint", 100, 100);
@@ -780,7 +786,7 @@ public class Tracking extends Service {
 		tracker.stopVideoStream();
 		tracker.startVideoStream();
 		
-		
+*/		
 		
 //		tracker.learnBackGround();
 		//tracker.searchForeground();

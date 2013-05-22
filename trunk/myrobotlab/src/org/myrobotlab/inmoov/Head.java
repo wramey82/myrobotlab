@@ -1,7 +1,9 @@
 package org.myrobotlab.inmoov;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.InMoov;
+import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Tracking;
@@ -24,6 +26,7 @@ public class Head {
 
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
+		inmoov.eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		
 		inmoov.arduinoHead.servoAttach(inmoov.neck.getName(), 12);
 		inmoov.arduinoHead.servoAttach(inmoov.rothead.getName(), 13);
@@ -43,7 +46,12 @@ public class Head {
 		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
 		inmoov.tracking.x = inmoov.rothead;
 		inmoov.tracking.y = inmoov.neck;
+		
 		inmoov.tracking.eye = inmoov.eye;		
+		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
+		inmoov.eye.capture();
+		inmoov.eye.broadcastState();
+		
 		inmoov.tracking.arduino = inmoov.arduinoHead;
 		inmoov.tracking.startService();
 		

@@ -53,7 +53,7 @@ public class InMoov extends Service {
 		// desire to start these services ....
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-		eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
+		//eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		python = (Python) Runtime.createAndStart("python", "Python");		
 	}
 	
@@ -69,6 +69,25 @@ public class InMoov extends Service {
 		} 
 		error("getArduino ({}) not found");
 		return null;
+	}
+	
+	public void setCameraIndex(Integer index)
+	{
+		if (eye == null)
+		{
+			eye = (OpenCV)Runtime.createAndStart("eye", "OpenCV");
+		}
+		eye.setCameraIndex(index);
+	}
+	
+	public void trackPoint(float x, float y)
+	{
+		if (tracking == null)
+		{
+			error("attach head before tracking");
+		} else {
+			tracking.trackPoint(x, y);
+		}
 	}
 	
 	public void setArduino(String key, Arduino arduino) {
