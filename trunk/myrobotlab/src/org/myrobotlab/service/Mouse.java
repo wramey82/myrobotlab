@@ -3,15 +3,20 @@ package org.myrobotlab.service;
 //raver1975 was here
 
 import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
 import org.myrobotlab.framework.Service;
@@ -32,6 +37,7 @@ public class Mouse extends Service {
 	private Point oldMousePos;
 	private Rectangle maxBounds;
 	private Rectangle bounds;
+	private Rectangle normalizeBounds;
 	public final static int BUTTON1_MASK = InputEvent.BUTTON1_MASK;
 	public final static int BUTTON2_MASK = InputEvent.BUTTON2_MASK;
 	public final static int BUTTON3_MASK = InputEvent.BUTTON3_MASK;
@@ -81,15 +87,34 @@ public class Mouse extends Service {
 								((float) mousePos.x / maxBounds.getWidth())));
 						invoke("publishMouseY", new Float(
 								((float) mousePos.y / maxBounds.getHeight())));
-						invoke("publishMouse", new MouseData((float) mousePos.x
-								/ (float) maxBounds.getWidth(), (float) mousePos.y
-								/ (float) maxBounds.getHeight()));
+						invoke("publishMouse",
+								new MouseData((float) mousePos.x
+										/ (float) maxBounds.getWidth(),
+										(float) mousePos.y
+												/ (float) maxBounds.getHeight()));
 						invoke("publishMouseRaw", new MouseData(
 								(float) mousePos.x, (float) mousePos.y));
 					}
 					oldMousePos = mousePos;
-					SerializableImage si=new SerializableImage(robot.createScreenCapture(bounds),"screenshot");
-					invoke("publishDisplay",si );
+					BufferedImage bi = robot.createScreenCapture(bounds);
+
+
+					if (normalizeBounds != null) {
+//						System.out.println(mousePos.,"+ mousePos.y*normalizeBounds.height/bounds.height);
+						bi = Mouse.resize(bi, normalizeBounds.width,
+								normalizeBounds.height);
+						java.awt.Graphics g = bi.getGraphics();
+						g.setColor(Color.blue);
+						g.fillOval(((mousePos.x-(int)bounds.getMinX())*normalizeBounds.width)/bounds.width - 2, ((mousePos.y-(int)bounds.getMinY())*normalizeBounds.height)/bounds.height-2, 5, 5);
+					}
+					else{
+						java.awt.Graphics g = bi.getGraphics();
+						g.setColor(Color.blue);
+						g.fillOval(mousePos.x-(int)bounds.getMinX() - 2, mousePos.y -(int)bounds.getMinY()- 2, 5, 5);
+					}
+					SerializableImage si = new SerializableImage(bi,
+							"screenshot");
+					invoke("publishDisplay", si);
 					Thread.sleep(100);
 				}
 			} catch (InterruptedException e) {
@@ -117,7 +142,8 @@ public class Mouse extends Service {
 				maxBounds = maxBounds.union(gc[i].getBounds());
 			}
 		}
-		bounds=(Rectangle) maxBounds.clone();
+		bounds = (Rectangle) maxBounds.clone();
+		normalizeBounds = new Rectangle(800, 600);
 		new MouseThread();
 	}
 
@@ -154,23 +180,39 @@ public class Mouse extends Service {
 	public MouseData publishMouse(MouseData value) {
 		return value;
 	}
-	
-	public SerializableImage publishDisplay(SerializableImage value){
+
+	public SerializableImage publishDisplay(SerializableImage value) {
 		return value;
 	}
 
 	// end publish methods-----------------------
-	
-	public Rectangle getBounds(){
+
+	private static BufferedImage resize(BufferedImage img, int newW, int newH) {
+		int w = img.getWidth();
+		int h = img.getHeight();
+		BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
+		Graphics2D g = dimg.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(img, 0, 0, newW, newH, 0, 0, w, h, null);
+		g.dispose();
+		return dimg;
+	}
+
+	public void normalize(Rectangle bounds) {
+		normalizeBounds = bounds;
+	}
+
+	public Rectangle getBounds() {
 		return bounds;
 	}
-	
-	public Rectangle getMaxBounds(){
+
+	public Rectangle getMaxBounds() {
 		return maxBounds;
 	}
 
-	public void setBounds(Rectangle rect){
-		bounds=maxBounds.intersection(rect);
+	public void setBounds(Rectangle rect) {
+		bounds = maxBounds.intersection(rect);
 	}
 
 	public void moveTo(MouseData value) {
@@ -205,7 +247,7 @@ public class Mouse extends Service {
 		}).start();
 	}
 
-	//type a real key 
+	// type a real key
 	public void type(final char c) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -241,7 +283,7 @@ public class Mouse extends Service {
 		}).start();
 	}
 
-	//type a string
+	// type a string
 	public void type(final String s) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -284,7 +326,6 @@ public class Mouse extends Service {
 			}
 		}).start();
 	}
-
 
 	private KeyData getKeyEventFromChar(final char c) {
 		int press = -1;
@@ -621,16 +662,17 @@ public class Mouse extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
-		Mouse mouse=(Mouse) Runtime.createAndStart("mouse", "Mouse");
-		mouse.setBounds(new Rectangle(500,500));
-		//VideoStreamer stream=(VideoStreamer)Runtime.createAndStart("stream","VideoStreamer");
-		//stream.subscribe("publishDisplay", mouse.getName(), "publishDisplay", SerializableImage.class);
-		
-		
+		Mouse mouse = (Mouse) Runtime.createAndStart("mouse", "Mouse");
+		// mouse.setBounds(new Rectangle(500,500));
+		// VideoStreamer
+		// stream=(VideoStreamer)Runtime.createAndStart("stream","VideoStreamer");
+		// stream.subscribe("publishDisplay", mouse.getName(), "publishDisplay",
+		// SerializableImage.class);
+
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
