@@ -82,11 +82,22 @@ public class InMoov extends Service {
 	
 	public void trackPoint(float x, float y)
 	{
+		// FIXME - do this !!  its re-entrant tracking = Runtime.createAndStart(name, type)
 		if (tracking == null)
 		{
 			error("attach head before tracking");
 		} else {
 			tracking.trackPoint(x, y);
+		}
+	}
+	
+	public void clearTrackingPoints()
+	{
+		if (tracking == null)
+		{
+			error("attach head before tracking");
+		} else {
+			tracking.clearTrackingPoints();
 		}
 	}
 	

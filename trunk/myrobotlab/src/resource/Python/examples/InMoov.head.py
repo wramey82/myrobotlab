@@ -10,3 +10,28 @@ inMoov.attachArduino("left","uno","COM12")
 inMoov.setCameraIndex(1)
 inMoov.attachHead("left")
 inMoov.trackPoint(0.5,0.5)
+
+# system check
+inMoov.systemCheck()
+ 
+# listen for these key words
+# to get voice to work - you must be attached to the internet for
+# at least the first time
+inMoov.startListening("track | stop tracking | manual | voice control")
+ 
+# voice control
+def heard():
+  data = msg_ear_recognized.data[0]
+  print "heard ", data
+
+  mouth.speak("you said " + data)
+  if (data == "rest"):
+    inMoov.rest() 
+  elif (data == "track"):
+    inMoov.trackPoint(0.5,0.5)
+  elif (data == "stop tracking"):
+    inMoov.clearTrackingPoints();
+  elif (data == "manual"):
+    inMoov.lockOutAllGrammarExcept("voice control")
+  elif (data == "voice control"):
+    inMoov.clearGrammarLock()
