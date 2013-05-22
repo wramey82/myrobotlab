@@ -99,6 +99,10 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	public CvRect rect = new CvRect();
 	public boolean makeTemplate = false;
 
+	public void samplePoint(Float x, Float y) {
+		samplePoint((int) (x * width), (int) (y * height));
+	}
+	
 	public void samplePoint(Integer x, Integer y) {
 		// MouseEvent me = (MouseEvent)params[0];
 		// if (event.getButton() == 1) {
