@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -72,6 +73,7 @@ public class Runtime extends Service {
 
 	// ---- rte members end ------------------------------
 
+	private static long uniqueID = new Random(System.currentTimeMillis()).nextLong();
 	
 	// ---- Runtime members begin -----------------
 	public final ServiceInfo serviceInfo = new ServiceInfo();
@@ -1952,4 +1954,15 @@ public class Runtime extends Service {
 		}
 	}
 
+	/**
+	 * unique id's are need for sendBlocking - to uniquely identify the message 
+	 * this is a method to support that - it is unique within a process, but not
+	 * accross processes
+	 * @return a unique id
+	 */
+	public static synchronized long getUniqueID()
+	{
+		 ++uniqueID;
+		 return uniqueID;
+	}
 }

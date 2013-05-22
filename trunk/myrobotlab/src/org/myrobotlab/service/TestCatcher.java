@@ -216,6 +216,17 @@ public class TestCatcher extends Service {
 		TestThrower thrower = new TestThrower("thrower");
 		thrower.startService();
 		
+		catcher01.subscribe("throwInteger", thrower.getName(), "catchInteger", Integer.class);
+		
+		for (int i = 0; i < 1000; ++i)
+		{
+			thrower.invoke("throwInteger", i);
+			if (i%100 == 0)
+			{
+				thrower.sendBlocking(catcher01.getName(), "catchInteger");
+			}
+		}
+		
 		//thrower.throwInteger(count);
 		
 	}

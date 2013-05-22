@@ -1427,6 +1427,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Message msg = createMessage(name, method, data);
 		msg.sender = this.getName();
 		msg.status = Message.BLOCKING;
+		msg.msgID = Runtime.getUniqueID();
 
 		Object[] returnContainer = new Object[1];
 		/*

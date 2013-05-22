@@ -53,7 +53,7 @@ public class Message implements Serializable {
 	 * unique identifier for this message - TODO remove
 	 */
 	@Element
-	public String msgID;
+	public long msgID;
 	/**
 	 * datetimestamp when message is created GMT - hashCode?
 	 */
@@ -175,8 +175,8 @@ public class Message implements Serializable {
 	public Object[] data;
 
 	public Message() {
-		msgID = String.format("%d",System.currentTimeMillis()); // currently just a timestamp - but it can be more unique if needed
 		timeStamp = System.currentTimeMillis();
+		msgID = timeStamp; // currently just a timestamp - but it can be more unique if needed
 		name = new String();
 		sender = new String();
 		sendingMethod = new String();
