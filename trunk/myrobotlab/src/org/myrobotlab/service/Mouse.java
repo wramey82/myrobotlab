@@ -1,5 +1,7 @@
 package org.myrobotlab.service;
 
+//raver1975 was here
+
 import java.awt.AWTException;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -13,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.io.Serializable;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -27,6 +30,7 @@ public class Mouse extends Service {
 	private Robot robot;
 	private Point mousePos;
 	private Point oldMousePos;
+	private Rectangle maxBounds;
 	private Rectangle bounds;
 	public final static int BUTTON1_MASK = InputEvent.BUTTON1_MASK;
 	public final static int BUTTON2_MASK = InputEvent.BUTTON2_MASK;
@@ -74,17 +78,19 @@ public class Mouse extends Service {
 					mousePos = MouseInfo.getPointerInfo().getLocation();
 					if (!mousePos.equals(oldMousePos)) {
 						invoke("publishMouseX", new Float(
-								((float) mousePos.x / bounds.getWidth())));
+								((float) mousePos.x / maxBounds.getWidth())));
 						invoke("publishMouseY", new Float(
-								((float) mousePos.y / bounds.getHeight())));
+								((float) mousePos.y / maxBounds.getHeight())));
 						invoke("publishMouse", new MouseData((float) mousePos.x
-								/ (float) bounds.getWidth(), (float) mousePos.y
-								/ (float) bounds.getHeight()));
+								/ (float) maxBounds.getWidth(), (float) mousePos.y
+								/ (float) maxBounds.getHeight()));
 						invoke("publishMouseRaw", new MouseData(
 								(float) mousePos.x, (float) mousePos.y));
 					}
 					oldMousePos = mousePos;
-					Thread.sleep(200);
+					SerializableImage si=new SerializableImage(robot.createScreenCapture(bounds),"screenshot");
+					invoke("publishDisplay",si );
+					Thread.sleep(100);
 				}
 			} catch (InterruptedException e) {
 				log.info("ClockThread interrupt");
@@ -100,7 +106,7 @@ public class Mouse extends Service {
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
-		bounds = new Rectangle();
+		maxBounds = new Rectangle();
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
@@ -108,9 +114,10 @@ public class Mouse extends Service {
 			GraphicsDevice gd = gs[j];
 			GraphicsConfiguration[] gc = gd.getConfigurations();
 			for (int i = 0; i < gc.length; i++) {
-				bounds = bounds.union(gc[i].getBounds());
+				maxBounds = maxBounds.union(gc[i].getBounds());
 			}
 		}
+		bounds=(Rectangle) maxBounds.clone();
 		new MouseThread();
 	}
 
@@ -131,19 +138,6 @@ public class Mouse extends Service {
 		robot = null;
 	}
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
-		Runtime.createAndStart("java", "Java");
-		Runtime.createAndStart("gui", "GUIService");
-		Runtime.createAndStart("mouse", "Mouse");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
-	}
-
 	// publish methods -------------------------
 	public Float publishMouseX(Float value) {
 		return value;
@@ -160,16 +154,34 @@ public class Mouse extends Service {
 	public MouseData publishMouse(MouseData value) {
 		return value;
 	}
+	
+	public SerializableImage publishDisplay(SerializableImage value){
+		return value;
+	}
+
+	// end publish methods-----------------------
+	
+	public Rectangle getBounds(){
+		return bounds;
+	}
+	
+	public Rectangle getMaxBounds(){
+		return maxBounds;
+	}
+
+	public void setBounds(Rectangle rect){
+		bounds=maxBounds.intersection(rect);
+	}
 
 	public void moveTo(MouseData value) {
-		robot.mouseMove((int) (value.x * (float) bounds.width),
-				(int) (value.y * (float) bounds.height));
+		robot.mouseMove((int) (value.x * (float) maxBounds.width),
+				(int) (value.y * (float) maxBounds.height));
 	}
 
 	// 0.0 - 1.0 scaled to full screen dimenstions
 	public void moveTo(float x1, float y1) {
-		robot.mouseMove((int) ((float) x1 * (float) bounds.width),
-				(int) (y1 * (float) bounds.height));
+		robot.mouseMove((int) ((float) x1 * (float) maxBounds.width),
+				(int) (y1 * (float) maxBounds.height));
 	}
 
 	// pixel coordinates
@@ -193,6 +205,7 @@ public class Mouse extends Service {
 		}).start();
 	}
 
+	//type a real key 
 	public void type(final char c) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -228,6 +241,7 @@ public class Mouse extends Service {
 		}).start();
 	}
 
+	//type a string
 	public void type(final String s) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -271,7 +285,6 @@ public class Mouse extends Service {
 		}).start();
 	}
 
-	// end publish methods-----------------------
 
 	private KeyData getKeyEventFromChar(final char c) {
 		int press = -1;
@@ -604,6 +617,23 @@ public class Mouse extends Service {
 			throw new IllegalArgumentException("Cannot type character " + c);
 		}
 		return new KeyData(c, press, shift ? KeyEvent.SHIFT_DOWN_MASK : 0);
+	}
 
+	public static void main(String[] args) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+
+		Runtime.createAndStart("java", "Java");
+		Runtime.createAndStart("gui", "GUIService");
+		Mouse mouse=(Mouse) Runtime.createAndStart("mouse", "Mouse");
+		mouse.setBounds(new Rectangle(500,500));
+		//VideoStreamer stream=(VideoStreamer)Runtime.createAndStart("stream","VideoStreamer");
+		//stream.subscribe("publishDisplay", mouse.getName(), "publishDisplay", SerializableImage.class);
+		
+		
+		/*
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
 	}
 }
