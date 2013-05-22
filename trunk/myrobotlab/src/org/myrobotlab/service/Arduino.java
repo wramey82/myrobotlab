@@ -1055,10 +1055,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public void upload() throws Throwable {
 		// uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj",
 		// "MRLComm", false);
-		if (sketchName == null) {
-			log.error("invalid sketchname");
-			return;
+		if (sketchName == null || sketchName == "") {
+			String resourcePath = "Arduino/MRLComm/MRLComm.ino";
+			log.info(String.format("loadResourceFile %s", resourcePath));
+			String sketch = FileIO.getResourceFile(resourcePath);
+			compile("MRLComm", sketch);
 		}
+		
 		uploader.uploadUsingPreferences(buildPath, sketchName, false);
 	}
 
