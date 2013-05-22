@@ -64,8 +64,10 @@ public class MouseGUI extends ServiceGUI implements ActionListener, MouseMotionL
 
 	public void init() {
 		video0 = new VideoWidget(boundServiceName, myService, false);
-		//video0.setNormalizedSize(400,400);
+		
 		video0.init();
+		//video0.setNormalizedSize(400,400);
+		
 		video0.getDisplay().addMouseListener(this);
 		display.setLayout(new BorderLayout());
 		display.add(video0.getDisplay(), BorderLayout.CENTER);
