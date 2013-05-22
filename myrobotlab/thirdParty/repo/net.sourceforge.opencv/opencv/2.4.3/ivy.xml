@@ -65,7 +65,7 @@
         <artifact name="x86.32.windows/opencv_video243" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/opencv_videostab243" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/tbb" type="native" ext="dll" conf="x86.32.windows"/>
-        <artifact name="x86.32.windows/lkdemo.exe" type="native" ext="exe" conf="x86.32.windows"/>
+        <artifact name="x86.32.windows/lkdemo" type="native" ext="exe" conf="x86.32.windows"/>
         
         <artifact name="x86.64.windows/opencv_calib3d243" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/opencv_contrib243" type="native" ext="dll" conf="x86.64.windows"/>
@@ -85,7 +85,7 @@
         <artifact name="x86.64.windows/opencv_video243" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/opencv_videostab243" type="native" ext="dll" conf="x86.64.windows"/>
         <artifact name="x86.64.windows/tbb" type="native" ext="dll" conf="x86.64.windows"/>
-        <!--   <artifact name="x86.64.windows/lkdemo.exe" type="native" ext="exe" conf="x86.64.windows"/> -->
+        <!--   <artifact name="x86.64.windows/lkdemo" type="native" ext="exe" conf="x86.64.windows"/> -->
         
         <artifact name="x86.64.mac/libopencv_calib3d" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
         <artifact name="x86.64.mac/libopencv_contrib" type="native" ext="2.4.dylib" conf="x86.64.mac"/>
