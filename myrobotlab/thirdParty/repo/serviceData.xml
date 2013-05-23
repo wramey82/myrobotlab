@@ -458,7 +458,7 @@
          <list>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
-            <string>net.sourceforge.teessa4j</string>
+            <string>net.sourceforge.tess4j</string>
             <string>com.sun.jna</string>
          </list>
       </dependsOn>
