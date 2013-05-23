@@ -4,6 +4,7 @@ package org.myrobotlab.service;
 
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -36,7 +37,7 @@ public class Mouse extends Service {
 	private Point oldMousePos;
 	private Rectangle maxBounds;
 	private Rectangle bounds;
-	private Rectangle normalizeBounds;
+	private Dimension resizedBounds;
 	public final static int BUTTON1_MASK = InputEvent.BUTTON1_MASK;
 	public final static int BUTTON2_MASK = InputEvent.BUTTON2_MASK;
 	public final static int BUTTON3_MASK = InputEvent.BUTTON3_MASK;
@@ -97,17 +98,17 @@ public class Mouse extends Service {
 					oldMousePos = mousePos;
 					BufferedImage bi = robot.createScreenCapture(bounds);
 
-					if (normalizeBounds != null) {
+					if (resizedBounds != null) {
 						// System.out.println(mousePos.,"+
 						// mousePos.y*normalizeBounds.height/bounds.height);
-						bi = Mouse.resize(bi, normalizeBounds.width,
-								normalizeBounds.height);
+						bi = Mouse.resize(bi, resizedBounds.width,
+								resizedBounds.height);
 						java.awt.Graphics g = bi.getGraphics();
 						g.setColor(Color.blue);
 						g.fillOval(
-								((mousePos.x - (int) bounds.getMinX()) * normalizeBounds.width)
+								((mousePos.x - (int) bounds.getMinX()) * resizedBounds.width)
 										/ bounds.width - 2,
-								((mousePos.y - (int) bounds.getMinY()) * normalizeBounds.height)
+								((mousePos.y - (int) bounds.getMinY()) * resizedBounds.height)
 										/ bounds.height - 2, 5, 5);
 					} else {
 						java.awt.Graphics g = bi.getGraphics();
@@ -146,7 +147,7 @@ public class Mouse extends Service {
 			}
 		}
 		bounds = (Rectangle) maxBounds.clone();
-		normalizeBounds = new Rectangle(800, 600);
+		resizedBounds = new Dimension(800, 600);
 		new MouseThread();
 	}
 
@@ -202,10 +203,19 @@ public class Mouse extends Service {
 		return dimg;
 	}
 
-	public void normalize(Rectangle bounds) {
-		normalizeBounds = bounds;
+	public void setResizedBounds(Dimension bounds) {
+		resizedBounds = bounds;
 	}
+	
+	public void setResize(int x,int y) {
+		resizedBounds = new Dimension(x,y);
+	}
+	
 
+	public Dimension getResize() {
+		return resizedBounds;
+	}
+	
 	public Rectangle getBounds() {
 		return bounds;
 	}
