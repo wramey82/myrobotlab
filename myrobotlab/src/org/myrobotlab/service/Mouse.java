@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -98,19 +97,23 @@ public class Mouse extends Service {
 					oldMousePos = mousePos;
 					BufferedImage bi = robot.createScreenCapture(bounds);
 
-
 					if (normalizeBounds != null) {
-//						System.out.println(mousePos.,"+ mousePos.y*normalizeBounds.height/bounds.height);
+						// System.out.println(mousePos.,"+
+						// mousePos.y*normalizeBounds.height/bounds.height);
 						bi = Mouse.resize(bi, normalizeBounds.width,
 								normalizeBounds.height);
 						java.awt.Graphics g = bi.getGraphics();
 						g.setColor(Color.blue);
-						g.fillOval(((mousePos.x-(int)bounds.getMinX())*normalizeBounds.width)/bounds.width - 2, ((mousePos.y-(int)bounds.getMinY())*normalizeBounds.height)/bounds.height-2, 5, 5);
-					}
-					else{
+						g.fillOval(
+								((mousePos.x - (int) bounds.getMinX()) * normalizeBounds.width)
+										/ bounds.width - 2,
+								((mousePos.y - (int) bounds.getMinY()) * normalizeBounds.height)
+										/ bounds.height - 2, 5, 5);
+					} else {
 						java.awt.Graphics g = bi.getGraphics();
 						g.setColor(Color.blue);
-						g.fillOval(mousePos.x-(int)bounds.getMinX() - 2, mousePos.y -(int)bounds.getMinY()- 2, 5, 5);
+						g.fillOval(mousePos.x - (int) bounds.getMinX() - 2,
+								mousePos.y - (int) bounds.getMinY() - 2, 5, 5);
 					}
 					SerializableImage si = new SerializableImage(bi,
 							"screenshot");
@@ -213,6 +216,10 @@ public class Mouse extends Service {
 
 	public void setBounds(Rectangle rect) {
 		bounds = maxBounds.intersection(rect);
+	}
+
+	public void setBounds(int x, int y, int width, int height) {
+		bounds = maxBounds.intersection(new Rectangle(x, y, width, height));
 	}
 
 	public void moveTo(MouseData value) {
@@ -667,6 +674,11 @@ public class Mouse extends Service {
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
 		Mouse mouse = (Mouse) Runtime.createAndStart("mouse", "Mouse");
+		mouse.setBounds(0, 0, 100, 100);
+		TesseractOCR tess = (TesseractOCR) Runtime.createAndStart("tess",
+				"TesseractOCR");
+		tess.subscribe("publishDisplay", mouse.getName(), "OCR");
+		//new TIFFImageWriteParam();
 		// mouse.setBounds(new Rectangle(500,500));
 		// VideoStreamer
 		// stream=(VideoStreamer)Runtime.createAndStart("stream","VideoStreamer");
