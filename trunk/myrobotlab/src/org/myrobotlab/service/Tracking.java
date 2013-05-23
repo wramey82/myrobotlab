@@ -744,7 +744,7 @@ public class Tracking extends Service {
 	
 	public void faceDetect()
 	{
-		eye.clearFilters();
+		//eye.clearFilters();
 		eye.addFilter("PyramidDown", "PyramidDown"); 
 		eye.addFilter("Gray", "Gray");
 		eye.addFilter("FaceDetect", "FaceDetect");
@@ -761,6 +761,20 @@ public class Tracking extends Service {
 	}
 	
 
+	public void test()
+	{
+		for (int i = 0; i < 1000; ++i)
+		{
+			//invoke("trackPoint", 0.5, 0.5);
+			faceDetect();
+			trackPoint(0.5f,0.5f);
+			setForegroundBackgroundFilter();
+			learnBackground();
+			searchForeground();
+			clearFilters();
+		}
+	}
+	
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
@@ -784,6 +798,7 @@ public class Tracking extends Service {
 		gui.startService();
 		gui.display();
 
+		tracker.test();
 		/*
 		tracker.setRestPosition(90, 5);
 		tracker.setSerialPort("COM12");
@@ -791,10 +806,7 @@ public class Tracking extends Service {
 		tracker.setCameraIndex(1);
 		*/
 	
-		tracker.invoke("trackPoint", 100, 100);
-		tracker.faceDetect();
-		tracker.setForegroundBackgroundFilter();
-		tracker.learnBackground();
+
 		/*
 		tracker.startLKTracking();
 		
