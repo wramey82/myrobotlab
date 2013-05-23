@@ -1,5 +1,8 @@
 package org.myrobotlab.service;
 
+import net.sourceforge.tess4j.TessAPI;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 
 import org.myrobotlab.framework.Service;
@@ -7,10 +10,9 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.memory.Memory;
-import org.myrobotlab.memory.MemoryChangeListener;
-import org.myrobotlab.memory.Node;
 import org.slf4j.Logger;
+
+import com.sun.jna.Native;
 
 
 public class TesseractOCR extends Service {
@@ -22,6 +24,9 @@ public class TesseractOCR extends Service {
 	
 	public TesseractOCR(String n) {
 		super(n, TesseractOCR.class.getCanonicalName());	
+        //TessAPI INSTANCE = (TessAPI) Native.loadLibrary("libtesseract302", TessAPI.class);
+        //System.exit(0);
+
 	}
 
 	@Override
@@ -31,7 +36,9 @@ public class TesseractOCR extends Service {
 	
 	public String OCR(SerializableImage image){
 			try {
-				return net.sourceforge.tess4j.Tesseract.getInstance().doOCR(image.getImage());
+				String hh=Tesseract.getInstance().doOCR(image.getImage());
+				System.out.println(hh);
+				return hh;
 			} catch (TesseractException e) {
 				e.printStackTrace();
 			}
