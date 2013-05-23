@@ -7,6 +7,8 @@
     </configurations>
     <publications>
         <artifact name="tess4j" type="jar"/>
+        <artifact name="ghost4j-0.3.1" type="jar"/>
+        <artifact name="jai_imageio" type="jar"/>
         <artifact name="tessdata" type="zip"/>
         
 	<artifact name="x86.32.linux/librxtxSerial" type="native" ext="so" conf="x86.32.linux"/>
