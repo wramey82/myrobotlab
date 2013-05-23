@@ -451,6 +451,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.TesseractOCR" workingLevel="2">
+      <dependsOn>
+         <description>OCR for robots !
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>net.sourceforge.teessa4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.ThingSpeak" workingLevel="2">
       <dependsOn>
          <description>Interface to ThingSpeak for data logging and charting

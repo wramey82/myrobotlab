@@ -68,5 +68,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.drjava.java/java/20120818/asm-3.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.drjava.java/java/20120818/dynamicjava-base.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.drjava.java/java/20120818/plt.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/net.sourceforge.tess4j/tessa4j/1.1/tess4j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

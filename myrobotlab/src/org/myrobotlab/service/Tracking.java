@@ -421,7 +421,7 @@ public class Tracking extends Service {
 	public void startLKTracking()
 	{
 		// set filters
-		eye.removeAllFilters();
+		eye.clearFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN); // needed ??? test
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
@@ -432,7 +432,7 @@ public class Tracking extends Service {
 	
 	public void stopLKTracking()
 	{
-		eye.removeAllFilters();
+		eye.clearFilters();
 		setState(STATE_IDLE);
 	}
 	
@@ -464,7 +464,7 @@ public class Tracking extends Service {
 	public void setForegroundBackgroundFilter() {
 
 		// set filters
-		eye.removeAllFilters();
+		eye.clearFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN);
 		eye.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
 		eye.addFilter(FILTER_ERODE);
@@ -742,6 +742,24 @@ public class Tracking extends Service {
 		this.ymax = ymax;
 	}
 	
+	public void faceDetect()
+	{
+		eye.clearFilters();
+		eye.addFilter("PyramidDown", "PyramidDown"); 
+		eye.addFilter("Gray", "Gray");
+		eye.addFilter("FaceDetect", "FaceDetect");
+		eye.setDisplayFilter("FaceDetect");
+
+		//wrong state
+		setState(STATE_LK_TRACKING_POINT);
+
+	}
+	
+	public void clearFilters()
+	{
+		eye.clearFilters();
+	}
+	
 
 	public static void main(String[] args) {
 
@@ -774,6 +792,9 @@ public class Tracking extends Service {
 		*/
 	
 		tracker.invoke("trackPoint", 100, 100);
+		tracker.faceDetect();
+		tracker.setForegroundBackgroundFilter();
+		tracker.learnBackground();
 		/*
 		tracker.startLKTracking();
 		

@@ -242,7 +242,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	public URI url = null;
 	
-	public transient final Timer timer = new Timer(String.format("%s_timer", getName()));
+	public transient final Timer timer;
 
 	transient protected CommunicationInterface cm = null;
 	/**
@@ -346,6 +346,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		
 		host = getHostName(inHost);
 		name = instanceName;
+		this.timer = new Timer(String.format("%s_timer", name));
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);

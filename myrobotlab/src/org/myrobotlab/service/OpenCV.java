@@ -324,8 +324,8 @@ public class OpenCV extends VideoSource {
 		broadcastState(); // let everyone know
 	}
 
-	public void removeAllFilters() {
-		videoProcessor.removeAllFilters();
+	public void clearFilters() {
+		videoProcessor.clearFilters();
 		broadcastState();
 	}
 
@@ -404,16 +404,6 @@ public class OpenCV extends VideoSource {
 	}
 
 	// filter dynamic data exchange end ------------------
-	
-	static public class Test
-	{
-		String field1 = "hello";
-		Integer field2 = 5;
-		int intValue = 7;
-	}
-
-	
-
 	public static Rectangle cvToAWT(CvRect rect) {
 		Rectangle boundingBox = new Rectangle();
 		boundingBox.x = rect.x();
@@ -537,6 +527,8 @@ public class OpenCV extends VideoSource {
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
 		opencv.addFilter("pyramidDown", "PyramidDown");
+		opencv.addFilter("gray", "Gray");
+		opencv.capture();
 /*		
 		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
 		opencv.addFilter("erode", "Erode");
@@ -554,7 +546,7 @@ public class OpenCV extends VideoSource {
 		// Runtime.createAndStart("python", "Python");
 		// opencv.capture();
 		
-		Runtime.createAndStart("remote", "RemoteAdapter");
+		//Runtime.createAndStart("remote", "RemoteAdapter");
 
 		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();

@@ -336,16 +336,9 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	public void removeAllFilters() {
+	public void clearFilters() {
 		synchronized (filters) {
-			Iterator<OpenCVFilter> itr = filters.iterator();
-			while (itr.hasNext()) {
-				OpenCVFilter filter = itr.next();
-//ZOD				if (!filter.name.equals("input")) {
-					itr.remove();
-//					return;
-//				}
-			}
+			filters.clear();
 		}
 	}
 
@@ -423,14 +416,14 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public OpenCVData getGoodFeatures()
 	{
-		removeAllFilters();
+		clearFilters();
 		//addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
 		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
 		//setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
 		
 		OpenCVData d = getOpenCVData();
 		log.info("good features {}", d.keySet());
-		removeAllFilters();
+		clearFilters();
 		
 		return d;
 		
