@@ -63,8 +63,11 @@ public class VideoProcessor implements Runnable, Serializable {
 	
 	OpenCVData data = new OpenCVData();
 	
-	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
+	// FIXME - more than 1 type is being used on this in more than one context BEWARE !!!!
+	// FIXME - use for RECORDING & another one for Blocking for data !!!
+	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>(); // FIXME deprecate ?? not needed ??	
 	
+	//transient VideoSources sources = new VideoSources();
 	transient HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	private transient OpenCV opencv;
@@ -526,5 +529,10 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public void setGrabber(FrameGrabber grabber) {
 		this.grabber = grabber;
+	}
+	
+	public LinkedBlockingQueue<IplImage> requestFork(String filterName, String myName)
+	{
+		return null;
 	}
 }

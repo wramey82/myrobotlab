@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
@@ -64,6 +65,8 @@ public abstract class OpenCVFilter implements Serializable {
 	public String sourceKey;
 	// FIXME - this has to be transient !  IpImages is non-serializable !!!
 	transient HashMap<String, IplImage> sources;
+	//transient HashMap<String, LinkedBlockingQueue<IplImage>> forks = new HashMap<String, LinkedBlockingQueue<IplImage>>();
+	
 	VideoProcessor vp;
 	
 	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {
