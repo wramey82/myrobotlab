@@ -1,8 +1,12 @@
 package org.myrobotlab.service;
 
-import net.sourceforge.tess4j.TessAPI;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 
 import org.myrobotlab.framework.Service;
@@ -11,8 +15,6 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import com.sun.jna.Native;
 
 
 public class TesseractOCR extends Service {
@@ -24,6 +26,11 @@ public class TesseractOCR extends Service {
 	
 	public TesseractOCR(String n) {
 		super(n, TesseractOCR.class.getCanonicalName());	
+		Map<String, String> env = System.getenv();
+		File file = new File(".");
+		Map<String, String> env1=new HashMap<String,String>(env);
+		env1.put("TESSDATA_PREFIX", file.getAbsolutePath());
+		setEnv(env);
         //TessAPI INSTANCE = (TessAPI) Native.loadLibrary("libtesseract302", TessAPI.class);
         //System.exit(0);
 
@@ -57,6 +64,43 @@ public class TesseractOCR extends Service {
 	public void releaseService()
 	{
 		super.releaseService();
+	}
+	
+	private static void setEnv(Map<String, String> newenv)
+	{
+	  try
+	    {
+	        Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
+	        Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
+	        theEnvironmentField.setAccessible(true);
+	        Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
+	        env.putAll(newenv);
+	        Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
+	        theCaseInsensitiveEnvironmentField.setAccessible(true);
+	        Map<String, String> cienv = (Map<String, String>)     theCaseInsensitiveEnvironmentField.get(null);
+	        cienv.putAll(newenv);
+	    }
+	    catch (NoSuchFieldException e)
+	    {
+	      try {
+	        Class[] classes = Collections.class.getDeclaredClasses();
+	        Map<String, String> env = System.getenv();
+	        for(Class cl : classes) {
+	            if("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
+	                Field field = cl.getDeclaredField("m");
+	                field.setAccessible(true);
+	                Object obj = field.get(env);
+	                Map<String, String> map = (Map<String, String>) obj;
+	                map.clear();
+	                map.putAll(newenv);
+	            }
+	        }
+	      } catch (Exception e2) {
+	        e2.printStackTrace();
+	      }
+	    } catch (Exception e1) {
+	        e1.printStackTrace();
+	    } 
 	}
 
 	public static void main(String[] args) {
