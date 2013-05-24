@@ -117,9 +117,6 @@ public class OpenCV extends VideoSource {
 	// mask for each named filter
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
 
-	// multi-plexing keys
-	transient public HashMap<String, IplImage> multiplex = new HashMap<String, IplImage>();
-
 	// transient public HashMap<String, Object> storage = new HashMap<String,
 	// Object>();
 
@@ -168,11 +165,6 @@ public class OpenCV extends VideoSource {
 		videoProcessor.publishOpenCVData = b;
 	}
 	
-	// multiplexing
-	public void fork(String filter) {
-		multiplex.put(filter, null);
-	}
-
 	public Integer setCameraIndex(Integer index) {
 		videoProcessor.cameraIndex = index;
 		return index;
@@ -193,6 +185,10 @@ public class OpenCV extends VideoSource {
 		return grabberType;
 	}
 
+	public FrameGrabber getFrameGrabber() {
+		return videoProcessor.getGrabber();
+	}
+	
 	public void setDisplayFilter(String name) {
 		videoProcessor.displayFilter = name;
 	}
@@ -513,8 +509,18 @@ public class OpenCV extends VideoSource {
 		 * catch (Exception e) { // TODO Auto-generated catch block
 		 * logException(e); }
 		 */
+		
+		OpenCV opencv01 = (OpenCV) Runtime.createAndStart("opencv01", "OpenCV");
+		opencv01.useBlockingData(true);
+		
+		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
+		opencv02.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
+		BlockingQueueGrabber grabber = (BlockingQueueGrabber)opencv02.getFrameGrabber();
+		//grabber.setQueue(opencv01.)
+		//opencv02.capture();
+		
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		
 		Python python = (Python) Runtime.createAndStart("python", "Python");
 		//Runtime.createAndStart("remote", "RemoteAdapter");
 		// opencv.startService();
@@ -526,9 +532,11 @@ public class OpenCV extends VideoSource {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		opencv.addFilter("pyramidDown", "PyramidDown");
-		opencv.addFilter("gray", "Gray");
-		opencv.capture();
+		opencv01.addFilter("pyramidDown", "PyramidDown");
+		opencv01.addFilter("gray", "Gray");
+		opencv01.capture();
+		
+		
 /*		
 		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
 		opencv.addFilter("erode", "Erode");

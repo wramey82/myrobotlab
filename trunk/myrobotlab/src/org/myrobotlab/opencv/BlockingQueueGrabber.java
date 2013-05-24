@@ -15,8 +15,8 @@ public class BlockingQueueGrabber extends FrameGrabber {
 
 	public final static Logger log = LoggerFactory.getLogger(BlockingQueueGrabber.class.getCanonicalName());
 	
-	
-	BlockingQueue<IplImage> blockingData = new LinkedBlockingQueue<IplImage>();
+
+	BlockingQueue<IplImage> blockingData;
 
 	public BlockingQueueGrabber(String filename) {
 	}
@@ -24,8 +24,21 @@ public class BlockingQueueGrabber extends FrameGrabber {
 	public BlockingQueueGrabber(int cameraIndex) {
 	}
 
+	public BlockingQueueGrabber(BlockingQueue<IplImage> queue) {
+		blockingData = queue;
+	}
+	
+	public void setQueue(BlockingQueue<IplImage> queue)
+	{
+		blockingData = queue;
+	}
+
 	@Override
 	public void start() {
+		if (blockingData == null)
+		{
+			blockingData = new LinkedBlockingQueue<IplImage>();
+		}
 	}
 
 	@Override
