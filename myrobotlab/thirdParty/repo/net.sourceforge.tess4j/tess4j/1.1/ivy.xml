@@ -13,9 +13,13 @@
         
         <artifact name="x86.32.windows/liblept168" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/libtesseract302" type="native" ext="dll" conf="x86.32.windows"/>
+        
 		<artifact name="x86.64.linux/libtesseract" type="native" ext="so" conf="x86.64.linux"/>
 		<artifact name="x86.64.linux/liblept" type="native" ext="so.3" conf="x86.64.linux"/>
+		<artifact name="x86.64.linux/libwebp" type="native" ext="so.2" conf="x86.64.linux"/>
+	    
 	    <artifact name="x86.32.linux/libtesseract" type="native" ext="so" conf="x86.32.linux"/>
-        <artifact name="x86.32.linux/liblept" type="native" ext="so.3" conf="x86.32.linux"/>        
+        <artifact name="x86.32.linux/liblept" type="native" ext="so.3" conf="x86.32.linux"/>
+        <artifact name="x86.32.linux/libwebp" type="native" ext="so.4" conf="x86.32.linux"/>        
 	</publications>
 </ivy-module>
