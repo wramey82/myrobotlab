@@ -332,12 +332,6 @@ public class AWTRobot extends Service {
 					if ((cc.keyCode & AWTRobot.ALT_DOWN_MASK) == AWTRobot.ALT_DOWN_MASK) {
 						robot.keyRelease(KeyEvent.VK_ALT);
 					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				}
 			}
 		}).start();
@@ -682,8 +676,8 @@ public class AWTRobot extends Service {
 
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
-		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWTRobot");
-//		awt.setBounds(0, 0, 100, 100);
+		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWRobot");
+		awt.setBounds(0, 0, 100, 100);
 		TesseractOCR tess = (TesseractOCR) Runtime.createAndStart("tess",
 				"TesseractOCR");
 		tess.subscribe("publishDisplay", awt.getName(), "OCR");
