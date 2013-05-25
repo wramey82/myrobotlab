@@ -676,7 +676,7 @@ public class AWTRobot extends Service {
 
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
-		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWRobot");
+		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWTRobot");
 		awt.setBounds(0, 0, 100, 100);
 		TesseractOCR tess = (TesseractOCR) Runtime.createAndStart("tess",
 				"TesseractOCR");
