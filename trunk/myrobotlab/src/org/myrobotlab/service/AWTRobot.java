@@ -674,7 +674,7 @@ public class AWTRobot extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
-		Runtime.createAndStart("java", "Java");
+		//Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
 		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWTRobot");
 		awt.setBounds(0, 0, 100, 100);
