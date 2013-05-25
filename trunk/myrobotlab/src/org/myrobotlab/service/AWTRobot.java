@@ -26,11 +26,11 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-public class Mouse extends Service {
+public class AWTRobot extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(Mouse.class
+	public final static Logger log = LoggerFactory.getLogger(AWTRobot.class
 			.getCanonicalName());
 	private Robot robot;
 	private Point mousePos;
@@ -101,7 +101,7 @@ public class Mouse extends Service {
 					if (resizedBounds != null) {
 						// System.out.println(mousePos.,"+
 						// mousePos.y*normalizeBounds.height/bounds.height);
-						bi = Mouse.resize(bi, resizedBounds.width,
+						bi = AWTRobot.resize(bi, resizedBounds.width,
 								resizedBounds.height);
 						java.awt.Graphics g = bi.getGraphics();
 						g.setColor(Color.blue);
@@ -128,8 +128,8 @@ public class Mouse extends Service {
 		}
 	}
 
-	public Mouse(String n) {
-		super(n, Mouse.class.getCanonicalName());
+	public AWTRobot(String n) {
+		super(n, AWTRobot.class.getCanonicalName());
 		try {
 			robot = new Robot();
 		} catch (AWTException e) {
@@ -153,7 +153,7 @@ public class Mouse extends Service {
 
 	@Override
 	public String getToolTip() {
-		return "Mouse service, also allow programmatic control of mouse/keyboard/screen capture";
+		return "based on Robot class,allows control of mouse/keyboard/screen capture";
 	}
 
 	@Override
@@ -206,16 +206,15 @@ public class Mouse extends Service {
 	public void setResizedBounds(Dimension bounds) {
 		resizedBounds = bounds;
 	}
-	
-	public void setResize(int x,int y) {
-		resizedBounds = new Dimension(x,y);
+
+	public void setResize(int x, int y) {
+		resizedBounds = new Dimension(x, y);
 	}
-	
 
 	public Dimension getResize() {
 		return resizedBounds;
 	}
-	
+
 	public Rectangle getBounds() {
 		return bounds;
 	}
@@ -270,13 +269,13 @@ public class Mouse extends Service {
 			public void run() {
 				KeyData cc = getKeyEventFromChar(c);
 				int keyCode = cc.keyCode;
-				if ((cc.keyCode & Mouse.SHIFT_DOWN_MASK) == Mouse.SHIFT_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.SHIFT_DOWN_MASK) == AWTRobot.SHIFT_DOWN_MASK) {
 					robot.keyPress(KeyEvent.VK_SHIFT);
 				}
-				if ((cc.keyCode & Mouse.CTRL_DOWN_MASK) == Mouse.CTRL_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.CTRL_DOWN_MASK) == AWTRobot.CTRL_DOWN_MASK) {
 					robot.keyPress(KeyEvent.VK_CONTROL);
 				}
-				if ((cc.keyCode & Mouse.ALT_DOWN_MASK) == Mouse.ALT_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.ALT_DOWN_MASK) == AWTRobot.ALT_DOWN_MASK) {
 					robot.keyPress(KeyEvent.VK_ALT);
 				}
 				robot.keyPress(keyCode);
@@ -286,13 +285,13 @@ public class Mouse extends Service {
 					e.printStackTrace();
 				}
 				robot.keyRelease(keyCode);
-				if ((cc.keyCode & Mouse.SHIFT_DOWN_MASK) == Mouse.SHIFT_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.SHIFT_DOWN_MASK) == AWTRobot.SHIFT_DOWN_MASK) {
 					robot.keyRelease(KeyEvent.VK_SHIFT);
 				}
-				if ((cc.keyCode & Mouse.CTRL_DOWN_MASK) == Mouse.CTRL_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.CTRL_DOWN_MASK) == AWTRobot.CTRL_DOWN_MASK) {
 					robot.keyRelease(KeyEvent.VK_CONTROL);
 				}
-				if ((cc.keyCode & Mouse.ALT_DOWN_MASK) == Mouse.ALT_DOWN_MASK) {
+				if ((cc.keyCode & AWTRobot.ALT_DOWN_MASK) == AWTRobot.ALT_DOWN_MASK) {
 					robot.keyRelease(KeyEvent.VK_ALT);
 				}
 
@@ -308,13 +307,13 @@ public class Mouse extends Service {
 					KeyData cc = getKeyEventFromChar(c);
 					int bb = cc.keyCode;
 					int keyCode = cc.keyCode;
-					if ((cc.keyCode & Mouse.SHIFT_DOWN_MASK) == Mouse.SHIFT_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.SHIFT_DOWN_MASK) == AWTRobot.SHIFT_DOWN_MASK) {
 						robot.keyPress(KeyEvent.VK_SHIFT);
 					}
-					if ((cc.keyCode & Mouse.CTRL_DOWN_MASK) == Mouse.CTRL_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.CTRL_DOWN_MASK) == AWTRobot.CTRL_DOWN_MASK) {
 						robot.keyPress(KeyEvent.VK_CONTROL);
 					}
-					if ((cc.keyCode & Mouse.ALT_DOWN_MASK) == Mouse.ALT_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.ALT_DOWN_MASK) == AWTRobot.ALT_DOWN_MASK) {
 						robot.keyPress(KeyEvent.VK_ALT);
 					}
 					robot.keyPress(bb);
@@ -324,13 +323,13 @@ public class Mouse extends Service {
 						e.printStackTrace();
 					}
 					robot.keyRelease(bb);
-					if ((cc.keyCode & Mouse.SHIFT_DOWN_MASK) == Mouse.SHIFT_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.SHIFT_DOWN_MASK) == AWTRobot.SHIFT_DOWN_MASK) {
 						robot.keyRelease(KeyEvent.VK_SHIFT);
 					}
-					if ((cc.keyCode & Mouse.CTRL_DOWN_MASK) == Mouse.CTRL_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.CTRL_DOWN_MASK) == AWTRobot.CTRL_DOWN_MASK) {
 						robot.keyRelease(KeyEvent.VK_CONTROL);
 					}
-					if ((cc.keyCode & Mouse.ALT_DOWN_MASK) == Mouse.ALT_DOWN_MASK) {
+					if ((cc.keyCode & AWTRobot.ALT_DOWN_MASK) == AWTRobot.ALT_DOWN_MASK) {
 						robot.keyRelease(KeyEvent.VK_ALT);
 					}
 					try {
@@ -683,12 +682,12 @@ public class Mouse extends Service {
 
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
-		Mouse mouse = (Mouse) Runtime.createAndStart("mouse", "Mouse");
-		mouse.setBounds(0, 0, 100, 100);
+		AWTRobot awt = (AWTRobot) Runtime.createAndStart("awt", "AWTRobot");
+//		awt.setBounds(0, 0, 100, 100);
 		TesseractOCR tess = (TesseractOCR) Runtime.createAndStart("tess",
 				"TesseractOCR");
-		tess.subscribe("publishDisplay", mouse.getName(), "OCR");
-		//new TIFFImageWriteParam();
+		tess.subscribe("publishDisplay", awt.getName(), "OCR");
+		// new TIFFImageWriteParam();
 		// mouse.setBounds(new Rectangle(500,500));
 		// VideoStreamer
 		// stream=(VideoStreamer)Runtime.createAndStart("stream","VideoStreamer");
