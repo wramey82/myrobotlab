@@ -43,22 +43,22 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.Mouse;
+import org.myrobotlab.service.AWTRobot;
 import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
 import org.slf4j.Logger;
 
-public class MouseGUI extends ServiceGUI implements ActionListener, MouseMotionListener,MouseListener,MouseWheelListener {
+public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMotionListener,MouseListener,MouseWheelListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(MouseGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AWTRobotGUI.class.getCanonicalName());
 
 	VideoWidget video0 = null;
 	JTextField status = new JTextField("", 20);
 	JLabel x = new JLabel("0");
 	JLabel y = new JLabel("0");
 	
-	public MouseGUI(final String boundServiceName, final GUI myService) {
+	public AWTRobotGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 

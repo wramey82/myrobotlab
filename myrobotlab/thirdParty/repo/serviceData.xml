@@ -58,6 +58,16 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.AWTRobot"  workingLevel="1">
+      <dependsOn>
+        <description>allows screen capture, and control of mouse and keyboard
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.ChessGame" workingLevel="4">
       <dependsOn>
 	 <description>chess game engine
@@ -528,6 +538,11 @@
    <categories string="org.myrobotlab.service.AudioFile">
       <category>
          <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AWTRobot">
+      <category>
+         <include>controller</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.Clock">
