@@ -63,7 +63,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public final class FilterColorGrouping2 extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
-	public FilterColorGrouping2(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public FilterColorGrouping2(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 		// TODO Auto-generated constructor stub
 	}

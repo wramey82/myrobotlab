@@ -55,6 +55,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	public int cameraIndex = 0;
 	@Element
 	public String inputFile = "http://localhost/videostream.cgi";
+	@Element (required=false)
+	public String pipelineSelected = "";
 	@Element
 	public boolean publishOpenCVData = true;
 	// GRABBER END --------------------------
@@ -67,8 +69,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	// FIXME - use for RECORDING & another one for Blocking for data !!!
 	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>(); // FIXME deprecate ?? not needed ??	
 	
-	//transient VideoSources sources = new VideoSources();
-	transient HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
+	transient VideoSources sources = new VideoSources();
+	//transient HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	private transient OpenCV opencv;
 	private transient FrameGrabber grabber = null;
@@ -87,6 +89,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	public static final String INPUT_KEY = "input";
 	public static final String OUTPUT_KEY = "output";
 	
+	public String boundServiceName;
+	
 	/**
 	 * selected display filter
 	 * unselected defaults to input
@@ -104,8 +108,11 @@ public class VideoProcessor implements Runnable, Serializable {
 		return opencv;
 	}
 
+	// FIXME - cheesy initialization - put it all in the constructor or before
+	// I assume this was done because the load() is difficult to manage !!
 	public void setOpencv(OpenCV opencv) {
 		this.opencv = opencv;
+		this.boundServiceName = opencv.getName();
 	}
 
 	public void start() {
@@ -153,6 +160,9 @@ public class VideoProcessor implements Runnable, Serializable {
 			} else if (OpenCV.INPUT_SOURCE_IMAGE_FILE.equals(inputSource)) {
 				paramTypes[0] = String.class;
 				params[0] = inputFile;
+			} else if (OpenCV.INPUT_SOURCE_PIPELINE.equals(inputSource)) {
+				paramTypes[0] = String.class;
+				params[0] = pipelineSelected;
 			}
 
 			Class<?> nfg = Class.forName(grabberType);
@@ -194,17 +204,17 @@ public class VideoProcessor implements Runnable, Serializable {
 
 				frame = grabber.grab();
 				if (getDepth) {
-					sources.put(OpenCV.SOURCE_KINECT_DEPTH, ((OpenKinectFrameGrabber) grabber).grabDepth());
+					sources.put(boundServiceName, OpenCV.SOURCE_KINECT_DEPTH, ((OpenKinectFrameGrabber) grabber).grabDepth());
 				}
 
 				// TODO - option to accumulate? - e.g. don't new
-				data = new OpenCVData(opencv.getName());
-				data.put(INPUT_KEY, new SerializableImage(frame.getBufferedImage(), INPUT_KEY));
+				data = new OpenCVData(boundServiceName);
+//				data.put(INPUT_KEY, new SerializableImage(frame.getBufferedImage(), INPUT_KEY));
 				// Logging.logTime("read");
 
 				synchronized (filters) {
 					Iterator<OpenCVFilter> itr = filters.iterator();
-					sources.put(INPUT_KEY, frame);
+					sources.put(boundServiceName, INPUT_KEY, frame);
 					while (capturing && itr.hasNext()) {
 
 						OpenCVFilter filter = itr.next();
@@ -216,20 +226,21 @@ public class VideoProcessor implements Runnable, Serializable {
 							log.error(filter.name);
 						}
 
+						
 						// pre process for image size & channel changes
 						image = filter.preProcess(image, data);
 						image = filter.process(image, data);
 
 						// process the image - push into source as new output
-						sources.put(filter.name, image);
+						sources.put(boundServiceName, filter.name, image);
 						
 						// if told to publish or last image
 						if (filter.publishImage || !itr.hasNext()) {
 // FIXME - memory waste ???							
 							// FIXME - correct way to clone BufferedImage
 							// FIXME - first bufferedImage put into data does not need to be cloned
-							IplImage copy = image.clone();
-							SerializableImage out = new SerializableImage(copy.getBufferedImage(), filter.name);
+							//IplImage copy = image.clone();
+							SerializableImage out = new SerializableImage(image.getBufferedImage(), filter.name);
 							data.put(filter.name, out);
 						}
 
@@ -318,10 +329,10 @@ public class VideoProcessor implements Runnable, Serializable {
 			// default join to the last filter
 			// if there are no filters - then grab _OUTPUT
 
-			String inputkey = INPUT_KEY;
+			String inputkey = String.format("%s.%s", boundServiceName, INPUT_KEY);
 			if (filters.size() > 0) {
 				OpenCVFilter f = filters.get(filters.size() - 1);
-				inputkey = String.format("%s", f.name);
+				inputkey = String.format("%s.%s", boundServiceName, f.name);
 			}
 
 			params[3] = inputkey;
@@ -332,7 +343,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				filter = (OpenCVFilter) Service.getNewInstance(type, params);
 				filters.add(filter);
 
-				log.info(String.format("added new filter %s, %s", name, newFilter));
+				log.info(String.format("added new filter %s.%s, %s", boundServiceName, name, newFilter));
 			} catch (Exception e) {
 				Logging.logException(e);
 			}
@@ -383,7 +394,7 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public String recordSingleFrame(BufferedImage frame, int frameIndex) {
 		try {
-			String filename = String.format("%s.%d.jpg", opencv.getName(), frameIndex);
+			String filename = String.format("%s.%d.jpg", boundServiceName, frameIndex);
 			Util.writeBufferedImage(frame, filename);
 			// FIXME - MESSY - WHAT IF THIS IS ATTEMPTED TO PROCESS THROUGH FILTERS !!!
 			blockingData.put(filename);
@@ -436,9 +447,9 @@ public class VideoProcessor implements Runnable, Serializable {
 	/*
 	 * public ArrayList<Point2Df> GoodFeaturesToTrack() { ArrayList<Point2Df>
 	 * goodfeatures = null; try { filters.clear(); opencvData.clear();
-	 * subscribe("publish", opencv.getName(), "GoodFeaturesToTrack",
+	 * subscribe("publish", boundServiceName, "GoodFeaturesToTrack",
 	 * double[].class); while (!interrupted) { goodfeatures = opencvData.take();
-	 * unsubscribe("publish", opencv.getName(), "GoodFeaturesToTrack",
+	 * unsubscribe("publish", boundServiceName, "GoodFeaturesToTrack",
 	 * double[].class); return goodfeatures; } } catch (InterruptedException e)
 	 * { e.printStackTrace(); }
 	 * 

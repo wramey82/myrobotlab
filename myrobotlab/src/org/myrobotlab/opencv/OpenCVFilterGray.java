@@ -46,9 +46,8 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterGray.class.getCanonicalName());
 
 	transient IplImage gray = null;
-	transient IplImage color = null;
 
-	public OpenCVFilterGray(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterGray(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 
@@ -60,21 +59,12 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
-		// what can you expect? nothing? - if data != null then error?
 		if (image.nChannels() == 3) {
-			if (gray == null) {
-				
-			}
 			cvCvtColor(image, gray, CV_BGR2GRAY);
-		} else if (image.nChannels() == 1) {
-			if (color == null) {
-				int depth = image.depth();
-				color = cvCreateImage(cvGetSize(image), depth, 3);
-			}
-			cvCvtColor(image, gray, CV_GRAY2BGR);
-		}
-
-		return gray;
+			return gray;
+		} 
+		
+		return image;
 	}
 
 	@Override

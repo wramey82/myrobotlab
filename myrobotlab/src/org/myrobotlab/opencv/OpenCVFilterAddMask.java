@@ -45,7 +45,7 @@ public class OpenCVFilterAddMask extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient IplImage negativeImage = null;
 
-	public OpenCVFilterAddMask(VideoProcessor vp, String name, HashMap<String, IplImage> source, String sourceKey) {
+	public OpenCVFilterAddMask(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 
@@ -62,7 +62,8 @@ public class OpenCVFilterAddMask extends OpenCVFilter {
 		// f'ing rocks ! -
 		// http://www.neuroforge.co.uk/index.php/masking-colour-images
 		if (sourceName != null) {
-			IplImage src = sources.get(sourceName);
+			// INFO - This filter has 2 keys !!!
+			IplImage src = sources.get(vp.boundServiceName, sourceName);
 			if (src != null) {
 				if (dst == null) {
 					dst = src.clone();

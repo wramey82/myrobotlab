@@ -57,7 +57,7 @@ public class OpenCVFilterBackgroundSubtractorMOG2 extends OpenCVFilter {
 		learningRate = 0;
 	}
 	
-	public OpenCVFilterBackgroundSubtractorMOG2(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterBackgroundSubtractorMOG2(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 	

@@ -47,7 +47,7 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 	transient IplImage buffer = null;
 	transient IplImage negativeImage = null;
 
-	public OpenCVFilterAnd(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey) {
+	public OpenCVFilterAnd(VideoProcessor vp, String name, VideoSources source,  String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 	

@@ -80,7 +80,7 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 	transient CvPoint centeroid = new CvPoint(0, 0);
 
 
-	public OpenCVFilterMatchTemplate(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterMatchTemplate(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

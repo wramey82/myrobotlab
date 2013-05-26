@@ -89,7 +89,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	// movement
 	HashMap<String, Float> values = new HashMap<String, Float>();
 
-	public OpenCVFilterGoodFeaturesToTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterGoodFeaturesToTrack(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

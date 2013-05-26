@@ -1,7 +1,7 @@
 package org.myrobotlab.opencv;
 
 import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Set;
 
 import org.myrobotlab.logging.Logging;
 
@@ -19,31 +19,33 @@ public class VideoSources {
 
 	// ConcurrentHashMap not needed - filters removed leave the last image !!!
 	// :)
-	private final static HashMap<String, LinkedBlockingQueue<IplImage>> sources = new HashMap<String, LinkedBlockingQueue<IplImage>>();
+	
+	
+	//private final static HashMap<String, LinkedBlockingQueue<IplImage>> sources = new HashMap<String, LinkedBlockingQueue<IplImage>>();
+	private final static HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	public void put(String name, String filtername, IplImage img) {
 		try {
-			String key = (String.format("%s.%s", name, filtername));
-
-			if (sources.containsKey(key)) {
-				sources.get(key).put(img);
-			} else {
-				LinkedBlockingQueue<IplImage> q = new LinkedBlockingQueue<IplImage>();
-				q.put(img);
-				sources.put(key, q);
-			}
+			String key = (String.format("%s.%s", name, filtername));		
+			sources.put(key, img);
 
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 	}
 	
-	public IplImage get(String name, String filtername) {
+	public IplImage get(String serviceName, String filtername)
+	{
+		String key = (String.format("%s.%s", serviceName, filtername));
+		return get(key);
+	}
+	
+	public IplImage get(String key) {
 		try {
-			String key = (String.format("%s.%s", name, filtername));
-
+			
+			// hmmm is this right?
 			if (sources.containsKey(key)) {
-				return sources.get(key).take();
+				return sources.get(key);//.clone();
 			} 
 			
 		} catch (Exception e) {
@@ -53,6 +55,9 @@ public class VideoSources {
 		return null;
 	}
 	
-	
+	public Set<String> getKeySet()
+	{
+		return sources.keySet();
+	}
 	
 }

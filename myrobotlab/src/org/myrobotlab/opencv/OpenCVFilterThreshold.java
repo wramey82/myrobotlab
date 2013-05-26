@@ -48,7 +48,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	public float lowThreshold = 0.0f;
 	public float highThreshold = 256.0f;
 
-	public OpenCVFilterThreshold(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterThreshold(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

@@ -108,7 +108,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	transient CvPoint p0 = new CvPoint(0, 0);
 	transient CvPoint p1 = new CvPoint(0, 0);
 
-	public OpenCVFilterKinectDepthMask(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterKinectDepthMask(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 
@@ -152,7 +152,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// TODO - clean up - remove input parameters? only use storage?
 		if (imageKey != null) {
-			IplImage kinectDepth = sources.get(OpenCV.SOURCE_KINECT_DEPTH);
+			IplImage kinectDepth = sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
 		} else {
 			kinectDepth = image;
 		}

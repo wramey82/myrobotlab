@@ -98,7 +98,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	ArrayList<CvPoint> path = new ArrayList<CvPoint>();
 	HashMap<String, CvPoint> unique = new HashMap<String, CvPoint>();
 
-	public OpenCVFilterMouse(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterMouse(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

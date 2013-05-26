@@ -77,7 +77,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 
-	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, HashMap<String, IplImage> source, String sourceKey) {
+	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 

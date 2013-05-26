@@ -44,7 +44,7 @@ public class OpenCVFilterNot extends OpenCVFilter {
 
 	IplImage buffer = null;
 
-	public OpenCVFilterNot(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterNot(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

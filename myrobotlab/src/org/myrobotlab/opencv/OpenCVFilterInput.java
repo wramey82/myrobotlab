@@ -41,7 +41,7 @@ public class OpenCVFilterInput extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterInput.class.getCanonicalName());
 
-	public OpenCVFilterInput(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey) {
+	public OpenCVFilterInput(VideoProcessor vp, String name, VideoSources source,  String sourceKey) {
 		super(vp, name, source, sourceKey);
 	}
 
