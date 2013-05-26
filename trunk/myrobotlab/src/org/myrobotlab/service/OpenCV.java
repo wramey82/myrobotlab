@@ -81,6 +81,7 @@ public class OpenCV extends VideoSource {
 	transient public final static String INPUT_SOURCE_CAMERA = "camera";
 	transient public final static String INPUT_SOURCE_MOVIE_FILE = "file";
 	transient public final static String INPUT_SOURCE_NETWORK = "network";
+	transient public final static String INPUT_SOURCE_PIPELINE = "pipeline";
 	transient public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
 	// TODO - OpenCV constants / enums ?
@@ -511,8 +512,16 @@ public class OpenCV extends VideoSource {
 		 */
 		
 		OpenCV opencv01 = (OpenCV) Runtime.createAndStart("opencv01", "OpenCV");
-		opencv01.useBlockingData(true);
+//		opencv01.useBlockingData(true);
+		opencv01.addFilter("pyramidDown", "PyramidDown");
+		opencv01.addFilter("gray", "Gray");
+		opencv01.capture();
 		
+		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
+
+//		opencv01.capture();
+
+/*		
 		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
 		opencv02.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
 		BlockingQueueGrabber grabber = (BlockingQueueGrabber)opencv02.getFrameGrabber();
@@ -532,10 +541,7 @@ public class OpenCV extends VideoSource {
 		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
 		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
 
-		opencv01.addFilter("pyramidDown", "PyramidDown");
-		opencv01.addFilter("gray", "Gray");
-		opencv01.capture();
-		
+*/		
 		
 /*		
 		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);

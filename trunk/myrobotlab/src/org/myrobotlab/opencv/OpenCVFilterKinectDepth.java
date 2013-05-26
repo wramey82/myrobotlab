@@ -58,7 +58,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	transient BufferedImage frameBuffer = null;
 
 
-	public OpenCVFilterKinectDepth(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterKinectDepth(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 
@@ -89,7 +89,8 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
-		IplImage kinectDepth = sources.get(OpenCV.SOURCE_KINECT_DEPTH);
+		// INFO - This filter has 2 sources !!!
+		IplImage kinectDepth = sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
 
 		// allowing publish & fork
 		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {

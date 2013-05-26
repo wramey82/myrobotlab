@@ -51,7 +51,7 @@ public class OpenCVFilterSmooth extends OpenCVFilter {
 	int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 
-	public OpenCVFilterSmooth(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterSmooth(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

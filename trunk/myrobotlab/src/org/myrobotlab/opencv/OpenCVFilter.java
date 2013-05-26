@@ -64,12 +64,13 @@ public abstract class OpenCVFilter implements Serializable {
 
 	public String sourceKey;
 	// FIXME - this has to be transient !  IpImages is non-serializable !!!
-	transient HashMap<String, IplImage> sources;
+	transient VideoSources sources;
 	//transient HashMap<String, LinkedBlockingQueue<IplImage>> forks = new HashMap<String, LinkedBlockingQueue<IplImage>>();
 	
 	VideoProcessor vp;
 	
-	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {
+//	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {
+	public OpenCVFilter(VideoProcessor vp, String filterName, VideoSources sources, String sourceKey) {	
 		this.name = filterName;
 		this.vp = vp;
 		this.sources = sources;
@@ -85,7 +86,7 @@ public abstract class OpenCVFilter implements Serializable {
 		return vp;
 	}
 	
-	public HashMap<String, IplImage> getSources()
+	public VideoSources getSources()
 	{
 		return sources;
 	}
@@ -96,7 +97,7 @@ public abstract class OpenCVFilter implements Serializable {
 	}
 
 	public IplImage preProcess(IplImage frame, OpenCVData data) {
-		data.setFilterName(this.name);
+		data.setFilterName(String.format("%s.%s", vp.boundServiceName, this.name));
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
 			width = frame.width();

@@ -48,7 +48,7 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient BufferedImage frameBuffer = null;
 	
-	public OpenCVFilterPyramidDown(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterPyramidDown(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 	

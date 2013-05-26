@@ -69,7 +69,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	// int convert = CV_BGR2HSV; // TODO - convert to all schemes
 	JFrame myFrame = null;
 
-	public OpenCVFilterHSV(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterHSV(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

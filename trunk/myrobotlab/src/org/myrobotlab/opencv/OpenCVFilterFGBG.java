@@ -50,7 +50,7 @@ public class OpenCVFilterFGBG extends OpenCVFilter {
 	boolean update_bg_model = true;
 	IplImage fgmask, fgimg;
 
-	public OpenCVFilterFGBG(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterFGBG(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

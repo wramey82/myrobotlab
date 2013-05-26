@@ -240,7 +240,7 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		}
 	}
 
-	public OpenCVFilterMotionTemplate(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterMotionTemplate(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

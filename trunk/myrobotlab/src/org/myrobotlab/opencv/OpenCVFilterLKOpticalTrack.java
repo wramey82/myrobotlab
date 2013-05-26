@@ -26,6 +26,8 @@
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
@@ -100,7 +102,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	transient IplImage preGrey, grey, eig, tmp, prePyramid, pyramid, swap, mask, image;
 	transient CvPoint2D32f prePoints, points, swapPoints;
 
-	public OpenCVFilterLKOpticalTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterLKOpticalTrack(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 		// LKOptical does not change image
 		// no reason to publish - use input image
@@ -184,9 +186,11 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (channels == 3) {
-			grey = IplImage.create(imageSize, 8, 1); // FIXME copy don't create
+			// THIS WORKS
+			grey = IplImage.create(imageSize, 8, 1); 
 			cvCvtColor(image, grey, CV_BGR2GRAY);
 		} else {
+			// THIS DOESNT !!! I DONT KNOW WHY !!!
 			grey = image;
 		}
 		

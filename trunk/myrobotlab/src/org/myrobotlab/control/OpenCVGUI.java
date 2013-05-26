@@ -25,6 +25,8 @@
 
 package org.myrobotlab.control;
 
+import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -39,9 +41,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -70,6 +74,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.VideoProcessor;
+import org.myrobotlab.opencv.VideoSources;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
@@ -77,7 +82,6 @@ import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
-import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource, ActionListener {
 
@@ -108,6 +112,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	JButton inputFileButton = new JButton("open file");
 
 	JComboBox IPCameraType = new JComboBox(new String[] { "foscam FI8918W" });
+	DefaultComboBoxModel pipelineHookModel = new DefaultComboBoxModel();
+	JComboBox pipelineHook = new JComboBox(pipelineHookModel);
 
 	ButtonGroup groupRadio = new ButtonGroup();
 	DefaultListModel currentFilterListModel = new DefaultListModel();
@@ -146,7 +152,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		}
 
 		frameGrabberList.add("IPCamera");
-		frameGrabberList.add("Image Stream Source"); // service which implements
+		frameGrabberList.add("Pipeline"); // service which implements
 														// ImageStreamSource
 
 		grabberTypeSelect = new JComboBox(frameGrabberList.toArray());
@@ -218,6 +224,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		captureCfg.add(inputFile);
 
 		captureCfg.add(IPCameraType);
+		captureCfg.add(pipelineHook);
 
 		input.add(cpanel, gc);
 		++gc.gridy;
@@ -344,7 +351,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		//DefaultComboBoxModel model = ComboBoxModel.getModel();
 		for (int i = 0; i < newSources.size(); ++i )
 		{
-			ComboBoxModel.addElement(name, newSources.get(i));
+			ComboBoxModel.addElement(name, String.format("%s.%s", boundServiceName, newSources.get(i)));
 		}
 		
 		// set source of gui's input to 
@@ -373,14 +380,16 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			// capture
 			// request is sent
 			VideoProcessor vp = myOpenCV.videoProcessor;
+			
+			String selected = (String) grabberTypeSelect.getSelectedItem();
 
-			if ("IPCamera".equals((String) grabberTypeSelect.getSelectedItem())) {
-				prefixPath = "org.myrobotlab.opencv.";
-				vp.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
+			if ("IPCamera".equals(selected) || "Pipeline".equals(selected)) {
+				
+				prefixPath = "org.myrobotlab.opencv.";				
 			} else {
 				prefixPath = "com.googlecode.javacv.";
 			}
-
+			
 			vp.grabberType = prefixPath + (String) grabberTypeSelect.getSelectedItem() + "FrameGrabber";
 
 			if (fileRadio.isSelected()) {
@@ -406,6 +415,17 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				vp.cameraIndex = (Integer) cameraIndex.getSelectedItem();
 			} else {
 				log.error("input source is " + vp.inputSource);
+			}
+			
+			if ("IPCamera".equals(selected))
+			{
+				vp.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
+			}
+			
+			if ("Pipeline".equals(selected))
+			{
+				vp.inputSource = OpenCV.INPUT_SOURCE_PIPELINE;
+				vp.pipelineSelected = (String)pipelineHook.getSelectedItem();
 			}
 
 			myService.send(boundServiceName, "setState", myOpenCV);
@@ -443,6 +463,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				fileRadio.setVisible(false);
 
 				IPCameraType.setVisible(false);
+				pipelineHook.setVisible(false);
 			}
 
 			if ("OpenCV".equals(type) || "VideoInput".equals(type) || "FFmpeg".equals(type)) {
@@ -460,6 +481,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				cameraRadio.setVisible(true);
 
 				IPCameraType.setVisible(false);
+				pipelineHook.setVisible(false);
 			}
 
 			if ("IPCamera".equals(type)) {
@@ -477,9 +499,36 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				fileRadio.setVisible(false);
 				cameraRadio.setVisible(false);
 
-				IPCameraType.setVisible(true);
+				IPCameraType.setVisible(true);				
+				pipelineHook.setVisible(false);
 			}
 
+			if ("Pipeline".equals(type)) {
+				// cameraRadio.setSelected(true);
+				// kinectImageOrDepth.setSelectedItem("image");
+				// myOpenCV.format = "image";
+				cameraIndexLable.setVisible(false);
+				cameraIndex.setVisible(false);
+				modeLabel.setVisible(false);
+				kinectImageOrDepth.setVisible(false);
+				inputFileLable.setVisible(false);
+				inputFile.setVisible(false);
+				fileRadio.setSelected(true);
+
+				fileRadio.setVisible(false);
+				cameraRadio.setVisible(false);
+
+				IPCameraType.setVisible(false);
+				VideoSources vs = new VideoSources();
+				Set<String> p = vs.getKeySet();
+				pipelineHookModel.removeAllElements();
+				for(String i : p)
+				{
+					pipelineHookModel.insertElementAt(i,0);
+				}
+				pipelineHook.setVisible(true);
+			}
+			
 		}
 	};
 

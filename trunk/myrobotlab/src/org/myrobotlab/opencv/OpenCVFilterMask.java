@@ -47,7 +47,7 @@ public class OpenCVFilterMask extends OpenCVFilter {
 
 	// TODO - get list of masks for gui
 
-	public OpenCVFilterMask(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterMask(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 
@@ -59,7 +59,8 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
-		IplImage mask = sources.get(String.format("%s_MASK", name));
+		// INFO - This filter has 2 keys !!!
+		IplImage mask = sources.get(vp.boundServiceName, String.format("%s_MASK", name));
 		
 		maskName = "kd";
 		if (mask != null) {

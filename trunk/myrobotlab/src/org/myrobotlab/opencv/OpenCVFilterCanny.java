@@ -56,7 +56,7 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	transient IplImage inlines = null;
 	transient BufferedImage frameBuffer = null;
 
-	public OpenCVFilterCanny(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterCanny(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 

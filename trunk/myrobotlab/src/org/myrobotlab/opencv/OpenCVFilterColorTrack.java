@@ -67,7 +67,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	CvScalar hsv_min2 = null;
 	CvScalar hsv_max2 = null;
 
-	public OpenCVFilterColorTrack(VideoProcessor vp, String name, HashMap<String, IplImage> source,  String sourceKey)  {
+	public OpenCVFilterColorTrack(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
 		super(vp, name, source, sourceKey);
 	}
 
