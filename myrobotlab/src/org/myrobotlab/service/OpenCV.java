@@ -584,4 +584,9 @@ public class OpenCV extends VideoSource {
 		return videoProcessor.cameraIndex;
 	}
 	
+	public void setPipeline(String pipeline)
+	{
+		videoProcessor.pipelineSelected = pipeline;
+	}
+	
 }

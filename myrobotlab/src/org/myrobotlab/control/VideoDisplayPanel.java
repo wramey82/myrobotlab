@@ -43,7 +43,7 @@ public class VideoDisplayPanel {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			mouseInfo.setText("clicked " + e.getX() + "," + e.getY());
+			mouseInfo.setText(String.format("clicked %d,%d",e.getX(), e.getY()));
 			Object[] params = new Object[2];
 			params[0] = e.getX();
 			params[1] = e.getY();
@@ -105,6 +105,9 @@ public class VideoDisplayPanel {
 		myDisplay.add(BorderLayout.SOUTH, south);
 
 	}
+	
+	long frameCount = 0;
+	long displayModulus = 100;
 
 	public void displayFrame(SerializableImage img) {
 
@@ -114,8 +117,9 @@ public class VideoDisplayPanel {
 		 * 
 		 * img.source is the name of the bound filter
 		 */
+		++frameCount;
+		
 		String source = img.getSource();
-		long timestamp = img.getTimestamp();
 
 		if (lastImage != null) {
 			screen.setIcon(lastIcon);
@@ -132,8 +136,9 @@ public class VideoDisplayPanel {
 			myIcon.setImage(img.getImage());
 		}
 		screen.setIcon(myIcon);
-		if (lastImage != null) {
-				deltaTime.setText(String.format("%d", timestamp - lastImage.getTimestamp()));
+		
+		if (frameCount%displayModulus==0 && lastImage != null) {
+				deltaTime.setText(String.format("%d fps", 1000/(img.getTimestamp() - lastImage.getTimestamp())));
 		}
 
 		lastImage = img;
@@ -143,7 +148,7 @@ public class VideoDisplayPanel {
 			screen.invalidate();
 			myService.pack();
 			lastImageWidth = img.getImage().getWidth();
-			resolutionInfo.setText(" " + lastImageWidth + " x " + img.getImage().getHeight());
+			resolutionInfo.setText(String.format("%dx%d", lastImageWidth ,img.getImage().getHeight()));
 		}
 
 		img = null;

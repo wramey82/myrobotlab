@@ -39,18 +39,16 @@ public class Cortex extends Service implements MemoryChangeListener {
 	private String state = STATE_IDLE;
 	public final static String STATE_IDLE = "idle";
 
-	// FIXME - better way to name subservices - Service static method
-	// suppress creation as an option?
 	public String trackingName = "tracking";
-	public String processorName = "processor";
+	public String faceDetectorName = "faceDetector";
 	public String mouthName = "mouth";
 	public String earName = "ear";
 	Algorithm algorithm;
 	public String serialPort;
 
-
 	transient Tracking tracking;
-	transient OpenCV processor;
+	transient OpenCV faceDetector;
+	transient OpenCV lkOptical;
 	transient Sphinx ear;
 	transient Speech mouth;
 
@@ -59,55 +57,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 	public Cortex(String n) {
 		super(n, Cortex.class.getCanonicalName());
-		memory.addMemoryChangeListener(this);
-
-		memory.put("/", new Node("past"));
-		memory.put("/", new Node("present"));
-		memory.put("/", new Node("future")); // <- predictive
-		memory.put("/", new Node("locations"));
-
-		memory.put("/present", new Node("background"));
-		memory.put("/present", new Node("foreground"));
-		memory.put("/present", new Node("faces"));
-		memory.put("/present/faces", new Node("unknown"));
-		memory.put("/present/faces", new Node("known"));
-		memory.put("/present", new Node("objects"));
-
-		memory.put("/past", new Node("background"));
-		memory.put("/past", new Node("foreground"));
-		
-		/*
-		 * need a Cortex processor - derived from runnable - which allows supression via subsumption architecture
-		 * have a garbage collecot too 
-		 * each one targets a location
-		 * rules on moving obects ?  ConcurrentHashMap? - always catch
-		 */
-		
-		/*
-		memory.put("/", new Node("unprocessed"));
-		memory.put("/", new Node("locations"));
-		memory.put("/unprocessed", new Node("background"));
-		memory.put("/unprocessed", new Node("foreground"));
-		memory.put("/", new Node("processed"));
-		memory.put("/processed", new Node("faces"));
-		memory.put("/processed", new Node("objects"));
-		memory.put("/processed/objects", new Node("unknown"));
-		memory.put("/processed/objects", new Node("known"));
-		*/
-
-	}
-
-	// FIXME - peer service not "sub"
-	// FIXME - need a createSubServices in constructor ???
-	// FIXME - better, robust, more flexible way to handle naming of subservices
-	public void createAndStartSubServices() {
-		processor = (OpenCV) Runtime.createAndStart(processorName, "OpenCV");
-		// ear = (Sphinx) Runtime.createAndStart(earName, "Sphinx");
-		// mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-		tracking = (Tracking) Runtime.createAndStart("tracking", "Tracking");
-
-		// TODO - register data queue
-
 	}
 
 	// FIXME - remove start replacing javadoc & tooltips with annotations
@@ -127,37 +76,66 @@ public class Cortex extends Service implements MemoryChangeListener {
 		ear.startListening();
 
 	}
-	
-	//public setSerial
-	
-	public boolean attach() {
-		if (tracking == null) {
-			log.error("cant attach tracking");
-		} else {
-			
-			algorithm = new Algorithm(this);
+		
+	public void startService()
+	{
+		super.startService();
+		memory.addMemoryChangeListener(this);
 
-			// defaults...
-			tracking.setRestPosition(90, 5);
-			tracking.setSerialPort("COM12");
-			tracking.setServoPins(13,12);
-			tracking.setCameraIndex(1);
+		memory.put("/", new Node("past"));
+		memory.put("/", new Node("present"));
+		memory.put("/", new Node("future")); // <- predictive
+		memory.put("/", new Node("locations"));
 
-			tracking.setIdle();
+		memory.put("/present", new Node("background"));
+		memory.put("/present", new Node("foreground"));
+		memory.put("/present", new Node("faces"));
+		memory.put("/present/faces", new Node("unknown"));
+		memory.put("/present/faces", new Node("known"));
+		memory.put("/present", new Node("objects"));
 
-			tracking.startVideoStream();
-			subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);
+		memory.put("/past", new Node("background"));
+		memory.put("/past", new Node("foreground"));		
+		
+		faceDetector = (OpenCV) Runtime.createAndStart(faceDetectorName, "OpenCV");
+		lkOptical = (OpenCV) Runtime.createAndStart("lkOptical", "OpenCV");
+		// ear = (Sphinx) Runtime.createAndStart(earName, "Sphinx");
+		// mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
+		tracking = (Tracking) Runtime.create(trackingName, "Tracking");
+		tracking.eye = lkOptical;
+		tracking.startService();
+		lkOptical.addFilter("pyramidDown","PyramidDown");
+		lkOptical.addFilter("lkOpticalTrack","LKOpticalTrack");
+		lkOptical.publishFilterState("lkOpticalTrack");
+		lkOptical.setDisplayFilter("lkOpticalTrack");
+		lkOptical.capture();
+		
+		faceDetector.setInpurtSource(OpenCV.INPUT_SOURCE_PIPELINE);
+		faceDetector.setPipeline("lkOpticalTrack.pyramidDown");// set key
+		faceDetector.addFilter("faceDetect","FaceDetect");
+		faceDetector.setDisplayFilter("input");
+		faceDetector.setDisplayFilter("faceDetect");
+		faceDetector.capture();
+		
+		// TODO - register data queue
+		algorithm = new Algorithm(this);
 
-			processor.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
-			processor.useBlockingData(true);
-			processor.capture();
-			processor.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
-			processor.addFilter(FILTER_FACE_DETECT);
+		// defaults...
+		tracking.setRestPosition(90, 5);
+		tracking.setSerialPort("COM12");
+		tracking.setServoPins(13,12);
+		tracking.setCameraIndex(1);
 
-		}
+//		tracking.setIdle();
 
-		return false;
+		tracking.startVideoStream();
+		subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);		
+		faceDetector.broadcastState();
+		lkOptical.broadcastState();
+		
+		
 	}
+	
 
 	/**
 	 * FIXME - Tracking should probably not publish Memory it should Publish OpenCVData !!!!!
@@ -213,7 +191,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 				if (clazz == OpenCVData.class) {
 					OpenCVData data = (OpenCVData) object;
 					// single output - assume filter is set to last
-					OpenCVData cv = processor.add(data.getInputImage());
+					OpenCVData cv = faceDetector.add(data.getInputImage());
 					Node pnode = new Node(node.getName());
 					pnode.put(MEMORY_OPENCV_DATA, cv);
 					if (cv.getBoundingBoxArray() != null)
@@ -258,11 +236,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		info(state);
 	}
 
-	public void info(String status) {
-		log.info(status);
-		invoke("publishStatus", status);
-	}
-
 	// ---------publish begin ----------
 	// publish means update if it already exists
 	public void publish(String path, Node node) {
@@ -297,15 +270,9 @@ public class Cortex extends Service implements MemoryChangeListener {
 		memory.crawlAndPublish();
 	}
 
-	/*
-	 * TODO
-	 * 
-	 * public void cameraOff() { tracking. }
-	 */
-
 
 	public OpenCV getProcessor() {
-		return processor;
+		return faceDetector;
 	}
 
 	public Memory getMemory() {
@@ -321,7 +288,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Cortex cortex = (Cortex) Runtime.createAndStart("cortex", "Cortex");
-		cortex.attach();
 		// cortex.videoOff();
 
 		GUIService gui = new GUIService("gui");
