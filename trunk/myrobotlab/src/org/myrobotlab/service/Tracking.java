@@ -625,7 +625,7 @@ public class Tracking extends Service {
 	final public void updateTrackingPoint(OpenCVData cvData) {
 		
 		// extract tracking info
-		cvData.setFilterName(FILTER_LK_OPTICAL_TRACK);
+		cvData.setFilterName(String.format("%s.%s", eye.getName(),FILTER_LK_OPTICAL_TRACK));
 		ArrayList<Point2Df> data = cvData.getPointArray();
 		
 		if (data == null)
