@@ -1,12 +1,8 @@
 package org.myrobotlab.service;
 
-import static org.myrobotlab.service.OpenCV.FILTER_FACE_DETECT;
-import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
-
 import java.io.File;
 import java.util.Map;
 
-import org.myrobotlab.cortex.Algorithm;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -30,25 +26,25 @@ public class Cortex extends Service implements MemoryChangeListener {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Cortex.class.getCanonicalName());
-
-	public static final String MEMORY_TYPE = "MEMORY_TYPE";
-	public static final String MEMORY_OPENCV_DATA = "MEMORY_OPENCV_DATA";
-	public static final String MEMORY_TIMESTAMP = "MEMORY_TIMESTAMP";
+	
+	// FIXME FIXME FIXME - need system to get all names & types of pier services programmatically !!!
+	// AND AN INTERFACE TO CHANGE THEM - between creat & startService !!!
 
 	// state info
 	private String state = STATE_IDLE;
 	public final static String STATE_IDLE = "idle";
 
+	// ------- begin names --------------
+	// FIXME - get composite names of sub peers - FIXME NEED INTERFACE
 	public String trackingName = "tracking";
 	public String faceDetectorName = "faceDetector";
 	public String mouthName = "mouth";
 	public String earName = "ear";
-	Algorithm algorithm;
-	public String serialPort;
+	// ------- end names --------------
 
+	// peer services
 	transient Tracking tracking;
 	transient OpenCV faceDetector;
-	transient OpenCV lkOptical;
 	transient Sphinx ear;
 	transient Speech mouth;
 
@@ -59,7 +55,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		super(n, Cortex.class.getCanonicalName());
 	}
 
-	// FIXME - remove start replacing javadoc & tooltips with annotations
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
@@ -97,79 +92,38 @@ public class Cortex extends Service implements MemoryChangeListener {
 		memory.put("/past", new Node("background"));
 		memory.put("/past", new Node("foreground"));		
 		
-		faceDetector = (OpenCV) Runtime.createAndStart(faceDetectorName, "OpenCV");
-		lkOptical = (OpenCV) Runtime.createAndStart("lkOptical", "OpenCV");
-		// ear = (Sphinx) Runtime.createAndStart(earName, "Sphinx");
-		// mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-		tracking = (Tracking) Runtime.create(trackingName, "Tracking");
-		tracking.eye = lkOptical;
+		// FIXME - check if exists ! - IF EXISTS THEN COMES THE RESPONSIBLITY OF BEING TOTALLY CONFIGURED 
+		// EXTERNALLY
+		tracking = (Tracking) Runtime.create(trackingName, "Tracking"); // FIXME - needs to pass in reference? dunno
+		tracking.opencvName = "cameraTracking";
+		tracking.setSerialPort("COM12");
+		tracking.setRestPosition(90, 90);
+		tracking.setServoPins(13,12); // FIXME !!! set pins MUST OCCUR BEFORE START SERVICE - either make it re-entrant
+		tracking.setCameraIndex(1);
 		tracking.startService();
-		lkOptical.addFilter("pyramidDown","PyramidDown");
-		lkOptical.addFilter("lkOpticalTrack","LKOpticalTrack");
-		lkOptical.publishFilterState("lkOpticalTrack");
-		lkOptical.setDisplayFilter("lkOpticalTrack");
-		lkOptical.capture();
+		tracking.trackPoint(0.5f, 0.5f); 
 		
+		faceDetector = (OpenCV) Runtime.create(faceDetectorName, "OpenCV");
 		faceDetector.setInpurtSource(OpenCV.INPUT_SOURCE_PIPELINE);
-		faceDetector.setPipeline("lkOpticalTrack.pyramidDown");// set key
+		// FIXME - make stable keys in OpenCV how ??
+		faceDetector.setPipeline(String.format("%s.PyramidDown", tracking.eye.getName()));// set key
 		faceDetector.addFilter("faceDetect","FaceDetect");
 		faceDetector.setDisplayFilter("input");
 		faceDetector.setDisplayFilter("faceDetect");
+		faceDetector.setFrameGrabberType("org.myrobotlab.opencv.PipelineFrameGrabber"); // TODO - make manual methods
+		faceDetector.startService();
 		faceDetector.capture();
-		
-		// TODO - register data queue
-		algorithm = new Algorithm(this);
 
-		// defaults...
-		tracking.setRestPosition(90, 5);
-		tracking.setSerialPort("COM12");
-		tracking.setServoPins(13,12);
-		tracking.setCameraIndex(1);
-
-//		tracking.setIdle();
-
-		tracking.startVideoStream();
 		subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);		
-		faceDetector.broadcastState();
-		lkOptical.broadcastState();
 		
+		// FIXME - cascading broadcast !! in composites especially !!
+		faceDetector.broadcastState();
+		tracking.broadcastState();
 		
 	}
 	
 
-	/**
-	 * FIXME - Tracking should probably not publish Memory it should Publish OpenCVData !!!!!
-	 * TODO - facilities to climb up and down nodes
-	 * 
-	 * @param data
-	 */
-	public void process(OpenCVData data) {
-		// TODO add Algorithm processor
-		
-		algorithm.process(data);
-		
-		/*
-		Node node = new Node(Long.toString(data.getTimestamp()));
-		node.put(MEMORY_OPENCV_DATA, data);
-		
-		memory.put("/unprocessed", node);
-		*/
-		/*
-		if (BACKGROUND.equals(data.get(MEMORY_TYPE))) {
-			memory.put("/unprocessed/background", data);
-			memory.put("/locations", data);
-			
-			process(String.format("/unprocessed/background/%s", data.getName()), "/processed/faces");
-
-		} else if (FOREGROUND.equals(data.get(MEMORY_TYPE))) {
-			memory.put("/unprocessed/foreground", data);
-		} else {
-			log.info("unknown type");
-			memory.put("/unprocessed/background", data);
-		}
-		*/
-
-	}
+	
 
 	public void process(String src, String dst) {
 		// for node blah blah
@@ -193,7 +147,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 					// single output - assume filter is set to last
 					OpenCVData cv = faceDetector.add(data.getInputImage());
 					Node pnode = new Node(node.getName());
-					pnode.put(MEMORY_OPENCV_DATA, cv);
+					//pnode.put(MEMORY_OPENCV_DATA, cv);
 					if (cv.getBoundingBoxArray() != null)
 					{
 						log.info("found faces");

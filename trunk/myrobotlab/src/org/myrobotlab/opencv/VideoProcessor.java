@@ -224,6 +224,7 @@ public class VideoProcessor implements Runnable, Serializable {
 						IplImage image = sources.get(filter.sourceKey);
 						if (image == null) {
 							log.error(filter.name);
+							continue;
 						}
 
 						

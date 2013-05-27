@@ -1,8 +1,5 @@
 package org.myrobotlab.control.widget;
 
-import static org.myrobotlab.service.Cortex.MEMORY_OPENCV_DATA;
-import static org.myrobotlab.service.OpenCV.BACKGROUND;
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -10,8 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,12 +20,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.memory.Node;
-import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 import org.slf4j.Logger;
 

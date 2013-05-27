@@ -627,15 +627,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 				if (opencv != null) {
 					VideoProcessor vp = opencv.videoProcessor;
-					
-//					DefaultComboBoxModel model = ComboBoxModel.getModel();
-//					model.removeAllElements(); WTF ? got a null pointer in the REAL filter?
-//					filters.clear();
-//					currentFilterListModel.clear();
-
-					// merge - gui filters to what it looks like in service
-					// the structure is too delicate to do it brute force .clear + .add
-					
+										
 					// add new filters from service into gui
 					Iterator<OpenCVFilter> itr = opencv.getFiltersCopy().iterator();
 					HashMap<String, String> allSvcFilterNames = new HashMap<String, String>();
