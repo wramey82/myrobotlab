@@ -46,7 +46,9 @@ opencv = Runtime.create("opencv","OpenCV")
 opencv.startService()
 # reduce the size - face tracking doesn't need much detail
 # the smaller the faster
-opencv.addFilter("PyramidDown2", "Gray")
+opencv.addFilter("Gray", "Gray")
+opencv.addFilter("PyramidDown2", "PyramidDown")
+opencv.addFilter("PyramidDown1", "PyramidDown")
 #opencv.addFilter("PyramidUp1", "PyramidUp")
  
 # add the face detect filter
@@ -79,7 +81,7 @@ def input():
     global spokeScan
     if (opencvData.getBoundingBoxArray().size() > 0) :
      if not spokeScan:
-      speech.speak("hello?")
+      speech.speak("hello")
       spokeScan=True
       spokeSearch=False
      frameSkip=0
