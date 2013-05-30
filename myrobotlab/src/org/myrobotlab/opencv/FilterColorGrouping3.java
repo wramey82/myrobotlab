@@ -61,8 +61,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public final class FilterColorGrouping3 extends OpenCVFilter {
 
-	public FilterColorGrouping3(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public FilterColorGrouping3(String name)  {
+		super(name);
 	}
 
 	public final static Logger log = LoggerFactory.getLogger(FilterColorGrouping3.class.getCanonicalName());

@@ -50,8 +50,8 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 	
 	transient IplImage gray = null;
 
-	public OpenCVFilterAdaptiveThreshold(VideoProcessor vp, String name, VideoSources source,  String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterAdaptiveThreshold(String name) {
+		super(name);
 	}
 
 	@Override

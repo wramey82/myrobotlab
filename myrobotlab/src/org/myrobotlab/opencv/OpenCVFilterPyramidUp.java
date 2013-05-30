@@ -48,8 +48,8 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
-	public OpenCVFilterPyramidUp(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterPyramidUp(String name)  {
+		super(name);
 	}
 
 	@Override

@@ -26,14 +26,14 @@
 package org.myrobotlab.service;
 
 import static org.myrobotlab.service.OpenCV.BACKGROUND;
-import static org.myrobotlab.service.OpenCV.PART;
-import static org.myrobotlab.service.OpenCV.FILTER_BACKGROUND_SUBTRACTOR_MOG2;
+import static org.myrobotlab.service.OpenCV.FILTER_DETECTOR;
 import static org.myrobotlab.service.OpenCV.FILTER_DILATE;
 import static org.myrobotlab.service.OpenCV.FILTER_ERODE;
 import static org.myrobotlab.service.OpenCV.FILTER_FIND_CONTOURS;
 import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
 import static org.myrobotlab.service.OpenCV.FILTER_PYRAMID_DOWN;
 import static org.myrobotlab.service.OpenCV.FOREGROUND;
+import static org.myrobotlab.service.OpenCV.PART;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
-import org.myrobotlab.opencv.OpenCVFilterBackgroundSubtractorMOG2;
+import org.myrobotlab.opencv.OpenCVFilterDetector;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -466,12 +466,12 @@ public class Tracking extends Service {
 		// set filters
 		eye.clearFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN);
-		eye.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
+		eye.addFilter(FILTER_DETECTOR);
 		eye.addFilter(FILTER_ERODE);
 		eye.addFilter(FILTER_DILATE);
 		eye.addFilter(FILTER_FIND_CONTOURS);
 
-		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
+		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 //		videoOn();
@@ -479,7 +479,7 @@ public class Tracking extends Service {
 
 	public void learnBackground() {
 
-		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).learn();
+		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 //		videoOn();
@@ -487,7 +487,7 @@ public class Tracking extends Service {
 	
 	public void searchForeground() {
 
-		((OpenCVFilterBackgroundSubtractorMOG2)eye.getFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2)).search();
+		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).search();
 
 		setState(STATE_SEARCHING_FOREGROUND);
 //		videoOn();
@@ -626,7 +626,7 @@ public class Tracking extends Service {
 		
 		// extract tracking info
 		cvData.setFilterName(String.format("%s.%s", eye.getName(),FILTER_LK_OPTICAL_TRACK));
-		ArrayList<Point2Df> data = cvData.getPointArray();
+		ArrayList<Point2Df> data = cvData.getPoints();
 		
 		if (data == null)
 		{

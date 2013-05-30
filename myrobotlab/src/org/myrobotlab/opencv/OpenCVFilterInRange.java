@@ -94,8 +94,8 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 	transient CvScalar saturationMin = cvScalar(saturationMinValue, 0.0, 0.0, 0.0);
 	transient CvScalar saturationMax = cvScalar(saturationMaxValue, 0.0, 0.0, 0.0);
 
-	public OpenCVFilterInRange(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterInRange(String name)  {
+		super(name);
 	}
 
 	@Override

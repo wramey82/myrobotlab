@@ -54,8 +54,8 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 	double highThreshold = 50.0;
 	int apertureSize = 5;
 
-	public OpenCVFilterFauvist(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterFauvist(String name)  {
+		super(name);
 	}
 
 	@Override

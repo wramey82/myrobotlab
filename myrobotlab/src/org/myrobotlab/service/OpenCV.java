@@ -57,6 +57,9 @@ import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
+import org.myrobotlab.opencv.OpenCVFilterDetector;
+import org.myrobotlab.opencv.OpenCVFilterGray;
+import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.interfaces.VideoSource;
@@ -88,7 +91,7 @@ public class OpenCV extends VideoSource {
 	transient public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
 	transient public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
 	transient public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
-	transient public static final String FILTER_BACKGROUND_SUBTRACTOR_MOG2 = "BackgroundSubtractorMOG2";
+	transient public static final String FILTER_DETECTOR = "Detector";
 	transient public static final String FILTER_ERODE = "Erode";
 	transient public static final String FILTER_DILATE = "Dilate";
 	transient public static final String FILTER_FIND_CONTOURS = "FindContours";
@@ -310,6 +313,11 @@ public class OpenCV extends VideoSource {
 		masks.put(name, mask);
 	}
 
+	public void addFilter(OpenCVFilter filter) {
+
+		videoProcessor.addFilter(filter);
+		broadcastState(); // let everyone know
+	}
 	public void addFilter(String filterName) {
 
 		videoProcessor.addFilter(filterName, filterName);
@@ -503,20 +511,29 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
-		/*
-		 * IplImage imgA = cvLoadImage( "hand0.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * IplImage imgB = cvLoadImage( "hand1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-		 * try { ObjectFinder of = new ObjectFinder(imgA); of.find(imgB); }
-		 * catch (Exception e) { // TODO Auto-generated catch block
-		 * logException(e); }
-		 */
 		
 		OpenCV opencv01 = (OpenCV) Runtime.createAndStart("opencv01", "OpenCV");
-//		opencv01.useBlockingData(true);
-		opencv01.addFilter("pyramidDown", "PyramidDown");
-		opencv01.addFilter("gray", "Gray");
-		opencv01.capture();
+		OpenCVFilterPyramidDown pd = new OpenCVFilterPyramidDown("pd");
+		opencv01.addFilter(pd);
+		OpenCVFilterGray gray = new OpenCVFilterGray("gray");
+		opencv01.addFilter(gray);
+
+		OpenCVFilterDetector detector = new OpenCVFilterDetector("detector");
+		opencv01.addFilter(detector);
 		
+		GUIService gui = new GUIService("opencv_gui");
+		gui.startService();
+		gui.display();
+
+		opencv01.capture();
+
+		detector.learn();
+		detector.search();
+		detector.learn();
+		detector.search();
+		detector.learn();
+		detector.search();
+
 		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
 
 //		opencv01.capture();
@@ -544,7 +561,7 @@ public class OpenCV extends VideoSource {
 */		
 		
 /*		
-		opencv.addFilter(FILTER_BACKGROUND_SUBTRACTOR_MOG2);
+		opencv.addFilter(FILTER_DETECTOR);
 		opencv.addFilter("erode", "Erode");
 		opencv.addFilter("dilate", "Dilate");
 		opencv.addFilter("findContours", "FindContours");
@@ -562,10 +579,7 @@ public class OpenCV extends VideoSource {
 		
 		//Runtime.createAndStart("remote", "RemoteAdapter");
 
-		GUIService gui = new GUIService("opencv_gui");
-		gui.startService();
-		gui.display();
-
+	
 		// opencv.addFilter("ir","InRange");
 		// opencv.setDisplayFilter("ir");
 

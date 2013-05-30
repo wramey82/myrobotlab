@@ -48,8 +48,8 @@ public class OpenCVFilterSplit extends OpenCVFilter {
 	public final String splitKey;
 	public IplImage splitImage;
 	
-	public OpenCVFilterSplit(VideoProcessor vp, String name, VideoSources source,  String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterSplit(String name) {
+		super(name);
 		splitKey = String.format("%s_SPLIT", name);
 	}
 

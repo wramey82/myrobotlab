@@ -46,8 +46,8 @@ public class OpenCVFilterRepetitiveAnd extends OpenCVFilter {
 	// IplImage out = null;
 	IplImage[] memory = new IplImage[5];
 
-	public OpenCVFilterRepetitiveAnd(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterRepetitiveAnd(String name)  {
+		super(name);
 	}
 
 	@Override

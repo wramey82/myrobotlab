@@ -22,7 +22,7 @@ public class PipelineFrameGrabber extends FrameGrabber {
 	String sourceKey = "";
 
 	public PipelineFrameGrabber(String sourceKey) {
-		log.info("attaching video feed to {}", sourceKey);
+		log.info("attaching video feed to {}");
 		this.sourceKey = sourceKey;
 	}
 	

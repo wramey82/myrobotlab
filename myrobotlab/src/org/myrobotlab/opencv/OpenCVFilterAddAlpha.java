@@ -45,8 +45,8 @@ public class OpenCVFilterAddAlpha extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient IplImage negativeImage = null;
 
-	public OpenCVFilterAddAlpha(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterAddAlpha(String name, String sourceKey) {
+		super(name);
 	}
 
 	@Override

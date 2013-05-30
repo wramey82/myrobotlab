@@ -47,8 +47,8 @@ public class OpenCVFilterMask extends OpenCVFilter {
 
 	// TODO - get list of masks for gui
 
-	public OpenCVFilterMask(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterMask(String name)  {
+		super(name);
 	}
 
 	@Override

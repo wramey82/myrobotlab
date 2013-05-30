@@ -108,8 +108,8 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	transient CvPoint p0 = new CvPoint(0, 0);
 	transient CvPoint p1 = new CvPoint(0, 0);
 
-	public OpenCVFilterKinectDepthMask(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterKinectDepthMask(String name)  {
+		super(name);
 	}
 
 	@Override

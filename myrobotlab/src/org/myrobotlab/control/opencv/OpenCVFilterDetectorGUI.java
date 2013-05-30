@@ -32,16 +32,16 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.opencv.FilterWrapper;
-import org.myrobotlab.opencv.OpenCVFilterBackgroundSubtractorMOG2;
+import org.myrobotlab.opencv.OpenCVFilterDetector;
 import org.myrobotlab.service.GUIService;
 
-public class OpenCVFilterBackgroundSubtractorMOG2GUI extends OpenCVFilterGUI implements ActionListener {
+public class OpenCVFilterDetectorGUI extends OpenCVFilterGUI implements ActionListener {
 
 	String watchText = "watch foreground";
 	String learnText = "learn background";
 	JButton learn = new JButton(watchText);
 	
-	public OpenCVFilterBackgroundSubtractorMOG2GUI(String boundFilterName, String boundServiceName, GUIService myService) {
+	public OpenCVFilterDetectorGUI(String boundFilterName, String boundServiceName, GUIService myService) {
 		super(boundFilterName, boundServiceName, myService);
 
 		display.add(learn);
@@ -54,7 +54,7 @@ public class OpenCVFilterBackgroundSubtractorMOG2GUI extends OpenCVFilterGUI imp
 		boundFilter = filterWrapper;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				OpenCVFilterBackgroundSubtractorMOG2 bf = (OpenCVFilterBackgroundSubtractorMOG2)filterWrapper.filter;
+				OpenCVFilterDetector bf = (OpenCVFilterDetector)filterWrapper.filter;
 				if (bf.learningRate == -1)
 				{
 					learn.setText(watchText);
@@ -69,7 +69,7 @@ public class OpenCVFilterBackgroundSubtractorMOG2GUI extends OpenCVFilterGUI imp
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		OpenCVFilterBackgroundSubtractorMOG2 bf = (OpenCVFilterBackgroundSubtractorMOG2) boundFilter.filter;
+		OpenCVFilterDetector bf = (OpenCVFilterDetector) boundFilter.filter;
 		if (o == learn)
 		{
 			if (watchText.equals(learn.getText()))

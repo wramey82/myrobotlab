@@ -46,8 +46,8 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 
 	ColoredPoint points[] = new ColoredPoint[1];
 
-	public OpenCVFilterSampleArray(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterSampleArray(String name)  {
+		super(name);
 
 		points[0] = new ColoredPoint();
 	}

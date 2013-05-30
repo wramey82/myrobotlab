@@ -43,8 +43,8 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	public int numberOfIterations = 1;
 
-	public OpenCVFilterDilate(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterDilate(String name, String sourceKey) {
+		super(name);
 	}
 
 	@Override

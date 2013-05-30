@@ -179,9 +179,10 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 					OpenCVData data = (OpenCVData)object;
 					SerializableImage lastImage = null;
 					video0.removeAllVideoDisplayPanels();
-					for (Map.Entry<String,?> img : data.getImages().entrySet())
+					//for (Map.Entry<String,?> img : data.getImages().entrySet())
+					SerializableImage img = data.getImage();
 					{
-						lastImage = (SerializableImage)img.getValue();
+						lastImage = img;
 						video0.displayFrame(lastImage);
 					}
 					Graphics2D g2d = lastImage.getImage().createGraphics();

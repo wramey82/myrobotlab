@@ -29,22 +29,13 @@ public class OpenCVData implements Serializable {
 	
 	// TODO GEOTAG - GPS-TIME OFFSET LAT LONG ALT DIRECTION LOCATION
 
-	// FIXME !!! - single HashMap !!! cast for convienent methods - can cast and catch for graceful return of null
-	// SOOOOO much more simple to have single HashMap - tricky part is serializations
-	
-	@ElementMap(entry="images", key = "key", value = "data", attribute = true, inline = true, required = false)
-	private HashMap<String, SerializableImage> images = new HashMap<String, SerializableImage>();
-	@ElementMap(entry="boundingBoxes", key = "key", value = "data", attribute = true, inline = true, required = false)
-	private HashMap<String, ArrayList<Rectangle>> boundingBoxes = new HashMap<String, ArrayList<Rectangle>>();
-	@ElementMap(entry="points", key = "key", value = "data", attribute = true, inline = true, required = false)
-	private HashMap<String, ArrayList<Point2Df>> points = new HashMap<String, ArrayList<Point2Df>>();
-	@ElementMap(entry="attributes", key = "key", value = "data", attribute = true, inline = true, required = false)
-	private HashMap<String, String> attributes = new HashMap<String, String>();
+	@ElementMap(entry="data", key = "key", value = "data", attribute = true, inline = true, required = false)
+	private HashMap<String, Object> data = new HashMap<String, Object>();
 	
 	@Element
 	public String name;
 	@Element
-	String filterName;
+	String filtername;
 	@Element
 	private long timestamp;
 	
@@ -52,7 +43,7 @@ public class OpenCVData implements Serializable {
 	
 	public Set<String> keySet()
 	{
-		return images.keySet();
+		return data.keySet();
 	}
 	
 	public OpenCVData(String name)
@@ -61,12 +52,25 @@ public class OpenCVData implements Serializable {
 		this.name = name;
 	}
 	
-	public OpenCVData(SerializableImage image)
+	public Integer getWidth()
 	{
-		images.put(filterName, image);
+		return (Integer)data.get(String.format("%s.width", filtername));
+	}
+
+	public void setWidth(Integer width)
+	{
+		data.put(String.format("%s.width", filtername), width);
 	}
 	
-	
+	public Integer getHeight()
+	{
+		return (Integer)data.get(String.format("%s.height", filtername));
+	}
+
+	public void setHeight(Integer height)
+	{
+		data.put(String.format("%s.height", filtername), height);
+	}
 	
 	/**
 	 * OpenCV VideoProcessor will set this data collection to the last
@@ -76,29 +80,31 @@ public class OpenCVData implements Serializable {
 	 */
 	public SerializableImage getImage()
 	{
-		//if (images.containsKey(OUTPUT_KEY))
-		if (images.containsKey(filterName))
+		//if (data.containsKey(OUTPUT_KEY))
+		if (data.containsKey(filtername))
 		{
-			return ((SerializableImage)images.get(filterName));
+			return ((SerializableImage)data.get(filtername));
 		} else return null;
 	}
 	
 	public SerializableImage getInputImage()
 	{
-		if (images.containsKey(INPUT_KEY))
+		if (data.containsKey(INPUT_KEY))
 		{
-			return ((SerializableImage)images.get(INPUT_KEY));
+			return ((SerializableImage)data.get(INPUT_KEY));
 		} else return null;
 	}
 	
-	public SerializableImage put(String key, SerializableImage image)
+	// FIXME - lPlimage needs to do the same thing
+	public void put(String key, SerializableImage image)
 	{
-		return images.put(key, image);
+		
+		data.put(key, image);
 	}
 	
 	public boolean containsKey(String key)
 	{
-		return images.containsKey(key);
+		return data.containsKey(key);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -106,75 +112,65 @@ public class OpenCVData implements Serializable {
 
 		//String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
 		ArrayList<Rectangle> list;
-		if (!boundingBoxes.containsKey(filterName))
+		if (!data.containsKey(filtername))
 		{
 			list = new ArrayList<Rectangle>();
-			boundingBoxes.put(filterName, list);
+			data.put(filtername, list);
 		} else {
-			list = boundingBoxes.get(filterName);
+			list = (ArrayList<Rectangle>)data.get(filtername);
 		}
 		
 		list.add(boundingBox);
-	}
-	
-	public ArrayList<Rectangle> getBoundingBoxArray()
-	{
-		/*
-		String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
-		return boundingBoxes.get(key);
-		*/
-		return boundingBoxes.get(filterName);
 	}
 
 	
 	public void add(ArrayList<Point2Df> pointArray) {
 
 		//String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY); overcomplicating it just use filtername
-		points.put(filterName, pointArray);
+		data.put(filtername, pointArray);
 	}
 	
 	
-	public ArrayList<Point2Df> getPointArray()
+	public ArrayList<Point2Df> getPoints()
 	{
-		//String key = String.format("%s.%s", filterName, KEY_POINT_ARRAY);
-		return points.get(filterName);
+		return (ArrayList<Point2Df>)data.get(String.format("%s.points", filtername));
 	}
 	
 	public void setFilterName(String name) {
-		this.filterName = name;
+		this.filtername = name;
 	}
 
-	public ArrayList<Point2Df> set(ArrayList<Point2Df> pointsToPublish) {
-		//String key = String.format("%s.%s", filterName, KEY_POINT_ARRAY);
-		return points.put(filterName, pointsToPublish);
+	public void set(ArrayList<Point2Df> pointsToPublish) {
+		data.put(String.format("%s.points", filtername), pointsToPublish);
 	}
 
 	public boolean containsAttribute(String name)
 	{
-		return attributes.containsKey(name);
+		return data.containsKey(String.format("%s.attribute.%s", filtername, name));
 	}
 	
 	public String getAttribute(String name)
 	{
-		return attributes.get(name);
+		return (String)data.get(String.format("%s.attribute.%s", filtername, name));
 	}
 	
 	public String putAttribute(String name)
 	{
-		return attributes.put(name,null);
+		return (String)data.put(String.format("%s.attribute.%s", filtername, name),(Object)null);
 	}
 
 	public String putAttribute(String name, String value)
 	{
-		return attributes.put(name,value);
+		return (String)data.put(String.format("%s.attribute.%s", filtername, name),value);
 	}
 
-	public HashMap<String, SerializableImage> getImages() {
-		return images;
+	public void put(ArrayList<Rectangle> bb) {
+		data.put(String.format("%s.boundingboxes", filtername), bb);
 	}
-
-	public ArrayList<Rectangle> put(ArrayList<Rectangle> bb) {
-		return boundingBoxes.put(filterName, bb);
+	
+	public ArrayList<Rectangle> getBoundingBoxArray()
+	{
+		return (ArrayList<Rectangle>)data.get(String.format("%s.boundingboxes", filtername));
 	}
 
 	public int getX() {

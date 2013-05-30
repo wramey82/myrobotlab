@@ -47,8 +47,8 @@ public class OpenCVFilterGray extends OpenCVFilter {
 
 	transient IplImage gray = null;
 
-	public OpenCVFilterGray(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterGray(String name)  {
+		super(name);
 	}
 
 	@Override
