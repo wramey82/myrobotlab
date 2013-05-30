@@ -544,23 +544,26 @@ public class OpenCV extends VideoSource {
 		gui.startService();
 		gui.display();
 
+		trackingCamera.capture(); // filters need to run in order for them to appear in drop down
+		trackingCamera.broadcastState();
+		
 		// setup pipelines
 		faceDetect.setInpurtSource("pipeline");
 		faceDetect.setPipeline("trackingCamera.gray");
+		faceDetect.capture();
+		faceDetect.broadcastState();
 
+		
 		detector.setInpurtSource("pipeline");
 		detector.setPipeline("trackingCamera.gray");
 
 		templateMatch.setInpurtSource("pipeline");
 		templateMatch.setPipeline("faceDetect.faceDetect");
 		
-		trackingCamera.capture();
-		faceDetect.capture();
 		detector.capture();
 		templateMatch.capture();
 		
-		trackingCamera.broadcastState();
-		faceDetect.broadcastState();
+		
 		detector.broadcastState();
 		templateMatch.broadcastState();
 

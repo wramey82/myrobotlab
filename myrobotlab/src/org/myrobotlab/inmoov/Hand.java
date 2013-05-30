@@ -29,6 +29,8 @@ public class Hand {
 
 	public void rest() {
 		// initial positions
+		setSpeed(0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
+		
 		thumb.moveTo(0);
 		index.moveTo(0);
 		majeure.moveTo(0);
