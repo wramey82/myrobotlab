@@ -220,7 +220,7 @@ public class Tracking extends Service {
 		}
 		
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
-		eye.capture();
+		//eye.capture();
 		eye.broadcastState();
 		return true;
 	}

@@ -2,6 +2,8 @@ package org.myrobotlab.inmoov;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilterGray;
+import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
@@ -49,13 +51,46 @@ public class Head {
 		
 		inmoov.tracking.eye = inmoov.eye;		
 		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
-		inmoov.eye.capture();
+		//inmoov.eye.capture();
 		inmoov.eye.broadcastState();
 		
 		inmoov.tracking.arduino = inmoov.arduinoHead;
 		inmoov.tracking.startService();
 		
-		
+	}
+	
+	public void cameraOn()
+	{
+		cameraGray();
+		cameraReduce();
+		inmoov.tracking.eye.capture();
+	}
+
+	public void cameraOff()
+	{
+		inmoov.tracking.eye.stopCapture();
+	}
+	
+	public void cameraGray()
+	{
+		OpenCVFilterGray gray = new OpenCVFilterGray("gray");
+		inmoov.tracking.eye.addFilter(gray);
+	}
+	
+	public void cameraColor()
+	{
+		inmoov.tracking.eye.removeFilter("gray");
+	}
+	
+	public void cameraReduce()
+	{
+		OpenCVFilterPyramidDown pyramidDown = new OpenCVFilterPyramidDown("pyramidDown");
+		inmoov.tracking.eye.addFilter(pyramidDown);
+	}
+	
+	public void cameraEnlarge()
+	{
+		inmoov.tracking.eye.removeFilter("pyramidDown");
 	}
 
 	public void move(Integer neck, Integer rothead) {
