@@ -694,7 +694,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 					} else if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource))
 					{
 						fileRadio.setSelected(true);
+					} else if (OpenCV.INPUT_SOURCE_PIPELINE.equals(inputSource))
+					{
+						//grabberTypeSelect.removeActionListener(grabberTypeListener);
+						grabberTypeSelect.setSelectedItem("Pipeline");
+						//grabberTypeSelect.addActionListener(grabberTypeListener);
+						pipelineHook.setSelectedItem(vp.pipelineSelected);
 					}
+
 
 				} else {
 					log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");
