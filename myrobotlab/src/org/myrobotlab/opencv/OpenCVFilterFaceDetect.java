@@ -79,7 +79,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	CvHaarClassifierCascade cascade = null; // TODO - was static
 	int i;
 
-	public OpenCVFilterFaceDetect(String name, String sourceKey) {
+	public OpenCVFilterFaceDetect(String name) {
 		super(name);
 	}
 

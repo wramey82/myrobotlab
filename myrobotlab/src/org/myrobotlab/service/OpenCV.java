@@ -60,8 +60,11 @@ import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
 import org.myrobotlab.opencv.OpenCVFilterDilate;
 import org.myrobotlab.opencv.OpenCVFilterErode;
+import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.myrobotlab.opencv.OpenCVFilterFindContours;
 import org.myrobotlab.opencv.OpenCVFilterGray;
+import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
+import org.myrobotlab.opencv.OpenCVFilterMatchTemplate;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.data.Point2Df;
@@ -515,51 +518,60 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
 		
-		OpenCV opencv01 = (OpenCV) Runtime.createAndStart("opencv01", "OpenCV");
+		OpenCV trackingCamera = (OpenCV) Runtime.createAndStart("trackingCamera", "OpenCV");
+		OpenCV detector = (OpenCV) Runtime.createAndStart("detector", "OpenCV");
+		OpenCV faceDetect = (OpenCV) Runtime.createAndStart("faceDetect", "OpenCV");
+		OpenCV templateMatch = (OpenCV) Runtime.createAndStart("templateMatch", "OpenCV");
 		
 		// filters begin -----------------
-		OpenCVFilterPyramidDown pd = new OpenCVFilterPyramidDown("pd");
-		opencv01.addFilter(pd);
+
+		trackingCamera.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
+		trackingCamera.addFilter(new OpenCVFilterGray("gray"));
+		trackingCamera.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
 		
-		OpenCVFilterGray gray = new OpenCVFilterGray("gray");
-		opencv01.addFilter(gray);
-
-		OpenCVFilterDetector detector = new OpenCVFilterDetector("detector");
-		opencv01.addFilter(detector);
-
-		OpenCVFilterErode erode = new OpenCVFilterErode("erode");
-		opencv01.addFilter(erode);
-
-		OpenCVFilterDilate dilate = new OpenCVFilterDilate("dilate");
-		opencv01.addFilter(dilate);
+		detector.addFilter(new OpenCVFilterDetector("detector"));
+		detector.addFilter(new OpenCVFilterErode("erode"));
+		detector.addFilter(new OpenCVFilterDilate("dilate"));
+		detector.addFilter(new OpenCVFilterFindContours("findContours"));
 		
+		faceDetect.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
 
-		OpenCVFilterFindContours contour = new OpenCVFilterFindContours("contour");
-		opencv01.addFilter(contour);
+		templateMatch.addFilter(new OpenCVFilterMatchTemplate("matchTemplate"));
+		
 		// filters end -----------------
 		
 		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();
 		gui.display();
 
-		opencv01.capture();
+		// setup pipelines
+		faceDetect.setInpurtSource("pipeline");
+		faceDetect.setPipeline("trackingCamera.gray");
 
-		detector.learn();
-		detector.search();
-		detector.learn();
-		detector.search();
-		detector.learn();
-		detector.search();
+		detector.setInpurtSource("pipeline");
+		detector.setPipeline("trackingCamera.gray");
 
-		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
+		templateMatch.setInpurtSource("pipeline");
+		templateMatch.setPipeline("faceDetect.faceDetect");
+		
+		trackingCamera.capture();
+		faceDetect.capture();
+		detector.capture();
+		templateMatch.capture();
+		
+		trackingCamera.broadcastState();
+		faceDetect.broadcastState();
+		detector.broadcastState();
+		templateMatch.broadcastState();
 
-//		opencv01.capture();
+
+//		trackingCamera.capture();
 
 /*		
 		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
 		opencv02.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
 		BlockingQueueGrabber grabber = (BlockingQueueGrabber)opencv02.getFrameGrabber();
-		//grabber.setQueue(opencv01.)
+		//grabber.setQueue(trackingCamera.)
 		//opencv02.capture();
 		
 

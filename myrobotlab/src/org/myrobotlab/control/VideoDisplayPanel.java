@@ -43,7 +43,7 @@ public class VideoDisplayPanel {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			mouseInfo.setText(String.format("clicked %d,%d",e.getX(), e.getY()));
+			mouseInfo.setText(String.format("clicked %d,%d", e.getX(), e.getY()));
 			Object[] params = new Object[2];
 			params[0] = e.getX();
 			params[1] = e.getY();
@@ -92,7 +92,7 @@ public class VideoDisplayPanel {
 
 		screen.addMouseListener(vml);
 		myIcon.setImageObserver(screen); // Good(necessary) Optimization
-	
+
 		myDisplay.add(BorderLayout.CENTER, screen);
 
 		JPanel south = new JPanel();
@@ -105,9 +105,10 @@ public class VideoDisplayPanel {
 		myDisplay.add(BorderLayout.SOUTH, south);
 
 	}
-	
+
 	long frameCount = 0;
 	long displayModulus = 100;
+	long delta = 0;
 
 	public void displayFrame(SerializableImage img) {
 
@@ -118,7 +119,7 @@ public class VideoDisplayPanel {
 		 * img.source is the name of the bound filter
 		 */
 		++frameCount;
-		
+
 		String source = img.getSource();
 
 		if (lastImage != null) {
@@ -129,16 +130,18 @@ public class VideoDisplayPanel {
 			sourceNameLabel.setText(source);
 		}
 
-		if (parent.normalizedSize != null)
-		{
+		if (parent.normalizedSize != null) {
 			myIcon.setImage(img.getImage().getScaledInstance(parent.normalizedSize.width, parent.normalizedSize.height, 0));
 		} else {
 			myIcon.setImage(img.getImage());
 		}
 		screen.setIcon(myIcon);
-		
-		if (frameCount%displayModulus==0 && lastImage != null) {
-				deltaTime.setText(String.format("%d fps", 1000/(img.getTimestamp() - lastImage.getTimestamp())));
+
+		if (frameCount % displayModulus == 0 && lastImage != null) {
+			delta = (img.getTimestamp() - lastImage.getTimestamp());
+			if (delta != 0) {
+				deltaTime.setText(String.format("%d fps", 1000 / delta));
+			}
 		}
 
 		lastImage = img;
@@ -148,13 +151,12 @@ public class VideoDisplayPanel {
 			screen.invalidate();
 			myService.pack();
 			lastImageWidth = img.getImage().getWidth();
-			resolutionInfo.setText(String.format("%dx%d", lastImageWidth ,img.getImage().getHeight()));
+			resolutionInfo.setText(String.format("%dx%d", lastImageWidth, img.getImage().getHeight()));
 		}
 
 		img = null;
 
 	}
-
 
 } // VideoDisplayPanel
 
