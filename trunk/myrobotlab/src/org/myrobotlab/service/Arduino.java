@@ -184,9 +184,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int GET_MRLCOMM_VERSION = 26;
 
 	// servo related
-	public static final int SERVO_SWEEP = 10;
-	public static final int MAX_SERVOS = 12; // FIXME - more depending on board
-												// (mega)
+	public static final int SERVO_STOP_AND_REPORT = 10;
+	// FIXME - more depending on board (mega)
+	public static final int MAX_SERVOS = 12;
 
 	// vendor specific
 	public static final String VENDOR_DEFINES_BEGIN = "// --VENDOR DEFINE SECTION BEGIN--";
@@ -369,7 +369,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public synchronized void serialSend(int function, int param1, int param2) {
-		log.info("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
+		log.error("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
 			// not CRC16 - but cheesy error correction of bytestream
 			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm

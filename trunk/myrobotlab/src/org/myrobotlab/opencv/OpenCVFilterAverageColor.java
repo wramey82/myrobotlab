@@ -113,8 +113,8 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		return ret;
 	}
 
-	public OpenCVFilterAverageColor(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterAverageColor(String name)  {
+		super(name);
 	}
 
 	@Override

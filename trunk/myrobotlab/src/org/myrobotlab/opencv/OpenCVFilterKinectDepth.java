@@ -58,8 +58,8 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	transient BufferedImage frameBuffer = null;
 
 
-	public OpenCVFilterKinectDepth(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterKinectDepth(String name)  {
+		super(name);
 	}
 
 	int x = 0;

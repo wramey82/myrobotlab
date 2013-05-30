@@ -44,8 +44,8 @@ public class OpenCVFilterErode extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterErode.class.getCanonicalName());
 
-	public OpenCVFilterErode(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterErode(String name)  {
+		super(name);
 	}
 
 	@Override

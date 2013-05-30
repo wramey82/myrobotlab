@@ -40,8 +40,8 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterResetImageROI.class.getCanonicalName());
 
-	public OpenCVFilterResetImageROI(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterResetImageROI(String name)  {
+		super(name);
 	}
 
 	@Override

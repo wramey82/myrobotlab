@@ -50,6 +50,7 @@
 #define SERVO_WRITE          7
 #define SERVO_SET_MAX_PULSE  8
 #define SERVO_DETACH         9
+#define SERVO_STOP_AND_REPORT 10
 #define SET_PWM_FREQUENCY    11
 #define SET_SERVO_SPEED           12
 #define ANALOG_READ_POLLING_START	 13
@@ -126,10 +127,10 @@ void setup() {
 	softReset();
 
 	// --VENDOR SETUP BEGIN--
-	// --VENDOR SETUP END-- 
+	// --VENDOR SETUP END--
 }
 
-// 
+//
 void softReset()
 {
 
@@ -296,7 +297,7 @@ void loop () {
 			break;
 		case SERVO_WRITE:
 			if (servoSpeed[ioCommand[2]] == 100) // move at regular/full 100% speed
-			{   
+			{
 				// move at regular/full 100% speed
 				// although not completely accurate
 				// target position & current position are
@@ -305,7 +306,26 @@ void loop () {
 				servoTargetPosition[ioCommand[2]] = ioCommand[3];
 				servoCurrentPosition[ioCommand[2]] = ioCommand[3];
 			} else if (servoSpeed[ioCommand[2]] < 100 && servoSpeed[ioCommand[2]] > 0) {
-				// start moving a servo at fractional speed 
+				// start moving a servo at fractional speed
+				servoTargetPosition[ioCommand[2]] = ioCommand[3];
+				movingServos[movingServosCount]=ioCommand[2];
+				++movingServosCount;
+			} else {
+				// NOP - 0 speed - don't move
+			}
+			break;
+		case SERVO_STOP_AND_REPORT:
+			if (servoSpeed[ioCommand[2]] == 100) // move at regular/full 100% speed
+			{
+				// move at regular/full 100% speed
+				// although not completely accurate
+				// target position & current position are
+				// updated immediately
+				servos[ioCommand[2]].write(ioCommand[3]);
+				servoTargetPosition[ioCommand[2]] = ioCommand[3];
+				servoCurrentPosition[ioCommand[2]] = ioCommand[3];
+			} else if (servoSpeed[ioCommand[2]] < 100 && servoSpeed[ioCommand[2]] > 0) {
+				// start moving a servo at fractional speed
 				servoTargetPosition[ioCommand[2]] = ioCommand[3];
 				movingServos[movingServosCount]=ioCommand[2];
 				++movingServosCount;
@@ -373,7 +393,7 @@ void loop () {
 		case GET_MRLCOMM_VERSION:
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(GET_MRLCOMM_VERSION);
-			Serial.write((byte)1); 
+			Serial.write((byte)1);
 			Serial.write((byte)0);
 			Serial.write((byte)0);
 			break;
@@ -382,7 +402,7 @@ void loop () {
 			break;
 
 			// --VENDOR CODE BEGIN--
-			// --VENDOR CODE END-- 
+			// --VENDOR CODE END--
 
 		case NOP:
 			// No Operation
@@ -393,7 +413,7 @@ void loop () {
 		}
 
 		// reset buffer
-		ioCommand[0] = -1; // MAGIC_NUMBER 
+		ioCommand[0] = -1; // MAGIC_NUMBER
 		ioCommand[1] = -1; // FUNCTION
 		ioCommand[2] = -1; // PARAM 1
 		ioCommand[3] = -1; // PARAM 2
@@ -409,9 +429,9 @@ void loop () {
 		  if (millis() - lastDebounceTime[digitalReadPin[i]] < debounceDelay)
 		  {
 		    continue;
-		  } 
-		} 
-	
+		  }
+		}
+
 		// read the pin
 		readValue = digitalRead(digitalReadPin[i]);
 
@@ -420,7 +440,7 @@ void loop () {
 		{
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(DIGITAL_VALUE);
-			Serial.write(digitalReadPin[i]);// Pin# 
+			Serial.write(digitalReadPin[i]);// Pin#
 			Serial.write(readValue >> 8);   // MSB
 			Serial.write(readValue); 	// LSB
 

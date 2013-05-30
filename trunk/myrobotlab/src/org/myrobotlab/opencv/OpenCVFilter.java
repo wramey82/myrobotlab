@@ -63,17 +63,21 @@ public abstract class OpenCVFilter implements Serializable {
 	transient CvSize imageSize;
 
 	public String sourceKey;
-	// FIXME - this has to be transient !  IpImages is non-serializable !!!
-	transient VideoSources sources;
-	//transient HashMap<String, LinkedBlockingQueue<IplImage>> forks = new HashMap<String, LinkedBlockingQueue<IplImage>>();
-	
+
+	transient VideoSources sources = new VideoSources();
+
 	VideoProcessor vp;
 	
-//	public OpenCVFilter(VideoProcessor vp, String filterName, HashMap<String, IplImage> sources, String sourceKey) {
-	public OpenCVFilter(VideoProcessor vp, String filterName, VideoSources sources, String sourceKey) {	
+	public OpenCVFilter(String name)
+	{
+		this.name = name;
+	}
+	
+	// TODO - refactor this back to single name constructor - the addFilter's new responsiblity it to 
+	// check to see if inputkeys and other items are valid
+	public OpenCVFilter(String filterName, String sourceKey) {	
 		this.name = filterName;
 		this.vp = vp;
-		this.sources = sources;
 		this.sourceKey = sourceKey;
 	}
 
@@ -125,6 +129,12 @@ public abstract class OpenCVFilter implements Serializable {
 	
 	public void release()
 	{
+	}
+
+	public IplImage prostProcess(IplImage image, OpenCVData data) {
+		data.setWidth(image.width());
+		data.setHeight(image.height());
+		return image;
 	}
 
 }

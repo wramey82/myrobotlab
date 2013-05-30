@@ -1,6 +1,8 @@
 package org.myrobotlab.service;
 
+import java.awt.Rectangle;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.myrobotlab.framework.Service;
@@ -114,7 +116,9 @@ public class Cortex extends Service implements MemoryChangeListener {
 		faceDetector.startService();
 		faceDetector.capture();
 
-		subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);		
+		subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);	
+		
+		subscribe("publishOpenCVData", faceDetector.getName(), "foundFace", OpenCVData.class);
 		
 		// FIXME - cascading broadcast !! in composites especially !!
 		faceDetector.broadcastState();
@@ -122,8 +126,29 @@ public class Cortex extends Service implements MemoryChangeListener {
 		
 	}
 	
-
-	
+	// FIXME - only publish when faces are actually found
+	public void foundFace(OpenCVData faces)
+	{
+		
+		ArrayList<Rectangle> bb = faces.getBoundingBoxArray();
+		if (bb != null)
+		{
+			int width = faces.getWidth();
+			int height = faces.getHeight();
+			
+			if (bb.size()>0){
+				Rectangle r = bb.get(0);
+				float foreheadX = (float)(r.x + r.width/2)/width;
+				float foreheadY = (float)(r.y + r.height/2)/height;
+				//log.info("{}", bb.get(0).x);
+				log.error("{}{}", foreheadX , foreheadY);
+				tracking.trackPoint(foreheadX, foreheadY);
+				;
+				//tracking.trackPoint(bb.get(0).x/faces.getWidth(), y);
+				//tracking.trackPoint(0., y)
+			}
+		}
+	}
 
 	public void process(String src, String dst) {
 		// for node blah blah
@@ -242,6 +267,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Cortex cortex = (Cortex) Runtime.createAndStart("cortex", "Cortex");
+		Runtime.createAndStart("python", "Python");
 		// cortex.videoOff();
 
 		GUIService gui = new GUIService("gui");

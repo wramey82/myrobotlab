@@ -28,7 +28,6 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -36,13 +35,13 @@ import org.slf4j.Logger;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
 
-public class OpenCVFilterBackgroundSubtractorMOG2 extends OpenCVFilter {
+public class OpenCVFilterDetector extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
 	public double learningRate = -1; // 0 trigger || -1 learn and fade
 
-	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterBackgroundSubtractorMOG2.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterDetector.class.getCanonicalName());
 
 	transient BufferedImage frameBuffer = null;
 	transient BackgroundSubtractorMOG2 mog;
@@ -57,8 +56,8 @@ public class OpenCVFilterBackgroundSubtractorMOG2 extends OpenCVFilter {
 		learningRate = 0;
 	}
 	
-	public OpenCVFilterBackgroundSubtractorMOG2(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterDetector(String name)  {
+		super(name);
 	}
 	
 	@Override

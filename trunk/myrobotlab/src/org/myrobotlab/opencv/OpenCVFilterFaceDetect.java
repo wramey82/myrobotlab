@@ -57,14 +57,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -76,9 +74,13 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
+	
+	CvMemStorage storage = null;
+	CvHaarClassifierCascade cascade = null; // TODO - was static
+	int i;
 
-	public OpenCVFilterFaceDetect(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterFaceDetect(String name, String sourceKey) {
+		super(name);
 	}
 
 	@Override
@@ -100,19 +102,6 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			return image.getBufferedImage();
 		}
 	}
-
-	CvMemStorage storage = null;
-
-	// Create a new Haar classifier
-	CvHaarClassifierCascade cascade = null; // TODO - was static
-
-	int scale = 1;
-	CvPoint pt1 = new CvPoint(0, 0);
-	CvPoint pt2 = new CvPoint(0, 0);
-	CvPoint ch1 = new CvPoint(0, 0);
-	CvPoint ch2 = new CvPoint(0, 0);
-	CvPoint centeroid = new CvPoint(0, 0);
-	int i;
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
@@ -154,10 +143,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// Preload the opencv_objdetect module to work around a known bug.
 			Loader.load(opencv_objdetect.class);
 
-			cvLoad("haarcascades/haarcascade_frontalface_alt.xml");
 			cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
-			// cascade = new
-			// CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
+			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 
 			if (cascade == null) {
 				log.error("Could not load classifier cascade");

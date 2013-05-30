@@ -64,8 +64,8 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 	CvScalar lo_diff = CV_RGB(20.0, 20.0, 20.0);// cvScalar(20, 0.0, 0.5, 1.0);
 	CvScalar up_diff = CV_RGB(20.0, 20.0, 20.0);
 
-	public OpenCVFilterFloorFinder(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterFloorFinder(String name)  {
+		super(name);
 	}
 
 	@Override

@@ -67,8 +67,8 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 
 	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
-	public OpenCVFilterHoughLines2(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterHoughLines2(String name)  {
+		super(name);
 	}
 
 	@Override

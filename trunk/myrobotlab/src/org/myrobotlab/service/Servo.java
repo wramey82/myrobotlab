@@ -236,6 +236,26 @@ public class Servo extends Service implements ServoControl {
 			controller.servoDetach(getName());
 		}
 	}
+	
+	public void test()
+	{
+		for (int i = 0; i < 10000; ++i)
+		{
+			setSpeed(0.6f);
+			moveTo(90);
+			moveTo(180);
+			setSpeed(0.6f);
+			moveTo(90);
+			moveTo(180);
+			setSpeed(0.5f);
+			moveTo(90);
+			moveTo(180);
+			setSpeed(0.5f);
+			moveTo(90);
+			moveTo(180);
+		}
+		
+	}
 
 	public static void main(String[] args) throws InterruptedException {
 
@@ -244,10 +264,19 @@ public class Servo extends Service implements ServoControl {
 
 		// FIXME - routing of servo.attach("arduino", 3);
 
-		Runtime.createAndStart("arduino", "Arduino");
+		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
 
+		arduino.setSerialDevice("COM12");
+		
 		Servo right = new Servo("servo01");
 		right.startService();
+		
+		arduino.servoAttach(right.getName(), 13);
+		
+		right.test();
+		
+		Runtime.createAndStart("gui", "GUIService");
+		
 		// right.attach(serviceName)
 		/*
 		 * Servo left = new Servo("left"); left.startService();
@@ -266,7 +295,7 @@ public class Servo extends Service implements ServoControl {
 		 * 
 		 * //right.detach(); //left.detach(); }
 		 */
-		Runtime.createAndStart("gui", "GUIService");
+		
 
 	}
 

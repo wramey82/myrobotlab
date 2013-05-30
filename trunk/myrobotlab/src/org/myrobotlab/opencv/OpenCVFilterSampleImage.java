@@ -68,8 +68,8 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	 * purple = HSV 128 255 150 128, 0, 0, 1 = blue = HSV 128 255 150 (navy)
 	 */
 
-	public OpenCVFilterSampleImage(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterSampleImage(String name)  {
+		super(name);
 	}
 
 	@Override

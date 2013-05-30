@@ -45,8 +45,8 @@ public class OpenCVFilterAddMask extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient IplImage negativeImage = null;
 
-	public OpenCVFilterAddMask(VideoProcessor vp, String name, VideoSources source, String sourceKey) {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterAddMask(String name, String sourceKey) {
+		super(name);
 	}
 
 	@Override

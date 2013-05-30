@@ -52,8 +52,8 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	BufferedImage frameBuffer = null;
 	int filter = 7;
 
-	public OpenCVFilterKinectInterleave(VideoProcessor vp, String name, VideoSources source,  String sourceKey)  {
-		super(vp, name, source, sourceKey);
+	public OpenCVFilterKinectInterleave(String name)  {
+		super(name);
 	}
 
 	int x = 0;
