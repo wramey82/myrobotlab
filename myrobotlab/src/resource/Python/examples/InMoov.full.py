@@ -36,7 +36,7 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("rest | open hand | close hand | manual | voice control| capture gesture | one ball | one | two | three | four | five | six | seven | eight | nine | ten | look one | down one | down two | point | scared | ballet | surrender | surrender two | what | welcome | protect |  camera | stop tracking")
+inMoov.startListening("camera enlarge | camera reduce | camera color | camera gray | camera on | rest | open hand | close hand | manual | voice control| capture gesture | one ball | one | two | three | four | five | six | seven | eight | nine | ten | look one | down one | down two | point | scared | ballet | surrender | surrender two | what | welcome | protect |  camera | stop tracking")
 
 # voice control
 def heard():
@@ -48,6 +48,18 @@ def heard():
   
   if (data == "rest"):
     inMoov.rest() 
+  elif (data == "camera on"):
+    inMoov.cameraOn()
+  elif (data == "camera off"):
+    inMoov.cameraOff()
+  elif (data == "camera gray"):
+    inMoov.camerGray()
+  elif (data == "camera color"):
+    inMoov.camerColor()
+  elif (data == "camera reduce"):
+    inMoov.camerReduce()
+  elif (data == "camera enlarge"):
+    inMoov.camerEnlarge()
   elif (data == "open hand"):
     inMoov.handOpen("right")
   elif (data == "close hand"):
