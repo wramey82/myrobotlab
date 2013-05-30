@@ -112,12 +112,12 @@ public class OpenCVData implements Serializable {
 
 		//String key = String.format("%s.%s", filterName, KEY_BOUNDING_BOX_ARRAY);
 		ArrayList<Rectangle> list;
-		if (!data.containsKey(filtername))
+		if (!data.containsKey(String.format("%s.boundingboxes", filtername)))
 		{
 			list = new ArrayList<Rectangle>();
-			data.put(filtername, list);
+			data.put(String.format("%s.boundingboxes", filtername), list);
 		} else {
-			list = (ArrayList<Rectangle>)data.get(filtername);
+			list = (ArrayList<Rectangle>)data.get(String.format("%s.boundingboxes", filtername));
 		}
 		
 		list.add(boundingBox);
