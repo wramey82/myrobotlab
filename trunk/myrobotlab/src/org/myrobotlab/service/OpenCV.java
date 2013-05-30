@@ -58,6 +58,9 @@ import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
+import org.myrobotlab.opencv.OpenCVFilterDilate;
+import org.myrobotlab.opencv.OpenCVFilterErode;
+import org.myrobotlab.opencv.OpenCVFilterFindContours;
 import org.myrobotlab.opencv.OpenCVFilterGray;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
@@ -513,13 +516,27 @@ public class OpenCV extends VideoSource {
 		
 		
 		OpenCV opencv01 = (OpenCV) Runtime.createAndStart("opencv01", "OpenCV");
+		
+		// filters begin -----------------
 		OpenCVFilterPyramidDown pd = new OpenCVFilterPyramidDown("pd");
 		opencv01.addFilter(pd);
+		
 		OpenCVFilterGray gray = new OpenCVFilterGray("gray");
 		opencv01.addFilter(gray);
 
 		OpenCVFilterDetector detector = new OpenCVFilterDetector("detector");
 		opencv01.addFilter(detector);
+
+		OpenCVFilterErode erode = new OpenCVFilterErode("erode");
+		opencv01.addFilter(erode);
+
+		OpenCVFilterDilate dilate = new OpenCVFilterDilate("dilate");
+		opencv01.addFilter(dilate);
+		
+
+		OpenCVFilterFindContours contour = new OpenCVFilterFindContours("contour");
+		opencv01.addFilter(contour);
+		// filters end -----------------
 		
 		GUIService gui = new GUIService("opencv_gui");
 		gui.startService();

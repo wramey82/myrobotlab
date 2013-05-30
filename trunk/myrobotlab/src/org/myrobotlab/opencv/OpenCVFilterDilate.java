@@ -28,7 +28,6 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ public class OpenCVFilterDilate extends OpenCVFilter {
 
 	public int numberOfIterations = 1;
 
-	public OpenCVFilterDilate(String name, String sourceKey) {
+	public OpenCVFilterDilate(String name) {
 		super(name);
 	}
 
