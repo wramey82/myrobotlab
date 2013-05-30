@@ -93,7 +93,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	transient CvPoint drawPoint1 = new CvPoint(0, 0);
 	transient CvMemStorage cvStorage = null;
 
-	public OpenCVFilterFindContours(String name, String sourceKey) {
+	public OpenCVFilterFindContours(String name) {
 		super(name);
 	}
 
