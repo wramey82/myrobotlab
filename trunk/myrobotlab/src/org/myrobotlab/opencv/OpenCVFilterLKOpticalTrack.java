@@ -24,6 +24,7 @@
  * */
 
 package org.myrobotlab.opencv;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
@@ -32,6 +33,7 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
+import static com.googlecode.javacv.cpp.opencv_core.cvZero;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
@@ -121,7 +123,10 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		termCriteria = cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03);
 
 		winSize = cvSize(windowSize, windowSize);
-
+		grey = IplImage.create(imageSize, 8, 1); 
+		preGrey = IplImage.create(imageSize, 8, 1);
+		cvCopy(grey, preGrey);
+		
 		// CvSize pyr_sz = cvSize(preGrey.width + 8, grey.height / 3);
 		// prePyramid = cvCreateImage(pyr_sz, IPL_DEPTH_32F, 1);
 		// pyramid = cvCreateImage(pyr_sz, IPL_DEPTH_32F, 1);
@@ -186,11 +191,8 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (channels == 3) {
-			// THIS WORKS
-			grey = IplImage.create(imageSize, 8, 1); 
 			cvCvtColor(image, grey, CV_BGR2GRAY);
 		} else {
-			// THIS DOESNT !!! I DONT KNOW WHY !!!
 			grey = image;
 		}
 		
@@ -288,7 +290,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 
 		// swap
 		// TODO - release what preGrey pointed to?
-		preGrey = grey;
+		cvCopy(grey, preGrey);
 		// prePyramid = pyramid;
 
 		return image;
