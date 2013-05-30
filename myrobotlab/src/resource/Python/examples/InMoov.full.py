@@ -36,7 +36,7 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("camera enlarge | camera reduce | camera color | camera gray | camera on | rest | open hand | close hand | manual | voice control| capture gesture | one ball | one | two | three | four | five | six | seven | eight | nine | ten | look one | down one | down two | point | scared | ballet | surrender | surrender two | what | welcome | protect |  camera | stop tracking")
+inMoov.startListening("camera enlarge | camera reduce | camera color | camera gray | camra off | camera on | rest | open hand | close hand | manual | voice control| capture gesture | one ball | one | two | three | four | five | six | seven | eight | nine | ten | look one | down one | down two | point | scared | ballet | surrender | surrender two | what | welcome | protect |  camera | stop tracking")
 
 # voice control
 def heard():
