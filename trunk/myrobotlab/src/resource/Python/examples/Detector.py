@@ -24,7 +24,7 @@ def input():
  
     #print 'found face at (x,y) ', msg_opencv_publishOpenCVData.data[0].x(), msg_opencv_publish.data[0].y()
     opencvData = msg_opencv_publishOpenCVData.data[0]
-    if (opencvData.getBoundingBoxArray().size() > 0) :
+    if (opencvData.getBoundingBoxArray() is not None and opencvData.getBoundingBoxArray().size() > 0) :
      rect = opencvData.getBoundingBoxArray().get(0)
      posx = rect.x
      posy = rect.y
