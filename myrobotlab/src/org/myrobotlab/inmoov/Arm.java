@@ -16,7 +16,7 @@ public class Arm {
 	}
 
 	public void rest() {
-		setSpeed(0.0f,0.0f,0.0f,0.0f);
+		setSpeed(1.0f,1.0f,1.0f,1.0f);
 
 		// initial position
 		bicep.moveTo(0);

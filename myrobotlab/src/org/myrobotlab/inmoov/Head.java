@@ -112,7 +112,7 @@ public class Head {
 	}
 
 	public void rest() {
-		setSpeed(0.0f,0.0f);
+		setSpeed(1.0f,1.0f);
 		inmoov.neck.moveTo(90);
 		inmoov.rothead.moveTo(90);
 	}
