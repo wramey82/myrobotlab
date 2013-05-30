@@ -119,8 +119,6 @@ def heard():
   elif (data == "stop tracking"):
     inMoov.stopTracking()
 
-inMoov.moveHand("right",50,28,30,10,10,90)
-
 def gestureOne():
   inMoov.moveHead(90,90)
   inMoov.moveArm("left",90,64,128,43)
