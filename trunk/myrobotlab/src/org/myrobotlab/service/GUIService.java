@@ -897,6 +897,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		JMenuItem mi = new JMenuItem("install latest");
 		mi = new JMenuItem("install latest");
 		mi.addActionListener(this);
+		
+		parentMenu.add(mi);
 
 	}
 
