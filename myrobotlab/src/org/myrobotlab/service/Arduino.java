@@ -369,7 +369,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public synchronized void serialSend(int function, int param1, int param2) {
-		log.error("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
+		log.debug("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
 			// not CRC16 - but cheesy error correction of bytestream
 			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm
