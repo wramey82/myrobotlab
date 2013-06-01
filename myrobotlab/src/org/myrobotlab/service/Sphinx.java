@@ -481,6 +481,22 @@ public class Sphinx extends Service {
 
 		commandMap.put(command, msg);
 	}
+	
+	public void test()
+	{
+		
+	}
+	
+	/*
+	
+	public void startListening(String grammar) {
+		attach(mouth);
+		addListener("recognized", "python", "heard", String.class);
+		createGrammar(grammar);
+		startListening();
+	}
+	
+	*/
 
 	public static void main(String[] args) {
 
@@ -488,7 +504,12 @@ public class Sphinx extends Service {
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Sphinx ear = (Sphinx)Runtime.createAndStart("ear", "Sphinx");
-		ear.startListening("hello | up | down | yes | no");
+		Speech speech = new Speech("speech");
+		speech.startService();
+		
+		ear.startListening("camera on | camera off | arm left | arm right | hand left | hand right ");
+		ear.startListening("yes | no");
+		
 		//Sphinx ear = new Sphinx("ear");
 		// ear.createGrammar("hello | up | down | yes | no");
 		//ear.startService();

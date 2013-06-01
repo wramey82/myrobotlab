@@ -222,7 +222,8 @@ public class VideoProcessor implements Runnable, Serializable {
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
 						if (image == null) {
-							log.error(filter.name);
+							log.warn("{} has no image - waiting",filter.name);
+							Service.sleep(300);
 							continue;
 						}
 
