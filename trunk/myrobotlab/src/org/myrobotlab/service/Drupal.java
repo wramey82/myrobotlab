@@ -3,6 +3,9 @@ package org.myrobotlab.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -10,6 +13,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.HTTPClient.HTTPData;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 public class Drupal extends Service {
@@ -18,8 +22,46 @@ public class Drupal extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(Drupal.class.getCanonicalName());
 
+	@Element
+	String botName = "Cleverbot";
+	@Element
+	boolean doneChatting = false;
+	@Element
+	public String host;
+	@Element
+	public String username;
+	@Element
+	public String password;
+	public String chatResponseSearchString;
+	final public String cleverbotServiceName;
+	final public CleverBot cleverbot;
+
+	HashMap<String, String> usedContexts = new HashMap<String, String>();
+	boolean useGreeting = true;
+	
+	String usernameTagBegin = "class=\\\"shoutbox-user-name\\\"\\x3e";
+	String usernameTagEnd = "\\x3c";
+	String shoutTagBegin = "class=\\\"shoutbox-shout\\\"\\x3e\\x3cp\\x3e";
+	String shoutTagEnd = "\\x3c";
+	
+	int timeoutMinutes = 4; 
+	boolean inTimeout = false;
+	HashSet<String> timeoutWords = new HashSet<String>();
+
+	//letsmakerobots.com 
+	/*
+	 String usernameTagBegin = "click to view profile\">";
+	 String usernameTagEnd = "</a></b>";
+	 String shoutTagBegin = ": "; 
+	 String shoutTagEnd = "</span>";
+	 */
+	 
+	
 	public Drupal(String n) {
 		super(n, Drupal.class.getCanonicalName());
+		cleverbotServiceName = String.format("%s_cleverbot", getName());
+		cleverbot = new CleverBot(cleverbotServiceName);
+		timeoutWords.add("timeout");
 	}
 
 	@Override
@@ -97,22 +139,8 @@ public class Drupal extends Service {
 		public String shout;
 	}
 
-	String botName = "Cleverbot";
-	
-	String usernameTagBegin = "class=\\\"shoutbox-user-name\\\"\\x3e";
-	String usernameTagEnd = "\\x3c";
-	String shoutTagBegin = "class=\\\"shoutbox-shout\\\"\\x3e\\x3cp\\x3e";
-	String shoutTagEnd = "\\x3c";
-	
 
-	//letsmakerobots.com 
-	/*
-	 String usernameTagBegin = "click to view profile\">";
-	 String usernameTagEnd = "</a></b>";
-	 String shoutTagBegin = ": "; 
-	 String shoutTagEnd = "</span>";
-	 */
-	 
+
 
 	public ArrayList<UserShout> parseShoutBox(String s) {
 		ArrayList<UserShout> ret = new ArrayList<UserShout>();
@@ -147,17 +175,6 @@ public class Drupal extends Service {
 
 		return ret;
 	}
-
-	boolean doneChatting = false;
-	public String host;
-	public String username;
-	public String password;
-	public String chatResponseSearchString;
-	public String cleverbotServiceName = String.format("%s_cleverbot", getName());
-	public CleverBot cleverbot = new CleverBot(cleverbotServiceName);
-
-	HashMap<String, String> usedContexts = new HashMap<String, String>();
-	boolean useGreeting = true;
 
 	// FIXME - NON context - when a name of someone online is addressed directly
 	// - its rude to respond
@@ -199,6 +216,19 @@ public class Drupal extends Service {
 				// if I have been mentioned, but not by me and this shout is not
 				// one I have responded to
 				if ((shoutboxEntry.shout.indexOf(chatResponseSearchString) != -1 && !shoutboxEntry.userName.equals(username)) && !usedContexts.containsKey(shoutboxEntry.shout)) {
+					if (timeoutWords.contains(shoutboxEntry.shout))
+					{
+						shout(String.format("I am going to be quiet now for %d minutes", timeoutMinutes));
+						Timer timer = new Timer("chatbot timeout timer");
+						inTimeout = true;
+						timer.schedule(new TimerTask() {
+							  @Override
+							  public void run() {
+								  inTimeout = false;
+							  }
+							}, timeoutMinutes*60*1000);
+						
+					}
 					usedContexts.put(shoutboxEntry.shout, shoutboxEntry.shout);
 					foundContext = true;
 					String shout = shoutboxEntry.shout.toLowerCase().replace(username.toLowerCase(), botName);
@@ -271,7 +301,7 @@ public class Drupal extends Service {
 		drupal.host = "myrobotlab.org";
 		//drupal.host = "letsmakerobots.com";
 		drupal.username = "mr.turing";
-		drupal.password = "";
+		drupal.password = "gooby1";
 		drupal.chatResponseSearchString = "turing ";
 		drupal.startChatterBot();
 

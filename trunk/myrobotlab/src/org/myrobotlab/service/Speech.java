@@ -306,9 +306,9 @@ public class Speech extends Service {
 			VoiceManager voiceManager = VoiceManager.getInstance();
 			Voice[] possibleVoices = voiceManager.getVoices();
 
-			log.error("possible voices");
+			log.info("possible voices");
 			for (int i = 0; i < possibleVoices.length; ++i) {
-				log.error(possibleVoices[i].getName());
+				log.info(possibleVoices[i].getName());
 			}
 			voiceName = "kevin16";
 			myVoice = voiceManager.getVoice(voiceName);
@@ -383,7 +383,7 @@ public class Speech extends Service {
 
 			try {
 				URI uri = new URI("http", null, "translate.google.com", 80, "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
-				log.error(uri.toASCIIString());
+				log.info(uri.toASCIIString());
 				HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
 
 				FileOutputStream fos = new FileOutputStream(audioFile);
