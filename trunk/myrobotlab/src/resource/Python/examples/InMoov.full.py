@@ -78,5 +78,5 @@ def heard():
   elif (data == "track"):
     inMoov.trackPoint(0.5, 0.5)
   elif (data == "stop tracking"):
-    inMoov.stopTracking()
+    inMoov.clearTrackingPoints()
 
