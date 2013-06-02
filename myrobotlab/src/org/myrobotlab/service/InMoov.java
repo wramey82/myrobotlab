@@ -104,15 +104,14 @@ public class InMoov extends Service {
 	public void setArduino(String key, Arduino arduino) {
 		if (key.equals(left))
 		{
-			if (arduino == null)
-			{
-				
-			}
 			arduinoLeft = arduino;
+			return;
 		} else if (key.equals(right))
 		{
 			arduinoRight = arduino;
+			return;
 		} 
+		
 		log.error(String.format("setArduino (%s, Arduino) must be left or right", key));
 	}
 
@@ -471,7 +470,37 @@ public class InMoov extends Service {
 		mouth.setLanguage(lang);
 		return true;
 	}
+	
+	public void cameraOn()
+	{
+		head.cameraOn();
+	}
 
+	public void cameraOff()
+	{
+		head.cameraOff();
+	}
+
+	public void cameraEnlarge()
+	{
+		head.cameraEnlarge();
+	}
+
+	public void cameraReduce()
+	{
+		head.cameraReduce();
+	}
+
+	public void cameraGray()
+	{
+		head.cameraGray();
+	}
+	
+	public void cameraColor()
+	{
+		head.cameraColor();
+	}
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);

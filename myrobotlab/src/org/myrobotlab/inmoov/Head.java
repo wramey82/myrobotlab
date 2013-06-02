@@ -11,6 +11,8 @@ import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Tracking;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_stitching;
+
 public class Head {
 
 	public final static Logger log = LoggerFactory.getLogger(Head.class);
@@ -29,34 +31,38 @@ public class Head {
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
 		inmoov.eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
-		
+		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
+				
+		/*
 		inmoov.arduinoHead.servoAttach(inmoov.neck.getName(), 12);
 		inmoov.arduinoHead.servoAttach(inmoov.rothead.getName(), 13);
+		*/
 
 		// initial position
-		rest();
 
 		inmoov.rothead.setPositionMin(30);
 		inmoov.rothead.setPositionMax(150);
 		inmoov.neck.setPositionMin(20);
 		inmoov.neck.setPositionMax(160);
 		
-		// notify gui
+	
+		inmoov.tracking.arduino = inmoov.arduinoHead;
+		inmoov.tracking.attachServos(inmoov.rothead, 13, inmoov.neck, 12);
+		//inmoov.tracking.x = inmoov.rothead;
+		//inmoov.tracking.y = inmoov.neck;
+		
+		//inmoov.tracking.eye = inmoov.eye;	
+		inmoov.tracking.attach(inmoov.eye);
+		inmoov.tracking.eye.setInputSource("camera");
+		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
+		
+		inmoov.tracking.startService();
+
+		inmoov.eye.broadcastState();
 		inmoov.neck.broadcastState();
 		inmoov.rothead.broadcastState();
-	
-		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
-		inmoov.tracking.x = inmoov.rothead;
-		inmoov.tracking.y = inmoov.neck;
 		
-		inmoov.tracking.eye = inmoov.eye;		
-		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
-		//inmoov.eye.capture();
-		inmoov.eye.broadcastState();
-		
-		inmoov.tracking.arduino = inmoov.arduinoHead;
-		inmoov.tracking.startService();
-		
+		rest();		
 	}
 	
 	public void cameraOn()
@@ -134,7 +140,7 @@ public class Head {
 	public boolean isValid() {
 		if (inmoov == null)
 		{
-			log.error("head can not find inmoov");
+			log.error("head not attached");
 			return false;
 		}
 		if (inmoov.arduinoHead == null)
@@ -152,6 +158,10 @@ public class Head {
 			inmoov.error("head neck servo not attached");
 			return false;
 		}
+		
+		inmoov.neck.moveTo(92);
+		inmoov.rothead.moveTo(92);
+		
 		return true;
 	}
 }

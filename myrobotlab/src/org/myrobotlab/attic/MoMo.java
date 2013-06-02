@@ -213,12 +213,12 @@ public class MoMo extends Service {
 	}
 
 	public void cameraOn() {
-		camera.setInpurtSource("camera");
+		camera.setInputSource("camera");
 		camera.capture();
 	}
 
 	public void cameraOff() {
-		camera.setInpurtSource("null");
+		camera.setInputSource("null");
 		camera.capture();
 	}
 

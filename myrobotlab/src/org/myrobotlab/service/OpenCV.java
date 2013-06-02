@@ -185,7 +185,7 @@ public class OpenCV extends VideoSource {
 		return inputFile;
 	}
 
-	public String setInpurtSource(String inputSource) {
+	public String setInputSource(String inputSource) {
 		videoProcessor.inputSource = inputSource;
 		return inputSource;
 	}
@@ -528,6 +528,7 @@ public class OpenCV extends VideoSource {
 		trackingCamera.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
 		trackingCamera.addFilter(new OpenCVFilterGray("gray"));
 		trackingCamera.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
+		trackingCamera.setCameraIndex(1);
 		
 		detector.addFilter(new OpenCVFilterDetector("detector"));
 		detector.addFilter(new OpenCVFilterErode("erode"));
@@ -548,16 +549,16 @@ public class OpenCV extends VideoSource {
 		trackingCamera.broadcastState();
 		
 		// setup pipelines
-		faceDetect.setInpurtSource("pipeline");
+		faceDetect.setInputSource("pipeline");
 		faceDetect.setPipeline("trackingCamera.gray");
 		faceDetect.capture();
 		faceDetect.broadcastState();
 
 		
-		detector.setInpurtSource("pipeline");
+		detector.setInputSource("pipeline");
 		detector.setPipeline("trackingCamera.gray");
 
-		templateMatch.setInpurtSource("pipeline");
+		templateMatch.setInputSource("pipeline");
 		templateMatch.setPipeline("faceDetect.faceDetect");
 		
 		detector.capture();
