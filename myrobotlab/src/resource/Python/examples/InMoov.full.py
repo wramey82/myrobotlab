@@ -41,7 +41,7 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("rest | camera on | camera off | camera enlarge | camera reduce | camera gray | camera color | hand open | hand close | manual | voice control| capture gesture | track | stop tracking")
+inMoov.startListening("rest | hand open | hand close | manual | voice control| capture gesture | track | stop tracking")
 
 # voice control
 def heard():
@@ -67,7 +67,7 @@ def heard():
     inMoov.camerColor()
   elif (data == "hand open"):
     inMoov.handOpen("right")
-  elif (data == "close hand"):
+  elif (data == "hand close"):
     inMoov.handClose("right")
   elif (data == "manual"):
     inMoov.lockOutAllGrammarExcept("voice control")
