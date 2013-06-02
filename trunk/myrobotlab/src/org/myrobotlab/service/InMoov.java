@@ -28,90 +28,80 @@ public class InMoov extends Service {
 	transient public Python python;
 	transient public Tracking tracking;
 	transient public Arduino arduinoHead;
-	
+
 	transient public Servo rothead;
 	transient public Servo neck;
-	
+
 	// left side
 	transient public Arduino arduinoLeft;
 	transient public Hand handLeft;
 	transient public Arm armLeft;
-	
+
 	// right side
 	transient public Arduino arduinoRight;
 	transient public Hand handRight;
 	transient public Arm armRight;
-	
+
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 	}
-	
-	public void startService()
-	{
+
+	public void startService() {
 		super.startService();
-		// FIXME - big assumption they have the hardware or 
+		// FIXME - big assumption they have the hardware or
 		// desire to start these services ....
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-		//eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
-		python = (Python) Runtime.createAndStart("python", "Python");		
+		// eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
+		python = (Python) Runtime.createAndStart("python", "Python");
 	}
-	
+
 	// ----------- normalization begin ---------------------
 
 	public Arduino getArduino(String key) {
-		if (key.equals(left))
-		{
+		if (key.equals(left)) {
 			return arduinoLeft;
-		} else if (key.equals(right))
-		{
+		} else if (key.equals(right)) {
 			return arduinoRight;
-		} 
+		}
 		error("getArduino ({}) not found");
 		return null;
 	}
-	
-	public void setCameraIndex(Integer index)
-	{
-		if (eye == null)
-		{
-			eye = (OpenCV)Runtime.createAndStart("eye", "OpenCV");
+
+	public void setCameraIndex(Integer index) {
+		if (eye == null) {
+			eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		}
 		eye.setCameraIndex(index);
 	}
-	
-	public void trackPoint(float x, float y)
-	{
-		// FIXME - do this !!  its re-entrant tracking = Runtime.createAndStart(name, type)
-		if (tracking == null)
-		{
+
+	public void trackPoint(float x, float y) {
+		// FIXME - do this !! its re-entrant tracking =
+		// Runtime.createAndStart(name, type)
+		if (tracking == null) {
 			error("attach head before tracking");
 		} else {
 			tracking.trackPoint(x, y);
 		}
 	}
-	
-	public void clearTrackingPoints()
-	{
-		if (tracking == null)
-		{
+
+	public void clearTrackingPoints() {
+		if (tracking == null) {
 			error("attach head before tracking");
 		} else {
 			tracking.clearTrackingPoints();
 		}
 	}
-	
+
 	public void setArduino(String key, Arduino arduino) {
-		if (key.equals(left))
-		{
+		if (key.equals(left)) {
 			arduinoLeft = arduino;
 			return;
-		} else if (key.equals(right))
-		{
+		} else if (key.equals(right)) {
 			arduinoRight = arduino;
 			return;
-		} 
-		
+		}
+
 		log.error(String.format("setArduino (%s, Arduino) must be left or right", key));
 	}
 
@@ -126,32 +116,26 @@ public class InMoov extends Service {
 		return arduino;
 	}
 
-
 	public Hand attachHand(String key) {
 		Arduino arduino = getArduino(key);
 
 		Hand hand = new Hand();
-		if (key == left)
-		{
+		if (key == left) {
 			handLeft = hand;
-		} else if (key == right)
-		{
+		} else if (key == right) {
 			handRight = hand;
 		} else {
 			error(String.format("could not attach %s hand", key));
 		}
-	
+
 		hand.attach(arduino, key);
 		return hand;
 	}
-	
-	public Hand getHand(String key)
-	{
-		if (key == left)
-		{
+
+	public Hand getHand(String key) {
+		if (key == left) {
 			return handLeft;
-		} else if (key == right)
-		{
+		} else if (key == right) {
 			return handRight;
 		}
 		error(String.format("%s hand not found", key));
@@ -164,52 +148,68 @@ public class InMoov extends Service {
 		Arm arm = new Arm();
 		arm.attach(arduino, key);
 
-		if (key == left)
-		{
+		if (key == left) {
 			armLeft = arm;
-		} else if (key == right)
-		{
+		} else if (key == right) {
 			armRight = arm;
 		} else {
 			error(String.format("%s - bad arm initialization ", key));
 			return null;
 		}
-	
+
 		return arm;
 	}
 
 	public void release() {
-		if (handLeft != null) 		handLeft.release();				handLeft = null;
-		if (handRight != null) 		handRight.release();			handRight = null;
-		if (armLeft != null) 		armLeft.release();				armLeft = null;				
-		if (armRight != null) 		armRight.release();				armRight = null;
-		if (arduinoLeft != null) 	arduinoLeft.releaseService();	arduinoLeft = null;
-		if (arduinoRight != null) 	arduinoRight.releaseService();	arduinoRight = null;
-		if (head != null) 			head.release(); 				head = null;
+		if (handLeft != null)
+			handLeft.release();
+		handLeft = null;
+		if (handRight != null)
+			handRight.release();
+		handRight = null;
+		if (armLeft != null)
+			armLeft.release();
+		armLeft = null;
+		if (armRight != null)
+			armRight.release();
+		armRight = null;
+		if (arduinoLeft != null)
+			arduinoLeft.releaseService();
+		arduinoLeft = null;
+		if (arduinoRight != null)
+			arduinoRight.releaseService();
+		arduinoRight = null;
+		if (head != null)
+			head.release();
+		head = null;
 	}
 
 	public void rest() {
-		if (handLeft != null)	handLeft.rest();
-		if (handRight != null)	handRight.rest();
-		if (armLeft != null)	armLeft.rest();
-		if (armRight != null) 	armRight.rest();
-		if (head != null) head.rest();
+		if (handLeft != null)
+			handLeft.rest();
+		if (handRight != null)
+			handRight.rest();
+		if (armLeft != null)
+			armLeft.rest();
+		if (armRight != null)
+			armRight.rest();
+		if (head != null)
+			head.rest();
 	}
 
-	public Head attachHead()
-	{
+	public Head attachHead() {
 		return attachHead(left);
 	}
-	public Head attachHead(String key)
-	{
+
+	public Head attachHead(String key) {
 		return attachHead(getArduino(key));
 	}
+
 	public Head attachHead(Arduino arduino) {
 		if (arduino == null) {
 			error("invalid arduino and not attach head");
 		}
-		if (head != null)
-		{
+		if (head != null) {
 			log.info("head already attached - must release first");
 			return head;
 		}
@@ -222,17 +222,22 @@ public class InMoov extends Service {
 	// ----------- normalization end ---------------------
 
 	public void attachSide(String side, String boardType, String comPort) {
-			attachArduino(side, boardType, comPort);
-			attachHand(side);
-			attachArm(side);
+		attachArduino(side, boardType, comPort);
+		attachHand(side);
+		attachArm(side);
 	}
 
 	public void broadcastState() {
-		if (armLeft != null) armLeft.broadcastState();
-		if (armRight != null) armRight.broadcastState();
-		if (handLeft != null) handLeft.broadcastState();
-		if (handRight != null) handRight.broadcastState();
-		if (head != null) head.broadcastState();
+		if (armLeft != null)
+			armLeft.broadcastState();
+		if (armRight != null)
+			armRight.broadcastState();
+		if (handLeft != null)
+			handLeft.broadcastState();
+		if (handRight != null)
+			handRight.broadcastState();
+		if (head != null)
+			head.broadcastState();
 	}
 
 	public void attachAll(String LeftBoardType, String LeftComPort, String RightBoardType, String RightComPort) {
@@ -266,8 +271,10 @@ public class InMoov extends Service {
 	}
 
 	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
-		if ((which == left  || which == both) && handLeft != null) 	handLeft.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
-		if ((which == right || which == both) && handRight != null) handRight.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == left || which == both) && handLeft != null)
+			handLeft.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == right || which == both) && handRight != null)
+			handRight.moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
 	}
 
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky) {
@@ -275,18 +282,24 @@ public class InMoov extends Service {
 	}
 
 	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist) {
-		if ((which == left  || which == both) && handLeft != null) 	handLeft.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
-		if ((which == right || which == both) && handRight != null)	handRight.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == left || which == both) && handLeft != null)
+			handLeft.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		if ((which == right || which == both) && handRight != null)
+			handRight.setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
 	}
 
 	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate) {
-		if (which == left  || which == both) armLeft.setSpeed(bicep, rotate, shoulder, omoplate);
-		if (which == right || which == both) armRight.setSpeed(bicep, rotate, shoulder, omoplate);
+		if (which == left || which == both)
+			armLeft.setSpeed(bicep, rotate, shoulder, omoplate);
+		if (which == right || which == both)
+			armRight.setSpeed(bicep, rotate, shoulder, omoplate);
 	}
 
 	public void moveArm(String which, Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
-		if (which == left  || which == both) armLeft.moveTo(bicep, rotate, shoulder, omoplate);
-		if (which == right || which == both) armRight.moveTo(bicep, rotate, shoulder, omoplate);
+		if (which == left || which == both)
+			armLeft.moveTo(bicep, rotate, shoulder, omoplate);
+		if (which == right || which == both)
+			armRight.moveTo(bicep, rotate, shoulder, omoplate);
 	}
 
 	public void moveHead(Integer neck, Integer rothead) {
@@ -309,57 +322,47 @@ public class InMoov extends Service {
 		rest();
 		sleep(500);
 
-		if (arduinoRight != null)
-		{
+		if (arduinoRight != null) {
 			mouth.speakBlocking("Right arduino");
-			if (!arduinoRight.isValid())
-			{
+			if (!arduinoRight.isValid()) {
 				mouth.speakBlocking("is not valid");
 				mouth.speakBlocking(arduinoRight.getLastError());
 			}
-			
+
 		}
-		
-		if (arduinoLeft != null)
-		{
+
+		if (arduinoLeft != null) {
 			mouth.speakBlocking("left arduino");
-			if (!arduinoLeft.isValid())
-			{
+			if (!arduinoLeft.isValid()) {
 				mouth.speakBlocking("is not valid");
 				mouth.speakBlocking(arduinoLeft.getLastError());
 			}
-			
+
 		}
-		
-		if (head != null)
-		{
+
+		if (head != null) {
 			mouth.speakBlocking("head");
-			if (head.isValid())
-			{
+			if (head.isValid()) {
 				mouth.speakBlocking(getLastError());
 			} else {
 				head.move(100, 100);
 			}
 		}
-		
-		if (armLeft != null)
-		{
+
+		if (armLeft != null) {
 			mouth.speakBlocking("left arm");
 			armLeft.moveTo(10, 100, 40, 20);
 		}
-		if (armRight != null)
-		{
+		if (armRight != null) {
 			mouth.speakBlocking("right arm");
 			armRight.moveTo(10, 100, 40, 20);
-		}	
-		
-		if (handLeft != null)
-		{
+		}
+
+		if (handLeft != null) {
 			mouth.speakBlocking("left hand");
 			handLeft.moveTo(10, 10, 10, 10, 10, 10);
 		}
-		if (handRight != null)
-		{
+		if (handRight != null) {
 			mouth.speakBlocking("right hand");
 			handRight.moveTo(10, 10, 10, 10, 10, 10);
 		}
@@ -395,25 +398,21 @@ public class InMoov extends Service {
 			script.append(indentSpace);
 			script.append(head.getScript(getName()));
 		}
-		
-		if (armLeft != null)
-		{
+
+		if (armLeft != null) {
 			script.append(indentSpace);
 			script.append(armLeft.getScript(getName()));
 		}
-		if (armRight != null)
-		{
+		if (armRight != null) {
 			script.append(indentSpace);
 			script.append(armRight.getScript(getName()));
 		}
-		
-		if (handLeft != null)
-		{
+
+		if (handLeft != null) {
 			script.append(indentSpace);
 			script.append(handLeft.getScript(getName()));
 		}
-		if (handRight != null)
-		{
+		if (handRight != null) {
 			script.append(indentSpace);
 			script.append(handRight.getScript(getName()));
 		}
@@ -437,110 +436,179 @@ public class InMoov extends Service {
 	}
 
 	public void lockOutAllGrammarExcept(String keyPhrase) {
-		if (ear == null)
-		{
+		if (ear == null) {
 			warn("ear not attached");
 			return;
 		}
 		ear.lockOutAllGrammarExcept(keyPhrase);
 	}
-	
-	public void clearGrammarLock()
-	{
+
+	public void clearGrammarLock() {
 		ear.clearLock();
 	}
 
 	public void stopListening() {
 		ear.stopListening();
 	}
-	
-	public void allowHeadMovementFromScript()
-	{
+
+	public void allowHeadMovementFromScript() {
 		head.allowMove = true;
 	}
 
-	public void stopHeadMovementFromScript()
-	{
+	public void stopHeadMovementFromScript() {
 		head.allowMove = false;
 	}
-	
-	public boolean setLanguage(String lang)
-	{
-		if (mouth == null) return false;
+
+	public boolean setLanguage(String lang) {
+		if (mouth == null)
+			return false;
 		mouth.setLanguage(lang);
 		return true;
 	}
-	
-	public void cameraOn()
-	{
+
+	public void cameraOn() {
 		head.cameraOn();
 	}
 
-	public void cameraOff()
-	{
+	public void cameraOff() {
 		head.cameraOff();
 	}
 
-	public void cameraEnlarge()
-	{
+	public void cameraEnlarge() {
 		head.cameraEnlarge();
 	}
 
-	public void cameraReduce()
-	{
+	public void cameraReduce() {
 		head.cameraReduce();
 	}
 
-	public void cameraGray()
-	{
+	public void cameraGray() {
 		head.cameraGray();
 	}
-	
-	public void cameraColor()
-	{
+
+	public void cameraColor() {
 		head.cameraColor();
 	}
-	
+
+	// gestures begin ---------------
+
+	public void hello() {
+		setHeadSpeed(1.0f, 1.0f);
+		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
+		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
+		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		moveHead(105, 78);
+		moveArm("left", 78, 48, 37, 10);
+		moveArm("right", 90, 144, 60, 75);
+		moveHand("left", 112, 111, 105, 102, 81, 10);
+		moveHand("right", 0, 0, 0, 50, 82, 180);
+	}
+
+	public void giving() {
+		moveHead(44, 82);
+		moveArm("left", 15, 55, 68, 10);
+		moveArm("right", 13, 40, 74, 13);
+		moveHand("left", 61, 0, 14, 0, 0, 180);
+		moveHand("right", 0, 24, 24, 19, 21, 25);
+	}
+
+	public void fighter() {
+		moveHead(160, 87);
+		moveArm("left", 31, 75, 152, 10);
+		moveArm("right", 3, 94, 33, 16);
+		moveHand("left", 161, 151, 133, 127, 107, 83);
+		moveHand("right", 99, 130, 152, 154, 145, 180);
+	}
+
+	public void fistHips() {
+		moveHead(138, 80);
+		moveArm("left", 71, 41, 20, 39);
+		moveArm("right", 71, 40, 14, 39);
+		moveHand("left", 161, 151, 133, 127, 107, 83);
+		moveHand("right", 99, 130, 152, 154, 145, 180);
+	}
+
+	public void lookAtThis() {
+		moveHead(66, 79);
+		moveArm("left", 89, 75, 78, 19);
+		moveArm("right", 90, 91, 72, 26);
+		moveHand("left", 92, 106, 133, 127, 107, 29);
+		moveHand("right", 86, 51, 133, 162, 153, 180);
+	}
+
+	public void victory() {
+		moveHead(114, 90);
+		moveArm("left", 90, 91, 106, 10);
+		moveArm("right", 0, 73, 30, 17);
+		moveHand("left", 170, 0, 0, 168, 167, 0);
+		moveHand("right", 98, 37, 34, 67, 118, 166);
+	}
+
+	public void armsUp() {
+		moveHead(160, 97);
+		moveArm("left", 9, 85, 168, 18);
+		moveArm("right", 0, 68, 180, 10);
+		moveHand("left", 61, 38, 14, 38, 15, 64);
+		moveHand("right", 0, 0, 0, 50, 82, 180);
+	}
+
+	public void armsFront() {
+		moveHead(99, 82);
+		moveArm("left", 9, 115, 96, 51);
+		moveArm("right", 13, 104, 101, 49);
+		moveHand("left", 61, 0, 14, 38, 15, 0);
+		moveHand("right", 0, 24, 54, 50, 82, 180);
+	}
+
+	public void daVinci() {
+		moveHead(75, 79);
+		moveArm("left", 9, 115, 28, 80);
+		moveArm("right", 13, 118, 26, 80);
+		moveHand("left", 61, 49, 14, 38, 15, 64);
+		moveHand("right", 0, 24, 54, 50, 82, 180);
+	}
+
+	// gestures end --------------
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-		
+
 		String test = "could not attach servo to pin 7 serial port in null - not initialized?.mp3";
 		log.info(test.replace("?:", ""));
-		
+
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
-		
-/*
-		Arduino arduino = new Arduino("arduino");
 
-		arduino.setBoard("atmega328");
-		arduino.setSerialDevice("COM12",57600,8,1,0);
-		
-		inMoov.initializeBrain();
-		
-		inMoov.initializeHead(arduino);
-*/		
 		/*
-		Arduino arduino = new Arduino("arduinox");
-		arduino.setBoard("atmega328");
-		arduino.setSerialDevice("COM12",57600,8,1,0);
-		
-		inMoov.initializeHead(arduino);
-		*/
-/*		
-		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
-		arduino.setBoard("atmega328");
-		arduino.setSerialDevice("COM12",57600,8,1,0);
-		
-		inMoov.initializeHead(arduino);
-		// Runtime.createAndStart("python", "Python");
-		ServiceInterface gui = Runtime.createAndStart("gui", "GUIService");
-		gui.display();
-		
-		inMoov.eye.setCameraIndex(1);
-		*/
-		//inMoov.tracking.trackLKPoint();
+		 * Arduino arduino = new Arduino("arduino");
+		 * 
+		 * arduino.setBoard("atmega328");
+		 * arduino.setSerialDevice("COM12",57600,8,1,0);
+		 * 
+		 * inMoov.initializeBrain();
+		 * 
+		 * inMoov.initializeHead(arduino);
+		 */
+		/*
+		 * Arduino arduino = new Arduino("arduinox");
+		 * arduino.setBoard("atmega328");
+		 * arduino.setSerialDevice("COM12",57600,8,1,0);
+		 * 
+		 * inMoov.initializeHead(arduino);
+		 */
+		/*
+		 * Arduino arduino = (Arduino)Runtime.createAndStart("arduino",
+		 * "Arduino"); arduino.setBoard("atmega328");
+		 * arduino.setSerialDevice("COM12",57600,8,1,0);
+		 * 
+		 * inMoov.initializeHead(arduino); // Runtime.createAndStart("python",
+		 * "Python"); ServiceInterface gui = Runtime.createAndStart("gui",
+		 * "GUIService"); gui.display();
+		 * 
+		 * inMoov.eye.setCameraIndex(1);
+		 */
+		// inMoov.tracking.trackLKPoint();
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
