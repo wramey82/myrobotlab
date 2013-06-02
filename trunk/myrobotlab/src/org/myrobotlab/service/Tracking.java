@@ -422,7 +422,7 @@ public class Tracking extends Service {
 	{
 		// set filters
 		eye.clearFilters();
-		eye.addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN); // needed ??? test
+		eye.addFilter("PyramidDown"); // needed ??? test
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
