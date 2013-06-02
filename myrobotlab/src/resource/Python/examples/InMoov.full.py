@@ -41,7 +41,7 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("rest | hand open | hand close | manual | voice control| capture gesture | track | stop tracking")
+inMoov.startListening("rest | hand open | hand close | manual | voice control| capture gesture | track | freeze tracking | hello | giving | fighter | fist hips | look at this | victory | arms up | arms front | da vinci")
 
 # voice control
 def heard():
@@ -53,18 +53,6 @@ def heard():
   
   if (data == "rest"):
     inMoov.rest() 
-  elif (data == "camera on"):
-    inMoov.cameraOn()
-  elif (data == "camera off"):
-    inMoov.cameraOff()
-  elif (data == "camera enlarge"):
-    inMoov.camerEnlarge()
-  elif (data == "camera reduce"):
-    inMoov.camerReduce()
-  elif (data == "camera gray"):
-    inMoov.camerGray()
-  elif (data == "camera color"):
-    inMoov.camerColor()
   elif (data == "hand open"):
     inMoov.handOpen("right")
   elif (data == "hand close"):
@@ -77,6 +65,23 @@ def heard():
     inMoov.captureGesture();
   elif (data == "track"):
     inMoov.trackPoint(0.5, 0.5)
-  elif (data == "stop tracking"):
+  elif (data == "freeze tracking"):
     inMoov.clearTrackingPoints()
-
+  elif (data == "hello"):
+    inMoov.hello()
+  elif (data == "giving"):
+    inMoov.giving()
+  elif (data == "fighter"):
+    inMoov.fighter()
+  elif (data == "fist hips"):
+    inMoov.fistHips() 
+  elif (data == "look at this"):
+    inMoov.lookAtThis()
+  elif (data == "victory"):
+    inMoov.victory()
+  elif (data == "arms up"):
+    inMoov.armsUp() 
+  elif (data == "arms front"):
+    inMoov.armsFront()
+  elif (data == "da vinci"):
+    inMoov.daVinci()
