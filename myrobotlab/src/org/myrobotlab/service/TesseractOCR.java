@@ -30,10 +30,10 @@ public class TesseractOCR extends Service {
 		String filed = file.getAbsolutePath();
 		POSIX e = new Environment.POSIX();
 		e.setenv("TESSDATA_PREFIX", filed.substring(0, filed.length() - 1), 1);
-		for (Entry<String, String> g : System.getenv().entrySet()) {
-			System.out.println(g.getKey() + "=" + g.getValue());
-
-		}
+//		for (Entry<String, String> g : System.getenv().entrySet()) {
+//			System.out.println(g.getKey() + "=" + g.getValue());
+//
+//		}
 	}
 
 	@Override
@@ -44,7 +44,8 @@ public class TesseractOCR extends Service {
 	public String OCR(SerializableImage image) {
 		try {
 			String hh = Tesseract.getInstance().doOCR(image.getImage());
-			System.out.println(hh);
+//			System.out.println(hh);
+			log.info("Read: "+hh);
 			return hh;
 		} catch (TesseractException e) {
 			e.printStackTrace();
