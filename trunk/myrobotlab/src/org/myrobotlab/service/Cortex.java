@@ -106,7 +106,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 		tracking.trackPoint(0.5f, 0.5f); 
 		
 		faceDetector = (OpenCV) Runtime.create(faceDetectorName, "OpenCV");
-		faceDetector.setInpurtSource(OpenCV.INPUT_SOURCE_PIPELINE);
+		faceDetector.setInputSource(OpenCV.INPUT_SOURCE_PIPELINE);
 		// FIXME - make stable keys in OpenCV how ??
 		faceDetector.setPipeline(String.format("%s.PyramidDown", tracking.eye.getName()));// set key
 		faceDetector.addFilter("faceDetect","FaceDetect");
@@ -242,7 +242,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 	// ---------publish end ----------
 
 	public void videoOff() {
-		tracking.stopVideoStream();
+		tracking.eye.publishOpenCVData(false);
 	}
 
 	public void crawlAndPublish() {

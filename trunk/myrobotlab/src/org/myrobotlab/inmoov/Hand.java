@@ -131,6 +131,17 @@ public class Hand {
 		this.pinky.setSpeed(pinky);
 		this.wrist.setSpeed(wrist);
 	}
+	
+	public boolean isValid()
+	{
+		thumb.moveTo(2);
+		index.moveTo(2);
+		majeure.moveTo(2);
+		ringFinger.moveTo(2);
+		pinky.moveTo(2);
+		wrist.moveTo(92);	
+		return true;
+	}
 
 	public String getScript(String inMoovServiceName) {
 		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, side, thumb.getPosition(), index.getPosition(), majeure.getPosition(),

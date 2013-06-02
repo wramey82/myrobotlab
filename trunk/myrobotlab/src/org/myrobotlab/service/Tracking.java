@@ -426,6 +426,9 @@ public class Tracking extends Service {
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
+		eye.capture();
+		eye.publishOpenCVData(true);
+		
 		setState(STATE_LK_TRACKING_POINT);
 		
 	}
@@ -474,7 +477,6 @@ public class Tracking extends Service {
 		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
-//		videoOn();
 	}
 
 	public void learnBackground() {
@@ -482,7 +484,6 @@ public class Tracking extends Service {
 		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
-//		videoOn();
 	}
 	
 	public void searchForeground() {
@@ -490,7 +491,6 @@ public class Tracking extends Service {
 		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).search();
 
 		setState(STATE_SEARCHING_FOREGROUND);
-//		videoOn();
 	}
 	
 	double sizeIndexForBackgroundForegroundFlip = 0.10;
@@ -694,21 +694,7 @@ public class Tracking extends Service {
 			log.error(String.format("%f %f", computeX, computeY));
 		}
 
-	}
-	
-	// ----------------- required config & necessary important global switches begin --------------------------
-	public void startVideoStream()
-	{
-		//setStatus("switching video on");
-		eye.publishOpenCVData(true);
-	}
-	
-	public void stopVideoStream()
-	{
-		//setStatus("switching video off");
-		eye.publishOpenCVData(false);
-	}
-	
+	}	
 
 	public void setRestPosition(int xpos, int ypos) {
 		this.xRestPos = xpos;

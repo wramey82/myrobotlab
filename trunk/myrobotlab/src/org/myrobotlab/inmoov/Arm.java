@@ -16,6 +16,7 @@ public class Arm {
 	}
 
 	public void rest() {
+		
 		setSpeed(1.0f,1.0f,1.0f,1.0f);
 
 		// initial position
@@ -113,5 +114,14 @@ public class Arm {
 		this.shoulder.moveTo(shoulder);
 		this.omoplate.moveTo(omoplate);
 
+	}
+	
+	public boolean isValid()
+	{
+		bicep.moveTo(2);
+		rotate.moveTo(92);
+		shoulder.moveTo(32);
+		omoplate.moveTo(12);	
+		return true;
 	}
 }

@@ -35,7 +35,7 @@ eye = Runtime.create("eye","OpenCV")
 eye.publishState()
 eye.addFilter("lk","LKOpticalTrack")
 eye.setDisplayFilter("lk")
-eye.setInpurtSource("pipeline")
+eye.setInputSource("pipeline")
 eye.setPipeline("opencv.input")
 eye.publishState()
 
