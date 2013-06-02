@@ -337,6 +337,16 @@ public class VideoProcessor implements Runnable, Serializable {
 	public void addFilter(OpenCVFilter filter) {
 		filter.vp = this;
 		synchronized (filters) {
+			
+			for (int i = 0; i < filters.size(); ++i)
+			{
+				if (filter.name.equals(filters.get(i).name))
+				{
+					log.warn("duplicate filter name {}", filter.name);
+					return;
+				}
+			}
+			
 			if (filter.sourceKey == null) {
 				filter.sourceKey = String.format("%s.%s", boundServiceName, INPUT_KEY);
 				if (filters.size() > 0) {

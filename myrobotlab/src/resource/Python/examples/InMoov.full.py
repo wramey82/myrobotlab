@@ -10,14 +10,19 @@
 
 inMoov = Runtime.createAndStart("inMoov", "InMoov")
 
+rightSerialPort = "COM8"
+leftSerialPort = "COM7"
+cameraIndex = 1
+
+
 # attach an arduinos to InMoov
 # possible board types include uno atmega168 atmega328p atmega2560 atmega1280 atmega32u4
 # the MRLComm.ino sketch must be loaded into the Arduino for MyRobotLab control
-inMoov.attachArduino("right","uno","COM8")
+inMoov.attachArduino("right","uno",rightSerialPort)
 inMoov.attachHand("right")
 inMoov.attachArm("right")
 
-inMoov.attachArduino("left","atmega1280","COM7")
+inMoov.attachArduino("left","atmega1280", leftSerialPort)
 inMoov.attachHand("left")
 inMoov.attachArm("left")
 inMoov.attachHead("left")
