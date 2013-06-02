@@ -54,9 +54,9 @@ def heard():
   if (data == "rest"):
     inMoov.rest() 
   elif (data == "hand open"):
-    inMoov.handOpen("right")
+    inMoov.handOpen("both")
   elif (data == "hand close"):
-    inMoov.handClose("right")
+    inMoov.handClose("both")
   elif (data == "manual"):
     inMoov.lockOutAllGrammarExcept("voice control")
   elif (data == "voice control"):
