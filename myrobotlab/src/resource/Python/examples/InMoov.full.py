@@ -14,7 +14,6 @@ rightSerialPort = "COM8"
 leftSerialPort = "COM7"
 cameraIndex = 1
 
-
 # attach an arduinos to InMoov
 # possible board types include uno atmega168 atmega328p atmega2560 atmega1280 atmega32u4
 # the MRLComm.ino sketch must be loaded into the Arduino for MyRobotLab control
@@ -41,13 +40,12 @@ inMoov.systemCheck()
 inMoov.rest()
 
 # listen for these key words
-inMoov.startListening("rest | hand open | hand close | manual | voice control| capture gesture | track | freeze tracking | hello | giving | fighter | fist hips | look at this | victory | arms up | arms front | da vinci")
+inMoov.startListening("rest | open hand | close hand | manual | voice control| capture gesture | track | freeze track | hello | giving | fighter | fist hips | look at this | victory | arms up | arms front | da vinci")
 
 # voice control
 def heard():
   data = msg_ear_recognized.data[0]
   print "heard ", data
-  #mouth.setLanguage("fr")
   
   mouth.speak("you said " + data)
   
