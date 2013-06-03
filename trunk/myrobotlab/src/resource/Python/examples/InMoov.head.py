@@ -22,7 +22,7 @@ inMoov.systemCheck()
 # listen for these key words
 # to get voice to work - you must be attached to the internet for
 # at least the first time
-inMoov.startListening("track | stop tracking | manual | voice control")
+inMoov.startListening("track | freeze track | manual | voice control")
  
 # voice control
 def heard():
@@ -34,7 +34,7 @@ def heard():
     inMoov.rest() 
   elif (data == "track"):
     inMoov.trackPoint(0.5,0.5)
-  elif (data == "stop tracking"):
+  elif (data == "freeze track"):
     inMoov.clearTrackingPoints();
   elif (data == "manual"):
     inMoov.lockOutAllGrammarExcept("voice control")
