@@ -278,10 +278,10 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void attachGUI() {
 		subscribe("publishState", "getState", Python.class);
 		subscribe("finishedExecutingScript");
-		subscribe("publishStdOut", "getStdOut", String.class);
+//		subscribe("publishStdOut", "getStdOut", String.class);
 		subscribe("appendScript", "appendScript", String.class);
 		subscribe("startRecording", "startRecording", String.class);
-		myService.send(boundServiceName, "attachPythonConsole");
+//		myService.send(boundServiceName, "attachPythonConsole");
 		// myService.send(boundServiceName, "broadcastState");
 	}
 
@@ -290,7 +290,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		javaConsole.stopLogging();
 		unsubscribe("publishState", "getState", Python.class);
 		unsubscribe("finishedExecutingScript");
-		unsubscribe("publishStdOut", "getStdOut", String.class);
+//		unsubscribe("publishStdOut", "getStdOut", String.class);
 		unsubscribe("appendScript", "appendScript", String.class);
 		unsubscribe("startRecording", "startRecording", String.class);
 	}
@@ -321,7 +321,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param data
 	 */
 	public void getStdOut(String data) {
-		pythonConsole.append(data);
+//		pythonConsole.append(data);
 	}
 
 	/**

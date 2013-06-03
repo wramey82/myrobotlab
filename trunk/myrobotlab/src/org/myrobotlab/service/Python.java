@@ -214,8 +214,8 @@ public class Python extends Service {
 		if (!pythonConsoleInitialized) {
 			// String consoleScript =
 			// FileIO.getResourceFile("python/examples/pythonConsole.py");
-			String consoleScript = getServiceResourceFile("examples/pythonConsole.py");
-			exec(consoleScript, false);
+//			String consoleScript = getServiceResourceFile("examples/pythonConsole.py");
+//			exec(consoleScript, false);
 		}
 	}
 
