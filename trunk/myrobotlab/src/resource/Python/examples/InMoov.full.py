@@ -51,9 +51,9 @@ def heard():
   
   if (data == "rest"):
     inMoov.rest() 
-  elif (data == "hand open"):
+  elif (data == "open hand"):
     inMoov.handOpen("both")
-  elif (data == "hand close"):
+  elif (data == "close hand"):
     inMoov.handClose("both")
   elif (data == "manual"):
     inMoov.lockOutAllGrammarExcept("voice control")
@@ -63,7 +63,7 @@ def heard():
     inMoov.captureGesture();
   elif (data == "track"):
     inMoov.trackPoint(0.5, 0.5)
-  elif (data == "freeze tracking"):
+  elif (data == "freeze track"):
     inMoov.clearTrackingPoints()
   elif (data == "hello"):
     inMoov.hello()
