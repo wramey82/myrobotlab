@@ -59,9 +59,9 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 		js.setAutoscrolls(true);
 		display.add(js,"Center");
 		display.add(query,"South");
-		query.setText("query");
-		result.setText("response");
+//		query.setText("query");
 		result.setContentType("text/html");
+		result.setText("<html><body>Wolfram Alpha Knowledge Engine<br>Type a query and press enter in the box below.</body></html>");
 		query.addActionListener(new ActionListener(){
 
 			@Override
@@ -81,7 +81,6 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 	public void getState(WolframAlpha template) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-
 			}
 		});
 	}
