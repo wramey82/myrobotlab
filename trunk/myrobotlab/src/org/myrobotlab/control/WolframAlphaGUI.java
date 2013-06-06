@@ -30,8 +30,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -44,7 +44,7 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(WolframAlphaGUI.class.getCanonicalName());
-	private JTextArea result=new JTextArea();
+	private JEditorPane result=new JEditorPane();
 	private JTextField query=new JTextField();
 
 	public WolframAlphaGUI(final String boundServiceName, final GUI myService) {
@@ -60,6 +60,7 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 		display.add(query,"South");
 		query.setText("query");
 		result.setText("response");
+		result.setContentType("text/html");
 		query.addActionListener(new ActionListener(){
 
 			@Override
@@ -68,7 +69,8 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 				query.setText("querying...");
 				query.validate();
 				query.update(query.getGraphics());
-				String answer=(String) myService.sendBlocking(boundServiceName,10000,"wolframAlpha",text);
+				String answer=(String) myService.sendBlocking(boundServiceName,30000,"wolframAlpha",text,Boolean.TRUE);
+//				System.out.println(answer);
 				result.setText(answer);
 				result.setCaretPosition(0);
 				query.setText("");
