@@ -517,6 +517,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.WolframAlpha" workingLevel="4">
+      <dependsOn>
+         <description>service for the WolframAlpha - ask questions get answers - allows string input 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.apache.commons.httpclient</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <categories string="org.myrobotlab.service.Arduino">
       <category>
          <include>microcontroller</include>
@@ -695,6 +706,11 @@
    <categories string="org.myrobotlab.service.Wii">
       <category>
          <include>controller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.WolframAlpha">
+      <category>
+         <include>intelligence</include>
       </category>
    </categories>
 </serviceData>
