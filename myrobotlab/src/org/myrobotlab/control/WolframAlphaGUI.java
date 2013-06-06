@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.WolframAlpha;
 import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
 import org.slf4j.Logger;
@@ -77,7 +78,7 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 			}});
 	}
 
-	public void getState(_TemplateService template) {
+	public void getState(WolframAlpha template) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
