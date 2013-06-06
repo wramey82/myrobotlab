@@ -3,10 +3,12 @@ package org.myrobotlab.service;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 import twitter4j.Status;
+import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -42,7 +44,11 @@ public class Twitter extends Service {
 	
 	public void tweet(String msg)
 	{
-	    Status status = twitter.updateStatus(latestStatus);
+	    try {
+			Status status = twitter.updateStatus(msg);
+		} catch (TwitterException e) {
+			Logging.logException(e);
+		}
 	}
 	
 	public void configure()
