@@ -73,5 +73,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpclient-cache-4.2.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpcore-4.2.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpmime-4.2.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.wolfram.alpha/alpha/1.1/WolframAlpha-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
