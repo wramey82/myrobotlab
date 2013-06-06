@@ -157,8 +157,6 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.apache.commons.httpclient</string>
-            <string>org.apache.commons.codec</string>
-            <string>org.apache.commons.logging</string>
             <string>javax.speech.recognition</string>
             <string>com.googlecode.javacv</string>
             <string>net.sourceforge.opencv</string>
@@ -179,8 +177,6 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.apache.commons.httpclient</string>
-            <string>org.apache.commons.codec</string>
-            <string>org.apache.commons.logging</string>
          </list>
       </dependsOn>
    </serviceType>
@@ -189,13 +185,10 @@
       <description>service to control the InMoov robot
       </description>  
          <list>
-            <string>org.apache.commons.logging</string>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>com.sun.speech.freetts</string>
             <string>org.apache.commons.httpclient</string>
-            <string>org.apache.commons.codec</string>
-            <string>org.apache.commons.logging</string>
             <string>javax.speech.recognition</string>
             <string>com.googlecode.javacv</string>
             <string>net.sourceforge.opencv</string>
@@ -440,12 +433,10 @@
          <description>FreeTTS and Google text to speech service
          </description>
          <list>
-            <string>org.apache.commons.logging</string>
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>com.sun.speech.freetts</string>
             <string>org.apache.commons.httpclient</string>
-			<string>org.apache.commons.codec</string>
 	        <string>javazoom.jl.player</string>
          </list>
       </dependsOn>
