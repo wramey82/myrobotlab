@@ -70,6 +70,7 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 				query.update(query.getGraphics());
 				String answer=(String) myService.sendBlocking(boundServiceName,10000,"wolframAlpha",text);
 				result.setText(answer);
+				result.setCaretPosition(0);
 				query.setText("");
 			}});
 	}
