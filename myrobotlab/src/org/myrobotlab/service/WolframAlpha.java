@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import com.wolfram.alpha.WAEngine;
 import com.wolfram.alpha.WAException;
+import com.wolfram.alpha.WAImage;
 import com.wolfram.alpha.WAPlainText;
 import com.wolfram.alpha.WAPod;
 import com.wolfram.alpha.WAQuery;
@@ -61,13 +62,7 @@ public class WolframAlpha extends Service {
 		AppID = id;
 	}
 
-	/**
-	 * Query Wolfram Alpha for an answer
-	 * 
-	 * @param query
-	 * @return
-	 */
-	public String wolframAlpha(String query) {
+	public WAQueryResult getQueryResult(String query) {
 		String url;
 		try {
 			url = "http://www.wolframalpha.com/input/?i="
@@ -88,6 +83,7 @@ public class WolframAlpha extends Service {
 		// this WAEngine.
 		engine.setAppID(AppID);
 		engine.addFormat("plaintext");
+		engine.addFormat("image");
 
 		// Create the query.
 		WAQuery waquery = engine.createQuery();
@@ -105,43 +101,62 @@ public class WolframAlpha extends Service {
 			// result
 			// and parses it into an object hierarchy held by the WAQueryResult
 			// object.
-			WAQueryResult queryResult = engine.performQuery(waquery);
+			return engine.performQuery(waquery);
+		} catch (Exception e) {
+		}
+		return null;
+	}
 
-			if (queryResult.isError()) {
-				return "Query error" + " \nError code: "
-						+ queryResult.getErrorCode() + "\nError message: "
-						+ queryResult.getErrorMessage();
+	/**
+	 * Query Wolfram Alpha for an answer
+	 * 
+	 * @param query
+	 * @return
+	 */
+	public String wolframAlpha(String query) {
+		return wolframAlpha(query,false);
+	}
+	
+	public String wolframAlpha(String query,boolean html) {
 
-			} else if (!queryResult.isSuccess()) {
-				return ("Query was not understood; no results available.");
-			} else {
-				// Got a result.
-				String full = "";
-				for (WAPod pod : queryResult.getPods()) {
-					if (!pod.isError()) {
-						full += pod.getTitle() + "\n";
-						for (WASubpod subpod : pod.getSubpods()) {
-							for (Object element : subpod.getContents()) {
-								if (element instanceof WAPlainText) {
-									full += ((WAPlainText) element).getText()
-											+ "\n";
-									;
-								}
+		WAQueryResult queryResult = getQueryResult(query);
+		String full =html?"<html><body>":"";
+
+		if (queryResult.isError()) {
+			return "Query error ("+query + "( "+query+")"+(html?"<br>":"\n")+"Error code: "
+					+ queryResult.getErrorCode() + (html?"<br>":"\n")+"Error message: "
+					+ queryResult.getErrorMessage();
+
+		} else if (!queryResult.isSuccess()) {
+			return ("Query ("+query+") was not understood; no results available.");
+		} else {
+			// Got a result.
+
+			for (WAPod pod : queryResult.getPods()) {
+				if (!pod.isError()) {
+					full += (html?"<h3 style='display:inline'>":"")+pod.getTitle() + (html?"</h3>":"");
+//					try {
+//						pod.acquireImages();
+//					} catch (WAException e) {
+//						// TODO Auto-generated catch block
+//					}
+					for (WASubpod subpod : pod.getSubpods()) {
+						for (Object element : subpod.getContents()) {
+//							System.out.println(element.getClass());
+							if (!html&&element instanceof WAPlainText) {
+								full += ((WAPlainText) element).getText()
+										+ (html?"<br>":"\n");
 							}
+							if (html &&element instanceof WAImage) {
+								full += "<img src=\""+((WAImage) element).getURL()+"\">"
+										+ (html?"<br>":"\n");							}
 						}
 					}
 				}
-				return full;
-
-				// We ignored many other types of Wolfram|Alpha output, such as
-				// warnings, assumptions, etc.
-				// These can be obtained by methods of WAQueryResult or objects
-				// deeper in the hierarchy.
 			}
-		} catch (WAException e) {
-			e.printStackTrace();
+			return full + (html?"</body><html>":"");
 		}
-		return null;
+
 	}
 
 }
