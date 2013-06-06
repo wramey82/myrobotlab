@@ -134,7 +134,7 @@ public class WolframAlpha extends Service {
 
 			for (WAPod pod : queryResult.getPods()) {
 				if (!pod.isError()) {
-					full += (html?"<h3 style='display:inline'>":"")+pod.getTitle() + (html?"</h3>":"");
+					full += (html?"<br><b>":"")+pod.getTitle() + (html?"</b><br>":"");
 //					try {
 //						pod.acquireImages();
 //					} catch (WAException e) {
