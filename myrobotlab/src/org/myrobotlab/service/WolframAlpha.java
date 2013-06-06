@@ -20,7 +20,7 @@ import com.wolfram.alpha.WASubpod;
 public class WolframAlpha extends Service {
 
 	private static final long serialVersionUID = 1L;
-	private static final String AppID = "W6VGAJ-P4RA2HKTTH";
+	private static String AppID = "W6VGAJ-P4RA2HKTTH";
 	public final static Logger log = LoggerFactory.getLogger(WolframAlpha.class
 			.getCanonicalName());
 
@@ -57,6 +57,16 @@ public class WolframAlpha extends Service {
 		 */
 	}
 
+	public void setAppID(String id) {
+		AppID = id;
+	}
+
+	/**
+	 * Query Wolfram Alpha for an answer
+	 * 
+	 * @param query
+	 * @return
+	 */
 	public String wolframAlpha(String query) {
 		String url;
 		try {
@@ -64,7 +74,7 @@ public class WolframAlpha extends Service {
 					+ URLEncoder.encode(query, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 		}
-		//openUrl(url);
+		// openUrl(url);
 		// The WAEngine is a factory for creating WAQuery objects,
 		// and it also used to perform those queries. You can set properties of
 		// the WAEngine (such as the desired API output format types) that will
@@ -87,9 +97,9 @@ public class WolframAlpha extends Service {
 
 		try {
 			// For educational purposes, print out the URL we are about to send:
-//			System.out.println("Query URL:");
-//			System.out.println(engine.toURL(waquery));
-//			System.out.println("");
+			// System.out.println("Query URL:");
+			// System.out.println(engine.toURL(waquery));
+			// System.out.println("");
 
 			// This sends the URL to the Wolfram|Alpha server, gets the XML
 			// result
@@ -98,41 +108,31 @@ public class WolframAlpha extends Service {
 			WAQueryResult queryResult = engine.performQuery(waquery);
 
 			if (queryResult.isError()) {
-				System.out.println("Query error");
-				System.out.println("  error code: "
-						+ queryResult.getErrorCode());
-				System.out.println("  error message: "
-						+ queryResult.getErrorMessage());
+				return "Query error" + " \nError code: "
+						+ queryResult.getErrorCode() + "\nError message: "
+						+ queryResult.getErrorMessage();
+
 			} else if (!queryResult.isSuccess()) {
-				System.out
-						.println("Query was not understood; no results available.");
+				return ("Query was not understood; no results available.");
 			} else {
 				// Got a result.
 				String full = "";
-				System.out.println("Successful query. Pods follow:\n");
 				for (WAPod pod : queryResult.getPods()) {
 					if (!pod.isError()) {
-						System.out.println(pod.getTitle());
 						full += pod.getTitle() + "\n";
-						System.out.println("------------");
 						for (WASubpod subpod : pod.getSubpods()) {
 							for (Object element : subpod.getContents()) {
 								if (element instanceof WAPlainText) {
-									System.out.println(((WAPlainText) element)
-											.getText());
 									full += ((WAPlainText) element).getText()
 											+ "\n";
 									;
-									System.out.println("");
 								}
 							}
 						}
-						System.out.println("");
 					}
 				}
-//				System.out.println(full);
 				return full;
-				
+
 				// We ignored many other types of Wolfram|Alpha output, such as
 				// warnings, assumptions, etc.
 				// These can be obtained by methods of WAQueryResult or objects
