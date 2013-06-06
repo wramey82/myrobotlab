@@ -60,7 +60,7 @@ public class Twitter extends Service {
 		  .setOAuthAccessToken("**************************************************")
 		  .setOAuthAccessTokenSecret("******************************************");
 		TwitterFactory tf = new TwitterFactory(cb.build());
-		twitter = tf.getSingleton();
+		twitter = tf.getInstance();
 	}
 
 	public static void main(String[] args) {
