@@ -51,14 +51,32 @@ public class Twitter extends Service {
 		}
 	}
 	
+	public String ck;
+	
+	public String cs;
+	
+	public String at;
+	
+	public String ats;
+	
+	public void setSecurity(String Ck, String Cs, String At, String Ats){
+		
+		ck = Ck;
+		cs = Cs;
+		at = At;
+		ats = Ats;
+		
+	}
+	
+	
 	public void configure()
 	{
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
-		  .setOAuthConsumerKey("*********************")
-		  .setOAuthConsumerSecret("******************************************")
-		  .setOAuthAccessToken("**************************************************")
-		  .setOAuthAccessTokenSecret("******************************************");
+		  .setOAuthConsumerKey(ck)
+		  .setOAuthConsumerSecret(cs)
+		  .setOAuthAccessToken(at)
+		  .setOAuthAccessTokenSecret(ats);
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
 	}
@@ -68,10 +86,10 @@ public class Twitter extends Service {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Twitter twitter = new Twitter("twitter");
-		twitter.startService();	
+		twitter.startService();
+		twitter.setSecurity("yourConsumerKey","yourConsumerSecret", "yourAccessToken", "yourAccessTokenSecret");
 		twitter.configure();
-		twitter.tweet("Ciao !!!");
-		
+		twitter.tweet("Ciao from MyRobotLab");
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
