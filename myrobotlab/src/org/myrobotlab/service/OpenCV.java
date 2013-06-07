@@ -504,6 +504,11 @@ public class OpenCV extends VideoSource {
 		log.info(String.format("findPointFarthestFromCenter %s", p));
 		return p;
 	}
+	
+	public SerializableImage getDisplay()
+	{
+		return videoProcessor.lastDisplay;
+	}
 
 
 	public static void main(String[] args) {
@@ -523,6 +528,7 @@ public class OpenCV extends VideoSource {
 		test.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
 		test.setCameraIndex(1);
 		
+		
 		/*
 		test.addFilter(new OpenCVFilterDetector("detector"));
 		test.addFilter(new OpenCVFilterErode("erode"));
@@ -532,6 +538,8 @@ public class OpenCV extends VideoSource {
 		
 		test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
 		test.capture();
+		
+		SerializableImage img = test.getDisplay();
 		
 		GUIService gui2 = new GUIService("gui2");
 		gui2.startService();
