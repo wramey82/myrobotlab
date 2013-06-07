@@ -1304,13 +1304,20 @@ public class Runtime extends Service {
 
 			if (cmdline.containsKey("-update")) {
 				// force all updates
-				Runtime runtime = Runtime.getInstance();
-				if (runtime != null) {
-					runtime.updateAll();
+				ArrayList<String> services = cmdline.getArgumentList("-update");
+				
+				if (services.size() == 0){
+					Runtime runtime = Runtime.getInstance();
+					if (runtime != null) {
+						runtime.updateAll();
+					} else {
+						log.error("runtime is null");
+					}
+					return;
 				} else {
-					log.error("runtime is null");
+					// TODO - do specific service install
+					log.error("not implemented yet");
 				}
-				return;
 			} else {
 				createServices(cmdline);
 			}

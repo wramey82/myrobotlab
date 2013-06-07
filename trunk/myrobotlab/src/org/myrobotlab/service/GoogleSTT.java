@@ -60,11 +60,12 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.SpeechRecognizer;
 import org.myrobotlab.speech.TranscriptionThread;
 import org.slf4j.Logger;
 import org.tritonus.share.sampled.FloatSampleBuffer;
 
-public class GoogleSTT extends Service {
+public class GoogleSTT extends Service implements SpeechRecognizer {
 
 	public final static Logger log = LoggerFactory.getLogger(GoogleSTT.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
@@ -79,6 +80,8 @@ public class GoogleSTT extends Service {
 	CaptureThread captureThread = null;
 
 	String language = "en";
+	
+	private Boolean isListening = true;
 
 	// audio format
 	float sampleRate = 8000.0F; // 8000,11025,16000,22050,44100
@@ -150,7 +153,6 @@ public class GoogleSTT extends Service {
 		stopCapture = true;
 	}
 
-	private Boolean isListening = true;
 
 	public synchronized boolean setListening(boolean b) {
 		isListening = b;
@@ -272,7 +274,7 @@ public class GoogleSTT extends Service {
 
 		Logging.logTime("t1", "start");
 		Logging.logTime("t1", "pre new transcription " + path);
-		TranscriptionThread transcription = new TranscriptionThread(this.getName() + "_transcriber", language);
+		TranscriptionThread transcription = new TranscriptionThread(this, this.getName() + "_transcriber", language);
 		transcription.debug = true;
 		Logging.logTime("t1", "pre new thread start");
 		transcription.start();
@@ -282,6 +284,30 @@ public class GoogleSTT extends Service {
 
 		// threads.add(transcription);
 	}
+	
+	/**
+	 * Event is sent when the listening Service is actually listening. There is
+	 * some delay when it initially loads.
+	 */
+	public void listeningEvent() {
+		return;
+	}
+
+	
+	public void publishRecognized(String recognizedText)
+	{
+		invoke("recognized", recognizedText);
+	}
+
+	public void startListening()
+	{
+		
+	}
+	public void stopListening()
+	{
+		
+	}
+
 
 	public static void saveWavAsFile(byte[] byte_array, AudioFormat audioFormat, String file) {
 		try {
@@ -342,6 +368,27 @@ public class GoogleSTT extends Service {
 		// stt.startService();
 		stt.captureAudio();
 		stt.stopAudioCapture();
+	}
+
+	@Override
+	public String recognized(String word) {
+		return word;
+	}
+
+
+
+	@Override
+	public void pauseListening() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void resumeListening() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -38,34 +38,25 @@ package org.myrobotlab.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.speech.recognition.GrammarException;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.SpeechRecognizer;
 import org.myrobotlab.speech.DialogManager;
-import org.myrobotlab.speech.NewGrammarDialogNodeBehavior;
 import org.slf4j.Logger;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
 import edu.cmu.sphinx.linguist.Linguist;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
-import edu.cmu.sphinx.util.TimerPool;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
 import edu.cmu.sphinx.util.props.PropertyException;
 
-public class Sphinx extends Service {
+public class Sphinx extends Service implements SpeechRecognizer {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Sphinx.class.getCanonicalName());
@@ -86,10 +77,7 @@ public class Sphinx extends Service {
 
 
 	/**
-	 * The main output for this service. "word" is the word recognized. This has
-	 * to be setup before by calling createGrammar
-	 * (" stop | go | new | grammar ") and a list of words or phrases to
-	 * recognize.
+	 * The main output for this service. 
 	 * 
 	 * @param word
 	 * @return the word
@@ -186,6 +174,7 @@ public class Sphinx extends Service {
 		linguist.deallocate();
 		// TODO - bundle sphinx4-1.0beta6
 		// cm.setProperty("jsgfGrammar", "grammarName", newGrammarName);
+		
 		linguist.allocate();
 	}
 	
@@ -252,7 +241,7 @@ public class Sphinx extends Service {
 								log.info(String.format("but locked on %s", lockPhrase));
 								continue;
 							}
-							invoke("recognized", resultText);
+							publishRecognized(resultText);
 						}
 
 					} else {
@@ -271,6 +260,11 @@ public class Sphinx extends Service {
 			}
 		}
 
+	}
+	
+	public void publishRecognized(String recognizedText)
+	{
+		invoke("recognized", recognizedText);
 	}
 
 	public void stopListening() {
@@ -315,129 +309,6 @@ public class Sphinx extends Service {
 		isListening = true;
 	}
 
-	/**
-	 * Defines the standard behavior for a node. The standard behavior is:
-	 * <ul>
-	 * <li>On entry the set of sentences that can be spoken is displayed.
-	 * <li>On recognition if a tag returned contains the prefix 'dialog_' it
-	 * indicates that control should transfer to another dialog node.
-	 * </ul>
-	 * 
-	 * 
-	 */
-	class MyBehavior extends NewGrammarDialogNodeBehavior {
-
-		private Collection<String> sampleUtterances;
-
-		/** Executed when we are ready to recognize */
-		public void onReady() {
-			super.onReady();
-			help();
-		}
-
-		/**
-		 * Displays the help message for this node. Currently we display the
-		 * name of the node and the list of sentences that can be spoken.
-		 */
-		protected void help() {
-			System.out.println(" ======== " + getGrammarName() + " =======");
-			dumpSampleUtterances();
-			System.out.println(" =================================");
-		}
-
-		/**
-		 * Executed when the recognizer generates a result. Returns the name of
-		 * the next dialog node to become active, or null if we should stay in
-		 * this node
-		 * 
-		 * @param result
-		 *            the recongition result
-		 * @return the name of the next dialog node or null if control should
-		 *         remain in the current node.
-		 */
-		public String onRecognize(Result result) throws GrammarException {
-			String tag = super.onRecognize(result);
-
-			if (tag != null) {
-				System.out.println("\n " + result.getBestFinalResultNoFiller() + '\n');
-				if (tag.equals("exit")) {
-					System.out.println("Goodbye! Thanks for visiting!\n");
-					System.exit(0);
-				}
-				if (tag.equals("help")) {
-					help();
-				} else if (tag.equals("stats")) {
-					TimerPool.dumpAll();
-				} else if (tag.startsWith("goto_")) {
-					return tag.replaceFirst("goto_", "");
-				} else if (tag.startsWith("browse")) {
-					execute(tag);
-				}
-			} else {
-				System.out.println("\n Oops! didn't hear you.\n");
-			}
-			return null;
-		}
-
-		/**
-		 * execute the given command
-		 * 
-		 * @param cmd
-		 *            the command to execute
-		 */
-		private void execute(String cmd) {
-			try {
-				java.lang.Runtime.getRuntime().exec(cmd);
-			} catch (IOException e) {
-				// if we can't run the command, just fall back to
-				// a non-working demo.
-			}
-		}
-
-		/**
-		 * Collects the set of possible utterances.
-		 * <p/>
-		 * TODO: Note the current implementation just generates a large set of
-		 * random utterances and tosses away any duplicates. There's no
-		 * guarantee that this will generate all of the possible utterances.
-		 * (yep, this is a hack)
-		 * 
-		 * @return the set of sample utterances
-		 */
-		private Collection<String> collectSampleUtterances() {
-			Set<String> set = new HashSet<String>();
-			for (int i = 0; i < 100; i++) {
-				/*
-				 * FIXME - broken String s = getGrammar().getRandomSentence();
-				 * if (!set.contains(s)) { set.add(s); }
-				 */
-			}
-
-			List<String> sampleList = new ArrayList<String>(set);
-			Collections.sort(sampleList);
-			return sampleList;
-		}
-
-		/** Dumps out the set of sample utterances for this node */
-		private void dumpSampleUtterances() {
-			if (sampleUtterances == null) {
-				sampleUtterances = collectSampleUtterances();
-			}
-
-			for (String sampleUtterance : sampleUtterances) {
-				System.out.println("  " + sampleUtterance);
-			}
-		}
-
-		/**
-		 * Indicated that the grammar has changed and the collection of sample
-		 * utterances should be regenerated.
-		 */
-		protected void grammarChanged() {
-			sampleUtterances = null;
-		}
-	}
-
 	@Override
 	public String getToolTip() {
 		return "<html>speech recoginition service wrapping Sphinx 4</html>";
@@ -454,11 +325,11 @@ public class Sphinx extends Service {
 	public synchronized boolean isSpeaking(Boolean talking) {
 		if (talking) {
 			isListening = false;
-			log.warn("I'm talking so I'm not listening"); // Gawd, ain't that
+			log.info("I'm talking so I'm not listening"); // Gawd, ain't that
 															// the truth !
 		} else {
 			isListening = true;
-			log.warn("I'm not talking so I'm listening"); // mebbe
+			log.info("I'm not talking so I'm listening"); // mebbe
 		}
 		return talking;
 	}
@@ -468,7 +339,6 @@ public class Sphinx extends Service {
 
 		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", mouth.getName(), "isSpeaking", Boolean.class);
-
 		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", mouth.getName(), getName()));
 		return true;
 	}
@@ -482,7 +352,18 @@ public class Sphinx extends Service {
 		commandMap.put(command, msg);
 	}
 	
-	public void test()
+	public void addVoiceRecognitionListener(Service s)
+	{
+		// TODO - reflect on a public heard method - if doesn't exist error ?
+		addListener("recognized", s.getName(), "heard", String.class);
+	}
+	
+	public void addComfirmations(String[]...strings)
+	{
+		
+	}
+	
+	public void addNegations(String[]...strings)
 	{
 		
 	}
