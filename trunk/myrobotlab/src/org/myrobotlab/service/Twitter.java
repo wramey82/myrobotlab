@@ -79,7 +79,7 @@ public class Twitter extends Service {
 		try{
 	        StatusUpdate status = new StatusUpdate(message);
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    	ImageIO.write( image.getImage(), "jpg", baos );
+	    	ImageIO.write( image.getImage(), "png", baos );
 	    	baos.flush();
 	    	byte[] buffer= baos.toByteArray();
 	        status.media("image", new ByteArrayInputStream(buffer) );
