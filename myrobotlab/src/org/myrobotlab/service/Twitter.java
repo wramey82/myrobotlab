@@ -69,13 +69,14 @@ public class Twitter extends Service {
 		
 	}
 	
-	public void uploadPic(File file, String message) throws Exception  {
+	public void uploadPic(String filePath, String message) {
 	    try{
+	    	File file = new File(filePath);
 	        StatusUpdate status = new StatusUpdate(message);
 	        status.setMedia(file);
 	        twitter.updateStatus(status);}
 	    catch(TwitterException e){
-	        throw e;
+	    	Logging.logException(e);
 	    }
 	}
 	
