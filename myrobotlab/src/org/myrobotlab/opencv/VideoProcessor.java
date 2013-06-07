@@ -61,6 +61,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	// GRABBER END --------------------------
 	@Element
 	public boolean useBlockingData = false;
+	
+	public SerializableImage lastDisplay;
 
 	OpenCVData data = new OpenCVData();
 
@@ -260,10 +262,13 @@ public class VideoProcessor implements Runnable, Serializable {
 						// however to view - a user wants to see the overlay
 						// publish display
 						if (displayFilter.equals(INPUT_KEY)) {
-							opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());
+							BufferedImage bi = frame.getBufferedImage();
+							lastDisplay = new SerializableImage(bi, INPUT_KEY);
+							opencv.invoke("publishDisplay", displayFilter, bi);
 						} else if (filter.name.equals(displayFilter) || filter.publishDisplay) {
 							BufferedImage display = filter.display(image, data);
 							// FIXME - change to Serialiable image
+							lastDisplay = new SerializableImage(display, displayFilter);
 							opencv.invoke("publishDisplay", displayFilter, display);
 						}
 					} // capturing && itr.hasNext()
