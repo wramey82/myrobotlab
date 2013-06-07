@@ -19,6 +19,11 @@ public class Twitter extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(Twitter.class.getCanonicalName());
 	
+	private String consumerKey;
+	private String consumerSecret;
+	private String accessToken;
+	private String accessTokenSecret;
+	
 	twitter4j.Twitter twitter = null;
 	
 	public Twitter(String n) {
@@ -51,20 +56,13 @@ public class Twitter extends Service {
 		}
 	}
 	
-	public String ck;
 	
-	public String cs;
-	
-	public String at;
-	
-	public String ats;
-	
-	public void setSecurity(String Ck, String Cs, String At, String Ats){
+	public void setSecurity(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret){
 		
-		ck = Ck;
-		cs = Cs;
-		at = At;
-		ats = Ats;
+		this.consumerKey = consumerKey;
+		this.consumerSecret = consumerSecret;
+		this.accessToken = accessToken;
+		this.accessTokenSecret = accessTokenSecret;
 		
 	}
 	
@@ -73,10 +71,10 @@ public class Twitter extends Service {
 	{
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
-		  .setOAuthConsumerKey(ck)
-		  .setOAuthConsumerSecret(cs)
-		  .setOAuthAccessToken(at)
-		  .setOAuthAccessTokenSecret(ats);
+		  .setOAuthConsumerKey(consumerKey)
+		  .setOAuthConsumerSecret(consumerSecret)
+		  .setOAuthAccessToken(accessToken)
+		  .setOAuthAccessTokenSecret(accessTokenSecret);
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
 	}
