@@ -485,6 +485,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Twitter" workingLevel="3">
+      <dependsOn>
+         <description>Twitter service - it allows to publish and read tweets 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.twitter4j.twitter</string>
+         </list>
+      </dependsOn>
+   </serviceType>
      <serviceType string="org.myrobotlab.service.VideoStreamer" workingLevel="1">
       <dependsOn>
          <description>Video stream - no dependencies - pure Java
@@ -696,6 +707,11 @@
    <categories string="org.myrobotlab.service.TweedleBot">
       <category>
          <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Twitter">
+      <category>
+         <include>network</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.WebServer">
