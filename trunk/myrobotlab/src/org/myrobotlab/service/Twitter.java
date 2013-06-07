@@ -1,5 +1,7 @@
 package org.myrobotlab.service;
 
+import java.io.File;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -8,6 +10,7 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 import twitter4j.Status;
+import twitter4j.StatusUpdate;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -66,6 +69,16 @@ public class Twitter extends Service {
 		
 	}
 	
+	public void uploadPic(File file, String message) throws Exception  {
+	    try{
+	        StatusUpdate status = new StatusUpdate(message);
+	        status.setMedia(file);
+	        twitter.updateStatus(status);}
+	    catch(TwitterException e){
+	        throw e;
+	    }
+	}
+	
 	
 	public void configure()
 	{
@@ -88,6 +101,7 @@ public class Twitter extends Service {
 		twitter.setSecurity("yourConsumerKey","yourConsumerSecret", "yourAccessToken", "yourAccessTokenSecret");
 		twitter.configure();
 		twitter.tweet("Ciao from MyRobotLab");
+		twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg" , "here is the pic");
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
