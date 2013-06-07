@@ -25,27 +25,28 @@
 
 package org.myrobotlab.service;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 
-import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 /**
  * @author greg (at) myrobotlab.org wrapper service for Apache HTTPClient
@@ -55,13 +56,14 @@ public class HTTPClient extends Service {
 	public final static Logger log = LoggerFactory.getLogger(HTTPClient.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
 
+	transient private DefaultHttpClient client = new DefaultHttpClient();
+
 	public HTTPClient(String n) {
 		super(n, HTTPClient.class.getCanonicalName());
 	}
 
 	public static String parse(String in, String beginTag, String endTag) {
-		if (in == null)
-		{
+		if (in == null) {
 			return null;
 		}
 		int pos0 = in.indexOf(beginTag);
@@ -73,218 +75,69 @@ public class HTTPClient extends Service {
 
 	}
 
-	public static class HTTPData {
-		public HttpClient client = null;
-		public HttpMethodBase method = null;
-		public String dataString = null;
-		public int statusCode = -1;
-
-		public String toString() {
-			try {
-				return method.getResponseBodyAsString();
-			} catch (IOException e) {
-				logException(e);
-				return null;
-			}
-		}
-
+	public byte[] post(String uri) {
+		return post(uri, null);
 	}
 
-	public static HTTPData post(String uri) {
-		return post(uri, null, null);
-	}
-
-	public static HTTPData post(String uri, HashMap<String, String> fields) {
-		return post(uri, fields, null);
-	}
-
-	public static HTTPData post(String uri, HashMap<String, String> fields, HTTPData data) {
-		if (data == null) {
-			data = new HTTPData();
-		}
-
-		// Create an instance of HttpClient.
-		if (data.client == null) {
-			data.client = new HttpClient();
-		}
-
-		// Create a method instance.
-		PostMethod p = new PostMethod(uri);
-		data.method = p;
-
-		if (fields != null) {
-			Iterator<String> i = fields.keySet().iterator();
-
-			// transfer fields
-			while (i.hasNext()) {
-				String n = i.next();
-				String v = fields.get(n);
-				p.addParameter(n, v);
-			}
-		}
-
-		// p.setFollowRedirects(true);
-		// Provide custom retry handler is necessary
-		p.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
-
-		// p.setFollowRedirects(true);
-
+	public byte[] post(String uri, HashMap<String, String> fields) {
+		HttpPost post = new HttpPost(uri);
 		try {
-			// Execute the method.CookiePolicy.RFC_2109
-			p.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			// p.getParams().setCookiePolicy(CookiePolicy.DEFAULT);
-			data.statusCode = data.client.executeMethod(p);
 
-			Cookie[] cookies = data.client.getState().getCookies();
-			for (int i = 0; i < cookies.length; ++i) {
-				log.info(cookies[i].toExternalForm());
-				log.info(cookies[i].getValue());
+			if (fields != null){
+				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(fields.size());
+				for (String name: fields.keySet())
+				{
+					nameValuePairs.add(new BasicNameValuePair(name, fields.get(name)));
+					post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+				}
+			}
+			
+			
+			HttpResponse response = client.execute(post);
+
+			return getResponse(response);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public byte[] getResponse(HttpResponse response) {
+		try {
+			InputStream is = response.getEntity().getContent();
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			int nRead;
+			byte[] data = new byte[16384];
+
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
 			}
 
-			// p.execute(data.client.getState(),
-			// data.client.getHttpConnectionManager().get)
-			// response = httpClient.execute(httpPost,localContext);
-			/*
-			 * GetMethod g = new GetMethod("http://letsmakerobots.com/node");
-			 * g.getParams
-			 * ().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			 * data.statusCode = data.client.executeMethod(g);
-			 */
+			buffer.flush();
 
-		} catch (HttpException e) {
-			System.err.println("Fatal protocol violation: " + e.getMessage());
-			logException(e);
-		} catch (IOException e) {
-			System.err.println("Fatal transport error: " + e.getMessage());
-			logException(e);
+			return buffer.toByteArray();
 		} catch (Exception e) {
-			System.err.println("Fatal error: " + e.getMessage());
-			logException(e);
-		} finally {
-			// Release the connection.
-			// p.releaseConnection();
+			Logging.logException(e);
 		}
 
-		return data;
+		return null;
+
 	}
 
-	public static HTTPData get(String uri) {
-		return get(uri, null);
-	}
-
-	public static HTTPData get(String uri, HTTPData data) {
-		if (data == null) {
-			data = new HTTPData();
-		}
-
-		// Create an instance of HttpClient.
-		if (data.client == null) {
-			data.client = new HttpClient();
-		}
-
-		// Create a method instance.
-		GetMethod g = new GetMethod(uri);
-		data.method = g;
-
-		// Provide custom retry handler is necessary
-		g.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+	public byte[] get(String uri) {
 
 		try {
-			// Execute the method.
-			g.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			data.statusCode = data.client.executeMethod(g);
+			HttpGet request = new HttpGet(uri);
+			HttpResponse response = client.execute(request);
+			return getResponse(response);
 
-			if (data.statusCode != HttpStatus.SC_OK) {
-				log.error("Method failed: " + g.getStatusLine());
-			}
-
-		} catch (HttpException e) {
-			System.err.println("Fatal protocol violation: " + e.getMessage());
-			logException(e);
-		} catch (IOException e) {
-			System.err.println("Fatal transport error: " + e.getMessage());
-			logException(e);
-		} finally {
-			// Release the connection.
-			// g.releaseConnection();
+		} catch (Exception e) {
+			Logging.logException(e);
 		}
 
-		return data;
-	}
-
-	void shout(String userID, String password, String shoutText) {
-
-		HashMap<String, String> fields = new HashMap<String, String>();
-
-		fields.put("openid_identifier", "");
-		fields.put("name", userID);
-		fields.put("pass", password);
-		fields.put("op", "Log+in");
-		fields.put("form_id", "user_login_block");
-		fields.put("openid.return_to", "http%3A%2F%2Fletsmakerobots.com%2Fopenid%2Fauthenticate%3Fdestination%3Dfrontpage%252Fpanel");
-		HTTPData data = HTTPClient.post("http://letsmakerobots.com/node?destination=frontpage%2Fpanel", fields);
-
-		// go to node page to get token
-		HTTPClient.get("http://letsmakerobots.com/node", data);
-
-		// get token
-		String form_token = null;
-		try {
-			form_token = HTTPClient.parse(data.method.getResponseBodyAsString(), "<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"",
-					"\"  />");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logException(e);
-		}
-
-		// post comment
-		fields.clear();
-		fields.put("nick", "GroG");
-		fields.put("message", shoutText);
-		fields.put("ajax", "0");
-		fields.put("nextcolor", "0");
-		fields.put("op", "Shout");
-		fields.put("form_token", form_token);
-		fields.put("form_id", "shoutbox_add_form");
-
-		HTTPClient.post("http://letsmakerobots.com/node", fields, data);
-
-	}
-
-	void postForumComment(String forumNode, String userID, String password, String subject, String text) {
-		HashMap<String, String> fields = new HashMap<String, String>();
-
-		fields.put("openid_identifier", "");
-		fields.put("name", userID);
-		fields.put("pass", password);
-		fields.put("op", "Log+in");
-		fields.put("form_id", "user_login_block");
-		fields.put("openid.return_to", "http%3A%2F%2Fletsmakerobots.com%2Fopenid%2Fauthenticate%3Fdestination%3Dfrontpage%252Fpanel");
-		HTTPData data = HTTPClient.post("http://letsmakerobots.com/node?destination=frontpage%2Fpanel", fields);
-
-		// go to node page to get token
-		HTTPClient.get("http://letsmakerobots.com/node/" + forumNode, data);
-
-		// get token
-		String form_token = null;
-		try {
-			form_token = HTTPClient.parse(data.method.getResponseBodyAsString(), "<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"",
-					"\"  />");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logException(e);
-		}
-
-		// post comment
-		fields.clear();
-		fields.put("subject", subject);
-		fields.put("format", "1");
-		fields.put("form_token", form_token);
-		fields.put("form_id", "comment_form");
-		fields.put("op", "form-submit");
-
-		HTTPClient.post("http://letsmakerobots.com/comment/reply/" + forumNode, fields, data);
-
+		return null;
 	}
 
 	@Override
@@ -296,10 +149,17 @@ public class HTTPClient extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		// HTTPClient http = (HTTPClient)Runtime.create ("http",
-		// (Class<?>)HTTPClient.class);
-		HTTPData data = HTTPClient.get("http://localhost/");
-		log.info(data.toString());
+		HTTPClient client = (HTTPClient) Runtime.createAndStart("client", "HTTPClient");
+
+		String google = new String(client.get("http://www.google.com/"));
+		log.info(google);
+		
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("p", "apple");
+		google = new String(client.post("http://www.google.com", params));
+		log.info(google);
+		
+		
 	}
 
 }

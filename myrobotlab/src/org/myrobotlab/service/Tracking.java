@@ -142,8 +142,7 @@ public class Tracking extends Service {
 	public double xSetpoint = 0.5;
 	@Element
 	public double ySetpoint = 0.5;
-	@Element
-	public int cameraIndex = 0;
+
 	// ----- INITIALIZATION DATA END -----
 
 	
@@ -210,15 +209,6 @@ public class Tracking extends Service {
 		info("attaching eye");
 		//eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
-		if (opencv != null)
-		{
-			// get data from the passed in opencv - passed in opencv
-			cameraIndex = opencv.getCameraIndex();
-		} else {
-			// set with our data - default opencv
-			eye.setCameraIndex(cameraIndex);
-		}
-		
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		//eye.capture();
 		eye.broadcastState();
@@ -686,7 +676,6 @@ public class Tracking extends Service {
 			}
 			
 			lastPoint = targetPoint;
-
 		}
 
 		if (cnt % updateModulus == 0) {
@@ -702,10 +691,11 @@ public class Tracking extends Service {
 	}
 
 	public void setCameraIndex(int i) {
-		cameraIndex = i;
-		if (eye != null){
-			eye.setCameraIndex(i);
+		if (eye == null)
+		{
+			eye = (OpenCV)Runtime.create(opencvName, "OpenCV");
 		}
+		eye.setCameraIndex(i);
 	}
 
 	public void setServoPins(Integer x, Integer y) {
@@ -784,6 +774,7 @@ public class Tracking extends Service {
 		gui.startService();
 		gui.display();
 
+		tracker.setCameraIndex(1);
 		tracker.test();
 		/*
 		tracker.setRestPosition(90, 5);

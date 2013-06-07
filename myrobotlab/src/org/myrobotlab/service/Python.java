@@ -212,10 +212,9 @@ public class Python extends Service {
 	 */
 	public void attachPythonConsole() {
 		if (!pythonConsoleInitialized) {
-			// String consoleScript =
-			// FileIO.getResourceFile("python/examples/pythonConsole.py");
-//			String consoleScript = getServiceResourceFile("examples/pythonConsole.py");
-//			exec(consoleScript, false);
+			/** REMOVE IF FLAKEY BUGS APPEAR !! */
+			String consoleScript = getServiceResourceFile("examples/pythonConsole.py");
+			exec(consoleScript, false);
 		}
 	}
 

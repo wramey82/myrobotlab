@@ -517,6 +517,27 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
+		OpenCV test = (OpenCV) Runtime.createAndStart("test", "OpenCV");
+		test.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
+		test.addFilter(new OpenCVFilterGray("gray"));
+		test.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
+		test.setCameraIndex(1);
+		
+		/*
+		test.addFilter(new OpenCVFilterDetector("detector"));
+		test.addFilter(new OpenCVFilterErode("erode"));
+		test.addFilter(new OpenCVFilterDilate("dilate"));
+		test.addFilter(new OpenCVFilterFindContours("findContours"));
+		*/
+		
+		test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
+		test.capture();
+		
+		GUIService gui2 = new GUIService("gui2");
+		gui2.startService();
+		gui2.display();
+
+
 		
 		OpenCV trackingCamera = (OpenCV) Runtime.createAndStart("trackingCamera", "OpenCV");
 		OpenCV detector = (OpenCV) Runtime.createAndStart("detector", "OpenCV");

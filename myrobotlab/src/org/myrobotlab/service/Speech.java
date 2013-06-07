@@ -25,14 +25,19 @@
 
 package org.myrobotlab.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.myrobotlab.logging.Level;
 
 import org.myrobotlab.logging.LoggerFactory;
@@ -87,6 +92,7 @@ public class Speech extends Service {
 	transient private Voice myVoice = null;
 	private boolean initialized = false;
 	public AudioFile speechAudioFile = null;
+	transient private DefaultHttpClient client = new DefaultHttpClient();
 
 	public static enum FrontendType {
 		NORMAL, QUEUED, BLOCKING, MULTI
@@ -242,63 +248,7 @@ public class Speech extends Service {
 		return true;
 	}
 
-	// BACK-END FUNCTIONS BEGIN ------------------------------------------------
-	public void speakATT(String toSpeak) {
-		if (speechAudioFile == null) {
-			speechAudioFile = new AudioFile("speechAudioFile");
-		}
 
-		if (!fileCacheInitialized) {
-			boolean success = (new File("audioFile/att/" + voiceName)).mkdirs();
-			if (!success) {
-				log.debug("could not create directory: audioFile/att/" + voiceName);
-			} else {
-				fileCacheInitialized = true;
-			}
-		}
-
-		String audioFile = "audioFile/att/" + voiceName + "/" + toSpeak + ".wav";
-		File f = new File(audioFile);
-		log.info(f + (f.exists() ? " is found " : " is missing "));
-
-		if (!f.exists()) {
-			// if the wav file does not exist fetch it from att site
-			HashMap<String, String> params = new HashMap<String, String>();
-			params.put("voice", voiceName);
-			params.put("txt", toSpeak);
-			params.put("speakButton", "SPEAK");
-			/*
-			 * As per http://www2.research.att.com/~ttsweb/tts/faq.php & Mark &
-			 * ATT I have removed the cgi link - will be moving to Google speech
-			 * as it does not have such restrictions
-			 */
-			// HTTPClient.HTTPData data =
-			// HTTPClient.post("http://192.20.225.36/tts/cgi-bin/nph-talk",
-			// params);
-			HTTPClient.HTTPData data = null;
-			String redirect = null;
-			try {
-				redirect = "http://" + data.method.getURI().getHost() + data.method.getResponseHeader("location").getValue();
-				HTTPClient.HTTPData data2 = HTTPClient.get(redirect);
-
-				FileOutputStream fos = new FileOutputStream(audioFile);
-				fos.write(data2.method.getResponseBody());
-
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				logException(e);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				logException(e);
-			}
-
-		}
-
-		// audio file it - THIS BLOCKS - YAY ! ITS A GOOD THING ! - JUST DONT
-		// CALL IT DIRECTY FROM ANOTHER SERVICE
-		// @Blocks
-		speechAudioFile.playWAVFile(audioFile);
-	}
 
 	public void speakFreeTTS(String toSpeak) {
 		if (myVoice == null) {
@@ -384,10 +334,15 @@ public class Speech extends Service {
 			try {
 				URI uri = new URI("http", null, "translate.google.com", 80, "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
 				log.info(uri.toASCIIString());
-				HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
+				//HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
+				
+				HttpGet request = new HttpGet(uri.toASCIIString());
+				HttpResponse response = client.execute(request);
+
+				byte[] data = getByteArrayFromResponse(response);
 
 				FileOutputStream fos = new FileOutputStream(audioFile);
-				fos.write(data.method.getResponseBody());
+				fos.write(data);
 
 			} catch (Exception e) {
 				Logging.logException(e);
@@ -400,6 +355,29 @@ public class Speech extends Service {
 		sleep(600);// important pause after speech
 		invoke("isSpeaking", false);
 	}
+	
+	public byte[] getByteArrayFromResponse(HttpResponse response) {
+		try {
+			InputStream is = response.getEntity().getContent();
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			int nRead;
+			byte[] data = new byte[16384];
+
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
+			}
+
+			buffer.flush();
+
+			return buffer.toByteArray();
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return null;
+
+	}
 
 	// codes - http://code.google.com/apis/language/translate/v2/using_rest.html
 	public static void main(String[] args) {
@@ -411,7 +389,8 @@ public class Speech extends Service {
 		// speech.setBackendType(BACKEND_TYPE_FREETTS);
 		//speech.setBackendType(BACKEND_TYPE_GOOGLE);
 		// speech.setLanguage("fr");
-		speech.speakBlocking("hello hi there hello how are you i am great you are wonderful what is up hi ya whazzzup yo");
+		speech.speakBlocking("bork bork bork bork again");
+		speech.speak("this is a test can the new way work two");
 		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about. I love to talk I love to talk");
 		speech.speak("goodby this is an attempt to generate inflection did it work");
 		speech.speak("blah there. this is a long and detailed message");

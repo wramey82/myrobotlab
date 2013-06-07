@@ -49,6 +49,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
 import org.fife.ui.autocomplete.AutoCompletion;
@@ -278,10 +279,11 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void attachGUI() {
 		subscribe("publishState", "getState", Python.class);
 		subscribe("finishedExecutingScript");
-//		subscribe("publishStdOut", "getStdOut", String.class);
+		/** REMOVE IF FLAKEY BUGS APPEAR !! */
+		subscribe("publishStdOut", "getStdOut", String.class);
 		subscribe("appendScript", "appendScript", String.class);
 		subscribe("startRecording", "startRecording", String.class);
-//		myService.send(boundServiceName, "attachPythonConsole");
+		myService.send(boundServiceName, "attachPythonConsole");
 		// myService.send(boundServiceName, "broadcastState");
 	}
 
@@ -290,7 +292,8 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		javaConsole.stopLogging();
 		unsubscribe("publishState", "getState", Python.class);
 		unsubscribe("finishedExecutingScript");
-//		unsubscribe("publishStdOut", "getStdOut", String.class);
+		/** REMOVE IF FLAKEY BUGS APPEAR !! */
+		unsubscribe("publishStdOut", "getStdOut", String.class);
 		unsubscribe("appendScript", "appendScript", String.class);
 		unsubscribe("startRecording", "startRecording", String.class);
 	}
@@ -320,8 +323,13 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * 
 	 * @param data
 	 */
-	public void getStdOut(String data) {
-//		pythonConsole.append(data);
+	public void getStdOut(final String data) {
+		/** REMOVE IF FLAKEY BUGS APPEAR !! */
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				pythonConsole.append(data);
+			}
+		});
 	}
 
 	/**

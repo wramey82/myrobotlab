@@ -18,6 +18,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.GoogleSTT;
+import org.myrobotlab.service.interfaces.SpeechRecognizer;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -35,7 +36,7 @@ import com.google.gson.Gson;
 
 public class TranscriptionThread extends Thread {
 
-	public final static Logger log = LoggerFactory.getLogger(GoogleSTT.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(TranscriptionThread.class.getCanonicalName());
 
 	boolean running;
 
@@ -48,7 +49,7 @@ public class TranscriptionThread extends Thread {
 	private String record;
 	private String lang;
 
-	public TranscriptionThread(String n, String lang) {
+	public TranscriptionThread(SpeechRecognizer myService, String n, String lang) {
 		super(n);
 		this.lang = lang;
 		running = false;
@@ -215,7 +216,7 @@ public class TranscriptionThread extends Thread {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		TranscriptionThread t = new TranscriptionThread("transcriber", "en-US");
+		TranscriptionThread t = new TranscriptionThread(null, "transcriber", "en-US");
 		t.transcribe("test2.flac");
 
 	}

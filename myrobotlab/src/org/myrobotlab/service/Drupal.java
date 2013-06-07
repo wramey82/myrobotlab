@@ -1,6 +1,5 @@
 package org.myrobotlab.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,9 +9,7 @@ import java.util.TimerTask;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.HTTPClient.HTTPData;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
@@ -36,27 +33,27 @@ public class Drupal extends Service {
 	final public String cleverbotServiceName;
 	final public CleverBot cleverbot;
 
+	HTTPClient client = new HTTPClient("client");
+
 	HashMap<String, String> usedContexts = new HashMap<String, String>();
 	boolean useGreeting = true;
-	
+
 	String usernameTagBegin = "class=\\\"shoutbox-user-name\\\"\\x3e";
 	String usernameTagEnd = "\\x3c";
 	String shoutTagBegin = "class=\\\"shoutbox-shout\\\"\\x3e\\x3cp\\x3e";
 	String shoutTagEnd = "\\x3c";
-	
-	int timeoutMinutes = 4; 
+
+	int timeoutMinutes = 4;
 	boolean inTimeout = false;
 	HashSet<String> timeoutWords = new HashSet<String>();
 
-	//letsmakerobots.com 
+	// letsmakerobots.com
 	/*
-	 String usernameTagBegin = "click to view profile\">";
-	 String usernameTagEnd = "</a></b>";
-	 String shoutTagBegin = ": "; 
-	 String shoutTagEnd = "</span>";
+	 * String usernameTagBegin = "click to view profile\">"; String
+	 * usernameTagEnd = "</a></b>"; String shoutTagBegin = ": "; String
+	 * shoutTagEnd = "</span>";
 	 */
-	 
-	
+
 	public Drupal(String n) {
 		super(n, Drupal.class.getCanonicalName());
 		cleverbotServiceName = String.format("%s_cleverbot", getName());
@@ -90,19 +87,20 @@ public class Drupal extends Service {
 		fields.put("op", "Log+in");
 		fields.put("form_id", "user_login_block");
 		fields.put("openid.return_to", "http%3A%2F%2F" + host + "%2Fopenid%2Fauthenticate%3Fdestination%3Dfrontpage%252Fpanel");
-		HTTPData data = HTTPClient.post("http://" + host + "/node?destination=frontpage%2Fpanel", fields);
+
+		client.startService();
+		client.post("http://" + host + "/node?destination=frontpage%2Fpanel", fields);
+		// HTTPData data = HTTPClient.post("http://" + host +
+		// "/node?destination=frontpage%2Fpanel", fields);
 
 		// go to node page to get token
-		HTTPClient.get("http://" + host + "/node", data);
+		String data = new String(client.get("http://" + host + "/node"));
+		// HTTPClient.get("http://" + host + "/node", data);
 
 		// get shoutbox token
 		String form_token = null;
-		try {
-			form_token = HTTPClient.parse(data.method.getResponseBodyAsString(), "<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"",
-					"\"  />");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		form_token = HTTPClient.parse(data, "<input type=\"hidden\" name=\"form_token\" id=\"edit-shoutbox-add-form-form-token\" value=\"", "\"  />");
 
 		// post comment
 		fields.clear();
@@ -114,20 +112,17 @@ public class Drupal extends Service {
 		fields.put("form_token", form_token);
 		fields.put("form_id", "shoutbox_add_form");
 
-		HTTPClient.post("http://" + host + "/node", fields, data);
+		// HTTPClient.post("http://" + host + "/node", fields, data);
+		client.post("http://" + host + "/node", fields);
 
 	}
 
 	public String getShoutBox(String host) {
-		try {
-			HTTPData data = HTTPClient.get(String.format("http://%s/shoutbox/js/view?%d", host, System.currentTimeMillis()));
-			String shoutbox = data.method.getResponseBodyAsString();
-			log.info(shoutbox);
-			return shoutbox;
-		} catch (IOException e) {
-			Logging.logException(e);
-		}
-		return null;
+
+		String shoutbox = new String(client.get(String.format("http://%s/shoutbox/js/view?%d", host, System.currentTimeMillis())));
+		log.info(shoutbox);
+		return shoutbox;
+
 	}
 
 	public String readLastShout(String host) {
@@ -138,9 +133,6 @@ public class Drupal extends Service {
 		public String userName;
 		public String shout;
 	}
-
-
-
 
 	public ArrayList<UserShout> parseShoutBox(String s) {
 		ArrayList<UserShout> ret = new ArrayList<UserShout>();
@@ -216,25 +208,24 @@ public class Drupal extends Service {
 				// if I have been mentioned, but not by me and this shout is not
 				// one I have responded to
 				if ((shoutboxEntry.shout.indexOf(chatResponseSearchString) != -1 && !shoutboxEntry.userName.equals(username)) && !usedContexts.containsKey(shoutboxEntry.shout)) {
-					if (timeoutWords.contains(shoutboxEntry.shout))
-					{
+					if (timeoutWords.contains(shoutboxEntry.shout)) {
 						shout(String.format("I am going to be quiet now for %d minutes", timeoutMinutes));
 						Timer timer = new Timer("chatbot timeout timer");
 						inTimeout = true;
 						timer.schedule(new TimerTask() {
-							  @Override
-							  public void run() {
-								  inTimeout = false;
-							  }
-							}, timeoutMinutes*60*1000);
-						
+							@Override
+							public void run() {
+								inTimeout = false;
+							}
+						}, timeoutMinutes * 60 * 1000);
+
 					}
 					usedContexts.put(shoutboxEntry.shout, shoutboxEntry.shout);
 					foundContext = true;
 					String shout = shoutboxEntry.shout.toLowerCase().replace(username.toLowerCase(), botName);
 					log.info("found context sending [{}] to cleverbot", shout);
 					String response = cleverbot.chat(shout);
-					if (response != null){
+					if (response != null) {
 						response = response.replace(botName, username);
 						log.info("shouting [{}]", response);
 						shout(response);
@@ -286,6 +277,11 @@ public class Drupal extends Service {
 
 	}
 
+	public void startService() {
+		super.startService();
+		client.startService();
+	}
+
 	public String getCleverBotResponse(String inMsg) {
 		return null;
 	}
@@ -299,7 +295,7 @@ public class Drupal extends Service {
 
 		Drupal drupal = new Drupal("myrobotlab.org");
 		drupal.host = "myrobotlab.org";
-		//drupal.host = "letsmakerobots.com";
+		// drupal.host = "letsmakerobots.com";
 		drupal.username = "mr.turing";
 		drupal.password = "gooby1";
 		drupal.chatResponseSearchString = "turing ";
