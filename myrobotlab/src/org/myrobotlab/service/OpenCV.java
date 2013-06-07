@@ -126,6 +126,8 @@ public class OpenCV extends VideoSource {
 	
 	// mask for each named filter
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
+	
+	public SerializableImage lastDisplay;
 
 	// transient public HashMap<String, Object> storage = new HashMap<String,
 	// Object>();
@@ -151,7 +153,8 @@ public class OpenCV extends VideoSource {
 
 	public final SerializableImage publishDisplay(String source, BufferedImage img)
 	{
-		return new SerializableImage(img, source);
+		lastDisplay = new SerializableImage(img, source);
+		return lastDisplay;
 	}
 	
 	public final SerializableImage publishFrame(String source, BufferedImage img) {
@@ -507,7 +510,7 @@ public class OpenCV extends VideoSource {
 	
 	public SerializableImage getDisplay()
 	{
-		return videoProcessor.lastDisplay;
+		return lastDisplay;
 	}
 
 
@@ -538,6 +541,8 @@ public class OpenCV extends VideoSource {
 		
 		test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
 		test.capture();
+		
+		Service.sleep(4000);
 		
 		SerializableImage img = test.getDisplay();
 		
