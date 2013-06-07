@@ -1,8 +1,11 @@
 package org.myrobotlab.service;
 
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -67,6 +70,17 @@ public class Twitter extends Service {
 		this.accessToken = accessToken;
 		this.accessTokenSecret = accessTokenSecret;
 		
+	}
+	
+	public void uploadImage(SerializableImage image,String message){
+		try{
+	        StatusUpdate status = new StatusUpdate(message);
+	        byte[] buffer = ((DataBufferByte)(image.getImage()).getRaster().getDataBuffer()).getData();
+	        status.media("image", new ByteArrayInputStream(buffer) );
+	        twitter.updateStatus(status);}
+	    catch(TwitterException e){
+	    	Logging.logException(e);
+	    }
 	}
 	
 	public void uploadPic(String filePath, String message) {
