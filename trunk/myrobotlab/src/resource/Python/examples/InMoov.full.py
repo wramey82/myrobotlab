@@ -55,7 +55,21 @@ ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice contro
 ear.addCommand("voice control", ear.getName(), "clearLock")
 ear.addCommand("stop listening", ear.getName(), "stopListening")
 
+ear.addCommand("ok", "python", "ok")
+
 ear.addComfirmations("yes","correct","yeah","ya") 
 ear.addNegations("no","wrong","nope","nah")
 
 ear.startListening()
+
+def ok():
+  inMoov.setHandSpeed("left", 0.30, 0.30, 1.0, 1.0, 1.0, 1.0)
+  inMoov.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  inMoov.setArmSpeed("left", 0.75, 0.75, 0.75, 0.95)
+  inMoov.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+  inMoov.setHeadSpeed(0.65, 0.75)
+  inMoov.moveHead(88,79)
+  inMoov.moveArm("left",89,75,93,11)
+  inMoov.moveArm("right",0,91,28,17)
+  inMoov.moveHand("left",92,106,4,0,0,34)
+  inMoov.moveHand("right",86,51,133,162,153,180)
