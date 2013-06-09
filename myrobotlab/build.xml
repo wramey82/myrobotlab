@@ -45,6 +45,7 @@
 	${label} 	= "myrobotlab.${version}
 	
 	FIXME - make "update" work in IDE
+	
 -->
 
 <project name="myrobotlab" default="publishRelease" basedir=".">
