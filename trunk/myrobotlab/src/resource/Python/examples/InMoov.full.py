@@ -26,60 +26,34 @@ inMoov.attachHand("left")
 inMoov.attachArm("left")
 inMoov.attachHead("left")
 
-
-# setting speech's language
-# regrettably voice recognition is only in
-# English
-# inMoov.setLanguage("fr")
-# inMoov.setLanguage("it")
-# inMoov.setLanguage("en")
-
-
 # system check
 inMoov.systemCheck()
 inMoov.rest()
+inMoov.setCameraIndex(cameraIndex)
 
-# listen for these key words
-inMoov.startListening("rest | open hand | close hand | manual | voice control| capture gesture | track | freeze track | hello | giving | fighter | fist hips | look at this | victory | arms up | arms front | da vinci")
+# new process for verbal commands
+ear = inMoov.getEar()
+ear.addCommand("rest", inMoov.getName(), "rest")
+ear.addCommand("open hand", inMoov.getName(), "handOpen", "both")
+ear.addCommand("close hand", inMoov.getName(), "handClose", "both")
+ear.addCommand("capture gesture", inMoov.getName(), "captureGesture")
+ear.addCommand("track", inMoov.getName(), "track")
+ear.addCommand("freeze track", inMoov.getName(), "clearTrackingPoints")
+ear.addCommand("hello", inMoov.getName(), "hello")
+ear.addCommand("giving", inMoov.getName(), "giving")
+ear.addCommand("fighter", inMoov.getName(), "fighter")
+ear.addCommand("fist hips", inMoov.getName(), "fistHips")
+ear.addCommand("look at this", inMoov.getName(), "lookAtThis")
+ear.addCommand("victory", inMoov.getName(), "victory")
+ear.addCommand("arms up", inMoov.getName(), "armsUp")
+ear.addCommand("arms front", inMoov.getName(), "armsFront")
+ear.addCommand("da vinci", inMoov.getName(), "daVinci")
 
-# voice control
-def heard():
-  data = msg_ear_recognized.data[0]
-  print "heard ", data
-  
-  mouth.speak("you said " + data)
-  
-  if (data == "rest"):
-    inMoov.rest() 
-  elif (data == "open hand"):
-    inMoov.handOpen("both")
-  elif (data == "close hand"):
-    inMoov.handClose("both")
-  elif (data == "manual"):
-    inMoov.lockOutAllGrammarExcept("voice control")
-  elif (data == "voice control"):
-    inMoov.clearGrammarLock()
-  elif (data == "capture gesture"):
-    inMoov.captureGesture();
-  elif (data == "track"):
-    inMoov.trackPoint(0.5, 0.5)
-  elif (data == "freeze track"):
-    inMoov.clearTrackingPoints()
-  elif (data == "hello"):
-    inMoov.hello()
-  elif (data == "giving"):
-    inMoov.giving()
-  elif (data == "fighter"):
-    inMoov.fighter()
-  elif (data == "fist hips"):
-    inMoov.fistHips() 
-  elif (data == "look at this"):
-    inMoov.lookAtThis()
-  elif (data == "victory"):
-    inMoov.victory()
-  elif (data == "arms up"):
-    inMoov.armsUp() 
-  elif (data == "arms front"):
-    inMoov.armsFront()
-  elif (data == "da vinci"):
-    inMoov.daVinci()
+ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
+ear.addCommand("voice control", ear.getName(), "clearLock")
+ear.addCommand("stop listening", ear.getName(), "stopListening")
+
+ear.addComfirmations("yes","correct","right","yeah","ya")
+ear.addNegations("no","incorrect","wrong","nope","nah")
+
+ear.startListening()
