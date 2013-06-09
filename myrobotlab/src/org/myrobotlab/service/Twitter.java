@@ -84,11 +84,9 @@ public class Twitter extends Service {
 	    	byte[] buffer= baos.toByteArray();
 	        status.media("image", new ByteArrayInputStream(buffer) );
 	        twitter.updateStatus(status);}
-	    catch(TwitterException e){
+	    catch(Exception e){
 	    	Logging.logException(e);
-	    } catch (IOException e) {
-	    	Logging.logException(e);
-		}
+	    } 
 	}
 	
 	public void uploadPic(String filePath, String message) {
@@ -118,13 +116,22 @@ public class Twitter extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
+		
 
 		Twitter twitter = new Twitter("twitter");
 		twitter.startService();
-		twitter.setSecurity("yourConsumerKey","yourConsumerSecret", "yourAccessToken", "yourAccessTokenSecret");
+		twitter.setSecurity("vZtRSFRmasWzC5mDCb3A","YwbOUcTwRw9a2DS4EfrqGtFpanVKhVEKfYDtPfY", "C9vxhVHqCAyhMeXb8rQoFb5GDXnkslE0J5urQDha", "FQ0oZakPzjhx0ikYgIR3bbqnrzBaj7Qap8ofz1XxCs");
 		twitter.configure();
 		twitter.tweet("Ciao from MyRobotLab");
-		twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg" , "here is the pic");
+//		twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg" , "here is the pic");
+		
+		OpenCV opencv = new OpenCV("opencv");
+		opencv.startService();
+		opencv.capture();
+		Service.sleep(4000);// wait for an image
+		SerializableImage img = opencv.getDisplay();
+		twitter.uploadImage(img, "ME TOO!");
+		//twitter.subscribe("publishDisplay", opencv.getName(), "uploadImage", SerializableImage.class);
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*

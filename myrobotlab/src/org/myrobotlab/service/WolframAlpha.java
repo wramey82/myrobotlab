@@ -44,20 +44,6 @@ public class WolframAlpha extends Service {
 		super.releaseService();
 	}
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
-
-		WolframAlpha template = new WolframAlpha("wolfram");
-		template.startService();
-
-		Runtime.createAndStart("gui", "GUIService");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
-	}
-
 	public void setAppID(String id) {
 		AppID = id;
 	}
@@ -158,5 +144,20 @@ public class WolframAlpha extends Service {
 		}
 
 	}
+	
+	public static void main(String[] args) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
+
+		WolframAlpha template = new WolframAlpha("wolfram");
+		template.startService();
+
+		Runtime.createAndStart("gui", "GUIService");
+		/*
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
+	}
+
 
 }
