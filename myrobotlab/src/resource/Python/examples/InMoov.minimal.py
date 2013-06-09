@@ -21,21 +21,15 @@ inMoov.systemCheck()
 # listen for these key words
 # to get voice to work - you must be attached to the internet for
 # at least the first time
-inMoov.startListening("rest | open hand | close hand | manual | voice control")
+ear = inMoov.getEar()
+ear.addCommand("rest", inMoov.getName(), "rest")
+ear.addCommand("open hand", inMoov.getName(), "handOpen", "right")
+ear.addCommand("close hand", inMoov.getName(), "handClose", "right")
+ear.addCommand("capture gesture", inMoov.getName(), "captureGesture")
+ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
+ear.addCommand("voice control", ear.getName(), "clearLock")
 
-# voice control
-def heard():
-  data = msg_ear_recognized.data[0]
-  print "heard ", data
-  #mouth.setLanguage("fr")
-  mouth.speak("you said " + data)
-  if (data == "rest"):
-    inMoov.rest() 
-  elif (data == "open hand"):
-    inMoov.handOpen("right")
-  elif (data == "close hand"):
-    inMoov.handClose("right")
-  elif (data == "manual"):
-    inMoov.lockOutAllGrammarExcept("voice control")
-  elif (data == "voice control"):
-    inMoov.clearGrammarLock()
+ear.addComfirmations("yes","correct","right","yeah","ya")
+ear.addNegations("no","incorrect","wrong","nope","nah")
+
+ear.startListening()

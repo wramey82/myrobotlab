@@ -337,7 +337,9 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		
 		
 		if (grammar != null) {
-			newGrammar.append("|");
+			if (newGrammar.length() > 0) {
+				newGrammar.append("|");
+			}
 			newGrammar.append(grammar);
 		}
 		
