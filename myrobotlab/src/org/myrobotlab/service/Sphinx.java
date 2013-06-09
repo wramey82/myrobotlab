@@ -50,7 +50,6 @@ import org.myrobotlab.speech.DialogManager;
 import org.slf4j.Logger;
 
 import edu.cmu.sphinx.frontend.util.Microphone;
-import edu.cmu.sphinx.linguist.Linguist;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
@@ -70,6 +69,13 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	HashMap<String, Message> commandMap = new HashMap<String, Message>();
 	private boolean isListening = false;
 	private String lockPhrase = null;
+	
+	HashMap<String, Command> commands = null;
+	HashMap<String, Command> confirmations = null;
+	HashMap<String, Command> negations = null;
+	
+	Command currentCommand = null;
+
 
 	public Sphinx(String n) {
 		super(n, Sphinx.class.getCanonicalName());
@@ -111,6 +117,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	 * @return
 	 */
 	public boolean createGrammar(String grammar) {
+		log.info("creating grammar [{}]", grammar);
 		// FIXME - probably broken
 		// get base simple.xml file - and modify it to
 		// point to the correct .gram file
@@ -158,6 +165,9 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	}
 
 	/**
+	 * FIXME - the trunk is broke - the configuration is horrible
+	 * find a way to make this work, despite Sphinx's chaos !
+	 * 
 	 * function to swap grammars to allow sphinx a little more capability
 	 * regarding "new words"
 	 * 
@@ -168,6 +178,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	 * @throws InstantiationException
 	 * @throws IOException
 	 */
+	/* FIXME SPHINX IS A MESS IT CAN"T DO THIS ALTHOUGH DOCUMENTATION SAYS IT CAN
 	void swapGrammar(String newGrammarName) throws PropertyException, InstantiationException, IOException {
 		log.debug("Swapping to grammar " + newGrammarName);
 		Linguist linguist = (Linguist) cm.lookup("flatLinguist");
@@ -177,13 +188,14 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		
 		linguist.allocate();
 	}
+	*/
 	
-	void lockOutAllGrammarExcept(String lockPhrase)
+	public void lockOutAllGrammarExcept(String lockPhrase)
 	{
 		this.lockPhrase  = lockPhrase;
 	}
 	
-	void clearLock()
+	public void clearLock()
 	{
 		lockPhrase = null;
 	}
@@ -236,11 +248,41 @@ public class Sphinx extends Service implements SpeechRecognizer {
 						String resultText = result.getBestFinalResultNoFiller();
 						log.info("recognized: " + resultText + '\n');
 						if (resultText.length() > 0 && isListening) {
-							if (lockPhrase != null && !lockPhrase.equals(resultText))
+							if (lockPhrase != null && !lockPhrase.equals(resultText) && lockPhrase != null && !confirmations.containsKey(resultText))
 							{
 								log.info(String.format("but locked on %s", lockPhrase));
 								continue;
 							}
+							
+							// command system being used
+							if (commands != null) {
+								
+								if (currentCommand != null && (confirmations== null || confirmations.containsKey(resultText)))
+								{
+									// i have a command and a confirmation
+									// command sent
+									send(currentCommand.name, currentCommand.method, currentCommand.params);
+									// command finished
+									currentCommand = null;
+									
+									invoke("confirmed", "ok");
+									
+								} else if (currentCommand != null && negations.containsKey(resultText))
+								{
+									// negation has happened... recognized the wrong command
+									// reset command
+									currentCommand = null;
+									// apologee
+									invoke("negated", "sorry");
+								} else if (commands.containsKey(resultText))
+								{
+									// setting new potential command
+									Command cmd = commands.get(resultText);
+									currentCommand = cmd;
+									invoke("requestConfirmation", resultText);									
+								}
+							}
+							
 							publishRecognized(resultText);
 						}
 
@@ -287,11 +329,42 @@ public class Sphinx extends Service implements SpeechRecognizer {
 			log.warn("already listening");
 			return;
 		}
+		
+		StringBuffer newGrammar = new StringBuffer();
+		buildGrammar(newGrammar, commands);
+		buildGrammar(newGrammar, confirmations);
+		buildGrammar(newGrammar, negations);
+		
+		
 		if (grammar != null) {
-			createGrammar(grammar);
+			newGrammar.append("|");
+			newGrammar.append(grammar);
 		}
+		
+		createGrammar(newGrammar.toString());
+		
 		speechProcessor = new SpeechProcessor(this);
 		speechProcessor.start();
+	}
+	
+	public void buildGrammar(StringBuffer sb, HashMap<String, Command> cmds)
+	{
+		if (cmds != null)
+		{
+			if (sb.length() > 0)
+			{
+				sb.append("|");
+			}
+			int cnt = 0;
+			for (String key : cmds.keySet()) {
+				++cnt;
+				sb.append(key);
+				if (cnt < cmds.size())
+				{
+					sb.append("|");
+				}
+			}
+		}
 	}
 
 	/**
@@ -339,6 +412,10 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", mouth.getName(), "isSpeaking", Boolean.class);
+		// TODO - make config drive whether confirmation is desired
+		mouth.subscribe("requestConfirmation", getName(), "requestConfirmation", String.class);
+		mouth.subscribe("confirmed", getName(), "speak", String.class);
+		mouth.subscribe("negated", getName(), "speak", String.class);
 		log.info(String.format("attached Speech service %s to Sphinx service %s with default message routes", mouth.getName(), getName()));
 		return true;
 	}
@@ -358,16 +435,67 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		addListener("recognized", s.getName(), "heard", String.class);
 	}
 	
-	public void addComfirmations(String[]...strings)
+	public void addComfirmations(String...txt)
 	{
+		if (confirmations == null)
+		{
+			confirmations = new HashMap<String,Command>();
+		}
+		Command confirmCommand = new Command(this.getName(), "confirmation", null);
+		
+		for (int i = 0; i < txt.length; ++i)
+		{
+			confirmations.put(txt[i], confirmCommand);
+		}
+	}
+	
+	public void addNegations(String...txt)
+	{
+		if (negations == null)
+		{
+			negations = new HashMap<String,Command>();
+		}
+		Command negationCommand = new Command(this.getName(), "negation", null);
+		
+		for (int i = 0; i < txt.length; ++i)
+		{
+			negations.put(txt[i], negationCommand);
+		}
 		
 	}
 	
-	public void addNegations(String[]...strings)
+	public String negated(String txt)
 	{
-		
+		return txt;
 	}
 	
+	public String confirmed(String txt)
+	{
+		return txt;
+	}
+	
+	
+	public class Command {
+		public String name;
+		public String method;
+		public Object[] params;
+		Command(String name, String method, Object[] params)
+		{
+			this.name = name;
+			this.method = method;
+			this.params = params;
+		}
+	}
+	
+	
+	public void addCommand(String actionPhrase, String name, String method, Object...params)
+	{
+		if (commands == null)
+		{
+			commands = new HashMap<String, Command>();
+		}
+		commands.put(actionPhrase, new Command(name, method, params));
+	}
 	/*
 	
 	public void startListening(String grammar) {
@@ -378,18 +506,48 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	}
 	
 	*/
+	
+	public String requestConfirmation(String txt)
+	{
+		return txt;
+	}
 
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
 		Sphinx ear = (Sphinx)Runtime.createAndStart("ear", "Sphinx");
 		Speech speech = new Speech("speech");
 		speech.startService();
+
+		// attache speech to ear - 
+		// auto subscribes to "request confirmation"
+		// so that speech asks for confirmation
+		// TODO - put this in gui so state will be updated with text question
+		ear.attach(speech);
 		
-		ear.startListening("camera on | camera off | arm left | arm right | hand left | hand right ");
-		ear.startListening("yes | no");
+		Log log = (Log)Runtime.createAndStart("log", "Log");
+		Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
+
+		// TODO - got to do this - it will be KICKASS !
+		// log.subscribe(outMethod, publisherName, inMethod, parameterType)
+		// new MRLListener("pulse", log.getName(), "log");
+		
+		ear.addCommand("log", log.getName(), "log");
+		ear.addCommand("log subscribe to clock", log.getName(), "subscribe", new Object[]{"pulse", });
+		
+		ear.addCommand("start clock", clock.getName(), "startClock");
+		ear.addCommand("stop clock", clock.getName(), "stopClock");
+		ear.addCommand("set clock interval to five seconds", clock.getName(), "setInterval", 5000);
+		ear.addCommand("set clock interval to ten seconds", clock.getName(), "setInterval", 10000);
+		
+		ear.addComfirmations("yes","correct","right","yeah","ya");
+		ear.addNegations("no","incorrect","wrong","nope","nah");
+		
+		ear.startListening();
+		
+		//ear.startListening("camera on | camera off | arm left | arm right | hand left | hand right ");
+		//ear.startListening("yes | no");
 		
 		//Sphinx ear = new Sphinx("ear");
 		// ear.createGrammar("hello | up | down | yes | no");

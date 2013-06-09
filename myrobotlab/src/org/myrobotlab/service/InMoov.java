@@ -45,6 +45,7 @@ public class InMoov extends Service {
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 	}
+	
 
 	public void startService() {
 		super.startService();
@@ -52,6 +53,7 @@ public class InMoov extends Service {
 		// desire to start these services ....
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
+		ear.attach(mouth);
 		// eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		python = (Python) Runtime.createAndStart("python", "Python");
 	}
@@ -75,13 +77,11 @@ public class InMoov extends Service {
 		eye.setCameraIndex(index);
 	}
 
-	public void trackPoint(float x, float y) {
-		// FIXME - do this !! its re-entrant tracking =
-		// Runtime.createAndStart(name, type)
+	public void track() {
 		if (tracking == null) {
 			error("attach head before tracking");
 		} else {
-			tracking.trackPoint(x, y);
+			tracking.trackPoint(0.5f, 0.5f);
 		}
 	}
 
@@ -427,6 +427,7 @@ public class InMoov extends Service {
 		return "the InMoov Service";
 	}
 
+	/*
 	public void startListening(String grammar) {
 		ear.attach(mouth);
 		ear.addListener("recognized", "python", "heard", String.class);
@@ -434,7 +435,8 @@ public class InMoov extends Service {
 		ear.startListening();
 
 	}
-
+	*/
+	/*
 	public void lockOutAllGrammarExcept(String keyPhrase) {
 		if (ear == null) {
 			warn("ear not attached");
@@ -442,14 +444,19 @@ public class InMoov extends Service {
 		}
 		ear.lockOutAllGrammarExcept(keyPhrase);
 	}
+	*/
 
+	/*
 	public void clearGrammarLock() {
 		ear.clearLock();
 	}
+	*/
 
+	/*
 	public void stopListening() {
 		ear.stopListening();
 	}
+	*/
 
 	public void allowHeadMovementFromScript() {
 		head.allowMove = true;
@@ -568,6 +575,12 @@ public class InMoov extends Service {
 		moveHand("left", 61, 49, 14, 38, 15, 64);
 		moveHand("right", 0, 24, 54, 50, 82, 180);
 	}
+	
+	public Sphinx getEar()
+	{
+		return ear;
+	}
+
 
 	// gestures end --------------
 	public static void main(String[] args) {

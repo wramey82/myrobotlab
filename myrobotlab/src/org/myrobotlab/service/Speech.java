@@ -378,6 +378,17 @@ public class Speech extends Service {
 		return null;
 
 	}
+	
+	/**
+	 * request confirmation of recognized text
+	 * this typically comes from a speech recognition service
+	 * and is a verbal query - asking if they heard the correct phrase
+	 * @param text
+	 */
+	public void requestConfirmation(String text)
+	{
+		speak(String.format("did you say. %s", text));
+	}
 
 	// codes - http://code.google.com/apis/language/translate/v2/using_rest.html
 	public static void main(String[] args) {
@@ -389,8 +400,9 @@ public class Speech extends Service {
 		// speech.setBackendType(BACKEND_TYPE_FREETTS);
 		//speech.setBackendType(BACKEND_TYPE_GOOGLE);
 		// speech.setLanguage("fr");
-		speech.speakBlocking("bork bork bork bork again");
-		speech.speak("this is a test can the new way work two");
+		speech.speakBlocking("bork bork bork bork again more ya");
+		speech.speakBlocking("bork bork bork bork again more more");
+		speech.speak("did you say start clock");
 		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about. I love to talk I love to talk");
 		speech.speak("goodby this is an attempt to generate inflection did it work");
 		speech.speak("blah there. this is a long and detailed message");
