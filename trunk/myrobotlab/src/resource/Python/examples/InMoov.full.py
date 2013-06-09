@@ -37,7 +37,7 @@ ear.addCommand("rest", inMoov.getName(), "rest")
 ear.addCommand("open hand", inMoov.getName(), "handOpen", "both")
 ear.addCommand("close hand", inMoov.getName(), "handClose", "both")
 ear.addCommand("camera on", inMoov.getName(), "cameraOn")
-ear.addCommand("off camera", inMoov.getName(), "cameraOff")
+# ear.addCommand("off camera", inMoov.getName(), "cameraOff") - needs fixing
 ear.addCommand("capture gesture", inMoov.getName(), "captureGesture")
 ear.addCommand("track", inMoov.getName(), "track")
 ear.addCommand("freeze track", inMoov.getName(), "clearTrackingPoints")
