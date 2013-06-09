@@ -29,7 +29,7 @@ ear.addCommand("capture gesture", inMoov.getName(), "captureGesture")
 ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
 ear.addCommand("voice control", ear.getName(), "clearLock")
 
-ear.addComfirmations("yes","correct","right","yeah","ya")
-ear.addNegations("no","incorrect","wrong","nope","nah")
+ear.addComfirmations("yes","correct","yeah","ya") 
+ear.addNegations("no","wrong","nope","nah")
 
 ear.startListening() 

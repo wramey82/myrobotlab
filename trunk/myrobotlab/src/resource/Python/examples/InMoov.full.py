@@ -53,7 +53,7 @@ ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice contro
 ear.addCommand("voice control", ear.getName(), "clearLock")
 ear.addCommand("stop listening", ear.getName(), "stopListening")
 
-ear.addComfirmations("yes","correct","right","yeah","ya")
-ear.addNegations("no","incorrect","wrong","nope","nah")
+ear.addComfirmations("yes","correct","yeah","ya") 
+ear.addNegations("no","wrong","nope","nah")
 
 ear.startListening()
