@@ -417,73 +417,10 @@ public class VideoProcessor implements Runnable, Serializable {
 		return null;
 	}
 
-	// FIXME
-	public OpenCVData getOpenCVData() {
-		OpenCVData data = null;
-		try {
-			blockingData.clear();
 
-			boolean oldPublishOpenCVData = publishOpenCVData;
-			publishOpenCVData = true;
-			useBlockingData = true;
-			data = (OpenCVData) blockingData.take(); // TODO - poll or timeout
-														// value parameter
-			publishOpenCVData = oldPublishOpenCVData;
-			useBlockingData = false;
-			return data;
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public OpenCVData getGoodFeatures() {
-		clearFilters();
-		// addFilter(FILTER_PYRAMID_DOWN, FILTER_PYRAMID_DOWN);
-		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
-		// setDisplayFilter(FILTER_GOOD_FEATURES_TO_TRACK);
-
-		OpenCVData d = getOpenCVData();
-		log.info("good features {}", d.keySet());
-		clearFilters();
-
-		return d;
-
-	}
-
-	// FIXME - TODO -
-	/*
-	 * public ArrayList<Point2Df> GoodFeaturesToTrack() { ArrayList<Point2Df>
-	 * goodfeatures = null; try { filters.clear(); opencvData.clear();
-	 * subscribe("publish", boundServiceName, "GoodFeaturesToTrack",
-	 * double[].class); while (!interrupted) { goodfeatures = opencvData.take();
-	 * unsubscribe("publish", boundServiceName, "GoodFeaturesToTrack",
-	 * double[].class); return goodfeatures; } } catch (InterruptedException e)
-	 * { e.printStackTrace(); }
-	 * 
-	 * return null; }
-	 */
 
 	public void record(String filename, IplImage frame) {
 		try {
-
-			/*
-			 * FIXME
-			 * 
-			 * FFmpegFrameRecorder recorder = new
-			 * FFmpegFrameRecorder("/sdcard/test.mp4",320,214); try {
-			 * recorder.setAudioCodec(AV_CODEC_ID_AAC);
-			 * recorder.setAudioBitrate(32000); recorder.setAudioChannels(2);
-			 * recorder.setVideoCodec(AV_CODEC_ID_MPEG4);
-			 * recorder.setFrameRate(10);
-			 * recorder.setPixelFormat(PIX_FMT_YUV420P);
-			 * recorder.setFormat("mp4"); recorder.start();
-			 * recorder.record(ByteBuffer.wrap(buffer)); recorder.stop();
-			 * Log.d("Recorder","Stopped"); recorder.release(); } catch
-			 * (Exception e){ e.printStackTrace(); }
-			 */
 
 			if (!outputFileStreams.containsKey(filename)) {
 				// FFmpegFrameRecorder recorder = new FFmpegFrameRecorder
