@@ -45,7 +45,11 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 
 	transient BufferedImage frameBuffer = null;
 	transient BackgroundSubtractorMOG2 mog;
-	
+		
+	public int history = 10;
+	public float threshold = 128f;
+	public boolean shadowDetection = false;
+
 	public void learn()
 	{
 		learningRate = -1;
@@ -58,6 +62,13 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 	
 	public OpenCVFilterDetector(String name)  {
 		super(name);
+	}
+	
+	public OpenCVFilterDetector(String name, int history, float threshold, boolean shadowDetection)  {
+		super(name);
+		this.history = history;
+		this.threshold = threshold;
+		this.shadowDetection = shadowDetection;
 	}
 	
 	@Override
@@ -78,7 +89,8 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 	@Override
 	public void imageChanged(IplImage image) {
 		foreground =  IplImage.create(image.width(), image.height(),IPL_DEPTH_8U, 1);
-		mog = new BackgroundSubtractorMOG2();
+		
+		mog = new BackgroundSubtractorMOG2(history, threshold, shadowDetection);
 	}
 
 }
