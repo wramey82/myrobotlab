@@ -41,6 +41,8 @@ package org.myrobotlab.service;
 
  */
 
+import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -128,9 +130,7 @@ public class OpenCV extends VideoSource {
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
 	
 	public SerializableImage lastDisplay;
-
-	// transient public HashMap<String, Object> storage = new HashMap<String,
-	// Object>();
+	public SerializableImage lastFace;
 
 	// P - N Learning TODO - remove - implement on "images"
 	public ArrayList<SerializableImage> positive = new ArrayList<SerializableImage>();
@@ -429,15 +429,34 @@ public class OpenCV extends VideoSource {
 	}
 	
 	// blocking method
-	public OpenCVData getOpenCVData()
-	{
-		return videoProcessor.getOpenCVData();
+	public OpenCVData getOpenCVData() {
+		OpenCVData data = null;
+		try {
+			videoProcessor.blockingData.clear();
+
+			boolean oldPublishOpenCVData = videoProcessor.publishOpenCVData;
+			videoProcessor.publishOpenCVData = true;
+			videoProcessor.useBlockingData = true;
+			data = (OpenCVData) videoProcessor.blockingData.take(); // TODO - poll or timeout
+														// value parameter
+			videoProcessor.publishOpenCVData = oldPublishOpenCVData;
+			videoProcessor.useBlockingData = false;
+			return data;
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
-	
-	public OpenCVData getGoodFeatures()
-	{
-		return videoProcessor.getGoodFeatures();
+
+	public OpenCVData getGoodFeatures() {
+		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
+		OpenCVData d = getOpenCVData();
+		removeFilter(FILTER_GOOD_FEATURES_TO_TRACK);
+		return d;
 	}
+
 
 	public static Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
 
@@ -511,6 +530,11 @@ public class OpenCV extends VideoSource {
 	public SerializableImage getDisplay()
 	{
 		return lastDisplay;
+	}
+	
+	public SerializableImage getFace()
+	{
+		return lastFace;
 	}
 
 
