@@ -21,22 +21,22 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-
 public class Twitter extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(Twitter.class.getCanonicalName());
-	
+	public final static Logger log = LoggerFactory.getLogger(Twitter.class
+			.getCanonicalName());
+
 	private String consumerKey;
 	private String consumerSecret;
 	private String accessToken;
 	private String accessTokenSecret;
-	
+
 	twitter4j.Twitter twitter = null;
-	
+
 	public Twitter(String n) {
-		super(n, Twitter.class.getCanonicalName());	
+		super(n, Twitter.class.getCanonicalName());
 	}
 
 	@Override
@@ -44,71 +44,73 @@ public class Twitter extends Service {
 		return "used as a general template";
 	}
 
-	@Override 
-	public void stopService()
-	{
+	@Override
+	public void stopService() {
 		super.stopService();
 	}
-	
+
 	@Override
-	public void releaseService()
-	{
+	public void releaseService() {
 		super.releaseService();
 	}
-	
-	public void tweet(String msg)
-	{
-	    try {
+
+	public void tweet(String msg) {
+		try {
 			Status status = twitter.updateStatus(msg);
 		} catch (TwitterException e) {
 			Logging.logException(e);
 		}
 	}
-	
-	
-	public void setSecurity(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret){
-		
+
+	public void setSecurity(String consumerKey, String consumerSecret,
+			String accessToken, String accessTokenSecret) {
+
 		this.consumerKey = consumerKey;
 		this.consumerSecret = consumerSecret;
 		this.accessToken = accessToken;
 		this.accessTokenSecret = accessTokenSecret;
-		
+
 	}
-	
-	public void uploadImage(SerializableImage image,String message){
-		try{
-	        StatusUpdate status = new StatusUpdate(message);
-	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    	ImageIO.write( image.getImage(), "png", baos );
-	    	baos.flush();
-	    	byte[] buffer= baos.toByteArray();
-	        status.media("image", new ByteArrayInputStream(buffer) );
-	        twitter.updateStatus(status);}
-	    catch(Exception e){
-	    	Logging.logException(e);
-	    } 
+
+	public void uploadImage(final SerializableImage image, final String message) {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					StatusUpdate status = new StatusUpdate(message);
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ImageIO.write(image.getImage(), "png", baos);
+					baos.flush();
+					byte[] buffer = baos.toByteArray();
+					status.media("image", new ByteArrayInputStream(buffer));
+					twitter.updateStatus(status);
+				} catch (Exception e) {
+					Logging.logException(e);
+				}
+			}
+		}).start();
 	}
-	
-	public void uploadPic(String filePath, String message) {
-	    try{
-	    	File file = new File(filePath);
-	        StatusUpdate status = new StatusUpdate(message);
-	        status.setMedia(file);
-	        twitter.updateStatus(status);}
-	    catch(TwitterException e){
-	    	Logging.logException(e);
-	    }
+
+	public void uploadPic(final String filePath, final String message) {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					File file = new File(filePath);
+					StatusUpdate status = new StatusUpdate(message);
+					status.setMedia(file);
+					twitter.updateStatus(status);
+				} catch (TwitterException e) {
+					Logging.logException(e);
+				}
+			}
+		}).start();
 	}
-	
-	
-	public void configure()
-	{
+
+	public void configure() {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled(true)
-		  .setOAuthConsumerKey(consumerKey)
-		  .setOAuthConsumerSecret(consumerSecret)
-		  .setOAuthAccessToken(accessToken)
-		  .setOAuthAccessTokenSecret(accessTokenSecret);
+		cb.setDebugEnabled(true).setOAuthConsumerKey(consumerKey)
+				.setOAuthConsumerSecret(consumerSecret)
+				.setOAuthAccessToken(accessToken)
+				.setOAuthAccessTokenSecret(accessTokenSecret);
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
 	}
@@ -116,29 +118,32 @@ public class Twitter extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
-		
 
 		Twitter twitter = new Twitter("twitter");
 		twitter.startService();
-		twitter.setSecurity("vZtRSFRmasWzC5mDCb3A","YwbOUcTwRw9a2DS4EfrqGtFpanVKhVEKfYDtPfY", "C9vxhVHqCAyhMeXb8rQoFb5GDXnkslE0J5urQDha", "FQ0oZakPzjhx0ikYgIR3bbqnrzBaj7Qap8ofz1XxCs");
+		twitter.setSecurity("vZtRSFRmasWzC5mDCb3A",
+				"YwbOUcTwRw9a2DS4EfrqGtFpanVKhVEKfYDtPfY",
+				"C9vxhVHqCAyhMeXb8rQoFb5GDXnkslE0J5urQDha",
+				"FQ0oZakPzjhx0ikYgIR3bbqnrzBaj7Qap8ofz1XxCs");
 		twitter.configure();
 		twitter.tweet("Ciao from MyRobotLab");
-//		twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg" , "here is the pic");
-		
+		// twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg"
+		// , "here is the pic");
+
 		OpenCV opencv = new OpenCV("opencv");
 		opencv.startService();
 		opencv.capture();
 		Service.sleep(4000);// wait for an image
 		SerializableImage img = opencv.getDisplay();
 		twitter.uploadImage(img, "ME TOO!");
-		//twitter.subscribe("publishDisplay", opencv.getName(), "uploadImage", SerializableImage.class);
-		
+		// twitter.subscribe("publishDisplay", opencv.getName(), "uploadImage",
+		// SerializableImage.class);
+
 		Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
 	}
-
 
 }
