@@ -456,6 +456,13 @@ public class OpenCV extends VideoSource {
 		removeFilter(FILTER_GOOD_FEATURES_TO_TRACK);
 		return d;
 	}
+	
+	public OpenCVData getFaceDetect() {
+		addFilter(FILTER_FACE_DETECT, FILTER_FACE_DETECT);
+		OpenCVData d = getOpenCVData();
+		removeFilter(FILTER_FACE_DETECT);
+		return d;
+	}
 
 
 	public static Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
