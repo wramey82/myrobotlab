@@ -130,7 +130,6 @@ public class OpenCV extends VideoSource {
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
 	
 	public SerializableImage lastDisplay;
-	public SerializableImage lastFace;
 
 	// P - N Learning TODO - remove - implement on "images"
 	public ArrayList<SerializableImage> positive = new ArrayList<SerializableImage>();
@@ -538,11 +537,6 @@ public class OpenCV extends VideoSource {
 	{
 		return lastDisplay;
 	}
-	
-	public SerializableImage getFace()
-	{
-		return lastFace;
-	}
 
 
 	public static void main(String[] args) {
@@ -554,7 +548,20 @@ public class OpenCV extends VideoSource {
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+		
+		Integer a = 1;
+		Integer b = 2;
+		Integer c = 3;
+		
+		HashMap<Integer, Integer> t = new HashMap<Integer, Integer>();
+		t.put(1, a);
+		t.put(2, a);
+		t.put(3, a);
+		log.info("{}", t.get(1));
+		log.info("{}", t.get(2));
+		log.info("{}", t.get(3));
+
 		
 		OpenCV test = (OpenCV) Runtime.createAndStart("test", "OpenCV");
 		test.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
@@ -570,7 +577,7 @@ public class OpenCV extends VideoSource {
 		test.addFilter(new OpenCVFilterFindContours("findContours"));
 		*/
 		
-		test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
+	//	test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
 		test.capture();
 		
 		Service.sleep(4000);
@@ -581,7 +588,10 @@ public class OpenCV extends VideoSource {
 		gui2.startService();
 		gui2.display();
 
-
+		OpenCVData data = test.getFaceDetect();
+		SerializableImage si = data.getImage();
+		
+		log.info(data.toString());
 		
 		OpenCV trackingCamera = (OpenCV) Runtime.createAndStart("trackingCamera", "OpenCV");
 		OpenCV detector = (OpenCV) Runtime.createAndStart("detector", "OpenCV");
