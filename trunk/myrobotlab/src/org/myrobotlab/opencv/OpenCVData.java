@@ -136,9 +136,16 @@ public class OpenCVData implements Serializable {
 		return (ArrayList<Point2Df>)data.get(String.format("%s.points", filtername));
 	}
 	
+	public void setFilter(OpenCVFilter filter) {
+		this.filtername = filter.name;
+		data.put(String.format("%s.class", filtername), filter.getClass().getSimpleName());
+	}
+	
+	
 	public void setFilterName(String name) {
 		this.filtername = name;
 	}
+	
 
 	public void set(ArrayList<Point2Df> pointsToPublish) {
 		data.put(String.format("%s.points", filtername), pointsToPublish);
