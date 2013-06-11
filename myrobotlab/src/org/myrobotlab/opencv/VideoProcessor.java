@@ -28,6 +28,7 @@ import com.googlecode.javacv.FrameRecorder;
 import com.googlecode.javacv.OpenCVFrameRecorder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.ziclix.python.sql.handler.MySQLDataHandler;
 
 @Root
 public class VideoProcessor implements Runnable, Serializable {
@@ -217,7 +218,7 @@ public class VideoProcessor implements Runnable, Serializable {
 					while (capturing && itr.hasNext()) {
 
 						OpenCVFilter filter = itr.next();
-						data.setFilterName(filter.name);
+						data.setFilter(filter);
 
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
@@ -244,7 +245,8 @@ public class VideoProcessor implements Runnable, Serializable {
 							// IplImage copy = image.clone();
 							SerializableImage out = new SerializableImage(image.getBufferedImage(), filter.name);
 
-							data.put(filter.name, out);
+							// put image ?
+							data.put(String.format("%s.%s", opencv.getName(),filter.name), out);
 						}
 
 						// if selected || use has chosen to publish multiple
@@ -406,6 +408,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		try {
 			String filename = String.format("%s.%d.jpg", boundServiceName, frameIndex);
 			Util.writeBufferedImage(frame, filename);
+			
 			// FIXME - MESSY - WHAT IF THIS IS ATTEMPTED TO PROCESS THROUGH
 			// FILTERS !!!
 			blockingData.put(filename);
