@@ -22,6 +22,7 @@ import edu.rice.cs.dynamicjava.interpreter.InterpreterException;
 import edu.rice.cs.plt.io.IOUtil;
 import edu.rice.cs.plt.reflect.PathClassLoader;
 import edu.rice.cs.plt.text.ArgumentParser;
+import edu.rice.cs.plt.tuple.Option;
 
 /**
  * @author GroG / raver1975
@@ -137,9 +138,11 @@ public class Java extends Service {
 					"import org.myrobotlab.service.%s;\n", sw.getSimpleName()));
 
 			// get a handle on running service
-			initScript.append(String.format(
-					"%s =(%s) org.myrobotlab.service.Runtime.getServiceWrapper(\"%s\").service;\n",
-					serviceName,sw.getSimpleName(), serviceName));
+			initScript
+					.append(String
+							.format("%s =(%s) org.myrobotlab.service.Runtime.getServiceWrapper(\"%s\").service;\n",
+									serviceName, sw.getSimpleName(),
+									serviceName));
 		}
 
 		initialServiceScript = initScript.toString();
@@ -167,7 +170,7 @@ public class Java extends Service {
 
 		registerScript += String
 				.format("%s = (%s)org.myrobotlab.service.Runtime.getServiceWrapper(\"%s\").service;\n",
-						s.getName(),s.getSimpleName(),s.getName());
+						s.getName(), s.getSimpleName(), s.getName());
 		exec(registerScript, false);
 	}
 
@@ -203,23 +206,7 @@ public class Java extends Service {
 		Iterable<File> cp = IOUtil.parsePath(parsedArgs
 				.getUnaryOption("classpath"));
 
-		Options o=new Options(){
-			@Override
-			public boolean requireVariableType(){
-				return false;
-			}
-			@Override
-			public boolean enforceAllAccess(){
-				return true;
-			}
-			@Override
-			public boolean prohibitUncheckedCasts(){
-				return false;
-			}
-
-			
-		};
-		interp = new Interpreter(o, new PathClassLoader(cp));
+		interp = new Interpreter(new MyOptions(), new PathClassLoader(cp));
 
 		// add self reference
 		// Java scripts can refer to this service as 'java' regardless
@@ -470,6 +457,18 @@ public class Java extends Service {
 		}
 	}
 
+	public Object interpret(String string){
+		log.info("Interpreting: "+string);
+		try{
+			Option o=interp.interpret(string);
+			return o.unwrap(null);
+		}
+		catch (InterpreterException e){
+			e.printStackTrace();
+			return e;
+		}
+	}
+	
 	public String appendScript(String data) {
 		currentScript.setCode(String.format("%s\n%s", currentScript.getCode(),
 				data));
@@ -488,4 +487,35 @@ public class Java extends Service {
 
 	}
 
+	class MyOptions extends Options {
+		@Override
+		public boolean requireVariableType() {
+			return false;
+		}
+
+		@Override
+		public boolean enforceAllAccess() {
+			return false;
+		}
+
+		@Override
+		public boolean enforcePrivateAccess() {
+			return false;
+		}
+
+		@Override
+		public boolean prohibitUncheckedCasts() {
+			return false;
+		}
+
+		@Override
+		public boolean prohibitBoxing() {
+			return false;
+		}
+
+		@Override
+		public boolean requireSemicolon() {
+			return false;
+		}
+	}
 }
