@@ -7,6 +7,7 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.slf4j.Logger;
 
 public class FindHuman extends Service {
@@ -70,7 +71,7 @@ public class FindHuman extends Service {
 		xpid.invert();
 
 		// twitter ==============================================
-		twitter.setSecurity("Consumer key","Consumer secret","Access Token","AcessTokenSecret");
+		twitter.setSecurity("","","","");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is awesome")
 
@@ -82,7 +83,8 @@ public class FindHuman extends Service {
 		opencv.addFilter("Gray", "Gray");
 		// opencv.addFilter("PyramidUp", "PyramidUp")
 		// opencv.addFilter("PyramidDown1", "PyramidDown");
-		opencv.addFilter("FaceDetect1", "FaceDetect");
+//		opencv.addFilter("FaceDetect", "FaceDetect");
+		opencv.addFilter("lk", "LKOpticalTrack");
 
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
 				OpenCVData.class);
@@ -112,19 +114,27 @@ public class FindHuman extends Service {
 		// sleep(4000);
 		// java.interpret("import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;");
 		// java.interpret("System.out.println(\"here\");capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 320);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 240);");
-
 	}
 
 	public void input(OpenCVData opencvData) {
-		dx = dx + Math.random() * 2d - 1d;
-		dy = dy + Math.random() * 2d - 1d;
+		dx += Math.random() * 2d - 1d;
+		dy += Math.random() * 2d - 1d;
+
 		if (dx < 10 || dx > 170 || dy < 10 || dy > 170) {
 			dx = 90d;
 			dy = 90d;
 		}
-		if (opencvData.getBoundingBoxArray() != null
-				&& opencvData.getBoundingBoxArray().size() > 0) {
-			Rectangle rect = opencvData.getBoundingBoxArray().get(0);
+		if ((opencvData.getImage().getSource().equals("lk")&&opencvData.getPoints()!=null &&opencvData.getPoints().size()>0)
+				|| (opencvData.getBoundingBoxArray() != null && opencvData
+						.getBoundingBoxArray().size() > 0)) {
+			if (opencvData.getImage().getSource().equals("lk")) {
+				x=(int) (opencvData.getPoints().get(0).x*160f);
+				y=(int) (opencvData.getPoints().get(0).y*120f);
+			}else{
+				Rectangle rect = opencvData.getBoundingBoxArray().get(0);
+				x = (rect.x + (rect.width / 2));
+				y = (rect.y + (rect.height / 2));
+			}
 			if (frameSkipHuman == 0) {
 				for (int i = 0; i < 6; i++) {
 					dist -= distdir;
@@ -154,29 +164,36 @@ public class FindHuman extends Service {
 					arduino.digitalWrite(9, 1);
 					arduino.digitalWrite(5, 0);
 					opencv.setDisplayFilter("input");
-					twitter.uploadImage(opencv.getDisplay(),"Human Detected!");
+					//twitter.uploadImage(opencv.getDisplay(), "Human Detected!");
+					opencv.removeFilter("FaceDetect");
+					OpenCVFilterLKOpticalTrack jj = new OpenCVFilterLKOpticalTrack(
+							"lk");
+					opencv.addFilter(jj);
+					jj.samplePoint(x, y);
+					System.out.println("LK-TRACKING");
+
 				}
-				if (frameSkipHuman<30 || frameSkipHuman>41){
-				x = (rect.x + (rect.width / 2));
-				y = (rect.y + (rect.height / 2));
-				xpid.setInput(x);
-				xpid.compute();
-				actservox += xpid.getOutput();
-				ypid.setInput(y);
-				ypid.compute();
-				actservoy += ypid.getOutput();
-				pan.moveTo(actservox);
-				tilt.moveTo(actservoy);
+				if (frameSkipHuman < 30 || frameSkipHuman > 39) {
+					xpid.setInput(x);
+					xpid.compute();
+					actservox += xpid.getOutput();
+					ypid.setInput(y);
+					ypid.compute();
+					actservoy += ypid.getOutput();
+					pan.moveTo(actservox);
+					tilt.moveTo(actservoy);
 				}
 			}
 		} else {
-
 			frameSkip += 1;
 			if (frameSkip > 10) {
 				{
 					frameSkipHuman = 0;
 					if (!spokeSearch) {
 						speech.speak("searching");
+						opencv.removeFilter("lk");
+						opencv.addFilter("FaceDetect", "FaceDetect");
+						System.out.println("FACE DETECT");
 						spokeSearch = true;
 					}
 				}
