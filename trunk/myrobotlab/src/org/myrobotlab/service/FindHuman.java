@@ -9,11 +9,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
 import org.slf4j.Logger;
 
-import com.googlecode.javacv.CanvasFrame;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_highgui;
-import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-
 public class FindHuman extends Service {
 
 	private static final long serialVersionUID = 1L;
@@ -27,8 +22,11 @@ public class FindHuman extends Service {
 	private OpenCV opencv;
 	private PID xpid;
 	private PID ypid;
+	private Java java;
 	private int actservox = 90;
 	private int actservoy = 90;
+	private int width=160;
+	private int height=120;
 	private int frameSkip;
 	private int frameSkipHuman;
 	private boolean spokeSearch;
@@ -52,16 +50,14 @@ public class FindHuman extends Service {
 		opencv = (OpenCV) Runtime.create("opencv", "OpenCV");
 		xpid = (PID) Runtime.createAndStart("xpid", "PID");
 		ypid = (PID) Runtime.createAndStart("ypid", "PID");
-		// Runtime.createAndStart("runtime123", "Runtime");
-		Runtime.createAndStart("java", "Java");
-		// Runtime.createAndStart("python", "Python");
+		java = (Java) Runtime.createAndStart("java", "Java");
 
 		// xpid ==============================================
 		xpid.setMode(1);
 		xpid.setOutputRange(-1, 1);
 		xpid.setPID(7.0, 0.2, 0.5);
 		xpid.setControllerDirection(0);
-		xpid.setSetpoint(80);// #setpoint now is 80 instead of 160 because of 2
+		xpid.setSetpoint(width/2);// #setpoint now is 80 instead of 160 because of 2
 								// PD filters
 
 		// ypid ==============================================
@@ -69,15 +65,12 @@ public class FindHuman extends Service {
 		ypid.setOutputRange(-1, 1);
 		ypid.setPID(7.0, 0.2, 0.5);
 		ypid.setControllerDirection(0);
-		ypid.setSetpoint(60); // set point is now 60 instead of 120 because of 2
+		ypid.setSetpoint(height/2); // set point is now 60 instead of 120 because of 2
 								// PD filters
 		xpid.invert();
 
 		// twitter ==============================================
-		twitter.setSecurity("AvSk8qD3vbOUjFID9JS8HQ",
-				"BqWc8wiIIzexyYK6I5uBTEsMiJ8qNLt7bPkjaozto",
-				"23911266-1OKF25SD1johsa8IXmptY47req2mnPd0aKhvAQ5Z4",
-				"AvZHB1SS4pRXjrrv15fG7THU37GbD5PIQt7ztpRPU");
+		twitter.setSecurity("","","","");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is awesome")
 
@@ -89,22 +82,13 @@ public class FindHuman extends Service {
 		opencv.addFilter("Gray", "Gray");
 		// opencv.addFilter("PyramidUp", "PyramidUp")
 		// opencv.addFilter("PyramidDown1", "PyramidDown")
-		// opencv.addFilter("PyramidUp1", "PyramidUopencv_highgui.cvReleaseCapture(capture);p")
+		// opencv.addFilter("PyramidUp1",
+		// "PyramidUopencv_highgui.cvReleaseCapture(capture);p")
 		opencv.addFilter("FaceDetect1", "FaceDetect");
-		// opencv.getFrameGrabber().setImageMode(ImageMode.COLOR);
-		// opencv.getFrameGrabber().setImageWidth(640);
-		// opencv.getFrameGrabber().setImageWidth(480);
-		// aftersleep ==============================================
+
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
 				OpenCVData.class);
-		// opencv.setCameraIndex(1);
-		// CvCapture capture=opencv_highgui.cvCreateCameraCapture(1);
-		// opencv_highgui.cvSetCaptureProperty(capture,
-		// opencv_highgui.CV_CAP_PROP_FRAME_WIDTH,320);
-		// opencv_highgui.cvSetCaptureProperty(capture,
-		// opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT,240);
-		// opencv.getFrameGrabber().setImageWidth(640);
-		// opencv.getFrameGrabber().setImageWidth(480);
+		opencv.setCameraIndex(1);
 
 		// CvCapture capture = opencv_highgui.cvCreateCameraCapture(1);
 		// opencv_highgui.cvSetCaptureProperty(capture,
@@ -120,16 +104,16 @@ public class FindHuman extends Service {
 		// frame.dispose();
 		// opencv_highgui.cvReleaseCapture(capture);
 		opencv.capture();
+
 		arduino.attach(pan.getName(), 14);
 		arduino.attach(tilt.getName(), 15);
 		pan.moveTo(90);
 		tilt.moveTo(90);
-		// opencv.getFrameGrabber().setImageMode(ImageMode.COLOR);
-		// opencv.getFrameGrabber().setImageWidth(640);
-		// opencv.getFrameGrabber().setImageWidth(480);
-		// opencv.stopCapture();
-		// opencv.capture();
-		;
+
+		// extra stuff to get 640x480
+		sleep(4000);
+		 java.interpret("import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;");
+		 java.interpret("System.out.println(\"here\");capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, "+width+");opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, "+height+");");
 
 	}
 
@@ -190,26 +174,6 @@ public class FindHuman extends Service {
 						spokeSearch = true;
 					}
 				}
-				// actservox += dirx;GUIService
-				// if (actservox < 11 || actservox > 169) {
-				// dirx = -dirx;
-				//import com.googlecode.javacv.cpp.opencv_highgui;
-				//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-				//capture=(opencv_highgui.cvCapture)((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture");
-				//opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-				//opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
-				// while (actservox < 11 || actservox > 169)
-				// actservox += dirx;
-				// actservoy += diry;
-				// if (actservoy < 81 || actservoy > 159) {
-				// diry = -diry;
-				// actservoy += diry;
-				// actservoy += diry;
-				// while (actservoy < 81 || actservoy > 159)
-				// actservoy += diry;
-				// }
-				//
-				// }
 				actservox = (int) (90d + Math.sin(rad) * dist);
 				actservoy = (int) (90d + Math.cos(rad) * dist);
 				raddir = ((1.0d - (Math.abs(dist) / 90d)) / speed)
@@ -251,57 +215,12 @@ public class FindHuman extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
-
 		FindHuman findhuman = new FindHuman("findhuman");
 		findhuman.startService();
 		Runtime.createAndStart("runtime", "Runtime");
 		Runtime.createAndStart("gui", "GUIService");
-
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
 	}
 }
-//import com.googlecode.javacv.OpenCVFrameGrabber;
-//import com.googlecode.javacv.cpp.opencv_highgui;
-//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-//capture=(opencv_highgui.cvCapture)((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture");
-//opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-//opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
+// import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import  com.googlecode.javacv.cpp.opencv_highgui.CvCapture; 
+// capture=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
 
-
-//import com.googlecode.javacv.OpenCVFrameGrabber;
-//import com.googlecode.javacv.cpp.opencv_highgui;
-//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-//capture1=(opencv_highgui.cvCapture)((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture");
-//opencv_highgui.cvReleaseCapture(capture);
-//capture = opencv_highgui.cvCreateCameraCapture(1);
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
-
-//import com.googlecode.javacv.OpenCVFrameGrabber;
-//import com.googlecode.javacv.cpp.opencv_highgui;
-//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-//capture=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));
-//System.out.println(capture.getClass());
-
-//import com.googlecode.javacv.OpenCVFrameGrabber;
-//import com.googlecode.javacv.cpp.opencv_highgui;
-//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-//capture1=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));
-//System.out.println(capture1.getClass());
-//opencv_highgui.cvReleaseCapture(capture);
-//capture = opencv_highgui.cvCreateCameraCapture(1);
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
-
-
-
-//===================did it!
-//import com.googlecode.javacv.OpenCVFrameGrabber;
-//import com.googlecode.javacv.cpp.opencv_highgui;
-//import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-//capture1=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-//opencv_highgui.cvSetCaptureProperty(capture1, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
