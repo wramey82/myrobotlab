@@ -73,7 +73,7 @@ public class FindHuman extends Service {
 		xpid.invert();
 
 		// twitter ==============================================
-		twitter.setSecurity("", "", "", "");
+        twitter.setSecurity("","","","");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is Awesome!")
 
@@ -83,9 +83,9 @@ public class FindHuman extends Service {
 		// opencv ==============================================
 		opencv.startService();
 		opencv.addFilter("Gray", "Gray");
-		// opencv.addFilter("PyramidUp", "PyramidUp")
-		// opencv.addFilter("PyramidDown", "PyramidDown");
-		// opencv.addFilter("FaceDetect", "FaceDetect");
+		// add enough pyramid down filters to get 160x120 resolution
+		// opencv.addFilter("PyramidDown1", "PyramidDown");
+		// opencv.addFilter("PyramidDown2", "PyramidDown");
 		opencv.addFilter("lk", "LKOpticalTrack");
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
 				OpenCVData.class);
@@ -106,9 +106,9 @@ public class FindHuman extends Service {
 	}
 
 	// spaghetti code starts here, beware, danger lurks ahead!
-	//this method catches the opencvData published from the tracking filters
+	// this method catches the opencvData published from the tracking filters
 	public void input(OpenCVData opencvData) {
-		//move center around randomly a litle
+		// move center around randomly a litle
 		dx += Math.random() * 2d - 1d;
 		dy += Math.random() * 2d - 1d;
 		if (dx < 40 || dx > 140) {
@@ -123,15 +123,16 @@ public class FindHuman extends Service {
 				|| (opencvData.getBoundingBoxArray() != null && opencvData
 						.getBoundingBoxArray().size() > 0)) {
 			if (opencvData.getImage().getSource().equals("lk")) {
-				//lktracking
+				// do lktracking
 				x = (int) (opencvData.getPoints().get(0).x * 160f);
 				y = (int) (opencvData.getPoints().get(0).y * 120f);
 			} else {
-				//face detection
+				// or face detection
 				Rectangle rect = opencvData.getBoundingBoxArray().get(0);
 				x = (rect.x + (rect.width / 2));
 				y = (rect.y + (rect.height / 2));
 			}
+			//back up a little bit, if you think you glanced a face
 			if (frameSkipHuman == 0) {
 				for (int i = 0; i < 6; i++) {
 					dist -= distdir;
@@ -149,18 +150,18 @@ public class FindHuman extends Service {
 				if (frameSkipHuman == 5) {
 					speech.speak("hello");
 					spokeSearch = false;
-//					arduino.digitalWrite(10, 1);
-//					arduino.digitalWrite(9, 0);
-//					arduino.digitalWrite(5, 1);
+					// arduino.digitalWrite(10, 1);
+					// arduino.digitalWrite(9, 0);
+					// arduino.digitalWrite(5, 1);
 				}
 				frameSkip = 0;
 				frameSkipHuman += 1;
-				//found human, send Twitter image and switch to lkoptical
+				// found human, send Twitter image and switch to lkoptical
 				if (frameSkipHuman == 40) {
 					speech.speak("tweet");
-//					arduino.digitalWrite(10, 1);
-//					arduino.digitalWrite(9, 1);
-//					arduino.digitalWrite(5, 0);
+					// arduino.digitalWrite(10, 1);
+					// arduino.digitalWrite(9, 1);
+					// arduino.digitalWrite(5, 0);
 					opencv.setDisplayFilter("input");
 					// twitter
 					// ========================================================
@@ -173,8 +174,8 @@ public class FindHuman extends Service {
 					opencv.addFilter(jj);
 					jj.samplePoint(x, y);
 				}
-				
-				//move servos to keep tracking
+
+				// move servos to keep tracking
 				if (frameSkipHuman < 30 || frameSkipHuman > 39) {
 					xpid.setInput(x);
 					xpid.compute();
@@ -188,7 +189,8 @@ public class FindHuman extends Service {
 			}
 		} else {
 			frameSkip += 1;
-			//switch to searching if no tracking point is available...waits 10 frames first
+			// switch to searching if no tracking point is available...waits 10
+			// frames first
 			if (frameSkip > 10) {
 				{
 					frameSkipHuman = 0;
@@ -199,7 +201,7 @@ public class FindHuman extends Service {
 						spokeSearch = true;
 					}
 				}
-				//spiral search pattern below. uses the power of math
+				// spiral search pattern below. uses the power of math
 				actservox = (int) (dx + Math.sin(rad) * dist);
 				actservoy = (int) (dy + Math.cos(rad) * dist);
 				raddir = ((1.0d - (Math.abs(dist) / 90d)) / speed)
@@ -214,9 +216,9 @@ public class FindHuman extends Service {
 				}
 				pan.moveTo(actservox);
 				tilt.moveTo(actservoy);
-//				arduino.digitalWrite(10, 0);
-//				arduino.digitalWrite(9, 1);
-//				arduino.digitalWrite(5, 1);
+				// arduino.digitalWrite(10, 0);
+				// arduino.digitalWrite(9, 1);
+				// arduino.digitalWrite(5, 1);
 				x = actservox;
 				y = actservoy;
 			}
@@ -247,11 +249,3 @@ public class FindHuman extends Service {
 		Runtime.createAndStart("gui", "GUIService");
 	}
 }
-// import com.googlecode.javacv.OpenCVFrameGrabber;import
-// com.googlecode.javacv.cpp.opencv_highgui;import
-// com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
-// capture=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));opencv_highgui.cvSetCaptureProperty(capture,
-// opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT,
-// 640);opencv_highgui.cvSetCaptureProperty(capture,
-// opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
-
