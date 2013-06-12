@@ -25,13 +25,13 @@ public class FindHuman extends Service {
 	private Java java;
 	private int actservox = 90;
 	private int actservoy = 90;
-	private int width=160;
-	private int height=120;
 	private int frameSkip;
 	private int frameSkipHuman;
 	private boolean spokeSearch;
 	private int x;
 	private int y;
+	private double dx = 90d;
+	private double dy = 90d;
 	private double rad = 0;
 	private double dist = 2;
 	private double raddir = .2d;
@@ -57,7 +57,7 @@ public class FindHuman extends Service {
 		xpid.setOutputRange(-1, 1);
 		xpid.setPID(7.0, 0.2, 0.5);
 		xpid.setControllerDirection(0);
-		xpid.setSetpoint(width/2);// #setpoint now is 80 instead of 160 because of 2
+		xpid.setSetpoint(80);// #setpoint now is 80 instead of 160 because of 2
 								// PD filters
 
 		// ypid ==============================================
@@ -65,12 +65,15 @@ public class FindHuman extends Service {
 		ypid.setOutputRange(-1, 1);
 		ypid.setPID(7.0, 0.2, 0.5);
 		ypid.setControllerDirection(0);
-		ypid.setSetpoint(height/2); // set point is now 60 instead of 120 because of 2
+		ypid.setSetpoint(60); // set point is now 60 instead of 120 because of 2
 								// PD filters
 		xpid.invert();
 
 		// twitter ==============================================
-		twitter.setSecurity("","","","");
+		twitter.setSecurity("AvSk8qD3vbOUjFID9JS8HQ",
+				"BqWc8wiIIzexyYK6I5uBTEsMiJ8qNLt7bPkjaozto",
+				"23911266-1OKF25SD1johsa8IXmptY47req2mnPd0aKhvAQ5Z4",
+				"AvZHB1SS4pRXjrrv15fG7THU37GbD5PIQt7ztpRPU");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is awesome")
 
@@ -81,9 +84,7 @@ public class FindHuman extends Service {
 		opencv.startService();
 		opencv.addFilter("Gray", "Gray");
 		// opencv.addFilter("PyramidUp", "PyramidUp")
-		// opencv.addFilter("PyramidDown1", "PyramidDown")
-		// opencv.addFilter("PyramidUp1",
-		// "PyramidUopencv_highgui.cvReleaseCapture(capture);p")
+		// opencv.addFilter("PyramidDown1", "PyramidDown");
 		opencv.addFilter("FaceDetect1", "FaceDetect");
 
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
@@ -111,13 +112,19 @@ public class FindHuman extends Service {
 		tilt.moveTo(90);
 
 		// extra stuff to get 640x480
-		sleep(4000);
-		 java.interpret("import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;");
-		 java.interpret("System.out.println(\"here\");capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, "+width+");opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, "+height+");");
+		// sleep(4000);
+		// java.interpret("import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;");
+		// java.interpret("System.out.println(\"here\");capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 320);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 240);");
 
 	}
 
 	public void input(OpenCVData opencvData) {
+		dx = dx + Math.random() * 2d - 1d;
+		dy = dy + Math.random() * 2d - 1d;
+		if (dx < 10 || dx > 170 || dy < 10 || dy > 170) {
+			dx = 90d;
+			dy = 90d;
+		}
 		if (opencvData.getBoundingBoxArray() != null
 				&& opencvData.getBoundingBoxArray().size() > 0) {
 			Rectangle rect = opencvData.getBoundingBoxArray().get(0);
@@ -129,8 +136,8 @@ public class FindHuman extends Service {
 					rad -= raddir;
 				}
 				raddir = -raddir;
-				actservox = (int) (90d + Math.sin(rad) * dist);
-				actservoy = (int) (90d + Math.cos(rad) * dist);
+				actservox = (int) ((double) dx + Math.sin(rad) * dist);
+				actservoy = (int) ((double) dy + Math.cos(rad) * dist);
 				pan.moveTo(actservox);
 				tilt.moveTo(actservoy);
 				frameSkipHuman++;
@@ -142,16 +149,17 @@ public class FindHuman extends Service {
 					arduino.digitalWrite(9, 0);
 					arduino.digitalWrite(5, 1);
 				}
-				if (frameSkipHuman == 30) {
+				frameSkip = 0;
+				frameSkipHuman += 1;
+				if (frameSkipHuman == 40) {
 					speech.speak("tweet tweet");
 					arduino.digitalWrite(10, 1);
 					arduino.digitalWrite(9, 1);
 					arduino.digitalWrite(5, 0);
 					opencv.setDisplayFilter("input");
-					// twitter.uploadImage(opencv.getDisplay(),"Human Detected!");
+					twitter.uploadImage(opencv.getDisplay(),"Human Detected!");
 				}
-				frameSkip = 0;
-				frameSkipHuman += 1;
+				if (frameSkipHuman<30 || frameSkipHuman>41){
 				x = (rect.x + (rect.width / 2));
 				y = (rect.y + (rect.height / 2));
 				xpid.setInput(x);
@@ -162,6 +170,7 @@ public class FindHuman extends Service {
 				actservoy += ypid.getOutput();
 				pan.moveTo(actservox);
 				tilt.moveTo(actservoy);
+				}
 			}
 		} else {
 
@@ -174,8 +183,8 @@ public class FindHuman extends Service {
 						spokeSearch = true;
 					}
 				}
-				actservox = (int) (90d + Math.sin(rad) * dist);
-				actservoy = (int) (90d + Math.cos(rad) * dist);
+				actservox = (int) (dx + Math.sin(rad) * dist);
+				actservoy = (int) (dy + Math.cos(rad) * dist);
 				raddir = ((1.0d - (Math.abs(dist) / 90d)) / speed)
 						* (raddir / Math.abs(raddir));
 				rad += raddir;
@@ -221,6 +230,11 @@ public class FindHuman extends Service {
 		Runtime.createAndStart("gui", "GUIService");
 	}
 }
-// import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import  com.googlecode.javacv.cpp.opencv_highgui.CvCapture; 
-// capture=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
+// import com.googlecode.javacv.OpenCVFrameGrabber;import
+// com.googlecode.javacv.cpp.opencv_highgui;import
+// com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
+// capture=(CvCapture)(((Java)java).interpret("((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture"));opencv_highgui.cvSetCaptureProperty(capture,
+// opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT,
+// 640);opencv_highgui.cvSetCaptureProperty(capture,
+// opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
 
