@@ -15,15 +15,16 @@ public class FindHuman extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(FindHuman.class
 			.getCanonicalName());
-	private Arduino arduino;
-	private Speech speech;
-	private Servo pan;
-	private Servo tilt;
-	private Twitter twitter;
-	private OpenCV opencv;
-	private PID xpid;
-	private PID ypid;
-	private Java java;
+	public Arduino arduino;
+	public Speech speech;
+	public Servo pan;
+	public Servo tilt;
+	public Twitter twitter;
+	public OpenCV opencv;
+	public PID xpid;
+	public PID ypid;
+	public Java java;
+
 	private int actservox = 90;
 	private int actservoy = 90;
 	private int frameSkip;
@@ -43,6 +44,7 @@ public class FindHuman extends Service {
 		super(n, FindHuman.class.getCanonicalName());
 
 		// create services ==============================================
+		Runtime.createAndStart("runtime", "Runtime");
 		arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
 		speech = (Speech) Runtime.createAndStart("speech", "Speech");
 		pan = (Servo) Runtime.createAndStart("pan", "Servo");
@@ -71,9 +73,9 @@ public class FindHuman extends Service {
 		xpid.invert();
 
 		// twitter ==============================================
-		twitter.setSecurity("","","","");
+		twitter.setSecurity("", "", "", "");
 		twitter.configure();
-		// twitter.tweet("#myrobotlab is awesome")
+		// twitter.tweet("#myrobotlab is Awesome!")
 
 		// arduino ==============================================
 		arduino.setSerialDevice("/dev/ttyACM0", 57600, 8, 1, 0);
@@ -82,55 +84,50 @@ public class FindHuman extends Service {
 		opencv.startService();
 		opencv.addFilter("Gray", "Gray");
 		// opencv.addFilter("PyramidUp", "PyramidUp")
-		// opencv.addFilter("PyramidDown1", "PyramidDown");
-//		opencv.addFilter("FaceDetect", "FaceDetect");
+		// opencv.addFilter("PyramidDown", "PyramidDown");
+		// opencv.addFilter("FaceDetect", "FaceDetect");
 		opencv.addFilter("lk", "LKOpticalTrack");
-
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
 				OpenCVData.class);
 		opencv.setCameraIndex(1);
-
-		// CvCapture capture = opencv_highgui.cvCreateCameraCapture(1);
-		// opencv_highgui.cvSetCaptureProperty(capture,
-		// opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 640);
-		// opencv_highgui.cvSetCaptureProperty(capture,
-		// opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 480);
-		// IplImage grabbedImage = opencv_highgui.cvQueryFrame(capture);
-		// CanvasFrame frame = new CanvasFrame("Webcam");
-		// while (frame.isVisible() && (grabbedImage =
-		// opencv_highgui.cvQueryFrame(capture)) != null) {
-		// frame.showImage(grabbedImage);
-		// }
-		// frame.dispose();
-		// opencv_highgui.cvReleaseCapture(capture);
 		opencv.capture();
 
+		// now get the servos working ==========================================
 		arduino.attach(pan.getName(), 14);
 		arduino.attach(tilt.getName(), 15);
 		pan.moveTo(90);
 		tilt.moveTo(90);
 
-		// extra stuff to get 640x480
+		// extra stuff to get 640x480 camera resolution - awesome code grabs a
+		// reference to a private variable!
 		// sleep(4000);
 		// java.interpret("import com.googlecode.javacv.OpenCVFrameGrabber;import com.googlecode.javacv.cpp.opencv_highgui;import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;");
-		// java.interpret("System.out.println(\"here\");capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 320);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 240);");
+		// java.interpret("capture=(CvCapture)(((Java)java).interpret(\"((OpenCVFrameGrabber)((OpenCV)opencv).getFrameGrabber()).capture\"));opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 320);opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 240);");
 	}
 
+	// spaghetti code starts here, beware, danger lurks ahead!
+	//this method catches the opencvData published from the tracking filters
 	public void input(OpenCVData opencvData) {
+		//move center around randomly a litle
 		dx += Math.random() * 2d - 1d;
 		dy += Math.random() * 2d - 1d;
-
-		if (dx < 10 || dx > 170 || dy < 10 || dy > 170) {
+		if (dx < 40 || dx > 140) {
 			dx = 90d;
+		}
+		if (dy < 40 || dy > 140) {
 			dy = 90d;
 		}
-		if ((opencvData.getImage().getSource().equals("lk")&&opencvData.getPoints()!=null &&opencvData.getPoints().size()>0)
+		if ((opencvData.getImage().getSource().equals("lk")
+				&& opencvData.getPoints() != null && opencvData.getPoints()
+				.size() > 0)
 				|| (opencvData.getBoundingBoxArray() != null && opencvData
 						.getBoundingBoxArray().size() > 0)) {
 			if (opencvData.getImage().getSource().equals("lk")) {
-				x=(int) (opencvData.getPoints().get(0).x*160f);
-				y=(int) (opencvData.getPoints().get(0).y*120f);
-			}else{
+				//lktracking
+				x = (int) (opencvData.getPoints().get(0).x * 160f);
+				y = (int) (opencvData.getPoints().get(0).y * 120f);
+			} else {
+				//face detection
 				Rectangle rect = opencvData.getBoundingBoxArray().get(0);
 				x = (rect.x + (rect.width / 2));
 				y = (rect.y + (rect.height / 2));
@@ -152,27 +149,32 @@ public class FindHuman extends Service {
 				if (frameSkipHuman == 5) {
 					speech.speak("hello");
 					spokeSearch = false;
-					arduino.digitalWrite(10, 1);
-					arduino.digitalWrite(9, 0);
-					arduino.digitalWrite(5, 1);
+//					arduino.digitalWrite(10, 1);
+//					arduino.digitalWrite(9, 0);
+//					arduino.digitalWrite(5, 1);
 				}
 				frameSkip = 0;
 				frameSkipHuman += 1;
+				//found human, send Twitter image and switch to lkoptical
 				if (frameSkipHuman == 40) {
-					speech.speak("tweet tweet");
-					arduino.digitalWrite(10, 1);
-					arduino.digitalWrite(9, 1);
-					arduino.digitalWrite(5, 0);
+					speech.speak("tweet");
+//					arduino.digitalWrite(10, 1);
+//					arduino.digitalWrite(9, 1);
+//					arduino.digitalWrite(5, 0);
 					opencv.setDisplayFilter("input");
-					//twitter.uploadImage(opencv.getDisplay(), "Human Detected!");
+					// twitter
+					// ========================================================
+					// twitter.uploadImage(opencv.getDisplay(),"Human Detected!");
+					// twitter
+					// ========================================================
 					opencv.removeFilter("FaceDetect");
 					OpenCVFilterLKOpticalTrack jj = new OpenCVFilterLKOpticalTrack(
 							"lk");
 					opencv.addFilter(jj);
 					jj.samplePoint(x, y);
-					System.out.println("LK-TRACKING");
-
 				}
+				
+				//move servos to keep tracking
 				if (frameSkipHuman < 30 || frameSkipHuman > 39) {
 					xpid.setInput(x);
 					xpid.compute();
@@ -186,17 +188,18 @@ public class FindHuman extends Service {
 			}
 		} else {
 			frameSkip += 1;
+			//switch to searching if no tracking point is available...waits 10 frames first
 			if (frameSkip > 10) {
 				{
 					frameSkipHuman = 0;
 					if (!spokeSearch) {
-						speech.speak("searching");
+						speech.speak("scan");
 						opencv.removeFilter("lk");
 						opencv.addFilter("FaceDetect", "FaceDetect");
-						System.out.println("FACE DETECT");
 						spokeSearch = true;
 					}
 				}
+				//spiral search pattern below. uses the power of math
 				actservox = (int) (dx + Math.sin(rad) * dist);
 				actservoy = (int) (dy + Math.cos(rad) * dist);
 				raddir = ((1.0d - (Math.abs(dist) / 90d)) / speed)
@@ -211,9 +214,9 @@ public class FindHuman extends Service {
 				}
 				pan.moveTo(actservox);
 				tilt.moveTo(actservoy);
-				arduino.digitalWrite(10, 0);
-				arduino.digitalWrite(9, 1);
-				arduino.digitalWrite(5, 1);
+//				arduino.digitalWrite(10, 0);
+//				arduino.digitalWrite(9, 1);
+//				arduino.digitalWrite(5, 1);
 				x = actservox;
 				y = actservoy;
 			}
