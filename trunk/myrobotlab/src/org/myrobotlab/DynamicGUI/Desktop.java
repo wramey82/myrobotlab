@@ -16,6 +16,9 @@ public class Desktop extends JFrame implements MouseListener,
 	private boolean drag = false;
 	private Component comp;
 	private JCheckBoxMenuItem cbmni = new JCheckBoxMenuItem("Lockdown", false);
+	private HashMap<Component,Container> componentMap=new HashMap<Component,Container>();
+	private int compx;
+	private int compy;
 
 	public Desktop() {
 		super("Desktop");
@@ -139,9 +142,11 @@ public class Desktop extends JFrame implements MouseListener,
 	public void transplant(Component con){
 		Rectangle b=con.getBounds();
 		Container par=con.getParent();
+		componentMap.put(con, par);
 		par.remove(con);
 		par.validate();
 		con.setBounds(b);
+		con.setLocation(0,0);
 		con.validate();
 		con.repaint();
 		this.getContentPane().add(con);
@@ -268,8 +273,8 @@ public class Desktop extends JFrame implements MouseListener,
 
 	public void mouseDragged(MouseEvent e) {
 		if (drag && !cbmni.getState()) {
-			x2 = x1/2 - e.getX();
-			y2 = y1/2 - e.getY();
+			x2 = e.getX()-x1/2 ;
+			y2 = e.getY()-y1 /2 ;
 			if(x2==0&&y2==0)return;
 			Rectangle ptemp = comp.getBounds();
 			ptemp.translate(x2, y2);
@@ -277,19 +282,17 @@ public class Desktop extends JFrame implements MouseListener,
 			if (e.isMetaDown()) {
 				if (ptemp.width - x2 > 20 && ptemp.height - y2 > 20) {
 					comp.setBounds((int) ptemp.x - x2,
-							(int) ptemp.y - y2, (int) ptemp.width - x2,
-							(int) ptemp.height - y2);
+							(int) ptemp.y - y2, (int) ptemp.width + x2,
+							(int) ptemp.height + y2);
 					comp.validate();
 					x1 = e.getX()*2;
 					y1 = e.getY()*2;
 				}
 
 			} else {
-		         comp.setLocation((int)(comp.getLocation().x-x2),(int)(comp.getLocation().y-y2));	   
-//		         x1=comp.getLocation().x+e.getX();
-//		         y1=comp.getLocation().y+e.getY();	
-		         x1=e.getX()*2-x2;
-		         y1=e.getY()*2-y2;
+				comp.setLocation((int)(comp.getLocation().x+x2),(int)(comp.getLocation().y+y2));	
+		         x1=e.getX()*2+x2;
+		         y1=e.getY()*2+y2;
 			}
 
 		}
@@ -305,6 +308,8 @@ public class Desktop extends JFrame implements MouseListener,
 	public void mousePressed(MouseEvent e) {
 		x1 = e.getX()*2;
 		y1 =e.getY()*2;
+		compx=comp.getX();
+		compy=comp.getY();
 		drag = true;
 		if (!e.isMetaDown() && e.getClickCount() > 1) {
 			doubleclick(comp);
@@ -408,6 +413,12 @@ public class Desktop extends JFrame implements MouseListener,
 			if (e.getActionCommand().equals("Delete")) {
 				mouserem(comp);
 			}
+			
+			if (e.getActionCommand().equals("Change Back")) {
+				untransplant(comp);
+			}
+
+			
 			if (e.getActionCommand().equals("Transplant")) {
 				transplant(comp);
 			}
@@ -431,6 +442,21 @@ public class Desktop extends JFrame implements MouseListener,
 	// public void doScript(String scr){
 	// new Commands(main,"script "+scr);
 	// }
+
+	private void untransplant(Component con) {
+		Container newpar=componentMap.get(con);
+		if(newpar==null)return;
+		this.getContentPane().remove(con);
+		newpar.add(con);
+		con.validate();
+		con.repaint();
+		this.getContentPane().validate();
+		this.getContentPane().repaint();
+		newpar.validate();
+		newpar.repaint();
+		newpar.getParent().validate();
+		newpar.getParent().repaint();
+	}
 
 	public void doubleclick(Object o) {
 		// if (o instanceof DesktopButton){
