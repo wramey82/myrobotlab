@@ -27,25 +27,23 @@ package org.myrobotlab.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
@@ -78,13 +76,15 @@ public class Speech extends Service {
 	 * allowing every speech thread to complete in the same time. (very Cybil)
 	 * The back-end are just types of speech engines (ATT, FREETTS)
 	 * 
-	 * References :
-	 * 		Excellent reference - http://www.codeproject.com/Articles/435434/Text-to-Speech-tts-for-the-Web
-	 * 		http://www.text2speech.org/ - another possible back-end
+	 * References : Excellent reference -
+	 * http://www.codeproject.com/Articles/435434/Text-to-Speech-tts-for-the-Web
+	 * http://www.text2speech.org/ - another possible back-end
 	 */
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Speech.class.getCanonicalName());
+	String language = "en";
+	private String googleURI = "http://translate.google.com/translate_tts?tl=%s&q=";
 
 	// TODO - seperate all of the var into appropriate parts - ie Global ATT
 	// Google FreeTTS
@@ -233,22 +233,22 @@ public class Speech extends Service {
 		return true;
 
 	}
-	
-	public boolean speakBlocking(String toSpeak)
-	{
-		if (toSpeak == null) return false;
+
+	public boolean speakBlocking(String toSpeak) {
+		if (toSpeak == null)
+			return false;
 		if (backendType == BackendType.FREETTS) { // festival tts
 			speakFreeTTS(toSpeak);
 		} else if (backendType == BackendType.GOOGLE) { // festival tts
-			speakGoogle(toSpeak.replace("?","")); // needed ? is not a valid in a filename - TODO - look up all characters
+			speakGoogle(toSpeak.replace("?", "")); // needed ? is not a valid in
+													// a filename - TODO - look
+													// up all characters
 		} else {
 			log.error("back-end speech backendType " + backendType + " not supported ");
 			return false;
 		}
 		return true;
 	}
-
-
 
 	public void speakFreeTTS(String toSpeak) {
 		if (myVoice == null) {
@@ -297,8 +297,41 @@ public class Speech extends Service {
 		language = l;
 	}
 
-	// String language = "eng-us";
-	String language = "en";
+	public void setGoogleURI(String uri) {
+		googleURI = uri;
+	}
+
+	public String googleProxyHost = null;
+	public int googleProxyPort = 8080;
+	
+	public void setGenderFemale() {
+		voiceName = "audrey";
+		googleProxyHost = null;
+	}
+
+	public void setGenderMale() {
+		voiceName = "jarvis";
+		
+		googleProxyHost = "94.23.0.183";
+		googleProxyPort = 80;
+
+		googleProxyHost = "91.236.255.195";
+		googleProxyPort = 3128;
+
+		googleProxyHost = "94.23.29.189";
+		googleProxyPort = 8080;
+		
+		googleProxyHost = "91.121.11.120";
+		googleProxyPort = 8080;
+		
+	}
+	
+	public void setGoogleProxy(String voiceName, String host, int port)
+	{
+		this.voiceName = voiceName;
+		this.googleProxyHost = host;
+		this.googleProxyPort = port;
+	}
 
 	public void speakGoogle(String toSpeak) {
 		if (speechAudioFile == null) {
@@ -320,22 +353,37 @@ public class Speech extends Service {
 		log.info(f + (f.exists() ? " is found " : " is missing "));
 
 		if (!f.exists()) {
-			// if the mp3 file does not exist fetch it from google
-			/*
-			 * HashMap<String, String> params = new HashMap<String, String>();
-			 * params.put("voice", voiceName); params.put("txt", toSpeak);
-			 * params.put("speakButton", "SPEAK");
-			 */
-			// rel="noreferrer"
-			// http://translate.google.com/translate_tts?tl=en&q=text
-			// http://translate.google.com/translate_tts?tl=fr&q=Bonjour
-			// http://translate.google.com/translate_tts?tl=en&q=hello%20there%20my%20good%20friend
-
 			try {
-				URI uri = new URI("http", null, "translate.google.com", 80, "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
-				log.info(uri.toASCIIString());
-				//HTTPClient.HTTPData data = HTTPClient.get(uri.toASCIIString());
+				// if the mp3 file does not exist fetch it from google
+				/*
+				 * HashMap<String, String> params = new HashMap<String,
+				 * String>(); params.put("voice", voiceName); params.put("txt",
+				 * toSpeak); params.put("speakButton", "SPEAK");
+				 */
+				// rel="noreferrer"
+				// http://translate.google.com/translate_tts?tl=en&q=text
+				// http://translate.google.com/translate_tts?tl=fr&q=Bonjour
+				// http://translate.google.com/translate_tts?tl=en&q=hello%20there%20my%20good%20friend
+
+				client = new DefaultHttpClient();
 				
+				if (googleProxyHost != null) {
+					HttpHost proxy = new HttpHost(googleProxyHost, googleProxyPort);
+					client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+				}
+
+				String baseURI = String.format(googleURI, language);
+				// URI uri = new URI("http", null, "translate.google.com", 80,
+				// "/translate_tts", "tl=" + language + "&q=" + toSpeak, null);
+				// URI uri = new URI(baseURI + URLEncoder.encode(toSpeak,
+				// "ISO-8859-1"));
+				log.info(baseURI + toSpeak.replaceAll(" ", "%20"));
+				URI uri = new URI(baseURI + toSpeak.replaceAll(" ", "%20"));
+
+				log.info(uri.toASCIIString());
+				// HTTPClient.HTTPData data =
+				// HTTPClient.get(uri.toASCIIString());
+
 				HttpGet request = new HttpGet(uri.toASCIIString());
 				HttpResponse response = client.execute(request);
 
@@ -355,7 +403,7 @@ public class Speech extends Service {
 		sleep(600);// important pause after speech
 		invoke("isSpeaking", false);
 	}
-	
+
 	public byte[] getByteArrayFromResponse(HttpResponse response) {
 		try {
 			InputStream is = response.getEntity().getContent();
@@ -378,15 +426,15 @@ public class Speech extends Service {
 		return null;
 
 	}
-	
+
 	/**
-	 * request confirmation of recognized text
-	 * this typically comes from a speech recognition service
-	 * and is a verbal query - asking if they heard the correct phrase
+	 * request confirmation of recognized text this typically comes from a
+	 * speech recognition service and is a verbal query - asking if they heard
+	 * the correct phrase
+	 * 
 	 * @param text
 	 */
-	public void requestConfirmation(String text)
-	{
+	public void requestConfirmation(String text) {
 		speak(String.format("did you say. %s", text));
 	}
 
@@ -397,10 +445,11 @@ public class Speech extends Service {
 
 		Speech speech = new Speech("speech");
 		speech.startService();
+		speech.setGenderMale();
 		// speech.setBackendType(BACKEND_TYPE_FREETTS);
-		//speech.setBackendType(BACKEND_TYPE_GOOGLE);
+		// speech.setBackendType(BACKEND_TYPE_GOOGLE);
 		// speech.setLanguage("fr");
-		speech.speakBlocking("bork bork bork bork again more ya");
+		speech.speakBlocking("this should work");
 		speech.speakBlocking("bork bork bork bork again more more");
 		speech.speak("did you say start clock");
 		speech.speak("hello it is a pleasure to meet you I am speaking.  I do love to speak. What should we talk about. I love to talk I love to talk");
