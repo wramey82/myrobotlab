@@ -202,7 +202,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				// Logging.logTime("start");
 
 				frame = grabber.grab();
-				if (getDepth) {
+				if (getDepth&&grabber instanceof OpenKinectFrameGrabber) {
 					sources.put(boundServiceName, OpenCV.SOURCE_KINECT_DEPTH, ((OpenKinectFrameGrabber) grabber).grabDepth());
 				}
 
