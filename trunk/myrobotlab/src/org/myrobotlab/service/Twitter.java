@@ -3,7 +3,6 @@ package org.myrobotlab.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -28,10 +27,10 @@ public class Twitter extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Twitter.class
 			.getCanonicalName());
 
-	private String consumerKey;
-	private String consumerSecret;
-	private String accessToken;
-	private String accessTokenSecret;
+	public String consumerKey;
+	public String consumerSecret;
+	public String accessToken;
+	public String accessTokenSecret;
 
 	twitter4j.Twitter twitter = null;
 
@@ -121,21 +120,23 @@ public class Twitter extends Service {
 
 		Twitter twitter = new Twitter("twitter");
 		twitter.startService();
-		twitter.setSecurity("vZtRSFRmasWzC5mDCb3A",
-				"YwbOUcTwRw9a2DS4EfrqGtFpanVKhVEKfYDtPfY",
-				"C9vxhVHqCAyhMeXb8rQoFb5GDXnkslE0J5urQDha",
-				"FQ0oZakPzjhx0ikYgIR3bbqnrzBaj7Qap8ofz1XxCs");
+		twitter.setSecurity("xxx",
+				"xxx",
+				"xx",
+				"xxx");
 		twitter.configure();
 		twitter.tweet("Ciao from MyRobotLab");
 		// twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg"
 		// , "here is the pic");
 
+		/*
 		OpenCV opencv = new OpenCV("opencv");
 		opencv.startService();
 		opencv.capture();
 		Service.sleep(4000);// wait for an image
 		SerializableImage img = opencv.getDisplay();
 		twitter.uploadImage(img, "ME TOO!");
+		*/
 		// twitter.subscribe("publishDisplay", opencv.getName(), "uploadImage",
 		// SerializableImage.class);
 
