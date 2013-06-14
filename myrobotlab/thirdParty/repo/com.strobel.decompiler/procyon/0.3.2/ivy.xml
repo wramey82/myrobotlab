@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <ivy-module version="1.0">
-    <info organisation="jode.decompiler" module="decompiler" status="release" revision="1.1.2">
+    <info organisation="com.strobel.decompiler" module="procyon" status="release" revision="0.3.2">
     </info>
     <configurations>
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="jode-1.1.2-pre1" type="jar"/>
+        <artifact name="procyon-decompiler-0.3.2" type="jar"/>
     </publications>
 </ivy-module>
