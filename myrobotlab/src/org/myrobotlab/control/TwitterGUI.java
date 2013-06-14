@@ -25,9 +25,13 @@
 
 package org.myrobotlab.control;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
@@ -40,21 +44,39 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(_TemplateServiceGUI.class.getCanonicalName());
-
+	
+	JPasswordField consumerKey = new JPasswordField("XXXXXX",20);
+	JPasswordField consumerSecret = new JPasswordField("XXXXXX",20);
+	Twitter twitter = null;
+	
 	public TwitterGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		JPanel west = new JPanel(new GridLayout(2,4));
+		west.add(new JLabel("consumer key"));
+		west.add(consumerKey);
+		west.add(new JLabel("consumer secret"));
+		west.add(consumerSecret);
+		//display.setLayout(new BorderLayout());
+		display.add(west);
 	}
 
 	public void init() {
 	}
 
-	public void getState(Twitter template) {
+	public void getState(final Twitter twitter) {
+		this.twitter = twitter;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-
+				consumerKey.setText(twitter.consumerKey);
 			}
 		});
 	}
+	
+	public void setState()
+	{
+		myService.send(boundServiceName, "setState", twitter);
+	}
+	
 
 	@Override
 	public void attachGUI() {
