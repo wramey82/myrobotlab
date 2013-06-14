@@ -50,7 +50,7 @@ import javax.swing.undo.UndoManager;
 
 import org.myrobotlab.service.Java;
 
-public class Reflector extends JFrame{
+public class Reflector extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private final FieldsTableModel FieldsData;
 	private final MethodsTableModel MethodsData;
@@ -91,17 +91,16 @@ public class Reflector extends JFrame{
 	private short tempShort;
 	private byte tempByte;
 	private String objectName;
-//	private java.lang.Class<? extends Object> objectType;
-	
-	
-	
+
+	// private String tempObject1;
+	// private java.lang.Class<? extends Object> objectType;
 
 	/**
-	 * @param java 
- */
+	 * @param java
+	 */
 	public Reflector(Java java) {
 		super("Reflector");
-		this.java=java;
+		this.java = java;
 		Panel0 = new JPanel();
 		GridBagLayout gbPanel0 = new GridBagLayout();
 		GridBagConstraints gbcPanel0 = new GridBagConstraints();
@@ -184,8 +183,10 @@ public class Reflector extends JFrame{
 					int selectedRow = lsm.getMinSelectionIndex();
 					// MAIN DELETED HERE
 					// main.putSystemClipboardString(parent+(String)FieldsData.getValueAt(selectedRow,3));
-					startreflect("(("+o.getClass().getName()+")"+objectName+")."+FieldsData.getValueAt(selectedRow,3));
-//					startreflect(objectName+"."+FieldsData.getValueAt(selectedRow,3));
+					startreflect("((" + o.getClass().getName() + ")"
+							+ objectName + ")."
+							+ FieldsData.getValueAt(selectedRow, 3));
+					// startreflect(objectName+"."+FieldsData.getValueAt(selectedRow,3));
 				}
 			}
 		});
@@ -296,7 +297,7 @@ public class Reflector extends JFrame{
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
-//				Agent.mainFrame.btnReflector.setSelected(false);
+				// Agent.mainFrame.btnReflector.setSelected(false);
 			}
 		});
 		setContentPane(Panel0);
@@ -312,7 +313,7 @@ public class Reflector extends JFrame{
 		g.setColor(Color.red);
 		g.setFont(new Font("Monospaced", Font.PLAIN, 70));
 		g.drawString("*", -5, 45);
-//		 this.setVisible(true);
+		// this.setVisible(true);
 		this.setIconImage(bi);
 		Document doc = Source.getDocument();
 		Fields.setAutoCreateRowSorter(true);
@@ -346,11 +347,11 @@ public class Reflector extends JFrame{
 			}
 		});
 		Source.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
-//		addObject(rootNode, this);
-//		toplevel.add(this);
-		//addObject(rootNode, java.getName());
-		//Agent.interpret("import com.klemstinegroup.agent.Agent;");
-		//Agent.interpret("import java.util.Arrays;");
+		// addObject(rootNode, this);
+		// toplevel.add(this);
+		// addObject(rootNode, java.getName());
+		// Agent.interpret("import com.klemstinegroup.agent.Agent;");
+		// Agent.interpret("import java.util.Arrays;");
 		// Agent.interpret("import java.awt.font.*;");
 		// Agent.interpret("import java.beans.*;");
 		// Agent.interpret("import java.io.*;");
@@ -445,49 +446,51 @@ public class Reflector extends JFrame{
 		// Agent.interpret("import org.xml.sax.helpers.*;");
 		// Agent.interpret("import org.xmlpull.v1.*;");
 		// Agent.interpret("import org.xmlpull.v1.sax2.*;");
-//		toplevel();
+		// toplevel();
 	}
 
-//	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent,
-//			Object child) {
-//		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
-//		treeModel.insertNodeInto(childNode, parent, parent.getChildCount());
-//		return childNode;
-//	}
+	// public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent,
+	// Object child) {
+	// DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
+	// treeModel.insertNodeInto(childNode, parent, parent.getChildCount());
+	// return childNode;
+	// }
 
-//	public void toplevel() {
-//		// Object[] vars = main.interpreter.getVariableNames().toArray();
-//		Object[] vars = new Object[Agent.interpreter..getLocals().keySet()
-//				.size()];
-//		int counter = 0;
-//		for (LocalVariable lv : Agent.interpreter.getLocals().keySet()) {
-//			vars[counter++] = lv.declaredName();
-//		}
-//		java.util.List ltemp = Arrays.asList(vars);
-//		Collections.sort(ltemp);
-//		vars = ltemp.toArray();
-//		for (int r = 0; r < vars.length; r++) {
-////			if (((String)vars[r]).startsWith(("field"))){
-////				int fieldno=Integer.parseInt(((String) vars[r]).substring(5));
-////				String fieldname=Agent.objectWindow.fieldList.get(fieldno);
-////				Agent.interpret("com.klemstinegroup.agent.Agent.fields.put(\""+fieldname+"\","+vars[r]+");");
-////			}
-////			if (((String)vars[r]).startsWith(("object"))){
-////				int objectno=Integer.parseInt(((String) vars[r]).substring(6));
-////				String objectname=Agent.objectWindow.objectList.get(objectno);
-////				Agent.interpret("com.klemstinegroup.agent.Agent.objects.put(\""+objectname+"\","+vars[r]+");");
-////			}
-//			
-//			if (!toplevel.contains(vars[r])) {
-//				toplevel.add(vars[r]);
-//				addObject(rootNode, (String) vars[r]);
-//			}
-//		}
-//	}
+	// public void toplevel() {
+	// // Object[] vars = main.interpreter.getVariableNames().toArray();
+	// Object[] vars = new Object[Agent.interpreter..getLocals().keySet()
+	// .size()];
+	// int counter = 0;
+	// for (LocalVariable lv : Agent.interpreter.getLocals().keySet()) {
+	// vars[counter++] = lv.declaredName();
+	// }
+	// java.util.List ltemp = Arrays.asList(vars);
+	// Collections.sort(ltemp);
+	// vars = ltemp.toArray();
+	// for (int r = 0; r < vars.length; r++) {
+	// // if (((String)vars[r]).startsWith(("field"))){
+	// // int fieldno=Integer.parseInt(((String) vars[r]).substring(5));
+	// // String fieldname=Agent.objectWindow.fieldList.get(fieldno);
+	// //
+	// Agent.interpret("com.klemstinegroup.agent.Agent.fields.put(\""+fieldname+"\","+vars[r]+");");
+	// // }
+	// // if (((String)vars[r]).startsWith(("object"))){
+	// // int objectno=Integer.parseInt(((String) vars[r]).substring(6));
+	// // String objectname=Agent.objectWindow.objectList.get(objectno);
+	// //
+	// Agent.interpret("com.klemstinegroup.agent.Agent.objects.put(\""+objectname+"\","+vars[r]+");");
+	// // }
+	//
+	// if (!toplevel.contains(vars[r])) {
+	// toplevel.add(vars[r]);
+	// addObject(rootNode, (String) vars[r]);
+	// }
+	// }
+	// }
 
-//	public void add(String var) {
-//		addObject(rootNode, var);
-//	}
+	// public void add(String var) {
+	// addObject(rootNode, var);
+	// }
 
 	public void classinfo(Object o) {
 		if (o == null) {
@@ -596,7 +599,8 @@ public class Reflector extends JFrame{
 				// o1 = Agent.interpret(
 				// "String.valueOf(" + sref + "." + tempf[r].getName()
 				// + ");");
-				o1 = java.interpret("(("+jc.getName()+")"+sref + ")." + tempf[r].getName());
+				o1 = java.interpret("((" + jc.getName() + ")" + sref + ")."
+						+ tempf[r].getName());
 				String fff = sref + "." + tempf[r].getName();
 				if (o1 instanceof Exception) {
 					o1 = java.interpret(className + "." + tempf[r].getName());
@@ -650,7 +654,7 @@ public class Reflector extends JFrame{
 				temp = temp.substring(parent.length());
 				if (temp.startsWith("."))
 					temp = temp.substring(1);
-				//addObject(mNode, temp);
+				// addObject(mNode, temp);
 				flag = true;
 			}
 		}
@@ -662,62 +666,74 @@ public class Reflector extends JFrame{
 			blank();
 			return;
 		}
-//		Source.setText(DynaComp.decompile(o.getClass().getName()));
-		//Object p=java.interpret("DynaComp.decompile("+o.getClass().getName()+");");
-		//Source.setText((String)p);
 		this.o = o;
 		this.sref = sref;
 	}
-    public void reflect(Object o){
-    	this.tempObject=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempObject");
-    }
-    
-    public void reflect(long o){
-    	this.tempLong=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempLong");
-    }
-	
-    public void reflect(float o){
-    	this.tempFloat=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempFloat");
-    }
 
-    public void reflect(short o){
-    	this.tempShort=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempShort");
-    }
-    public void reflect(double o){
-    	this.tempDouble=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempDouble");
-    }
-    public void reflect(char o){
-    	this.tempChar=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempChar");
-    }
-    public void reflect(boolean o){
-    	this.tempBoolean=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempBoolean");
-    }
-    public void reflect(byte o){
-    	this.tempByte=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempByte");
-    }
-    public void reflect(int o){
-    	this.tempInt=o;
-    	startreflect("((Java)"+java.getName()+").reflector.tempInt");
-    }
+	public void reflect(Object o) {
+		this.tempObject = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempObject");
+	}
 
-    
+	public void reflect(long o) {
+		this.tempLong = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempLong");
+	}
+
+	public void reflect(float o) {
+		this.tempFloat = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempFloat");
+	}
+
+	public void reflect(short o) {
+		this.tempShort = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempShort");
+	}
+
+	public void reflect(double o) {
+		this.tempDouble = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempDouble");
+	}
+
+	public void reflect(char o) {
+		this.tempChar = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempChar");
+	}
+
+	public void reflect(boolean o) {
+		this.tempBoolean = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempBoolean");
+	}
+
+	public void reflect(byte o) {
+		this.tempByte = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempByte");
+	}
+
+	public void reflect(int o) {
+		this.tempInt = o;
+		startreflect("((Java)" + java.getName() + ").reflector.tempInt");
+	}
+
 	public void startreflect(String name) {
-		this.objectName=strip(name);
+		this.objectName = strip(name);
 		this.setVisible(true);
-		Object p = java.interpret("((Java)"+java.getName()+").reflector.reflect(" + name + ",\""
-				+ name + "\");");
-		if (p instanceof Exception){
-			p = java.interpret(o.getClass().getName()+".reflector.reflect(" + name + ",\""
-					+ name + "\");");
+		Object p = java.interpret("((Java)" + java.getName()
+				+ ").reflector.reflect(" + name + ",\"" + name + "\");");
+		if (p instanceof Exception) {
+			p = java.interpret(o.getClass().getName() + ".reflector.reflect("
+					+ name + ",\"" + name + "\");");
 		}
+		// java.interpret("import "+o.getClass().getName()+";");
+		java.interpret("import " + o.getClass().getName() + ";");
+		// Object
+		// a=java.interpret("((Java)"+java.getName()+").reflector.tempObject1=DynaComp.decompile(\""+o.getClass().getName()+"\");");
+		new Thread(new Runnable() {
+			public void run() {
+				Source.setText(DynaComp.decompile(o.getClass().getName()));
+			}
+		}).start();
+
 		if (java.isPrimitive(name)) {
 			Object p1 = java.interpret(name);
 			String prim = "";
@@ -755,10 +771,10 @@ public class Reflector extends JFrame{
 	}
 
 	private String strip(String name) {
-//		if (name.startsWith("(")){
-//			name=name.substring(name.indexOf(')', 1)+1);
-//			name=name.replaceAll("\\)", "");
-//		}
+		// if (name.startsWith("(")){
+		// name=name.substring(name.indexOf(')', 1)+1);
+		// name=name.replaceAll("\\)", "");
+		// }
 		return name;
 	}
 
@@ -772,40 +788,42 @@ public class Reflector extends JFrame{
 		Source.setText("");
 	}
 
-//	public void valueChanged(TreeSelectionEvent e) {
-//		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-//		if (node == null)
-//			return;
-//		String no = (String) node.getUserObject();
-//		mNode = node;
-//		DefaultMutableTreeNode mNode1 = mNode;
-//		parent = "";
-//		if (mNode1 != null && !no.equals("Top Level")) {
-//			while (!((DefaultMutableTreeNode) mNode1.getParent())
-//					.getUserObject().equals("Top Level")) {
-//				mNode1 = (DefaultMutableTreeNode) mNode1.getParent();
-//				parent = "(("+mNode1.getUserObject().getClass().getName()+")"+(String) mNode1.getUserObject() + ")." + parent;
-//			
-//			}
-//		}
-//		if (!no.equals("Top Level") && !java.isArray(parent + no))
-//			startreflect(parent + no);
-//		if (java.isArray(parent + no)) {
-//			String name1 = "." + parent + no;
-//			Object p1 = java.interpret(parent + no);
-//			Class.setText(p1.getClass().getName()
-//					+ " "
-//					+ name1.substring(name1.lastIndexOf('.') + 1)
-//					+ " = "
-//					+ java.interpret("Arrays.toString(" + parent + no + ")")
-//							.toString());
-//			blank();
-//
-//		}
-//	}
+	// public void valueChanged(TreeSelectionEvent e) {
+	// DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+	// tree.getLastSelectedPathComponent();
+	// if (node == null)
+	// return;
+	// String no = (String) node.getUserObject();
+	// mNode = node;
+	// DefaultMutableTreeNode mNode1 = mNode;
+	// parent = "";
+	// if (mNode1 != null && !no.equals("Top Level")) {
+	// while (!((DefaultMutableTreeNode) mNode1.getParent())
+	// .getUserObject().equals("Top Level")) {
+	// mNode1 = (DefaultMutableTreeNode) mNode1.getParent();
+	// parent = "(("+mNode1.getUserObject().getClass().getName()+")"+(String)
+	// mNode1.getUserObject() + ")." + parent;
+	//
+	// }
+	// }
+	// if (!no.equals("Top Level") && !java.isArray(parent + no))
+	// startreflect(parent + no);
+	// if (java.isArray(parent + no)) {
+	// String name1 = "." + parent + no;
+	// Object p1 = java.interpret(parent + no);
+	// Class.setText(p1.getClass().getName()
+	// + " "
+	// + name1.substring(name1.lastIndexOf('.') + 1)
+	// + " = "
+	// + java.interpret("Arrays.toString(" + parent + no + ")")
+	// .toString());
+	// blank();
+	//
+	// }
+	// }
 
-//	@Override
-//	public void actionPerformed(ActionEvent paramActionEvent) {
-//	}
-	
+	// @Override
+	// public void actionPerformed(ActionEvent paramActionEvent) {
+	// }
+
 }
