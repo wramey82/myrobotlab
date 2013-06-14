@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -9,6 +10,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.java.Reflector;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -42,6 +44,10 @@ public class Java extends Service {
 	transient PIThread interpThread = null;
 	// FIXME - this is messy !
 	transient HashMap<String, Script> scripts = new HashMap<String, Script>();
+	String rootPath = null;
+	String modulesDir = "javaModules";
+
+	private transient Reflector reflector;
 	// TODO this needs to be moved into an actual cache if it is to be used
 
 	// // Cache of compile java code
@@ -129,6 +135,8 @@ public class Java extends Service {
 		StringBuffer initScript = new StringBuffer();
 		// initScript.append("from time import sleep\n");
 		initScript.append("import org.myrobotlab.service.*;\n");
+		initScript.append("import java.util.*;\n");
+		
 		Iterator<String> it = svcs.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
@@ -153,6 +161,7 @@ public class Java extends Service {
 
 		subscribe("registered", Runtime.getInstance().getName(), "registered",
 				ServiceWrapper.class);
+		reflector=new Reflector(this);
 	}
 
 	public void registered(ServiceWrapper s) {
@@ -189,8 +198,7 @@ public class Java extends Service {
 
 	// PyObject interp.eval(String s) - for verifying?
 
-	String rootPath = null;
-	String modulesDir = "javaModules";
+
 
 	/**
 	 * 
@@ -455,6 +463,7 @@ public class Java extends Service {
 			log.warn(String.format("%1s a not valid script", filename));
 			return false;
 		}
+		
 	}
 
 	public Object interpret(String string){
@@ -474,6 +483,10 @@ public class Java extends Service {
 				data));
 		return data;
 	}
+	
+	public void reflect(Object o){
+		reflector.reflect(o);
+	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
@@ -485,6 +498,25 @@ public class Java extends Service {
 		Runtime.createAndStart("java", "Java");
 		Runtime.createAndStart("gui", "GUIService");
 
+	}
+	
+	public boolean isPrimitive(String string) {
+		try {
+			interp.interpret(string + ".toString()");
+			return false;
+		} catch (InterpreterException e) {
+			return true;
+		}
+	}
+
+	public boolean isArray(String string) {
+		try {
+			interp.interpret(string + ".length");
+			return true;
+		} catch (InterpreterException e) {
+			// e.printStackTrace();
+			return false;
+		}
 	}
 
 	class MyOptions extends Options {
