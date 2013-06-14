@@ -78,10 +78,6 @@ public class FindHuman extends Service {
 
 		// twitter ==============================================
 //		 twitter.setSecurity("","","","");
-		 twitter.setSecurity("CoKOtYNzbbNnHuiUFymoPA",
-		 "eDEfHtpuiAcpltyko9iczUiuZQNeaM3spPHHaTGcg",
-		 "23911266-TldTiBLPuj6d7tZdyK3sgp0FoIGYdWQ7yY4WpQxRP",
-		 "JEvpfjmEZMY81D4vvCmWl3HWGBZzpikKw20mDmyo");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is Awesome!")
 
