@@ -219,7 +219,7 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.drjava.java</string>
-            <string>jode.decompiler</string>
+            <string>com.strobel.decompiler</string>
          </list>
       </dependsOn>
    </serviceType>
