@@ -59,7 +59,6 @@ public class Reflector extends JFrame {
 	private Java java;
 	final UndoManager undo = new UndoManager();
 	String parent = "";
-
 	Object o;
 	String sref;
 
@@ -183,7 +182,7 @@ public class Reflector extends JFrame {
 					int selectedRow = lsm.getMinSelectionIndex();
 					// MAIN DELETED HERE
 					// main.putSystemClipboardString(parent+(String)FieldsData.getValueAt(selectedRow,3));
-					startreflect("((" + o.getClass().getName() + ")"
+					startreflect("((" + tempObject.getClass().getName() + ")"
 							+ objectName + ")."
 							+ FieldsData.getValueAt(selectedRow, 3));
 					// startreflect(objectName+"."+FieldsData.getValueAt(selectedRow,3));
@@ -730,7 +729,7 @@ public class Reflector extends JFrame {
 		// a=java.interpret("((Java)"+java.getName()+").reflector.tempObject1=DynaComp.decompile(\""+o.getClass().getName()+"\");");
 		new Thread(new Runnable() {
 			public void run() {
-				Source.setText(DynaComp.decompile(o.getClass().getName()));
+				Source.setText(DynaComp.decompile(o));
 			}
 		}).start();
 
