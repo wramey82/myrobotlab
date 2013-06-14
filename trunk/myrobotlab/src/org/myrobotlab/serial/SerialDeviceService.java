@@ -1,5 +1,6 @@
 package org.myrobotlab.serial;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public interface SerialDeviceService {
@@ -13,8 +14,18 @@ public interface SerialDeviceService {
 	 * @return a read-only copy of the SerialDevice if it has bee serialized
 	 *         over the network - the InputStream & OutputStream are transient
 	 */
+	
+	// FIXME - should probably throw general Exception - and allow implementation a specific exception
 	public SerialDevice getSerialDevice();
 
 	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity);
+	
+	public void serialSend(String data) throws IOException;
+	
+	public void serialSend(byte[] data) throws IOException;
+
+	public void serialSend(char data) throws IOException;
+
+	public void serialSend(int data) throws IOException;
 
 }
