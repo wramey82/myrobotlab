@@ -24,7 +24,7 @@ public class FindHuman extends Service {
 	public PID xpid;
 	public PID ypid;
 	public Java java;
-	public boolean tweetOn = false;
+	public boolean tweetOn = true;
 	public boolean raverLights = true;
 
 	private int actservox = 90;
@@ -41,7 +41,7 @@ public class FindHuman extends Service {
 	private double raddir = .2d;
 	private double distdir = .3;
 	private double speed = 3d;
-	private boolean speakOn = true;
+	private boolean speakOn = false;
 
 	public FindHuman(String n) {
 		super(n, FindHuman.class.getCanonicalName());
@@ -77,8 +77,11 @@ public class FindHuman extends Service {
 		xpid.invert();
 
 		// twitter ==============================================
-		// twitter.setSecurity("","","","");
-
+//		 twitter.setSecurity("","","","");
+		 twitter.setSecurity("CoKOtYNzbbNnHuiUFymoPA",
+		 "eDEfHtpuiAcpltyko9iczUiuZQNeaM3spPHHaTGcg",
+		 "23911266-TldTiBLPuj6d7tZdyK3sgp0FoIGYdWQ7yY4WpQxRP",
+		 "JEvpfjmEZMY81D4vvCmWl3HWGBZzpikKw20mDmyo");
 		twitter.configure();
 		// twitter.tweet("#myrobotlab is Awesome!")
 
@@ -95,7 +98,7 @@ public class FindHuman extends Service {
 		opencv.addListener("publishOpenCVData", this.getName(), "input",
 				OpenCVData.class);
 		opencv.setCameraIndex(1);
-		// opencv.capture();
+		 opencv.capture();
 
 		// speech ======
 		// speech.setFrontendType("MULTI");
@@ -103,10 +106,10 @@ public class FindHuman extends Service {
 		// ear ============
 		ear.addCommand("find human", opencv.getName(), "capture");
 		ear.addCommand("kill all humans", this.getName(), "stopEverything");
-		ear.addCommand("happy fun", this.getName(), "tweetOn");
+		ear.addCommand("obey me", this.getName(), "tweetOn");
 		ear.addCommand("two two four", this.getName(), "tweetOff");
-		ear.addCommand("talk to me", this.getName(), "speechOn");
-		ear.addCommand("no talking", this.getName(), "speechOff");
+		ear.addCommand("arm weapons", this.getName(), "speechOn");
+		ear.addCommand("stupid robot", this.getName(), "speechOff");
 		ear.addComfirmations("yes");
 		ear.addNegations("no");
 		ear.attach(speech);
@@ -219,7 +222,7 @@ public class FindHuman extends Service {
 					// ========================================================
 					if (tweetOn) {
 						twitter.uploadImage(opencv.getDisplay(),
-								"Human Detected!");
+								"#myrobotlab Human Detected!");
 						if (speakOn)
 							speech.speak("tweet");
 					} else {
