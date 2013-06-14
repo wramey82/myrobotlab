@@ -537,6 +537,7 @@
             <string>org.apache.log4j</string>
             <string>org.simpleframework.xml</string>
             <string>org.apache.commons.httpclient</string>
+            <string>com.wolfram.alpha</string>
          </list>
       </dependsOn>
    </serviceType>
