@@ -24,12 +24,13 @@ public class DynaComp {
 	// decompiler.setClassPath(System.getProperty("java.class.path"));
 	// }
 
-	public static String decompile(String className) {
+	public static String decompile(Object o) {
+		String className=o.getClass().getName();
 //		className = className.replaceAll("\\\\", ".");
 //		className = className.replaceAll("/", ".");
 		className =className.replaceAll("\\.","/");
 		className =className.replaceAll("\\\\","/");
-		System.out.println("---------------" + className);
+//		System.out.println("---------------" + className);
 		PlainTextOutput it = new PlainTextOutput();
 		Decompiler.decompile(className,it);// (o.getClass().getCanonicalName(),
 											// sw, null);
