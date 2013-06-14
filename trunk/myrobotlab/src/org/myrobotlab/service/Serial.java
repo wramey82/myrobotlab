@@ -1,0 +1,198 @@
+package org.myrobotlab.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.serial.SerialDevice;
+import org.myrobotlab.serial.SerialDeviceEvent;
+import org.myrobotlab.serial.SerialDeviceEventListener;
+import org.myrobotlab.serial.SerialDeviceFactory;
+import org.myrobotlab.serial.SerialDeviceService;
+import org.slf4j.Logger;
+
+
+public class Serial extends Service implements SerialDeviceService, SerialDeviceEventListener {
+
+	private static final long serialVersionUID = 1L;
+
+	public final static Logger log = LoggerFactory.getLogger(Serial.class.getCanonicalName());
+	
+	private transient SerialDevice serialDevice;
+	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
+	private boolean connected = false;
+	int rawReadMsgLength = 5;
+
+	public Serial(String n) {
+		super(n, Serial.class.getCanonicalName());	
+	}
+
+	@Override
+	public String getToolTip() {
+		return "used as a general template";
+	}
+	
+
+
+	@Override
+	public void serialEvent(SerialDeviceEvent event) {
+		switch (event.getEventType()) {
+		case SerialDeviceEvent.BI:
+		case SerialDeviceEvent.OE:
+		case SerialDeviceEvent.FE:
+		case SerialDeviceEvent.PE:
+		case SerialDeviceEvent.CD:
+		case SerialDeviceEvent.CTS:
+		case SerialDeviceEvent.DSR:
+		case SerialDeviceEvent.RI:
+		case SerialDeviceEvent.OUTPUT_BUFFER_EMPTY:
+			break;
+		case SerialDeviceEvent.DATA_AVAILABLE:
+
+			try {
+
+				byte[] msg = new byte[rawReadMsgLength];
+				int newByte;
+				int numBytes = 0;
+
+				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
+
+					msg[numBytes] = (byte) newByte;
+					++numBytes;
+					
+					String s = new String(msg);
+					log.info(s);
+					invoke("readSerialMessage", s);
+
+						numBytes = 0;
+
+						// reset buffer
+						for (int i = 0; i < rawReadMsgLength; ++i) {
+							msg[i] = -1;
+						}
+
+					}
+
+			} catch (IOException e) {
+			}
+
+			break;
+		}
+
+	}
+
+	@Override
+	public ArrayList<String> getSerialDeviceNames() {
+		return serialDeviceNames;
+	}
+
+	@Override
+	public SerialDevice getSerialDevice() {
+		return serialDevice;
+	}
+
+	@Override
+	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
+		try {
+			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
+			if (sd != null) {
+				serialDevice = sd;
+
+				connect();
+
+				serialDevice.setParams(rate, databits, stopbits, parity); 
+
+				save(); // successfully bound to port - saving
+				broadcastState(); // state has changed let everyone know
+				return true;
+			}
+		} catch (Exception e) {
+			logException(e);
+		}
+		return false;
+	}
+
+	public boolean connect() {
+
+		if (serialDevice == null) {
+			error("can't connect, serialDevice is null"); 
+			return false;
+		}
+
+		info(String.format("connecting to serial device %s", serialDevice.getName()));
+
+		try {
+			if (!serialDevice.isOpen()) {
+				serialDevice.open();
+				serialDevice.addEventListener(this);
+				serialDevice.notifyOnDataAvailable(true);
+				sleep(1000);
+			} else {
+				warn(String.format("%s is already open, close first before opening again", serialDevice.getName()));
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+			return false;
+		}
+
+		info(String.format("connected to serial device %s", serialDevice.getName()));
+		connected = true;
+	
+		return true;
+	}
+	
+	public boolean isConnected() {
+		// I know not normalized
+		// but we have to do this - since
+		// the SerialDevice is transient
+		return connected;
+	}
+
+	@Override
+	public void serialSend(String data) throws IOException {
+		serialSend(data.getBytes());
+	}
+
+	@Override
+	public void serialSend(byte[] data) throws IOException {
+		for(int i = 0; i < data.length; ++i)
+		{
+			serialDevice.write(data[i]);
+		}
+	}
+
+	@Override
+	public void serialSend(char data) throws IOException {
+		serialDevice.write(data);
+	}
+
+	@Override
+	public void serialSend(int data) throws IOException {
+		serialDevice.write(data);
+	}
+
+	public static void main(String[] args) throws IOException {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.WARN);
+
+		Serial serial = new Serial("serial");
+		serial.startService();			
+		
+		serial.setSerialDevice("COM4", 57600, 8, 1, 0);
+		serial.connect();
+		byte a = 1;
+		int b = 2;
+		serial.serialSend(a);
+		
+		Runtime.createAndStart("gui", "GUIService");
+		/*
+		 * GUIService gui = new GUIService("gui"); gui.startService();
+		 * gui.display();
+		 */
+	}
+
+}
