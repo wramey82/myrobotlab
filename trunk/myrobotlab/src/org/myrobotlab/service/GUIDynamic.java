@@ -1,14 +1,13 @@
 package org.myrobotlab.service;
 
-import java.awt.Component;
-
-import org.myrobotlab.DynamicGUI.Desktop;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
+
+import dynamicGUI.Desktop;
 
 
 
