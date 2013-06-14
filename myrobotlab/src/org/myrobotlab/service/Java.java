@@ -1,8 +1,9 @@
 package org.myrobotlab.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -10,6 +11,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.java.DynaComp;
 import org.myrobotlab.java.Reflector;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -136,7 +138,8 @@ public class Java extends Service {
 		// initScript.append("from time import sleep\n");
 		initScript.append("import org.myrobotlab.service.*;\n");
 		initScript.append("import java.util.*;\n");
-		
+		initScript.append("import org.myrobotlab.java.*;\n");
+
 		Iterator<String> it = svcs.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
@@ -161,7 +164,7 @@ public class Java extends Service {
 
 		subscribe("registered", Runtime.getInstance().getName(), "registered",
 				ServiceWrapper.class);
-		reflector=new Reflector(this);
+		reflector = new Reflector(this);
 	}
 
 	public void registered(ServiceWrapper s) {
@@ -198,8 +201,6 @@ public class Java extends Service {
 
 	// PyObject interp.eval(String s) - for verifying?
 
-
-
 	/**
 	 * 
 	 */
@@ -213,7 +214,18 @@ public class Java extends Service {
 		ArgumentParser.Result parsedArgs = argParser.parse(".");
 		Iterable<File> cp = IOUtil.parsePath(parsedArgs
 				.getUnaryOption("classpath"));
-
+		ArrayList<String> als = new ArrayList<String>();
+//		for (File f : cp) {
+//			
+//			try {
+//				
+//				System.out.println(f.getCanonicalPath());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		DynaComp.decompiler.setClassPath(als.toArray(new String[]{}));
 		interp = new Interpreter(new MyOptions(), new PathClassLoader(cp));
 
 		// add self reference
@@ -463,28 +475,27 @@ public class Java extends Service {
 			log.warn(String.format("%1s a not valid script", filename));
 			return false;
 		}
-		
+
 	}
 
-	public Object interpret(String string){
-		log.info("Interpreting: "+string);
-		try{
-			Option o=interp.interpret(string);
+	public Object interpret(String string) {
+		log.info("Interpreting: " + string);
+		try {
+			Option o = interp.interpret(string);
 			return o.unwrap(null);
-		}
-		catch (InterpreterException e){
+		} catch (InterpreterException e) {
 			e.printStackTrace();
 			return e;
 		}
 	}
-	
+
 	public String appendScript(String data) {
 		currentScript.setCode(String.format("%s\n%s", currentScript.getCode(),
 				data));
 		return data;
 	}
-	
-	public void reflect(Object o){
+
+	public void reflect(Object o) {
 		reflector.reflect(o);
 	}
 
@@ -499,7 +510,7 @@ public class Java extends Service {
 		Runtime.createAndStart("gui", "GUIService");
 
 	}
-	
+
 	public boolean isPrimitive(String string) {
 		try {
 			interp.interpret(string + ".toString()");
