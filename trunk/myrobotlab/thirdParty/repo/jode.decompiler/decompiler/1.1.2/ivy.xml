@@ -6,6 +6,6 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="jode-1.1.2-pre1.jar" type="jar"/>
+        <artifact name="jode-1.1.2-pre1" type="jar"/>
     </publications>
 </ivy-module>
