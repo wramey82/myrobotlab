@@ -777,4 +777,28 @@ public class Roomba extends Service implements SerialDeviceService {
 
 	}
 
+	@Override
+	public void serialSend(String data) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serialSend(byte[] data) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serialSend(char data) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serialSend(int data) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

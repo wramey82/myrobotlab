@@ -368,6 +368,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return serialDeviceNames;
 	}
 
+	/**
+	 * MRL protocol method
+	 * @param function
+	 * @param param1
+	 * @param param2
+	 */
 	public synchronized void serialSend(int function, int param1, int param2) {
 		log.debug("serialSend magic | fn " + function + " p1 " + param1 + " p2 " + param2);
 		try {
@@ -387,27 +393,25 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.Serial#serialSend(java.lang.String)
-	 */
 	@ToolTip("sends an array of data to the serial port which an Arduino is attached to")
-	public void serialSend(String data) {
-		log.error("serialSend [" + data + "]");
+	public void serialSend(String data) throws IOException {
+		log.info("serialSend [" + data + "]");
 		serialSend(data.getBytes());
 	}
 
-	public synchronized void serialSend(byte[] data) {
-		try {
-			for (int i = 0; i < data.length; ++i) {
-				serialDevice.write(data[i]);
-			}
-		} catch (IOException e) {
-			log.error("serialSend " + e.getMessage());
+	public synchronized void serialSend(byte[] data) throws IOException {
+		for (int i = 0; i < data.length; ++i) {
+			serialDevice.write(data[i]);
 		}
 	}
 
+	public void serialSend(char data) throws IOException {
+		serialDevice.write(data);
+	}
+	
+	public void serialSend(int data) throws IOException {
+		serialDevice.write(data);
+	}
 	public void setPWMFrequency(IOData io) {
 		int freq = io.value;
 		int prescalarValue = 0;
@@ -1150,9 +1154,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public boolean connect() {
 
 		if (serialDevice == null) {
-			message("\ncan't connect, serialDevice is null\n"); // TODO -
-																// "errorMessage vs message"
-			log.error("can't connect, serialDevice is null");
+			error("can't connect, serialDevice is null"); 
 			return false;
 		}
 
@@ -1176,16 +1178,15 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					info(String.format("responded with expected version %s ... goodtimes...", version));
 				}
 			} else {
-				log.warn(String.format("\n%s is already open, close first before opening again\n", serialDevice.getName()));
-				message(String.format("%s is already open, close first before opening again", serialDevice.getName()));
+				warn(String.format("\n%s is already open, close first before opening again\n", serialDevice.getName()));
 			}
 		} catch (Exception e) {
 			Logging.logException(e);
 			return false;
 		}
 
-		message(String.format("\nconnected to serial device %s\n", serialDevice.getName()));
-		message("good times...\n");
+		info(String.format("connected to serial device %s", serialDevice.getName()));
+		info("good times...");
 		connected = true;
 	
 		return true;
