@@ -1,10 +1,30 @@
 package org.myrobotlab.dynamicGUI;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.net.URL;
+import java.util.HashMap;
+
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 public class Desktop extends JFrame implements MouseListener,
 		MouseMotionListener, WindowListener, ActionListener {
@@ -21,7 +41,12 @@ public class Desktop extends JFrame implements MouseListener,
 	private int compy;
 
 	public Desktop() {
-		super("Desktop");
+		super("GUIDynamic");
+		JMenuBar jm=new JMenuBar();
+		JMenu menu1=new JMenu("Menu");
+		jm.add(menu1);
+		menu1.add(cbmni);
+		this.setJMenuBar(jm);
 		this.addWindowListener(this);
 		imageicon();
 		this.pack();
@@ -45,7 +70,7 @@ public class Desktop extends JFrame implements MouseListener,
 		popup1.add(jmi12);
 		popup1.add(jmi13);
 		popup1.addSeparator();
-		popup1.add(cbmni);
+		//popup1.add(cbmni);
 
 		JMenuItem jmi21 = new JMenuItem("Delete");
 		jmi21.addActionListener(this);
@@ -90,14 +115,10 @@ public class Desktop extends JFrame implements MouseListener,
 	}
 
 	private void imageicon() {
-		BufferedImage bi = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
-		Graphics g = bi.getGraphics();
-		g.setColor(Color.yellow);
-		g.fillRect(-20, -20, 50, 50);
-		g.setColor(Color.red);
-		g.setFont(new Font("Monospaced", Font.PLAIN, 70));
-		g.drawString("*", -5, 45);
-		this.setIconImage(bi);
+		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Image img = kit.createImage(url);
+		this.setIconImage(img);
 	}
 
 	private void listenerremove(Container con) {
