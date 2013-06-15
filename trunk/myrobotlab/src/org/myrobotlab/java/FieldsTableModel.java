@@ -6,7 +6,7 @@ public class FieldsTableModel extends AbstractTableModel {
 int rows=0;
 Hashtable ht=new Hashtable();
 
-final String[] columnNames ={"","Mod","Type","Name","Value","Parent"};
+final String[] columnNames ={"","Modifiers","Type","Name","Value","Parent Class"};
 public FieldsTableModel(){}
 
 public void add(String[] data){

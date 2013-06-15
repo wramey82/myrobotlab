@@ -5,7 +5,7 @@ import javax.swing.table.*;
 public class MethodsTableModel extends AbstractTableModel {
 int rows=0;
 Hashtable ht=new Hashtable();
-final String[] columnNames ={"","Mod","Returns","Name","Parent"};
+final String[] columnNames ={"","Modifiers","Return Type","Name","Parent Class"};
 public MethodsTableModel(){}
 
 public void add(String[] data){

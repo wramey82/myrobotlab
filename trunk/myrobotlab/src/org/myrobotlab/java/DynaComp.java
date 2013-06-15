@@ -34,7 +34,6 @@ public class DynaComp {
 		PlainTextOutput it = new PlainTextOutput();
 		Decompiler.decompile(className,it);// (o.getClass().getCanonicalName(),
 											// sw, null);
-		System.out.println(it.toString());
 		return it.toString();
 	}
 
