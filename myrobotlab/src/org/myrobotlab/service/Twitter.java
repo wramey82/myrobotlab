@@ -68,7 +68,8 @@ public class Twitter extends Service {
 		this.consumerSecret = consumerSecret;
 		this.accessToken = accessToken;
 		this.accessTokenSecret = accessTokenSecret;
-
+		
+		configure();
 	}
 
 	public void uploadImage(final SerializableImage image, final String message) {
