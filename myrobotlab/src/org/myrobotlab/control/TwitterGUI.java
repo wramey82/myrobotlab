@@ -107,7 +107,7 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 		if (o == configure) {
-			myService.send(boundServiceName, "configure");
+			myService.send(boundServiceName, "setSecurity", new String(consumerKey.getPassword()),  new String(consumerSecret.getPassword()), new String(accessToken.getPassword()), new String(accessTokenSecret.getPassword()));
 		}
 		
 		// TODO Auto-generated method stub
