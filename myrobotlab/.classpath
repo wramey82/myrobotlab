@@ -79,6 +79,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-examples-3.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-media-support-3.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-stream-3.0.3.jar"/>
-	<classpathentry kind="lib" path="C:/workspace/myrobotlab/thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
