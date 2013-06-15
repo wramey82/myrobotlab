@@ -847,11 +847,11 @@ public class Reflector extends JFrame implements TreeSelectionListener,
 				parent = (String) mNode1.getUserObject() + "." + parent;
 			}
 			
-				if (!node.children().hasMoreElements()) {
+//				if (!node.children().hasMoreElements()) {
 					startreflect(expand(parent + no));
 					// tree.setSelectionPath(tree.getLeadSelectionPath());
 					tree.expandPath(tree.getSelectionPath());
-				}
+//				}
 		}
 	}
 
