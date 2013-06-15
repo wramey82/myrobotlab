@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -43,6 +44,7 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.text.Document;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -50,15 +52,18 @@ import javax.swing.undo.UndoManager;
 
 import org.myrobotlab.service.Java;
 
-public class Reflector extends JFrame {
+public class Reflector extends JFrame implements TreeSelectionListener,
+		ActionListener {
 	private static final long serialVersionUID = 1L;
 	private final FieldsTableModel FieldsData;
 	private final MethodsTableModel MethodsData;
 	private DefaultMutableTreeNode rootNode;
 	private DefaultMutableTreeNode mNode;
+	private DefaultTreeModel treeModel;
 	private Java java;
 	final UndoManager undo = new UndoManager();
 	String parent = "";
+	String toplevel = "java.reflector.tempObject";
 	Object o;
 	String sref;
 
@@ -78,7 +83,8 @@ public class Reflector extends JFrame {
 
 	JPanel Panel7;
 	JTextArea Source;
-
+	JTree tree;
+	JSplitPane js;
 	JLabel Super;
 	private Object tempObject;
 	private int tempInt;
@@ -182,9 +188,9 @@ public class Reflector extends JFrame {
 					int selectedRow = lsm.getMinSelectionIndex();
 					// MAIN DELETED HERE
 					// main.putSystemClipboardString(parent+(String)FieldsData.getValueAt(selectedRow,3));
-					startreflect("((" + tempObject.getClass().getName() + ")"
-							+ objectName + ")."
-							+ FieldsData.getValueAt(selectedRow, 3));
+					// startreflect("((" + tempObject.getClass().getName() + ")"
+					// + objectName + ")."
+					// + FieldsData.getValueAt(selectedRow, 3));
 					// startreflect(objectName+"."+FieldsData.getValueAt(selectedRow,3));
 				}
 			}
@@ -278,6 +284,24 @@ public class Reflector extends JFrame {
 		gbcPanel0.anchor = GridBagConstraints.SOUTH;
 		gbPanel0.setConstraints(TabbedPane1, gbcPanel0);
 		Panel0.add(TabbedPane1);
+		rootNode = new DefaultMutableTreeNode("java.reflector.tempObject");
+		treeModel = new DefaultTreeModel(rootNode);
+		tree = new JTree(treeModel);
+		tree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.setShowsRootHandles(true);
+		tree.addTreeSelectionListener(this);
+		tree.setForeground(new Color(0, 0, 0));
+		JScrollPane scptree = new JScrollPane(tree);
+		gbcPanel0.gridx = 0;
+		gbcPanel0.gridy = 0;
+		gbcPanel0.gridwidth = 1;
+		gbcPanel0.gridheight = 5;
+		gbcPanel0.fill = GridBagConstraints.BOTH;
+		gbcPanel0.weightx = 1;
+		gbcPanel0.weighty = 1;
+		gbcPanel0.anchor = GridBagConstraints.NORTH;
+		gbPanel0.setConstraints(scptree, gbcPanel0);
 
 		Super = new JLabel("extends");
 		gbcPanel0.gridx = 0;
@@ -290,7 +314,6 @@ public class Reflector extends JFrame {
 		gbcPanel0.anchor = GridBagConstraints.NORTH;
 		gbPanel0.setConstraints(Super, gbcPanel0);
 		Panel0.add(Super);
-		rootNode = new DefaultMutableTreeNode("Top Level");
 
 		// setDefaultCloseOperation(HIDE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -299,7 +322,8 @@ public class Reflector extends JFrame {
 				// Agent.mainFrame.btnReflector.setSelected(false);
 			}
 		});
-		setContentPane(Panel0);
+		js = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scptree, Panel0);
+		setContentPane(js);
 		pack();
 		Dimension d67 = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d68 = this.getSize();
@@ -640,8 +664,7 @@ public class Reflector extends JFrame {
 		DefaultMutableTreeNode mNode1 = mNode;
 		if (mNode1 != null) {
 			parent = (String) mNode.getUserObject() + ".";
-			while (!((DefaultMutableTreeNode) mNode1.getParent())
-					.getUserObject().equals("Top Level")) {
+			while (!mNode1.getUserObject().equals(toplevel)) {
 				mNode1 = (DefaultMutableTreeNode) mNode1.getParent();
 				parent = (String) mNode1.getUserObject() + "." + parent;
 			}
@@ -650,10 +673,8 @@ public class Reflector extends JFrame {
 			FieldsData.add((String[]) crtdhash.get((String) fieldsort[r]));
 			if (mNode != null && (mNode.isLeaf() || flag == true)) {
 				String temp = (String) fieldsort[r];
-				temp = temp.substring(parent.length());
-				if (temp.startsWith("."))
-					temp = temp.substring(1);
-				// addObject(mNode, temp);
+				temp = temp.substring(temp.lastIndexOf(".") + 1);
+				addObject(mNode, temp);
 				flag = true;
 			}
 		}
@@ -669,8 +690,26 @@ public class Reflector extends JFrame {
 		this.sref = sref;
 	}
 
+	public void toplevel(Object o) {
+		// rootNode = new DefaultMutableTreeNode("java.reflector.tempObject");
+		mNode = rootNode;
+		// DefaultMutableTreeNode mNode1 = mNode;
+		// Enumeration<MutableTreeNode> jjj = rootNode.children();
+		// while(jjj.hasMoreElements()){
+		// treeModel.removeNodeFromParent(jjj.nextElement());
+		// }
+		rootNode.removeAllChildren();
+		treeModel.reload();
+		// addObject(rootNode, toplevel);
+		reflect(o);
+		tree.setSelectionRow(0);
+		tree.expandPath(tree.getSelectionPath());
+
+	}
+
 	public void reflect(Object o) {
 		this.tempObject = o;
+		// addObject(rootNode, o.toString());
 		startreflect("((Java)" + java.getName() + ").reflector.tempObject");
 	}
 
@@ -715,7 +754,8 @@ public class Reflector extends JFrame {
 	}
 
 	public void startreflect(String name) {
-		this.objectName = strip(name);
+		this.objectName = name;
+
 		this.setVisible(true);
 		Object p = java.interpret("((Java)" + java.getName()
 				+ ").reflector.reflect(" + name + ",\"" + name + "\");");
@@ -724,6 +764,7 @@ public class Reflector extends JFrame {
 					+ name + ",\"" + name + "\");");
 		}
 		// java.interpret("import "+o.getClass().getName()+";");
+		// addObject(rootNode,strip(name));
 		java.interpret("import " + o.getClass().getName() + ";");
 		// Object
 		// a=java.interpret("((Java)"+java.getName()+").reflector.tempObject1=DynaComp.decompile(\""+o.getClass().getName()+"\");");
@@ -770,10 +811,10 @@ public class Reflector extends JFrame {
 	}
 
 	private String strip(String name) {
-		// if (name.startsWith("(")){
-		// name=name.substring(name.indexOf(')', 1)+1);
-		// name=name.replaceAll("\\)", "");
-		// }
+		if (name.startsWith("(")) {
+			name = name.substring(name.indexOf(')', 1) + 1);
+			name = name.replaceAll("\\)", "");
+		}
 		return name;
 	}
 
@@ -787,42 +828,62 @@ public class Reflector extends JFrame {
 		Source.setText("");
 	}
 
-	// public void valueChanged(TreeSelectionEvent e) {
-	// DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-	// tree.getLastSelectedPathComponent();
-	// if (node == null)
-	// return;
-	// String no = (String) node.getUserObject();
-	// mNode = node;
-	// DefaultMutableTreeNode mNode1 = mNode;
-	// parent = "";
-	// if (mNode1 != null && !no.equals("Top Level")) {
-	// while (!((DefaultMutableTreeNode) mNode1.getParent())
-	// .getUserObject().equals("Top Level")) {
-	// mNode1 = (DefaultMutableTreeNode) mNode1.getParent();
-	// parent = "(("+mNode1.getUserObject().getClass().getName()+")"+(String)
-	// mNode1.getUserObject() + ")." + parent;
-	//
-	// }
-	// }
-	// if (!no.equals("Top Level") && !java.isArray(parent + no))
-	// startreflect(parent + no);
-	// if (java.isArray(parent + no)) {
-	// String name1 = "." + parent + no;
-	// Object p1 = java.interpret(parent + no);
-	// Class.setText(p1.getClass().getName()
-	// + " "
-	// + name1.substring(name1.lastIndexOf('.') + 1)
-	// + " = "
-	// + java.interpret("Arrays.toString(" + parent + no + ")")
-	// .toString());
-	// blank();
-	//
-	// }
-	// }
+	public void valueChanged(TreeSelectionEvent e) {
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
+				.getLastSelectedPathComponent();
+		if (node == null)
+			return;
 
-	// @Override
-	// public void actionPerformed(ActionEvent paramActionEvent) {
-	// }
+		String no = (String) node.getUserObject();
+		mNode = node;
+		DefaultMutableTreeNode mNode1 = mNode;
+		parent = "";
+		if (mNode1 != null) {
+			while (!mNode1.getUserObject().equals(toplevel)) {
+				mNode1 = (DefaultMutableTreeNode) mNode1.getParent();
+				// parent = "((" + mNode1.getUserObject().getClass().getName()
+				// + ")" + (String) mNode1.getUserObject() + ")." + parent;
+				//
+				parent = (String) mNode1.getUserObject() + "." + parent;
+			}
+			
+				if (!node.children().hasMoreElements()) {
+					startreflect(expand(parent + no));
+					// tree.setSelectionPath(tree.getLeadSelectionPath());
+					tree.expandPath(tree.getSelectionPath());
+				}
+		}
+	}
 
+	public String expand(String s) {
+		String[] sp = s.split("\\.");
+		String full = "";
+		for (String g : sp) {
+			String d = full.equals("") ? g : (full + "." + g);
+			
+			Object p = java.interpret(d);
+			if (p instanceof Exception) {
+				p = java.interpret(full);
+				String gh = p.getClass().getName();
+				p = java.interpret(gh + "." + g);
+				if (!(p instanceof Exception)) {
+					full = gh + "." + g;
+				}
+			} else
+				full = "((" + p.getClass().getName() + ")" + d + ")";
+		}
+		// if (full.length()>0)full=full.substring(0,full.length()-1);
+		return full;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent paramActionEvent) {
+	}
+
+	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent,
+			Object child) {
+		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
+		treeModel.insertNodeInto(childNode, parent, parent.getChildCount());
+		return childNode;
+	}
 }

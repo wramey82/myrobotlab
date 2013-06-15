@@ -139,6 +139,7 @@ public class Java extends Service {
 		initScript.append("import org.myrobotlab.service.*;\n");
 		initScript.append("import java.util.*;\n");
 		initScript.append("import org.myrobotlab.java.*;\n");
+		initScript.append("public void reflect(Object o){((Java)java).reflect(o);}");
 
 		Iterator<String> it = svcs.keySet().iterator();
 		while (it.hasNext()) {
@@ -496,7 +497,7 @@ public class Java extends Service {
 	}
 
 	public void reflect(Object o) {
-		reflector.reflect(o);
+		reflector.toplevel(o);
 	}
 
 	public static void main(String[] args) {
@@ -521,11 +522,15 @@ public class Java extends Service {
 	}
 
 	public boolean isArray(String string) {
+		if (string==null)return false;
 		try {
 			interp.interpret(string + ".length");
 			return true;
 		} catch (InterpreterException e) {
 			// e.printStackTrace();
+			return false;
+		}
+		catch(Exception e){
 			return false;
 		}
 	}
