@@ -29,6 +29,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -47,6 +48,9 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	
 	JPasswordField consumerKey = new JPasswordField("XXXXXX",20);
 	JPasswordField consumerSecret = new JPasswordField("XXXXXX",20);
+	JPasswordField accessToken = new JPasswordField("XXXXXX",20);
+	JPasswordField accessTokenSecret = new JPasswordField("XXXXXX",20);
+	JButton configure = new JButton("set keys");
 	Twitter twitter = null;
 	
 	public TwitterGUI(final String boundServiceName, final GUI myService) {
@@ -56,11 +60,17 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 		west.add(consumerKey);
 		west.add(new JLabel("consumer secret"));
 		west.add(consumerSecret);
+		west.add(new JLabel("access token"));
+		west.add(accessToken);
+		west.add(new JLabel("access token secret"));
+		west.add(accessTokenSecret);
+		west.add(configure);
 		//display.setLayout(new BorderLayout());
 		display.add(west);
 	}
 
 	public void init() {
+		
 	}
 
 	public void getState(final Twitter twitter) {
@@ -68,6 +78,10 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				consumerKey.setText(twitter.consumerKey);
+				consumerSecret.setText(twitter.consumerSecret);
+				accessToken.setText(twitter.accessToken);
+				accessTokenSecret.setText(twitter.accessTokenSecret);
+				
 			}
 		});
 	}
@@ -90,7 +104,12 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
+		Object o = event.getSource();
+		if (o == configure) {
+			myService.send(boundServiceName, "configure");
+		}
+		
 		// TODO Auto-generated method stub
 
 	}
