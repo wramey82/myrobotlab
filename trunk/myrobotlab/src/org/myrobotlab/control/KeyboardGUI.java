@@ -130,6 +130,8 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 			}
 		}
 	}
+	
+	Calendar cal = Calendar.getInstance();
 
 	public class Keyboard implements KeyListener {
 
@@ -144,16 +146,15 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 				// keyBuffer.append(b)
 				if (code == KeyEvent.VK_ENTER) {
 					myService.send(boundServiceName, "keyCommand", keyBuffer.toString());
+					addLogEntry(sdf.format(cal.getTime()) + " " + keyBuffer.toString());
 					keyBuffer.setLength(0);
 				} else {
 					keyBuffer.append(text);
 				}
 			} else {
 				myService.send(boundServiceName, "keyCommand", text);
+				addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 			}
-
-			Calendar cal = Calendar.getInstance();
-			addLogEntry(sdf.format(cal.getTime()) + " " + keyEvent.getKeyCode() + " " + KeyEvent.getKeyText(keyEvent.getKeyCode()));
 
 		}
 
