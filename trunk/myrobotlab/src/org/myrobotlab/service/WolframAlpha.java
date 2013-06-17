@@ -127,9 +127,9 @@ public class WolframAlpha extends Service {
 	}
 
 	private String[] parseString(String get) {
+		if (get==null)return new String[0];
 		get = get.replaceAll(" ", "");
 		String[] ret = get.split("[=;,]");
-		System.out.println(Arrays.toString(ret));
 		return ret;
 	}
 
