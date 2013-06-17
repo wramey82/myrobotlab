@@ -118,15 +118,17 @@ public class Twitter extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
-
+		
 		Twitter twitter = new Twitter("twitter");
+		
 		twitter.startService();
 		twitter.setSecurity("xxx",
 				"xxx",
-				"xx",
+				"xxx",
 				"xxx");
 		twitter.configure();
 		twitter.tweet("Ciao from MyRobotLab");
+		
 		// twitter.uploadPic("C:/Users/ALESSANDRO/Desktop/myrobotlab/opencv.jpg"
 		// , "here is the pic");
 
