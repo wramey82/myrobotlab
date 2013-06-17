@@ -101,7 +101,7 @@ public class WolframAlpha extends Service {
 			if (!ppod.isError()) {
 				for (WASubpod subpod : ppod.getSubpods()) {
 					for (Object element : subpod.getContents()) {
-						if (ppod.getTitle().equals(pod)
+						if (ppod.getTitle().toLowerCase().equals(pod.toLowerCase())
 								&& element instanceof WAPlainText) {
 							if (acc != null)
 								acc += " ; ";
