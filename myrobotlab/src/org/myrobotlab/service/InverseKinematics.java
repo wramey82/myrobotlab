@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 public class InverseKinematics extends Service {
 
 	public static double x;
+	public static double y;
 	public static double z;
 	public static double l1;
 	public static double l2;
@@ -25,6 +26,7 @@ public class InverseKinematics extends Service {
     public static double form2;
     public static double form3;
     public static double teta2;
+    public static double teta3;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -51,14 +53,15 @@ public class InverseKinematics extends Service {
 		super.releaseService();
 	}
 	
-	public void getCoordinates(double a,double b){
+	public void getCoordinates(double a,double b,double c){
 		
 	     x = a;
-	     z = b;
+	     y = b;
+	     z = c;
 	}
-	public void getLenghts(double b,double c){
-		 l1 = b;
-		 l2 = c;
+	public void getLenghts(double d,double e){
+		 l1 = d;
+		 l2 = e;
 	}
 	public void computeAngles (){
 		 x2 = Math.pow(x,2);
@@ -71,6 +74,7 @@ public class InverseKinematics extends Service {
 		 form3 = (x-l1*Math.cos(teta1));
 		 teta1 = Math.round(Math.toDegrees(teta1));
 		 teta2 = Math.round(Math.toDegrees(Math.atan2(form2, form3)));
+		 teta3 = Math.round(Math.toDegrees(Math.atan2(y,x)));
 		 
 	}
 
@@ -80,11 +84,13 @@ public class InverseKinematics extends Service {
 
 		InverseKinematics inversekinematics = new InverseKinematics("inversekinematics");
 		inversekinematics.startService();
-		inversekinematics.getCoordinates(1,0);
-		inversekinematics.getLenghts(1,1);
+		inversekinematics.getCoordinates(50,50,0);
+		inversekinematics.getLenghts(100,100);
 		inversekinematics.computeAngles();
-		System.out.println(teta1);
-		System.out.println(teta2);
+		System.out.println("First rod angle is :" + teta1);
+		System.out.println("Second rod angle is " + teta2);
+		System.out.println("Base rotation angle is :" + teta3);
+		
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
