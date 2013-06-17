@@ -19,6 +19,7 @@ public class Keyboard extends Service {
 	}
 
 	public String keyCommand(String cmd) {
+		log.info(cmd);
 		return cmd;
 	}
 
