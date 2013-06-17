@@ -1,8 +1,8 @@
 inversekinematics = Runtime.createAndStart("inversekinematics", "InverseKinematics")
 # insert coordinates of the point to reach (x,y,z)
-inversekinematics.getCoordinates(50,50,0)
+inversekinematics.setCoordinates(50,50,0)
 # insert rods lenght of your arm
-inversekinematics.getLenghts(100,100)
+inversekinematics.setLengths(100,100)
 inversekinematics.computeAngles()
 
 print 'First rod angle is :' , inversekinematics.getTeta1()
