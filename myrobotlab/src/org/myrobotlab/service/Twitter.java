@@ -57,6 +57,7 @@ public class Twitter extends Service {
 		try {
 			Status status = twitter.updateStatus(msg);
 		} catch (TwitterException e) {
+			error(e.getMessage());
 			Logging.logException(e);
 		}
 	}
@@ -122,6 +123,10 @@ public class Twitter extends Service {
 		Twitter twitter = new Twitter("twitter");
 		
 		twitter.startService();
+		
+		Runtime.createAndStart("gui", "GUIService");
+		
+		
 		twitter.setSecurity("xxx",
 				"xxx",
 				"xxx",
@@ -143,7 +148,7 @@ public class Twitter extends Service {
 		// twitter.subscribe("publishDisplay", opencv.getName(), "uploadImage",
 		// SerializableImage.class);
 
-		Runtime.createAndStart("gui", "GUIService");
+		
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
