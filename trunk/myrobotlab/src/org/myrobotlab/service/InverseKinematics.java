@@ -77,6 +77,24 @@ public class InverseKinematics extends Service {
 		 teta3 = Math.round(Math.toDegrees(Math.atan2(y,x)));
 		 
 	}
+	
+	public double getTeta1(){
+		
+		return teta1;
+		
+	}
+	
+    public double getTeta2(){
+		
+		return teta2;
+		
+	}
+    
+    public double getTeta3(){
+		
+		return teta3;
+		
+	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
@@ -87,9 +105,9 @@ public class InverseKinematics extends Service {
 		inversekinematics.getCoordinates(50,50,0);
 		inversekinematics.getLenghts(100,100);
 		inversekinematics.computeAngles();
-		System.out.println("First rod angle is :" + teta1);
-		System.out.println("Second rod angle is " + teta2);
-		System.out.println("Base rotation angle is :" + teta3);
+		System.out.println("First rod angle is :" + inversekinematics.getTeta1() );
+		System.out.println("Second rod angle is " + inversekinematics.getTeta2() );
+		System.out.println("Base rotation angle is :" + inversekinematics.getTeta3() );
 		
 		
 		Runtime.createAndStart("gui", "GUIService");
