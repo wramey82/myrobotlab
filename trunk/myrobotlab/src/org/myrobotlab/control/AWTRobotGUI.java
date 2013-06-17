@@ -62,32 +62,35 @@ import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
 import org.slf4j.Logger;
 
-public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMotionListener,MouseListener,MouseWheelListener {
+public class AWTRobotGUI extends ServiceGUI implements ActionListener,
+		MouseMotionListener, MouseListener, MouseWheelListener {
 
 	static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(AWTRobotGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(AWTRobotGUI.class
+			.getCanonicalName());
 
 	VideoWidget video0 = null;
 	JTextField status = new JTextField("", 20);
 	JLabel x = new JLabel("0");
 	JLabel y = new JLabel("0");
 	private JFrame window;
-	
+	private MyCanvas canvas;
+
 	public AWTRobotGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 	}
 
 	public void init() {
 		video0 = new VideoWidget(boundServiceName, myService, false);
-		
+
 		video0.init();
-		//video0.setNormalizedSize(400,400);
-		
+		// video0.setNormalizedSize(400,400);
+
 		video0.getDisplay().addMouseListener(this);
-		
+
 		window = new JFrame("Translucent Window");
-		MyCanvas canvas = new MyCanvas(window);
-//		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		canvas = new MyCanvas(window);
+		// Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle maxBounds = new Rectangle();
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
@@ -99,7 +102,7 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 				maxBounds = maxBounds.union(gc[i].getBounds());
 			}
 		}
-		canvas.setPreferredSize(new Dimension(maxBounds.width,maxBounds.height));
+		canvas.setPreferredSize(new Dimension(maxBounds.width, maxBounds.height));
 		window.setUndecorated(true);
 		window.setAlwaysOnTop(true);
 		canvas.addMouseListener(canvas);
@@ -109,19 +112,32 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 		window.setBounds(maxBounds);
 		window.add(canvas);
 		window.pack();
-	
+
 		display.setLayout(new BorderLayout());
 		display.add(video0.getDisplay(), BorderLayout.CENTER);
-		
-		JButton butt=new JButton("Manually Set Bounds");
-		butt.addActionListener(new ActionListener(){
+
+		JButton butt = new JButton("Set Bounds (drag a rectangle around capture area)");
+		butt.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				window.setVisible(true);
-				
-			}});
-		display.add(butt,BorderLayout.SOUTH);
-		//display.add(status, BorderLayout.SOUTH);
+
+			}
+		});
+		JButton butt1 = new JButton("1:1 Image Resize");
+		butt1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (canvas!=null){
+					Dimension screenDim = new Dimension(canvas.screenRect.width,
+							canvas.screenRect.height);
+					myService.send(boundServiceName, "setResize", screenDim);
+				}
+			}
+		});
+		display.add(butt1, BorderLayout.NORTH);
+		display.add(butt, BorderLayout.SOUTH);
+		// display.add(status, BorderLayout.SOUTH);
 	}
 
 	public void getState(_TemplateService template) {
@@ -131,7 +147,7 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 			}
 		});
 	}
-	
+
 	public void displayFrame(SerializableImage img) {
 		video0.displayFrame(img);
 	}
@@ -159,19 +175,19 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -181,41 +197,39 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
 
-
-	class MyCanvas extends JPanel implements MouseListener,
-			MouseMotionListener {
+	class MyCanvas extends JPanel implements MouseListener, MouseMotionListener {
 
 		int x1 = 0;
 		int y1 = 0;
 		private JFrame window;
+		private Rectangle screenRect;
 
 		// static BufferedImage capture = null;
 
 		public MyCanvas(JFrame window) {
 			super();
-			this.window=window;
+			this.window = window;
 		}
 
 		@Override
@@ -226,8 +240,8 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 			g.drawRect(1, 1, screenSize.width - 3, screenSize.height - 3);
 			((Graphics2D) g).setComposite(AlphaComposite.getInstance(
 					AlphaComposite.DST_IN, .7f));
-			Rectangle2D.Double rect = new Rectangle2D.Double(0, 0, this.getWidth(),
-					this.getHeight());
+			Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
+					this.getWidth(), this.getHeight());
 			((Graphics2D) g).fill(rect);
 			// g.setColor(new Color(0,0,0,1f));
 			// g.fillRect(0, 0,this.getWidth(), this.getHeight());
@@ -235,7 +249,8 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 			// g.fillRect(0, 0,this.getWidth(), this.getHeight());
 
 			// if (capture!=null){g.drawImage(capture,100,100, null);
-			// g.drawRect(100, 100, capture.getWidth() - 1, capture.getHeight() -
+			// g.drawRect(100, 100, capture.getWidth() - 1, capture.getHeight()
+			// -
 			// 1);}
 			// g.setColor(Color.blue);
 			// g.drawString("o", x, y);
@@ -271,11 +286,14 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 				y2 = y1;
 				y1 = y3;
 			}
-			Rectangle max=((AWTRobot)Runtime.getService(boundServiceName)).getMaxBounds();
-			Rectangle screenRect = new Rectangle(x1+max.x, y1+max.y, x2 - x1, y2 - y1);
-			myService.send(boundServiceName, "setBounds", screenRect);
+			Rectangle max = ((AWTRobot) Runtime.getService(boundServiceName))
+					.getMaxBounds();
+			screenRect = new Rectangle(x1 + max.x, y1 + max.y, x2
+					- x1, y2 - y1);
+			
+				myService.send(boundServiceName, "setBounds", screenRect);
 			window.setVisible(false);
-//			WindowReaderMain.capture(screenRect);
+			// WindowReaderMain.capture(screenRect);
 		}
 
 		@Override
@@ -303,7 +321,8 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener, MouseMoti
 			Graphics graphics = this.getGraphics();
 			graphics.setColor(Color.blue);
 			graphics.drawOval(e.getX() - 2, e.getY() - 2, 5, 5);
-			//graphics.drawString("Drag a window to OCR", e.getX() + 5, e.getY() - 10);
+			// graphics.drawString("Drag a window to OCR", e.getX() + 5,
+			// e.getY() - 10);
 			repaint();
 		}
 

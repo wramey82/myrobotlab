@@ -3,6 +3,7 @@ package org.myrobotlab.opencv;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Logging;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -24,6 +25,11 @@ public class VideoSources {
 	//private final static HashMap<String, LinkedBlockingQueue<IplImage>> sources = new HashMap<String, LinkedBlockingQueue<IplImage>>();
 	private final static HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
+	public void put(String name, String filtername, SerializableImage img) {
+		IplImage iplImage = IplImage.createFrom(img.getImage());
+		this.put(name,filtername,iplImage);
+	}
+	
 	public void put(String name, String filtername, IplImage img) {
 		try {
 			String key = (String.format("%s.%s", name, filtername));		

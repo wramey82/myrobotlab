@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -10,7 +11,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 import com.wolfram.alpha.WAEngine;
-import com.wolfram.alpha.WAException;
 import com.wolfram.alpha.WAImage;
 import com.wolfram.alpha.WAPlainText;
 import com.wolfram.alpha.WAPod;
@@ -96,19 +96,44 @@ public class WolframAlpha extends Service {
 	// pod is the Category string you want returned
 	public String wolframAlpha(String query, String pod) {
 		WAQueryResult queryResult = getQueryResult(query);
+		String acc = null;
 		for (WAPod ppod : queryResult.getPods()) {
 			if (!ppod.isError()) {
 				for (WASubpod subpod : ppod.getSubpods()) {
 					for (Object element : subpod.getContents()) {
 						if (ppod.getTitle().equals(pod)
 								&& element instanceof WAPlainText) {
-							return ((WAPlainText) element).getText();
+							if (acc != null)
+								acc += " ; ";
+							else
+								acc = "";
+							acc += ((WAPlainText) element).getText();
 						}
 					}
 				}
 			}
 		}
-		return null;
+		return acc;
+	}
+
+	public String[] wolframAlphaSolution(String query) {
+
+		String get = wolframAlpha(query, "Solutions");
+		return parseString(get);
+
+	}
+
+	public String[] wolframAlphaSolution(String query, String pod) {
+
+		String get = wolframAlpha(query, "Solutions");
+		return parseString(get);
+	}
+
+	private String[] parseString(String get) {
+		get = get.replaceAll(" ", "");
+		String[] ret = get.split("[=;,]");
+		System.out.println(Arrays.toString(ret));
+		return ret;
 	}
 
 	/**
