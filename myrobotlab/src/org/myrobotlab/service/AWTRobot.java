@@ -24,7 +24,10 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.opencv.VideoSources;
 import org.slf4j.Logger;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class AWTRobot extends Service {
 
@@ -38,6 +41,7 @@ public class AWTRobot extends Service {
 	private Rectangle maxBounds;
 	private Rectangle bounds;
 	private Dimension resizedBounds;
+	private VideoSources videoSources;
 	public final static int BUTTON1_MASK = InputEvent.BUTTON1_MASK;
 	public final static int BUTTON2_MASK = InputEvent.BUTTON2_MASK;
 	public final static int BUTTON3_MASK = InputEvent.BUTTON3_MASK;
@@ -72,8 +76,10 @@ public class AWTRobot extends Service {
 	public class MouseThread implements Runnable {
 		public Thread thread = null;
 		private boolean isRunning = true;
+		public String name;
 
-		MouseThread() {
+		MouseThread(String name) {
+			this.name=name;
 			thread = new Thread(this, getName() + "_polling_thread");
 			thread.start();
 		}
@@ -119,6 +125,7 @@ public class AWTRobot extends Service {
 					SerializableImage si = new SerializableImage(bi,
 							"screenshot");
 					invoke("publishDisplay", si);
+					videoSources.put(name, "input",si);
 					Thread.sleep(100);
 				}
 			} catch (InterruptedException e) {
@@ -130,6 +137,7 @@ public class AWTRobot extends Service {
 
 	public AWTRobot(String n) {
 		super(n, AWTRobot.class.getCanonicalName());
+		videoSources=new VideoSources();
 		try {
 			robot = new Robot();
 		} catch (AWTException e) {
@@ -148,7 +156,7 @@ public class AWTRobot extends Service {
 		}
 		bounds = (Rectangle) maxBounds.clone();
 		resizedBounds = new Dimension(800, 600);
-		new MouseThread();		
+		new MouseThread(this.getName());		
 	}
 
 	@Override
@@ -203,7 +211,7 @@ public class AWTRobot extends Service {
 		return dimg;
 	}
 
-	public void setResizedBounds(Dimension bounds) {
+	public void setResize(Dimension bounds) {
 		resizedBounds = bounds;
 	}
 
