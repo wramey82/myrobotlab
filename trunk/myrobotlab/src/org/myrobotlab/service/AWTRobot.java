@@ -148,7 +148,7 @@ public class AWTRobot extends Service {
 		}
 		bounds = (Rectangle) maxBounds.clone();
 		resizedBounds = new Dimension(800, 600);
-		new MouseThread();
+		new MouseThread();		
 	}
 
 	@Override
@@ -224,10 +224,12 @@ public class AWTRobot extends Service {
 	}
 
 	public void setBounds(Rectangle rect) {
+//		System.out.println("maxBounds="+maxBounds);
 		bounds = maxBounds.intersection(rect);
 	}
 
 	public void setBounds(int x, int y, int width, int height) {
+//		System.out.println("maxBounds="+maxBounds);
 		bounds = maxBounds.intersection(new Rectangle(x, y, width, height));
 	}
 
