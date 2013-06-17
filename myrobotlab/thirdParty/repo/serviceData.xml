@@ -201,6 +201,16 @@
 		</list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.InverseKinematics" workingLevel="2">
+      <dependsOn>
+      	 <description>Service to calculate InverseKinematics of a 2 joints robot arm, on a rotating base
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.IPCamera" workingLevel="4">
       <dependsOn>
          <description>service to control and retrieve a video feed from a ip camera.  Foscam cameras currently supported.
@@ -602,6 +612,11 @@
       </category>
    </categories>
    <categories string="org.myrobotlab.service.InMoov">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.InverseKinematics">
       <category>
          <include>robots</include>
       </category>
