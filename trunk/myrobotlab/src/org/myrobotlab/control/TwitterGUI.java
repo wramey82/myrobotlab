@@ -33,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
@@ -51,11 +52,13 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	JPasswordField accessToken = new JPasswordField("XXXXXX",20);
 	JPasswordField accessTokenSecret = new JPasswordField("XXXXXX",20);
 	JButton configure = new JButton("set keys");
+	JTextField text = new JTextField(20);
+	JButton tweet = new JButton("tweet");
 	Twitter twitter = null;
 	
 	public TwitterGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		JPanel west = new JPanel(new GridLayout(2,4));
+		JPanel west = new JPanel(new GridLayout(5,2));
 		west.add(new JLabel("consumer key"));
 		west.add(consumerKey);
 		west.add(new JLabel("consumer secret"));
@@ -67,6 +70,11 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 		west.add(configure);
 		//display.setLayout(new BorderLayout());
 		display.add(west);
+		gc.gridx = 0;
+		JPanel est = new JPanel(new GridLayout(2,1));
+		est.add(text);
+		est.add(tweet);
+		display.add(est);
 	}
 
 	public void init() {
@@ -81,6 +89,7 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 				consumerSecret.setText(twitter.consumerSecret);
 				accessToken.setText(twitter.accessToken);
 				accessTokenSecret.setText(twitter.accessTokenSecret);
+				text.setText("Your Text Here");
 				
 			}
 		});
@@ -108,6 +117,11 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 		Object o = event.getSource();
 		if (o == configure) {
 			myService.send(boundServiceName, "setSecurity", new String(consumerKey.getPassword()),  new String(consumerSecret.getPassword()), new String(accessToken.getPassword()), new String(accessTokenSecret.getPassword()));
+		}
+		if (o == tweet) {
+			
+			myService.send(boundServiceName, "tweet", new String(text.getText()));
+			
 		}
 		
 		// TODO Auto-generated method stub
