@@ -117,15 +117,12 @@ public class WolframAlpha extends Service {
 	}
 
 	public String[] wolframAlphaSolution(String query) {
-
-		String get = wolframAlpha(query, "Solutions");
+		String get = wolframAlpha(query, "Solution");
 		return parseString(get);
-
 	}
 
 	public String[] wolframAlphaSolution(String query, String pod) {
-
-		String get = wolframAlpha(query, "Solutions");
+		String get = wolframAlpha(query, pod);
 		return parseString(get);
 	}
 
