@@ -4,29 +4,26 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.memory.Memory;
-import org.myrobotlab.memory.MemoryChangeListener;
-import org.myrobotlab.memory.Node;
 import org.slf4j.Logger;
 
 
 public class InverseKinematics extends Service {
 
-	public static double x;
-	public static double y;
-	public static double z;
-	public static double l1;
-	public static double l2;
-	public static double x2;
-	public static double z2;
-	public static double l12;
-	public static double l22;
-	public static double form;
-	public static double teta1;
-    public static double form2;
-    public static double form3;
-    public static double teta2;
-    public static double teta3;
+	public double x;
+	public double y;
+	public double z;
+	public double l1;
+	public double l2;
+	public double x2;
+	public double z2;
+	public double l12;
+	public double l22;
+	public double form;
+	public double teta1;
+    public double form2;
+    public double form3;
+    public double teta2;
+    public double teta3;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -40,26 +37,13 @@ public class InverseKinematics extends Service {
 	public String getToolTip() {
 		return "used as a general template";
 	}
-
-	@Override 
-	public void stopService()
-	{
-		super.stopService();
-	}
 	
-	@Override
-	public void releaseService()
-	{
-		super.releaseService();
-	}
-	
-	public void getCoordinates(double a,double b,double c){
-		
+	public void setCoordinates(double a,double b,double c){
 	     x = a;
 	     y = b;
 	     z = c;
 	}
-	public void getLenghts(double d,double e){
+	public void setLengths(double d,double e){
 		 l1 = d;
 		 l2 = e;
 	}
@@ -102,13 +86,12 @@ public class InverseKinematics extends Service {
 
 		InverseKinematics inversekinematics = new InverseKinematics("inversekinematics");
 		inversekinematics.startService();
-		inversekinematics.getCoordinates(50,50,0);
-		inversekinematics.getLenghts(100,100);
+		inversekinematics.setCoordinates(50,50,0);
+		inversekinematics.setLengths(100,100);
 		inversekinematics.computeAngles();
 		System.out.println("First rod angle is :" + inversekinematics.getTeta1() );
 		System.out.println("Second rod angle is " + inversekinematics.getTeta2() );
 		System.out.println("Base rotation angle is :" + inversekinematics.getTeta3() );
-		
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
