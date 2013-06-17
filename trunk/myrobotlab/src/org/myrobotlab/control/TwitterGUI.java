@@ -25,6 +25,7 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,30 +52,34 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	JPasswordField consumerSecret = new JPasswordField("XXXXXX",20);
 	JPasswordField accessToken = new JPasswordField("XXXXXX",20);
 	JPasswordField accessTokenSecret = new JPasswordField("XXXXXX",20);
-	JButton configure = new JButton("set keys");
+	JButton setKeys = new JButton("set keys");
 	JTextField text = new JTextField(20);
 	JButton tweet = new JButton("tweet");
 	Twitter twitter = null;
 	
 	public TwitterGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		JPanel west = new JPanel(new GridLayout(5,2));
-		west.add(new JLabel("consumer key"));
-		west.add(consumerKey);
-		west.add(new JLabel("consumer secret"));
-		west.add(consumerSecret);
-		west.add(new JLabel("access token"));
-		west.add(accessToken);
-		west.add(new JLabel("access token secret"));
-		west.add(accessTokenSecret);
-		west.add(configure);
+		display.setLayout(new BorderLayout());
+		JPanel keyInfo = new JPanel(new GridLayout(5,2));
+		keyInfo.add(new JLabel("consumer key"));
+		keyInfo.add(consumerKey);
+		keyInfo.add(new JLabel("consumer secret"));
+		keyInfo.add(consumerSecret);
+		keyInfo.add(new JLabel("access token"));
+		keyInfo.add(accessToken);
+		keyInfo.add(new JLabel("access token secret"));
+		keyInfo.add(accessTokenSecret);
+		keyInfo.add(new JLabel(""));
+		keyInfo.add(setKeys);
+		setKeys.addActionListener(this);
+		tweet.addActionListener(this);
 		//display.setLayout(new BorderLayout());
-		display.add(west);
+		display.add(keyInfo, BorderLayout.NORTH);
 		gc.gridx = 0;
-		JPanel est = new JPanel(new GridLayout(2,1));
-		est.add(text);
-		est.add(tweet);
-		display.add(est);
+		JPanel tweetPanel = new JPanel(new GridLayout(2,1));
+		tweetPanel.add(text);
+		tweetPanel.add(tweet);
+		display.add(tweetPanel, BorderLayout.SOUTH);
 	}
 
 	public void init() {
@@ -115,10 +120,9 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
-		if (o == configure) {
+		if (o == setKeys) {
 			myService.send(boundServiceName, "setSecurity", new String(consumerKey.getPassword()),  new String(consumerSecret.getPassword()), new String(accessToken.getPassword()), new String(accessTokenSecret.getPassword()));
-		}
-		else if (o == tweet) {
+		} else if (o == tweet) {
 			
 			myService.send(boundServiceName, "tweet", new String(text.getText()));
 			
