@@ -592,6 +592,8 @@ public class InMoov extends Service {
 
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
+		inMoov.handRight.index.setPositionMax(155);
+		inMoov.handRight.index.setPositionMin(15);
 
 		/*
 		 * Arduino arduino = new Arduino("arduino");
