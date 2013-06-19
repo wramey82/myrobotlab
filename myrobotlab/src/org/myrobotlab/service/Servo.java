@@ -52,6 +52,8 @@ public class Servo extends Service implements ServoControl {
 	private int positionMin = 0;
 	@Element
 	private int positionMax = 180;
+	
+	private boolean inverted = false;
 
 	// private float speed = 1.0f; // fractional speed component 0 to 1.0
 
@@ -69,8 +71,6 @@ public class Servo extends Service implements ServoControl {
 		load();
 	}
 
-
-
 	@Override
 	public boolean setController(ServoController controller) {
 		if (controller == null) {
@@ -80,14 +80,31 @@ public class Servo extends Service implements ServoControl {
 		this.controller = controller;
 		return true;
 	}
+	
+	public void setInverted(boolean isInverted)
+	{
+		inverted = isInverted;
+	}
+	
+	public boolean isInverted()
+	{
+		return inverted;
+	}
 
 	/**
 	 * simple move servo to the location desired
 	 */
 	@Override
-	public void moveTo(Integer newPos) {
-		if (newPos == null) {
+	public void moveTo(Integer pos) {
+		/*
+		if (pos == null) {
 			return;
+		}
+		*/
+		Integer newPos = pos;
+		if (inverted)
+		{
+			newPos = 180 - pos;
 		}
 		if (controller == null) {
 			log.error(String.format("%s's controller is not set", getName()));
@@ -107,11 +124,17 @@ public class Servo extends Service implements ServoControl {
 	 * -1.0 will always be the minPos and 1.0 will be maxPos
 	 */
 	@Override
-	public void move(Float amount) {
+	public void move(Float pos) {
+		Float amount = pos;
+		if (inverted)
+		{
+			amount = pos * -1;
+		}
 		if (amount > 1 || amount < -1) {
 			log.error("Servo.move %d out of range");
 			return;
 		}
+	
 		int range = positionMax - positionMin;
 		int newPos = Math.abs((int) (range / 2 * amount - range / 2));
 
