@@ -25,7 +25,7 @@ ear.attach(mouth)
 # add a "on" -> arduino.digitalWrite(13, 1)  - turn's pin 13 on
 ear.addCommand("on", arduino.getName(), "digitalWrite", 13, 1)
 # add a "off" -> arduino.digitalWrite(13, 0)  - turn's pin 13 off
-ear.addCommand("on", arduino.getName(), "digitalWrite", 13, 0)
+ear.addCommand("off", arduino.getName(), "digitalWrite", 13, 0)
 
 
 # add confirmations and negations - this makes any command a 2 part commit
