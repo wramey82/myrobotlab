@@ -1,9 +1,12 @@
 from java.lang import String
 
-# a two stage confirmation of commands
-# first a command is given - when a command is heard
+# a demo of using speech recognition to 
+# turn an Arduino's pin 13 off or on
 
-command = ""
+# the commands are 2 stage - with the command, the the system
+# asking if that command was said, then a affirmation or negation
+# e.g. - you say "on", the system asks if you said "on", you say "yes"
+# the system turns the Arduino pin 13 on
 
 # create services
 python = Runtime.createAndStart("python", "Python")
@@ -11,7 +14,7 @@ mouth = Runtime.createAndStart("mouth", "Speech")
 arduino = Runtime.createAndStart("arduino", "Arduino")
 ear = Runtime.createAndStart("ear", "Sphinx")
 
-# connect mrl to the arduino
+# connect mrl to the arduino - change the port on your system
 arduino.setSerialDevice("COM10")
 
 # attaching the mouth to the ear
