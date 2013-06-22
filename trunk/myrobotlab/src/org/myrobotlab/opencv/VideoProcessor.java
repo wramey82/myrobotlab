@@ -35,7 +35,8 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
+	public final static Logger log = LoggerFactory
+			.getLogger(VideoProcessor.class.getCanonicalName());
 
 	int frameIndex = 0;
 	public boolean capturing = false;
@@ -68,7 +69,7 @@ public class VideoProcessor implements Runnable, Serializable {
 	// FIXME - more than 1 type is being used on this in more than one context
 	// BEWARE !!!!
 	// FIXME - use for RECORDING & another one for Blocking for data !!!
-	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>(); 
+	public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
 
 	transient VideoSources sources = new VideoSources();
 	// transient HashMap<String, IplImage> sources = new HashMap<String,
@@ -162,6 +163,10 @@ public class VideoProcessor implements Runnable, Serializable {
 			} else if (OpenCV.INPUT_SOURCE_PIPELINE.equals(inputSource)) {
 				paramTypes[0] = String.class;
 				params[0] = pipelineSelected;
+
+			} else if (OpenCV.INPUT_SOURCE_NETWORK.equals(inputSource)) {
+				paramTypes[0] = String.class;
+				params[0] = inputFile;
 			}
 
 			Class<?> nfg = Class.forName(grabberType);
@@ -174,10 +179,13 @@ public class VideoProcessor implements Runnable, Serializable {
 				grabber.setFormat(format);
 			}
 
-			log.info(String.format("using %s", grabber.getClass().getCanonicalName()));
+			log.info(String.format("using %s", grabber.getClass()
+					.getCanonicalName()));
 
 			if (grabber == null) {
-				log.error(String.format("no viable capture or frame grabber with input %s", grabberType));
+				log.error(String.format(
+						"no viable capture or frame grabber with input %s",
+						grabberType));
 				stop();
 			}
 
@@ -202,8 +210,9 @@ public class VideoProcessor implements Runnable, Serializable {
 				// Logging.logTime("start");
 
 				frame = grabber.grab();
-				if (getDepth&&grabber instanceof OpenKinectFrameGrabber) {
-					sources.put(boundServiceName, OpenCV.SOURCE_KINECT_DEPTH, ((OpenKinectFrameGrabber) grabber).grabDepth());
+				if (getDepth && grabber instanceof OpenKinectFrameGrabber) {
+					sources.put(boundServiceName, OpenCV.SOURCE_KINECT_DEPTH,
+							((OpenKinectFrameGrabber) grabber).grabDepth());
 				}
 
 				// TODO - option to accumulate? - e.g. don't new
@@ -223,7 +232,7 @@ public class VideoProcessor implements Runnable, Serializable {
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
 						if (image == null) {
-							log.warn("{} has no image - waiting",filter.name);
+							log.warn("{} has no image - waiting", filter.name);
 							Service.sleep(300);
 							continue;
 						}
@@ -243,10 +252,12 @@ public class VideoProcessor implements Runnable, Serializable {
 							// FIXME - first bufferedImage put into data does
 							// not need to be cloned
 							// IplImage copy = image.clone();
-							SerializableImage out = new SerializableImage(image.getBufferedImage(), filter.name);
+							SerializableImage out = new SerializableImage(
+									image.getBufferedImage(), filter.name);
 
 							// put image ?
-							data.put(String.format("%s.%s", opencv.getName(),filter.name), out);
+							data.put(String.format("%s.%s", opencv.getName(),
+									filter.name), out);
 						}
 
 						// if selected || use has chosen to publish multiple
@@ -262,11 +273,14 @@ public class VideoProcessor implements Runnable, Serializable {
 						// however to view - a user wants to see the overlay
 						// publish display
 						if (displayFilter.equals(INPUT_KEY)) {
-							opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());
-						} else if (filter.name.equals(displayFilter) || filter.publishDisplay) {
+							opencv.invoke("publishDisplay", displayFilter,
+									frame.getBufferedImage());
+						} else if (filter.name.equals(displayFilter)
+								|| filter.publishDisplay) {
 							BufferedImage display = filter.display(image, data);
 							// FIXME - change to Serialiable image
-							opencv.invoke("publishDisplay", displayFilter, display);
+							opencv.invoke("publishDisplay", displayFilter,
+									display);
 						}
 					} // capturing && itr.hasNext()
 				} // synchronized (filters)
@@ -278,7 +292,8 @@ public class VideoProcessor implements Runnable, Serializable {
 
 				// no filters - no filters selected
 				if (filters.size() == 0) {
-					opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());
+					opencv.invoke("publishDisplay", displayFilter,
+							frame.getBufferedImage());
 				}
 
 				if (useBlockingData) {
@@ -321,7 +336,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	}
 
 	public void addFilter(String name, String newFilter) {
-		String type = String.format("org.myrobotlab.opencv.OpenCVFilter%s", newFilter);
+		String type = String.format("org.myrobotlab.opencv.OpenCVFilter%s",
+				newFilter);
 		Object[] params = new Object[1];
 		params[0] = name;
 
@@ -339,26 +355,28 @@ public class VideoProcessor implements Runnable, Serializable {
 	public void addFilter(OpenCVFilter filter) {
 		filter.vp = this;
 		synchronized (filters) {
-			
-			for (int i = 0; i < filters.size(); ++i)
-			{
-				if (filter.name.equals(filters.get(i).name))
-				{
+
+			for (int i = 0; i < filters.size(); ++i) {
+				if (filter.name.equals(filters.get(i).name)) {
 					log.warn("duplicate filter name {}", filter.name);
 					return;
 				}
 			}
-			
+
 			if (filter.sourceKey == null) {
-				filter.sourceKey = String.format("%s.%s", boundServiceName, INPUT_KEY);
+				filter.sourceKey = String.format("%s.%s", boundServiceName,
+						INPUT_KEY);
 				if (filters.size() > 0) {
 					OpenCVFilter f = filters.get(filters.size() - 1);
-					filter.sourceKey = String.format("%s.%s", boundServiceName, f.name);
+					filter.sourceKey = String.format("%s.%s", boundServiceName,
+							f.name);
 				}
 			}
 
 			filters.add(filter);
-			log.info(String.format("added new filter %s.%s, %s", boundServiceName, filter.name, filter.getClass().getCanonicalName()));
+			log.info(String.format("added new filter %s.%s, %s",
+					boundServiceName, filter.name, filter.getClass()
+							.getCanonicalName()));
 		}
 	}
 
@@ -375,8 +393,8 @@ public class VideoProcessor implements Runnable, Serializable {
 				OpenCVFilter filter = itr.next();
 				if (filter.name.equals(name)) {
 					itr.remove();
-					//displayFilter = ;
-					opencv.setDisplayFilter(filters.get(filters.size()-1).name);
+					// displayFilter = ;
+					opencv.setDisplayFilter(filters.get(filters.size() - 1).name);
 					return;
 				}
 			}
@@ -408,9 +426,10 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public String recordSingleFrame(BufferedImage frame, int frameIndex) {
 		try {
-			String filename = String.format("%s.%d.jpg", boundServiceName, frameIndex);
+			String filename = String.format("%s.%d.jpg", boundServiceName,
+					frameIndex);
 			Util.writeBufferedImage(frame, filename);
-			
+
 			// FIXME - MESSY - WHAT IF THIS IS ATTEMPTED TO PROCESS THROUGH
 			// FILTERS !!!
 			blockingData.put(filename);
@@ -422,8 +441,6 @@ public class VideoProcessor implements Runnable, Serializable {
 		return null;
 	}
 
-
-
 	public void record(String filename, IplImage frame) {
 		try {
 
@@ -432,7 +449,8 @@ public class VideoProcessor implements Runnable, Serializable {
 				// (String.format("%s.avi",filename), frame.width(),
 				// frame.height());
 
-				FrameRecorder recorder = new OpenCVFrameRecorder(String.format("%s.avi", filename), frame.width(), frame.height());
+				FrameRecorder recorder = new OpenCVFrameRecorder(String.format(
+						"%s.avi", filename), frame.width(), frame.height());
 				// recorder.setCodecID(CV_FOURCC('M','J','P','G'));
 				recorder.setFrameRate(15);
 				recorder.setPixelFormat(1);
@@ -493,7 +511,8 @@ public class VideoProcessor implements Runnable, Serializable {
 		this.grabber = grabber;
 	}
 
-	public LinkedBlockingQueue<IplImage> requestFork(String filterName, String myName) {
+	public LinkedBlockingQueue<IplImage> requestFork(String filterName,
+			String myName) {
 		return null;
 	}
 }
