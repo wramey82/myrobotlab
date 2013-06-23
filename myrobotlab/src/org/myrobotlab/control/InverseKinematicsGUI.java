@@ -32,7 +32,6 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.InverseKinematics;
-import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.interfaces.GUI;
 import org.slf4j.Logger;
 

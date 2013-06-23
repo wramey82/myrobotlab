@@ -18,14 +18,14 @@ public interface SerialDeviceService {
 	// FIXME - should probably throw general Exception - and allow implementation a specific exception
 	public SerialDevice getSerialDevice();
 
-	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity);
+	public boolean connect(String name, int rate, int databits, int stopbits, int parity);
 	
-	public void serialSend(String data) throws IOException;
+	public void write(String data) throws IOException;
 	
-	public void serialSend(byte[] data) throws IOException;
+	public void write(byte[] data) throws IOException;
 
-	public void serialSend(char data) throws IOException;
+	public void write(char data) throws IOException;
 
-	public void serialSend(int data) throws IOException;
+	public void write(int data) throws IOException;
 
 }

@@ -34,12 +34,10 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
@@ -58,15 +56,18 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	IplImage value = null;
 	IplImage saturation = null;
 	IplImage mask = null;
-	BufferedImage frameBuffer = null;
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-
+	
 	CvScalar hsv_min = null;
 	CvScalar hsv_max = null;
 	CvScalar hsv_min2 = null;
 	CvScalar hsv_max2 = null;
-
+	
+	BufferedImage frameBuffer = null;
+	
+	public OpenCVFilterColorTrack()  {
+		super();
+	}
+	
 	public OpenCVFilterColorTrack(String name)  {
 		super(name);
 	}

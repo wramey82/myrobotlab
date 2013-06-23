@@ -22,8 +22,14 @@ public class ACEduinoMotorShield extends Service {
 
 	public transient final static Logger log = LoggerFactory.getLogger(ACEduinoMotorShield.class.getCanonicalName());
 
+	public static final int ACEDUINO_MOTOR_SHIELD_START = 50;
+	public static final int ACEDUINO_MOTOR_SHIELD_STOP = 51;
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION = 52;
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS = 53;
+	public static final int ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS = 54;
+
 	// name of the Arduino
-	String controllerName;
+	Arduino arduino;
 
 	public ACEduinoMotorShield(String n) {
 		super(n, ACEduinoMotorShield.class.getCanonicalName());
@@ -35,7 +41,13 @@ public class ACEduinoMotorShield extends Service {
 	}
 
 	public void setPosition(int servo, int position) {
-		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION, servo, position);
+		arduino.sendMsg(ACEDUINO_MOTOR_SHIELD_SERVO_SET_POSITION, servo, position);
+	}
+	
+	public boolean attach(Arduino arduino)
+	{
+		this.arduino = arduino;
+		return true;
 	}
 
 	public void setBounds(int servo, int minposition, int maxposition) {
@@ -44,33 +56,37 @@ public class ACEduinoMotorShield extends Service {
 		// 2 methods of 1 parameter until the Arduino
 		// either accepts multiple parameters
 		// not multi-threaded safe - ie get Servo then setServo Position
-		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS, servo, minposition);
-		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS, servo, maxposition);
-
+		arduino.sendMsg(ACEDUINO_MOTOR_SHIELD_SERVO_SET_MIN_BOUNDS, servo, minposition);
+		arduino.sendMsg(ACEDUINO_MOTOR_SHIELD_SERVO_SET_MAX_BOUNDS, servo, maxposition);
 	}
 
 	public void start() {
-		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_START, 0, 0);
+		arduino.sendMsg(ACEDUINO_MOTOR_SHIELD_START);
 	}
 
 	public void stop() {
-		send(controllerName, "serialSend", Arduino.ACEDUINO_MOTOR_SHIELD_STOP, 0, 0);
+		arduino.sendMsg(ACEDUINO_MOTOR_SHIELD_STOP);
 	}
 
 	public Object getControllerName() {
-		return controllerName;
+		return arduino;
 	}
 
 	public boolean attach(String controllerName) {
 		ServiceWrapper sw = Runtime.getServiceWrapper(controllerName);
-		if (sw != null) {
-			log.info(String.format("%s controller set to %s", getName(), controllerName));
-			this.controllerName = controllerName;
-			return true;
+		if (sw == null)
+		{
+			log.error("can not find {}", controllerName);
+			return false;
 		}
-
-		log.error(String.format("controller %s does not exits", controllerName));
-		return false;
+		
+		if (sw.service.getClass() != Arduino.class)
+		{
+			log.error("{} must be an Arduino", controllerName);
+			return false;
+		}
+		
+		return attach((Arduino) sw.service);
 	}
 
 	public static void main(String[] args) {

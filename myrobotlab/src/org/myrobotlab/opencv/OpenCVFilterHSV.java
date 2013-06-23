@@ -65,10 +65,13 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	IplImage value = null;
 	IplImage saturation = null;
 	IplImage mask = null;
-	BufferedImage frameBuffer = null;
-	// int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-
+	
+	transient BufferedImage frameBuffer = null;
+	
+	public OpenCVFilterHSV()  {
+		super();
+	}
+	
 	public OpenCVFilterHSV(String name)  {
 		super(name);
 	}

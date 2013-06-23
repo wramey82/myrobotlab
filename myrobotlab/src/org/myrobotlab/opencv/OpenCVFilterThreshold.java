@@ -31,10 +31,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_THRESH_BINARY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvThreshold;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -48,10 +46,14 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	public float lowThreshold = 0.0f;
 	public float highThreshold = 256.0f;
 
+	public OpenCVFilterThreshold()  {
+		super();
+	}
+	
 	public OpenCVFilterThreshold(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 		return image.getBufferedImage();

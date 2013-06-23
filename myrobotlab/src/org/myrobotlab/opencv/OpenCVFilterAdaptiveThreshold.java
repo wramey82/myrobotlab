@@ -34,10 +34,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvAdaptiveThreshold;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -50,7 +48,11 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 	
 	transient IplImage gray = null;
 
-	public OpenCVFilterAdaptiveThreshold(String name) {
+	public OpenCVFilterAdaptiveThreshold()  {
+		super();
+	}
+	
+	public OpenCVFilterAdaptiveThreshold(String name)  {
 		super(name);
 	}
 

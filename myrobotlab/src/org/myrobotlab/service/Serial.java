@@ -15,28 +15,25 @@ import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceService;
 import org.slf4j.Logger;
 
-
 public class Serial extends Service implements SerialDeviceService, SerialDeviceEventListener {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Serial.class.getCanonicalName());
-	
+
 	private transient SerialDevice serialDevice;
 	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
 	private boolean connected = false;
 	int rawReadMsgLength = 5;
 
 	public Serial(String n) {
-		super(n, Serial.class.getCanonicalName());	
+		super(n, Serial.class.getCanonicalName());
 	}
 
 	@Override
 	public String getToolTip() {
 		return "used as a general template";
 	}
-	
-
 
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
@@ -55,29 +52,15 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 			try {
 
-				byte[] msg = new byte[rawReadMsgLength];
 				int newByte;
-				int numBytes = 0;
 
 				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
-
-					msg[numBytes] = (byte) newByte;
-					++numBytes;
-					
-					String s = new String(msg);
-					log.info(s);
-					invoke("readSerialMessage", s);
-
-						numBytes = 0;
-
-						// reset buffer
-						for (int i = 0; i < rawReadMsgLength; ++i) {
-							msg[i] = -1;
-						}
-
-					}
+					// TODO allow msg length based on delimeter or fixed size
+					invoke("read", newByte);
+				}
 
 			} catch (IOException e) {
+				Logging.logException(e);
 			}
 
 			break;
@@ -96,7 +79,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	@Override
-	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
+	public boolean connect(String name, int rate, int databits, int stopbits, int parity) {
 		try {
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
@@ -104,7 +87,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 				connect();
 
-				serialDevice.setParams(rate, databits, stopbits, parity); 
+				serialDevice.setParams(rate, databits, stopbits, parity);
 
 				save(); // successfully bound to port - saving
 				broadcastState(); // state has changed let everyone know
@@ -119,7 +102,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public boolean connect() {
 
 		if (serialDevice == null) {
-			error("can't connect, serialDevice is null"); 
+			error("can't connect, serialDevice is null");
 			return false;
 		}
 
@@ -141,10 +124,10 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 		info(String.format("connected to serial device %s", serialDevice.getName()));
 		connected = true;
-	
+
 		return true;
 	}
-	
+
 	public boolean isConnected() {
 		// I know not normalized
 		// but we have to do this - since
@@ -153,25 +136,24 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	@Override
-	public void serialSend(String data) throws IOException {
-		serialSend(data.getBytes());
+	public void write(String data) throws IOException {
+		write(data.getBytes());
 	}
 
 	@Override
-	public void serialSend(byte[] data) throws IOException {
-		for(int i = 0; i < data.length; ++i)
-		{
+	public void write(byte[] data) throws IOException {
+		for (int i = 0; i < data.length; ++i) {
 			serialDevice.write(data[i]);
 		}
 	}
 
 	@Override
-	public void serialSend(char data) throws IOException {
+	public void write(char data) throws IOException {
 		serialDevice.write(data);
 	}
 
 	@Override
-	public void serialSend(int data) throws IOException {
+	public void write(int data) throws IOException {
 		serialDevice.write(data);
 	}
 
@@ -180,14 +162,14 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Serial serial = new Serial("serial");
-		serial.startService();			
-		
-		serial.setSerialDevice("COM4", 57600, 8, 1, 0);
+		serial.startService();
+
+		serial.connect("COM4", 57600, 8, 1, 0);
 		serial.connect();
 		byte a = 1;
 		int b = 2;
-		serial.serialSend(a);
-		
+		serial.write(a);
+
 		Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();

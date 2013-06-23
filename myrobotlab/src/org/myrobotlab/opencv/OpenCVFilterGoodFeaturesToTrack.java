@@ -88,7 +88,11 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	// only valid for a "fixed" camera - need a new index to support camera
 	// movement
 	HashMap<String, Float> values = new HashMap<String, Float>();
-
+	
+	public OpenCVFilterGoodFeaturesToTrack()  {
+		super();
+	}
+	
 	public OpenCVFilterGoodFeaturesToTrack(String name)  {
 		super(name);
 	}

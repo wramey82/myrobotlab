@@ -346,7 +346,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 			t.pin = (Integer) tracePin.getSelectedItem();
 			traceData.put(SensorMonitor.makeKey(controllerName, t.pin), t);
 
-			MRLListener MRLListener = new MRLListener(SensorDataPublisher.publishPin, boundServiceName, "sensorInput", new Class[] { Pin.class });
+			MRLListener MRLListener = new MRLListener("publishPin", boundServiceName, "sensorInput", new Class[] { Pin.class });
 
 			myService.send(controllerName, "addListener", MRLListener);
 

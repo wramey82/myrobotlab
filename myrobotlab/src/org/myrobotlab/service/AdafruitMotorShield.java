@@ -143,11 +143,11 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 	}
 
 	public void setSpeed(Integer motorPortNumber, Integer speed) {
-		myArduino.serialSend(AF_DCMOTOR_SET_SPEED, motorPortNumber - 1, speed);
+		myArduino.sendMsg(AF_DCMOTOR_SET_SPEED, motorPortNumber - 1, speed);
 	}
 
 	public void run(Integer motorPortNumber, Integer command) {
-		myArduino.serialSend(AF_DCMOTOR_RUN_COMMAND, motorPortNumber - 1, command);
+		myArduino.sendMsg(AF_DCMOTOR_RUN_COMMAND, motorPortNumber - 1, command);
 	}
 
 	public void runForward(Integer motorPortNumber, Integer speed) {

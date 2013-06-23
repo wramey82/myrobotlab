@@ -38,7 +38,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -56,12 +55,11 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterAverageColor.class.getCanonicalName());
 
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
+	
 	String colorName = "";
 	String lastColorName = "";
 
-	transient IplImage buffer = null;
-	transient BufferedImage frameBuffer = null;
+	transient IplImage buffer = null; 
 
 	transient CvScalar fillColor = cvScalar(0.0, 0.0, 0.0, 1.0);
 
@@ -113,10 +111,13 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		return ret;
 	}
 
+	public OpenCVFilterAverageColor()  {
+		super();
+	}
+	
 	public OpenCVFilterAverageColor(String name)  {
 		super(name);
 	}
-
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 		/*

@@ -17,6 +17,16 @@ public class Hand {
 
 	public Hand() {
 	}
+	
+	public void setInverted(boolean isInverted)
+	{
+		thumb.setInverted(isInverted);
+		index.setInverted(isInverted);
+		majeure.setInverted(isInverted);
+		ringFinger.setInverted(isInverted);
+		pinky.setInverted(isInverted);
+		wrist.setInverted(isInverted);
+	}
 
 	public void moveTo(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
 		this.thumb.moveTo(thumb);

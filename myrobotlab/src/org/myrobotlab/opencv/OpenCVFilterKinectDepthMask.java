@@ -55,7 +55,6 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.logging.LoggerFactory;
@@ -101,13 +100,17 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	// cvDrawRect has to have 2 points - no cvDrawRect can't draw a cvRect ???
 	// http://code.google.com/p/opencvx/ - apparently - I'm not the only one who
 	// thinks this is silly
-	// http://opencvx.googlecode.com/svn/trunk/cvdrawrectangle.h
-	transient BufferedImage frameBuffer = null;
+	// http://opencvx.googlecode.com/svn/trunk/cvdrawrectangle.h 
 	transient CvMemStorage cvStorage = null;
 
 	transient CvPoint p0 = new CvPoint(0, 0);
 	transient CvPoint p1 = new CvPoint(0, 0);
 
+	
+	public OpenCVFilterKinectDepthMask()  {
+		super();
+	}
+	
 	public OpenCVFilterKinectDepthMask(String name)  {
 		super(name);
 	}

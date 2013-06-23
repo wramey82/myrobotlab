@@ -52,7 +52,7 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSampleImage.class.getCanonicalName());
 
 	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
+	
 	Image fileImage = null;
 	Graphics2D graphics = null;
 
@@ -68,9 +68,14 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 	 * purple = HSV 128 255 150 128, 0, 0, 1 = blue = HSV 128 255 150 (navy)
 	 */
 
+	public OpenCVFilterSampleImage()  {
+		super();
+	}
+	
 	public OpenCVFilterSampleImage(String name)  {
 		super(name);
 	}
+	
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

@@ -43,8 +43,11 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 
 	// display related
 	Graphics2D graphics = null;
-	BufferedImage frameBuffer = null;
-
+	
+	public OpenCVFilterOutput()  {
+		super();
+	}
+	
 	public OpenCVFilterOutput(String name)  {
 		super(name);
 	}
@@ -57,9 +60,7 @@ public class OpenCVFilterOutput extends OpenCVFilter {
 
 	@Override
 	public BufferedImage display(IplImage frame, OpenCVData data) {
-		frameBuffer = frame.getBufferedImage(); // TODO - ran out of memory here
-		return frameBuffer;
-
+		return frame.getBufferedImage(); // TODO - ran out of memory here
 	}
 
 	@Override

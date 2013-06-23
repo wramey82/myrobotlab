@@ -45,18 +45,21 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterPyramidUp.class.getCanonicalName());
 
 	IplImage dst = null;
-	BufferedImage frameBuffer = null;
+	
 	int filter = 7;
-
+	
+	public OpenCVFilterPyramidUp()  {
+		super();
+	}
+	
 	public OpenCVFilterPyramidUp(String name)  {
 		super(name);
 	}
 
+
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory here
-		return frameBuffer;
+		return dst.getBufferedImage(); 
 	}
 
 	@Override

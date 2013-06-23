@@ -86,7 +86,7 @@ public class AvrdudeUploader extends Uploader {
 
 		if (myArduino.getSerialDevice() == null) {
 			myArduino.message(String.format("opening %s", portName));
-			myArduino.setSerialDevice(portName, 57600, 8, 1, 0);
+			myArduino.connect(portName, 57600, 8, 1, 0);
 			myArduino.message(String.format("opened serial device %s", portName));
 		}
 

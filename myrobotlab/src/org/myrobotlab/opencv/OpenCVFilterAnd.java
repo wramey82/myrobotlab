@@ -29,7 +29,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvAnd;
 import static com.googlecode.javacv.cpp.opencv_core.cvNot;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -46,10 +45,15 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 	
 	transient IplImage buffer = null;
 	transient IplImage negativeImage = null;
-
-	public OpenCVFilterAnd(String name) {
+	
+	public OpenCVFilterAnd()  {
+		super();
+	}
+	
+	public OpenCVFilterAnd(String name)  {
 		super(name);
 	}
+
 	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

@@ -132,9 +132,11 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	JButton recordFrameButton = new JButton("record frame");
 
 	OpenCV myOpenCV;
+	final OpenCVGUI self;
 
 	public OpenCVGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
+		self = this;
 	}
 
 	public void init() {
@@ -551,6 +553,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		// log.debug(e);
 		if (!e.getValueIsAdjusting()) {
 			String filterName = (String) currentFilters.getSelectedValue();
+			log.info("gui valuechange setting to {}", filterName);
 			if (filterName != null) {
 				myService.send(boundServiceName, "setDisplayFilter", filterName);
 				OpenCVFilterGUI f = guiFilters.get(filterName);
@@ -574,6 +577,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				filterParameters.repaint();
 				filterParameters.validate();
 			}
+			
 			// TODO - if filterName = null - it has been "un"selected ctrl-click
 
 		}
@@ -701,7 +705,10 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 						//grabberTypeSelect.addActionListener(grabberTypeListener);
 						pipelineHook.setSelectedItem(vp.pipelineSelected);
 					}
-
+					
+					currentFilters.removeListSelectionListener(self);
+					currentFilters.setSelectedValue(vp.displayFilter, true);//.setSelectedIndex(index);
+					currentFilters.addListSelectionListener(self);
 
 				} else {
 					log.error("getState for " + myService.getName() + " was called on " + boundServiceName + " with null reference to state info");

@@ -106,7 +106,7 @@ public class WiiBot extends Service {
 		// BufferedImage.class);
 		// wii.addListener("publishPin", wiidar.getName(), "publishPin",
 		// IRData.class);
-		arduino.addListener(wiidar.getName(), SensorDataPublisher.publishPin, Pin.class);
+		arduino.addListener(wiidar.getName(), "publishPin", Pin.class);
 		gui.display();
 	}
 

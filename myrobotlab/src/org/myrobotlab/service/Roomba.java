@@ -81,7 +81,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	@Override
-	public boolean setSerialDevice(String name, int rate, int databits, int stopbits, int parity) {
+	public boolean connect(String name, int rate, int databits, int stopbits, int parity) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -778,25 +778,25 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	@Override
-	public void serialSend(String data) throws IOException {
+	public void write(String data) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void serialSend(byte[] data) throws IOException {
+	public void write(byte[] data) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void serialSend(char data) throws IOException {
+	public void write(char data) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void serialSend(int data) throws IOException {
+	public void write(int data) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

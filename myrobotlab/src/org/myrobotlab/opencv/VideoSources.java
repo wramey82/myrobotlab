@@ -19,10 +19,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class VideoSources {
 
 	// ConcurrentHashMap not needed - filters removed leave the last image !!!
-	// :)
-	
-	
-	//private final static HashMap<String, LinkedBlockingQueue<IplImage>> sources = new HashMap<String, LinkedBlockingQueue<IplImage>>();
+	// :)	
 	private final static HashMap<String, IplImage> sources = new HashMap<String, IplImage>();
 
 	public void put(String name, String filtername, SerializableImage img) {

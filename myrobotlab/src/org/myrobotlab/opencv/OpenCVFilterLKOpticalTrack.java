@@ -103,14 +103,16 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	transient CvSize winSize;
 	transient IplImage preGrey, grey, eig, tmp, prePyramid, pyramid, swap, mask, image;
 	transient CvPoint2D32f prePoints, points, swapPoints;
-
+	
+	public OpenCVFilterLKOpticalTrack()  {
+		super();
+	}
+	
 	public OpenCVFilterLKOpticalTrack(String name)  {
 		super(name);
-		// LKOptical does not change image
-		// no reason to publish - use input image
-		publishImage = false; 
 	}
 
+	
 	@Override
 	public void imageChanged(IplImage image) {
 

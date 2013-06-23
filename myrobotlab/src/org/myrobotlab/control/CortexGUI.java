@@ -28,11 +28,14 @@ package org.myrobotlab.control;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -57,6 +60,8 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 	DefaultListModel textModel = new DefaultListModel();
 	VideoWidget video0 = null;
 	JTextField status = new JTextField("", 20);
+	JPanel center = new JPanel(new BorderLayout());
+	JPanel thumbnails = new JPanel(new GridLayout(5,30));
 	
 	MemoryWidget tree = new MemoryWidget(this);
 
@@ -68,7 +73,7 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 		video0 = new VideoWidget(boundServiceName, myService, true);
 		video0.init();
 		//video0.setNormalizedSize(160, 120);
-		JPanel center = new JPanel(new BorderLayout());
+		
 		textDisplay.setModel(textModel);
 		//textDisplay.setEnabled(false);
 		textModel.addElement("id 0");
@@ -76,7 +81,8 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 		textModel.addElement("locationX 0");
 		textModel.addElement("locationY 0");
 		center.add(textDisplay, BorderLayout.NORTH);
-		center.add(video0.getDisplay(), BorderLayout.CENTER);
+		//center.add(video0.getDisplay(), BorderLayout.CENTER);
+		center.add(thumbnails, BorderLayout.CENTER);
 
 		status.setEditable(false);
 
@@ -196,6 +202,24 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 							g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
 						}
 					}
+				} else if (clazz == ArrayList.class) {
+					// test for contained type
+					//display.remove(center);
+					//display.add(thumbnails, BorderLayout.CENTER);
+					thumbnails.removeAll();
+					
+					ArrayList list = (ArrayList)object;
+					for (int i = 0; i < list.size(); ++i)
+					{
+						SerializableImage bimg = (SerializableImage)list.get(i);
+						ImageIcon icon = new ImageIcon();
+						icon.setImage(bimg.getImage());
+						JLabel l = new JLabel(icon ,JLabel.LEFT);
+						icon.setImageObserver(l);
+						//l.setIcon(icon);
+						thumbnails.add(l);
+					}
+					
 				} else {
 					textModel.addElement(String.format("%s=%s", key, object.toString()));
 				}

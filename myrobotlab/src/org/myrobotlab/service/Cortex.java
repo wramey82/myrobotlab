@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -14,6 +15,7 @@ import org.myrobotlab.memory.Memory;
 import org.myrobotlab.memory.MemoryChangeListener;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -28,27 +30,19 @@ public class Cortex extends Service implements MemoryChangeListener {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Cortex.class.getCanonicalName());
-	
-	// FIXME FIXME FIXME - need system to get all names & types of pier services programmatically !!!
-	// AND AN INTERFACE TO CHANGE THEM - between creat & startService !!!
 
-	// state info
-	private String state = STATE_IDLE;
-	public final static String STATE_IDLE = "idle";
 
 	// ------- begin names --------------
 	// FIXME - get composite names of sub peers - FIXME NEED INTERFACE
 	public String trackingName = "tracking";
 	public String faceDetectorName = "faceDetector";
-	public String mouthName = "mouth";
-	public String earName = "ear";
 	// ------- end names --------------
 
 	// peer services
 	transient Tracking tracking;
 	transient OpenCV faceDetector;
-	transient Sphinx ear;
-	transient Speech mouth;
+	
+	public OpenCVFilterFaceDetect faceFilter = new OpenCVFilterFaceDetect();
 
 	// TODO - store all config in memory too?
 	private Memory memory = new Memory();
@@ -62,17 +56,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		return "used as a general template";
 	}
 
-	// FIXME FIXME FIXME - make Listening interface !!!!
-	// which implments "heard" !!!!
-	public void startListening(String grammar) {
-		ear.attach(mouth.getName());
-		// FIXME - handle Java listener - addListener(real type)
-		// ear.addListener("recognized", "python", "heard", String.class);
-		ear.addListener("recognized", this.getName(), "heard", String.class);
-		ear.createGrammar(grammar);
-		ear.startListening();
-
-	}
 		
 	public void startService()
 	{
@@ -96,35 +79,33 @@ public class Cortex extends Service implements MemoryChangeListener {
 		
 		// FIXME - check if exists ! - IF EXISTS THEN COMES THE RESPONSIBLITY OF BEING TOTALLY CONFIGURED 
 		// EXTERNALLY
-		tracking = (Tracking) Runtime.create(trackingName, "Tracking"); // FIXME - needs to pass in reference? dunno
-		tracking.opencvName = "cameraTracking";
+		tracking = (Tracking) Runtime.createAndStart(trackingName, "Tracking"); // FIXME - needs to pass in reference? dunno
+//		tracking.opencvName = "cameraTracking";
 		tracking.setSerialPort("COM12");
 		tracking.setRestPosition(90, 90);
 		tracking.setServoPins(13,12); // FIXME !!! set pins MUST OCCUR BEFORE START SERVICE - either make it re-entrant
 		tracking.setCameraIndex(1);
 		tracking.startService();
-		tracking.trackPoint(0.5f, 0.5f); 
+		tracking.trackPoint(); 
 		
 		faceDetector = (OpenCV) Runtime.create(faceDetectorName, "OpenCV");
-		faceDetector.setInputSource(OpenCV.INPUT_SOURCE_PIPELINE);
-		// FIXME - make stable keys in OpenCV how ??
 		faceDetector.setPipeline(String.format("%s.PyramidDown", tracking.eye.getName()));// set key
-		faceDetector.addFilter("faceDetect","FaceDetect");
-		faceDetector.setDisplayFilter("input");
-		faceDetector.setDisplayFilter("faceDetect");
-		faceDetector.setFrameGrabberType("org.myrobotlab.opencv.PipelineFrameGrabber"); // TODO - make manual methods
+		faceDetector.addFilter(faceFilter);
+		faceDetector.setDisplayFilter(faceFilter.name);
 		faceDetector.startService();
 		faceDetector.capture();
+		subscribe("publishOpenCVData", faceDetector.getName(), "foundFace", OpenCVData.class);
+		faceDetector.broadcastState();
 
 		subscribe("toProcess", tracking.getName(), "process", OpenCVData.class);	
 		
-		subscribe("publishOpenCVData", faceDetector.getName(), "foundFace", OpenCVData.class);
 		
 		// FIXME - cascading broadcast !! in composites especially !!
-		faceDetector.broadcastState();
 		tracking.broadcastState();
 		
 	}
+	
+	Node currentFace;
 	
 	// FIXME - only publish when faces are actually found
 	public void foundFace(OpenCVData faces)
@@ -133,6 +114,28 @@ public class Cortex extends Service implements MemoryChangeListener {
 		ArrayList<Rectangle> bb = faces.getBoundingBoxArray();
 		if (bb != null)
 		{
+			currentFace = memory.getNode("/present/faces/unknown/face1");
+			if (currentFace == null)
+			{
+				currentFace = new Node("face1");
+				memory.put("/present/faces/unknown", currentFace);
+			}
+			
+			ArrayList<SerializableImage> templates = (ArrayList<SerializableImage>)currentFace.get("templates");
+			if (templates == null)
+			{
+				templates = new ArrayList<SerializableImage>();
+				currentFace.put("templates", templates);
+			}
+			
+			// non machine build of template stack
+			if (templates.size() < 30){
+				templates.addAll(faces.cropBoundingBoxArray());
+			} else {
+				templates.remove(0);
+				templates.add(faces.cropBoundingBoxArray().get(0));
+			}
+			log.error("{}",templates.size());
 			int width = faces.getWidth();
 			int height = faces.getHeight();
 			
@@ -140,12 +143,11 @@ public class Cortex extends Service implements MemoryChangeListener {
 				Rectangle r = bb.get(0);
 				float foreheadX = (float)(r.x + r.width/2)/width;
 				float foreheadY = (float)(r.y + r.height/2)/height;
-				//log.info("{}", bb.get(0).x);
-				log.error("{}{}", foreheadX , foreheadY);
 				tracking.trackPoint(foreheadX, foreheadY);
-				;
-				//tracking.trackPoint(bb.get(0).x/faces.getWidth(), y);
-				//tracking.trackPoint(0., y)
+				
+				// must determine if this is the "same" face by location !
+				//memory.put("/present/faces/unknown", new Node("face1", (Object)faces));
+				
 			}
 		}
 	}
@@ -210,11 +212,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		}
 	}
 
-	public void setState(String newState) {
-		state = newState;
-		info(state);
-	}
-
 	// ---------publish begin ----------
 	// publish means update if it already exists
 	public void publish(String path, Node node) {
@@ -235,16 +232,14 @@ public class Cortex extends Service implements MemoryChangeListener {
 		return new Node.NodeContext(parentPath, node);
 	}
 
-	public String publishStatus(String status) {
-		return status;
-	}
-
 	// ---------publish end ----------
 
+	/*
 	public void videoOff() {
 		tracking.eye.publishOpenCVData(false);
 	}
-
+	*/
+	
 	public void crawlAndPublish() {
 		memory.crawlAndPublish();
 	}
@@ -267,7 +262,10 @@ public class Cortex extends Service implements MemoryChangeListener {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		Cortex cortex = (Cortex) Runtime.createAndStart("cortex", "Cortex");
-		Runtime.createAndStart("python", "Python");
+		
+		cortex.tracking.trackPoint();
+		
+		//Runtime.createAndStart("python", "Python");
 		// cortex.videoOff();
 
 		GUIService gui = new GUIService("gui");
@@ -278,7 +276,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		// cortex.add("root", new Node("foreground"));
 
 		log.info("here");
-		cortex.setState(STATE_IDLE);
 
 	}
 

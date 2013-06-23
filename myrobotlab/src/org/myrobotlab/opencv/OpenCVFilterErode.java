@@ -28,10 +28,8 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvErode;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -43,11 +41,16 @@ public class OpenCVFilterErode extends OpenCVFilter {
 	public int numberOfIterations = 1;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterErode.class.getCanonicalName());
+	
 
+	public OpenCVFilterErode()  {
+		super();
+	}
+	
 	public OpenCVFilterErode(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 		return image.getBufferedImage();

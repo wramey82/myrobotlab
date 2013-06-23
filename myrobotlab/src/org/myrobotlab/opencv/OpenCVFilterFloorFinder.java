@@ -32,13 +32,11 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvFloodFill;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -52,18 +50,16 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFloorFinder.class.getCanonicalName());
 
 	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
-	JTextField pixelsPerDegree = new JTextField("8.5"); // TODO - needs to pull
-														// from SOHDARService
-														// configuration
-
+	
 	CvPoint startPoint = new CvPoint(180, 120);
 	CvScalar fillColor = cvScalar(255.0, 0.0, 0.0, 1.0);
 	CvScalar lo_diff = CV_RGB(20.0, 20.0, 20.0);// cvScalar(20, 0.0, 0.5, 1.0);
 	CvScalar up_diff = CV_RGB(20.0, 20.0, 20.0);
 
+	public OpenCVFilterFloorFinder()  {
+		super();
+	}
+	
 	public OpenCVFilterFloorFinder(String name)  {
 		super(name);
 	}

@@ -102,7 +102,7 @@ int movingServosCount = 0;            // number of servo's currently moving at f
 unsigned long loopCount     = 0;
 int byteCount               = 0;
 unsigned char newByte 		= 0;
-unsigned char ioCommand[4];  // most io fns can cleanly be done with a 4 byte code
+unsigned char ioCommand[64];  // most io fns can cleanly be done with a 4 byte code
 int readValue;
 
 int digitalReadPin[DIGITAL_PIN_COUNT];        // array of pins to read from
@@ -149,7 +149,6 @@ void softReset()
 	digitalReadPollingPinCount = 0;
 	analogReadPollingPinCount = 0;
 	loopCount = 0;
-
 
 }
 
@@ -211,16 +210,14 @@ void removeAndShift (int array [], int& len, int removeValue)
 
 /*
 * getCommand - retrieves a command message
-* input messages are in the following format
+* inbound and outbound messages are the same format, the following represents a basic message
+* format
 *
-* command message - (4 byte protocol) MAGICNUMBER|FUNCTION|DATA0|DATA1
-* e.g. digitalWrite (13, 1)     = DIGITAL_WRITE|13|1 = 170|0|13|1
-*
-* return message  - (5 byte protocol) MAGICNUMBER|FUNCTION|DATA0|MSB|LSB
-* e.g. results of analogRead = ANALOG_READ|3|1|1  = 170|3|3|257
+* MAGIC_NUMBER|NUM_BYTES|FUNCTION|DATA0|DATA1|....|DATA(N)
 *
 */
 
+int msgSize = 0;
 
 boolean getCommand ()
 {
@@ -229,21 +226,34 @@ boolean getCommand ()
 	{
 		// read the incoming byte:
 		newByte = Serial.read();
+		++byteCount;
 
-		if (byteCount == 0 && newByte != MAGIC_NUMBER)
+		// checking first byte - beginning of message?
+		if (byteCount == 1 && newByte != MAGIC_NUMBER)
 		{
 			// ERROR !!!!!
 			// TODO - call modulus error method - notify sender
 			++errorCount;
+			// reset - try again
+			byteCount = 0; 
 			return false;
 		}
-
-		ioCommand[byteCount] = newByte;
-		++byteCount;
-
-		if (byteCount > 3)
+		
+		if (byteCount == 2)
 		{
-			return true;
+		   // get the size of message
+		   msgSize = newByte;
+		}
+		
+		if (byteCount > 2) {
+		  // fill in msg data - (2) headbytes -1 (offset)
+		  ioCommand[byteCount - 3] = newByte;
+		}
+		
+		// if received header + msg
+		if (byteCount == 2 + msgSize)
+		{
+          return true;
 		}
 	} // if Serial.available
 
@@ -261,73 +271,56 @@ void loop () {
 
 	if (getCommand())
 	{
-		/*
-		must comment out debugging - if serial control is used
-		all Serial, debugging assumes no
-		interference will occur due to serial
-		processing
-		*/
-
-		/*
-		Serial.print("c[");
-		Serial.print(ioCommand[0],HEX);
-		Serial.print("|");
-		Serial.print(ioCommand[1],HEX);
-		Serial.print("|");
-		Serial.print(ioCommand[2],HEX);
-		Serial.print("]\n");
-		*/
-
-		switch (ioCommand[1])
+		switch (ioCommand[0])
 		{
 		case DIGITAL_WRITE:
-			digitalWrite(ioCommand[2], ioCommand[3]);
+			digitalWrite(ioCommand[1], ioCommand[2]);
 			break;
 		case ANALOG_WRITE:
-			analogWrite(ioCommand[2], ioCommand[3]);
+			analogWrite(ioCommand[1], ioCommand[2]);
 			break;
 		case PINMODE:
-			pinMode(ioCommand[2], ioCommand[3]);
+			pinMode(ioCommand[1], ioCommand[2]);
 			break;
 		case PULSE_IN:
-			retULValue = pulseIn(ioCommand[2], ioCommand[3]);
+			retULValue = pulseIn(ioCommand[1], ioCommand[2]);
 			break;
 		case SERVO_ATTACH:
-			servos[ioCommand[2]].attach(ioCommand[3]);
+			servos[ioCommand[1]].attach(ioCommand[2]);
 			break;
 		case SERVO_WRITE:
-			if (servoSpeed[ioCommand[2]] == 100) // move at regular/full 100% speed
+			if (servoSpeed[ioCommand[1]] == 100) // move at regular/full 100% speed
 			{
 				// move at regular/full 100% speed
 				// although not completely accurate
 				// target position & current position are
 				// updated immediately
-				servos[ioCommand[2]].write(ioCommand[3]);
-				servoTargetPosition[ioCommand[2]] = ioCommand[3];
-				servoCurrentPosition[ioCommand[2]] = ioCommand[3];
-			} else if (servoSpeed[ioCommand[2]] < 100 && servoSpeed[ioCommand[2]] > 0) {
+				servos[ioCommand[1]].write(ioCommand[2]);
+				servoTargetPosition[ioCommand[1]] = ioCommand[2];
+				servoCurrentPosition[ioCommand[1]] = ioCommand[2];
+			} else if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
 				// start moving a servo at fractional speed
-				servoTargetPosition[ioCommand[2]] = ioCommand[3];
-				movingServos[movingServosCount]=ioCommand[2];
+				servoTargetPosition[ioCommand[1]] = ioCommand[2];
+				movingServos[movingServosCount]=ioCommand[1];
 				++movingServosCount;
 			} else {
 				// NOP - 0 speed - don't move
 			}
 			break;
 		case SERVO_STOP_AND_REPORT:
-			if (servoSpeed[ioCommand[2]] == 100) // move at regular/full 100% speed
+			if (servoSpeed[ioCommand[1]] == 100) // move at regular/full 100% speed
 			{
 				// move at regular/full 100% speed
 				// although not completely accurate
 				// target position & current position are
 				// updated immediately
-				servos[ioCommand[2]].write(ioCommand[3]);
-				servoTargetPosition[ioCommand[2]] = ioCommand[3];
-				servoCurrentPosition[ioCommand[2]] = ioCommand[3];
-			} else if (servoSpeed[ioCommand[2]] < 100 && servoSpeed[ioCommand[2]] > 0) {
+				servos[ioCommand[1]].write(ioCommand[2]);
+				servoTargetPosition[ioCommand[1]] = ioCommand[2];
+				servoCurrentPosition[ioCommand[1]] = ioCommand[2];
+			} else if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
 				// start moving a servo at fractional speed
-				servoTargetPosition[ioCommand[2]] = ioCommand[3];
-				movingServos[movingServosCount]=ioCommand[2];
+				servoTargetPosition[ioCommand[1]] = ioCommand[2];
+				movingServos[movingServosCount]=ioCommand[1];
 				++movingServosCount;
 			} else {
 				// NOP - 0 speed - don't move
@@ -335,42 +328,42 @@ void loop () {
 			break;
 		case SET_SERVO_SPEED:
 			// setting the speed of a servo
-			servoSpeed[ioCommand[2]]=ioCommand[3];
+			servoSpeed[ioCommand[1]]=ioCommand[2];
 			break;
 		case SERVO_SET_MAX_PULSE:
-			//servos[ioCommand[2]].setMaximumPulse(ioCommand[3]);    TODO - lame fix hardware
+			//servos[ioCommand[1]].setMaximumPulse(ioCommand[2]);    TODO - lame fix hardware
 			break;
 		case SERVO_DETACH:
-			servos[ioCommand[2]].detach();
+			servos[ioCommand[1]].detach();
 			break;
 		case SET_PWM_FREQUENCY:
-			setPWMFrequency (ioCommand[2], ioCommand[3]);
+			setPWMFrequency (ioCommand[1], ioCommand[2]);
 			break;
 		case ANALOG_READ_POLLING_START:
-			analogReadPin[analogReadPollingPinCount] = ioCommand[2]; // put on polling read list
-			analogPinService[ioCommand[2]] |= POLLING_MASK;
+			analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
+			analogPinService[ioCommand[1]] |= POLLING_MASK;
 			// TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT - if already set don't increment
 			++analogReadPollingPinCount;
 			break;
 		case ANALOG_READ_POLLING_STOP:
 			// TODO - MAKE RE-ENRANT
-			removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[2]);
-			analogPinService[ioCommand[2]] &= ~POLLING_MASK;
+			removeAndShift(analogReadPin, analogReadPollingPinCount, ioCommand[1]);
+			analogPinService[ioCommand[1]] &= ~POLLING_MASK;
 			break;
 		case DIGITAL_READ_POLLING_START:
 			// TODO - MAKE RE-ENRANT
-			digitalReadPin[digitalReadPollingPinCount] = ioCommand[2]; // put on polling read list
+			digitalReadPin[digitalReadPollingPinCount] = ioCommand[1]; // put on polling read list
 			++digitalReadPollingPinCount;
 			break;
 		case DIGITAL_READ_POLLING_STOP:
 			// TODO - MAKE RE-ENRANT
-			removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[2]);
-			digitalPinService[ioCommand[2]] &= ~POLLING_MASK;
+			removeAndShift(digitalReadPin, digitalReadPollingPinCount, ioCommand[1]);
+			digitalPinService[ioCommand[1]] &= ~POLLING_MASK;
 			break;
 		case SET_ANALOG_TRIGGER:
 			// TODO - if POLLING ALREADY DON'T RE-ADD - MAKE RE-ENTRANT
-			analogReadPin[analogReadPollingPinCount] = ioCommand[2]; // put on polling read list
-			analogPinService[ioCommand[2]] |= TRIGGER_MASK;
+			analogReadPin[analogReadPollingPinCount] = ioCommand[1]; // put on polling read list
+			analogPinService[ioCommand[1]] |= TRIGGER_MASK;
 			++analogReadPollingPinCount;
 			break;
 		case DIGITAL_DEBOUNCE_ON:
@@ -388,14 +381,15 @@ void loop () {
 		case SET_SERIAL_RATE:
 			Serial.end();
 			delay(500);
-			Serial.begin(ioCommand[2]);
+			Serial.begin(ioCommand[1]);
 			break;
 		case GET_MRLCOMM_VERSION:
 			Serial.write(MAGIC_NUMBER);
+			Serial.write(3); // size
 			Serial.write(GET_MRLCOMM_VERSION);
 			Serial.write((byte)1);
-			Serial.write((byte)0);
-			Serial.write((byte)0);
+			Serial.write((byte)5);
+			//Serial.write((byte)0);
 			break;
 		case SOFT_RESET:
 			softReset();
@@ -413,10 +407,7 @@ void loop () {
 		}
 
 		// reset buffer
-		ioCommand[0] = -1; // MAGIC_NUMBER
-		ioCommand[1] = -1; // FUNCTION
-		ioCommand[2] = -1; // PARAM 1
-		ioCommand[3] = -1; // PARAM 2
+		memset(ioCommand,0,sizeof(ioCommand));
 		byteCount = 0;
 
 	} // if getCommand()
@@ -439,9 +430,9 @@ void loop () {
 		if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !digitalTriggerOnly)
 		{
 			Serial.write(MAGIC_NUMBER);
+			Serial.write(3); // size
 			Serial.write(DIGITAL_VALUE);
 			Serial.write(digitalReadPin[i]);// Pin#
-			Serial.write(readValue >> 8);   // MSB
 			Serial.write(readValue); 	// LSB
 
 		    lastDebounceTime[digitalReadPin[i]] = millis();
@@ -462,11 +453,12 @@ void loop () {
 		if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !analogTriggerOnly) //TODO - SEND_DELTA_MIN_DIFF
 		{
 			Serial.write(MAGIC_NUMBER);
+			Serial.write(4); //size
 			Serial.write(ANALOG_VALUE);
 			Serial.write(analogReadPin[i]);
 			Serial.write(readValue >> 8);   // MSB
-			Serial.write(readValue & 0xFF);	// LSB
-		}
+			Serial.write(readValue & 0xFF);	// LSB		
+                }
 		// set the last input value of this pin
 		lastAnalogInputValue[analogReadPin[i]] = readValue;
 	}

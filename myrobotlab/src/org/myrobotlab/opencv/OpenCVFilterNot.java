@@ -28,10 +28,8 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_core.cvNot;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -44,10 +42,14 @@ public class OpenCVFilterNot extends OpenCVFilter {
 
 	IplImage buffer = null;
 
+	public OpenCVFilterNot()  {
+		super();
+	}
+	
 	public OpenCVFilterNot(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 
@@ -56,7 +58,7 @@ public class OpenCVFilterNot extends OpenCVFilter {
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
-		buffer = image.clone();
+		buffer = image.clone(); // FIXME I think cvcopy is safer
 		cvNot(image, buffer);
 		return buffer;
 	}
