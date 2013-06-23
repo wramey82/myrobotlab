@@ -30,6 +30,7 @@ ear.addCommand("on", arduino.getName(), "digitalWrite", 13, 1)
 # add a "off" -> arduino.digitalWrite(13, 0)  - turn's pin 13 off
 ear.addCommand("off", arduino.getName(), "digitalWrite", 13, 0)
 
+arduino.pinMode(13,1)
 
 # add confirmations and negations - this makes any command a 2 part commit
 # where first you say the command then mrl asks you if that is what you said
