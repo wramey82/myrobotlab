@@ -25,13 +25,13 @@
 
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+import static com.googlecode.javacv.cpp.opencv_core.cvZero;
+
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
-import static com.googlecode.javacv.cpp.opencv_core.cvZero;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -45,7 +45,11 @@ public class OpenCVFilterAddMask extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient IplImage negativeImage = null;
 
-	public OpenCVFilterAddMask(String name, String sourceKey) {
+	public OpenCVFilterAddMask()  {
+		super();
+	}
+	
+	public OpenCVFilterAddMask(String name)  {
 		super(name);
 	}
 

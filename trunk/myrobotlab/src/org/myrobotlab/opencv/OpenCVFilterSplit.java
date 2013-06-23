@@ -26,18 +26,17 @@
 // http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 
 public class OpenCVFilterSplit extends OpenCVFilter {
 
@@ -45,12 +44,15 @@ public class OpenCVFilterSplit extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSplit.class.getCanonicalName());
 
-	public final String splitKey;
+	public final String splitKey = String.format("%s_SPLIT", name);;
 	public IplImage splitImage;
 	
-	public OpenCVFilterSplit(String name) {
+	public OpenCVFilterSplit()  {
+		super();
+	}
+	
+	public OpenCVFilterSplit(String name)  {
 		super(name);
-		splitKey = String.format("%s_SPLIT", name);
 	}
 
 	@Override

@@ -32,10 +32,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -49,21 +47,22 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 
 	IplImage gray = null;
 	IplImage inlines = null;
-	BufferedImage frameBuffer = null;
+	
 	double lowThreshold = 0.0;
 	double highThreshold = 50.0;
 	int apertureSize = 5;
 
+	public OpenCVFilterFauvist()  {
+		super();
+	}
+	
 	public OpenCVFilterFauvist(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		frameBuffer = inlines.getBufferedImage(); // TODO - ran out of memory
-													// here
-		return frameBuffer;
+		return inlines.getBufferedImage();
 	}
 
 	CvPoint p0 = new CvPoint(0, 0);

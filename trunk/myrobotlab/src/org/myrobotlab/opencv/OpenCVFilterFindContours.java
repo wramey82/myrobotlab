@@ -67,7 +67,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	// Object map for data publishing
 	// Stabalize with attributes of Object Map defined in OpenCV
 
-	// BufferedImage frameBuffer = null;
+	// 
 
 	boolean useMinArea = true;
 
@@ -91,10 +91,15 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	transient CvPoint drawPoint0 = new CvPoint(0, 0);
 	transient CvPoint drawPoint1 = new CvPoint(0, 0);
 	transient CvMemStorage cvStorage = null;
-
-	public OpenCVFilterFindContours(String name) {
+	
+	public OpenCVFilterFindContours()  {
+		super();
+	}
+	
+	public OpenCVFilterFindContours(String name)  {
 		super(name);
 	}
+	
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

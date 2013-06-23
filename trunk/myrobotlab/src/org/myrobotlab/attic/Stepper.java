@@ -25,12 +25,9 @@
 
 package org.myrobotlab.attic;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.service.interfaces.AnalogIO;
-import org.myrobotlab.service.interfaces.DigitalIO;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 // TODO - implements Motor interface
 // This mimics a DPDT Motor
@@ -103,16 +100,16 @@ public class Stepper extends Service {
 
 		// check if the direction has changed - send command if necessary
 		if (power == 0) {
-			send(controllerName, AnalogIO.analogWrite, PWRPin, 0);
+			send(controllerName, "analogWrite", PWRPin, 0);
 		} else if (power > 0 && this.power <= 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, FORWARD);
+			send(controllerName, "digitalWrite", DIRPin, FORWARD);
 		} else if (power < 0) {
-			send(controllerName, DigitalIO.digitalWrite, DIRPin, BACKWARD);
+			send(controllerName, "digitalWrite", DIRPin, BACKWARD);
 		}
 
 		// log.error("direction " + ((power > 0) ? "FORWARD" : "BACKWARD"));
 		log.error(getName() + " power " + (int) (power * 100) + "% actual " + (int) (power * powerMultiplier));
-		send(controllerName, AnalogIO.analogWrite, PWRPin, Math.abs((int) (power * powerMultiplier)));
+		send(controllerName, "analogWrite", PWRPin, Math.abs((int) (power * powerMultiplier)));
 
 		this.power = power;
 

@@ -56,10 +56,8 @@ import static com.googlecode.javacv.cpp.opencv_video.cvSegmentMotion;
 import static com.googlecode.javacv.cpp.opencv_video.cvUpdateMotionHistory;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
@@ -240,9 +238,14 @@ public class OpenCVFilterMotionTemplate extends OpenCVFilter {
 		}
 	}
 
+	public OpenCVFilterMotionTemplate()  {
+		super();
+	}
+	
 	public OpenCVFilterMotionTemplate(String name)  {
 		super(name);
 	}
+
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

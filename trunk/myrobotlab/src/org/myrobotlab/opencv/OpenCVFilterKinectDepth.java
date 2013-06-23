@@ -31,7 +31,6 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.OpenCV;
@@ -55,12 +54,7 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	transient IplImage dst = null;
 	transient IplImage src = null;
 	transient IplImage mask = null;
-	transient BufferedImage frameBuffer = null;
 
-
-	public OpenCVFilterKinectDepth(String name)  {
-		super(name);
-	}
 
 	int x = 0;
 	int y = 0;
@@ -68,6 +62,14 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	int frameCounter = 0;
 	Graphics g = null;
 	String lastHexValueOfPoint = "";
+
+	public OpenCVFilterKinectDepth()  {
+		super();
+	}
+	
+	public OpenCVFilterKinectDepth(String name)  {
+		super(name);
+	}
 
 	public void samplePoint(Integer inX, Integer inY) {
 		++clickCounter;
@@ -149,5 +151,6 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 }

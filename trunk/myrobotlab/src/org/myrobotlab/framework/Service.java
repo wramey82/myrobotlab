@@ -331,6 +331,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			methodSet = getMessageSet();
 		}
 		
+		
 		// if I'm not a Runtime and not explicitly requesting a Runtime - then start a Runtime
 		if (!Runtime.isRuntime(this) && !serviceClass.equals("org.myrobotlab.service.Runtime")) {
 			Runtime.getInstance();
@@ -374,7 +375,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		TSFormatter.setCalendar(cal);
 
 		// FIXME - deprecate - remove !
-		registerServices();
+		//registerServices();
 	
 		Runtime.register(this, url);
 	}
@@ -935,7 +936,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 			if (!found) {
-				log.info(String.format("adding addListener from %1$s.%2$s to %3$s.%4$s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
+				log.info(String.format("adding addListener from %s.%s to %s.%s", this.getName(), listener.outMethod, listener.name, listener.inMethod));
 				nes.add(listener);
 			}
 		} else {
@@ -1708,6 +1709,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	/**
 	 * 
 	 */
+	/*
 	public synchronized void registerServices() {
 		log.debug(String.format("%1$s registerServices", name));
 
@@ -1761,7 +1763,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			logException(e);
 		}
 	}
-
+*/
 	/**
 	 * Outbound connect - initial request to connect and
 	 * register services with a remote system 

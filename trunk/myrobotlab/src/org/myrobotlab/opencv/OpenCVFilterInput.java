@@ -27,10 +27,8 @@
 package org.myrobotlab.opencv;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -41,7 +39,11 @@ public class OpenCVFilterInput extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterInput.class.getCanonicalName());
 
-	public OpenCVFilterInput(String name) {
+	public OpenCVFilterInput()  {
+		super();
+	}
+	
+	public OpenCVFilterInput(String name)  {
 		super(name);
 	}
 

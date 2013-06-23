@@ -82,7 +82,7 @@ public class FindHuman extends Service {
 		// twitter.tweet("#myrobotlab is Awesome!")
 
 		// arduino ==============================================
-		arduino.setSerialDevice("/dev/ttyACM0", 57600, 8, 1, 0);
+		arduino.connect("/dev/ttyACM0", 57600, 8, 1, 0);
 
 		// opencv ==============================================
 		opencv.startService();

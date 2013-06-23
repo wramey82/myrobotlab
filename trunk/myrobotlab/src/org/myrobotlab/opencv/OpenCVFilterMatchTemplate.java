@@ -79,10 +79,14 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 
 	transient CvPoint centeroid = new CvPoint(0, 0);
 
-
+	public OpenCVFilterMatchTemplate()  {
+		super();
+	}
+	
 	public OpenCVFilterMatchTemplate(String name)  {
 		super(name);
 	}
+
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

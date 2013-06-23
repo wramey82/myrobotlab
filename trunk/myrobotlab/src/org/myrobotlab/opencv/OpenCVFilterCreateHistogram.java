@@ -28,12 +28,10 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -45,13 +43,18 @@ public class OpenCVFilterCreateHistogram extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterCreateHistogram.class.getCanonicalName());
 
 	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
-	int convert = CV_BGR2HSV; // TODO - convert to all schemes
-	JFrame myFrame = null;
+	
+	
+	
 
+	public OpenCVFilterCreateHistogram()  {
+		super();
+	}
+	
 	public OpenCVFilterCreateHistogram(String name)  {
 		super(name);
 	}
+
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {

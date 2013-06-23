@@ -25,16 +25,11 @@
 
 package org.myrobotlab.opencv;
 
-import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
-
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
-import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterSetImageROI extends OpenCVFilter {
@@ -43,10 +38,14 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
 
+	public OpenCVFilterSetImageROI()  {
+		super();
+	}
+	
 	public OpenCVFilterSetImageROI(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 		return image.getBufferedImage();

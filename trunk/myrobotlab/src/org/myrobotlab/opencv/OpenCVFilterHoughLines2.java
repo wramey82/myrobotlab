@@ -38,10 +38,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvHoughLines2;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Pointer;
@@ -58,7 +56,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterHoughLines2.class.getCanonicalName());
 
 	IplImage gray = null;
-	BufferedImage frameBuffer = null;
+	
 	double lowThreshold = 0.0;
 	double highThreshold = 50.0;
 	int apertureSize = 5;
@@ -66,7 +64,11 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 	IplImage inlines = null;
 
 	CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
-
+	
+	public OpenCVFilterHoughLines2()  {
+		super();
+	}
+	
 	public OpenCVFilterHoughLines2(String name)  {
 		super(name);
 	}

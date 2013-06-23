@@ -49,7 +49,7 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 
 	transient IplImage dst = null;
 	transient IplImage src = null;
-	BufferedImage frameBuffer = null;
+	
 	int filter = 7;
 
 	public OpenCVFilterKinectInterleave(String name)  {

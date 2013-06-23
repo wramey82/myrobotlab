@@ -110,7 +110,7 @@ public class InMoov extends Service {
 		info(String.format("initializing %s arduino", key));
 		Arduino arduino = (Arduino) Runtime.createAndStart(String.format("arduino%s", key), "Arduino");
 		arduino.setBoard(boardType);
-		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
+		arduino.connect(comPort, 57600, 8, 1, 0);
 		sleep(1000);
 		setArduino(key, arduino);
 		return arduino;

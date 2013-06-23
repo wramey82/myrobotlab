@@ -33,10 +33,8 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -53,18 +51,19 @@ public class OpenCVFilterCanny extends OpenCVFilter {
 	public double highThreshold = 50.0;
 
 	transient IplImage gray = null;
-	transient IplImage inlines = null;
-	transient BufferedImage frameBuffer = null;
+	transient IplImage inlines = null; 
 
+	public OpenCVFilterCanny()  {
+		super();
+	}
+	
 	public OpenCVFilterCanny(String name)  {
 		super(name);
 	}
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		frameBuffer = inlines.getBufferedImage();
-		return frameBuffer;
+		return inlines.getBufferedImage();
 	}
 
 	CvPoint p0 = new CvPoint(0, 0);

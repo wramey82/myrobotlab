@@ -47,6 +47,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
+import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -100,7 +101,8 @@ public class Tracking extends Service {
 	
 	// ------ PEER SERVICES BEGIN------ 
 	// peer services are always transient (i think)
-	transient public PID xpid, ypid;
+	transient public PID xpid; 
+	transient public PID ypid;
 	transient public OpenCV eye;
 	transient public Arduino arduino;
 	transient public Servo x;
@@ -720,9 +722,9 @@ public class Tracking extends Service {
 	
 	public void faceDetect()
 	{
-		//eye.clearFilters();
-		eye.addFilter("PyramidDown", "PyramidDown"); 
-		eye.addFilter("Gray", "Gray");
+		OpenCVFilterPyramidDown py = new OpenCVFilterPyramidDown();
+		eye.addFilter("PyramidDown"); 
+		eye.addFilter("Gray");
 		eye.addFilter("FaceDetect", "FaceDetect");
 		eye.setDisplayFilter("FaceDetect");
 
@@ -742,8 +744,9 @@ public class Tracking extends Service {
 		for (int i = 0; i < 1000; ++i)
 		{
 			//invoke("trackPoint", 0.5, 0.5);
-			faceDetect();
-			trackPoint(0.5f,0.5f);
+			//faceDetect();
+			trackPoint();
+			//trackPoint(0.5f,0.5f);
 			setForegroundBackgroundFilter();
 			learnBackground();
 			searchForeground();
@@ -751,6 +754,10 @@ public class Tracking extends Service {
 		}
 	}
 	
+	public void trackPoint() {
+		trackPoint(0.5f,0.5f);	
+	}
+
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();

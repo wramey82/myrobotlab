@@ -41,17 +41,18 @@ package org.myrobotlab.service;
 
  */
 
-import static org.myrobotlab.service.OpenCV.FILTER_GOOD_FEATURES_TO_TRACK;
-
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -59,14 +60,9 @@ import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
-import org.myrobotlab.opencv.OpenCVFilterDetector;
-import org.myrobotlab.opencv.OpenCVFilterDilate;
-import org.myrobotlab.opencv.OpenCVFilterErode;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
-import org.myrobotlab.opencv.OpenCVFilterFindContours;
 import org.myrobotlab.opencv.OpenCVFilterGray;
 import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
-import org.myrobotlab.opencv.OpenCVFilterMatchTemplate;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.data.Point2Df;
@@ -202,7 +198,9 @@ public class OpenCV extends VideoSource {
 	}
 	
 	public void setDisplayFilter(String name) {
+		log.info("pre setDisplayFilter displayFilter{}", videoProcessor.displayFilter);
 		videoProcessor.displayFilter = name;
+		log.info("post setDisplayFilter displayFilter{}", videoProcessor.displayFilter);
 	}
 	
 	public OpenCVData add(SerializableImage image)
@@ -343,7 +341,17 @@ public class OpenCV extends VideoSource {
 	}
 
 	public void removeFilter(String name) {
-		videoProcessor.removeFilter(name);
+		OpenCVFilter f = videoProcessor.getFilter(name);
+		if (f != null){
+			videoProcessor.removeFilter(f);
+		} else {
+			log.warn("can not remove filter {} - it does not exits", name);
+		}
+		broadcastState();
+	}
+	
+	public void removeFilter(OpenCVFilter filter) {
+		videoProcessor.removeFilter(filter);
 		broadcastState();
 	}
 
@@ -457,9 +465,10 @@ public class OpenCV extends VideoSource {
 	}
 	
 	public OpenCVData getFaceDetect() {
-		addFilter(FILTER_FACE_DETECT, FILTER_FACE_DETECT);
+		OpenCVFilterFaceDetect fd = new OpenCVFilterFaceDetect();
+		addFilter(fd);
 		OpenCVData d = getOpenCVData();
-		removeFilter(FILTER_FACE_DETECT);
+		removeFilter(fd);
 		return d;
 	}
 
@@ -539,7 +548,7 @@ public class OpenCV extends VideoSource {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		// TODO - Avoidance / Navigation Service
 		// ground plane
@@ -549,38 +558,19 @@ public class OpenCV extends VideoSource {
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
-		Integer a = 1;
-		Integer b = 2;
-		Integer c = 3;
-		
-		HashMap<Integer, Integer> t = new HashMap<Integer, Integer>();
-		t.put(1, a);
-		t.put(2, a);
-		t.put(3, a);
-		log.info("{}", t.get(1));
-		log.info("{}", t.get(2));
-		log.info("{}", t.get(3));
 
 		
 		OpenCV test = (OpenCV) Runtime.createAndStart("test", "OpenCV");
-		test.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
-		test.addFilter(new OpenCVFilterGray("gray"));
-		test.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
-		test.setCameraIndex(1);
-		
-		
-		/*
-		test.addFilter(new OpenCVFilterDetector("detector"));
-		test.addFilter(new OpenCVFilterErode("erode"));
-		test.addFilter(new OpenCVFilterDilate("dilate"));
-		test.addFilter(new OpenCVFilterFindContours("findContours"));
-		*/
+		test.addFilter(new OpenCVFilterPyramidDown());
+		test.addFilter(new OpenCVFilterGray());
+		OpenCVFilterLKOpticalTrack lk = new OpenCVFilterLKOpticalTrack();
+		test.addFilter(lk);
+		test.setCameraIndex(0);
 		
 	//	test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
 		test.capture();
 		
-		Service.sleep(4000);
+		Service.sleep(1000);
 		
 		SerializableImage img = test.getDisplay();
 		
@@ -588,11 +578,34 @@ public class OpenCV extends VideoSource {
 		gui2.startService();
 		gui2.display();
 
-		OpenCVData data = test.getFaceDetect();
-		SerializableImage si = data.getImage();
+		/*
+		 	ImageIO.write(image, "jpg",new File("C:\\out.jpg"));
+            ImageIO.write(image, "gif",new File("C:\\out.gif"));
+            ImageIO.write(image, "png",new File("C:\\out.png"));
+       */
+
+		for (int j = 0; j < 100; ++j)
+		{
+			
+			OpenCVData data = test.getFaceDetect();
+			SerializableImage si = data.getImage();
+			
+			SerializableImage input = data.getInputImage();
+			Util.writeBufferedImage(input.getImage(), String.format("%s.input.jpg",input.getSource()));
+			
+			
+			ArrayList<SerializableImage> ret = data.cropBoundingBoxArray();
+			for (int i = 0; i < ret.size(); ++i)
+			{
+				SerializableImage jpg = ret.get(i);
+				Util.writeBufferedImage(jpg.getImage(), String.format("%s.%d.jpg", jpg.getSource(), j));
+			}
+					
+		}
 		
-		log.info(data.toString());
-		
+		log.info("here");
+
+/*		
 		OpenCV trackingCamera = (OpenCV) Runtime.createAndStart("trackingCamera", "OpenCV");
 		OpenCV detector = (OpenCV) Runtime.createAndStart("detector", "OpenCV");
 		OpenCV faceDetect = (OpenCV) Runtime.createAndStart("faceDetect", "OpenCV");
@@ -624,16 +637,13 @@ public class OpenCV extends VideoSource {
 		trackingCamera.broadcastState();
 		
 		// setup pipelines
-		faceDetect.setInputSource("pipeline");
 		faceDetect.setPipeline("trackingCamera.gray");
 		faceDetect.capture();
 		faceDetect.broadcastState();
 
 		
-		detector.setInputSource("pipeline");
 		detector.setPipeline("trackingCamera.gray");
 
-		templateMatch.setInputSource("pipeline");
 		templateMatch.setPipeline("faceDetect.faceDetect");
 		
 		detector.capture();
@@ -643,7 +653,7 @@ public class OpenCV extends VideoSource {
 		detector.broadcastState();
 		templateMatch.broadcastState();
 
-
+*/
 //		trackingCamera.capture();
 
 /*		
@@ -709,6 +719,8 @@ public class OpenCV extends VideoSource {
 	public void setPipeline(String pipeline)
 	{
 		videoProcessor.pipelineSelected = pipeline;
+		videoProcessor.inputSource = "pipeline";
+		videoProcessor.grabberType = "org.myrobotlab.opencv.PipelineFrameGrabber";
 	}
 	
 }

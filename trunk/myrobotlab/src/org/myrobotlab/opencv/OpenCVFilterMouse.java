@@ -39,10 +39,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.service.OpenCV;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
@@ -63,7 +61,7 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 
 	int stepSize = 1;
 	CvPoint startPoint = null;
-	BufferedImage frameBuffer = null;
+	
 
 	CvPoint mousePos = null;
 
@@ -98,15 +96,17 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	ArrayList<CvPoint> path = new ArrayList<CvPoint>();
 	HashMap<String, CvPoint> unique = new HashMap<String, CvPoint>();
 
+	public OpenCVFilterMouse()  {
+		super();
+	}
+	
 	public OpenCVFilterMouse(String name)  {
 		super(name);
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		frameBuffer = image.getBufferedImage(); // TODO - ran out of memory here
-		return frameBuffer;
+		return image.getBufferedImage(); 
 	}
 
 	double BLACK = 0.0;

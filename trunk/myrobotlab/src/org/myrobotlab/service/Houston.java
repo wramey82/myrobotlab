@@ -75,7 +75,7 @@ public class Houston extends Service {
 
 		// set config for the services
 		arduino.setBoard(boardType); // atmega168 | mega2560 | etc;
-		arduino.setSerialDevice(comPort, 57600, 8, 1, 0);
+		arduino.connect(comPort, 57600, 8, 1, 0);
 		sleep(1); // give it a second for the serial device to get ready;
 
 		// attach Servos & Motors to arduino;

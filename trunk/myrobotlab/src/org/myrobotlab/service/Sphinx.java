@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -66,7 +65,8 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	Thread listener = null;
 	DialogManager dialogManager = null;
 	transient SpeechProcessor speechProcessor = null;
-	HashMap<String, Message> commandMap = new HashMap<String, Message>();
+	// deprecated not used
+	// HashMap<String, Message> commandMap = new HashMap<String, Message>();
 	private boolean isListening = false;
 	private String lockPhrase = null;
 	
@@ -89,9 +89,11 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	 * @return the word
 	 */
 	public String recognized(String word) {
+		/*
 		if (commandMap.containsKey(word)) {
 			getOutbox().add(commandMap.get(word));
 		}
+		*/
 		return word;
 	}
 
@@ -422,6 +424,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		return true;
 	}
 
+	/* deprecated
 	public void onCommand(String command, String targetName, String targetMethod, Object... data) {
 		Message msg = new Message();
 		msg.name = targetName;
@@ -430,6 +433,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 		commandMap.put(command, msg);
 	}
+	*/
 	
 	public void addVoiceRecognitionListener(Service s)
 	{
@@ -489,7 +493,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		}
 	}
 	
-	
+	// TODO - should this be in Service ?????
 	public void addCommand(String actionPhrase, String name, String method, Object...params)
 	{
 		if (commands == null)
@@ -498,16 +502,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		}
 		commands.put(actionPhrase, new Command(name, method, params));
 	}
-	/*
-	
-	public void startListening(String grammar) {
-		attach(mouth);
-		addListener("recognized", "python", "heard", String.class);
-		createGrammar(grammar);
-		startListening();
-	}
-	
-	*/
 	
 	public String requestConfirmation(String txt)
 	{

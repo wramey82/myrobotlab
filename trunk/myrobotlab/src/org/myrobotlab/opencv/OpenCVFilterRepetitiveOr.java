@@ -28,10 +28,8 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_core.cvOr;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -46,6 +44,11 @@ public class OpenCVFilterRepetitiveOr extends OpenCVFilter {
 	// IplImage out = null;
 	IplImage[] memory = new IplImage[5];
 
+
+	public OpenCVFilterRepetitiveOr()  {
+		super();
+	}
+	
 	public OpenCVFilterRepetitiveOr(String name)  {
 		super(name);
 	}

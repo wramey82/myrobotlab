@@ -42,8 +42,7 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 	public double learningRate = -1; // 0 trigger || -1 learn and fade
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterDetector.class.getCanonicalName());
-
-	transient BufferedImage frameBuffer = null;
+ 
 	transient BackgroundSubtractorMOG2 mog;
 		
 	public int history = 10;
@@ -58,6 +57,10 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 	public void search()
 	{
 		learningRate = 0;
+	}
+
+	public OpenCVFilterDetector()  {
+		super();
 	}
 	
 	public OpenCVFilterDetector(String name)  {

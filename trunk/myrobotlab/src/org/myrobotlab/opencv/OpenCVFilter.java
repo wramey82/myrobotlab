@@ -30,8 +30,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
@@ -67,6 +65,11 @@ public abstract class OpenCVFilter implements Serializable {
 	transient VideoSources sources = new VideoSources();
 
 	VideoProcessor vp;
+	
+	public OpenCVFilter()
+	{
+		this.name = this.getClass().getSimpleName().substring("OpenCVFilter".length());
+	}
 	
 	public OpenCVFilter(String name)
 	{

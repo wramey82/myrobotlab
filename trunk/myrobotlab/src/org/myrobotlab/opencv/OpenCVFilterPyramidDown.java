@@ -30,7 +30,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -45,13 +44,17 @@ public class OpenCVFilterPyramidDown extends OpenCVFilter {
 
 	final static int CV_GAUSSIAN_5X5 = 7;
 
-	transient IplImage dst = null;
-	transient BufferedImage frameBuffer = null;
+	transient IplImage dst = null;	
+
+
+	public OpenCVFilterPyramidDown()  {
+		super();
+	}
 	
 	public OpenCVFilterPyramidDown(String name)  {
 		super(name);
 	}
-	
+
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 

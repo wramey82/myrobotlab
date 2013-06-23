@@ -26,11 +26,9 @@
 package org.myrobotlab.opencv;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -42,16 +40,19 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSampleArray.class.getCanonicalName());
 
 	IplImage buffer = null;
-	BufferedImage frameBuffer = null;
+	
+	transient BufferedImage frameBuffer = null;
 
-	ColoredPoint points[] = new ColoredPoint[1];
+	ColoredPoint points[] = new ColoredPoint[]{new ColoredPoint()};
 
+	public OpenCVFilterSampleArray()  {
+		super();
+	}
+	
 	public OpenCVFilterSampleArray(String name)  {
 		super(name);
-
-		points[0] = new ColoredPoint();
 	}
-
+	
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 		return frameBuffer;

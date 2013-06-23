@@ -28,11 +28,9 @@ package org.myrobotlab.opencv;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_GRAY2BGR;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
@@ -47,6 +45,10 @@ public class OpenCVFilterGray extends OpenCVFilter {
 
 	transient IplImage gray = null;
 
+	public OpenCVFilterGray()  {
+		super();
+	}
+	
 	public OpenCVFilterGray(String name)  {
 		super(name);
 	}

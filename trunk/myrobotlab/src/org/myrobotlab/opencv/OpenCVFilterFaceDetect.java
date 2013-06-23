@@ -49,9 +49,9 @@ import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
 import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
-import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_ROUGH_SEARCH;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_FIND_BIGGEST_OBJECT;
+import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
 import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
 
 import java.awt.Color;
@@ -79,11 +79,23 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	
 	CvMemStorage storage = null;
 	CvHaarClassifierCascade cascade = null; // TODO - was static
+	public String cascadePath = "haarcascades/haarcascade_frontalface_alt.xml";
+	//public String cascadePath = "haarcascades/haarcascade_mcs_lefteye.xml";
+	//public String cascadePath = "haarcascades/haarcascade_mcs_eyepair_big.xml";
+	
+	
+	
+	
 	int i;
 
-	public OpenCVFilterFaceDetect(String name) {
+	public OpenCVFilterFaceDetect()  {
+		super();
+	}
+	
+	public OpenCVFilterFaceDetect(String name)  {
 		super(name);
 	}
+	
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
@@ -114,9 +126,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		// Find whether the cascade is loaded, to find the faces. If yes, then:
 		if (cascade != null) {
 
-			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
-			//CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_CANNY_PRUNING);
-			//CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 2, CV_HAAR_DO_CANNY_PRUNING);
+			//CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
+			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT);
 
 			if (faces != null) {
 				ArrayList<Rectangle> bb = new ArrayList<Rectangle>();
@@ -147,7 +158,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// Preload the opencv_objdetect module to work around a known bug.
 			Loader.load(opencv_objdetect.class);
 
-			cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_frontalface_alt.xml"));
+			cascade = new CvHaarClassifierCascade(cvLoad(cascadePath));
 			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 
 			if (cascade == null) {

@@ -156,6 +156,7 @@ public class Node implements Serializable {
 			root.put("key2", "value2");
 			Node node2 = new Node("node2");
 			root.put("node2", node2);
+			
 			node2.put("subkey1", "subValue");
 			node2.put("subIntKey", 5);
 			Node node3 = new Node("node3");
@@ -163,6 +164,8 @@ public class Node implements Serializable {
 			node2.put("node3", node3);
 			Node node4 = root.getNode("root/node2/node3");
 			log.info("{}", node4.get("subkey1"));
+			
+			Node node5 = root.getNode("root/node2/node5");
 
 			SerializableImage img = new SerializableImage(ImageIO.read(new File("opencv.4084.jpg")), "myImage");
 			node2.put("img", img);
