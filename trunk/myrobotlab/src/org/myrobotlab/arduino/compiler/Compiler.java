@@ -91,9 +91,6 @@ public class Compiler {
 
 		preprocess(programName, program, new PdePreprocessor(myArduino));
 
-		// the pms object isn't used for anything but storage
-		MessageStream pms = new MessageStream(myArduino);
-
 		String avrBasePath = Arduino.getAvrBasePath();
 		Map<String, String> boardPreferences = myArduino.getBoardPreferences();
 		String core = boardPreferences.get("build.core");
@@ -605,6 +602,7 @@ public class Compiler {
 		// grab the imports from the code just preproc'd
 
 		importedLibraries = new ArrayList<File>();
+		libraryPath = "";
 
 		for (String item : preprocessor.getExtraImports()) {
 			File libFolder = (File) Arduino.importToLibraryTable.get(item);

@@ -147,14 +147,17 @@ public abstract class Uploader {
 			// OMG - how is the f'ing error handled? WTF?
 
 			myArduino.setCompilingProgress(100);
-			myArduino.message("\ndone.  Thank you.\n"); // nice message from
-														// avrdude - he's such a
-														// friendly dude.
+			myArduino.message("\ndone.  Thank you.\n"); 
 
 			if (exception != null) {
 				exception.hideStackTrace();
 				throw exception;
 			}
+			
+			// reconnect after upload
+			myArduino.connect();
+			myArduino.broadcastState();
+			
 			if (result != 0)
 				return false;
 		} catch (Exception e) {

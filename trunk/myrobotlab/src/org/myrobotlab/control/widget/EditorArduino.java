@@ -83,7 +83,7 @@ public class EditorArduino extends Editor implements ActionListener {
 		if (o == compileButton) {
 			myService.send(boundServiceName, "compile", sketchName.getText(), textArea.getText());
 		} else if (o == uploadButton) {
-			myService.send(boundServiceName, "upload");
+			myService.send(boundServiceName, "upload", textArea.getText());
 			return;
 		} else if (o == digitalDebounce) {
 			if (digitalDebounce.isSelected()) {

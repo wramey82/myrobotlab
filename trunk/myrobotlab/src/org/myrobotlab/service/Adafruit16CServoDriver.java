@@ -51,7 +51,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	public final int AF_SET_PWM = 52;
 	public final int AF_SET_SERVO = 53;
 	
-	private boolean pwmSet = false;
+	private boolean pwmFreqSet = false;
 
 	public transient final static Logger log = LoggerFactory.getLogger(Adafruit16CServoDriver.class.getCanonicalName());
 
@@ -80,10 +80,18 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	
 	// drive the servo
 	public void setPWM(Integer servoNum, Integer pulseWidthOn, Integer pulseWidthOff) {
+		if (!pwmFreqSet)
+		{
+			setPWMFreq(60);
+		}
 		arduino.sendMsg(AF_SET_PWM, servoNum, pulseWidthOn, pulseWidthOff);
 	}
 	
 	public void setServo(Integer servoNum, Integer pulseWidthOff) {
+		if (!pwmFreqSet)
+		{
+			setPWMFreq(60);
+		}
 		// since pulseWidthOff can be larger than > 256 it needs to be 
 		// sent as 2 bytes
 		arduino.sendMsg(AF_SET_SERVO, servoNum, pulseWidthOff >> 8, pulseWidthOff & 0xFF);
@@ -182,7 +190,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 		// broadcast the arduino state - ArduinoGUI should subscribe to
 		// setProgram
 		broadcastState(); // state has changed let everyone know
-
+		arduino.broadcastState();
 		// servo9.attach(arduinoName, 9); // FIXME ??? - createServo(Integer i)
 		// servo10.attach(arduinoName, 10);
 

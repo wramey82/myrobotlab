@@ -235,7 +235,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	// compile / upload
 	private String buildPath = "";
-	private String sketchName = "";
+	private String sketchName = "MRLComm";
 	private String sketch = "";
 
 	/**
@@ -1093,19 +1093,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		log.debug(sketch);
 	}
 
-	// public void upload(String file) throws RunnerException,
-	// SerialDeviceException
-	// FIXME - stupid - should take a binary string or the path to the .hex file
-	public void upload() throws Throwable {
-		// uploader.uploadUsingPreferences("C:\\mrl\\myrobotlab\\obj",
-		// "MRLComm", false);
-		if (sketchName == null || sketchName == "") {
-			String resourcePath = "Arduino/MRLComm/MRLComm.ino";
-			log.info(String.format("loadResourceFile %s", resourcePath));
-			String sketch = FileIO.getResourceFile(resourcePath);
-			compile("MRLComm", sketch);
-		}
-
+	
+	public void upload(String sketch) throws Throwable {
+		compile("MRLComm", sketch); // FIXME throw push error();
 		uploader.uploadUsingPreferences(buildPath, sketchName, false);
 	}
 
@@ -1485,6 +1475,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
 		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
+		
 		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui01", "GUIService");
 
