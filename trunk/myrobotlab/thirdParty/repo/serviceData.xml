@@ -12,7 +12,20 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.AdafruitMotorShield" workingLevel="4">
+   <serviceType string="org.myrobotlab.service.Adafruit16CServoDriver" workingLevel="4">
+      <dependsOn>
+      	 <description>Adafruit Motor Shield for Arduino
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>com.adafruit.servodriver</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+     <serviceType string="org.myrobotlab.service.AdafruitMotorShield" workingLevel="4">
       <dependsOn>
       	 <description>Adafruit Motor Shield for Arduino
       	 </description>
