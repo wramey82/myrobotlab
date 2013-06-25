@@ -38,14 +38,7 @@ public interface StepperController {
 	 * @param stepperName
 	 * @param stepperData
 	 */
-	public boolean stepperAttach(String stepperName, Object... stepperData); // PWMPin=9;directionPin=10;
-																		// ??
-																		// would
-																		// stepperAttach(String
-																		// stepperName,
-																		// Object...data)
-																		// be
-																		// better?
+	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4); 
 
 	/**
 	 * This is basic information to request from a Controller. A list of pins on
