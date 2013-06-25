@@ -69,6 +69,18 @@
 #define SET_SERIAL_RATE			         25
 #define GET_MRLCOMM_VERSION				 26
 
+// http://arduino.cc/en/Reference/StepperStep
+#define STEPPER_ATTACH				 	27
+#define STEPPER_DETACH				 	28
+#define STEPPER_DETACH				 	29
+#define STEPPER_DETACH				 	30
+
+// lame - shuold determine max stepper based on board pins / pins required
+#define MAX_STEPPERS 2 
+
+// need a method to identify type of board
+// http://forum.arduino.cc/index.php?topic=100557.0
+
 #define COMMUNICATION_RESET	   252
 #define SOFT_RESET			   253
 #define SERIAL_ERROR           254
@@ -92,6 +104,8 @@
 long debounceDelay = 50; // in ms
 long lastDebounceTime[DIGITAL_PIN_COUNT];
 
+
+// FIXME - finish implementation Stepper* steppers[MAX_STEPPERS];
 Servo servos[MAX_SERVOS];
 int servoSpeed[MAX_SERVOS];    // 0 - 100 corresponding to the 0.0 - 1.0 Servo.setSpeed - not a float at this point
 int servoTargetPosition[MAX_SERVOS];  // when using a fractional speed - servo's must remember their end destination
@@ -394,10 +408,14 @@ void loop () {
 		case SOFT_RESET:
 			softReset();
 			break;
+/* FIXME - finish Arduino's version of implementation		
+		case STEPPER_ATTACH:
+			steppers[ioCommand[1]] = &(Stepper(ioCommand[2], ioCommand[3], ioCommand[4], ioCommand[5], ioCommand[6]));
+			break;			
 
 			// --VENDOR CODE BEGIN--
 			// --VENDOR CODE END--
-
+*/
 		case NOP:
 			// No Operation
 			break;
@@ -458,7 +476,7 @@ void loop () {
 			Serial.write(analogReadPin[i]);
 			Serial.write(readValue >> 8);   // MSB
 			Serial.write(readValue & 0xFF);	// LSB		
-                }
+         }
 		// set the last input value of this pin
 		lastAnalogInputValue[analogReadPin[i]] = readValue;
 	}
