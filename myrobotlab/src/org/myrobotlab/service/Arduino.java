@@ -75,6 +75,7 @@ import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
+import org.myrobotlab.service.interfaces.StepperController;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -90,7 +91,7 @@ import org.slf4j.Logger;
  */
 
 @Root
-public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, ServoController, MotorController, SerialDeviceService,
+public class Arduino extends Service implements SerialDeviceEventListener, SensorDataPublisher, ServoController, MotorController, StepperController, SerialDeviceService,
 		MessageConsumer {
 
 	private static final long serialVersionUID = 1L;
@@ -1479,6 +1480,30 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui01", "GUIService");
 
+	}
+
+	@Override
+	public boolean stepperAttach(String stepperName, Object... stepperData) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void stepperMoveTo(String name, Integer position) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stepperMove(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stepperDetach(String name) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
