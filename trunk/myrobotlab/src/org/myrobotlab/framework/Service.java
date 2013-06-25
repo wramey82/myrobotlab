@@ -2033,7 +2033,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public HashSet<String> getMessageSet()
 	{
 		HashSet<String> ret = new HashSet<String>();
-		Method[] methods = this.getClass().getMethods();
+		Method[] methods = getMethods();
 		log.info("%s loading %d non-routable methods", getName(), methods.length);
 		for (int i = 0; i < methods.length; ++i) {
 			ret.add(methods[i].getName());
@@ -2042,5 +2042,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		
 		return ret;
 	}
+	
+	public Method[] getMethods()
+	{
+		return this.getClass().getMethods();
+	}
+	
 
 }
