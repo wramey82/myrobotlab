@@ -23,6 +23,7 @@ import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.interfaces.ServoController;
 
 /**
  * AdaFruit Motor Shield Controller Service
@@ -32,7 +33,7 @@ import org.myrobotlab.service.interfaces.MotorController;
  *         References : http://www.ladyada.net/make/mshield/use.html
  */
 
-public class AdafruitMotorShield extends Service implements MotorController, ArduinoShield {
+public class AdafruitMotorShield extends Service implements MotorController, ServoController, ArduinoShield {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -348,6 +349,36 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
 		String ret = String.format("m%d", motorMap.get(motorName));
 		Object[] data = new Object[] { ret };
 		return data;
+	}
+
+	@Override
+	public boolean servoAttach(String servoName, Integer pin) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void servoWrite(String servoName, Integer newPos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean servoDetach(String servoName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Integer getServoPin(String servoName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setServoSpeed(String servoName, Float speed) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
