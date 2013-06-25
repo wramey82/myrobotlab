@@ -11,19 +11,17 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.ServoController;
+import org.myrobotlab.service.interfaces.StepperController;
+import org.slf4j.Logger;
 
 /**
  * AdaFruit Motor Shield Controller Service
@@ -33,7 +31,7 @@ import org.myrobotlab.service.interfaces.ServoController;
  *         References : http://www.ladyada.net/make/mshield/use.html
  */
 
-public class AdafruitMotorShield extends Service implements MotorController, ServoController, ArduinoShield {
+public class AdafruitMotorShield extends Service implements MotorController, StepperController, ArduinoShield {
 	/** version of the library */
 	static public final String VERSION = "0.9";
 
@@ -66,12 +64,12 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 	final public int MICROSTEP = 4;
 
 	// dc motorMap
-	private Motor m1 = null;
-	private Motor m2 = null;
-	private Motor m3 = null;
-	private Motor m4 = null;
+	transient public Motor m1 = null;
+	transient public Motor m2 = null;
+	transient public Motor m3 = null;
+	transient public Motor m4 = null;
 
-	private Arduino myArduino = null;
+	transient public Arduino arduino = null;
 
 	HashMap<String, Integer> motorMap = new HashMap<String, Integer>();
 	Motor[] motors = new Motor[4];
@@ -79,11 +77,19 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 	final int AF_DCMOTOR_SET_SPEED = 51;
 	final int AF_DCMOTOR_RUN_COMMAND = 52;
 
+	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
+	final int AF_STEPPER_ATTACH = 53;
+	final int AF_STEPPER_DETACH = 54; // release
+	final int AF_STEPPER_STEP = 55;
+	final int AF_SET_SPEED = 55;
+	// FIXME - COMPLETE IMPLEMENTATION END --
+
+	
 	public transient final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
-		myArduino = new Arduino(String.format("%s_arduino", n));
+		arduino = new Arduino(String.format("%s_arduino", n));
 		createM1M2DCMotors();
 		createM3M4DCMotors();
 		attach();
@@ -91,7 +97,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 
 	public void startService() {
 		super.startService();
-		myArduino.startService();
+		arduino.startService();
 		// TODO - request myArduino - re connect
 	}
 
@@ -144,11 +150,11 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 	}
 
 	public void setSpeed(Integer motorPortNumber, Integer speed) {
-		myArduino.sendMsg(AF_DCMOTOR_SET_SPEED, motorPortNumber - 1, speed);
+		arduino.sendMsg(AF_DCMOTOR_SET_SPEED, motorPortNumber - 1, speed);
 	}
 
 	public void run(Integer motorPortNumber, Integer command) {
-		myArduino.sendMsg(AF_DCMOTOR_RUN_COMMAND, motorPortNumber - 1, command);
+		arduino.sendMsg(AF_DCMOTOR_RUN_COMMAND, motorPortNumber - 1, command);
 	}
 
 	public void runForward(Integer motorPortNumber, Integer speed) {
@@ -193,7 +199,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 
 	public boolean attach() {
 		boolean ret = true;
-		ret &= attach(myArduino); // TODO - check to see if Arduino is connected
+		ret &= attach(arduino); // TODO - check to see if Arduino is connected
 
 		m1.setController(this);
 		m2.setController(this);
@@ -215,18 +221,19 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 	 * 
 	 * TODO - Program Version & Type injection - with feedback + query to load
 	 */
-	public boolean attach(Arduino arduino) {
+	public boolean attach(Arduino inArduino) {
 
-		if (arduino == null) {
+		
+		if (inArduino == null) {
 			log.error("can't attach - arduino is invalid");
 			return false;
 		}
 
-		myArduino = arduino;
+		this.arduino = inArduino;
 
 		// arduinoName; FIXME - get clear on diction Program Script or Sketch
 		StringBuffer newProgram = new StringBuffer();
-		newProgram.append(myArduino.getSketch());
+		newProgram.append(arduino.getSketch());
 
 		// modify the program
 		int insertPoint = newProgram.indexOf(Arduino.VENDOR_DEFINES_BEGIN);
@@ -260,7 +267,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 		}
 
 		// set the program
-		myArduino.setSketch(newProgram.toString());
+		arduino.setSketch(newProgram.toString());
 		// broadcast the arduino state - ArduinoGUI should subscribe to
 		// setProgram
 		broadcastState(); // state has changed let everyone know
@@ -326,7 +333,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 	}
 
 	public boolean isAttached() {
-		return myArduino != null;
+		return arduino != null;
 	}
 
 	// motor controller api
@@ -351,34 +358,34 @@ public class AdafruitMotorShield extends Service implements MotorController, Ser
 		return data;
 	}
 
+	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
+
 	@Override
-	public boolean servoAttach(String servoName, Integer pin) {
+	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void servoWrite(String servoName, Integer newPos) {
+	public void stepperMoveTo(String name, Integer position) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public boolean servoDetach(String servoName) {
+	public void stepperMove(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stepperDetach(String name) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	// FIXME - COMPLETE IMPLEMENTATION END --
 
-	@Override
-	public Integer getServoPin(String servoName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public void setServoSpeed(String servoName, Float speed) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 }

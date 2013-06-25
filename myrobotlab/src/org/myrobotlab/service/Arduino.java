@@ -1470,23 +1470,40 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return connect(comPort, 57600, 8, 1, 0);
 	}
 
-	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
-
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.ERROR);
-
-		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
-		
-		Runtime.createAndStart("python", "Python");
-		Runtime.createAndStart("gui01", "GUIService");
-
-	}
-
+	// -- StepperController begin ----
+	
 	@Override
-	public boolean stepperAttach(String stepperName, Object... stepperData) {
-		// TODO Auto-generated method stub
+	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4)
+	{
+		if (!isConnected())
+		{
+			error(String.format("can not attach servo %s before Arduino %s is connected", stepperName, getName()));
+			return false;
+		}
+		
+		ServiceWrapper sw = Runtime.getServiceWrapper(stepperName);
+		if (!sw.isLocal()) {
+			log.error("motor is not in the same MRL instance as the motor controller");
+			return false;
+		}
+		ServiceInterface service = sw.service;
+		ServoControl stepper = (ServoControl) service; 
+		return stepperAttach(stepper, steps, pin1, pin2, pin3, pin4);
+	}
+	
+	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
+	public boolean stepperAttach(ServoControl stepper, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4)
+	{
+		// set all pins to output mode
+		sendMsg(PINMODE, pin1, OUTPUT);
+		sendMsg(PINMODE, pin2, OUTPUT);
+		sendMsg(PINMODE, pin3, OUTPUT);
+		sendMsg(PINMODE, pin4, OUTPUT);
+		
+		stepper.setController(this);
 		return false;
 	}
+	// FIXME - COMPLETE IMPLEMENTATION END --
 
 	@Override
 	public void stepperMoveTo(String name, Integer position) {
@@ -1505,5 +1522,18 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// TODO Auto-generated method stub
 		return false;
 	}
+	// -- StepperController begin ----
 
+	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
+
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
+
+		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
+		
+		Runtime.createAndStart("python", "Python");
+		Runtime.createAndStart("gui01", "GUIService");
+
+	}
+	
 }
