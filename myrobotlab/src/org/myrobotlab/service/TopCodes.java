@@ -57,11 +57,21 @@ public class TopCodes extends Service {
 	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		TopCodes topcodes = new TopCodes("topcodes");
 		topcodes.startService();			
-		topcodes.scan("somepicture.jpg");
+		List<TopCode> codes = topcodes.scan("somepicture.png");
+		
+		if (codes.size() == 0)
+		{
+			log.info("no codes found");
+		}
+		for (int i = 0; i < codes.size(); ++i)
+		{
+			TopCode code = codes.get(i);
+			log.info(String.format("number %d code %d x %f y %f diameter %f", i, code.getCode(), code.getCenterX(), code.getCenterY(), code.getDiameter()));
+		}
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
