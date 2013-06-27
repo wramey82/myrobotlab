@@ -499,6 +499,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.TopCodes" workingLevel="4">
+      <dependsOn>
+         <description>Tangible Object Placement Codes
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>edu.northwestern.topcodes</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Tracking" workingLevel="1">
       <dependsOn>
          <description>Vision tracking service - In Dev Now....
