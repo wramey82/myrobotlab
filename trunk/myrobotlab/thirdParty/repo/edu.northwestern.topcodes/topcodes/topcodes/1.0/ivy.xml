@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="edu.northwestern.topcodes" module="topcodes" status="release" revision="1.0">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="topcodes" type="jar"/>
+        
+        <artifact name="x86.32.windows/JavaWebCam" type="native" ext="dll" conf="x86.32.windows"/>
+               
+    </publications>
+</ivy-module>
