@@ -22,12 +22,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-package webcam;
+package org.myrobotlab.topCodes;
 
 
 public class WebCamException extends Exception {
 
-   public WebCamException(String message) {
+	private static final long serialVersionUID = 1L;
+
+public WebCamException(String message) {
       super(message);
    }
 }
