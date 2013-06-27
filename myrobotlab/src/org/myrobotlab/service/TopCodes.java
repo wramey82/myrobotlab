@@ -61,7 +61,7 @@ public class TopCodes extends Service {
 
 		TopCodes topcodes = new TopCodes("topcodes");
 		topcodes.startService();			
-		List<TopCode> codes = topcodes.scan("somepicture.png");
+		List<TopCode> codes = topcodes.scan("topcodetest.png");
 		
 		if (codes.size() == 0)
 		{
@@ -73,11 +73,6 @@ public class TopCodes extends Service {
 			log.info(String.format("number %d code %d x %f y %f diameter %f", i, code.getCode(), code.getCenterX(), code.getCenterY(), code.getDiameter()));
 		}
 		
-		Runtime.createAndStart("gui", "GUIService");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
 	}
 
 
