@@ -1,3 +1,5 @@
+package org.myrobotlab.topCodes;
+
 /*
  * @(#) WebCamSample.java
  * 
@@ -22,23 +24,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-import webcam.*;
-import topcodes.*;
-import java.util.List;
-import java.awt.Font;
+
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.RenderingHints;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.geom.AffineTransform;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.awt.event.*;
-import javax.swing.*;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 
 
 /**
