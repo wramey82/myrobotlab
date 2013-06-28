@@ -109,6 +109,9 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	
 
 	public int direction = FORWARD;
+	
+	// the last amount (abs) step command
+	private int step = 0;
 
 	public transient final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
@@ -285,7 +288,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 			
 			
 			"            case AF_STEPPER_STEP:{ \n" +
-			"             stepperMap[ioCommand[1]-1]->step(ioCommand[2], ioCommand[3], ioCommand[4]); \n" +
+			"             stepperMap[ioCommand[1]-1]->step(((ioCommand[2] << 8) + ioCommand[3]), ioCommand[4], ioCommand[5]); \n" +
 			"            }\n" +
 			"            break; \n" +
 						
@@ -450,8 +453,8 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		} else {
 			direction = FORWARD;
 		}
-		// (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF))
-		arduino.sendMsg(AF_STEPPER_STEP, deviceNameToNumber.get(name),  Math.abs(inSteps), direction, style);
+		step = Math.abs(inSteps);
+		arduino.sendMsg(AF_STEPPER_STEP, deviceNameToNumber.get(name), step >> 8 & 0xFF, step & 0xFF, direction, style);
 	}
 
 	@Override
