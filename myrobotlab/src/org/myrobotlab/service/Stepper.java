@@ -29,8 +29,6 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.interfaces.MotorControl;
-import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.StepperControl;
 import org.myrobotlab.service.interfaces.StepperController;
 import org.slf4j.Logger;
@@ -45,268 +43,56 @@ import org.slf4j.Logger;
  *         H-bridges output
  * 
  */
-public class Stepper extends Service implements MotorControl, StepperControl {
+public class Stepper extends Service implements StepperControl {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Stepper.class.toString());
 
-	/**
-	 * state of Motor being attached to a motor controller
-	 */
 	private boolean isAttached = false;
+	private int rpm = 0;
+	private boolean locked = false; // for locking the motor in a stopped position
+	
+	// Constants that the user passes in to the motor calls
+	public static final Integer FORWARD = 1;
+	public static final Integer BACKWARD = 2;
+	public static final Integer BRAKE = 3;
+	public static final Integer RELEASE = 4;
 
-	/**
-	 * determines if the motor should spin CW or CCW relative to the positive or
-	 * negative signed power
-	 */
-	private boolean directionInverted = false;
-
-	/**
-	 * current power level of the motor - valid range between -1.0 and 1.0
-	 */
-	private float powerLevel = 0;
-
-	/**
-	 * limit on power level - valid range is between 0 and 1.0
-	 */
-	private float maxPower = 1;
-
-	public boolean inMotion = false;
-
-	boolean locked = false; // for locking the motor in a stopped position
-	private MotorController controller = null; // board name
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#getPowerLevel()
-	 */
-	@Override
-	public float getPowerLevel() {
-		return powerLevel;
-	}
-
-	public void invertDirection(boolean invert) {
-		this.directionInverted = invert;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#isDirectionInverted()
-	 */
-	@Override
-	public boolean isDirectionInverted() {
-		return directionInverted;
-	}
-
-	transient EncoderTimer durationThread = null;
-
-	/**
-	 * Motor constructor takes a single unique name for identification. e.g.
-	 * Motor left = new Motor("left");
-	 * 
-	 * @param name
-	 */
+	// Constants that the user passes in to the stepper calls
+	public static final Integer SINGLE = 1;
+	public static final Integer DOUBLE = 2;
+	public static final Integer INTERLEAVE = 3;
+	public static final Integer MICROSTEP = 4;
+	
+	private Integer stepperingStyle = SINGLE;
+	
+	private StepperController controller = null; // board name
+	
 	public Stepper(String name) {
 		super(name, Stepper.class.getCanonicalName());
 	}
 
-
-
-	// --------- Motor (front end) API Begin ----------------------------
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#move(float)
-	 */
-	@Override
-	public void move(Float newPowerLevel) {
-		// check for locked or invalid level
-		if (locked) {
-			log.warn("motor locked");
-			return;
-		}
-		if (newPowerLevel < -1 || newPowerLevel > 1 || Math.abs(newPowerLevel) > maxPower) {
-			log.error(String.format("invalid power level %d", newPowerLevel));
-			return;
-		}
-
-		// set the new power level
-		powerLevel = newPowerLevel;
-		// request controller to move
-		controller.motorMove(getName());
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#moveTo(java.lang.Integer)
-	 */
-	@Override
-	public void moveTo(Integer newPos) {
-		// FIXME - implement - needs encoder
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#setMaxPower(float)
-	 */
-	@Override
-	public void setMaxPower(float max) {
-		if (maxPower > 1 || maxPower < 0) {
-			log.error("max power must be between 0.0 and 0.1");
-			return;
-		}
-		maxPower = max;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#stop()
-	 */
-	@Override
-	public void stop() {
-		move(0.0f);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#unLock()
-	 */
 	@Override
 	public void unlock() {
 		log.info("unLock");
 		locked = false;
 	}
 
+	@Override
 	public void lock() {
 		log.info("lock");
 		locked = true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#stopAndLock()
-	 */
 	@Override
 	public void stopAndLock() {
 		log.info("stopAndLock");
-		move(0.0f);
 		lock();
 	}
 
-	// --------- Motor (front end) API End ----------------------------
-
-	// FIXME - implements an Encoder interface
-	// get a named instance - stopping and starting should not be creating &
-	// destroying
-	transient Object lock = new Object();
-
-	class EncoderTimer extends Thread {
-		public float power = 0.0f;
-		public float duration = 0;
-
-		Stepper instance = null;
-
-		EncoderTimer(float power, float duration, Stepper instance) {
-			super(instance.getName() + "_duration");
-			this.power = power;
-			this.duration = duration;
-			this.instance = instance;
-		}
-
-		public void run() {
-			while (isRunning()) // this is from Service - is OK?
-			{
-				synchronized (lock) {
-					try {
-						lock.wait();
-
-						instance.move(this.power);
-						inMotion = true;
-
-						Thread.sleep((int) (this.duration * 1000));
-
-						instance.stop();
-						inMotion = false;
-
-					} catch (InterruptedException e) {
-						log.warn("duration thread interrupted");
-					}
-				}
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#moveFor(float, int)
-	 */
 	@Override
-	public void moveFor(Float power, Float duration) {
-		// default is not to block
-		moveFor(power, duration, false);
-	}
-
-	// TODO - operate from thread pool
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#moveFor(float, int, boolean)
-	 */
-	@Override
-	public void moveFor(Float power, Float duration, Boolean block) {
-		// TODO - remove - Timer which implements SensorFeedback should be used
-		if (!block) {
-			// non-blocking call to move for a duration
-			if (durationThread == null) {
-				durationThread = new EncoderTimer(power, duration, this);
-				durationThread.start();
-			} else {
-				if (inMotion) {
-					log.error("duration is busy with another move" + durationThread.duration);
-				} else {
-					synchronized (lock) {
-						durationThread.power = power;
-						durationThread.duration = duration;
-						lock.notifyAll();
-					}
-				}
-			}
-		} else {
-			// block the calling thread
-			move(this.powerLevel);
-			inMotion = true;
-
-			try {
-				Thread.sleep((int) (duration * 1000));
-			} catch (InterruptedException e) {
-				logException(e);
-			}
-
-			stop();
-			inMotion = false;
-
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#attach(org.myrobotlab.service.interfaces.
-	 * MotorController)
-	 */
-	@Override
-	public boolean setController(MotorController controller) {
+	public boolean setController(StepperController controller) {
 		this.controller = controller;
 		attached(true);
 		return true;
@@ -330,49 +116,42 @@ public class Stepper extends Service implements MotorControl, StepperControl {
 		broadcastState();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#isAttached()
-	 */
 	@Override
 	public boolean isAttached() {
 		return isAttached;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.X#detach()
-	 */
 	@Override
 	public boolean detach() {
-		return controller.motorDetach(getName());
+		if (controller == null)
+		{
+			return false;
+		}
+		controller.stepperDetach(getName());
+		return true;
 	}
-	
-	//--- stepper only interface begin ---
-	
-	public void attach(StepperController arduino, Integer pin1, Integer pin2)
-	{
+
+	@Override
+	public void setSpeed(Integer rpm) {
+		// TODO Auto-generated method stub
 		
 	}
 	
-	public void attach(StepperController arduino, Integer pin1, Integer pin2, Integer pin3, Integer pin4)
-	{
+	@Override
+	public void step(Integer steps) {
+		step(steps, stepperingStyle);
+	}
+
+	@Override
+	public void step(Integer steps, Integer style) {
+		controller.stepperStep(getName(), steps, style);
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
 		
 	}
-	
-	public void setSpeed(Integer rpm)
-	{
-		
-	}
-	
-	public void step(Integer steps)
-	{
-		
-	}
-	
-	//--- stepper only interface begin ---
 	
 	public static void main(String[] args) {
 
@@ -387,5 +166,6 @@ public class Stepper extends Service implements MotorControl, StepperControl {
 		Runtime.createAndStart("gui", "GUIService");
 
 	}
+
 
 }

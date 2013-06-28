@@ -31,14 +31,36 @@ import org.myrobotlab.service.data.Pin;
 
 public interface StepperController {
 
+	public final Integer STYLE_SINGLE = 1;
+	public final Integer STYLE_DOUBLE = 2;
+	public final Integer STYLE_INTERLEAVE = 3;
+	public final Integer STYLE_MICROSTEP = 4;
+	
+	
 	/**
-	 * Remote attachment activation - used by services not in the same instance
-	 * to attach a Motor to a MotorController
-	 * 
+	 * attach a stepper named to this controller
 	 * @param stepperName
-	 * @param stepperData
+	 * @param steps
+	 * @param pin1
+	 * @param pin2
+	 * @param pin3
+	 * @param pin4
+	 * @return
 	 */
-	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4); 
+	public boolean stepperAttach(String stepperName, Integer steps, Object...data); 
+	
+	
+	/**
+	 * typed attachment 
+	 * @param stepper
+	 * @param steps
+	 * @param pin1
+	 * @param pin2
+	 * @param pin3
+	 * @param pin4
+	 * @return
+	 */
+	public boolean stepperAttach(StepperControl stepper, Integer steps, Object...data);
 
 	/**
 	 * This is basic information to request from a Controller. A list of pins on
@@ -50,32 +72,33 @@ public interface StepperController {
 	public ArrayList<Pin> getPinList();
 
 	/**
-	 * moveTo - move the Motor a relative amount the amount can be negative or
-	 * positive an integer value is expected
+	 * stepperStep - move stepper an increment 
 	 * 
 	 * @param name
-	 *            - name of the Motor
+	 *            - name of the Stepper
 	 * @param position
-	 *            - positive or negative absolute amount to move the Motor
+	 *            - positive to turn one direction, negative to turn the other
 	 * @return void
 	 */
-	public void stepperMoveTo(String name, Integer position);
+	public void stepperStep(String name, Integer steps);
 
 	/**
-	 * 
-	 * request for stepper to move the stepper can be queried for the new powerlevel
-	 * and the controller shall appropriately change power level and direction
-	 * if necessary
+	 * stepperStep - move stepper an increment 
 	 * 
 	 * @param name
+	 * @param steps
+	 * @param style - style of stepping STYLE_SINGLE STYLE_DOUBLE STYLE_INTERLEAVE STYLE_MICROSTEP
 	 */
-	public void stepperMove(String name);
-
+	public void stepperStep(String name, Integer steps, Integer style);
+	
+	public void setSpeed(Integer speed);
+	
+	
 	/**
-	 * MotorDetach - detach the Motor from a specific pin on the controller
+	 * StepperDetach - detach the Stepper from a specific pin on the controller
 	 * 
 	 * @param name
-	 *            - name of the Motor
+	 *            - name of the Stepper
 	 * @return void
 	 */
 	public boolean stepperDetach(String name);
@@ -88,6 +111,6 @@ public interface StepperController {
 	 * @param stepperName
 	 * @return
 	 */
-	public Object[] getMotorData(String stepperName);
+	public Object[] getStepperData(String stepperName);
 
 }
