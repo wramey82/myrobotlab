@@ -188,7 +188,6 @@ public class EditorArduino extends Editor implements ActionListener {
 
 	private JMenu createExamplesMenu() {
 		// FIXME - dynamically build based on resources
-		;
 		JMenu menu;
 		menu = new JMenu("Communication");
 		menu.add(createMenuItem("MRLComm.ino", "examples"));

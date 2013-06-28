@@ -46,19 +46,19 @@ import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Motor;
+import org.myrobotlab.service.Stepper;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
-import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.interfaces.StepperController;
 
 public class StepperGUI extends ServiceGUI implements ActionListener, ChangeListener {
 
 	// controller
 	JPanel controllerPanel = new JPanel(new BorderLayout());
-	MotorControllerPanel controllerTypePanel = new Motor_UnknownGUI();
+	StepperControllerPanel controllerTypePanel = new Stepper_UnknownGUI();
 	JComboBox controllerSelect = new JComboBox();
-	MotorController controller = null;
+	StepperController controller = null;
 	JCheckBox invert = new JCheckBox("invert");
 
 	// power
@@ -73,10 +73,10 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 	JPanel positionPanel = null;
 	private JLabel posValue = new JLabel("0.00");
 
-	// TODO - make MotorPanel - for 1 motor - for shared embedded widget
+	// TODO - make StepperPanel - for 1 stepper - for shared embedded widget
 	// TODO - stop sign button for panic stop
 	// TODO - tighten up interfaces
-	// TODO - DIRECT calls ! - motor & controller HAVE to be on the same
+	// TODO - DIRECT calls ! - stepper & controller HAVE to be on the same
 	// computer
 	// TODO - cw ccw buttons enabled
 
@@ -113,7 +113,7 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 
 		controllerPanel.setBorder(BorderFactory.createTitledBorder("controller"));
 
-		Vector<String> v = Runtime.getServicesFromInterface(MotorController.class.getCanonicalName());
+		Vector<String> v = Runtime.getServicesFromInterface(StepperController.class.getCanonicalName());
 		v.add(0, "");
 		controllerSelect = new JComboBox(v);
 		controllerPanel.add(controllerSelect, BorderLayout.WEST);
@@ -129,9 +129,9 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 		north.add(powerValue);
 		powerPanel.add(north, BorderLayout.NORTH);
 
-		counterclockwiseButton = new ImageButton("Motor", "counterclockwise", this);
-		stopButton = new ImageButton("Motor", "stop", this);
-		clockwiseButton = new ImageButton("Motor", "clockwise", this);
+		counterclockwiseButton = new ImageButton("Stepper", "counterclockwise", this);
+		stopButton = new ImageButton("Stepper", "stop", this);
+		clockwiseButton = new ImageButton("Stepper", "clockwise", this);
 		powerPanel.add(counterclockwiseButton, BorderLayout.WEST);
 		powerPanel.add(stopButton, BorderLayout.CENTER);
 		powerPanel.add(clockwiseButton, BorderLayout.EAST);
@@ -163,7 +163,7 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 		controllerSelect.addActionListener(this);
 		power.addChangeListener(this);
 
-		// TODO - motor could come into graphics already attached - handle it...
+		// TODO - stepper could come into graphics already attached - handle it...
 
 	}
 
@@ -183,7 +183,7 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 
 	@Override
 	public void attachGUI() {
-		subscribe("publishState", "getState", Motor.class);
+		subscribe("publishState", "getState", Stepper.class);
 		myService.send(boundServiceName, "publishState");
 	}
 
@@ -196,19 +196,19 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 	// FIXME put in sub gui
 	ArrayList<Pin> pinList = null;
 
-	public void getState(Motor motor) {
-		setEnabled(motor.isAttached());
+	public void getState(Stepper stepper) {
+		setEnabled(stepper.isAttached());
 		// FIXED - can't use a reference - because it changes mid-stream through
 		// this method
-		// MotorControllerPanel subpanel =
-		// ((MotorControllerPanel)controllerTypePanel);
-		if (motor.isAttached()) {
+		// StepperControllerPanel subpanel =
+		// ((StepperControllerPanel)controllerTypePanel);
+		if (stepper.isAttached()) {
 			// !!!!! - This actually fires the (makes a new
-			// MotorControllerPanel) !!!!!
-			controllerSelect.setSelectedItem(motor.getControllerName());
-			controllerTypePanel.setData(controller.getMotorData(boundServiceName));
+			// StepperControllerPanel) !!!!!
+			controllerSelect.setSelectedItem(stepper.getControllerName());
+			controllerTypePanel.setData(controller.getStepperData(boundServiceName));
 		}
-		controllerTypePanel.setAttached(motor.isAttached());
+		controllerTypePanel.setAttached(stepper.isAttached());
 	}
 
 	@Override
@@ -222,14 +222,14 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 			if (newController != null && newController.length() > 0) {
 				// myService.send(boundServiceName, "setPort", newPort);
 				ServiceWrapper sw = Runtime.getServiceWrapper(newController);
-				controller = (MotorController) Runtime.getServiceWrapper(newController).service;
+				controller = (StepperController) Runtime.getServiceWrapper(newController).service;
 
 				String type = sw.getServiceType();
 
-				// build gui for appropriate motor controller type -
-				// the gui needs to be able to do a Motor.attach(name, data)
+				// build gui for appropriate stepper controller type -
+				// the gui needs to be able to do a Stepper.attach(name, data)
 				// with appropriate data
-				String attachGUIName = String.format("org.myrobotlab.control.Motor_%sGUI", type.substring(type.lastIndexOf(".") + 1));
+				String attachGUIName = String.format("org.myrobotlab.control.Stepper_%sGUI", type.substring(type.lastIndexOf(".") + 1));
 
 				controllerPanel.remove(controllerTypePanel);
 				controllerTypePanel = Instantiator.getNewInstance(attachGUIName, new Object[] { myService, boundServiceName, newController });
@@ -238,7 +238,7 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 
 			} else {
 				controllerPanel.remove(controllerTypePanel);
-				controllerTypePanel = new Motor_UnknownGUI();
+				controllerTypePanel = new Stepper_UnknownGUI();
 				controllerPanel.add(controllerTypePanel, BorderLayout.CENTER);
 				// setEnabled(false);
 			}
