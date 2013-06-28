@@ -72,8 +72,8 @@
 // http://arduino.cc/en/Reference/StepperStep
 #define STEPPER_ATTACH				 	27
 #define STEPPER_DETACH				 	28
-#define STEPPER_DETACH				 	29
-#define STEPPER_DETACH				 	30
+#define STEPPER_STEP				 	29
+//#define STEPPER_DETACH				 	30
 
 // lame - shuold determine max stepper based on board pins / pins required
 #define MAX_STEPPERS 2 
@@ -411,11 +411,12 @@ void loop () {
 /* FIXME - finish Arduino's version of implementation		
 		case STEPPER_ATTACH:
 			steppers[ioCommand[1]] = &(Stepper(ioCommand[2], ioCommand[3], ioCommand[4], ioCommand[5], ioCommand[6]));
-			break;			
+			break;		
+*/				
 
 			// --VENDOR CODE BEGIN--
 			// --VENDOR CODE END--
-*/
+
 		case NOP:
 			// No Operation
 			break;
