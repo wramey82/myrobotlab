@@ -35,12 +35,12 @@ public class TopCodes extends Service {
 	}
 
 	
-	List<TopCode> scan(BufferedImage img)
+	public List<TopCode> scan(BufferedImage img)
 	{
 		return scanner.scan(img);
 	}
 
-	List<TopCode> scan(String filename)
+	public List<TopCode> scan(String filename)
 	{
 		try {
 			BufferedImage img;
