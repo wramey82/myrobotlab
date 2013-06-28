@@ -28,7 +28,7 @@ public class ProgressDialog extends JDialog {
 		super(frame, "new components");
 
 		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.CENTER);
+		getContentPane().add(panel, BorderLayout.NORTH);
 
 		spinner = new JLabel();
 		panel.add(spinner);
@@ -46,7 +46,7 @@ public class ProgressDialog extends JDialog {
 		DefaultCaret caret = (DefaultCaret) reportArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-		getContentPane().add(scrollPane, BorderLayout.SOUTH);
+		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		setSize(320, 240);
 		setLocationRelativeTo(frame);
 	}
