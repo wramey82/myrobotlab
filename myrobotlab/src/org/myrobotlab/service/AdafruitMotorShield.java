@@ -38,6 +38,13 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	private static final long serialVersionUID = 1L;
 
+	/* TODO - make step calls NON BLOCKING
+	 1. make step calls non-blocking - they don't block MRL - but they block the processing of the Arduino which is not needed (or desired)
+	 2. nice GUI for steppers
+	 3. release functionality
+	 4. style set <-- easy
+	*/
+	
 	// AF Shield controls these 2 servos
 	// makes "attaching" impossible
 	// Servo servo10;
@@ -435,15 +442,16 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	}
 
 	@Override
-	public void stepperStep(String name, Integer steps, Integer style) {
+	public void stepperStep(String name, Integer inSteps, Integer style) {
 		
-		if (steps < 0)
+		if (inSteps < 0)
 		{
 			direction = BACKWARD;
 		} else {
 			direction = FORWARD;
 		}
-		arduino.sendMsg(AF_STEPPER_STEP, deviceNameToNumber.get(name), steps, direction, style);
+		// (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF))
+		arduino.sendMsg(AF_STEPPER_STEP, deviceNameToNumber.get(name),  Math.abs(inSteps), direction, style);
 	}
 
 	@Override
@@ -505,6 +513,13 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		
+		int test = 258;
+		
+		log.info("{}", test & 0xFF);
+		log.info("{}", test >> 8 & 0xFF);
+		log.info("{}", test >> 16 & 0xFF);
+		log.info("{}", test >> 32 & 0xFF);
 
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		Runtime.createAndStart("gui01", "GUIService");
