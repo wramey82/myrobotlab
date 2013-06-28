@@ -20,6 +20,7 @@ import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.interfaces.StepperControl;
 import org.myrobotlab.service.interfaces.StepperController;
 import org.slf4j.Logger;
 
@@ -41,18 +42,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	// makes "attaching" impossible
 	// Servo servo10;
 
-	// Motor identifiers
-	// final public int M1 = 0;
-	// final public int FORWARD = 0;
-
-	/*
-	 * TODO - if arduino has a last port defined - then auto-connect if the
-	 * connect was unsuccessful - warn the user if it was successful (report
-	 * yay) - query the version & type of INO if version & type match - report
-	 * Yay proceed to attach all motors - (save config regarding last state of
-	 * shieldd - dcmotors vs steppers)
-	 */
-
 	final public int FORWARD = 1;
 	final public int BACKWARD = 2;
 	final public int BRAKE = 3;
@@ -63,90 +52,143 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	final public int INTERLEAVE = 3;
 	final public int MICROSTEP = 4;
 
-	// dc motorMap
-	transient public Motor m1 = null;
-	transient public Motor m2 = null;
-	transient public Motor m3 = null;
-	transient public Motor m4 = null;
+	HashMap<String, Integer> deviceNameToNumber = new HashMap<String, Integer>();
+	
+	transient public HashMap<String, Motor> motors = new HashMap<String, Motor>();
+	transient public HashMap<String, Stepper> steppers = new HashMap<String, Stepper>();
+	transient public HashMap<String, Servo> servos = new HashMap<String, Servo>();
 
 	transient public Arduino arduino = null;
+	public String arduinoName = "arduino";
 
-	HashMap<String, Integer> motorMap = new HashMap<String, Integer>();
-	Motor[] motors = new Motor[4];
-
-	final int AF_DCMOTOR_SET_SPEED = 51;
-	final int AF_DCMOTOR_RUN_COMMAND = 52;
+	final int AF_DCMOTOR_ATTACH = 51;
+	final int AF_DCMOTOR_DETACH = 52;
+	final int AF_DCMOTOR_RELEASE = 53;
+	final int AF_DCMOTOR_SET_SPEED = 54;
+	final int AF_DCMOTOR_RUN_COMMAND = 55;
 
 	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
-	final int AF_STEPPER_ATTACH = 53;
-	final int AF_STEPPER_DETACH = 54; // release
-	final int AF_STEPPER_STEP = 55;
-	final int AF_SET_SPEED = 55;
+	final int AF_STEPPER_ATTACH = 56;
+	final int AF_STEPPER_DETACH = 57; // release
+	final int AF_STEPPER_RELEASE = 58; // release
+	final int AF_STEPPER_STEP = 59;
+	final int AF_STEPPER_SET_SPEED = 60;
 	// FIXME - COMPLETE IMPLEMENTATION END --
-
 	
+	public static final String ADAFRUIT_DEFINES = 
+
+			"\n\n" + 
+					"#include <AFMotor.h>\n\n" + 
+					" #define AF_DCMOTOR_ATTACH 51\n" + 
+					" #define AF_DCMOTOR_DETACH 52\n" +
+					" #define AF_DCMOTOR_RELEASE 53\n" +
+					" #define AF_DCMOTOR_SET_SPEED 54\n" + 
+					" #define AF_DCMOTOR_RUN_COMMAND 55\n"
+					+ "\n" +
+					" #define AF_STEPPER_ATTACH 56\n" + 
+					" #define AF_STEPPER_DETACH 57\n" +
+					" #define AF_STEPPER_RELEASE 58\n" +
+					" #define AF_STEPPER_STEP 59\n" + 
+					" #define AF_STEPPER_SET_SPEED 60\n" +
+
+/*					" AF_DCMotor m1(1);\n" + 
+					" AF_DCMotor m2(2);\n" + 
+					" AF_DCMotor m3(3);\n" + 
+					" AF_DCMotor m4(4);\n" + 
+*/					
+					" AF_DCMotor* motorMap[4];\n" + 
+					" AF_Stepper* stepperMap[2];\n" + 
+					"\n\n";
+	
+
+	public int direction = FORWARD;
+
 	public transient final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
-		arduino = new Arduino(String.format("%s_arduino", n));
-		createM1M2DCMotors();
-		createM3M4DCMotors();
-		attach();
 	}
 
 	public void startService() {
 		super.startService();
-		arduino.startService();
-		// TODO - request myArduino - re connect
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		attach(arduino);
 	}
 
-	// TODO - 2 calls as the business logic is 1/2 - 2 motorMap or 1 stepper
-	public void createM1M2DCMotors() {
-		m1 = new Motor(String.format("%s_%s", getName(), "m1"));
-		m2 = new Motor(String.format("%s_%s", getName(), "m2"));
-		motorMap.put(m1.getName(), 1);
-		motorMap.put(m2.getName(), 2);
-		motors[0] = m1;
-		motors[1] = m2;
-		m1.startService();
-		m2.startService();
+	/**
+	 * creates a DC Motor on port 1,2,3, or 4
+	 * 
+	 * @param motorNum
+	 */
+	public void createDCMotor(Integer motorNum) {
+		if (motorNum == null || motorNum < 1 || motorNum > 4) {
+			error(String.format("motor number should be 1,2,3,4 not %d", motorNum));
+			return;
+		}
+		String motorName = String.format("%s_m%d", getName(), motorNum);
+		deviceNameToNumber.put(motorName, motorNum);
+		Motor m = new Motor(motorName);
+		m.startService();
+		motors.put(motorName, m);
+		m.broadcastState();
+		m.setController(this);
 	}
 
-	public void createM3M4DCMotors() {
-		m3 = new Motor(String.format("%s_%s", getName(), "m3"));
-		m4 = new Motor(String.format("%s_%s", getName(), "m4"));
-		motorMap.put(m3.getName(), 3);
-		motorMap.put(m4.getName(), 4);
-		motors[2] = m3;
-		motors[3] = m4;
-		m3.startService();
-		m4.startService();
+	public void releaseDCMotor(String motorName) {
+		if (!motors.containsKey(motorName)) {
+			error("motor %s does not exist", motorName);
+		}
+
+		Motor m = motors.remove(motorName);
+		m.releaseService();
+		deviceNameToNumber.remove(motorName);
 	}
 
-	public void releaseM1M2Motor() {
-		motorMap.remove(m1);
-		motorMap.remove(m2);
-		m1.releaseService();
-		m2.releaseService();
-		motors[0] = null;
-		motors[1] = null;
+	/**
+	 * creates a stepper on stepper port 1 or 2
+	 * 
+	 * @param stepperPort
+	 */
+	public Stepper createStepper(Integer steps, Integer stepperPort) {
+		if (stepperPort == null || stepperPort < 1 || stepperPort > 2) {
+			error(String.format("stepper number should 1 or 2 not %d", stepperPort));
+			return null;
+		}
+		
+		String stepperName = String.format("%s_stepper%d", getName(), stepperPort);
+		
+		if (steppers.containsKey(stepperName))
+		{
+			warn("%s alreaady exists", stepperName);
+			return steppers.get(stepperName);
+		}
+
+		Stepper s = (Stepper)Runtime.createAndStart(stepperName, "Stepper");
+		if (!stepperAttach(s, steps, stepperPort))
+		{
+			return null;
+		}
+		
+		return s;
 	}
 
-	public void releaseM3M4Motor() {
-		motorMap.remove(m3);
-		motorMap.remove(m4);
-		m3.releaseService();
-		m4.releaseService();
-		motors[2] = null;
-		motors[3] = null;
+	// FIXME - release releases electrical connection
+	// detach remove object from memory and "releases" service
+	public void releaseStepper(String stepperName) {
+		if (!steppers.containsKey(stepperName)) {
+			error("stepper %s does not exist", stepperName);
+		}
+
+		Stepper m = steppers.remove(stepperName);
+		m.releaseService();
+		deviceNameToNumber.remove(stepperName);
 	}
 
 	// VENDOR SPECIFIC LIBRARY METHODS BEGIN /////
 	// DC Motors
 	// ----------- AFMotor API Begin --------------
 	public void setSpeed(String name, Integer speed) { // FIXME - sloppy
-		setSpeed(motorMap.get(name) - 1, speed);
+		setSpeed(deviceNameToNumber.get(name) - 1, speed);
 	}
 
 	public void setSpeed(Integer motorPortNumber, Integer speed) {
@@ -186,33 +228,68 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	// public static final String ADAFRUIT_SCRIPT_TYPE = "#define SCRIPT_TYPE "
 	// TODO
-
-	public static final String ADAFRUIT_DEFINES = "\n\n" + "#include <AFMotor.h>\n\n" + " #define AF_DCMOTOR_SET_SPEED 51\n" + " #define AF_DCMOTOR_RUN_COMMAND 52\n"
-			+ " AF_DCMotor m1(1);\n" + " AF_DCMotor m2(2);\n" + " AF_DCMotor m3(3);\n" + " AF_DCMotor m4(4);\n" + " AF_DCMotor* motorMap[4];\n" + "\n\n";
-
-	public static final String ADAFRUIT_SETUP = "\n\n" + "  motorMap[0] = &m1; \n" + "  motorMap[1] = &m2; \n" + "  motorMap[2] = &m3; \n" + "  motorMap[3] = &m4; \n";
-
+	
+	public static final String ADAFRUIT_SETUP = "";
+	
+		
 	public static final String ADAFRUIT_CODE = "\n\n" +
+			"            case AF_DCMOTOR_ATTACH:{ \n" +
+			"              motorMap[ioCommand[1] - 1] =  new AF_DCMotor(ioCommand[1]);\n " +
+			"            }\n" +
+			"            break; \n" +
 
-	"            case AF_DCMOTOR_RUN_COMMAND: \n" + "             motorMap[ioCommand[2]]->run(ioCommand[3]); \n" + "            break; \n"
-			+ "            case AF_DCMOTOR_SET_SPEED: \n" + "             motorMap[ioCommand[2]]->setSpeed(ioCommand[3]); \n" + "            break; \n";
+			"            case AF_DCMOTOR_DETACH:{ \n" +
+			"             motorMap[ioCommand[2]]->run(RELEASE); \n" +
+			"             delete motorMap[ioCommand[2]];\n" +
+			"            }\n" +
+			"            break; \n" +
 
-	public boolean attach() {
-		boolean ret = true;
-		ret &= attach(arduino); // TODO - check to see if Arduino is connected
+			"            case AF_DCMOTOR_RELEASE:{ \n" +
+			"             motorMap[ioCommand[2]]->run(RELEASE); \n" +
+			"            }\n" +
+			"            break; \n" +
+			
+			"            case AF_DCMOTOR_RUN_COMMAND:{ \n" +
+			"             motorMap[ioCommand[1]]->run(ioCommand[2]); \n" +
+			"            }\n" +
+			"            break; \n" +
+						
+			"            case AF_DCMOTOR_SET_SPEED:{ \n" +
+			"             motorMap[ioCommand[1]]->setSpeed(ioCommand[2]); \n" +
+			"            }\n" +
+			"            break; \n" +
 
-		m1.setController(this);
-		m2.setController(this);
-		m3.setController(this);
-		m4.setController(this);
+			"\n\n" +
+			"            case AF_STEPPER_ATTACH:{ \n" +
+			"              stepperMap[ioCommand[2] - 1] = new AF_Stepper (ioCommand[1], ioCommand[2]);\n " +
+			"            }\n" +
+			"            break; \n" +
 
-		m1.broadcastState();
+			"            case AF_STEPPER_DETACH:{ \n" +
+			"             stepperMap[ioCommand[1]-1]->release(); \n" +
+			"             delete stepperMap[ioCommand[1]-1]; \n" +
+			"            }\n" +
+			"            break; \n" +
 
-		return ret;
-	}
+			"            case AF_STEPPER_RELEASE:{ \n" +
+			"             stepperMap[ioCommand[1]-1]->release(); \n" +
+			"            }\n" +
+			"            break; \n" +
+			
+			
+			"            case AF_STEPPER_STEP:{ \n" +
+			"             stepperMap[ioCommand[1]-1]->step(ioCommand[2], ioCommand[3], ioCommand[4]); \n" +
+			"            }\n" +
+			"            break; \n" +
+						
+			"            case AF_STEPPER_SET_SPEED:{ \n" +
+			"             stepperMap[ioCommand[1]-1]->setSpeed(ioCommand[2]); \n" +
+			"            }\n" +
+			"            break; \n";
 
-	// attachControllerBoard ??? FIXME FIXME FIXME - should "attach" call
-	// another's attach?
+
+
+
 	/**
 	 * an Arduino does not need to know about a shield but a shield must know
 	 * about a Arduino Arduino owns the script, but a Shield needs additional
@@ -223,7 +300,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	 */
 	public boolean attach(Arduino inArduino) {
 
-		
 		if (inArduino == null) {
 			log.error("can't attach - arduino is invalid");
 			return false;
@@ -294,7 +370,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		MotorControl mc = (MotorControl) Runtime.getServiceWrapper(name).get();
 		Float pwr = mc.getPowerLevel();
 		int pwm = (int) (pwr * 255);
-		int motorPortNumber = motorMap.get(name);
+		int motorPortNumber = deviceNameToNumber.get(name);
 
 		if (pwr > 0) {
 			runForward(motorPortNumber, pwm);
@@ -336,44 +412,42 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		return arduino != null;
 	}
 
-	// motor controller api
-
-	public static void main(String[] args) {
-
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
-		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
-		fruity.attach();
-
-		Runtime.createAndStart("python", "Python");
-		Runtime.createAndStart("gui01", "GUIService");
-
-	}
-
 	@Override
 	public Object[] getMotorData(String motorName) {
-		String ret = String.format("m%d", motorMap.get(motorName));
+		String ret = String.format("m%d", deviceNameToNumber.get(motorName));
 		Object[] data = new Object[] { ret };
 		return data;
 	}
-
-	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
+	
+	// MotorController end ----
+	// StepperController begin ----
 
 	@Override
-	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean stepperAttach(String stepperName, Integer steps, Object...data) {
+		Stepper stepper = (Stepper)Runtime.createAndStart(stepperName, "Stepper");
+		return stepperAttach(stepper, steps, data);
 	}
 
-	@Override
-	public void stepperMoveTo(String name, Integer position) {
+	@Override // FIXME DEPRECATE !!!! - use method with style 
+	public void stepperStep(String name, Integer steps) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void stepperMove(String name) {
+	public void stepperStep(String name, Integer steps, Integer style) {
+		
+		if (steps < 0)
+		{
+			direction = BACKWARD;
+		} else {
+			direction = FORWARD;
+		}
+		arduino.sendMsg(AF_STEPPER_STEP, deviceNameToNumber.get(name), steps, direction, style);
+	}
+
+	@Override
+	public void setSpeed(Integer speed) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -383,9 +457,73 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public Object[] getStepperData(String stepperName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean stepperAttach(StepperControl stepperControl, Integer steps, Object...data) {
+		if (data.length != 1 || data[0].getClass() != Integer.class)
+		{
+			error("Adafruit stepper needs 1 Integers to specify port");
+			return false;
+		}
+		
+		Stepper stepper = (Stepper) stepperControl; // FIXME - only support stepper at the moment .. so not a big deal ... yet :P
+		Integer stepperPort = (Integer)data[0];
+		if (arduino == null || !arduino.isConnected())
+		{
+			error(String.format("can not attach servo %s before Arduino %s is connected", stepper.getName(), getName()));
+			return false;
+		}
+		stepper.setController(this);
+		stepper.broadcastState();
+		
+		steppers.put(stepper.getName(), stepper);
+		arduino.sendMsg(AF_STEPPER_ATTACH, steps, stepperPort);
+		deviceNameToNumber.put(stepper.getName(), stepperPort);
+		arduino.sendMsg(AF_STEPPER_SET_SPEED, stepperPort, 10); // default to 10 rpm 
+		
+		return true;
+	}
+	// StepperController end ----
 	
-	// FIXME - COMPLETE IMPLEMENTATION END --
+	public  boolean setSerialDevice(String port) {
+		if (arduino == null)
+		{
+			error("arduino %s is null", arduino.getName());
+			return false;
+		}
+		
+		return arduino.setSerialDevice(port);
+	}
+	
+	public static void main(String[] args) {
+
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+
+		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
+		Runtime.createAndStart("gui01", "GUIService");
+		
+		fruity.setSerialDevice("COM10");
+		
+		// create a 200 step stepper on adafruitsheild port 1
+		Stepper stepper1 = fruity.createStepper(200, 1); 
+		
+		// step 100 in one direction
+		stepper1.step(100);
+		// step 100 in the other
+		stepper1.step(-100);
+		
+		// FIXME - needs to be cleaned up - tear down
+		fruity.releaseStepper(stepper1.getName());
+
+		//Runtime.createAndStart("python", "Python");
+	}
 
 
-	
 }
