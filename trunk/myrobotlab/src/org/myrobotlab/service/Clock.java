@@ -121,9 +121,10 @@ public class Clock extends Service {
 		interval = milliseconds;
 	}
 	
-	public void setData(String data)
+	public String setData(String data)
 	{
 		this.data = data;
+		return data;
 	}
 
 	@Override

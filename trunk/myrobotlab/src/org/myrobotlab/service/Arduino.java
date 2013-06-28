@@ -75,6 +75,7 @@ import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
+import org.myrobotlab.service.interfaces.StepperControl;
 import org.myrobotlab.service.interfaces.StepperController;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
@@ -1473,55 +1474,16 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// -- StepperController begin ----
 	
 	@Override
-	public boolean stepperAttach(String stepperName, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4)
+	public boolean stepperAttach(String stepperName, Integer steps, Object...data)
 	{
-		if (!isConnected())
-		{
-			error(String.format("can not attach servo %s before Arduino %s is connected", stepperName, getName()));
-			return false;
-		}
-		
-		ServiceWrapper sw = Runtime.getServiceWrapper(stepperName);
-		if (!sw.isLocal()) {
-			log.error("motor is not in the same MRL instance as the motor controller");
-			return false;
-		}
-		ServiceInterface service = sw.service;
-		ServoControl stepper = (ServoControl) service; 
-		return stepperAttach(stepper, steps, pin1, pin2, pin3, pin4);
+		Stepper stepper = (Stepper)Runtime.createAndStart(stepperName, "Stepper");
+		return stepperAttach(stepper, steps, data);
 	}
 	
 	// FIXME - COMPLETE IMPLEMENTATION BEGIN --
-	public boolean stepperAttach(ServoControl stepper, Integer steps, Integer pin1, Integer pin2, Integer pin3, Integer pin4)
-	{
-		// set all pins to output mode
-		sendMsg(PINMODE, pin1, OUTPUT);
-		sendMsg(PINMODE, pin2, OUTPUT);
-		sendMsg(PINMODE, pin3, OUTPUT);
-		sendMsg(PINMODE, pin4, OUTPUT);
-		
-		stepper.setController(this);
-		return false;
-	}
+	
 	// FIXME - COMPLETE IMPLEMENTATION END --
 
-	@Override
-	public void stepperMoveTo(String name, Integer position) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void stepperMove(String name) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean stepperDetach(String name) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 	// -- StepperController begin ----
 
 	public static void main(String[] args) throws RunnerException, SerialDeviceException, IOException {
@@ -1534,6 +1496,56 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("gui01", "GUIService");
 
+	}
+
+	@Override
+	public void stepperStep(String name, Integer steps) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stepperStep(String name, Integer steps, Integer style) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setSpeed(Integer speed) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stepperDetach(String name) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Object[] getStepperData(String stepperName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public  boolean stepperAttach(StepperControl stepperControl, Integer steps, Object...data){
+		if (data.length != 4 || data[0].getClass() != Integer.class || data[1].getClass() != Integer.class|| data[2].getClass() != Integer.class|| data[3].getClass() != Integer.class)
+		{
+			error("Arduino stepper needs 4 Integers to specify pins");
+			return false;
+		}
+		
+		Stepper stepper = (Stepper) stepperControl; // FIXME - only support stepper at the moment .. so not a big deal ... yet :P
+		
+		if (!isConnected())
+		{
+			error(String.format("can not attach servo %s before Arduino %s is connected", stepper.getName(), getName()));
+			return false;
+		}
+
+		error("FIXME - IMPLEMENT !");
+		return false;
 	}
 	
 }

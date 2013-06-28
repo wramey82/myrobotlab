@@ -103,7 +103,7 @@ public class Tracking extends Service {
 	// peer services are always transient (i think)
 	transient public PID xpid; 
 	transient public PID ypid;
-	transient public OpenCV eye;
+	transient public OpenCV eye; 
 	transient public Arduino arduino;
 	transient public Servo x;
 	transient public Servo y;
@@ -209,7 +209,6 @@ public class Tracking extends Service {
 			return true;
 		}
 		info("attaching eye");
-		//eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
 		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
 		//eye.capture();
@@ -614,6 +613,9 @@ public class Tracking extends Service {
 
 
 	// FIXME - lost tracking event !!!!
+	// FIXME - this is WAY TO OPENCV specific !
+	// OpenCV should have a publishTrackingPoint method !
+	// This should be updateTrackingPoint(Point2Df) & perhaps Point3Df :)
 	final public void updateTrackingPoint(OpenCVData cvData) {
 		
 		// extract tracking info
