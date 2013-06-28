@@ -1997,6 +1997,21 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			lastInfo = System.currentTimeMillis();
 		}
 	}
+	
+	public void info(String format, Object...args)
+	{
+		info(String.format(format,args));
+	}
+	
+	public void warn(String format, Object...args)
+	{
+		warn(String.format(format,args));
+	}
+	
+	public void error(String format, Object...args)
+	{
+		error(String.format(format,args));
+	}
 
 	public void error(String msg)
 	{
