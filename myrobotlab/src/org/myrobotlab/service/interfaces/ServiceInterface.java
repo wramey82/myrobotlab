@@ -39,4 +39,8 @@ public interface ServiceInterface {
 	
 	public void unsubscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
 	
+	public Object invoke(String method);
+
+	public Object invoke(String method, Object...params);
+	
 }
