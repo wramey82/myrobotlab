@@ -6,6 +6,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.slf4j.Logger;
 
 public class WebGUI extends Service {
@@ -47,6 +48,7 @@ public class WebGUI extends Service {
 		}
 		try {
 			ws.start();
+			BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", port));
 			return true;
 		} catch (IOException e) {
 			error(e.getMessage());
