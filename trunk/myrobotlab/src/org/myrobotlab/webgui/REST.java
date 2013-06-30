@@ -20,7 +20,8 @@ public class REST {
 	public String getServices() {
 		
 		StringBuffer content = new StringBuffer();
-		String restServiceTemplate = FileIO.fileToString("rest.service.template.html");
+		//String restServiceTemplate = FileIO.fileToString("rest.service.template.html");
+		String restServiceTemplate = FileIO.getResourceFile("rest.service.template.html");
 
 		
 		Iterator<Map.Entry<URI, ServiceEnvironment>> uriIt = Runtime.getServiceEnvironments().entrySet().iterator();
@@ -77,7 +78,8 @@ public class REST {
 		}
 		
 		// TODO - resource
-		String restTemplate = FileIO.fileToString("rest.template.html");
+		//String restTemplate = FileIO.fileToString("rest.template.html");
+		String restTemplate = FileIO.getResourceFile("rest.template.html");
 		String html = restTemplate.replaceAll("%content%", content.toString());
 		return html;
 	}
