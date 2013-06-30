@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 public class SOAP {
 
 	// http://www.soapclient.com/soaptest.html
+	// http://publib.boulder.ibm.com/infocenter/iseries/v5r4/index.jsp?topic=%2Frzatz%2F51%2Fwebserv%2Fwsdevmap.htm
+	
 	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 
 	String getWSDL(Class<?> type) {
@@ -81,19 +83,28 @@ public class SOAP {
 
 	// public boolean isPrimitive(Class<?>)
 	
-	public boolean parameterHasComplexType(Method m)
+	public boolean hasComplexType(Method m)
 	{
+		Class<?> ret = m.getReturnType();
+		if (!ret.isPrimitive() && !WRAPPER_TYPES.contains(ret) && ret != String.class)
+		{
+			log.warn("filtering out {} because of complex return type {}", m.getName(), m.getReturnType().getSimpleName());
+			return true;
+		}
+		
 		Class<?>[] params = m.getParameterTypes();
 		for (int i = 0; i < params.length; ++i)
 		{
 			Class<?> c = params[i];
-			if (!c.isPrimitive() && !WRAPPER_TYPES.contains(c))
+			if (!c.isPrimitive() && !WRAPPER_TYPES.contains(c) && c != String.class)
 			{
-				return false;
+				log.warn("filtering out {} because of complex parameter type {}", m.getName(), c.getSimpleName());
+				return true;
 			}
 		}
 		
-		return true;
+		// return types and parameters are all simple
+		return false;
 	}
 
 	String getPrimitiveWSDL(Class<?> type, HashSet<String> filter, boolean includeFilter)
@@ -103,14 +114,9 @@ public class SOAP {
 		for (int i = 0; i < methods.length; ++i)
 		{
 			Method m = methods[i];
-			
-			if (m.getReturnType().isPrimitive() || WRAPPER_TYPES.contains(m.getReturnType()) &&
-					(parameterHasComplexType(m))
-					)
+			if (!hasComplexType(m))
 			{
 				ret.add(m);
-			} else {
-				log.warn("filtering out {} because of complex type", m.getName());
 			}
 		}
 		
@@ -140,8 +146,17 @@ public class SOAP {
 		if (methods == null) {
 			methods = type.getMethods();
 		}
+		
+		// filter out overloads - not allowed in wsdl defintion :( (lame very lame)
+		HashSet<String> distinctMethodNames = new HashSet<String>();
 
+		// ----- type info begin -----------------------
 		StringBuffer types = new StringBuffer();
+		StringBuffer messages = new StringBuffer();
+		StringBuffer portTypes = new StringBuffer();
+		StringBuffer bindings = new StringBuffer();
+
+		
 		// String typesTemplate = FileIO.getResourceFile("soap/types.xml");
 		String typesTemplate = "";
 
@@ -151,10 +166,19 @@ public class SOAP {
 
 		for (int i = 0; i < methods.length; ++i) {
 			Method m = methods[i];
+			
+			if (distinctMethodNames.contains(m.getName()))
+			{
+				log.warn(String.format("overloads are not supported in wsdl (lame) skipping %s", m.getName()));
+				continue;
+			}
+			
+			distinctMethodNames.add(m.getName());
+			
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
 
 				// return type <element><complexType><sequence>....
-				if (m.getReturnType() == String.class) {
+				if (m.getReturnType().isPrimitive() || WRAPPER_TYPES.contains(m.getReturnType()) ||  m.getReturnType() == String.class) {
 					returnType = "     <element name=\"%methodName%Response\">\n" + "    <complexType>\n" + "     <sequence>\n"
 							+ "      <element name=\"%methodName%Return\" type=\"xsd:string\"/>\n" + "     </sequence>\n" + "    </complexType>\n" + "   </element>\n";
 
@@ -179,34 +203,38 @@ public class SOAP {
 				typesTemplate = params + returnType;
 				types.append(typesTemplate.replaceAll("%methodName%", m.getName()));
 			}
-		}
+	//	}
+		// ----- type info end -----------------------
 
 		//log.info("[{}]", types);
 
 		// get <!-- [[%wsdl:message%]] --> message
-		StringBuffer messages = new StringBuffer();
 		String messagesTemplate = FileIO.getResourceFile("soap/messages.xml");
-		for (int i = 0; i < methods.length; ++i) {
-			Method m = methods[i];
+//		for (int i = 0; i < methods.length; ++i) {
+//			Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
-				messages.append(messagesTemplate.replaceAll("%methodName%", m.getName()));
+				StringBuffer p = new StringBuffer("");
+				Class<?>[] parameters = m.getParameterTypes();
+				for(int j = 0; j < parameters.length; ++j) {
+					p.append("<wsdl:part element=\"impl:%methodName%\" name=\"p" + j + "\"></wsdl:part>\n");
+				}
+				String withParams = messagesTemplate.replaceAll("%parameters%", p.toString());
+				messages.append(withParams.replaceAll("%methodName%", m.getName()));
 			}
-		}
+//		}
 
 		// get <!-- [[%portType:wsdl:operation%]] --> porttype
-		StringBuffer portTypes = new StringBuffer();
 		String portTypesTemplate = FileIO.getResourceFile("soap/portTypes.xml");
-		for (int i = 0; i < methods.length; ++i) {
-			Method m = methods[i];
+//		for (int i = 0; i < methods.length; ++i) {
+//			Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
 				portTypes.append(portTypesTemplate.replaceAll("%methodName%", m.getName()));
 			}
-		}
+//		}
 
-		StringBuffer bindings = new StringBuffer();
 		String bindingsTemplate = FileIO.getResourceFile("soap/bindings.xml");
-		for (int i = 0; i < methods.length; ++i) {
-			Method m = methods[i];
+//		for (int i = 0; i < methods.length; ++i) {
+//			Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
 				bindings.append(bindingsTemplate.replaceAll("%methodName%", m.getName()));
 			}

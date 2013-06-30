@@ -1184,6 +1184,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Method meth = null;
 		try {
 			// TODO - method cache map
+			// can not auto-box or downcast with this method - getMethod will return a "specific & exact" match based
+			// on parameter types - the thing is we may have a typed signature which will allow execution - but
+			// if so we need to search
 			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
 			retobj = meth.invoke(object, params);
 
@@ -1194,15 +1197,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					c.getSimpleName(),
 					MethodEntry.getPrettySignature(method, paramTypes, null)));
 
-			// search for possible upcasting methods
-			// scary ! resolution rules are undefined - first "found" first
-			// invoked ?!?
-			// TODO - optimize with method cache - heavy on memory, good on
-			// speed
-			// Performance Analysis
-			// http://stackoverflow.com/questions/414801/any-way-to-further-optimize-java-reflective-method-invocation
-			// TODO - optimize "setState" function since it is a framework
-			// method - do not go through the search !
+	
+			// TODO - optimize with a paramter TypeConverter & Map
+			// c.getMethod - returns on EXACT match - not "Working" match
 			Method[] allMethods = c.getMethods(); // ouch
 			log.warn(String.format("ouch! need to search through %d methods", allMethods.length));
 
