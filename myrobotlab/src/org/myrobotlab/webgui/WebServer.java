@@ -47,7 +47,7 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 			key = String.format("/%s", keys[1]);
 			if(processors.containsKey(key))
 			{
-				log.info("uri hook - [%s]", key);
+				log.info(String.format("uri hook - [%s]", key));
 				return processors.get(key).serve(uri, method, header, parms, socket);
 			}
 		}
