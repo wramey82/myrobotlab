@@ -1,17 +1,9 @@
-  <wsdl:message name="%methodName%Request">
-       
-      <wsdl:part element="impl:%methodName%" name="parameters">
-          
-      </wsdl:part>
-      
+   <wsdl:message name="%methodName%Request">
+      %parameters%
    </wsdl:message>
-   
    <wsdl:message name="%methodName%Response">
-       
       <wsdl:part element="impl:%methodName%Response" name="parameters">
-          
       </wsdl:part>
-      
    </wsdl:message>
    
  
