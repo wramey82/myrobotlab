@@ -126,6 +126,11 @@ public class Clock extends Service {
 		this.data = data;
 		return data;
 	}
+	
+	public void digitalWrite(int pin, int value)
+	{
+		log.info(String.format("here %d %d", pin, value));
+	}
 
 	@Override
 	public void stopService() {

@@ -133,8 +133,7 @@ public class Stepper extends Service implements StepperControl {
 
 	@Override
 	public void setSpeed(Integer rpm) {
-		// TODO Auto-generated method stub
-		
+		controller.setSpeed(rpm);
 	}
 	
 	@Override
@@ -144,6 +143,7 @@ public class Stepper extends Service implements StepperControl {
 
 	@Override
 	public void step(Integer steps, Integer style) {
+		stepperingStyle = style;
 		controller.stepperStep(getName(), steps, style);
 	}
 
