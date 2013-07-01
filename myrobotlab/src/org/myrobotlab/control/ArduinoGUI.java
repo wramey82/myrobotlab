@@ -619,7 +619,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// set correct arduino image
 		JLabel image = new JLabel();
 
-		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/mega.200.pins.png");
+		ImageIcon dPic = Util.getImageIcon("Arduino/mega.200.pins.png");
 		image.setIcon(dPic);
 		Dimension s = image.getPreferredSize();
 		image.setBounds(0, 0, s.width, s.height);
@@ -724,7 +724,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		// set correct arduino image
 		JLabel image = new JLabel();
 
-		ImageIcon dPic = Util.getImageIcon("images/service/Arduino/arduino.duemilanove.200.pins.png");
+		ImageIcon dPic = Util.getImageIcon("Arduino/arduino.duemilanove.200.pins.png");
 		image.setIcon(dPic);
 		Dimension s = image.getPreferredSize();
 		image.setBounds(0, 0, s.width, s.height);
