@@ -191,7 +191,6 @@ public class EditorArduino extends Editor implements ActionListener {
 		JMenu menu;
 		menu = new JMenu("Communication");
 		menu.add(createMenuItem("MRLComm.ino", "examples"));
-		menu.add(createMenuItem("AceduinoMotorShield.ino", "examples"));
 
 		return menu;
 	}
