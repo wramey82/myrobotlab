@@ -106,7 +106,7 @@ public class PinComponent {
 
 			onOff = new DigitalButton(this, "off", Util.getImageIcon("off.png"), "on", Util.getImageIcon("on.png"), TYPE_ONOFF);
 
-			activeInActive = new DigitalButton(this, "inactive", Util.getImageIcon("inactive.png"), "active", Util.getImageIcon("active.png"), TYPE_ACTIVEINACTIVE);
+			activeInActive = new DigitalButton(this, "inactive", Util.getImageIcon("Arduino/inactive.png"), "active", Util.getImageIcon("Arduino/active.png"), TYPE_ACTIVEINACTIVE);
 
 		}
 		if (isAnalog) {
