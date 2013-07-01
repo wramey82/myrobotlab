@@ -541,9 +541,9 @@
          </list>
       </dependsOn>
    </serviceType>
-   <serviceType string="org.myrobotlab.service.WebServer" workingLevel="3">
+   <serviceType string="org.myrobotlab.service.WebGUI" workingLevel="3">
       <dependsOn>
-         <description>embedded web server - allows control through AJAX and web services - initially created for the Robosoccer project 
+         <description>The new GUI for MRL 
          </description>
          <list>
             <string>org.apache.log4j</string>
