@@ -7,6 +7,7 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.webgui.WebServer;
 import org.slf4j.Logger;
 
 public class WebGUI extends Service {
@@ -19,7 +20,7 @@ public class WebGUI extends Service {
 
 	private Integer port = 7777;
 
-	public org.myrobotlab.webgui.WebServer ws;
+	public WebServer ws;
 
 	public WebGUI(String n) {
 		super(n, WebGUI.class.getCanonicalName());
@@ -34,9 +35,9 @@ public class WebGUI extends Service {
 
 		if (ws != null) {
 			ws.stop();
-			ws = new org.myrobotlab.webgui.WebServer(port);
+			ws = new WebServer(port);
 		} else {
-			ws = new org.myrobotlab.webgui.WebServer(port);
+			ws = new WebServer(port);
 		}
 
 		return true;
