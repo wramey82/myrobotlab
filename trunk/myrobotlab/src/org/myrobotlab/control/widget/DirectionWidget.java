@@ -72,7 +72,7 @@ public class DirectionWidget extends JPanel implements KeyListener {
 		setLayout(gridBagLayout);
 
 		btnNw = new JButton("");
-		btnNw.setBackground(new Color(173, 255, 47));
+		btnNw.setBackground(new Color(173, 255, 47)); 
 		btnNw.setIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_left_grey.png")));
 		btnNw.setPressedIcon(new ImageIcon(DirectionWidget.class.getResource("/resource/arrow_up_left_green.png")));
 		btnNw.addActionListener(bal);

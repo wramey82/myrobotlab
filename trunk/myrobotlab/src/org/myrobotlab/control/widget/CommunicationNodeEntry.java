@@ -19,7 +19,7 @@ public class CommunicationNodeEntry extends JPanel {
 	public CommunicationNodeEntry(URI uri, CommData data) {
 		this.uri = uri;
 		this.data = data;
-		this.image = Util.getResourceIcon("c0.png");
+		this.image = Util.getResourceIcon("RemoteAdapter/computer.png");
 	}
 
 	public String getTitle() {

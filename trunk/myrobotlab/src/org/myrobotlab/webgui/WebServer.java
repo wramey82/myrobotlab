@@ -26,7 +26,7 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 		super(port);
 
 		processors.put("/services", new RESTProcessor());
-		// processors.put("/resource", new ResourceProcessor());
+		processors.put("/resource", new ResourceProcessor());
 	}
 
 	@Override
