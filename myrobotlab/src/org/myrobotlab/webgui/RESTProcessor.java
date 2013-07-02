@@ -1,6 +1,7 @@
 package org.myrobotlab.webgui;
 
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 
@@ -22,7 +23,46 @@ public class RESTProcessor implements HTTPProcessor {
 		// default is not specified but adds {/rest/xml} /services ...
 		// TODO - custom display /displays
 		// TODO - structured rest fault responses
+		
+		// handle escape character \ - I know this is pretty "anti"- rest but in a binding between input
+		// parameters there has to be some form of escape character
+		
+		//String[] keys = uri.split("(?<!\\\\)/");
+		//String[] keys = uri.split("(?<!/)/");
+		//String[] keys = uri.split("/");
+		
+		
+		// scan for first /
+		// find the next / 
+		// 	if (next != /) - split
+		//	scan forward - if the set of ////  is odd split at beginning and remove - so next split is even
+		
+		// this fails when a parameter ends with / :P - it will incorrectly put the / at the beginning of the next
+		// parameter
+		
+		/*
+		ArrayList<String> result = new ArrayList<String>();
+		
+		int pos0 = 0;
+		int pos1 = uri.indexOf("/");
+		boolean isOdd = false;
+		
+		while (pos1 != -1)
+		{
+			result.add(uri.substring(pos0, pos1));
+			pos0 = pos1;
+			pos1 = uri.indexOf("/", pos1 + 1);
+		}
+		*/
+		
 		String[] keys = uri.split("/");
+		
+		// decode everything
+		for (int i = 0; i < keys.length; ++i)
+		{
+			keys[i] = decodePercent(keys[i], true);
+		}
+		
 		if ("/services".equals(uri))
 		{
 			// get runtime list
@@ -74,10 +114,42 @@ public class RESTProcessor implements HTTPProcessor {
 		return uris;
 	}
 	
-	
 	public void addURI(String uri)
 	{
 		uris.add(uri);
 	}
+	
+	/**
+	 * Decodes the percent encoding scheme. <br/>
+	 * For example: "an+example%20string" -> "an example string"
+	 */
+	private String decodePercent(String str, boolean decodeForwardSlash)  {
+		
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < str.length(); i++) {
+				char c = str.charAt(i);
+				switch (c) {
+				case '+':
+					sb.append(' ');
+					break;
+				case '%':
+					if ("2F".equalsIgnoreCase(str.substring(i + 1, i + 3)) && !decodeForwardSlash)
+					{
+						log.info("found encoded / - leaving");
+						sb.append("%2F");
+					} else {
+						sb.append((char) Integer.parseInt(str.substring(i + 1, i + 3), 16));
+					}
+					i += 2;
+					break;
+				default:
+					sb.append(c);
+					break;
+				}
+			}
+			return new String(sb.toString().getBytes());
+	
+	}
+
 
 }
