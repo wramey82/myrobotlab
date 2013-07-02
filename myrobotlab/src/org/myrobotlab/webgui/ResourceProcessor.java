@@ -2,6 +2,8 @@ package org.myrobotlab.webgui;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -14,9 +16,26 @@ import org.myrobotlab.webgui.NanoHTTPD.Response;
 
 public class ResourceProcessor implements HTTPProcessor {
 
+	public HashSet<String> scannedDirectories = new HashSet<String>();
+	
+	public String overrideDir = "webgui";
+	
+	public void scan()
+	{
+		
+	}
+	
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		return serveFile(uri, header);
+		// FIXME - checked for custom scanned directory paths !!!
+		// if path.contains /resource/scanned -> return NanoHTTPD.serveFile(custom/scanned);
+		
+		if (!scannedDirectories.contains(uri))
+		{
+			return serveFile(uri, header);
+		}
+		
+		return serveFile(uri, header, new File("."), true);
 	}
 
 	@Override
@@ -34,8 +53,6 @@ public class ResourceProcessor implements HTTPProcessor {
 //		if (!homeDir.isDirectory())
 //			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");
 		
-		// FIXME - checked for custom scanned directory paths !!!
-		// if path.contains /resource/scanned -> return NanoHTTPD.serveFile(custom/scanned);
 
 		// Remove URL arguments
 		//uri = uri.trim().replace(File.separatorChar, '/');
@@ -95,7 +112,8 @@ public class ResourceProcessor implements HTTPProcessor {
 			while ((nRead = fis.read(data, 0, data.length)) != -1) {
 			  buffer.write(data, 0, nRead);
 			}
-
+			
+			fis.close();
 			buffer.flush();
 
 			byte[] content =  buffer.toByteArray();
@@ -109,5 +127,124 @@ public class ResourceProcessor implements HTTPProcessor {
 		}
 	}
 
+	/**
+	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
+	 * ignores all headers and HTTP parameters.
+	 */
+	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing) {
+		// Make sure we won't die of an exception later
+		if (!homeDir.isDirectory())
+			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");
+
+		// Remove URL arguments
+		uri = uri.trim().replace(File.separatorChar, '/');
+		if (uri.indexOf('?') >= 0)
+			uri = uri.substring(0, uri.indexOf('?'));
+
+		// Prohibit getting out of current directory
+		if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0)
+			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
+
+		File f = new File(homeDir, uri);
+		if (!f.exists())
+			return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
+
+		// List the directory, if necessary
+		if (f.isDirectory()) {
+			// Browsers get confused without '/' after the
+			// directory, send a redirect.
+			if (!uri.endsWith("/")) {
+				uri += "/";
+				Response r = new Response(NanoHTTPD.HTTP_REDIRECT, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
+				r.addHeader("Location", uri);
+				return r;
+			}
+
+			// First try index.html and index.htm
+			if (new File(f, "index.html").exists())
+				f = new File(homeDir, uri + "/index.html");
+			else if (new File(f, "index.htm").exists())
+				f = new File(homeDir, uri + "/index.htm");
+
+			// No index file, list the directory
+			else if (allowDirectoryListing) {
+				String[] files = f.list();
+				String msg = "<html><body><h1>Directory " + uri + "</h1><br/>";
+
+				if (uri.length() > 1) {
+					String u = uri.substring(0, uri.length() - 1);
+					int slash = u.lastIndexOf('/');
+					if (slash >= 0 && slash < u.length())
+						msg += "<b><a href=\"" + uri.substring(0, slash + 1) + "\">..</a></b><br/>";
+				}
+
+				for (int i = 0; i < files.length; ++i) {
+					File curFile = new File(f, files[i]);
+					boolean dir = curFile.isDirectory();
+					if (dir) {
+						msg += "<b>";
+						files[i] += "/";
+					}
+
+					msg += "<a href=\"" + NanoHTTPD.encodeUri(uri + files[i]) + "\">" + files[i] + "</a>";
+
+					// Show file size
+					if (curFile.isFile()) {
+						long len = curFile.length();
+						msg += " &nbsp;<font size=2>(";
+						if (len < 1024)
+							msg += curFile.length() + " bytes";
+						else if (len < 1024 * 1024)
+							msg += curFile.length() / 1024 + "." + (curFile.length() % 1024 / 10 % 100) + " KB";
+						else
+							msg += curFile.length() / (1024 * 1024) + "." + curFile.length() % (1024 * 1024) / 10 % 100 + " MB";
+
+						msg += ")</font>";
+					}
+					msg += "<br/>";
+					if (dir)
+						msg += "</b>";
+				}
+				return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_HTML, msg);
+			} else {
+				return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: No directory listing.");
+			}
+		}
+
+		try {
+			// Get MIME type from file name extension, if possible
+			String mime = null;
+			int dot = f.getCanonicalPath().lastIndexOf('.');
+			if (dot >= 0)
+				mime = (String) NanoHTTPD.theMimeTypes.get(f.getCanonicalPath().substring(dot + 1).toLowerCase());
+			if (mime == null)
+				mime = NanoHTTPD.MIME_DEFAULT_BINARY;
+
+			// Support (simple) skipping:
+			long startFrom = 0;
+			String range = header.getProperty("Range");
+			if (range != null) {
+				if (range.startsWith("bytes=")) {
+					range = range.substring("bytes=".length());
+					int minus = range.indexOf('-');
+					if (minus > 0)
+						range = range.substring(0, minus);
+					try {
+						startFrom = Long.parseLong(range);
+					} catch (NumberFormatException nfe) {
+					}
+				}
+			}
+
+			FileInputStream fis = new FileInputStream(f);
+			fis.skip(startFrom);
+			Response r = new Response(NanoHTTPD.HTTP_OK, mime, fis);
+			r.addHeader("Content-length", "" + (f.length() - startFrom));
+			r.addHeader("Content-range", "" + startFrom + "-" + (f.length() - 1) + "/" + f.length());
+			return r;
+		} catch (IOException ioe) {
+			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
+		}
+	}
 
 }
