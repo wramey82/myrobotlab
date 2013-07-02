@@ -289,14 +289,14 @@ public class NanoHTTPD {
 				if (!st.hasMoreTokens())
 					sendError(HTTP_BADREQUEST, "BAD REQUEST: Missing URI. Usage: GET /example/file.html");
 
-				String uri = decodePercent(st.nextToken());
+				String uri = decodePercent(st.nextToken(), false);
 
 				// Decode parameters from the URI
 				Properties parms = new Properties();
 				int qmi = uri.indexOf('?');
 				if (qmi >= 0) {
 					decodeParms(uri.substring(qmi + 1), parms);
-					uri = decodePercent(uri.substring(0, qmi));
+					uri = decodePercent(uri.substring(0, qmi), false);
 				}
 
 				// If there's another token, it's protocol version,
@@ -365,7 +365,7 @@ public class NanoHTTPD {
 		 * Decodes the percent encoding scheme. <br/>
 		 * For example: "an+example%20string" -> "an example string"
 		 */
-		private String decodePercent(String str) throws InterruptedException {
+		private String decodePercent(String str, boolean decodeForwardSlash) throws InterruptedException {
 			try {
 				StringBuffer sb = new StringBuffer();
 				for (int i = 0; i < str.length(); i++) {
@@ -375,7 +375,13 @@ public class NanoHTTPD {
 						sb.append(' ');
 						break;
 					case '%':
-						sb.append((char) Integer.parseInt(str.substring(i + 1, i + 3), 16));
+						if ("2F".equalsIgnoreCase(str.substring(i + 1, i + 3)))
+						{
+							log.info("found encoded / - leaving");
+							sb.append("%2F");
+						} else {
+							sb.append((char) Integer.parseInt(str.substring(i + 1, i + 3), 16));
+						}
 						i += 2;
 						break;
 					default:
@@ -404,7 +410,7 @@ public class NanoHTTPD {
 				String e = st.nextToken();
 				int sep = e.indexOf('=');
 				if (sep >= 0)
-					p.put(decodePercent(e.substring(0, sep)).trim(), decodePercent(e.substring(sep + 1)));
+					p.put(decodePercent(e.substring(0, sep), false).trim(), decodePercent(e.substring(sep + 1), false));
 			}
 		}
 
