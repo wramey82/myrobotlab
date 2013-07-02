@@ -39,11 +39,13 @@ public class REST {
 				String serviceType = si.getClass().getSimpleName();
 				Method[] methods = si.getClass().getMethods();
 				TreeMap<String, Method> ms = new TreeMap<String, Method>();
-						
+				
+				// building key from method name and ordinal - since the 
+				// RESTProcessor's can only handle non-dupes of this signature
 				for (int i = 0; i < methods.length; ++i)
 				{
 					Method m = methods[i];
-					ms.put(m.getName(), m);					
+					ms.put(String.format("%s.%d", m.getName(), (m.getParameterTypes() != null)?m.getParameterTypes().length:0), m);					
 				}
 				
 				StringBuffer service = new StringBuffer("");
