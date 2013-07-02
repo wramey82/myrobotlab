@@ -34,7 +34,7 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
 		log.info(String.format("%s [%s]", method, uri));
 		String[] keys = uri.split("/");
