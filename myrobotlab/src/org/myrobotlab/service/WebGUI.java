@@ -21,7 +21,7 @@ public class WebGUI extends Service {
 
 	private Integer port = 7777;
 
-	public WebServer ws;
+	public transient WebServer ws;
 
 	public WebGUI(String n) {
 		super(n, WebGUI.class.getCanonicalName());
