@@ -17,7 +17,7 @@
         <artifact name="x86.32.linux/librxtxParallel" type="native" ext="so" conf="x86.32.linux"/>
 
         <artifact name="x86.32.mac/librxtxSerial" type="native" ext="jnilib" conf="x86.32.mac"/>
-        <artifact name="x86.64.mac/librxtxSerial64" type="native" ext="jnilib" conf="x86.32.mac"/>
+        <artifact name="x86.64.mac/librxtxSerial64" type="native" ext="jnilib" conf="x86.64.mac"/>
  
         <artifact name="x86.32.windows/rxtxSerial" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/rxtxParallel" type="native" ext="dll" conf="x86.32.windows"/>
