@@ -48,7 +48,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipException;
 
 import org.myrobotlab.framework.Platform;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -100,14 +99,14 @@ public class FileIO {
 			}
 			out.write(data);
 		} catch (Exception e) {
-			log.error(Service.stackToString(e));
+			log.error(Logging.stackToString(e));
 		} finally {
 			try {
 				if (out != null) {
 					out.close();
 				}
 			} catch (IOException e) {
-				log.error(Service.stackToString(e));
+				log.error(Logging.stackToString(e));
 			}
 		}
 	}
@@ -233,8 +232,7 @@ public class FileIO {
 
 	static public String getResouceLocation() {
 		URL url = File.class.getResource("/resource");
-		int x = 5 + 3;
-		log.info("{}",x);
+
 		// FIXME - DALVIK issue !
 		if (url == null)
 		{

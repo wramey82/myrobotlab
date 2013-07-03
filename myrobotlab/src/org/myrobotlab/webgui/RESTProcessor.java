@@ -99,10 +99,13 @@ public class RESTProcessor implements HTTPProcessor {
 				typedParameters = TypeConverter.getTypedParams(si.getClass(), fn, stringParams);
 			}
 			
+			// TODO - handle return type - 
+			// TODO top level is return format /html /text /soap /xml /gson /json /base16 a default could exist - start with SOAP response
 			Object returnObject = si.invoke(fn, typedParameters);
 			
 			// handle response depending on type
 			// TODO - make structured !!! 
+			// Right now just return string object
 			Response response = new Response("200 OK", "text/html", (returnObject == null)?"":returnObject.toString());
 			return response; 
 		}
