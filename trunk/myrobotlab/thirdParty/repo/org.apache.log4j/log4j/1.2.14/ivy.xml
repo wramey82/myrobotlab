@@ -6,6 +6,6 @@
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
     </configurations>
     <publications>
-        <artifact name="log4j-1.2.14" type="jar"/>
+        <artifact name="log4j-1.2.14" type="jar" conf="*"/>
     </publications>
 </ivy-module>
