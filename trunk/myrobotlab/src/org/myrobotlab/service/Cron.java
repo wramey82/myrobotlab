@@ -66,8 +66,20 @@ public class Cron extends Service {
 		Log log = new Log("log");
 		log.startService();
 		
-		cron.addScheduledEvent("* * * * *","speech","speak", "hello sir, time for your coffee");
+		cron.addScheduledEvent("0 6 * * 1,3,5","arduino","digitalWrite", 13, 1);
+		cron.addScheduledEvent("0 7 * * 1,3,5","arduino","digitalWrite", 12, 1);
+		cron.addScheduledEvent("0 8 * * 1,3,5","arduino","digitalWrite", 11, 1);
+
+		cron.addScheduledEvent("59 * * * 1,3,5","arduino","digitalWrite", 13, 0);
+		cron.addScheduledEvent("59 * * * 1,3,5","arduino","digitalWrite", 12, 0);
+		cron.addScheduledEvent("59 * * * 1,3,5","arduino","digitalWrite", 11, 0);
+
 		//cron.addScheduledEvent(EVERY_MINUTE, "log", "log");
+		// west wall | back | east wall
+		
+		// 1. doug - find location where checked in ----
+		// 2. take out security token from DL broker's response
+		// 3. Tony - status ? and generated xml responses - "update" looks ok
 		
 		Runtime.createAndStart("gui", "GUIService");
 		/*
