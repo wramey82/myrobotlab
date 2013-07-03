@@ -353,6 +353,12 @@ public class Python extends Service {
 
 		return false;
 	}
+	
+	public void execFile(String filename)
+	{
+		String script = FileIO.fileToString(filename);
+		exec(script);
+	}
 
 	/**
 	 * Get a compiled version of the python call.

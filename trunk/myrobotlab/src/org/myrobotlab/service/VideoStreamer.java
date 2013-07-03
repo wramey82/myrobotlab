@@ -35,7 +35,7 @@ public class VideoStreamer extends VideoSink {
 	public final static Logger log = LoggerFactory.getLogger(VideoStreamer.class.getCanonicalName());
 
 	public int listeningPort = 9090;
-	MjpegServer server;
+	transient private MjpegServer server;
 	public boolean mergeSteams = true;
 
 	public VideoStreamer(String name) {

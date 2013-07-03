@@ -41,11 +41,11 @@ public class JFugue extends Service {
 	public final static Logger log = LoggerFactory.getLogger(JFugue.class.getCanonicalName());
 	transient public Player player = new Player();
 
+	// TODO - look at JavaSoundDemo - they have a synth & mixer there
+	
 	public JFugue(String n) {
 		super(n, JFugue.class.getCanonicalName());
 	}
-
-
 
 	public void play(String s) {
 		player.play(s);
@@ -76,6 +76,9 @@ public class JFugue extends Service {
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		JFugue jfugue = new JFugue("jfugue");
+		
+		jfugue.playRythm();
+		
 		jfugue.play("C D E F G A B");
 		jfugue.play("A A A B B B");
 		jfugue.playRythm();
@@ -83,6 +86,7 @@ public class JFugue extends Service {
 		jfugue.play(31);
 		jfugue.play(40);
 		jfugue.play(55);
+		jfugue.play("E5s A5s C6s B5s E5s B5s D6s C6i E6i G#5i E6i | A5s E5s A5s C6s B5s E5s B5s D6s C6i A5i Ri");
 	}
 
 	@Override
