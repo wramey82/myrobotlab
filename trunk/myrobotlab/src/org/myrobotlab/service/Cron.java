@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import it.sauronsoftware.cron4j.Scheduler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.myrobotlab.framework.Message;
@@ -9,6 +10,8 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.simpleframework.xml.Default;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -18,15 +21,17 @@ public class Cron extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Cron.class.getCanonicalName());
-	private Scheduler scheduler = new Scheduler();
+	transient private Scheduler scheduler = new Scheduler();
 	
 	public final static String EVERY_MINUTE = "* * * * *";
 	
+	@ElementList (required=false)
 	public ArrayList<Task> tasks = new ArrayList<Task>();
 	
-	@Root
-	public static class Task
+	@Default
+	public static class Task implements Serializable
 	{
+		private static final long serialVersionUID = 1L;
 		public String cronPattern;
 		public Message msg;
 		
@@ -85,10 +90,7 @@ public class Cron extends Service {
 
 		Cron cron = new Cron("cron");
 		cron.startService();	
-		
-		Log log = new Log("log");
-		log.startService();
-		
+				
 		cron.addScheduledEvent("0 6 * * 1,3,5","arduino","digitalWrite", 13, 1);
 		cron.addScheduledEvent("0 7 * * 1,3,5","arduino","digitalWrite", 12, 1);
 		cron.addScheduledEvent("0 8 * * 1,3,5","arduino","digitalWrite", 11, 1);
@@ -102,11 +104,13 @@ public class Cron extends Service {
 		
 		cron.getTasks();
 		
+		Runtime.createAndStart("webgui", "WebGUI");
+		
 		// 1. doug - find location where checked in ----
 		// 2. take out security token from DL broker's response
 		// 3. Tony - status ? and generated xml responses - "update" looks ok
 		
-		Runtime.createAndStart("gui", "GUIService");
+		// Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
