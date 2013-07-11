@@ -44,11 +44,11 @@ public class Clock extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 
 	public boolean isClockRunning;
-	public int interval = 1100;
-	public String data = null;
+	public int interval = 1000;
 
 	public transient ClockThread myClock = null;
 
+	// FIXME 
 	ArrayList<ClockEvent> events = new ArrayList<ClockEvent>();
 
 	public class ClockThread implements Runnable {
@@ -62,7 +62,7 @@ public class Clock extends Service {
 		public void run() {
 			try {
 				while (isClockRunning == true) {
-					Date now = new Date();
+					Date now = new Date();	
 					Iterator<ClockEvent> i = events.iterator();
 					while (i.hasNext()) {
 						ClockEvent event = i.next();
@@ -73,7 +73,7 @@ public class Clock extends Service {
 							i.remove();
 						}
 					}
-					invoke("pulse");
+					invoke("pulse", new Date());
 					Thread.sleep(interval);
 				}
 			} catch (InterruptedException e) {
@@ -91,9 +91,9 @@ public class Clock extends Service {
 		if (myClock == null) {
 			isClockRunning = true;
 			myClock = new ClockThread();
-			// have requestors broadcast state !
-			//broadcastState(); 
 		}
+		// have requestors broadcast state !
+		//broadcastState();
 		broadcastState();
 	}
 
@@ -112,26 +112,16 @@ public class Clock extends Service {
 		isClockRunning = false;		
 	}
 
-	public String pulse() {
-		error("hello");
-		return data;
+	
+	public Date pulse(Date time)
+	{
+		return time;
 	}
 
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
 	}
 	
-	public String setData(String data)
-	{
-		this.data = data;
-		return data;
-	}
-	
-	public void digitalWrite(int pin, int value)
-	{
-		log.info(String.format("here %d %d", pin, value));
-	}
-
 	@Override
 	public void stopService() {
 		stopClock();
