@@ -11,10 +11,16 @@ public class Arm {
 	public Servo rotate;
 	public Servo shoulder;
 	public Servo omoplate;
+	// ------------- added  pins and defaults
+	public int bicepPin=8;
+	public int rotatePin=9;
+	public int shoulderPin=10;
+	public int omoplatePin=11;
 
 	public Arm() {
 	}
-
+	
+	
 	public void rest() {
 		
 		setSpeed(1.0f,1.0f,1.0f,1.0f);
@@ -25,7 +31,14 @@ public class Arm {
 		shoulder.moveTo(30);
 		omoplate.moveTo(10);
 	}
-
+	// ------------- added set pins
+	public void setpins(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
+		 bicepPin=bicep;
+		 rotatePin=rotate;
+		 shoulderPin=shoulder;
+		 omoplatePin=omoplate;
+		
+	}
 	public void attach(Arduino arduino, String key) {
 		// name = String.format("%sArm", key);
 		side = key;
@@ -35,10 +48,11 @@ public class Arm {
 		omoplate = (Servo) Runtime.createAndStart(String.format("omoplate%s", key), "Servo");
 
 		// attach to controller
-		arduino.servoAttach(bicep.getName(), 8);
-		arduino.servoAttach(rotate.getName(), 9);
-		arduino.servoAttach(shoulder.getName(), 10);
-		arduino.servoAttach(omoplate.getName(), 11);
+		// ------------- changed to use set pins
+		arduino.servoAttach(bicep.getName(), bicepPin);
+		arduino.servoAttach(rotate.getName(), rotatePin);
+		arduino.servoAttach(shoulder.getName(), shoulderPin);
+		arduino.servoAttach(omoplate.getName(), omoplatePin);
 
 		// servo limits
 		bicep.setPositionMax(90);
