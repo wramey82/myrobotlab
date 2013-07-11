@@ -431,6 +431,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.Serial" workingLevel="3">
+      <dependsOn>
+      	 <description>Serial service: send and recieve serial data into and out of MRL
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Servo" workingLevel="4">
       <dependsOn>
          <description>allows speed and position control of a Servo
@@ -724,6 +735,11 @@
    <categories string="org.myrobotlab.service.SensorMonitor">
       <category>
          <include>sensors</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Serial">
+      <category>
+         <include>communication</include>
       </category>
    </categories>
    <categories string="org.myrobotlab.service.Servo">
