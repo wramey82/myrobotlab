@@ -27,18 +27,17 @@ package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.interfaces.GUI;
@@ -52,7 +51,9 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	JPanel clockControlPanel = new JPanel();
 
 	JLabel clockDisplay = new JLabel("<html><p style=\"font-size:30px;\">00:00:00</p></html>");
-	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
+//	String displayFormat = "<html><p style=\"font-size:30px\">%02d:%02d:%02d</p></html>";
+	String displayFormat = "<html><p style=\"font-size:30px\">%s</p></html>";
+	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	JLabel msgDisplay = new JLabel("");
 
 	JTextField interval = new JTextField("1000");
@@ -78,15 +79,6 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		clockControlPanel.add(new JLabel("  interval  "));
 		clockControlPanel.add(interval);
 		clockControlPanel.add(new JLabel("  ms  "));
-
-		// build filters begin ------------------
-		JPanel pulseData = new JPanel(new GridBagLayout());
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder("pulse data");
-		pulseData.setBorder(title);
-
-		pulseData.add(data);
-		clockControlPanel.add(pulseData);
 
 	}
 
@@ -116,8 +108,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 			*/
 
 			interval.setText((c.interval + ""));
-			data.setText(c.data);
-			
+		
 			if (c.isClockRunning) {
 				startClock.setText("stop clock");
 				data.setEnabled(false);
@@ -175,9 +166,10 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("pulse", "pulse");
 	}
 	
-	public void pulse(String data)
+	public void pulse(Date date)
 	{
-		countdown(System.currentTimeMillis(), data);
+		clockDisplay.setText(String.format(displayFormat, dateFormat.format(date)));
+		//countdown(System.currentTimeMillis(), date.);
 	}
 
 }
