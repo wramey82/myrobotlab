@@ -18,6 +18,9 @@ public class InMoov extends Service {
 	public static final String left = "left";
 	public static final String right = "right";
 	public static final String both = "both";
+	// ------------- added 
+	public static final String body = "body";
+	
 
 	Head head;
 
@@ -28,7 +31,10 @@ public class InMoov extends Service {
 	transient public Python python;
 	transient public Tracking tracking;
 	transient public Arduino arduinoHead;
-
+	transient public MouthControl mouthcontrol;
+	// ------------- added set pins
+	transient public Arduino arduinoBody;
+	
 	transient public Servo rothead;
 	transient public Servo neck;
 
@@ -42,6 +48,7 @@ public class InMoov extends Service {
 	transient public Hand handRight;
 	transient public Arm armRight;
 
+	
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 	}
@@ -54,22 +61,52 @@ public class InMoov extends Service {
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
 		ear.attach(mouth);
+	    
 		// eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		python = (Python) Runtime.createAndStart("python", "Python");
 	}
 
 	// ----------- normalization begin ---------------------
 
+	// ------------- added body and head
 	public Arduino getArduino(String key) {
 		if (key.equals(left)) {
 			return arduinoLeft;
 		} else if (key.equals(right)) {
 			return arduinoRight;
+		} else if (key.equals(body)) {
+			return arduinoBody;
+		} else if (key.equals("head")) {
+			return arduinoHead;
 		}
+		
 		error("getArduino ({}) not found");
 		return null;
 	}
-
+   public  MouthControl attachMouthControl (String key,Integer pin,Integer mouthClose, Integer mouthOpen){
+	   Arduino arduino = getArduino(key);
+	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
+	   mouthcontrol.setpin(pin);
+	   mouthcontrol.setmouth(mouthClose, mouthOpen);
+	   mouthcontrol.attach(arduino, mouth);
+	   return mouthcontrol;
+	   
+   }
+   public  MouthControl attachMouthControl (String key,Integer pin){
+	   Arduino arduino = getArduino(key);
+	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
+	   mouthcontrol.setpin(pin);
+	   mouthcontrol.attach(arduino, mouth);
+	   return mouthcontrol;
+	   
+   }
+	public  MouthControl attachMouthControl (String key){
+	   Arduino arduino = getArduino(key);
+	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
+	   mouthcontrol.attach(arduino, mouth);
+	   return mouthcontrol;
+	   
+   }
 	public void setCameraIndex(Integer index) {
 		if (eye == null) {
 			eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
@@ -92,7 +129,7 @@ public class InMoov extends Service {
 			tracking.clearTrackingPoints();
 		}
 	}
-
+	// ------------- added body and head
 	public void setArduino(String key, Arduino arduino) {
 		if (key.equals(left)) {
 			arduinoLeft = arduino;
@@ -100,7 +137,15 @@ public class InMoov extends Service {
 		} else if (key.equals(right)) {
 			arduinoRight = arduino;
 			return;
+		} else if (key.equals(body)) {
+			arduinoBody = arduino;
+			return;
+		} else if (key.equals("head")) {
+			arduinoHead = arduino;
+			return;		
+			
 		}
+
 
 		log.error(String.format("setArduino (%s, Arduino) must be left or right", key));
 	}
@@ -115,7 +160,23 @@ public class InMoov extends Service {
 		setArduino(key, arduino);
 		return arduino;
 	}
+	// ------------- added function with set pins
+	public Hand attachHand(String key,Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
+		Arduino arduino = getArduino(key);
 
+		Hand hand = new Hand();
+		if (key == left) {
+			handLeft = hand;
+		} else if (key == right) {
+			handRight = hand;
+		} else {
+			error(String.format("could not attach %s hand", key));
+		}
+		hand.setpins(thumb, index, majeure, ringFinger, pinky, wrist);
+		hand.attach(arduino, key);
+		return hand;
+	}
+	
 	public Hand attachHand(String key) {
 		Arduino arduino = getArduino(key);
 
@@ -141,11 +202,49 @@ public class InMoov extends Service {
 		error(String.format("%s hand not found", key));
 		return null;
 	}
+	// ------------- added function with set arduino and set pins
+	public Arm attachArm(String key,String arduinoName,Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
+		Arduino arduino = getArduino(arduinoName);
+		info(String.format("initializing %s arm", key));
+		Arm arm = new Arm();
+		arm.setpins(bicep, rotate, shoulder, omoplate);
+		arm.attach(arduino, key);
 
+		if (key == left) {
+			armLeft = arm;
+		} else if (key == right) {
+			armRight = arm;
+		} else {
+			error(String.format("%s - bad arm initialization ", key));
+			return null;
+		}
+
+		return arm;
+	}
+	// ------------- added function with set pins
+	public Arm attachArm(String key,Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
+		Arduino arduino = getArduino(key);
+		info(String.format("initializing %s arm", key));
+		Arm arm = new Arm();
+		arm.setpins(bicep, rotate, shoulder, omoplate);
+		arm.attach(arduino, key);
+
+		if (key == left) {
+			armLeft = arm;
+		} else if (key == right) {
+			armRight = arm;
+		} else {
+			error(String.format("%s - bad arm initialization ", key));
+			return null;
+		}
+
+		return arm;
+	}
 	public Arm attachArm(String key) {
 		Arduino arduino = getArduino(key);
 		info(String.format("initializing %s arm", key));
 		Arm arm = new Arm();
+		
 		arm.attach(arduino, key);
 
 		if (key == left) {
@@ -178,6 +277,8 @@ public class InMoov extends Service {
 		arduinoLeft = null;
 		if (arduinoRight != null)
 			arduinoRight.releaseService();
+		if (arduinoBody != null)
+			arduinoBody.releaseService();
 		arduinoRight = null;
 		if (head != null)
 			head.release();
@@ -200,11 +301,24 @@ public class InMoov extends Service {
 	public Head attachHead() {
 		return attachHead(left);
 	}
-
+	// ------------- added function if arduino head been set
 	public Head attachHead(String key) {
-		return attachHead(getArduino(key));
+		if (key =="head"){
+			return attachHead2(getArduino(key));
+		} else {
+			return attachHead(getArduino(key));
+		}
+		
 	}
-
+	// ------------- added function with set pins
+	public Head attachHead(String key,Integer eyeX, Integer eyeY, Integer neck, Integer rotHead) {
+		if (key =="head"){
+			return attachHead2(getArduino(key), eyeX,  eyeY,  neck,  rotHead);
+		} else {
+			return attachHead(getArduino(key), eyeX,  eyeY,  neck,  rotHead);
+		}
+		
+	}
 	public Head attachHead(Arduino arduino) {
 		if (arduino == null) {
 			error("invalid arduino and not attach head");
@@ -218,7 +332,52 @@ public class InMoov extends Service {
 		head.attach(this);
 		return head;
 	}
+	// ------------- added function with set pins
+	
+	public Head attachHead(Arduino arduino,Integer eyeX, Integer eyeY, Integer neck, Integer rotHead) {
+		if (arduino == null) {
+			error("invalid arduino and not attach head");
+		}
+		if (head != null) {
+			log.info("head already attached - must release first");
+			return head;
+		}
+		arduinoHead = arduino;
+		head = new Head();
+		head.setpins( eyeX,  eyeY,  neck,  rotHead);
+		head.attach(this);
+		
+		return head;
+	}
 
+	public Head attachHead2(Arduino arduino) {
+		if (arduino == null) {
+			error("invalid arduino and not attach head");
+		}
+		if (head != null) {
+			log.info("head already attached - must release first");
+			return head;
+		}
+		//arduinoHead = arduino;
+		head = new Head();
+		head.attach(this);
+		return head;
+	}
+	// ------------- added function with set pins
+	public Head attachHead2(Arduino arduino,Integer eyeX, Integer eyeY, Integer neck, Integer rotHead) {
+		if (arduino == null) {
+			error("invalid arduino and not attach head");
+		}
+		if (head != null) {
+			log.info("head already attached - must release first");
+			return head;
+		}
+		//arduinoHead = arduino;
+		head = new Head();
+		head.setpins( eyeX,  eyeY,  neck,  rotHead);
+		head.attach(this);
+		return head;
+	}
 	// ----------- normalization end ---------------------
 
 	public void attachSide(String side, String boardType, String comPort) {

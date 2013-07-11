@@ -112,6 +112,7 @@ public class Speech extends Service {
 	boolean fileCacheInitialized = false;
 
 	private boolean isSpeaking = false;
+	private String isSaying ;
 
 	final public static HashMap<String, String> googleLanguageMap = new HashMap<String, String>();
 
@@ -133,7 +134,10 @@ public class Speech extends Service {
 		isSpeaking = b;
 		return isSpeaking;
 	}
-
+	public synchronized String saying(String t){
+		isSaying = t;
+	return isSaying;	 
+ }
 	public void setFrontendType(String t) {
 		if ("NORMAL".equals(t)) {
 			frontendType = FrontendType.NORMAL;
@@ -280,6 +284,7 @@ public class Speech extends Service {
 
 		if (initialized) {
 			invoke("isSpeaking", true);
+			invoke("saying", toSpeak);
 			myVoice.speak(toSpeak);
 			invoke("isSpeaking", false);
 		} else {
@@ -399,6 +404,7 @@ public class Speech extends Service {
 		}
 
 		invoke("isSpeaking", true);
+		invoke("saying", toSpeak);
 		speechAudioFile.playFile(audioFile, true);
 		sleep(600);// important pause after speech
 		invoke("isSpeaking", false);

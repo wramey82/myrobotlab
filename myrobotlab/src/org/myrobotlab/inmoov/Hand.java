@@ -14,6 +14,13 @@ public class Hand {
 	public Servo ringFinger;
 	public Servo pinky;
 	public Servo wrist;
+	// ------------- added pins and the defaults
+	public int thumbPin=2;
+	public int indexPin=3;
+	public int majeurePin=4;
+	public int ringFingerPin=5;
+	public int pinkyPin=6;
+	public int wristPin=7;
 
 	public Hand() {
 	}
@@ -48,7 +55,16 @@ public class Hand {
 		pinky.moveTo(0);
 		wrist.moveTo(90);
 	}
-
+	// ------------- added set pins
+	public void setpins(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist){
+		 thumbPin=thumb;
+		 indexPin=index;
+		 majeurePin=majeure;
+		 ringFingerPin=ringFinger;
+		 pinkyPin=pinky;
+		 wristPin=wrist;
+	}
+	
 	public void attach(Arduino arduino, String key) {
 		// create finger and wrist servos
 		side = key;
@@ -61,12 +77,13 @@ public class Hand {
 
 		Service.sleep(500);
 		// attach the controller
-		arduino.servoAttach(thumb.getName(), 2);
-		arduino.servoAttach(index.getName(), 3);
-		arduino.servoAttach(majeure.getName(), 4);
-		arduino.servoAttach(ringFinger.getName(), 5);
-		arduino.servoAttach(pinky.getName(), 6);
-		arduino.servoAttach(wrist.getName(), 7);
+		// ------------- changed to used set pins
+		arduino.servoAttach(thumb.getName(), thumbPin);
+		arduino.servoAttach(index.getName(), indexPin);
+		arduino.servoAttach(majeure.getName(), majeurePin);
+		arduino.servoAttach(ringFinger.getName(), ringFingerPin);
+		arduino.servoAttach(pinky.getName(), pinkyPin);
+		arduino.servoAttach(wrist.getName(), wristPin);
 
 		rest();
 
