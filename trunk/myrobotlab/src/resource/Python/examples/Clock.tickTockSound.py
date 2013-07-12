@@ -1,3 +1,7 @@
+# IMPORTANT! Since AudioFile has other dependencies it must be "installed"
+# be sure to install AudioFile otherwise you will not be able to play
+# audio files
+
 #create a clock service named clock
 clock = Runtime.createAndStart("clock","Clock")
 #create an audio file player service named audio
@@ -8,6 +12,6 @@ def ticktock():
     #audio.playFile("tick.mp3")
     audio.playResource("/resource/Clock/tick.mp3")
 #create a message between clock and audio, so a tick tock sound could be played
-clock.addListener("pulse",python.name,"ticktock")
+clock.addListener("pulse", python.name, "ticktock")
 #start clock
 clock.startClock()
