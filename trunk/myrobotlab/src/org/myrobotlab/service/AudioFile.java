@@ -29,6 +29,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -39,7 +40,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.AdvancedPlayer;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -52,17 +53,18 @@ public class AudioFile extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(AudioFile.class.getCanonicalName());
-	transient Player player;
 	transient AePlayWave wavPlayer = new AePlayWave();
 
 	public AudioFile(String n) {
 		super(n, AudioFile.class.getCanonicalName());
 	}
 
-
-
 	public void play(String name) {
 		playFile("audioFile/" + name + ".mp3", false);
+	}
+
+	public void playResource(String filename) {
+		playResource(filename, false);
 	}
 
 	public void playFileBlocking(String filename) {
@@ -73,22 +75,31 @@ public class AudioFile extends Service {
 		playFile(filename, false);
 	}
 
-	// TODO - sound directory
-	// fn play(filename);
-	// setSoundFileDirectory(dir)
-	// http://www.cs.princeton.edu/introcs/faq/mp3/mp3.html
 	public void playFile(String filename, Boolean isBlocking) {
+		playFile(filename, isBlocking, false);
+	}
+
+	public void playResource(String filename, Boolean isBlocking) {
+		playFile(filename, isBlocking, true);
+	}
+
+	public void playFile(String filename, Boolean isBlocking, Boolean isResource) {
+		final AdvancedPlayer player;
 
 		// TODO - cache file - for quick playing again - delete cache after set
 		// time
 		try {
-			FileInputStream fis = new FileInputStream(filename);
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			player = new Player(bis);
-			// player.play();
-
-			// if (!serialized) TODO - serialize mode - puts it on another queue
-			// run in new thread to play in background
+			
+			InputStream is;
+			if (isResource) {
+				is = AudioFile.class.getResourceAsStream(filename);
+			} else {
+				is = new FileInputStream(filename);
+			}
+			
+			BufferedInputStream bis = new BufferedInputStream(is);
+			player = new AdvancedPlayer(bis);
+			
 			if (!isBlocking) {
 				new Thread() {
 					public void run() {
@@ -254,9 +265,17 @@ public class AudioFile extends Service {
 
 		AudioFile player = new AudioFile("player");
 		player.startService();
-		player.playBlockingWavFile("I am ready.wav");
+		//player.playResource("Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		player.playResource("/resource/Clock/tick.mp3");
+		//player.playBlockingWavFile("I am ready.wav");
 		// player.play("hello my name is audery");
-		player.playWAV("hello my name is momo");
+		//player.playWAV("hello my name is momo");
 	}
 
 }
