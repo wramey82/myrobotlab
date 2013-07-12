@@ -266,6 +266,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// using a HashMap means no duplicates
 	protected Set<String> methodSet;
 
+	
+	transient private Serializer serializer = new Persister();
 
 	transient SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	transient Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
@@ -447,7 +449,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * method of serializing default will be simple xml to name file
 	 */
 	public boolean save() {
-		Serializer serializer = new Persister();
+		
 
 		try {
 			File cfg = new File(String.format("%s%s%s.xml", cfgDir, File.separator, this.getName()));
@@ -466,7 +468,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return
 	 */
 	public boolean save(Object o, String cfgFileName) {
-		Serializer serializer = new Persister();
 
 		try {
 			File cfg = new File(String.format("%1$s%2$s%3$s", cfgDir, File.separator, cfgFileName));
@@ -519,7 +520,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		if (o == null) {
 			o = this;
 		}
-		Serializer serializer = new Persister();
+
 		try {
 			File cfg = new File(filename);
 			if (cfg.exists()) {
