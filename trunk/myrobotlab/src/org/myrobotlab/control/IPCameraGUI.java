@@ -25,29 +25,28 @@
 
 package org.myrobotlab.control;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.control.widget.DirectionWidget;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.IPCamera;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -60,14 +59,23 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 	IPCamera myIPCamera;
 
 	JButton connect;
-	JButton capture;
-	JLabel connected;
-	JLabel notConnected;
+	//JButton capture;
+	//JLabel connected;
+	//JLabel notConnected;
 
-	JPanel info;
+	//JPanel info;
+	
+	JTextField videoURL = new JTextField("http://fostcamIp/videostream.cgi?user=admin&pwd=password");
+	JTextField controlURL = new JTextField("http://fostcamIp/decoder_control.cgi?user=admin&pwd=password&command=");
 
 	DirectionWidget direction = new DirectionWidget();
-	DirectionEventListener del = new DirectionEventListener();
+	DirectionEventListener dirEventListener = new DirectionEventListener();
+	
+	/*
+	JTextField host = new JTextField("192.168.0.68", 8);
+	JTextField user = new JTextField("admin", 8);
+	JPasswordField password = new JPasswordField("xxxxx", 8);
+*/
 
 	public class DirectionEventListener implements ActionListener {
 		@Override
@@ -98,7 +106,8 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 				// myService.send(boundServiceName, "move",
 				// IPCamera.FOSCAM_MOVE_CENTER);
 			} else if ("connect".equals(ae.getActionCommand())) {
-				myService.send(boundServiceName, "connect", host.getText(), user.getText(), password.getText());
+				// host.getText(), user.getText(), password.getText()
+				myService.send(boundServiceName, "connectVideoStream", videoURL.getText());
 			} else if ("capture".equals(ae.getActionCommand())) {
 				JButton b = (JButton) ae.getSource();
 				if ("stop capture".equals(b.getText())) {
@@ -116,72 +125,49 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 	public IPCameraGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 		myIPCamera = (IPCamera) Runtime.getServiceWrapper(boundServiceName).service;
-		direction.setDirectionListener(del);
+		direction.setDirectionListener(dirEventListener);
 	}
-
-	JTextField host = new JTextField("192.168.0.68", 8);
-	JTextField user = new JTextField("admin", 8);
-	JPasswordField password = new JPasswordField("xxxxx", 8);
 
 	public void init() {
 
+		display.setLayout(new BorderLayout());
+		
 		video0 = new VideoWidget(boundServiceName, myService, false);
 		video0.init();
-		gc.gridheight = 8;
-		gc.gridx = 0;
-		gc.gridy = 0;
-
-		display.add(video0.display, gc);
-		gc.gridheight = 1;
-
-		gc.gridx = 1;
-		display.add(new JLabel("ip"), gc);
-		++gc.gridx;
-		display.add(host, gc);
-		++gc.gridy;
-
-		gc.gridx = 1;
-		display.add(new JLabel("user"), gc);
-		++gc.gridx;
-		display.add(user, gc);
-		++gc.gridy;
-
-		gc.gridx = 1;
-		display.add(new JLabel("password  "), gc);
-		++gc.gridx;
-		display.add(password, gc);
-		++gc.gridy;
-
-		gc.gridx = 1;
+	
+		JPanel config = new JPanel(new GridLayout(0,1));
+		config.add(new JLabel("video url"));
+		config.add(videoURL);
+		config.add(new JLabel("control url"));
+		config.add(controlURL);
 		connect = new JButton("connect");
-		connect.addActionListener(del);
-		display.add(connect, gc);
-		++gc.gridx;
-		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));// TODO
-																														// move
-																														// to
-																														// IPCamera
-		notConnected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_grey.png")));
-		display.add(notConnected, gc);
-		display.add(connected, gc);
-		connected.setVisible(false);
+		connect.addActionListener(dirEventListener);
+		config.add(connect);
 
-		++gc.gridy;
+		display.add(config, BorderLayout.SOUTH);
 
-		gc.gridx = 1;
-		++gc.gridy;
-		gc.gridwidth = 2;
-		display.add(direction, gc);
+		
+//		connected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_green.png")));
+//		notConnected = new JLabel(new ImageIcon(IPCameraGUI.class.getResource("/resource/bullet_ball_glass_grey.png")));
+//		display.add(notConnected, gc);
+//		display.add(connected, gc);
+//		connected.setVisible(false);
+		JPanel center = new JPanel();
+		center.add(video0.getDisplay());
+		center.add(direction);
+		display.add(center, BorderLayout.CENTER);
 
-		info = new JPanel();
+//		info = new JPanel();
 
-		capture = new JButton("capture");
-		capture.setActionCommand("capture");
-		capture.addActionListener(del);
+//		capture = new JButton("capture");
+//		capture.setActionCommand("capture");
+//		capture.addActionListener(dirEventListener);
+/*
 		++gc.gridy;
 		display.add(capture, gc);
 		++gc.gridy;
 		display.add(info, gc);
+*/		
 	}
 
 	/**
@@ -208,6 +194,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	};
 
+	/*
 	public void isConnected(Boolean b) {
 		if (b) {
 			connected.setVisible(true);
@@ -218,34 +205,35 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 		}
 
 	}
+	*/
 
-	/**
+	/**  JUST STREAM THE #*%(%(*# VIDEO !
 	 * The return of IPCamera.getStatus which is used to test connectivity
 	 * 
 	 * @param s
-	 */
+	 */ 
+	/*
 	public void getStatus(String s) {
 		info.removeAll();
 		info.add(new JLabel(s));
 	}
-
-	public void displayFrame(SerializableImage img) {
+	*/
+	
+	
+	public void publishDisplay(SerializableImage img) {
 
 		video0.displayFrame(img);
 	}
 
 	public void attachGUI() {
 		video0.attachGUI();
-		subscribe("connect", "isConnected", Boolean.class);
-		subscribe("getStatus", "getStatus", String.class);
 		subscribe("setEnableControls", "setEnableControls", Boolean.class);
+		subscribe("publishDisplay", "publishDisplay");
 	}
 
 	@Override
 	public void detachGUI() {
 		video0.detachGUI();
-		unsubscribe("connect", "isConnected", Boolean.class);
-		unsubscribe("getStatus", "getStatus", String.class);
 		unsubscribe("setEnableControls", "setEnableControls", Boolean.class);
 	}
 
@@ -266,18 +254,6 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	}
 
-	/**
-	 * Returns an ImageIcon, or null if the path was invalid. TODO - move to
-	 * FileIO.Util
-	 */
-	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
-		if (imgURL != null) {
-			return new ImageIcon(imgURL, description);
-		} else {
-			System.err.println("Couldn't find file: " + path);
-			return null;
-		}
-	}
+
 
 }
