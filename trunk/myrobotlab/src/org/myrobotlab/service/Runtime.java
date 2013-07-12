@@ -607,6 +607,7 @@ public class Runtime extends Service {
 			it2 = se.serviceDirectory.keySet().iterator();
 			while (it2.hasNext()) {
 				++cnt;
+				it2.next();
 			}
 		}
 		return cnt;
