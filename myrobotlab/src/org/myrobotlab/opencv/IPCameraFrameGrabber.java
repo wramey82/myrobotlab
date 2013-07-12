@@ -13,11 +13,9 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-
-import org.myrobotlab.framework.Service;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -132,6 +130,15 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		// Yay! - server was nice and sent content length
 		int c0 = subheader.indexOf("Content-Length: ");
 		int c1 = subheader.indexOf('\r', c0);
+		
+		if (c0 < 0)
+		{
+			log.info("no content length returning null");
+			return null;
+		} else {
+			log.info("found content length");
+		}
+		
 		c0 += 16;
 		contentLength = Integer.parseInt(subheader.substring(c0, c1));
 		log.debug("Content-Length: " + contentLength);
@@ -156,6 +163,12 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		}
 
 		baos.flush();
+		
+		input.read();// \r
+		input.read();// \n
+		input.read();// \r
+		input.read();// \n
+		
 		// log.info("wrote " + baos.size() + "," + total);
 		BufferedImage bi = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
 		return bi;
