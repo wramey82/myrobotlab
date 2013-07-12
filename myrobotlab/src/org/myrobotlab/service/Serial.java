@@ -159,7 +159,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	public static void main(String[] args) throws IOException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Serial serial = new Serial("serial");
 		serial.startService();
