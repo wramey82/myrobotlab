@@ -5,18 +5,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.IPCameraFrameGrabber;
+import org.slf4j.Logger;
 
 // Android related - http://stackoverflow.com/questions/8301543/android-bitmap-to-bufferedimage
 // Bitmap to BufferedImage - conversion once Bitmap class is serialized
@@ -25,14 +21,10 @@ public class IPCamera extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	// public URL url = null;
-
-	public String host = "";
-	public String user = "";
-	public String password = "";
-
 	private IPCameraFrameGrabber grabber = null;
 	private Thread videoProcess = null;
+
+	public String controlURL;
 
 	private boolean capturing = false;
 
@@ -55,6 +47,17 @@ public class IPCamera extends Service {
 	public final static int FOSCAM_MOVE_STOP_HORIZONTAL_PATROL = 29;
 	public final static int FOSCAM_MOVE_IO_OUTPUT_HIGH = 94;
 	public final static int FOSCAM_MOVE_IO_OUTPUT_LOW = 95;
+	
+	public final static int FOSCAM_ALARM_MOTION_ARMED_DISABLED = 0;
+	public final static int FOSCAM_ALARM_MOTION_ARMED_ENABLED = 1;
+	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_HIGH = 0;
+	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_MEDIUM = 1;
+	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_LOW = 2;
+	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_ULTRALOW = 3;
+	public final static int FOSCAM_ALARM_INPUT_ARMED_DISABLED = 0;
+	public final static int FOSCAM_ALARM_INPUT_ARMED_ENABLED = 1;
+	public final static int FOSCAM_ALARM_MAIL_DISABLED = 0;
+	public final static int FOSCAM_ALARM_MAIL_ENABLED = 1;
 
 	public IPCamera(String n) {
 		super(n, IPCamera.class.getCanonicalName());
@@ -85,18 +88,22 @@ public class IPCamera extends Service {
 		SerializableImage si = new SerializableImage(img, source);
 		return si;
 	}
-
-	public boolean connect(String host, String user, String password) {
-		this.host = host;
-		this.user = user;
-		this.password = password;
-		// foscam url http://host/videostream.cgi?user=username&pwd=password
-		grabber = new IPCameraFrameGrabber("http://" + host + "/videostream.cgi?user=" + user + "&pwd=" + password);
-		// String status = getStatus();
-		invoke("getStatus");
+	
+	// "http://" + host + "/videostream.cgi?user=" + user + "&pwd=" + password
+	public boolean connectVideoStream(String url)
+	{
+		grabber = new IPCameraFrameGrabber(url);
+		//invoke("getStatus");
+		capture();
 		return true;
 	}
-
+	
+	
+	public void setControlURL(String url)
+	{
+		controlURL = url;
+	}
+	
 	public String move(Integer param) {
 		if (!enableControls) {
 			return null;
@@ -107,7 +114,8 @@ public class IPCamera extends Service {
 		try {
 			// TODO - re-use connection optimization
 
-			URL url = new URL("http://" + host + "/decoder_control.cgi?command=" + param + "&user=" + user + "&pwd=" + password);
+//			URL url = new URL("http://" + host + "/decoder_control.cgi?command=" + param + "&user=" + user + "&pwd=" + password);
+			URL url = new URL(controlURL + param);
 			URLConnection con = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -118,22 +126,13 @@ public class IPCamera extends Service {
 			in.close();
 		} catch (Exception e) {
 			logException(e);
-			connect(host, user, password);
+			//connectVideoStream(host, user, password);
 		}
 		return ret.toString();
 	}
 
-	public final static int FOSCAM_ALARM_MOTION_ARMED_DISABLED = 0;
-	public final static int FOSCAM_ALARM_MOTION_ARMED_ENABLED = 1;
-	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_HIGH = 0;
-	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_MEDIUM = 1;
-	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_LOW = 2;
-	public final static int FOSCAM_ALARM_MOTION_SENSITIVITY_ULTRALOW = 3;
-	public final static int FOSCAM_ALARM_INPUT_ARMED_DISABLED = 0;
-	public final static int FOSCAM_ALARM_INPUT_ARMED_ENABLED = 1;
-	public final static int FOSCAM_ALARM_MAIL_DISABLED = 0;
-	public final static int FOSCAM_ALARM_MAIL_ENABLED = 1;
 
+	/*
 	public String setAlarm(int armed, int sensitivity, int inputArmed, int ioLinkage, int mail, int uploadInterval) {
 		StringBuffer ret = new StringBuffer();
 		try {
@@ -152,6 +151,7 @@ public class IPCamera extends Service {
 		}
 		return ret.toString();
 	}
+	*/
 
 	/**
 	 * method to determine connectivity of a valid host, user & password to a
@@ -159,6 +159,7 @@ public class IPCamera extends Service {
 	 * 
 	 * @return
 	 */
+	/*
 	public String getStatus() {
 		StringBuffer ret = new StringBuffer();
 		try {
@@ -188,6 +189,7 @@ public class IPCamera extends Service {
 		}
 		return ret.toString();
 	}
+	*/
 
 	public void capture() {
 		if (videoProcess != null) {
@@ -211,16 +213,7 @@ public class IPCamera extends Service {
 		return "used as a general template";
 	}
 
-	public static class Test {
-		public String name;
-
-		public Test(String n) {
-			this.name = n;
-		}
-	}
-
-	static public HashMap<String, ArrayList<Test>> tests = new HashMap<String, ArrayList<Test>>();
-
+	
 	public Boolean setEnableControls(Boolean v) {
 		enableControls = v;
 		return v;
@@ -232,23 +225,7 @@ public class IPCamera extends Service {
 
 		IPCamera foscam = new IPCamera("foscam");
 		foscam.startService();
-		/*
-		 * Test l = new Test("left"); Test r = new Test("right");
-		 * 
-		 * ArrayList<Test> al = new ArrayList<Test>(); al.add(l);
-		 * tests.put("left", al);
-		 * 
-		 * al = new ArrayList<Test>(); al.add(l); tests.put("left", al);
-		 * 
-		 * /*
-		 * 
-		 * ArrayList<Test> al = new ArrayList<Test>(); al.add(l);
-		 * 
-		 * ArrayList<Test> al = new ArrayList<Test>(); al.add(l);
-		 */
-
-		// foscam.attach("192.168.0.59", "", "");
-		// foscam.capture();
+		
 
 		foscam.startService();
 
@@ -256,6 +233,11 @@ public class IPCamera extends Service {
 		gui.startService();
 		gui.display();
 
+	}
+	
+	public SerializableImage publishDisplay(String source, BufferedImage img)
+	{
+		return new SerializableImage(img, source);
 	}
 
 }
