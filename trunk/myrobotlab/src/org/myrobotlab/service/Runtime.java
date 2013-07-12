@@ -1515,6 +1515,7 @@ public class Runtime extends Service {
 			if (!runtime.isInstalled(fullTypeName))
 			{
 				runtime.error("%s is not installed - please install it", fullTypeName);
+				//return null;
 			}
 
 			Class<?> cls = Class.forName(fullTypeName);
