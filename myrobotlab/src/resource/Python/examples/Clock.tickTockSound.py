@@ -1,5 +1,6 @@
-# IMPORTANT! Since AudioFile has other dependencies it must be "installed"
-# be sure to install AudioFile otherwise you will not be able to play
+# IMPORTANT! Since AudioFile (http://myrobotlab.org/service/AudioFile)
+# has other dependencies it must be "installed" be sure to 
+# install the AudioFile service otherwise you will not be able to play
 # audio files
 
 #create a clock service named clock
