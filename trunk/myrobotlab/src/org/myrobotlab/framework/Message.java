@@ -28,13 +28,12 @@ package org.myrobotlab.framework;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementArray;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -81,7 +80,6 @@ public class Message implements Serializable {
 	 * Turns out ArrayList is quicker than HashSet on small sets
 	 * http://www.javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html
 	 */
-	@Element
 	public ArrayList<RoutingEntry> historyList;
 	/*
 	@Override
@@ -156,9 +154,10 @@ public class Message implements Serializable {
 	 * state it can be in is null | BLOCKING | RETURN FIXME - this should be
 	 * msgType not status
 	 */
-	@Element
+	@Element(required=false)
 	public String status;
-	@Element
+	
+	@Element(required=false)
 	public String msgType; // Broadcast|Blocking|Blocking Return - deprecated
 	/**
 	 * the method which will be invoked on the destination @see Service
@@ -171,7 +170,7 @@ public class Message implements Serializable {
 	 * invoking a service request this would be the parameter (list) - this
 	 * would the return type data if the message is outbound
 	 */
-	@ElementList(name="data")
+	@ElementArray(required=false)
 	public Object[] data;
 
 	public Message() {
