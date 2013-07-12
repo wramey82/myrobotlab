@@ -1510,6 +1510,12 @@ public class Runtime extends Service {
 			log.info("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
 			log.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
 			log.info("refreshing classloader");
+			
+			Runtime runtime = Runtime.getInstance();
+			if (!runtime.isInstalled(fullTypeName))
+			{
+				runtime.error("%s is not installed - please install it", fullTypeName);
+			}
 
 			Class<?> cls = Class.forName(fullTypeName);
 			Constructor<?> constructor = cls.getConstructor(new Class[] { String.class });
@@ -1973,5 +1979,10 @@ public class Runtime extends Service {
 	{
 		 ++uniqueID;
 		 return uniqueID;
+	}
+	
+	public boolean isInstalled(String fullTypeName)
+	{
+		return !getServiceInfo().hasUnfulfilledDependencies(fullTypeName);
 	}
 }
