@@ -49,9 +49,8 @@ import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
 import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
-import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_ROUGH_SEARCH;
-import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_FIND_BIGGEST_OBJECT;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
+import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_FIND_BIGGEST_OBJECT;
 import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
 
 import java.awt.Color;
@@ -82,9 +81,6 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	public String cascadePath = "haarcascades/haarcascade_frontalface_alt.xml";
 	//public String cascadePath = "haarcascades/haarcascade_mcs_lefteye.xml";
 	//public String cascadePath = "haarcascades/haarcascade_mcs_eyepair_big.xml";
-	
-	
-	
 	
 	int i;
 
