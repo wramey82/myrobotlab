@@ -3,7 +3,7 @@ serial = Runtime.createAndStart("serial","Serial")
 #create a Log service named log
 log    = Runtime.createAndStart("log","Log")
 #have the log's log method subscribe to the serial's read method
-log.subscribe("log", serial.getName(), "read")
+log.subscribe("read", serial.getName(), "log")
 
 #connect to a serial port COM4 57600 bitrate 8 data bits 1 stop bit 0 parity
 serial.connect("COM4", 57600, 8, 1, 0)
