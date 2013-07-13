@@ -41,7 +41,7 @@ public class Hand {
 		this.majeure.moveTo(majeure);
 		this.ringFinger.moveTo(ringFinger);
 		this.pinky.moveTo(pinky);
-		this.wrist.moveTo(wrist);
+		if (wrist != null)this.wrist.moveTo(wrist);
 	}
 
 	public void rest() {
