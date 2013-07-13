@@ -134,9 +134,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	 * @param b
 	 * @return
 	 */
-	public Byte read(Byte b)
+	public Integer read(Integer data)
 	{
-		return b;
+		return data;
 	}
 
 	public boolean isConnected() {
