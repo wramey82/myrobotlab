@@ -1,3 +1,5 @@
+import time
+
 #create a Serial service named serial
 serial = Runtime.createAndStart("serial","Serial")
 #create a Log service named log
