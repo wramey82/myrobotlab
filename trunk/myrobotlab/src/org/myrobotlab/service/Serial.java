@@ -127,6 +127,17 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 		return true;
 	}
+	
+	/**
+	 * publishing point for read events
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public Byte read(Byte b)
+	{
+		return b;
+	}
 
 	public boolean isConnected() {
 		// I know not normalized
