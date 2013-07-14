@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>clock - Clock</title>
+
+<link rel="stylesheet" href="common/themes/vader/jquery-ui.css" />
+<link rel="stylesheet" href="common/style.css">
+<script src="common/js/jquery-1.10.2.min.js"></script>
+<script src="common/js/jquery-ui.min.1.10.3.js"></script>
+<script src="common/js/jquery.websocket-0.0.1.js"></script>
+
+<script
+	src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script>
+	// global registry and vars
+	var registry = [];
+	var webgui = new ClockWebGUI("clock");
+	var ws; // the one and only websocket
+	var debug = true;
+
+	registry["clock"] = webgui;
+
+	//-------Message begin---------
+	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
+	function Message(name, method, params) {
+		this.msgID = new Date().getTime();
+		this.timeStamp = this.msgID;
+		this.name = name;
+		this.sender = "webgui";
+		this.sendingMethod = "";
+		this.historyList = new Array(); // necessary?
+		this.method = method;
+		this.data = params;
+	}
+
+	//-------Message end---------
+
+	// --- ServiceGUI begin ----
+	function ServiceGUI(name) {
+		this.name = name;
+	}
+
+	ServiceGUI.prototype.attachGUI = function() {
+	};
+
+	ServiceGUI.prototype.dettachGUI = function() {
+	};
+
+	ServiceGUI.prototype.send = function(method, data) {
+		var msg = new Message(this.name, method, data);
+		var json = JSON.stringify(msg);
+		ws.send(json);
+		event.preventDefault();
+	};
+
+	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
+	{
+	}
+	// --- ServiceGUI end ----
+
+	//-------ClockWebGUI begin---------
+	function ClockWebGUI(name) {
+		this.name = name;
+	}
+
+	ClockWebGUI.prototype.pulse = function(data) {
+		$("#display").html(data);
+	};
+
+	ClockWebGUI.prototype.startClock = function() {
+		/*
+			$("#startClock").button().click(function(event) {
+				webgui.send("startClock", null);
+				event.preventDefault();
+			});
+		 */
+	};
+
+	ClockWebGUI.prototype.send = function(method, data) {
+		var msg = new Message(this.name, method, data);
+		var json = JSON.stringify(msg);
+		ws.send(json);
+		event.preventDefault();
+	};
+	//-------ClockWebGUI end---------
+
+	// -- webgui framework display begin ---
+	$(function() {
+		$("#accordion").accordion({
+			//collapsible: true,
+			autoHeight : false,
+			active : false
+		});
+	});
+	// -- webgui framework display begin ---
+
+	// -- websocket global connectivity and message processing begin --
+	// TODO - jquery best practices - anonymous functions are to be avoided
+
+	var wsURI = "ws://localhost:7778";
+	
+	$(function() {
+		$("#connect").button().click(function(event) {
+			event.preventDefault();
+			ws = new WebSocket(wsURI);
+			ws.open
+			//log("connecting");
+			$("#connect").html("connected <small>" + wsURI+"</small>");
+			//$("#topMessage").html("connected " + wsURI);
+
+			ws.onmessage = function(e) {
+				log("Server: " + e.data);
+
+				try {
+					var msg = jQuery.parseJSON(e.data);
+					log("invoke " + msg.sender + "." + msg.method);
+					//this[msg.method].apply(this, Array.prototype.slice.call(msg.data, 1));
+					// http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
+					//registry[msg.sender].apply(null, msg.method, msg.data)
+					var ret = registry[msg.sender][msg.method](msg.data);
+					//method.apply(null)
+				} catch (err) {
+					//alert("json parse error " + err + " data " + e.data);
+					log("json parse error " + err + " data " + e.data);
+				}
+			};
+		});
+	});
+
+	$(function() {
+		$("#startClock").button().click(function(event) {
+			webgui.send("startClock", null);
+			event.preventDefault();
+		});
+	});
+
+	$(function() {
+		$("#stopClock").button().click(function(event) {
+			webgui.send("stopClock", null);
+			event.preventDefault();
+		});
+	});
+
+	$(function() {
+		$("#setInterval").button().click(function(event) {
+			webgui.send("setInterval", [ parseInt($("#interval").val()) ]);
+			event.preventDefault();
+		});
+	});
+
+	// --- logging begin ----
+	function error(text) {
+		log("ERROR", text);
+	}
+
+	function debug(text) {
+		log("DEBUG", text);
+	}
+
+	function info(text) {
+		log("INFO", text);
+	}
+
+	function warn(text) {
+		log("WARN", text);
+	}
+
+	function log(text) {
+		//$("#log").val((text !== null ? text : "null") + "\n" + $("#log").val());
+		$("#status").html(text + "<br />" + $("#status").html());
+		/*
+		$("#log").val(
+				(new Date).getTime() + ": " + (text !== null ? text : "null")
+						+ "\n" + $("#log").val());
+		 */
+	}
+	// --- logging end ----
+
+	$(document).ready(function() {
+		$("#hide").click(function() {
+			$("p").hide();
+		});
+		$("#show").click(function() {
+			$("p").show();
+		});
+
+		// ----- nav begin -----
+
+		//cache nav
+		var nav = $("#topNav");
+
+		//add indicator and hovers to submenu parents
+		nav.find("li").each(function() {
+
+			if ($(this).find("ul").length > 0) {
+				$("<span>").text("*").appendTo($(this).children(":first"));
+
+				//show subnav on hover
+				$(this).mouseenter(function() {
+					$(this).find("ul").stop(true, true).slideDown();
+				});
+
+				//hide submenus on exit
+				$(this).mouseleave(function() {
+					$(this).find("ul").stop(true, true).slideUp();
+				});
+			}
+		});
+
+		$("#topMessage").html("not connected");
+		// ----- nav end -------
+
+	});
+</script>
+</head>
+<body>
+
+	<!-- menu - begin -->
+	<div id="topMessage"></div>
+	<button id="connect">connect</button>
+	<!-- menu end -->
+	<div id="accordion">
+		<h3>
+			<img src="../../Clock.png" />clock
+		</h3>
+		<div>
+			<div id="display"></div>
+			<button id="startClock">start clock</button>
+			<button id="stopClock">stop clock</button>
+			<button id="setInterval">set interval</button>
+			interval <input id="interval" type="text" value="1000"></input>ms
+		</div>
+		<h3>
+			<img src="../../Runtime.png" />incubator
+		</h3>
+		<div>
+			<p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum
+				sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris
+				turpis porttitor velit, faucibus interdum tellus libero ac justo.
+				Vivamus non quam. In suscipit faucibus urna.</p>
+		</div>
+	</div>
+	<div id="status"></div>
+</body>
+</html>
