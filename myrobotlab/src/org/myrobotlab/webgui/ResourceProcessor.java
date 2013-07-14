@@ -73,9 +73,14 @@ public class ResourceProcessor implements HTTPProcessor {
 			String mime = null;
 			int dot = uri.lastIndexOf('.');
 			if (dot >= 0)
+			{
 				mime = (String) NanoHTTPD.theMimeTypes.get(uri.substring(dot + 1).toLowerCase());
+			}
 			if (mime == null)
-				mime = NanoHTTPD.MIME_DEFAULT_BINARY;
+			{
+				//mime = NanoHTTPD.MIME_DEFAULT_BINARY;
+				mime = NanoHTTPD.MIME_PLAINTEXT;
+			}
 
 			// FIXME - support skipping again :P
 			// Support (simple) skipping:

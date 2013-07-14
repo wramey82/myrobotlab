@@ -11,11 +11,23 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.Outbox;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class WSServer extends WebSocketServer {
 
-	public WSServer( int port ) throws UnknownHostException {
+	public final static Logger log = LoggerFactory.getLogger(WSServer.class.getCanonicalName());
+
+	private Outbox outbox = null;
+	
+	public WSServer( int port , Outbox outbox) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
+		this.outbox = outbox;
 	}
 
 	public WSServer( InetSocketAddress address ) {
@@ -24,7 +36,7 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
-		this.sendToAll( "new connection: " + handshake.getResourceDescriptor() );
+		// this.sendToAll( "new connection: " + handshake.getResourceDescriptor() );
 		System.out.println( conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!" );
 	}
 
@@ -36,8 +48,15 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onMessage( WebSocket conn, String message ) {
-		this.sendToAll( message );
-		System.out.println( conn + ": " + message );
+		//this.sendToAll( message );
+		//System.out.println( conn.getLocalSocketAddress() + ": " + message );
+		System.out.println("[" + message + "]" );
+		//Gson gson = new Gson();	
+		Gson gson = new GsonBuilder()
+		   .setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
+		Message msg = gson.fromJson(message, Message.class);
+		log.info("{}",msg);
+		outbox.add(msg);
 	}
 
 	@Override
@@ -47,6 +66,8 @@ public class WSServer extends WebSocketServer {
 			// some errors like port binding failed may not be assignable to a specific websocket
 		}
 	}
+	
+	
 
 	/**
 	 * Sends <var>text</var> to all currently connected WebSocket clients.
@@ -72,7 +93,7 @@ public class WSServer extends WebSocketServer {
 			port = Integer.parseInt( args[ 0 ] );
 		} catch ( Exception ex ) {
 		}
-		WSServer s = new WSServer( port );
+		WSServer s = new WSServer( port , null);
 		s.start();
 		System.out.println( "WSServer started on port: " + s.getPort() );
 
