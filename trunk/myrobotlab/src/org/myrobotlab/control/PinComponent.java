@@ -32,14 +32,12 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.control.widget.DigitalButton;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.service.data.IOData;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.data.Pin;
+import org.slf4j.Logger;
 
 public class PinComponent {
 
@@ -131,11 +129,8 @@ public class PinComponent {
 			pwmSlider.addChangeListener(new ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent e) {
 					data.setText("" + pwmSlider.getValue());
-					IOData io = new IOData();
-					io.address = pinNumber;
-					io.value = pwmSlider.getValue();
 					if (myService != null) {
-						myService.send(boundServiceName, "analogWrite", io);
+						myService.send(boundServiceName, "analogWrite", pinNumber, pwmSlider.getValue());
 					} else {
 						log.error("can not send message myService is null");
 					}

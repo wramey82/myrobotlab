@@ -1,5 +1,6 @@
 package org.myrobotlab.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -25,6 +26,8 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
 	private boolean connected = false;
 	int rawReadMsgLength = 5;
+	
+	ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
 	public Serial(String n) {
 		super(n, Serial.class.getCanonicalName());
@@ -57,6 +60,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
 					// TODO allow msg length based on delimeter or fixed size
 					invoke("read", newByte);
+					bos.write(newByte);
 				}
 
 			} catch (IOException e) {

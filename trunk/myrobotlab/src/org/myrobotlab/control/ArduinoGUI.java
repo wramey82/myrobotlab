@@ -383,7 +383,6 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				return;
 			}
 
-			// IOData io = new IOData();
 			PinComponent pin = null;
 			int address = -1;
 			int value = -1;
