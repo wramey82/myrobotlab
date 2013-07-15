@@ -15,13 +15,9 @@
 <script>
 	// global registry and vars
 	var registry = [];
-	var webgui = new ClockWebGUI("clock");
 	var ws; // the one and only websocket
 	var debug = true;
 
-	registry["clock"] = webgui;
-
-	//-------Message begin---------
 	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
 	function Message(name, method, params) {
 		this.msgID = new Date().getTime();
@@ -33,8 +29,6 @@
 		this.method = method;
 		this.data = params;
 	}
-
-	//-------Message end---------
 
 	// --- ServiceGUI begin ----
 	function ServiceGUI(name) {
@@ -59,31 +53,26 @@
 	}
 	// --- ServiceGUI end ----
 
-	//-------ClockWebGUI begin---------
-	function ClockWebGUI(name) {
-		this.name = name;
+	//-------ClockGUI begin---------
+	//subclass extends superclass
+	function ClockGUI(name) {
+		ServiceGUI.call(this, name); //call super constructor.
 	}
 
-	ClockWebGUI.prototype.pulse = function(data) {
+	ClockGUI.prototype = Object.create(ServiceGUI.prototype);
+	ClockGUI.prototype.constructor = ClockGUI;
+
+	// callbacks
+	ClockGUI.prototype.pulse = function(data) {
 		$("#display").html(data);
 	};
 
-	ClockWebGUI.prototype.startClock = function() {
-		/*
-			$("#startClock").button().click(function(event) {
-				webgui.send("startClock", null);
-				event.preventDefault();
-			});
-		 */
-	};
+	// AHHHHH! this at the "top" does not work 
+	// but moved to the bottom it suddenly understands inheritance !!!
+	var clockGUI = new ClockGUI("clock");
+	registry["clock"] = clockGUI;
 
-	ClockWebGUI.prototype.send = function(method, data) {
-		var msg = new Message(this.name, method, data);
-		var json = JSON.stringify(msg);
-		ws.send(json);
-		event.preventDefault();
-	};
-	//-------ClockWebGUI end---------
+	//-------ClockGUI end---------
 
 	// -- webgui framework display begin ---
 	$(function() {
@@ -99,15 +88,19 @@
 	// TODO - jquery best practices - anonymous functions are to be avoided
 
 	var wsURI = "ws://localhost:7778";
-	
+
 	$(function() {
 		$("#connect").button().click(function(event) {
 			event.preventDefault();
 			ws = new WebSocket(wsURI);
 			ws.open
 			//log("connecting");
-			$("#connect").html("connected <small>" + wsURI+"</small>");
+			$("#connect").html("connected <small>" + wsURI + "</small>");
 			//$("#topMessage").html("connected " + wsURI);
+
+			ws.onerror = function(error) {
+				error('WebSocket Error ' + error);
+			};
 
 			ws.onmessage = function(e) {
 				log("Server: " + e.data);
@@ -130,21 +123,21 @@
 
 	$(function() {
 		$("#startClock").button().click(function(event) {
-			webgui.send("startClock", null);
+			clockGUI.send("startClock", null);
 			event.preventDefault();
 		});
 	});
 
 	$(function() {
 		$("#stopClock").button().click(function(event) {
-			webgui.send("stopClock", null);
+			clockGUI.send("stopClock", null);
 			event.preventDefault();
 		});
 	});
 
 	$(function() {
 		$("#setInterval").button().click(function(event) {
-			webgui.send("setInterval", [ parseInt($("#interval").val()) ]);
+			clockGUI.send("setInterval", [ parseInt($("#interval").val()) ]);
 			event.preventDefault();
 		});
 	});
@@ -222,7 +215,7 @@
 	<!-- menu end -->
 	<div id="accordion">
 		<h3>
-			<img src="../../Clock.png" />clock
+			<img src="../Clock.png" />clock
 		</h3>
 		<div>
 			<div id="display"></div>
@@ -232,7 +225,7 @@
 			interval <input id="interval" type="text" value="1000"></input>ms
 		</div>
 		<h3>
-			<img src="../../Runtime.png" />incubator
+			<img src="../Runtime.png" />incubator
 		</h3>
 		<div>
 			<p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum
