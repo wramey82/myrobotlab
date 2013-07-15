@@ -320,6 +320,16 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.MouthControl" workingLevel="4">
+      <dependsOn>
+         <description>allows control of a mouth based on text said
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.OpenCV" workingLevel="4">
       <dependsOn>
         <description>The OpenCV Service is a library of vision functions
