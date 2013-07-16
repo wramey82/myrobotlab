@@ -152,8 +152,21 @@ public class WebGUI extends Service {
 			//Gson gson = new Gson(); // FIXME - threadsafe? singleton?
 			//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
 			
-			Gson gson = new GsonBuilder()
-			   .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+			/*
+			 * Gson gson = new GsonBuilder()
+     .registerTypeAdapter(Id.class, new IdTypeAdapter())
+     .serializeNulls()
+     .setDateFormat(DateFormat.LONG)
+     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+     .setPrettyPrinting()
+     .setVersion(1.0)
+     .create();
+			 * 
+			 */
+			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
+			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+			//   .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+			// gson.setDateFormat(DateFormat.FULL);
 			out = new ByteArrayOutputStream(); // FIXME - threadsafe? singleton?
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8")); // FIXME - threadsafe? singleton?
 			//writer.setIndent("  "); // TODO config driven - very cool !
@@ -186,7 +199,9 @@ public class WebGUI extends Service {
 		//clock.startClock();
 		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
 
-		webgui.subscribe("pulse", "clock", "pulse", String.class);
+//		webgui.subscribe("clock", "pulse");
+		
+//		webgui.subscribe("pulse", "clock", "pulse", String.class);
 		
 		/*
 		Message msg = webgui.createMessage("webgui", "publishPin", new Object[] { new Pin(12, Pin.DIGITAL_VALUE, 1, "arduino") });
