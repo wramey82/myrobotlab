@@ -6,6 +6,8 @@
 	  http://msdn.microsoft.com/en-us/library/ie/hh673567(v=vs.85).aspx - excellent examples - sendBinaryMessage
 	  http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
 	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
+	  http://stackoverflow.com/questions/2141520/javascript-variable-number-of-arguments-to-function
+	  
  -->
 <meta charset="utf-8" />
 <title>clock - Clock</title>
@@ -38,6 +40,7 @@
 	}
 
 	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
+	var boundServiceName = "clock";
 
 	function Connection(uri) {
 		this.ws = new WebSocket(uri);
@@ -47,6 +50,7 @@
 		$("#topMessage").html("connecting <small>" + wsURI + "</small>");
 
 		this.ws.onopen = function(openEvent) {
+			clockGUI.attachGUI();
 			$("#topMessage").html("connected <small>" + wsURI + "</small>");
 		};
 
@@ -60,11 +64,7 @@
 			try {
 				var msg = jQuery.parseJSON(e.data);
 				log("invoke " + msg.sender + "." + msg.method);
-				//this[msg.method].apply(this, Array.prototype.slice.call(msg.data, 1));
-				// http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
-				//registry[msg.sender].apply(null, msg.method, msg.data)
 				var ret = registry[msg.sender][msg.method](msg.data);
-				//method.apply(null)
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
 				log("json parse error " + err + " data " + e.data);
@@ -73,6 +73,7 @@
 	}
 
 	// --- ServiceGUI begin ----
+	// FIXME - you need both the boundServiceName && webui name !
 	function ServiceGUI(name) {
 		this.name = name;
 	}
@@ -83,15 +84,27 @@
 	ServiceGUI.prototype.dettachGUI = function() {
 	};
 
+	// send to bound service name
 	ServiceGUI.prototype.send = function(method, data) {
 		var msg = new Message(this.name, method, data);
 		var json = JSON.stringify(msg);
 		connection.ws.send(json);
 		event.preventDefault();
 	};
+	
+	ServiceGUI.prototype.sendTo = function(name, method, data) {
+		var msg = new Message(name, method, data);
+		var json = JSON.stringify(msg);
+		connection.ws.send(json);
+		event.preventDefault();
+	};
 
-	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
-	{
+	/*
+	*	method to subscribe to bound service 
+	*/
+	ServiceGUI.prototype.subscribe = function(inOutMethod) //(inMethod, outMethod, params)
+	{	
+		this.sendTo("webgui", "subscribe", [boundServiceName,inOutMethod]);
 	}
 	// --- ServiceGUI end ----
 
@@ -111,13 +124,13 @@
 
 	// overrides
 	ClockGUI.prototype.attachGUI = function() {
-		clockGUI.send("startClock", null);
+		this.subscribe("pulse");
 	};
 
 	// AHHHHH! this at the "top" does not work 
 	// but moved to the bottom it suddenly understands inheritance !!!
-	var clockGUI = new ClockGUI("clock");
-	registry["clock"] = clockGUI;
+	var clockGUI = new ClockGUI(boundServiceName);
+	registry[boundServiceName] = clockGUI;
 
 	//-------ClockGUI end---------
 
@@ -201,7 +214,8 @@
 		$("#topMessage").html("not connected");
 
 		connection = new Connection(wsURI);
-		//		clockGUI.attachGUI();
+		//clockGUI.attachGUI(); not really connected
+		// until onopen - 
 	});
 </script>
 </head>
