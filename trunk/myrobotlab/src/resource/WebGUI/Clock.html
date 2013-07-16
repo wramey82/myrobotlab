@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- 
+	References : 
+	  http://msdn.microsoft.com/en-us/library/ie/hh673567(v=vs.85).aspx - excellent examples - sendBinaryMessage
+	  http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
+	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
+ -->
 <meta charset="utf-8" />
 <title>clock - Clock</title>
 
@@ -15,19 +21,55 @@
 <script>
 	// global registry and vars
 	var registry = [];
-	var ws; // the one and only websocket
+	// var hosts = [];
+	//var ws; // the one and only websocket
+	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
 
-	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
 	function Message(name, method, params) {
 		this.msgID = new Date().getTime();
 		this.timeStamp = this.msgID;
 		this.name = name;
-		this.sender = "webgui";
+		this.sender = "webgui"; // FIXME - named passed in
 		this.sendingMethod = "";
 		this.historyList = new Array(); // necessary?
 		this.method = method;
 		this.data = params;
+	}
+
+	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
+
+	function Connection(uri) {
+		this.ws = new WebSocket(uri);
+		
+		// FIXME - loosly coupled reporting
+		$("#connect").html("connecting <small>" + wsURI + "</small>");
+		$("#topMessage").html("connecting <small>" + wsURI + "</small>");
+
+		this.ws.onopen = function(openEvent) {
+			$("#topMessage").html("connected <small>" + wsURI + "</small>");
+		};
+
+		this.ws.onerror = function(error) {
+			error('WebSocket Error ' + error);
+		};
+
+		this.ws.onmessage = function(e) {
+			log("Server: " + e.data);
+
+			try {
+				var msg = jQuery.parseJSON(e.data);
+				log("invoke " + msg.sender + "." + msg.method);
+				//this[msg.method].apply(this, Array.prototype.slice.call(msg.data, 1));
+				// http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
+				//registry[msg.sender].apply(null, msg.method, msg.data)
+				var ret = registry[msg.sender][msg.method](msg.data);
+				//method.apply(null)
+			} catch (err) {
+				//alert("json parse error " + err + " data " + e.data);
+				log("json parse error " + err + " data " + e.data);
+			}
+		};
 	}
 
 	// --- ServiceGUI begin ----
@@ -44,7 +86,7 @@
 	ServiceGUI.prototype.send = function(method, data) {
 		var msg = new Message(this.name, method, data);
 		var json = JSON.stringify(msg);
-		ws.send(json);
+		connection.ws.send(json);
 		event.preventDefault();
 	};
 
@@ -67,6 +109,11 @@
 		$("#display").html(data);
 	};
 
+	// overrides
+	ClockGUI.prototype.attachGUI = function() {
+		clockGUI.send("startClock", null);
+	};
+
 	// AHHHHH! this at the "top" does not work 
 	// but moved to the bottom it suddenly understands inheritance !!!
 	var clockGUI = new ClockGUI("clock");
@@ -87,37 +134,10 @@
 	// -- websocket global connectivity and message processing begin --
 	// TODO - jquery best practices - anonymous functions are to be avoided
 
-	var wsURI = "ws://localhost:7778";
-
 	$(function() {
 		$("#connect").button().click(function(event) {
 			event.preventDefault();
-			ws = new WebSocket(wsURI);
-			ws.open
-			//log("connecting");
-			$("#connect").html("connected <small>" + wsURI + "</small>");
-			//$("#topMessage").html("connected " + wsURI);
-
-			ws.onerror = function(error) {
-				error('WebSocket Error ' + error);
-			};
-
-			ws.onmessage = function(e) {
-				log("Server: " + e.data);
-
-				try {
-					var msg = jQuery.parseJSON(e.data);
-					log("invoke " + msg.sender + "." + msg.method);
-					//this[msg.method].apply(this, Array.prototype.slice.call(msg.data, 1));
-					// http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
-					//registry[msg.sender].apply(null, msg.method, msg.data)
-					var ret = registry[msg.sender][msg.method](msg.data);
-					//method.apply(null)
-				} catch (err) {
-					//alert("json parse error " + err + " data " + e.data);
-					log("json parse error " + err + " data " + e.data);
-				}
-			};
+			connection = new Connection(wsURI);
 		});
 	});
 
@@ -178,32 +198,10 @@
 			$("p").show();
 		});
 
-		// ----- nav begin -----
-
-		//cache nav
-		var nav = $("#topNav");
-
-		//add indicator and hovers to submenu parents
-		nav.find("li").each(function() {
-
-			if ($(this).find("ul").length > 0) {
-				$("<span>").text("*").appendTo($(this).children(":first"));
-
-				//show subnav on hover
-				$(this).mouseenter(function() {
-					$(this).find("ul").stop(true, true).slideDown();
-				});
-
-				//hide submenus on exit
-				$(this).mouseleave(function() {
-					$(this).find("ul").stop(true, true).slideUp();
-				});
-			}
-		});
-
 		$("#topMessage").html("not connected");
-		// ----- nav end -------
 
+		connection = new Connection(wsURI);
+		//		clockGUI.attachGUI();
 	});
 </script>
 </head>
