@@ -44,7 +44,7 @@
 
 	function Connection(uri) {
 		this.ws = new WebSocket(uri);
-		
+
 		// FIXME - loosly coupled reporting
 		$("#connect").html("connecting <small>" + wsURI + "</small>");
 		$("#topMessage").html("connecting <small>" + wsURI + "</small>");
@@ -55,19 +55,19 @@
 		};
 
 		this.ws.onerror = function(errorMsg) {
-			error('WebSocket Error ' + errorMsg);
+			error("WebSocket Error " + errorMsg);
 		};
 
 		this.ws.onmessage = function(e) {
-			log("Server: " + e.data);
+			info("Server: " + e.data);
 
 			try {
 				var msg = jQuery.parseJSON(e.data);
-				log("invoke " + msg.sender + "." + msg.method);
+				info("invoke " + msg.sender + "." + msg.method);
 				var ret = registry[msg.sender][msg.method](msg.data);
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
-				log("json parse error " + err + " data " + e.data);
+				error("json parse error " + err + " data " + e.data);
 			}
 		};
 	}
@@ -91,7 +91,7 @@
 		connection.ws.send(json);
 		event.preventDefault();
 	};
-	
+
 	ServiceGUI.prototype.sendTo = function(name, method, data) {
 		var msg = new Message(name, method, data);
 		var json = JSON.stringify(msg);
@@ -100,19 +100,20 @@
 	};
 
 	/*
-	*	method to subscribe to bound service 
-	*/
-	
+	 *	method to subscribe to bound service 
+	 */
+
 	/* ISSUES WITH THIS - DON"T UNDERSTAND RULES OF JS OVERLOADING
 	ServiceGUI.prototype.subscribe = function(inOutMethod) //(inMethod, outMethod, params)
 	{	
 		this.sendTo("webgui", "subscribe", [boundServiceName,inOutMethod]);
 	}
-	*/
-	
+	 */
+
 	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
-	{	
-		this.sendTo("webgui", "subscribe", [boundServiceName, inMethod, outMethod]);
+	{
+		this.sendTo("webgui", "subscribe", [ boundServiceName, inMethod,
+				outMethod ]);
 	}
 	// --- ServiceGUI end ----
 
@@ -132,13 +133,18 @@
 
 	ClockGUI.prototype.getState = function(data) {
 		$("#display").html(data);
+		if (data[0].isClockRunning) {
+			$("#startClock").button("option", "label", "stop clock");
+		} else {
+			$("#startClock").button("option", "label", "start clock");
+		}
 	};
-	
+
 	// overrides
 	ClockGUI.prototype.attachGUI = function() {
 		this.subscribe("pulse", "pulse");
 		this.subscribe("publishState", "getState");
-		this.send("broadcastState");
+		this.send("broadcastState"); // get initial state
 	};
 
 	// AHHHHH! this at the "top" does not work 
@@ -170,14 +176,16 @@
 
 	$(function() {
 		$("#startClock").button().click(function(event) {
-			clockGUI.send("startClock", null);
-			event.preventDefault();
-		});
-	});
 
-	$(function() {
-		$("#stopClock").button().click(function(event) {
-			clockGUI.send("stopClock", null);
+			//$(this).text($(this).text() == "start clock" ? "stop clock" : "start clock");
+			//$("#button_id").button("option", "label", "New button text here")
+			if ($(this).text() == "start clock") {
+				$(this).button("option", "label", "stop clock");
+				clockGUI.send("startClock", null); // FIXME null shouldn't be required
+			} else {
+				$(this).button("option", "label", "start clock");
+				clockGUI.send("stopClock", null);
+			}
 			event.preventDefault();
 		});
 	});
@@ -191,19 +199,19 @@
 
 	// --- logging begin ----
 	function debug(text) {
-		log(text,"DEBUG");
+		log(text, "DEBUG");
 	}
 
 	function info(text) {
-		log(text,"INFO");
+		log(text, "INFO");
 	}
 
 	function warn(text) {
-		log(text,"WARN");
+		log(text, "WARN");
 	}
 
 	function error(text) {
-		log(text,"ERROR");
+		log(text, "ERROR");
 	}
 
 	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
@@ -247,7 +255,6 @@
 		<div>
 			<div id="display"></div>
 			<button id="startClock">start clock</button>
-			<button id="stopClock">stop clock</button>
 			<button id="setInterval">set interval</button>
 			interval <input id="interval" type="text" value="1000"></input>ms
 		</div>
