@@ -27,16 +27,13 @@ package org.myrobotlab.control;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.MRLListener;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public abstract class ServiceGUI {
 
