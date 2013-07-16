@@ -51,9 +51,8 @@ public class WSServer extends WebSocketServer {
 		//this.sendToAll( message );
 		//System.out.println( conn.getLocalSocketAddress() + ": " + message );
 		System.out.println("[" + message + "]" );
-		//Gson gson = new Gson();	
-		Gson gson = new GsonBuilder()
-		   .setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
+		Gson gson = new Gson();	
+		//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
 		Message msg = gson.fromJson(message, Message.class);
 		log.info("{}",msg);
 		outbox.add(msg);
