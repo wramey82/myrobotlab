@@ -54,8 +54,8 @@
 			$("#topMessage").html("connected <small>" + wsURI + "</small>");
 		};
 
-		this.ws.onerror = function(error) {
-			error('WebSocket Error ' + error);
+		this.ws.onerror = function(errorMsg) {
+			error('WebSocket Error ' + errorMsg);
 		};
 
 		this.ws.onmessage = function(e) {
@@ -102,9 +102,17 @@
 	/*
 	*	method to subscribe to bound service 
 	*/
+	
+	/* ISSUES WITH THIS - DON"T UNDERSTAND RULES OF JS OVERLOADING
 	ServiceGUI.prototype.subscribe = function(inOutMethod) //(inMethod, outMethod, params)
 	{	
 		this.sendTo("webgui", "subscribe", [boundServiceName,inOutMethod]);
+	}
+	*/
+	
+	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
+	{	
+		this.sendTo("webgui", "subscribe", [boundServiceName, inMethod, outMethod]);
 	}
 	// --- ServiceGUI end ----
 
@@ -122,9 +130,15 @@
 		$("#display").html(data);
 	};
 
+	ClockGUI.prototype.getState = function(data) {
+		$("#display").html(data);
+	};
+	
 	// overrides
 	ClockGUI.prototype.attachGUI = function() {
-		this.subscribe("pulse");
+		this.subscribe("pulse", "pulse");
+		this.subscribe("publishState", "getState");
+		this.send("broadcastState");
 	};
 
 	// AHHHHH! this at the "top" does not work 
@@ -176,25 +190,26 @@
 	});
 
 	// --- logging begin ----
-	function error(text) {
-		log("ERROR", text);
-	}
-
 	function debug(text) {
-		log("DEBUG", text);
+		log(text,"DEBUG");
 	}
 
 	function info(text) {
-		log("INFO", text);
+		log(text,"INFO");
 	}
 
 	function warn(text) {
-		log("WARN", text);
+		log(text,"WARN");
 	}
 
-	function log(text) {
+	function error(text) {
+		log(text,"ERROR");
+	}
+
+	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
+	function log(text, level) {
 		//$("#log").val((text !== null ? text : "null") + "\n" + $("#log").val());
-		$("#status").html(text + "<br />" + $("#status").html());
+		$("#status").html(level + " " + text + "<br />" + $("#status").html());
 		/*
 		$("#log").val(
 				(new Date).getTime() + ": " + (text !== null ? text : "null")
