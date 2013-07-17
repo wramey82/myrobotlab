@@ -75,43 +75,44 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
-	
+
 	CvMemStorage storage = null;
 	public CvHaarClassifierCascade cascade = null; // TODO - was static
 	public String cascadeDir = "haarcascades";
 	public String cascadeFile = "haarcascade_frontalface_alt2.xml";
-	//public String cascadePath = "haarcascades/haarcascade_mcs_lefteye.xml";
-	//public String cascadePath = "haarcascades/haarcascade_mcs_eyepair_big.xml";
-	
+	// public String cascadePath = "haarcascades/haarcascade_mcs_lefteye.xml";
+	// public String cascadePath =
+	// "haarcascades/haarcascade_mcs_eyepair_big.xml";
+
 	int i;
 
-	public OpenCVFilterFaceDetect()  {
+	public OpenCVFilterFaceDetect() {
 		super();
 	}
-	
-	public OpenCVFilterFaceDetect(String name)  {
+
+	public OpenCVFilterFaceDetect(String name) {
 		super(name);
 	}
-	
 
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 
-		ArrayList<Rectangle> bb = data.getBoundingBoxArray();
-		if (bb != null)
-		{
-			BufferedImage bi = image.getBufferedImage();
-			Graphics2D g2d = bi.createGraphics();
-			g2d.setColor(Color.RED);
-			for (int i = 0; i < bb.size(); ++i)
-			{
-				Rectangle rect = bb.get(i);
-				g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+		if (data != null) {
+			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
+			if (bb != null) {
+				BufferedImage bi = image.getBufferedImage();
+				Graphics2D g2d = bi.createGraphics();
+				g2d.setColor(Color.RED);
+				for (int i = 0; i < bb.size(); ++i) {
+					Rectangle rect = bb.get(i);
+					g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+				}
+				
+				return bi;
 			}
-			return bi;
-		} else {
-			return image.getBufferedImage();
 		}
+		
+		return image.getBufferedImage();
 	}
 
 	@Override
@@ -123,7 +124,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		// Find whether the cascade is loaded, to find the faces. If yes, then:
 		if (cascade != null) {
 
-			//CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
+			// CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1,
+			// 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
 			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT);
 
 			if (faces != null) {
@@ -136,7 +138,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 					Rectangle rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
 					bb.add(rect);
 				}
-				
+
 				data.put(bb);
 			}
 		} else {
@@ -158,7 +160,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			Loader.load(opencv_objdetect.class);
 
 			cascade = new CvHaarClassifierCascade(cvLoad(String.format("%s/%s", cascadeDir, cascadeFile)));
-			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
+			// cascade = new
+			// CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 
 			if (cascade == null) {
 				log.error("Could not load classifier cascade");
