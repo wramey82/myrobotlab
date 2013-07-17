@@ -77,8 +77,9 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFaceDetect.class.getCanonicalName());
 	
 	CvMemStorage storage = null;
-	CvHaarClassifierCascade cascade = null; // TODO - was static
-	public String cascadePath = "haarcascades/haarcascade_frontalface_alt.xml";
+	public CvHaarClassifierCascade cascade = null; // TODO - was static
+	public String cascadeDir = "haarcascades";
+	public String cascadeFile = "haarcascade_frontalface_alt2.xml";
 	//public String cascadePath = "haarcascades/haarcascade_mcs_lefteye.xml";
 	//public String cascadePath = "haarcascades/haarcascade_mcs_eyepair_big.xml";
 	
@@ -138,6 +139,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				
 				data.put(bb);
 			}
+		} else {
+			cascade = new CvHaarClassifierCascade(cvLoad(String.format("%s/%s", cascadeDir, cascadeFile)));
 		}
 
 		return image;
@@ -154,7 +157,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			// Preload the opencv_objdetect module to work around a known bug.
 			Loader.load(opencv_objdetect.class);
 
-			cascade = new CvHaarClassifierCascade(cvLoad(cascadePath));
+			cascade = new CvHaarClassifierCascade(cvLoad(String.format("%s/%s", cascadeDir, cascadeFile)));
 			//cascade = new CvHaarClassifierCascade(cvLoad("haarcascades/haarcascade_eye.xml"));
 
 			if (cascade == null) {
