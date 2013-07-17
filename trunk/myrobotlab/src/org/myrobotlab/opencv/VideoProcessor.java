@@ -254,7 +254,7 @@ public class VideoProcessor implements Runnable, Serializable {
 
 						// if selected || use has chosen to publish multiple
 						if (isRecordingOutput || recordSingleFrame) {
-							recordImage(filter, image);
+							recordImage(filter, image, data);
 						}
 
 						// "display" is typically for human consumption
@@ -305,10 +305,10 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	public void recordImage(OpenCVFilter filter, IplImage image) {
+	public void recordImage(OpenCVFilter filter, IplImage image, OpenCVData data) {
 		// filter - and "recording" based on what person "see in the display"
 		if (filter.name.equals(displayFilter) || filter.publishDisplay) {
-			BufferedImage display = filter.display(image, null); // FIXME -
+			BufferedImage display = filter.display(image, data); // FIXME -
 																	// change to
 			// SerilizabelImage
 			opencv.invoke("publishDisplay", displayFilter, display);
