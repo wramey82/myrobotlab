@@ -3,7 +3,6 @@ package org.myrobotlab.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.text.DateFormat;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -148,7 +147,7 @@ public class WebGUI extends Service {
 	// FIXME - take out of RESTProcessor - normalize
 	public String toJson(Message msg) {
 		try {
-			ByteArrayOutputStream out = null;
+			//ByteArrayOutputStream out = null;
 			//Gson gson = new Gson(); // FIXME - threadsafe? singleton?
 			//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
 			
@@ -164,21 +163,27 @@ public class WebGUI extends Service {
 			 * 
 			 */
 			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
-			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().create();
 			//   .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
 			// gson.setDateFormat(DateFormat.FULL);
+			/* REMOVED RECENTLY
 			out = new ByteArrayOutputStream(); // FIXME - threadsafe? singleton?
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8")); // FIXME - threadsafe? singleton?
+			gson.toJson(msg, Message.class, writer);
+			*/
 			//writer.setIndent("  "); // TODO config driven - very cool !
 
 			//writer.beginArray();
-			gson.toJson(msg, Message.class, writer);
+			
+			String ret = gson.toJson(msg, Message.class);
+			log.info(ret);
 			// for (Message message : messages) {
 			// gson.toJson(message, Message.class, writer);
 			// }
 			//writer.endArray();
-			writer.close();
-			return new String(out.toByteArray());
+			
+			// writer.close();
+			return ret;
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
