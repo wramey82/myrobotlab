@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- 
+	References : 
+	  http://msdn.microsoft.com/en-us/library/ie/hh673567(v=vs.85).aspx - excellent examples - sendBinaryMessage
+	  http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
+	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
+	  http://stackoverflow.com/questions/2141520/javascript-variable-number-of-arguments-to-function
+	  http://stackoverflow.com/questions/5723289/jquery-ui-accordion-in-accordion (nested accordion)
+	  
+	  TODO :
+	  finish setInterval from get State
+	  broadcast state after each change
+	  
+	  begin working on initial script - which will load registry and build <div class="accordian"> and build all sub pages
+	  
+ -->
+<meta charset="utf-8" />
+<title>myrobotlab - One Software To Rule Them All !</title>
+<link rel="stylesheet" href="common/themes/vader/jquery-ui.css" />
+<link rel="stylesheet" href="common/style.css">
+<script src="common/js/jquery-1.10.2.min.js"></script>
+<script src="common/js/jquery-ui.min.1.10.3.js"></script>
+<script src="common/js/jquery.websocket-0.0.1.js"></script>
+<script
+	src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script>
+	// global registry and vars
+	var registry = [];
+	// var hosts = [];
+	var connection; // the one and only connection (at the moment - 1 per environment/host)
+	var debug = true;
+
+	function Message(name, method, params) {
+		this.msgID = new Date().getTime();
+		this.timeStamp = this.msgID;
+		this.name = name;
+		this.sender = "webgui"; // FIXME - named passed in
+		this.sendingMethod = "";
+		this.historyList = new Array(); // necessary?
+		this.method = method;
+		this.data = params;
+	}
+
+	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
+	var boundServiceName = "clock";
+
+	function Connection(uri) {
+		this.ws = new WebSocket(uri);
+
+		// FIXME - loosly coupled reporting
+		$("#topMessage").text("hello");
+
+		this.ws.onopen = function(openEvent) {
+			clockGUI.attachGUI();
+			//$("#topMessage").html("connected <small>" + wsURI + "</small>");
+			$("#topMessage").text("hello");
+		};
+
+		this.ws.onerror = function(errorMsg) {
+			error("WebSocket Error " + errorMsg);
+		};
+
+		this.ws.onmessage = function(e) {
+			info("Server: " + e.data);
+
+			try {
+				var msg = jQuery.parseJSON(e.data);
+				info("invoke " + msg.sender + "." + msg.method);
+				if (msg.method == "getRegistry") {
+					getRegistry(msg.data)
+				} else {
+					registry[msg.sender][msg.method](msg.data);
+				}
+			} catch (err) {
+				//alert("json parse error " + err + " data " + e.data);
+				error("json parse error " + err + " data " + e.data);
+			}
+		};
+	}
+
+	// global getRegistry -
+	// CAREFUL any vars in here are global too !
+	function getRegistry(data) {
+		var inRegistry = data[0];
+		for(var serviceName in inRegistry){
+			
+			var mapEntry = inRegistry[serviceName];
+			var className = mapEntry.service.serviceClass
+
+			// dynmically add to accordian
+			$( "<h3><img src='/resource/" + className.substring(className.lastIndexOf(".")+1) + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion" );
+			$( "<div>" + serviceName + "</div>" ).appendTo( "#accordion" );
+		}
+		$( "#accordion" ).accordion( "refresh" );
+		
+	}
+	// --- ServiceGUI begin ----
+	// FIXME - you need both the boundServiceName && webui name !
+	function ServiceGUI(name) {
+		this.name = name;
+	}
+
+	ServiceGUI.prototype.attachGUI = function() {
+	};
+
+	ServiceGUI.prototype.dettachGUI = function() {
+	};
+
+	// send to bound service name
+	ServiceGUI.prototype.send = function(method, data) {
+		var msg = new Message(this.name, method, data);
+		var json = JSON.stringify(msg);
+		connection.ws.send(json);
+	};
+
+	ServiceGUI.prototype.sendTo = function(name, method, data) {
+		var msg = new Message(name, method, data);
+		var json = JSON.stringify(msg);
+		connection.ws.send(json);
+	};
+
+	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
+	{
+		this.sendTo("webgui", "subscribe", [ boundServiceName, inMethod,
+				outMethod ]);
+	}
+
+	ServiceGUI.prototype.subscribeTo = function(publisherName, outMethod,
+			inMethod) //(inMethod, outMethod, params)
+	{
+		// FIXME - need a "subscribe to a runtimes' getRegistry"
+		this.sendTo("webgui", "subscribe",
+				[ publisherName, inMethod, outMethod ]);
+	}
+
+	// --- ServiceGUI end ----
+
+	//-------ClockGUI begin---------
+	//subclass extends superclass
+	function ClockGUI(name) {
+		ServiceGUI.call(this, name); //call super constructor.
+	}
+
+	ClockGUI.prototype = Object.create(ServiceGUI.prototype);
+	ClockGUI.prototype.constructor = ClockGUI;
+
+	// callbacks
+	ClockGUI.prototype.pulse = function(data) {
+		$("#display").html(data);
+	};
+
+	ClockGUI.prototype.getState = function(data) {
+		$("#display").html(data);
+		if (data[0].isClockRunning) {
+			$("#startClock").button("option", "label", "stop clock");
+		} else {
+			$("#startClock").button("option", "label", "start clock");
+		}
+
+		$("#interval").val(data[0].interval);
+	};
+
+	// overrides
+	ClockGUI.prototype.attachGUI = function() {
+		this.subscribe("pulse", "pulse");
+		this.subscribe("publishState", "getState");
+		// broadcast the initial state
+		this.send("broadcastState");
+	};
+
+	// AHHHHH! this at the "top" does not work 
+	// but moved to the bottom it suddenly understands inheritance !!!
+	var clockGUI = new ClockGUI(boundServiceName);
+	registry[boundServiceName] = clockGUI;
+
+	//-------ClockGUI end---------
+
+	// -- webgui framework display begin ---
+	$(function() {
+		$("#accordion").accordion({
+			//collapsible: true,
+			autoHeight : false,
+			active : false
+		});
+
+		$("#accordion2").accordion({
+			header : "h3",
+			active : false,
+			collapsible : true,
+			heightStyle : "content"
+		});
+	});
+	// -- webgui framework display begin ---
+
+	// -- websocket global connectivity and message processing begin --
+	// TODO - jquery best practices - anonymous functions are to be avoided
+
+	$(function() {
+		$("#subscribeToRegistry").button().click(function(event) {
+			clockGUI.subscribeTo("runtime", "getRegistry", "getRegistry");
+		});
+	});
+
+	$(function() {
+		$("#getRegistry").button().click(function(event) {
+			clockGUI.sendTo("runtime", "getRegistry");
+		});
+	});
+
+	$(function() {
+		$("#startClock").button().click(function(event) {
+			if ($(this).text() == "start clock") {
+				$(this).button("option", "label", "stop clock");
+				clockGUI.send("startClock", null); // FIXME null shouldn't be required
+			} else {
+				$(this).button("option", "label", "start clock");
+				clockGUI.send("stopClock", null);
+			}
+
+			clockGUI.send("broadcastState");
+		});
+	});
+
+	$(function() {
+		$("#setInterval").button().click(function(event) {
+			clockGUI.send("setInterval", [ parseInt($("#interval").val()) ]);
+			clockGUI.send("broadcastState");
+		});
+	});
+
+	// --- logging begin ----
+	function debug(text) {
+		log(text, "debug");
+	}
+
+	function info(text) {
+		log(text, "info");
+	}
+
+	function warn(text) {
+		log(text, "warn");
+	}
+
+	function error(text) {
+		log(text, "error");
+	}
+
+	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
+	function log(text, level) {
+		//$("#log").val((text !== null ? text : "null") + "\n" + $("#log").val());
+		$("#log").html(
+				"<span class='"+level+"'>" + level + " " + text
+						+ "</span><br />" + $("#log").html());
+		/*
+		$("#log").val(
+				(new Date).getTime() + ": " + (text !== null ? text : "null")
+						+ "\n" + $("#log").val());
+		 */
+	}
+	// --- logging end ----
+
+	$(document).ready(function() {
+		$("#hide").click(function() {
+			$("p").hide();
+		});
+		$("#show").click(function() {
+			$("p").show();
+		});
+
+		$("#topMessage").html("not connected");
+
+		// start the connection process
+		connection = new Connection(wsURI);
+
+		$("select").change(function() {
+			var str = "";
+			$("select option:selected").each(function() {
+				str += $(this).text() + " ";
+			});
+			$("#log").text(str);
+		}).trigger('change');
+	});
+</script>
+
+</head>
+<body>
+
+
+	<div id="accordion">
+		<h3>
+			<img src="../Clock.png" />clock
+		</h3>
+		<div>
+			<div id="display"></div>
+			<button id="subscribeToRegistry">subscribeToRegistry</button>
+			<button id="getRegistry">getRegistry</button>
+			<button id="startClock">start clock</button>
+			<button id="setInterval">set interval</button>
+			interval <input id="interval" type="text" value="1000"></input>ms
+		</div>
+		<h3>
+			<img src="../Runtime.png" />incubator
+		</h3>
+		<div>
+			<p>
+				<select name="garden">
+					<option>Flowers</option>
+					<option>Shrubs</option>
+					<option>Trees</option>
+					<option>Bushes</option>
+					<option>Grass</option>
+					<option>Dirt</option>
+				</select>
+			</p>
+		</div>
+	</div>
+
+	<div id="accordion2">
+		<h3>messages</h3>
+		<div id="registry"></div>
+		<h3>logs</h3>
+		<textarea id="log" rows="30" cols="120"></textarea>
+		<!--   <div id="log"></div> -->
+	</div>
+
+</body>
+</html>
