@@ -1,124 +1,21 @@
+<!-- only load once in myrobotlab.html
 <!doctype html>
 <html lang="en">
 <head>
-<!-- 
-	References : 
-	  http://msdn.microsoft.com/en-us/library/ie/hh673567(v=vs.85).aspx - excellent examples - sendBinaryMessage
-	  http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
-	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
-	  http://stackoverflow.com/questions/2141520/javascript-variable-number-of-arguments-to-function
-	  
- -->
 <meta charset="utf-8" />
 <title>clock - Clock</title>
-
 <link rel="stylesheet" href="common/themes/vader/jquery-ui.css" />
 <link rel="stylesheet" href="common/style.css">
 <script src="common/js/jquery-1.10.2.min.js"></script>
 <script src="common/js/jquery-ui.min.1.10.3.js"></script>
 <script src="common/js/jquery.websocket-0.0.1.js"></script>
-
-<script
-	src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+-->
 <script>
-	// global registry and vars
-	var registry = [];
-	// var hosts = [];
-	//var ws; // the one and only websocket
-	var connection; // the one and only connection (at the moment - 1 per environment/host)
-	var debug = true;
-
-	function Message(name, method, params) {
-		this.msgID = new Date().getTime();
-		this.timeStamp = this.msgID;
-		this.name = name;
-		this.sender = "webgui"; // FIXME - named passed in
-		this.sendingMethod = "";
-		this.historyList = new Array(); // necessary?
-		this.method = method;
-		this.data = params;
-	}
-
-	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
 	var boundServiceName = "clock";
 
-	function Connection(uri) {
-		this.ws = new WebSocket(uri);
-
-		// FIXME - loosly coupled reporting
-		$("#connect").html("connecting <small>" + wsURI + "</small>");
-		$("#topMessage").html("connecting <small>" + wsURI + "</small>");
-
-		this.ws.onopen = function(openEvent) {
-			clockGUI.attachGUI();
-			$("#topMessage").html("connected <small>" + wsURI + "</small>");
-		};
-
-		this.ws.onerror = function(errorMsg) {
-			error("WebSocket Error " + errorMsg);
-		};
-
-		this.ws.onmessage = function(e) {
-			info("Server: " + e.data);
-
-			try {
-				var msg = jQuery.parseJSON(e.data);
-				info("invoke " + msg.sender + "." + msg.method);
-				var ret = registry[msg.sender][msg.method](msg.data);
-			} catch (err) {
-				//alert("json parse error " + err + " data " + e.data);
-				error("json parse error " + err + " data " + e.data);
-			}
-		};
-	}
-
-	// --- ServiceGUI begin ----
-	// FIXME - you need both the boundServiceName && webui name !
-	function ServiceGUI(name) {
-		this.name = name;
-	}
-
-	ServiceGUI.prototype.attachGUI = function() {
-	};
-
-	ServiceGUI.prototype.dettachGUI = function() {
-	};
-
-	// send to bound service name
-	ServiceGUI.prototype.send = function(method, data) {
-		var msg = new Message(this.name, method, data);
-		var json = JSON.stringify(msg);
-		connection.ws.send(json);
-		event.preventDefault();
-	};
-
-	ServiceGUI.prototype.sendTo = function(name, method, data) {
-		var msg = new Message(name, method, data);
-		var json = JSON.stringify(msg);
-		connection.ws.send(json);
-		event.preventDefault();
-	};
-
-	/*
-	 *	method to subscribe to bound service 
-	 */
-
-	/* ISSUES WITH THIS - DON"T UNDERSTAND RULES OF JS OVERLOADING
-	ServiceGUI.prototype.subscribe = function(inOutMethod) //(inMethod, outMethod, params)
-	{	
-		this.sendTo("webgui", "subscribe", [boundServiceName,inOutMethod]);
-	}
-	 */
-
-	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
-	{
-		this.sendTo("webgui", "subscribe", [ boundServiceName, inMethod,
-				outMethod ]);
-	}
-	// --- ServiceGUI end ----
-
 	//-------ClockGUI begin---------
-	//subclass extends superclass
+	//subclass extends superclass -- if you don't want ClockGUI's constructor - remove it
 	function ClockGUI(name) {
 		ServiceGUI.call(this, name); //call super constructor.
 	}
@@ -138,136 +35,59 @@
 		} else {
 			$("#startClock").button("option", "label", "start clock");
 		}
+
+		$("#interval").val(data[0].interval);
 	};
 
 	// overrides
 	ClockGUI.prototype.attachGUI = function() {
 		this.subscribe("pulse", "pulse");
 		this.subscribe("publishState", "getState");
-		this.send("broadcastState"); // get initial state
+		// broadcast the initial state
+		this.send("broadcastState");
 	};
 
 	// AHHHHH! this at the "top" does not work 
 	// but moved to the bottom it suddenly understands inheritance !!!
+	/*
 	var clockGUI = new ClockGUI(boundServiceName);
 	registry[boundServiceName] = clockGUI;
+	 */
 
 	//-------ClockGUI end---------
-
-	// -- webgui framework display begin ---
-	$(function() {
-		$("#accordion").accordion({
-			//collapsible: true,
-			autoHeight : false,
-			active : false
-		});
-	});
-	// -- webgui framework display begin ---
-
-	// -- websocket global connectivity and message processing begin --
 	// TODO - jquery best practices - anonymous functions are to be avoided
+	ClockGUI.prototype.init = function() {
+		$(function() {
+			$("#startClock").button().click(function(event) {
+				if ($(this).text() == "start clock") {
+					$(this).button("option", "label", "stop clock");
+					this.send("startClock", null); // FIXME null shouldn't be required
+				} else {
+					$(this).button("option", "label", "start clock");
+					this.send("stopClock", null);
+				}
 
-	$(function() {
-		$("#connect").button().click(function(event) {
-			event.preventDefault();
-			connection = new Connection(wsURI);
-		});
-	});
-
-	$(function() {
-		$("#startClock").button().click(function(event) {
-
-			//$(this).text($(this).text() == "start clock" ? "stop clock" : "start clock");
-			//$("#button_id").button("option", "label", "New button text here")
-			if ($(this).text() == "start clock") {
-				$(this).button("option", "label", "stop clock");
-				clockGUI.send("startClock", null); // FIXME null shouldn't be required
-			} else {
-				$(this).button("option", "label", "start clock");
-				clockGUI.send("stopClock", null);
-			}
-			event.preventDefault();
-		});
-	});
-
-	$(function() {
-		$("#setInterval").button().click(function(event) {
-			clockGUI.send("setInterval", [ parseInt($("#interval").val()) ]);
-			event.preventDefault();
-		});
-	});
-
-	// --- logging begin ----
-	function debug(text) {
-		log(text, "DEBUG");
-	}
-
-	function info(text) {
-		log(text, "INFO");
-	}
-
-	function warn(text) {
-		log(text, "WARN");
-	}
-
-	function error(text) {
-		log(text, "ERROR");
-	}
-
-	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
-	function log(text, level) {
-		//$("#log").val((text !== null ? text : "null") + "\n" + $("#log").val());
-		$("#status").html(level + " " + text + "<br />" + $("#status").html());
-		/*
-		$("#log").val(
-				(new Date).getTime() + ": " + (text !== null ? text : "null")
-						+ "\n" + $("#log").val());
-		 */
-	}
-	// --- logging end ----
-
-	$(document).ready(function() {
-		$("#hide").click(function() {
-			$("p").hide();
-		});
-		$("#show").click(function() {
-			$("p").show();
+				this.send("broadcastState");
+			});
 		});
 
-		$("#topMessage").html("not connected");
+		$(function() {
+			$("#setInterval").button().click(
+					function(event) {
+						this.send("setInterval", [ parseInt($("#interval")
+								.val()) ]);
+						this.send("broadcastState");
+					});
+		});
 
-		connection = new Connection(wsURI);
-		//clockGUI.attachGUI(); not really connected
-		// until onopen - 
-	});
+	};
 </script>
-</head>
-<body>
 
-	<!-- menu - begin -->
-	<div id="topMessage"></div>
-	<button id="connect">connect</button>
-	<!-- menu end -->
-	<div id="accordion">
-		<h3>
-			<img src="../Clock.png" />clock
-		</h3>
-		<div>
-			<div id="display"></div>
-			<button id="startClock">start clock</button>
-			<button id="setInterval">set interval</button>
-			interval <input id="interval" type="text" value="1000"></input>ms
-		</div>
-		<h3>
-			<img src="../Runtime.png" />incubator
-		</h3>
-		<div>
-			<p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum
-				sit amet purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris
-				turpis porttitor velit, faucibus interdum tellus libero ac justo.
-				Vivamus non quam. In suscipit faucibus urna.</p>
-		</div>
-	</div>
-	<div id="status"></div>
-</body>
-</html>
+<!-- Clock panel begin -->
+<div>
+	<div id="display"></div>
+	<button id="startClock">start clock</button>
+	<button id="setInterval">set interval</button>
+	interval <input id="interval" type="text" value="1000"></input>ms
+</div>
+<!-- Clock panel begin -->
