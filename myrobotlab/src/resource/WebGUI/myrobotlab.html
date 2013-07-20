@@ -27,7 +27,7 @@
 	// global registry and vars
 	var registry = [];
 	var guiMapByIndex = [];
-	var guiMapByName = [];
+	var guiMapByName = new Array();
 	var loadedClasses = [];
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
@@ -112,14 +112,15 @@
 		$.get("/resource/WebGUI/"+className+".html",
 				function(data, result, scopedName) {
 					// load the accordian reference 
-					$( "<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
-					$( "<div id='" + serviceName + "-gui'>" + serviceName + "</div>" ).appendTo( "#accordion1" );
+					$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
+					$("<div id='" + serviceName + "-gui'>" + serviceName + "</div>" ).appendTo( "#accordion1" );
 					$("#accordion1").accordion("refresh");
 					
 					// load the new service class
 					$("#" + serviceName + "-gui").html(data); // FIXME - all service gui elements must have unique IDs !
 					newClass = " new " + className + "GUI('"+name+"');";
 					guiMapByName[name] = eval(newClass);
+					alert(guiMapByName[name]);
 					guiMapByName[name].init();
 					guiMapByName[name].attachGUI();
 // FIXME	recurse				loadServiceGUIClass(, index + 1);
@@ -173,28 +174,9 @@
 
 	// --- ServiceGUI end ----
 
-	//-------ClockGUI begin---------
-	//subclass extends superclass
-	function ClockGUI(name) {
-		ServiceGUI.call(this, name); //call super constructor.
-	}
-
-	ClockGUI.prototype = Object.create(ServiceGUI.prototype);
-	ClockGUI.prototype.constructor = ClockGUI;
-
+	
 	// hmmm One ServiceGUI to Rule them All ?!?!?
 	var mrl = new ServiceGUI("runtime");
-
-	// callbacks
-
-	// overrides
-
-	// AHHHHH! this at the "top" does not work 
-	// but moved to the bottom it suddenly understands inheritance !!!
-	// TODO - dynamically load registry and serviceGUI derived classes
-	//	registry[boundServiceName] = clockGUI; <<<< FIXME FIXME - REGISTRY NEEDS TO BE DYNAMICALLY LOADED
-
-	//-------ClockGUI end---------
 
 	// -- webgui framework display begin ---
 	$(function() {
