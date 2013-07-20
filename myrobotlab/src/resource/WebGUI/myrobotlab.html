@@ -8,13 +8,12 @@
 	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
 	  http://stackoverflow.com/questions/2141520/javascript-variable-number-of-arguments-to-function
 	  http://stackoverflow.com/questions/5723289/jquery-ui-accordion-in-accordion (nested accordion)
+	  http://stackoverflow.com/questions/1098040/checking-if-an-associative-array-key-exists-in-javascript
+	  http://stackoverflow.com/questions/912711/jquery-to-load-javascript-file-dynamically
+	  http://stackoverflow.com/questions/8277462/jquery-append-external-html-file-into-my-page
+	  http://stackoverflow.com/questions/500431/javascript-variable-scope (scope !)
 	  
 	  TODO :
-	  finish setInterval from get State
-	  broadcast state after each change
-	  
-	  begin working on initial script - which will load registry and build <div class="accordian"> and build all sub pages
-	  
  -->
 <meta charset="utf-8" />
 <title>myrobotlab - One Software To Rule Them All !</title>
@@ -23,14 +22,16 @@
 <script src="common/js/jquery-1.10.2.min.js"></script>
 <script src="common/js/jquery-ui.min.1.10.3.js"></script>
 <script src="common/js/jquery.websocket-0.0.1.js"></script>
-<script
-	src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script src="common/js/jquery.json-2.2.min.js"></script>
 <script>
 	// global registry and vars
 	var registry = [];
-	// var hosts = [];
+	var guiMapByIndex = [];
+	var guiMapByName = [];
+	var loadedClasses = [];
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
+	var clockGUI;
 
 	function Message(name, method, params) {
 		this.msgID = new Date().getTime();
@@ -45,17 +46,17 @@
 
 	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
 	var boundServiceName = "clock";
+	
+	function getSimpleClassName(inName)
+	{
+		return inName.substring(inName.lastIndexOf(".")+1);
+	}
 
 	function Connection(uri) {
 		this.ws = new WebSocket(uri);
 
-		// FIXME - loosly coupled reporting
-		$("#topMessage").text("hello");
-
 		this.ws.onopen = function(openEvent) {
-			clockGUI.attachGUI();
-			//$("#topMessage").html("connected <small>" + wsURI + "</small>");
-			$("#topMessage").text("hello");
+			$("#topMessage").text("connected to ...");
 		};
 
 		this.ws.onerror = function(errorMsg) {
@@ -75,7 +76,8 @@
 				}
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
-				error("json parse error " + err + " data " + e.data);
+				//error("json parse error " + err + " data " + e.data);
+				error(err); // make not all exceptions will be trapped
 			}
 		};
 	}
@@ -83,19 +85,53 @@
 	// global getRegistry -
 	// CAREFUL any vars in here are global too !
 	function getRegistry(data) {
+		
 		var inRegistry = data[0];
-		for(var serviceName in inRegistry){
-			
-			var mapEntry = inRegistry[serviceName];
-			var className = mapEntry.service.serviceClass
+		loadServiceGUIClass(inRegistry, Object.keys(inRegistry), 0);
+	}
 
-			// dynmically add to accordian
-			$( "<h3><img src='/resource/" + className.substring(className.lastIndexOf(".")+1) + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion" );
-			$( "<div>" + serviceName + "</div>" ).appendTo( "#accordion" );
+	function loadServiceGUIClass(inRegistry, nameArray, index) {
+
+		// check  to see if we are done
+		if (index == Object.keys(inRegistry).length){
+			return;
 		}
-		$( "#accordion" ).accordion( "refresh" );
+		
+		var serviceName = nameArray[index];
+		var serviceWrapper = inRegistry[serviceName];
+		var className = getSimpleClassName(serviceWrapper.service.serviceClass);
+
+		
+		// if this is a new class - we will load it
+		if (!(className in loadedClasses)){
+			
+		
+		// get runs on a different thread - or at least the callback does
+		// so this can't be in a for loop indexed by name - it has to be
+		// in a recursive driven method
+		$.get("/resource/WebGUI/"+className+".html",
+				function(data, result, scopedName) {
+					// load the accordian reference 
+					$( "<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
+					$( "<div id='" + serviceName + "-gui'>" + serviceName + "</div>" ).appendTo( "#accordion1" );
+					$("#accordion1").accordion("refresh");
+					
+					// load the new service class
+					$("#" + serviceName + "-gui").html(data); // FIXME - all service gui elements must have unique IDs !
+					newClass = " new " + className + "GUI('"+name+"');";
+					guiMapByName[name] = eval(newClass);
+					guiMapByName[name].init();
+					guiMapByName[name].attachGUI();
+// FIXME	recurse				loadServiceGUIClass(, index + 1);
+				});
+
+		} else if (!(name in guiMapByName)) {
+			// class is loaded - but need a new instance
+		}
 		
 	}
+
+
 	// --- ServiceGUI begin ----
 	// FIXME - you need both the boundServiceName && webui name !
 	function ServiceGUI(name) {
@@ -146,40 +182,23 @@
 	ClockGUI.prototype = Object.create(ServiceGUI.prototype);
 	ClockGUI.prototype.constructor = ClockGUI;
 
+	// hmmm One ServiceGUI to Rule them All ?!?!?
+	var mrl = new ServiceGUI("runtime");
+
 	// callbacks
-	ClockGUI.prototype.pulse = function(data) {
-		$("#display").html(data);
-	};
-
-	ClockGUI.prototype.getState = function(data) {
-		$("#display").html(data);
-		if (data[0].isClockRunning) {
-			$("#startClock").button("option", "label", "stop clock");
-		} else {
-			$("#startClock").button("option", "label", "start clock");
-		}
-
-		$("#interval").val(data[0].interval);
-	};
 
 	// overrides
-	ClockGUI.prototype.attachGUI = function() {
-		this.subscribe("pulse", "pulse");
-		this.subscribe("publishState", "getState");
-		// broadcast the initial state
-		this.send("broadcastState");
-	};
 
 	// AHHHHH! this at the "top" does not work 
 	// but moved to the bottom it suddenly understands inheritance !!!
-	var clockGUI = new ClockGUI(boundServiceName);
-	registry[boundServiceName] = clockGUI;
+	// TODO - dynamically load registry and serviceGUI derived classes
+	//	registry[boundServiceName] = clockGUI; <<<< FIXME FIXME - REGISTRY NEEDS TO BE DYNAMICALLY LOADED
 
 	//-------ClockGUI end---------
 
 	// -- webgui framework display begin ---
 	$(function() {
-		$("#accordion").accordion({
+		$("#accordion1").accordion({
 			//collapsible: true,
 			autoHeight : false,
 			active : false
@@ -199,34 +218,29 @@
 
 	$(function() {
 		$("#subscribeToRegistry").button().click(function(event) {
-			clockGUI.subscribeTo("runtime", "getRegistry", "getRegistry");
+			mrl.subscribeTo("runtime", "getRegistry", "getRegistry");
 		});
 	});
 
 	$(function() {
 		$("#getRegistry").button().click(function(event) {
-			clockGUI.sendTo("runtime", "getRegistry");
+			mrl.sendTo("runtime", "getRegistry");
 		});
 	});
 
 	$(function() {
-		$("#startClock").button().click(function(event) {
-			if ($(this).text() == "start clock") {
-				$(this).button("option", "label", "stop clock");
-				clockGUI.send("startClock", null); // FIXME null shouldn't be required
-			} else {
-				$(this).button("option", "label", "start clock");
-				clockGUI.send("stopClock", null);
-			}
+		$("#load").button().click(function(event) {
 
-			clockGUI.send("broadcastState");
-		});
-	});
+			$.get("load.html", function(data) {
+				// $(this).children("div:first").html(data);
+				$("#insert").html(data);
+			});
 
-	$(function() {
-		$("#setInterval").button().click(function(event) {
-			clockGUI.send("setInterval", [ parseInt($("#interval").val()) ]);
-			clockGUI.send("broadcastState");
+			/*
+			$.getScript("load.js", function() {
+			    //TinyMCE.init(); <--- Oooo can init with "name"
+			});
+			 */
 		});
 	});
 
@@ -261,68 +275,46 @@
 	}
 	// --- logging end ----
 
+	// DOM loaded
 	$(document).ready(function() {
-		$("#hide").click(function() {
-			$("p").hide();
-		});
-		$("#show").click(function() {
-			$("p").show();
-		});
 
-		$("#topMessage").html("not connected");
+		$("#topMessage").html("connecting to ...");
 
 		// start the connection process
 		connection = new Connection(wsURI);
-
-		$("select").change(function() {
-			var str = "";
-			$("select option:selected").each(function() {
-				str += $(this).text() + " ";
-			});
-			$("#log").text(str);
-		}).trigger('change');
+		/*
+		$("#load").click(function() {
+		    //if(typeof TinyMCE == "undefined") {
+		        $.getScript("load.js", function() {
+		            //TinyMCE.init(); <--- Oooo can init with "name"
+		        });
+		    //}
+		});
+		 */
 	});
 </script>
 
 </head>
 <body>
-
-
-	<div id="accordion">
+	<div id="accordion1">
 		<h3>
-			<img src="../Clock.png" />clock
+			<img src="../myrobotlab.png" />myrobotlab <span id="topMessage"></span>
 		</h3>
 		<div>
-			<div id="display"></div>
 			<button id="subscribeToRegistry">subscribeToRegistry</button>
 			<button id="getRegistry">getRegistry</button>
-			<button id="startClock">start clock</button>
-			<button id="setInterval">set interval</button>
-			interval <input id="interval" type="text" value="1000"></input>ms
-		</div>
-		<h3>
-			<img src="../Runtime.png" />incubator
-		</h3>
-		<div>
-			<p>
-				<select name="garden">
-					<option>Flowers</option>
-					<option>Shrubs</option>
-					<option>Trees</option>
-					<option>Bushes</option>
-					<option>Grass</option>
-					<option>Dirt</option>
-				</select>
-			</p>
+			<button id="load">load</button>
+			<div id="insert"></div>
 		</div>
 	</div>
 
 	<div id="accordion2">
 		<h3>messages</h3>
-		<div id="registry"></div>
 		<h3>logs</h3>
 		<textarea id="log" rows="30" cols="120"></textarea>
-		<!--   <div id="log"></div> -->
+		<!-- TODO - switch between html & text fromat (higher up - no span on text)
+		   -->
+		<!-- <div id="log"></div>  -->
 	</div>
 
 </body>
