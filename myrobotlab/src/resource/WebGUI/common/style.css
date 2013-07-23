@@ -1,1 +1,9 @@
-#topMessage {display:block; margin:0 auto 20px; border:1px solid #222; position:relative; background-color:#6a6a6a; }
+.ui-button-text {text-align: left}
+
+.error {
+	color:#FF8C8C;
+}
+
+#log {
+	font-size:x-small;
+}
