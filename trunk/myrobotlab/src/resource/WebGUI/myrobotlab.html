@@ -14,6 +14,9 @@
 	  http://stackoverflow.com/questions/500431/javascript-variable-scope (scope !)
 	  
 	  TODO :
+	  
+	  ????? DO I NEED A REGISTRY?  OR DO I CALL RUNTIME FOR IT EACH TIME???
+	  test for not using null in subscribe
  -->
 <meta charset="utf-8" />
 <title>myrobotlab - One Software To Rule Them All !</title>
@@ -25,38 +28,37 @@
 <script src="common/js/jquery.json-2.2.min.js"></script>
 <script>
 	// global registry and vars
-	var registry = [];
-	var guiMapByIndex = [];
-	var guiMapByName = new Array();
+	var guiMap = new Array();
 	var loadedClasses = [];
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
-	var clockGUI;
+	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
+	var boundServiceName = "clock";
+	var runtimeName = "runtime";
+	var webGUIName = "webgui";
 
 	function Message(name, method, params) {
 		this.msgID = new Date().getTime();
 		this.timeStamp = this.msgID;
 		this.name = name;
-		this.sender = "webgui"; // FIXME - named passed in
+		this.sender = webGUIName; // FIXME - named passed in
 		this.sendingMethod = "";
 		this.historyList = new Array(); // necessary?
 		this.method = method;
 		this.data = params;
 	}
 
-	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
-	var boundServiceName = "clock";
-	
+
 	function getSimpleClassName(inName)
 	{
 		return inName.substring(inName.lastIndexOf(".")+1);
 	}
-
+	
 	function Connection(uri) {
 		this.ws = new WebSocket(uri);
 
 		this.ws.onopen = function(openEvent) {
-			$("#topMessage").text("connected to ...");
+			$("#topMessage").text("connected to " + wsURI);
 		};
 
 		this.ws.onerror = function(errorMsg) {
@@ -72,7 +74,7 @@
 				if (msg.method == "getRegistry") {
 					getRegistry(msg.data)
 				} else {
-					registry[msg.sender][msg.method](msg.data);
+					guiMap[msg.sender][msg.method](msg.data);
 				}
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
@@ -107,26 +109,30 @@
 			
 		
 		// get runs on a different thread - or at least the callback does
-		// so this can't be in a for loop indexed by name - it has to be
+		// so this can't be in a for loop indexed by serviceName - it has to be
 		// in a recursive driven method
-		$.get("/resource/WebGUI/"+className+".html",
+		$.getScript("/resource/WebGUI/"+className+".js",
 				function(data, result, scopedName) {
 					// load the accordian reference 
 					$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
-					$("<div id='" + serviceName + "-gui'>" + serviceName + "</div>" ).appendTo( "#accordion1" );
+					$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
 					$("#accordion1").accordion("refresh");
 					
-					// load the new service class
-					$("#" + serviceName + "-gui").html(data); // FIXME - all service gui elements must have unique IDs !
-					newClass = " new " + className + "GUI('"+name+"');";
-					guiMapByName[name] = eval(newClass);
-					alert(guiMapByName[name]);
-					guiMapByName[name].init();
-					guiMapByName[name].attachGUI();
-// FIXME	recurse				loadServiceGUIClass(, index + 1);
+					newClass = " new " + className + "GUI('"+serviceName+"');";
+					guiMap[serviceName] = eval(newClass);
+
+					// add html
+					$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
+					guiMap[serviceName].init();
+					guiMap[serviceName].attachGUI();
+					$("#accordion1").accordion("refresh");
+					
+					loadServiceGUIClass(inRegistry, nameArray, index + 1);
+
+// FIXME FIXME FIXME	recurse				loadServiceGUIClass(, index + 1);
 				});
 
-		} else if (!(name in guiMapByName)) {
+		} else if (!(serviceName in guiMap)) {
 			// class is loaded - but need a new instance
 		}
 		
@@ -134,7 +140,7 @@
 
 
 	// --- ServiceGUI begin ----
-	// FIXME - you need both the boundServiceName && webui name !
+	// FIXME - you need both the boundServiceName && webui serviceName !
 	function ServiceGUI(name) {
 		this.name = name;
 	}
@@ -142,7 +148,7 @@
 	ServiceGUI.prototype.attachGUI = function() {
 	};
 
-	ServiceGUI.prototype.dettachGUI = function() {
+	ServiceGUI.prototype.detachGUI = function() {
 	};
 
 	// send to bound service name
@@ -160,29 +166,32 @@
 
 	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
 	{
-		this.sendTo("webgui", "subscribe", [ boundServiceName, inMethod,
+		this.sendTo(webGUIName, "subscribe", [ this.name, inMethod,
 				outMethod ]);
 	}
 
-	ServiceGUI.prototype.subscribeTo = function(publisherName, outMethod,
-			inMethod) //(inMethod, outMethod, params)
+	ServiceGUI.prototype.subscribeTo = function(publisherName, outMethod, inMethod) //(inMethod, outMethod, params)
 	{
 		// FIXME - need a "subscribe to a runtimes' getRegistry"
-		this.sendTo("webgui", "subscribe",
+		this.sendTo(webGUIName, "subscribe",
 				[ publisherName, inMethod, outMethod ]);
 	}
 
-	// --- ServiceGUI end ----
-
+	ServiceGUI.prototype.key = function(inStr) //(inMethod, outMethod, params)
+	{
+		return("#"+this.name+"-"+inStr);
+	}
 	
-	// hmmm One ServiceGUI to Rule them All ?!?!?
-	var mrl = new ServiceGUI("runtime");
+	// --- ServiceGUI end ----
+	var mrl = new ServiceGUI(runtimeName);
 
 	// -- webgui framework display begin ---
 	$(function() {
 		$("#accordion1").accordion({
 			//collapsible: true,
-			autoHeight : false,
+			autoHeight : true,
+			heightStyle: "content",
+			collapsible: true,
 			active : false
 		});
 
@@ -200,29 +209,13 @@
 
 	$(function() {
 		$("#subscribeToRegistry").button().click(function(event) {
-			mrl.subscribeTo("runtime", "getRegistry", "getRegistry");
+			mrl.subscribeTo(runtimeName, "getRegistry", "getRegistry");
 		});
 	});
 
 	$(function() {
 		$("#getRegistry").button().click(function(event) {
-			mrl.sendTo("runtime", "getRegistry");
-		});
-	});
-
-	$(function() {
-		$("#load").button().click(function(event) {
-
-			$.get("load.html", function(data) {
-				// $(this).children("div:first").html(data);
-				$("#insert").html(data);
-			});
-
-			/*
-			$.getScript("load.js", function() {
-			    //TinyMCE.init(); <--- Oooo can init with "name"
-			});
-			 */
+			mrl.sendTo(runtimeName, "getRegistry");
 		});
 	});
 
@@ -260,20 +253,12 @@
 	// DOM loaded
 	$(document).ready(function() {
 
-		$("#topMessage").html("connecting to ...");
-
-		// start the connection process
+		$("#topMessage").html("connecting to " + wsURI);
 		connection = new Connection(wsURI);
-		/*
-		$("#load").click(function() {
-		    //if(typeof TinyMCE == "undefined") {
-		        $.getScript("load.js", function() {
-		            //TinyMCE.init(); <--- Oooo can init with "name"
-		        });
-		    //}
-		});
-		 */
 	});
+	
+	// FIXME - need a strategy to easily debug dynamically loaded scripts
+	// one hack would just to be append them ?
 </script>
 
 </head>
@@ -285,18 +270,16 @@
 		<div>
 			<button id="subscribeToRegistry">subscribeToRegistry</button>
 			<button id="getRegistry">getRegistry</button>
-			<button id="load">load</button>
-			<div id="insert"></div>
 		</div>
 	</div>
 
 	<div id="accordion2">
 		<h3>messages</h3>
 		<h3>logs</h3>
-		<textarea id="log" rows="30" cols="120"></textarea>
+		<!-- <textarea id="log" rows="30" cols="120"></textarea> -->
 		<!-- TODO - switch between html & text fromat (higher up - no span on text)
 		   -->
-		<!-- <div id="log"></div>  -->
+		<div id="log"></div> 
 	</div>
 
 </body>
