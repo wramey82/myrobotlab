@@ -7,3 +7,9 @@
 #log {
 	font-size:x-small;
 }
+
+// --- Arduino begin ---
+.pwm-value {
+	width:50px;
+}
+// --- Arduino end ---
