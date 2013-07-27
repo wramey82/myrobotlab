@@ -22,6 +22,7 @@
 <title>myrobotlab - One Software To Rule Them All !</title>
 <link rel="stylesheet" href="common/themes/vader/jquery-ui.css" />
 <link rel="stylesheet" href="common/style.css">
+<link rel="stylesheet" href="common/ace-editor-style.css">
 <script src="common/js/jquery-1.10.2.min.js"></script>
 <script src="common/js/jquery-ui.min.1.10.3.js"></script>
 <script src="common/js/jquery.websocket-0.0.1.js"></script>
@@ -33,7 +34,6 @@
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
 	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
-	var boundServiceName = "clock";
 	var runtimeName = "runtime";
 	var webGUIName = "webgui";
 
@@ -54,35 +54,6 @@
 		return inName.substring(inName.lastIndexOf(".")+1);
 	}
 	
-	function Connection(uri) {
-		this.ws = new WebSocket(uri);
-
-		this.ws.onopen = function(openEvent) {
-			$("#topMessage").text("connected to " + wsURI);
-		};
-
-		this.ws.onerror = function(errorMsg) {
-			error("WebSocket Error " + errorMsg);
-		};
-
-		this.ws.onmessage = function(e) {
-			info("Server: " + e.data);
-
-			try {
-				var msg = jQuery.parseJSON(e.data);
-				info("invoke " + msg.sender + "." + msg.method);
-				if (msg.method == "getRegistry") {
-					getRegistry(msg.data)
-				} else {
-					guiMap[msg.sender][msg.method](msg.data);
-				}
-			} catch (err) {
-				//alert("json parse error " + err + " data " + e.data);
-				//error("json parse error " + err + " data " + e.data);
-				error(err); // make not all exceptions will be trapped
-			}
-		};
-	}
 
 	// global getRegistry -
 	// CAREFUL any vars in here are global too !
@@ -111,33 +82,37 @@
 		// get runs on a different thread - or at least the callback does
 		// so this can't be in a for loop indexed by serviceName - it has to be
 		// in a recursive driven method
-		$.getScript("/resource/WebGUI/"+className+".js",
-				function(data, result, scopedName) {
+		
+		// --- dynamic class loader begin ---
+//		$.getScript("/resource/WebGUI/"+className+".js",
+//				function(data, result, scopedName) {
 					// load the accordian reference 
-					$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
-					$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
-					$("#accordion1").accordion("refresh");
-					
-					newClass = " new " + className + "GUI('"+serviceName+"');";
-					guiMap[serviceName] = eval(newClass);
-
-					// add html
-					$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
-					guiMap[serviceName].init();
-					guiMap[serviceName].attachGUI();
-					$("#accordion1").accordion("refresh");
-					
+					try {
+						$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
+						$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
+						$("#accordion1").accordion("refresh");
+						
+						newClass = " new " + className + "GUI('"+serviceName+"');";
+						guiMap[serviceName] = eval(newClass);
+	
+						// add html
+						$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
+						guiMap[serviceName].init();
+						guiMap[serviceName].attachGUI();
+						$("#accordion1").accordion("refresh");
+					} catch (err) {
+						error(err);
+					}
 					loadServiceGUIClass(inRegistry, nameArray, index + 1);
 
-// FIXME FIXME FIXME	recurse				loadServiceGUIClass(, index + 1);
-				});
+//				});
+					// --- dynamic class loader end ---
 
 		} else if (!(serviceName in guiMap)) {
 			// class is loaded - but need a new instance
 		}
 		
 	}
-
 
 	// --- ServiceGUI begin ----
 	// FIXME - you need both the boundServiceName && webui serviceName !
@@ -183,12 +158,47 @@
 	}
 	
 	// --- ServiceGUI end ----
+	
+		function Connection(uri) {
+		this.ws = new WebSocket(uri);
+
+		this.ws.onopen = function(openEvent) {
+			$("#topMessage").text("connected to " + wsURI);
+			
+			mrl.subscribeTo(runtimeName, "getRegistry", "getRegistry");
+			mrl.sendTo(runtimeName, "getRegistry");
+		};
+
+		this.ws.onerror = function(errorMsg) {
+			error("WebSocket Error " + errorMsg);
+		};
+
+		this.ws.onmessage = function(e) {
+			info("Server: " + e.data);
+
+			try {
+				var msg = jQuery.parseJSON(e.data);
+				info("invoke " + msg.sender + "." + msg.method);
+				if (msg.method == "getRegistry") {
+					getRegistry(msg.data)
+				} else {
+					guiMap[msg.sender][msg.method](msg.data);
+				}
+			} catch (err) {
+				//alert("json parse error " + err + " data " + e.data);
+				//error("json parse error " + err + " data " + e.data);
+				error(err); // make not all exceptions will be trapped
+			}
+		};
+	}
+
 	var mrl = new ServiceGUI(runtimeName);
 
 	// -- webgui framework display begin ---
 	$(function() {
 		$("#accordion1").accordion({
 			//collapsible: true,
+			header: "h3", 
 			autoHeight : true,
 			heightStyle: "content",
 			collapsible: true,
@@ -255,12 +265,20 @@
 
 		$("#topMessage").html("connecting to " + wsURI);
 		connection = new Connection(wsURI);
+
 	});
 	
 	// FIXME - need a strategy to easily debug dynamically loaded scripts
 	// one hack would just to be append them ?
 </script>
-
+<!-- static scripts for easy debugging begin -->
+<script src="Arduino.js"></script>
+<script src="Clock.js"></script>
+<script src="Python.js"></script>
+<script src="Runtime.js"></script>
+<script src="Servo.js"></script>
+<script src="WebGUI.js"></script>
+<!-- static scripts for easy debugging end -->
 </head>
 <body>
 	<div id="accordion1">

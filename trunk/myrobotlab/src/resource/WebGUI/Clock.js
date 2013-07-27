@@ -42,8 +42,7 @@ ClockGUI.prototype.detachGUI = function() {
 };
 
 ClockGUI.prototype.init = function() {
-	//alert(this.key("display"));
-	alert("#"+this.name+"-startClock");
+	//alert("#"+this.name+"-startClock");
 	$("#"+this.name+"-startClock").button().click(ClockGUI.prototype.startClock);
 	$("#"+this.name+"-setInterval").button().click(ClockGUI.prototype.setInterval);
 
@@ -79,8 +78,8 @@ ClockGUI.prototype.setInterval = function() {
 ClockGUI.prototype.getPanel = function() {
 	return "<div>"
 			+ "	<div id='"+this.name+"-display'>clock wtf?</div>"
-			+ "	<input id='"+this.name+"-startClock' type='button' name='clock' value='start clock'/>"
-			+ "	<input id='"+this.name+"-setInterval' type='button' name='clock' value='set interval'/>"
-			+ "	interval <input id='"+this.name+"-interval' type='text' value='1000'></input>ms"
+			+ "	<input id='"+this.name+"-startClock' type='button' name='"+this.name+"' value='start clock'/>"
+			+ "	<input id='"+this.name+"-setInterval' type='button' name='"+this.name+"' value='set interval'/>"
+			+ "	interval <input id='"+this.name+"-interval' type='text' name='"+this.name+"' value='1000'></input>ms"
 			+ "</div>";
 }
