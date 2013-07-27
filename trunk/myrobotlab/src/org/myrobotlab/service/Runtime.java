@@ -401,7 +401,7 @@ public class Runtime extends Service {
 			}
 			return s;
 		}
-		ServiceWrapper sw = new ServiceWrapper(s, se);
+		ServiceWrapper sw = new ServiceWrapper(s, se.accessURL);
 		se.serviceDirectory.put(s.getName(), sw);
 		registry.put(s.getName(), sw);
 		if (localInstance != null) {
@@ -499,6 +499,12 @@ public class Runtime extends Service {
 			localInstance.invoke("registered", s.serviceDirectory.get(serviceName));
 
 			ServiceWrapper sw = getServiceWrapper(serviceName);
+			// recently added to support new registry data model
+			// and break cyclic reference
+			if (uri != null)
+			{
+				sw.host = uri;
+			}
 			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType())) {
 				log.info(String.format("found runtime %s", serviceName));
 				localInstance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
@@ -678,7 +684,7 @@ public class Runtime extends Service {
 				log.info(String.format("%s will not be exported", name));
 				continue;
 			}
-			sw2 = new ServiceWrapper(name, si, export);
+			sw2 = new ServiceWrapper(name, si, export.accessURL);
 			export.serviceDirectory.put(name, sw2);
 			// TODO - add exclusive list & name vs type exclusions
 		}
@@ -1565,8 +1571,8 @@ public class Runtime extends Service {
 					sb.append(" key not equal to data ").append(sw.name);
 				}
 
-				if ((sw.host.accessURL != url) && (!sw.host.accessURL.equals(url))) {
-					sb.append(" service wrapper host accessURL ").append(sw.host.accessURL).append(" not equal to ").append(url);
+				if ((sw.host != url) && (!sw.host.equals(url))) {
+					sb.append(" service wrapper host accessURL ").append(sw.host).append(" not equal to ").append(url);
 				}
 				sb.append("\n");
 			}
@@ -1578,7 +1584,7 @@ public class Runtime extends Service {
 		while (rkeys.hasNext()) {
 			serviceName = rkeys.next();
 			sw = registry.get(serviceName);
-			sb.append("\n").append(serviceName).append(" ").append(sw.host.accessURL);
+			sb.append("\n").append(serviceName).append(" ").append(sw.host);
 		}
 
 		return sb.toString();
@@ -1986,4 +1992,5 @@ public class Runtime extends Service {
 	{
 		return !getServiceInfo().hasUnfulfilledDependencies(fullTypeName);
 	}
+	
 }

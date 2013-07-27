@@ -126,7 +126,7 @@ class CommObjectStreamOverTCP extends Thread implements Communicator {
 			//sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
 			// pushing bogus Service with name into SDU
 			ServiceEnvironment local = new ServiceEnvironment(null);
-			ServiceWrapper sw = new ServiceWrapper(getName(), null, local);
+			ServiceWrapper sw = new ServiceWrapper(getName(), null, local.accessURL);
 			local.serviceDirectory.put(getName(), sw);
 
 			send(null, "registerServices", "register", new Object[]{local});

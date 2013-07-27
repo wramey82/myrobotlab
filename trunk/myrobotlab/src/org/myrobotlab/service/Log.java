@@ -81,6 +81,9 @@ public class Log extends Service {
 
 		RemoteAdapter remote = new RemoteAdapter("remote");
 		remote.startService();
+		
+		Runtime.createAndStart("rgui", "GUIService");
+
 		/*
 		 * GUIService gui = new GUIService("loggui"); gui.startService();
 		 * gui.display();

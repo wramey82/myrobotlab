@@ -470,14 +470,14 @@ public class GUIServiceGUI extends ServiceGUI {
 
 			String blockColor = null;
 
-			if (sw.host.accessURL == null) {
+			if (sw.host == null) {
 				blockColor = mxUtils.getHexColorString(Style.background);
 			} else {
 				blockColor = mxUtils.getHexColorString(Style.remoteBackground);
 			}
 
 			if (showAccessURLs) {
-				displayName = sw.host.accessURL + "\n" + displayName;
+				displayName = sw.host + "\n" + displayName;
 			}
 
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName, displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE),

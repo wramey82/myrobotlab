@@ -12,13 +12,14 @@ public class ServiceWrapper implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public final ServiceInterface service;
 	public final String name; // needed for sorting - but not normalized FYI
-	final public ServiceEnvironment host; // final immutable
+	//final public ServiceEnvironment host; // final immutable
+	public URI host;
 
 	public ServiceWrapper(ServiceInterface s) {
 		this(s.getName(), s, null);
 	}
 
-	public ServiceWrapper(ServiceInterface s, ServiceEnvironment host) {
+	public ServiceWrapper(ServiceInterface s, URI host) {
 		this(s.getName(), s, host);
 	}
 
@@ -30,7 +31,7 @@ public class ServiceWrapper implements Serializable {
 		return service.getNotifyListKeySet();
 	}
 
-	public ServiceWrapper(String name, ServiceInterface s, ServiceEnvironment host) {
+	public ServiceWrapper(String name, ServiceInterface s, URI host) {
 		this.name = name;
 		this.service = s;
 		this.host = host;
@@ -41,7 +42,8 @@ public class ServiceWrapper implements Serializable {
 	}
 
 	public URI getAccessURL() {
-		return host.accessURL;
+		//return host.accessURL;
+		return host;
 	}
 
 	public String getServiceType() {
@@ -72,6 +74,6 @@ public class ServiceWrapper implements Serializable {
 	}
 
 	public boolean isLocal() {
-		return host.accessURL == null;
+		return host == null;
 	}
 }

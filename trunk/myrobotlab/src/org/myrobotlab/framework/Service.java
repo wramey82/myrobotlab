@@ -50,7 +50,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SimpleTimeZone;
@@ -891,10 +890,45 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		//return null;
 	}
 
+	/**
+	 * method to subscribe to a service's method as an event with data from the return type
+	 * this establishes a message route from the target's service method back to the subscribers
+	 * method.  For example, a Log service might subscribe to a Clocks pulse "out" method, when this is
+	 * successfully done the returned data fom the pulse will be sent to the Log's service "in" method
+	 * 
+	 * @param publisherName - name of service this service will be subscribing to
+	 * @param inOutMethod - the name of the target service method and the subscribers in method - if they are the same
+	 */
+	public void subscribe(String publisherName, String inOutMethod)
+	{
+		subscribe(inOutMethod, publisherName, inOutMethod, (Class<?>[])null);
+	}
+	
+	
+	/**
+	 * when "out" method and "in" method names differ
+	 * a simple way to think of this is myservice.subscribe(publisher->publishingMethod -> inMethod)
+	 * establishing a message route whenever
+	 * publisher->publishingMethod gets invoked the returned data goes to myservice.inMethod
+	 * 
+	 * allows the following to happen :
+	 * myservice.inMethod(publisher->publishingMethod())
+	 * 
+	 * @param publisherName
+	 * @param outMethod
+	 * @param inMethod
+	 */
+	public void subscribe(String publisherName, String outMethod, String inMethod)
+	{
+		subscribe(outMethod, publisherName, inMethod, (Class<?>[])null);
+	}
+	
+	
 	// parameterType is not used for any critical look-up - but can be used at
 	// runtime check to
 	// check parameter mating
 
+	// FIXME FIXME FIXME FIXME FIXME!!! - these have very bad signatures !!!
 	public void subscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType) {
 		MRLListener listener = null;
 		if (parameterType != null) {

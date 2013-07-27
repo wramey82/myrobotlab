@@ -155,7 +155,7 @@ public class GUIServiceOutMethodDialog extends JDialog implements ActionListener
 
 					try {
 						MethodData md = data.get(index);
-						Class c = Class.forName(md.canonicalName);
+						Class c = Class.forName(String.format("org.myrobotlab.service.%s",md.canonicalName));
 						Method m = null;
 						if (md.methodEntry.parameterTypes == null) {
 							log.info("paramterType is null");

@@ -94,7 +94,7 @@ public class Clock extends Service {
 		}
 		// have requestors broadcast state !
 		//broadcastState();
-		broadcastState();
+		// broadcastState();
 	}
 
 	public void stopClock() {

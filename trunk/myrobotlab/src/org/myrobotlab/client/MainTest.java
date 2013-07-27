@@ -2,12 +2,8 @@ package org.myrobotlab.client;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MessageListener;
-import org.myrobotlab.logging.Level;
-import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Log;
 import org.myrobotlab.service.Proxy;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Pin;

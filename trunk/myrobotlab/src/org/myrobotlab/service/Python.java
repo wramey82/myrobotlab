@@ -105,6 +105,10 @@ public class Python extends Service {
 	boolean pythonConsoleInitialized = false;
 	@Element
 	String initialServiceScript = "";
+	
+	String rootPath = null;
+	String modulesDir = "pythonModules";
+
 
 	public static class Script implements Serializable{
 		private static final long serialVersionUID = 1L;
@@ -220,8 +224,6 @@ public class Python extends Service {
 
 	// PyObject interp.eval(String s) - for verifying?
 	
-	String rootPath = null;
-	String modulesDir = "pythonModules";
 
 	/**
 	 * 

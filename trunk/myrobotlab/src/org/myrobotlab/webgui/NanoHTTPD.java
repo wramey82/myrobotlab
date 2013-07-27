@@ -634,7 +634,7 @@ public class NanoHTTPD {
 	 */
 	public static Hashtable theMimeTypes = new Hashtable();
 	static {
-		StringTokenizer st = new StringTokenizer("css    text/css " + "htm    text/html " + "html   text/html " + "txt    text/plain " + "asc    text/plain " + "gif    image/gif "
+		StringTokenizer st = new StringTokenizer("js    text/javascript " + "css    text/css " + "htm    text/html " + "html   text/html " + "txt    text/plain " + "asc    text/plain " + "gif    image/gif "
 				+ "jpg    image/jpeg " + "jpeg   image/jpeg " + "png    image/png " + "mp3    audio/mpeg " + "m3u    audio/mpeg-url " + "pdf    application/pdf "
 				+ "doc    application/msword " + "ogg    application/x-ogg " + "zip    application/octet-stream " + "exe    application/octet-stream "
 				+ "class    application/octet-stream " + "ico    image/x-icon ");
