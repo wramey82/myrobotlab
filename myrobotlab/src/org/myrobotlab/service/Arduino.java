@@ -89,6 +89,12 @@ import org.slf4j.Logger;
  * 
  * Should support nearly all Arduino board types
  * 
+ * digitalRead() works on all pins. It will just round the analog value received and present it to you. If analogRead(A0) is greater than or equal to 512, digitalRead(A0) will be 1, else 0.
+ * digitalWrite() works on all pins, with allowed parameter 0 or 1. 
+ * digitalWrite(A0,0) is the same as analogWrite(A0,0), and digitalWrite(A0,1) is the same as analogWrite(A0,255)
+ * analogRead() works only on analog pins. It can take any value between 0 and 1023.
+ * analogWrite() works on all analog pins and all digital PWM pins. You can supply it any value between 0 and 255
+ * 
  */
 
 @Root
@@ -129,6 +135,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int MOTOR_BACKWARD = 0;
 
 	private boolean connected = false;
+	private String portName = "";
+	private String boardType = "";
 
 	BlockingQueue<String> blockingData = new LinkedBlockingQueue<String>();
 
@@ -581,6 +589,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public void digitalWrite(Integer address, Integer value) {
 		log.info("digitalWrite (" + address + "," + value + ") to " + serialDevice.getName() + " function number " + DIGITAL_WRITE);
 		sendMsg(DIGITAL_WRITE, address, value);
+		pinList.get(address).value = value;
 	}
 
 	public String getVersion() {
@@ -752,13 +761,17 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 							break;
 						}
 						case ANALOG_VALUE: {
-							Pin p = new Pin(msg[1], msg[0], (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF)), getName());
-							invoke("publishPin", p);
+							//Pin p = new Pin(msg[1], msg[0], (((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF)), getName());
+							// FIXME 
+							Pin pin = pinList.get(msg[1]);
+							pin.value = ((msg[2] & 0xFF) << 8) + (msg[3] & 0xFF);
+							invoke("publishPin", pin);
 							break;
 						}
 						case DIGITAL_VALUE: {
-							Pin p = new Pin(msg[1], msg[0], msg[2], getName());
-							invoke("publishPin", p);
+							Pin pin = pinList.get(msg[1]);
+							pin.value = msg[2];							
+							invoke("publishPin", pin);
 							break;
 						}
 						} // end switch
@@ -843,6 +856,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public Target getTarget() {
 		return targetsTable.get(preferences.get("target"));
+	}
+	
+	public HashMap<String, Target> getTargetsTable()
+	{
+		return targetsTable;
 	}
 
 	public String getSketchbookLibrariesPath() {
@@ -1046,6 +1064,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 				save(); // successfully bound to port - saving
 				preferences.set("serial.port", serialDevice.getName());
+				portName = serialDevice.getName(); // FIXME - normalize
 				preferences.save();
 				broadcastState(); // state has changed let everyone know
 				return true;
@@ -1131,10 +1150,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public ArrayList<Pin> createPinList() {
 		pinList = new ArrayList<Pin>();
-		String type = preferences.get("board");
+		boardType = preferences.get("board");
 		int pinType = Pin.DIGITAL_VALUE;
 
-		if (type != null && type.startsWith("mega")) {
+		if (boardType != null && boardType.startsWith("mega")) {
 			for (int i = 0; i < 70; ++i) {
 
 				if (i < 1 || (i > 13 && i < 54)) {
@@ -1150,7 +1169,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			for (int i = 0; i < 20; ++i) {
 				if (i < 14) {
 					pinType = Pin.DIGITAL_VALUE;
-				} else if (i > 53) {
+				} else {
 					pinType = Pin.ANALOG_VALUE;
 				}
 
@@ -1241,6 +1260,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return connected;
 	}
 
+	@Override
 	public boolean disconnect() {
 		connected = false;
 		if (serialDevice == null) {
@@ -1248,6 +1268,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 
 		serialDevice.close();
+		portName = "";
 
 		broadcastState();
 		return true;
@@ -1546,6 +1567,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		error("FIXME - IMPLEMENT !");
 		return false;
+	}
+
+	@Override
+	public boolean connect(String name) {
+		return connect(name, 57600, 8, 1, 0);
 	}
 	
 }

@@ -508,7 +508,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		t.mean = t.sum / t.total;
 
 		g.setColor(t.color);
-		if (pin.type == Pin.DIGITAL_VALUE) {
+		if (pin.type == Pin.DIGITAL_VALUE || pin.type == Pin.PWM_VALUE) {
 			int yoffset = pin.pin * 15 + 35;
 			int quantum = -10;
 			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index, pin.value * quantum + yoffset);

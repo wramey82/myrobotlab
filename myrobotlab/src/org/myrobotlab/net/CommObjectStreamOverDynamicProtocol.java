@@ -179,8 +179,8 @@ public class CommObjectStreamOverDynamicProtocol extends Communicator implements
 						} else if (msg.method.equals("register")) {
 							try {
 								ServiceWrapper sw = (ServiceWrapper) msg.data[0];
-								if (sw.host.accessURL == null) {
-									sw.host.accessURL = new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort()));
+								if (sw.host == null) {
+									sw.host = new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort()));
 								}
 								Runtime.getInstance().register(sw);
 							} catch (Exception e) {

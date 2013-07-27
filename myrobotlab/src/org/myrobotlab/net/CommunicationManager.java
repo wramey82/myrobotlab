@@ -74,15 +74,15 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 			log.error(String.format("Runtime.getServiceWrapper could not return %s.%s for sender %s ", msg.name, msg.method, msg.sender));
 			return;
 		}
-		if (sw.host.accessURL == null || sw.host.accessURL.equals(myService.url)) {
+		if (sw.host == null || sw.host.equals(myService.url)) {
 			log.debug("sending local");
 			Message m = new Message(msg); // TODO UNECESSARY ???? Probably - BUT
 											// TOO SCARED TO REMOVE !!
 			sw.get().in(m);
 		} else {
 			// FIXME - test for loglevel & use the Swedish Formatter
-			log.info(msg.sender + "." + msg.sendingMethod + "->" + sw.host.accessURL + "/" + msg.name + "." + msg.method + "(" + msg.getParameterSignature() + ")");
-			getComm().send(sw.host.accessURL, msg);
+			log.info(msg.sender + "." + msg.sendingMethod + "->" + sw.host + "/" + msg.name + "." + msg.method + "(" + msg.getParameterSignature() + ")");
+			getComm().send(sw.host, msg);
 		}
 	}
 

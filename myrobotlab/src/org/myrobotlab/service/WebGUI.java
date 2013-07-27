@@ -1,8 +1,6 @@
 package org.myrobotlab.service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -17,7 +15,6 @@ import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonWriter;
 
 public class WebGUI extends Service {
 
@@ -27,11 +24,11 @@ public class WebGUI extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(WebGUI.class.getCanonicalName());
 
-	private Integer httpPort = 7777;
-	private Integer wsPort = 7778;
+	public Integer httpPort = 7777;
+	public Integer wsPort = 7778;
 
-	public transient WebServer ws;
-	public transient WSServer wss;
+	transient WebServer ws;
+	transient WSServer wss;
 
 	boolean spawnBrowserOnStartUp = false;
 	
@@ -143,6 +140,7 @@ public class WebGUI extends Service {
 		sendToAll(m);
 		return false;
 	}
+	
 
 	// FIXME - take out of RESTProcessor - normalize
 	public String toJson(Message msg) {
@@ -163,7 +161,8 @@ public class WebGUI extends Service {
 			 * 
 			 */
 			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
-			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().create();
+			// PRETTY PRINTING IS AWESOME ! MAKE CONFIGURABLE - PRETTY PRINT ONLY WORKS IN TEXTMODE .setPrettyPrinting()
+			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 			//   .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
 			// gson.setDateFormat(DateFormat.FULL);
 			/* REMOVED RECENTLY
@@ -176,7 +175,7 @@ public class WebGUI extends Service {
 			//writer.beginArray();
 			
 			String ret = gson.toJson(msg, Message.class);
-			log.info(ret);
+			//log.info(ret);
 			// for (Message message : messages) {
 			// gson.toJson(message, Message.class, writer);
 			// }
@@ -191,7 +190,9 @@ public class WebGUI extends Service {
 	}
 
 	public void sendToAll(Message msg) {
-		wss.sendToAll(toJson(msg));
+		String json = toJson(msg);
+		log.info(String.format("webgui ---to---> all clients [%s]", json));
+		wss.sendToAll(json);
 	}
 
 	public static void main(String[] args) {
@@ -200,9 +201,11 @@ public class WebGUI extends Service {
 
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
-		Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
+		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		//clock.startClock();
 		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
+		Runtime.createAndStart("python", "Python");
+		//Runtime.createAndStart("arduino", "Arduino");
 
 //		webgui.subscribe("clock", "pulse");
 		

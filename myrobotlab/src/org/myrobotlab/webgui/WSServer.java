@@ -33,6 +33,8 @@ public class WSServer extends WebSocketServer {
 	public WSServer( InetSocketAddress address ) {
 		super( address );
 	}
+	
+	// FIXME - SEND MESSAGES TO ALL NOTIFYING OF CONNECTIONS !!!
 
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
@@ -42,7 +44,7 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
-		this.sendToAll( conn + " has left the room!" );
+		//this.sendToAll( conn + " has left the room!" );
 		System.out.println( conn + " has left the room!" );
 	}
 
@@ -50,11 +52,13 @@ public class WSServer extends WebSocketServer {
 	public void onMessage( WebSocket conn, String message ) {
 		//this.sendToAll( message );
 		//System.out.println( conn.getLocalSocketAddress() + ": " + message );
-		System.out.println("[" + message + "]" );
+		//System.out.println("[" + message + "]" );
+		log.info("webgui <---to--- client {}", message);
 		Gson gson = new Gson();	
 		//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
 		Message msg = gson.fromJson(message, Message.class);
-		log.info("{}",msg);
+		//log.info("{}",msg);
+		log.info("parsed message");
 		outbox.add(msg);
 	}
 

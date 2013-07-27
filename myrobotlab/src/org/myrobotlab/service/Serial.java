@@ -24,10 +24,12 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	private transient SerialDevice serialDevice;
 	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
-	private boolean connected = false;
 	int rawReadMsgLength = 5;
 	
 	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	
+	private boolean connected = false;
+	private String portName = "";
 
 	public Serial(String n) {
 		super(n, Serial.class.getCanonicalName());
@@ -85,52 +87,37 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	@Override
 	public boolean connect(String name, int rate, int databits, int stopbits, int parity) {
 		try {
-			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
-			if (sd != null) {
-				serialDevice = sd;
-
-				connect();
+			serialDevice = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
+			if (serialDevice != null) {
+				if (!serialDevice.isOpen()) {
+					serialDevice.open();
+					serialDevice.addEventListener(this);
+					serialDevice.notifyOnDataAvailable(true);
+					sleep(1000);
+				}
 
 				serialDevice.setParams(rate, databits, stopbits, parity);
-
+				portName = serialDevice.getName();
+				connected = true;
 				save(); // successfully bound to port - saving
 				broadcastState(); // state has changed let everyone know
 				return true;
+				
+			} else {
+				log.error("could not get serial device");
 			}
 		} catch (Exception e) {
 			logException(e);
 		}
 		return false;
 	}
-
-	public boolean connect() {
-
-		if (serialDevice == null) {
-			error("can't connect, serialDevice is null");
-			return false;
-		}
-
-		info(String.format("connecting to serial device %s", serialDevice.getName()));
-
-		try {
-			if (!serialDevice.isOpen()) {
-				serialDevice.open();
-				serialDevice.addEventListener(this);
-				serialDevice.notifyOnDataAvailable(true);
-				sleep(1000);
-			} else {
-				warn(String.format("%s is already open, close first before opening again", serialDevice.getName()));
-			}
-		} catch (Exception e) {
-			Logging.logException(e);
-			return false;
-		}
-
-		info(String.format("connected to serial device %s", serialDevice.getName()));
-		connected = true;
-
-		return true;
+	
+	@Override
+	public boolean connect(String name)
+	{
+		return connect(name, 57600, 8, 1, 0);
 	}
+
 	
 	/**
 	 * publishing point for read events
@@ -171,6 +158,22 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public void write(int data) throws IOException {
 		serialDevice.write(data);
 	}
+	
+	@Override
+	public boolean disconnect() 
+	{
+		if (serialDevice == null) {
+			return false;
+		}
+
+		serialDevice.close();
+		connected = false;
+		portName = "";		
+
+		broadcastState();
+		return true;
+		
+	}
 
 	public static void main(String[] args) throws IOException {
 		LoggingFactory.getInstance().configure();
@@ -180,7 +183,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		serial.startService();
 
 		serial.connect("COM4", 57600, 8, 1, 0);
-		serial.connect();
+	
 		byte a = 1;
 		int b = 2;
 		serial.write(a);

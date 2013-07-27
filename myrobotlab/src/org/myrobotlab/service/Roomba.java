@@ -106,11 +106,12 @@ public class Roomba extends Service implements SerialDeviceService {
 	// RoombaComm passthrough begin ----------------------
 
 	/**
-	 * Disconnect from serial port
+	 * Disconnect from serial portb
 	 */
 
-	public void disconnect() {
+	public boolean disconnect() {
 		roombacomm.disconnect();
+		return true;
 	}
 
 	public boolean send(byte[] cmd) {

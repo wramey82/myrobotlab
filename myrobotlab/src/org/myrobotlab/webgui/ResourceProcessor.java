@@ -4,25 +4,50 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.fileLib.FindFile;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.myrobotlab.webgui.NanoHTTPD.Response;
+import org.slf4j.Logger;
 
 public class ResourceProcessor implements HTTPProcessor {
 
-	public HashSet<String> scannedDirectories = new HashSet<String>();
+	public static String root = "root"; // get from WebGUI
 	
-	public String overrideDir = "webgui";
+	public HashSet<String> scannedDirectories = new HashSet<String>();	
+	
+	public final static Logger log = LoggerFactory.getLogger(NanoHTTPD.class.getCanonicalName());
+
+	public ResourceProcessor()
+	{
+		scan();
+	}
 	
 	public void scan()
 	{
-		
+		try {
+			List<File> files = FindFile.find(root, null);
+			for (int i = 0; i < files.size(); ++i)
+			{
+				File file = files.get(i);
+				String t = file.getPath().replace('\\', '/');
+				String uri = t.substring(root.length());
+				log.info(String.format("overriding with uri [%s]", uri));
+				scannedDirectories.add(uri);
+			}
+		} catch (FileNotFoundException e) {
+			Logging.logException(e);
+		}
 	}
 	
 	@Override
@@ -35,7 +60,8 @@ public class ResourceProcessor implements HTTPProcessor {
 			return serveFile(uri, header);
 		}
 		
-		return serveFile(uri, header, new File("."), true);
+		// return serveFile(uri, header, new File("."), true); // HERE !
+		return serveFile(uri, header, new File(root), true); // HERE !
 	}
 
 	@Override

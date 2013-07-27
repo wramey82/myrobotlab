@@ -25,6 +25,10 @@ public final class FindFile { // implements FilenameFilter
 
 	public final static Logger log = LoggerFactory.getLogger(FindFile.class.getCanonicalName());
 
+	public static List<File> find() throws FileNotFoundException {
+		return find(null, null, true, false);
+	}
+
 	public static List<File> find(String criteria) throws FileNotFoundException {
 		return find(null, criteria, true, false);
 	}

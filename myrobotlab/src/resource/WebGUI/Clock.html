@@ -1,0 +1,112 @@
+<script>
+
+	//-------ClockGUI begin---------
+	//subclass extends superclass -- if you don't want ClockGUI's constructor - remove it
+	function ClockGUI(name) {
+		ServiceGUI.call(this, name); //call super constructor.
+	}
+
+	ClockGUI.prototype = Object.create(ServiceGUI.prototype);
+	ClockGUI.prototype.constructor = ClockGUI;
+
+	// callbacks
+	ClockGUI.prototype.pulse = function(data) {
+		$("#display").html(data);
+	};
+
+	ClockGUI.prototype.getState = function(data) {
+		$("#display").html(data);
+		if (data[0].isClockRunning) {
+			$("#startClock").button("option", "label", "stop clock");
+		} else {
+			$("#startClock").button("option", "label", "start clock");
+		}
+
+		$("#interval").val(data[0].interval);
+	};
+
+	// overrides
+	ClockGUI.prototype.attachGUI = function() {
+		this.subscribe("pulse", "pulse");
+		this.subscribe("publishState", "getState");
+		// broadcast the initial state
+		this.send("broadcastState");
+	};
+
+	ClockGUI.prototype.startClock = function(event) {
+		//alert($(event.target).closest('button').attr())
+		/*
+		alert($("#startClock").attr("mrl"));
+		alert($("#startClock").attr("id"));
+		$("#startClock").attr("id","newValue");
+		alert("new value? " + $("#newValue").attr("id"));
+		alert($("#startClock").attr("id"));
+		alert(event.currentTarget.nodeName);
+		alert(event.currentTarget.name);
+		alert(Object.keys(event.currentTarget));
+		//alert(event.currentTarget.attr("ADFLKLJD"));
+		alert(event.currentTarget.className);
+		*/
+		button = $("#startClock"); // TODO mangle and match + name
+		alert(button.attr("name"));
+		alert(guiMapByName);
+		alert(guiMapByName["clock"]);
+		clockGUI = guiMapByName[button.attr("name")];
+		if (button.text() == "start clock") {
+			button.button("option", "label", "stop clock");
+			clockGUI.send("startClock", null); // FIXME null shouldn't be required
+		} else {
+			button.button("option", "label", "start clock");
+			clockGUI.send("stopClock", null);
+		}
+
+		mrl.send("broadcastState");
+	}
+
+	ClockGUI.prototype.init = function() {
+		//$(document).ready(function(){
+		//$("#startClock").attr("mrl","HERE I AM!!!!!");
+		//$("#startClock").name="zod";
+		//$("#startClock").button().name="clock";
+		$("#startClock").attr("name","clock");
+		$("#startClock").button().click(ClockGUI.prototype.startClock/*function(event) {
+						if ($(this).text() == "start clock") {
+							$(this).button("option", "label", "stop clock");
+							this.send("startClock", null); // FIXME null shouldn't be required
+						} else {
+							$(this).button("option", "label", "start clock");
+							this.send("stopClock", null);
+						}
+
+						this.send("broadcastState");
+					}*/
+		);
+
+		$("#setInterval").button().attr("name", "clock")
+		$("#setInterval").button().click(function(event) {
+			alert(event.target.button());
+			//alert(this[0].attr("name"));
+			/*
+			this.send("setInterval", [ parseInt($("#interval")
+					.val()) ]);
+			this.send("broadcastState");
+			 */
+		});
+
+		//});// doc ready
+	}; // prototype.init
+	
+	
+	
+</script>
+
+<!-- Clock panel begin -->
+ClockGUI.prototype.getPanel = function() {
+ return "<div>"+
+"	<div id='display'></div>"+
+"	<input id='startClock' type='button' name='clock' value='start clock'/>"+
+"	<input id='setInterval' type='button' name='clock' value='set interval'/>"+
+"	interval <input id='interval' type='text' value='1000'></input>ms"+
+"</div>";
+}
+<!-- Clock panel begin -->
