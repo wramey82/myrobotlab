@@ -1,6 +1,7 @@
 package org.myrobotlab.service;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
@@ -30,7 +31,9 @@ public class WebGUI extends Service {
 	transient WebServer ws;
 	transient WSServer wss;
 
-	boolean spawnBrowserOnStartUp = false;
+	boolean spawnBrowserOnStartUp = true;
+	
+	public HashMap<String,String> clients = new HashMap<String,String>();
 	
 	public WebGUI(String n) {
 		super(n, WebGUI.class.getCanonicalName());
@@ -53,7 +56,7 @@ public class WebGUI extends Service {
 				ws.stop();
 			}
 
-			ws = new WebServer(port);
+			ws = new WebServer(this, port);
 			ws.start();
 
 			return true;
@@ -79,7 +82,7 @@ public class WebGUI extends Service {
 				wss.stop();
 			}
 
-			wss = new WSServer(port, getOutbox());
+			wss = new WSServer(this, port);
 			wss.start();
 			return true;
 		} catch (Exception e) {
@@ -96,7 +99,8 @@ public class WebGUI extends Service {
 		result &= startWebSocketServer(wsPort);
 		if (spawnBrowserOnStartUp)
 		{
-			BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
+			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
+			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
 		}
 		return result;
 	}

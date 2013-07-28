@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -16,6 +17,8 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.myrobotlab.webgui.NanoHTTPD.Response;
 import org.slf4j.Logger;
@@ -26,10 +29,15 @@ public class ResourceProcessor implements HTTPProcessor {
 	
 	public HashSet<String> scannedDirectories = new HashSet<String>();	
 	
+	public HashMap<String, String> searchAndReplace = new HashMap<String, String>();
+	
 	public final static Logger log = LoggerFactory.getLogger(NanoHTTPD.class.getCanonicalName());
+	
+	private WebGUI webgui;
 
-	public ResourceProcessor()
+	public ResourceProcessor(WebGUI webgui)
 	{
+		this.webgui = webgui;
 		scan();
 	}
 	
@@ -52,16 +60,15 @@ public class ResourceProcessor implements HTTPProcessor {
 	
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		// FIXME - checked for custom scanned directory paths !!!
-		// if path.contains /resource/scanned -> return NanoHTTPD.serveFile(custom/scanned);
+		
+		// FIXME - this split should not be here - it should be within serveFile !!!! - NORMALIZE serveFile !!
 		
 		if (!scannedDirectories.contains(uri))
 		{
-			return serveFile(uri, header);
+			return serveFile(uri, header, socket);
 		}
 		
-		// return serveFile(uri, header, new File("."), true); // HERE !
-		return serveFile(uri, header, new File(root), true); // HERE !
+		return serveFile(uri, header, new File(root), true, socket); 
 	}
 
 	@Override
@@ -74,7 +81,7 @@ public class ResourceProcessor implements HTTPProcessor {
 	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
 	 * ignores all headers and HTTP parameters.
 	 */
-	public Response serveFile(String uri, Properties header) {
+	public Response serveFile(String uri, Properties header, Socket socket) {
 		// Make sure we won't die of an exception later
 //		if (!homeDir.isDirectory())
 //			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");
@@ -146,8 +153,26 @@ public class ResourceProcessor implements HTTPProcessor {
 			
 			fis.close();
 			buffer.flush();
-
-			byte[] content =  buffer.toByteArray();
+			
+			byte[] content = null;
+			// FIXME - this is not normalized - because the code around it is not normalized
+			if ("/resource/WebGUI/myrobotlab.html".equals(uri)){
+				String filter = new String(buffer.toByteArray());
+				log.info("preforming the following substitutions for myrobotlab.html");
+				log.info("from client @ {}", socket.getRemoteSocketAddress()); // getRemoteSocketAddress - is clients
+				log.info("<%=getHostAddress%> --> {}", socket.getLocalAddress().getHostAddress());
+				filter = filter.replace("<%=getHostAddress%>", socket.getLocalAddress().getHostAddress());
+				log.info("<%=wsPort%> --> {}", webgui.wsPort);
+				filter = filter.replace("<%=wsPort%>", webgui.wsPort.toString());
+				log.info("<%=runtimeName%> --> {}", Runtime.getInstance().getName());
+				filter = filter.replace("<%=runtimeName%>", Runtime.getInstance().getName());
+				log.info("<%=webguiName%> --> {}", webgui.getName());
+				filter = filter.replace("<%=webguiName%>", webgui.getName());
+				//filter.replace(, newChar);
+				content = filter.getBytes();
+			} else {
+				content =  buffer.toByteArray();
+			}
 			
 			Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
 			
@@ -162,7 +187,7 @@ public class ResourceProcessor implements HTTPProcessor {
 	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
 	 * ignores all headers and HTTP parameters.
 	 */
-	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing) {
+	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing, Socket socket) {
 		// Make sure we won't die of an exception later
 		if (!homeDir.isDirectory())
 			return new Response(NanoHTTPD.HTTP_INTERNALERROR, NanoHTTPD.MIME_PLAINTEXT, "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");

@@ -10,10 +10,19 @@ WebGUIGUI.prototype = Object.create(ServiceGUI.prototype);
 WebGUIGUI.prototype.constructor = WebGUIGUI;
 
 // --- callbacks begin ---
+// FIXME - a getState is going to be more recent from a getRegistry -
+// put in registry (super ?)
 WebGUIGUI.prototype.getState = function(data) {
 	n = this.name;
-	$("#"+n+"-httpPort").val(data[0].httpPort);
-	$("#"+n+"-wsPort").val(data[0].wsPort);
+	var webgui = data[0];
+	$("#"+n+"-httpPort").val(webgui.httpPort);
+	$("#"+n+"-wsPort").val(webgui.wsPort);
+	
+	$("#clients").empty();
+	// clients modify myrobotlab html
+	for (var key in webgui.clients) { 
+		$("#clients").append(key + "<br/>");
+	}
 };
 //--- callbacks end ---
 
@@ -40,11 +49,9 @@ WebGUIGUI.prototype.setPorts = function(event) {
 	var gui = guiMap[this.name];
 	var httpPort = $("#"+this.name+"-httpPort").val();
 	var wsPort	 = $("#"+this.name+"-wsPort").val();
-	alert(httpPort);
+	//alert(httpPort);
 	// FIXME - implement
 	//gui.send()
-	
-
 	gui.send("broadcastState");
 }
 

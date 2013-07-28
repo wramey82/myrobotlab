@@ -1,33 +1,31 @@
 package org.myrobotlab.webgui;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.WebGUI;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class WSServer extends WebSocketServer {
 
 	public final static Logger log = LoggerFactory.getLogger(WSServer.class.getCanonicalName());
 
-	private Outbox outbox = null;
+	private Outbox outbox;
+	private WebGUI webgui;
 	
-	public WSServer( int port , Outbox outbox) throws UnknownHostException {
+	public WSServer( WebGUI webgui, int port) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
-		this.outbox = outbox;
+		this.webgui = webgui;
+		this.outbox = webgui.getOutbox();
 	}
 
 	public WSServer( InetSocketAddress address ) {
@@ -38,14 +36,17 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
+		String clientkey = String.format("%s:%d", conn.getRemoteSocketAddress().getAddress().getHostAddress(), conn.getRemoteSocketAddress().getPort());
+		log.info(clientkey);
+		webgui.clients.put(clientkey, clientkey);
 		// this.sendToAll( "new connection: " + handshake.getResourceDescriptor() );
-		System.out.println( conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!" );
 	}
 
 	@Override
 	public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
+		String clientkey = String.format("%s:%d", conn.getRemoteSocketAddress().getAddress().getHostAddress(), conn.getRemoteSocketAddress().getPort());
+		webgui.clients.remove(clientkey);
 		//this.sendToAll( conn + " has left the room!" );
-		System.out.println( conn + " has left the room!" );
 	}
 
 	@Override
@@ -89,6 +90,7 @@ public class WSServer extends WebSocketServer {
 		}
 	}
 
+	/*
 	public static void main( String[] args ) throws InterruptedException , IOException {
 		WebSocketImpl.DEBUG = true;
 		int port = 8887; // 843 flash policy port
@@ -96,7 +98,7 @@ public class WSServer extends WebSocketServer {
 			port = Integer.parseInt( args[ 0 ] );
 		} catch ( Exception ex ) {
 		}
-		WSServer s = new WSServer( port , null);
+		WSServer s = new WSServer(null, port);
 		s.start();
 		System.out.println( "WSServer started on port: " + s.getPort() );
 
@@ -106,5 +108,5 @@ public class WSServer extends WebSocketServer {
 			s.sendToAll( in );
 		}
 	}
-
+	*/
 }

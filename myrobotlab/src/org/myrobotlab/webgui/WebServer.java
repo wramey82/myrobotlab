@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.slf4j.Logger;
 
@@ -21,12 +22,15 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 	public final static Logger log = LoggerFactory.getLogger(WebServer.class.getCanonicalName());
 
 	private HashMap<String, HTTPProcessor> processors = new HashMap<String, HTTPProcessor>();
+	
+	private WebGUI webgui;
 
-	public WebServer(int port) {
+	public WebServer(WebGUI webgui, int port) {
 		super(port);
 
+		this.webgui = webgui;
 		processors.put("/services", new RESTProcessor());
-		processors.put("/resource", new ResourceProcessor());
+		processors.put("/resource", new ResourceProcessor(this.webgui));
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 			key = String.format("/%s", keys[1]);
 			if (processors.containsKey(key)) {
 				HTTPProcessor processor = processors.get(key);
-				log.info(String.format("uri hook - [%s] invoking %s", key, processor.getClass().getSimpleName()));
+				log.debug(String.format("uri hook - [%s] invoking %s", key, processor.getClass().getSimpleName()));
 				return processor.serve(uri, method, header, parms, socket);
 			}
 		}
