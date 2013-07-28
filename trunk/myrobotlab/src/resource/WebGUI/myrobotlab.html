@@ -30,18 +30,19 @@
 <script>
 	// global registry and vars
 	var guiMap = new Array();
+	var registry = [];
 	var loadedClasses = [];
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
-	var wsURI = "ws://localhost:7778"; // TODO - this gets passed up from server
-	var runtimeName = "runtime";
-	var webGUIName = "webgui";
+	var wsURI = "ws://<%=getHostAddress%>:<%=wsPort%>"; // TODO - this gets passed up from server
+	var runtimeName = "<%=runtimeName%>";
+	var webguiName = "<%=webguiName%>";
 
 	function Message(name, method, params) {
 		this.msgID = new Date().getTime();
 		this.timeStamp = this.msgID;
 		this.name = name;
-		this.sender = webGUIName; // FIXME - named passed in
+		this.sender = webguiName; // FIXME - named passed in
 		this.sendingMethod = "";
 		this.historyList = new Array(); // necessary?
 		this.method = method;
@@ -58,20 +59,20 @@
 	// global getRegistry -
 	// CAREFUL any vars in here are global too !
 	function getRegistry(data) {
-		
-		var inRegistry = data[0];
-		loadServiceGUIClass(inRegistry, Object.keys(inRegistry), 0);
+		// refresh global registry
+		registry = data[0];
+		loadServiceGUIClass(registry, Object.keys(registry), 0);
 	}
 
-	function loadServiceGUIClass(inRegistry, nameArray, index) {
+	function loadServiceGUIClass(registry, nameArray, index) {
 
 		// check  to see if we are done
-		if (index == Object.keys(inRegistry).length){
+		if (index == Object.keys(registry).length){
 			return;
 		}
 		
 		var serviceName = nameArray[index];
-		var serviceWrapper = inRegistry[serviceName];
+		var serviceWrapper = registry[serviceName];
 		var className = getSimpleClassName(serviceWrapper.service.serviceClass);
 
 		
@@ -86,30 +87,32 @@
 		// --- dynamic class loader begin ---
 //		$.getScript("/resource/WebGUI/"+className+".js",
 //				function(data, result, scopedName) {
-					// load the accordian reference 
-					try {
-						$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
-						$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
-						$("#accordion1").accordion("refresh");
-						
-						newClass = " new " + className + "GUI('"+serviceName+"');";
-						guiMap[serviceName] = eval(newClass);
-	
-						// add html
-						$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
-						guiMap[serviceName].init();
-						guiMap[serviceName].attachGUI();
-						$("#accordion1").accordion("refresh");
-					} catch (err) {
-						error(err);
-					}
-					loadServiceGUIClass(inRegistry, nameArray, index + 1);
-
 //				});
 					// --- dynamic class loader end ---
 
-		} else if (!(serviceName in guiMap)) {
+		}
+		
+		if (!(serviceName in guiMap)) {
 			// class is loaded - but need a new instance
+			// load the accordian reference 
+			try {
+				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
+				$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
+				$("#accordion1").accordion("refresh");
+				
+				newClass = " new " + className + "GUI('"+serviceName+"');";
+				guiMap[serviceName] = eval(newClass);
+
+				// add html
+				$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
+				guiMap[serviceName].init();
+				guiMap[serviceName].attachGUI();
+				$("#accordion1").accordion("refresh");
+			} catch (err) {
+				error(err);
+			}
+			
+			loadServiceGUIClass(registry, nameArray, index + 1);
 		}
 		
 	}
@@ -141,14 +144,14 @@
 
 	ServiceGUI.prototype.subscribe = function(inMethod, outMethod) //(inMethod, outMethod, params)
 	{
-		this.sendTo(webGUIName, "subscribe", [ this.name, inMethod,
+		this.sendTo(webguiName, "subscribe", [ this.name, inMethod,
 				outMethod ]);
 	}
 
 	ServiceGUI.prototype.subscribeTo = function(publisherName, outMethod, inMethod) //(inMethod, outMethod, params)
 	{
 		// FIXME - need a "subscribe to a runtimes' getRegistry"
-		this.sendTo(webGUIName, "subscribe",
+		this.sendTo(webguiName, "subscribe",
 				[ publisherName, inMethod, outMethod ]);
 	}
 
@@ -287,7 +290,11 @@
 		</h3>
 		<div>
 			<button id="subscribeToRegistry">subscribeToRegistry</button>
-			<button id="getRegistry">getRegistry</button>
+			<button id="getRegistry">getRegistry</button><br/>
+			Clients
+			<div id="clients">
+				<input id="-clients" type="button" value="ws://blah"/>
+			</div>
 		</div>
 	</div>
 
