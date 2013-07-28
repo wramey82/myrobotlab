@@ -7,14 +7,14 @@
 		revision="working"
 		conf="default"
 		confs="default"
-		date="20121027052432"/>
+		date="20130728151855"/>
 	<dependencies>
 		<module organisation="org.simpleframework.xml" name="xml">
-			<revision name="2.5.3" status="release" pubdate="20120314100718" resolver="public-remote" artresolver="public-remote" downloaded="false" searched="true" default="false" conf="runtime, x86.32.windows" position="0">
-				<metadata-artifact status="no" details="" size="594" time="0" location="C:\mrl\myrobotlab\.ivy\org.simpleframework.xml\xml\ivy-2.5.3.xml" searched="true" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.simpleframework.xml/xml/2.5.3/ivy.xml"/>
+			<revision name="2.5.3" status="release" pubdate="20120314100718" resolver="public-remote" artresolver="public-remote" downloaded="false" searched="true" default="false" conf="runtime, x86.64.windows" position="0">
+				<metadata-artifact status="no" details="" size="594" time="0" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.simpleframework.xml\xml\ivy-2.5.3.xml" searched="true" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.simpleframework.xml/xml/2.5.3/ivy.xml"/>
 				<caller organisation="org.simpleframework.xml" name="xml-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
 				<artifacts>
-					<artifact name="simple-xml-2.5.3" type="jar" ext="jar" status="no" details="" size="357893" time="0" location="C:\mrl\myrobotlab\.ivy\org.simpleframework.xml\xml\jars\simple-xml-2.5.3-2.5.3.jar">
+					<artifact name="simple-xml-2.5.3" type="jar" ext="jar" status="no" details="" size="357893" time="0" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.simpleframework.xml\xml\jars\simple-xml-2.5.3-2.5.3.jar">
 						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.simpleframework.xml/xml/2.5.3/simple-xml-2.5.3.jar"/>
 					</artifact>
 				</artifacts>

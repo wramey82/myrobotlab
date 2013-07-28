@@ -4,7 +4,7 @@
 		module="log4j"
 		revision="1.2.14-1.2.14"
 		status="release"
-		publication="20121027052432"
+		publication="20130728151855"
 		default="true"
 	/>
 	<configurations>
