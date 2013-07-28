@@ -168,6 +168,8 @@ public class ResourceProcessor implements HTTPProcessor {
 				filter = filter.replace("<%=runtimeName%>", Runtime.getInstance().getName());
 				log.info("<%=webguiName%> --> {}", webgui.getName());
 				filter = filter.replace("<%=webguiName%>", webgui.getName());
+				log.info("<%=httpPort%> --> {}", webgui.httpPort.toString());
+				filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
 				//filter.replace(, newChar);
 				content = filter.getBytes();
 			} else {

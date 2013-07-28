@@ -123,7 +123,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(GUIService.class.getCanonicalName());
+	transient public final static Logger log = LoggerFactory.getLogger(GUIService.class.getCanonicalName());
 
 	public String graphXML = "";
 
@@ -141,7 +141,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * 
 	 */
 	@ElementMap(entry = "serviceType", value = "dependsOn", attribute = true, inline = true, required = false)
-	public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
+	transient public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
 
 	/**
 	 * all the panels
@@ -150,6 +150,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	transient JMenuItem recording = new JMenuItem("start recording");
 	transient JMenuItem loadRecording = new JMenuItem("load recording");
+	
+	boolean test = true;
 
 	/**
 	 * the GUIService's gui
@@ -170,6 +172,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient GridBagConstraints gc = null;
 
 	String selectedTabTitle = null;
+	boolean isDisplaying = false;
+	transient JLabel status = new JLabel("status");
+
 
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
@@ -372,8 +377,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * FIXME - remove - residual kruft
 	 */
 
-	boolean test = true;
-
 	public JTabbedPane loadTabPanels() {
 		if (test) {
 			buildTabPanels();
@@ -473,8 +476,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	// twice ?
 	// I'm going with the "easy" approach
 
-	boolean isDisplaying = false;
-	JLabel status = new JLabel("status");
 
 	public void display() {
 		if (!isDisplaying) {

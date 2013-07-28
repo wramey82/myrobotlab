@@ -34,7 +34,13 @@
 	var loadedClasses = [];
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var debug = true;
-	var wsURI = "ws://<%=getHostAddress%>:<%=wsPort%>"; // TODO - this gets passed up from server
+	
+	var host = "<%=getHostAddress%>";
+	var httpPort = "<%=httpPort%>";
+	var wsPort = "<%=wsPort%>";
+	
+	var wsURI = "ws://" + host + ":" + wsPort; // TODO - this gets passed up from server
+		
 	var runtimeName = "<%=runtimeName%>";
 	var webguiName = "<%=webguiName%>";
 
@@ -231,6 +237,18 @@
 			mrl.sendTo(runtimeName, "getRegistry");
 		});
 	});
+	
+	$(function() {
+		$("#restMethods").button().click(function(event) {
+			window.open( "http://" + host + ":" + httpPort + "/services");
+		});
+	});
+	
+	$(function() {
+		$("#releaseAll").button().click(function(event) {
+			mrl.sendTo(runtimeName, "releaseAll");
+		});
+	});
 
 	// --- logging begin ----
 	function debug(text) {
@@ -290,10 +308,12 @@
 		</h3>
 		<div>
 			<button id="subscribeToRegistry">subscribeToRegistry</button>
-			<button id="getRegistry">getRegistry</button><br/>
-			Clients
+			<button id="getRegistry">getRegistry</button>
+			<button id="restMethods">rest methods</button>
+			<button id="releaseAll">release all</button>
+			<br/>
+			web socket clients
 			<div id="clients">
-				<input id="-clients" type="button" value="ws://blah"/>
 			</div>
 		</div>
 	</div>
