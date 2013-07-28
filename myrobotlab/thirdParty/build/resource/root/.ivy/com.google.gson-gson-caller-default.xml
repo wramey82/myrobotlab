@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="com.google.gson"
+		module="gson-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20130728151855"/>
+	<dependencies>
+		<module organisation="com.google.gson" name="gson">
+			<revision name="1.7.1" status="release" pubdate="20120303001406" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="runtime, x86.64.windows" position="0">
+				<metadata-artifact status="successful" details="" size="446" time="97" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\com.google.gson\gson\ivy-1.7.1.xml" searched="true" original-local-location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\com.google.gson\gson\ivy-1.7.1.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/com.google.gson/gson/1.7.1/ivy.xml"/>
+				<caller organisation="com.google.gson" name="gson-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+					<artifact name="gson-1.7.1" type="jar" ext="jar" status="successful" details="" size="173590" time="343" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\com.google.gson\gson\jars\gson-1.7.1-1.7.1.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/com.google.gson/gson/1.7.1/gson-1.7.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

@@ -7,14 +7,14 @@
 		revision="working"
 		conf="default"
 		confs="default"
-		date="20121027052432"/>
+		date="20130728151855"/>
 	<dependencies>
 		<module organisation="org.apache.log4j" name="log4j">
-			<revision name="1.2.14" status="release" pubdate="20120225064830" resolver="public-remote" artresolver="public-remote" downloaded="false" searched="true" default="false" conf="runtime, x86.32.windows" position="0">
-				<metadata-artifact status="no" details="" size="586" time="0" location="C:\mrl\myrobotlab\.ivy\org.apache.log4j\log4j\ivy-1.2.14.xml" searched="true" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.apache.log4j/log4j/1.2.14/ivy.xml"/>
+			<revision name="1.2.14" status="release" pubdate="20120225064830" resolver="public-remote" artresolver="public-remote" downloaded="false" searched="true" default="false" conf="runtime, x86.64.windows" position="0">
+				<metadata-artifact status="no" details="" size="586" time="0" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.apache.log4j\log4j\ivy-1.2.14.xml" searched="true" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.apache.log4j/log4j/1.2.14/ivy.xml"/>
 				<caller organisation="org.apache.log4j" name="log4j-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
 				<artifacts>
-					<artifact name="log4j-1.2.14" type="jar" ext="jar" status="no" details="" size="367444" time="0" location="C:\mrl\myrobotlab\.ivy\org.apache.log4j\log4j\jars\log4j-1.2.14-1.2.14.jar">
+					<artifact name="log4j-1.2.14" type="jar" ext="jar" status="no" details="" size="367444" time="0" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.apache.log4j\log4j\jars\log4j-1.2.14-1.2.14.jar">
 						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.apache.log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
 					</artifact>
 				</artifacts>

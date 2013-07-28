@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="org.simpleframework.xml" module="xml" status="release" revision="2.">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="simple-xml-2.7" type="jar" conf="*"/>
+    </publications>
+</ivy-module>7

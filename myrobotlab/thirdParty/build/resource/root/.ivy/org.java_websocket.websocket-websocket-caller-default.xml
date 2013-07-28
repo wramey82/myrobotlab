@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="org.java_websocket.websocket"
+		module="websocket-caller"
+		revision="working"
+		conf="default"
+		confs="default"
+		date="20130728151856"/>
+	<dependencies>
+		<module organisation="org.java_websocket.websocket" name="websocket">
+			<revision name="1.0" status="release" pubdate="20130701210451" resolver="public-remote" artresolver="public-remote" downloaded="true" searched="true" default="false" conf="runtime, x86.64.windows" position="0">
+				<metadata-artifact status="successful" details="" size="466" time="116" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.java_websocket.websocket\websocket\ivy-1.0.xml" searched="true" original-local-location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.java_websocket.websocket\websocket\ivy-1.0.xml.original" origin-is-local="false" origin-location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.java_websocket.websocket/websocket/1.0/ivy.xml"/>
+				<caller organisation="org.java_websocket.websocket" name="websocket-caller" conf="default" rev="latest.integration" rev-constraint-default="latest.integration" rev-constraint-dynamic="latest.integration" callerrev="working"/>
+				<artifacts>
+					<artifact name="java_websocket" type="jar" ext="jar" status="successful" details="" size="97592" time="214" location="C:\mrl\myrobotlab\build\dist\myrobotlab.1607.1610M.20130728.1511\.ivy\org.java_websocket.websocket\websocket\jars\java_websocket-1.0.jar">
+						<origin-location is-local="false" location="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/org.java_websocket.websocket/websocket/1.0/java_websocket.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
