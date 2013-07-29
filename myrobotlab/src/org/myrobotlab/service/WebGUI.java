@@ -44,6 +44,7 @@ public class WebGUI extends Service {
 	}
 
 	public boolean startWebServer(Integer port) {
+		subscribe(Runtime.getInstance().getIntanceName(), "getRegistry");
 		try {
 			if (port.equals(httpPort) && ws != null)
 			{
