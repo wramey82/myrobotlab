@@ -179,6 +179,11 @@
 		this.ws.onerror = function(errorMsg) {
 			error("WebSocket Error " + errorMsg);
 		};
+		
+		this.ws.onclose = function(errorMsg) {
+			//info("disconnected");
+			$("#topMessage").text("disconnected from " + wsURI);
+		};
 
 		this.ws.onmessage = function(e) {
 			info("Server: " + e.data);

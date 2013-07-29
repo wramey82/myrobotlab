@@ -54,7 +54,8 @@ public class ResourceProcessor implements HTTPProcessor {
 				scannedDirectories.add(uri);
 			}
 		} catch (FileNotFoundException e) {
-			Logging.logException(e);
+			//Logging.logException(e);
+			log.info("root directory not found - no overrides");
 		}
 	}
 	
@@ -97,7 +98,6 @@ public class ResourceProcessor implements HTTPProcessor {
 			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
 
 		InputStream fis = FileIO.class.getResourceAsStream(uri);
-		//File f = new File("", uri);
 		if (fis == null)
 			return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
 
