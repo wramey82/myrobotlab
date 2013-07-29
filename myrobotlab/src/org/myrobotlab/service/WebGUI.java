@@ -202,13 +202,13 @@ public class WebGUI extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		//clock.startClock();
-		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
+		Runtime.createAndStart("webgui", "WebGUI");
 		Runtime.createAndStart("python", "Python");
 		//Runtime.createAndStart("arduino", "Arduino");
 

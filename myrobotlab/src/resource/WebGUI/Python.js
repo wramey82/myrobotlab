@@ -21,21 +21,31 @@ PythonGUI.prototype.getScript = function(data) {
 	// TODO - get current script
 };
 
+PythonGUI.prototype.getExampleListing = function() {
+};
+
+PythonGUI.prototype.publishStdOut = function(data) {
+	 $("#"+this.name+"-console").append(data);
+};
+
 //--- callbacks end ---
 
 // --- overrides begin ---
 PythonGUI.prototype.attachGUI = function() {
 	//this.subscribe("publishState", "getState"); - trying discreet
 	
-	subscribe("getScript", "getScript");
-	subscribe("finishedExecutingScript", "finishedExecutingScript");
-	subscribe("publishStdOut", "getStdOut");
-	subscribe("appendScript", "appendScript");
-	subscribe("startRecording", "startRecording");
-
+	this.subscribe("getScript", "getScript");
+	this.subscribe("finishedExecutingScript", "finishedExecutingScript");
+	this.subscribe("publishStdOut", "publishStdOut");
+	this.subscribe("appendScript", "appendScript");
+	this.subscribe("startRecording", "startRecording");
+	this.subscribe("getExampleListing", "getExampleListing");
+	
 	// broadcast the initial state
 	//this.send("broadcastState"); - trying discreet
-	this.send("getScript");
+	//this.send("getScript");
+	this.send("getExampleListing");
+	this.send("attachPythonConsole");
 };
 
 PythonGUI.prototype.detachGUI = function() {
@@ -110,17 +120,37 @@ PythonGUI.prototype.init = function() {
 
 	setTimeout(function(){ window.scrollTo(0,0) }, 10);
 	
-	$(function() {
+	//$(function() {
 	    //$(".python-menu").buttonset().width("300px");
 		$(".python-menu").buttonset();
-	    $("#run").button().click(function( event ) {
+	    $("#"+this.name+"-run").button().click(function( event ) {
 	    	var name = event.currentTarget.name;	    	
 	       // event.preventDefault();
 		    var gui = guiMap[name];
 		    gui.send("exec",[gui.editor.getValue()]);
 		   // gui.send("exec", [parseInt(this.id), value]);	
 	      });
-	  });
+	    $("#"+this.name+"-examples").button().click(function( event ) {
+	    	var name = event.currentTarget.name;	    	
+	       // event.preventDefault();
+		    var gui = guiMap[name];
+		    gui.send("getExampleListing");
+		   // gui.send("exec", [parseInt(this.id), value]);	
+	      });
+	    
+	    $("#"+this.name+"-examples-select").button({
+	          //text: false,
+	          icons: {
+	            primary: "ui-icon-triangle-1-s"
+	          }
+	        }).click(function( event ) {
+	    	var name = event.currentTarget.name;	    	
+	       // event.preventDefault();
+		    var gui = guiMap[name];
+		    gui.send("getExampleListing");
+		   // gui.send("exec", [parseInt(this.id), value]);	
+	      });
+	//  });
 	
 	//alert(editor.getValue());
 };
@@ -134,20 +164,26 @@ PythonGUI.prototype.setPorts = function(event) {
 
 //--- gui events end ---
 
-
 PythonGUI.prototype.getPanel = function() {
-	return "<div class='python-menu'>" +
-	"<input type='button' id='run' name='"+this.name+"' value='run' /> " +
+	return "<div class='python-menu' align='center'>" +
+	"<button id='"+this.name+"-run' name='"+this.name+"' >run</button> " +
+	"<input type='button' id='"+this.name+"-save' name='"+this.name+"' value='save' /> " +
+	"<input type='button' id='"+this.name+"-examples' name='"+this.name+"' value='examples' /> " +
+	"<button id='"+this.name+"-examples-select' name='"+this.name+"'>examples</button>" +
+	"<input type='button' id='"+this.name+"-load' name='"+this.name+"' value='load' /> " +
+	"<input type='text' id='"+this.name+"-filename'  class='text ui-widget-content ui-corner-all' name='"+this.name+"' value='untitled.py' /> " +
 	"</div>" +
 	"<pre id='editor'>print 'One Software To Rule Them All !!!' \n" +
 	"</pre>" +
+	"<p align='center' >" +
+	"<textarea id='"+this.name+"-console' class='text ui-widget-content ui-corner-all'  rows='10' cols='120'></textarea>" +
+	"</p>" + 
 	"<div class='scrollmargin'>" +
 	"    <div style='padding:20px'>" +
 	"        press F11 to switch to fullscreen mode" +
 	"    </div>" +
 	"    <span onclick='add()' class='large-button' title='Shift+Enter'>+</span>" +
 	"</div>" +
-	"" +
 	"<script src='/resource/WebGUI/common/ace/src-min/ace.js' type='text/javascript' charset='utf-8'></script>"
 	;
 }

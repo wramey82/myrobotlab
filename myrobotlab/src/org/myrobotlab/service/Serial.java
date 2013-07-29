@@ -24,12 +24,21 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	private transient SerialDevice serialDevice;
 	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
-	int rawReadMsgLength = 5;
+	int rawReadMsgLength = 1;
 	
 	ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	
 	private boolean connected = false;
 	private String portName = "";
+	
+	public static final int READ_TYPE_BYTE = 0;
+	public static final int READ_TYPE_CHAR = 1;
+	public static final int READ_TYPE_INTEGER = 2;
+	
+	public static final int READ_TYPE_STRING = 3;
+	
+
+	public int readType = READ_TYPE_BYTE;
 
 	public Serial(String n) {
 		super(n, Serial.class.getCanonicalName());
@@ -40,6 +49,11 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		return "used as a general template";
 	}
 
+	public String getPortName()
+	{
+		return portName;
+	}
+	
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
 		switch (event.getEventType()) {

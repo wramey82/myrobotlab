@@ -442,17 +442,12 @@ public class Python extends Service {
 
 	public static int untitledDocuments = 0;
 
-	/*
-	 * public static String getName(String filename) { if (filename == null) {
-	 * ++untitledDocuments; filename = String.format("untitled.%d",
-	 * untitledDocuments);
-	 * 
-	 * } int end = filename.lastIndexOf(".py"); int begin =
-	 * filename.lastIndexOf(File.separator); if (begin > 0) { ++begin; } else {
-	 * begin = 0; } if (end < 0) { end = filename.length(); } return
-	 * filename.substring(begin, end); }
-	 */
-
+	public String getExampleListing()
+	{
+		String listing = getServiceResourceFile("examples");
+		return listing;
+	}
+	
 	public boolean loadScriptFromResource(String filename) {
 		log.debug(String.format("loadScriptFromResource scripts/%1s", filename));
 		String newCode = getServiceResourceFile(String.format("examples/%1s", filename));
