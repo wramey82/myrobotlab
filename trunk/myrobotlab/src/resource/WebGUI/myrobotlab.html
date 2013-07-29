@@ -173,8 +173,6 @@
 
 		this.ws.onopen = function(openEvent) {
 			$("#topMessage").text("connected to " + wsURI);
-			
-			mrl.subscribeTo(runtimeName, "getRegistry", "getRegistry");
 			mrl.sendTo(runtimeName, "getRegistry");
 		};
 
@@ -225,18 +223,6 @@
 
 	// -- websocket global connectivity and message processing begin --
 	// TODO - jquery best practices - anonymous functions are to be avoided
-
-	$(function() {
-		$("#subscribeToRegistry").button().click(function(event) {
-			mrl.subscribeTo(runtimeName, "getRegistry", "getRegistry");
-		});
-	});
-
-	$(function() {
-		$("#getRegistry").button().click(function(event) {
-			mrl.sendTo(runtimeName, "getRegistry");
-		});
-	});
 	
 	$(function() {
 		$("#restMethods").button().click(function(event) {
@@ -307,8 +293,6 @@
 			<img src="../myrobotlab.png" />myrobotlab <span id="topMessage"></span>
 		</h3>
 		<div>
-			<button id="subscribeToRegistry">subscribeToRegistry</button>
-			<button id="getRegistry">getRegistry</button>
 			<button id="restMethods">rest methods</button>
 			<button id="releaseAll">release all</button>
 			<br/>
