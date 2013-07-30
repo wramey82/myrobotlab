@@ -39,7 +39,7 @@ WebGUIGUI.prototype.detachGUI = function() {
 
 WebGUIGUI.prototype.init = function() {	
 	$("#"+this.name+"-setPorts").button().click(WebGUIGUI.prototype.setPorts);
-
+	$("#"+this.name+"-customize").button().click(WebGUIGUI.prototype.customize);
 };
 // --- overrides end ---
 
@@ -49,10 +49,13 @@ WebGUIGUI.prototype.setPorts = function(event) {
 	var gui = guiMap[this.name];
 	var httpPort = $("#"+this.name+"-httpPort").val();
 	var wsPort	 = $("#"+this.name+"-wsPort").val();
-	//alert(httpPort);
-	// FIXME - implement
-	//gui.send()
 	gui.send("broadcastState");
+}
+
+WebGUIGUI.prototype.customize = function(event) {
+
+	var gui = guiMap[this.name];
+	gui.send("customize");
 }
 
 //--- gui events end ---
@@ -62,6 +65,7 @@ WebGUIGUI.prototype.getPanel = function() {
 	return "<div>"
 			+ "	http port       <input class='text ui-widget-content ui-corner-all' id='"+this.name+"-httpPort' type='text' value=''/>"
 			+ "	web socket port <input class='text ui-widget-content ui-corner-all' id='"+this.name+"-wsPort' type='text' value=''/>"
-			+ "	<input id='"+this.name+"-setPorts' type='button' value='set'/>"
+			+ "	<input id='"+this.name+"-setPorts' name='"+this.name+"' type='button' value='set'/>"
+			+ "	<input id='"+this.name+"-customize' name='"+this.name+"' type='button' value='customize'/>"
 			+ "</div>";
 }

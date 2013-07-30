@@ -50,18 +50,18 @@ public class Zip {
 	}
 
 	static public void extractFromFile(String resourcePath, String targetDirectory, String filter) throws IOException {
-		extract(resourcePath, targetDirectory, filter, FILE);
+		extract(resourcePath, targetDirectory, filter, FILE, false);
 	}
 
 	static public void extractFromResource(String resourcePath, String targetDirectory) throws IOException {
-		extract(resourcePath, targetDirectory, null, RESOURCE);
+		extract(resourcePath, targetDirectory, null, RESOURCE, false);
 	}
 
 	static public void extractFromResource(String resourcePath, String targetDirectory, String filter) throws IOException {
-		extract(resourcePath, targetDirectory, filter, RESOURCE);
+		extract(resourcePath, targetDirectory, filter, RESOURCE, false);
 	}
 
-	static public void extract(String resourcePath, String targetDirectory, String filter, String resourceType) throws IOException {
+	static public void extract(String resourcePath, String targetDirectory, String filter, String resourceType, boolean overwrite) throws IOException {
 		log.debug(String.format("extractFromResource (%s,%s)", resourcePath, targetDirectory));
 
 		// String filter = "resource/";
@@ -93,14 +93,16 @@ public class Zip {
 						file.mkdirs();
 					} else {
 						file.getParentFile().mkdirs();
-						OutputStream out = new FileOutputStream(file);
-						try {
-							int count;
-							while ((count = in.read(buffer)) > 0) {
-								out.write(buffer, 0, count);
+						if (!file.exists() || overwrite){
+							OutputStream out = new FileOutputStream(file);
+							try {
+								int count;
+								while ((count = in.read(buffer)) > 0) {
+									out.write(buffer, 0, count);
+								}
+							} finally {
+								out.close();
 							}
-						} finally {
-							out.close();
 						}
 						in.closeEntry();
 					}
