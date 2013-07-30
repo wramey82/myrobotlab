@@ -81,6 +81,8 @@ public class WSServer extends WebSocketServer {
 	 * @throws InterruptedException
 	 *             When socket related I/O errors occur.
 	 */
+	// FIXME - on release all - this throws an exception and doesn't complete - but is it worth
+	// the overhead of a try???
 	public void sendToAll( String text ) {
 		Collection<WebSocket> con = connections();
 		synchronized ( con ) {

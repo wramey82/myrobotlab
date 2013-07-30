@@ -22,10 +22,20 @@ PythonGUI.prototype.getScript = function(data) {
 };
 
 PythonGUI.prototype.getExampleListing = function() {
+	
+	var menu = $( this ).parent().next().show().position({
+        my: "left top",
+        at: "left bottom",
+        of: this
+      });
+      $( document ).one( "click", function() {
+        menu.hide();
+      });
+      return false;
 };
 
 PythonGUI.prototype.publishStdOut = function(data) {
-	 $("#"+this.name+"-console").append(data);
+	 $("#"+this.name+"-console").prepend(data);
 };
 
 //--- callbacks end ---
@@ -164,12 +174,19 @@ PythonGUI.prototype.setPorts = function(event) {
 
 //--- gui events end ---
 
+
+
 PythonGUI.prototype.getPanel = function() {
 	return "<div class='python-menu' align='center'>" +
 	"<button id='"+this.name+"-run' name='"+this.name+"' >run</button> " +
 	"<input type='button' id='"+this.name+"-save' name='"+this.name+"' value='save' /> " +
 	"<input type='button' id='"+this.name+"-examples' name='"+this.name+"' value='examples' /> " +
 	"<button id='"+this.name+"-examples-select' name='"+this.name+"'>examples</button>" +
+	"  <ul>" +
+	"    <li><a href='#'>Open...</a></li>" +
+	"    <li><a href='#'>Save</a></li>" +
+	"    <li><a href='#'>Delete</a></li>" +
+	"  </ul>" +
 	"<input type='button' id='"+this.name+"-load' name='"+this.name+"' value='load' /> " +
 	"<input type='text' id='"+this.name+"-filename'  class='text ui-widget-content ui-corner-all' name='"+this.name+"' value='untitled.py' /> " +
 	"</div>" +

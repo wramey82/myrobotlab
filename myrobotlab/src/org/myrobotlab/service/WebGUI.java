@@ -1,8 +1,10 @@
 package org.myrobotlab.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.myrobotlab.fileLib.Zip;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -146,6 +148,16 @@ public class WebGUI extends Service {
 		return false;
 	}
 	
+	public void customize()
+	{
+		try {
+		(new File("root/resource/WebGUI")).mkdirs();
+		//Zip.extractFromResource("/resource/WebGUI/Python.js", "root");
+		Zip.extractFromFile("./libraries/jar/myrobotlab.jar", "root", "resource/WebGUI");
+		} catch(Exception e){
+			Logging.logException(e);
+		}
+	}
 
 	// FIXME - take out of RESTProcessor - normalize
 	public String toJson(Message msg) {
