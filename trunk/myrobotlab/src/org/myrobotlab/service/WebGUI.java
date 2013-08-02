@@ -209,7 +209,11 @@ public class WebGUI extends Service {
 	public void sendToAll(Message msg) {
 		String json = toJson(msg);
 		log.info(String.format("webgui ---to---> all clients [%s]", json));
-		wss.sendToAll(json);
+		if (json != null){
+			wss.sendToAll(json);
+		} else {
+			log.error(String.format("toJson %s.%s is null", msg.name, msg.method));
+		}
 	}
 
 	public static void main(String[] args) {
