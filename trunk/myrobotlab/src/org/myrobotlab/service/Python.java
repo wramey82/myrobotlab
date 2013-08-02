@@ -417,13 +417,22 @@ public class Python extends Service {
 	// FIXME - need to replace "script" with Hashmap<filename, script> to
 	// support and IDE muti-file view
 
-	public void saveCurrentScript() {
+	public boolean saveCurrentScript() {
 		try {
 			FileOutputStream out = new FileOutputStream(getCFGDir() + File.separator + currentScript.name);
 			out.write(currentScript.code.getBytes());
+			return true;
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
+		return false;
+	}
+	
+	public boolean saveAndReplaceCurrentScript(String name, String code)
+	{
+		currentScript.name = name;
+		currentScript.code = code;
+		return saveCurrentScript();
 	}
 
 	/**

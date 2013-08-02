@@ -206,8 +206,7 @@ PythonGUI.prototype.init = function() {
 		var name = event.currentTarget.name;
 		// event.preventDefault();
 		var gui = guiMap[name];
-		gui.send("saveCurrentScript");
-		// gui.send("exec", [parseInt(this.id), value]);
+		gui.send("saveAndReplaceCurrentScript",[$("#"+name+"-filename").val(),gui.editor.getValue()]);
 	});
 	
 	
