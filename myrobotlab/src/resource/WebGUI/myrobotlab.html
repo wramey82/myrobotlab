@@ -115,7 +115,7 @@
 				guiMap[serviceName].attachGUI();
 				$("#accordion1").accordion("refresh");
 			} catch (err) {
-				error(err);
+				this.error(err);
 			}
 			
 			loadServiceGUIClass(registry, nameArray, index + 1);
@@ -167,7 +167,7 @@
 	}
 	
 	// --- ServiceGUI end ----
-	
+	// FIXME -  embedded all methods in ServiceGUI
 		function Connection(uri) {
 		this.ws = new WebSocket(uri);
 
@@ -177,7 +177,7 @@
 		};
 
 		this.ws.onerror = function(errorMsg) {
-			error("WebSocket Error " + errorMsg);
+			this.error("WebSocket Error " + errorMsg);
 		};
 		
 		this.ws.onclose = function(errorMsg) {
@@ -186,11 +186,12 @@
 		};
 
 		this.ws.onmessage = function(e) {
-			info("Server: " + e.data);
+			//info("Server: " + e.data);
+			console.log(e.data);
 
 			try {
 				var msg = jQuery.parseJSON(e.data);
-				info("invoke " + msg.sender + "." + msg.method);
+				mrl.info("invoke " + msg.sender + "." + msg.method);
 				if (msg.method == "getRegistry") {
 					getRegistry(msg.data)
 				} else {
@@ -199,7 +200,8 @@
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
 				//error("json parse error " + err + " data " + e.data);
-				error(err); // make not all exceptions will be trapped
+				//this.error(err); // make not all exceptions will be trapped
+				console.log(err);
 			}
 		};
 	}
@@ -242,27 +244,27 @@
 	});
 
 	// --- logging begin ----
-	function debug(text) {
-		log(text, "debug");
+	ServiceGUI.prototype.debug = function(text) {
+		this.log(text, "debug");
 	}
 
-	function info(text) {
-		log(text, "info");
+	ServiceGUI.prototype.info = function(text) {
+		this.log(text, "info");
 	}
 
-	function warn(text) {
-		log(text, "warn");
+	ServiceGUI.prototype.warn = function(text) {
+		this.log(text, "warn");
 	}
 
-	function error(text) {
-		log(text, "error");
+	ServiceGUI.prototype.error = function(text) {
+		this.log(text, "error");
 	}
 
 	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
-	function log(text, level) {
+	ServiceGUI.prototype.log = function(text, level) {
 		//$("#log").val((text !== null ? text : "null") + "\n" + $("#log").val());
 		$("#log").html(
-				"<span class='"+level+"'>" + level + " " + text
+				"<span class='"+level+"'>" + this.name  + " " + level + " " + text
 						+ "</span><br />" + $("#log").html());
 		/*
 		$("#log").val(

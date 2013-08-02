@@ -17,22 +17,57 @@ PythonGUI.prototype.getState = function(data) {
 };
 
 PythonGUI.prototype.getScript = function(data) {
-	this.editor.setValue(data[0]);
+    var code = data[0].code;
+    var filename = data[0].name;
+	this.editor.setValue(code);
+	$("#python-filename").val(filename);
 	// TODO - get current script
 };
 
-PythonGUI.prototype.getExampleListing = function() {
+PythonGUI.prototype.getExampleListing = function(data) {
 	
-	var menu = $( this ).parent().next().show().position({
-        my: "left top",
-        at: "left bottom",
-        of: this
-      });
-      $( document ).one( "click", function() {
-        menu.hide();
-      });
-      return false;
+	var files = data[0];
+	var filelist = $("#python-example-file-menu");
+	for (var i = 0; i < files.length; i++) {
+		filelist.append(" <li><a name='"+this.name+"' class='python-example-file' id='" + files[i] + "' href='#'>" + files[i] + "</a></li>");
+	}
+	
+	var menu = $("#python-example-file-menu").menu().hide();
+	$(".python-example-file").button().click(function(event) {
+		var name = event.currentTarget.name;
+		// event.preventDefault();
+		var gui = guiMap[name];
+		gui.getExampleFile(this.id);
+	});
+
 };
+
+PythonGUI.prototype.getFileListing = function(data) {
+	
+	var files = data[0];
+	var filelist = $("#python-file-menu");
+	for (var i = 0; i < files.length; i++) {
+		filelist.append(" <li><a name='"+this.name+"' class='python-file' id='" + files[i] + "' href='#'>" + files[i] + "</a></li>");
+	}
+	
+	var menu = $("#python-file-menu").menu().hide();
+	$(".python-file").button().click(function(event) {
+		var name = event.currentTarget.name;
+		// event.preventDefault();
+		var gui = guiMap[name];
+		gui.getExampleFile(this.id);
+	});
+
+};
+
+PythonGUI.prototype.getExampleFile = function(data) {
+	 //alert(data);
+	 $("#python-example-file-menu").menu().hide();
+	 this.send("loadScriptFromResource", [data]);
+	 this.send("getScript");
+	 // NOTE - there is a broadcast at the end of loadscript from resource
+};
+
 
 PythonGUI.prototype.publishStdOut = function(data) {
 	 $("#"+this.name+"-console").prepend(data);
@@ -50,144 +85,164 @@ PythonGUI.prototype.attachGUI = function() {
 	this.subscribe("appendScript", "appendScript");
 	this.subscribe("startRecording", "startRecording");
 	this.subscribe("getExampleListing", "getExampleListing");
+	this.subscribe("getFileListing", "getFileListing");
+	//this.subscribe("publishState", "getState"); NO WORKY SERIALIZATION ERROR :P
 	
-	// broadcast the initial state
-	//this.send("broadcastState"); - trying discreet
-	//this.send("getScript");
 	this.send("getExampleListing");
+	this.send("getFileListing");
 	this.send("attachPythonConsole");
 };
 
 PythonGUI.prototype.detachGUI = function() {
-	this.unsubscribe("publishState", "getState");
+	//this.unsubscribe("publishState", "getState");
 };
 
-PythonGUI.prototype.init = function() {	
-	
+PythonGUI.prototype.init = function() {
+
 	// WTF - this conflicts - but when I remove it ..
 	// everything still appears to work !!
-	//var $ = document.getElementById.bind(document); - so JQuery is not happy about 'tis
+	// var $ = document.getElementById.bind(document); - so JQuery is not happy
+	// about 'tis
 	var dom = require("ace/lib/dom");
 
-	//add command to all new editor instaces
+	// add command to all new editor instaces
 	require("ace/commands/default_commands").commands.push({
-	    name: "Toggle Fullscreen",
-	    bindKey: "F11",
-	    exec: function(editor) {
-	        dom.toggleCssClass(document.body, "fullScreen")
-	        dom.toggleCssClass(editor.container, "fullScreen")
-	        editor.resize()
-	    }
+		name : "Toggle Fullscreen",
+		bindKey : "F11",
+		exec : function(editor) {
+			dom.toggleCssClass(document.body, "fullScreen")
+			dom.toggleCssClass(editor.container, "fullScreen")
+			editor.resize()
+		}
 	}, {
-	    name: "add",
-	    bindKey: "Shift-Return",
-	    exec: add
+		name : "add",
+		bindKey : "Shift-Return",
+		exec : add
 	})
 
 	// create first editor
-	//var editor = ace.edit("editor");
+	// var editor = ace.edit("editor");
 	this.editor = ace.edit("editor");
 	var theme = "ace/theme/twilight";
 	this.editor.setTheme(theme);
 	this.editor.session.setMode("ace/mode/python");
 
-
 	var count = 1;
 	function add() {
-	    var oldEl = this.editor.container;
-	    var pad = document.createElement("div");
-	    pad.style.padding = "40px";
-	    oldEl.parentNode.insertBefore(pad, oldEl.nextSibling);
+		var oldEl = this.editor.container;
+		var pad = document.createElement("div");
+		pad.style.padding = "40px";
+		oldEl.parentNode.insertBefore(pad, oldEl.nextSibling);
 
-	    var el = document.createElement("div")
-	    oldEl.parentNode.insertBefore(el, pad.nextSibling);
+		var el = document.createElement("div")
+		oldEl.parentNode.insertBefore(el, pad.nextSibling);
 
-	    count++
-	    this.editor = ace.edit(el)
-	    this.editor.setTheme(theme)
-	    this.editor.session.setMode("ace/mode/javascript")
+		count++
+		this.editor = ace.edit(el)
+		this.editor.setTheme(theme)
+		this.editor.session.setMode("ace/mode/javascript")
 
-	    this.editor.setValue([
-	        "this is editor number: ", count, "\n",
-	        "using theme \"", theme, "\"\n",
-	        ":)"
-	    ].join(""), -1)
+		this.editor.setValue([ "this is editor number: ", count, "\n",
+				"using theme \"", theme, "\"\n", ":)" ].join(""), -1)
 
-	    scroll()
+		scroll()
 	}
 
 	function scroll(speed) {
-	    var top = this.editor.container.getBoundingClientRect().top
-	    speed = speed || 10
-	    if (top > 60 && speed < 500) {
-	        if (speed > top - speed - 50)
-	            speed = top - speed - 50
-	        else
-	            setTimeout(scroll, 10, speed + 10)
-	        window.scrollBy(0, speed)
-	    }
+		var top = this.editor.container.getBoundingClientRect().top
+		speed = speed || 10
+		if (top > 60 && speed < 500) {
+			if (speed > top - speed - 50)
+				speed = top - speed - 50
+			else
+				setTimeout(scroll, 10, speed + 10)
+			window.scrollBy(0, speed)
+		}
 	}
 
-	setTimeout(function(){ window.scrollTo(0,0) }, 10);
+	setTimeout(function() {
+		window.scrollTo(0, 0)
+	}, 10);
+
+	// $(function() {
+	// $(".python-menu").buttonset().width("300px");
+	$(".python-menu").buttonset();
+	$("#" + this.name + "-run").button().click(function(event) {
+		var name = event.currentTarget.name;
+		// event.preventDefault();
+		var gui = guiMap[name];
+		gui.send("exec", [ gui.editor.getValue() ]);
+		// gui.send("exec", [parseInt(this.id), value]);
+	});
+	$("#" + this.name + "-examples").button().click(function(event) {
+		var name = event.currentTarget.name;
+		// event.preventDefault();
+		var gui = guiMap[name];
+		gui.send("getExampleListing");
+		// gui.send("exec", [parseInt(this.id), value]);
+	});
+
+	$("#" + this.name + "-examples-select").button({
+		// text: false,
+		icons : {
+			primary : "ui-icon-triangle-1-s"
+		}
+	}).click(function() {
+		var menu = $('#python-example-file-menu').toggle();
+	});
 	
-	//$(function() {
-	    //$(".python-menu").buttonset().width("300px");
-		$(".python-menu").buttonset();
-	    $("#"+this.name+"-run").button().click(function( event ) {
-	    	var name = event.currentTarget.name;	    	
-	       // event.preventDefault();
-		    var gui = guiMap[name];
-		    gui.send("exec",[gui.editor.getValue()]);
-		   // gui.send("exec", [parseInt(this.id), value]);	
-	      });
-	    $("#"+this.name+"-examples").button().click(function( event ) {
-	    	var name = event.currentTarget.name;	    	
-	       // event.preventDefault();
-		    var gui = guiMap[name];
-		    gui.send("getExampleListing");
-		   // gui.send("exec", [parseInt(this.id), value]);	
-	      });
-	    
-	    $("#"+this.name+"-examples-select").button({
-	          //text: false,
-	          icons: {
-	            primary: "ui-icon-triangle-1-s"
-	          }
-	        }).click(function( event ) {
-	    	var name = event.currentTarget.name;	    	
-	       // event.preventDefault();
-		    var gui = guiMap[name];
-		    gui.send("getExampleListing");
-		   // gui.send("exec", [parseInt(this.id), value]);	
-	      });
-	//  });
+
+	$("#" + this.name + "-load").button({
+		// text: false,
+		icons : {
+			primary : "ui-icon-triangle-1-s"
+		}
+	}).click(function() {
+		var menu = $('#python-file-menu').toggle();
+	});	
 	
-	//alert(editor.getValue());
+	
+	$("#" + this.name + "-save").button().click(function(event) {
+		var name = event.currentTarget.name;
+		// event.preventDefault();
+		var gui = guiMap[name];
+		gui.send("saveCurrentScript");
+		// gui.send("exec", [parseInt(this.id), value]);
+	});
+	
+	
+	/*.click(function() {
+		var menu = $('#python-example-file-menu').show().position({
+			my : "left top",
+			at : "left bottom",
+			of : this
+		});
+		$(document).one("click", function() {
+			menu.hide();
+		});
+		return false;
+	}).next().hide().menu();*/
+	// });
+
+	// alert(editor.getValue());
 };
 // --- overrides end ---
 
 // --- gui events begin ---
-PythonGUI.prototype.setPorts = function(event) {
 
-	gui.send("broadcastState");
-}
-
-//--- gui events end ---
-
-
+// --- gui events end ---
 
 PythonGUI.prototype.getPanel = function() {
 	return "<div class='python-menu' align='center'>" +
 	"<button id='"+this.name+"-run' name='"+this.name+"' >run</button> " +
 	"<input type='button' id='"+this.name+"-save' name='"+this.name+"' value='save' /> " +
-	"<input type='button' id='"+this.name+"-examples' name='"+this.name+"' value='examples' /> " +
+	//"<input type='button' id='"+this.name+"-examples' name='"+this.name+"' value='examples' /> " +
 	"<button id='"+this.name+"-examples-select' name='"+this.name+"'>examples</button>" +
-	"  <ul>" +
-	"    <li><a href='#'>Open...</a></li>" +
-	"    <li><a href='#'>Save</a></li>" +
-	"    <li><a href='#'>Delete</a></li>" +
+	"  <ul id='python-example-file-menu' >" +
 	"  </ul>" +
-	"<input type='button' id='"+this.name+"-load' name='"+this.name+"' value='load' /> " +
+	"<button  id='"+this.name+"-load' name='"+this.name+"'>load</button>" +
+	"  <ul id='python-file-menu' >" +
+	"  </ul>" +
 	"<input type='text' id='"+this.name+"-filename'  class='text ui-widget-content ui-corner-all' name='"+this.name+"' value='untitled.py' /> " +
 	"</div>" +
 	"<pre id='editor'>print 'One Software To Rule Them All !!!' \n" +

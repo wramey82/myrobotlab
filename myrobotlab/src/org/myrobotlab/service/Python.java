@@ -1,10 +1,15 @@
 package org.myrobotlab.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
@@ -105,12 +110,11 @@ public class Python extends Service {
 	boolean pythonConsoleInitialized = false;
 	@Element
 	String initialServiceScript = "";
-	
+
 	String rootPath = null;
 	String modulesDir = "pythonModules";
 
-
-	public static class Script implements Serializable{
+	public static class Script implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private String name;
 		private String code;
@@ -196,14 +200,16 @@ public class Python extends Service {
 	}
 
 	public void registered(ServiceWrapper s) {
-		
+
 		String registerScript = "";
-				
+
 		// load the import
-		if (!"unknown".equals(s.getSimpleName())) // FIXME - RuntimeGlobals & static values for "unknown"
+		if (!"unknown".equals(s.getSimpleName())) // FIXME - RuntimeGlobals &
+													// static values for
+													// "unknown"
 		{
 			registerScript = String.format("from org.myrobotlab.service import %s\n", s.getSimpleName());
-		} 
+		}
 
 		registerScript += String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", s.getName(), s.getName());
 		exec(registerScript, false);
@@ -223,7 +229,6 @@ public class Python extends Service {
 	}
 
 	// PyObject interp.eval(String s) - for verifying?
-	
 
 	/**
 	 * 
@@ -232,13 +237,13 @@ public class Python extends Service {
 		// TODO - check if exists - destroy / de-initialize if necessary
 		PySystemState.initialize();
 		interp = new PythonInterpreter();
-		
+
 		PySystemState sys = Py.getSystemState();
 		if (rootPath != null) {
 			sys.path.append(new PyString(rootPath));
 		}
 		if (modulesDir != null) {
-        sys.path.append(new PyString(modulesDir));
+			sys.path.append(new PyString(modulesDir));
 		}
 
 		// add self reference
@@ -355,9 +360,8 @@ public class Python extends Service {
 
 		return false;
 	}
-	
-	public void execFile(String filename)
-	{
+
+	public void execFile(String filename) {
 		String script = FileIO.fileToString(filename);
 		exec(script);
 	}
@@ -413,6 +417,15 @@ public class Python extends Service {
 	// FIXME - need to replace "script" with Hashmap<filename, script> to
 	// support and IDE muti-file view
 
+	public void saveCurrentScript() {
+		try {
+			FileOutputStream out = new FileOutputStream(getCFGDir() + File.separator + currentScript.name);
+			out.write(currentScript.code.getBytes());
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
 	/**
 	 * this method can be used to load a Python script from the Python's local
 	 * file system, which may not be the GUI's local system. Because it can be
@@ -442,12 +455,27 @@ public class Python extends Service {
 
 	public static int untitledDocuments = 0;
 
-	public String getExampleListing()
-	{
-		String listing = getServiceResourceFile("examples");
-		return listing;
+	public ArrayList<String> getExampleListing() {
+		ArrayList<String> r = FileIO.listResourceContents("/Python/examples");
+		return r;
 	}
-	
+
+	public ArrayList<String> getFileListing() {
+		try {
+			// FileIO.listResourceContents(path);
+			List<File> files = FindFile.findByExtension(getCFGDir(), "py");
+			ArrayList<String> ret = new ArrayList<String>();
+			for (int i = 0; i < files.size(); ++i)
+			{
+				ret.add(files.get(i).getName());
+			}
+			return ret;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return null;
+	}
+
 	public boolean loadScriptFromResource(String filename) {
 		log.debug(String.format("loadScriptFromResource scripts/%1s", filename));
 		String newCode = getServiceResourceFile(String.format("examples/%1s", filename));
@@ -460,7 +488,8 @@ public class Python extends Service {
 
 			// tell other listeners we have changed
 			// our current script
-			broadcastState();
+			// broadcastState();
+			invoke("getScript");
 			return true;
 		} else {
 			log.warn(String.format("%1s a not valid script", filename));

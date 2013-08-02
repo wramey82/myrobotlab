@@ -29,12 +29,22 @@ public final class FindFile { // implements FilenameFilter
 		return find(null, null, true, false);
 	}
 
+	public static List<File> findByExtension(String extensions) throws FileNotFoundException {
+		//  "([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)"
+		return find(null,  "([^\\s]+(\\.(?i)("+ extensions +"))$)", true, false);
+	}
+
+	
 	public static List<File> find(String criteria) throws FileNotFoundException {
 		return find(null, criteria, true, false);
 	}
 
 	public static List<File> find(String root, String criteria) throws FileNotFoundException {
 		return find(root, criteria, true, false);
+	}
+	
+	public static List<File> findByExtension(String root, String extensions) throws FileNotFoundException {
+		return find(root,  "([^\\s]+(\\.(?i)("+ extensions +"))$)", true, false);
 	}
 
 	public static List<File> find(String root, String criteria, boolean recurse, boolean includeDirsInResult) throws FileNotFoundException {
