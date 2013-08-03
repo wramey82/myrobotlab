@@ -461,8 +461,30 @@ public class Python extends Service {
 			return false;
 		}
 	}
+	
+	/**
+	 * load script from the users .myrobotlab - maintain the only
+	 * non-absolute filename
+	 * @param filename
+	 * @return
+	 */
+	public boolean loadUserScript(String filename)
+	{
+		String newCode = FileIO.fileToString(getCFGDir() + File.separator + filename);
+		if (newCode != null && !newCode.isEmpty()) {
+			log.info(String.format("replacing current script with %1s", filename));
 
-	public static int untitledDocuments = 0;
+			currentScript = new Script(filename, newCode);
+
+			// tell other listeners we have changed
+			// our current script
+			// broadcastState();
+			return true;
+		} else {
+			log.warn(String.format("%1s a not valid script", filename));
+			return false;
+		}
+	}
 
 	public ArrayList<String> getExampleListing() {
 		ArrayList<String> r = FileIO.listResourceContents("/Python/examples");
