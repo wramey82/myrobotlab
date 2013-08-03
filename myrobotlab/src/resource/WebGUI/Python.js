@@ -13,13 +13,13 @@ PythonGUI.prototype.constructor = PythonGUI;
 // --- callbacks begin ---
 PythonGUI.prototype.getState = function(data) {
 	n = this.name;
-	// TODO - get current script
 };
 
 PythonGUI.prototype.getScript = function(data) {
     var code = data[0].code;
     var filename = data[0].name;
 	this.editor.setValue(code);
+	//alert(filename.substring(filename.lastIndexOf("\\")));
 	$("#python-filename").val(filename);
 	// TODO - get current script
 };
@@ -46,6 +46,7 @@ PythonGUI.prototype.getFileListing = function(data) {
 	
 	var files = data[0];
 	var filelist = $("#python-file-menu");
+	filelist.empty();
 	for (var i = 0; i < files.length; i++) {
 		filelist.append(" <li><a name='"+this.name+"' class='python-file' id='" + files[i] + "' href='#'>" + files[i] + "</a></li>");
 	}
@@ -55,9 +56,17 @@ PythonGUI.prototype.getFileListing = function(data) {
 		var name = event.currentTarget.name;
 		// event.preventDefault();
 		var gui = guiMap[name];
-		gui.getExampleFile(this.id);
+		gui.getFile(this.id);
 	});
 
+};
+
+PythonGUI.prototype.getFile = function(data) {
+	 //alert(data);
+	 $("#python-example-file-menu").menu().hide();
+	 this.send("loadUserScript", [data]);
+	 this.send("getScript");
+	 // NOTE - there is a broadcast at the end of loadscript from resource
 };
 
 PythonGUI.prototype.getExampleFile = function(data) {
@@ -207,6 +216,7 @@ PythonGUI.prototype.init = function() {
 		// event.preventDefault();
 		var gui = guiMap[name];
 		gui.send("saveAndReplaceCurrentScript",[$("#"+name+"-filename").val(),gui.editor.getValue()]);
+		gui.send("getFileListing");
 	});
 	
 	
