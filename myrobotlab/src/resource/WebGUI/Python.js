@@ -12,8 +12,13 @@ PythonGUI.prototype.constructor = PythonGUI;
 
 // --- callbacks begin ---
 PythonGUI.prototype.getState = function(data) {
-	n = this.name;
+	
 };
+
+PythonGUI.prototype.finishedExecutingScript = function(data) {
+
+};
+
 
 PythonGUI.prototype.getScript = function(data) {
     var code = data[0].code;

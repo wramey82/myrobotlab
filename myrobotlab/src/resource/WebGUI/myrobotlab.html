@@ -117,11 +117,18 @@
 			} catch (err) {
 				this.error(err);
 			}
-			
-			loadServiceGUIClass(registry, nameArray, index + 1);
 		}
 		
+		loadServiceGUIClass(registry, nameArray, index + 1);
+		
 	}
+	
+	/*
+	function register(data)
+	{
+		
+	}
+	*/
 
 	// --- ServiceGUI begin ----
 	// FIXME - you need both the boundServiceName && webui serviceName !
@@ -201,6 +208,7 @@
 				//alert("json parse error " + err + " data " + e.data);
 				//error("json parse error " + err + " data " + e.data);
 				//this.error(err); // make not all exceptions will be trapped
+				mrl.error(err);
 				console.log(err);
 			}
 		};
