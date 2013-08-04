@@ -126,6 +126,12 @@ RuntimeGUI.prototype.detachGUI = function() {
 RuntimeGUI.prototype.init = function() {
 
 };
+
+RuntimeGUI.prototype.registered = function(data) {
+	//alert(data);
+	// heavy handed but it works
+	this.send("getRegistry");
+};
 // --- overrides end ---
 
 // --- gui events begin ---
