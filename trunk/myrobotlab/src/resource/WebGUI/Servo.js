@@ -11,21 +11,7 @@ ServoGUI.prototype.pulse = function(data) {
 };
 
 ServoGUI.prototype.getState = function(data) {
-	n = this.name;
-	//$("#" + this.name + "-controller").combobox();
 	
-	$(function() { // TODO REMOVE 
-	    $(".servo").slider({ 
-	    	max: 255,
-	    	slide: function( event, ui ) {
-
-	    		var pwmID = $(this).attr("pwmId");
-	    		var gui = guiMap[$(this).attr("name")];
-	    		gui.send("moveTo",[ui.value])
-	    		$("#"+pwmID+"-slider-value").val(ui.value);
-	          }
-	    });
-	  });
 };
 //--- callbacks end ---
 
@@ -41,10 +27,18 @@ ServoGUI.prototype.detachGUI = function() {
 };
 
 ServoGUI.prototype.init = function() {
-	//alert("#"+this.name+"-startServo");
-	//$("#"+this.name+"-startServo").button().click(ServoGUI.prototype.startServo);
-	//$("#"+this.name+"-setInterval").button().click(ServoGUI.prototype.setInterval);
 
+	$("#"+this.name+"-slider").slider({ 
+    	max: 255,
+    	slide: function( event, ui ) {
+    		var gui = guiMap[$(this).attr("name")];
+    		gui.send("moveTo",[ui.value])
+    		$("#"+this.name+"-slider-value").val(ui.value);
+          }
+    });
+	
+	//$("#" + this.name + "-controller").button().combobox();
+	//$("#" + this.name + "-controller").append($('<option></option>').val("arduino").html("arduino option"));
 };
 // --- overrides end ---
 
@@ -56,9 +50,9 @@ ServoGUI.prototype.attach = function(event) {
 //--- gui events end ---
 
 ServoGUI.prototype.getPanel = function() {
-	return "<div>"
-	+ "<div name='"+this.name+"' id='"+this.name+"-controller'/>" + 
-			+ "<div class='servo' name='"+this.name+"' pwmId='"+this.name+"' id='"+this.name+"-slider'/>" + 
-			"<input class='servo-value text ui-widget-content ui-corner-all slider-value' type='text' value='0' name='"+this.name+"' id='"+this.name+"-slider-value'/>"
-			+ "</div>";
+	return "<div>" +
+	"controller <select name='"+this.name+"' id='"+this.name+"-controller'><option></option></select>" + 
+			"<div name='"+this.name+"' id='"+this.name+"-slider'/>" + 
+			"<input class='servo-value text ui-widget-content ui-corner-all slider-value' type='text' value='0' name='"+this.name+"' id='"+this.name+"-slider-value'/>" +
+			"</div>";
 }

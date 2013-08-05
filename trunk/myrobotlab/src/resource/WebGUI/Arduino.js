@@ -139,7 +139,7 @@ ArduinoGUI.prototype.getState = function(data) {
 };
 
 ArduinoGUI.prototype.publishPin = function(data) {
-	alert(data);
+	alert(data[0]);
 }
 
 //--- callbacks end ---

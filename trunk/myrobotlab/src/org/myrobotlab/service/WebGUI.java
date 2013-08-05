@@ -208,7 +208,7 @@ public class WebGUI extends Service {
 
 	public void sendToAll(Message msg) {
 		String json = toJson(msg);
-		log.info(String.format("webgui ---to---> all clients [%s]", json));
+		log.debug(String.format("webgui ---to---> all clients [%s]", json));
 		if (json != null){
 			wss.sendToAll(json);
 		} else {

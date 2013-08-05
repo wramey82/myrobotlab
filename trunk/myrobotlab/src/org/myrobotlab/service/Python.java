@@ -157,6 +157,14 @@ public class Python extends Service {
 				executing = true;
 				interp.exec(code);
 			} catch (Exception e) {
+				String error = Logging.stackToString(e);
+				error = error.replace("'", "");
+				error = error.replace("\"", "");
+				error = error.replace("\n", "");
+				error = error.replace("\r", "");
+				error = error.replace("<", "");
+				error = error.replace(">", "");
+				interp.exec(String.format("print '%s'", error));
 				Logging.logException(e);
 			} finally {
 				executing = false;

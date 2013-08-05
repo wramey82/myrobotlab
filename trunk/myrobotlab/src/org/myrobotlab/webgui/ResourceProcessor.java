@@ -58,109 +58,16 @@ public class ResourceProcessor implements HTTPProcessor {
 
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-
-		// FIXME - this split should not be here - it should be within serveFile
-		// !!!! - NORMALIZE serveFile !!
-
-		/*
-		if (!scannedDirectories.contains(uri)) {
-			return serveFile(uri, header, socket);
-		}
-		*/
-
 		return serveFile(uri, header, new File(root), true, socket, scannedDirectories.contains(uri));
 	}
 
+	// FIXME - deprecate
 	@Override
 	public HashSet<String> getURIs() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/**
-	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
-	 * ignores all headers and HTTP parameters.
-	 */
-	/*
-	public Response serveFile(String uri, Properties header, Socket socket) {
-		// Make sure we won't die of an exception later
-		// if (!homeDir.isDirectory())
-		// return new Response(NanoHTTPD.HTTP_INTERNALERROR,
-		// NanoHTTPD.MIME_PLAINTEXT,
-		// "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");
-
-		// Remove URL arguments
-		// uri = uri.trim().replace(File.separatorChar, '/');
-		if (uri.indexOf('?') >= 0)
-			uri = uri.substring(0, uri.indexOf('?'));
-
-		// Prohibit getting out of current directory
-		if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0)
-			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
-
-		InputStream fis = FileIO.class.getResourceAsStream(uri);
-		if (fis == null)
-			return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
-
-		try {
-			// Get MIME type from file name extension, if possible
-			String mime = null;
-			int dot = uri.lastIndexOf('.');
-			if (dot >= 0) {
-				mime = (String) NanoHTTPD.theMimeTypes.get(uri.substring(dot + 1).toLowerCase());
-			}
-			if (mime == null) {
-				// mime = NanoHTTPD.MIME_DEFAULT_BINARY;
-				mime = NanoHTTPD.MIME_PLAINTEXT;
-			}
-
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-			int nRead;
-			byte[] data = new byte[16384];
-
-			while ((nRead = fis.read(data, 0, data.length)) != -1) {
-				buffer.write(data, 0, nRead);
-			}
-
-			fis.close();
-			buffer.flush();
-
-			byte[] content = null;
-			// FIXME - this is not normalized - because the code around it is
-			// not normalized
-			if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-				String filter = new String(buffer.toByteArray());
-				log.info("preforming the following substitutions for myrobotlab.html");
-				log.info("from client @ {}", socket.getRemoteSocketAddress()); // getRemoteSocketAddress
-																				// -
-																				// is
-																				// clients
-				log.info("<%=getHostAddress%> --> {}", socket.getLocalAddress().getHostAddress());
-				filter = filter.replace("<%=getHostAddress%>", socket.getLocalAddress().getHostAddress());
-				log.info("<%=wsPort%> --> {}", webgui.wsPort);
-				filter = filter.replace("<%=wsPort%>", webgui.wsPort.toString());
-				log.info("<%=runtimeName%> --> {}", Runtime.getInstance().getName());
-				filter = filter.replace("<%=runtimeName%>", Runtime.getInstance().getName());
-				log.info("<%=webguiName%> --> {}", webgui.getName());
-				filter = filter.replace("<%=webguiName%>", webgui.getName());
-				log.info("<%=httpPort%> --> {}", webgui.httpPort.toString());
-				filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
-				// filter.replace(, newChar);
-				content = filter.getBytes();
-			} else {
-				content = buffer.toByteArray();
-			}
-
-			Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
-
-			r.addHeader("Content-length", "" + content.length);
-			return r;
-		} catch (IOException ioe) {
-			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
-		}
-	}
-	*/
 	/**
 	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
 	 * ignores all headers and HTTP parameters.
@@ -217,28 +124,9 @@ public class ResourceProcessor implements HTTPProcessor {
 				buffer.flush();
 
 				byte[] content = null;
-				// FIXME - this is not normalized - because the code around it
-				// is
-				// not normalized
+
 				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-					String filter = new String(buffer.toByteArray());
-					log.info("preforming the following substitutions for myrobotlab.html");
-					log.info("from client @ {}", socket.getRemoteSocketAddress()); // getRemoteSocketAddress
-																					// -
-																					// is
-																					// clients
-					log.info("<%=getHostAddress%> --> {}", socket.getLocalAddress().getHostAddress());
-					filter = filter.replace("<%=getHostAddress%>", socket.getLocalAddress().getHostAddress());
-					log.info("<%=wsPort%> --> {}", webgui.wsPort);
-					filter = filter.replace("<%=wsPort%>", webgui.wsPort.toString());
-					log.info("<%=runtimeName%> --> {}", Runtime.getInstance().getName());
-					filter = filter.replace("<%=runtimeName%>", Runtime.getInstance().getName());
-					log.info("<%=webguiName%> --> {}", webgui.getName());
-					filter = filter.replace("<%=webguiName%>", webgui.getName());
-					log.info("<%=httpPort%> --> {}", webgui.httpPort.toString());
-					filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
-					// filter.replace(, newChar);
-					content = filter.getBytes();
+					content = filter(new String(buffer.toByteArray()), header);
 				} else {
 					content = buffer.toByteArray();
 				}
@@ -376,7 +264,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				// not normalized
 				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
 					
-					content = filter(new String(buffer.toByteArray()), socket);
+					content = filter(new String(buffer.toByteArray()), header);
 				} else {
 					content = buffer.toByteArray();
 				}
@@ -406,7 +294,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				// not normalized
 				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
 					
-					content = filter(new String(buffer.toByteArray()), socket);
+					content = filter(new String(buffer.toByteArray()), header);
 				} else {
 					content = buffer.toByteArray();
 				}
@@ -417,19 +305,27 @@ public class ResourceProcessor implements HTTPProcessor {
 				//r.addHeader("Content-range", "" + startFrom + "-" + (f.length() - 1) + "/" + f.length());
 				return r;
 			}
-			
 
 		} catch (IOException ioe) {
 			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
 		}
 	}
 	
-	public byte[] filter(String filter, Socket socket)
+	public byte[] filter(String filter, Properties header)
 	{
+		String inHost = header.getProperty("host");
+		String hostIP;
+		int pos0 = inHost.lastIndexOf(":");
+		if (pos0 > 0)
+		{
+			hostIP = inHost.substring(0, pos0);
+		} else {
+			hostIP = inHost;
+		}
 		log.info("preforming the following substitutions for myrobotlab.html");
-		log.info("from client @ {}", socket.getRemoteSocketAddress()); 
-		log.info("<%=getHostAddress%> --> {}", socket.getLocalAddress().getHostAddress());
-		filter = filter.replace("<%=getHostAddress%>", socket.getLocalAddress().getHostAddress());
+		//log.info("from client @ {}", socket.getRemoteSocketAddress()); 
+		log.info("<%=getHostAddress%> --> {}", hostIP);
+		filter = filter.replace("<%=getHostAddress%>", hostIP);
 		log.info("<%=wsPort%> --> {}", webgui.wsPort);
 		filter = filter.replace("<%=wsPort%>", webgui.wsPort.toString());
 		log.info("<%=runtimeName%> --> {}", Runtime.getInstance().getName());

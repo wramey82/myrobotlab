@@ -25,17 +25,17 @@
 
 package org.myrobotlab.service;
 
-import org.myrobotlab.logging.Level;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
+import java.util.Vector;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import org.slf4j.Logger;
 
 @Root
 public class Servo extends Service implements ServoControl {
@@ -54,6 +54,8 @@ public class Servo extends Service implements ServoControl {
 	private int positionMax = 180;
 	
 	private boolean inverted = false;
+	
+	Vector<String> controllers;
 
 	// private float speed = 1.0f; // fractional speed component 0 to 1.0
 
@@ -278,6 +280,12 @@ public class Servo extends Service implements ServoControl {
 			moveTo(180);
 		}
 		
+	}
+	
+	public Vector<String> refreshControllers()
+	{
+		controllers = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName());
+		return controllers;
 	}
 
 	public static void main(String[] args) throws InterruptedException {

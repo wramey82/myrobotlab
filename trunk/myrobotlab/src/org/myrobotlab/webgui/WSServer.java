@@ -37,7 +37,9 @@ public class WSServer extends WebSocketServer {
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
 		String clientkey = String.format("%s:%d", conn.getRemoteSocketAddress().getAddress().getHostAddress(), conn.getRemoteSocketAddress().getPort());
-		log.info(clientkey);
+		log.info(String.format("onOpen %s", clientkey));
+		log.info(String.format("onOpen %s", conn.getLocalSocketAddress().getHostName()));
+		log.info(String.format("onOpen %s", conn.getRemoteSocketAddress().getHostName()));
 		webgui.clients.put(clientkey, clientkey);
 		// this.sendToAll( "new connection: " + handshake.getResourceDescriptor() );
 	}
