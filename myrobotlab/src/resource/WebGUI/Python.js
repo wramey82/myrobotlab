@@ -262,7 +262,8 @@ PythonGUI.prototype.getPanel = function() {
 	"<pre id='editor'>print 'One Software To Rule Them All !!!' \n" +
 	"</pre>" +
 	"<p align='center' >" +
-	"<textarea id='"+this.name+"-console' class='text ui-widget-content ui-corner-all'  rows='10' cols='120'></textarea>" +
+	"<div id='"+this.name+"-console' class='ace_content console text ui-widget-content ui-corner-all' style='font-size:x-small;'></div>" +
+//	"<textarea id='"+this.name+"-console' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='10' cols='120'></textarea>" +
 	"</p>" + 
 	"<div class='scrollmargin'>" +
 	"    <div style='padding:20px'>" +
