@@ -1,6 +1,6 @@
 inversekinematics = Runtime.createAndStart("inversekinematics", "InverseKinematics")
 #insert number of Degrees of Freedom
-int dof = 3
+dof = 3
 #set number of Degrees of Freedom
 inversekinematics.setDOF(dof)
 #insert informations about the structure : rods lenght
