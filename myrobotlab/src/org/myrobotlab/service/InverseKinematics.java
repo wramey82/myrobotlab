@@ -35,7 +35,18 @@ public class InverseKinematics extends Service {
 	 
 	 public void compute(){
 		    ikEngine.calculate();
-		    ikEngine.getPosition();
+		    ikEngine.getBaseAngle();
+		    ikEngine.getArmAngles();
+		    
+	 }
+	 public double getBaseAngle(){
+		 double b = ikEngine.getBaseAngle();
+		 return b;
+	 }
+	 
+	 public double getArmAngles(int i){
+		 double[] b = ikEngine.getArmAngles();
+		 return b[i];
 	 }
 	 
 	 public void setPoint(double x,double y, double z){
