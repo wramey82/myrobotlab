@@ -1,7 +1,14 @@
-.ui-button-text {text-align: left}
+.small-button {
+   font-size: .6em !important;
+}
+
+.ui-button-text {
+	text-align: left;
+   font-size: inherit !important;
+} 
 
 .error {
-	color:#FF8C8C;
+	color:#CC0000;
 }
 
 .console {

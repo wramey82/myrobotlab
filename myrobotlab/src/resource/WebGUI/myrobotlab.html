@@ -56,7 +56,6 @@
 		this.data = params;
 	}
 
-
 	function getSimpleClassName(inName)
 	{
 		return inName.substring(inName.lastIndexOf(".")+1);
@@ -100,7 +99,8 @@
 			// class is loaded - but need a new instance
 			// load the accordian reference 
 			try {
-				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + "</h3>" ).appendTo( "#accordion1" );
+				//$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
+				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
 				$("#accordion1").accordion("refresh");
 				
@@ -193,24 +193,30 @@
 			$("#topMessage").text(text);
 		};
 
+		// the message router
 		this.ws.onmessage = function(e) {
 			//info("Server: " + e.data);
 			// TODO - debug level			//console.log(e.data);
-
+			var msg = null;
 			try {
-				var msg = jQuery.parseJSON(e.data);
+				msg = jQuery.parseJSON(e.data);
+//				console.log("invoke " + msg.sender + "." + msg.method); 
 				// TODO - debug level				mrl.info("invoke " + msg.sender + "." + msg.method);
 				if (msg.method == "getRegistry") {
 					getRegistry(msg.data)
 				} else {
-					guiMap[msg.sender][msg.method](msg.data);
+					if (msg.data != null){
+						guiMap[msg.sender][msg.method](msg.data);
+					} else {
+						guiMap[msg.sender][msg.method]();
+					}
 				}
 			} catch (err) {
 				//alert("json parse error " + err + " data " + e.data);
 				//error("json parse error " + err + " data " + e.data);
 				//this.error(err); // make not all exceptions will be trapped
-				mrl.error(err);
-				console.log(err);
+				//mrl.error(err);
+				console.log(err + "-" + msg.sender + "." + msg.method + e.data);
 			}
 		};
 	}
@@ -266,6 +272,35 @@
 	ServiceGUI.prototype.error = function(text) {
 		this.log(text, "error");
 	}
+	
+	// call back from the service debug info warn error
+	// TODO attachGUI - calls parent sets the framework message routes
+	ServiceGUI.prototype.displayStatus = function(data) {
+		
+		var status = $("#"+this.name+"-status");
+		var msg = data[0];
+		var removePos = this.name.length;
+		
+		if (msg.indexOf("info") == 0){
+			status.addClass("info");
+			status.removeClass("warn");
+			status.removeClass("error");
+			removePos = removePos + 5;
+		} else if (msg.indexOf("warn") == 0) {
+			status.removeClass("info");
+			status.addClass("warn");
+			status.removeClass("error");
+			removePos = removePos + 5;
+		} else if (msg.indexOf("error") == 0) {
+			status.removeClass("info");
+			status.removeClass("warn");
+			status.addClass("error");
+			removePos = removePos + 6;
+		}
+		
+		$("#"+this.name+"-status").text(data[0].substring(removePos));
+	}
+
 
 	// http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
 	ServiceGUI.prototype.log = function(text, level) {

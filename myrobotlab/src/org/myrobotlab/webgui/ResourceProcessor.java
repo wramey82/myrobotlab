@@ -13,10 +13,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
+import org.java_websocket.util.Base64;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
@@ -34,6 +36,10 @@ public class ResourceProcessor implements HTTPProcessor {
 	public final static Logger log = LoggerFactory.getLogger(NanoHTTPD.class.getCanonicalName());
 
 	private WebGUI webgui;
+
+	private boolean authorized = false;
+
+	private boolean requiresSecurity = false;
 
 	public ResourceProcessor(WebGUI webgui) {
 		this.webgui = webgui;
@@ -72,22 +78,50 @@ public class ResourceProcessor implements HTTPProcessor {
 	 * Serves file from homeDir and its' subdirectories (only). Uses only URI,
 	 * ignores all headers and HTTP parameters.
 	 */
+	// FIXME - normalize further
 	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing, Socket socket, boolean isCustomFile) {
-		// Make sure we won't die of an exception later
-		// if (!isCustomFile) {
-		// if (!homeDir.isDirectory())
-		// return new Response(NanoHTTPD.HTTP_INTERNALERROR,
-		// NanoHTTPD.MIME_PLAINTEXT,
-		// "INTERNAL ERRROR: serveFile(): given homeDir is not a directory.");
+
+		if (requiresSecurity && !authorized) {
+			try {
+				if (header.containsKey("authorization")) {
+					String up = header.getProperty("authorization");
+					int pos = up.indexOf("Basic ");
+					if (pos != -1) {
+						up = up.substring(pos + 6);
+					}
+					// FIXME - depends on commons !!!!
+					String usernameAndPassword = new String(Base64.decode(up));
+					String username = usernameAndPassword.substring(0, usernameAndPassword.lastIndexOf(":"));
+					String password = usernameAndPassword.substring(usernameAndPassword.lastIndexOf(":") + 1);
+					String token = BasicSecurity.authenticate(username, password);
+
+					if (token != null) {
+						authorized = true;
+					} else {
+						throw new Exception(String.format("no token for user %s", username));
+					}
+					log.info(usernameAndPassword);
+				} else {
+					throw new Exception("no authorization in header");
+				}
+
+			} catch (Exception e) {
+				Logging.logException(e);
+				Response r = new Response();
+				r.status = NanoHTTPD.HTTP_NOT_AUTHORIZED;
+				r.addHeader("WWW-Authenticate", "Basic realm=\"MyRobotLab\"");
+				return r;
+			}
+		}
 
 		// Remove URL arguments
 		uri = uri.trim().replace(File.separatorChar, '/');
-		if (uri.indexOf('?') >= 0){
+		if (uri.indexOf('?') >= 0) {
 			uri = uri.substring(0, uri.indexOf('?'));
 		}
 
 		// Prohibit getting out of current directory
-		if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0){
+		if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0) {
 			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
 		}
 
@@ -213,12 +247,12 @@ public class ResourceProcessor implements HTTPProcessor {
 		try {
 			// Get MIME type from file name extension, if possible
 			String mime = null;
-			//int dot = f.getCanonicalPath().lastIndexOf('.');
+			// int dot = f.getCanonicalPath().lastIndexOf('.');
 			int dot = uri.lastIndexOf('.');
 			if (dot >= 0) {
 				mime = (String) NanoHTTPD.theMimeTypes.get(uri.substring(dot + 1).toLowerCase());
 			}
-			if (mime == null){
+			if (mime == null) {
 				mime = NanoHTTPD.MIME_PLAINTEXT;
 			}
 
@@ -239,13 +273,12 @@ public class ResourceProcessor implements HTTPProcessor {
 			}
 
 			InputStream fis;
-			if (!isCustomFile)
-			{
+			if (!isCustomFile) {
 				fis = FileIO.class.getResourceAsStream(uri);
 				if (fis == null) {
 					return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
 				}
-				
+
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
 				int nRead;
@@ -263,7 +296,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				// is
 				// not normalized
 				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-					
+
 					content = filter(new String(buffer.toByteArray()), header);
 				} else {
 					content = buffer.toByteArray();
@@ -275,7 +308,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				return r;
 			} else {
 				fis = new FileInputStream(f);
-				//fis.skip(startFrom); // TODO support skip in the future
+				// fis.skip(startFrom); // TODO support skip in the future
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
 				int nRead;
@@ -293,16 +326,17 @@ public class ResourceProcessor implements HTTPProcessor {
 				// is
 				// not normalized
 				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-					
+
 					content = filter(new String(buffer.toByteArray()), header);
 				} else {
 					content = buffer.toByteArray();
 				}
-				
+
 				Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
 				r.addHeader("Content-length", "" + content.length);
-				//r.addHeader("Content-length", "" + (f.length() - startFrom));
-				//r.addHeader("Content-range", "" + startFrom + "-" + (f.length() - 1) + "/" + f.length());
+				// r.addHeader("Content-length", "" + (f.length() - startFrom));
+				// r.addHeader("Content-range", "" + startFrom + "-" +
+				// (f.length() - 1) + "/" + f.length());
 				return r;
 			}
 
@@ -310,20 +344,18 @@ public class ResourceProcessor implements HTTPProcessor {
 			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
 		}
 	}
-	
-	public byte[] filter(String filter, Properties header)
-	{
+
+	public byte[] filter(String filter, Properties header) {
 		String inHost = header.getProperty("host");
 		String hostIP;
 		int pos0 = inHost.lastIndexOf(":");
-		if (pos0 > 0)
-		{
+		if (pos0 > 0) {
 			hostIP = inHost.substring(0, pos0);
 		} else {
 			hostIP = inHost;
 		}
 		log.info("preforming the following substitutions for myrobotlab.html");
-		//log.info("from client @ {}", socket.getRemoteSocketAddress()); 
+		// log.info("from client @ {}", socket.getRemoteSocketAddress());
 		log.info("<%=getHostAddress%> --> {}", hostIP);
 		filter = filter.replace("<%=getHostAddress%>", hostIP);
 		log.info("<%=wsPort%> --> {}", webgui.wsPort);
@@ -336,7 +368,7 @@ public class ResourceProcessor implements HTTPProcessor {
 		filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
 		// filter.replace(, newChar);
 		return filter.getBytes();
-		
+
 	}
 
 }

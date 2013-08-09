@@ -63,6 +63,7 @@ import org.myrobotlab.opencv.OpenCVFilterGray;
 import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
+import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.interfaces.VideoSource;
 import org.simpleframework.xml.Element;
@@ -397,7 +398,7 @@ public class OpenCV extends VideoSource {
 	public void invokeFilterMethod(String filterName, String method, Object... params) {
 		OpenCVFilter filter = getFilter(filterName);
 		if (filter != null) {
-			invoke(filter, method, params);
+			Instantiator.invokeMethod(filter, method, params);
 		} else {
 			log.error("invokeFilterMethod " + filterName + " does not exist");
 		}
