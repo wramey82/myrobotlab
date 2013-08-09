@@ -10,10 +10,6 @@ RuntimeGUI.prototype = Object.create(ServiceGUI.prototype);
 RuntimeGUI.prototype.constructor = RuntimeGUI;
 
 // --- callbacks begin ---
-RuntimeGUI.prototype.pulse = function(data) {
-	$("#"+this.name+"-display").html(data);
-};
-
 RuntimeGUI.prototype.getState = function(data) {
 	n = this.name;
 	$("#"+n+"-display").html(data);
@@ -28,6 +24,10 @@ RuntimeGUI.prototype.getState = function(data) {
 //--- callbacks end ---
 
 // --- Runtime methods begin ---
+RuntimeGUI.prototype.getVersion = function(data) {
+	$("#"+this.name+"-version").text(data[0]);
+}
+
 RuntimeGUI.prototype.getServiceInfo = function(data) {
 	n = this.name;
 	var gui = guiMap[this.name];
@@ -108,6 +108,7 @@ RuntimeGUI.prototype.attachGUI = function() {
 	this.subscribe("released", "released");
 	this.subscribe("failedDependency", "failedDependency");
 	this.subscribe("proposedUpdates", "proposedUpdates");
+	this.subscribe("getVersion", "getVersion");
 
 	// get the service info for the bound runtime (not necessarily local)
 	this.subscribe("getServiceInfo", "getServiceInfo");
@@ -115,6 +116,7 @@ RuntimeGUI.prototype.attachGUI = function() {
 	//myService.send(boundServiceName, "broadcastState");
 	// FIXME !!! - flakey - do to subscribe not processing before this meathod? Dunno???
 	//this.getPossibleServices("all");
+	this.send("getVersion");
 	this.send("getServiceInfo");
 };
 
@@ -125,7 +127,11 @@ RuntimeGUI.prototype.detachGUI = function() {
 };
 
 RuntimeGUI.prototype.init = function() {
-
+	var gui = guiMap[this.name];
+	$("#"+this.name+"-noWorky").button().click(function() {
+		//var port = $("#"+this.name+"-ports").find(":selected").text();
+		  gui.send("noWorky");
+	});
 };
 
 RuntimeGUI.prototype.registered = function(data) {
@@ -141,8 +147,9 @@ RuntimeGUI.prototype.registered = function(data) {
 
 
 RuntimeGUI.prototype.getPanel = function() {
-	return "<div id='"+this.name+"-display'>"
-			+ "</div>" +
+	var ret = "<label>version </label> <label class='text ui-widget-content ui-corner-all' value='' name='"+this.name+"' id='"+this.name+"-version'></label>" +
+			"<button name='"+this.name+"' id='"+this.name+"-noWorky'>no worky</button>" +
+			"<div id='"+this.name+"-display'>" + "</div>" +
 			"<div id='dialog-form' title='create new service'> " +
 			"  <form>" +
 			"  <fieldset>" +
@@ -152,4 +159,5 @@ RuntimeGUI.prototype.getPanel = function() {
 			"  </fieldset>" +
 			"  </form>" +
 			"</div>";
+	return ret;
 }
