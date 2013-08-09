@@ -204,23 +204,28 @@ public class IKEngine extends Canvas{
 			  } 
 	    moveToGoal(goal);}
   }
-  public void getPosition() {
-	  double x1,z1, x2,z2, bas;
+  public double getBaseAngle() {
+	  double bas;
 	  bas = Math.toDegrees(Math.atan2(myy, myx));
 	  System.out.println("base angle is: " + bas);
+	  return bas;
+	  
+  }
+  public double[] getArmAngles(){ 
+	  double x1,z1, x2,z2;
 	  x1=z1=0;
 	  for(int i=0; i<numLinks; i++) {
-	      x2 = jointLocations[i].elements[0][0];
-	      z2 = jointLocations[i].elements[1][0];
-	      //System.out.println("x" + i + " " + x2);
-	      //System.out.println("y" + i + " " + z2);
-	      angles[i]= Math.toDegrees(Math.atan((z2-z1)/(x2-x1)));
-	      System.out.println("angle" + i + " " + angles[i]);
-	      x1=x2;
-	      z1=z2;
-	      
-	  }
-	  
+		  x2 = jointLocations[i].elements[0][0];
+		  z2 = jointLocations[i].elements[1][0];
+		  //System.out.println("x" + i + " " + x2);
+		  //System.out.println("y" + i + " " + z2);
+		  angles[i]= Math.toDegrees(Math.atan((z2-z1)/(x2-x1)));
+		  System.out.println("angle" + i + " " + angles[i]);
+		  x1=x2;
+		  z1=z2;
+      
+  }
+	  return angles;
   }
 
   /**
