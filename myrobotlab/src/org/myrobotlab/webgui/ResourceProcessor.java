@@ -90,7 +90,7 @@ public class ResourceProcessor implements HTTPProcessor {
 						up = up.substring(pos + 6);
 					}
 					// FIXME - depends on commons !!!!
-					String usernameAndPassword = new String(Base64.decode(up));
+					String usernameAndPassword = new String(Base64.decode(up)); // SHWEET CURRENTLY USING WEBSOCKETS VERSION !!! :P
 					String username = usernameAndPassword.substring(0, usernameAndPassword.lastIndexOf(":"));
 					String password = usernameAndPassword.substring(usernameAndPassword.lastIndexOf(":") + 1);
 					String token = BasicSecurity.authenticate(username, password);
