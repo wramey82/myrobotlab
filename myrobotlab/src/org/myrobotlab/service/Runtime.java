@@ -1993,4 +1993,19 @@ public class Runtime extends Service {
 		return !getServiceInfo().hasUnfulfilledDependencies(fullTypeName);
 	}
 	
+	public boolean noWorky()
+	{
+		try {
+			String ret = HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "runtime", "file", new File("myrobotlab.log"));
+			if (ret.contains("Upload:"))
+			{
+				info("noWorky successfully sent - our crack team of experts will check it out !");
+				return true;
+			}
+		} catch (Exception e){
+			Logging.logException(e);
+		}
+		error("the noWorky didn't worky !");
+		return false;
+	}
 }
