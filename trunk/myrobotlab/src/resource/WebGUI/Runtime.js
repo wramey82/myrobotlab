@@ -96,7 +96,8 @@ RuntimeGUI.prototype.getServiceInfo = function(data) {
 
 // --- overrides begin ---
 RuntimeGUI.prototype.attachGUI = function() {
-	
+	this.subscribe("publishStatus", "displayStatus"); // TODO DO IN PARENT FRAMEWORK !!!
+
 	this.subscribe("resolveSuccess", "resolveSuccess");
 	this.subscribe("resolveError", "resolveError");
 	this.subscribe("resolveBegin", "resolveBegin");

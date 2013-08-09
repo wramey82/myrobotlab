@@ -15,8 +15,9 @@ PythonGUI.prototype.getState = function(data) {
 	
 };
 
-PythonGUI.prototype.finishedExecutingScript = function(data) {
-
+PythonGUI.prototype.finishedExecutingScript = function() {
+	$("#"+this.name+"-console").prepend("finished executing script");
+	$("#"+this.name+"-console").prepend("\n");
 };
 
 
@@ -68,7 +69,7 @@ PythonGUI.prototype.getFileListing = function(data) {
 
 PythonGUI.prototype.getFile = function(data) {
 	 //alert(data);
-	 $("#python-example-file-menu").menu().hide();
+	 $("#python-file-menu").menu().hide();
 	 this.send("loadUserScript", [data]);
 	 this.send("getScript");
 	 // NOTE - there is a broadcast at the end of loadscript from resource
@@ -91,6 +92,8 @@ PythonGUI.prototype.publishStdOut = function(data) {
 
 // --- overrides begin ---
 PythonGUI.prototype.attachGUI = function() {
+	this.subscribe("publishStatus", "displayStatus"); // TODO DO IN PARENT FRAMEWORK !!!
+
 	//this.subscribe("publishState", "getState"); - trying discreet
 	
 	this.subscribe("getScript", "getScript");
@@ -105,11 +108,31 @@ PythonGUI.prototype.attachGUI = function() {
 	this.send("getExampleListing");
 	this.send("getFileListing");
 	this.send("attachPythonConsole");
+	this.send("getScript");
 };
 
 PythonGUI.prototype.detachGUI = function() {
 	//this.unsubscribe("publishState", "getState");
 };
+
+PythonGUI.prototype.add = function() {
+	var oldEl = this.editor.container;
+	var pad = document.createElement("div");
+	pad.style.padding = "40px";
+	oldEl.parentNode.insertBefore(pad, oldEl.nextSibling);
+
+	var el = document.createElement("div")
+	oldEl.parentNode.insertBefore(el, pad.nextSibling);
+
+	count++
+	this.editor = ace.edit(el)
+	this.editor.setTheme(theme)
+	this.editor.session.setMode("ace/mode/javascript")
+
+	this.editor.setValue([ "this is editor number: ", count, "\n",
+			"using theme \"", theme, "\"\n", ":)" ].join(""), -1)
+};
+
 
 PythonGUI.prototype.init = function() {
 
@@ -262,8 +285,8 @@ PythonGUI.prototype.getPanel = function() {
 	"<pre id='editor'>print 'One Software To Rule Them All !!!' \n" +
 	"</pre>" +
 	"<p align='center' >" +
-	"<div id='"+this.name+"-console' class='ace_content console text ui-widget-content ui-corner-all' style='font-size:x-small;'></div>" +
-//	"<textarea id='"+this.name+"-console' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='10' cols='120'></textarea>" +
+//	"<div id='"+this.name+"-console' class='ace_content console text ui-widget-content ui-corner-all' style='font-size:x-small;'></div>" +
+	"<textarea id='"+this.name+"-console' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='10' cols='120'></textarea>" +
 	"</p>" + 
 	"<div class='scrollmargin'>" +
 	"    <div style='padding:20px'>" +

@@ -12,6 +12,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
+import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.webgui.WSServer;
 import org.myrobotlab.webgui.WebServer;
 import org.slf4j.Logger;
@@ -206,9 +207,16 @@ public class WebGUI extends Service {
 		return null;
 	}
 
+	public int messages = 0;
+	
 	public void sendToAll(Message msg) {
+		++messages;
 		String json = toJson(msg);
 		log.debug(String.format("webgui ---to---> all clients [%s]", json));
+		if (messages%500 == 0) {
+			info(String.format("sent %d messages to %d clients", messages, wss.connections().size())); // TODO modulus
+		}
+		
 		if (json != null){
 			wss.sendToAll(json);
 		} else {
@@ -224,8 +232,9 @@ public class WebGUI extends Service {
 		// Runtime.createAndStart("arduino", "Arduino");
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		//clock.startClock();
-		Runtime.createAndStart("webgui", "WebGUI");
+		WebGUI webgui = (WebGUI)Runtime.createAndStart("webgui", "WebGUI");
 		Runtime.createAndStart("python", "Python");
+		webgui.addUser("gperry", "password");
 		//Runtime.createAndStart("arduino", "Arduino");
 
 //		webgui.subscribe("clock", "pulse");
@@ -245,6 +254,11 @@ public class WebGUI extends Service {
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
+	}
+	
+	public boolean addUser(String username, String password)
+	{
+		return BasicSecurity.addUser(username, password);
 	}
 
 }

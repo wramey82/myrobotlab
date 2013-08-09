@@ -1084,7 +1084,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * parameters
 	 */
 	public Object invoke(String method) {
-		return invoke(method, null);
+		return invoke(method, (Object[])null);
 	}
 
 	/**
@@ -1093,6 +1093,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param param
 	 * @return
 	 */
+	/*
 	public Object invoke(String method, Object param) {
 		if (param != null) {
 			Object[] params = new Object[1];
@@ -1102,6 +1103,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			return invoke(this, method, null);
 		}
 	}
+	*/
 
 	/**
 	 * convenience reflection methods 2 parameters
@@ -1111,6 +1113,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param param2
 	 * @return
 	 */
+	/*
 	public Object invoke(String method, Object param1, Object param2) {
 		Object[] params = new Object[2];
 		params[0] = param1;
@@ -1118,6 +1121,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		return invoke(method, params);
 	}
+	*/
 
 	/**
 	 * convenience reflection methods 3 parameters
@@ -1128,6 +1132,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param param3
 	 * @return
 	 */
+	/*
 	public Object invoke(String method, Object param1, Object param2, Object param3) {
 		Object[] params = new Object[3];
 		params[0] = param1;
@@ -1136,6 +1141,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		return invoke(method, params);
 	}
+	*/
 
 	/**
 	 * convenience reflection methods 4 parameters
@@ -1147,6 +1153,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param param4
 	 * @return
 	 */
+	/*
 	public Object invoke(String method, Object param1, Object param2, Object param3, Object param4) {
 		Object[] params = new Object[3];
 		params[0] = param1;
@@ -1156,7 +1163,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		return invoke(method, params);
 	}
-
+*/
 	/**
 	 * invoke in the context of a Service
 	 * 
@@ -1164,7 +1171,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param params
 	 * @return
 	 */
-	public Object invoke(String method, Object[] params) {
+	/*
+	public Object invoke(String method, Object... params) {
 		// log invoking call
 		
 		if (log.isDebugEnabled()) {
@@ -1188,6 +1196,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Object retobj = invoke(this, method, params);
 		return retobj;
 	}
+	*/
 
 	/**
 	 * general static base invoke
@@ -1197,10 +1206,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param params
 	 * @return
 	 */
-	final public Object invoke(Object object, String method, Object params[]) {
+	final public Object invoke(String method, Object... params) {
 		Object retobj = null;
 		Class<?> c;
-		c = object.getClass();
+		c = this.getClass();
 
 		// c = Class.forName(classname); // TODO - test if cached references
 		// are faster than lookup
@@ -1223,7 +1232,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// on parameter types - the thing is we may have a typed signature which will allow execution - but
 			// if so we need to search
 			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
-			retobj = meth.invoke(object, params);
+			retobj = meth.invoke(this, params);
 
 			// put return object onEvent
 			out(method, retobj);
@@ -1251,7 +1260,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 				try {
 					log.debug("found appropriate method");
-					retobj = m.invoke(object, params);
+					retobj = m.invoke(this, params);
 
 					// put return object onEvent
 					out(method, retobj);

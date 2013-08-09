@@ -28,6 +28,7 @@ WebGUIGUI.prototype.getState = function(data) {
 
 // --- overrides begin ---
 WebGUIGUI.prototype.attachGUI = function() {
+	this.subscribe("publishStatus", "displayStatus");
 	this.subscribe("publishState", "getState");
 	// broadcast the initial state
 	this.send("broadcastState");

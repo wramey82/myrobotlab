@@ -166,6 +166,7 @@ public class Python extends Service {
 				error = error.replace(">", "");
 				interp.exec(String.format("print '%s'", error));
 				Logging.logException(e);
+				error("Python error");
 			} finally {
 				executing = false;
 				invoke("finishedExecutingScript");

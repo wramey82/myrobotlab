@@ -357,6 +357,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return null;
 	}
 
+	// FIXME - this should be in SerialService interface  - get rid of query!!!
+	public ArrayList<String> getPortNames()
+	{
+		return querySerialDeviceNames();
+	}
+	
+	// FIXME - this should be in SerialService interface !!!
 	public ArrayList<String> querySerialDeviceNames() {
 
 		log.info("queryPortNames");
@@ -419,8 +426,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				debugBuffer.setLength(0);
 			}
 
-		} catch (IOException e) {
-			log.error("sendMsg " + e.getMessage());
+		} catch (Exception e) {
+			error("sendMsg " + e.getMessage());
 		}
 
 	}
@@ -1050,6 +1057,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	@Override
 	public boolean connect(String name, int rate, int databits, int stopbits, int parity) {
+		if (name == null || name.length() == 0)
+		{
+			log.info("got emtpy connect name - disconnecting");
+			return disconnect();
+		}
+		
 		try {
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
@@ -1203,6 +1216,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public final String expectedVersion = "1";
 
+	// WTF - this is ass backwards - the "more params" should do the work !!!! connect(string, int int int int int) !!!
 	public boolean connect() {
 
 		if (serialDevice == null) {
@@ -1272,6 +1286,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		broadcastState();
 		return true;
+	}
+	
+	public String getPortName()
+	{
+		return portName;
 	}
 
 	// ----------- Motor Controller API Begin ----------------

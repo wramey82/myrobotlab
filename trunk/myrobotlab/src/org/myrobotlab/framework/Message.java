@@ -28,6 +28,7 @@ package org.myrobotlab.framework;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.Logging;
@@ -81,6 +82,7 @@ public class Message implements Serializable {
 	 * http://www.javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html
 	 */
 	public ArrayList<RoutingEntry> historyList;
+	public HashMap<String,String> security;
 	/*
 	@Override
 	public int hashCode() {

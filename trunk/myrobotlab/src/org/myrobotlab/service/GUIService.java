@@ -86,6 +86,7 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -204,7 +205,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (sg == null) {
 			log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());
 		} else {
-			invoke(serviceGUIMap.get(m.sender), m.method, m.data);
+			Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method, m.data);
 		}
 
 		return false;

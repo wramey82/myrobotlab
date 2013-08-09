@@ -4,16 +4,19 @@
 
 function ArduinoGUI(name) {
 	ServiceGUI.call(this, name); // call super constructor.
+	this.sweep = 1;
+	this.canvas = null;
+    this.context = null;
+    this.oscopeWidth = 800;
+    this.oscopeHeight = 600;
+    this.traceData = [];
+    this.pinList = null;
 }
 
 ArduinoGUI.prototype = Object.create(ServiceGUI.prototype);
 ArduinoGUI.prototype.constructor = ArduinoGUI;
 
 // --- callbacks begin ---
-ArduinoGUI.prototype.pulse = function(data) {
-	$("#"+this.name+"-display").html(data);
-};
-
 ArduinoGUI.prototype.getState = function(data) {
 	n = this.name;
 	
@@ -36,6 +39,7 @@ ArduinoGUI.prototype.getState = function(data) {
 	
 	if (connected) {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-green.png");
+		this.send("getVersion");
 	} else {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-red.png");
 	}
@@ -52,13 +56,13 @@ ArduinoGUI.prototype.getState = function(data) {
 	}
 	// boards end ---
 	// pin list begin ---	
-	var pinList = arduino.pinList;
+	this.pinList = arduino.pinList;
 	$("#"+this.name+"-pinList").empty();
 	var analogPinCount = 0;
 	var pinLabel = "";
-	for (var i = 2; i < pinList.length; i++) {
-		console.log(pinList[i]);
-		var pin = pinList[i];
+	for (var i = 2; i < this.pinList.length; i++) {
+		console.log(this.pinList[i]);
+		var pin = this.pinList[i];
 		
 		if (pin.type == 1){
 			pinLabel = "D" + i;
@@ -76,9 +80,7 @@ ArduinoGUI.prototype.getState = function(data) {
 		$("#"+this.name+"-pinList").append(
 				"<div class='pin-set'><img id='"+this.name+"-pin-"+i+"-led' src='/resource/WebGUI/common/button-small-"+ ((pin.value == 1)?"green":"grey") +".png' />" +
 				"<input type='checkbox' class='pin' name='"+this.name+"' id='"+i+"' "+ ((pin.value == 1)?"checked":"") +"/><label for='"+i+"'>" +pinLabel+ "</label>" +
-				
 				"<input type='button' class='pinmode' value='out' pidId='"+i+"' name='"+this.name+"' id='"+i+"-test' />" +
-				 
 				((pin.type == 2)?"<div class='pwm' name='"+this.name+"' pwmId='"+i+"' id='"+i+"-slider'/><input class='pwm-value text ui-widget-content ui-corner-all slider-value' type='text' value='0' name='"+this.name+"' id='"+i+"-slider-value'/>":"") +
 						"</div>" +
 						"</div>");
@@ -126,29 +128,107 @@ ArduinoGUI.prototype.getState = function(data) {
     	}
    });
 	// pin list end ---	
-	var oscope = document.getElementById('oscope');
-    var context = oscope.getContext('2d');
-    
-    context.beginPath();
-    context.moveTo(100, 150);
-    context.lineTo(450, 50);
-    //context.lineWidth = 10;
-    context.strokeStyle = '#ff0000';
-    context.stroke();
-    
+        
+};
+
+
+function TraceData(pin, color)
+{
+	this.pin=pin;
+	this.color=color;
+	this.data=[];
+	this.index = 0;
+}
+
+// gratefully lifted from - http://www.html5rocks.com/en/tutorials/canvas/texteffects/
+//HSL (1978) = H: Hue / S: Saturation / L: Lightness
+HSL_RGB = function (o) { // { H: 0-360, S: 0-100, L: 0-100 }
+  var H = o.H / 360,
+      S = o.S / 100,
+      L = o.L / 100,
+      R, G, B, _1, _2;
+
+  function Hue_2_RGB(v1, v2, vH) {
+    if (vH < 0) vH += 1;
+    if (vH > 1) vH -= 1;
+    if ((6 * vH) < 1) return v1 + (v2 - v1) * 6 * vH;
+    if ((2 * vH) < 1) return v2;
+    if ((3 * vH) < 2) return v1 + (v2 - v1) * ((2 / 3) - vH) * 6;
+    return v1;
+  }
+
+  if (S == 0) { // HSL from 0 to 1
+    R = L * 255;
+    G = L * 255;
+    B = L * 255;
+  } else {
+    if (L < 0.5) {
+      _2 = L * (1 + S);
+    } else {
+      _2 = (L + S) - (S * L);
+    }
+    _1 = 2 * L - _2;
+
+    R = 255 * Hue_2_RGB(_1, _2, H + (1 / 3));
+    G = 255 * Hue_2_RGB(_1, _2, H);
+    B = 255 * Hue_2_RGB(_1, _2, H - (1 / 3));
+  }
+
+  return {
+    R: R,
+    G: G,
+    B: B
+  };
 };
 
 ArduinoGUI.prototype.publishPin = function(data) {
-	alert(data[0]);
+	var pin = data[0];
+	if (this.traceData[pin.pin] == null)
+	{   // get pin count and amoratize over 360
+		var hue = Math.floor(360 * (pin.pin / this.pinList.length));
+		this.traceData[pin.pin] = new TraceData(hue, pin.pin);
+	}
+	
+	var tdata = this.traceData[pin.pin];
+	tdata.data[tdata.index] = pin.value;
+	
+    this.context.beginPath();
+    if (tdata.data[tdata.index-1]!=null){
+    	this.context.moveTo(tdata.index-1, tdata.data[tdata.index-1]);
+    } else {
+    	this.context.moveTo(0, tdata.data[0]);
+    }
+    
+    this.context.lineTo(tdata.index, tdata.data[tdata.index]);
+    //context.lineWidth = 10;
+    
+    this.context.strokeStyle = "hsl(" + (tdata.color) + ",99%,50%)";
+    this.context.stroke();
+    ++tdata.index;
+    if (tdata.index%this.oscopeWidth == 0){
+    	tdata.index = 0;
+    	this.context.fillStyle="#999999";
+    	this.context.fillRect(0,0,this.oscopeWidth,this.oscopeHeight);
+    }
 }
+
+ArduinoGUI.prototype.getVersion = function(data) {
+	$("#"+this.name+"-firmware-version").text(data[0]);
+}
+
 
 //--- callbacks end ---
 
 // --- overrides begin ---
 ArduinoGUI.prototype.attachGUI = function() {
+	this.subscribe("publishStatus", "displayStatus"); // TODO DO IN PARENT FRAMEWORK !!!
+	//	this.subscribe("publishStatus", "publishStatus"); // YOU CAN'T DO THIS - because its a parent defined method
+	//this.subscribe("publishStatus", "error"); // YOU CAN'T DO THIS - because its a parent defined method!!! (AGAIN!!!)
+	
 	this.subscribe("getTargetsTable", "getTargetsTable");
 	this.subscribe("publishState", "getState");
 	this.subscribe("publishPin", "publishPin");
+	this.subscribe("getVersion", "getVersion");
 	// broadcast the initial state
 	
 	//this.send("getTargetsTable");
@@ -169,33 +249,33 @@ ArduinoGUI.prototype.init = function() {
 		  gui.connect();
 	});
 	
-	// load oscope background begin ---
-	var background = document.getElementById('oscope');
-    var context = background.getContext('2d');
-    var imageObj = new Image();
-    
-    imageObj.onload = function() {
-      context.drawImage(imageObj, 0, 20);
-    };
-    
-    imageObj.src = '/resource/WebGUI/Arduino/grid.png';
-	// load oscope background end ---
-    
-	//}
-
-	//$(".digital-pin").button();
+	// finally - http://jsfiddle.net/loktar/q7Z9k/ - someone who knows how to load an image
+	this.canvas = document.getElementById(this.name + "-oscope");
+	this.context = this.canvas.getContext('2d');
+	
+	jqcanvas = $("#"+this.name+"-oscope");
+	jqcanvas.attr("width", this.oscopeWidth);
+	jqcanvas.attr("height", this.oscopeHeight);
+	//this.context
+	
+	// dumb - yet extremely necessary as background.onload can not refer to "this.context" - but can 
+	// refer to current scope :P
+	var context = this.context;
+	// background - begin ---
+	var background = new Image();
+	// 750 x 582
+	background.src = "http://softsolder.files.wordpress.com/2008/12/dsc00809-hp54602b-serial-setup-screenshot.jpg";
+	background.onload = function(){
+			// context.drawImage(background,0,0);   // DRAW AFTER LOAD ! - TODO draw after load
+	}
+	
+	this.context.fillStyle="#999999";
+	this.context.fillRect(0,0,this.oscopeWidth,this.oscopeHeight);
+	// background - begin ---
 };
 // --- overrides end ---
 
 // --- gui events begin ---
-/*
-ArduinoGUI.prototype.getTargetsTable = function(data) {
-	alert(Object.keys(data));
-}
- position: absolute;
-    top: 40px;
-    left: 65px;
-*/
 ArduinoGUI.prototype.connect = function() {
 	var port = $("#"+this.name+"-ports").find(":selected").text();
 	this.send("connect", new Array(port, 57600, 8, 1, 0));
@@ -205,6 +285,14 @@ ArduinoGUI.prototype.connect = function() {
 
 ArduinoGUI.prototype.getPanel = function() {
 	return "<div class='ui-widget'>" +
+	// oscope
+	"<div id='oscope-container'>" +
+	"<canvas class='oscope' id='"+this.name+"-oscope' width='750' height='582'></canvas>" +
+	"</div>" + 
+	//" <img src='/resource/WebGUI/Arduino/arduino.duemilanove.200.pins.png' />" +
+	"</div>"  +
+	
+	//" Status: <label id='"+this.name+"-status'></label><br/>" +
 	"  <label>Port: </label>" +
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-ports' name='"+this.name+"'>" +
 	"    <option value=''>Select one...</option>" +
@@ -217,15 +305,10 @@ ArduinoGUI.prototype.getPanel = function() {
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-boards' name='"+this.name+"'>" +
 	"    <option value=''>Select one...</option>" +
 	"  </select><br/>" +
+	"<label>firmware version </label> <label class='text ui-widget-content ui-corner-all' value='' id='"+this.name+"-firmware-version'></label>" +
 
 	// pin list
-	"<div id='"+this.name+"-pinList'></div>" +
-	
-	// oscope
-	"<div id='oscope-container'>" +
-	"<canvas class='oscope' id='oscope' width='600' height='400'></canvas>" +
-	"</div>" + 
-	//" <img src='/resource/WebGUI/Arduino/arduino.duemilanove.200.pins.png' />" +
-	"</div>"  
+	"<div id='"+this.name+"-pinList'></div>" 
+
 	;
 }

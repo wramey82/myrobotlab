@@ -101,6 +101,9 @@ public class NanoHTTPD {
 	 */
 	public static final String HTTP_OK = "200 OK";
 	public static final String HTTP_REDIRECT = "301 Moved Permanently";
+	//public static final String HTTP_NOT_AUTHORIZED = "401 Not Authorized";
+	public static final String HTTP_NOT_AUTHORIZED = "401 Access Denied";
+	
 	public static final String HTTP_FORBIDDEN = "403 Forbidden";
 	public static final String HTTP_NOTFOUND = "404 Not Found";
 	public static final String HTTP_BADREQUEST = "400 Bad Request";
