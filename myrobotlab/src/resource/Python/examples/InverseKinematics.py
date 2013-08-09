@@ -1,10 +1,19 @@
 inversekinematics = Runtime.createAndStart("inversekinematics", "InverseKinematics")
+#insert number of Degrees of Freedom
+int dof = 3
+#set number of Degrees of Freedom
+inversekinematics.setDOF(dof)
+#insert informations about the structure : rods lenght
+inversekinematics.setStructure(0,100)
+inversekinematics.setStructure(1,100)
+inversekinematics.setStructure(2,100)
 # insert coordinates of the point to reach (x,y,z)
-inversekinematics.setCoordinates(50,50,0)
-# insert rods lenght of your arm
-inversekinematics.setLengths(100,100)
-inversekinematics.computeAngles()
-
-print 'First rod angle is :' , inversekinematics.getTeta1()
-print 'Second rod angle is:' , inversekinematics.getTeta2()
-print 'Base rotation angle is :' , inversekinematics.getTeta3()
+inversekinematics.setPoint(200,200,200)
+#start the engine
+inversekinematics.compute()
+#print base angle
+base = inversekinematics.getBaseAngle()
+print 'Base Angle is :' , base
+#print arm angles
+for i in range(dof):
+  print 'Angle ',i,' is :', inversekinematics.getArmAngles(i)
