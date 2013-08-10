@@ -1,15 +1,16 @@
+#file : Serial.asciiToChar.py
 import time
  
 #create a Serial service named serial
 serial = Runtime.createAndStart("serial","Serial")
-def decode():
- code = serial.read()
- decoded = ''.join(chr(i) for i in code)
+def input():
+ code = msg_serial_read.data[0]
+ decoded = ''.join(chr(code))
  print decoded
 #have python listening to serial
-serial.addListener("read", python.name, "decode") 
+serial.addListener("read", python.name, "input") 
 #connect to a serial port COM4 57600 bitrate 8 data bits 1 stop bit 0 parity
-serial.connect("COM3", 57600, 8, 1, 0)
+serial.connect("COM9", 57600, 8, 1, 0)
 #sometimes its important to wait a little for hardware to get ready
 sleep(1)
  
