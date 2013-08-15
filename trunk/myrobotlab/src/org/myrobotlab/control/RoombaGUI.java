@@ -88,7 +88,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 	public void getState(Roomba roomba) {
 
 		if (roomba != null) {
-			setPorts(roomba.getSerialDeviceNames());
+			setPorts(roomba.getPortNames());
 		}
 
 	}
@@ -136,7 +136,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 
 		makePanels();
 
-		setPorts(roombacomm.getSerialDeviceNames());
+		setPorts(roombacomm.getPortNames());
 
 	}
 

@@ -245,12 +245,12 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 					getOscopePanel();
 
 					editor.serialDeviceMenu.removeAll();
-					publishMessage(String.format("found %d serial ports", myArduino.serialDeviceNames.size()));
-					for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
-						String portName = myArduino.serialDeviceNames.get(i);
+					publishMessage(String.format("found %d serial ports", myArduino.portNames.size()));
+					for (int i = 0; i < myArduino.portNames.size(); ++i) {
+						String portName = myArduino.portNames.get(i);
 						publishMessage(String.format(" %s", portName));
 
-						JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(myArduino.serialDeviceNames.get(i));
+						JRadioButtonMenuItem serialDevice = new JRadioButtonMenuItem(myArduino.portNames.get(i));
 						SerialDevice sd = myArduino.getSerialDevice();
 						if (sd != null && sd.getName().equals(portName)) {
 							if (sd.isOpen()) {
@@ -877,7 +877,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	public void createSerialDeviceMenu(JMenu m) {
-		for (int i = 0; i < myArduino.serialDeviceNames.size(); ++i) {
+		for (int i = 0; i < myArduino.portNames.size(); ++i) {
 			// m.add(a)
 		}
 	}
