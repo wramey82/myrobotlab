@@ -187,6 +187,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int DIGITAL_TRIGGER_ONLY_OFF = 24;
 	public static final int SET_SERIAL_RATE = 25;
 	public static final int GET_MRLCOMM_VERSION = 26;
+	public static final int SET_SAMPLE_RATE = 27;
 
 	// Arduino ---> MRL methods
 	public static final int DIGITAL_VALUE = 1;
@@ -252,7 +253,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 * list of serial port names from the system which the Arduino service is
 	 * running - this list is refreshed on querySerialDevices
 	 */
-	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
+	public ArrayList<String> portNames = new ArrayList<String>();
 
 	public Arduino(String n) {
 		super(n, Arduino.class.getCanonicalName());
@@ -287,7 +288,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		compiler = new Compiler(this);
 		uploader = new AvrdudeUploader(this);
 
-		querySerialDeviceNames();
+		getPortNames();
 
 		// FIXME - hilacious long wait - need to incorporate
 		// .waitTillServiceReady
@@ -358,12 +359,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	// FIXME - this should be in SerialService interface  - get rid of query!!!
+	/*
 	public ArrayList<String> getPortNames()
 	{
-		return querySerialDeviceNames();
+		return SerialDeviceFactory.getSerialDeviceNames();
 	}
-	
+	*/
 	// FIXME - this should be in SerialService interface !!!
+	/*
 	public ArrayList<String> querySerialDeviceNames() {
 
 		log.info("queryPortNames");
@@ -378,6 +381,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 		return serialDeviceNames;
 	}
+	*/
 
 	/**
 	 * MRL protocol method
@@ -1051,8 +1055,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	@Override
-	public ArrayList<String> getSerialDeviceNames() {
-		return serialDeviceNames;
+	public ArrayList<String> getPortNames() {
+		 // FIXME - is this inclusive or ones which are left ?????
+		return SerialDeviceFactory.getSerialDeviceNames();
 	}
 
 	@Override
@@ -1593,4 +1598,22 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return connect(name, 57600, 8, 1, 0);
 	}
 	
+	/**
+	 * this sets the sample rate of polling reads both digital and analog
+	 * it is a loop count modulus - default is 1 which seems to be a bit
+	 * high of a rate to be broadcasting across the internet to several
+	 * webclients :)
+	 * valid ranges are 1 to 32,767 (for Arduino's 2 byte signed integer)
+	 * @param rate
+	 */
+	public void setSampleRate(Integer rate)
+	{
+		if (rate < 1 || rate > 32767)
+		{
+			error(String.format("%d sample rate can not be < 1", rate));
+		}
+		int lsb = rate & 0xff;
+		int msb = (rate >> 8) & 0xff;
+		sendMsg(SET_SAMPLE_RATE, msb, lsb);
+	}
 }

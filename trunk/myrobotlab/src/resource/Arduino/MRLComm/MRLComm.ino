@@ -68,6 +68,7 @@
 #define SET_SERIAL_RATE			         25
 #define SET_SERIAL_RATE			         25
 #define GET_MRLCOMM_VERSION				 26
+#define SET_SAMPLE_RATE				 	 27
 
 // http://arduino.cc/en/Reference/StepperStep
 #define STEPPER_ATTACH				 	27
@@ -118,6 +119,7 @@ int byteCount               = 0;
 unsigned char newByte 		= 0;
 unsigned char ioCommand[64];  // most io fns can cleanly be done with a 4 byte code
 int readValue;
+int sampleRate = 1; // modulus of the loopcount - allowing you to sample less
 
 int digitalReadPin[DIGITAL_PIN_COUNT];        // array of pins to read from
 int digitalReadPollingPinCount = 0;           // number of pins currently reading
@@ -405,6 +407,10 @@ void loop () {
 			Serial.write((byte)5);
 			//Serial.write((byte)0);
 			break;
+		case SET_SAMPLE_RATE:
+			// 2 byte int - valid range 1-32,767
+			sampleRate = (ioCommand[1]<<8) + ioCommand[2];
+			break;
 		case SOFT_RESET:
 			softReset();
 			break;
@@ -430,58 +436,60 @@ void loop () {
 		byteCount = 0;
 
 	} // if getCommand()
-
-	// digital polling read - send data for pins which are currently in INPUT mode only AND whose state has changed
-	for (int i  = 0; i < digitalReadPollingPinCount; ++i)
-	{
-		if (debounceDelay)
+	
+	
+	if (loopCount%sampleRate == 0) {
+		// digital polling read - send data for pins which are currently in INPUT mode only AND whose state has changed
+		for (int i  = 0; i < digitalReadPollingPinCount; ++i)
 		{
-		  if (millis() - lastDebounceTime[digitalReadPin[i]] < debounceDelay)
-		  {
-		    continue;
-		  }
+			if (debounceDelay)
+			{
+			  if (millis() - lastDebounceTime[digitalReadPin[i]] < debounceDelay)
+			  {
+			    continue;
+			  }
+			}
+	
+			// read the pin
+			readValue = digitalRead(digitalReadPin[i]);
+	
+			// if my value is different from last time  && config - send it
+			if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !digitalTriggerOnly)
+			{
+				Serial.write(MAGIC_NUMBER);
+				Serial.write(3); // size
+				Serial.write(DIGITAL_VALUE);
+				Serial.write(digitalReadPin[i]);// Pin#
+				Serial.write(readValue); 	// LSB
+	
+			    lastDebounceTime[digitalReadPin[i]] = millis();
+			}
+	
+			// set the last input value of this pin
+			lastDigitalInputValue[digitalReadPin[i]] = readValue;
 		}
-
-		// read the pin
-		readValue = digitalRead(digitalReadPin[i]);
-
-		// if my value is different from last time  && config - send it
-		if (lastDigitalInputValue[digitalReadPin[i]] != readValue  || !digitalTriggerOnly)
+	
+	
+		// analog polling read - send data for pins which are currently in INPUT mode only AND whose state has changed
+		for (int i  = 0; i < analogReadPollingPinCount; ++i)
 		{
-			Serial.write(MAGIC_NUMBER);
-			Serial.write(3); // size
-			Serial.write(DIGITAL_VALUE);
-			Serial.write(digitalReadPin[i]);// Pin#
-			Serial.write(readValue); 	// LSB
-
-		    lastDebounceTime[digitalReadPin[i]] = millis();
+			// read the pin
+			readValue = analogRead(analogReadPin[i]);
+	
+			// if my value is different from last time - send it
+			if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !analogTriggerOnly) //TODO - SEND_DELTA_MIN_DIFF
+			{
+				Serial.write(MAGIC_NUMBER);
+				Serial.write(4); //size
+				Serial.write(ANALOG_VALUE);
+				Serial.write(analogReadPin[i]);
+				Serial.write(readValue >> 8);   // MSB
+				Serial.write(readValue & 0xFF);	// LSB		
+	         }
+			// set the last input value of this pin
+			lastAnalogInputValue[analogReadPin[i]] = readValue;
 		}
-
-		// set the last input value of this pin
-		lastDigitalInputValue[digitalReadPin[i]] = readValue;
 	}
-
-
-	// analog polling read - send data for pins which are currently in INPUT mode only AND whose state has changed
-	for (int i  = 0; i < analogReadPollingPinCount; ++i)
-	{
-		// read the pin
-		readValue = analogRead(analogReadPin[i]);
-
-		// if my value is different from last time - send it
-		if (lastAnalogInputValue[analogReadPin[i]] != readValue   || !analogTriggerOnly) //TODO - SEND_DELTA_MIN_DIFF
-		{
-			Serial.write(MAGIC_NUMBER);
-			Serial.write(4); //size
-			Serial.write(ANALOG_VALUE);
-			Serial.write(analogReadPin[i]);
-			Serial.write(readValue >> 8);   // MSB
-			Serial.write(readValue & 0xFF);	// LSB		
-         }
-		// set the last input value of this pin
-		lastAnalogInputValue[analogReadPin[i]] = readValue;
-	}
-
 	// handle the servos going at fractional speed
 	for (int i = 0; i < movingServosCount; ++i)
 	{

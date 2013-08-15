@@ -8,7 +8,7 @@ public interface SerialDeviceService {
 	/**
 	 * methods to return read-only information regarding a serialDevice
 	 */
-	public ArrayList<String> getSerialDeviceNames();
+	public ArrayList<String> getPortNames();
 
 	/**
 	 * @return a read-only copy of the SerialDevice if it has bee serialized

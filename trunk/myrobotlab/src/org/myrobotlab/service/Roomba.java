@@ -71,7 +71,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	@Override
-	public ArrayList<String> getSerialDeviceNames() {
+	public ArrayList<String> getPortNames() {
 		return SerialDeviceFactory.getSerialDeviceNames();
 	}
 

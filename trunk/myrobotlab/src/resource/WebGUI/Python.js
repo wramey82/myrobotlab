@@ -3,8 +3,9 @@
 //-------PythonGUI begin---------
 
 function PythonGUI(name) {
-	ServiceGUI.call(this, name); // call super constructor.
-	this.editor = ""; // FIXME - null undefined ? 
+	ServiceGUI.call(this, name);
+	this.editor = null;
+	this.pconsoleData = "";
 }
 
 PythonGUI.prototype = Object.create(ServiceGUI.prototype);
@@ -12,12 +13,11 @@ PythonGUI.prototype.constructor = PythonGUI;
 
 // --- callbacks begin ---
 PythonGUI.prototype.getState = function(data) {
-	
 };
 
 PythonGUI.prototype.finishedExecutingScript = function() {
-	$("#"+this.name+"-console").prepend("finished executing script");
-	$("#"+this.name+"-console").prepend("\n");
+	//$("#"+this.name+"-console").prepend("finished executing script");
+	//$("#"+this.name+"-console").prepend("\n");
 };
 
 
@@ -25,9 +25,7 @@ PythonGUI.prototype.getScript = function(data) {
     var code = data[0].code;
     var filename = data[0].name;
 	this.editor.setValue(code);
-	//alert(filename.substring(filename.lastIndexOf("\\")));
 	$("#python-filename").val(filename);
-	// TODO - get current script
 };
 
 PythonGUI.prototype.getExampleListing = function(data) {
@@ -85,7 +83,15 @@ PythonGUI.prototype.getExampleFile = function(data) {
 
 
 PythonGUI.prototype.publishStdOut = function(data) {
-	 $("#"+this.name+"-console").prepend(data);
+	// fyi scrolltop
+	var pconsole = $("#"+this.name+"-console");
+	this.pconsoleData = data[0] + this.pconsoleData;
+	pconsole.val(this.pconsoleData)
+	// pconsole.prepend(data[0])
+	 if (pconsole.val().length > 2048){
+		 this.pconsoleData = "";
+		 pconsole.val(this.pconsoleData);
+	 }
 };
 
 //--- callbacks end ---

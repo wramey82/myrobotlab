@@ -104,7 +104,7 @@ public class WebGUI extends Service {
 		if (spawnBrowserOnStartUp)
 		{
 			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
-			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
+//			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
 		}
 		return result;
 	}
@@ -228,6 +228,12 @@ public class WebGUI extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
+		log.info("{}",5%1);
+		log.info("{}",6%1);
+		log.info("{}",6%1);
+		log.info("{}",8%1);
+		
+		
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
