@@ -1272,8 +1272,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 
 			log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
-		} catch (Exception e) {
+		} catch (InvocationTargetException e) {			
+			Throwable target = e.getTargetException();
+			error(String.format("%s %s", target.getClass().getSimpleName(), target.getMessage()));
 			Logging.logException(e);
+		} catch (Exception uknown)
+		{
+			error(String.format("%s %s", uknown.getClass().getSimpleName(),uknown.getMessage()));
+			Logging.logException(uknown);
 		}
 
 		return retobj;
