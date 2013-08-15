@@ -1,8 +1,8 @@
 package org.myrobotlab.service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -23,22 +23,36 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public final static Logger log = LoggerFactory.getLogger(Serial.class.getCanonicalName());
 
 	private transient SerialDevice serialDevice;
-	public ArrayList<String> serialDeviceNames = new ArrayList<String>();
-	int rawReadMsgLength = 1;
+	public ArrayList<String> portNames = new ArrayList<String>();
+
+	// buffer stuff
+	private int limit = 0;
+	private int position = 0;
+	private int capacity = 2048;
+	byte[] buffer = new byte[capacity];
+	BlockingQueue<Object> blockingData;
 	
-	ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	
+	private int recievedByteCount = 0;
+
+	boolean publish = true;
+
 	private boolean connected = false;
 	private String portName = "";
-	
-	public static final int READ_TYPE_BYTE = 0;
-	public static final int READ_TYPE_CHAR = 1;
-	public static final int READ_TYPE_INTEGER = 2;
-	
-	public static final int READ_TYPE_STRING = 3;
-	
 
-	public int readType = READ_TYPE_BYTE;
+	public static final int PUBLISH_BYTE = 0;
+	public static final int PUBLISH_LONG = 1;
+	public static final int PUBLISH_INT = 2;
+	public static final int PUBLISH_CHAR = 3;
+	public static final int PUBLISH_BYTE_ARRAY = 3;
+	public static final int PUBLISH_STRING = 3;
+
+	public boolean useFixedWidth = false;
+	public int msgWidth = 10;
+	public String delimeter = "\n";
+
+	public int publishType = PUBLISH_BYTE;
+	
+	public final int BYTE_SIZE_LONG = 4;
 
 	public Serial(String n) {
 		super(n, Serial.class.getCanonicalName());
@@ -49,11 +63,10 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		return "used as a general template";
 	}
 
-	public String getPortName()
-	{
+	public String getPortName() {
 		return portName;
 	}
-	
+
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
 		switch (event.getEventType()) {
@@ -71,12 +84,37 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 			try {
 
-				int newByte;
+				byte newByte;
 
-				while (serialDevice.isOpen() && (newByte = serialDevice.read()) >= 0) {
+				// FIXME - serialDevice is bullshit - it returns a byte not an int !
+				while (serialDevice.isOpen() && (newByte = (byte)serialDevice.read()) >= 0) { 
+					++recievedByteCount;
 					// TODO allow msg length based on delimeter or fixed size
-					invoke("read", newByte);
-					bos.write(newByte);
+					if (publish) {
+						switch (publishType) {
+						// long of Arduino is 4 bytes
+						case PUBLISH_LONG: {
+							buffer[recievedByteCount-1] = newByte;
+							if (recievedByteCount%BYTE_SIZE_LONG == 0)
+							{								
+								long value = 0;
+								for (int i = 0; i < BYTE_SIZE_LONG; i++)
+								{
+								   value = (value << 8) + (buffer[i] & 0xff);
+								}
+								
+								invoke("publishLong", value);
+								blockingData.add(value);
+								recievedByteCount = 0;
+							}
+							break;
+						}
+						case PUBLISH_BYTE: {
+							invoke("publishByte", newByte);
+							break;
+						}
+						}
+					}
 				}
 
 			} catch (IOException e) {
@@ -89,8 +127,8 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	@Override
-	public ArrayList<String> getSerialDeviceNames() {
-		return serialDeviceNames;
+	public ArrayList<String> getPortNames() {
+		return SerialDeviceFactory.getSerialDeviceNames();
 	}
 
 	@Override
@@ -100,6 +138,11 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	@Override
 	public boolean connect(String name, int rate, int databits, int stopbits, int parity) {
+		if (name == null || name.length() == 0)
+		{
+			log.info("got emtpy connect name - disconnecting");
+			return disconnect();
+		}
 		try {
 			serialDevice = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (serialDevice != null) {
@@ -116,7 +159,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 				save(); // successfully bound to port - saving
 				broadcastState(); // state has changed let everyone know
 				return true;
-				
+
 			} else {
 				log.error("could not get serial device");
 			}
@@ -125,24 +168,80 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		}
 		return false;
 	}
-	
+
 	@Override
-	public boolean connect(String name)
-	{
+	public boolean connect(String name) {
 		return connect(name, 57600, 8, 1, 0);
 	}
 
-	
 	/**
-	 * publishing point for read events
-	 * 
-	 * @param b
-	 * @return
+	 * ------ publishing points begin -------
 	 */
-	public Integer read(Integer data)
-	{
+
+	// FIXME - fixed width and message delimeter
+	// FIXME - block read(until block size)
+
+	public long publishLong(Long data) {
 		return data;
 	}
+
+	public int publishInt(Integer data) {
+		return data;
+	}
+
+	public byte publishByte(Byte data) {
+		return data;
+	}
+
+	public char publishChar(Character data) {
+		return data;
+	}
+
+	public byte[] publishByteArray(byte[] data) {
+		return data;
+	}
+
+	public String publishString(String data) {
+		return data;
+	}
+
+	/**
+	 * ------ publishing points end -------
+	 */
+
+	/**
+	 * -------- blocking reads begin --------
+	 * @throws InterruptedException 
+	 */
+
+	public long readLong() throws InterruptedException {
+		long value = ((Long)blockingData.take()).longValue();
+		return value;
+	}
+
+	public int readInt() {
+		return 32;
+	}
+
+	public byte readByte() {
+		return 32;
+	}
+ 
+	public char readChar() {
+		return 3;
+	}
+
+	public byte[] readByteArray() {
+		return new byte[]{10};
+	}
+
+	public String readString() {
+		return "";
+	}
+
+	/**
+	 * -------- blocking reads begin --------
+	 */
 
 	public boolean isConnected() {
 		// I know not normalized
@@ -172,32 +271,45 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public void write(int data) throws IOException {
 		serialDevice.write(data);
 	}
-	
+
 	@Override
-	public boolean disconnect() 
-	{
+	public boolean disconnect() {
 		if (serialDevice == null) {
+			connected = false;
+			portName = "";
 			return false;
 		}
 
 		serialDevice.close();
 		connected = false;
-		portName = "";		
+		portName = "";
 
 		broadcastState();
 		return true;
-		
+
 	}
 
 	public static void main(String[] args) throws IOException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-
+		
+		
+		
+		byte[] buffer = new byte[]{1,1,1,1};
+		
+		
+		long value = 0;
+		for (int i = 0; i < buffer.length; i++)
+		{
+		   value = (value << 8) + (buffer[i] & 0xff);
+		}
+		log.info("{}", value);
+		
 		Serial serial = new Serial("serial");
 		serial.startService();
 
 		serial.connect("COM4", 57600, 8, 1, 0);
-	
+
 		byte a = 1;
 		int b = 2;
 		serial.write(a);

@@ -101,7 +101,7 @@
 			try {
 				//$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
-				$("<div id='" + serviceName + "-gui'></div>" ).appendTo( "#accordion1" );
+				$("<div id='" + serviceName + "-gui'><button id='"+serviceName+"-releaseService' name='"+serviceName+"'>release</button></div>" ).appendTo( "#accordion1" );
 				$("#accordion1").accordion("refresh");
 				
 				newClass = " new " + className + "GUI('"+serviceName+"');";
@@ -109,8 +109,10 @@
 
 				// add html
 				$("#"+ serviceName + "-gui").append(guiMap[serviceName].getPanel());
+				//guiMap[serviceName].serviceGUIInit();
 				guiMap[serviceName].init();
 				guiMap[serviceName].attachGUI();
+				//guiMap[serviceName].broadcastState();
 				$("#accordion1").accordion("refresh");
 			} catch (err) {
 				this.error(err);
@@ -170,6 +172,26 @@
 	{
 		return("#"+this.name+"-"+inStr);
 	}
+	
+	ServiceGUI.prototype.releaseService = function()
+	{
+		this.send("releaseService");
+	}
+	
+	/*
+	ServiceGUI.prototype.serviceGUIInit = function()
+	{		
+		$("#"+this.name+"-releaseService").button().click(function(event) {
+			guiMap[this.name].releaseService();
+		});
+	}
+
+	
+	ServiceGUI.prototype.broadcastState = function()
+	{		
+		this.send("broadcastState");
+	}
+	*/
 	
 	// --- ServiceGUI end ----
 	// FIXME -  embedded all methods in ServiceGUI
@@ -335,6 +357,7 @@
 <script src="Runtime.js"></script>
 <script src="Servo.js"></script>
 <script src="WebGUI.js"></script>
+<script src="Serial.js"></script>
 <!-- static scripts for easy debugging end -->
 </head>
 <body>
