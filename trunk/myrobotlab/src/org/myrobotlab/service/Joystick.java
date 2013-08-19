@@ -325,6 +325,10 @@ public class Joystick extends Service {
 		}
 	}
 
+	public boolean isPolling()
+	{
+		return pollingThread != null;
+	}
 
 
 	@Override

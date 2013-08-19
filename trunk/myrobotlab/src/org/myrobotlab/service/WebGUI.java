@@ -226,7 +226,7 @@ public class WebGUI extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		log.info("{}",5%1);
 		log.info("{}",6%1);

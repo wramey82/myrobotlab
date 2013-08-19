@@ -54,7 +54,7 @@ public class Outbox implements Runnable, Serializable {
 	boolean isRunning = false;
 	boolean bufferOverrun = false;
 	boolean blocking = false;
-	int maxQueue = 10;
+	int maxQueue = 100;
 	int initialThreadCount = 1;
 	transient ArrayList<Thread> outboxThreadPool = new ArrayList<Thread>();
 
