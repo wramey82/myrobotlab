@@ -1,5 +1,5 @@
 keyboard = Runtime.createAndStart("keyboard", "Keyboard")
-python.subscribe("keyCommand", keyboard.getName(), "input")
+keyboard.addListener("keyCommand", python.getName(), "input")
  
 def input():
     # print 'python object is ', msg_[service]_[method]
