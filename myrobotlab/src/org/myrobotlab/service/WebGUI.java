@@ -104,7 +104,7 @@ public class WebGUI extends Service {
 		if (spawnBrowserOnStartUp)
 		{
 			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
-//			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
+			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
 		}
 		return result;
 	}
