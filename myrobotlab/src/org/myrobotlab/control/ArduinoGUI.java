@@ -356,7 +356,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 
 		if (o == serialRefresh) {
 
-			myService.send(boundServiceName, "querySerialDeviceNames");
+			myService.send(boundServiceName, "getPortNames");
 			myService.send(boundServiceName, "publishState");
 			return;
 

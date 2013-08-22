@@ -19,7 +19,7 @@ import org.slf4j.Logger;
  */
 public class WebServer extends NanoHTTPD implements HTTPProcessor {
 
-	public final static Logger log = LoggerFactory.getLogger(WebServer.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WebServer.class);
 
 	private HashMap<String, HTTPProcessor> processors = new HashMap<String, HTTPProcessor>();
 	
@@ -39,8 +39,9 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 		return null;
 	}
 	
+	// TODO - caching ?
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		log.info(String.format("%s [%s]", method, uri));
+		log.debug(String.format("%s [%s]", method, uri));
 		String[] keys = uri.split("/");
 		String key = null;
 

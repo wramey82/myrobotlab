@@ -1057,7 +1057,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Override
 	public ArrayList<String> getPortNames() {
 		 // FIXME - is this inclusive or ones which are left ?????
-		return SerialDeviceFactory.getSerialDeviceNames();
+		portNames = SerialDeviceFactory.getSerialDeviceNames();
+		return portNames;
 	}
 
 	@Override

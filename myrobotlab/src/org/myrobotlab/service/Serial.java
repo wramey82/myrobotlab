@@ -293,7 +293,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		return value;
 	}
 
-	public String readString() throws InterruptedException {
+	public String readString(char delimeter) throws InterruptedException {
 		StringBuffer value = new StringBuffer();
 		byte newByte = -1;
 		while ((newByte = blockingData.take().byteValue()) > 0 && newByte != delimeter) {

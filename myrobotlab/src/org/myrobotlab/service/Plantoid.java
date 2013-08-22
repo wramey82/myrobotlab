@@ -4,6 +4,8 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.opencv.OpenCVData;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 
@@ -13,7 +15,7 @@ public class Plantoid extends Service {
 	
 	transient public Servo leftX, rightX, leftY, rightY;
 	transient public Arduino arduino;
-	transient public OpenCV nIRCamera, trueColorCamera;
+	transient public OpenCV IRCamera, camera;
 	
 	//:192.168.0.25 
 	
@@ -22,13 +24,24 @@ public class Plantoid extends Service {
 	public String leftYName = "leftY";
 	public String rightYName = "rightY";
 	public String arduinoName = "arduino";
-	public String nIRCameraName = "nIRCamera";
-	public String trueColorCameraName = "trueColorCamera";
+	public String IRCameraName = "IRCamera";
+	public String cameraName = "camera";
+	
+	@Element
+	private String port = null; // not normalized :(
 
 	public final static Logger log = LoggerFactory.getLogger(Plantoid.class.getCanonicalName());
 	
 	public Plantoid(String n) {
 		super(n, Plantoid.class.getCanonicalName());	
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
 	}
 
 	@Override
@@ -37,17 +50,64 @@ public class Plantoid extends Service {
 	}
 
 	@Override 
-	public void stopService()
+	public void startService()
 	{
-		super.stopService();
+		super.startService();
+		
+		boolean startup = true;
+		
+		startup &= attach(arduino, port);
+		/*
+		startup &= attach(IRCamera);
+		startup &= attachServos(x, xPin, y, yPin);
+		startup &= attachPIDs(xpid, ypid);
+		*/
+		
+		if (startup) {
+			info("tracking ready");
+		} else {
+			error("tracking could not initialize properly");
+		}
 	}
 	
-	@Override
-	public void releaseService()
+	public boolean attach(Arduino duino, String inSerialPort)
 	{
-		super.releaseService();
-	}
-
+		if (arduino != null)
+		{
+			log.info("arduino already attached");
+			return true;
+		}
+		port = inSerialPort;
+		
+		info("attaching Arduino");
+		if (duino!= null)
+		{
+			arduinoName = duino.getName();
+		}
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
+		
+		if (!arduino.isConnected())
+		{
+			if (port == null)
+			{
+				error("no serial port specified for Arduino");
+				return false;
+			}
+			arduino.setSerialDevice(port);
+		}
+		
+		Service.sleep(500);
+		
+		if (!arduino.isConnected())
+		{
+			error("Arduino is not connected!");
+			return false;
+		}
+		
+		arduino.broadcastState();
+		return true;
+	} 
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
