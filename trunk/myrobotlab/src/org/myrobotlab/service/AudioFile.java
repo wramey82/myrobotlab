@@ -30,6 +30,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -54,6 +58,9 @@ public class AudioFile extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(AudioFile.class.getCanonicalName());
 	transient AePlayWave wavPlayer = new AePlayWave();
+	
+	//public transient HashMap<String, AdvancedPlayerThread> players = new HashMap<String, AdvancedPlayerThread>();
+	public transient List<AdvancedPlayerThread> players = Collections.synchronizedList(new ArrayList<AdvancedPlayerThread>());
 
 	public AudioFile(String n) {
 		super(n, AudioFile.class.getCanonicalName());
@@ -82,9 +89,35 @@ public class AudioFile extends Service {
 	public void playResource(String filename, Boolean isBlocking) {
 		playFile(filename, isBlocking, true);
 	}
+	
+	public class AdvancedPlayerThread extends Thread
+	{
+		AdvancedPlayer player = null;
+		
+		public AdvancedPlayerThread(String filename, BufferedInputStream bis)
+		{
+			super(filename);
+			try {
+				this.player = new AdvancedPlayer(bis);
+			} catch(Exception e)
+			{
+				Logging.logException(e);
+			}
+		}
+		
+		public void run() {
+			try {
+				invoke("started");
+				player.play();
+				invoke("stopped");
+			} catch (Exception e) {
+			 	Logging.logException(e);
+			}
+		}
+	}
 
 	public void playFile(String filename, Boolean isBlocking, Boolean isResource) {
-		final AdvancedPlayer player;
+		//final AdvancedPlayer player;
 
 		// TODO - cache file - for quick playing again - delete cache after set
 		// time
@@ -97,23 +130,15 @@ public class AudioFile extends Service {
 				is = new FileInputStream(filename);
 			}
 			
-			BufferedInputStream bis = new BufferedInputStream(is);
-			player = new AdvancedPlayer(bis);
-			
 			if (!isBlocking) {
-				new Thread() {
-					public void run() {
-						try {
-							invoke("started");
-							player.play();
-							invoke("stopped");
-						} catch (Exception e) {
-							System.out.println(e);
-						}
-					}
-				}.start();
+				BufferedInputStream bis = new BufferedInputStream(is);
+				AdvancedPlayerThread player = new AdvancedPlayerThread(filename, bis);
+				//players.put(filename, player);
+				players.add(player);
+				player.start();		
 			} else {
 				invoke("started");
+				AdvancedPlayer player = new AdvancedPlayer(is);
 				player.play();
 				invoke("stopped");
 			}
@@ -258,13 +283,49 @@ public class AudioFile extends Service {
 	public String getToolTip() {
 		return "Plays back audio file. Can block or multi-thread play";
 	}
+	
+	
+	public void silence()
+	{
+		Iterator<AdvancedPlayerThread> iter = players.iterator();
+		while (iter.hasNext()) {
+			try {
+			AdvancedPlayerThread player = iter.next();
+			player.player.close();
+			player.interrupt();
+			} catch(Exception e) {
+				Logging.logException(e);
+			}
+			iter.remove();
+		}
+	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
+		Joystick joystick = (Joystick)Runtime.createAndStart("joy", "Joystick");
+		Python python = (Python)Runtime.createAndStart("python", "Python");
 		AudioFile player = new AudioFile("player");
 		player.startService();
+		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
+	
+		joystick.setController(2);
+		joystick.broadcastState();
+		
+		python.subscribe(joystick.getName(), "button1", "input");
+		
+//		BasicController control = (BasicController) player;
+
+		
+		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
+		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
+		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
+		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\start.mp3");
+		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\radio.chatter.4.mp3");
+		
+		player.silence();
+		
 		//player.playResource("Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
