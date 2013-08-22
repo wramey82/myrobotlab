@@ -8,4 +8,4 @@
     <publications>
         <artifact name="simple-xml-2.7" type="jar" conf="*"/>
     </publications>
-</ivy-module>7
+</ivy-module>
