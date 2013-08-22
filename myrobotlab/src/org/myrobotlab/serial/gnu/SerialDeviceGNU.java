@@ -2,6 +2,8 @@ package org.myrobotlab.serial.gnu;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
+import gnu.io.RXTXHack;
+import gnu.io.RXTXPort;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
@@ -31,11 +33,11 @@ import org.slf4j.Logger;
  *         driver dynamically loaded is loaded with a hardcoded string :P
  * 
  */
-public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
+public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener  {
 
 	public final static Logger log = LoggerFactory.getLogger(SerialDeviceGNU.class.getCanonicalName());
 
-	private gnu.io.SerialPort port;
+	private gnu.io.RXTXPort port;
 
 	// defaults
 	private int rate = 57600;
@@ -109,6 +111,9 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 
 				@Override
 				public void run() {
+					// https://forums.oracle.com/thread/1294323
+					// port.IOLocked = 0;
+					RXTXHack.closeRxtxPort(port);
 					SerialPort hangMe = port;
 					hangMe.removeEventListener();
 					hangMe.close();
@@ -127,11 +132,11 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		log.debug(String.format("closed %s", commPortId.getName()));
 	}
 
-	public InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() {
 		return port.getInputStream();
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() {
 		return port.getOutputStream();
 	}
 
@@ -297,7 +302,7 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 				return;
 			}
 
-			port = (SerialPort) commPortId.open(commPortId.getName(), 1000);
+			port = (RXTXPort) commPortId.open(commPortId.getName(), 1000);
 			port.setSerialPortParams(rate, databits, stopbits, parity);
 			output = port.getOutputStream();
 			input = port.getInputStream();
@@ -308,10 +313,10 @@ public class SerialDeviceGNU implements SerialDevice, SerialPortEventListener {
 		} catch (UnsupportedCommOperationException e) {
 			Logging.logException(e);
 			throw new SerialDeviceException("UnsupportedCommOperationException " + e.getMessage());
-		} catch (IOException e) {
+		} /*catch (IOException e) {
 			Logging.logException(e);
 			throw new SerialDeviceException("IOException " + e.getMessage());
-		}
+		}*/
 	}
 
 	@Override

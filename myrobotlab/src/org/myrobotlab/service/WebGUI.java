@@ -15,6 +15,7 @@ import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.webgui.WSServer;
 import org.myrobotlab.webgui.WebServer;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -34,12 +35,19 @@ public class WebGUI extends Service {
 	transient WebServer ws;
 	transient WSServer wss;
 
-	boolean spawnBrowserOnStartUp = true;
+	@Element
+	boolean autoStartBrowser = true;
 	
+	public void autoStartBrowser(boolean autoStartBrowser) {
+		this.autoStartBrowser = autoStartBrowser;
+		save();
+	}
+
 	public HashMap<String,String> clients = new HashMap<String,String>();
 	
 	public WebGUI(String n) {
 		super(n, WebGUI.class.getCanonicalName());
+		load();
 	}
 
 	public Integer getPort() {
@@ -101,7 +109,7 @@ public class WebGUI extends Service {
 		boolean result = true;
 		result &= startWebServer(httpPort);
 		result &= startWebSocketServer(wsPort);
-		if (spawnBrowserOnStartUp)
+		if (autoStartBrowser)
 		{
 			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
 			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
@@ -226,14 +234,8 @@ public class WebGUI extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		log.info("{}",5%1);
-		log.info("{}",6%1);
-		log.info("{}",6%1);
-		log.info("{}",8%1);
-		
-		
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
