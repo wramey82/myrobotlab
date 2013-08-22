@@ -30,6 +30,13 @@ SerialGUI.prototype.getState = function(data) {
 	for (var i = 0; i < ports.length; i++) {
 		$("#"+this.name+"-ports").append("<option value='"+ports[i]+"' "+((serial.portName == ports[i])?"selected":"") +">"+ports[i]+"</option>");
 	}
+	
+	if (connected) {
+		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-green.png");
+		this.send("getVersion");
+	} else {
+		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-red.png");
+	}
 	// ports end ---
         
 };
