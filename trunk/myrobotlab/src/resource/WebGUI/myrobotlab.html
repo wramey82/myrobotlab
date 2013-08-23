@@ -215,13 +215,12 @@
 		this.ws.onerror = function(errorMsg) {
 			var text = "websocket error " + errorMsg;
 			$("#topMessage").text(text);
-			this.error(text);
 		};
 
 		this.ws.onclose = function(errorMsg) {
 			var text = "disconnected from " + wsURI + " " + errorMsg;
 			mrl.info(text);
-			$("#topMessage").text(text);
+			$("#topMessage").text(text); // TODO mrl.info OR #topMessage ????
 		};
 
 		// the message router
@@ -248,6 +247,7 @@
 				//this.error(err); // make not all exceptions will be trapped
 				//mrl.error(err);
 				console.log(err + "-" + msg.sender + "." + msg.method + e.data);
+				$("#topMessage").text(err.message + "-" + msg.sender + "." + msg.method + e.data);;
 			}
 		};
 	}
