@@ -16,19 +16,29 @@ PythonGUI.prototype.getState = function(data) {
 };
 
 PythonGUI.prototype.finishedExecutingScript = function() {
-	//$("#"+this.name+"-console").prepend("finished executing script");
-	//$("#"+this.name+"-console").prepend("\n");
+	this.info("finished executing script");
 };
 
 
 PythonGUI.prototype.getScript = function(data) {
+	if (data == null){
+		this.warn("getScript has null script");
+		return;
+	} 
+	
     var code = data[0].code;
     var filename = data[0].name;
 	this.editor.setValue(code);
 	$("#python-filename").val(filename);
+	this.info("loaded script " + filename);
 };
 
 PythonGUI.prototype.getExampleListing = function(data) {
+	
+	if (data == null){
+		this.warn("getExampleListing returned null");
+		return;
+	}
 	
 	var files = data[0];
 	var filelist = $("#python-example-file-menu");
@@ -47,6 +57,11 @@ PythonGUI.prototype.getExampleListing = function(data) {
 };
 
 PythonGUI.prototype.getFileListing = function(data) {
+	
+	if (data == null){
+		this.warn("getFileListing returned null");
+		return;
+	}
 	
 	var files = data[0];
 	var filelist = $("#python-file-menu");

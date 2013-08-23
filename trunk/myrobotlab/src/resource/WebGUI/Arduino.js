@@ -214,7 +214,12 @@ ArduinoGUI.prototype.publishPin = function(data) {
 }
 
 ArduinoGUI.prototype.getVersion = function(data) {
-	$("#"+this.name+"-firmware-version").text(data[0]);
+	if (data == null){
+		this.warn("getVersion returned null");
+		return;
+	} else {
+		$("#"+this.name+"-firmware-version").text(data[0]);
+	}
 }
 
 ArduinoGUI.prototype.getPortNames = function(data) {
