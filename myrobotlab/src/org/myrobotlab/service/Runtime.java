@@ -66,7 +66,7 @@ public class Runtime extends Service {
 	private static boolean needsRestart = false;
 
 	private static String runtimeName;
-	
+
 	private Date startDate = new Date();
 
 	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
@@ -74,7 +74,7 @@ public class Runtime extends Service {
 	// ---- rte members end ------------------------------
 
 	private static long uniqueID = new Random(System.currentTimeMillis()).nextLong();
-	
+
 	// ---- Runtime members begin -----------------
 	public final ServiceInfo serviceInfo = new ServiceInfo();
 
@@ -101,32 +101,29 @@ public class Runtime extends Service {
 	 * The singleton of this class.
 	 */
 	private static Runtime localInstance = null;
-	
-	
+
 	// auto update begin ------
-	//@Element
-	//private static boolean isAutoUpdateEnabled = false;
-	 // default eveery 5 minutes 
+	// @Element
+	// private static boolean isAutoUpdateEnabled = false;
+	// default eveery 5 minutes
 	private static int autoUpdateCheckIntervalSeconds = 300;
 
 	public static void startAutoUpdate(int seconds) {
 		Runtime runtime = Runtime.getInstance();
-		//isAutoUpdateEnabled = true;
+		// isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		// only runtime can auto-update
-		runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+		runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 	}
-	
-	public static String getVersion()
-	{
+
+	public static String getVersion() {
 		return FileIO.getResourceFile("version.txt");
 	}
-	
-	public String getUptime()
-	{
+
+	public String getUptime() {
 		Date now = new Date();
 		long diff = now.getTime() - startDate.getTime();
-		 
+
 		long diffSeconds = diff / 1000 % 60;
 		long diffMinutes = diff / (60 * 1000) % 60;
 		long diffHours = diff / (60 * 60 * 1000) % 24;
@@ -136,9 +133,8 @@ public class Runtime extends Service {
 		sb.append(diffDays).append(" days ").append(diffHours).append(" hours ").append(diffMinutes).append(" minutes ").append(diffSeconds).append(" seconds ");
 		return sb.toString();
 	}
-	
-	public static void stopAutoUpdate()
-	{
+
+	public static void stopAutoUpdate() {
 		Runtime runtime = Runtime.getInstance();
 		runtime.timer.cancel();
 		runtime.timer.purge();
@@ -150,12 +146,11 @@ public class Runtime extends Service {
 		public void run() {
 			Runtime runtime = Runtime.getInstance();
 			runtime.info("starting auto-update check");
-			
+
 			String newVersion = Runtime.getBleedingEdgeVersionString();
 			String currentVersion = FileIO.getResourceFile("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
-			if (newVersion == null)
-			{
+			if (newVersion == null) {
 				runtime.info("newVersion == null - nothing available");
 			} else if (currentVersion.compareTo(newVersion) >= 0) {
 				log.info("no updates");
@@ -163,14 +158,14 @@ public class Runtime extends Service {
 			} else {
 				runtime.info(String.format("updating with %s", newVersion));
 				// Custom button text
-				runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+				runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 				Runtime.getBleedingEdgeMyRobotLabJar();
 				Runtime.restart("moveUpdate");
 
 			}
-			
+
 			log.info("re-setting timer begin");
-			runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000); 
+			runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 			log.info("re-setting timer end");
 		}
 	}
@@ -230,6 +225,11 @@ public class Runtime extends Service {
 		return null;
 	}
 
+	public static void updateMyRobotLab() {
+		Runtime.getBleedingEdgeMyRobotLabJar();
+		Runtime.restart("moveUpdate");
+	}
+
 	// TODO - put this method in ServiceInterface
 	/**
 	 * 
@@ -270,8 +270,7 @@ public class Runtime extends Service {
 	 */
 	@Override
 	public void stopService() {
-		if (timer != null)
-		{
+		if (timer != null) {
 			timer.cancel(); // stop all scheduled jobs
 			timer.purge();
 		}
@@ -335,8 +334,9 @@ public class Runtime extends Service {
 		return java.lang.Runtime.getRuntime().freeMemory();
 	}
 
-	// Reference - cpu utilization http://www.javaworld.com/javaworld/javaqa/2002-11/01-qa-1108-cpu.html
-	
+	// Reference - cpu utilization
+	// http://www.javaworld.com/javaworld/javaqa/2002-11/01-qa-1108-cpu.html
+
 	/**
 	 * 
 	 * @return
@@ -501,8 +501,7 @@ public class Runtime extends Service {
 			ServiceWrapper sw = getServiceWrapper(serviceName);
 			// recently added to support new registry data model
 			// and break cyclic reference
-			if (uri != null)
-			{
+			if (uri != null) {
 				sw.host = uri;
 			}
 			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType())) {
@@ -1269,7 +1268,6 @@ public class Runtime extends Service {
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
 
-		
 		Logging logging = LoggingFactory.getInstance();
 
 		try {
@@ -1285,14 +1283,13 @@ public class Runtime extends Service {
 				String port = cmdline.getSafeArgument("-logToRemote", 1, "4445");
 				logging.addAppender(Appender.REMOTE, host, port);
 			} else {
-				if (cmdline.containsKey("-multiLog"))
-				{
+				if (cmdline.containsKey("-multiLog")) {
 					logging.addAppender(Appender.FILE, "multiLog", null);
 				} else {
 					logging.addAppender(Appender.FILE);
 				}
 			}
-			
+
 			if (cmdline.containsKey("-autoUpdate")) {
 				startAutoUpdate(autoUpdateCheckIntervalSeconds);
 			}
@@ -1300,7 +1297,6 @@ public class Runtime extends Service {
 			logging.setLevel(cmdline.getSafeArgument("-logLevel", 0, "INFO"));
 
 			log.info(cmdline.toString());
-			
 
 			// LINUX LD_LIBRARY_PATH MUST BE EXPORTED - NO OTHER SOLUTION FOUND
 			// hack to reconcile the different ways os handle and expect
@@ -1312,8 +1308,8 @@ public class Runtime extends Service {
 			if (cmdline.containsKey("-update")) {
 				// force all updates
 				ArrayList<String> services = cmdline.getArgumentList("-update");
-				
-				if (services.size() == 0){
+
+				if (services.size() == 0) {
 					Runtime runtime = Runtime.getInstance();
 					if (runtime != null) {
 						runtime.updateAll();
@@ -1374,9 +1370,9 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * creates and starts and returns reference to service
-	 * if a "real" service has been passed in, it will start it and return 
-	 * its reference, a reference to a "real" service wins over a name
+	 * creates and starts and returns reference to service if a "real" service
+	 * has been passed in, it will start it and return its reference, a
+	 * reference to a "real" service wins over a name
 	 * 
 	 * @param name
 	 * @param type
@@ -1516,12 +1512,11 @@ public class Runtime extends Service {
 			log.info("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
 			log.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
 			log.info("refreshing classloader");
-			
+
 			Runtime runtime = Runtime.getInstance();
-			if (!runtime.isInstalled(fullTypeName))
-			{
+			if (!runtime.isInstalled(fullTypeName)) {
 				runtime.error("%s is not installed - please install it", fullTypeName);
-				//return null;
+				// return null;
 			}
 
 			Class<?> cls = Class.forName(fullTypeName);
@@ -1617,7 +1612,6 @@ public class Runtime extends Service {
 		return si;
 	}
 
-	
 	/**
 	 * 
 	 * @param fullTypeName
@@ -1747,7 +1741,7 @@ public class Runtime extends Service {
 		}
 	}
 
-	// References : 
+	// References :
 	// http://java.dzone.com/articles/programmatically-restart-java
 	static public void restart(String restartScript) {
 		log.info("new components - restart?");
@@ -1975,34 +1969,30 @@ public class Runtime extends Service {
 		}
 	}
 
-	
 	/**
-	 * unique id's are need for sendBlocking - to uniquely identify the message 
+	 * unique id's are need for sendBlocking - to uniquely identify the message
 	 * this is a method to support that - it is unique within a process, but not
 	 * accross processes
+	 * 
 	 * @return a unique id
 	 */
-	public static synchronized long getUniqueID()
-	{
-		 ++uniqueID;
-		 return uniqueID;
+	public static synchronized long getUniqueID() {
+		++uniqueID;
+		return uniqueID;
 	}
-	
-	public boolean isInstalled(String fullTypeName)
-	{
+
+	public boolean isInstalled(String fullTypeName) {
 		return !getServiceInfo().hasUnfulfilledDependencies(fullTypeName);
 	}
-	
-	public boolean noWorky()
-	{
+
+	public boolean noWorky() {
 		try {
 			String ret = HTTPRequest.postFile("http://myrobotlab.org/myrobotlab_log/postLogFile.php", "runtime", "file", new File("myrobotlab.log"));
-			if (ret.contains("Upload:"))
-			{
+			if (ret.contains("Upload:")) {
 				info("noWorky successfully sent - our crack team of experts will check it out !");
 				return true;
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
 			Logging.logException(e);
 		}
 		error("the noWorky didn't worky !");
