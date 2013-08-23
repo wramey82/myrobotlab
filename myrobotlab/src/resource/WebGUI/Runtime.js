@@ -120,6 +120,26 @@ RuntimeGUI.prototype.attachGUI = function() {
 	this.send("getServiceInfo");
 };
 
+RuntimeGUI.prototype.resolveSuccess = function(data) {
+	this.info("resolve success for " + data[0]);
+};
+
+RuntimeGUI.prototype.resolveBegin = function(data) {
+	this.info("begin resolve for " + data[0]);
+};
+
+RuntimeGUI.prototype.resolveError = function(data) {
+	this.error("could not resolve " + data[0]);
+};
+
+RuntimeGUI.prototype.resolveEnd = function(data) {
+	this.info("end resolve for " + data[0]);
+};
+
+RuntimeGUI.prototype.newArtifactsDownloaded = function(data) {
+	this.info("new artifact downloaded for " + data[0]);
+};
+
 RuntimeGUI.prototype.detachGUI = function() {
 	this.unsubscribe("pulse", "pulse");
 	this.unsubscribe("publishState", "getState");

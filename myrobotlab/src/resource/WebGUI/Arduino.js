@@ -11,6 +11,7 @@ function ArduinoGUI(name) {
     this.oscopeHeight = 600;
     this.traceData = [];
     this.pinList = null;
+    this.portNames = [];
 }
 
 ArduinoGUI.prototype = Object.create(ServiceGUI.prototype);
@@ -23,7 +24,7 @@ ArduinoGUI.prototype.getState = function(data) {
 	var arduino = data[0];	
 	var boards = data[0].targetsTable.arduino.boards;
 	var boardType = arduino.boardType;
-	var ports = arduino.serialDeviceNames;
+	var ports = this.portNames;
 	var connected = arduino.connected;
 	
 	// ports begin ---
@@ -229,9 +230,11 @@ ArduinoGUI.prototype.attachGUI = function() {
 	this.subscribe("publishState", "getState");
 	this.subscribe("publishPin", "publishPin");
 	this.subscribe("getVersion", "getVersion");
+	this.subscribe("getPortNames", "getPortNames");
 	// broadcast the initial state
 	
 	//this.send("getTargetsTable");
+	this.send("getPortNames");
 	this.send("broadcastState");
 };
 
