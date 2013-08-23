@@ -110,12 +110,13 @@ public class Plantoid extends Service {
 	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Plantoid template = new Plantoid("template");
-		template.startService();			
-		
-		Runtime.createAndStart("gui", "GUIService");
+		Plantoid plantoid = (Plantoid)Runtime.create("plantoid", "Plantoid");
+		plantoid.setPort("COM9");
+		plantoid.startService();
+		Runtime.createAndStart("python", "Python");
+		Runtime.createAndStart("webgui", "WebGUI");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
