@@ -43,6 +43,7 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.control.widget.MemoryWidget;
 import org.myrobotlab.control.widget.NodeGUI;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
@@ -99,8 +100,8 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 		video0.displayFrame(img);
 	}
 
-	public void displayStatus(final String newStatus) {
-		status.setText(newStatus); 
+	public void displayStatus(final Status newStatus) {
+		status.setText(newStatus.detail); 
 	}
 	
 	// FIXME !!!! SHOULD BE IN NodeGUI !!!!

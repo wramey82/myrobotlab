@@ -20,11 +20,12 @@
  -->
 <meta charset="utf-8" />
 <title>myrobotlab - One Software To Rule Them All !</title>
-<link rel="stylesheet" href="common/themes/vader/jquery-ui.css" />
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/vader/jquery-ui.css" />
 <link rel="stylesheet" href="common/style.css">
 <link rel="stylesheet" href="common/ace-editor-style.css">
-<script src="common/js/jquery-1.10.2.min.js"></script>
-<script src="common/js/jquery-ui.min.1.10.3.js"></script>
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="common/js/jquery.websocket-0.0.1.js"></script>
 <script src="common/js/jquery.json-2.2.min.js"></script>
 <script>
@@ -54,6 +55,13 @@
 		this.historyList = new Array(); // necessary?
 		this.method = method;
 		this.data = params;
+	}
+	
+	function Status(name, level, detail){
+		this.name = name;
+		this.level = level;
+		this.code;
+		this.detail = detail;
 	}
 
 	function getSimpleClassName(inName)
@@ -100,7 +108,7 @@
 			// load the accordian reference
 			try {
 				//$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
-				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
+				$("<h3><img src='/resource/" + className + ".png' width='24' height='24'/> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<div id='" + serviceName + "-gui'><button id='"+serviceName+"-releaseService' name='"+serviceName+"'>release</button></div>" ).appendTo( "#accordion1" );
 				$("#accordion1").accordion("refresh");
 
@@ -282,22 +290,22 @@
 	// --- logging begin ----
 	ServiceGUI.prototype.debug = function(text) {
 		this.log(text, "debug");
-		this.displayStatus(["debug " + this.name + " " + text]); // FIXME - lame
+		this.displayStatus([new Status(this.name, "DEBUG", text)]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.info = function(text) {
 		this.log(text, "info");
-		this.displayStatus(["info " + this.name + " " + text]); // FIXME - lame
+		this.displayStatus([new Status(this.name, "INFO", text)]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.warn = function(text) {
 		this.log(text, "warn");
-		this.displayStatus(["warn " + this.name + " " + text]); // FIXME - lame
+		this.displayStatus([new Status(this.name, "WARN", text)]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.error = function(text) {
 		this.log(text, "error");
-		this.displayStatus(["error " + this.name + " " + text]); // FIXME - lame
+		this.displayStatus([new Status(this.name, "ERROR", text)]); // FIXME - lame
 	}
 
 	// call back from the service debug info warn error
@@ -308,28 +316,27 @@
 	// it should remain split - no parsing should be necessary
 	ServiceGUI.prototype.displayStatus = function(data) {
 
-		var status = $("#"+this.name+"-status");
-		var msg = data[0];
-		var removePos = this.name.length;
-
-		if (msg.indexOf("info") == 0){
-			status.addClass("info");
-			status.removeClass("warn");
-			status.removeClass("error");
+		var guiStatus = $("#"+this.name+"-status");
+		var status = data[0];
+		
+		if (status.level == "INFO"){
+			guiStatus.addClass("info");
+			guiStatus.removeClass("warn");
+			guiStatus.removeClass("error");
 			removePos = removePos + 5;
-		} else if (msg.indexOf("warn") == 0) {
-			status.removeClass("info");
-			status.addClass("warn");
-			status.removeClass("error");
+		} else if (status.level == "WARN") {
+			guiStatus.removeClass("info");
+			guiStatus.addClass("warn");
+			guiStatus.removeClass("error");
 			removePos = removePos + 5;
-		} else if (msg.indexOf("error") == 0) {
-			status.removeClass("info");
-			status.removeClass("warn");
-			status.addClass("error");
+		} else if (status.level == "ERROR") {
+			guiStatus.removeClass("info");
+			guiStatus.removeClass("warn");
+			guiStatus.addClass("error");
 			removePos = removePos + 6;
 		} 
 
-		$("#"+this.name+"-status").text(data[0].substring(removePos));
+		guiStatus.text(status.detail);
 	}
 
 
@@ -372,7 +379,7 @@
 <body>
 	<div id="accordion1">
 		<h3>
-			<img src="../myrobotlab.png" />myrobotlab <span id="topMessage"></span>
+			<img src="../myrobotlab.png" height="24" width="24"/>myrobotlab <span id="topMessage"></span>
 		</h3>
 		<div>
 			<button id="restMethods">rest methods</button>

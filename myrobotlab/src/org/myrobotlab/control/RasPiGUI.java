@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.SwingUtilities;
 
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.RasPi;
@@ -79,7 +80,7 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 	
 
 	@Override
-	public void displayStatus(String status) {
+	public void displayStatus(Status status) {
 		// TODO Auto-generated method stub
 		
 	}
