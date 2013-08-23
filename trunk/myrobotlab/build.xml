@@ -48,7 +48,7 @@
 	
 -->
 
-<project name="myrobotlab" default="publishRelease" basedir=".">
+<project name="myrobotlab" default="publishBleedingEdge" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 	
 	<!-- 
@@ -95,13 +95,95 @@
 	<echo>The svn comment is: ${svn.comment}</echo>
 		
 	<!-- FIXME use .classpath -->
-	<path id="compile.classpath">
-		<fileset dir="./thirdParty/repo">
-			<include name="**/*.jar" />
-		</fileset>
+	<path id="myrobotlab.classpath">
+	    <!-- taken -->
+		
+        <pathelement location="bin"/>
+        <pathelement location="thirdParty/repo/com.centralnexus.joystick/joystick/0.7/Joystick.jar"/>
+        <pathelement location="thirdParty/repo/com.google.gson/gson/1.7.1/gson-1.7.1.jar"/>
+        <pathelement location="thirdParty/repo/com.mxgraph.jgraph/jgraph/1.6.1.2/jgraphx.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.java3d/java3d/1.5.1/j3dcore.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.java3d/java3d/1.5.1/j3dutils.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.java3d/java3d/1.5.1/vecmath.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.jna/jna/3.2.2/jna.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.speech.freetts/freetts/1.2/freetts.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/batch.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/jsapi-1.0-base.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/sphinx4.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/tags.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar"/>
+        <pathelement location="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar"/>
+        <pathelement location="thirdParty/repo/gnu.io.rxtx/rxtx/2.1-7r2/RXTXcomm.jar"/>
+        <pathelement location="thirdParty/repo/javaclient3.playerstage/playerstage/3/javaclient3.jar"/>
+        <pathelement location="thirdParty/repo/javaFlacEncoder.FLAC_FileEncoder/FLAC_FileEncoder/0.1/javaFlacEncoder-0.1.jar"/>
+        <pathelement location="thirdParty/repo/javax.speech.recognition/recognition/1.0/jsapi.jar"/>
+        <pathelement location="thirdParty/repo/javax.vecmath/vecmath/1.5.1/vecmath.jar"/>
+        <pathelement location="thirdParty/repo/javazoom.jl.player/player/1.0.1/jl1.0.1.jar"/>
+        <pathelement location="thirdParty/repo/net.sourceforge.simbad/simbad/1.4/simbad-1.4.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.ivy/ivy/2.0.0/ivy.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+        <pathelement location="thirdParty/repo/org.jfugue.music/music/4.0.3/jfugue-4.0.3.jar"/>
+        <pathelement location="thirdParty/repo/org.jibble.simplewebserver/simplewebserver/1.0/SimpleWebServer.jar"/>
+        <pathelement location="thirdParty/repo/org.op.chess/chess/1.0.0/ChessBoard.jar"/>
+        <pathelement location="thirdParty/repo/org.python.core/core/2.5.2/jython.jar"/>
+        <pathelement location="thirdParty/repo/org.tritonus.share.sampled.floatsamplebuffer/floatsamplebuffer/0.3.6/tritonus_share-0.3.6.jar"/>
+        <pathelement location="thirdParty/repo/simbad.gui/gui/1.4/simbad-1.4.jar"/>
+        <pathelement location="thirdParty/repo/wiiuse.wiimote/wiimote/0.12b/wiiusej.jar"/>
+        <pathelement location="thirdParty/repo/org.quartz/quartz/2.1.5/quartz-2.1.5.jar"/>
+        <pathelement location="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-log4j12-1.6.1.jar"/>
+        <pathelement location="thirdParty/repo/org.slf4j/slf4j/1.6.1/slf4j-api-1.6.1.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/dsn.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/imap.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/mail.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/mailapi.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/pop3.jar"/>
+        <pathelement location="thirdParty/repo/com.sun.mail/mail/1.4.5/smtp.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacpp.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-android-arm.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-linux-x86.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-linux-x86_64.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-macosx-x86_64.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-windows-x86.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.javacv/javacv/0.3/javacv-windows-x86_64.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.colorutils/r9/colorutils.jar"/>
+        <pathelement location="thirdParty/repo/net.java.games.jinput/jinput/20120914/jinput.jar"/>
+        <pathelement location="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.4.1/rsyntaxtextarea.jar"/>
+        <pathelement location="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.jssc/jssc/0.9.0/jssc.jar"/>
+        <pathelement location="thirdParty/repo/org.openni/openni/1.5.4.0/x86.64.windows/org.OpenNI.jar"/>
+        <pathelement location="thirdParty/repo/com.googlecode.chatterbot/1.2.1/chatter-bot-api.jar"/>
+        <pathelement location="thirdParty/repo/com.googlcode.jsonsimple/1.1/json_simple-1.1.jar"/>
+        <pathelement location="thirdParty/repo/com.pi4j.pi4j/pi4j/0.0.5/pi4j-core.jar"/>
+        <pathelement location="thirdParty/repo/com.pi4j.pi4j/pi4j/0.0.5/pi4j-gpio-extension.jar"/>
+        <pathelement location="thirdParty/repo/it.sauronsoftware.cron4j/cron4j/2.2.5/cron4j-2.2.5.jar"/>
+        <pathelement location="thirdParty/repo/org.drjava.java/java/20120818/asm-3.1.jar"/>
+        <pathelement location="thirdParty/repo/org.drjava.java/java/20120818/dynamicjava-base.jar"/>
+        <pathelement location="thirdParty/repo/org.drjava.java/java/20120818/plt.jar"/>
+        <pathelement location="thirdParty/repo/net.sourceforge.tess4j/tess4j/1.1/tess4j.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/commons-codec-1.6.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/commons-logging-1.1.1.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/fluent-hc-4.2.5.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpclient-4.2.5.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpclient-cache-4.2.5.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpcore-4.2.4.jar"/>
+        <pathelement location="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpmime-4.2.5.jar"/>
+        <pathelement location="thirdParty/repo/com.wolfram.alpha/alpha/1.1/WolframAlpha-1.1.jar"/>
+        <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-async-3.0.3.jar"/>
+        <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-core-3.0.3.jar"/>
+        <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-examples-3.0.3.jar"/>
+        <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-media-support-3.0.3.jar"/>
+        <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-stream-3.0.3.jar"/>
+        <pathelement location="thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
+        <pathelement location="thirdParty/repo/edu.northwestern.topcodes/topcodes/1.0/topcodes.jar"/>
+        <pathelement location="thirdParty/repo/org.java_websocket.websocket/websocket/1.0/java_websocket.jar"/>
+        <pathelement location="thirdParty/repo/org.simpleframework.xml/xml/2.7/simple-xml-2.7.jar"/>
+  
 	</path>
 
 	<!-- class path for testing -->
+	<!-- FIXME !!! - need same classpath reference as mrl -->
 	<path id="compile.classpath.junit">
 		<fileset dir="./thirdParty/repo">
 			<include name="**/*.jar" />
@@ -189,7 +271,7 @@
 		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
 			<exclude name="org/myrobotlab/service/Android.java" />
 			<exclude name="org/myrobotlab/service/ArduinoBT.java" />
-			<classpath refid="compile.classpath" />
+			<classpath refid="myrobotlab.classpath" />
 		</javac>
 
 		<!-- copy resource.root -->
@@ -309,15 +391,11 @@
  	</target>
 	
 	<!-- thankfully created in Eclipse -->
-	<target name="javadoc" depends="report">
+	<target name="javadoc">
 		<javadoc access="public" packagenames="org.myrobotlab.*" author="true" destdir="javadoc" 
 			doctitle="myrobotlab" nodeprecated="false" nodeprecatedlist="false" noindex="false" 
-			nonavbar="false" notree="false" source="1.6" sourcepath="src" splitindex="true" use="true" version="true">
-			<classpath>
-				<fileset dir="${dist}/libraries/jar">
-					<include name="*.jar" />
-				</fileset>
-			</classpath>
+			nonavbar="false" notree="false" source="1.7" sourcepath="src" splitindex="true" use="true" version="true">
+  			<classpath refid="myrobotlab.classpath"/>
 		</javadoc>
 	</target>
 	
