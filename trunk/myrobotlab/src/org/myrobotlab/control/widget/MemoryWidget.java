@@ -20,6 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -85,7 +86,7 @@ public class MemoryWidget {
 				// iterate through all data & display it
 				memoryDisplay.clear();
 				
-				memoryDisplay.displayStatus(String.format("node %s", sb.toString()));
+				memoryDisplay.displayStatus(new Status(String.format("node %s", sb.toString())));
 				memoryDisplay.display(nodeGUI.myNode);
 				
 

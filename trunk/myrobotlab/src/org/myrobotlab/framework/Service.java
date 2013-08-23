@@ -2092,9 +2092,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
-	public String publishStatus(String status, String msg)
+	public Status publishStatus(String level, String msg)
 	{
-		return String.format("%s %s %s", status, getName(), msg);
+		return new Status(getName(), level, null, msg);
 	}
 	
 	public HashSet<String> getMessageSet()

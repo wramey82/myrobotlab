@@ -217,6 +217,9 @@ ArduinoGUI.prototype.getVersion = function(data) {
 	$("#"+this.name+"-firmware-version").text(data[0]);
 }
 
+ArduinoGUI.prototype.getPortNames = function(data) {
+	this.portNames = data[0];
+}
 
 //--- callbacks end ---
 

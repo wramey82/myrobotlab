@@ -81,6 +81,7 @@ import org.myrobotlab.control.widget.Console;
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -130,7 +131,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public transient JFrame frame = null;
 
-	@Element(required=false)
+	@Element(required = false)
 	public String lastTabVisited;
 	@Element
 	public String lastHost = "127.0.0.1";
@@ -151,7 +152,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	transient JMenuItem recording = new JMenuItem("start recording");
 	transient JMenuItem loadRecording = new JMenuItem("load recording");
-	
+
 	boolean test = true;
 
 	/**
@@ -176,7 +177,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	boolean isDisplaying = false;
 	transient JLabel status = new JLabel("status");
 
-
 	public GUIService(String n) {
 		super(n, GUIService.class.getCanonicalName());
 		load();// <-- HA was looking all over for it
@@ -193,13 +193,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public boolean preProcessHook(Message m) {
 		// FIXME - problem with collisions of this service's methods
 		// and dialog methods ?!?!?
-		
+
 		// if the method name is == to a method in the GUIService
 		if (methodSet.contains(m.method)) {
 			// process the message like a regular service
 			return true;
 		}
-		
+
 		// otherwise send the message to the dialog with the senders name
 		ServiceGUI sg = serviceGUIMap.get(m.sender);
 		if (sg == null) {
@@ -424,7 +424,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// FIXME - add method gui.setService(registry.get(boundServiceName))
 		tabPanelMap.put(serviceName, gui.getDisplay());
 		gui.attachGUI();
-		
+
 		// TODO - all auto-subscribtions could be done here
 		subscribe("publishStatus", se.getName(), "getStatus", String.class);
 
@@ -434,7 +434,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
 		} else {
 			// create hash color for hsv from accessURI
-			//Color hsv = new Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d", Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+			// Color hsv = new
+			// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
+			// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
 			Color hsv = getColorFromURI(sw.getAccessURL());
 			int index = tabs.indexOfTab(serviceName);
 			tabs.setBackgroundAt(index, hsv);
@@ -443,9 +445,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		return gui;
 	}
-	
-	public static Color getColorFromURI(Object uri)
-	{
+
+	public static Color getColorFromURI(Object uri) {
 		StringBuffer sb = new StringBuffer(String.format("%d", Math.abs(uri.hashCode())));
 		Color c = new Color(Color.HSBtoRGB(Float.parseFloat("0." + sb.reverse().toString()), 0.8f, 0.7f));
 		return c;
@@ -477,7 +478,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	// twice ?
 	// I'm going with the "easy" approach
 
-
 	public void display() {
 		if (!isDisplaying) {
 			// reentrant
@@ -497,14 +497,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			frame.setTitle("myrobotlab - " + getName());
 
 			buildTabPanels();
-			
+
 			JPanel main = new JPanel(new BorderLayout());
 			main.add(tabs, BorderLayout.CENTER);
 			main.add(status, BorderLayout.SOUTH);
 			status.setOpaque(true);
 
 			frame.add(main);
-			
 
 			URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 			Toolkit kit = Toolkit.getDefaultToolkit();
@@ -515,15 +514,14 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			frame.setJMenuBar(buildMenu());
 			frame.setVisible(true);
 			frame.pack();
-			if (tabPanelMap.containsKey(lastTabVisited))
-			{
+			if (tabPanelMap.containsKey(lastTabVisited)) {
 				try {
 					tabs.setSelectedComponent(tabPanelMap.get(lastTabVisited));
-				} catch(Exception e) {
+				} catch (Exception e) {
 					Logging.logException(e);
 				}
 			}
-			
+
 			isDisplaying = true;
 		}
 
@@ -775,10 +773,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		load.setActionCommand("load");
 		systemMenu.add(load);
 		load.addActionListener(this);
-		
+
 		JMenu m = new JMenu("logging");
 		systemMenu.add(m);
-		
+
 		JMenu m2 = new JMenu("level");
 		m.add(m2);
 		buildLogLevelMenu(m2);
@@ -804,7 +802,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		return menuBar;
 	}
-
 
 	public JMenu buildRecordingMenu(JMenu parentMenu) {
 
@@ -899,7 +896,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		JMenuItem mi = new JMenuItem("install latest");
 		mi = new JMenuItem("install latest");
 		mi.addActionListener(this);
-		
+
 		parentMenu.add(mi);
 
 	}
@@ -1003,16 +1000,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			return;
 		}
 	}
-	
-	public void getStatus(String msg)
-	{
-		if (msg.startsWith("error"))
-		{
+
+	public void getStatus(Status inStatus) {
+		/*
+		 * if (msg.startsWith("error")) { status.setOpaque(true);
+		 * status.setForeground(Color.white); status.setBackground(Color.red); }
+		 * else if (msg.startsWith("error")) { status.setOpaque(true);
+		 * status.setForeground(Color.white);
+		 * status.setBackground(Color.yellow); } else {
+		 * status.setForeground(Color.black); status.setOpaque(false); }
+		 */
+
+		if (inStatus.isError()) {
 			status.setOpaque(true);
 			status.setForeground(Color.white);
 			status.setBackground(Color.red);
-		} else if (msg.startsWith("error"))
-		{
+		} else if (inStatus.isWarn()) {
 			status.setOpaque(true);
 			status.setForeground(Color.white);
 			status.setBackground(Color.yellow);
@@ -1020,7 +1023,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			status.setForeground(Color.black);
 			status.setOpaque(false);
 		}
-		status.setText(msg);
+
+		status.setText(inStatus.detail);
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {

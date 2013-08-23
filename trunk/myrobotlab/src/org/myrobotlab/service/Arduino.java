@@ -1290,6 +1290,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		serialDevice.close();
 		portName = "";
 
+		info("disconnected");
 		broadcastState();
 		return true;
 	}
