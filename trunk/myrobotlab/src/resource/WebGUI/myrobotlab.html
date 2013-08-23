@@ -282,22 +282,30 @@
 	// --- logging begin ----
 	ServiceGUI.prototype.debug = function(text) {
 		this.log(text, "debug");
+		this.displayStatus(["debug " + this.name + " " + text]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.info = function(text) {
 		this.log(text, "info");
+		this.displayStatus(["info " + this.name + " " + text]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.warn = function(text) {
 		this.log(text, "warn");
+		this.displayStatus(["warn " + this.name + " " + text]); // FIXME - lame
 	}
 
 	ServiceGUI.prototype.error = function(text) {
 		this.log(text, "error");
+		this.displayStatus(["error " + this.name + " " + text]); // FIXME - lame
 	}
 
 	// call back from the service debug info warn error
 	// TODO attachGUI - calls parent sets the framework message routes
+	// this is the point of where two "inbound" msgs meet - one from other
+	// pages - which do this.info() and one from the Services info warn error
+	// the Service category of message is split in the message - so is the peer pages
+	// it should remain split - no parsing should be necessary
 	ServiceGUI.prototype.displayStatus = function(data) {
 
 		var status = $("#"+this.name+"-status");
@@ -319,7 +327,7 @@
 			status.removeClass("warn");
 			status.addClass("error");
 			removePos = removePos + 6;
-		}
+		} 
 
 		$("#"+this.name+"-status").text(data[0].substring(removePos));
 	}
