@@ -323,17 +323,14 @@
 			guiStatus.addClass("info");
 			guiStatus.removeClass("warn");
 			guiStatus.removeClass("error");
-			removePos = removePos + 5;
 		} else if (status.level == "WARN") {
 			guiStatus.removeClass("info");
 			guiStatus.addClass("warn");
 			guiStatus.removeClass("error");
-			removePos = removePos + 5;
 		} else if (status.level == "ERROR") {
 			guiStatus.removeClass("info");
 			guiStatus.removeClass("warn");
 			guiStatus.addClass("error");
-			removePos = removePos + 6;
 		} 
 
 		guiStatus.text(status.detail);
