@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- 
-	References : 
+<!--
+	References :
 	  http://msdn.microsoft.com/en-us/library/ie/hh673567(v=vs.85).aspx - excellent examples - sendBinaryMessage
 	  http://stackoverflow.com/questions/456177/function-overloading-in-javascript-best-practices
 	  http://stackoverflow.com/questions/5112793/how-do-i-dynamically-call-a-javascript-objects-method
@@ -12,9 +12,9 @@
 	  http://stackoverflow.com/questions/912711/jquery-to-load-javascript-file-dynamically
 	  http://stackoverflow.com/questions/8277462/jquery-append-external-html-file-into-my-page
 	  http://stackoverflow.com/questions/500431/javascript-variable-scope (scope !)
-	  
+
 	  TODO :
-	  
+
 	  ????? DO I NEED A REGISTRY?  OR DO I CALL RUNTIME FOR IT EACH TIME???
 	  test for not using null in subscribe
  -->
@@ -35,13 +35,13 @@
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var mrl;
 	var debug = true;
-	
+
 	var host = "<%=getHostAddress%>";
 	var httpPort = "<%=httpPort%>";
 	var wsPort = "<%=wsPort%>";
-	
+
 	var wsURI = "ws://" + host + ":" + wsPort; // TODO - this gets passed up from server
-		
+
 	var runtimeName = "<%=runtimeName%>";
 	var webguiName = "<%=webguiName%>";
 
@@ -60,7 +60,7 @@
 	{
 		return inName.substring(inName.lastIndexOf(".")+1);
 	}
-	
+
 	function getRegistry(data) {
 		// refresh global registry
 		registry = data[0];
@@ -73,20 +73,20 @@
 		if (index == Object.keys(registry).length){
 			return;
 		}
-		
+
 		var serviceName = nameArray[index];
 		var serviceWrapper = registry[serviceName];
 		var className = getSimpleClassName(serviceWrapper.service.serviceClass);
 
-		
+
 		// if this is a new class - we will load it
 		if (!(className in loadedClasses)){
-			
-		
+
+
 		// get runs on a different thread - or at least the callback does
 		// so this can't be in a for loop indexed by serviceName - it has to be
 		// in a recursive driven method
-		
+
 		// --- dynamic class loader begin ---
 //		$.getScript("/resource/WebGUI/"+className+".js",
 //				function(data, result, scopedName) {
@@ -94,16 +94,16 @@
 					// --- dynamic class loader end ---
 
 		}
-		
+
 		if (!(serviceName in guiMap)) {
 			// class is loaded - but need a new instance
-			// load the accordian reference 
+			// load the accordian reference
 			try {
 				//$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<div id='" + serviceName + "-gui'><button id='"+serviceName+"-releaseService' name='"+serviceName+"'>release</button></div>" ).appendTo( "#accordion1" );
 				$("#accordion1").accordion("refresh");
-				
+
 				newClass = " new " + className + "GUI('"+serviceName+"');";
 				guiMap[serviceName] = eval(newClass);
 
@@ -118,15 +118,15 @@
 				this.error(err);
 			}
 		}
-		
+
 		loadServiceGUIClass(registry, nameArray, index + 1);
-		
+
 	}
-	
+
 	/* TODO - complete - don't do massive update on registry
 	function register(data)
 	{
-		
+
 	}
 	*/
 
@@ -172,27 +172,27 @@
 	{
 		return("#"+this.name+"-"+inStr);
 	}
-	
+
 	ServiceGUI.prototype.releaseService = function()
 	{
 		this.send("releaseService");
 	}
-	
+
 	/*
 	ServiceGUI.prototype.serviceGUIInit = function()
-	{		
+	{
 		$("#"+this.name+"-releaseService").button().click(function(event) {
 			guiMap[this.name].releaseService();
 		});
 	}
 
-	
+
 	ServiceGUI.prototype.broadcastState = function()
-	{		
+	{
 		this.send("broadcastState");
 	}
 	*/
-	
+
 	// --- ServiceGUI end ----
 	// FIXME -  embedded all methods in ServiceGUI
 	function Connection(uri) {
@@ -223,7 +223,7 @@
 			var msg = null;
 			try {
 				msg = jQuery.parseJSON(e.data);
-//				console.log("invoke " + msg.sender + "." + msg.method); 
+//				console.log("invoke " + msg.sender + "." + msg.method);
 				// TODO - debug level				mrl.info("invoke " + msg.sender + "." + msg.method);
 				if (msg.method == "getRegistry") {
 					getRegistry(msg.data)
@@ -295,15 +295,15 @@
 	ServiceGUI.prototype.error = function(text) {
 		this.log(text, "error");
 	}
-	
+
 	// call back from the service debug info warn error
 	// TODO attachGUI - calls parent sets the framework message routes
 	ServiceGUI.prototype.displayStatus = function(data) {
-		
+
 		var status = $("#"+this.name+"-status");
 		var msg = data[0];
 		var removePos = this.name.length;
-		
+
 		if (msg.indexOf("info") == 0){
 			status.addClass("info");
 			status.removeClass("warn");
@@ -320,7 +320,7 @@
 			status.addClass("error");
 			removePos = removePos + 6;
 		}
-		
+
 		$("#"+this.name+"-status").text(data[0].substring(removePos));
 	}
 
@@ -358,6 +358,7 @@
 <script src="Servo.js"></script>
 <script src="WebGUI.js"></script>
 <script src="Serial.js"></script>
+<script src="Plantoid.js"></script>
 <!-- static scripts for easy debugging end -->
 </head>
 <body>
@@ -381,7 +382,7 @@
 		<!-- <textarea id="log" rows="30" cols="120"></textarea> -->
 		<!-- TODO - switch between html & text fromat (higher up - no span on text)
 		   -->
-		<div id="log"></div> 
+		<div id="log"></div>
 	</div>
 
 </body>

@@ -44,7 +44,7 @@ public class Inbox implements Serializable {
 	boolean isRunning = false;
 	boolean bufferOverrun = false;
 	boolean blocking = false;
-	int maxQueue = 100; // will need to adjust unit test if you change this value
+	int maxQueue = 1024; // will need to adjust unit test if you change this value
 
 	HashMap<Long, Object[]> blockingList = new HashMap<Long, Object[]>();
 
