@@ -226,7 +226,9 @@ public class Runtime extends Service {
 	}
 
 	public static void updateMyRobotLab() {
+		Runtime.getInstance().info("updating myrobotlab.jar");
 		Runtime.getBleedingEdgeMyRobotLabJar();
+		Runtime.getInstance().info("moving jar");
 		Runtime.restart("moveUpdate");
 	}
 

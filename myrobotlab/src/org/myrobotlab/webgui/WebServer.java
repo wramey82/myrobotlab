@@ -25,6 +25,8 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 	
 	private WebGUI webgui;
 
+	public String theme = "vader";
+		
 	public WebServer(WebGUI webgui, int port) {
 		super(port);
 

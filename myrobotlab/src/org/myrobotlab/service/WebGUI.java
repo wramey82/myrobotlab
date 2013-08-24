@@ -37,6 +37,8 @@ public class WebGUI extends Service {
 
 	@Element
 	boolean autoStartBrowser = true;
+	@Element
+	boolean useLocalResources = false;
 	
 	public void autoStartBrowser(boolean autoStartBrowser) {
 		this.autoStartBrowser = autoStartBrowser;
@@ -52,6 +54,16 @@ public class WebGUI extends Service {
 
 	public Integer getPort() {
 		return httpPort;
+	}
+	
+	public void useLocalResources(boolean b)
+	{
+		useLocalResources = b;
+	}
+	
+	public boolean useLocalResources()
+	{
+		return useLocalResources;
 	}
 
 	public boolean startWebServer(Integer port) {
