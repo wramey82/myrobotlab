@@ -367,6 +367,13 @@ public class ResourceProcessor implements HTTPProcessor {
 		log.info("<%=httpPort%> --> {}", webgui.httpPort.toString());
 		filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
 		// filter.replace(, newChar);
+		
+		if (webgui.useLocalResources())
+		{
+			filter = filter.replace("<%=mrl.script.location%>", "");
+		} else {
+			filter = filter.replace("<%=mrl.script.location%>", "http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/src/resource/WebGUI/");
+		}
 		return filter.getBytes();
 
 	}
