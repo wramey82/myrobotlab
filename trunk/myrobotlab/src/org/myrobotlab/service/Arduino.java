@@ -1138,6 +1138,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		compile("MRLComm", sketch); // FIXME throw push error();
 		uploader.uploadUsingPreferences(buildPath, sketchName, false);
 	}
+	
+	public void uploadFile(String filename) throws Throwable {
+		upload(FileIO.fileToString(filename));
+	}
 
 	/**
 	 * Get the number of lines in a file by counting the number of newline

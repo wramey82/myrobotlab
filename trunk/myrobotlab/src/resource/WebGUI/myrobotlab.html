@@ -123,7 +123,7 @@
 				//guiMap[serviceName].broadcastState();
 				$("#accordion1").accordion("refresh");
 			} catch (err) {
-				this.error(err);
+				mrl.error(err);
 			}
 		}
 
@@ -362,7 +362,9 @@
 	// FIXME - need a strategy to easily debug dynamically loaded scripts
 	// one hack would just to be append them ?
 </script>
+<!--  http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/src/resource/WebGUI/Arduino.js -->
 <!-- static scripts for easy debugging begin -->
+<!-- FIXME LOCAL VERSUS NETWORKED RESOURCES -->
 <script src="Arduino.js"></script>
 <script src="Clock.js"></script>
 <script src="Python.js"></script>
