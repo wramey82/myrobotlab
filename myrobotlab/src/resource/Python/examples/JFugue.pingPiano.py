@@ -14,7 +14,6 @@ if not serial.isConnected():
 def input():
  global count
  newByte = int(serial.readByte())
- print newByte
  #we have reached the end of a new line
  if (newByte == 10) :
     distanceString = ""
