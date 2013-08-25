@@ -4,7 +4,7 @@ import time
 jf = Runtime.createAndStart("jf","JFugue")
 serial = Runtime.createAndStart("serial","Serial")
 
-if (not (serial.isConnected()):
+if not serial.isConnected():
     #connect to a serial port COM4 57600 bitrate 8 data bits 1 stop bit 0 parity
     serial.connect("COM3", 9600, 8, 1, 0)
     #have python listening to serial
@@ -16,10 +16,11 @@ def input():
  newByte = int(serial.readByte())
  print newByte
  #we have reached the end of a new line
- if (newByte = 10) :
+ if (newByte == 10) :
     distanceString = ""
-    while ((newByte = serial.readByte()) != 13):
-      distanceString += chr(newByte)
+    while (newByte != 13):
+        newByte = serial.readByte()
+        distanceString += chr(newByte)
     
     distance = int(distanceString)
     print distance
