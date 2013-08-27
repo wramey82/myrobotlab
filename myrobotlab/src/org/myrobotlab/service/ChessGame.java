@@ -182,30 +182,28 @@ public class ChessGame extends Service {
 		log.debug("inputMove " + s);
 		return s;
 	}
-
+	
+	public void move(String move)
+	{
+		invoke("inputMove", move);
+	}
+	
+	public String computerMoved(String move)
+	{
+		log.info("computerMoved " + move);
+		return move;
+	}
 
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		log.info(ChessGameGUI.cleanMove("a2-a3q"));
 
-		ChessGame chess1 = new ChessGame("chess1");
-		chess1.startService();
-
-		// ChessGame chess2 = new ChessGame("chess2");
-		// chess2.startService();
-
-		// OpenCV camera = new OpenCV("camera");
-		// camera.startService();
-
-		Log log = new Log("log");
-		log.startService();
-
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		gui.display();
+		ChessGame chessgame = (ChessGame)Runtime.createAndStart("chessgame", "ChessGame");
+		Runtime.createAndStart("python", "Python");
+		Runtime.createAndStart("gui", "GUIService");
+	
 	}
 
 	@Override
