@@ -246,13 +246,13 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 						searcher.board.takeBack();
 						searcher.board.makeMove(m);
 						searcher.clearPV();
-						thinkThread = new Thinker();
+						thinkThread = new Thinker(this);
 						thinkThread.start();
 					}
 				} else {
 					searcher.clearPV();
 					searcher.board.makeMove(m);
-					thinkThread = new Thinker();
+					thinkThread = new Thinker(this);
 					thinkThread.start();
 				}
 				searcher.setStopTime(System.currentTimeMillis() + maxTime);
@@ -318,7 +318,7 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 		}
 		searcher.restartThinking();
 		searcher.clearPV();
-		thinkThread = new Thinker();
+		thinkThread = new Thinker(this);
 		thinkThread.start();
 		searcher.setStopTime(System.currentTimeMillis() + maxTime);
 		showStatus("Thinking...");
@@ -373,6 +373,14 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 	}
 
 	final class Thinker extends Thread {
+		
+		private ChessGameGUI gui;
+		
+		public Thinker(ChessGameGUI gui)
+		{
+			this.gui = gui;
+		}
+		
 		public void run() {
 			think();
 			if (searcher.isStopped())
@@ -385,7 +393,9 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 			}
 			board.makeMove(best);
 			searcher.board.makeMove(best);
-			// showStatus("Computer move: " + best.toString());
+			//showStatus("Computer move: " + best.toString());
+			gui.myService.send(boundServiceName, "computerMoved", best.toString());
+			
 			makeMove(best, true);
 			chessView.switchMoveMarkers(board.side == LIGHT);
 			isResult();
@@ -395,7 +405,7 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 				searcher.board.makeMove(guessedMove);
 				searcher.setStopTime(Long.MAX_VALUE);
 				searcher.shiftPV();
-				thinkThread = new Thinker();
+				thinkThread = new Thinker(gui);
 				thinkThread.start();
 			}
 		}
