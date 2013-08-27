@@ -269,7 +269,7 @@ ArduinoGUI.prototype.init = function() {
 	this.canvas = document.getElementById(this.name + "-oscope");
 	this.context = this.canvas.getContext('2d');
 	
-	$("#"+this.name+"-oscope-container").hide();
+	//$("#"+this.name+"-oscope-container").hide();
 	
 	jqcanvas = $("#"+this.name+"-oscope");
 	jqcanvas.attr("width", this.oscopeWidth);
