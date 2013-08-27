@@ -301,6 +301,10 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		}
 		return value.toString();
 	}
+	
+	public String readString() throws InterruptedException {
+		return readString('\n');
+	}
 
 	/**
 	 * -------- blocking reads begin --------

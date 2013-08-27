@@ -33,7 +33,6 @@ SerialGUI.prototype.getState = function(data) {
 	
 	if (connected) {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-green.png");
-		this.send("getVersion");
 	} else {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-red.png");
 	}
@@ -70,7 +69,6 @@ SerialGUI.prototype.attachGUI = function() {
 	
 	this.subscribe("publishState", "getState");
 	this.subscribe("publishByte", "publishByte");
-	this.subscribe("getVersion", "getVersion");
 	this.subscribe("getPortNames", "getPortNames");
 	// broadcast the initial state
 	
@@ -124,7 +122,7 @@ SerialGUI.prototype.getPanel = function() {
 	"  </select>" + 
 	"    <img id='"+this.name+"-connected' name='"+this.name+"' src='/resource/WebGUI/common/button-red.png' /><br/>" +
 	"<textarea id='"+this.name+"-console' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='30' cols='160'></textarea><br/>" +
-	"<textarea id='"+this.name+"-input' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='4' cols='160'></textarea><br/>"  +
+	"<textarea id='"+this.name+"-input' class='console text ui-widget-content ui-corner-all' style='font-size:x-small;'  rows='2' cols='160'></textarea><br/>"  +
 	"<button id='"+this.name+"-send'>send</button>"
 	;
 	

@@ -100,13 +100,15 @@ PythonGUI.prototype.getExampleFile = function(data) {
 PythonGUI.prototype.publishStdOut = function(data) {
 	// fyi scrolltop
 	var pconsole = $("#"+this.name+"-console");
-	this.pconsoleData = data[0] + this.pconsoleData;
+	this.pconsoleData = this.pconsoleData + new Date().getTime() + " " + data[0] + "\n";
 	pconsole.val(this.pconsoleData)
 	// pconsole.prepend(data[0])
 	 if (pconsole.val().length > 2048){
 		 this.pconsoleData = "";
 		 pconsole.val(this.pconsoleData);
 	 }
+	
+	pconsole.scrollTop(pconsole[0].scrollHeight - pconsole.height());
 };
 
 //--- callbacks end ---

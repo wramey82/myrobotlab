@@ -152,6 +152,13 @@ RuntimeGUI.prototype.init = function() {
 		//var port = $("#"+this.name+"-ports").find(":selected").text();
 		  gui.send("noWorky");
 	});
+	$("#"+this.name+"-saveAll").button().click(function() {
+		//var port = $("#"+this.name+"-ports").find(":selected").text();
+		  gui.send("saveAll");
+	});
+	$("#"+this.name+"-releaseAll").button().click(function(event) {
+		mrl.sendTo(runtimeName, "releaseAll");
+	});
 };
 
 RuntimeGUI.prototype.registered = function(data) {
@@ -169,6 +176,8 @@ RuntimeGUI.prototype.registered = function(data) {
 RuntimeGUI.prototype.getPanel = function() {
 	var ret = "<label>version </label> <label class='text ui-widget-content ui-corner-all' value='' name='"+this.name+"' id='"+this.name+"-version'></label>" +
 			"<button name='"+this.name+"' id='"+this.name+"-noWorky'>no worky</button>" +
+			"<button name='"+this.name+"' id='"+this.name+"-saveAll'>save all</button>" +
+			"<button name='"+this.name+"' id='"+this.name+"-releaseAll'>release all</button>" +
 			"<div id='"+this.name+"-display'>" + "</div>" +
 			"<div id='dialog-form' title='create new service'> " +
 			"  <form>" +

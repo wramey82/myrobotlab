@@ -36,7 +36,7 @@
 	var connection; // the one and only connection (at the moment - 1 per environment/host)
 	var mrl;
 	var debug = true;
-
+	
 	var host = "<%=getHostAddress%>";
 	var httpPort = "<%=httpPort%>";
 	var wsPort = "<%=wsPort%>";
@@ -84,6 +84,7 @@
 
 		var serviceName = nameArray[index];
 		var serviceWrapper = registry[serviceName];
+		var service = serviceWrapper.service;
 		var className = getSimpleClassName(serviceWrapper.service.serviceClass);
 
 
@@ -103,7 +104,7 @@
 
 		}
 
-		if (!(serviceName in guiMap)) {
+		if (!(serviceName in guiMap) && service.allowDisplay) {
 			// class is loaded - but need a new instance
 			// load the accordian reference
 			try {
@@ -281,12 +282,6 @@
 		});
 	});
 
-	$(function() {
-		$("#releaseAll").button().click(function(event) {
-			mrl.sendTo(runtimeName, "releaseAll");
-		});
-	});
-
 	// --- logging begin ----
 	ServiceGUI.prototype.debug = function(text) {
 		this.log(text, "debug");
@@ -382,7 +377,6 @@
 		</h3>
 		<div>
 			<button id="restMethods">rest methods</button>
-			<button id="releaseAll">release all</button>
 			<br/>
 			web socket clients
 			<div id="clients">

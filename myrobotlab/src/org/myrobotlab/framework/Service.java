@@ -238,6 +238,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	
 	@Element
 	protected boolean allowExport = true; 
+	@Element
+	protected boolean allowDisplay = true; 
 	
 	public URI url = null;
 	
@@ -2001,6 +2003,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public void allowExport(Boolean b)
 	{
 		allowExport = b;
+	}
+	
+	public boolean allowDisplay()
+	{
+		return allowDisplay;
+	}
+	
+	public void allowDisplay(Boolean b)
+	{
+		allowDisplay = b;
 	}
 
 	
