@@ -12,6 +12,7 @@ function ArduinoGUI(name) {
     this.traceData = [];
     this.pinList = null;
     this.portNames = [];
+    this.portNames = null;
 }
 
 ArduinoGUI.prototype = Object.create(ServiceGUI.prototype);
@@ -24,19 +25,9 @@ ArduinoGUI.prototype.getState = function(data) {
 	var arduino = data[0];	
 	var boards = data[0].targetsTable.arduino.boards;
 	var boardType = arduino.boardType;
-	var ports = this.portNames;
+	//var ports = this.portNames;
+	this.portName = arduino.portName;
 	var connected = arduino.connected;
-	
-	// ports begin ---
-	$("#"+this.name+"-ports")
-    .find('option')
-    .remove()
-    .end();
-	
-	$("#"+this.name+"-ports").append("<option value=''></option>");
-	for (var i = 0; i < ports.length; i++) {
-		$("#"+this.name+"-ports").append("<option value='"+ports[i]+"' "+((arduino.portName == ports[i])?"selected":"") +">"+ports[i]+"</option>");
-	}
 	
 	if (connected) {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-green.png");
@@ -44,7 +35,7 @@ ArduinoGUI.prototype.getState = function(data) {
 	} else {
 		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-red.png");
 	}
-	// ports end ---
+	
 	// boards begin ---
 	$("#"+this.name+"-boards")
     .find('option')
@@ -223,7 +214,19 @@ ArduinoGUI.prototype.getVersion = function(data) {
 }
 
 ArduinoGUI.prototype.getPortNames = function(data) {
-	this.portNames = data[0];
+	var ports = data[0];
+	
+	// ports begin ---
+	$("#"+this.name+"-ports")
+    .find('option')
+    .remove()
+    .end();
+	
+	$("#"+this.name+"-ports").append("<option value=''></option>");
+	for (var i = 0; i < ports.length; i++) {
+		$("#"+this.name+"-ports").append("<option value='"+ports[i]+"' "+((this.portName == ports[i])?"selected":"") +">"+ports[i]+"</option>");
+	}
+	
 }
 
 //--- callbacks end ---
@@ -242,8 +245,8 @@ ArduinoGUI.prototype.attachGUI = function() {
 	// broadcast the initial state
 	
 	//this.send("getTargetsTable");
+	this.send("broadcastState"); // FIXME - lame big hammer
 	this.send("getPortNames");
-	this.send("broadcastState");
 };
 
 ArduinoGUI.prototype.detachGUI = function() {
@@ -260,9 +263,13 @@ ArduinoGUI.prototype.init = function() {
 		  gui.connect();
 	});
 	
+	$("#"+this.name+"-menu").buttonset();
+	
 	// finally - http://jsfiddle.net/loktar/q7Z9k/ - someone who knows how to load an image
 	this.canvas = document.getElementById(this.name + "-oscope");
 	this.context = this.canvas.getContext('2d');
+	
+	$("#"+this.name+"-oscope-container").hide();
 	
 	jqcanvas = $("#"+this.name+"-oscope");
 	jqcanvas.attr("width", this.oscopeWidth);
@@ -282,6 +289,8 @@ ArduinoGUI.prototype.init = function() {
 	
 	this.context.fillStyle="#999999";
 	this.context.fillRect(0,0,this.oscopeWidth,this.oscopeHeight);
+	
+	
 	// background - begin ---
 };
 // --- overrides end ---
@@ -295,22 +304,26 @@ ArduinoGUI.prototype.connect = function() {
 
 
 ArduinoGUI.prototype.getPanel = function() {
-	return "<div class='ui-widget'>" +
+	var ret =  "<div class='ui-widget'>" +
 	// oscope
-	"<div id='oscope-container'>" +
+	"<div id='"+this.name+"-oscope-container'>" +
 	"<canvas class='oscope' id='"+this.name+"-oscope' width='750' height='582'></canvas>" +
 	"</div>" + 
 	//" <img src='/resource/WebGUI/Arduino/arduino.duemilanove.200.pins.png' />" +
 	"</div>"  +
 	
+	"<div name='"+this.name+"' id='"+this.name+"-menu'>" +
+	"  <input type='checkbox' name='"+this.name+"' id='"+this.name+"-oscope-toggle' /><label for='"+this.name+"-oscope-toggle'>oscope</label>" +
+	"  <input type='checkbox' name='"+this.name+"' id='"+this.name+"-pinList-toggle' /><label for='"+this.name+"-pinList-toggle'>pinlist</label>" +
+	"  <input type='checkbox' name='"+this.name+"' id='"+this.name+"-refresh-toggle' /><label for='"+this.name+"-refresh-toggle'>refresh</label>" +
+	"</div>" +
+	
 	//" Status: <label id='"+this.name+"-status'></label><br/>" +
 	"  <label>Port: </label>" +
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-ports' name='"+this.name+"'>" +
 	"    <option value=''>Select one...</option>" +
-	"  </select>"
-	+ 
-	"    <img id='"+this.name+"-connected' name='"+this.name+"' src='/resource/WebGUI/common/button-red.png' />" 
-	+
+	"  </select>" +
+	"    <img id='"+this.name+"-connected' name='"+this.name+"' src='/resource/WebGUI/common/button-red.png' />"+
 
 	"  <label>Board: </label>" +
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-boards' name='"+this.name+"'>" +
@@ -320,6 +333,7 @@ ArduinoGUI.prototype.getPanel = function() {
 
 	// pin list
 	"<div id='"+this.name+"-pinList'></div>" 
-
 	;
+	
+	return ret;
 }

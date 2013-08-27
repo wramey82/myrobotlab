@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
@@ -91,6 +93,10 @@ public class Python extends Service {
 	transient PIThread interpThread = null;
 	// FIXME - this is messy !
 	transient HashMap<String, Script> scripts = new HashMap<String, Script>();
+	
+	transient LinkedBlockingQueue<Message> inputQueue = new LinkedBlockingQueue<Message>();
+	transient InputQueueThread inputQueueThread;
+
 	// TODO this needs to be moved into an actual cache if it is to be used
 	// Cache of compile python code
 	private static final transient HashMap<String, PyObject> objectCache;
@@ -147,15 +153,25 @@ public class Python extends Service {
 	class PIThread extends Thread {
 		public boolean executing = false;
 		private String code;
+		private PyObject compiledCode;
 
 		PIThread(String code) {
 			this.code = code;
+		}
+		
+		PIThread(PyObject compiledCode) {
+			this.compiledCode = compiledCode;
 		}
 
 		public void run() {
 			try {
 				executing = true;
-				interp.exec(code);
+				if (compiledCode != null)
+				{
+					interp.exec(compiledCode);
+				} else {
+					interp.exec(code);
+				}
 			} catch (Exception e) {
 				String error = Logging.stackToString(e);
 				error = error.replace("'", "");
@@ -172,6 +188,45 @@ public class Python extends Service {
 				invoke("finishedExecutingScript");
 			}
 
+		}
+	}
+	
+	/**
+	 * this thread handles all callbacks to Python
+	 * process all input and sets msg handles
+	 *
+	 */
+	public class InputQueueThread extends Thread
+	{
+		private Python python;
+		public InputQueueThread(Python python)
+		{
+			super(String.format("%s_input", python.getName()));
+			this.python = python;
+		}
+		public void run()
+		{
+			try {
+				while (isRunning()){
+					
+					Message msg = inputQueue.take();
+
+					try {
+					StringBuffer msgHandle = new StringBuffer().append("msg_").append(msg.sender).append("_").append(msg.sendingMethod);
+					log.info(String.format("calling %1$s", msgHandle));
+					// use a compiled version to make it easier on us
+					PyObject compiledObject = getCompiledMethod(msgHandle.toString(), String.format("%1$s()", msg.method), interp);
+					interp.set(msgHandle.toString(), msg);
+					interp.exec(compiledObject);
+					} catch (Exception e) {
+						Logging.logException(e);
+						python.error(e.getMessage());
+					}
+					
+				}
+			} catch (InterruptedException e) {
+				Logging.logException(e);
+			}
 		}
 	}
 
@@ -307,6 +362,21 @@ public class Python extends Service {
 			Logging.logException(e);
 		}
 	}
+	
+	public void exec(PyObject code) {
+		log.info(String.format("exec %s", code));
+		if (interp == null) {
+			createPythonInterpreter();
+		}
+
+		try {
+			interpThread = new PIThread(code);
+			interpThread.start();
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
 
 	/**
 	 * event method when script has finished executing
@@ -360,13 +430,11 @@ public class Python extends Service {
 			createPythonInterpreter();
 		}
 
-		StringBuffer msgHandle = new StringBuffer().append("msg_").append(msg.sender).append("_").append(msg.sendingMethod);
-		log.debug(String.format("calling %1$s", msgHandle));
-		// use a compiled version to make it easier on us
-		PyObject compiledObject = getCompiledMethod(msgHandle.toString(), String.format("%1$s()", msg.method), interp);
-		interp.set(msgHandle.toString(), msg);
-		interp.exec(compiledObject);
-
+		// handling call-back input needs to be
+		// done by another thread - in case its doing blocking
+		// or is executing long tasks - the inbox thread needs to 
+		// be freed of such tasks - it has to do all the inbound routing
+		inputQueue.add(msg);
 		return false;
 	}
 
@@ -410,8 +478,18 @@ public class Python extends Service {
 			interp.cleanup();
 			interp = null;
 		}
+		
+		inputQueueThread.interrupt();
 	}
 
+	
+	public void startService()
+	{
+		super.startService();
+		inputQueueThread = new InputQueueThread(this);
+		inputQueueThread.start();
+	}
+	
 	public void stopService() {
 		super.stopService();
 		stop();// release the interpeter

@@ -137,6 +137,7 @@ public class WebGUI extends Service {
 	public void startService() {
 		super.startService();
 		start();
+		save();
 	}
 
 	@Override
@@ -253,6 +254,8 @@ public class WebGUI extends Service {
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		//clock.startClock();
 		WebGUI webgui = (WebGUI)Runtime.createAndStart("webgui", "WebGUI");
+		Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
+		arduino.connect("COM10");
 		Runtime.createAndStart("python", "Python");
 		webgui.addUser("gperry", "password");
 		//Runtime.createAndStart("arduino", "Arduino");
