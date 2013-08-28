@@ -29,20 +29,20 @@ public class WebGUI extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(WebGUI.class.getCanonicalName());
 
+	@Element
 	public Integer httpPort = 7777;
+	@Element
 	public Integer wsPort = 7778;
-
-	transient WebServer ws;
-	transient WSServer wss;
-
 	@Element
 	boolean autoStartBrowser = true;
 	@Element
 	boolean useLocalResources = false;
 	
+	transient WebServer ws;
+	transient WSServer wss;
+	
 	public void autoStartBrowser(boolean autoStartBrowser) {
 		this.autoStartBrowser = autoStartBrowser;
-		save();
 	}
 
 	public HashMap<String,String> clients = new HashMap<String,String>();
@@ -67,13 +67,16 @@ public class WebGUI extends Service {
 	}
 
 	public boolean startWebServer(Integer port) {
+		// CRITICAL !!! - pushes the registry up - but why here - should be startService() ?
 		subscribe(Runtime.getInstance().getIntanceName(), "getRegistry");
 		try {
+			/*
 			if (port.equals(httpPort) && ws != null)
 			{
 				warn("web server already running on port %d", port);
 				return true;
 			}
+			*/
 			
 			this.httpPort = port;
 			if (ws != null) {
@@ -94,11 +97,13 @@ public class WebGUI extends Service {
 	public boolean startWebSocketServer(Integer port) {
 		try {
 			
+			/*
 			if (port.equals(wsPort) && wss != null)
 			{
 				warn("web socket server already running on port %d", port);
 				return true;
 			}
+			*/
 			
 			this.wsPort = port;
 
@@ -124,7 +129,11 @@ public class WebGUI extends Service {
 		if (autoStartBrowser)
 		{
 			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
-			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.html", httpPort));
+			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.mrl", httpPort));
+		}
+		if (!result)
+		{
+			warn("could not start properly");
 		}
 		return result;
 	}
@@ -137,7 +146,6 @@ public class WebGUI extends Service {
 	public void startService() {
 		super.startService();
 		start();
-		save();
 	}
 
 	@Override
@@ -254,8 +262,9 @@ public class WebGUI extends Service {
 		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		//clock.startClock();
 		WebGUI webgui = (WebGUI)Runtime.createAndStart("webgui", "WebGUI");
-		Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
-		arduino.connect("COM10");
+		//Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
+		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		arduino.connect("COM9");
 		Runtime.createAndStart("python", "Python");
 		webgui.addUser("gperry", "password");
 		//Runtime.createAndStart("arduino", "Arduino");

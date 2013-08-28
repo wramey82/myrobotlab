@@ -50,7 +50,9 @@ WebGUIGUI.prototype.setPorts = function(event) {
 	var gui = guiMap[this.name];
 	var httpPort = $("#"+this.name+"-httpPort").val();
 	var wsPort	 = $("#"+this.name+"-wsPort").val();
-	gui.send("broadcastState");
+	gui.send("startWebServer", [parseInt(httpPort)]);
+	gui.send("startWebSocketServer", [parseInt(wsPort)]);
+	//gui.send("broadcastState");
 }
 
 WebGUIGUI.prototype.customize = function(event) {
