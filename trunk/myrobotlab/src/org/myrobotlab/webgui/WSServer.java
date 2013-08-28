@@ -87,7 +87,7 @@ public class WSServer extends WebSocketServer {
 	// the overhead of a try???
 	public void sendToAll( String text ) {
 		Collection<WebSocket> con = connections();
-		log.info("webgui ---to---> client ");
+		log.debug("webgui ---to---> client ");
 		synchronized ( con ) {
 			for( WebSocket c : con ) {
 				c.send( text );

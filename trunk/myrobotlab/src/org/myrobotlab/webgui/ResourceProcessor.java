@@ -159,8 +159,10 @@ public class ResourceProcessor implements HTTPProcessor {
 
 				byte[] content = null;
 
-				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
+				//if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
+				if (uri.endsWith(".mrl")) {
 					content = filter(new String(buffer.toByteArray()), header);
+					mime = NanoHTTPD.MIME_HTML;
 				} else {
 					content = buffer.toByteArray();
 				}
@@ -295,9 +297,9 @@ public class ResourceProcessor implements HTTPProcessor {
 				// FIXME - this is not normalized - because the code around it
 				// is
 				// not normalized
-				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-
+				if (uri.endsWith(".mrl")) {
 					content = filter(new String(buffer.toByteArray()), header);
+					mime = NanoHTTPD.MIME_HTML;
 				} else {
 					content = buffer.toByteArray();
 				}
@@ -325,13 +327,14 @@ public class ResourceProcessor implements HTTPProcessor {
 				// FIXME - this is not normalized - because the code around it
 				// is
 				// not normalized
-				if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
-
+				
+				if (uri.endsWith(".mrl")) {
 					content = filter(new String(buffer.toByteArray()), header);
+					mime = NanoHTTPD.MIME_HTML;
 				} else {
 					content = buffer.toByteArray();
 				}
-
+				
 				Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
 				r.addHeader("Content-length", "" + content.length);
 				// r.addHeader("Content-length", "" + (f.length() - startFrom));
