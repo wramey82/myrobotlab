@@ -98,8 +98,8 @@
 // --VENDOR DEFINE SECTION END--
 
 // -- FIXME - modified by board type BEGIN --
-#define ANALOG_PIN_COUNT 4
-#define DIGITAL_PIN_COUNT 13
+#define ANALOG_PIN_COUNT 16 // mega
+#define DIGITAL_PIN_COUNT 54 // mega
 // -- FIXME - modified by board type END --
 
 long debounceDelay = 50; // in ms
