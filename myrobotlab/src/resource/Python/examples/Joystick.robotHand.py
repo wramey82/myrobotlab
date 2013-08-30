@@ -23,6 +23,16 @@ def x():
      print b
      hand.moveTo(b)
     return
+def a():
+    #button 0 because there is a strange thing... button = "button you see" - 1..so in this case i'm pressing button1
+    #but i have to write button 0 (start ccounting by 0) - TODO adjust.. we are men not machine :D
+    a = msg_joystick_button0.data[0]
+    print a
+    if (a == 1):
+     print 'button pressed'
+    elif ( a == 0):
+     print 'button not pressed'
    
 #create a message route from joy to python so we can listen for button
 joystick.addListener("XAxisRaw", python.name, "x")
+joystick.addListener("button0", python.name, "a")
