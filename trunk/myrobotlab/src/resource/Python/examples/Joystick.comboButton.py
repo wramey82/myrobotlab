@@ -8,15 +8,15 @@ def buttonA():
     global a
     a = msg_joystick_button0.data[0]
     print a
-    combo()
+    check()
     
 def buttonRB():
     global rb
     rb = msg_joystick_button5.data[0]
     print rb
-    combo()
+    check()
 
-def combo():
+def check():
     if ((a == 1) and (rb == 1)):
      print "Combo!"
     elif ((a == 1) and (rb == 0)):
