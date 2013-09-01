@@ -24,9 +24,10 @@ def x():
      hand.moveTo(b)
     return
 def a():
-    #button 0 because there is a strange thing... button = "button you see" - 1..so in this case i'm pressing button1
-    #but i have to write button 0 (start ccounting by 0) - TODO adjust.. we are men not machine :D
-    a = msg_joystick_button0.data[0]
+    # the API is 0 based cause arrays are 0 based - but when I count button I start with 1
+    # so now buttons start @ 1  msg_joystick_button1 = button1 - its the "right" thing to do ...
+    # anyway Alessandruino said we are men not machines - so I will make it manly and not sissy machine !
+    a = msg_joystick_button1.data[0]
     print a
     if (a == 1):
      print 'button pressed'

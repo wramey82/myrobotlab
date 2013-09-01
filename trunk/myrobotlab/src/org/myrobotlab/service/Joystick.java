@@ -167,67 +167,67 @@ public class Joystick extends Service {
 					} else if (Identifier.Button.A.equals(id) || Identifier.Button._0.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button0", pos);
+							invoke("button1", pos);
 						}
 					} else if (Identifier.Button.B.equals(id) || Identifier.Button._1.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button1", pos);
+							invoke("button2", pos);
 						}
 					} else if (Identifier.Button.C.equals(id) || Identifier.Button._2.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button2", pos);
+							invoke("button3", pos);
 						}
 					} else if (Identifier.Button.X.equals(id) || Identifier.Button._3.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button3", pos);
+							invoke("button4", pos);
 						}
 					} else if (Identifier.Button.Y.equals(id) || Identifier.Button._4.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button4", pos);
+							invoke("button5", pos);
 						}
 					} else if (Identifier.Button.Z.equals(id) || Identifier.Button._5.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button5", pos);
+							invoke("button6", pos);
 						}
 					} else if (Identifier.Button.LEFT_THUMB.equals(id) || Identifier.Button._6.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button6", pos);
+							invoke("button7", pos);
 						}
 					} else if (Identifier.Button.RIGHT_THUMB.equals(id) || Identifier.Button._7.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button7", pos);
+							invoke("button8", pos);
 						}
 					} else if (Identifier.Button.LEFT_THUMB2.equals(id) || Identifier.Button._8.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button8", pos);
+							invoke("button9", pos);
 						}
 					} else if (Identifier.Button.RIGHT_THUMB2.equals(id) || Identifier.Button._9.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button9", pos);
+							invoke("button10", pos);
 						}
 					} else if (Identifier.Button.SELECT.equals(id) || Identifier.Button._10.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button10", pos);
+							invoke("button11", pos);
 						}
 					} else if (Identifier.Button.UNKNOWN.equals(id) || Identifier.Button._11.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button11", pos);
+							invoke("button12", pos);
 						}
 					} else if (Identifier.Button._12.equals(id)) {
 						int pos = (int) data;
 						if (lastValues[i] != data) {
-							invoke("button12", pos);
+							invoke("button13", pos);
 						}
 					}
 
@@ -664,9 +664,11 @@ public class Joystick extends Service {
 		return value;
 	}
 
+	/*
 	public Integer button0(Integer value) {
 		return value;
 	}
+	*/
 
 	public Integer button1(Integer value) {
 		return value;
@@ -713,6 +715,10 @@ public class Joystick extends Service {
 	}
 
 	public Integer button12(Integer value) {
+		return value;
+	}
+	
+	public Integer button13(Integer value) {
 		return value;
 	}
 
