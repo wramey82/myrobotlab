@@ -14,6 +14,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.serial.SerialDeviceException;
 import org.myrobotlab.service.Clock;
+import org.myrobotlab.service.PickToLight;
 import org.slf4j.Logger;
 
 // Service processing should be subset of "any" class processing
@@ -263,11 +264,11 @@ public class SOAP {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Class<?> clazz = Clock.class;
+		Class<?> clazz = PickToLight.class;
 
 		SOAP soap = new SOAP();
 		//String xml = soap.getWSDL(Clock.class);
-		String xml = soap.getPrimitiveWSDL(Clock.class);
+		String xml = soap.getPrimitiveWSDL(clazz);
 		
 		FileIO.stringToFile(String.format("%s.wsdl", clazz.getSimpleName()), xml);
 		//log.info(xml);
