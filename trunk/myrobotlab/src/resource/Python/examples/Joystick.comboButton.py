@@ -6,13 +6,13 @@ rb = 0
 
 def buttonA():
     global a
-    a = msg_joystick_button0.data[0]
+    a = msg_joystick_button1.data[0]
     print a
     check()
     
 def buttonRB():
     global rb
-    rb = msg_joystick_button5.data[0]
+    rb = msg_joystick_button6.data[0]
     print rb
     check()
 
@@ -26,5 +26,5 @@ def check():
     else:
      print "Nothing pressed"
 
-joystick.addListener("button0", python.name, "buttonA")
-joystick.addListener("button5", python.name, "buttonRB")
+joystick.addListener("button1", python.name, "buttonA")
+joystick.addListener("button6", python.name, "buttonRB")
