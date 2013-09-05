@@ -71,7 +71,7 @@ public class JoystickButtonsPanel extends JPanel {
 
 	public void setButton(int buttonNum, int value) {
 		Color c = (value == Joystick.BUTTON_ON) ? ON_COLOUR : OFF_COLOUR;
-		buttonTFs[buttonNum].setBackground(c);
+		buttonTFs[buttonNum - 1].setBackground(c);
 		repaint();
 	}
 

@@ -383,7 +383,6 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 		subscribe("ZRotation", "ZRotation", Integer.class);
 		subscribe("hatSwitch", "hatSwitch", Integer.class);
 
-		subscribe("button0", "button0", Integer.class);
 		subscribe("button1", "button1", Integer.class);
 		subscribe("button2", "button2", Integer.class);
 		subscribe("button3", "button3", Integer.class);
@@ -395,6 +394,7 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 		subscribe("button9", "button9", Integer.class);
 		subscribe("button10", "button10", Integer.class);
 		subscribe("button11", "button11", Integer.class);
+		subscribe("button12", "button12", Integer.class);
 
 		myService.send(boundServiceName, "publishState");
 	}
@@ -448,8 +448,8 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 
 	}
 
-	public void button0(Integer value) {
-		buttonsPanel.setButton(0, value);
+	public void button13(Integer value) {
+		buttonsPanel.setButton(13, value);
 	}
 
 	public void button1(Integer value) {

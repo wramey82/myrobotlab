@@ -140,6 +140,8 @@ public class Runtime extends Service {
 		runtime.timer.purge();
 	}
 
+	// TODO deprecate - this can be handled more generally in a
+	// AutoTask
 	static class AutoUpdate extends TimerTask {
 
 		@Override
@@ -347,6 +349,9 @@ public class Runtime extends Service {
 		return java.lang.Runtime.getRuntime().availableProcessors();
 	}
 
+	public static final void exit() {
+		java.lang.Runtime.getRuntime().exit(-1);
+	}
 	/**
 	 * 
 	 * @param status
