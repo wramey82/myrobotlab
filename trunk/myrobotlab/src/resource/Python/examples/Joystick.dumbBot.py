@@ -1,9 +1,21 @@
+
+# set machine specific variables
+port = "COM3"
+joystickIndex = 2
+
+
+# start services
 arduino = Runtime.createAndStart("arduino","Arduino")
-joy= runtime.createAndStart("joy","Joystick")
+joy = runtime.createAndStart("joy","Joystick")
 dx 	= Runtime.createAndStart("dx","Servo")
 sx	= Runtime.createAndStart("sx","Servo")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
-sleep(4)
+
+arduino.connect(port)
+joy.setController(joystickIndex)
+
+#activate joystick
+joy.startPolling()
+
 arduino.attach(dx.getName() , 3)
 arduino.attach(sx.getName(), 6)
 def forward():

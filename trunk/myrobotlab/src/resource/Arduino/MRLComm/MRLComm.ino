@@ -324,23 +324,11 @@ void loop () {
 			}
 			break;
 		case SERVO_STOP_AND_REPORT:
-			if (servoSpeed[ioCommand[1]] == 100) // move at regular/full 100% speed
-			{
-				// move at regular/full 100% speed
-				// although not completely accurate
-				// target position & current position are
-				// updated immediately
-				servos[ioCommand[1]].write(ioCommand[2]);
-				servoTargetPosition[ioCommand[1]] = ioCommand[2];
-				servoCurrentPosition[ioCommand[1]] = ioCommand[2];
-			} else if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
-				// start moving a servo at fractional speed
-				servoTargetPosition[ioCommand[1]] = ioCommand[2];
-				movingServos[movingServosCount]=ioCommand[1];
-				++movingServosCount;
-			} else {
-				// NOP - 0 speed - don't move
-			}
+			// a stop can only be issued to a moving servo under speed control
+			if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
+				servoTargetPosition[ioCommand[1]] = servoCurrentPosition[ioCommand[1]];
+				removeAndShift(movingServos, movingServosCount, ioCommand[1]);
+			} 
 			break;
 		case SET_SERVO_SPEED:
 			// setting the speed of a servo
