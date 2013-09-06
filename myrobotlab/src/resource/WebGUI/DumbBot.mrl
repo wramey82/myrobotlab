@@ -243,6 +243,11 @@
 	      .click(function( event ) {
 	        mrl.sendTo("python", "forward");
 	      });
+		$("#back")
+	      .button()
+	      .click(function( event ) {
+	        mrl.sendTo("python", "back");
+	      });
 
 	});
 
@@ -257,6 +262,9 @@
 	</tr>
 	<tr>
 		<td><button id="forward">forward</button>
+	</tr>
+	<tr>
+		<td><button id="back">back</button>
 	</tr>
 	</table>
 
