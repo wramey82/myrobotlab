@@ -38,7 +38,7 @@
 		this.timeStamp = this.msgID;
 		this.name = name;
 		this.sender = webguiName; // FIXME - named passed in
-		this.sendingMethod = "";
+		this.sendingMethod = method; // Python blew up without a sender (cache key)
 		this.historyList = new Array(); // necessary?
 		this.method = method;
 		this.data = params;
