@@ -38,7 +38,7 @@
 		this.timeStamp = this.msgID;
 		this.name = name;
 		this.sender = webguiName; // FIXME - named passed in
-		this.sendingMethod = method; // Python blew up without a sender (cache key)
+		this.sendingMethod = method;
 		this.historyList = new Array(); // necessary?
 		this.method = method;
 		this.data = params;
@@ -248,6 +248,11 @@
 	      .click(function( event ) {
 	        mrl.sendTo("python", "back");
 	      });
+		$("#stop")
+	      .button()
+	      .click(function( event ) {
+	        mrl.sendTo("python", "stop");
+	      });
 
 	});
 
@@ -265,6 +270,9 @@
 	</tr>
 	<tr>
 		<td><button id="back">back</button>
+	</tr>
+	<tr>
+		<td><button id="stop">stop</button>
 	</tr>
 	</table>
 
