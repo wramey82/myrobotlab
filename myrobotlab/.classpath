@@ -30,7 +30,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.jibble.simplewebserver/simplewebserver/1.0/SimpleWebServer.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.op.chess/chess/1.0.0/ChessBoard.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.python.core/core/2.5.2/jython.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.simpleframework.xml/xml/2.5.3/simple-xml-2.5.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.tritonus.share.sampled.floatsamplebuffer/floatsamplebuffer/0.3.6/tritonus_share-0.3.6.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/simbad.gui/gui/1.4/simbad-1.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/wiiuse.wiimote/wiimote/0.12b/wiiusej.jar"/>
@@ -81,5 +80,7 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-stream-3.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/edu.northwestern.topcodes/topcodes/1.0/topcodes.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.java_websocket.websocket/websocket/1.0/java_websocket.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.simpleframework.xml/xml/2.7/simple-xml-2.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
