@@ -108,7 +108,7 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener,
 		canvas.addMouseListener(canvas);
 		canvas.addMouseMotionListener(canvas);
 		window.setBackground(new Color(0, 0, 0, .01f));
-		window.setOpacity(1f);
+		//window.setOpacity(1f); not visible
 		window.setBounds(maxBounds);
 		window.add(canvas);
 		window.pack();
