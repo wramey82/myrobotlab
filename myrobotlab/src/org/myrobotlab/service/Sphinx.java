@@ -215,21 +215,28 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 			try {
 				isRunning = true;
+				
+				info(String.format("starting speech processor thread %s_ear", myService.getName()));
 
 				String newPath = cfgDir + File.separator + myService.getName() + ".xml";
 				File localGramFile = new File(newPath);
 
+				info("loading grammar file");
 				if (localGramFile.exists()) {
+					info(String.format("grammar config %s", newPath));
 					cm = new ConfigurationManager(newPath);
 				} else {
 					// resource in jar default
+					info(String.format("grammar /resource/Sphinx/simple.xml"));
 					cm = new ConfigurationManager(this.getClass().getResource("/resource/Sphinx/simple.xml"));
 				}
 
+				info("starting recognizer");
 				// start the word recognizer
 				recognizer = (Recognizer) cm.lookup("recognizer");
 				recognizer.allocate();
 
+				info("starting microphone");
 				microphone = (Microphone) cm.lookup("microphone");
 				if (!microphone.startRecording()) {
 					log.error("Cannot start microphone.");
@@ -240,7 +247,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 				isListening = true;
 				while (isRunning) {
 
-					log.info("listening");
+					info("listening");
 					invoke("listeningEvent");
 
 					Result result = recognizer.recognize();
