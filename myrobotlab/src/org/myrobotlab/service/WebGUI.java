@@ -264,7 +264,9 @@ public class WebGUI extends Service {
 		WebGUI webgui = (WebGUI)Runtime.createAndStart("webgui", "WebGUI");
 		//Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
 		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		Servo servo = (Servo)Runtime.createAndStart("servo", "Servo");
 		arduino.connect("COM9");
+		arduino.servoAttach(servo.getName(), 7);
 		Runtime.createAndStart("python", "Python");
 		webgui.addUser("gperry", "password");
 		//Runtime.createAndStart("arduino", "Arduino");

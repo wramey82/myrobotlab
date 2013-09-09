@@ -36,4 +36,4 @@ def a():
    
 #create a message route from joy to python so we can listen for button
 joystick.addListener("XAxisRaw", python.name, "x")
-joystick.addListener("button0", python.name, "a")
+joystick.addListener("button1", python.name, "a")

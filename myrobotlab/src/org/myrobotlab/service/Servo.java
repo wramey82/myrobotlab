@@ -330,4 +330,9 @@ public class Servo extends Service implements ServoControl {
 
 	}
 
+	@Override
+	public void stopServo() {
+		controller.stopServo(getName());
+	}
+
 }

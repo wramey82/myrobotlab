@@ -85,4 +85,11 @@ public interface ServoControl {
 	public Integer getPin();
 
 	public void setSpeed(Float speed);
+	
+	/**
+	 * stops the servo if currently in motion
+	 * servo must be moving at incremental speed for
+	 * a stop to work (setSpeed < 1.0)
+	 */
+	public void stopServo();
 }

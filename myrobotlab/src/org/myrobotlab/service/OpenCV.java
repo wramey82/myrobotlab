@@ -546,167 +546,6 @@ public class OpenCV extends VideoSource {
 		return lastDisplay;
 	}
 
-
-	public static void main(String[] args) throws Exception {
-
-		// TODO - Avoidance / Navigation Service
-		// ground plane
-		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
-		// radio lab - map cells location cells yatta yatta
-		// lkoptical disparity motion Time To Contact
-		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-
-		
-		OpenCV test = (OpenCV) Runtime.createAndStart("test", "OpenCV");
-		test.addFilter(new OpenCVFilterPyramidDown());
-		test.addFilter(new OpenCVFilterGray());
-		OpenCVFilterLKOpticalTrack lk = new OpenCVFilterLKOpticalTrack();
-		test.addFilter(lk);
-		test.setCameraIndex(0);
-		
-	//	test.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
-		test.capture();
-		
-		Service.sleep(1000);
-		
-		SerializableImage img = test.getDisplay();
-		
-		GUIService gui2 = new GUIService("gui2");
-		gui2.startService();
-		gui2.display();
-
-		/*
-		 	ImageIO.write(image, "jpg",new File("C:\\out.jpg"));
-            ImageIO.write(image, "gif",new File("C:\\out.gif"));
-            ImageIO.write(image, "png",new File("C:\\out.png"));
-       */
-
-		for (int j = 0; j < 100; ++j)
-		{
-			
-			OpenCVData data = test.getFaceDetect();
-			SerializableImage si = data.getImage();
-			
-			SerializableImage input = data.getInputImage();
-			Util.writeBufferedImage(input.getImage(), String.format("%s.input.jpg",input.getSource()));
-			
-			
-			ArrayList<SerializableImage> ret = data.cropBoundingBoxArray();
-			for (int i = 0; i < ret.size(); ++i)
-			{
-				SerializableImage jpg = ret.get(i);
-				Util.writeBufferedImage(jpg.getImage(), String.format("%s.%d.jpg", jpg.getSource(), j));
-			}
-					
-		}
-		
-		log.info("here");
-
-/*		
-		OpenCV trackingCamera = (OpenCV) Runtime.createAndStart("trackingCamera", "OpenCV");
-		OpenCV detector = (OpenCV) Runtime.createAndStart("detector", "OpenCV");
-		OpenCV faceDetect = (OpenCV) Runtime.createAndStart("faceDetect", "OpenCV");
-		OpenCV templateMatch = (OpenCV) Runtime.createAndStart("templateMatch", "OpenCV");
-		
-		// filters begin -----------------
-
-		trackingCamera.addFilter(new OpenCVFilterPyramidDown("pyramidDown"));
-		trackingCamera.addFilter(new OpenCVFilterGray("gray"));
-		trackingCamera.addFilter(new OpenCVFilterLKOpticalTrack("lk"));
-		trackingCamera.setCameraIndex(1);
-		
-		detector.addFilter(new OpenCVFilterDetector("detector"));
-		detector.addFilter(new OpenCVFilterErode("erode"));
-		detector.addFilter(new OpenCVFilterDilate("dilate"));
-		detector.addFilter(new OpenCVFilterFindContours("findContours"));
-		
-		faceDetect.addFilter(new OpenCVFilterFaceDetect("faceDetect"));
-
-		templateMatch.addFilter(new OpenCVFilterMatchTemplate("matchTemplate"));
-		
-		// filters end -----------------
-		
-		GUIService gui = new GUIService("opencv_gui");
-		gui.startService();
-		gui.display();
-
-		trackingCamera.capture(); // filters need to run in order for them to appear in drop down
-		trackingCamera.broadcastState();
-		
-		// setup pipelines
-		faceDetect.setPipeline("trackingCamera.gray");
-		faceDetect.capture();
-		faceDetect.broadcastState();
-
-		
-		detector.setPipeline("trackingCamera.gray");
-
-		templateMatch.setPipeline("faceDetect.faceDetect");
-		
-		detector.capture();
-		templateMatch.capture();
-		
-		
-		detector.broadcastState();
-		templateMatch.broadcastState();
-
-*/
-//		trackingCamera.capture();
-
-/*		
-		OpenCV opencv02 = (OpenCV) Runtime.createAndStart("opencv02", "OpenCV");
-		opencv02.setFrameGrabberType("org.myrobotlab.opencv.BlockingQueueGrabber");
-		BlockingQueueGrabber grabber = (BlockingQueueGrabber)opencv02.getFrameGrabber();
-		//grabber.setQueue(trackingCamera.)
-		//opencv02.capture();
-		
-
-		
-		Python python = (Python) Runtime.createAndStart("python", "Python");
-		//Runtime.createAndStart("remote", "RemoteAdapter");
-		// opencv.startService();
-		// opencv.addFilter("PyramidDown1", "PyramidDown");
-		// opencv.addFilter("KinectDepthMask1", "KinectDepthMask");
-		// opencv.addFilter("InRange1", "InRange");
-		// opencv.setFrameGrabberType("camera");
-		// opencv.grabberType = "com.googlecode.javacv.OpenCVFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
-		// opencv.grabberType = "com.googlecode.javacv.FFmpegFrameGrabber";
-
-*/		
-		
-/*		
-		opencv.addFilter(FILTER_DETECTOR);
-		opencv.addFilter("erode", "Erode");
-		opencv.addFilter("dilate", "Dilate");
-		opencv.addFilter("findContours", "FindContours");
-		opencv.addFilter("addMask", "AddMask");
-*/		
-	
-		// opencv.addFilter("gft", "GoodFeaturesToTrack");
-		// opencv.publishFilterData("gft");
-		// opencv.setDisplayFilter("gft");
-		// opencv.addFilter("lkOpticalTrack1", "LKOpticalTrack");
-		// opencv.setDisplayFilter("lkOpticalTrack1");
-
-		// Runtime.createAndStart("python", "Python");
-		// opencv.capture();
-		
-		//Runtime.createAndStart("remote", "RemoteAdapter");
-
-	
-		// opencv.addFilter("ir","InRange");
-		// opencv.setDisplayFilter("ir");
-
-		// opencv.addFilter("pyramdDown", "PyramidDown");
-		// opencv.addFilter("floodFill", "FloodFill");
-
-		// opencv.capture();
-
-	}
-
 	public void useBlockingData(Boolean b) {
 		videoProcessor.useBlockingData = true;
 	}
@@ -721,5 +560,27 @@ public class OpenCV extends VideoSource {
 		videoProcessor.inputSource = "pipeline";
 		videoProcessor.grabberType = "org.myrobotlab.opencv.PipelineFrameGrabber";
 	}
+
+	public static void main(String[] args) throws Exception {
+
+		// TODO - Avoidance / Navigation Service
+		// ground plane
+		// http://stackoverflow.com/questions/6641055/obstacle-avoidance-with-stereo-vision
+		// radio lab - map cells location cells yatta yatta
+		// lkoptical disparity motion Time To Contact
+		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
+		
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		opencv.addFilter(new OpenCVFilterPyramidDown());
+		opencv.addFilter(new OpenCVFilterGray());
+		
+		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
+		gui.display();
+		
+	}
+
 	
 }
