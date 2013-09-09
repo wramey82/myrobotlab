@@ -23,77 +23,70 @@
  * 
  * */
 
+// http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_legacy.*;
+import static com.googlecode.javacv.cpp.opencv_video.*;
+import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
 
-public class OpenCVFilterDetector extends OpenCVFilter {
+public class OpenCVFilterFlip extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double learningRate = -1; // 0 trigger || -1 learn and fade
+	transient IplImage flipped;
+	public int flipCode = 0;
 
-	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterDetector.class.getCanonicalName());
- 
-	transient BackgroundSubtractorMOG2 mog;
-	IplImage foreground;
-		
-	public int history = 10;
-	public float threshold = 128f;
-	public boolean shadowDetection = false;
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFlip.class.getCanonicalName());
 
-	public void learn()
-	{
-		learningRate = -1;
-	}
-	
-	public void search()
-	{
-		learningRate = 0;
-	}
-
-	public OpenCVFilterDetector()  {
+	public OpenCVFilterFlip()  {
 		super();
 	}
 	
-	public OpenCVFilterDetector(String name)  {
+	public OpenCVFilterFlip(String name)  {
 		super(name);
 	}
-	
-	public OpenCVFilterDetector(String name, int history, float threshold, boolean shadowDetection)  {
-		super(name);
-		this.history = history;
-		this.threshold = threshold;
-		this.shadowDetection = shadowDetection;
-	}
-	
+
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return foreground.getBufferedImage();
+		return flipped.getBufferedImage();
 	}
 
+	CvPoint p0 = new CvPoint(0, 0);
+	CvPoint p1 = new CvPoint(0, 0);
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
-		mog.apply(image, foreground, learningRate); // 0 trigger || -1 learn and fade
-		return foreground;
+
+		cvFlip(image, flipped, flipCode);
+
+		return image;
 	}
-	
 
 	@Override
 	public void imageChanged(IplImage image) {
-		foreground =  IplImage.create(image.width(), image.height(),IPL_DEPTH_8U, 1);
-		
-		mog = new BackgroundSubtractorMOG2(history, threshold, shadowDetection);
+		flipped =  IplImage.createCompatible(image);
 	}
 
 }

@@ -162,7 +162,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		kinectImageOrDepth.addActionListener(this);
 
 		String plist[] = { "AddMask", "And", "AverageColor", "Canny", "CreateHistogram", "ColorTrack", "Detector","Dilate", "Erode", "FGBG", "FaceDetect", "Fauvist",
-				"FindContours", "FloodFill", "FloorFinder", "GoodFeaturesToTrack", "Gray", "HoughLines2", "HSV", "InRange", "KinectDepth", "KinectDepthMask", "KinectInterleave",
+				"FindContours", "Flip", "FloodFill", "FloorFinder", "GoodFeaturesToTrack", "Gray", "HoughLines2", "HSV", "InRange", "KinectDepth", "KinectDepthMask", "KinectInterleave",
 				"LKOpticalTrack", "Mask", "MatchTemplate", "MotionTemplate", "Mouse", "Not", "PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr", "ResetImageROI",
 				"SampleArray", "SampleImage", "SetImageROI", "Smooth", "Split", "Threshold" };
 

@@ -1622,4 +1622,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		int msb = (rate >> 8) & 0xff;
 		sendMsg(SET_SAMPLE_RATE, msb, lsb);
 	}
+
+	@Override
+	public void stopServo(String servoName) {
+		sendMsg(SERVO_STOP_AND_REPORT, servos.get(servoName).servoIndex);
+	}
 }

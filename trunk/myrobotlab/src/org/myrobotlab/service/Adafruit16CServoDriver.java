@@ -298,8 +298,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 
 	@Override
 	public void setServoSpeed(String servoName, Float speed) {
-		// TODO Auto-generated method stub
-		// FIXME - NOT IMPLEMENTED YET !!
+		arduino.setServoSpeed(servoName, speed); // FIXME - is this correct?
 	}
 
 	public static void main(String[] args) {
@@ -317,5 +316,10 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 		
 		pwm.test();
 		
+	}
+
+	@Override
+	public void stopServo(String servoName) {
+		arduino.stopServo(servoName);
 	}
 }
