@@ -26,30 +26,14 @@
 // http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_objdetect.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_legacy.*;
-import static com.googlecode.javacv.cpp.opencv_video.*;
-import static com.googlecode.javacv.cpp.opencv_calib3d.*;
-
-import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_core.cvFlip;
 
 import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_video.BackgroundSubtractorMOG2;
 
 public class OpenCVFilterFlip extends OpenCVFilter {
 
@@ -73,15 +57,12 @@ public class OpenCVFilterFlip extends OpenCVFilter {
 		return flipped.getBufferedImage();
 	}
 
-	CvPoint p0 = new CvPoint(0, 0);
-	CvPoint p1 = new CvPoint(0, 0);
-
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		cvFlip(image, flipped, flipCode);
 
-		return image;
+		return flipped;
 	}
 
 	@Override
