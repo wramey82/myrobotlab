@@ -46,7 +46,9 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
+import org.myrobotlab.opencv.OpenCVFilterFlip;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
@@ -71,6 +73,10 @@ public class Tracking extends Service {
 	public String opencvName = "opencv";
 	//public String processorName = "processor";
 	
+	public boolean flip = false;
+	public int flipCode = 0;
+	
+	public ArrayList<OpenCVFilter> additionalFilters = new ArrayList<OpenCVFilter>();
 	
 	long lastTimestamp = 0;
 	long waitInterval = 5000;
@@ -413,7 +419,11 @@ public class Tracking extends Service {
 	{
 		// set filters
 		eye.clearFilters();
-		eye.addFilter("PyramidDown"); // needed ??? test
+		eye.addFilter("PyramidDown"); // FIXME - remove this and have user (or helper method) add it to custom filter
+		for (int i = 0; i < additionalFilters.size(); ++i)
+		{
+			eye.addFilter(additionalFilters.get(i));
+		}
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
 		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
@@ -460,6 +470,10 @@ public class Tracking extends Service {
 		// set filters
 		eye.clearFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN);
+		for (int i = 0; i < additionalFilters.size(); ++i)
+		{
+			eye.addFilter(additionalFilters.get(i));
+		}
 		eye.addFilter(FILTER_DETECTOR);
 		eye.addFilter(FILTER_ERODE);
 		eye.addFilter(FILTER_DILATE);
@@ -725,8 +739,12 @@ public class Tracking extends Service {
 	public void faceDetect()
 	{
 		OpenCVFilterPyramidDown py = new OpenCVFilterPyramidDown();
-		eye.addFilter("PyramidDown"); 
-		eye.addFilter("Gray");
+		eye.addFilter("PyramidDown"); // FIXME - add to additional filters !
+		eye.addFilter("Gray"); // FIXME - add to additional filters !
+		for (int i = 0; i < additionalFilters.size(); ++i)
+		{
+			eye.addFilter(additionalFilters.get(i));
+		}
 		eye.addFilter("FaceDetect", "FaceDetect");
 		eye.setDisplayFilter("FaceDetect");
 
@@ -760,6 +778,11 @@ public class Tracking extends Service {
 		trackPoint(0.5f,0.5f);	
 	}
 
+	public void addFilter(OpenCVFilter filter)
+	{
+		additionalFilters.add(filter);
+	}
+	
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
@@ -779,12 +802,17 @@ public class Tracking extends Service {
 		
 		*/
 		
+		OpenCVFilterFlip flip = new OpenCVFilterFlip();
+		tracker.addFilter(flip);
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
-		tracker.setCameraIndex(1);
-		tracker.test();
+		tracker.startLKTracking();
+		
+		//tracker.setCameraIndex(1);
+		//tracker.test();
 		/*
 		tracker.setRestPosition(90, 5);
 		tracker.setSerialPort("COM12");
