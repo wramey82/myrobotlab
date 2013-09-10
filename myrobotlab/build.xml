@@ -48,7 +48,7 @@
 	
 -->
 
-<project name="myrobotlab" default="publishRelease" basedir=".">
+<project name="myrobotlab" default="publishBleedingEdge" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 	
 	<!-- 
