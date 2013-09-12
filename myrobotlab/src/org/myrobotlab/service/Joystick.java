@@ -68,7 +68,7 @@ public class Joystick extends Service {
 	public final static String Z_AXIS = "Z_AXIS";
 	public final static String Z_ROTATION = "Z_ROTATION";
 
-	transient Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	transient Controller[] controllers;
 	TreeMap<String, Integer> controllerNames = new TreeMap<String, Integer>();
 
 	InputPollingThread pollingThread = null;
@@ -262,6 +262,9 @@ public class Joystick extends Service {
 	public Joystick(String n) {
 		super(n, Joystick.class.getCanonicalName());
 
+		log.info(String.format("%s getting controllers", n));
+		controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		info(String.format("found %d controllers", controllers.length));
 		for (int i = 0; i < controllers.length; i++) {
 			log.info(String.format("Found input device: %d %s", i, controllers[i].getName()));
 			// if (controllers[i].getType() == Controller.Type.GAMEPAD ||
@@ -382,12 +385,12 @@ public class Joystick extends Service {
 		for (int i = 0; i < comps.length; i++) {
 			c = comps[i];
 			if ((c.getIdentifier() == id) && !c.isRelative()) {
-				System.out.println("Found " + c.getName() + "; index: " + i);
+				log.info("Found " + c.getName() + "; index: " + i);
 				return i;
 			}
 		}
 
-		System.out.println("No " + nm + " component found");
+		log.info("No " + nm + " component found");
 		return -1;
 	} // end of findCompIndex()
 
@@ -405,10 +408,10 @@ public class Joystick extends Service {
 			c = comps[i];
 			if (isButton(c)) { // deal with a button
 				if (numButtons == NUM_BUTTONS) // already enough buttons
-					System.out.println("Found an extra button; index: " + i + ". Ignoring it");
+					log.info("Found an extra button; index: " + i + ". Ignoring it");
 				else {
 					buttonsIdx[numButtons] = i; // store button index
-					System.out.println("Found " + c.getName() + "; index: " + i);
+					log.info("Found " + c.getName() + "; index: " + i);
 					numButtons++;
 				}
 			}
@@ -416,7 +419,7 @@ public class Joystick extends Service {
 
 		// fill empty spots in buttonsIdx[] with -1's
 		if (numButtons < NUM_BUTTONS) {
-			System.out.println("Too few buttons (" + numButtons + "); expecting " + NUM_BUTTONS);
+			log.info("Too few buttons (" + numButtons + "); expecting " + NUM_BUTTONS);
 			while (numButtons < NUM_BUTTONS) {
 				buttonsIdx[numButtons] = -1;
 				numButtons++;
@@ -433,7 +436,7 @@ public class Joystick extends Service {
 	{
 		if (!c.isAnalog() && !c.isRelative()) { // digital and absolute
 			String className = c.getIdentifier().getClass().getName();
-			// System.out.println(c.getName() + " identifier: " + className);
+			// log.info(c.getName() + " identifier: " + className);
 			if (className.endsWith("Button"))
 				return true;
 		}
@@ -449,10 +452,10 @@ public class Joystick extends Service {
 		// get the game pad's rumblers
 		rumblers = controller.getRumblers();
 		if (rumblers.length == 0) {
-			System.out.println("No Rumblers found");
+			log.info("No Rumblers found");
 			rumblerIdx = -1;
 		} else {
-			System.out.println("Rumblers found: " + rumblers.length);
+			log.info("Rumblers found: " + rumblers.length);
 			rumblerIdx = rumblers.length - 1; // use last rumbler
 		}
 	} // end of findRumblers()
@@ -465,10 +468,10 @@ public class Joystick extends Service {
 	{
 		comps = controller.getComponents();
 		if (comps.length == 0) {
-			System.out.println("No Components found");
+			log.info("No Components found");
 			System.exit(0);
 		} else
-			System.out.println("Num. Components: " + comps.length);
+			log.info("Num. Components: " + comps.length);
 
 		// get the indices for the axes of the analog sticks: (x,y) and (z,rz)
 		xAxisIdx = findCompIndex(comps, Component.Identifier.Axis.X, "x-axis");
@@ -487,7 +490,7 @@ public class Joystick extends Service {
 	// return the (x,y) analog stick compass direction
 	{
 		if ((xAxisIdx == -1) || (yAxisIdx == -1)) {
-			System.out.println("(x,y) axis data unavailable");
+			log.info("(x,y) axis data unavailable");
 			return NONE;
 		} else
 			return getCompassDir(xAxisIdx, yAxisIdx);
@@ -497,7 +500,7 @@ public class Joystick extends Service {
 	// return the (z,rz) analog stick compass direction
 	{
 		if ((zAxisIdx == -1) || (rzAxisIdx == -1)) {
-			System.out.println("(z,rz) axis data unavailable");
+			log.info("(z,rz) axis data unavailable");
 			return NONE;
 		} else
 			return getCompassDir(zAxisIdx, rzAxisIdx);
@@ -508,11 +511,11 @@ public class Joystick extends Service {
 	{
 		float xCoord = comps[xA].getPollData();
 		float yCoord = comps[yA].getPollData();
-		// System.out.println("(x,y): (" + xCoord + "," + yCoord + ")");
+		// log.info("(x,y): (" + xCoord + "," + yCoord + ")");
 
 		int xc = Math.round(xCoord);
 		int yc = Math.round(yCoord);
-		// System.out.println("Rounded (x,y): (" + xc + "," + yc + ")");
+		// log.info("Rounded (x,y): (" + xc + "," + yc + ")");
 
 		if ((yc == -1) && (xc == -1)) // (y,x)
 			return NW;
@@ -533,7 +536,7 @@ public class Joystick extends Service {
 		else if ((yc == 1) && (xc == 1))
 			return SE;
 		else {
-			System.out.println("Unknown (x,y): (" + xc + "," + yc + ")");
+			log.info("Unknown (x,y): (" + xc + "," + yc + ")");
 			return NONE;
 		}
 	} // end of getCompassDir()
@@ -542,7 +545,7 @@ public class Joystick extends Service {
 	// Return the POV hat's direction as a compass direction
 	{
 		if (povIdx == -1) {
-			System.out.println("POV hat data unavailable");
+			log.info("POV hat data unavailable");
 			return NONE;
 		} else {
 			float povDir = comps[povIdx].getPollData();
@@ -565,7 +568,7 @@ public class Joystick extends Service {
 			else if (povDir == POV.UP_RIGHT) // 0.375f
 				return NE;
 			else { // assume center
-				System.out.println("POV hat value out of range: " + povDir);
+				log.info("POV hat value out of range: " + povDir);
 				return NONE;
 			}
 		}
@@ -592,7 +595,7 @@ public class Joystick extends Service {
 	 */
 	{
 		if ((pos < 1) || (pos > NUM_BUTTONS)) {
-			System.out.println("Button position out of range (1-" + NUM_BUTTONS + "): " + pos);
+			log.info("Button position out of range (1-" + NUM_BUTTONS + "): " + pos);
 			return false;
 		}
 
