@@ -1,6 +1,10 @@
 # a very minimal script for InMoov
 # although this script is very short you can still
 # do voice control of a right hand or finger box
+# for any command which you say - you will be required to say a confirmation
+# e.g. you say -> open hand, InMoov will ask -> "Did you say open hand?", you will need to 
+# respond with a confirmation ("yes","correct","yeah","ya")
+
 inMoov = Runtime.createAndStart("inMoov", "InMoov")
 
 rightSerialPort = "COM8"
