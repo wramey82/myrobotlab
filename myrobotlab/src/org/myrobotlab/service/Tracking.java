@@ -72,10 +72,7 @@ public class Tracking extends Service {
 	public String yName = "y";
 	public String opencvName = "opencv";
 	//public String processorName = "processor";
-	
-	public boolean flip = false;
-	public int flipCode = 0;
-	
+		
 	public ArrayList<OpenCVFilter> additionalFilters = new ArrayList<OpenCVFilter>();
 	
 	long lastTimestamp = 0;
@@ -122,7 +119,6 @@ public class Tracking extends Service {
 
 	// MRL points
 	public Point2Df lastPoint;
-	
 
 	// internal servo related
 	private int currentXServoPos;

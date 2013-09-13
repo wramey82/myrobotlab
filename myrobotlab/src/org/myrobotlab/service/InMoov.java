@@ -37,6 +37,8 @@ public class InMoov extends Service {
 	
 	transient public Servo rothead;
 	transient public Servo neck;
+	transient public Servo eyeX;
+	transient public Servo eyeY;
 
 	// left side
 	transient public Arduino arduinoLeft;

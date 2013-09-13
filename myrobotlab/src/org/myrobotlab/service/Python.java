@@ -93,7 +93,7 @@ public class Python extends Service {
 	transient PIThread interpThread = null;
 	// FIXME - this is messy !
 	transient HashMap<String, Script> scripts = new HashMap<String, Script>();
-	
+
 	transient LinkedBlockingQueue<Message> inputQueue = new LinkedBlockingQueue<Message>();
 	transient InputQueueThread inputQueueThread;
 
@@ -158,7 +158,7 @@ public class Python extends Service {
 		PIThread(String code) {
 			this.code = code;
 		}
-		
+
 		PIThread(PyObject compiledCode) {
 			this.compiledCode = compiledCode;
 		}
@@ -166,8 +166,7 @@ public class Python extends Service {
 		public void run() {
 			try {
 				executing = true;
-				if (compiledCode != null)
-				{
+				if (compiledCode != null) {
 					interp.exec(compiledCode);
 				} else {
 					interp.exec(code);
@@ -190,39 +189,42 @@ public class Python extends Service {
 
 		}
 	}
-	
+
 	/**
-	 * this thread handles all callbacks to Python
-	 * process all input and sets msg handles
-	 *
+	 * this thread handles all callbacks to Python process all input and sets
+	 * msg handles
+	 * 
 	 */
-	public class InputQueueThread extends Thread
-	{
+	public class InputQueueThread extends Thread {
 		private Python python;
-		public InputQueueThread(Python python)
-		{
+
+		public InputQueueThread(Python python) {
 			super(String.format("%s_input", python.getName()));
 			this.python = python;
 		}
-		public void run()
-		{
+
+		public void run() {
 			try {
-				while (isRunning()){
-					
+				while (isRunning()) {
+
 					Message msg = inputQueue.take();
 
 					try {
-					StringBuffer msgHandle = new StringBuffer().append("msg_").append(msg.sender).append("_").append(msg.sendingMethod);
-					log.info(String.format("calling %1$s", msgHandle));
-					// use a compiled version to make it easier on us
-					PyObject compiledObject = getCompiledMethod(msgHandle.toString(), String.format("%1$s()", msg.method), interp);
-					interp.set(msgHandle.toString(), msg);
-					interp.exec(compiledObject);
+						// serious bad bug in it which I think I fixed - the msgHandle is really the data coming from a callback
+						// it can originate from the same calling function such as Sphinx.send - but we want the callback to 
+						// call a different method - this means the data needs to go to a data structure which is keyed by only the
+						// sending method, but must call the appropriate method in Sphinx
+						StringBuffer msgHandle = new StringBuffer().append("msg_").append(msg.sender).append("_").append(msg.sendingMethod);
+						
+						PyObject compiledObject = getCompiledMethod(msg.method, String.format("%s()", msg.method), interp);
+						log.info(String.format("setting data %s", msgHandle));
+						interp.set(msgHandle.toString(), msg);
+						interp.exec(compiledObject);
 					} catch (Exception e) {
 						Logging.logException(e);
 						python.error(e.getMessage());
 					}
-					
+
 				}
 			} catch (InterruptedException e) {
 				Logging.logException(e);
@@ -362,7 +364,7 @@ public class Python extends Service {
 			Logging.logException(e);
 		}
 	}
-	
+
 	public void exec(PyObject code) {
 		log.info(String.format("exec %s", code));
 		if (interp == null) {
@@ -432,7 +434,7 @@ public class Python extends Service {
 
 		// handling call-back input needs to be
 		// done by another thread - in case its doing blocking
-		// or is executing long tasks - the inbox thread needs to 
+		// or is executing long tasks - the inbox thread needs to
 		// be freed of such tasks - it has to do all the inbound routing
 		inputQueue.add(msg);
 		return false;
@@ -478,18 +480,16 @@ public class Python extends Service {
 			interp.cleanup();
 			interp = null;
 		}
-		
+
 		inputQueueThread.interrupt();
 	}
 
-	
-	public void startService()
-	{
+	public void startService() {
 		super.startService();
 		inputQueueThread = new InputQueueThread(this);
 		inputQueueThread.start();
 	}
-	
+
 	public void stopService() {
 		super.stopService();
 		stop();// release the interpeter
@@ -514,9 +514,8 @@ public class Python extends Service {
 		}
 		return false;
 	}
-	
-	public boolean saveAndReplaceCurrentScript(String name, String code)
-	{
+
+	public boolean saveAndReplaceCurrentScript(String name, String code) {
 		currentScript.name = name;
 		currentScript.code = code;
 		return saveCurrentScript();
@@ -548,15 +547,15 @@ public class Python extends Service {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * load script from the users .myrobotlab - maintain the only
-	 * non-absolute filename
+	 * load script from the users .myrobotlab - maintain the only non-absolute
+	 * filename
+	 * 
 	 * @param filename
 	 * @return
 	 */
-	public boolean loadUserScript(String filename)
-	{
+	public boolean loadUserScript(String filename) {
 		String newCode = FileIO.fileToString(getCFGDir() + File.separator + filename);
 		if (newCode != null && !newCode.isEmpty()) {
 			log.info(String.format("replacing current script with %1s", filename));
@@ -583,8 +582,7 @@ public class Python extends Service {
 			// FileIO.listResourceContents(path);
 			List<File> files = FindFile.findByExtension(getCFGDir(), "py");
 			ArrayList<String> ret = new ArrayList<String>();
-			for (int i = 0; i < files.size(); ++i)
-			{
+			for (int i = 0; i < files.size(); ++i) {
 				ret.add(files.get(i).getName());
 			}
 			return ret;
