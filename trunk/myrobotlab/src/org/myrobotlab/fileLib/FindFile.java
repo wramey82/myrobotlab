@@ -69,7 +69,7 @@ public final class FindFile { // implements FilenameFilter
 		List<File> result = new ArrayList<File>();
 		File[] filesAndDirs = rootPath.listFiles();
 		List<File> filesDirs = Arrays.asList(filesAndDirs);
-		log.info("looking at path " + rootPath + " has " + filesDirs.size() + " files");
+		log.debug("looking at path " + rootPath + " has " + filesDirs.size() + " files");
 		for (File file : filesDirs) {
 
 			StringBuffer out = new StringBuffer();

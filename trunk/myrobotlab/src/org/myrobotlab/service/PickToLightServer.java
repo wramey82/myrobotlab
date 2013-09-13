@@ -8,14 +8,14 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 
-public class PickToLight extends Service {
+public class PickToLightServer extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(PickToLight.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(PickToLightServer.class.getCanonicalName());
 	
-	public PickToLight(String n) {
-		super(n, PickToLight.class.getCanonicalName());	
+	public PickToLightServer(String n) {
+		super(n, PickToLightServer.class.getCanonicalName());	
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class PickToLight extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		PickToLight pickToLight = (PickToLight)Runtime.createAndStart("pickToLight", "PickToLight");	
+		PickToLightServer pickToLight = (PickToLightServer)Runtime.createAndStart("pickToLight", "PickToLight");	
 		Arduino arduino01 = (Arduino)Runtime.createAndStart("arduino01", "Arduino");	
 		arduino01.connect("COM3");
 				

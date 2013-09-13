@@ -273,7 +273,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 									send(currentCommand.name, currentCommand.method, currentCommand.params);
 									// command finished
 									currentCommand = null;
-									
 									invoke("confirmed", "ok");
 									
 								} else if (currentCommand != null && negations.containsKey(resultText))
@@ -283,12 +282,18 @@ public class Sphinx extends Service implements SpeechRecognizer {
 									currentCommand = null;
 									// apologee
 									invoke("negated", "sorry");
-								} else if (commands.containsKey(resultText))
+								} else if (commands.containsKey(resultText) && (confirmations != null || negations != null))
 								{
-									// setting new potential command
+									// setting new potential command - using either confirmations or negations
 									Command cmd = commands.get(resultText);
 									currentCommand = cmd;
 									invoke("requestConfirmation", resultText);									
+								} else if (commands.containsKey(resultText)) {
+									// no confirmations or negations are being used - just send command
+									Command cmd = commands.get(resultText);
+									send(cmd.name, cmd.method, cmd.params);
+								} else {
+									error(String.format("unknown use case for Sphinx commands - key is %s", resultText));
 								}
 							}
 							

@@ -230,7 +230,7 @@ public class ServiceInfo implements Serializable {
 						version = "0";
 					}
 				}
-				log.info(String.format("adding dependency %1$s %2$s to local thirdPartyLib", org, version));
+				log.debug(String.format("adding dependency %1$s %2$s to local thirdPartyLib", org, version));
 				dependency = new Dependency(org, module, version, false);
 
 				componentsDir = new File(".ivy/" + org);

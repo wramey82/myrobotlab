@@ -8,10 +8,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -352,6 +356,7 @@ public class Runtime extends Service {
 	public static final void exit() {
 		java.lang.Runtime.getRuntime().exit(-1);
 	}
+
 	/**
 	 * 
 	 * @param status
@@ -2005,4 +2010,32 @@ public class Runtime extends Service {
 		error("the noWorky didn't worky !");
 		return false;
 	}
+
+	static public ArrayList<String> getLocalAddresses() throws SocketException {
+		ArrayList<String> ret = new ArrayList<String>();
+		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		while (interfaces.hasMoreElements()) {
+			NetworkInterface current = interfaces.nextElement();
+			System.out.println(current);
+			if (!current.isUp() || current.isLoopback() || current.isVirtual())
+			{
+				log.info("skipping interface is down, a loopback or virtual");
+				continue;
+			}
+			Enumeration<InetAddress> addresses = current.getInetAddresses();
+			while (addresses.hasMoreElements()) {
+				InetAddress currentAddress = addresses.nextElement();
+				if (currentAddress.isLoopbackAddress())
+				{
+					log.info("skipping loopback address");
+					continue;
+				}
+				System.out.println(currentAddress.getHostAddress());
+				ret.add(currentAddress.getHostAddress());
+			}
+		}
+		
+		return ret;
+	}
+
 }
