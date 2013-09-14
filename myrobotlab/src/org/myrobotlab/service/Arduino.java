@@ -1624,7 +1624,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	@Override
-	public void stopServo(String servoName) {
+	public void servoStop(String servoName) {
 		sendMsg(SERVO_STOP_AND_REPORT, servos.get(servoName).servoIndex);
 	}
 }

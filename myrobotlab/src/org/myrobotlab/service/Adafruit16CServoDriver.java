@@ -319,7 +319,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	}
 
 	@Override
-	public void stopServo(String servoName) {
-		arduino.stopServo(servoName);
+	public void servoStop(String servoName) {
+		arduino.servoStop(servoName);
 	}
 }
