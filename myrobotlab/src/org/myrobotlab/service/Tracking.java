@@ -208,6 +208,7 @@ public class Tracking extends Service {
 		if (eye != null)
 		{
 			log.info("eye already assigned");
+			eye.startService(); // make sure its started .. duh !
 			return true;
 		}
 		info("attaching eye");
