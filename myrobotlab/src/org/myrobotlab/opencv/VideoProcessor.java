@@ -164,7 +164,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				params[0] = inputFile;
 			}
 
-			log.info(String.format("attempting to get frame grabber %s format %", grabberType, format));
+			log.info(String.format("attempting to get frame grabber %s format %s", grabberType, format));
 			Class<?> nfg = Class.forName(grabberType);
 			// TODO - get correct constructor for Capture Configuration..
 			Constructor<?> c = nfg.getConstructor(paramTypes);
