@@ -86,6 +86,6 @@ public interface ServoController {
 
 	public void setServoSpeed(String servoName, Float speed);
 	
-	public void stopServo(String servoName);
+	public void servoStop(String servoName);
 
 }

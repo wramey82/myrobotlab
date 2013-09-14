@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.interfaces.GUI;
@@ -96,6 +97,14 @@ public class TrackingGUI extends ServiceGUI {
 		// SwingUtilities.invokeLater(new Runnable() {
 		// public void run() {
 		status.setText(newStatus); // JTextArea is thread safe
+		// }
+		// });
+	}
+	
+	public void setStatus(final Status newStatus) {
+		// SwingUtilities.invokeLater(new Runnable() {
+		// public void run() {
+		status.setText(String.format("%s %s", newStatus.level, newStatus.detail)); // JTextArea is thread safe
 		// }
 		// });
 	}
