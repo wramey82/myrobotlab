@@ -142,6 +142,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		try {
 
 			// inputSource = INPUT_SOURCE_IMAGE_FILE;
+			log.info(String.format("video source is %s", inputSource));
 
 			Class<?>[] paramTypes = new Class[1];
 			Object[] params = new Object[1];
@@ -163,6 +164,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				params[0] = inputFile;
 			}
 
+			log.info(String.format("attempting to get frame grabber %s format %", grabberType, format));
 			Class<?> nfg = Class.forName(grabberType);
 			// TODO - get correct constructor for Capture Configuration..
 			Constructor<?> c = nfg.getConstructor(paramTypes);
@@ -194,6 +196,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		// grabber.setImageHeight(320);
 		// grabber.setImageHeight(240);
 
+		log.info("beginning capture");
 		while (capturing) {
 			try {
 
