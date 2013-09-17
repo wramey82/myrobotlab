@@ -116,7 +116,7 @@ public class Servo extends Service implements ServoControl {
 			controller.servoWrite(getName(), newPos);
 			position = newPos;
 		} else {
-			error(String.format("Servo.moveTo(%d) out of range", newPos));
+			error(String.format("%s.moveTo(%d) out of range", getName(), newPos));
 		}
 	}
 
@@ -133,7 +133,7 @@ public class Servo extends Service implements ServoControl {
 			amount = pos * -1;
 		}
 		if (amount > 1 || amount < -1) {
-			log.error("Servo.move %d out of range");
+			log.error("%s.move %d out of range", getName(), amount);
 			return;
 		}
 	
