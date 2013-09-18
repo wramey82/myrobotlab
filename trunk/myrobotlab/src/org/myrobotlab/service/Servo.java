@@ -167,6 +167,9 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public Integer getPosition() {
+		if (inverted)
+		{ return 180 - position; }
+		else
 		return position;
 	}
 
