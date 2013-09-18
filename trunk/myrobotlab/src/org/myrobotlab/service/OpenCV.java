@@ -50,7 +50,6 @@ import java.util.HashMap;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -59,8 +58,8 @@ import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
+import org.myrobotlab.opencv.OpenCVFilterFlip;
 import org.myrobotlab.opencv.OpenCVFilterGray;
-import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
@@ -569,14 +568,17 @@ public class OpenCV extends VideoSource {
 		// radio lab - map cells location cells yatta yatta
 		// lkoptical disparity motion Time To Contact
 		// https://www.google.com/search?aq=0&oq=opencv+obst&gcx=c&sourceid=chrome&ie=UTF-8&q=opencv+obstacle+avoidance
-		
+		// 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
-		opencv.addFilter(new OpenCVFilterPyramidDown());
-		opencv.addFilter(new OpenCVFilterGray());
-		
+		//opencv.addFilter(new OpenCVFilterPyramidDown());
+		//opencv.addFilter(new OpenCVFilterGray());
+		OpenCVFilterFlip flip = new OpenCVFilterFlip();
+		flip.flipCode = 0; // horizontal
+		opencv.addFilter(flip);
+				
 		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
 		gui.display();
 		

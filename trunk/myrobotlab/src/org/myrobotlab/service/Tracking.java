@@ -786,7 +786,9 @@ public class Tracking extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Tracking tracker = new Tracking("tracking");
+		tracker.setSerialPort("COM12");
 		tracker.startService();
+
 		/*
 		OpenCV cv = new OpenCV("cv");
 		
@@ -798,9 +800,10 @@ public class Tracking extends Service {
 		tracker.startService();
 		
 		*/
-		
+		/*
 		OpenCVFilterFlip flip = new OpenCVFilterFlip();
 		tracker.addFilter(flip);
+		*/
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
