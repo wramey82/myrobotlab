@@ -1,34 +1,33 @@
 # The AFMotor API is supported through Jython 
-# this will create and start 4 motors and 1 arduino with fruity_ 
-# name prefix
 fruity = Runtime.createAndStart("fruity","AdafruitMotorShield")
 
-# Arduino and motor details can be changed here
+# connect the arduino to serial com port 3
+fruity.connect("COM3")
 
-# Here is an example of creating a Adafruit Motor Shield service. 
-# Moving motor 1 forward at speed 200 for 1 second, 
-# moving it backward at speed 100, then stopping.
+# create a motor on port 4 of the AdaFruit board
+motor1 = fruity.createDCMotor(4)
 
-fruity.setSpeed(200)
-fruity.run(1, AdafruitMotorShield.FORWARD)
+# move forward at 40% power
+motor1.move(0.4f)
+
 sleep(1)
-fruity.setSpeed(100)
-fruity.run(1, AdafruitMotorShield.BACKWARD)
-sleep(1)
-fruity.run(1, AdafruitMotorShield.RELEASE)
- 
 
-# Additional methods were added in the spirit of Python's minimal code for maximum effect 
-# The following script does the same thing as the previous. 
+# move reverse at 50% power
+motor1.move(-0.5f)
 
-fruity.runForward(1, 200)
 sleep(1)
-fruity.runBackward(1, 100)
-sleep(1)
-fruity.stop()
- 
-# The shield supports the standard MRL Motor API too.
 
-fruity_m1.move(0.5) # move CW at 1/2 power
-fruity_m1.move(0.0) # stop
-fruity_m1.move(-0.5) # move CCw at 1/2 power
+# stops motor
+motor1.stop()
+
+# stops motor and locks it so it can not
+# be moved until it is unlocked
+# motor1.stopAndLock()
+
+# unlocks motor
+# motor1.unlock()
+
+# sets max power regardles of move command
+# this will allow the motor to go at max 90%
+# full power forward or reverse
+# motor1.setMaxPower(0.9)
