@@ -10,6 +10,9 @@ from org.myrobotlab.service import Arduino
 from org.myrobotlab.service import Servo
 from time import sleep
 
+# system specif variables
+actservox = 90
+actservoy = 90
 
 xpid = Runtime.createAndStart("xpid","PID")
 ypid = Runtime.createAndStart("ypid","PID")
@@ -28,13 +31,11 @@ arduino = Runtime.createAndStart("arduino","Arduino")
 pan 	= Runtime.createAndStart("pan","Servo")
 tilt	= Runtime.createAndStart("tilt","Servo")
 arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
-sleep(4)
+
 arduino.attach(pan.getName() , 12)
 arduino.attach(tilt.getName(), 13)
 global actservox
 global actservoy
-actservox = 90
-actservoy = 90
 
 
 # create or get a handle to an OpenCV service
@@ -92,7 +93,7 @@ def input():
      return object
 
 # create a message route from opencv to python so we can see the coordinate locations
-opencv.addListener("publishOpenCVData", python.name, "input", OpenCVData().getClass());
+opencv.addListener("publishOpenCVData", python.name, "input");
 
 # opencv.setCameraIndex(1)
 
