@@ -46,7 +46,8 @@ public class CleverBot extends Service {
 	public boolean init() {
 		try {
 			factory = new ChatterBotFactory();
-			chatterbot = factory.create(type);
+			//chatterbot = factory.create(type);
+			chatterbot = factory.create(ChatterBotType.PANDORABOTS, "b0dafd24ee35a477");
 			session = chatterbot.createSession();
 		} catch (Exception e) {
 			Logging.logException(e);

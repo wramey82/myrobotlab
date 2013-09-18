@@ -66,7 +66,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	transient public HashMap<String, Servo> servos = new HashMap<String, Servo>();
 
 	transient public Arduino arduino = null;
-	public String arduinoName = "arduino";
+	public String arduinoName;
 
 	final int AF_DCMOTOR_ATTACH = 51;
 	final int AF_DCMOTOR_DETACH = 52;
@@ -117,6 +117,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	public AdafruitMotorShield(String n) {
 		super(n, AdafruitMotorShield.class.getCanonicalName());
+		arduinoName = String.format("%s_%s", n, "arduino");
 	}
 
 	public void startService() {
@@ -130,10 +131,10 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	 * 
 	 * @param motorNum
 	 */
-	public void createDCMotor(Integer motorNum) {
+	public Motor createDCMotor(Integer motorNum) {
 		if (motorNum == null || motorNum < 1 || motorNum > 4) {
 			error(String.format("motor number should be 1,2,3,4 not %d", motorNum));
-			return;
+			return null;
 		}
 		String motorName = String.format("%s_m%d", getName(), motorNum);
 		deviceNameToNumber.put(motorName, motorNum);
@@ -142,6 +143,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		motors.put(motorName, m);
 		m.broadcastState();
 		m.setController(this);
+		return m;
 	}
 
 	public void releaseDCMotor(String motorName) {
@@ -516,18 +518,14 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-		
-		int test = 258;
-		
-		log.info("{}", test & 0xFF);
-		log.info("{}", test >> 8 & 0xFF);
-		log.info("{}", test >> 16 & 0xFF);
-		log.info("{}", test >> 32 & 0xFF);
 
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		Runtime.createAndStart("gui01", "GUIService");
 		
-		fruity.setSerialDevice("COM10");
+		fruity.setSerialDevice("COM3");
+		
+		Motor motor1 = fruity.createDCMotor(4);
+		motor1.move(0.4f);
 		
 		// create a 200 step stepper on adafruitsheild port 1
 		Stepper stepper1 = fruity.createStepper(200, 1); 
