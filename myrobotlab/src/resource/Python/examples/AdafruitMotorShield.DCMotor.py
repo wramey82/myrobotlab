@@ -8,12 +8,12 @@ fruity.connect("COM3")
 motor1 = fruity.createDCMotor(4)
 
 # move forward at 40% power
-motor1.move(0.4f)
+motor1.move(0.4)
 
 sleep(1)
 
 # move reverse at 50% power
-motor1.move(-0.5f)
+motor1.move(-0.5)
 
 sleep(1)
 
