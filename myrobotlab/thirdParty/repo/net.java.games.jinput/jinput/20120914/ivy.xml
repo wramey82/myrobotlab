@@ -7,7 +7,8 @@
     </configurations>
     <publications>
         <artifact name="jinput" type="jar"/>
-
+        <artifact name="jinput-test" type="jar"/>
+        
         <artifact name="x86.32.windows/jinput-dx8" type="native" ext="dll" conf="x86.32.windows"/>
         <artifact name="x86.32.windows/jinput-raw" type="native" ext="dll" conf="x86.32.windows"/>
 
