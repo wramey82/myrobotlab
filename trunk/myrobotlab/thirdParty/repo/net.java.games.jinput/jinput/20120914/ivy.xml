@@ -17,6 +17,9 @@
         <artifact name="x86.32.linux/libjinput-linux" type="native" ext="so" conf="x86.32.linux"/>
         
         <artifact name="x86.64.linux/libjinput-linux64" type="native" ext="so" conf="x86.64.linux"/>
+        
+        <artifact name="arm.32.linux/libjinput-linux" type="native" ext="so" conf="arm.32.linux"/>
+        <artifact name="arm.32.linux/libjinput-linux64" type="native" ext="so" conf="arm.32.linux"/>
 
         <artifact name="libjinput-osx" type="native" ext="jnilib" conf="x86.32.mac"/>
     </publications>
