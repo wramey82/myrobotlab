@@ -80,6 +80,7 @@ public class Runtime extends Service {
 	private static long uniqueID = new Random(System.currentTimeMillis()).nextLong();
 
 	// ---- Runtime members begin -----------------
+	// TODO make this singleton - so Runtime.update works
 	public final ServiceInfo serviceInfo = new ServiceInfo();
 
 	/*

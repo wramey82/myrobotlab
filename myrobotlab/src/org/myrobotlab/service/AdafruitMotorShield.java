@@ -504,14 +504,14 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	}
 	// StepperController end ----
 	
-	public  boolean setSerialDevice(String port) {
+	public  boolean connect(String port) {
 		if (arduino == null)
 		{
 			error("arduino %s is null", arduino.getName());
 			return false;
 		}
 		
-		return arduino.setSerialDevice(port);
+		return arduino.connect(port);
 	}
 	
 	public static void main(String[] args) {
@@ -522,7 +522,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		AdafruitMotorShield fruity = (AdafruitMotorShield) Runtime.createAndStart("fruity", "AdafruitMotorShield");
 		Runtime.createAndStart("gui01", "GUIService");
 		
-		fruity.setSerialDevice("COM3");
+		fruity.connect("COM3");
 		
 		Motor motor1 = fruity.createDCMotor(4);
 		motor1.move(0.4f);
