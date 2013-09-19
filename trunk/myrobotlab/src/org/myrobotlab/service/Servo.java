@@ -150,7 +150,12 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public void setPositionMin(Integer min) {
-		this.positionMin = min;
+		if (inverted)
+		{
+			this.positionMax = 180 - min;
+		} else {
+			this.positionMin = min;
+		}
 	}
 
 	public Integer getPositionMin() {
@@ -159,7 +164,12 @@ public class Servo extends Service implements ServoControl {
 
 	@Override
 	public void setPositionMax(Integer max) {
-		this.positionMax = max;
+		if (inverted)
+		{
+			this.positionMin = 180 - max;
+		} else {
+			this.positionMax = max;
+		}
 	}
 
 	public Integer getPositionMax() {
