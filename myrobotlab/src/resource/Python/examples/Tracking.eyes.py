@@ -3,6 +3,7 @@ tracker = Runtime.create("tracker","Tracking")
 # create all the peer services
 eyeX = Runtime.create("eyeX","Servo")
 eyeY = Runtime.create("eyeY","Servo")
+eyeY.setInverted(True)
 arduino = Runtime.create("arduino","Arduino")
 xpid = Runtime.create("xpid","PID");
 ypid = Runtime.create("ypid","PID");
@@ -19,7 +20,7 @@ xpid.setPID(10.0, 0, 0.1)
 xpid.setSetpoint(0.5) # we want the target in the middle of the x
  
 # flip the pid if needed
-ypid.invert()
+# ypid.invert()
 ypid.setOutputRange(-1, 1)
 ypid.setPID(10.0, 0, 0.1)
 ypid.setSetpoint(0.5)
@@ -29,8 +30,8 @@ ypid.setSetpoint(0.5)
 eyeX.setPositionMin(65)
 eyeX.setPositionMax(90)
  
-eyeY.setPositionMin(95)
-eyeY.setPositionMax(158)
+eyeY.setPositionMin(22)
+eyeY.setPositionMax(85)
  
 # here we are attaching to the
 # manually created peer services
@@ -40,7 +41,7 @@ tracker.attachServos(eyeX, 3, eyeY, 6)
 tracker.attach(eye)
 tracker.attachPIDs(xpid, ypid)
  
-tracker.setRestPosition(80, 133)
+tracker.setRestPosition(80, 47)
  
 tracker.startService()
 tracker.trackPoint(0.5,0.5)
