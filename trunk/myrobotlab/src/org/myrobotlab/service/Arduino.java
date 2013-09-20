@@ -494,6 +494,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// FIXME - is this re-entrant ???
 	// FIXME - refactor - don't use name use Servo type
 	// FIXME - use attach(Servo servo) 
+	// FIXME SYNCHRONIZED !!!
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
@@ -541,6 +542,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return false;
 	}
 
+	// TODO probably should be synchronized !!!
 	@Override
 	public boolean servoDetach(String servoName) {
 		log.info(String.format("servoDetach(%s)", servoName));
