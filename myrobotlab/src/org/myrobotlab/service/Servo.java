@@ -52,9 +52,9 @@ public class Servo extends Service implements ServoControl {
 	private int positionMin = 0;
 	@Element
 	private int positionMax = 180;
-	
+
 	private boolean inverted = false;
-	
+
 	Vector<String> controllers;
 
 	// private float speed = 1.0f; // fractional speed component 0 to 1.0
@@ -82,14 +82,12 @@ public class Servo extends Service implements ServoControl {
 		this.controller = controller;
 		return true;
 	}
-	
-	public void setInverted(boolean isInverted)
-	{
+
+	public void setInverted(boolean isInverted) {
 		inverted = isInverted;
 	}
-	
-	public boolean isInverted()
-	{
+
+	public boolean isInverted() {
 		return inverted;
 	}
 
@@ -98,14 +96,8 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public void moveTo(Integer pos) {
-		/*
-		if (pos == null) {
-			return;
-		}
-		*/
 		Integer newPos = pos;
-		if (inverted)
-		{
+		if (inverted) {
 			newPos = 180 - pos;
 		}
 		if (controller == null) {
@@ -128,15 +120,14 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void move(Float pos) {
 		Float amount = pos;
-		if (inverted)
-		{
+		if (inverted) {
 			amount = pos * -1;
 		}
 		if (amount > 1 || amount < -1) {
 			log.error("%s.move %d out of range", getName(), amount);
 			return;
 		}
-	
+
 		int range = positionMax - positionMin;
 		int newPos = Math.abs((int) (range / 2 * amount - range / 2));
 
@@ -150,8 +141,7 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public void setPositionMin(Integer min) {
-		if (inverted)
-		{
+		if (inverted) {
 			this.positionMax = 180 - min;
 		} else {
 			this.positionMin = min;
@@ -159,13 +149,16 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public Integer getPositionMin() {
-		return positionMin;
+		if (inverted) {
+			return 180 - this.positionMax;
+		} else {
+			return positionMin;
+		}
 	}
 
 	@Override
 	public void setPositionMax(Integer max) {
-		if (inverted)
-		{
+		if (inverted) {
 			this.positionMin = 180 - max;
 		} else {
 			this.positionMax = max;
@@ -173,14 +166,18 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public Integer getPositionMax() {
-		return positionMax;
+		if (inverted) {
+			return 180 - this.positionMin;
+		} else {
+			return positionMax;
+		}
 	}
 
 	public Integer getPosition() {
-		if (inverted)
-		{ return 180 - position; }
-		else
-		return position;
+		if (inverted) {
+			return 180 - position;
+		} else
+			return position;
 	}
 
 	@Override
@@ -274,11 +271,9 @@ public class Servo extends Service implements ServoControl {
 			controller.servoDetach(getName());
 		}
 	}
-	
-	public void test()
-	{
-		for (int i = 0; i < 10000; ++i)
-		{
+
+	public void test() {
+		for (int i = 0; i < 10000; ++i) {
 			setSpeed(0.6f);
 			moveTo(90);
 			moveTo(180);
@@ -292,11 +287,10 @@ public class Servo extends Service implements ServoControl {
 			moveTo(90);
 			moveTo(180);
 		}
-		
+
 	}
-	
-	public Vector<String> refreshControllers()
-	{
+
+	public Vector<String> refreshControllers() {
 		controllers = Runtime.getServicesFromInterface(ServoController.class.getCanonicalName());
 		return controllers;
 	}
@@ -308,19 +302,19 @@ public class Servo extends Service implements ServoControl {
 
 		// FIXME - routing of servo.attach("arduino", 3);
 
-		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
 
 		arduino.setSerialDevice("COM12");
-		
+
 		Servo right = new Servo("servo01");
 		right.startService();
-		
+
 		arduino.servoAttach(right.getName(), 13);
-		
+
 		right.test();
-		
+
 		Runtime.createAndStart("gui", "GUIService");
-		
+
 		// right.attach(serviceName)
 		/*
 		 * Servo left = new Servo("left"); left.startService();
@@ -339,7 +333,6 @@ public class Servo extends Service implements ServoControl {
 		 * 
 		 * //right.detach(); //left.detach(); }
 		 */
-		
 
 	}
 
