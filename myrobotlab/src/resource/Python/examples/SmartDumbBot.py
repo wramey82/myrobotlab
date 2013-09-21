@@ -1,0 +1,1 @@
+# SmartDumbBot script for MakerFaire
