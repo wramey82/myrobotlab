@@ -568,9 +568,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return;
 		}
 
-		log.info(String.format("servoWrite %s %d", servoName, newPos));
+		int index = servos.get(servoName).servoIndex;
+		
+		log.info(String.format("servoWrite %s %d index %d", servoName, newPos, index));
 
-		sendMsg(SERVO_WRITE, servos.get(servoName).servoIndex, newPos);
+		sendMsg(SERVO_WRITE, index, newPos);
 
 	}
 
