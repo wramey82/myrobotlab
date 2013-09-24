@@ -84,7 +84,7 @@ public class Plantoid extends Service {
 		{
 			arduinoName = duino.getName();
 		}
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
 		
 		if (!arduino.isConnected())
 		{

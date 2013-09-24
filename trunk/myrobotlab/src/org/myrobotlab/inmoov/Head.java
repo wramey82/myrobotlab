@@ -9,10 +9,7 @@ import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.Tracking;
-
 import org.slf4j.Logger;
-
-import com.googlecode.javacv.cpp.opencv_stitching;
 
 public class Head {
 
@@ -21,17 +18,18 @@ public class Head {
 	private InMoov inmoov;
 	public boolean allowMove = true;
 	// ------------- added pins and defaults
-	public int eyeXPin=3;
-	public int eyeYPin=5;
+	//public int eyeXPin=3;
+	//public int eyeYPin=5;
 	public int neckPin=12;
 	public int rotHeadPin=13;
 	// ------------- added set pins
 	public void setpins(Integer eyeX, Integer eyeY, Integer neck, Integer rotHead) {
-		eyeXPin=eyeX;
-		eyeYPin=eyeY;
+		//eyeXPin=eyeX;
+		//eyeYPin=eyeY;
 		neckPin=neck;
 		rotHeadPin=rotHead;
 	}
+	
 	public void attach(InMoov inmoov) {
 		this.inmoov = inmoov;
 		
@@ -44,7 +42,8 @@ public class Head {
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
 		inmoov.eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
 		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
-	
+		inmoov.eyeX = (Servo) Runtime.createAndStart("eyeX", "Servo");
+		inmoov.eyeY = (Servo) Runtime.createAndStart("eyeY", "Servo");
 				
 		/*
 		inmoov.arduinoHead.servoAttach(inmoov.neck.getName(), 12);
@@ -57,15 +56,16 @@ public class Head {
 		inmoov.rothead.setPositionMax(150);
 		inmoov.neck.setPositionMin(20);
 		inmoov.neck.setPositionMax(160);
-		
 	
 		inmoov.tracking.arduino = inmoov.arduinoHead;
-		inmoov.tracking.attachServos(inmoov.rothead, rotHeadPin, inmoov.neck, neckPin);
-		//inmoov.tracking.x = inmoov.rothead;
-		//inmoov.tracking.y = inmoov.neck;
 		
-		//inmoov.tracking.eye = inmoov.eye;	
-		inmoov.tracking.attach(inmoov.eye);
+		// name binding
+		inmoov.tracking.xName = inmoov.rothead.getName();
+		inmoov.tracking.yName = inmoov.neck.getName();
+		inmoov.tracking.opencvName = inmoov.eye.getName();
+		
+		inmoov.tracking.attachServos(rotHeadPin, neckPin);
+		
 		inmoov.tracking.eye.setInputSource("camera");
 		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
 		
@@ -148,6 +148,10 @@ public class Head {
 		inmoov.neck = null;
 		inmoov.tracking.releaseService();
 		inmoov.tracking = null;
+		inmoov.eyeX.releaseService();
+		inmoov.eyeX = null;
+		inmoov.eyeY.releaseService();
+		inmoov.eyeY = null;
 	}
 
 	public boolean isValid() {

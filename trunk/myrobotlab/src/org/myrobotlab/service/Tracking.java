@@ -48,7 +48,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
-import org.myrobotlab.opencv.OpenCVFilterFlip;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.data.Point2Df;
 import org.simpleframework.xml.Element;
@@ -61,8 +60,8 @@ public class Tracking extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Tracking.class.getCanonicalName());
-	
-	// static Service.requestName();
+
+	// static reqest api of Service Names & Types !
 	// GOOD - TODO make it better ! Encapsulate in Hash'd data structure
 	// with a setSubServiceName("arduio", "x") - for foreign structures
 	public String arduinoName = "arduino";
@@ -71,14 +70,14 @@ public class Tracking extends Service {
 	public String xName = "x";
 	public String yName = "y";
 	public String opencvName = "opencv";
-	//public String processorName = "processor";
-		
+
 	public ArrayList<OpenCVFilter> additionalFilters = new ArrayList<OpenCVFilter>();
-	
+
 	long lastTimestamp = 0;
 	long waitInterval = 5000;
 	int lastNumberOfObjects = 0;
-	
+
+	// Tracking states
 	public final static String STATE_LK_TRACKING_POINT = "lucas kanade tracking";
 	public final static String STATE_IDLE = "idle";
 	public final static String STATE_NEED_TO_INITIALIZE = "initializing";
@@ -88,7 +87,7 @@ public class Tracking extends Service {
 	public static final String STATE_SEARCH_FOREGROUND = "search foreground";
 	public static final String STATE_SEARCHING_FOREGROUND = "searching foreground";
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_STABILIZE = "waiting for objects to stabilize";
-	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR =  "waiting for objects to disappear";
+	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR = "waiting for objects to disappear";
 	public static final String STATE_STABILIZED = "stabilized";
 
 	// memory constants
@@ -96,21 +95,21 @@ public class Tracking extends Service {
 	public final static String LOCATION_Y = "LOCATION_Y";
 
 	private String state = STATE_NEED_TO_INITIALIZE;
-	
+
 	@Element
 	int xRestPos = 90;
 	@Element
 	int yRestPos = 90;
-	
-	// ------ PEER SERVICES BEGIN------ 
+
+	// ------ PEER SERVICES BEGIN------
 	// peer services are always transient (i think)
-	transient public PID xpid; 
+	transient public PID xpid;
 	transient public PID ypid;
-	transient public OpenCV eye; 
+	transient public OpenCV eye;
 	transient public Arduino arduino;
 	transient public Servo x;
 	transient public Servo y;
-	// ------ PEER SERVICES END------ 
+	// ------ PEER SERVICES END------
 
 	// statistics
 	public int updateModulus = 20;
@@ -125,7 +124,7 @@ public class Tracking extends Service {
 	private int currentYServoPos;
 	private int lastXServoPos;
 	private int lastYServoPos;
-	
+
 	// tracking variables
 	private Integer xmin;
 	private Integer xmax;
@@ -133,15 +132,8 @@ public class Tracking extends Service {
 	private Integer ymax;
 	private double computeX;
 	private double computeY;
-	
+
 	// ----- INITIALIZATION DATA BEGIN -----
-	@Element
-	public Integer xPin;
-	@Element
-	public Integer yPin;
-	@Element
-	String serialPort;
-	// "center" set points
 	@Element
 	public double xSetpoint = 0.5;
 	@Element
@@ -149,276 +141,186 @@ public class Tracking extends Service {
 
 	// ----- INITIALIZATION DATA END -----
 
-	
+	public String LKOpticalTrackFilterName;
+
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
 	}
-	
-	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of course !
+
+	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of
+	// course !
 	// com port
-	// IMPORTANT CONCEPT - the Typed function should have ALL THE BUSINESS LOGIC TO ATTACH 
+	// IMPORTANT CONCEPT - the Typed function should have ALL THE BUSINESS LOGIC
+	// TO ATTACH
 	// NON ANYWHERE ELSE !!
-	public void startService()
-	{	super.startService();
-	
-		boolean startup = true;
-		
-		startup &= attach(eye);
-		startup &= attach(arduino, serialPort);
-		startup &= attachServos(x, xPin, y, yPin);
-		startup &= attachPIDs(xpid, ypid);
-		
-		if (startup) {
-			info("tracking ready");
-		} else {
-			error("tracking could not initialize properly");
+	public void startService() {
+		super.startService();
+
+		try {
+
+			info("attaching eye");
+			
+			// doesn't "have" to have input data to start so we can 
+			// create and start it here
+
+			arduino.startService();
+
+			ypid.startService();
+			xpid.startService();
+			x.startService();
+			y.startService();
+			// put servos in rest position
+			rest();
+
+			eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
+			//subscribe("publishOpenCVData", eye.getName(), "setOpenCVData");
+			eye.addListener("publishOpenCVData", getName(), "setOpenCVData");
+			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
+
+			eye.broadcastState();
+			sleep(20); // cheesy way to keep the gui from crashing
+			arduino.broadcastState();
+			sleep(20);
+			y.broadcastState();
+			sleep(20);
+			x.broadcastState();
+			sleep(20);
+			xpid.broadcastState();
+			sleep(20);
+			ypid.broadcastState();
+			sleep(20);
+
+		} catch (Exception e) {
+			error(String.format("could not start tracking %s", e.getMessage()));
 		}
+
 	}
-	
-	// the big kahuna input feed
-	public OpenCVData setOpenCVData (OpenCVData data)
-	{
-		//log.info("data from opencv - state {}", state);
-		if (STATE_IDLE.equals(state))
-		{
+
+	public boolean connect(String port) {
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		arduino.connect(port);
+		arduino.broadcastState();
+		return arduino.isConnected();
+	}
+
+	/**
+	 * call back of all video data video calls this whenever a frame is
+	 * processed
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public OpenCVData setOpenCVData(OpenCVData data) {
+		// log.info("data from opencv - state {}", state);
+		if (STATE_IDLE.equals(state)) {
 			// we are idle - might as well do something
 			// FIXME - reduce to nothing if done again
 			// FIXME - NON-RENTRANT
 			setForegroundBackgroundFilter();
 			// TODO - begin searching for new things !!!!
-		} else if (STATE_LK_TRACKING_POINT.equals(state))
-		{
+		} else if (STATE_LK_TRACKING_POINT.equals(state)) {
 			// check non-blocking queue for better tracking point !!!
-			updateTrackingPoint(data);	
-		} else if (STATE_LEARNING_BACKGROUND.equals(state))
-		{
+			updateTrackingPoint(data);
+		} else if (STATE_LEARNING_BACKGROUND.equals(state)) {
 			waitInterval = 3000;
 			waitForObjects(data);
-		} else if (STATE_SEARCHING_FOREGROUND.equals(state))
-		{
+		} else if (STATE_SEARCHING_FOREGROUND.equals(state)) {
 			waitInterval = 3000;
 			waitForObjects(data);
 		}
 		return data;
 	}
+
 	// begin attach points -----------------
-	// FIXME - make re-entrant !!!
-	public boolean attach(OpenCV opencv)
-	{
-		if (eye != null)
-		{
-			log.info("eye already assigned");
-			eye.startService(); // make sure its started .. duh !
-			return true;
-		}
-		info("attaching eye");
-		eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV", opencv);
-		subscribe("publishOpenCVData", eye.getName(), "setOpenCVData", OpenCVData.class);
-		//eye.capture();
-		eye.broadcastState();
-		return true;
-	}
-	
-	public boolean attach(Arduino duino)
-	{
-		return attach(duino, serialPort);
-	}
-	// TODO - check all service - check for validity of system !!
-	public boolean attach(Arduino duino, String inSerialPort)
-	{
-		if (arduino != null)
-		{
-			log.info("arduino already attached");
-			return true;
-		}
-		serialPort = inSerialPort;
-		
-		info("attaching Arduino");
-		if (duino!= null)
-		{
-			arduinoName = duino.getName();
-		}
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino", duino);
-		
-		if (!arduino.isConnected())
-		{
-			if (serialPort == null)
-			{
-				error("no serial port specified for Arduino");
-				return false;
-			}
-			arduino.setSerialDevice(serialPort);
-		}
-		
-		Service.sleep(500);
-		
-		if (!arduino.isConnected())
-		{
-			error("Arduino is not connected!");
-			return false;
-		}
-		
-		arduino.broadcastState();
-		return true;
-	} 
-	
-	// TODO - this should resolve the difference between default and externally supplied
-	// servos - NEEDS OVERLOADING (no pins)
-	public boolean attachServos(Servo inX, Integer inXPin, Servo inY, Integer inYPin)
-	{
-		// FIXME - SEE IF NOT CONNECTED IF NOT CONNECTED ERROR - LOGIC SHOULD BE IN SERVOS!!!!!
-	
+
+	public void attachServos(int xpin, int ypin) {
 		info("attaching servos");
-		if (arduino == null)
-		{
+		if (arduino == null) {
 			error("Arduino must be attached first, before servos !");
-			return false;
+			return;
 		}
-		
-		/*
-		TODO - finish table - find pattern
-		states
-		default init no data    				x == servox && x == null && inXPin == null
-		data from file							x == servox && x == null && inXPin != null		INVALID IF - inXPin == null
-		replace possible valid with different  	x != null && x != servox  && servox != null && (InXPin == null || InXPin != null)
-		
-		*/
-		
-		if (inXPin == null || inYPin == null && (inX == null|| inY == null))
-		{
-			error("servo pins must be set before attaching servos!");
-		}
-		
-		if (inX != null)
-		{
-			xName = inX.getName();
-		}
-		if (inY != null)
-		{
-			yName = inY.getName();
-		}
-		
-		xPin = inXPin;
-		yPin = inYPin;
-		
-		
-		x = (Servo) Runtime.createAndStart(xName, "Servo", inX);
-		y = (Servo) Runtime.createAndStart(yName, "Servo", inY);
-		
-		if (xmin != null)
-		{
-			x.setPositionMin(xmin);
-		}
-		
-		if (xmax != null)
-		{
-			x.setPositionMax(xmax);
-		}
-		
-		if (ymin != null)
-		{
-			y.setPositionMin(ymin);
-		}
-		
-		if (ymax != null)
-		{
-			y.setPositionMax(ymax);
-		}
-		
-		arduino.servoAttach(xName, xPin);
-		arduino.servoAttach(yName, yPin);
-		
-		x.moveTo(xRestPos);
-		y.moveTo(yRestPos);
 
-		// shake and be ALIVE !
-		
-		Service.sleep(500);
+		// notice only attach
+		x = (Servo) Runtime.create(xName, "Servo");
+		y = (Servo) Runtime.create(yName, "Servo");
 
-		x.moveTo(xRestPos + 5);
-		y.moveTo(yRestPos + 5);
+		// this needs to be connected to process the comand
+		arduino.servoAttach(xName, xpin);
+		arduino.servoAttach(yName, ypin);
 
-		Service.sleep(500);
-		
-		x.moveTo(xRestPos);
-		y.moveTo(yRestPos);
-		
-		currentXServoPos = xRestPos;
-		currentYServoPos = yRestPos;
-		lastXServoPos = xRestPos;
-		lastYServoPos = yRestPos;
-
-		// save limits for next time
-		xmin = x.getPositionMin();
-		xmax = x.getPositionMax();
-
-		ymin = y.getPositionMin();
-		ymax = y.getPositionMax();
-		
 		x.broadcastState();
 		y.broadcastState();
 
-		return true;
-	}
-	
-	public boolean attachPIDs(PID inXpid, PID inYpid)
-	{
-		info("attaching pid");
-		if (inXpid != null)
-		{
-			xpidName = inXpid.getName();
-		}
-		if (inYpid != null)
-		{
-			ypidName = inYpid.getName();
-		}
-		
-		if (xpid != null || ypid != null && (inXpid == null || inYpid == null))
-		{
-			info("xpid or ypid already set - must unset it first");
-			return true;
-		}
-		
-		xpid = (PID) Runtime.createAndStart(xpidName, "PID", inXpid);
-		ypid = (PID) Runtime.createAndStart(ypidName, "PID", inYpid);
-
-		xpid.setPID(10.0, 5.0, 1.0);
-		xpid.setControllerDirection(PID.DIRECTION_DIRECT);
-		xpid.setMode(PID.MODE_AUTOMATIC);
-		xpid.setOutputRange(-10, 10); // <- not correct - based on maximum
-		xpid.setSampleTime(30);
-		// set center
-		xpid.setSetpoint(xSetpoint);
-
-		ypid.setPID(10.0, 5.0, 1.0);
-		ypid.setControllerDirection(PID.DIRECTION_DIRECT);
-		ypid.setMode(PID.MODE_AUTOMATIC);
-		ypid.setOutputRange(-10, 10);
-		ypid.setSampleTime(30);
-		// set center
-		ypid.setSetpoint(ySetpoint);
-
-		xpid.broadcastState();
-		ypid.broadcastState();
-		return true;
 	}
 
-	public void rest()
-	{
+	public void setServoLimits(int xmin, int xmax, int ymin, int ymax) {
+		log.info(String.format("setServoLimits %d %d %d %d", xmin, xmax, ymin, ymax));
+		x.setPositionMin(xmin);
+		x.setPositionMax(xmax);
+		y.setPositionMin(ymin);
+		y.setPositionMax(ymax);
+		this.xmin = xmin;
+		this.xmax = xmax;
+		this.ymin = ymin;
+		this.ymax = ymax;
+		x.broadcastState();
+		y.broadcastState();
+	}
+
+	public void setPIDDefaults() {
+
+		setXPID(10.0, 5.0, 1.0, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
+		setYPID(10.0, 5.0, 1.0, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
+	}
+
+	public PID setXPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
+		// notice - this is just create - start needs to be in startService
+		xpid = (PID) Runtime.create(xpidName, "PID");
+		xpid.setPID(Kp, Ki, Kd);
+		xpid.setControllerDirection(direction);
+		xpid.setMode(mode);
+		xpid.setOutputRange(minOutput, maxOutput); // <- not correct - based on
+													// maximum
+		xpid.setSampleTime(sampleTime);
+		// set center
+		xpid.setSetpoint(setPoint);
+		return xpid;
+	}
+
+	public PID setYPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
+		// notice - this is just create - start needs to be in startService
+		ypid = (PID) Runtime.create(ypidName, "PID");
+		ypid.setPID(Kp, Ki, Kd);
+		ypid.setControllerDirection(direction);
+		ypid.setMode(mode);
+		ypid.setOutputRange(minOutput, maxOutput); // <- not correct - based on
+													// mayimum
+		ypid.setSampleTime(sampleTime);
+		// set center
+		ypid.setSetpoint(setPoint);
+		return ypid;
+	}
+
+	public void rest() {
 		x.moveTo(xRestPos);
-		y.moveTo(yRestPos);
-	}
-	
-	
-	// ------------------- tracking & detecting methods begin ---------------------
+		currentXServoPos = xRestPos;
+		lastXServoPos = xRestPos;
 
-	public void startLKTracking()
-	{
+		y.moveTo(yRestPos);
+		currentYServoPos = yRestPos;
+		lastYServoPos = yRestPos;
+	}
+
+	// ------------------- tracking & detecting methods begin
+	// ---------------------
+
+	public void startLKTracking() {
 		// set filters
 		eye.clearFilters();
-		eye.addFilter("PyramidDown"); // FIXME - remove this and have user (or helper method) add it to custom filter
-		for (int i = 0; i < additionalFilters.size(); ++i)
-		{
+		eye.addFilter("PyramidDown"); // FIXME - remove this and have user (or
+										// helper method) add it to custom
+										// filter
+		for (int i = 0; i < additionalFilters.size(); ++i) {
 			eye.addFilter(additionalFilters.get(i));
 		}
 		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
@@ -426,49 +328,55 @@ public class Tracking extends Service {
 
 		eye.capture();
 		eye.publishOpenCVData(true);
-		
+
 		setState(STATE_LK_TRACKING_POINT);
-		
+
 	}
-	
-	public void stopLKTracking()
-	{
+
+	public void stopLKTracking() {
 		eye.clearFilters();
 		setState(STATE_IDLE);
 	}
-	
+
 	public void trackPoint(float x, float y) {
 
-		if (!STATE_LK_TRACKING_POINT.equals(state))
-		{
+		if (!STATE_LK_TRACKING_POINT.equals(state)) {
 			startLKTracking();
 		}
 
 		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
 	}
-	
+
 	// GAAAAAAH figure out if (int , int) is SUPPORTED WOULD YA !
 	public void trackPoint(int x, int y) {
 
-		if (!STATE_LK_TRACKING_POINT.equals(state))
-		{
+		if (!STATE_LK_TRACKING_POINT.equals(state)) {
 			startLKTracking();
 		}
 		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
 	}
 
-	public void clearTrackingPoints()
-	{
-		 eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "clearPoints");
+	public void reset() {
+		// TODO - reset pid values
+		// clear filters
+		eye.clearFilters();
+		// reset position
+		rest();
 	}
-	
+
+	// reset better ?
+	public void clearTrackingPoints() {
+		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "clearPoints");
+		// reset position
+		rest();
+	}
+
 	public void setForegroundBackgroundFilter() {
 
 		// set filters
 		eye.clearFilters();
 		eye.addFilter(FILTER_PYRAMID_DOWN);
-		for (int i = 0; i < additionalFilters.size(); ++i)
-		{
+		for (int i = 0; i < additionalFilters.size(); ++i) {
 			eye.addFilter(additionalFilters.get(i));
 		}
 		eye.addFilter(FILTER_DETECTOR);
@@ -476,113 +384,105 @@ public class Tracking extends Service {
 		eye.addFilter(FILTER_DILATE);
 		eye.addFilter(FILTER_FIND_CONTOURS);
 
-		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
+		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 	}
 
 	public void learnBackground() {
 
-		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).learn();
+		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 	}
-	
+
 	public void searchForeground() {
 
-		((OpenCVFilterDetector)eye.getFilter(FILTER_DETECTOR)).search();
+		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).search();
 
 		setState(STATE_SEARCHING_FOREGROUND);
 	}
-	
+
 	double sizeIndexForBackgroundForegroundFlip = 0.10;
-	
-	public void waitForObjects(OpenCVData data)
-	{
+
+	public void waitForObjects(OpenCVData data) {
 		data.setFilterName(FILTER_FIND_CONTOURS);
 		ArrayList<Rectangle> objects = data.getBoundingBoxArray();
-		int numberOfNewObjects = (objects == null)?0:objects.size();
-		
+		int numberOfNewObjects = (objects == null) ? 0 : objects.size();
+
 		// if I'm not currently learning the background and
 		// countour == background ??
 		// set state to learn background
-		if (!STATE_LEARNING_BACKGROUND.equals(state) && numberOfNewObjects == 1)
-		{
+		if (!STATE_LEARNING_BACKGROUND.equals(state) && numberOfNewObjects == 1) {
 			SerializableImage img = data.getImage();
-			if (img == null)
-			{
+			if (img == null) {
 				log.error("here");
 				return;
 			}
 			double width = img.getWidth();
 			double height = img.getHeight();
-			
+
 			Rectangle rect = objects.get(0);
-			
-			//publish(data.getImages());
-			
-			if ((width - rect.width)/width < sizeIndexForBackgroundForegroundFlip && (height - rect.height)/height < sizeIndexForBackgroundForegroundFlip)
-			{
+
+			// publish(data.getImages());
+
+			if ((width - rect.width) / width < sizeIndexForBackgroundForegroundFlip && (height - rect.height) / height < sizeIndexForBackgroundForegroundFlip) {
 				learnBackground();
 				info(String.format("%s - object found was nearly whole view - foreground background flip", state));
 			}
-			
+
 		}
-		
-		if (numberOfNewObjects != lastNumberOfObjects)
-		{
-			info(String.format("%s - unstable change from %d to %d objects - reset clock - was stable for %d ms limit is %d ms", state, lastNumberOfObjects, numberOfNewObjects ,System.currentTimeMillis() -lastTimestamp, waitInterval));
+
+		if (numberOfNewObjects != lastNumberOfObjects) {
+			info(String.format("%s - unstable change from %d to %d objects - reset clock - was stable for %d ms limit is %d ms", state, lastNumberOfObjects, numberOfNewObjects,
+					System.currentTimeMillis() - lastTimestamp, waitInterval));
 			lastTimestamp = System.currentTimeMillis();
 		}
-		
-		if (waitInterval < System.currentTimeMillis() - lastTimestamp)
-		{
+
+		if (waitInterval < System.currentTimeMillis() - lastTimestamp) {
 			setLocation(data);
 			// number of objects have stated the same
-			if (STATE_LEARNING_BACKGROUND.equals(state))
-			{
-				if (numberOfNewObjects == 0)
-				{
+			if (STATE_LEARNING_BACKGROUND.equals(state)) {
+				if (numberOfNewObjects == 0) {
 					// process background
-					//data.putAttribute(BACKGROUND);
+					// data.putAttribute(BACKGROUND);
 					data.putAttribute(PART, BACKGROUND);
 					invoke("toProcess", data);
 					// ready to search foreground
 					searchForeground();
 				}
 			} else {
-				
+
 				// stable state changes with # objects
-				//setState(STATE_STABILIZED);
-				//log.info("number of objects {}",numberOfNewObjects);
+				// setState(STATE_STABILIZED);
+				// log.info("number of objects {}",numberOfNewObjects);
 				// TODO - SHOULD NOT PUT IN MEMORY -
 				// LET OTHER THREAD DO IT
-				if (numberOfNewObjects > 0)
-				{
+				if (numberOfNewObjects > 0) {
 					data.putAttribute(PART, FOREGROUND);
 					invoke("toProcess", data);
-				}// else TODO - processBackground(data) <- on a regular interval (addToSet) !!!!!!
+				}// else TODO - processBackground(data) <- on a regular interval
+					// (addToSet) !!!!!!
 			}
 		}
-		
+
 		lastNumberOfObjects = numberOfNewObjects;
-		
+
 	}
-	
+
 	// TODO - enhance with location - not just heading
 	// TODO - array of attributes expanded Object[] ... ???
 	// TODO - use GEOTAG - LAT LONG ALT DIRECTION LOCATION CITY GPS TIME OFFSET
-	public OpenCVData setLocation(OpenCVData data)
-	{
+	public OpenCVData setLocation(OpenCVData data) {
 		data.setX(currentXServoPos);
 		data.setY(currentYServoPos);
 		return data;
 	}
 
-	// ------------------- tracking & detecting methods end ---------------------
+	// ------------------- tracking & detecting methods end
+	// ---------------------
 
-	public void setIdle()
-	{
+	public void setIdle() {
 		setState(STATE_IDLE);
 	}
 
@@ -590,62 +490,51 @@ public class Tracking extends Service {
 		state = newState;
 		info(state);
 	}
-	
-	// ---------------  publish methods begin ----------------------------
-	public OpenCVData toProcess (OpenCVData data){
+
+	// --------------- publish methods begin ----------------------------
+	public OpenCVData toProcess(OpenCVData data) {
 		return data;
 	}
-	
+
 	public SerializableImage publishFrame(SerializableImage image) {
 		return image;
 	}
 
 	// ubermap !!!
-	public void publish(HashMap<String,SerializableImage> images) {
-		for (Map.Entry<String,SerializableImage> o : images.entrySet())
-		{
-			//Map.Entry<String,SerializableImage> pairs = o;
+	public void publish(HashMap<String, SerializableImage> images) {
+		for (Map.Entry<String, SerializableImage> o : images.entrySet()) {
+			// Map.Entry<String,SerializableImage> pairs = o;
 			log.info(o.getKey());
 			publish(o.getValue());
 		}
 	}
-	
+
 	public void publish(SerializableImage image) {
 		invoke("publishFrame", image);
 	}
 
-	
 	@Override
 	public String getToolTip() {
 		return "proportional control, tracking, and translation";
 	}
 
-	// ---------------  publish methods end ----------------------------
+	// --------------- publish methods end ----------------------------
 
-
-	// FIXME - lost tracking event !!!!
+	// FIXME - NEED A lost tracking event !!!!
 	// FIXME - this is WAY TO OPENCV specific !
 	// OpenCV should have a publishTrackingPoint method !
 	// This should be updateTrackingPoint(Point2Df) & perhaps Point3Df :)
 	final public void updateTrackingPoint(OpenCVData cvData) {
-		
+
 		// extract tracking info
-		cvData.setFilterName(String.format("%s.%s", eye.getName(),FILTER_LK_OPTICAL_TRACK));
-		ArrayList<Point2Df> data = cvData.getPoints();
-		
-		if (data == null)
-		{
-			// lost track event ?!?
-//			log.info("data arriving, but no point array - tracking point missing?");
-			return;
-		}
+		cvData.setFilterName(LKOpticalTrackFilterName);
+		Point2Df targetPoint = cvData.getFirstPoint();
+
 		++cnt;
-		Point2Df targetPoint;
-		
-		if (data.size() > 0) {
-			targetPoint = data.get(0);
+
+		if (targetPoint != null) {
 			// describe this time delta
-			latency = System.currentTimeMillis() - targetPoint.timestamp; 
+			latency = System.currentTimeMillis() - targetPoint.timestamp;
 			log.debug(String.format("pt %s", targetPoint));
 
 			xpid.setInput(targetPoint.x);
@@ -689,7 +578,7 @@ public class Tracking extends Service {
 					log.warn("y data under-run");
 				}
 			}
-			
+
 			lastPoint = targetPoint;
 		}
 
@@ -698,7 +587,7 @@ public class Tracking extends Service {
 			log.error(String.format("%f %f", computeX, computeY));
 		}
 
-	}	
+	}
 
 	public void setRestPosition(int xpos, int ypos) {
 		this.xRestPos = xpos;
@@ -706,144 +595,121 @@ public class Tracking extends Service {
 	}
 
 	public void setCameraIndex(int i) {
-		if (eye == null)
-		{
-			eye = (OpenCV)Runtime.create(opencvName, "OpenCV");
+		if (eye == null) {
+			eye = (OpenCV) Runtime.create(opencvName, "OpenCV");
 		}
 		eye.setCameraIndex(i);
 	}
 
-	public void setServoPins(Integer x, Integer y) {
-		xPin = x;
-		yPin = y;
-	}
-
-	public void setSerialPort(String portName) {
-		serialPort = portName;
-	}
-	
-	public void setXMinMax(int xmin, int xmax)
-	{
+	public void setXMinMax(int xmin, int xmax) {
 		this.xmin = xmin;
 		this.xmax = xmax;
 	}
-	public void setYMinMax(int ymin, int ymax)
-	{
+
+	public void setYMinMax(int ymin, int ymax) {
 		this.ymin = ymin;
 		this.ymax = ymax;
 	}
-	
-	public void faceDetect()
-	{
+
+	public void faceDetect() {
 		OpenCVFilterPyramidDown py = new OpenCVFilterPyramidDown();
 		eye.addFilter("PyramidDown"); // FIXME - add to additional filters !
 		eye.addFilter("Gray"); // FIXME - add to additional filters !
-		for (int i = 0; i < additionalFilters.size(); ++i)
-		{
+		for (int i = 0; i < additionalFilters.size(); ++i) {
 			eye.addFilter(additionalFilters.get(i));
 		}
 		eye.addFilter("FaceDetect", "FaceDetect");
 		eye.setDisplayFilter("FaceDetect");
 
-		//wrong state
+		// wrong state
 		setState(STATE_LK_TRACKING_POINT);
 
 	}
-	
-	public void clearFilters()
-	{
+
+	public void clearFilters() {
 		eye.clearFilters();
 	}
-	
 
-	public void test()
-	{
-		for (int i = 0; i < 1000; ++i)
-		{
-			//invoke("trackPoint", 0.5, 0.5);
-			//faceDetect();
+	public void test() {
+		for (int i = 0; i < 1000; ++i) {
+			// invoke("trackPoint", 0.5, 0.5);
+			// faceDetect();
 			trackPoint();
-			//trackPoint(0.5f,0.5f);
+			// trackPoint(0.5f,0.5f);
 			setForegroundBackgroundFilter();
 			learnBackground();
 			searchForeground();
 			clearFilters();
 		}
 	}
-	
+
 	public void trackPoint() {
-		trackPoint(0.5f,0.5f);	
+		trackPoint(0.5f, 0.5f);
 	}
 
-	public void addFilter(OpenCVFilter filter)
-	{
+	public void addFilter(OpenCVFilter filter) {
 		additionalFilters.add(filter);
 	}
-	
+
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		Tracking tracker = new Tracking("tracking");
-		tracker.setSerialPort("COM12");
+		tracker.connect("COM12");
+		tracker.attachServos(3, 6);
+		tracker.setServoLimits(0, 180, 0, 180);
+		tracker.setPIDDefaults();
 		tracker.startService();
+		// tracker.startLKTracking();
 
 		/*
-		OpenCV cv = new OpenCV("cv");
-		
-		tracker.attach("cv");
-		
-		Speech mouth = new Speech("mouth");
-		mouth.subscribe("publishStatus", tracker.getName(), "speak", String.class);
-		mouth.startService();
-		tracker.startService();
-		
-		*/
+		 * OpenCV cv = new OpenCV("cv");
+		 * 
+		 * tracker.attach("cv");
+		 * 
+		 * Speech mouth = new Speech("mouth"); mouth.subscribe("publishStatus",
+		 * tracker.getName(), "speak", String.class); mouth.startService();
+		 * tracker.startService();
+		 */
 		/*
-		OpenCVFilterFlip flip = new OpenCVFilterFlip();
-		tracker.addFilter(flip);
-		*/
-		
+		 * OpenCVFilterFlip flip = new OpenCVFilterFlip();
+		 * tracker.addFilter(flip);
+		 */
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
 		tracker.startLKTracking();
-		
-		//tracker.setCameraIndex(1);
-		//tracker.test();
+
+		// tracker.setCameraIndex(1);
+		// tracker.test();
 		/*
-		tracker.setRestPosition(90, 5);
-		tracker.setSerialPort("COM12");
-		tracker.setServoPins(13, 12);
-		tracker.setCameraIndex(1);
-		*/
-	
+		 * tracker.setRestPosition(90, 5); tracker.setSerialPort("COM12");
+		 * tracker.setServoPins(13, 12); tracker.setCameraIndex(1);
+		 */
 
 		/*
-		tracker.startLKTracking();
-		
-		tracker.invoke("trackPoint", 100, 100);
-		tracker.invoke("trackPoint", 0.5f, 0.5f);
-		
-		
-		tracker.setIdle();
-		tracker.startVideoStream();
-		tracker.stopVideoStream();
-		tracker.startVideoStream();
-		
-*/		
-		
-//		tracker.learnBackGround();
-		//tracker.searchForeground();
-		
-		
+		 * tracker.startLKTracking();
+		 * 
+		 * tracker.invoke("trackPoint", 100, 100); tracker.invoke("trackPoint",
+		 * 0.5f, 0.5f);
+		 * 
+		 * 
+		 * tracker.setIdle(); tracker.startVideoStream();
+		 * tracker.stopVideoStream(); tracker.startVideoStream();
+		 */
+
+		// tracker.learnBackGround();
+		// tracker.searchForeground();
+
 		log.info("here");
-				
-		//tracker.getGoodFeatures();
 
-		//tracker.trackLKPoint();
+		// tracker.getGoodFeatures();
+
+		// tracker.trackLKPoint();
 
 	}
 

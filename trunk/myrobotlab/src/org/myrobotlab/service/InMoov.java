@@ -22,6 +22,11 @@ public class InMoov extends Service {
 	public static final String body = "body";
 	
 
+	// MAXIMUM STABILITY AN FLEXIBILITY !!!
+	// START WITH NAME - CREATE IN CREATE - START IN START
+	public String keyboardName = "keyboard";
+	
+	
 	Head head;
 
 	// head
@@ -50,9 +55,11 @@ public class InMoov extends Service {
 	transient public Hand handRight;
 	transient public Arm armRight;
 
+	transient public Keyboard keyboard;
 	
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
+		
 	}
 	
 
@@ -63,8 +70,9 @@ public class InMoov extends Service {
 		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
 		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
 		ear.attach(mouth);
-	    
-		// eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
+		
+		// MAXIMUM IN STABILITY & FLEXIBIITY
+		keyboard = (Keyboard)Runtime.create("keyboard", "Keyboard");	    
 		python = (Python) Runtime.createAndStart("python", "Python");
 	}
 
@@ -85,7 +93,7 @@ public class InMoov extends Service {
 		error("getArduino ({}) not found");
 		return null;
 	}
-   public  MouthControl attachMouthControl (String key,Integer pin,Integer mouthClose, Integer mouthOpen){
+   public  MouthControl attachMouthControl (String key, Integer pin,Integer mouthClose, Integer mouthOpen){
 	   Arduino arduino = getArduino(key);
 	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
 	   mouthcontrol.setpin(pin);
@@ -94,7 +102,7 @@ public class InMoov extends Service {
 	   return mouthcontrol;
 	   
    }
-   public  MouthControl attachMouthControl (String key,Integer pin){
+   public  MouthControl attachMouthControl (String key, Integer pin){
 	   Arduino arduino = getArduino(key);
 	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
 	   mouthcontrol.setpin(pin);
