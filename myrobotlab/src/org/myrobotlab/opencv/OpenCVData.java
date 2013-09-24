@@ -193,6 +193,13 @@ public class OpenCVData implements Serializable {
 	public ArrayList<Point2Df> getPoints() {
 		return (ArrayList<Point2Df>) data.get(String.format("%s.points", filtername));
 	}
+	
+	public Point2Df getFirstPoint() {
+		ArrayList<Point2Df> points = (ArrayList<Point2Df>) data.get(String.format("%s.points", filtername));
+		if (points != null && points.size() > 0)
+			return points.get(0);
+		return null;
+	}
 
 	public boolean containsAttribute(String name) {
 		return data.containsKey(String.format("%s.attribute.%s", filtername, name));
@@ -288,4 +295,6 @@ public class OpenCVData implements Serializable {
 		}
 		return ret;
 	}
+
+
 }

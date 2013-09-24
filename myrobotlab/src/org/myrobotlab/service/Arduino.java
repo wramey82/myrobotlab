@@ -522,7 +522,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				servos.put(servoName, sd);
 				ServiceWrapper sw = Runtime.getServiceWrapper(servoName);
 				if (sw == null || sw.service == null) {
-					log.error(String.format("%s does not exist in registry", servoName));
+					error(String.format("%s does not exist in registry", servoName));
 					return false;
 				}
 
@@ -532,7 +532,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					sc.setController(this);
 					return true;
 				} catch (Exception e) {
-					log.error(String.format("%s not a valid ServoController", servoName));
+					error(String.format("%s not a valid ServoController", servoName));
 					return false;
 				}
 			}

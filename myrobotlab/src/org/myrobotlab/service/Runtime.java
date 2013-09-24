@@ -1379,39 +1379,12 @@ public class Runtime extends Service {
 	}
 
 	static public ServiceInterface createAndStart(String name, String type) {
-		return createAndStart(name, type, null);
-	}
-
-	/**
-	 * creates and starts and returns reference to service if a "real" service
-	 * has been passed in, it will start it and return its reference, a
-	 * reference to a "real" service wins over a name
-	 * 
-	 * @param name
-	 * @param type
-	 * @return
-	 */
-	static public ServiceInterface createAndStart(String name, String type, ServiceInterface in) {
-		ServiceInterface s = null;
-		if (in != null) {
-			s = in;
-		} else {
-			s = create(name, type);
-		}
-
-		if (s == null) {
-			log.error("cannot start service " + name);
-			return null;
-		}
+		ServiceInterface s = create(name, type);
 		s.startService();
-		// new assumption - if you have a display - you probably want to display
-		// it
-		// also allows complete dynamic loading of GUIService without any
-		// GUIService
-		// references - so the android project does not whine...
 		s.display();
 		return s;
 	}
+
 
 	/**
 	 * 

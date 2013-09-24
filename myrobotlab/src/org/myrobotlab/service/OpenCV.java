@@ -98,7 +98,7 @@ public class OpenCV extends VideoSource {
 	transient public static final String FILTER_DILATE = "Dilate";
 	transient public static final String FILTER_FIND_CONTOURS = "FindContours";
 	transient public static final String FILTER_FACE_DETECT = "FaceDetect";
-	
+		
 	// directional constants
 	transient final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
 	transient final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";

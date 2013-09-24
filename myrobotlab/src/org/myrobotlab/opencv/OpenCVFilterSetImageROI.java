@@ -25,6 +25,7 @@
 
 package org.myrobotlab.opencv;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
@@ -35,7 +36,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVFilterSetImageROI extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
-
+	Rectangle r = new Rectangle(10,10, 100, 100);
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSetImageROI.class.getCanonicalName());
 
 	public OpenCVFilterSetImageROI()  {
@@ -51,47 +52,10 @@ public class OpenCVFilterSetImageROI extends OpenCVFilter {
 		return image.getBufferedImage();
 	}
 
-
-	transient IplImage src = null;
-	transient IplImage dst = null;
-
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
-		/*
-		cfg.set(USE_INPUT_IMAGE_NAME, false);
-		cfg.set(USE_OUTPUT_IMAGE_NAME, false);
-
-		if (cfg.getBoolean(USE_INPUT_IMAGE_NAME)) {
-			String srcName = cfg.get(INPUT_IMAGE_NAME);
-			if (globalData.containsKey(srcName)) {
-				src = (IplImage) globalData.get(srcName);
-			} else {
-				src = image.clone();
-				globalData.put(srcName, src);
-			}
-		} else {
-			src = image;
-		}
-
-		if (cfg.getBoolean(USE_OUTPUT_IMAGE_NAME)) {
-			String dstName = cfg.get(OUTPUT_IMAGE_NAME);
-			if (globalData.containsKey(dstName)) {
-				dst = (IplImage) globalData.get(dstName);
-			} else {
-				dst = image.clone();
-				globalData.put(dstName, dst);
-			}
-
-		} else {
-			dst = src;
-		}
-		*/
-
-		// if (cfg.getBoolean(USE_ROI)) TODO - not needed
-		// {
-//		cvSetImageROI(dst, ((CvRect) globalData.get(ROI_NAME)));
-		// }
+		//cvSetImageROI(image, cvRect(1.0,1.0,20));
 
 		return image; // TODO - src dst or image? consistency?
 	}

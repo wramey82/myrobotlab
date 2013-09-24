@@ -24,16 +24,12 @@
  * */
 
 package org.myrobotlab.opencv;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
-
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
-
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
-import static com.googlecode.javacv.cpp.opencv_core.cvZero;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
@@ -43,10 +39,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
 import org.slf4j.Logger;
 

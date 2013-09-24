@@ -128,7 +128,8 @@ public class Motor extends Service implements MotorControl {
 			log.warn("motor locked");
 			return;
 		}
-		if (newPowerLevel < -1 || newPowerLevel > 1 || Math.abs(newPowerLevel) > maxPower) {
+		
+		if (Math.abs(newPowerLevel) > maxPower) {
 			log.error(String.format("invalid power level %d", newPowerLevel));
 			return;
 		}
@@ -343,13 +344,28 @@ public class Motor extends Service implements MotorControl {
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Runtime.createAndStart("arduino", "Arduino");
-		Runtime.createAndStart("python", "Python");
-		// Runtime.createAndStart("adafruit", "AdafruitMotorShield");
-		Runtime.createAndStart("motor01", "Motor");
-		Runtime.createAndStart("gui", "GUIService");
+		String port = "COM12";
+		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
+		arduino.connect(port);
+
+		Motor m1 = (Motor)Runtime.createAndStart("m1","Motor");
+		arduino.motorAttach("m1", 3, 4) ;
+
+		m1.move(1.0f);
+		m1.move(0.5f);
+		m1.move(0.0f);
+		m1.move(-0.5f);
+		
+
+		m1.stopAndLock();
+
+		m1.move(0.5f);
+
+		m1.unlock();
+		m1.stop();
+
 
 	}
 
