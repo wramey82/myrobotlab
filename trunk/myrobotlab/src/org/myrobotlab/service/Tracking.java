@@ -29,12 +29,12 @@ import static org.myrobotlab.service.OpenCV.BACKGROUND;
 import static org.myrobotlab.service.OpenCV.FILTER_DETECTOR;
 import static org.myrobotlab.service.OpenCV.FILTER_DILATE;
 import static org.myrobotlab.service.OpenCV.FILTER_ERODE;
+import static org.myrobotlab.service.OpenCV.FILTER_FACE_DETECT;
 import static org.myrobotlab.service.OpenCV.FILTER_FIND_CONTOURS;
 import static org.myrobotlab.service.OpenCV.FILTER_LK_OPTICAL_TRACK;
 import static org.myrobotlab.service.OpenCV.FOREGROUND;
 import static org.myrobotlab.service.OpenCV.PART;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +49,7 @@ import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDetector;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.data.Point2Df;
+import org.myrobotlab.service.data.Rectangle;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
@@ -91,8 +92,6 @@ public class Tracking extends Service {
 	public static final String STATE_FACE_DETECT = "state face detect";
 
 	// memory constants
-	public final static String LOCATION_X = "LOCATION_X";
-	public final static String LOCATION_Y = "LOCATION_Y";
 
 	private String state = STATE_NEED_TO_INITIALIZE;
 
@@ -117,7 +116,7 @@ public class Tracking extends Service {
 	public long latency = 0;
 
 	// MRL points
-	public Point2Df lastPoint;
+	public Point2Df lastPoint = new Point2Df();
 
 	// internal servo related
 	private int currentXServoPos;
@@ -132,6 +131,7 @@ public class Tracking extends Service {
 	private Integer ymax;
 	private double computeX;
 	private double computeY;
+	
 
 	// ----- INITIALIZATION DATA BEGIN -----
 	@Element
@@ -142,6 +142,7 @@ public class Tracking extends Service {
 	// ----- INITIALIZATION DATA END -----
 
 	public String LKOpticalTrackFilterName;
+	public String FaceDetectFilterName;
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
@@ -176,6 +177,7 @@ public class Tracking extends Service {
 			// subscribe("publishOpenCVData", eye.getName(), "setOpenCVData");
 			eye.addListener("publishOpenCVData", getName(), "setOpenCVData");
 			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
+			FaceDetectFilterName = String.format("%s.%s", eye.getName(), FILTER_FACE_DETECT);
 			setDefaultPreFilters();
 
 			// values are cached for speed optimization
@@ -225,8 +227,7 @@ public class Tracking extends Service {
 			// FIXME - NON-RENTRANT
 			setForegroundBackgroundFilter();
 			// TODO - begin searching for new things !!!!
-		} else if (STATE_LK_TRACKING_POINT.equals(state)) {
-			// check non-blocking queue for better tracking point !!!
+		} else if (STATE_LK_TRACKING_POINT.equals(state)) {			
 			
 			// extract tracking info
 			data.setFilterName(LKOpticalTrackFilterName);
@@ -243,7 +244,16 @@ public class Tracking extends Service {
 			waitForObjects(data);
 		} else if (STATE_FACE_DETECT.equals(state)) {
 			// check for bounding boxes
-
+			data.setFilterName(FaceDetectFilterName);
+			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
+			
+			if (bb != null && bb.size() > 0)
+			{
+				// find centroid of first bounding box
+				lastPoint.x = bb.get(0).x + bb.get(0).width/2;
+				lastPoint.y =  bb.get(0).y + bb.get(0).height/2;
+				updateTrackingPoint(lastPoint);
+			}
 			// if bounding boxes & no current tracking points
 			// set set of tracking points in square - search for eyes?
 			// find average point ?
@@ -292,8 +302,8 @@ public class Tracking extends Service {
 
 	public void setPIDDefaults() {
 
-		setXPID(10.0, 5.0, 1.0, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
-		setYPID(10.0, 5.0, 1.0, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
+		setXPID(5.0, 5.0, 0.1, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
+		setYPID(5.0, 5.0, 0.1, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
 	}
 
 	public PID setXPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
@@ -339,6 +349,8 @@ public class Tracking extends Service {
 	// ---------------------
 
 	public void startLKTracking() {
+		log.info("startLKTracking");
+
 		eye.clearFilters();
 
 		for (int i = 0; i < preFilters.size(); ++i) {
@@ -545,42 +557,28 @@ public class Tracking extends Service {
 	final public void updateTrackingPoint(Point2Df targetPoint) {
 
 		++cnt;
-log.info("a");
+
 		// describe this time delta
 		latency = System.currentTimeMillis() - targetPoint.timestamp;
-		log.debug(String.format("pt %s", targetPoint));
-log.info("b");
+		log.info(String.format("pt %s", targetPoint));
 
 		xpid.setInput(targetPoint.x);
 		ypid.setInput(targetPoint.y);
-log.info("c");
+
 		// TODO - work on removing currentX/YServoPos - and use the servo's
 		// directly ???
 		// if I'm at my min & and the target is further min - don't compute
 		// pid
 		if ((currentXServoPos <= xmin && xSetpoint - targetPoint.x < 0) || (currentXServoPos >= xmax && xSetpoint - targetPoint.x > 0)) {
-log.info("d");
 			error(String.format("%d x limit out of range", currentXServoPos));
 		} else {
-log.info("e");
 
 			if (xpid.compute()) {
-				log.info("f");
 				computeX = xpid.getOutput();
-				log.info("g");
-
 				currentXServoPos += (int) computeX;
-				log.info("h");
-
 				if (currentXServoPos != lastXServoPos) {
-					log.info("i");
-
 					x.moveTo(currentXServoPos);
-					log.info("j");
-
 					currentXServoPos = x.getPosition();
-					log.info("k");
-
 					lastXServoPos = currentXServoPos;
 				}
 				// TODO - canidate for "move(int)" ?
@@ -612,9 +610,6 @@ log.info("e");
 			broadcastState(); // update graphics ?
 			info(String.format("computeX %f computeY %f", computeX, computeY));
 		}
-		
-		log.info("l");
-
 
 	}
 
@@ -642,11 +637,15 @@ log.info("e");
 
 	public void faceDetect() {
 		// eye.addFilter("Gray"); needed ?
+		log.info("starting faceDetect");
+		
 		for (int i = 0; i < preFilters.size(); ++i) {
 			eye.addFilter(preFilters.get(i));
 		}
-		eye.addFilter("FaceDetect", "FaceDetect");
-		eye.setDisplayFilter("FaceDetect");
+
+		// TODO single string static 
+		eye.addFilter(FILTER_FACE_DETECT);
+		eye.setDisplayFilter(FILTER_FACE_DETECT);
 
 		eye.capture();
 		eye.publishOpenCVData(true);
@@ -703,13 +702,16 @@ log.info("e");
 		tracker.setPIDDefaults();
 		tracker.startService();
 
+		Python python = new Python("python");
+		python.startService();
+		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
-		// tracker.faceDetect();
+		tracker.faceDetect();
 
-		tracker.startLKTracking();
+		// tracker.startLKTracking();
 
 		// tracker.setCameraIndex(1);
 		// tracker.test();

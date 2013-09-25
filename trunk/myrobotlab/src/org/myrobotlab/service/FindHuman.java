@@ -1,12 +1,13 @@
 package org.myrobotlab.service;
 
-import java.awt.Rectangle;
+import org.myrobotlab.service.data.Rectangle;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.OpenCVData;
+import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.slf4j.Logger;
 
@@ -184,8 +185,8 @@ public class FindHuman extends Service {
 			} else {
 				// or face detection
 				Rectangle rect = opencvData.getBoundingBoxArray().get(0);
-				x = (rect.x + (rect.width / 2));
-				y = (rect.y + (rect.height / 2));
+				x = (int)(rect.x + (rect.width / 2));
+				y = (int)(rect.y + (rect.height / 2));
 			}
 			// back up a little bit, if you think you glanced a face
 			if (frameSkipHuman == 0) {
@@ -257,7 +258,8 @@ public class FindHuman extends Service {
 						if (speakOn)
 							speech.speak("scanning");
 						opencv.removeFilter("lk");
-						opencv.addFilter("FaceDetect", "FaceDetect");
+						OpenCVFilterFaceDetect fd = (OpenCVFilterFaceDetect)opencv.addFilter("FaceDetect", "FaceDetect");
+						fd.useFloatValues = false;
 						opencv.setDisplayFilter("input");
 						spokeSearch = true;
 					}

@@ -29,7 +29,6 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 
-// TODO - command line refresh - repo management & configuration options "latest" etc
 /**
  * Singleton implementation for service information.
  * 
@@ -37,15 +36,8 @@ import org.slf4j.Logger;
  * 
  */
 public class ServiceInfo implements Serializable {
-	// TODO this should be something a little more unique - tied to version?
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(ServiceInfo.class.toString());
-
-	//private static ServiceInfo instance = null;
-	/**
-	 * Lock object for creating the singleton instance.
-	 */
-	private static final Object instanceObject = new Object();
 
 	private ServiceData serviceData = new ServiceData();
 	private ServiceData serviceDataFromRepo = new ServiceData();

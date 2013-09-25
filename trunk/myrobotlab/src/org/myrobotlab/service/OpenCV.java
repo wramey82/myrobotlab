@@ -89,7 +89,7 @@ public class OpenCV extends VideoSource {
 	transient public final static String INPUT_SOURCE_PIPELINE = "pipeline";
 	transient public final static String INPUT_SOURCE_IMAGE_FILE = "imagefile";
 	
-	// TODO - OpenCV constants / enums ?
+	// TODO - OpenCV constants / enums ? ... hmm not a big fan ...
 	transient public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
 	transient public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
 	transient public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
@@ -327,10 +327,11 @@ public class OpenCV extends VideoSource {
 		videoProcessor.addFilter(filterName, filterName);
 		broadcastState(); // let everyone know
 	}
-	public void addFilter(String name, String newFilter) {
+	public OpenCVFilter addFilter(String name, String newFilter) {
 
-		videoProcessor.addFilter(name, newFilter);
+		OpenCVFilter f = videoProcessor.addFilter(name, newFilter);
 		broadcastState(); // let everyone know
+		return f;
 	}
 
 	public void clearFilters() {
@@ -432,6 +433,7 @@ public class OpenCV extends VideoSource {
 		return boundingBox;
 
 	}
+	
 	
 	// blocking method
 	public OpenCVData getOpenCVData() {
