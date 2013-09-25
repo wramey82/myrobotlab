@@ -327,7 +327,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	public void addFilter(String name, String newFilter) {
+	public OpenCVFilter addFilter(String name, String newFilter) {
 		String type = String.format("org.myrobotlab.opencv.OpenCVFilter%s", newFilter);
 		Object[] params = new Object[1];
 		params[0] = name;
@@ -338,12 +338,14 @@ public class VideoProcessor implements Runnable, Serializable {
 			filter = (OpenCVFilter) Service.getNewInstance(type, params);
 		} catch (Exception e) {
 			Logging.logException(e);
-			return;
+			return null;
 		}
-		addFilter(filter);
+		
+		// returns filter if added - or if dupe returns actual
+		return addFilter(filter);
 	}
 
-	public void addFilter(OpenCVFilter filter) {
+	public OpenCVFilter addFilter(OpenCVFilter filter) {
 		filter.vp = this;
 		synchronized (filters) {
 			
@@ -352,7 +354,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				if (filter.name.equals(filters.get(i).name))
 				{
 					log.warn("duplicate filter name {}", filter.name);
-					return;
+					return filters.get(i);
 				}
 			}
 			
@@ -367,6 +369,8 @@ public class VideoProcessor implements Runnable, Serializable {
 			filters.add(filter);
 			log.info(String.format("added new filter %s.%s, %s", boundServiceName, filter.name, filter.getClass().getCanonicalName()));
 		}
+		
+		return filter;
 	}
 
 	public void clearFilters() {

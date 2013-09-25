@@ -55,7 +55,8 @@ import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import org.myrobotlab.service.data.Rectangle;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -105,7 +106,11 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				g2d.setColor(Color.RED);
 				for (int i = 0; i < bb.size(); ++i) {
 					Rectangle rect = bb.get(i);
-					g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+					if (useFloatValues){
+						g2d.drawRect((int)(rect.x*width), (int)(rect.y*height), (int)(rect.width*width), (int)(rect.height*height));
+					} else {
+						g2d.drawRect((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+					}
 				}
 				
 				return bi;
@@ -135,7 +140,12 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 					CvRect r = new CvRect(cvGetSeqElem(faces, i));
 
-					Rectangle rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
+					Rectangle rect;
+					if (useFloatValues) {
+						rect = new Rectangle((float)r.x()/width, r.y()/height, r.width()/width, r.height()/height);
+					} else {
+						rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
+					}
 					bb.add(rect);
 				}
 

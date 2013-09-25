@@ -40,7 +40,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvFindContours;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import org.myrobotlab.service.data.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -111,7 +111,11 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
 			if (boxes != null) {
 				for (Rectangle box : boxes) {
-					g.drawRect(box.x, box.y, box.width, box.height);
+					if (useFloatValues){
+						g.drawRect((int)(box.x*width), (int)(box.y*height), (int)(box.width*width), (int)(box.height*height));
+					} else {
+						g.drawRect((int)box.x, (int)box.y, (int)box.width, (int)box.height);
+					}
 				}
 				g.drawString(String.format("cnt %d", boxes.size()), 10, 10);
 			} else {
@@ -174,7 +178,12 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 					if (publishBoundingBox) {
 
-						Rectangle boundingBox = OpenCV.cvToAWT(rect);
+						Rectangle boundingBox = new Rectangle();
+						if (useFloatValues) {
+							
+						} else {
+							
+						}
 						data.add(boundingBox);
 					}
 

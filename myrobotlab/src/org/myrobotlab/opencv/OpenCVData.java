@@ -2,7 +2,9 @@ package org.myrobotlab.opencv;
 
 import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
 
-import java.awt.Rectangle;
+// FIXME remove all awt references so it wil run on Android
+//import java.awt.Rectangle;
+import org.myrobotlab.service.data.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -261,7 +263,14 @@ public class OpenCVData implements Serializable {
 			for (int i = 0; i < bbxs.size(); ++i) {
 				Rectangle r = bbxs.get(i);
 				//ret.add(new SerializableImage(img.getImage().getSubimage(r.x, r.y, r.width, r.height), filtername));
-				ret.add(new SerializableImage(deepCopy(img.getImage()).getSubimage(r.x, r.y, r.width, r.height), filtername));
+				// expand to use pixel values - 
+				int width = img.getWidth();
+				int height = img.getHeight();
+				int sx = (int)(r.x * width);
+				int sy = (int)(r.y * height);
+				int swidth = (int)(r.width * width);
+				int sheight = (int)(r.height * height);
+				ret.add(new SerializableImage(deepCopy(img.getImage()).getSubimage(sx, sy, swidth, sheight), filtername));
 			}
 		}
 		return ret;

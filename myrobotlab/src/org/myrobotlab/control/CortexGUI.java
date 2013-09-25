@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -51,6 +50,7 @@ import org.myrobotlab.service.Cortex;
 import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
+import org.myrobotlab.service.data.Rectangle;
 
 
 public class CortexGUI extends ServiceGUI implements MemoryDisplay {
@@ -200,7 +200,7 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 						for (int i = 0; i < bb.size(); ++i)
 						{
 							Rectangle rect = bb.get(i);
-							g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+							g2d.drawRect((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
 						}
 					}
 				} else if (clazz == ArrayList.class) {

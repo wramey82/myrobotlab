@@ -1,6 +1,6 @@
 package org.myrobotlab.service;
 
-import java.awt.Rectangle;
+//import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
@@ -16,6 +16,7 @@ import org.myrobotlab.memory.MemoryChangeListener;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
+import org.myrobotlab.service.data.Rectangle;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
