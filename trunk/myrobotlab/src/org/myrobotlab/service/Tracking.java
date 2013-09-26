@@ -131,7 +131,6 @@ public class Tracking extends Service {
 	private Integer ymax;
 	private double computeX;
 	private double computeY;
-	
 
 	// ----- INITIALIZATION DATA BEGIN -----
 	@Element
@@ -161,10 +160,13 @@ public class Tracking extends Service {
 
 			info("attaching eye");
 
-			// doesn't "have" to have input data to start so we can
-			// create and start it here
-
-			arduino.startService();
+			// cleansest simplest solution - create and start - as always
+			// startService needs to be re-entrant !
+			arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+			xpid = (PID) Runtime.createAndStart(xpidName, "PID");
+			ypid = (PID) Runtime.createAndStart(ypidName, "PID");
+			x = (Servo) Runtime.createAndStart(xName, "Servo");
+			y = (Servo) Runtime.createAndStart(yName, "Servo");
 
 			ypid.startService();
 			xpid.startService();
@@ -175,7 +177,8 @@ public class Tracking extends Service {
 
 			eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
 			// subscribe("publishOpenCVData", eye.getName(), "setOpenCVData");
-			eye.addListener("publishOpenCVData", getName(), "setOpenCVData");
+			// ZOD eye.addListener("publishOpenCVData", getName(),
+			// "setOpenCVData");
 			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
 			FaceDetectFilterName = String.format("%s.%s", eye.getName(), FILTER_FACE_DETECT);
 			setDefaultPreFilters();
@@ -227,12 +230,12 @@ public class Tracking extends Service {
 			// FIXME - NON-RENTRANT
 			setForegroundBackgroundFilter();
 			// TODO - begin searching for new things !!!!
-		} else if (STATE_LK_TRACKING_POINT.equals(state)) {			
-			
+		} else if (STATE_LK_TRACKING_POINT.equals(state)) {
+
 			// extract tracking info
 			data.setFilterName(LKOpticalTrackFilterName);
 			Point2Df targetPoint = data.getFirstPoint();
-			if (targetPoint != null){
+			if (targetPoint != null) {
 				updateTrackingPoint(targetPoint);
 			}
 
@@ -246,12 +249,11 @@ public class Tracking extends Service {
 			// check for bounding boxes
 			data.setFilterName(FaceDetectFilterName);
 			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
-			
-			if (bb != null && bb.size() > 0)
-			{
+
+			if (bb != null && bb.size() > 0) {
 				// find centroid of first bounding box
-				lastPoint.x = bb.get(0).x + bb.get(0).width/2;
-				lastPoint.y =  bb.get(0).y + bb.get(0).height/2;
+				lastPoint.x = bb.get(0).x + bb.get(0).width / 2;
+				lastPoint.y = bb.get(0).y + bb.get(0).height / 2;
 				updateTrackingPoint(lastPoint);
 			}
 			// if bounding boxes & no current tracking points
@@ -638,12 +640,12 @@ public class Tracking extends Service {
 	public void faceDetect() {
 		// eye.addFilter("Gray"); needed ?
 		log.info("starting faceDetect");
-		
+
 		for (int i = 0; i < preFilters.size(); ++i) {
 			eye.addFilter(preFilters.get(i));
 		}
 
-		// TODO single string static 
+		// TODO single string static
 		eye.addFilter(FILTER_FACE_DETECT);
 		eye.setDisplayFilter(FILTER_FACE_DETECT);
 
@@ -685,8 +687,10 @@ public class Tracking extends Service {
 	}
 
 	public void setDefaultPreFilters() {
-		OpenCVFilterPyramidDown pd = new OpenCVFilterPyramidDown("PyramidDown");
-		preFilters.add(pd);
+		if (preFilters.size() == 0) {
+			OpenCVFilterPyramidDown pd = new OpenCVFilterPyramidDown("PyramidDown");
+			preFilters.add(pd);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -704,7 +708,7 @@ public class Tracking extends Service {
 
 		Python python = new Python("python");
 		python.startService();
-		
+
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
