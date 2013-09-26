@@ -33,3 +33,6 @@ tracker.trackPoint(0.5, 0.5)
 # to presist - otherwise it might disappear
 # you can set points manually by clicking on the
 # opencv screen
+
+# face tracking from face detection filter
+tracker.faceDetect()
