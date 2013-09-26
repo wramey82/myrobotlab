@@ -43,7 +43,7 @@ eyeY.setInverted(True)
 # initialization 
 eyes.connect(port)
 eyes.attachServos(eyeXPin, eyeYPin)
-eyes.attachServos(headXPin, headYPin)
+head.attachServos(headXPin, headYPin)
  
 # set limits if necessary
 # default is servo limits
