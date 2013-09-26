@@ -1,113 +1,64 @@
-# InMoov Head for MakerFair
-from org.myrobotlab.opencv import OpenCVFilterLKOpticalTrack
-
-# system specific variables
-port = "COM3"
-actRothead = 90
-actNeck = 90
-
-# create 2 tracking services for 4 PID
-eyes = Runtime.create("eyes","Tracking")
-head = Runtime.create("head","Tracking")
-
-eyeX = Runtime.create("eyeX","Servo")
-eyeY = Runtime.create("eyeY","Servo")
-
-# initialization
-arduino = Runtime.create("arduino","Arduino")
-arduino.connect(port)
-
-# name services so they will bind appropriately
-# head names
-head.xName = "neck"
-
-# eyes names
-eyeY = eyes.yName = "eyeY"
-eyes.xName = "eyeX"
-eyes.xpidName = "eyeXPID"
-eyes.ypidName = "eyeYPID"
+# a minimal tracking script - this will start all peer
+# services and attach everything appropriately
+# change parameters depending on your pan tilt, pins and
+# Arduino details
+# all commented code is not necessary but allows custom
+# options
  
-neck = Runtime.create("neck","Servo")
-xpidb = Runtime.create("xpidb","PID");
-ypidb = Runtime.create("ypidb","PID");
-
-xpidb.setPID(5, 0, 0.1) # head is less responsive than eye, so 8 instead of 10 and 0 instead of 0.1
-ypidb.setPID(5, 0, 0.1) # head is less responsive than eye, so 8 instead of 10 and 0 instead of 0.1
-xpidb.setOutputRange(-1, 1) #the output is of 1, instead of 3 because the head moves less fast than eye 
-ypidb.setOutputRange(-1, 1) #the output is of 1, instead of 3 because the head moves less fast than eye
+port = "COM8"
+xServoPin = 3;
+yServoPin = 6;
  
-# create all the peer services
-
-xpid = Runtime.create("xpid","PID");
-ypid = Runtime.create("ypid","PID");
  
-# adjust values
-
-#eye = Runtime.create("eye","OpenCV")
-# eye.addListener("publishOpenCVData", python.name, "input")
-#eye.setCameraIndex(0)
+tracker = Runtime.create("tracker", "Tracking")
  
-# flip the pid if needed
-# xpid.invert()
-xpid.setOutputRange(-1, 1)
-xpid.setPID(10.0, 0, 0.1)
-xpid.setSetpoint(0.5) # we want the target in the middle of the x
+# naming - binding of peer services is done with service names
+# the Tracking service will use the following default names
+# arduinoName = "arduino" - the arduino controller - used to control the servos
+# xpidName = "xpid" - the PID service to control X tracking
+# ypidName = "ypid" - the PID service to control Y tracking
+# xName = "x" - the x servo (pan)
+# yName = "y" - the y servo (tilt)
+# opencvName = "opencv" - the camera
  
-# flip the pid if needed
-# ypid.invert()
-ypid.setOutputRange(-1, 1)
-ypid.setPID(10.0, 0, 0.1)
-ypid.setSetpoint(0.5)
+# after the Tracking service is "created" you may create peer service
+# and change values of that service - for example if we want to invert a
+# servo :
+tilt = Runtime.create("tilt", "Servo")
+tilt.setInverted(True)
+# now we bind it to the Tracking service by changing the name of Tracking's xName :
+tracker.yName = "tilt"
+# this must be done before tracker.startService() is called
  
-# set safety limits - servos
-# will not go beyond these limits
-eyeX.setPositionMin(65)
-eyeX.setPositionMax(90)
+# initialization 
+tracker.connect(port)
+tracker.attachServos(xServoPin, yServoPin)
  
-eyeY.setPositionMin(95)
-eyeY.setPositionMax(158)
+# set limits if necessary
+# default is servo limits
+tracker.setServoLimits(65, 90, 22, 85) 
  
-# here we are attaching to the
-# manually created peer services
+# set rest position default is 90 90
+tracker.setRestPosition(80, 47) 
  
-eyes.attach(arduino)
-eyes.attachServos(eyeX, 3, eyeY, 6)
-arduino.attach(rothead.getName() , 10)
-arduino.attach(neck.getName(), 9)
-rothead.moveTo(90)
-neck.moveTo(90)
-eyes.attach(eye)
-eyes.attachPIDs(xpid, ypid)
+#tracker.setPIDDefaults()
+# changing PID values 
+# setXPID(Kp, Ki, Kd, Direction 0=direct 1=reverse, Mode 0=manual 1= automatic, minOutput, maxOutput, sampleTime, setPoint);
+# defaults look like this_AUTOMATIC
+tracker.setXPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
+tracker.setYPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
+tracker.startService()
  
-eyes.setRestPosition(80, 133)
-
-def input ():
-  points = msg_eye_publishOpenCVData.data[0].getPoints()
-  if  (not points == None):
-    if (points.size() > 0):
-      global pointX
-      global pointY
-      pointX = points.get(0).x
-      pointY = points.get(0).y
-      print pointX , pointY
-      global newRothead
-      global newNeck
-      xpidb.setInput(pointX)
-      xpidb.compute()
-      ypidb.setInput(pointY)
-      ypidb.compute()
-      valx = xpidb.getOutput()
-      valy = ypidb.getOutput()
-      global actRothead
-      newRothead = (actRothead + valx)
-      global actNeck
-      newNeck = (actNeck + valy) 
-      print 'x servo' , int(newRothead)
-      print 'y servo' , int(newNeck)
-      rothead.moveTo(int(newRothead))
-      neck.moveTo(int(newNeck))
-      actRothead = newRothead
-      actNeck = newNeck
+# set a point and track it
+# there are two interfaces one is float value
+# where 0.5,0.5 is middle of screen
+tracker.trackPoint(0.5, 0.5)
  
-eyes.startService()
-eyes.trackPoint(0.5,0.5)
+# don't be surprised if the point does not
+# stay - it needs / wants a corner in the image
+# to presist - otherwise it might disappear
+# you can set points manually by clicking on the
+# opencv screen
+ 
+# face tracking from face detection filter
+tracker.faceDetect()
