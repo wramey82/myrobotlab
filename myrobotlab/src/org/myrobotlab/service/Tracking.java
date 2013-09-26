@@ -697,7 +697,7 @@ public class Tracking extends Service {
 		Tracking tracker = new Tracking("tracking");
 		tracker.connect("COM12");
 		tracker.attachServos(3, 6);
-		tracker.setRestPosition(90, 130);
+		tracker.setRestPosition(90, 90);
 		// tracker.setServoLimits(0, 180, 0, 180);
 		tracker.setPIDDefaults();
 		tracker.startService();
