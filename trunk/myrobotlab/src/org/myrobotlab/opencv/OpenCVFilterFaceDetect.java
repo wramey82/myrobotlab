@@ -142,7 +142,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 					Rectangle rect;
 					if (useFloatValues) {
-						rect = new Rectangle((float)r.x()/width, r.y()/height, r.width()/width, r.height()/height);
+						rect = new Rectangle((float)r.x()/width, (float)r.y()/height, (float)r.width()/width, (float)r.height()/height);
 					} else {
 						rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
 					}
