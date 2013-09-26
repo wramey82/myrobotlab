@@ -19,6 +19,10 @@ eyes.xName = "eyeX";
 eyes.yName = "eyeY";
 eyes.xpidName = "eyeXPID"
 eyes.ypidName = "eyeYPID"
+head.xName = "rothead";
+head.yName = "neck";
+head.xpidName = "rotheadPID"
+head.ypidName = "neckPID"
  
 # naming - binding of peer services is done with service names
 # the Tracking service will use the following default names
@@ -39,6 +43,7 @@ eyeY.setInverted(True)
 # initialization 
 eyes.connect(port)
 eyes.attachServos(eyeXPin, eyeYPin)
+eyes.attachServos(headXPin, headYPin)
  
 # set limits if necessary
 # default is servo limits
@@ -53,6 +58,8 @@ eyes.setRestPosition(80, 47)
 # defaults look like this_AUTOMATIC
 eyes.setXPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
 eyes.setYPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
+head.setXPID(5.0, 0, 0.1, 0, 1, -1, 1, 30, 0.5)
+head.setYPID(5.0, 0, 0.1, 0, 1, -1, 1, 30, 0.5)
 eyes.startService()
 head.startService()
 
