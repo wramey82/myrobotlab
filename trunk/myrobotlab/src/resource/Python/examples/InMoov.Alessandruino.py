@@ -54,7 +54,8 @@ eyes.setRestPosition(80, 47)
 eyes.setXPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
 eyes.setYPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
 eyes.startService()
- 
+head.startService()
+
 # set a point and track it
 # there are two interfaces one is float value
 # where 0.5,0.5 is middle of screen
