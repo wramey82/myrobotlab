@@ -270,9 +270,11 @@ public class Tracking extends Service {
 
 	public void attachServos(int xpin, int ypin) {
 		info("attaching servos");
-		if (arduino == null) {
-			error("Arduino must be attached first, before servos !");
-			return;
+		
+		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		if (!arduino.isConnected())
+		{
+			error("arduino must be connected before attaching servos!");
 		}
 
 		// notice only attach
