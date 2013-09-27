@@ -640,6 +640,8 @@ public class Tracking extends Service {
 
 	public void faceDetect() {
 		// eye.addFilter("Gray"); needed ?
+		eye.clearFilters();
+		
 		log.info("starting faceDetect");
 
 		for (int i = 0; i < preFilters.size(); ++i) {
