@@ -42,7 +42,6 @@ eyeY.setInverted(True)
  
 # initialization 
 eyes.connect(port)
-head.connect(port)
 eyes.attachServos(eyeXPin, eyeYPin)
 head.attachServos(headXPin, headYPin)
  
@@ -77,3 +76,4 @@ head.startService()
  
 # face tracking from face detection filter
 eyes.faceDetect()
+head.faceDetect()
