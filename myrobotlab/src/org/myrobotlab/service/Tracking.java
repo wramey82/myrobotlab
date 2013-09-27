@@ -177,8 +177,7 @@ public class Tracking extends Service {
 
 			eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
 			// subscribe("publishOpenCVData", eye.getName(), "setOpenCVData");
-			// ZOD eye.addListener("publishOpenCVData", getName(),
-			// "setOpenCVData");
+			eye.addListener("publishOpenCVData", getName(),"setOpenCVData");
 			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
 			FaceDetectFilterName = String.format("%s.%s", eye.getName(), FILTER_FACE_DETECT);
 			setDefaultPreFilters();
