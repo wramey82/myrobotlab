@@ -42,6 +42,7 @@ eyeY.setInverted(True)
  
 # initialization 
 eyes.connect(port)
+head.connect(port)
 eyes.attachServos(eyeXPin, eyeYPin)
 head.attachServos(headXPin, headYPin)
  
