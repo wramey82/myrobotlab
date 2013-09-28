@@ -15,6 +15,7 @@ import org.myrobotlab.serial.SerialDeviceEvent;
 import org.myrobotlab.serial.SerialDeviceEventListener;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceService;
+import org.myrobotlab.serial.VirtualSerialPort;
 import org.slf4j.Logger;
 
 public class Serial extends Service implements SerialDeviceService, SerialDeviceEventListener {
@@ -148,7 +149,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 							invoke("publishByte", newByte);
 							break;
 						}
-						} 
+						}
 					} // if publish
 				}
 			} catch (IOException e) {
@@ -216,6 +217,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	// FIXME - block read(until block size)
 
 	public byte publishByte(Byte data) {
+		log.info(String.format("%s published byte %d", getName(), data));
 		return data;
 	}
 
@@ -301,7 +303,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		}
 		return value.toString();
 	}
-	
+
 	public String readString() throws InterruptedException {
 		return readString('\n');
 	}
@@ -368,20 +370,68 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		Serial serial = new Serial("serial");
-		serial.startService();
+		// create 2 virtual ports
+		VirtualSerialPort vp0 = new VirtualSerialPort("/dev/virtualPort0");
+		VirtualSerialPort vp1 = new VirtualSerialPort("/dev/virtualPort1");		
+		
+		// make null modem cable ;)
+		vp1.tx = vp0.rx;
+		vp1.rx = vp0.tx;
+		
+		// add virtual ports to the serial device factory
+		SerialDeviceFactory.add(vp0);
+		SerialDeviceFactory.add(vp1);
 
-		serial.connect("COM9", 57600, 8, 1, 0);
+		// create two serial services
+		Serial searSerial = new Serial("searSerial");
+		Serial userSerial = new Serial("userSerial");
+		
+		searSerial.startService();
+		userSerial.startService();
+		
+		ArrayList<String> portNames = searSerial.getPortNames();
+		
+		log.info("listing port names:");
+		for (int i = 0; i < portNames.size(); ++i)
+		{
+			log.info(portNames.get(i));
+		}
+		
+		searSerial.connect("/dev/virtualPort0");
+		userSerial.connect("/dev/virtualPort1");
+		
+		// user starts initialization sequence
+		log.info("user sends first set of bytes");
+		userSerial.write(new byte[]{13, 117, 100, 58});
+		
+		// second initialization sequence
+		log.info("user sends second set of bytes");
+		userSerial.write(new byte[]{5, 5, 5, 5});
+		
+		// now the lidar is initialized sear virtual lidar will send
+		// a long sequence of bytes
+		log.info("lidar sending back data");
+		searSerial.write(new byte[]{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15});
+		/*
 
-		for (int i = 0; i < 10; ++i) {
-			log.info("here {}", serial.readByte());
-		}
-		for (int i = 0; i < 10; ++i) {
-			log.info("here {}", serial.readInt());
-		}
-		for (int i = 0; i < 10; ++i) {
-			log.info("here {}", serial.readByteArray(10));
-		}
+		Arduino arduino = new Arduino("arduino");
+		arduino.startService();
+		GUIService gui = new GUIService("gui");
+		gui.startService();
+		gui.display();
+		
+		*/
+		/*
+		 * Serial serial = new Serial("serial"); serial.startService();
+		 * 
+		 * serial.connect("COM9", 57600, 8, 1, 0);
+		 * 
+		 * for (int i = 0; i < 10; ++i) { log.info("here {}",
+		 * serial.readByte()); } for (int i = 0; i < 10; ++i) {
+		 * log.info("here {}", serial.readInt()); } for (int i = 0; i < 10; ++i)
+		 * { log.info("here {}", serial.readByteArray(10)); }
+		 */
+
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();

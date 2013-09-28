@@ -3,13 +3,14 @@ package org.myrobotlab.serial;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.slf4j.Logger;
+import org.myrobotlab.framework.Platform;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-
-import org.myrobotlab.framework.Platform;
+import org.slf4j.Logger;
 
 /**
  * @author GroG
@@ -25,6 +26,9 @@ public class SerialDeviceFactory {
 	final public static String TYPE_GNU = "org.myrobotlab.serial.gnu.SerialDeviceFactoryGNU";
 	final public static String TYPE_JSSC = "org.myrobotlab.serial.jssc.SerialDeviceFactoryJSSC";
 	final public static String TYPE_ANDROID_BLUETOOTH = "android.somethin";
+
+	// global virtual ports
+	static HashMap<String, VirtualSerialPort> virtualPorts = new HashMap<String, VirtualSerialPort>();
 
 	static public ArrayList<String> getSerialDeviceNames() {
 		if (Platform.isDavlik()) {
@@ -44,7 +48,13 @@ public class SerialDeviceFactory {
 			Object serialDeviceFramework = c.newInstance();
 			Method m = c.getDeclaredMethod("getSerialDeviceNames");
 			log.info("Got method: " + m);
-			return (ArrayList<String>) m.invoke(serialDeviceFramework);
+			ArrayList<String> osPortNames =  (ArrayList<String>) m.invoke(serialDeviceFramework);
+			// adding virtual ports
+			for (Map.Entry<String, VirtualSerialPort> o : virtualPorts.entrySet()) {
+				// Map.Entry<String,SerializableImage> pairs = o;
+				osPortNames.add(o.getKey());
+			}
+			return osPortNames;
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
@@ -66,7 +76,9 @@ public class SerialDeviceFactory {
 	 * @throws SerialDeviceException
 	 */
 	static public SerialDevice getSerialDevice(String name, int rate, int databits, int stopbits, int parity) throws SerialDeviceException {
-		if (Platform.isDavlik()) {
+		if (virtualPorts.containsKey(name)){
+			return virtualPorts.get(name);
+		} else if (Platform.isDavlik()) {
 			// FIXME Bluetooth rate databits stopbits & parity are all
 			// meaningless
 			return getSerialDevice(TYPE_ANDROID_BLUETOOTH, name, rate, databits, stopbits, parity);
@@ -132,19 +144,23 @@ public class SerialDeviceFactory {
 																										// someone
 																										// else
 			sd.open();
-			log.info("{}",sd.isOpen());
-			log.info("{}",sd.isOpen());
+			log.info("{}", sd.isOpen());
+			log.info("{}", sd.isOpen());
 			sd.write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
 			sd.close();
-			log.info("{}",sd.isOpen());
+			log.info("{}", sd.isOpen());
 			sd.open();
 			sd.write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
-			log.info("{}",sd.isOpen());
+			log.info("{}", sd.isOpen());
 		} catch (SerialDeviceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	public static void add(VirtualSerialPort virtualSerialPort) {
+		virtualPorts.put(virtualSerialPort.name, virtualSerialPort);
 	}
 
 }
