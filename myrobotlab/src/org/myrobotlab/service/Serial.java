@@ -365,6 +365,12 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public void blocking(boolean b) {
 		blocking = b;
 	}
+	
+	public static VirtualSerialPort createVirtualSerialPort(String port){
+		VirtualSerialPort vp0 = new VirtualSerialPort(port);
+		SerialDeviceFactory.add(vp0);
+		return vp0;
+	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		LoggingFactory.getInstance().configure();
@@ -399,6 +405,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		
 		searSerial.connect("/dev/virtualPort0");
 		userSerial.connect("/dev/virtualPort1");
+		
+		WebGUI web = new WebGUI("web");
+		web.startService();
 		
 		// user starts initialization sequence
 		log.info("user sends first set of bytes");
