@@ -4,10 +4,8 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.opencv.OpenCVData;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
-
 
 public class Plantoid extends Service {
 
@@ -16,9 +14,7 @@ public class Plantoid extends Service {
 	transient public Servo leftX, rightX, leftY, rightY;
 	transient public Arduino arduino;
 	transient public OpenCV IRCamera, camera;
-	
-	//:192.168.0.25 
-	
+		
 	public String leftXName = "leftX";
 	public String rightXName = "rightX";
 	public String leftYName = "leftY";
@@ -34,6 +30,19 @@ public class Plantoid extends Service {
 	
 	public Plantoid(String n) {
 		super(n, Plantoid.class.getCanonicalName());	
+		
+		reserve("arduino","Arduino", "Plantoid has one arduino controlling all the servos and sensors");
+		reserve("d3","Servo", "One of the driving servos");
+		reserve("d4","Servo", "One of the driving servos");
+		reserve("d5","Servo", "One of the driving servos");
+		reserve("d6","Servo", "One of the driving servos");
+		
+		
+		reserve("webgui","WebGUI", "plantoid gui");
+		
+		//reserve("pilotcam","OpenCV", "One of the cameras");
+		//reserve("ircamera","OpenCV", "One of the cameras");
+
 	}
 
 	public String getPort() {

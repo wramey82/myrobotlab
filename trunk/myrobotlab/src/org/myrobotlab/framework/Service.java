@@ -50,10 +50,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.Timer;
+
+import javax.imageio.spi.ServiceRegistry;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
@@ -220,6 +223,39 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return true;
 	}
 */
+	HashMap<String, ServiceReservation> reservations = new HashMap<String, ServiceReservation>();
+	
+	public static class ServiceReservation {
+		public String key;
+		public String actualName;
+		public String simpleTypeName;
+		public String comment;
+		
+		public ServiceReservation(String key, String simpleTypeName, String comment)
+		{
+			this.key = key;
+			this.actualName = key;
+			this.simpleTypeName = simpleTypeName;
+			this.comment = comment;
+		}
+	}
+	
+	public boolean reserveAs(String key, String newName)
+	{
+		if (!reservations.containsKey(key))
+		{
+			error("can not find %s to reserve name %s", key, newName);
+			return false;
+		}
+		
+		reservations.get(key).actualName = newName;
+		return true;
+	}
+	
+	public void reserve(String key,  String simpleTypeName, String comment)
+	{
+		reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
+	}
 	
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
@@ -2072,12 +2108,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		warn(String.format(format,args));
 	}
 	
-	public void error(String format, Object...args)
+	public String error(String format, Object...args)
 	{
-		error(String.format(format,args));
+		return error(String.format(format,args));
 	}
 
-	public void error(String msg)
+	public String error(String msg)
 	{
 		lastErrorMsg = msg;
 		log.error(msg);
@@ -2086,6 +2122,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			invoke("publishStatus", "error", msg);
 			lastWarn = System.currentTimeMillis();
 		}
+		
+		return lastErrorMsg;
 	}
 	
 	public String getLastError()
