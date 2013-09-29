@@ -340,7 +340,12 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public void write(int data) throws IOException {
 		// serialDevice.write(data);
 		log.error("NOT IMPLEMENTED");
-		// FIXME bit shift
+		// FIXME bit shift send 4 bytes
+	}
+	
+	public void write(char[] cs) throws IOException {
+		for (int i = 0; i < cs.length; ++i)
+			write(cs[i]);
 	}
 
 	@Override
@@ -452,5 +457,6 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		 * gui.display();
 		 */
 	}
+
 
 }
