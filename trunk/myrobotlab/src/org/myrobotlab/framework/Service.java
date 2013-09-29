@@ -2113,6 +2113,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return error(String.format(format,args));
 	}
 
+	public String error(Exception e){
+		Logging.logException(e);
+		return error(e.getMessage());
+	}
+	
 	public String error(String msg)
 	{
 		lastErrorMsg = msg;
