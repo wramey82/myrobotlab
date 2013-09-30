@@ -1407,7 +1407,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// IT MAKES NO SENSE TO HAVE SERVOS "connecte" ON A DIFFERENT INSTANCE
 	// SO USING ACTUAL TYPES SIMPLIFIES LIFE !
 
-	public boolean attach(String serviceName, Object... data) {
+	public Boolean attach(String serviceName, Object... data) {
 		log.info(String.format("attaching %s", serviceName));
 		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
 		if (sw == null) {
