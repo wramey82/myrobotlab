@@ -2093,9 +2093,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param data
 	 * @return
 	 */
-	public boolean attach(String name, Object... data) {
+	public Boolean attach(String name, Object... data) {
 		ServiceInterface si = Runtime.getService(name);
-		return (boolean) invoke("attach", si);
+		return (Boolean) invoke("attach", si);
 	}
 	
 	/**
