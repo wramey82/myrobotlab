@@ -60,9 +60,9 @@ public class Head {
 		inmoov.tracking.arduino = inmoov.arduinoHead;
 		
 		// name binding
-		inmoov.tracking.xName = inmoov.rothead.getName();
-		inmoov.tracking.yName = inmoov.neck.getName();
-		inmoov.tracking.opencvName = inmoov.eye.getName();
+		//inmoov.tracking.xName = inmoov.rothead.getName();
+		//inmoov.tracking.yName = inmoov.neck.getName();
+		//inmoov.tracking.opencvName = inmoov.eye.getName();
 		
 		inmoov.tracking.attachServos(rotHeadPin, neckPin);
 		
