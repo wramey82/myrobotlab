@@ -9,120 +9,116 @@ import org.slf4j.Logger;
 
 public class Plantoid extends Service {
 
+	// tracking ?
+
 	private static final long serialVersionUID = 1L;
-	
-	transient public Servo leftX, rightX, leftY, rightY;
+
+	// peer services
+	transient public Servo d3, d4, d5, d6;
 	transient public Arduino arduino;
 	transient public OpenCV IRCamera, camera;
-		
-	public String leftXName = "leftX";
-	public String rightXName = "rightX";
-	public String leftYName = "leftY";
-	public String rightYName = "rightY";
-	public String arduinoName = "arduino";
-	public String IRCameraName = "IRCamera";
-	public String cameraName = "camera";
-	
+	transient public Keyboard keyboard;
+
+	// system specific data
 	@Element
-	private String port = null; // not normalized :(
-
-	public final static Logger log = LoggerFactory.getLogger(Plantoid.class.getCanonicalName());
+	public String port = "/dev/ttyACM0";
+	public int d3Pin = 3;
+	@Element
+	public int d4Pin = 4;
+	@Element
+	public int d5Pin = 5;
+	@Element
+	public int d6Pin = 6;
 	
+	public final static Logger log = LoggerFactory.getLogger(Plantoid.class.getCanonicalName());
+
 	public Plantoid(String n) {
-		super(n, Plantoid.class.getCanonicalName());	
-		
-		reserve("arduino","Arduino", "Plantoid has one arduino controlling all the servos and sensors");
-		reserve("d3","Servo", "One of the driving servos");
-		reserve("d4","Servo", "One of the driving servos");
-		reserve("d5","Servo", "One of the driving servos");
-		reserve("d6","Servo", "One of the driving servos");
-		
-		
-		reserve("webgui","WebGUI", "plantoid gui");
-		
-		//reserve("pilotcam","OpenCV", "One of the cameras");
-		//reserve("ircamera","OpenCV", "One of the cameras");
+		super(n, Plantoid.class.getCanonicalName());
 
-	}
+		reserve("arduino", "Arduino", "Plantoid has one arduino controlling all the servos and sensors");
+		reserve("d3", "Servo", "one of the driving servos");
+		reserve("d4", "Servo", "one of the driving servos");
+		reserve("d5", "Servo", "one of the driving servos");
+		reserve("d6", "Servo", "one of the driving servos");
 
-	public String getPort() {
-		return port;
-	}
+		reserve("keyboard", "Keyboard", "for keyboard control");
 
-	public void setPort(String port) {
-		this.port = port;
+		reserve("webgui", "WebGUI", "plantoid gui");
+
+		// reserve("pilotcam","OpenCV", "One of the cameras");
+		// reserve("ircamera","OpenCV", "One of the cameras");
+
 	}
 
 	@Override
 	public String getToolTip() {
-		return "used as a general template";
+		return "the plantoid service";
 	}
 
-	@Override 
-	public void startService()
-	{
+	@Override
+	public void startService() {
 		super.startService();
+
+		arduino = (Arduino) startReserved("arduino");
+		arduino.connect(port);
+
+		d3 = (Servo) startReserved("d3");
+		d4 = (Servo) startReserved("d4");
+		d5 = (Servo) startReserved("d5");
+		d6 = (Servo) startReserved("d6");
 		
-		boolean startup = true;
+		attach();
 		
-		startup &= attach(arduino, port);
-		/*
-		startup &= attach(IRCamera);
-		startup &= attachServos(x, xPin, y, yPin);
-		startup &= attachPIDs(xpid, ypid);
-		*/
-		
-		if (startup) {
-			info("tracking ready");
-		} else {
-			error("tracking could not initialize properly");
-		}
+		// start sensor data
 	}
-	
-	public boolean attach(Arduino duino, String inSerialPort)
-	{
-		if (arduino != null)
-		{
-			log.info("arduino already attached");
-			return true;
-		}
-		port = inSerialPort;
-		
-		info("attaching Arduino");
-		if (duino!= null)
-		{
-			arduinoName = duino.getName();
-		}
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
-		
-		if (!arduino.isConnected())
-		{
-			if (port == null)
-			{
-				error("no serial port specified for Arduino");
-				return false;
-			}
-			arduino.setSerialDevice(port);
-		}
-		
-		Service.sleep(500);
-		
-		if (!arduino.isConnected())
-		{
-			error("Arduino is not connected!");
-			return false;
-		}
-		
+
+	public boolean connect(String port) {
+		this.port = port;
+		arduino = (Arduino) startReserved("arduino");
+		arduino.connect(port);
 		arduino.broadcastState();
 		return true;
-	} 
+	}
+	
+	public void spin(Integer power)
+	{
+		int s = 90 - power;
+		d3.moveTo(s);
+		d4.moveTo(s);
+		d5.moveTo(s);
+		d6.moveTo(s);
+	}
+	
+	public void stop()
+	{
+		d3.moveTo(90);
+		d4.moveTo(90);
+		d5.moveTo(90);
+		d6.moveTo(90);
+	}
+	
+	public void detach()
+	{
+		d3.detach();
+		d4.detach();
+		d5.detach();
+		d6.detach();
+	}
+
+	public void attach()
+	{
+		arduino.servoAttach(d3.getName(), d3Pin);
+		arduino.servoAttach(d4.getName(), d4Pin);
+		arduino.servoAttach(d5.getName(), d5Pin);
+		arduino.servoAttach(d6.getName(), d6Pin);
+	}
 	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Plantoid plantoid = (Plantoid)Runtime.create("plantoid", "Plantoid");
-		plantoid.setPort("COM9");
+		Plantoid plantoid = (Plantoid) Runtime.create("plantoid", "Plantoid");
+		plantoid.connect("COM9");
 		plantoid.startService();
 		Runtime.createAndStart("python", "Python");
 		Runtime.createAndStart("webgui", "WebGUI");
@@ -131,6 +127,5 @@ public class Plantoid extends Service {
 		 * gui.display();
 		 */
 	}
-
 
 }
