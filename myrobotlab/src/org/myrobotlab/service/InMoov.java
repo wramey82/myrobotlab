@@ -35,7 +35,7 @@ public class InMoov extends Service {
 	transient public OpenCV eye;
 	transient public Python python;
 	transient public Tracking tracking;
-	transient public Arduino arduinoHead;
+	transient public Arduino arduinoHead, arduinoRight, arduinoLeft;
 	transient public MouthControl mouthcontrol;
 	// ------------- added set pins
 	transient public Arduino arduinoBody;
@@ -46,12 +46,10 @@ public class InMoov extends Service {
 	transient public Servo eyeY;
 
 	// left side
-	transient public Arduino arduinoLeft;
 	transient public Hand handLeft;
 	transient public Arm armLeft;
 
 	// right side
-	transient public Arduino arduinoRight;
 	transient public Hand handRight;
 	transient public Arm armRight;
 
@@ -60,6 +58,8 @@ public class InMoov extends Service {
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 		
+		reserve("d4", "Servo", "one of the driving servos");
+
 	}
 	
 

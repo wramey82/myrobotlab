@@ -61,23 +61,13 @@ public class Tracking extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(Tracking.class.getCanonicalName());
 
-	// static reqest api of Service Names & Types !
-	// GOOD - TODO make it better ! Encapsulate in Hash'd data structure
-	// with a setSubServiceName("arduio", "x") - for foreign structures
-	public String arduinoName = "arduino";
-	public String xpidName = "xpid";
-	public String ypidName = "ypid";
-	public String xName = "x";
-	public String yName = "y";
-	public String opencvName = "opencv";
-
 	public ArrayList<OpenCVFilter> preFilters = new ArrayList<OpenCVFilter>();
 
 	long lastTimestamp = 0;
 	long waitInterval = 5000;
 	int lastNumberOfObjects = 0;
 
-	// Tracking states
+	// Tracking states - TODO split states into groups
 	public final static String STATE_LK_TRACKING_POINT = "state lucas kanade tracking";
 	public final static String STATE_IDLE = "state idle";
 	public final static String STATE_NEED_TO_INITIALIZE = "state initializing";
@@ -102,12 +92,10 @@ public class Tracking extends Service {
 
 	// ------ PEER SERVICES BEGIN------
 	// peer services are always transient (i think)
-	transient public PID xpid;
-	transient public PID ypid;
+	transient public PID xpid, ypid;
 	transient public OpenCV eye;
 	transient public Arduino arduino;
-	transient public Servo x;
-	transient public Servo y;
+	transient public Servo x, y;
 	// ------ PEER SERVICES END------
 
 	// statistics
@@ -145,6 +133,12 @@ public class Tracking extends Service {
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
+		reserve("x", "Servo", "servo for pan");
+		reserve("y", "Servo", "servo for tilt");
+		reserve("xpid", "PID", "pid for pan");
+		reserve("ypid", "PID", "pid for tilt");
+		reserve("opencv", "OpenCV", "camera");
+		reserve("arduino", "Arduino", "arduino to control the servos");
 	}
 
 	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of
@@ -158,31 +152,25 @@ public class Tracking extends Service {
 
 		try {
 
-			info("attaching eye");
+			// start peer services
+			arduino = (Arduino) startReserved("arduino");
+			eye = (OpenCV) startReserved("opencv");
+			xpid = (PID) startReserved("xpid");
+			ypid = (PID) startReserved("ypid");
+			x = (Servo) startReserved("x");
+			y = (Servo) startReserved("y");
 
-			// cleansest simplest solution - create and start - as always
-			// startService needs to be re-entrant !
-			arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
-			xpid = (PID) Runtime.createAndStart(xpidName, "PID");
-			ypid = (PID) Runtime.createAndStart(ypidName, "PID");
-			x = (Servo) Runtime.createAndStart(xName, "Servo");
-			y = (Servo) Runtime.createAndStart(yName, "Servo");
-
-			ypid.startService();
-			xpid.startService();
-			x.startService();
-			y.startService();
 			// put servos in rest position
 			rest();
 
-			eye = (OpenCV) Runtime.createAndStart(opencvName, "OpenCV");
-			// subscribe("publishOpenCVData", eye.getName(), "setOpenCVData");
-			eye.addListener("publishOpenCVData", getName(),"setOpenCVData");
+			// cache filter names
 			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
 			FaceDetectFilterName = String.format("%s.%s", eye.getName(), FILTER_FACE_DETECT);
+
+			eye.addListener("publishOpenCVData", getName(), "setOpenCVData");
 			setDefaultPreFilters();
 
-			// values are cached for speed optimization
+			// cached servo limits
 			xmin = x.getPositionMin();
 			xmax = x.getPositionMax();
 			ymin = y.getPositionMin();
@@ -202,17 +190,52 @@ public class Tracking extends Service {
 			sleep(20);
 
 		} catch (Exception e) {
-			error(String.format("could not start tracking %s", e.getMessage()));
+			error(e);
 		}
 
 	}
 
+	// -------------- System Specific Initialization Begin --------------
 	public boolean connect(String port) {
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		arduino = (Arduino) startReserved("arduino");
 		arduino.connect(port);
-		arduino.broadcastState();
 		return arduino.isConnected();
 	}
+
+	public void setCameraIndex(int i) {
+		eye = (OpenCV) startReserved("opencv");
+		eye.setCameraIndex(i);
+	}
+
+	public void attachServos(int xpin, int ypin) {
+		info("attaching servos");
+		arduino = (Arduino) startReserved("arduino");
+		x = (Servo) startReserved("x");
+		y = (Servo) startReserved("y");
+
+		arduino.servoAttach(x.getName(), xpin);
+		arduino.servoAttach(y.getName(), ypin);
+		x.broadcastState();
+		y.broadcastState();
+	}
+
+	public void setServoLimits(int xmin, int xmax, int ymin, int ymax) {
+		log.info(String.format("setServoLimits %d %d %d %d", xmin, xmax, ymin, ymax));
+		x = (Servo) startReserved("x");
+		y = (Servo) startReserved("y");
+		x.setPositionMin(xmin);
+		x.setPositionMax(xmax);
+		y.setPositionMin(ymin);
+		y.setPositionMax(ymax);
+		this.xmin = xmin;
+		this.xmax = xmax;
+		this.ymin = ymin;
+		this.ymax = ymax;
+		x.broadcastState();
+		y.broadcastState();
+	}
+
+	// -------------- System Specific Initialization End --------------
 
 	/**
 	 * call back of all video data video calls this whenever a frame is
@@ -265,44 +288,6 @@ public class Tracking extends Service {
 		return data;
 	}
 
-	// begin attach points -----------------
-
-	public void attachServos(int xpin, int ypin) {
-		info("attaching servos");
-		
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
-		if (!arduino.isConnected())
-		{
-			error("arduino must be connected before attaching servos!");
-		}
-
-		// notice only attach
-		x = (Servo) Runtime.create(xName, "Servo");
-		y = (Servo) Runtime.create(yName, "Servo");
-
-		// this needs to be connected to process the comand
-		arduino.servoAttach(xName, xpin);
-		arduino.servoAttach(yName, ypin);
-
-		x.broadcastState();
-		y.broadcastState();
-
-	}
-
-	public void setServoLimits(int xmin, int xmax, int ymin, int ymax) {
-		log.info(String.format("setServoLimits %d %d %d %d", xmin, xmax, ymin, ymax));
-		x.setPositionMin(xmin);
-		x.setPositionMax(xmax);
-		y.setPositionMin(ymin);
-		y.setPositionMax(ymax);
-		this.xmin = xmin;
-		this.xmax = xmax;
-		this.ymin = ymin;
-		this.ymax = ymax;
-		x.broadcastState();
-		y.broadcastState();
-	}
-
 	public void setPIDDefaults() {
 
 		setXPID(5.0, 5.0, 0.1, PID.DIRECTION_DIRECT, PID.MODE_AUTOMATIC, -10, 10, 30, 0.5);
@@ -311,7 +296,7 @@ public class Tracking extends Service {
 
 	public PID setXPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
 		// notice - this is just create - start needs to be in startService
-		xpid = (PID) Runtime.create(xpidName, "PID");
+		xpid = (PID) startReserved("xpid");
 		xpid.setPID(Kp, Ki, Kd);
 		xpid.setControllerDirection(direction);
 		xpid.setMode(mode);
@@ -325,7 +310,7 @@ public class Tracking extends Service {
 
 	public PID setYPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
 		// notice - this is just create - start needs to be in startService
-		ypid = (PID) Runtime.create(ypidName, "PID");
+		ypid = (PID) startReserved("ypid");
 		ypid.setPID(Kp, Ki, Kd);
 		ypid.setControllerDirection(direction);
 		ypid.setMode(mode);
@@ -621,13 +606,6 @@ public class Tracking extends Service {
 		this.yRestPos = ypos;
 	}
 
-	public void setCameraIndex(int i) {
-		if (eye == null) {
-			eye = (OpenCV) Runtime.create(opencvName, "OpenCV");
-		}
-		eye.setCameraIndex(i);
-	}
-
 	public void setXMinMax(int xmin, int xmax) {
 		this.xmin = xmin;
 		this.xmax = xmax;
@@ -641,7 +619,7 @@ public class Tracking extends Service {
 	public void faceDetect() {
 		// eye.addFilter("Gray"); needed ?
 		eye.clearFilters();
-		
+
 		log.info("starting faceDetect");
 
 		for (int i = 0; i < preFilters.size(); ++i) {

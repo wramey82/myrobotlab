@@ -257,6 +257,28 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
 	}
 	
+	public ServiceInterface createReserved(String key)
+	{
+		if (reservations.containsKey(key)){
+			ServiceReservation r = reservations.get(key);
+			return Runtime.create(r.actualName, r.simpleTypeName);
+		}
+		
+		error("can not start reservation %s", key);
+		return null;
+	}
+	
+	public ServiceInterface startReserved(String key)
+	{
+		ServiceInterface s = createReserved(key);
+		if (s != null)
+		{
+			s.startService();
+			return s;
+		}
+		return null;
+	}
+	
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
 	protected String host = null; // TODO - should be final??? helpful in
