@@ -56,8 +56,8 @@ eyes.setRestPosition(80, 47)
 # changing PID values 
 # setXPID(Kp, Ki, Kd, Direction 0=direct 1=reverse, Mode 0=manual 1= automatic, minOutput, maxOutput, sampleTime, setPoint);
 # defaults look like this_AUTOMATIC
-eyes.setXPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
-eyes.setYPID(10.0, 1, 0.1, 0, 1, -10, 10, 30, 0.5)
+eyes.setXPID(10.0, 5, 1, 0, 1, -10, 10, 30, 0.5)
+eyes.setYPID(10.0, 5, 1, 0, 1, -10, 10, 30, 0.5)
 head.setXPID(5.0, 0, 0.1, 0, 1, -1, 1, 30, 0.5)
 head.setYPID(5.0, 0, 0.1, 0, 1, -1, 1, 30, 0.5)
 eyes.startService()
