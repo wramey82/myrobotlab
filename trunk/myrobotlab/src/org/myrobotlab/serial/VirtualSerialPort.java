@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 
 public class VirtualSerialPort implements SerialDevice {
 	public String name;
-	//public BlockingQueue<Byte> userRX = new LinkedBlockingQueue<Byte>();
 	public BlockingQueue<Byte> rx = new LinkedBlockingQueue<Byte>();
 	public BlockingQueue<Byte> tx = new LinkedBlockingQueue<Byte>();
 	private boolean isOpen = false;
