@@ -105,6 +105,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 				byte newByte;
 				recievedByteCount = 0;
 				log.info("--------begin---------------");
+				// FIXME available you should stay in the wile loop and read that many !!!!
 				while (serialDevice.isOpen()  && serialDevice.available() > 0){
 					newByte = (byte) serialDevice.read();
 					++recievedByteCount;

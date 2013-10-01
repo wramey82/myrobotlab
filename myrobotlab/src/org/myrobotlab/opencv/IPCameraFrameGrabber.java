@@ -142,9 +142,6 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		c0 += 16;
 		contentLength = Integer.parseInt(subheader.substring(c0, c1).trim());
 		log.debug("Content-Length: " + contentLength);
-		// } else {
-
-		// }
 
 		// adaptive size - careful - don't want a 2G jpeg
 		if (contentLength > buffer.length) {

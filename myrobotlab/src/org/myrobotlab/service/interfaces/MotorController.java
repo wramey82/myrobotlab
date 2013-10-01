@@ -38,14 +38,7 @@ public interface MotorController {
 	 * @param motorName
 	 * @param motorData
 	 */
-	public boolean motorAttach(String motorName, Object... motorData); // PWMPin=9;directionPin=10;
-																		// ??
-																		// would
-																		// motorAttach(String
-																		// motorName,
-																		// Object...data)
-																		// be
-																		// better?
+	public boolean motorAttach(String motorName, Object... motorData); 
 
 	/**
 	 * This is basic information to request from a Controller. A list of pins on

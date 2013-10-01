@@ -1,4 +1,8 @@
-# minimum 
+# demonstrates the basic motor api
+# an Arduino is used as a motor controller
+# this dc motor has a simple h-bridge
+# 1 pin controls power/speed with pulse width modulation
+# the other controls direction
 
 port = "COM10"
 
@@ -6,17 +10,14 @@ arduino = Runtime.createAndStart("arduino", "Arduino")
 arduino.connect(port)
 
 m1 = Runtime.createAndStart("m1","Motor")
-m2 = Runtime.createAndStart("m2","Motor")
 
 # connect motor m1 with pwm power pin 3, direction pin 4
 arduino.motorAttach("m1", 3, 4) 
-arduino.motorAttach("m2", 6, 7) 
 
 # move both motors forward
 # at 50% power
 # for 2 seconds
 m1.move(0.5)
-m2.move(0.5)
 
 sleep(2)
 
@@ -24,18 +25,15 @@ sleep(2)
 # at 50% power
 # for 2 seconds
 m1.move(-0.5)
-m2.move(-0.5)
 
 sleep(2)
 
 # stop and lock m1
 m1.stopAndLock()
-m2.stop()
 
-# m2 should move 
-# but m1 should not
+# after locking
+# m1 should not move
 m1.move(0.5)
-m2.move(0.5)
 
 sleep(2)
 
@@ -46,4 +44,3 @@ m1.move(0.5)
 sleep(2)
 
 m1.stop()
-m2.stop()

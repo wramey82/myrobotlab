@@ -58,7 +58,9 @@ public class InMoov extends Service {
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 		
-		reserve("d4", "Servo", "one of the driving servos");
+		reserve("ear", "Sphinx", "InMoov speech recognition service");
+		reserve("ear", "Sphinx", "InMoov speech recognition service");
+		reserve("ear", "Sphinx", "InMoov speech recognition service");
 
 	}
 	
