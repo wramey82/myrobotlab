@@ -15,14 +15,15 @@ eyes = Runtime.create("eyes", "Tracking")
 head = Runtime.create("head", "Tracking")
 
 # name to bind correctly
-eyes.xName = "eyeX";
-eyes.yName = "eyeY";
-eyes.xpidName = "eyeXPID"
-eyes.ypidName = "eyeYPID"
-head.xName = "rothead";
-head.yName = "neck";
-head.xpidName = "rotheadPID"
-head.ypidName = "neckPID"
+eyes.reserveAs("x", "eyeX")
+eyes.reserveAs("y", "eyeY")
+eyes.reserveAs("xpid", "eyeXPID")
+eyes.reserveAs("ypid", "eyeYPID")
+
+head.reserveAs("x", "rothead")
+head.reserveAs("y", "neck")
+head.reserveAs("xpid", "rotheadPID")
+head.reserveAs("ypid", "neckPID")
  
 # naming - binding of peer services is done with service names
 # the Tracking service will use the following default names
