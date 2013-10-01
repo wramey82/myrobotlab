@@ -86,6 +86,11 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	// "haarcascades/haarcascade_mcs_eyepair_big.xml";
 
 	int i;
+	
+	public int stablizedFrameCount = 10;
+	public int detectionStartFrameIndex = 0;
+	public int faceCnt = 0;
+	public int lastFaceCnt = 0;
 
 	public OpenCVFilterFaceDetect() {
 		super();
@@ -135,6 +140,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 			if (faces != null) {
 				ArrayList<Rectangle> bb = new ArrayList<Rectangle>();
+				faceCnt = faces.total();
 				// Loop the number of faces found.
 				for (i = 0; i < faces.total(); i++) {
 
@@ -154,7 +160,16 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		} else {
 			cascade = new CvHaarClassifierCascade(cvLoad(String.format("%s/%s", cascadeDir, cascadeFile)));
 		}
-
+		
+		// face detection events
+		if (faceCnt > 0 && frameIndex - detectionStartFrameIndex > stablizedFrameCount)
+		{
+			
+		} else {
+			
+		}
+		
+		lastFaceCnt = faceCnt;
 		return image;
 	}
 

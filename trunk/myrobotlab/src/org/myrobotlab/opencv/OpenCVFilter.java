@@ -58,6 +58,8 @@ public abstract class OpenCVFilter implements Serializable {
 	int width;
 	int height;
 	int channels;
+	int frameIndex;
+	
 	transient CvSize imageSize;
 
 	public String sourceKey;
@@ -103,8 +105,10 @@ public abstract class OpenCVFilter implements Serializable {
 		return (OpenCVFilter) Service.copyShallowFrom(this, other);
 	}
 
-	public IplImage preProcess(IplImage frame, OpenCVData data) {
+	public IplImage preProcess(int frameIndex, IplImage frame, OpenCVData data) {
 		data.setFilterName(String.format("%s.%s", vp.boundServiceName, this.name));
+		this.frameIndex = frameIndex;
+		
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
 			width = frame.width();
