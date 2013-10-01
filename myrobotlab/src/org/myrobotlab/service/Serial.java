@@ -34,7 +34,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	private int recievedByteCount = 0;
 
 	boolean publish = true;
-	boolean blocking = true;
+	boolean blocking = false;
 
 	private boolean connected = false;
 	private String portName = "";
@@ -103,8 +103,10 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 			try {
 
 				byte newByte;
-
-				while (serialDevice.isOpen() && (newByte = (byte) serialDevice.read()) >= 0) {
+				recievedByteCount = 0;
+				log.info("--------begin---------------");
+				while (serialDevice.isOpen()  && serialDevice.available() > 0){
+					newByte = (byte) serialDevice.read();
 					++recievedByteCount;
 
 					if (blocking) {
@@ -152,6 +154,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 						}
 					} // if publish
 				}
+				
+				log.info("---out of loop----");
+				log.info("cnt {}",recievedByteCount);
 			} catch (IOException e) {
 				Logging.logException(e);
 			}
@@ -217,7 +222,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	// FIXME - block read(until block size)
 
 	public byte publishByte(Byte data) {
-		log.info(String.format("%s published byte %d", getName(), data));
+		log.info(String.format("%s published byte %d", getName(), (int)data.byteValue()));
 		return data;
 	}
 
@@ -390,7 +395,12 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public static void main(String[] args) throws IOException, InterruptedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-
+		
+		Serial serial = new Serial("serial");
+		serial.startService();
+		
+		serial.connect("COM16", 9600, 8, 1, 0);
+/*
 		// create 2 virtual ports
 		VirtualSerialPort vp0 = new VirtualSerialPort("/dev/virtualPort0");
 		VirtualSerialPort vp1 = new VirtualSerialPort("/dev/virtualPort1");
