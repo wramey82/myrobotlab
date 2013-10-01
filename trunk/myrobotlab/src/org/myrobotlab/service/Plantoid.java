@@ -4,32 +4,43 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 public class Plantoid extends Service {
 
-	// tracking ?
+	// tracking ? pan tilt ?
 
 	private static final long serialVersionUID = 1L;
 
 	// peer services
-	transient public Servo d3, d4, d5, d6;
+	transient public Servo d3, d4, d5, d2, pan, tilt;
 	transient public Arduino arduino;
 	transient public OpenCV IRCamera, camera;
 	transient public Keyboard keyboard;
-
+	transient public WebGUI webgui;
+	transient public JFugue jfugue;
+	transient public Speech speech;
+	transient public AudioFile audioFile;
+		
 	// system specific data
-	@Element
 	public String port = "/dev/ttyACM0";
+	public int d2Pin = 2;
 	public int d3Pin = 3;
-	@Element
 	public int d4Pin = 4;
-	@Element
 	public int d5Pin = 5;
-	@Element
-	public int d6Pin = 6;
 	
+	public int panPin = 6;
+	public int tiltPin = 7;
+	
+	// analog read pins
+	public int soildMoisture = 0;
+	public int tempHumidity = 2;
+	public int leftLight = 4;
+	public int rightLight = 6;
+	public int airQuality = 10;
+
+	private int sampleRate = 8000;
+
 	public final static Logger log = LoggerFactory.getLogger(Plantoid.class.getCanonicalName());
 
 	public Plantoid(String n) {
@@ -39,8 +50,12 @@ public class Plantoid extends Service {
 		reserve("d3", "Servo", "one of the driving servos");
 		reserve("d4", "Servo", "one of the driving servos");
 		reserve("d5", "Servo", "one of the driving servos");
-		reserve("d6", "Servo", "one of the driving servos");
+		reserve("d2", "Servo", "one of the driving servos");
 
+		reserve("pan", "Servo", "pan servo");
+		reserve("tilt", "Servo", "tilt servo");
+		
+		
 		reserve("keyboard", "Keyboard", "for keyboard control");
 
 		reserve("webgui", "WebGUI", "plantoid gui");
@@ -59,17 +74,33 @@ public class Plantoid extends Service {
 	public void startService() {
 		super.startService();
 
-		arduino = (Arduino) startReserved("arduino");
-		arduino.connect(port);
+		try {
+			webgui = (WebGUI) startReserved("webgui");
+			arduino = (Arduino) startReserved("arduino");
+			arduino.connect(port);
 
-		d3 = (Servo) startReserved("d3");
-		d4 = (Servo) startReserved("d4");
-		d5 = (Servo) startReserved("d5");
-		d6 = (Servo) startReserved("d6");
-		
-		attach();
-		
-		// start sensor data
+			d3 = (Servo) startReserved("d3");
+			d4 = (Servo) startReserved("d4");
+			d5 = (Servo) startReserved("d5");
+			d2 = (Servo) startReserved("d2");
+
+			pan = (Servo) startReserved("pan");
+			tilt = (Servo) startReserved("tilt");
+
+			arduino.setSampleRate(sampleRate);
+			arduino.analogReadPollingStart(soildMoisture);
+			arduino.analogReadPollingStart(tempHumidity);
+			arduino.analogReadPollingStart(leftLight);
+			arduino.analogReadPollingStart(rightLight);
+			arduino.analogReadPollingStart(airQuality);
+
+			attachServos();
+			
+			stop();
+			
+		} catch (Exception e) {
+			error(e);
+		}
 	}
 
 	public boolean connect(String port) {
@@ -79,40 +110,81 @@ public class Plantoid extends Service {
 		arduino.broadcastState();
 		return true;
 	}
-	
-	public void spin(Integer power)
-	{
+
+	// 2 and 4 are x, 3 and 5 are Y
+
+	// ------- servos begin -----------
+	public void spin(Integer power) {
 		int s = 90 - power;
 		d3.moveTo(s);
 		d4.moveTo(s);
 		d5.moveTo(s);
-		d6.moveTo(s);
+		d2.moveTo(s);
 	}
 	
-	public void stop()
+	public void moveY(Integer power){
+		int s = 90 - power;
+		d3.moveTo(90);
+		d4.moveTo(s);
+		d5.moveTo(90);
+		d2.moveTo(s);
+	}
+
+	public void moveX(Integer power){
+		int s = 90 - power;
+		d2.moveTo(s);
+		d3.moveTo(90);
+		d4.moveTo(s);
+		d5.moveTo(90);
+	}
+	
+	public void squareDance(Integer power, Integer time)
 	{
+		int s = 90 - power;
+		moveX(s);
+		sleep(time);
+		moveY(s);
+		sleep(time);
+		moveX(-s);
+		sleep(time);
+		moveX(-s);
+		sleep(time);
+		stop();
+	}
+	
+	public void stop() {
+		d2.moveTo(90);
 		d3.moveTo(90);
 		d4.moveTo(90);
 		d5.moveTo(90);
-		d6.moveTo(90);
-	}
-	
-	public void detach()
-	{
-		d3.detach();
-		d4.detach();
-		d5.detach();
-		d6.detach();
 	}
 
-	public void attach()
-	{
+	public void attachServos() {
+		arduino.servoAttach(d2.getName(), d2Pin);
 		arduino.servoAttach(d3.getName(), d3Pin);
-		arduino.servoAttach(d4.getName(), d4Pin);
+//		arduino.servoAttach(d4.getName(), d4Pin);
 		arduino.servoAttach(d5.getName(), d5Pin);
-		arduino.servoAttach(d6.getName(), d6Pin);
+
+		arduino.servoAttach(pan.getName(), panPin);
+		arduino.servoAttach(tilt.getName(), tiltPin);
+}
+
+	public void detachServos() {
+		d2.detach();
+		d3.detach();
+//		d4.detach();
+		d5.detach();
+		
+		pan.detach();
+		tilt.detach();
 	}
+	// ------- servos begin -----------
 	
+	public void shutdown() {
+		detachServos();
+		Runtime.releaseAll();
+	}
+
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);

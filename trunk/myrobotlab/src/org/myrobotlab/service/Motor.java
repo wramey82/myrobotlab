@@ -50,6 +50,10 @@ public class Motor extends Service implements MotorControl {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(Motor.class.toString());
+	
+	
+	public final static String TYPE_2WIRE_HBRIDGE = "TYPE_2WIRE_HBRIDGE";
+	public final static String TYPE_3WIRE_HBRIDGE = "TYPE_3WIRE_HBRIDGE";
 
 	/**
 	 * state of Motor being attached to a motor controller

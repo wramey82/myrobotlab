@@ -148,8 +148,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	class MotorData implements Serializable {
 		private static final long serialVersionUID = 1L;
 		transient MotorControl motor = null;
+		String type = null;
 		int PWMPin = -1;
-		int directionPin = -1;
+		int dirPin0 = -1;
+		int dirPin1 = -1;
 	}
 
 	HashMap<String, MotorData> motors = new HashMap<String, MotorData>();
@@ -1180,7 +1182,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		boardType = preferences.get("board");
 		int pinType = Pin.DIGITAL_VALUE;
 
-		if (boardType != null && boardType.startsWith("mega")) {
+		if (boardType != null && boardType.contains("mega")) {
 			for (int i = 0; i < 70; ++i) {
 
 				if (i < 1 || (i > 13 && i < 54)) {
@@ -1330,6 +1332,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	/**
+	 * an implementation which supports service names is important
+	 * there is no benefit in the object array parameter here
+	 * all methods should have their own signature
+	 */
+	
+	/**
 	 * implementation of motorAttach(String motorName, Object... motorData) is
 	 * private so that interfacing consistently uses service names to attach,
 	 * even though service is local
@@ -1352,11 +1360,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		MotorData md = new MotorData();
 		md.motor = motor;
 		md.PWMPin = (Integer) motorData[0];
-		md.directionPin = (Integer) motorData[1];
+		md.dirPin0 = (Integer) motorData[1];
 		motors.put(motor.getName(), md);
 		motor.setController(this);
 		sendMsg(PINMODE, md.PWMPin, OUTPUT);
-		sendMsg(PINMODE, md.directionPin, OUTPUT);
+		sendMsg(PINMODE, md.dirPin0, OUTPUT);
 		return true;
 
 	}
@@ -1377,10 +1385,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		float power = m.getPowerLevel();
 
 		if (power < 0) {
-			sendMsg(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_FORWARD : MOTOR_BACKWARD);
+			sendMsg(DIGITAL_WRITE, md.dirPin0, m.isDirectionInverted() ? MOTOR_FORWARD : MOTOR_BACKWARD);
 			sendMsg(ANALOG_WRITE, md.PWMPin, Math.abs((int) (255 * m.getPowerLevel())));
 		} else if (power > 0) {
-			sendMsg(DIGITAL_WRITE, md.directionPin, m.isDirectionInverted() ? MOTOR_BACKWARD : MOTOR_FORWARD);
+			sendMsg(DIGITAL_WRITE, md.dirPin0, m.isDirectionInverted() ? MOTOR_BACKWARD : MOTOR_FORWARD);
 			sendMsg(ANALOG_WRITE, md.PWMPin, (int) (255 * m.getPowerLevel()));
 		} else {
 			sendMsg(ANALOG_WRITE, md.PWMPin, 0);
@@ -1476,7 +1484,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Override
 	public Object[] getMotorData(String motorName) {
 		MotorData md = motors.get(motorName);
-		Object[] data = new Object[] { md.PWMPin, md.directionPin };
+		Object[] data = new Object[] { md.PWMPin, md.dirPin0 };
 		return data;
 	}
 
