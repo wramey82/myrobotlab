@@ -96,6 +96,9 @@ public class VideoProcessor implements Runnable, Serializable {
 	// display
 	transient IplImage frame;
 
+	private int minDelay = 0;
+
+
 	public VideoProcessor() {
 		// parameterless constructor for simple xml
 	}
@@ -204,6 +207,11 @@ public class VideoProcessor implements Runnable, Serializable {
 				// Logging.logTime("start");
 
 				frame = grabber.grab();
+				if (minDelay  > 0)
+				{
+					Service.sleep(minDelay);
+				}
+				
 				if (frame == null)
 				{
 					log.warn("frame is null");
@@ -239,7 +247,7 @@ public class VideoProcessor implements Runnable, Serializable {
 						}
 
 						// pre process for image size & channel changes
-						image = filter.preProcess(image, data);
+						image = filter.preProcess(frameIndex, image, data);
 						image = filter.process(image, data);
 						image = filter.prostProcess(image, data);
 
@@ -513,5 +521,9 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public LinkedBlockingQueue<IplImage> requestFork(String filterName, String myName) {
 		return null;
+	}
+
+	public void setMinDelay(int minDelay) {
+		this.minDelay = minDelay;
 	}
 }
