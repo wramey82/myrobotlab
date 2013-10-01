@@ -561,6 +561,11 @@ public class OpenCV extends VideoSource {
 		videoProcessor.inputSource = "pipeline";
 		videoProcessor.grabberType = "org.myrobotlab.opencv.PipelineFrameGrabber";
 	}
+	
+	public void setMinDelay(int time)
+	{
+		videoProcessor.setMinDelay(time);
+	}
 
 	public static void main(String[] args) throws Exception {
 
