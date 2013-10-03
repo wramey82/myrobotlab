@@ -115,7 +115,7 @@ if ( index== dataMessageSize) {
                message = buffer.toByteArray();
                   log.info("size of message = "+message.length);
                   dataAvailable=true;
-                  lidatData();
+                  invoke("publishLidarData");
                 state = STATE_NOMINAL;
             }
 
@@ -129,7 +129,7 @@ if ( index== dataMessageSize) {
     
     
     
-    public int[] lidatData(){
+    public int[] publishLidarData(){
    
         int [] intData= new int[(message.length-11)/2];
         log.info("dataToString has been called. Message length = " +message.length+ "        IntArray size = "+intData.length);
