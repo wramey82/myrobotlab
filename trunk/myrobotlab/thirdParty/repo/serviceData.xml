@@ -598,6 +598,15 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.XMPP" workingLevel="2">
+      <dependsOn>
+         <description>client xmpp service - will allow a duplex communication without the need of port-forwarding 
+         </description>
+         <list>
+            <string>org.jivesoftware.smack</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <categories string="org.myrobotlab.service.Arduino">
       <category>
          <include>microcontroller</include>
