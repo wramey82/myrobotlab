@@ -26,6 +26,7 @@ org.myrobotlab.opencv
 org.myrobotlab.openni
 org.myrobotlab.reflection
 org.myrobotlab.roomba
+org.myrobotlab.security
 org.myrobotlab.serial
 org.myrobotlab.serial.gnu
 org.myrobotlab.serial.jssc
