@@ -172,7 +172,7 @@ public class PlayerStage extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		// TODO Auto-generated method stub
 		return "stubbed out for Player Stage - partially implemented";
 	}

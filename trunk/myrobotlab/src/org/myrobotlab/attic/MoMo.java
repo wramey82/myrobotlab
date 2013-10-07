@@ -533,7 +533,7 @@ public class MoMo extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "behavioral service experiment";
 	}
 

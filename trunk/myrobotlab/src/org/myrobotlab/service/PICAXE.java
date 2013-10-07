@@ -249,7 +249,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "(not implemented yet) used to interface PICAXE";
 	}
 

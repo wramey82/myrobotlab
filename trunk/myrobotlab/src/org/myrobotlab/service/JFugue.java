@@ -111,7 +111,7 @@ public class JFugue extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "service wrapping Jfugue - http://www.jfugue.org/ used for music and sound generation";
 	}
 

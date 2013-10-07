@@ -48,7 +48,7 @@ public class Cron extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general template";
 	}
 

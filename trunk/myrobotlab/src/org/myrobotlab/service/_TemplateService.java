@@ -11,17 +11,19 @@ public class _TemplateService extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(_TemplateService.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(_TemplateService.class);
 	
 	public _TemplateService(String n) {
 		super(n, _TemplateService.class.getCanonicalName());	
 	}
 
-	@Override
-	public String getToolTip() {
-		return "used as a general template";
+	@Override 
+	public void startService()
+	{
+		super.startService();
 	}
-
+	
+	
 	@Override 
 	public void stopService()
 	{
@@ -32,6 +34,11 @@ public class _TemplateService extends Service {
 	public void releaseService()
 	{
 		super.releaseService();
+	}
+	
+	@Override
+	public String getDescription() {
+		return "used as a general template";
 	}
 
 	public static void main(String[] args) {

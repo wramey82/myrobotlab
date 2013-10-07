@@ -161,13 +161,17 @@ public class MjpegServer extends NanoHTTPD {
 		}
 
 		if (!videoFeeds.containsKey(feed)) {
-			StringBuffer response = new StringBuffer(String.format("<html><body align=center>video feed %s does not exist<br/>current list of feeds are:<br/>", feed));
+			StringBuffer response = new StringBuffer(String.format("<html><body align=center>video feeds<br/>", feed));
 			for (Map.Entry<String, BlockingQueue<SerializableImage>> o : videoFeeds.entrySet()) {
 				// Map.Entry<String,SerializableImage> pairs = o;
 				// response.append(String.format("<a href=\"http://%\" >%s</a><br/>",
 				// o.getKey()));
-				response.append(String.format("%s<br/>", o.getKey()));
+				response.append(String.format("<img src=\"%s\" /><br/>%s<br/>", o.getKey(), o.getKey()));
 				log.info(o.getKey());
+			}
+			if (videoFeeds.size() == 0)
+			{
+				response.append("no video feed exist - try attaching a VideoSource to the VideoStreamer");
 			}
 			response.append("</body></html>");
 			return new Response(HTTP_OK, MIME_HTML, response.toString());

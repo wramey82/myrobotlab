@@ -39,8 +39,8 @@ RuntimeGUI.prototype.getServiceInfo = function(data) {
 		
 		//$("<ul class='possibleServices'>").appendTo( "#"+this.name+"-display");
 		// <li align='left'>
-		$("<a href='#' id='"+shortName+"' class='possibleService'><img class='possibleService' src='/resource/" + shortName + ".png' width='24' height='24' align='left'/> " + shortName + "</a>"+
-				"<a target='_blank' class='serviceHelp' href='http://myrobotlab.org/service/"+ shortName +"'><img src='/resource/WebGUI/common/help.png'/></a><br/>" ).appendTo( "#"+this.name+"-display");
+		$("<a href='#' id='"+shortName+"' class='possibleService'><img class='possibleService' src='/" + shortName + ".png' width='24' height='24' align='left'/> " + shortName + "</a>"+
+				"<a target='_blank' class='serviceHelp' href='http://myrobotlab.org/service/"+ shortName +"'><img src='/WebGUI/common/help.png'/></a><br/>" ).appendTo( "#"+this.name+"-display");
 
 		//$("</ul>").appendTo( "#"+this.name+"-display");
 		//$("#accordion1").accordion("refresh");

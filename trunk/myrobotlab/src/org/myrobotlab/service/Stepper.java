@@ -107,7 +107,7 @@ public class Stepper extends Service implements StepperControl {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "general motor service";
 	}
 

@@ -101,6 +101,9 @@ public class NanoHTTPD {
 	 */
 	public static final String HTTP_OK = "200 OK";
 	public static final String HTTP_REDIRECT = "301 Moved Permanently";
+	//public static final String HTTP_NOT_AUTHORIZED = "401 Not Authorized";
+	public static final String HTTP_NOT_AUTHORIZED = "401 Access Denied";
+	
 	public static final String HTTP_FORBIDDEN = "403 Forbidden";
 	public static final String HTTP_NOTFOUND = "404 Not Found";
 	public static final String HTTP_BADREQUEST = "400 Bad Request";
@@ -156,7 +159,7 @@ public class NanoHTTPD {
 	/**
 	 * HTTP response. Return one of these from serve().
 	 */
-	public class Response {
+	static public class Response {
 		/**
 		 * Default constructor: response = HTTP_OK, data = mime = 'null'
 		 */
@@ -289,14 +292,14 @@ public class NanoHTTPD {
 				if (!st.hasMoreTokens())
 					sendError(HTTP_BADREQUEST, "BAD REQUEST: Missing URI. Usage: GET /example/file.html");
 
-				String uri = decodePercent(st.nextToken());
+				String uri = decodePercent(st.nextToken(), false);
 
 				// Decode parameters from the URI
 				Properties parms = new Properties();
 				int qmi = uri.indexOf('?');
 				if (qmi >= 0) {
 					decodeParms(uri.substring(qmi + 1), parms);
-					uri = decodePercent(uri.substring(0, qmi));
+					uri = decodePercent(uri.substring(0, qmi), false);
 				}
 
 				// If there's another token, it's protocol version,
@@ -365,7 +368,7 @@ public class NanoHTTPD {
 		 * Decodes the percent encoding scheme. <br/>
 		 * For example: "an+example%20string" -> "an example string"
 		 */
-		private String decodePercent(String str) throws InterruptedException {
+		private String decodePercent(String str, boolean decodeForwardSlash) throws InterruptedException {
 			try {
 				StringBuffer sb = new StringBuffer();
 				for (int i = 0; i < str.length(); i++) {
@@ -375,7 +378,13 @@ public class NanoHTTPD {
 						sb.append(' ');
 						break;
 					case '%':
-						sb.append((char) Integer.parseInt(str.substring(i + 1, i + 3), 16));
+						if ("2F".equalsIgnoreCase(str.substring(i + 1, i + 3)))
+						{
+							log.info("found encoded / - leaving");
+							sb.append("%2F");
+						} else {
+							sb.append((char) Integer.parseInt(str.substring(i + 1, i + 3), 16));
+						}
 						i += 2;
 						break;
 					default:
@@ -404,7 +413,7 @@ public class NanoHTTPD {
 				String e = st.nextToken();
 				int sep = e.indexOf('=');
 				if (sep >= 0)
-					p.put(decodePercent(e.substring(0, sep)).trim(), decodePercent(e.substring(sep + 1)));
+					p.put(decodePercent(e.substring(0, sep), false).trim(), decodePercent(e.substring(sep + 1), false));
 			}
 		}
 
@@ -476,7 +485,7 @@ public class NanoHTTPD {
 	 * URL-encodes everything between "/"-characters. Encodes spaces as '%20'
 	 * instead of '+'.
 	 */
-	private String encodeUri(String uri) {
+	static public String encodeUri(String uri) {
 		String newUri = "";
 		StringTokenizer st = new StringTokenizer(uri, "/ ", true);
 		while (st.hasMoreTokens()) {
@@ -626,9 +635,9 @@ public class NanoHTTPD {
 	/**
 	 * Hashtable mapping (String)FILENAME_EXTENSION -> (String)MIME_TYPE
 	 */
-	private static Hashtable theMimeTypes = new Hashtable();
+	public static Hashtable theMimeTypes = new Hashtable();
 	static {
-		StringTokenizer st = new StringTokenizer("htm    text/html " + "html   text/html " + "txt    text/plain " + "asc    text/plain " + "gif    image/gif "
+		StringTokenizer st = new StringTokenizer("js    text/javascript " + "css    text/css " + "htm    text/html " + "html   text/html " + "txt    text/plain " + "asc    text/plain " + "gif    image/gif "
 				+ "jpg    image/jpeg " + "jpeg   image/jpeg " + "png    image/png " + "mp3    audio/mpeg " + "m3u    audio/mpeg-url " + "pdf    application/pdf "
 				+ "doc    application/msword " + "ogg    application/x-ogg " + "zip    application/octet-stream " + "exe    application/octet-stream "
 				+ "class    application/octet-stream " + "ico    image/x-icon ");

@@ -634,7 +634,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>Service used to graphically display and control other services</html>";
 	}
 

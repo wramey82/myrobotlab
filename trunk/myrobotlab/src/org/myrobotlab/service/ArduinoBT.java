@@ -573,7 +573,7 @@ public class ArduinoBT extends Service implements //SerialPortEventListener,
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>Arduino is a service which interfaces with an Arduino micro-controller.<br>"
 				+ "This interface can operate over radio, IR, or other communications,<br>"
 				+ "but and appropriate .PDE file must be loaded into the micro-controller.<br>"

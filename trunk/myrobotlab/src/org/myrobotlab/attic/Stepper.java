@@ -140,7 +140,7 @@ public class Stepper extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>stepper motor service (not implemented)</html>";
 	}
 

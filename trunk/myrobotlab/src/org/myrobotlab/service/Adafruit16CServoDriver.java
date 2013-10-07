@@ -100,7 +100,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	// ----------- AFMotor API End --------------
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Adafruit Motor Shield Service";
 	}
 

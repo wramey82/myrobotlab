@@ -399,7 +399,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>speech recoginition service wrapping Sphinx 4</html>";
 	}
 

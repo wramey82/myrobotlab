@@ -78,7 +78,7 @@ public class Android extends Service implements SensorEventListener {
 	}
 	
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general android";
 	}
 	

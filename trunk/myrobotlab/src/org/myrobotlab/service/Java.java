@@ -309,7 +309,7 @@ public class Java extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Java IDE";
 	}
 

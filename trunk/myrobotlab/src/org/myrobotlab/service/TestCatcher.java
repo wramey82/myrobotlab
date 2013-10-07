@@ -202,7 +202,7 @@ public class TestCatcher extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>service for junit tests</html>";
 	}
 

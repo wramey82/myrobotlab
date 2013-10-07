@@ -280,7 +280,7 @@ public class AudioFile extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Plays back audio file. Can block or multi-thread play";
 	}
 	

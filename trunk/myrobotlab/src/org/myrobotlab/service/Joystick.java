@@ -335,7 +335,7 @@ public class Joystick extends Service {
 
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used for interfacing with a Joystick";
 	}
 

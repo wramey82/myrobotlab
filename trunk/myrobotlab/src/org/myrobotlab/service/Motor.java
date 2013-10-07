@@ -326,7 +326,7 @@ public class Motor extends Service implements MotorControl {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "general motor service";
 	}
 

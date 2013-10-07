@@ -97,7 +97,7 @@
 		// in a recursive driven method
 
 		// --- dynamic class loader begin ---
-//		$.getScript("/resource/WebGUI/"+className+".js",
+//		$.getScript("/WebGUI/"+className+".js",
 //				function(data, result, scopedName) {
 //				});
 					// --- dynamic class loader end ---
@@ -108,8 +108,8 @@
 			// class is loaded - but need a new instance
 			// load the accordian reference
 			try {
-				//$("<h3><img src='/resource/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
-				$("<h3><img src='/resource/" + className + ".png' width='24' height='24'/> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
+				//$("<h3><img src='/" + className + ".png' /> " + serviceName + " <span class='error' id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
+				$("<h3><img src='/" + className + ".png' width='24' height='24'/> " + serviceName + " <span id='"+serviceName+"-status'></span></h3>" ).appendTo( "#accordion1" );
 				$("<div id='" + serviceName + "-gui'><button id='"+serviceName+"-releaseService' name='"+serviceName+"'>release</button></div>" ).appendTo( "#accordion1" );
 				$("#accordion1").accordion("refresh");
 
@@ -357,7 +357,7 @@
 	// FIXME - need a strategy to easily debug dynamically loaded scripts
 	// one hack would just to be append them ?
 </script>
-<!--  http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/src/resource/WebGUI/Arduino.js -->
+<!--  http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/src/WebGUI/Arduino.js -->
 <!-- static scripts for easy debugging begin -->
 <!-- FIXME LOCAL VERSUS NETWORKED RESOURCES -->
 <script src="<%=mrl.script.location%>Arduino.js"></script>

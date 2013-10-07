@@ -166,7 +166,7 @@ public class SensorMonitor extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>sensor monitor - capable of displaying sensor information in a crude oscilliscope fasion</html>";
 	}
 

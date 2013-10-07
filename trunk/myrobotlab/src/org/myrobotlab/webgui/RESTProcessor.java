@@ -11,9 +11,9 @@ import java.util.Properties;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.net.NanoHTTPD.Response;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.myrobotlab.service.interfaces.ServiceInterface;
-import org.myrobotlab.webgui.NanoHTTPD.Response;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -73,6 +73,9 @@ public class RESTProcessor implements HTTPProcessor {
 					stringParams[i] = keys[i + 4];
 				}
 
+				// FIXME FIXME FIXME !!!!
+				// this is an input format decision !!! .. it "SHOULD" be determined based on inbound uri format
+				
 				TypeConverter.getInstance();
 				typedParameters = TypeConverter.getTypedParams(si.getClass(), fn, stringParams);
 			}

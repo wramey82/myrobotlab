@@ -25,6 +25,25 @@ public class WebGUI extends Service {
 
 	// import javax.xml.transform.Transformer;
 
+	// TODO - important !!!
+	// api's XML, Text, HTML or other formatting of return type needs to be
+	// encoded as part of the URI "BEFORE" the method request & paramters !!!!
+	// e.g. http://127.0.0.1:7777/api/xml/services/arduino01/digitalWrite/13/1
+	// Consistency is important to maintain the REST API !!!!
+	// Jenkins did it right -
+	// https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API
+	// http://server/jenkins/crumbIssuer/api/xml (or /api/json) !
+	// HA !!  realize that there are 2 encodings !!!  inbound and return
+	// VERY SIMPLE BUT IT MUST BE CONSISTENT !!!
+	// http://mrl:7777/api/<inbound format>/<outbound format>/<method>/<parameters>/
+	// http://mrl:7777/api/<rest>/<xml>/<method>/<params>  !!! inbound is rest - return format is xml !!!
+	// http://mrl:7777/api/<soap>/<xml>/<method>/<params>  !!! inbound is soap - return format is xml !!!
+	// http://mrl:7777/api/<soap>/<soap>/<method>/<params>  !!! inbound is soap - return format is soap !!!
+	// http://mrl:7777/api/<resource>/<json>/<method>/<params>  !!! inbound is resource request - return format is json !!!
+	// default is /<rest>/<gson>/<method>/<params>
+
+	// FIXME !!! SINGLE WebServer/Socket server - capable of long polling
+	// fallback
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(WebGUI.class.getCanonicalName());
@@ -37,16 +56,22 @@ public class WebGUI extends Service {
 	boolean autoStartBrowser = true;
 	@Element
 	boolean useLocalResources = false;
+	@Element
+	public String startURL = "http://127.0.0.1:%d/index.html";
+	@Element
+	public String root = "resource";
 	
+	public int messages = 0;
+
 	transient WebServer ws;
 	transient WSServer wss;
-	
+
 	public void autoStartBrowser(boolean autoStartBrowser) {
 		this.autoStartBrowser = autoStartBrowser;
 	}
 
-	public HashMap<String,String> clients = new HashMap<String,String>();
-	
+	public HashMap<String, String> clients = new HashMap<String, String>();
+
 	public WebGUI(String n) {
 		super(n, WebGUI.class.getCanonicalName());
 		load();
@@ -55,29 +80,44 @@ public class WebGUI extends Service {
 	public Integer getPort() {
 		return httpPort;
 	}
-	
-	public void useLocalResources(boolean b)
-	{
+
+	/**
+	 * determines if references to JQuery JavaScript library are local or if the
+	 * library is linked to using content delivery network. Default (false) is
+	 * to use the CDN
+	 * 
+	 * @param b
+	 */
+	public void useLocalResources(boolean b) {
 		useLocalResources = b;
 	}
-	
-	public boolean useLocalResources()
-	{
+
+	/**
+	 * @return whether instance is using CDN for delivery of JavaScript
+	 *         libraries to browser
+	 */
+	public boolean useLocalResources() {
 		return useLocalResources;
 	}
 
+	/**
+	 * starts the web server - the other server is the web socket server
+	 * 
+	 * @param port
+	 *            - port to start the webserver on default is 7777
+	 * @return true if the webserver successfully started
+	 */
 	public boolean startWebServer(Integer port) {
-		// CRITICAL !!! - pushes the registry up - but why here - should be startService() ?
+		// CRITICAL !!! - pushes the registry up - but why here - should be
+		// startService() ?
 		subscribe(Runtime.getInstance().getIntanceName(), "getRegistry");
 		try {
 			/*
-			if (port.equals(httpPort) && ws != null)
-			{
-				warn("web server already running on port %d", port);
-				return true;
-			}
-			*/
-			
+			 * if (port.equals(httpPort) && ws != null) {
+			 * warn("web server already running on port %d", port); return true;
+			 * }
+			 */
+
 			this.httpPort = port;
 			if (ws != null) {
 				ws.stop();
@@ -94,17 +134,22 @@ public class WebGUI extends Service {
 		return false;
 	}
 
+	/**
+	 * the "other" server (WebSocket Server) - FIXME - they should be unified
+	 * 
+	 * @param port
+	 *            - port to start server on default is 7778
+	 * @return - true if successfully started
+	 */
 	public boolean startWebSocketServer(Integer port) {
 		try {
-			
+
 			/*
-			if (port.equals(wsPort) && wss != null)
-			{
-				warn("web socket server already running on port %d", port);
-				return true;
-			}
-			*/
-			
+			 * if (port.equals(wsPort) && wss != null) {
+			 * warn("web socket server already running on port %d", port);
+			 * return true; }
+			 */
+
 			this.wsPort = port;
 
 			if (wss != null) {
@@ -121,25 +166,28 @@ public class WebGUI extends Service {
 		return false;
 	}
 
+	/**
+	 * starts web server and web socket server, auto launches browser if
+	 * autoStartBrowser=true
+	 * 
+	 * @return true if both servers started
+	 */
 	public boolean start() {
 
 		boolean result = true;
 		result &= startWebServer(httpPort);
 		result &= startWebSocketServer(wsPort);
-		if (autoStartBrowser)
-		{
-			//BareBonesBrowserLaunch.openURL(String.format("http://localhost:%d/services", httpPort));
-			BareBonesBrowserLaunch.openURL(String.format("http://127.0.0.1:%d/resource/WebGUI/myrobotlab.mrl", httpPort));
+		if (autoStartBrowser) {
+			BareBonesBrowserLaunch.openURL(String.format(startURL, httpPort));
 		}
-		if (!result)
-		{
+		if (!result) {
 			warn("could not start properly");
 		}
 		return result;
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "The new web enabled GUI 2.0 !";
 	}
 
@@ -163,71 +211,84 @@ public class WebGUI extends Service {
 		}
 	}
 
+	/**
+	 * called by the framework pre process of messages so that data can be
+	 * routed back to the correct subcomponent and control of the WebGUI can
+	 * still be maintained like a "regular" service
+	 * 
+	 */
 	public boolean preProcessHook(Message m) {
 		// FIXME - problem with collisions of this service's methods
 		// and dialog methods ?!?!?
-		
+
 		// if the method name is == to a method in the GUIService
 		if (methodSet.contains(m.method)) {
 			// process the message like a regular service
 			return true;
 		}
-		
+
 		// otherwise send the message to the dialog with the senders name
 		sendToAll(m);
 		return false;
 	}
-	
-	public void customize()
-	{
+
+	/**
+	 * expanding of all resource data from WebGUI onto the file system so that
+	 * it may be customized by the user
+	 */
+	public void customize() {
 		try {
-		(new File("root/resource/WebGUI")).mkdirs();
-		//Zip.extractFromResource("/resource/WebGUI/Python.js", "root");
-		Zip.extractFromFile("./libraries/jar/myrobotlab.jar", "root", "resource/WebGUI");
-		} catch(Exception e){
+			Zip.extractFromFile("./libraries/jar/myrobotlab.jar", "./", "resource");
+		} catch (Exception e) {
 			Logging.logException(e);
 		}
 	}
 
 	// FIXME - take out of RESTProcessor - normalize
+	/**
+	 * Encodes MyRobotLab message into JSON so that it can be sent over websockets to listening clients
+	 * @param msg
+	 * message to be encoded
+	 * @return
+	 * message encoded as JSON (gson) string
+	 */
 	public String toJson(Message msg) {
 		try {
-			//ByteArrayOutputStream out = null;
-			//Gson gson = new Gson(); // FIXME - threadsafe? singleton?
-			//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
-			
+			// ByteArrayOutputStream out = null;
+			// Gson gson = new Gson(); // FIXME - threadsafe? singleton?
+			// Gson gson = new
+			// GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
+
 			/*
-			 * Gson gson = new GsonBuilder()
-     .registerTypeAdapter(Id.class, new IdTypeAdapter())
-     .serializeNulls()
-     .setDateFormat(DateFormat.LONG)
-     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-     .setPrettyPrinting()
-     .setVersion(1.0)
-     .create();
-			 * 
+			 * Gson gson = new GsonBuilder() .registerTypeAdapter(Id.class, new
+			 * IdTypeAdapter()) .serializeNulls()
+			 * .setDateFormat(DateFormat.LONG)
+			 * .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+			 * .setPrettyPrinting() .setVersion(1.0) .create();
 			 */
 			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
-			// PRETTY PRINTING IS AWESOME ! MAKE CONFIGURABLE - PRETTY PRINT ONLY WORKS IN TEXTMODE .setPrettyPrinting()
+			// PRETTY PRINTING IS AWESOME ! MAKE CONFIGURABLE - PRETTY PRINT
+			// ONLY WORKS IN TEXTMODE .setPrettyPrinting()
 			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-			//   .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+			// .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
 			// gson.setDateFormat(DateFormat.FULL);
-			/* REMOVED RECENTLY
-			out = new ByteArrayOutputStream(); // FIXME - threadsafe? singleton?
-			JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8")); // FIXME - threadsafe? singleton?
-			gson.toJson(msg, Message.class, writer);
-			*/
-			//writer.setIndent("  "); // TODO config driven - very cool !
+			/*
+			 * REMOVED RECENTLY out = new ByteArrayOutputStream(); // FIXME -
+			 * threadsafe? singleton? JsonWriter writer = new JsonWriter(new
+			 * OutputStreamWriter(out, "UTF-8")); // FIXME - threadsafe?
+			 * singleton? gson.toJson(msg, Message.class, writer);
+			 */
+			// writer.setIndent("  "); // TODO config driven - very cool !
 
-			//writer.beginArray();
-			
+			// writer.beginArray();
+
 			String ret = gson.toJson(msg, Message.class);
-			//log.info(ret);
+			// log.info(ret);
 			// for (Message message : messages) {
 			// gson.toJson(message, Message.class, writer);
 			// }
-			//writer.endArray();
-			
+			// writer.endArray();
+
 			// writer.close();
 			return ret;
 		} catch (Exception e) {
@@ -236,17 +297,21 @@ public class WebGUI extends Service {
 		return null;
 	}
 
-	public int messages = 0;
-	
+	/**
+	 * sends JSON encoded MyRobotLab Message to all clients currently connected through web sockets
+	 * @param msg
+	 * message to broadcast
+	 */
 	public void sendToAll(Message msg) {
 		++messages;
 		String json = toJson(msg);
 		log.debug(String.format("webgui ---to---> all clients [%s]", json));
-		if (messages%500 == 0) {
-			info(String.format("sent %d messages to %d clients", messages, wss.connections().size())); // TODO modulus
+		if (messages % 500 == 0) {
+			info(String.format("sent %d messages to %d clients", messages, wss.connections().size())); // TODO
+																										// modulus
 		}
-		
-		if (json != null){
+
+		if (json != null) {
 			wss.sendToAll(json);
 		} else {
 			log.error(String.format("toJson %s.%s is null", msg.name, msg.method));
@@ -259,26 +324,32 @@ public class WebGUI extends Service {
 
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
-		//Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
-		//clock.startClock();
-		WebGUI webgui = (WebGUI)Runtime.createAndStart("webgui", "WebGUI");
-		//Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
-		Arduino arduino = (Arduino)Runtime.createAndStart("arduino", "Arduino");
-		Servo servo = (Servo)Runtime.createAndStart("servo", "Servo");
-		arduino.connect("COM9");
-		arduino.servoAttach(servo.getName(), 7);
-		Runtime.createAndStart("python", "Python");
-		webgui.addUser("gperry", "password");
-		//Runtime.createAndStart("arduino", "Arduino");
-
-//		webgui.subscribe("clock", "pulse");
+		// Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
+		// clock.startClock();
+		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
+		webgui.useLocalResources(true);
+		Runtime.createAndStart("opencv", "OpenCV");
 		
-//		webgui.subscribe("pulse", "clock", "pulse", String.class);
-		
+		// Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
 		/*
-		Message msg = webgui.createMessage("webgui", "publishPin", new Object[] { new Pin(12, Pin.DIGITAL_VALUE, 1, "arduino") });
-		webgui.sendToAll(msg);
-		*/
+		 * Arduino ardurino = (Arduino)Runtime.createAndStart("arduino",
+		 * "Arduino"); Servo servo = (Servo)Runtime.createAndStart("servo",
+		 * "Servo"); arduino.connect("COM9");
+		 * arduino.servoAttach(servo.getName(), 7);
+		 */
+		Runtime.createAndStart("python", "Python");
+		// webgui.addUser("gperry", "password");
+		// Runtime.createAndStart("arduino", "Arduino");
+
+		// webgui.subscribe("clock", "pulse");
+
+		// webgui.subscribe("pulse", "clock", "pulse", String.class);
+
+		/*
+		 * Message msg = webgui.createMessage("webgui", "publishPin", new
+		 * Object[] { new Pin(12, Pin.DIGITAL_VALUE, 1, "arduino") });
+		 * webgui.sendToAll(msg);
+		 */
 
 		// FileIO.stringToFile("services.html", rest.getServices());
 
@@ -289,9 +360,8 @@ public class WebGUI extends Service {
 		 * gui.display();
 		 */
 	}
-	
-	public boolean addUser(String username, String password)
-	{
+
+	public boolean addUser(String username, String password) {
 		return BasicSecurity.addUser(username, password);
 	}
 

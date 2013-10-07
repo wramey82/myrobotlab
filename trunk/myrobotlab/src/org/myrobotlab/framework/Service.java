@@ -56,8 +56,6 @@ import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.Timer;
 
-import javax.imageio.spi.ServiceRegistry;
-
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -95,189 +93,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// PROCESS ip:port WORKS !
 	// host + ":" + servicePort + serviceClass + "/" +
 	// this.getClass().getCanonicalName() + "/" + name;
-/*
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((MESSAGE_RECORDING_FORMAT_BINARY == null) ? 0 : MESSAGE_RECORDING_FORMAT_BINARY.hashCode());
-		result = prime * result + ((MESSAGE_RECORDING_FORMAT_XML == null) ? 0 : MESSAGE_RECORDING_FORMAT_XML.hashCode());
-		result = prime * result + ((TSFormatter == null) ? 0 : TSFormatter.hashCode());
-		result = prime * result + (allowExport ? 1231 : 1237);
-		result = prime * result + ((anonymousMsgRequest == null) ? 0 : anonymousMsgRequest.hashCode());
-		result = prime * result + ((cal == null) ? 0 : cal.hashCode());
-		result = prime * result + ((cfg == null) ? 0 : cfg.hashCode());
-		result = prime * result + ((cm == null) ? 0 : cm.hashCode());
-		result = prime * result + ((host == null) ? 0 : host.hashCode());
-		result = prime * result + ((hostcfg == null) ? 0 : hostcfg.hashCode());
-		result = prime * result + ((inbox == null) ? 0 : inbox.hashCode());
-		result = prime * result + (isRunning ? 1231 : 1237);
-		result = prime * result + ((lastRecordingFilename == null) ? 0 : lastRecordingFilename.hashCode());
-		result = prime * result + ((methodSet == null) ? 0 : methodSet.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((outbox == null) ? 0 : outbox.hashCode());
-		result = prime * result + ((outboxMsgHandling == null) ? 0 : outboxMsgHandling.hashCode());
-		result = prime * result + ((serviceClass == null) ? 0 : serviceClass.hashCode());
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		return result;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Service other = (Service) obj;
-		if (MESSAGE_RECORDING_FORMAT_BINARY == null) {
-			if (other.MESSAGE_RECORDING_FORMAT_BINARY != null)
-				return false;
-		} else if (!MESSAGE_RECORDING_FORMAT_BINARY.equals(other.MESSAGE_RECORDING_FORMAT_BINARY))
-			return false;
-		if (MESSAGE_RECORDING_FORMAT_XML == null) {
-			if (other.MESSAGE_RECORDING_FORMAT_XML != null)
-				return false;
-		} else if (!MESSAGE_RECORDING_FORMAT_XML.equals(other.MESSAGE_RECORDING_FORMAT_XML))
-			return false;
-		if (TSFormatter == null) {
-			if (other.TSFormatter != null)
-				return false;
-		} else if (!TSFormatter.equals(other.TSFormatter))
-			return false;
-		if (allowExport != other.allowExport)
-			return false;
-		if (anonymousMsgRequest == null) {
-			if (other.anonymousMsgRequest != null)
-				return false;
-		} else if (!anonymousMsgRequest.equals(other.anonymousMsgRequest))
-			return false;
-		if (cal == null) {
-			if (other.cal != null)
-				return false;
-		} else if (!cal.equals(other.cal))
-			return false;
-		if (cfg == null) {
-			if (other.cfg != null)
-				return false;
-		} else if (!cfg.equals(other.cfg))
-			return false;
-		if (cm == null) {
-			if (other.cm != null)
-				return false;
-		} else if (!cm.equals(other.cm))
-			return false;
-		if (host == null) {
-			if (other.host != null)
-				return false;
-		} else if (!host.equals(other.host))
-			return false;
-		if (hostcfg == null) {
-			if (other.hostcfg != null)
-				return false;
-		} else if (!hostcfg.equals(other.hostcfg))
-			return false;
-		if (inbox == null) {
-			if (other.inbox != null)
-				return false;
-		} else if (!inbox.equals(other.inbox))
-			return false;
-		if (isRunning != other.isRunning)
-			return false;
-		if (lastRecordingFilename == null) {
-			if (other.lastRecordingFilename != null)
-				return false;
-		} else if (!lastRecordingFilename.equals(other.lastRecordingFilename))
-			return false;
-		if (methodSet == null) {
-			if (other.methodSet != null)
-				return false;
-		} else if (!methodSet.equals(other.methodSet))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (outbox == null) {
-			if (other.outbox != null)
-				return false;
-		} else if (!outbox.equals(other.outbox))
-			return false;
-		if (outboxMsgHandling == null) {
-			if (other.outboxMsgHandling != null)
-				return false;
-		} else if (!outboxMsgHandling.equals(other.outboxMsgHandling))
-			return false;
-		if (serviceClass == null) {
-			if (other.serviceClass != null)
-				return false;
-		} else if (!serviceClass.equals(other.serviceClass))
-			return false;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
-		return true;
-	}
-*/
 	HashMap<String, ServiceReservation> reservations = new HashMap<String, ServiceReservation>();
-	
-	public static class ServiceReservation {
-		public String key;
-		public String actualName;
-		public String simpleTypeName;
-		public String comment;
-		
-		public ServiceReservation(String key, String simpleTypeName, String comment)
-		{
-			this.key = key;
-			this.actualName = key;
-			this.simpleTypeName = simpleTypeName;
-			this.comment = comment;
-		}
-	}
-	
-	public boolean reserveAs(String key, String newName)
-	{
-		if (!reservations.containsKey(key))
-		{
-			error("can not find %s to reserve name %s", key, newName);
-			return false;
-		}
-		
-		reservations.get(key).actualName = newName;
-		return true;
-	}
-	
-	public void reserve(String key,  String simpleTypeName, String comment)
-	{
-		reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
-	}
-	
-	public ServiceInterface createReserved(String key)
-	{
-		if (reservations.containsKey(key)){
-			ServiceReservation r = reservations.get(key);
-			return Runtime.create(r.actualName, r.simpleTypeName);
-		}
-		
-		error("can not start reservation %s", key);
-		return null;
-	}
-	
-	public ServiceInterface startReserved(String key)
-	{
-		ServiceInterface s = createReserved(key);
-		if (s != null)
-		{
-			s.startService();
-			return s;
-		}
-		return null;
-	}
 	
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
@@ -342,9 +159,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private transient OutputStream recordingPython;
 
 	/**
-	 * TODO - deprecate - use annotations
+	 * Short description of the service
 	 */
-	abstract public String getToolTip();
+	abstract public String getDescription();
 
 	/**
 	 * framework interface for Services which can display themselves most will
@@ -376,6 +193,86 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getName() {
 		return name;
 	}
+	
+
+/**
+ * This method re-binds the key to another name.
+ * An example of where this would be used is within Tracking there
+ * is an Servo service named "x", however it may be desired to bind this
+ * to an already existing service named "pan" in a pan/tilt system
+ * @param key
+ * key internal name
+ * @param newName
+ * new name of bound peer service 
+ * @return
+ * true if re-binding took place
+ */
+public boolean reserveAs(String key, String newName)
+{
+	if (!reservations.containsKey(key))
+	{
+		error("can not find %s to reserve name %s", key, newName);
+		return false;
+	}
+	
+	reservations.get(key).actualName = newName;
+	return true;
+}
+
+/**
+ * Reserves a name for a Service. This is important for services
+ * which control other services. Internally composite services will use
+ * a key so the name of the peer service can change, effectively binding
+ * a new peer to the composite
+ * @param key
+ * internal key name of peer servvice
+ * @param simpleTypeName
+ * type of service
+ * @param comment
+ * comment detailing the use of the peer service within the composite
+ */
+public void reserve(String key,  String simpleTypeName, String comment)
+{
+	reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
+}
+
+/**
+ * Create the reserved peer service if it has not already been created
+ * @param key
+ * unique identification of the peer service used by the composite
+ * @return
+ * true if successfully created
+ */
+public ServiceInterface createReserved(String key)
+{
+	if (reservations.containsKey(key)){
+		ServiceReservation r = reservations.get(key);
+		return Runtime.create(r.actualName, r.simpleTypeName);
+	}
+	
+	error("can not start reservation %s", key);
+	return null;
+}
+
+/**
+ * start reserved peer service by composite
+ * @param key
+ * internal identifier
+ * @return
+ * true if successfully started
+ */
+public ServiceInterface startReserved(String key)
+{
+	ServiceInterface s = createReserved(key);
+	if (s != null)
+	{
+		s.startService();
+		return s;
+	}
+	return null;
+}
+
+
 
 	/**
 	 * 
@@ -655,7 +552,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		cfg.set("hideMethods/main", "");
 		cfg.set("hideMethods/loadDefaultConfiguration", "");
-		cfg.set("hideMethods/getToolTip", "");
+		cfg.set("hideMethods/getDescription", "");
 		cfg.set("hideMethods/run", "");
 		cfg.set("hideMethods/access$0", ""); // TODO - Lame inner class slop -
 												// this should be fixed at the
@@ -679,6 +576,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
+	/**
+	 * Stops the service. Stops threads.
+	 */
 	public void stopService() {
 		if (timer != null)
 		{
@@ -696,6 +596,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		thisThread = null;
 	}
 
+	/**
+	 * Releases resources, and unregisters service from the runtime
+	 */
 	public void releaseService() {
 		// note - if stopService is overwritten with extra
 		// threads - releaseService will need to be overwritten too
@@ -704,7 +607,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void startService() {
-		createAndStartSubServices(); // FIXME - deprecate !
 		if (!isRunning()) {
 			outbox.start();
 			if (thisThread == null) {
@@ -717,16 +619,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 	
-	/**
-	 * location for dependent service creation
-	 * overridden by services for there specific dependency
-	 * fulfillment 
-	 */
-	public void createAndStartSubServices()
-	{
-		
-	}
-
 	// override for extended functionality
 	public boolean preRoutingHook(Message m) {
 		return true;
@@ -1835,7 +1727,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// http://java.sun.com/developer/technicalArticles/ALT/Reflection/
 			Method[] methods = c.getDeclaredMethods();
 			// register this service
-			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this, getToolTip());
+			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this, getDescription());
 
 			Method m;
 			Class<?>[] paramTypes;

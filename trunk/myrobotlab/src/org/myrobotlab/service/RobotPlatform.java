@@ -490,7 +490,7 @@ public class RobotPlatform extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>used to encapsulate many of the functions and formulas regarding 2 motor platforms.<br>"
 				+ "encoders and other feedback mechanisms can be added to provide heading, location and other information</html>";
 	}

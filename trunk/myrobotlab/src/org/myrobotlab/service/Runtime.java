@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,24 +57,24 @@ import org.slf4j.Logger;
  */
 @Root
 public class Runtime extends Service {
-	// TODO this should be something a little more unique - tied to version?
-	private static final long serialVersionUID = 1L;
+	final static private long serialVersionUID = 1L;
 
 	// ---- rte members begin ----------------------------
 	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
 	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
 
-	// FIXME - this should be a GUI thing only ! or getPrettyMethods or static
-	// filterMethods
-	static private HashMap<String, String> hideMethods = new HashMap<String, String>();
+	/**
+	 * map to hide methods we are not interested in
+	 */
+	static private HashSet<String> hideMethods = new HashSet<String>();
 
-	private static boolean needsRestart = false;
+	static private boolean needsRestart = false;
 
-	private static String runtimeName;
+	static private String runtimeName;
 
-	private Date startDate = new Date();
+	static private Date startDate = new Date();
 
-	private final static String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
+	final static public String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 
 	// ---- rte members end ------------------------------
 
@@ -189,11 +190,11 @@ public class Runtime extends Service {
 			localInstance = this;
 		}
 
-		hideMethods.put("main", null);
-		hideMethods.put("loadDefaultConfiguration", null);
-		hideMethods.put("getToolTip", null);
-		hideMethods.put("run", null);
-		hideMethods.put("access$0", null);
+		hideMethods.add("main");
+		hideMethods.add("loadDefaultConfiguration");
+		hideMethods.add("getDescription");
+		hideMethods.add("run");
+		hideMethods.add("access$0");
 
 		// load the current set of possible service
 		serviceInfo.getLocalServiceData();
@@ -202,11 +203,16 @@ public class Runtime extends Service {
 		startService();
 	}
 
-	Platform getLocalPlatform() {
+	public Platform getLocalPlatform() {
 		return getPlatform(null);
 	}
 
-	Platform getPlatform(URI uri) {
+	/**
+	 * returns the platform type of a remote system
+	 * @param uri - the access uri of the remote system
+	 * @return Platform description
+	 */
+	public Platform getPlatform(URI uri) {
 		ServiceEnvironment local = hosts.get(uri);
 		if (local != null) {
 			return local.platform;
@@ -217,11 +223,24 @@ public class Runtime extends Service {
 		return null;
 	}
 
-	String getLocalVersion() {
+	/**
+	 * returns version string of MyRobotLab
+	 * @return
+	 */
+	public String getLocalVersion() {
 		return getVersion(null);
 	}
 
-	String getVersion(URI uri) {
+	/**
+	 * returns version string of MyRobotLab instance based on
+	 * uri 
+	 * e.g :
+	 *      uri mrl://10.5.3.1:7777 may be a remote instance
+	 *      null uri is local
+	 * @param uri - key of ServiceEnvironment
+	 * @return version string
+	 */
+	public String getVersion(URI uri) {
 		ServiceEnvironment local = hosts.get(uri);
 		if (local != null) {
 			return local.version;
@@ -232,6 +251,9 @@ public class Runtime extends Service {
 		return null;
 	}
 
+	/**
+	 * updates the myrobotlab.jar 
+	 */
 	public static void updateMyRobotLab() {
 		Runtime.getInstance().info("updating myrobotlab.jar");
 		Runtime.getBleedingEdgeMyRobotLabJar();
@@ -239,20 +261,19 @@ public class Runtime extends Service {
 		Runtime.restart("moveUpdate");
 	}
 
-	// TODO - put this method in ServiceInterface
 	/**
-	 * 
+	 * check if class is a Runtime class
 	 * @param newService
-	 * @return
+	 * @return true if class == Runtime.class
 	 */
 	public static boolean isRuntime(Service newService) {
 		return newService.getClass().equals(Runtime.class);
 	}
 
 	/**
-	 * Get a handle to this singleton.
+	 * Get a handle to the Runtime singleton.
 	 * 
-	 * @return
+	 * @return the Runtime
 	 */
 	public static Runtime getInstance() {
 		if (localInstance == null) {
@@ -288,16 +309,17 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Get the tool tip for this class.
+	 * Runtime singleton service
 	 */
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Runtime singleton service";
 	}
 
 	// ---------- Java Runtime wrapper functions begin --------
 	/**
-	 * 
+	 * Executes the specified command and arguments in a separate process.  
+	 * Returns the exit value for the subprocess.
 	 * @param params
 	 * @return
 	 */
@@ -313,19 +335,6 @@ public class Runtime extends Service {
 		return 0;
 	}
 
-	/*
-	 * BLOCKS ON BAD READ or Process termination static public void
-	 * createProcess(String[] cmdline) throws IOException { Process process =
-	 * new ProcessBuilder(cmdline).start(); InputStream is =
-	 * process.getInputStream(); InputStreamReader isr = new
-	 * InputStreamReader(is); BufferedReader br = new BufferedReader(isr);
-	 * String line;
-	 * 
-	 * System.out.printf("Output of running %s is:", Arrays.toString(cmdline));
-	 * 
-	 * while ((line = br.readLine()) != null) { System.out.println(line); } }
-	 */
-
 	/**
 	 * dorky pass-throughs to the real JVM Runtime
 	 * 
@@ -336,7 +345,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
+	 * Returns the amount of free memory in the Java Virtual Machine. 
+	 * Calling the gc method may result in increasing the value returned by freeMemory.
 	 * @return
 	 */
 	public static final long getFreeMemory() {
@@ -347,19 +357,23 @@ public class Runtime extends Service {
 	// http://www.javaworld.com/javaworld/javaqa/2002-11/01-qa-1108-cpu.html
 
 	/**
-	 * 
+	 * Returns the number of processors available to the Java virtual machine. 
 	 * @return
 	 */
 	public static final int availableProcessors() {
 		return java.lang.Runtime.getRuntime().availableProcessors();
 	}
 
+	/**
+	 * big hammer - exits no ifs ands or butts
+	 */
 	public static final void exit() {
 		java.lang.Runtime.getRuntime().exit(-1);
 	}
 
 	/**
-	 * 
+	 * Terminates the currently running Java virtual machine by initiating its shutdown sequence. This method never returns normally. 
+	 * The argument serves as a status code; by convention, a nonzero status code indicates abnormal termination 
 	 * @param status
 	 */
 	public static final void exit(int status) {
@@ -367,7 +381,7 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
+	 * Runs the garbage collector. 
 	 */
 	public static final void gc() {
 		java.lang.Runtime.getRuntime().gc();
@@ -612,8 +626,12 @@ public class Runtime extends Service {
 	}
 
 	/**
+	 * Gets the current total number of services registered
+	 * services. This is the number of services in all Service
+	 * Environments
 	 * 
 	 * @return
+	 * total number of services
 	 */
 	public int getServiceCount() {
 		int cnt = 0;
@@ -730,9 +748,11 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
-	 * @param name
+	 * releases a service - stops the service, its threads,
+	 * releases its resources, and removes registry entries
+	 * @param name of the service to be released
 	 * @return
+	 * whether or not it successfully released the service
 	 */
 	public static boolean release(String name) /* release local Service */
 	{
@@ -899,7 +919,7 @@ public class Runtime extends Service {
 		for (int i = 0; i < methods.length; ++i) {
 			m = methods[i];
 
-			if (hideMethods.containsKey(m.getName())) {
+			if (hideMethods.contains(m.getName())) {
 				continue;
 			}
 			me = new MethodEntry();
@@ -964,7 +984,7 @@ public class Runtime extends Service {
 			// instance = (RuntimeEnvironment)in.readObject();
 			hosts = (HashMap<URI, ServiceEnvironment>) in.readObject();
 			registry = (HashMap<String, ServiceWrapper>) in.readObject();
-			hideMethods = (HashMap<String, String>) in.readObject();
+			hideMethods = (HashSet<String>) in.readObject();
 		} catch (Exception e) {
 			Logging.logException(e);
 			return false;
@@ -1457,7 +1477,7 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * publishing point of Ivy sub system - sends even failedDependency when the
+	 * publishing point of Ivy sub system - sends event failedDependency when the
 	 * retrieve report for a Service fails
 	 * 
 	 * @param dep

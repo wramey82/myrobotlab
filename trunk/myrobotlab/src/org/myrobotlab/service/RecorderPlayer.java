@@ -169,7 +169,7 @@ public class RecorderPlayer extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>service for recording and playing back messages (not fully implemented)</html>";
 	}
 

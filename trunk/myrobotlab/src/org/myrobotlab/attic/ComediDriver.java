@@ -101,7 +101,7 @@ public class ComediDriver extends Service {
 	public static native void jcomedidioread(int subdev, int channel, int oneByte);
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used to interface with DIO (digital input/output computer cards)";
 	}
 

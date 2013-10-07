@@ -360,7 +360,7 @@ public class FrogLeg extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "experiment in genetic programming";
 	}
 

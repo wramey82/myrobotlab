@@ -259,7 +259,7 @@ public class FaceTracking extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used for tracking";
 	}
 

@@ -69,8 +69,8 @@ public class ServiceWrapper implements Serializable {
 		return service.getNotifyList(key);
 	}
 
-	public String getToolTip() {
-		return service.getToolTip();
+	public String getDescription() {
+		return service.getDescription();
 	}
 
 	public boolean isLocal() {

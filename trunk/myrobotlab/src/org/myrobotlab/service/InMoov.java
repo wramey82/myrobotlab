@@ -594,7 +594,7 @@ public class InMoov extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "the InMoov Service";
 	}
 

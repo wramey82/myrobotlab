@@ -219,7 +219,7 @@ public class AudioCapture extends Service {
 	}// end playAudio
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "captures and stores audio from microphone";
 	}
 

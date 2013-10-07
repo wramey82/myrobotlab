@@ -363,7 +363,7 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>wrapper service for wiiusej</html>";
 	}
 

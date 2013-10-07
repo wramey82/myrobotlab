@@ -22,12 +22,11 @@ import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
-import org.myrobotlab.webgui.NanoHTTPD.Response;
+import org.myrobotlab.net.NanoHTTPD;
+import org.myrobotlab.net.NanoHTTPD.Response;
 import org.slf4j.Logger;
 
 public class ResourceProcessor implements HTTPProcessor {
-
-	public static String root = "root"; // get from WebGUI
 
 	public HashSet<String> scannedDirectories = new HashSet<String>();
 
@@ -48,23 +47,22 @@ public class ResourceProcessor implements HTTPProcessor {
 
 	public void scan() {
 		try {
-			List<File> files = FindFile.find(root, null);
+			List<File> files = FindFile.find(webgui.root, null);
 			for (int i = 0; i < files.size(); ++i) {
 				File file = files.get(i);
 				String t = file.getPath().replace('\\', '/');
-				String uri = t.substring(root.length());
+				String uri = t.substring(webgui.root.length());
 				log.info(String.format("overriding with uri [%s]", uri));
 				scannedDirectories.add(uri);
 			}
 		} catch (FileNotFoundException e) {
-			// Logging.logException(e);
 			log.info("root directory not found - no overrides");
 		}
 	}
 
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		return serveFile(uri, header, new File(root), true, socket, scannedDirectories.contains(uri));
+		return serveFile(uri, header, new File(webgui.root), true, socket, scannedDirectories.contains(uri));
 	}
 
 	// FIXME - deprecate
@@ -128,8 +126,23 @@ public class ResourceProcessor implements HTTPProcessor {
 		File f;
 		if (!isCustomFile) {
 			// ---- begin resource ----------------
-
-			InputStream fis = FileIO.class.getResourceAsStream(uri);
+			// TODO ? hard coded /resource - are they going to pull up WebGUI.class how useful is that ??
+			String resoucePath = String.format("/resource%s", uri); 
+			InputStream fis = null;
+			if (resoucePath.endsWith("/"))
+			{
+				// ends with a slash .. might be a directory - try index.html
+				String documentIndex = String.format("%sindex.html", resoucePath);
+				fis = FileIO.class.getResourceAsStream(documentIndex);
+				if (fis == null){ // couldn't find document index try directory listing, if allowed
+					fis = FileIO.class.getResourceAsStream(resoucePath);
+				} else {
+					uri = documentIndex;
+				}
+			} else {
+				fis = FileIO.class.getResourceAsStream(resoucePath);
+			}
+			
 			if (fis == null)
 				return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
 

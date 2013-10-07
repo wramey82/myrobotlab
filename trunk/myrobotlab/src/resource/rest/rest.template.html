@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-  <link rel="stylesheet" href="/resources/demos/style.css" />
+  <link rel="stylesheet" href="demos/style.css" />
   <script>
   $(function() {
     $( "#accordion" ).accordion({
@@ -34,7 +34,10 @@ function buildRestURI(aForm)
 	//alert(url);
 
 	//window.location.replace(url);
-	window.location.href = url;
+	//window.location.href = url;
+	// TODO - make opening new tab optional - 
+	// FIXME - close of jquery object on backbutton
+	window.open(url, "_blank");
 	return false;
 }
   </script>
