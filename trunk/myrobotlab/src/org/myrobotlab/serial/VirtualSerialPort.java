@@ -65,7 +65,7 @@ public class VirtualSerialPort implements SerialDevice {
 
 	@Override
 	public int available() {
-		return 0;
+		return rx.size();
 	}
 
 	// GAWD this is lame ! why throw on an open .. someone is exception happy ;P
