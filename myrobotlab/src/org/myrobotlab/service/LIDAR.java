@@ -3,7 +3,6 @@ package org.myrobotlab.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -45,7 +44,7 @@ public class LIDAR extends Service {
     }
 
     @Override
-    public String getDescription() {
+    public String getToolTip() {
         return "The LIDAR service";
     }
 
@@ -88,7 +87,7 @@ public class LIDAR extends Service {
         
         try {
             index++;
-            log.info("Index = "+index+ " expected message size = " +dataMessageSize);
+            //log.info("Index = "+index+ " expected message size = " +dataMessageSize);
             buffer.write(b);
             // so a byte was appended
             // now depending on what model it was and
@@ -106,8 +105,8 @@ public class LIDAR extends Service {
                 }
                 state = STATE_NOMINAL;
             }
-//            if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index== dataMessageSize) {
-if ( index== dataMessageSize) {
+            if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index== dataMessageSize) {
+//if ( index== dataMessageSize) {
                 
                log.info("Buffer size = "+buffer.size()+" Buffer = " +buffer.toString());
                 // WTF do I do with this data now?
@@ -126,28 +125,53 @@ if ( index== dataMessageSize) {
     }
 
     
+    /*
+     * Set LIDAR to use centimeters
+     */
+    public boolean setToCM(){
+  
+    if(true)  {  
+return true;
+    }
+else{
+        return false;
+}
+    }
+    
+      /*
+     * Set LIDAR to use millimeters
+     */  
+      public boolean setToMM(){
+  
+    if(true)  {  
+return true;
+    }
+else{
+        return false;
+}
+    }
     
     
     
     public int[] publishLidarData(){
    
         int [] intData= new int[(message.length-11)/2];
-        log.info("dataToString has been called. Message length = " +message.length+ "        IntArray size = "+intData.length);
+        log.info("dataToString has been called. Message length = " +message.length+ "        We should have = "+intData.length +"data readings");
         StringBuilder data = new StringBuilder("");
-            for (int i=7; i<(message.length-3); i=i+2) //excluding the header and the footer, taking every other byte as the LSB of the new number
+            for (int i=8; i<(message.length-3); i=i+2) //excluding the header and the footer, taking every other byte as the LSB of the new number
             {
                 //Do some bitwise stuff to get our integer distance in cm(default) or mm if you changed the mode
                 //data = MSB << 8 | LSB
                 ByteBuffer bb = ByteBuffer.wrap(new byte[] {0,0, message[i], message[i+1] });
                 
-             intData[(i-7)/2] =bb.getInt();
+             intData[(i-8)/2] =bb.getInt();
             
-                log.info("Integer index = "+(i-7)/2+" message = "+String.format(" %02x %02x",message[i],message[i+1])+String.format("  Integer = %02x",intData[(i-7)/2]));   
-                data.append(intData[(i-7)/2]).append(", ");
+                log.info("IntData index = "+(i-8)/2+" i = "+i+" message = "+String.format(" %02x %02x",message[i],message[i+1])+String.format("  Integer = %02x",intData[(i-8)/2]));   
+                data.append(intData[(i-8)/2]).append(", ");
                
             }//end for loop                   
-        log.info("Data = "+data.toString());
-            return intData;  //This should return data to the python code if the user has subscribed to it
+//        log.info("Data = "+data.toString());
+             return intData;  //This should return data to the python code if the user has subscribed to it
     }//end dataToString
     
      public boolean connect(String port, int baud) {
@@ -267,7 +291,7 @@ if ( index== dataMessageSize) {
                 serial.write(new char[]{0x02, 0x00, 0x05, 0x00, 0x3B, 0xB4, 0x00, 0x64, 0x00, 0x97, 0x49});
                 // Start bytes and header = 8 bytes, 362 data bytes, 1 status
                 // and 2 bytes for checksum
-                dataMessageSize = 313;
+                dataMessageSize = 373;
             } else if (angularResolution == 0.5) {
                 serial.write(new char[]{0x02, 0x00, 0x05, 0x00, 0x3B, 0xB4, 0x00, 0x32, 0x00, 0x3B, 0x1F});
                 // Start bytes and header = 8 bytes, 722 data bytes, 1 status
