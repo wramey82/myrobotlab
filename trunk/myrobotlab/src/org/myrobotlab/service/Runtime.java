@@ -934,7 +934,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
+	 * DEPRICATE 
+	 * saves binary definition of MRL
 	 * @param filename
 	 * @return
 	 */
@@ -970,7 +971,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * 
+	 * DEPRICATE 
+	 * loads binary definition of MRL
 	 * @param filename
 	 * @return
 	 */

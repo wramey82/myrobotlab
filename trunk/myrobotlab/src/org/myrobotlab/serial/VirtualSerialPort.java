@@ -8,7 +8,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 public class VirtualSerialPort implements SerialDevice {
@@ -23,11 +22,24 @@ public class VirtualSerialPort implements SerialDevice {
 	
 	// I could support a list of SerialDeviceEventListeners but RXTX does not .. so modeling their poor design
 	public SerialDeviceEventListener listener;
-	RXThread rxthread;
+	//RXThread rxthread;
 	private boolean notifyOnDataAvailable;
-	private int firstByte = -1;
-	private boolean isFirstByte = true;
 	
+	private VirtualSerialPort nullModem = null;
+	
+	public static void makeNullModem(VirtualSerialPort vp0, VirtualSerialPort vp1)
+	{
+		// save for future references
+		vp0.nullModem = vp1;
+		vp1.nullModem = vp0;
+		
+		// share single pair of queues
+		vp0.rx = vp1.tx;
+		vp0.tx = vp1.rx;
+		
+	}
+	
+	/*
 	class RXThread extends Thread {
 		
 		int currentDataSize = 0;
@@ -38,7 +50,7 @@ public class VirtualSerialPort implements SerialDevice {
 		public void run() {
 			try {
 				while (isOpen) {
-					firstByte = rx.take();
+					rx.peek();
 					//userRX.add(b);
 					// TODO - generate only at currentDataSize intervals
 					if (listener != null && notifyOnDataAvailable)
@@ -48,12 +60,13 @@ public class VirtualSerialPort implements SerialDevice {
 					}
 				}
 
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				Logging.logException(e);
 			}
 		}
 	}
 
+*/
 	public VirtualSerialPort(String name) {
 		this.name = name;
 	}
@@ -78,8 +91,8 @@ public class VirtualSerialPort implements SerialDevice {
 		}
 		
 		isOpen = true;
-		rxthread = new RXThread();
-		rxthread.start();
+//		rxthread = new RXThread();
+//		rxthread.start();
 
 	}
 
@@ -91,8 +104,8 @@ public class VirtualSerialPort implements SerialDevice {
 	@Override
 	public void close() {
 		isOpen = false;
-		rxthread.interrupt();
-		rxthread = null;
+//		rxthread.interrupt();
+//		rxthread = null;
 	}
 
 	@Override
@@ -113,7 +126,14 @@ public class VirtualSerialPort implements SerialDevice {
 	// TODO - make this silly like RXTX - so that it throws TooManyListners :P
 	@Override
 	public void addEventListener(SerialDeviceEventListener lsnr) throws TooManyListenersException {
-		listener = lsnr;
+		if (nullModem != null){
+			// if is a null modem
+			// then tx on one modem will be the thread
+			// to generate the rx event on the other
+			nullModem.listener = lsnr;
+		} else {
+			listener = lsnr;
+		}
 	}
 
 	@Override
@@ -124,24 +144,29 @@ public class VirtualSerialPort implements SerialDevice {
 
 	@Override
 	public void write(int data) throws IOException {
-		tx.add((byte)data);
+		write((byte)data);
 	}
 
 	@Override
 	public void write(byte data) throws IOException {
 		tx.add(data);
+		if (listener != null && notifyOnDataAvailable)
+		{
+			SerialDeviceEvent sde = new SerialDeviceEvent(srcport, SerialDeviceEvent.DATA_AVAILABLE, false, true);
+			listener.serialEvent(sde);
+		}
 	}
 
 	@Override
 	public void write(char data) throws IOException {
-		tx.add((byte)data);
+		write((byte)data);
 	}
 
 	@Override
 	public void write(int[] data) throws IOException {
 		for (int i = 0; i < data.length; ++i)
 		{
-			tx.add((byte)data[i]);
+			write((byte)data[i]);
 		}
 	}
 
@@ -149,7 +174,7 @@ public class VirtualSerialPort implements SerialDevice {
 	public void write(byte[] data) throws IOException {
 		for (int i = 0; i < data.length; ++i)
 		{
-			tx.add(data[i]);
+			write(data[i]);
 		}
 	}
 
@@ -160,18 +185,9 @@ public class VirtualSerialPort implements SerialDevice {
 
 	@Override
 	public int read() throws IOException {
-		// first byte is used as a serial event
-		// the rest of the serial stream is taken from
-		// this rx.take
-		if (isFirstByte)
-		{
-			isFirstByte = false;
-			return firstByte;
-		}
 		try {
 			return rx.take();
 		} catch (InterruptedException e) {
-
 			return -1;
 		}
 		

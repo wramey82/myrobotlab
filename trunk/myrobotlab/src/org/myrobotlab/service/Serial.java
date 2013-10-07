@@ -150,6 +150,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 						case PUBLISH_BYTE: {
 							invoke("publishByte", newByte);
+							log.warn(String.format("%s published byte %d", getName(), newByte));
 							break;
 						}
 						}
@@ -400,7 +401,57 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.WARN);
+		
+		
+		//Create two virtual ports for UART and user and null them together:
+		// create 2 virtual ports
+		VirtualSerialPort vp0 = new VirtualSerialPort("/dev/vp0");
+		VirtualSerialPort vp1 = new VirtualSerialPort("/dev/vp1");
+
+		// make null modem cable ;)
+		VirtualSerialPort.makeNullModem(vp0, vp1);
+		/*
+		vp1.tx = vp0.rx;
+		vp1.rx = vp0.tx;
+		vp1.listener 
+		*/
+
+		// add virtual ports to the serial device factory
+		SerialDeviceFactory.add(vp0);
+		SerialDeviceFactory.add(vp1);
+
+		// create the UART serial service
+		//log.info("Creating a LIDAR UART Serial service named: " + getName() + "SerialService");
+		//String serialName = getName() + "SerialService";
+		Serial serial0 = new Serial("serial0");
+		serial0.startService();
+		serial0.connect("/dev/vp0");
+		
+		// user serial
+		Serial serial1 = new Serial("lidar_serial");
+		serial1.startService();
+		serial1.connect("/dev/vp1");
+
+		serial0.write(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
+		serial0.write(new byte[]{5,5,5,5,5});
+		serial0.write(new byte[]{6,6,6,6,6});
+		serial0.write(new byte[]{7,7,7,7,7});
+		serial0.write(new byte[]{8,8,8,8,8});
+		serial0.write(new byte[]{9,9,9,9,9});
+		serial0.write(new byte[]{5,5,5,5,5});
+		serial0.write(new byte[]{6,6,6,6,6});
+		serial0.write(new byte[]{7,7,7,7,7});
+		serial0.write(new byte[]{8,8,8,8,8});
+		serial0.write(new byte[]{9,9,9,9,9});
+		
+		serial1.write(new byte[]{10,9,8,7,6,5,4,3,2,1});
+		serial1.write(new byte[]{6,6,6,6,6,6});
+		
+		serial0.write(new byte[]{16});
+		log.info("here");
+		
+/*
 		
 		Serial serial = new Serial("serial");
 		serial.startService();
@@ -421,10 +472,10 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 		// create two serial services
 		Serial searSerial = new Serial("searSerial");
-		Serial userSerial = new Serial("userSerial");
+		Serial serial1 = new Serial("serial1");
 
 		searSerial.startService();
-		userSerial.startService();
+		serial1.startService();
 
 		ArrayList<String> portNames = searSerial.getPortNames();
 
@@ -434,18 +485,18 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		}
 
 		searSerial.connect("/dev/virtualPort0");
-		userSerial.connect("/dev/virtualPort1");
+		serial1.connect("/dev/virtualPort1");
 
 		WebGUI web = new WebGUI("web");
 		web.startService();
 
 		// user starts initialization sequence
 		log.info("user sends first set of bytes");
-		userSerial.write(new byte[] { 13, 117, 100, 58 });
+		serial1.write(new byte[] { 13, 117, 100, 58 });
 
 		// second initialization sequence
 		log.info("user sends second set of bytes");
-		userSerial.write(new byte[] { 5, 5, 5, 5 });
+		serial1.write(new byte[] { 5, 5, 5, 5 });
 
 		// now the lidar is initialized sear virtual lidar will send
 		// a long sequence of bytes
@@ -474,10 +525,6 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		 */
 	}
 
-    @Override
-    public String getToolTip() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
 
 }
