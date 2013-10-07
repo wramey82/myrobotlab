@@ -82,5 +82,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/edu.northwestern.topcodes/topcodes/1.0/topcodes.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.java_websocket.websocket/websocket/1.0/java_websocket.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.simpleframework.xml/xml/2.7/simple-xml-2.7.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.jivesoftware.smack/smack/3.3.0/smack.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
