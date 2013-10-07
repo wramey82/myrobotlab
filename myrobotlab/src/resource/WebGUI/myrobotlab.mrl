@@ -362,6 +362,7 @@
 <!-- FIXME LOCAL VERSUS NETWORKED RESOURCES -->
 <script src="<%=mrl.script.location%>Arduino.js"></script>
 <script src="<%=mrl.script.location%>Clock.js"></script>
+<script src="<%=mrl.script.location%>PickToLight.js"></script>
 <script src="<%=mrl.script.location%>Python.js"></script>
 <script src="<%=mrl.script.location%>Runtime.js"></script>
 <script src="<%=mrl.script.location%>Servo.js"></script>
