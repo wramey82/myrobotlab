@@ -87,7 +87,9 @@ public class LIDAR extends Service {
         
         try {
             index++;
-            //log.info("Index = "+index+ " expected message size = " +dataMessageSize);
+            log.info("byteReceived inside LIDAR service has been called. \n"
+                    + "Index = "+index+ " expected message size = " +dataMessageSize
+                    +"actual data byte = "+ b);
             buffer.write(b);
             // so a byte was appended
             // now depending on what model it was and
@@ -156,7 +158,7 @@ else{
     public int[] publishLidarData(){
    
         int [] intData= new int[(message.length-11)/2];
-        log.info("dataToString has been called. Message length = " +message.length+ "        We should have = "+intData.length +"data readings");
+        log.info("publishLidarData has been called. Message length = " +message.length+ "        We should have = "+intData.length +"data readings");
         StringBuilder data = new StringBuilder("");
             for (int i=8; i<(message.length-3); i=i+2) //excluding the header and the footer, taking every other byte as the LSB of the new number
             {
