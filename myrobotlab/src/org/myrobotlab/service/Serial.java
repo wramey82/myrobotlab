@@ -65,7 +65,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		buffer = new byte[size];
 	}
 
-	@Override
+//	@Override
 	public String getDescription() {
 		return "used as a general template";
 	}
@@ -223,7 +223,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	// FIXME - block read(until block size)
 
 	public byte publishByte(Byte data) {
-		log.info(String.format("%s published byte %d", getName(), (int)data.byteValue()));
+		log.info(String.format("%s published byte %02x", getName(), (int)data.byteValue()));
 		return data;
 	}
 
@@ -344,8 +344,13 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	@Override
 	public void write(int data) throws IOException {
-		// serialDevice.write(data);
-		log.error("NOT IMPLEMENTED");
+	
+            /*Since the SEAR LIDARsimulator (and other serial stuffs) sends bytes 
+             * stored as Integers this only needs to spit out a byte at a time for SEAR.
+             */
+             
+            serialDevice.write(data);
+		//log.error("NOT IMPLEMENTED");
 		// FIXME bit shift send 4 bytes
 	}
 	
@@ -468,6 +473,11 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		 * gui.display();
 		 */
 	}
+
+    @Override
+    public String getToolTip() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 
 }
