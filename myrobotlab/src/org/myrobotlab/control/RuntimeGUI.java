@@ -391,7 +391,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		subscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 
 		// get the service info for the bound runtime (not necessarily local)
-		subscribe("getServiceShortClassNames", "onPossibleServicesRefresh", String[].class);
+		subscribe("getServiceSimpleNames", "onPossibleServicesRefresh", String[].class);
 		
 		//myService.send(boundServiceName, "broadcastState");
 		
@@ -412,7 +412,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("failedDependency", "failedDependency", String.class);
 		unsubscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 
-		unsubscribe("getServiceShortClassNames", "onPossibleServicesRefresh", String[].class);
+		unsubscribe("getServiceSimpleNames", "onPossibleServicesRefresh", String[].class);
 	}
 
 	public void failedDependency(String dep) {
@@ -476,7 +476,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	 */
 	public void getPossibleServices(final String filter) {
 		possibleServiceFilter = filter;
-		myService.send(boundServiceName, "getServiceShortClassNames", filter);
+		myService.send(boundServiceName, "getServiceSimpleNames", filter);
 	}
 	
 	public void onPossibleServicesRefresh(final String[] sscn)
@@ -492,7 +492,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 				possibleServicesModel.getRowCount();
 
 				// FIXME
-				//String[] sscn = Runtime.getServiceShortClassNames(filter);
+				//String[] sscn = Runtime.getServiceSimpleNames(filter);
 				ServiceEntry[] ses = new ServiceEntry[sscn.length];
 				ServiceEntry se = null;
 

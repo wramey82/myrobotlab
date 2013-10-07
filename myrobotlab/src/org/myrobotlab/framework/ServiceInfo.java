@@ -385,8 +385,8 @@ public class ServiceInfo implements Serializable {
 	 * 
 	 * @return
 	 */
-	public String[] getShortClassNames() {
-		return getShortClassNames(null);
+	public String[] getSimpleNames() {
+		return getSimpleNames(null);
 	}
 
 	/**
@@ -394,7 +394,7 @@ public class ServiceInfo implements Serializable {
 	 * @param filter
 	 * @return
 	 */
-	public String[] getShortClassNames(String filter) {
+	public String[] getSimpleNames(String filter) {
 		ArrayList<String> sorted = new ArrayList<String>();
 
 		Iterator<String> it = serviceData.serviceInfo.keySet().iterator();

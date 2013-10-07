@@ -58,6 +58,9 @@ public class AudioFile extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(AudioFile.class.getCanonicalName());
 	transient AePlayWave wavPlayer = new AePlayWave();
+	// FIXME - http://alvinalexander.com/java/java-audio-example-java-au-play-sound - so much more simple
+	// http://stackoverflow.com/questions/198679/convert-audio-stream-to-wav-byte-array-in-java-without-temp-file
+	// REMOVE AePlayWave !!!
 	
 	//public transient HashMap<String, AdvancedPlayerThread> players = new HashMap<String, AdvancedPlayerThread>();
 	public transient List<AdvancedPlayerThread> players = Collections.synchronizedList(new ArrayList<AdvancedPlayerThread>());
