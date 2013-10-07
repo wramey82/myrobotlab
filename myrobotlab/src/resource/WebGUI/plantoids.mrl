@@ -342,7 +342,7 @@ A10 = air quality
 	</td>
 </tr> 
 <tr>
-  <td colspan="3"><img id="connected" src="/resource/WebGUI/common/button-red.png" /><span id="topMessage"></span></td>
+  <td colspan="3"><img id="connected" src="/WebGUI/common/button-red.png" /><span id="topMessage"></span></td>
 </tr>
 <tr>
 	<td colspan="2"><img src="http://orbous.zapto.org:9090/?action=stream" /></td><td><img src="http://orbous.zapto.org:9092/?action=stream" /></td>

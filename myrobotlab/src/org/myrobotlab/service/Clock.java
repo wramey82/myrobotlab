@@ -129,7 +129,7 @@ public class Clock extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used to generate pulses";
 	}
 

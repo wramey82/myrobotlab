@@ -260,7 +260,7 @@ public class RemoteAdapter extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
 

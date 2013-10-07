@@ -400,8 +400,11 @@ public class VideoProcessor implements Runnable, Serializable {
 				OpenCVFilter filter = itr.next();
 				if (filter == inFilter) {
 					itr.remove();
-					displayFilter = filters.get(filters.size()-1).name;
-					log.info("remove and switch displayFilter to {}", displayFilter);
+// correct?					displayFilter = filters.get(filters.size()-1).name;
+					if (filters.size()-1 > 0){
+						displayFilter = filters.get(filters.size()-1).name;
+						log.info("remove and switch displayFilter to {}", displayFilter);
+					}
 					//opencv.setDisplayFilter(filters.get(filters.size()-1).name);
 					return;
 				}

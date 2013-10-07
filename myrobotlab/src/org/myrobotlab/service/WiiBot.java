@@ -199,7 +199,7 @@ public class WiiBot extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "(not implemented) - robot utilizing the wii mote and wiidar";
 	}
 

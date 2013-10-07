@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.fileLib.FileIO;
@@ -396,7 +395,7 @@ public class Python extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Python IDE";
 	}
 
@@ -440,6 +439,11 @@ public class Python extends Service {
 		return false;
 	}
 
+	/**
+	 * executes an external Python file
+	 * @param filename
+	 * the full path name of the python file to execute
+	 */
 	public void execFile(String filename) {
 		String script = FileIO.fileToString(filename);
 		exec(script);
@@ -448,7 +452,8 @@ public class Python extends Service {
 	/**
 	 * Get a compiled version of the python call.
 	 * 
-	 * @param msg
+	 * @param name
+	 * @param code
 	 * @param interp
 	 * @return
 	 */
@@ -490,6 +495,9 @@ public class Python extends Service {
 		inputQueueThread.start();
 	}
 
+	/**
+	 * stops threads releases interpreter
+	 */
 	public void stopService() {
 		super.stopService();
 		stop();// release the interpeter
@@ -549,11 +557,12 @@ public class Python extends Service {
 	}
 
 	/**
-	 * load script from the users .myrobotlab - maintain the only non-absolute
+	 * Loads script from the users .myrobotlab directory - maintain the only non-absolute
 	 * filename
 	 * 
 	 * @param filename
 	 * @return
+	 * true if successfully loaded
 	 */
 	public boolean loadUserScript(String filename) {
 		String newCode = FileIO.fileToString(getCFGDir() + File.separator + filename);
@@ -572,11 +581,24 @@ public class Python extends Service {
 		}
 	}
 
+	/**
+	 * gets the listing of current example python scripts in the myrobotlab.jar
+	 * under /Python/examples
+	 * @return
+	 * list of python examples
+	 */
 	public ArrayList<String> getExampleListing() {
 		ArrayList<String> r = FileIO.listResourceContents("/Python/examples");
 		return r;
 	}
 
+	/**
+	 * list files from user directory 
+	 * user directory is located where MRL was unzipped (dot) .myrobotlab directory
+	 * these are typically hidden on Linux systems
+	 * @return
+	 * returns list of files with .py extension
+	 */
 	public ArrayList<String> getFileListing() {
 		try {
 			// FileIO.listResourceContents(path);
@@ -592,6 +614,13 @@ public class Python extends Service {
 		return null;
 	}
 
+	/**
+	 * load a script from the myrobotlab.jar - location of example scripts are /resource/Python/examples
+	 * @param filename
+	 * name of file to load
+	 * @return
+	 * true if successfully loaded
+	 */
 	public boolean loadScriptFromResource(String filename) {
 		log.debug(String.format("loadScriptFromResource scripts/%1s", filename));
 		String newCode = getServiceResourceFile(String.format("examples/%1s", filename));
@@ -613,6 +642,13 @@ public class Python extends Service {
 		}
 	}
 
+	/**
+	 * append more Python to the current script
+	 * @param data
+	 * the code to append
+	 * @return
+	 * the resulting concatenation
+	 */
 	public String appendScript(String data) {
 		currentScript.setCode(String.format("%s\n%s", currentScript.getCode(), data));
 		return data;

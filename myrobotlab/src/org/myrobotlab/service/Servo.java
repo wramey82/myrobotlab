@@ -186,7 +186,7 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>service for a servo</html>";
 	}
 

@@ -1,7 +1,6 @@
 package org.myrobotlab.service.interfaces;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
@@ -23,7 +22,7 @@ public interface ServiceInterface {
 
 	public String getSimpleName();
 
-	public String getToolTip();
+	public String getDescription();
 
 	public boolean hasDisplay();
 	

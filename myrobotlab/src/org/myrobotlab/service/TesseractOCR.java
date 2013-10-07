@@ -37,7 +37,7 @@ public class TesseractOCR extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Tesseract OCR Engine";
 	}
 

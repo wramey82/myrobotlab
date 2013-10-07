@@ -679,7 +679,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>Arduino is a service which interfaces with an Arduino micro-controller.<br>" + "This interface can operate over radio, IR, or other communications,<br>"
 				+ "but and appropriate .PDE file must be loaded into the micro-controller.<br>" + "See http://myrobotlab.org/communication for details";
 	}

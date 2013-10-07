@@ -54,7 +54,7 @@ public class Proxy extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "a Proxy service capable of proxying classes which can not or should not be created";
 	}
 

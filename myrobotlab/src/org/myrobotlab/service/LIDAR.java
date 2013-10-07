@@ -45,7 +45,7 @@ public class LIDAR extends Service {
     }
 
     @Override
-    public String getToolTip() {
+    public String getDescription() {
         return "The LIDAR service";
     }
 

@@ -256,7 +256,7 @@ public class Rose extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "behavioral experiment";
 	}
 }

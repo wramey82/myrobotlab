@@ -83,7 +83,9 @@ public class Speech extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Speech.class.getCanonicalName());
-	String language = "en";
+	// en_us en_gb en_au
+	//String language = "en";
+	String language = "en_gb";
 	private String googleURI = "http://translate.google.com/translate_tts?tl=%s&q=";
 
 	// TODO - seperate all of the var into appropriate parts - ie Global ATT
@@ -475,7 +477,7 @@ public class Speech extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>text to speech module</html>";
 	}
 

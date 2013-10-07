@@ -86,11 +86,21 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 	// "haarcascades/haarcascade_mcs_eyepair_big.xml";
 
 	int i;
-	
-	public int stablizedFrameCount = 10;
-	public int detectionStartFrameIndex = 0;
+
+	// public int stablizedFrameCount = 10;
+	public int minFaceFrames = 10;
+	public int minEmptyFrames = 10;
+	public int firstFaceFrame = 0;
+	public int firstEmptyFrame = 0;
 	public int faceCnt = 0;
 	public int lastFaceCnt = 0;
+
+	public static final String STATE_LOST_TRACKING = "STATE_LOST_TRACKING";
+	public static final String STATE_LOSING_TRACKING = "STATE_LOSING_TRACKING";
+	public static final String STATE_DETECTING_FACE = "STATE_DETECTING_FACE";
+	public static final String STATE_DETECTED_FACE = "STATE_DETECTED_FACE";
+
+	private String state = STATE_LOST_TRACKING;
 
 	public OpenCVFilterFaceDetect() {
 		super();
@@ -111,17 +121,17 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 				g2d.setColor(Color.RED);
 				for (int i = 0; i < bb.size(); ++i) {
 					Rectangle rect = bb.get(i);
-					if (useFloatValues){
-						g2d.drawRect((int)(rect.x*width), (int)(rect.y*height), (int)(rect.width*width), (int)(rect.height*height));
+					if (useFloatValues) {
+						g2d.drawRect((int) (rect.x * width), (int) (rect.y * height), (int) (rect.width * width), (int) (rect.height * height));
 					} else {
-						g2d.drawRect((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+						g2d.drawRect((int) rect.x, (int) rect.y, (int) rect.width, (int) rect.height);
 					}
 				}
-				
+
 				return bi;
 			}
 		}
-		
+
 		return image.getBufferedImage();
 	}
 
@@ -148,7 +158,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 					Rectangle rect;
 					if (useFloatValues) {
-						rect = new Rectangle((float)r.x()/width, (float)r.y()/height, (float)r.width()/width, (float)r.height()/height);
+						rect = new Rectangle((float) r.x() / width, (float) r.y() / height, (float) r.width() / width, (float) r.height() / height);
 					} else {
 						rect = new Rectangle(r.x(), r.y(), r.width(), r.height());
 					}
@@ -161,14 +171,52 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			cascade = new CvHaarClassifierCascade(cvLoad(String.format("%s/%s", cascadeDir, cascadeFile)));
 		}
 		
-		// face detection events
-		if (faceCnt > 0 && frameIndex - detectionStartFrameIndex > stablizedFrameCount)
-		{
-			
-		} else {
-			
+		// WOOHOO LOOK AT THAT A STRING SWITCH !!! 
+		// 16 years later ! :D 
+		// converted from compiler into 2 stage hash switch :) cool !
+		switch (state) {
+		case STATE_LOST_TRACKING:
+			if (faceCnt > 0) {
+				firstFaceFrame = frameIndex;
+				state = STATE_DETECTING_FACE;
+				broadcastFilterState();
+			}
+			break;
+		case STATE_DETECTING_FACE:
+			if (faceCnt > 0 && frameIndex - firstFaceFrame > minFaceFrames) {
+				state = STATE_DETECTED_FACE;
+				//broadcastFilterState();
+			} else if (faceCnt == 0) {
+				firstFaceFrame = frameIndex;
+			}
+			break;
+		case STATE_DETECTED_FACE:
+			if (faceCnt == 0) {
+				state = STATE_LOSING_TRACKING;
+				firstFaceFrame = frameIndex;
+				broadcastFilterState();
+			}
+			break;
+
+		case STATE_LOSING_TRACKING:
+			if (faceCnt == 0 && frameIndex - firstEmptyFrame > minEmptyFrames) {
+				state = STATE_LOST_TRACKING;
+				//broadcastFilterState();
+			} else if (faceCnt > 0) {
+				firstEmptyFrame = frameIndex;
+			}
+			break;
+		default:
+			log.error("invalid state");
+			break;
 		}
-		
+		// face detection events
+		if (faceCnt > 0 && frameIndex - firstFaceFrame > minFaceFrames) {
+
+		} else {
+
+		}
+
 		lastFaceCnt = faceCnt;
 		return image;
 	}

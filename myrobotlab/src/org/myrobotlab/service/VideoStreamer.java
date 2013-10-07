@@ -22,11 +22,8 @@ import org.slf4j.Logger;
  *         AsimpletinynicelyembeddableHTTP10serverinJava.htm
  *         
  *         and most importantly Wireshark !!!  cuz it ROCKS for getting the truth !!!
- *         
- *         
  * 
  */
-
 
 public class VideoStreamer extends VideoSink {
 
@@ -48,8 +45,10 @@ public class VideoStreamer extends VideoSink {
 		start();
 	}
 	
-
-	
+	/**
+	 * sets port for mjpeg feed - default is 9090
+	 * @param port
+	 */
 	public void setPort(int port)
 	{
 		listeningPort = port;
@@ -60,6 +59,11 @@ public class VideoStreamer extends VideoSink {
 		start(listeningPort);
 	}
 
+	/**
+	 * starts video streamer
+	 * @param port
+	 * default is 9090
+	 */
 	public void start(int port) {
 		stop();
 		listeningPort = port;
@@ -71,6 +75,9 @@ public class VideoStreamer extends VideoSink {
 		}
 	}
 
+	/**
+	 * Stops the video streamer
+	 */
 	public void stop() {
 		if (server != null)
 		{
@@ -80,7 +87,7 @@ public class VideoStreamer extends VideoSink {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general template";
 	}
 
@@ -122,6 +129,7 @@ public class VideoStreamer extends VideoSink {
 
 		//streamer.start();
 		streamer.attach(opencv);
+
 
 		opencv.addFilter("pyramidDown", "PyramidDown");
 		opencv.capture();

@@ -465,7 +465,7 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 				canonicalName = sw.get().getSimpleName();
 				displayName = serviceName + "\n\n\n\n\n.";// +
 				// sw.get().getSimpleName();
-				toolTip = sw.getToolTip();
+				toolTip = sw.getDescription();
 			}
 
 			String blockColor = null;

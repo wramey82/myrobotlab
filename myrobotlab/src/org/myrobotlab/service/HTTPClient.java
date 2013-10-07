@@ -141,7 +141,7 @@ public class HTTPClient extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "an HTTP client, used to fetch information on the web";
 	}
 

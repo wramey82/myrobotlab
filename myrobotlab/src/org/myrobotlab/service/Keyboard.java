@@ -53,7 +53,7 @@ public class Keyboard extends Service {
 	}
 	
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "keyboard";
 	}
 

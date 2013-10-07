@@ -52,7 +52,7 @@ public class XMPP extends Service implements MessageListener {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general template";
 	}
 
@@ -172,11 +172,13 @@ public class XMPP extends Service implements MessageListener {
 		XMPP xmpp = new XMPP("xmpp");
 		xmpp.startService();
 		xmpp.connect("gmail.com");
-		xmpp.login("username@gmail.com", "password");
+		xmpp.login("robot1@gmail.com", "password");
 
+		// gets all users it can send messages to
 		xmpp.getRoster();
 
-		xmpp.sendMessage("Hello DJ, this message is a chat from the new XMPP service in MRL - let me know if you get it", "grasshopperrocket@gmail.com");
+		// send a message
+		xmpp.sendMessage("Hello DJ, this message is a chat from the new XMPP service in MRL - let me know if you get it", "robot2@gmail.com");
 
 		// Runtime.createAndStart("gui", "GUIService");
 		/*

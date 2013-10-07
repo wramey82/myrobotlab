@@ -66,7 +66,7 @@ public class Plantoid extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "the plantoid service";
 	}
 

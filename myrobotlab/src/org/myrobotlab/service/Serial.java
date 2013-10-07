@@ -66,7 +66,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general template";
 	}
 

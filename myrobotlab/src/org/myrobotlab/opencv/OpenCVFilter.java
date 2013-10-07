@@ -82,7 +82,6 @@ public abstract class OpenCVFilter implements Serializable {
 	// check to see if inputkeys and other items are valid
 	public OpenCVFilter(String filterName, String sourceKey) {	
 		this.name = filterName;
-		this.vp = vp;
 		this.sourceKey = sourceKey;
 	}
 
@@ -124,6 +123,25 @@ public abstract class OpenCVFilter implements Serializable {
 	public void invoke(String method, Object...params)
 	{
 		vp.getOpencv().invoke(method, params);
+	}
+	
+	/*
+	
+	public String publishFilterState(String state)
+	{
+		return publishFilterState(this.name, state, (Object[])null);
+	}
+	
+	public String publishFilterState(String state, Object...data)
+	{
+		vp.getOpencv().invoke("publishFilterState", this.name, state, data);
+		return state;
+	}
+	*/
+	
+	public void broadcastFilterState(){
+		FilterWrapper fw = new FilterWrapper(this.name, this);
+		vp.getOpencv().invoke("publishFilterState", fw);
 	}
 	
 	

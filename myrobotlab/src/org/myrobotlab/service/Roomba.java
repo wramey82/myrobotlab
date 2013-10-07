@@ -66,7 +66,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "used as a general template";
 	}
 

@@ -532,7 +532,7 @@ public class Tracking extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "proportional control, tracking, and translation";
 	}
 

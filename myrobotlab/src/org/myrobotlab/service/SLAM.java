@@ -52,7 +52,7 @@ public class SLAM extends Service {
 
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>addendum of WiiDAR - SLAM (not implemented)</html>";
 	}
 

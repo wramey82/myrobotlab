@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.net.NanoHTTPD;
 import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.slf4j.Logger;
@@ -22,17 +23,21 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 	public final static Logger log = LoggerFactory.getLogger(WebServer.class);
 
 	private HashMap<String, HTTPProcessor> processors = new HashMap<String, HTTPProcessor>();
-	
+
 	private WebGUI webgui;
 
 	public String theme = "vader";
-		
+
+	HTTPProcessor defaultProcessor;
+
 	public WebServer(WebGUI webgui, int port) {
 		super(port);
 
 		this.webgui = webgui;
 		processors.put("/services", new RESTProcessor());
-		processors.put("/resource", new ResourceProcessor(this.webgui));
+		defaultProcessor = new ResourceProcessor(this.webgui);
+		processors.put("/resource", defaultProcessor);// FIXME < wrong should be
+														// root
 	}
 
 	@Override
@@ -40,14 +45,12 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	// TODO - caching ?
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		log.debug(String.format("%s [%s]", method, uri));
+		log.info(String.format("%s [%s]", method, uri));
 		String[] keys = uri.split("/");
 		String key = null;
-
-		// keys.length == 1 -> root
 
 		// needs routing to correct processor
 		if (keys.length > 1) {
@@ -59,18 +62,8 @@ public class WebServer extends NanoHTTPD implements HTTPProcessor {
 			}
 		}
 
-		Enumeration e = header.propertyNames();
-		while (e.hasMoreElements()) {
-			String value = (String) e.nextElement();
-			log.info("  HDR: '" + value + "' = '" + header.getProperty(value) + "'");
-		}
-		e = parms.propertyNames();
-		while (e.hasMoreElements()) {
-			String value = (String) e.nextElement();
-			log.info("  PRM: '" + value + "' = '" + parms.getProperty(value) + "'");
-		}
-
-		return serveFile(uri, header, new File("."), true);
+		log.info("handling with default processor");
+		return defaultProcessor.serve(uri, method, header, parms, socket);
 	}
 
 }

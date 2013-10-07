@@ -19,7 +19,7 @@ public class Red5 extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Red5 video/audio streaming service";
 	}
 

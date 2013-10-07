@@ -2,6 +2,7 @@ package org.myrobotlab.webgui;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,15 +11,24 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.slf4j.Logger;
 
 public class REST {
-
+	public final static Logger log = LoggerFactory.getLogger(REST.class);
+	
+	public static HashSet<String> defaultMethodFilter;
+	
 	// TODO - fixme - 
 	public String getServices() {
-		
+		if (defaultMethodFilter == null)
+		{
+			defaultMethodFilter = new HashSet<String>();
+			defaultMethodFilter.add("main"); // don't want main
+		}
 		StringBuffer content = new StringBuffer();
 		//String restServiceTemplate = FileIO.fileToString("rest.service.template.html");
 		String restServiceTemplate = FileIO.getResourceFile("rest/rest.service.template.html");
@@ -33,11 +43,13 @@ public class REST {
 				Map.Entry<String, ServiceWrapper> servicePair = serviceIt.next();
 				String serviceName = servicePair.getKey();
 				
+				log.debug(String.format("building method signatures for %s", serviceName));
+				
 				//serviceContent.append(String.format("<tr><td></td><td>%s</td><td></td></tr>", servicePair.getKey()));
 				//System.out.println(pairs.getKey() + " = " + pairs.getValue());
 				ServiceInterface si = servicePair.getValue().get();
 				String serviceType = si.getClass().getSimpleName();
-				Method[] methods = si.getClass().getMethods();
+				Method[] methods = si.getClass().getDeclaredMethods();// .getMethods(); FIXME - configurable MORE methods return
 				TreeMap<String, Method> ms = new TreeMap<String, Method>();
 				
 				// building key from method name and ordinal - since the 
@@ -45,31 +57,49 @@ public class REST {
 				for (int i = 0; i < methods.length; ++i)
 				{
 					Method m = methods[i];
-					ms.put(String.format("%s.%d", m.getName(), (m.getParameterTypes() != null)?m.getParameterTypes().length:0), m);					
+					String signature = String.format("%s.%d", m.getName(), (m.getParameterTypes() != null)?m.getParameterTypes().length:0);
+					// disregard anonymous and inner static classes
+					if (signature.contains("$") || defaultMethodFilter.contains(signature)) {
+						continue;
+					}
+					log.debug(signature);
+					ms.put(signature, m);					
 				}
 				
 				StringBuffer service = new StringBuffer("");
-				service.append("<table border=\"0\">");
+				service.append("<table border=\"1	\">");
 				for (Map.Entry<String,Method> me : ms.entrySet())
 				{
 					Method m = me.getValue();
+					log.info(m.getName());
 					Class<?>[] params = m.getParameterTypes();
 					
+					service.append("<tr><td>");
+					StringBuffer javadocParams = new StringBuffer();
+					javadocParams.append("");
 					if (params.length > 0)
 					{
-						service.append(String.format("<tr><td><form id=\"%1$s.%2$s\" method=\"GET\" action=\"/services/%1$s/%2$s\" > <a href=\"#\" onClick=\"buildRestURI(document.getElementById('%1$s.%2$s')); return false;\">%2$s</a>",serviceName, m.getName()));
+						service.append(String.format("<form id=\"%1$s.%2$s\" method=\"GET\" action=\"/services/%1$s/%2$s\" > <a href=\"#\" onClick=\"buildRestURI(document.getElementById('%1$s.%2$s')); return false;\">%2$s</a>",serviceName, m.getName()));
 						service.append(String.format("<input id=\"p0\" type=\"hidden\" value=\"%s\"/>", serviceName));
 						service.append(String.format("<input id=\"p1\" type=\"hidden\" value=\"%s\"/>", m.getName()));
 						for (int i = 0; i < params.length; ++i)
 						{
+							javadocParams.append(params[i].getCanonicalName());
+							if (i != params.length - 1){
+								javadocParams.append(", ");
+							}
 							service.append(String.format("<input id=\"p%d\" type=\"text\" />", i+2));
 						}
 					
-						service.append(String.format("</form></td></tr>"));
+						service.append(String.format("</form>"));
 						
 					} else {						
-						service.append(String.format("<tr><td><a href=\"/services/%s/%s\">%s</a></td></tr>", serviceName, m.getName(), m.getName()));
+						service.append(String.format("<a href=\"/services/%s/%s\">%s</a>", serviceName, m.getName(), m.getName()));
 					}
+					
+					String javadocURL = String.format("http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/javadoc/org/myrobotlab/service/%s.html#%s(%s)", serviceType, m.getName(), javadocParams);
+					
+					service.append(String.format("</td><td><a target=\"_blank\" href=\"%s\"><img src=\"/resource/unknown_grey.png\" width=\"25\" height=\"25\" /></a></td></tr>", javadocURL));
 				}
 				service.append("</table>");
 				
@@ -91,7 +121,7 @@ public class REST {
 	 */
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 		
 		Runtime.createAndStart("servo01", "Servo");
 		Runtime.createAndStart("motor01", "Motor");

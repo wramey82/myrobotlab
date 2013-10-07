@@ -26,7 +26,7 @@ public class GUIDynamic extends GUIService {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "drag and drop registry service";
 	}
 

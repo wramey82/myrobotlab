@@ -92,7 +92,7 @@ public class Log extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "logging service";
 	}
 

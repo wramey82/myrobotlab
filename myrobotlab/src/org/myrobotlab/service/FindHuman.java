@@ -287,7 +287,7 @@ public class FindHuman extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Find Human pan/tilt camera";
 	}
 

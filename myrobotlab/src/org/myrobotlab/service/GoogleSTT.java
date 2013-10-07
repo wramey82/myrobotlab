@@ -356,7 +356,7 @@ public class GoogleSTT extends Service implements SpeechRecognizer {
 	 * samples.length; level = (float) Math.sqrt(level); return level; }
 	 */
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "Uses the Google Speech To Text service";
 	}
 

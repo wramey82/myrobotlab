@@ -160,7 +160,7 @@ public class AWTRobot extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "based on Robot class,allows control of mouse/keyboard/screen capture";
 	}
 

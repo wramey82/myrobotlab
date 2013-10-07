@@ -487,7 +487,7 @@ public class WiiDAR extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>service used in conjection with a wii camera a laser for inexpensive WiiDAR, a LIDAR like system<br>" + "see http://myrobotlab.org/node/1";
 	}
 

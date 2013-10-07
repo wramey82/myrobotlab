@@ -206,7 +206,7 @@ public class Graphics extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "a graphics service encapsulating Java swing graphic methods";
 	}
 

@@ -97,7 +97,7 @@ public class GeneticProgramming extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "experiment in genetic programming";
 	}
 

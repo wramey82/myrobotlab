@@ -58,9 +58,8 @@ import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
-import org.myrobotlab.opencv.OpenCVFilterFlip;
-import org.myrobotlab.opencv.OpenCVFilterGray;
-import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
+import org.myrobotlab.opencv.OpenCVFilterGoodFeaturesToTrack;
+import org.myrobotlab.opencv.OpenCVFilterState;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;
@@ -363,14 +362,16 @@ public class OpenCV extends VideoSource {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV. ";
 	}
 
 	// filter dynamic data exchange begin ------------------
+	/* wrong place
 	public void broadcastFilterState() {
 		invoke("publishFilterState");
 	}
+	*/
 
 	/**
 	 * @param otherFilter
@@ -403,7 +404,23 @@ public class OpenCV extends VideoSource {
 			log.error("invokeFilterMethod " + filterName + " does not exist");
 		}
 	}
+	
+	
+	/**
+	 * publishing method for filters - used internally
+	 * @return FilterWrapper solves the problem of multiple types being resolved in the 
+	 * setFilterState(FilterWrapper data) method
+	 */
+	public FilterWrapper publishFilterState(FilterWrapper filterWrapper)
+	{
+		return filterWrapper;
+	}
 
+	/**
+	 * publishing method for filters - uses string parameter for remote invocation
+	 * @return FilterWrapper solves the problem of multiple types being resolved in the 
+	 * setFilterState(FilterWrapper data) method
+	 */
 	public FilterWrapper publishFilterState(String name) {
 		OpenCVFilter filter = getFilter(name);
 		if (filter != null) {
@@ -566,6 +583,13 @@ public class OpenCV extends VideoSource {
 	{
 		videoProcessor.setMinDelay(time);
 	}
+	
+	/*
+	public OpenCVFilterState publishFilterState(OpenCVFilterState state)
+	{
+		return state;
+	}
+	*/
 
 	public static void main(String[] args) throws Exception {
 
@@ -580,14 +604,21 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		opencv.capture();
+		
+//		opencv.setMinDelay(1000);
+		OpenCVFilterGoodFeaturesToTrack gf = new OpenCVFilterGoodFeaturesToTrack();
+		opencv.addFilter(gf);
 		//opencv.addFilter(new OpenCVFilterPyramidDown());
 		//opencv.addFilter(new OpenCVFilterGray());
-		OpenCVFilterFlip flip = new OpenCVFilterFlip();
-		flip.flipCode = 0; // horizontal
-		opencv.addFilter(flip);
+		//OpenCVFilterFlip flip = new OpenCVFilterFlip();
+		//flip.flipCode = 0; // horizontal
+		//opencv.addFilter(flip);
 				
 		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
 		gui.display();
+
+		gf.qualityLevel = 0.0004;
 		
 	}
 

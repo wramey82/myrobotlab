@@ -150,7 +150,7 @@ public class TestThrower extends Service {
 	}
 
 	@Override
-	public String getToolTip() {
+	public String getDescription() {
 		return "<html>service for junit tests</html>";
 	}
 

@@ -30,10 +30,10 @@ ArduinoGUI.prototype.getState = function(data) {
 	var connected = arduino.connected;
 	
 	if (connected) {
-		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-green.png");
+		$("#"+this.name+"-connected").attr("src","/WebGUI/common/button-green.png");
 		this.send("getVersion");
 	} else {
-		$("#"+this.name+"-connected").attr("src","/resource/WebGUI/common/button-red.png");
+		$("#"+this.name+"-connected").attr("src","/WebGUI/common/button-red.png");
 	}
 	
 	// boards begin ---
@@ -70,7 +70,7 @@ ArduinoGUI.prototype.getState = function(data) {
 		// FIXME - will need this.name in all identifier fields to be unique across 
 		// multiple arduinos...
 		$("#"+this.name+"-pinList").append(
-				"<div class='pin-set'><img id='"+this.name+"-pin-"+i+"-led' src='/resource/WebGUI/common/button-small-"+ ((pin.value == 1)?"green":"grey") +".png' />" +
+				"<div class='pin-set'><img id='"+this.name+"-pin-"+i+"-led' src='/WebGUI/common/button-small-"+ ((pin.value == 1)?"green":"grey") +".png' />" +
 				"<input type='checkbox' class='pin' name='"+this.name+"' id='"+i+"' "+ ((pin.value == 1)?"checked":"") +"/><label for='"+i+"'>" +pinLabel+ "</label>" +
 				"<input type='button' class='pinmode' value='out' pidId='"+i+"' name='"+this.name+"' id='"+i+"-test' />" +
 				((pin.type == 2)?"<div class='pwm' name='"+this.name+"' pwmId='"+i+"' id='"+i+"-slider'/><input class='pwm-value text ui-widget-content ui-corner-all slider-value' type='text' value='0' name='"+this.name+"' id='"+i+"-slider-value'/>":"") +
@@ -85,7 +85,7 @@ ArduinoGUI.prototype.getState = function(data) {
 	        var value = (this.checked)?1:0;
 		    var gui = guiMap[this.name];
 		    gui.send("digitalWrite", [parseInt(this.id), value]);
-		    $("#" + this.name+"-pin-"+this.id+"-led").attr("src",((this.checked)?"/resource/WebGUI/common/button-small-green.png":"/resource/WebGUI/common/button-small-grey.png"));
+		    $("#" + this.name+"-pin-"+this.id+"-led").attr("src",((this.checked)?"/WebGUI/common/button-small-green.png":"/WebGUI/common/button-small-grey.png"));
 	    	
 	      });
 	  });
@@ -309,7 +309,7 @@ ArduinoGUI.prototype.getPanel = function() {
 	"<div id='"+this.name+"-oscope-container'>" +
 	"<canvas class='oscope' id='"+this.name+"-oscope' width='750' height='582'></canvas>" +
 	"</div>" + 
-	//" <img src='/resource/WebGUI/Arduino/arduino.duemilanove.200.pins.png' />" +
+	//" <img src='/WebGUI/Arduino/arduino.duemilanove.200.pins.png' />" +
 	"</div>"  +
 	
 	"<div name='"+this.name+"' id='"+this.name+"-menu'>" +
@@ -323,7 +323,7 @@ ArduinoGUI.prototype.getPanel = function() {
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-ports' name='"+this.name+"'>" +
 	"    <option value=''>Select one...</option>" +
 	"  </select>" +
-	"    <img id='"+this.name+"-connected' name='"+this.name+"' src='/resource/WebGUI/common/button-red.png' />"+
+	"    <img id='"+this.name+"-connected' name='"+this.name+"' src='/WebGUI/common/button-red.png' />"+
 
 	"  <label>Board: </label>" +
 	"  <select class='text ui-widget-content ui-corner-all' id='"+this.name+"-boards' name='"+this.name+"'>" +

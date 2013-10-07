@@ -317,6 +317,6 @@ PythonGUI.prototype.getPanel = function() {
 	"    </div>" +
 	"    <span onclick='add()' class='large-button' title='Shift+Enter'>+</span>" +
 	"</div>" +
-	"<script src='/resource/WebGUI/common/ace/src-min/ace.js' type='text/javascript' charset='utf-8'></script>"
+	"<script src='/WebGUI/common/ace/src-min/ace.js' type='text/javascript' charset='utf-8'></script>"
 	;
 }
