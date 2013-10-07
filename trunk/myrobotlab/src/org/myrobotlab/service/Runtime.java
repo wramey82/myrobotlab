@@ -1164,36 +1164,29 @@ public class Runtime extends Service {
 	// ---------------- Runtime begin --------------
 
 	/**
-	 * 
+	 * prints help to the console
 	 */
 	static void help() {
 		System.out.println(String.format("Runtime %s", FileIO.getResourceFile("version.txt")));
 		System.out.println("-h       			# help ");
-		System.out.println("-list        		# list services");
+		System.out.println("-v        			# print version");
+		System.out.println("-update  			# force update");
+		System.out.println("-runtimeName  		# rename the Runtime service - prevents multiple instance name collisions");
 		System.out.println("-logToConsole       # redirects logging to console");
 		System.out.println("-logLevel        	# log level [DEBUG | INFO | WARNING | ERROR | FATAL]");
-		System.out.println("-service [Service Name] [Service] ...");
+		System.out.println("-service [Service Name] [Service Type] ...  # create and start list of services, e.g. -service gui GUIService");
 		System.out.println("example:");
 		System.out.println(helpString);
 	}
 
 	/**
-	 * 
+	 * creates and starts service from a cmd line object
 	 * @param cmdline
+	 * data object from the cmd line
 	 */
-	public final static void createServices(CMDLine cmdline) {
+	public final static void createAndStartServices(CMDLine cmdline) {
 
-		if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
-			help();
-			return;
-		}
-
-		if (cmdline.containsKey("-v") || cmdline.containsKey("--version")) {
-			System.out.print(FileIO.getResourceFile("version.txt"));
-			return;
-		}
-
-		System.out.println(String.format("createServices service count %1$d", cmdline.getArgumentCount("-service") / 2));
+		System.out.println(String.format("createAndStartServices service count %1$d", cmdline.getArgumentCount("-service") / 2));
 
 		if (cmdline.getArgumentCount("-service") > 0 && cmdline.getArgumentCount("-service") % 2 == 0) {
 
@@ -1231,17 +1224,26 @@ public class Runtime extends Service {
 		 * else if (cmdline.hasSwitch("-list")) { Runtime runtime =
 		 * Runtime.getInstance(); if (runtime == null) {
 		 * 
-		 * } else { System.out.println(getServiceShortClassNames()); } return; }
+		 * } else { System.out.println(getServiceSimpleNames()); } return; }
 		 */
 		help();
 	}
 
 	/**
+	 * Returns an array of all the simple type names of all the possible services.
+	 * The data originates from the repo's serviceData.xml file
+	 * https://code.google.com/p/myrobotlab/source/browse/trunk/myrobotlab/thirdParty/repo/serviceData.xml
+	 * 
+	 * There is a local one distributed with the install zip
+	 * When a "update" is forced, MRL will try to download the latest copy from the repo.
+	 * 
+	 * The serviceData.xml lists all service types, dependencies, categories and other
+	 * relevant information regarding service creation
 	 * 
 	 * @return
 	 */
-	public String[] getServiceShortClassNames() {
-		return getServiceShortClassNames("all");
+	public String[] getServiceSimpleNames() {
+		return getServiceSimpleNames("all");
 	}
 
 	/**
@@ -1249,8 +1251,8 @@ public class Runtime extends Service {
 	 * @param filter
 	 * @return
 	 */
-	public String[] getServiceShortClassNames(String filter) {
-		return serviceInfo.getShortClassNames(filter);
+	public String[] getServiceSimpleNames(String filter) {
+		return serviceInfo.getSimpleNames(filter);
 	}
 
 	/**
@@ -1286,13 +1288,12 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * this "should" be the gateway function to a MyRobotLab instance going
-	 * through this main will allow the see{@link}MyRobotLabClassLoader to load
-	 * the appropriate classes and give access to the addURL to allow dynamic
-	 * additions of new modules without having to restart.
+	 * Main starting method of MyRobotLab
+	 * Parses command line options
 	 * 
-	 * TODO : -cmd <method> invokes the appropriate static method e.g. -cmd
-	 * setLogLevel DEBUG
+	 * -h help
+	 * -v version
+	 * -list 
 	 * 
 	 * @param args
 	 */
@@ -1305,6 +1306,15 @@ public class Runtime extends Service {
 
 		try {
 
+			if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
+				help();
+				return;
+			}
+
+			if (cmdline.containsKey("-v") || cmdline.containsKey("--version")) {
+				System.out.print(FileIO.getResourceFile("version.txt"));
+				return;
+			}
 			if (cmdline.containsKey("-runtimeName")) {
 				runtimeName = cmdline.getSafeArgument("-runtimeName", 0, "MRL");
 			}
@@ -1355,7 +1365,7 @@ public class Runtime extends Service {
 					log.error("not implemented yet");
 				}
 			} else {
-				createServices(cmdline);
+				createAndStartServices(cmdline);
 			}
 
 			invokeCommands(cmdline);
