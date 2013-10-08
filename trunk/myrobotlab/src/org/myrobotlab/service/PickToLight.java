@@ -84,7 +84,7 @@ public class PickToLight extends Service {
 
 	public PickToLight(String n) {
 		super(n, PickToLight.class.getCanonicalName());
-		arduinoToPort.put(String.format("%s.arduino.1", getName()), "/dev/ttyACM0");
+		arduinoToPort.put(String.format("%s-arduino-1", getName()), "/dev/ttyACM0");
 		loadDefaultMap();
 	}
 	
@@ -186,56 +186,56 @@ public class PickToLight extends Service {
 
 	public void loadDefaultMap() {
 
-		addDevice(String.format("%s.arduino.1", getName()), "17", 8, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "17", 9, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "17", 8, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "17", 9, LED_01);
 
-		addDevice(String.format("%s.arduino.1", getName()), "18", 7, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "18", 6, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "23", 5, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "23", 4, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "24", 3, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "24", 2, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "18", 7, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "18", 6, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "23", 5, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "23", 4, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "24", 3, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "24", 2, SWITCH_01);
 
-		addDevice(String.format("%s.arduino.1", getName()), "22", 14, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "22", 15, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "21", 16, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "21", 17, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "20", 18, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "20", 19, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "19", 20, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "19", 21, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "22", 14, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "22", 15, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "21", 16, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "21", 17, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "20", 18, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "20", 19, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "19", 20, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "19", 21, SWITCH_01);
 
-		addDevice(String.format("%s.arduino.1", getName()), "02", 22, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "02", 23, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "03", 24, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "03", 25, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "04", 26, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "04", 27, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "05", 28, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "05", 29, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "06", 30, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "06", 31, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "07", 32, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "07", 33, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "08", 34, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "08", 35, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "09", 36, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "09", 37, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "02", 22, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "02", 23, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "03", 24, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "03", 25, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "04", 26, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "04", 27, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "05", 28, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "05", 29, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "06", 30, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "06", 31, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "07", 32, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "07", 33, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "08", 34, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "08", 35, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "09", 36, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "09", 37, LED_01);
 
-		addDevice(String.format("%s.arduino.1", getName()), "10", 38, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "10", 39, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "11", 40, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "11", 41, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "12", 42, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "12", 43, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "13", 44, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "13", 45, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "14", 46, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "14", 47, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "15", 48, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "15", 49, LED_01);
-		addDevice(String.format("%s.arduino.1", getName()), "16", 50, SWITCH_01);
-		addDevice(String.format("%s.arduino.1", getName()), "16", 51, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "10", 38, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "10", 39, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "11", 40, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "11", 41, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "12", 42, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "12", 43, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "13", 44, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "13", 45, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "14", 46, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "14", 47, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "15", 48, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "15", 49, LED_01);
+		addDevice(String.format("%s-arduino-1", getName()), "16", 50, SWITCH_01);
+		addDevice(String.format("%s-arduino-1", getName()), "16", 51, LED_01);
 
 	}
 
@@ -319,7 +319,7 @@ public class PickToLight extends Service {
 
 		}
 
-		return String.format("%s.digitalWrite(%s)", String.format("%s.arduino.1", getName()), binList);
+		return String.format("%s.digitalWrite(%s)", String.format("%s-arduino-1", getName()), binList);
 	}
 
 	// LOWER LEVEL PIN CALLS
@@ -330,7 +330,7 @@ public class PickToLight extends Service {
 
 		PickToLight pickToLight = new PickToLight("pickToLight");
 		pickToLight.arduinoToPort.clear();
-		//pickToLight.arduinoToPort.put(String.format("%s.arduino.1", getName()), "COM4");
+		//pickToLight.arduinoToPort.put(String.format("%s-arduino-1", getName()), "COM4");
 		pickToLight.startService();
 		
 		/*
