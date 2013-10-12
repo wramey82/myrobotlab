@@ -1,0 +1,25 @@
+<GUIService>
+   <name>gui</name>
+   <allowExport>true</allowExport>
+   <lastTabVisited>remote</lastTabVisited>
+   <lastHost>192.168.0.2</lastHost>
+   <lastPort>6767</lastPort>
+   <serviceType string="python">
+      <dependsOn>
+         <x>475</x>
+         <y>174</y>
+         <width>756</width>
+         <height>587</height>
+         <isDocked>true</isDocked>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="clock">
+      <dependsOn>
+         <x>1058</x>
+         <y>314</y>
+         <width>381</width>
+         <height>141</height>
+         <isDocked>true</isDocked>
+      </dependsOn>
+   </serviceType>
+</GUIService>

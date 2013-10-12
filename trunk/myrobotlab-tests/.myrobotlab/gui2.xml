@@ -1,0 +1,6 @@
+<GUIService>
+   <name>gui2</name>
+   <allowExport>true</allowExport>
+   <lastHost>127.0.0.1</lastHost>
+   <lastPort>6767</lastPort>
+</GUIService>

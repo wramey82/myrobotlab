@@ -1,0 +1,3 @@
+#JSGF V1.0;
+grammar ear;
+public <greet> = (off|on|yes|yeah|correct|ya|nope|no|wrong|nah);
