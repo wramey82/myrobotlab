@@ -40,7 +40,7 @@ public class Plantoid extends Service {
 	public String port = "/dev/ttyACM0";
 	
 	/**
-	 * default pin of legs d2 through d5
+	 * default pin of legs leg1 through leg4
 	 */
 	public int leg1Pin = 2;
 	public int leg2Pin = 3;
@@ -78,10 +78,10 @@ public class Plantoid extends Service {
 		super(n, Plantoid.class.getCanonicalName());
 
 		reserve("arduino", "Arduino", "Plantoid has one arduino controlling all the servos and sensors");
-		reserve("d3", "Servo", "one of the driving servos");
-		reserve("d4", "Servo", "one of the driving servos");
-		reserve("d5", "Servo", "one of the driving servos");
-		reserve("d2", "Servo", "one of the driving servos");
+		reserve("leg1", "Servo", "one of the driving servos");
+		reserve("leg2", "Servo", "one of the driving servos");
+		reserve("leg3", "Servo", "one of the driving servos");
+		reserve("leg4", "Servo", "one of the driving servos");
 
 		reserve("pan", "Servo", "pan servo");
 		reserve("tilt", "Servo", "tilt servo");
@@ -111,10 +111,10 @@ public class Plantoid extends Service {
 			arduino = (Arduino) startReserved("arduino");
 			arduino.connect(port);
 
-			leg1 = (Servo) startReserved("d2");
-			leg2 = (Servo) startReserved("d3");
-			leg3 = (Servo) startReserved("d4");
-			leg4 = (Servo) startReserved("d5");
+			leg1 = (Servo) startReserved("leg1");
+			leg2 = (Servo) startReserved("leg2");
+			leg3 = (Servo) startReserved("leg3");
+			leg4 = (Servo) startReserved("leg4");
 
 			
 			pan = (Servo) startReserved("pan");

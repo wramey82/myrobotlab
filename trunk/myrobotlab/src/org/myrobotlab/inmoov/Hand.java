@@ -1,13 +1,12 @@
 package org.myrobotlab.inmoov;
 
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 
 public class Hand {
-	private String side;
+	private String key;
 
 	private InMoov inmoov;
 	
@@ -55,6 +54,7 @@ public class Hand {
 	
 	public Hand startHand(InMoov inmoov, String port, String key, int thumb, int index, int majeure, int ringFinger, int pinky, int wrist) {
 		Arduino arduino = inmoov.getArduino(port);
+		this.key = key;
 		
 		if (arduino == null || !arduino.isConnected())
 		{
@@ -62,6 +62,7 @@ public class Hand {
 			return null;
 		}
 
+		// IMPORTANT - THESE ARE KEY NAMES !!! BETTER BE CORRECT !!!
 		this.thumb = (Servo) Runtime.startReserved(String.format("thumb%s", key));
 		this.index = (Servo) Runtime.startReserved(String.format("index%s", key));
 		this.majeure = (Servo) Runtime.startReserved(String.format("majeure%s", key));
@@ -174,7 +175,7 @@ public class Hand {
 	}
 
 	public String getScript(String inMoovServiceName) {
-		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, side, thumb.getPosition(), index.getPosition(), majeure.getPosition(),
+		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, key, thumb.getPosition(), index.getPosition(), majeure.getPosition(),
 				ringFinger.getPosition(), pinky.getPosition(), wrist.getPosition());
 	}
 }
