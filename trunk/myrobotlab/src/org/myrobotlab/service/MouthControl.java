@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
@@ -12,21 +13,27 @@ public class MouthControl extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(MouthControl.class.getCanonicalName());
 
-	public int MouthPin = 9;
 	public int Mouthclose = 20;
 	public int Mouthopen = 4;
 	public int delaytime = 100;
 	public int delaytimestop = 200;
 	public int delaytimeletter = 60;
-	public Servo mouthServo;
+
+	transient public Servo jawServo;
+	transient public Arduino arduino;
+	transient public Speech mouth;
 
 	public MouthControl(String n) {
 		super(n, MouthControl.class.getCanonicalName());
+		reserve("jaw", "Servo", "Servo for jaw");
+		reserve("arduino", "Arduino", "Arduino for jaw");
+		reserve("mouth", "mouth", "Speech synthesis service");
 	}
 
 	// --- set servo pin
-	public void setpin(Integer pin) {
-		MouthPin = pin;
+	public void setpin(int pin) {
+		jawServo = (Servo) createReserved("jaw");
+		jawServo.setPin(pin);
 	}
 
 	public void setdelays(Integer d1, Integer d2, Integer d3) {
@@ -40,30 +47,37 @@ public class MouthControl extends Service {
 		Mouthopen = opened;
 	}
 
-	public boolean attach(Arduino arduino, Speech mouth) {
+	public void startService() {
+		super.startService();
+		try {
+			jawServo = (Servo) startReserved("jaw");
+			arduino = (Arduino) startReserved("arduino");
+			mouth = (Speech) startReserved("mouth");
+			
+			subscribe("saying", mouth.getName(), "saying");
+			
+			// pin needs to be set by user !
+			if (jawServo.getPin() == null) {
+				error("jaw servo pin not set");
+				return;
+			}
 
-		if (arduino != null && mouth != null) {
-			mouthServo = (Servo) Runtime.createAndStart("mouthMove", "Servo");
-			// attach to controller
-			// ------------- changed to use set pins
-			arduino.servoAttach(mouthServo.getName(), MouthPin);
+			if (!arduino.isConnected()) {
+				error("arduino %s must be connected before attaching servo %s", arduino.getName(), jawServo.getName());
+				return;
+			} else {
+				arduino.servoAttach(jawServo.getName(), jawServo.getPin());
+			}
 
-			// broadcastState();
-			subscribe("saying", mouth.getName(), "saying", String.class);
-			log.info(String.format("attached Mouth Control service %s to speech service %s with default message routes", mouth.getName(), getName()));
-			// mouthServo.moveTo(Mouthclose);
-			sleep(5);
-			return true;
-		} else {
-			log.info("did not get right arrg to attach mouth control.");
-			return false;
+		} catch (Exception e) {
+			Logging.logException(e);
 		}
 
 	}
 
 	public synchronized void saying(String text) {
 		log.info("move moving to :" + text);
-		if (mouthServo != null) { // mouthServo.moveTo(Mouthopen);
+		if (jawServo != null) { // mouthServo.moveTo(Mouthopen);
 			boolean ison = false;
 			String testword;
 			String[] a = text.split(" ");
@@ -89,11 +103,11 @@ public class MouthControl extends Service {
 
 					if ((s == 'a' || s == 'e' || s == 'i' || s == 'o' || s == 'u' || s == 'y') && !ison) {
 
-						mouthServo.moveTo(Mouthopen); // # move the servo to the
-														// open spot
+						jawServo.moveTo(Mouthopen); // # move the servo to the
+													// open spot
 						ison = true;
 						sleep(delaytime);
-						mouthServo.moveTo(Mouthclose);// #// close the servo
+						jawServo.moveTo(Mouthclose);// #// close the servo
 					} else if (s == '.') {
 						ison = false;
 						sleep(delaytimestop);
@@ -114,18 +128,7 @@ public class MouthControl extends Service {
 
 	@Override
 	public String getDescription() {
-		return "used as a general template";
-	}
-
-	@Override
-	public void stopService() {
-		super.stopService();
-	}
-
-	@Override
-	public void releaseService() {
-		super.releaseService();
-
+		return "mouth movements based on spoken text";
 	}
 
 	public static void main(String[] args) {
@@ -146,8 +149,8 @@ public class MouthControl extends Service {
 		// create an Arduino service named arduino
 		// Arduino arduino = new Arduino("arduino");
 		// arduino.startService();
-		// Speech speech = new Speech("speech");
-		// speech.startService();
+		// Speech mouth = new Speech("mouth");
+		// mouth.startService();
 
 		// # set the board type
 		// arduino.setBoard("atmega328p"); // atmega168 | mega2560 | etc
@@ -163,9 +166,9 @@ public class MouthControl extends Service {
 		// #words =
 		// # Speak with initial defaults - Google en
 
-		// MouthControl.attach(arduino, speech);
+		// MouthControl.attach(arduino, mouth);
 		// sleep(5);
-		// speech.speak("hello it is a pleasure to meet you.");
+		// mouth.speak("hello it is a pleasure to meet you.");
 	}
 
 }

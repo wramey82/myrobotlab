@@ -2,37 +2,23 @@ package org.myrobotlab.inmoov;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.InMoov;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 
 public class Hand {
 	private String side;
 
+	private InMoov inmoov;
+	
 	public Servo thumb;
 	public Servo index;
 	public Servo majeure;
 	public Servo ringFinger;
 	public Servo pinky;
 	public Servo wrist;
-	// ------------- added pins and the defaults
-	public int thumbPin=2;
-	public int indexPin=3;
-	public int majeurePin=4;
-	public int ringFingerPin=5;
-	public int pinkyPin=6;
-	public int wristPin=7;
 
 	public Hand() {
-	}
-	
-	public void setInverted(boolean isInverted)
-	{
-		thumb.setInverted(isInverted);
-		index.setInverted(isInverted);
-		majeure.setInverted(isInverted);
-		ringFinger.setInverted(isInverted);
-		pinky.setInverted(isInverted);
-		wrist.setInverted(isInverted);
 	}
 
 	public void moveTo(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
@@ -56,6 +42,7 @@ public class Hand {
 		wrist.moveTo(90);
 	}
 	// ------------- added set pins
+	/*
 	public void setpins(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist){
 		 thumbPin=thumb;
 		 indexPin=index;
@@ -64,31 +51,47 @@ public class Hand {
 		 pinkyPin=pinky;
 		 wristPin=wrist;
 	}
+	*/
 	
-	public void attach(Arduino arduino, String key) {
-		// create finger and wrist servos
-		side = key;
-		thumb = (Servo) Runtime.createAndStart(String.format("thumb%s", key), "Servo");
-		index = (Servo) Runtime.createAndStart(String.format("index%s", key), "Servo");
-		majeure = (Servo) Runtime.createAndStart(String.format("majeure%s", key), "Servo");
-		ringFinger = (Servo) Runtime.createAndStart(String.format("ringFinger%s", key), "Servo");
-		pinky = (Servo) Runtime.createAndStart(String.format("pinky%s", key), "Servo");
-		wrist = (Servo) Runtime.createAndStart(String.format("wrist%s", key), "Servo");
+	public Hand startHand(InMoov inmoov, String port, String key, int thumb, int index, int majeure, int ringFinger, int pinky, int wrist) {
+		Arduino arduino = inmoov.getArduino(port);
+		
+		if (arduino == null || !arduino.isConnected())
+		{
+			inmoov.error("%s is invalid could not start %s hand", port, key);
+			return null;
+		}
 
-		Service.sleep(500);
+		this.thumb = (Servo) Runtime.startReserved(String.format("thumb%s", key));
+		this.index = (Servo) Runtime.startReserved(String.format("index%s", key));
+		this.majeure = (Servo) Runtime.startReserved(String.format("majeure%s", key));
+		this.ringFinger = (Servo) Runtime.startReserved(String.format("ringFinger%s", key));
+		this.pinky = (Servo) Runtime.startReserved(String.format("pinky%s", key));
+		this.wrist = (Servo) Runtime.startReserved(String.format("wrist%s", key));
+
+		this.thumb.setPin(thumb);
+		this.index.setPin(index);
+		this.majeure.setPin(majeure);
+		this.ringFinger.setPin(ringFinger);
+		this.pinky.setPin(pinky); 
+		this.wrist.setPin(wrist);
+
+		
 		// attach the controller
 		// ------------- changed to used set pins
-		arduino.servoAttach(thumb.getName(), thumbPin);
-		arduino.servoAttach(index.getName(), indexPin);
-		arduino.servoAttach(majeure.getName(), majeurePin);
-		arduino.servoAttach(ringFinger.getName(), ringFingerPin);
-		arduino.servoAttach(pinky.getName(), pinkyPin);
-		arduino.servoAttach(wrist.getName(), wristPin);
+		arduino.servoAttach(this.thumb.getName());
+		arduino.servoAttach(this.index.getName());
+		arduino.servoAttach(this.majeure.getName());
+		arduino.servoAttach(this.ringFinger.getName());
+		arduino.servoAttach(this.pinky.getName());
+		arduino.servoAttach(this.wrist.getName());
 
 		rest();
 
 		broadcastState();
+		return this;
 	}
+	
 
 	public void broadcastState() {
 		// notify the gui

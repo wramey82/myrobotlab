@@ -18,14 +18,14 @@ public class Head {
 	private InMoov inmoov;
 	public boolean allowMove = true;
 	// ------------- added pins and defaults
-	//public int eyeXPin=3;
-	//public int eyeYPin=5;
+	public int eyeXPin=3;
+	public int eyeYPin=5;
 	public int neckPin=12;
 	public int rotHeadPin=13;
 	// ------------- added set pins
 	public void setpins(Integer eyeX, Integer eyeY, Integer neck, Integer rotHead) {
-		//eyeXPin=eyeX;
-		//eyeYPin=eyeY;
+		eyeXPin=eyeX;
+		eyeYPin=eyeY;
 		neckPin=neck;
 		rotHeadPin=rotHead;
 	}
@@ -40,8 +40,8 @@ public class Head {
 
 		inmoov.neck = (Servo) Runtime.createAndStart("neck", "Servo");
 		inmoov.rothead = (Servo) Runtime.createAndStart("rothead", "Servo");
-		inmoov.eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
-		inmoov.tracking = (Tracking) Runtime.create("tracking", "Tracking");
+		inmoov.opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		inmoov.headTracking = (Tracking) Runtime.create("tracking", "Tracking");
 		inmoov.eyeX = (Servo) Runtime.createAndStart("eyeX", "Servo");
 		inmoov.eyeY = (Servo) Runtime.createAndStart("eyeY", "Servo");
 				
@@ -57,21 +57,21 @@ public class Head {
 		inmoov.neck.setPositionMin(20);
 		inmoov.neck.setPositionMax(160);
 	
-		inmoov.tracking.arduino = inmoov.arduinoHead;
+		inmoov.headTracking.arduino = inmoov.arduinoHead;
 		
 		// name binding
 		//inmoov.tracking.xName = inmoov.rothead.getName();
 		//inmoov.tracking.yName = inmoov.neck.getName();
-		//inmoov.tracking.opencvName = inmoov.eye.getName();
+		//inmoov.tracking.opencvName = inmoov.opencv.getName();
 		
-		inmoov.tracking.attachServos(rotHeadPin, neckPin);
+		inmoov.headTracking.attachServos(rotHeadPin, neckPin);
 		
-		inmoov.tracking.eye.setInputSource("camera");
-		inmoov.tracking.subscribe("publishOpenCVData", inmoov.eye.getName(), "setOpenCVData", OpenCVData.class);
+		inmoov.headTracking.opencv.setInputSource("camera");
+		inmoov.headTracking.subscribe("publishOpenCVData", inmoov.opencv.getName(), "setOpenCVData", OpenCVData.class);
 		
-		inmoov.tracking.startService();
+		inmoov.headTracking.startService();
 
-		inmoov.eye.broadcastState();
+		inmoov.opencv.broadcastState();
 		inmoov.neck.broadcastState();
 		inmoov.rothead.broadcastState();
 		
@@ -82,34 +82,34 @@ public class Head {
 	{
 		cameraGray();
 		cameraReduce();
-		inmoov.tracking.eye.capture();
+		inmoov.headTracking.opencv.capture();
 	}
 
 	public void cameraOff()
 	{
-		inmoov.tracking.eye.stopCapture();
+		inmoov.headTracking.opencv.stopCapture();
 	}
 	
 	public void cameraGray()
 	{
 		OpenCVFilterGray gray = new OpenCVFilterGray("gray");
-		inmoov.tracking.eye.addFilter(gray);
+		inmoov.headTracking.opencv.addFilter(gray);
 	}
 	
 	public void cameraColor()
 	{
-		inmoov.tracking.eye.removeFilter("gray");
+		inmoov.headTracking.opencv.removeFilter("gray");
 	}
 	
 	public void cameraReduce()
 	{
 		OpenCVFilterPyramidDown pyramidDown = new OpenCVFilterPyramidDown("pyramidDown");
-		inmoov.tracking.eye.addFilter(pyramidDown);
+		inmoov.headTracking.opencv.addFilter(pyramidDown);
 	}
 	
 	public void cameraEnlarge()
 	{
-		inmoov.tracking.eye.removeFilter("pyramidDown");
+		inmoov.headTracking.opencv.removeFilter("pyramidDown");
 	}
 
 	public void move(Integer neck, Integer rothead) {
@@ -146,8 +146,8 @@ public class Head {
 		inmoov.rothead = null;
 		inmoov.neck.releaseService();
 		inmoov.neck = null;
-		inmoov.tracking.releaseService();
-		inmoov.tracking = null;
+		inmoov.headTracking.releaseService();
+		inmoov.headTracking = null;
 		inmoov.eyeX.releaseService();
 		inmoov.eyeX = null;
 		inmoov.eyeY.releaseService();

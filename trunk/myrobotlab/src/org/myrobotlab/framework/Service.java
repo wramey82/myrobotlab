@@ -94,8 +94,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// host + ":" + servicePort + serviceClass + "/" +
 	// this.getClass().getCanonicalName() + "/" + name;
 
-	HashMap<String, ServiceReservation> reservations = new HashMap<String, ServiceReservation>();
-	
+	static public HashMap<String, ServiceReservation> reservations = new HashMap<String, ServiceReservation>();
+
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
 	protected String host = null; // TODO - should be final??? helpful in
@@ -107,17 +107,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public final String serviceClass; // TODO - remove
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
-	
+
 	transient Outbox outbox = null;
 	transient Inbox inbox = null;
-	
+
 	@Element
-	protected boolean allowExport = true; 
+	protected boolean allowExport = true;
 	@Element
-	protected boolean allowDisplay = true; 
-	
+	protected boolean allowDisplay = true;
+
 	public URI url = null;
-	
+
 	public transient final Timer timer;
 
 	transient protected CommunicationInterface cm = null;
@@ -138,11 +138,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
-	
+
 	// using a HashMap means no duplicates
 	protected Set<String> methodSet;
 
-	
 	transient private Serializer serializer = new Persister();
 
 	transient SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
@@ -183,6 +182,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	/**
 	 * local service constructor - initializes with null host env
+	 * 
 	 * @param instanceName
 	 * @param serviceClass
 	 */
@@ -193,86 +193,91 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getName() {
 		return name;
 	}
-	
 
-/**
- * This method re-binds the key to another name.
- * An example of where this would be used is within Tracking there
- * is an Servo service named "x", however it may be desired to bind this
- * to an already existing service named "pan" in a pan/tilt system
- * @param key
- * key internal name
- * @param newName
- * new name of bound peer service 
- * @return
- * true if re-binding took place
- */
-public boolean reserveAs(String key, String newName)
-{
-	if (!reservations.containsKey(key))
-	{
-		error("can not find %s to reserve name %s", key, newName);
-		return false;
+	/**
+	 * This method re-binds the key to another name. An example of where this
+	 * would be used is within Tracking there is an Servo service named "x",
+	 * however it may be desired to bind this to an already existing service
+	 * named "pan" in a pan/tilt system
+	 * 
+	 * @param key
+	 *            key internal name
+	 * @param newName
+	 *            new name of bound peer service
+	 * @return true if re-binding took place
+	 */
+	static public boolean reserveAs(String key, String newName) {
+		if (!reservations.containsKey(key)) {
+			log.error(String.format("reserveAs can not find %s to reserve name %s !!", key, newName));
+			return false;
+		}
+
+		reservations.get(key).actualName = newName;
+		return true;
 	}
-	
-	reservations.get(key).actualName = newName;
-	return true;
-}
 
-/**
- * Reserves a name for a Service. This is important for services
- * which control other services. Internally composite services will use
- * a key so the name of the peer service can change, effectively binding
- * a new peer to the composite
- * @param key
- * internal key name of peer servvice
- * @param simpleTypeName
- * type of service
- * @param comment
- * comment detailing the use of the peer service within the composite
- */
-public void reserve(String key,  String simpleTypeName, String comment)
-{
-	reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
-}
-
-/**
- * Create the reserved peer service if it has not already been created
- * @param key
- * unique identification of the peer service used by the composite
- * @return
- * true if successfully created
- */
-public ServiceInterface createReserved(String key)
-{
-	if (reservations.containsKey(key)){
-		ServiceReservation r = reservations.get(key);
-		return Runtime.create(r.actualName, r.simpleTypeName);
+	/**
+	 * Reserves a name for a Service. This is important for services which
+	 * control other services. Internally composite services will use a key so
+	 * the name of the peer service can change, effectively binding a new peer
+	 * to the composite
+	 * 
+	 * @param key
+	 *            internal key name of peer servvice
+	 * @param simpleTypeName
+	 *            type of service
+	 * @param comment
+	 *            comment detailing the use of the peer service within the
+	 *            composite
+	 */
+	static public void reserve(String key, String simpleTypeName, String comment) {
+		reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
 	}
-	
-	error("can not start reservation %s", key);
-	return null;
-}
 
-/**
- * start reserved peer service by composite
- * @param key
- * internal identifier
- * @return
- * true if successfully started
- */
-public ServiceInterface startReserved(String key)
-{
-	ServiceInterface s = createReserved(key);
-	if (s != null)
-	{
-		s.startService();
-		return s;
+	/**
+	 * Create the reserved peer service if it has not already been created
+	 * 
+	 * @param key
+	 *            unique identification of the peer service used by the
+	 *            composite
+	 * @return true if successfully created
+	 */
+	static public ServiceInterface createReserved(String key) {
+		if (reservations.containsKey(key)) {
+			ServiceReservation r = reservations.get(key);
+			return Runtime.create(r.actualName, r.simpleTypeName);
+		}
+
+		log.error("can not start reservation %s", key);
+		return null;
 	}
-	return null;
-}
 
+	/**
+	 * start reserved peer service by composite
+	 * 
+	 * @param key
+	 *            internal identifier
+	 * @return true if successfully started
+	 */
+	static public ServiceInterface startReserved(String key) {
+		ServiceInterface s = createReserved(key);
+		if (s != null) {
+			s.startService();
+			return s;
+		}
+		return null;
+	}
 
+	/**
+	 * Returns the current map of reservations. This can be used after a complex
+	 * composite services is created, it can be queried for what peer services
+	 * it will create.
+	 * 
+	 * @return
+	 */
+	static public HashMap<String, ServiceReservation> getReservations() {
+		return reservations;
+	}
 
 	/**
 	 * 
@@ -284,25 +289,24 @@ public ServiceInterface startReserved(String key)
 
 		// load all string signatures of our methods
 		// FIXME - use Method - currently does not support parameters
-		if (methodSet == null)
-		{
+		if (methodSet == null) {
 			methodSet = getMessageSet();
 		}
-		
-		
-		// if I'm not a Runtime and not explicitly requesting a Runtime - then start a Runtime
+
+		// if I'm not a Runtime and not explicitly requesting a Runtime - then
+		// start a Runtime
 		if (!Runtime.isRuntime(this) && !serviceClass.equals("org.myrobotlab.service.Runtime")) {
 			Runtime.getInstance();
 		}
 
 		if (inHost != null) {
 			try {
-				url = new URI(inHost); 
+				url = new URI(inHost);
 			} catch (Exception e) {
 				log.error(String.format("%1$s not a valid URI", inHost));
 			}
 		}
-		
+
 		host = getHostName(inHost);
 		name = instanceName;
 		this.timer = new Timer(String.format("%s_timer", name));
@@ -333,12 +337,11 @@ public ServiceInterface startReserved(String key)
 		TSFormatter.setCalendar(cal);
 
 		// FIXME - deprecate - remove !
-		//registerServices();
-	
+		// registerServices();
+
 		Runtime.register(this, url);
 	}
 
-	
 	public static synchronized void initialize() {
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
@@ -362,16 +365,15 @@ public ServiceInterface startReserved(String key)
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
 		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.vm.vendor")));
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
-		
+
 		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.runtime.version")));
 
-		
 		log.info(String.format("java.home [%s]", System.getProperty("java.home")));
 		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
 		log.info(String.format("java.class.path [%s]", System.getProperty("java.class.path")));
 		log.info(String.format("java.library.path [%s]", libararyPath));
 		log.info(String.format("user.dir [%s]", userDir));
-		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576)); 
+		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576));
 		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
 
 		// load root level configuration
@@ -400,12 +402,10 @@ public ServiceInterface startReserved(String key)
 		return true;
 	}
 
-
 	/**
 	 * method of serializing default will be simple xml to name file
 	 */
 	public boolean save() {
-		
 
 		try {
 			File cfg = new File(String.format("%s%s%s.xml", cfgDir, File.separator, this.getName()));
@@ -562,7 +562,6 @@ public ServiceInterface startReserved(String key)
 		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
 	}
 
-
 	/**
 	 * sleep without the throw
 	 * 
@@ -580,8 +579,7 @@ public ServiceInterface startReserved(String key)
 	 * Stops the service. Stops threads.
 	 */
 	public void stopService() {
-		if (timer != null)
-		{
+		if (timer != null) {
 			timer.cancel();
 			timer.purge();
 		}
@@ -618,7 +616,7 @@ public ServiceInterface startReserved(String key)
 			log.warn("startService request: service " + name + " is already running");
 		}
 	}
-	
+
 	// override for extended functionality
 	public boolean preRoutingHook(Message m) {
 		return true;
@@ -668,17 +666,15 @@ public ServiceInterface startReserved(String key)
 					outbox.add(msg);
 				}
 			}
-		//} catch (InterruptedException e) {
+			// } catch (InterruptedException e) {
 		} catch (Exception e) {
 			Logging.logException(e);
 			error(e.getMessage());
 			/*
-			isRunning = false;
-			if (thisThread != null) {
-				log.warn(thisThread.getName());
-			}
-			log.warn("service INTERRUPTED ");
-			*/
+			 * isRunning = false; if (thisThread != null) {
+			 * log.warn(thisThread.getName()); }
+			 * log.warn("service INTERRUPTED ");
+			 */
 		}
 	}
 
@@ -821,52 +817,56 @@ public ServiceInterface startReserved(String key)
 	 * @param classname
 	 * @param param
 	 * @return
-	 * @throws ClassNotFoundException 
-	 * @throws NoSuchMethodException 
-	 * @throws SecurityException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
-	 * @throws IllegalArgumentException 
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IllegalArgumentException
 	 */
-	static public Object getNewInstance(String classname, Object... param) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+	static public Object getNewInstance(String classname, Object... param) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException,
+			InstantiationException, IllegalAccessException, InvocationTargetException {
 		Class<?> c;
-		//try {
-			c = Class.forName(classname);
-			Class<?>[] paramTypes = new Class[param.length];
-			for (int i = 0; i < param.length; ++i) {
-				paramTypes[i] = param[i].getClass();
-			}
-			Constructor<?> mc = c.getConstructor(paramTypes);
-			return mc.newInstance(param); // Dynamically instantiate it
+		// try {
+		c = Class.forName(classname);
+		Class<?>[] paramTypes = new Class[param.length];
+		for (int i = 0; i < param.length; ++i) {
+			paramTypes[i] = param[i].getClass();
+		}
+		Constructor<?> mc = c.getConstructor(paramTypes);
+		return mc.newInstance(param); // Dynamically instantiate it
 
-		//} catch (Exception e) {
-		//	logException(e);
-		//}
+		// } catch (Exception e) {
+		// logException(e);
+		// }
 
-		//return null;
+		// return null;
 	}
 
 	/**
-	 * method to subscribe to a service's method as an event with data from the return type
-	 * this establishes a message route from the target's service method back to the subscribers
-	 * method.  For example, a Log service might subscribe to a Clocks pulse "out" method, when this is
-	 * successfully done the returned data fom the pulse will be sent to the Log's service "in" method
+	 * method to subscribe to a service's method as an event with data from the
+	 * return type this establishes a message route from the target's service
+	 * method back to the subscribers method. For example, a Log service might
+	 * subscribe to a Clocks pulse "out" method, when this is successfully done
+	 * the returned data fom the pulse will be sent to the Log's service "in"
+	 * method
 	 * 
-	 * @param publisherName - name of service this service will be subscribing to
-	 * @param inOutMethod - the name of the target service method and the subscribers in method - if they are the same
+	 * @param publisherName
+	 *            - name of service this service will be subscribing to
+	 * @param inOutMethod
+	 *            - the name of the target service method and the subscribers in
+	 *            method - if they are the same
 	 */
-	public void subscribe(String publisherName, String inOutMethod)
-	{
-		subscribe(inOutMethod, publisherName, inOutMethod, (Class<?>[])null);
+	public void subscribe(String publisherName, String inOutMethod) {
+		subscribe(inOutMethod, publisherName, inOutMethod, (Class<?>[]) null);
 	}
-	
-	
+
 	/**
-	 * when "out" method and "in" method names differ
-	 * a simple way to think of this is myservice.subscribe(publisher->publishingMethod -> inMethod)
-	 * establishing a message route whenever
-	 * publisher->publishingMethod gets invoked the returned data goes to myservice.inMethod
+	 * when "out" method and "in" method names differ a simple way to think of
+	 * this is myservice.subscribe(publisher->publishingMethod -> inMethod)
+	 * establishing a message route whenever publisher->publishingMethod gets
+	 * invoked the returned data goes to myservice.inMethod
 	 * 
 	 * allows the following to happen :
 	 * myservice.inMethod(publisher->publishingMethod())
@@ -875,12 +875,10 @@ public ServiceInterface startReserved(String key)
 	 * @param outMethod
 	 * @param inMethod
 	 */
-	public void subscribe(String publisherName, String outMethod, String inMethod)
-	{
-		subscribe(outMethod, publisherName, inMethod, (Class<?>[])null);
+	public void subscribe(String publisherName, String outMethod, String inMethod) {
+		subscribe(outMethod, publisherName, inMethod, (Class<?>[]) null);
 	}
-	
-	
+
 	// parameterType is not used for any critical look-up - but can be used at
 	// runtime check to
 	// check parameter mating
@@ -1041,7 +1039,7 @@ public ServiceInterface startReserved(String key)
 	 * parameters
 	 */
 	public Object invoke(String method) {
-		return invoke(method, (Object[])null);
+		return invoke(method, (Object[]) null);
 	}
 
 	/**
@@ -1051,16 +1049,10 @@ public ServiceInterface startReserved(String key)
 	 * @return
 	 */
 	/*
-	public Object invoke(String method, Object param) {
-		if (param != null) {
-			Object[] params = new Object[1];
-			params[0] = param;
-			return invoke(this, method, params);
-		} else {
-			return invoke(this, method, null);
-		}
-	}
-	*/
+	 * public Object invoke(String method, Object param) { if (param != null) {
+	 * Object[] params = new Object[1]; params[0] = param; return invoke(this,
+	 * method, params); } else { return invoke(this, method, null); } }
+	 */
 
 	/**
 	 * convenience reflection methods 2 parameters
@@ -1071,14 +1063,11 @@ public ServiceInterface startReserved(String key)
 	 * @return
 	 */
 	/*
-	public Object invoke(String method, Object param1, Object param2) {
-		Object[] params = new Object[2];
-		params[0] = param1;
-		params[1] = param2;
-
-		return invoke(method, params);
-	}
-	*/
+	 * public Object invoke(String method, Object param1, Object param2) {
+	 * Object[] params = new Object[2]; params[0] = param1; params[1] = param2;
+	 * 
+	 * return invoke(method, params); }
+	 */
 
 	/**
 	 * convenience reflection methods 3 parameters
@@ -1090,15 +1079,12 @@ public ServiceInterface startReserved(String key)
 	 * @return
 	 */
 	/*
-	public Object invoke(String method, Object param1, Object param2, Object param3) {
-		Object[] params = new Object[3];
-		params[0] = param1;
-		params[1] = param2;
-		params[2] = param3;
-
-		return invoke(method, params);
-	}
-	*/
+	 * public Object invoke(String method, Object param1, Object param2, Object
+	 * param3) { Object[] params = new Object[3]; params[0] = param1; params[1]
+	 * = param2; params[2] = param3;
+	 * 
+	 * return invoke(method, params); }
+	 */
 
 	/**
 	 * convenience reflection methods 4 parameters
@@ -1111,16 +1097,12 @@ public ServiceInterface startReserved(String key)
 	 * @return
 	 */
 	/*
-	public Object invoke(String method, Object param1, Object param2, Object param3, Object param4) {
-		Object[] params = new Object[3];
-		params[0] = param1;
-		params[1] = param2;
-		params[2] = param3;
-		params[3] = param4;
-
-		return invoke(method, params);
-	}
-*/
+	 * public Object invoke(String method, Object param1, Object param2, Object
+	 * param3, Object param4) { Object[] params = new Object[3]; params[0] =
+	 * param1; params[1] = param2; params[2] = param3; params[3] = param4;
+	 * 
+	 * return invoke(method, params); }
+	 */
 	/**
 	 * invoke in the context of a Service
 	 * 
@@ -1129,31 +1111,17 @@ public ServiceInterface startReserved(String key)
 	 * @return
 	 */
 	/*
-	public Object invoke(String method, Object... params) {
-		// log invoking call
-		
-		if (log.isDebugEnabled()) {
-			StringBuilder paramTypeString = new StringBuilder();
-			if (params != null) {
-				for (int i = 0; i < params.length; ++i) {
-					if (params[i] == null)
-					{
-						paramTypeString.append("null");
-					} else {
-						paramTypeString.append(params[i].getClass().getCanonicalName());
-					}
-					if (params.length != i + 1) {
-						paramTypeString.append(",");
-					}
-				}
-			} else {
-				paramTypeString.append("null");
-			}
-		}
-		Object retobj = invoke(this, method, params);
-		return retobj;
-	}
-	*/
+	 * public Object invoke(String method, Object... params) { // log invoking
+	 * call
+	 * 
+	 * if (log.isDebugEnabled()) { StringBuilder paramTypeString = new
+	 * StringBuilder(); if (params != null) { for (int i = 0; i < params.length;
+	 * ++i) { if (params[i] == null) { paramTypeString.append("null"); } else {
+	 * paramTypeString.append(params[i].getClass().getCanonicalName()); } if
+	 * (params.length != i + 1) { paramTypeString.append(","); } } } else {
+	 * paramTypeString.append("null"); } } Object retobj = invoke(this, method,
+	 * params); return retobj; }
+	 */
 
 	/**
 	 * general static base invoke
@@ -1185,8 +1153,10 @@ public ServiceInterface startReserved(String key)
 		Method meth = null;
 		try {
 			// TODO - method cache map
-			// can not auto-box or downcast with this method - getMethod will return a "specific & exact" match based
-			// on parameter types - the thing is we may have a typed signature which will allow execution - but
+			// can not auto-box or downcast with this method - getMethod will
+			// return a "specific & exact" match based
+			// on parameter types - the thing is we may have a typed signature
+			// which will allow execution - but
 			// if so we need to search
 			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
 			retobj = meth.invoke(this, params);
@@ -1194,11 +1164,8 @@ public ServiceInterface startReserved(String key)
 			// put return object onEvent
 			out(method, retobj);
 		} catch (NoSuchMethodException e) {
-			log.warn(String.format("%s.%s NoSuchMethodException - attempting upcasting", 
-					c.getSimpleName(),
-					MethodEntry.getPrettySignature(method, paramTypes, null)));
+			log.warn(String.format("%s.%s NoSuchMethodException - attempting upcasting", c.getSimpleName(), MethodEntry.getPrettySignature(method, paramTypes, null)));
 
-	
 			// TODO - optimize with a paramter TypeConverter & Map
 			// c.getMethod - returns on EXACT match - not "Working" match
 			Method[] allMethods = c.getMethods(); // ouch
@@ -1229,13 +1196,12 @@ public ServiceInterface startReserved(String key)
 			}
 
 			log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
-		} catch (InvocationTargetException e) {			
+		} catch (InvocationTargetException e) {
 			Throwable target = e.getTargetException();
 			error(String.format("%s %s", target.getClass().getSimpleName(), target.getMessage()));
 			Logging.logException(e);
-		} catch (Exception uknown)
-		{
-			error(String.format("%s %s", uknown.getClass().getSimpleName(),uknown.getMessage()));
+		} catch (Exception uknown) {
+			error(String.format("%s %s", uknown.getClass().getSimpleName(), uknown.getMessage()));
 			Logging.logException(uknown);
 		}
 
@@ -1356,9 +1322,10 @@ public ServiceInterface startReserved(String key)
 			logException(e);
 		}
 	}
-	
+
 	/**
 	 * uses the Runtime to send a message on behalf of "name"'d service
+	 * 
 	 * @param senderName
 	 * @param name
 	 * @param method
@@ -1369,7 +1336,7 @@ public ServiceInterface startReserved(String key)
 		msg.sender = senderName;
 		msg.sendingMethod = "send";
 		Runtime.getInstance().getOutbox().add(msg);
-	}	
+	}
 
 	/**
 	 * boxing - the right way - thank you Java 5
@@ -1388,7 +1355,7 @@ public ServiceInterface startReserved(String key)
 
 		if (isRecording) {
 			try {
-				
+
 				// python
 				String msgName = (msg.name.equals(Runtime.getInstance().getName())) ? "runtime" : msg.name;
 				recordingPython.write(String.format("%s.%s(", msgName, msg.method).getBytes());
@@ -1400,7 +1367,7 @@ public ServiceInterface startReserved(String key)
 							recordingPython.write(d.toString().getBytes());
 
 							// FIXME Character probably blows up
-						} else if (d.getClass() == String.class || d.getClass() == Character.class) { 
+						} else if (d.getClass() == String.class || d.getClass() == Character.class) {
 							recordingPython.write(String.format("\"%s\"", d).getBytes());
 						} else {
 							recordingPython.write("object".getBytes());
@@ -1422,12 +1389,15 @@ public ServiceInterface startReserved(String key)
 
 	// BOXING - End --------------------------------------
 	public Object sendBlocking(String name, String method) {
-		return sendBlocking(name, method, (Object[])null);
+		return sendBlocking(name, method, (Object[]) null);
 	}
 
 	public Object sendBlocking(String name, String method, Object... data) {
-		return sendBlocking(name, 1000, method, data); // default 1 sec timeout - TODO - make configurable
+		return sendBlocking(name, 1000, method, data); // default 1 sec timeout
+														// - TODO - make
+														// configurable
 	}
+
 	/**
 	 * 
 	 * @param name
@@ -1706,71 +1676,50 @@ public ServiceInterface startReserved(String key)
 		return target;
 	}
 
-
-
-
 	// TODO - DEPRICATE !!!!
 	/**
 	 * 
 	 */
 	/*
-	public synchronized void registerServices() {
-		log.debug(String.format("%1$s registerServices", name));
-
-		Class<?> c;
-		try {
-			c = Class.forName(serviceClass);
-
-			HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
-
-			// try to get method which has the correct parameter types
-			// http://java.sun.com/developer/technicalArticles/ALT/Reflection/
-			Method[] methods = c.getDeclaredMethods();
-			// register this service
-			hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this, getDescription());
-
-			Method m;
-			Class<?>[] paramTypes;
-			Class<?> returnType;
-			for (int i = 0; i < methods.length; ++i) {
-				m = methods[i];
-				paramTypes = m.getParameterTypes();
-				returnType = m.getReturnType();
-
-				if (!hideMethods.containsKey(m.getName())) {
-					// service level
-					hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes);
-				}
-			}
-
-			Class<?>[] interfaces = c.getInterfaces();
-			Class<?> interfc;
-			for (int i = 0; i < interfaces.length; ++i) {
-				interfc = interfaces[i];
-
-				log.info(String.format("adding interface %1$s", interfc.getCanonicalName()));
-
-				hostcfg.setInterface(host, name, interfc.getClass().getCanonicalName());
-			}
-
-			Type[] intfs = c.getGenericInterfaces();
-			Type t;
-			for (int j = 0; j < intfs.length; ++j) {
-				t = intfs[j];
-				hostcfg.setInterface(host, name, t.toString().substring(t.toString().indexOf(" ") + 1));
-			}
-		} catch (ClassNotFoundException e) {
-			logException(e);
-		} catch (SecurityException e) {
-			logException(e);
-		} catch (IllegalArgumentException e) {
-			logException(e);
-		}
-	}
-*/
+	 * public synchronized void registerServices() {
+	 * log.debug(String.format("%1$s registerServices", name));
+	 * 
+	 * Class<?> c; try { c = Class.forName(serviceClass);
+	 * 
+	 * HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
+	 * 
+	 * // try to get method which has the correct parameter types //
+	 * http://java.sun.com/developer/technicalArticles/ALT/Reflection/ Method[]
+	 * methods = c.getDeclaredMethods(); // register this service
+	 * hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this,
+	 * getDescription());
+	 * 
+	 * Method m; Class<?>[] paramTypes; Class<?> returnType; for (int i = 0; i <
+	 * methods.length; ++i) { m = methods[i]; paramTypes =
+	 * m.getParameterTypes(); returnType = m.getReturnType();
+	 * 
+	 * if (!hideMethods.containsKey(m.getName())) { // service level
+	 * hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes); } }
+	 * 
+	 * Class<?>[] interfaces = c.getInterfaces(); Class<?> interfc; for (int i =
+	 * 0; i < interfaces.length; ++i) { interfc = interfaces[i];
+	 * 
+	 * log.info(String.format("adding interface %1$s",
+	 * interfc.getCanonicalName()));
+	 * 
+	 * hostcfg.setInterface(host, name, interfc.getClass().getCanonicalName());
+	 * }
+	 * 
+	 * Type[] intfs = c.getGenericInterfaces(); Type t; for (int j = 0; j <
+	 * intfs.length; ++j) { t = intfs[j]; hostcfg.setInterface(host, name,
+	 * t.toString().substring(t.toString().indexOf(" ") + 1)); } } catch
+	 * (ClassNotFoundException e) { logException(e); } catch (SecurityException
+	 * e) { logException(e); } catch (IllegalArgumentException e) {
+	 * logException(e); } }
+	 */
 	/**
-	 * Outbound connect - initial request to connect and
-	 * register services with a remote system 
+	 * Outbound connect - initial request to connect and register services with
+	 * a remote system
 	 */
 	public void connect(String login, String password, String remoteHost, int port) {
 		try {
@@ -1827,14 +1776,13 @@ public ServiceInterface startReserved(String key)
 		return (Service) copyShallowFrom(this, s);
 	}
 
-
 	@Override
 	public String getSimpleName() {
 		/*
-		String serviceClassName = this.getClass().getCanonicalName();
-		return serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
-		*/
-		return this.getClass().getSimpleName(); 
+		 * String serviceClassName = this.getClass().getCanonicalName(); return
+		 * serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
+		 */
+		return this.getClass().getSimpleName();
 	}
 
 	public String getTypeName() {
@@ -1856,14 +1804,13 @@ public ServiceInterface startReserved(String key)
 	 */
 	public ArrayList<String> getNotifyListKeySet() {
 		ArrayList<String> ret = new ArrayList<String>();
-		if (getOutbox() == null)
-		{
+		if (getOutbox() == null) {
 			// this is remote system - it has a null outbox, because its
 			// been serialized with a transient outbox
 			// and your in a skeleton
 			// use the runtime to send a message
 			@SuppressWarnings("unchecked")
-			ArrayList<String> remote = (ArrayList<String>)Runtime.getInstance().sendBlocking(getName(), "getNotifyListKeySet");
+			ArrayList<String> remote = (ArrayList<String>) Runtime.getInstance().sendBlocking(getName(), "getNotifyListKeySet");
 			return remote;
 		} else {
 			ret.addAll(getOutbox().notifyList.keySet());
@@ -1875,16 +1822,16 @@ public ServiceInterface startReserved(String key)
 	 * 
 	 */
 	public ArrayList<MRLListener> getNotifyList(String key) {
-		if (getOutbox() == null)
-		{
+		if (getOutbox() == null) {
 			// this is remote system - it has a null outbox, because its
 			// been serialized with a transient outbox
 			// and your in a skeleton
 			// use the runtime to send a message
-			@SuppressWarnings("unchecked") // FIXME - parameters !
-			ArrayList<MRLListener> remote = (ArrayList<MRLListener>)Runtime.getInstance().sendBlocking(getName(), "getNotifyList", new Object[]{key});
+			@SuppressWarnings("unchecked")
+			// FIXME - parameters !
+			ArrayList<MRLListener> remote = (ArrayList<MRLListener>) Runtime.getInstance().sendBlocking(getName(), "getNotifyList", new Object[] { key });
 			return remote;
-			
+
 		} else {
 			return getOutbox().notifyList.get(key);
 		}
@@ -1904,7 +1851,6 @@ public ServiceInterface startReserved(String key)
 	 * @return if successful
 	 * 
 	 */
-	
 
 	public String getServiceResourceFile(String subpath) {
 		return FileIO.getResourceFile(String.format("%s/%s", this.getSimpleName(), subpath));
@@ -1944,30 +1890,27 @@ public ServiceInterface startReserved(String key)
 
 	public void stopHeartbeat() {
 	}
-	
-	public boolean allowExport()
-	{
+
+	public boolean allowExport() {
 		return allowExport;
 	}
-	
-	public void allowExport(Boolean b)
-	{
+
+	public void allowExport(Boolean b) {
 		allowExport = b;
 	}
-	
-	public boolean allowDisplay()
-	{
+
+	public boolean allowDisplay() {
 		return allowDisplay;
 	}
-	
-	public void allowDisplay(Boolean b)
-	{
+
+	public void allowDisplay(Boolean b) {
 		allowDisplay = b;
 	}
 
-	
 	/**
-	 * pure string interface for control facets which only support strings - like javascript, web, etc...
+	 * pure string interface for control facets which only support strings -
+	 * like javascript, web, etc...
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -1975,11 +1918,9 @@ public ServiceInterface startReserved(String key)
 		return attach(name, (Object[]) null);
 	}
 
-	
 	/**
-	 * this framework attach supports string interface
-	 * it will invoke an attach on the actual service with a
-	 * "real" type
+	 * this framework attach supports string interface it will invoke an attach
+	 * on the actual service with a "real" type
 	 * 
 	 * @param name
 	 * @param data
@@ -1989,85 +1930,74 @@ public ServiceInterface startReserved(String key)
 		ServiceInterface si = Runtime.getService(name);
 		return (Boolean) invoke("attach", si);
 	}
-	
+
 	/**
 	 * set status broadcasts an information string to any subscribers
+	 * 
 	 * @param msg
 	 */
-	
+
 	private long lastInfo = 0;
 	private long lastWarn = 0;
 	private long lastError = 0;
 
 	public String lastErrorMsg;
-	
-	public void info(String msg)
-	{
+
+	public void info(String msg) {
 		log.info(msg);
 		// can only read "so" fast
-		if (System.currentTimeMillis() - lastInfo > 300)
-		{
-			invoke("publishStatus", "info",  msg);
+		if (System.currentTimeMillis() - lastInfo > 300) {
+			invoke("publishStatus", "info", msg);
 			lastInfo = System.currentTimeMillis();
 		}
 	}
-	
-	public void info(String format, Object...args)
-	{
-		info(String.format(format,args));
-	}
-	
-	public void warn(String format, Object...args)
-	{
-		warn(String.format(format,args));
-	}
-	
-	public String error(String format, Object...args)
-	{
-		return error(String.format(format,args));
+
+	public void info(String format, Object... args) {
+		info(String.format(format, args));
 	}
 
-	public String error(Exception e){
+	public void warn(String format, Object... args) {
+		warn(String.format(format, args));
+	}
+
+	public String error(String format, Object... args) {
+		return error(String.format(format, args));
+	}
+
+	public String error(Exception e) {
 		Logging.logException(e);
 		return error(e.getMessage());
 	}
-	
-	public String error(String msg)
-	{
+
+	public String error(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastWarn > 300)
-		{
+		if (System.currentTimeMillis() - lastWarn > 300) {
 			invoke("publishStatus", "error", msg);
 			lastWarn = System.currentTimeMillis();
 		}
-		
+
 		return lastErrorMsg;
 	}
-	
-	public String getLastError()
-	{
+
+	public String getLastError() {
 		return lastErrorMsg;
 	}
-	
-	public void warn(String msg)
-	{
+
+	public void warn(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastError > 300)
-		{
+		if (System.currentTimeMillis() - lastError > 300) {
 			invoke("publishStatus", "warn", msg);
 			lastError = System.currentTimeMillis();
 		}
 	}
 
-	public Status publishStatus(String level, String msg)
-	{
+	public Status publishStatus(String level, String msg) {
 		return new Status(getName(), level, null, msg);
 	}
-	
-	public HashSet<String> getMessageSet()
-	{
+
+	public HashSet<String> getMessageSet() {
 		HashSet<String> ret = new HashSet<String>();
 		Method[] methods = getMethods();
 		log.info("%s loading %d non-routable methods", getName(), methods.length);
@@ -2075,14 +2005,12 @@ public ServiceInterface startReserved(String key)
 			ret.add(methods[i].getName());
 			log.debug("method {}.{} is not routable", getName(), methods[i].getName());
 		}
-		
+
 		return ret;
 	}
-	
-	public Method[] getMethods()
-	{
+
+	public Method[] getMethods() {
 		return this.getClass().getMethods();
 	}
-	
 
 }

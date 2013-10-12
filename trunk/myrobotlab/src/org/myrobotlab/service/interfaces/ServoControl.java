@@ -83,6 +83,14 @@ public interface ServoControl {
 	public String getControllerName();
 
 	public Integer getPin();
+	
+	/**
+	 * called by the controller for Servo
+	 * memory of pin - so that it can be re-attached
+	 * after a detach
+	 * @return
+	 */
+	public void setPin(int pin);
 
 	public void setSpeed(Float speed);
 	
