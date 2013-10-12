@@ -1625,9 +1625,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return false;
 	}
 
+	/**
+	 * connect to serial port
+	 * with default parameters 57600 rate, 8 data bits, 1 stop bit, 0 parity
+	 */
 	@Override
-	public boolean connect(String name) {
-		return connect(name, 57600, 8, 1, 0);
+	public boolean connect(String port) {
+		return connect(port, 57600, 8, 1, 0);
 	}
 	
 	/**
@@ -1638,7 +1642,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 * valid ranges are 1 to 32,767 (for Arduino's 2 byte signed integer)
 	 * @param rate
 	 */
-	public void setSampleRate(Integer rate)
+	public int setSampleRate(int rate)
 	{
 		if (rate < 1 || rate > 32767)
 		{
@@ -1647,6 +1651,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		int lsb = rate & 0xff;
 		int msb = (rate >> 8) & 0xff;
 		sendMsg(SET_SAMPLE_RATE, msb, lsb);
+		
+		return rate;
 	}
 
 	@Override
