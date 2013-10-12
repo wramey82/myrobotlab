@@ -126,7 +126,7 @@ public class Runtime extends Service {
 		return FileIO.getResourceFile("version.txt");
 	}
 
-	public String getUptime() {
+	public static String getUptime() {
 		Date now = new Date();
 		long diff = now.getTime() - startDate.getTime();
 
