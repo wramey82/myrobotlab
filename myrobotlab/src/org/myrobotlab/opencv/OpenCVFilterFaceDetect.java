@@ -146,6 +146,8 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 
 			// CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1,
 			// 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
+			// faces = cvHaarDetectObjects(grayImage, classifier, storage, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
+		    // faces = cvHaarDetectObjects(grayImage, classifier_eyes, storage, 1.1, 3, CV_HAAR_DO_CANNY_PRUNING);
 			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT);
 
 			if (faces != null) {

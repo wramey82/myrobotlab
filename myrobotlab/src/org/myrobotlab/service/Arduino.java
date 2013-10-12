@@ -497,6 +497,19 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// FIXME - refactor - don't use name use Servo type
 	// FIXME - use attach(Servo servo) 
 	// FIXME SYNCHRONIZED !!!
+	
+	// FIXME - put in interface
+	public boolean servoAttach(String servoName)
+	{
+		Servo servo = (Servo)Runtime.getService(servoName);
+		if (servo == null)
+		{
+			error("servoAttach can not attach %s no service exists", servoName);
+			return false;
+		}
+		return servoAttach(servoName, servo.getPin());
+	}
+	
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
@@ -532,6 +545,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					ServoControl sc = (ServoControl) sw.service;
 					sd.servo = sc;
 					sc.setController(this);
+					sc.setPin(pin);
 					return true;
 				} catch (Exception e) {
 					error(String.format("%s not a valid ServoController", servoName));

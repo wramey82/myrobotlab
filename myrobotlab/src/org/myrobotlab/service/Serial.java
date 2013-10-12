@@ -346,6 +346,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	@Override
 	public void write(int data) throws IOException {
 	
+		//log.error("NOT IMPLEMENTED");
             /*Since the SEAR LIDARsimulator (and other serial stuffs) sends bytes 
              * stored as Integers this only needs to spit out a byte at a time for SEAR.
              */
@@ -432,8 +433,14 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		Serial serial1 = new Serial("lidar_serial");
 		serial1.startService();
 		serial1.connect("/dev/vp1");
+		
+		for (int i = 0; i < 1000; ++i)
+		{
+			byte x = (byte)i;
+			serial0.write((byte)x);
+		}
 
-		serial0.write(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12});
+		serial0.write(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21});
 		serial0.write(new byte[]{5,5,5,5,5});
 		serial0.write(new byte[]{6,6,6,6,6});
 		serial0.write(new byte[]{7,7,7,7,7});

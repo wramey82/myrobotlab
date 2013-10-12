@@ -327,8 +327,8 @@ public class WebGUI extends Service {
 		// Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		// clock.startClock();
 		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
-		webgui.useLocalResources(true);
-		Runtime.createAndStart("opencv", "OpenCV");
+		//webgui.useLocalResources(true);
+		Runtime.createAndStart("rack-1-arduino-1", "Arduino");
 		
 		// Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
 		/*

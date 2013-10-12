@@ -44,15 +44,22 @@ public class Servo extends Service implements ServoControl {
 
 	public final static Logger log = LoggerFactory.getLogger(Servo.class.getCanonicalName());
 
-	ServoController controller = null;
+	ServoController controller;
 
 	@Element
-	private Integer position = null; // position -1 invalid not set yet
+	private Integer position; 
 	@Element
 	private int positionMin = 0;
 	@Element
 	private int positionMax = 180;
-
+	
+	/**
+	 * the pin is a necessary part of servo - even though this is really controller's information
+	 * a pin is a integral part of a "servo" - so it is beneficial to store it
+	 * allowing a re-attach during runtime
+	 */
+	private Integer pin;
+	
 	private boolean inverted = false;
 
 	Vector<String> controllers;
@@ -256,11 +263,14 @@ public class Servo extends Service implements ServoControl {
 
 	@Override
 	public Integer getPin() {
+		/* valiant attempt of normalizing - but Servo needs to know its own pin
 		if (controller == null) {
 			return null;
 		}
 
 		return controller.getServoPin(getName());
+		*/
+		return pin;
 	}
 
 	public void setSpeed(Float speed) {
@@ -269,6 +279,18 @@ public class Servo extends Service implements ServoControl {
 		}
 
 		controller.setServoSpeed(getName(), speed);
+	}
+	
+	// FIXME PUT IN INTERFACE
+	public boolean attach(){
+		if (controller == null)
+		{
+			error("no valid controller can not attach %s", getName());
+			return false;
+		}
+		
+		controller.servoAttach(getName(), pin);
+		return true;
 	}
 
 	public void detach() {
@@ -344,6 +366,12 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void stopServo() {
 		controller.servoStop(getName());
+	}
+
+	@Override
+	public void setPin(int pin) {
+		log.info(String.format("setting %s pin to %d", getName(), pin));
+		this.pin = pin;
 	}
 
 }

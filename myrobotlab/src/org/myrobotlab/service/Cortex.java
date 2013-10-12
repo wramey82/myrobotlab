@@ -90,7 +90,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 		tracking.trackPoint(); 
 		
 		faceDetector = (OpenCV) Runtime.create(faceDetectorName, "OpenCV");
-		faceDetector.setPipeline(String.format("%s.PyramidDown", tracking.eye.getName()));// set key
+		faceDetector.setPipeline(String.format("%s.PyramidDown", tracking.opencv.getName()));// set key
 		faceDetector.addFilter(faceFilter);
 		faceDetector.setDisplayFilter(faceFilter.name);
 		faceDetector.startService();
@@ -237,7 +237,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 	/*
 	public void videoOff() {
-		tracking.eye.publishOpenCVData(false);
+		tracking.opencv.publishOpenCVData(false);
 	}
 	*/
 	

@@ -15,6 +15,11 @@ public class Plantoid extends Service {
 	// peer services
 	transient public Servo d3, d4, d5, d2, pan, tilt;
 	transient public Arduino arduino;
+	// video0 = rgbpilot cam
+	// video1 = pink plant static NIR - 
+	// Imaged from there should be taken and put through the infrapix, then opencv Nope static camera view of the braaaains
+	// video2 = NIR pilot cam
+	
 	transient public OpenCV IRCamera, camera;
 	transient public Keyboard keyboard;
 	transient public WebGUI webgui;
@@ -55,7 +60,6 @@ public class Plantoid extends Service {
 		reserve("pan", "Servo", "pan servo");
 		reserve("tilt", "Servo", "tilt servo");
 		
-		
 		reserve("keyboard", "Keyboard", "for keyboard control");
 
 		reserve("webgui", "WebGUI", "plantoid gui");
@@ -79,23 +83,17 @@ public class Plantoid extends Service {
 			arduino = (Arduino) startReserved("arduino");
 			arduino.connect(port);
 
+			d2 = (Servo) startReserved("d2");
 			d3 = (Servo) startReserved("d3");
 			d4 = (Servo) startReserved("d4");
 			d5 = (Servo) startReserved("d5");
-			d2 = (Servo) startReserved("d2");
 
+			
 			pan = (Servo) startReserved("pan");
 			tilt = (Servo) startReserved("tilt");
 
-			arduino.setSampleRate(sampleRate);
-			arduino.analogReadPollingStart(soildMoisture);
-			arduino.analogReadPollingStart(tempHumidity);
-			arduino.analogReadPollingStart(leftLight);
-			arduino.analogReadPollingStart(rightLight);
-			arduino.analogReadPollingStart(airQuality);
-
+			startPolling();
 			attachServos();
-			
 			stop();
 			
 		} catch (Exception e) {
@@ -110,8 +108,24 @@ public class Plantoid extends Service {
 		arduino.broadcastState();
 		return true;
 	}
-
-	// 2 and 4 are x, 3 and 5 are Y
+	
+	public void startPolling()
+	{
+		arduino.setSampleRate(sampleRate);
+		arduino.analogReadPollingStart(soildMoisture);
+		arduino.analogReadPollingStart(tempHumidity);
+		arduino.analogReadPollingStart(leftLight);
+		arduino.analogReadPollingStart(rightLight);
+		arduino.analogReadPollingStart(airQuality);
+	}
+	
+	public void stopPolling(){
+		arduino.analogReadPollingStop(soildMoisture);
+		arduino.analogReadPollingStop(tempHumidity);
+		arduino.analogReadPollingStop(leftLight);
+		arduino.analogReadPollingStop(rightLight);
+		arduino.analogReadPollingStop(airQuality);
+	}
 
 	// ------- servos begin -----------
 	public void spin(Integer power) {
@@ -159,24 +173,40 @@ public class Plantoid extends Service {
 		d5.moveTo(90);
 	}
 
-	public void attachServos() {
-		arduino.servoAttach(d2.getName(), d2Pin);
-		arduino.servoAttach(d3.getName(), d3Pin);
-//		arduino.servoAttach(d4.getName(), d4Pin);
-		arduino.servoAttach(d5.getName(), d5Pin);
-
+	public void attachServos()
+	{
+		attachPanTilt();
+		attachLegs();
+	}
+	
+	public void detachServos()
+	{
+		detachPanTilt();
+		detachLegs();
+	}
+	
+	public void attachPanTilt() {
 		arduino.servoAttach(pan.getName(), panPin);
 		arduino.servoAttach(tilt.getName(), tiltPin);
-}
-
-	public void detachServos() {
-		d2.detach();
-		d3.detach();
-//		d4.detach();
-		d5.detach();
-		
+	}	
+	
+	public void detachPanTilt() {
 		pan.detach();
 		tilt.detach();
+	}	
+	
+	public void attachLegs() {
+		arduino.servoAttach(d2.getName(), d2Pin);
+		arduino.servoAttach(d3.getName(), d3Pin);
+		arduino.servoAttach(d4.getName(), d4Pin);
+		arduino.servoAttach(d5.getName(), d5Pin);
+	}
+	
+	public void detachLegs() {
+		d2.detach();
+		d3.detach();
+		d4.detach();
+		d5.detach();
 	}
 	// ------- servos begin -----------
 	

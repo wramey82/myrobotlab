@@ -1,5 +1,7 @@
 package org.myrobotlab.service;
 
+import java.util.HashMap;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.inmoov.Arm;
 import org.myrobotlab.inmoov.Hand;
@@ -20,31 +22,46 @@ public class InMoov extends Service {
 	public static final String both = "both";
 	// ------------- added 
 	public static final String body = "body";
-	
+		
+	// port map
+	HashMap <String, Arduino> arduinos = new HashMap <String, Arduino>();
 
-	// MAXIMUM STABILITY AN FLEXIBILITY !!!
-	// START WITH NAME - CREATE IN CREATE - START IN START
-	public String keyboardName = "keyboard";
-	
-	
 	Head head;
 
 	// head
 	transient public Sphinx ear;
 	transient public Speech mouth;
-	transient public OpenCV eye;
+	transient public OpenCV opencv;
 	transient public Python python;
-	transient public Tracking tracking;
+	transient public Tracking headTracking;
+	transient public Tracking eyesTracking;
 	transient public Arduino arduinoHead, arduinoRight, arduinoLeft;
 	transient public MouthControl mouthcontrol;
-	// ------------- added set pins
-	transient public Arduino arduinoBody;
 	
+	// servos
 	transient public Servo rothead;
 	transient public Servo neck;
 	transient public Servo eyeX;
+	
+	transient public Servo thumbRight;
+	transient public Servo indexRight;
+	transient public Servo majeureRight;
+	transient public Servo ringFingerRight;
+	transient public Servo pinkyRight;
+	transient public Servo wristRight;
+	
+	transient public Servo thumbLeft;
+	transient public Servo indexLeft;
+	transient public Servo majeureLeft;
+	transient public Servo ringFingerLeft;
+	transient public Servo pinkyLeft;
+	transient public Servo wristLeft;
+	
+	// TODO - goes in jaw
+	transient public Servo jaw;
+	
 	transient public Servo eyeY;
-
+	
 	// left side
 	transient public Hand handLeft;
 	transient public Arm armLeft;
@@ -55,139 +72,225 @@ public class InMoov extends Service {
 
 	transient public Keyboard keyboard;
 	
+	// ------ arduino references -----
+	transient public Arduino arduinoJaw;
+	transient public Arduino arduinoBody;
+	
+	
+	// FIXME - calling reserved on an existing reserve is an error ?
 	public InMoov(String n) {
 		super(n, InMoov.class.getCanonicalName());
 		
+		// service which do not require user input
 		reserve("ear", "Sphinx", "InMoov speech recognition service");
-		reserve("ear", "Sphinx", "InMoov speech recognition service");
-		reserve("ear", "Sphinx", "InMoov speech recognition service");
-
-	}
-	
-
-	public void startService() {
-		super.startService();
-		// FIXME - big assumption they have the hardware or
-		// desire to start these services ....
-		ear = (Sphinx) Runtime.createAndStart("ear", "Sphinx");
-		mouth = (Speech) Runtime.createAndStart("mouth", "Speech");
-		ear.attach(mouth);
+		reserve("mouth", "Speech", "InMoov speech service");
+		reserve("opencv", "OpenCV", "OpenCV service");
+		reserve("python", "Python", "Python service");
+		reserve("keyboard", "Keyboard", "Keyboard service");
 		
-		// MAXIMUM IN STABILITY & FLEXIBIITY
-		keyboard = (Keyboard)Runtime.create("keyboard", "Keyboard");	    
-		python = (Python) Runtime.createAndStart("python", "Python");
+		// head servos
+		reserve("rothead", "Servo", "rotate/pan servo");
+		reserve("neck", "Servo", "neck/tilt servo");
+
+		// hands
+		reserve("thumbRight", "Servo", "thumbRight servo");
+		reserve("thumbLeft", "Servo", "thumbLeft servo");
+		reserve("indexRight", "Servo", "indexRight servo");
+		reserve("indexLeft", "Servo", "indexLeft servo");
+		reserve("majeureRight", "Servo", "majeureRight servo");
+		reserve("majeureLeft", "Servo", "majeureLeft servo");
+		reserve("ringFingerRight", "Servo", "ringFingerRight servo");
+		reserve("ringFingerLeft", "Servo", "ringFingerLeft servo");
+		reserve("pinkyRight", "Servo", "pinkyRight servo");
+		reserve("pinkyLeft", "Servo", "pinkyLeft servo");
+		reserve("wristRight", "Servo", "wristRight servo");
+		reserve("wristLeft", "Servo", "wristLeft servo");
+		
+		// arms
+		
+		
+		// composite and complex services which require use input
+		reserve("headTracking", "Tracking", "Tracking service for InMoov head");
+		// ----- head tracking peers begin -------
+		reserve("headX", "Servo", "servo for pan"); // rothead
+		reserve("headY", "Servo", "servo for tilt");
+		reserve("headXPID", "PID", "PID for pan");
+		reserve("headYPID", "PID", "PID for tilt");
+		reserve("head-arduino", "Arduino", "arduino to control the servos");
+		
+		reserve("eyes-tracking", "Tracking", "Tracking service for InMoov eyes");
+		// ----- head tracking peers begin -------
+		reserve("eyesX", "Servo", "servo for pan");
+		reserve("eyesY", "Servo", "servo for tilt");
+		reserve("eyesXPID", "PID", "PID for pan");
+		reserve("eyesYPID", "PID", "PID for tilt");
+		reserve("opencv", "OpenCV", "camera");
+		reserve("eyes-arduino", "Arduino", "arduino to control the servos");
+		
+		// ----- tracking peers begin -------
+		
+		reserve("jaw", "Servo", "Servo for the jaw");
+		reserve("mouthControl", "mouthControl", "Mouth control");
+		
 	}
 
 	// ----------- normalization begin ---------------------
+	
+	// ----------- start routines begin ---------------------
+	// low level start routines are bundled in higher and higher routines defaulting
+	// hardware as they go up the chain, but allowing low level changes if manually
+	// performed
+	
+	// FIXME - override error & info - replace with (if (mouth != null & speakStatus) = mouth.speak(infomsg)
+	
+	public boolean startSimpleServices()
+	{
+		boolean success = true;
+		success &= startSpeech();
+		success &= startEye();
+		success &= startPython();
+		success &= startKeyboard();
+		return success;
+	}
+	
+	// ------ simple services which do not require user input begin --------
+	public boolean startSpeech()
+	{
+		info("starting ear and mouth");
+		
+		ear = (Sphinx) startReserved("ear");
+		mouth = (Speech) startReserved("mouth");
+		ear.attach(mouth);
+		
+		return true;
+	}
+	
+	public boolean startEye()
+	{
+		info("starting opencv");
+		// the one shared opencv !!!
+		opencv = (OpenCV) startReserved("opencv");
+		
+		return true;
+	}
+	
+	public boolean startPython()
+	{
+		info("starting python engine");
+		python = (Python) startReserved("python");
+		return true;
+	}
+	
+	public boolean startKeyboard()
+	{
+		info("starting keyboard");
+		keyboard = (Keyboard) startReserved("keyboard");
+		return true;
+	}
 
-	// ------------- added body and head
-	public Arduino getArduino(String key) {
-		if (key.equals(left)) {
-			return arduinoLeft;
-		} else if (key.equals(right)) {
-			return arduinoRight;
-		} else if (key.equals(body)) {
-			return arduinoBody;
-		} else if (key.equals("head")) {
-			return arduinoHead;
+	// ------ simple services which do not require user input end --------
+	
+	public boolean startHeadTracking(String port, Integer xpin, Integer ypin)
+	{
+		info("starting head tracking");
+		headTracking = (Tracking) createReserved("head-tracking");
+		reserveAs("x", "rot");
+		reserveAs("y", "headY");
+		
+		reserveAs("xpid", "headXPID");
+		reserveAs("ypid", "headYPID");
+		// shared opencv
+		reserveAs("opencv", "opencv");
+		//reserveAs("arduino", "head-arduino");
+		reserveAs("arduino", port);
+		
+		headTracking.startService();
+		headTracking.connect(port);
+		if (!headTracking.arduino.isConnected())
+		{
+			error("error with headtracking could not connect %s", headTracking.arduino.getName());
+			return false;
+		}
+		headTracking.attachServos(xpin, ypin);
+		return true;
+	}
+	
+	public boolean startEyesTracking(String port, Integer xpin, Integer ypin)
+	{
+		info("starting eyes tracking");
+		eyesTracking = (Tracking) createReserved("eyes-tracking");
+		reserveAs("x", "eyesX");
+		reserveAs("y", "eyesY");
+		
+		reserveAs("xpid", "eyesXPID");
+		reserveAs("ypid", "eyesYPID");
+		// shared opencv
+		reserveAs("opencv", "opencv");
+		reserveAs("arduino", port);
+		
+		eyesTracking.startService();
+		eyesTracking.connect(port);
+		if (!eyesTracking.arduino.isConnected())
+		{
+			error("error with eyestracking could not connect %s", eyesTracking.arduino.getName());
+			return false;
+		}
+		eyesTracking.attachServos(xpin, ypin);
+		return true;
+	}
+	
+	public Arduino getArduino(String port)
+	{
+		log.info(String.format("request for port %s", port));
+		if (arduinos.containsKey(port))
+		{
+			return arduinos.get(port);
 		}
 		
-		error("getArduino ({}) not found");
-		return null;
-	}
-   public  MouthControl attachMouthControl (String key, Integer pin,Integer mouthClose, Integer mouthOpen){
-	   Arduino arduino = getArduino(key);
-	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
-	   mouthcontrol.setpin(pin);
-	   mouthcontrol.setmouth(mouthClose, mouthOpen);
-	   mouthcontrol.attach(arduino, mouth);
-	   return mouthcontrol;
-	   
-   }
-   public  MouthControl attachMouthControl (String key, Integer pin){
-	   Arduino arduino = getArduino(key);
-	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
-	   mouthcontrol.setpin(pin);
-	   mouthcontrol.attach(arduino, mouth);
-	   return mouthcontrol;
-	   
-   }
-	public  MouthControl attachMouthControl (String key){
-	   Arduino arduino = getArduino(key);
-	   mouthcontrol = (MouthControl) Runtime.createAndStart("mouthcontrol", "MouthControl");
-	   mouthcontrol.attach(arduino, mouth);
-	   return mouthcontrol;
-	   
-   }
-	public void setCameraIndex(Integer index) {
-		if (eye == null) {
-			eye = (OpenCV) Runtime.createAndStart("eye", "OpenCV");
+		Arduino arduino = (Arduino)Runtime.createAndStart(port, "Arduino");
+		arduino.connect(port);
+		if (!arduino.isConnected()){
+			log.error(String.format("arduino %s not connected", port));
 		}
-		eye.setCameraIndex(index);
-	}
-
-	public void track() {
-		if (tracking == null) {
-			error("attach head before tracking");
-		} else {
-			tracking.trackPoint(0.5f, 0.5f);
-		}
-	}
-
-	public void clearTrackingPoints() {
-		if (tracking == null) {
-			error("attach head before tracking");
-		} else {
-			tracking.clearTrackingPoints();
-		}
-	}
-	// ------------- added body and head
-	public void setArduino(String key, Arduino arduino) {
-		if (key.equals(left)) {
-			arduinoLeft = arduino;
-			return;
-		} else if (key.equals(right)) {
-			arduinoRight = arduino;
-			return;
-		} else if (key.equals(body)) {
-			arduinoBody = arduino;
-			return;
-		} else if (key.equals("head")) {
-			arduinoHead = arduino;
-			return;		
-			
-		}
-
-
-		log.error(String.format("setArduino (%s, Arduino) must be left or right", key));
-	}
-
-	// uno | atmega168 | atmega328p | atmega2560 | atmega1280 | atmega32u4
-	public Arduino attachArduino(String key, String boardType, String comPort) {
-		info(String.format("initializing %s arduino", key));
-		Arduino arduino = (Arduino) Runtime.createAndStart(String.format("arduino%s", key), "Arduino");
-		arduino.setBoard(boardType);
-		arduino.connect(comPort, 57600, 8, 1, 0);
-		sleep(1000);
-		setArduino(key, arduino);
+		
 		return arduino;
 	}
-	// ------------- added function with set pins
-	public Hand attachHand(String key,Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
-		Arduino arduino = getArduino(key);
+	
+	
+	public boolean startHead(String port)
+	{
+		boolean init = true;
+		init &= startHeadTracking(port, 12, 13);
+		//init &= startEyesTracking(port, ??, ??);  FIXME - implement defaults
+		return init;
 
-		Hand hand = new Hand();
-		if (key == left) {
-			handLeft = hand;
-		} else if (key == right) {
-			handRight = hand;
-		} else {
-			error(String.format("could not attach %s hand", key));
-		}
-		hand.setpins(thumb, index, majeure, ringFinger, pinky, wrist);
-		hand.attach(arduino, key);
-		return hand;
 	}
+	
+	public boolean startJaw(String port, int jawPin)
+	{
+		arduinoJaw = getArduino(port);
+		jaw = (Servo)startReserved("jaw");
+		arduinoJaw.servoAttach(jaw.getName(), jawPin);
+		return true;
+	}
+	
+	public Hand startHand(String port, String key)
+	{
+		return startHand(port, key, 2, 3, 4, 5, 6, 7);
+	}
+	
+	public Hand startHand(String port, String key,  int thumb, int index, int majeure, int ringFinger, int pinky, int wrist)
+	{
+		info("starting %s hand with port %s and default pin configuration", port, key);
+		return startHand(port, key, 2, 3, 4, 5, 6, 7);		
+	}
+	
+
+	
+	// ----------- start routines end ---------------------
+	
+	// ------------- added function with set pins
+	// FIXME FIXME FIXME REFACTOR BELOW
 	
 	public Hand attachHand(String key) {
 		Arduino arduino = getArduino(key);
@@ -201,7 +304,7 @@ public class InMoov extends Service {
 			error(String.format("could not attach %s hand", key));
 		}
 
-		hand.attach(arduino, key);
+		//hand.start(arduino, key);
 		return hand;
 	}
 
@@ -393,7 +496,7 @@ public class InMoov extends Service {
 	// ----------- normalization end ---------------------
 
 	public void attachSide(String side, String boardType, String comPort) {
-		attachArduino(side, boardType, comPort);
+		//attachArduino(side, boardType, comPort);
 		attachHand(side);
 		attachArm(side);
 	}
@@ -763,6 +866,9 @@ public class InMoov extends Service {
 
 		InMoov inMoov = new InMoov("inMoov");
 		inMoov.startService();
+		inMoov.startHead("COM12");
+		
+		Runtime.createAndStart("gui", "GUIService");
 		inMoov.handRight.index.setPositionMax(155);
 		inMoov.handRight.index.setPositionMin(15);
 
@@ -792,7 +898,7 @@ public class InMoov extends Service {
 		 * "Python"); ServiceInterface gui = Runtime.createAndStart("gui",
 		 * "GUIService"); gui.display();
 		 * 
-		 * inMoov.eye.setCameraIndex(1);
+		 * inMoov.opencv.setCameraIndex(1);
 		 */
 		// inMoov.tracking.trackLKPoint();
 		GUIService gui = new GUIService("gui");

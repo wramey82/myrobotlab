@@ -172,13 +172,15 @@ public class XMPP extends Service implements MessageListener {
 		XMPP xmpp = new XMPP("xmpp");
 		xmpp.startService();
 		xmpp.connect("gmail.com");
-		xmpp.login("robot1@gmail.com", "password");
-
+		xmpp.login("robot01@myrobotlab.org", "xxxxx");
+		
 		// gets all users it can send messages to
 		xmpp.getRoster();
 
+		xmpp.setStatus(true, "online all the time");
+
 		// send a message
-		xmpp.sendMessage("Hello DJ, this message is a chat from the new XMPP service in MRL - let me know if you get it", "robot2@gmail.com");
+		xmpp.sendMessage("Hello DJ, this message is a chat from the new XMPP service in MRL - let me know if you get it", "supertick@gmail.com");
 
 		// Runtime.createAndStart("gui", "GUIService");
 		/*

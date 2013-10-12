@@ -93,7 +93,7 @@ public class Tracking extends Service {
 	// ------ PEER SERVICES BEGIN------
 	// peer services are always transient (i think)
 	transient public PID xpid, ypid;
-	transient public OpenCV eye;
+	transient public OpenCV opencv;
 	transient public Arduino arduino;
 	transient public Servo x, y;
 	// ------ PEER SERVICES END------
@@ -154,7 +154,7 @@ public class Tracking extends Service {
 
 			// start peer services
 			arduino = (Arduino) startReserved("arduino");
-			eye = (OpenCV) startReserved("opencv");
+			opencv = (OpenCV) startReserved("opencv");
 			xpid = (PID) startReserved("xpid");
 			ypid = (PID) startReserved("ypid");
 			x = (Servo) startReserved("x");
@@ -164,10 +164,10 @@ public class Tracking extends Service {
 			rest();
 
 			// cache filter names
-			LKOpticalTrackFilterName = String.format("%s.%s", eye.getName(), FILTER_LK_OPTICAL_TRACK);
-			FaceDetectFilterName = String.format("%s.%s", eye.getName(), FILTER_FACE_DETECT);
+			LKOpticalTrackFilterName = String.format("%s.%s", opencv.getName(), FILTER_LK_OPTICAL_TRACK);
+			FaceDetectFilterName = String.format("%s.%s", opencv.getName(), FILTER_FACE_DETECT);
 
-			eye.addListener("publishOpenCVData", getName(), "setOpenCVData");
+			opencv.addListener("publishOpenCVData", getName(), "setOpenCVData");
 			setDefaultPreFilters();
 
 			// cached servo limits
@@ -176,7 +176,7 @@ public class Tracking extends Service {
 			ymin = y.getPositionMin();
 			ymax = y.getPositionMax();
 
-			eye.broadcastState();
+			opencv.broadcastState();
 			sleep(20); // cheesy way to keep the gui from crashing
 			arduino.broadcastState();
 			sleep(20);
@@ -203,8 +203,8 @@ public class Tracking extends Service {
 	}
 
 	public void setCameraIndex(int i) {
-		eye = (OpenCV) startReserved("opencv");
-		eye.setCameraIndex(i);
+		opencv = (OpenCV) startReserved("opencv");
+		opencv.setCameraIndex(i);
 	}
 
 	public void attachServos(int xpin, int ypin) {
@@ -339,23 +339,23 @@ public class Tracking extends Service {
 	public void startLKTracking() {
 		log.info("startLKTracking");
 
-		eye.clearFilters();
+		opencv.clearFilters();
 
 		for (int i = 0; i < preFilters.size(); ++i) {
-			eye.addFilter(preFilters.get(i));
+			opencv.addFilter(preFilters.get(i));
 		}
 
-		eye.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
-		eye.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
+		opencv.addFilter(FILTER_LK_OPTICAL_TRACK, FILTER_LK_OPTICAL_TRACK);
+		opencv.setDisplayFilter(FILTER_LK_OPTICAL_TRACK);
 
-		eye.capture();
-		eye.publishOpenCVData(true);
+		opencv.capture();
+		opencv.publishOpenCVData(true);
 
 		setState(STATE_LK_TRACKING_POINT);
 	}
 
 	public void stopLKTracking() {
-		eye.clearFilters();
+		opencv.clearFilters();
 		setState(STATE_IDLE);
 	}
 
@@ -365,7 +365,7 @@ public class Tracking extends Service {
 			startLKTracking();
 		}
 
-		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
+		opencv.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
 	}
 
 	// GAAAAAAH figure out if (int , int) is SUPPORTED WOULD YA !
@@ -374,49 +374,49 @@ public class Tracking extends Service {
 		if (!STATE_LK_TRACKING_POINT.equals(state)) {
 			startLKTracking();
 		}
-		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
+		opencv.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "samplePoint", x, y);
 	}
 
 	public void reset() {
 		// TODO - reset pid values
 		// clear filters
-		eye.clearFilters();
+		opencv.clearFilters();
 		// reset position
 		rest();
 	}
 
 	// reset better ?
 	public void clearTrackingPoints() {
-		eye.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "clearPoints");
+		opencv.invokeFilterMethod(FILTER_LK_OPTICAL_TRACK, "clearPoints");
 		// reset position
 		rest();
 	}
 
 	public void setForegroundBackgroundFilter() {
-		eye.clearFilters();
+		opencv.clearFilters();
 		for (int i = 0; i < preFilters.size(); ++i) {
-			eye.addFilter(preFilters.get(i));
+			opencv.addFilter(preFilters.get(i));
 		}
-		eye.addFilter(FILTER_DETECTOR);
-		eye.addFilter(FILTER_ERODE);
-		eye.addFilter(FILTER_DILATE);
-		eye.addFilter(FILTER_FIND_CONTOURS);
+		opencv.addFilter(FILTER_DETECTOR);
+		opencv.addFilter(FILTER_ERODE);
+		opencv.addFilter(FILTER_DILATE);
+		opencv.addFilter(FILTER_FIND_CONTOURS);
 
-		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).learn();
+		((OpenCVFilterDetector) opencv.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 	}
 
 	public void learnBackground() {
 
-		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).learn();
+		((OpenCVFilterDetector) opencv.getFilter(FILTER_DETECTOR)).learn();
 
 		setState(STATE_LEARNING_BACKGROUND);
 	}
 
 	public void searchForeground() {
 
-		((OpenCVFilterDetector) eye.getFilter(FILTER_DETECTOR)).search();
+		((OpenCVFilterDetector) opencv.getFilter(FILTER_DETECTOR)).search();
 
 		setState(STATE_SEARCHING_FOREGROUND);
 	}
@@ -617,21 +617,21 @@ public class Tracking extends Service {
 	}
 
 	public void faceDetect() {
-		// eye.addFilter("Gray"); needed ?
-		eye.clearFilters();
+		// opencv.addFilter("Gray"); needed ?
+		opencv.clearFilters();
 
 		log.info("starting faceDetect");
 
 		for (int i = 0; i < preFilters.size(); ++i) {
-			eye.addFilter(preFilters.get(i));
+			opencv.addFilter(preFilters.get(i));
 		}
 
 		// TODO single string static
-		eye.addFilter(FILTER_FACE_DETECT);
-		eye.setDisplayFilter(FILTER_FACE_DETECT);
+		opencv.addFilter(FILTER_FACE_DETECT);
+		opencv.setDisplayFilter(FILTER_FACE_DETECT);
 
-		eye.capture();
-		eye.publishOpenCVData(true);
+		opencv.capture();
+		opencv.publishOpenCVData(true);
 
 		// wrong state
 		setState(STATE_FACE_DETECT);
@@ -639,7 +639,7 @@ public class Tracking extends Service {
 	}
 
 	public void clearFilters() {
-		eye.clearFilters();
+		opencv.clearFilters();
 	}
 
 	public void test() {
