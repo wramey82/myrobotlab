@@ -284,6 +284,13 @@ public class InMoov extends Service {
 		info("starting %s hand with port %s and default pin configuration", port, key);
 		Hand hand = new Hand();
 		hand.startHand(this, port, key, thumb, index, majeure, ringFinger, pinky, wrist);
+		if (right.equals(key)){
+			handright = hand;
+		} else if (left.equals(key)) {
+			handleft = hand;
+		} else {
+			error("invalid key");
+		}
 		return hand;		
 	}
 	
