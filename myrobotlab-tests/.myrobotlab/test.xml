@@ -1,0 +1,15 @@
+<openCV>
+   <name>test</name>
+   <allowExport>true</allowExport>
+   <videoProcessor>
+      <inputSource>camera</inputSource>
+      <grabberType>com.googlecode.javacv.OpenCVFrameGrabber</grabberType>
+      <format>image</format>
+      <getDepth>false</getDepth>
+      <cameraIndex>0</cameraIndex>
+      <inputFile>http://localhost/videostream.cgi</inputFile>
+      <pipelineSelected></pipelineSelected>
+      <publishOpenCVData>true</publishOpenCVData>
+      <useBlockingData>true</useBlockingData>
+   </videoProcessor>
+</openCV>
