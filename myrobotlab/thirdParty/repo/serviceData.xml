@@ -235,7 +235,7 @@
 		</list>
       </dependsOn>
    </serviceType>
-      <serviceType string="org.myrobotlab.service.Hand" workingLevel="3">
+      <serviceType string="org.myrobotlab.service.InMoovHand" workingLevel="3">
       <dependsOn>
       <description>service to control the InMoov robot
       </description>  
@@ -256,7 +256,7 @@
 		</list>
       </dependsOn>
    </serviceType>
-      <serviceType string="org.myrobotlab.service.Head" workingLevel="3">
+      <serviceType string="org.myrobotlab.service.InMoovHead" workingLevel="3">
       <dependsOn>
       <description>service to control the InMoov robot
       </description>  
