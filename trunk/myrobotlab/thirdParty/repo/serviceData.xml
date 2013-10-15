@@ -214,6 +214,69 @@
 		</list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.InMoovArm" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.Hand" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.Head" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.InverseKinematics" workingLevel="2">
       <dependsOn>
       	 <description>Service to calculate InverseKinematics of a 2 joints robot arm, on a rotating base
