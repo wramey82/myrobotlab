@@ -510,6 +510,23 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		return servoAttach(servoName, servo.getPin());
 	}
 	
+	// FIXME - put in interface
+	public boolean servoAttach(Servo servo)
+	{
+		if (servo == null)
+		{
+			error("servoAttach servo is null");
+			return false;
+		}
+		
+		if (servo.getPin() == null)
+		{
+			error("%s servo pin not set", servo.getName());
+			return false;
+		}
+		return servoAttach(servo.getName(), servo.getPin());
+	}
+	
 	@Override
 	public boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
@@ -1111,6 +1128,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		} catch (Exception e) {
 			logException(e);
 		}
+		
+		error("could not connect %s to port %s", getName(), name);
 		return false;
 	}
 

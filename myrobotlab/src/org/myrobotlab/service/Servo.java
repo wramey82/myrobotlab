@@ -146,6 +146,12 @@ public class Servo extends Service implements ServoControl {
 	public boolean isAttached() {
 		return controller != null;
 	}
+	
+	public void setMinMax(Integer min, Integer max)
+	{
+		setPositionMin(min);
+		setPositionMax(max);
+	}
 
 	public void setPositionMin(Integer min) {
 		if (inverted) {
@@ -331,7 +337,7 @@ public class Servo extends Service implements ServoControl {
 
 		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
 
-		arduino.setSerialDevice("COM12");
+		arduino.setSerialDevice("COM4");
 
 		Servo right = new Servo("servo01");
 		right.startService();

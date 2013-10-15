@@ -16,24 +16,10 @@ public class _TemplateService extends Service {
 	public _TemplateService(String n) {
 		super(n, _TemplateService.class.getCanonicalName());	
 	}
-
-	@Override 
-	public void startService()
-	{
-		super.startService();
-	}
-	
-	
-	@Override 
-	public void stopService()
-	{
-		super.stopService();
-	}
 	
 	@Override
-	public void releaseService()
-	{
-		super.releaseService();
+	public void startService() {
+		super.startService();
 	}
 	
 	@Override

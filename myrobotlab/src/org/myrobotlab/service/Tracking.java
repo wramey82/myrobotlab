@@ -133,12 +133,12 @@ public class Tracking extends Service {
 
 	public Tracking(String n) {
 		super(n, Tracking.class.getCanonicalName());
-		reserve("x", "Servo", "servo for pan");
-		reserve("y", "Servo", "servo for tilt");
-		reserve("xpid", "PID", "pid for pan");
-		reserve("ypid", "PID", "pid for tilt");
-		reserve("opencv", "OpenCV", "camera");
-		reserve("arduino", "Arduino", "arduino to control the servos");
+		reserve("X", "Servo", "servo for pan");
+		reserve("Y", "Servo", "servo for tilt");
+		reserve("XPID", "PID", "pid for pan");
+		reserve("YPID", "PID", "pid for tilt");
+		reserve("OpenCV", "OpenCV", "camera");
+		reserve("Arduino", "Arduino", "arduino to control the servos");
 	}
 
 	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of
@@ -153,12 +153,12 @@ public class Tracking extends Service {
 		try {
 
 			// start peer services
-			arduino = (Arduino) startReserved("arduino");
-			opencv = (OpenCV) startReserved("opencv");
-			xpid = (PID) startReserved("xpid");
-			ypid = (PID) startReserved("ypid");
-			x = (Servo) startReserved("x");
-			y = (Servo) startReserved("y");
+			arduino = (Arduino) startReserved("Arduino");
+			opencv = (OpenCV) startReserved("OpenCV");
+			xpid = (PID) startReserved("XPID");
+			ypid = (PID) startReserved("YPID");
+			x = (Servo) startReserved("X");
+			y = (Servo) startReserved("Y");
 
 			// put servos in rest position
 			rest();
@@ -197,21 +197,21 @@ public class Tracking extends Service {
 
 	// -------------- System Specific Initialization Begin --------------
 	public boolean connect(String port) {
-		arduino = (Arduino) startReserved("arduino");
+		arduino = (Arduino) startReserved("Arduino");
 		arduino.connect(port);
 		return arduino.isConnected();
 	}
 
 	public void setCameraIndex(int i) {
-		opencv = (OpenCV) startReserved("opencv");
+		opencv = (OpenCV) startReserved("OpenCV");
 		opencv.setCameraIndex(i);
 	}
 
 	public void attachServos(int xpin, int ypin) {
 		info("attaching servos");
-		arduino = (Arduino) startReserved("arduino");
-		x = (Servo) startReserved("x");
-		y = (Servo) startReserved("y");
+		arduino = (Arduino) startReserved("Arduino");
+		x = (Servo) startReserved("X");
+		y = (Servo) startReserved("Y");
 
 		arduino.servoAttach(x.getName(), xpin);
 		arduino.servoAttach(y.getName(), ypin);
@@ -221,8 +221,8 @@ public class Tracking extends Service {
 
 	public void setServoLimits(int xmin, int xmax, int ymin, int ymax) {
 		log.info(String.format("setServoLimits %d %d %d %d", xmin, xmax, ymin, ymax));
-		x = (Servo) startReserved("x");
-		y = (Servo) startReserved("y");
+		x = (Servo) startReserved("X");
+		y = (Servo) startReserved("Y");
 		x.setPositionMin(xmin);
 		x.setPositionMax(xmax);
 		y.setPositionMin(ymin);
@@ -296,7 +296,7 @@ public class Tracking extends Service {
 
 	public PID setXPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
 		// notice - this is just create - start needs to be in startService
-		xpid = (PID) startReserved("xpid");
+		xpid = (PID) startReserved("XPID");
 		xpid.setPID(Kp, Ki, Kd);
 		xpid.setControllerDirection(direction);
 		xpid.setMode(mode);
@@ -310,7 +310,7 @@ public class Tracking extends Service {
 
 	public PID setYPID(double Kp, double Ki, double Kd, int direction, int mode, int minOutput, int maxOutput, int sampleTime, double setPoint) {
 		// notice - this is just create - start needs to be in startService
-		ypid = (PID) startReserved("ypid");
+		ypid = (PID) startReserved("YPID");
 		ypid.setPID(Kp, Ki, Kd);
 		ypid.setControllerDirection(direction);
 		ypid.setMode(mode);
@@ -678,23 +678,25 @@ public class Tracking extends Service {
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-
+		
 		Tracking tracker = new Tracking("tracking");
 		tracker.connect("COM12");
-		tracker.attachServos(3, 6);
+		tracker.attachServos(10, 7);
 		tracker.setRestPosition(90, 90);
 		// tracker.setServoLimits(0, 180, 0, 180);
-		tracker.setPIDDefaults();
+		tracker.setPIDDefaults(); // FIXME - defaults are cached primitive types
 		tracker.startService();
 
+		/*
 		Python python = new Python("python");
 		python.startService();
+		*/
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
 
-		tracker.faceDetect();
+		//tracker.faceDetect();
 
 		// tracker.startLKTracking();
 

@@ -77,18 +77,18 @@ public class Plantoid extends Service {
 	public Plantoid(String n) {
 		super(n, Plantoid.class.getCanonicalName());
 
-		reserve("arduino", "Arduino", "Plantoid has one arduino controlling all the servos and sensors");
-		reserve("leg1", "Servo", "one of the driving servos");
-		reserve("leg2", "Servo", "one of the driving servos");
-		reserve("leg3", "Servo", "one of the driving servos");
-		reserve("leg4", "Servo", "one of the driving servos");
+		reserve("Arduino", "Arduino", "Plantoid has one arduino controlling all the servos and sensors");
+		reserve("Leg1", "Servo", "one of the driving servos");
+		reserve("Leg2", "Servo", "one of the driving servos");
+		reserve("Leg3", "Servo", "one of the driving servos");
+		reserve("Leg4", "Servo", "one of the driving servos");
 
-		reserve("pan", "Servo", "pan servo");
-		reserve("tilt", "Servo", "tilt servo");
+		reserve("Pan", "Servo", "pan servo");
+		reserve("Tilt", "Servo", "tilt servo");
 		
-		reserve("keyboard", "Keyboard", "for keyboard control");
+		reserve("Keyboard", "Keyboard", "for keyboard control");
 
-		reserve("webgui", "WebGUI", "plantoid gui");
+		reserve("Webgui", "WebGUI", "plantoid gui");
 
 		// reserve("pilotcam","OpenCV", "One of the cameras");
 		// reserve("ircamera","OpenCV", "One of the cameras");
@@ -107,18 +107,18 @@ public class Plantoid extends Service {
 		super.startService();
 
 		try {
-			webgui = (WebGUI) startReserved("webgui");
-			arduino = (Arduino) startReserved("arduino");
+			webgui = (WebGUI) startReserved("Webgui");
+			arduino = (Arduino) startReserved("Arduino");
 			arduino.connect(port);
 
-			leg1 = (Servo) startReserved("leg1");
-			leg2 = (Servo) startReserved("leg2");
-			leg3 = (Servo) startReserved("leg3");
-			leg4 = (Servo) startReserved("leg4");
+			leg1 = (Servo) startReserved("Leg1");
+			leg2 = (Servo) startReserved("Leg2");
+			leg3 = (Servo) startReserved("Leg3");
+			leg4 = (Servo) startReserved("Leg4");
 
 			
-			pan = (Servo) startReserved("pan");
-			tilt = (Servo) startReserved("tilt");
+			pan = (Servo) startReserved("Pan");
+			tilt = (Servo) startReserved("Tilt");
 
 			startPolling();
 			attachServos();

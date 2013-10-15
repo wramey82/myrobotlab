@@ -437,6 +437,11 @@ public class Runtime extends Service {
 
 		return s;
 	}
+	
+	public final static String getCWD()
+	{
+		return System.getProperty("user.dir");
+	}
 
 	/**
 	 * the bare bones needed to register - just a name - if that's the case a

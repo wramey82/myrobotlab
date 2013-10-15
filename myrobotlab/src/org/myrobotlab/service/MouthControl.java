@@ -25,9 +25,9 @@ public class MouthControl extends Service {
 
 	public MouthControl(String n) {
 		super(n, MouthControl.class.getCanonicalName());
-		reserve("jaw", "Servo", "Servo for jaw");
-		reserve("arduino", "Arduino", "Arduino for jaw");
-		reserve("mouth", "mouth", "Speech synthesis service");
+		reserve("Jaw", "Servo", "Servo for jaw");
+		reserve("Arduino", "Arduino", "Arduino for jaw");
+		reserve("Mouth", "Speech", "Speech synthesis service");
 	}
 
 	// --- set servo pin
@@ -50,11 +50,13 @@ public class MouthControl extends Service {
 	public void startService() {
 		super.startService();
 		try {
-			jawServo = (Servo) startReserved("jaw");
-			arduino = (Arduino) startReserved("arduino");
-			mouth = (Speech) startReserved("mouth");
+			jawServo = (Servo) startReserved("Jaw");
+			arduino = (Arduino) startReserved("Arduino");
+			mouth = (Speech) startReserved("Mouth");
 			
-			subscribe("saying", mouth.getName(), "saying");
+			//subscribe("saying", mouth.getName(), "saying");
+			mouth.addListener(getName(),"saying");
+					
 			
 			// pin needs to be set by user !
 			if (jawServo.getPin() == null) {

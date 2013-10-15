@@ -163,6 +163,17 @@ public class XMPP extends Service implements MessageListener {
 		String from = message.getFrom();
 		String body = message.getBody();
 		log.info(String.format("Received message '%1$s' from %2$s", body, from));
+		invoke("publishMessage", message);
+	}
+	
+	/**
+	 * publishing point for XMPP messages
+	 * @param message
+	 * @return
+	 */
+	public Message publishMessage(Message message)
+	{
+		return message;
 	}
 
 	public static void main(String[] args) {
@@ -172,7 +183,7 @@ public class XMPP extends Service implements MessageListener {
 		XMPP xmpp = new XMPP("xmpp");
 		xmpp.startService();
 		xmpp.connect("gmail.com");
-		xmpp.login("robot01@myrobotlab.org", "xxxxx");
+		xmpp.login("robot01@myrobotlab.org", "mrlRocks!");
 		
 		// gets all users it can send messages to
 		xmpp.getRoster();
@@ -180,7 +191,8 @@ public class XMPP extends Service implements MessageListener {
 		xmpp.setStatus(true, "online all the time");
 
 		// send a message
-		xmpp.sendMessage("Hello DJ, this message is a chat from the new XMPP service in MRL - let me know if you get it", "supertick@gmail.com");
+		xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "supertick@gmail.com");
+		log.info("ere");
 
 		// Runtime.createAndStart("gui", "GUIService");
 		/*

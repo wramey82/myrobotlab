@@ -3,9 +3,6 @@ package org.myrobotlab.service;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.inmoov.Arm;
-import org.myrobotlab.inmoov.Hand;
-import org.myrobotlab.inmoov.Head;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -26,49 +23,29 @@ public class InMoov extends Service {
 	// port map
 	HashMap <String, Arduino> arduinos = new HashMap <String, Arduino>();
 
-	Head head;
+	InMoov head;
 
 	// head
 	transient public Sphinx ear;
 	transient public Speech mouth;
-	transient public OpenCV opencv;
 	transient public Python python;
-	transient public Tracking headTracking;
-	transient public Tracking eyesTracking;
-	transient public Arduino arduinoHead, arduinoright, arduinoleft;
-	transient public MouthControl mouthcontrol;
 	
+
+	transient public Arduino arduinoHead, arduinoright, arduinoleft;
+	
+	
+	// FIXME - HEAD SERVICE - goes in jaw
+	transient public Servo jaw;
+	transient public Servo eyeY;
 	// servos
 	transient public Servo rothead;
 	transient public Servo neck;
 	transient public Servo eyeX;
 	
-	transient public Servo thumbright;
-	transient public Servo indexright;
-	transient public Servo majeureright;
-	transient public Servo ringFingerright;
-	transient public Servo pinkyright;
-	transient public Servo wristright;
 	
-	transient public Servo thumbleft;
-	transient public Servo indexleft;
-	transient public Servo majeureleft;
-	transient public Servo ringFingerleft;
-	transient public Servo pinkyleft;
-	transient public Servo wristleft;
-	
-	// TODO - goes in jaw
-	transient public Servo jaw;
-	
-	transient public Servo eyeY;
-	
-	// left side
-	transient public Hand handleft;
-	transient public Arm armleft;
-
-	// right side
-	transient public Hand handright;
-	transient public Arm armright;
+	// hands and arms
+	transient public InMoovHand handright, handleft;
+	transient public InMoovArm  armright, armleft;
 
 	transient public Keyboard keyboard;
 	
@@ -82,56 +59,30 @@ public class InMoov extends Service {
 		super(n, InMoov.class.getCanonicalName());
 		
 		// service which do not require user input
-		reserve("ear", "Sphinx", "InMoov speech recognition service");
-		reserve("mouth", "Speech", "InMoov speech service");
-		reserve("opencv", "OpenCV", "OpenCV service");
-		reserve("python", "Python", "Python service");
-		reserve("keyboard", "Keyboard", "Keyboard service");
+		reserve("Ear", "Sphinx", "InMoov speech recognition service");
+		reserve("Mouth", "Speech", "InMoov speech service");		
+		reserve("Python", "Python", "Python service");
+		reserve("Keyboard", "Keyboard", "Keyboard service");
 		
-		// head servos
-		reserve("rothead", "Servo", "rotate/pan servo");
-		reserve("neck", "Servo", "neck/tilt servo");
-
+		// head servos FIXME needs to be another service!!
+		reserve("OpenCV", "OpenCV", "OpenCV service");
+		reserve("Rothead", "Servo", "rotate/pan servo");
+		reserve("Neck", "Servo", "neck/tilt servo");
+		reserve("Jaw", "Servo", "Servo for the jaw");
+		reserve("MouthControl", "mouthControl", "Mouth control");
+		
 		// hands
-		reserve("thumbright", "Servo", "thumbright servo");
-		reserve("thumbleft", "Servo", "thumbleft servo");
-		reserve("indexright", "Servo", "indexright servo");
-		reserve("indexleft", "Servo", "indexleft servo");
-		reserve("majeureright", "Servo", "majeureright servo");
-		reserve("majeureleft", "Servo", "majeureleft servo");
-		reserve("ringFingerright", "Servo", "ringFingerright servo");
-		reserve("ringFingerleft", "Servo", "ringFingerleft servo");
-		reserve("pinkyright", "Servo", "pinkyright servo");
-		reserve("pinkyleft", "Servo", "pinkyleft servo");
-		reserve("wristright", "Servo", "wristright servo");
-		reserve("wristleft", "Servo", "wristleft servo");
-		
+		reserve("RightHand", "InMoovHand", "right hand");
+		reserve("LeftHand", "InMoovHand", "left hand");
+	
 		// arms
-		
+		reserve("RightArm", "InMoovArm", "right arm");
+		reserve("LeftArm", "InMoovArm", "left arm");
 		
 		// composite and complex services which require use input
-		reserve("headTracking", "Tracking", "Tracking service for InMoov head");
-		// ----- head tracking peers begin -------
-		reserve("headX", "Servo", "servo for pan"); // rothead
-		reserve("headY", "Servo", "servo for tilt");
-		reserve("headXPID", "PID", "PID for pan");
-		reserve("headYPID", "PID", "PID for tilt");
-		reserve("head-arduino", "Arduino", "arduino to control the servos");
-		
-		reserve("eyes-tracking", "Tracking", "Tracking service for InMoov eyes");
-		// ----- head tracking peers begin -------
-		reserve("eyesX", "Servo", "servo for pan");
-		reserve("eyesY", "Servo", "servo for tilt");
-		reserve("eyesXPID", "PID", "PID for pan");
-		reserve("eyesYPID", "PID", "PID for tilt");
-		reserve("opencv", "OpenCV", "camera");
-		reserve("eyes-arduino", "Arduino", "arduino to control the servos");
-		
-		// ----- tracking peers begin -------
-		
-		reserve("jaw", "Servo", "Servo for the jaw");
-		reserve("mouthControl", "mouthControl", "Mouth control");
-		
+		reserve("HeadTracking", "Tracking", "Tracking service for InMoov head");
+		reserve("EyesTracking", "Tracking", "Tracking service for InMoov eyes");
+
 	}
 
 	// ----------- normalization begin ---------------------
@@ -169,7 +120,7 @@ public class InMoov extends Service {
 	{
 		info("starting opencv");
 		// the one shared opencv !!!
-		opencv = (OpenCV) startReserved("opencv");
+//		opencv = (OpenCV) startReserved("opencv");
 		
 		return true;
 	}
@@ -189,7 +140,7 @@ public class InMoov extends Service {
 	}
 
 	// ------ simple services which do not require user input end --------
-	
+	/*
 	public boolean startHeadTracking(String port, Integer xpin, Integer ypin)
 	{
 		info("starting head tracking");
@@ -274,15 +225,15 @@ public class InMoov extends Service {
 		return true;
 	}
 	
-	public Hand startHand(String port, String key)
+	public InMoovHand startHand(String port, String key)
 	{
 		return startHand(port, key, 2, 3, 4, 5, 6, 7);
 	}
 	
-	public Hand startHand(String port, String key,  int thumb, int index, int majeure, int ringFinger, int pinky, int wrist)
+	public InMoovHand startHand(String port, String key,  int thumb, int index, int majeure, int ringFinger, int pinky, int wrist)
 	{
 		info("starting %s hand with port %s and default pin configuration", port, key);
-		Hand hand = new Hand();
+		InMoovHand hand = new InMoovHand();
 		hand.startHand(this, port, key, thumb, index, majeure, ringFinger, pinky, wrist);
 		if (right.equals(key)){
 			handright = hand;
@@ -301,10 +252,10 @@ public class InMoov extends Service {
 	// ------------- added function with set pins
 	// FIXME FIXME FIXME REFACTOR BELOW
 	
-	public Hand attachHand(String key) {
+	public InMoovHand attachHand(String key) {
 		Arduino arduino = getArduino(key);
 
-		Hand hand = new Hand();
+		InMoovHand hand = new InMoovHand();
 		if (key == left) {
 			handleft = hand;
 		} else if (key == right) {
@@ -317,7 +268,7 @@ public class InMoov extends Service {
 		return hand;
 	}
 
-	public Hand getHand(String key) {
+	public InMoovHand getHand(String key) {
 		if (key == left) {
 			return handleft;
 		} else if (key == right) {
@@ -523,6 +474,7 @@ public class InMoov extends Service {
 			head.broadcastState();
 	}
 
+	// startAll() - sphinx blah blah
 	public void attachAll(String leftBoardType, String leftComPort, String rightBoardType, String rightComPort) {
 		log.info(String.format("left - %s %s right - %s %s", leftBoardType, leftComPort, rightBoardType, rightComPort));
 		attachSide(left, leftBoardType, leftComPort);
@@ -709,7 +661,7 @@ public class InMoov extends Service {
 	public String getDescription() {
 		return "the InMoov Service";
 	}
-
+*/
 	/*
 	public void startListening(String grammar) {
 		ear.attach(mouth);
@@ -741,6 +693,7 @@ public class InMoov extends Service {
 	}
 	*/
 
+	/*
 	public void allowHeadMovementFromScript() {
 		head.allowMove = true;
 	}
@@ -864,7 +817,7 @@ public class InMoov extends Service {
 		return ear;
 	}
 
-
+*/
 	// gestures end --------------
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
@@ -873,7 +826,7 @@ public class InMoov extends Service {
 		InMoov inmoov = new InMoov("inMoov");
 		inmoov.startService();
 		
-		inmoov.startHand("COM12", "right");
+//		inmoov.startHand("COM12", "right");
 		
 		/*
 		inMoov.startHead("COM12");
@@ -920,6 +873,12 @@ public class InMoov extends Service {
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
