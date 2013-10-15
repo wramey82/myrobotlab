@@ -193,6 +193,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getName() {
 		return name;
 	}
+	
+	public String getPeerKey(String key)
+	{
+		return String.format("%s%s", getName(), key);
+	}
 
 	/**
 	 * This method re-binds the key to another name. An example of where this
@@ -206,33 +211,82 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            new name of bound peer service
 	 * @return true if re-binding took place
 	 */
-	static public boolean reserveAs(String key, String newName) {
+	static public boolean reserveRootAs(String key, String newName) {
 		if (!reservations.containsKey(key)) {
 			log.error(String.format("reserveAs can not find %s to reserve name %s !!", key, newName));
 			return false;
 		}
-
 		reservations.get(key).actualName = newName;
+		log.info("reserving %s now as %s", key, newName);
 		return true;
+	}
+	/**
+	 * This method re-binds the key to another name. An example of where this
+	 * would be used is within Tracking there is an Servo service named "x",
+	 * however it may be desired to bind this to an already existing service
+	 * named "pan" in a pan/tilt system
+	 * 
+	 * @param key
+	 *            key internal name
+	 * @param newName
+	 *            new name of bound peer service
+	 * @return true if re-binding took place
+	 */
+	public boolean reserveAs(String key, String newName) {
+		String peerKey = getPeerKey(key);
+		return reserveRootAs(peerKey, newName);
 	}
 
 	/**
-	 * Reserves a name for a Service. This is important for services which
+	 * Reserves a name for a root level Service. 
+	 * allows modifications to the reservation map at the highest level
+	 * 
+	 * @param key
+	 * @param simpleTypeName
+	 * @param comment
+	 */
+	static public void reserveRoot(String key, String simpleTypeName, String comment) {
+		reserveRoot(key, key, simpleTypeName, comment);
+	}
+	
+	static public void reserveRoot(String key, String actualName, String simpleTypeName, String comment) {
+		if (!reservations.containsKey(key)){
+			log.info("reserved %s", key);
+			reservations.put(key, new ServiceReservation(key, actualName, simpleTypeName, comment));
+		} else {
+			ServiceReservation sr = reservations.get(key);
+			log.warn(String.format("%s already reserved - change actual name [%s] if needed", key, sr.actualName));
+		}
+	}
+
+	
+	/**
+	 * Reserves a name for a Peer Service. This is important for services which
 	 * control other services. Internally composite services will use a key so
 	 * the name of the peer service can change, effectively binding a new peer
 	 * to the composite
 	 * 
 	 * @param key
-	 *            internal key name of peer servvice
+	 *            internal key name of peer service
 	 * @param simpleTypeName
 	 *            type of service
 	 * @param comment
 	 *            comment detailing the use of the peer service within the
 	 *            composite
 	 */
-	static public void reserve(String key, String simpleTypeName, String comment) {
-		reservations.put(key, new ServiceReservation(key, simpleTypeName, comment));
+	public void reserve(String key, String simpleTypeName, String comment) {
+		// creating 
+		String peerKey = getPeerKey(key);
+		reserveRoot(peerKey, simpleTypeName, comment);
 	}
+	
+	public void reserve(String key, String actualName, String simpleTypeName, String comment) {
+		// creating 
+		String peerKey = getPeerKey(key);
+		reserveRoot(peerKey, actualName, simpleTypeName, comment);
+	}
+	
+	
 
 	/**
 	 * Create the reserved peer service if it has not already been created
@@ -242,14 +296,28 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            composite
 	 * @return true if successfully created
 	 */
-	static public ServiceInterface createReserved(String key) {
+	static public ServiceInterface createRootReserved(String key) {
+		log.info(String.format("createReserved %s ", key));
 		if (reservations.containsKey(key)) {
 			ServiceReservation r = reservations.get(key);
 			return Runtime.create(r.actualName, r.simpleTypeName);
 		}
 
-		log.error("can not start reservation %s", key);
+		log.error(String.format("createRootReserved can not create %s", key));
 		return null;
+	}
+	
+	/**
+	 * Create the reserved peer service if it has not already been created
+	 * 
+	 * @param key
+	 *            unique identification of the peer service used by the
+	 *            composite
+	 * @return true if successfully created
+	 */
+	public ServiceInterface createReserved(String key) {
+		String peerKey = getPeerKey(key);
+		return createRootReserved(peerKey);
 	}
 
 	/**
@@ -259,12 +327,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            internal identifier
 	 * @return true if successfully started
 	 */
-	static public ServiceInterface startReserved(String key) {
+	public ServiceInterface startReserved(String key) {
+		// String peerKey = getPeerKey(key);
 		ServiceInterface s = createReserved(key);
 		if (s != null) {
 			s.startService();
 			return s;
 		}
+		error("could not start reserved %s%s", getName(), key);
 		return null;
 	}
 

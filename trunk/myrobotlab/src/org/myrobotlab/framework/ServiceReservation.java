@@ -28,4 +28,12 @@ public class ServiceReservation {
 		this.simpleTypeName = simpleTypeName;
 		this.comment = comment;
 	}
+	
+	public ServiceReservation(String key, String actualName, String simpleTypeName, String comment)
+	{
+		this.key = key;
+		this.actualName = actualName;
+		this.simpleTypeName = simpleTypeName;
+		this.comment = comment;
+	}
 }
