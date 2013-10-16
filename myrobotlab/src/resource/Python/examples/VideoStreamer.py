@@ -22,4 +22,4 @@ sleep(3)
 
 
 # go to http://localhost:9090/output
-BareBonesBrowserLaunch.openURL("http://localhost:9090/output")
+BareBonesBrowserLaunch.openURL("http://localhost:9090")
