@@ -144,7 +144,7 @@ public class InMoovHand extends Service {
 
 	public void moveTo(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
 		if (log.isDebugEnabled()){
-			log.debug(String.format("%s.moveTo %d %d %d %d %d %d", thumb, index, majeure, ringFinger, pinky, wrist));
+			log.debug(String.format("%s.moveTo %d %d %d %d %d %d", getName(), thumb, index, majeure, ringFinger, pinky, wrist));
 		}
 		this.thumb.moveTo(thumb);
 		this.index.moveTo(index);

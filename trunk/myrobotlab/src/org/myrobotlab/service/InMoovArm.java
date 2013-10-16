@@ -242,6 +242,10 @@ public class InMoovArm extends Service {
 	}
 
 	public void moveTo(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
+		if (log.isDebugEnabled())
+		{
+			log.debug(String.format("%s moveTo %d %d %d %d %d", getName(), bicep, rotate, shoulder, omoplate));
+		}
 		this.bicep.moveTo(bicep);
 		this.rotate.moveTo(rotate);
 		this.shoulder.moveTo(shoulder);
@@ -251,10 +255,10 @@ public class InMoovArm extends Service {
 	
 	public boolean isValid()
 	{
-		bicep.moveTo(2);
-		rotate.moveTo(92);
-		shoulder.moveTo(32);
-		omoplate.moveTo(12);	
+		bicep.moveTo(bicepRest + 2);
+		rotate.moveTo(rotateRest + 2);
+		shoulder.moveTo(shoulderRest + 2);
+		omoplate.moveTo(omoplateRest + 2);	
 		return true;
 	}
 
