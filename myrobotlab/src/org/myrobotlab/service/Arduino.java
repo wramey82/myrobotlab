@@ -600,6 +600,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			log.error("serialPort is NULL !");
 			return;
 		}
+		
+		if (!servos.containsKey(servoName)){
+			warn("Servo %s not attached to %s", servoName, getName());
+			return;
+		}
 
 		int index = servos.get(servoName).servoIndex;
 		
@@ -1104,6 +1109,16 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		{
 			log.info("got emtpy connect name - disconnecting");
 			return disconnect();
+		}
+		
+		if (isConnected()){
+			if (portName != null && portName.equals(name))
+			{
+				log.info(String.format("%s already connected", portName));
+				return true;
+			} else if (portName != null && !portName.equals(name)){
+				warn("requesting port change from %s to %s - disconnect first", portName, name);
+			}
 		}
 		
 		try {
