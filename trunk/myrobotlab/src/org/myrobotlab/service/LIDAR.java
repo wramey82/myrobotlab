@@ -90,7 +90,7 @@ public class LIDAR extends Service {
             index++;
             
             if (log.isDebugEnabled()){
-            	log.info(String.format("byteReceived Index = %d expected message size = %d data = %02x", index, dataMessageSize, b));
+            	log.debug(String.format("byteReceived Index = %d expected message size = %d data = %02x", index, dataMessageSize, b));
             }
             
             buffer.write(b);
