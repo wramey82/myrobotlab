@@ -115,7 +115,8 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 							blockingData.add(newByte);
 						} else {
 							warn(String.format("overrun data > %d", BUFFER_SIZE));
-						}
+						blockingData.clear();  //clears the buffer 
+                                                }
 					}
 
 					if (publish) {
@@ -153,6 +154,17 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 							log.warn(String.format("%s published byte %d", getName(), newByte));
 							break;
 						}
+                                                    case PUBLISH_STRING: {
+                                                        // here be dragons...
+							buffer[recievedByteCount - 1] = newByte;
+							if (recievedByteCount % BYTE_SIZE_LONG == 0) {
+								String value = "";
+								invoke("publishString", value);
+								recievedByteCount = 0;
+							}
+							break;
+						}
+
 						}
 					} // if publish
 				}
@@ -245,7 +257,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	public String publishString(String data) {
-		return data;
+            return data;
 	}
 
 	/**
@@ -533,5 +545,5 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 
-
+        
 }
