@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -31,13 +32,13 @@ public class LIDAR extends Service {
     public static final String STATE_NOMINAL = "waiting on user to tell me what to do";
     public int dataMessageSize = 213; //default size for a SICK LMS-200
     String state = STATE_PRE_INITIALIZATION;
-
-    int index =0;
+//    String state = STATE_SINGLE_SCAN;//STATE_PRE_INITIALIZATION; // for testing with SEAR Simulator
+    int index = 0;
     private int LIDARbaudRate = 9600; //by default
     private String serialPort;
-    private byte[] message ;
+    private byte[] message;
     private boolean dataAvailable = false;
-    
+
     public LIDAR(String n) {
         super(n, LIDAR.class.getCanonicalName());
         reserve(String.format("%s_serial", n), "Serial", "serial port for LIDAR");
@@ -84,12 +85,11 @@ public class LIDAR extends Service {
     }
 
     public void byteReceived(Byte b) {
-        
+
         try {
             index++;
-            log.info("byteReceived inside LIDAR service has been called. \n"
-                    + "Index = "+index+ " expected message size = " +dataMessageSize
-                    +"actual data byte = "+ b);
+            log.info("byteReceived Index = " + index + " expected message size = " + dataMessageSize
+                    + " actual data byte = " + String.format("%02x", b));
             buffer.write(b);
             // so a byte was appended
             // now depending on what model it was and
@@ -98,7 +98,7 @@ public class LIDAR extends Service {
                 // These modes always have 14 bytes replies
 //                log.info(buffer.toString());
                 message = buffer.toByteArray();
-                 dataAvailable=true;
+                dataAvailable = true;
                 if (message[5] == 1 || message[6] == 1) {
                     log.info("Mode change was a Success!!!");
                 }
@@ -107,76 +107,73 @@ public class LIDAR extends Service {
                 }
                 state = STATE_NOMINAL;
             }
-            if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index== dataMessageSize) {
+            if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index == dataMessageSize) {
 //if ( index== dataMessageSize) {
-                
-               log.info("Buffer size = "+buffer.size()+" Buffer = " +buffer.toString());
+
+                log.info("Buffer size = " + buffer.size() + " Buffer = " + buffer.toString());
                 // WTF do I do with this data now?
-               buffer.flush();   //flush entire buffer so I can convert it to a byte array
-               message = buffer.toByteArray();
-                  log.info("size of message = "+message.length);
-                  dataAvailable=true;
-                  invoke("publishLidarData");
+                buffer.flush();   //flush entire buffer so I can convert it to a byte array
+                message = buffer.toByteArray();
+                log.info("size of message = " + message.length);
+                dataAvailable = true;
+                invoke("publishLidarData");
                 state = STATE_NOMINAL;
+                index = 0;
+                
             }
 
         } catch (Exception e) {
             error(e.getMessage());
         }
-      
+
     }
 
-    
     /*
      * Set LIDAR to use centimeters
      */
-    public boolean setToCM(){
-  
-    if(true)  {  
-return true;
+    public boolean setToCM() {
+
+        if (true) {
+            return true;
+        } else {
+            return false;
+        }
     }
-else{
-        return false;
-}
-    }
-    
-      /*
+
+    /*
      * Set LIDAR to use millimeters
-     */  
-      public boolean setToMM(){
-  
-    if(true)  {  
-return true;
+     */
+    public boolean setToMM() {
+
+        if (true) {
+            return true;
+        } else {
+            return false;
+        }
     }
-else{
-        return false;
-}
-    }
-    
-    
-    
-    public int[] publishLidarData(){
-   
-        int [] intData= new int[(message.length-11)/2];
-        log.info("publishLidarData has been called. Message length = " +message.length+ "        We should have = "+intData.length +"data readings");
+
+    public int[] publishLidarData() {
+
+        int[] intData = new int[(message.length - 11) / 2];
+        log.info("publishLidarData has been called. Message length = " + message.length + "        We should have = " + intData.length + "data readings");
         StringBuilder data = new StringBuilder("");
-            for (int i=8; i<(message.length-3); i=i+2) //excluding the header and the footer, taking every other byte as the LSB of the new number
-            {
-                //Do some bitwise stuff to get our integer distance in cm(default) or mm if you changed the mode
-                //data = MSB << 8 | LSB
-                ByteBuffer bb = ByteBuffer.wrap(new byte[] {0,0, message[i], message[i+1] });
-                
-             intData[(i-8)/2] =bb.getInt();
-            
-                log.info("IntData index = "+(i-8)/2+" i = "+i+" message = "+String.format(" %02x %02x",message[i],message[i+1])+String.format("  Integer = %02x",intData[(i-8)/2]));   
-                data.append(intData[(i-8)/2]).append(", ");
-               
-            }//end for loop                   
+        for (int i = 8; i < (message.length - 3); i = i + 2) //excluding the header and the footer, taking every other byte as the LSB of the new number
+        {
+            //Do some bitwise stuff to get our integer distance in cm(default) or mm if you changed the mode
+            //data = MSB << 8 | LSB
+            ByteBuffer bb = ByteBuffer.wrap(new byte[]{0, 0, message[i + 1], message[i]});
+
+            intData[(i - 8) / 2] = bb.getInt();
+
+            log.info("IntData index = " + (i - 8) / 2 + " i = " + i + " message = " + String.format(" %02x %02x", message[i], message[i + 1]) + String.format("  Integer = %02x", intData[(i - 8) / 2]));
+            data.append(intData[(i - 8) / 2]).append(", ");
+
+        }//end for loop                   
 //        log.info("Data = "+data.toString());
-             return intData;  //This should return data to the python code if the user has subscribed to it
+        return intData;  //This should return data to the python code if the user has subscribed to it
     }//end dataToString
-    
-     public boolean connect(String port, int baud) {
+
+    public boolean connect(String port, int baud) {
         serial = getSerial();
         serialPort = port;
         LIDARbaudRate = baud;
@@ -184,8 +181,7 @@ else{
 
         return serial.isConnected();
     }
-    
-    
+
     public boolean connect(String port) {
         serial = getSerial();
         serialPort = port;
@@ -194,57 +190,49 @@ else{
         return serial.isConnected();
     }
 
-        public boolean reconnectSerial() {
+    public boolean reconnectSerial() {
         serial = getSerial();
         serial.disconnect();
         boolean connect = serial.connect(serialPort, LIDARbaudRate, 8, 1, 0);
         return serial.isConnected();
     }
-    
-        public boolean disconnect() {
+
+    public boolean disconnect() {
         serial = getSerial();
         serial.disconnect();
         return serial.isConnected();
     }
-    public void setBaud(int baudRate) throws IOException{
-        
-                state = STATE_SINGLE_SCAN;
 
-        LIDARbaudRate = baudRate;        
-        
-        index=0;
-        buffer.reset();  
-        
+    public void setBaud(int baudRate) throws IOException {
+
+        state = STATE_SINGLE_SCAN;
+
+        LIDARbaudRate = baudRate;
+
+        index = 0;
+        buffer.reset();
+
         /* 9600 is default, but just in case you ever need it...
-     *  PC sends : 02 00 02 00 20 42 52 08
-     *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
-     */
-        if(baudRate == 9600){
-        serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x42, 0x52, 0x08});
-        }
-       
-        
-     /* 19200
-     *  PC sends : 02 00 02 00 20 41 51 08
-     *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
-     */
-        else if(baudRate == 19200){
-        serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x41, 0x52, 0x08});
-        }
-        
-     /* 38400
-     *  PC sends : 02 00 02 00 20 41 51 08
-     *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
-     */
-        else if(baudRate == 38400){
-        serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x40, 0x52, 0x08});
-        }
-        else{
+         *  PC sends : 02 00 02 00 20 42 52 08
+         *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
+         */
+        if (baudRate == 9600) {
+            serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x42, 0x52, 0x08});
+        } /* 19200
+         *  PC sends : 02 00 02 00 20 41 51 08
+         *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
+         */ else if (baudRate == 19200) {
+            serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x41, 0x52, 0x08});
+        } /* 38400
+         *  PC sends : 02 00 02 00 20 41 51 08
+         *  LMS replies: 06 02 81 03 00 A0 00 10 36 1A (success)
+         */ else if (baudRate == 38400) {
+            serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x20, 0x40, 0x52, 0x08});
+        } else {
             log.error("You've specified an unsupported baud rate");
         }
     }
-    
-    
+
     public Serial getSerial() {
         if (serialName == null) {
             serialName = String.format("%s_serial", getName());
@@ -260,21 +248,21 @@ else{
     public void singleScan() throws IOException {
         state = STATE_SINGLE_SCAN;
         serial.write(new char[]{0x02, 0x00, 0x02, 0x00, 0x30, 0x01, 0x31, 0x18});
-        index=0;
-        buffer.reset();        
+        index = 0;
+        buffer.reset();
     }// end singleScan
 
     public void setScanMode(int spread, float angularResolution) throws IOException {
         state = STATE_MODE_CHANGE;
-        buffer.reset();                
-        index=0;
+        buffer.reset();
+        index = 0;
         if (spread == 100) {
             if (angularResolution == 1) {
                 serial.write(new char[]{0x02, 0x00, 0x05, 0x00, 0x3B, 0x64, 0x00, 0x64, 0x00, 0x1D, 0x0F});
                 // Start bytes and header = 8 bytes, 202 data bytes, 1 status
                 // and 2 bytes for checksum
                 dataMessageSize = 213;
-             } else if (angularResolution == 0.5) {
+            } else if (angularResolution == 0.5) {
                 serial.write(new char[]{0x02, 0x00, 0x05, 0x00, 0x3B, 0x64, 0x00, 0x32, 0x00, 0xb1, 0x59});
                 // Start bytes and header = 8 bytes, 402 data bytes, 1 status
                 // and 2 bytes for checksum
@@ -311,8 +299,8 @@ else{
 
         try {
 
-        LIDAR template = new LIDAR("lidar");
-        template.startService();
+            LIDAR template = new LIDAR("Lidar");
+            template.startService();
 
 
 //            LIDAR lidar01 = (LIDAR) Runtime.createAndStart("lidar01", "LIDAR");
