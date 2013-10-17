@@ -59,6 +59,7 @@ import java.util.Timer;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
@@ -2081,6 +2082,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public Method[] getMethods() {
 		return this.getClass().getMethods();
+	}
+	
+	public String setLogLevel(String level)
+	{
+		Logging logging = LoggingFactory.getInstance();
+		logging.setLevel(level);
+		return level;
 	}
 
 }
