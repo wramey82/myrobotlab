@@ -38,6 +38,7 @@ public class LIDAR extends Service {
     private String serialPort;
     private byte[] message;
     private boolean dataAvailable = false;
+    String info; //used for outputting log.info messages
 
     public LIDAR(String n) {
         super(n, LIDAR.class.getCanonicalName());
@@ -84,9 +85,8 @@ public class LIDAR extends Service {
         }
     }
 
-    public void byteReceived(Byte b) {
+    public void byteReceived(Byte b) throws IOException {
 
-        try {
             index++;
             log.info("byteReceived Index = " + index + " expected message size = " + dataMessageSize
                     + " actual data byte = " + String.format("%02x", b));
@@ -108,13 +108,13 @@ public class LIDAR extends Service {
                 state = STATE_NOMINAL;
             }
             if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index == dataMessageSize) {
-//if ( index== dataMessageSize) {
-
-                log.info("Buffer size = " + buffer.size() + " Buffer = " + buffer.toString());
+                info = String.format("Buffer size =  %s  Buffer =  %s",  + buffer.size(),  buffer.toString());
+                log.info(info);
                 // WTF do I do with this data now?
                 buffer.flush();   //flush entire buffer so I can convert it to a byte array
                 message = buffer.toByteArray();
-                log.info("size of message = " + message.length);
+                info = String.format("size of message = %s",  message.length);                        
+                log.info(info);
                 dataAvailable = true;
                 invoke("publishLidarData");
                 state = STATE_NOMINAL;
@@ -122,9 +122,7 @@ public class LIDAR extends Service {
                 
             }
 
-        } catch (Exception e) {
-            error(e.getMessage());
-        }
+       
 
     }
 
@@ -295,7 +293,7 @@ public class LIDAR extends Service {
 
     public static void main(String[] args) {
         LoggingFactory.getInstance().configure();
-        LoggingFactory.getInstance().setLevel(Level.INFO);
+        LoggingFactory.getInstance().setLevel(Level.WARN);
 
         try {
 
