@@ -13,8 +13,8 @@ public class DigitalButton extends JButton {
 	public final Object parent;
 	public String offText = null;
 	public String onText = null;
-	String offCMD = null;
-	String onCMD = null;
+	String offCMD = "off";
+	String onCMD = "on";
 
 	public Color offBGColor = null;
 	Color offFGColor = null;
@@ -76,8 +76,8 @@ public class DigitalButton extends JButton {
 			setBackground(onBGColor);
 			setForeground(onFGColor);
 			setText(onText);
-			setActionCommand(onCMD);
 		}
+		setActionCommand(onCMD);
 		isOn = true;
 	}
 
@@ -88,8 +88,8 @@ public class DigitalButton extends JButton {
 			setBackground(offBGColor);
 			setForeground(offFGColor);
 			setText(offText);
-			setActionCommand(offCMD);
 		}
+		setActionCommand(offCMD);
 		isOn = false;
 	}
 
