@@ -88,8 +88,11 @@ public class LIDAR extends Service {
     public void byteReceived(Byte b) throws IOException {
 
             index++;
-            log.info("byteReceived Index = " + index + " expected message size = " + dataMessageSize
-                    + " actual data byte = " + String.format("%02x", b));
+            
+            if (log.isDebugEnabled()){
+            	log.info(String.format("byteReceived Index = %d expected message size = %d data = %02x", index, dataMessageSize, b));
+            }
+            
             buffer.write(b);
             // so a byte was appended
             // now depending on what model it was and
@@ -108,8 +111,9 @@ public class LIDAR extends Service {
                 state = STATE_NOMINAL;
             }
             if (MODEL_SICK_LMS200.equals(model) && STATE_SINGLE_SCAN.equals(state) && index == dataMessageSize) {
-                info = String.format("Buffer size =  %s  Buffer =  %s",  + buffer.size(),  buffer.toString());
-                log.info(info);
+                if (log.isDebugEnabled()){
+                	log.debug(String.format("Buffer size =  %s  Buffer =  %s",  + buffer.size(),  buffer.toString()));
+                }
                 // WTF do I do with this data now?
                 buffer.flush();   //flush entire buffer so I can convert it to a byte array
                 message = buffer.toByteArray();
@@ -121,9 +125,6 @@ public class LIDAR extends Service {
                 index = 0;
                 
             }
-
-       
-
     }
 
     /*
