@@ -39,6 +39,8 @@ public class Plantoid extends Service {
 	transient public AudioFile audioFile;
 	transient public XMPP xmpp;
 		
+	int everyNHours = 8;
+	
 	HashMap<String, Object> p = new HashMap<String, Object>();
 	
 	// system specific data
@@ -84,17 +86,7 @@ public class Plantoid extends Service {
 		}
 		@Override
 		public void run() {
-			xmpp.connect("gmail.com");
-			xmpp.login("orbous@myrobotlab.org", "mrlRocks!");
-			
-			// gets all users it can send messages to
-			xmpp.getRoster();
-
-			xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
-
-			// send a message
-			// xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
-			xmpp.sendMessage(String.format("report from orbous on the Idahosian landing site, I am still alive after %s- all is well - *HAIL BEPSL* !", Runtime.getUptime()), "supertick@gmail.com");
+			sendReport();
 		}
 		
 	}
@@ -132,6 +124,27 @@ public class Plantoid extends Service {
 
 	}
 
+	public String sendReport()
+	{
+		xmpp.connect("gmail.com");
+		xmpp.login("orbous@myrobotlab.org", "mrlRocks!");
+		
+		// gets all users it can send messages to
+		xmpp.getRoster();
+		
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(String.format("report from orbous on the Idahosian landing site, I am still alive after %s- all is well - *HAIL BEPSL* !", Runtime.getUptime()));
+
+		xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
+
+		// send a message
+		// xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
+		xmpp.sendMessage(sb.toString(), "supertick@gmail.com");
+		
+		return sb.toString();
+	}
+	 
 	@Override
 	public String getDescription() {
 		return "the plantoid service";
@@ -153,7 +166,7 @@ public class Plantoid extends Service {
 			
 			xmpp = (XMPP) startReserved("XMPP");
 			
-			timer.scheduleAtFixedRate(new SendReport(this), 0, 10000);
+			timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
 
 			
 			pan = (Servo) startReserved("Pan");
