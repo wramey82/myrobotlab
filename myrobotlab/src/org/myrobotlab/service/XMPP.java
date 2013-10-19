@@ -42,7 +42,6 @@ public class XMPP extends Service implements MessageListener {
 	XMPPConnection connection;
 	ChatManager chatManager;
 
-	// HashMap<String, Chat> currentChats = new HashMap<String, Chat>();
 	HashSet<String> relays = new HashSet<String>();
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
 
@@ -88,15 +87,14 @@ public class XMPP extends Service implements MessageListener {
 		this.host = host;
 		connect(host, port);
 	}
-	
+
 	public void connect(String host, int port) {
 		this.host = host;
 		this.port = port;
 		connect(host, port, user, password);
 	}
-	
-	public void connect(String host, int port, String user, String password)
-	{
+
+	public void connect(String host, int port, String user, String password) {
 		this.host = host;
 		this.port = port;
 		this.user = user;
@@ -113,8 +111,9 @@ public class XMPP extends Service implements MessageListener {
 
 			if (config == null) {
 				SASLAuthentication.supportSASLMechanism("PLAIN");
-				//SASLAuthentication.registerSASLMechanism("DIGEST-MD5", SASLDigestMD5Mechanism.class);
-				//SASLAuthentication.supportSASLMechanism("DIGEST-MD5", 0);
+				// SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
+				// SASLDigestMD5Mechanism.class);
+				// SASLAuthentication.supportSASLMechanism("DIGEST-MD5", 0);
 				// WTF is a service name ?
 				// ConnectionConfiguration config = new
 				// ConnectionConfiguration(SERVER_HOST, SERVER_PORT);
@@ -132,10 +131,9 @@ public class XMPP extends Service implements MessageListener {
 				connection.connect();
 				log.info(String.format("%s connected %s", getName(), connection.isConnected()));
 				chatManager = connection.getChatManager();
-				
+
 				log.info(String.format("%s is connected - logging in", getName()));
-				if (!login(user, password))
-				{
+				if (!login(user, password)) {
 					disconnect();
 				}
 			}
@@ -171,11 +169,11 @@ public class XMPP extends Service implements MessageListener {
 
 	public void setStatus(boolean available, String status) {
 		connect();
-		if (connection != null && connection.isConnected()){
-		Presence.Type type = available ? Type.available : Type.unavailable;
-		Presence presence = new Presence(type);
-		presence.setStatus(status);
-		connection.sendPacket(presence);
+		if (connection != null && connection.isConnected()) {
+			Presence.Type type = available ? Type.available : Type.unavailable;
+			Presence presence = new Presence(type);
+			presence.setStatus(status);
+			connection.sendPacket(presence);
 		} else {
 			log.error("setStatus not connected");
 		}
@@ -193,24 +191,30 @@ public class XMPP extends Service implements MessageListener {
 
 		return null;
 	}
-	
-	//Chat chat;
 
+	/**
+	 * broadcast a chat message to all buddies in the relay
+	 * @param text - text to broadcast
+	 */
+	public void broadcast(String text) {		
+		for (String buddy : relays) {
+			sendMessage(text, buddy);
+		}
+	}
+	
+	Chat chat;
 	public void sendMessage(String text, String buddyJID) {
 		try {
-			
+
 			connect();
-			// FIXME - if "just connected - ie just connected and this is the first chat of the connection then "create chat" otherwise use existing chat !"
-			Chat chat = chatManager.createChat(buddyJID, this);
+			// FIXME FIXME FIXME !!! - if
+			// "just connected - ie just connected and this is the first chat of the connection then "create
+			// chat" otherwise use existing chat !"
+			if (chat == null)
+			chat = chatManager.createChat(buddyJID, this);
 			log.info(String.format("sending %s %s", buddyJID, text));
 			chat.sendMessage(text);
-			/*
-			 * log.info(String.format("Sending mesage '%s' to user %s", text,
-			 * buddyJID)); if (currentChats.containsKey(buddyJID)) {
-			 * currentChats.get(buddyJID).sendMessage(text); } else { Chat chat
-			 * = chatManager.createChat(buddyJID, messageListener);
-			 * chat.sendMessage(text); currentChats.put(buddyJID, chat); }
-			 */
+			
 		} catch (Exception e) {
 			// currentChats.remove(buddyJID);
 			Logging.logException(e);
@@ -258,11 +262,13 @@ public class XMPP extends Service implements MessageListener {
 		// FIXME - encoding is that input uri before call ?
 		// or config ?
 		// FIXME - echo
-		if (o != null) {
-			sendMessage(o.toString(), "supertick@gmail.com");
-		} else {
-			sendMessage(null, "supertick@gmail.com");
-		}
+	
+			if (o != null) {
+				broadcast(o.toString());
+			} else {
+				broadcast(null);
+			}
+		
 		return o;
 	}
 
@@ -294,25 +300,32 @@ public class XMPP extends Service implements MessageListener {
 		String from = msg.getFrom();
 		String body = msg.getBody();
 		log.info(String.format("Received %s message [%s] from [%s]", type, body, from));
-		if (body != null && body.length() > 0 && body.charAt(0) == '/') 
-		{
+		if (body != null && body.length() > 0 && body.charAt(0) == '/') {
 			try {
 				processRESTChatMessage(msg);
 			} catch (Exception e) {
-				sendMessage(String.format("sorry sir, I do not understand your command %s", e.getMessage()), "supertick@gmail.com");
+				broadcast(String.format("sorry sir, I do not understand your command %s", e.getMessage()));
 				Logging.logException(e);
 			}
 		} else if (body != null && body.length() > 0 && body.charAt(0) != '/') {
-			sendMessage("sorry sir, I do not understand! I await your orders but,\n they must start with / for more information go to http://myrobotlab.org", "supertick@gmail.com");
-			sendMessage("*HAIL BEPSL!*", "supertick@gmail.com");
-			sendMessage(String.format("for a list of possible commands please type /%s/help", getName()), "supertick@gmail.com");
-			sendMessage(String.format("current roster of active units is as follows\n\n %s", listServices()), "supertick@gmail.com");
-			sendMessage(String.format("you may query any unit for help *HAIL BEPSL!*"), "supertick@gmail.com");
+			broadcast("sorry sir, I do not understand! I await your orders but,\n they must start with / for more information go to http://myrobotlab.org");
+			broadcast("*HAIL BEPSL!*");
+			broadcast(String.format("for a list of possible commands please type /%s/help", getName()));
+			broadcast(String.format("current roster of active units is as follows\n\n %s", listServices()));
+			broadcast(String.format("you may query any unit for help *HAIL BEPSL!*"));
 			// sendMessage(String.format("<b>hello</b>"),
 			// "supertick@gmail.com");
 		}
 
 		invoke("publishMessage", msg);
+	}
+
+	public boolean addRelay(String buddyJID) {
+		return relays.add(buddyJID);
+	}
+
+	public boolean removeRelay(String buddyJID) {
+		return relays.remove(buddyJID);
 	}
 
 	/**
@@ -325,6 +338,14 @@ public class XMPP extends Service implements MessageListener {
 		return message;
 	}
 
+	/*
+	public String getStatus()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(chatManager.get);
+	}
+	*/
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
@@ -338,9 +359,10 @@ public class XMPP extends Service implements MessageListener {
 			// gets all users it can send messages to
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
+			xmpp.addRelay("supertick@gmail.com");
 
 			// send a message
-			xmpp.sendMessage("reporting for duty *SIR* !", "supertick@gmail.com");
+			xmpp.broadcast("reporting for duty *SIR* !");
 			log.info("ere");
 
 		} catch (Exception e) {
