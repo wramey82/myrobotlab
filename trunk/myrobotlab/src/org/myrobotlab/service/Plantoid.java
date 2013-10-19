@@ -127,6 +127,7 @@ public class Plantoid extends Service {
 	public String sendReport()
 	{
 		xmpp.connect("gmail.com");
+		//xmpp.connect("173.194.33.118");
 		xmpp.login("orbous@myrobotlab.org", "mrlRocks!");
 		
 		// gets all users it can send messages to
@@ -136,7 +137,7 @@ public class Plantoid extends Service {
 		
 		sb.append(String.format("report from orbous on the Idahosian landing site, I am still alive after %s- all is well - *HAIL BEPSL* !", Runtime.getUptime()));
 
-		xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
+		//xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
 
 		// send a message
 		// xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
@@ -156,6 +157,8 @@ public class Plantoid extends Service {
 
 		try {
 			webgui = (WebGUI) startReserved("Webgui");
+			xmpp = (XMPP) startReserved("XMPP");
+
 			arduino = (Arduino) startReserved("Arduino");
 			arduino.connect(port);
 
@@ -164,10 +167,8 @@ public class Plantoid extends Service {
 			leg3 = (Servo) startReserved("Leg3");
 			leg4 = (Servo) startReserved("Leg4");
 			
-			xmpp = (XMPP) startReserved("XMPP");
-			
+			// the BEPSL report
 			timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
-
 			
 			pan = (Servo) startReserved("Pan");
 			tilt = (Servo) startReserved("Tilt");
@@ -429,13 +430,13 @@ public class Plantoid extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		Plantoid plantoid = (Plantoid) Runtime.create("plantoid", "Plantoid");
 		plantoid.connect("COM9");
 		plantoid.startService();
-		Runtime.createAndStart("python", "Python");
-		Runtime.createAndStart("webgui", "WebGUI");
+		//Runtime.createAndStart("python", "Python");
+		// Runtime.createAndStart("webgui", "WebGUI");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();

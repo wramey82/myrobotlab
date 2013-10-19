@@ -28,6 +28,15 @@ public class RESTProcessor implements HTTPProcessor {
 	private HashSet<String> uris = new HashSet<String>();
 
 	transient private Serializer serializer = new Persister();
+	
+	static public class RESTException extends Exception {
+		public RESTException(String format) {
+			super(format);
+		}
+
+		private static final long serialVersionUID = 1L;
+		
+	}
 
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
@@ -175,9 +184,9 @@ public class RESTProcessor implements HTTPProcessor {
 	
 	// TODO - encode 
 	// FIXME - needs to be in .net or .framework
-	public static Object invoke(String uri)
+	public static Object invoke(String uri) throws RESTException
 	{
-		String returnFormat = "gson";
+		//String returnFormat = "gson";
 
 		// TODO top level is return format /html /text /soap /xml /gson /json a
 		// default could exist - start with SOAP response
@@ -230,9 +239,9 @@ public class RESTProcessor implements HTTPProcessor {
 			// /json /base16 a default could exist - start with SOAP response
 			Object returnObject = si.invoke(fn, typedParameters);
 			return returnObject;
+		} else {
+			throw new RESTException(String.format("invalid uri %s", uri));
 		}
-		
-		return null;
 	}
 	
 
