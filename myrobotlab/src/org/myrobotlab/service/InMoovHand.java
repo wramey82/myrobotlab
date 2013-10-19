@@ -288,6 +288,7 @@ public class InMoovHand extends Service {
 		InMoovHand rightHand = new InMoovHand("r01");
 		rightHand.connect("COM4");
 		rightHand.startService();	
+		Runtime.createAndStart("webgui", "WebGUI");
 		//rightHand.connect("COM12"); TEST RECOVERY !!!
 		
 		rightHand.close();
@@ -296,7 +297,6 @@ public class InMoovHand extends Service {
 		rightHand.closePinch();
 		rightHand.rest();
 		
-		Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();

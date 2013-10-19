@@ -1,9 +1,14 @@
 package org.myrobotlab.service;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimerTask;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.data.Pin;
 import org.slf4j.Logger;
 
 public class Plantoid extends Service {
@@ -32,7 +37,10 @@ public class Plantoid extends Service {
 	transient public JFugue jfugue;
 	transient public Speech speech;
 	transient public AudioFile audioFile;
+	transient public XMPP xmpp;
 		
+	HashMap<String, Object> p = new HashMap<String, Object>();
+	
 	// system specific data
 	/**
 	 * default port of the Arduino mega
@@ -56,15 +64,40 @@ public class Plantoid extends Service {
 	/**
 	 * analog read pins
 	 */
-	public int soildMoisture = 0;
-	public int tempHumidity = 2;
-	public int leftLight = 4;
-	public int rightLight = 6;
-	public int airQuality = 10;
+	public final int soildMoisture = 0;
+	public final int tempHumidity = 2;
+	public final int leftLight = 4;
+	public final int rightLight = 6;
+	public final int airQuality = 10;
 
 	private int sampleRate = 8000;
 
 	public final static Logger log = LoggerFactory.getLogger(Plantoid.class.getCanonicalName());
+	
+	class SendReport extends TimerTask {
+
+		Plantoid plantoid;
+		
+		SendReport(Plantoid plantoid)
+		{
+			this.plantoid = plantoid;
+		}
+		@Override
+		public void run() {
+			xmpp.connect("gmail.com");
+			xmpp.login("orbous@myrobotlab.org", "mrlRocks!");
+			
+			// gets all users it can send messages to
+			xmpp.getRoster();
+
+			xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
+
+			// send a message
+			// xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
+			xmpp.sendMessage(String.format("report from orbous on the Idahosian landing site, I am still alive after %s- all is well - *HAIL BEPSL* !", Runtime.getUptime()), "supertick@gmail.com");
+		}
+		
+	}
 
 	/**
 	 * Plantoid Service - this service controls all peer services.  It is a OrbousMundus Genus and
@@ -89,6 +122,8 @@ public class Plantoid extends Service {
 		reserve("Keyboard", "Keyboard", "for keyboard control");
 
 		reserve("Webgui", "WebGUI", "plantoid gui");
+
+		reserve("XMPP", "XMPP", "xmpp network");
 
 		// reserve("pilotcam","OpenCV", "One of the cameras");
 		// reserve("ircamera","OpenCV", "One of the cameras");
@@ -115,11 +150,17 @@ public class Plantoid extends Service {
 			leg2 = (Servo) startReserved("Leg2");
 			leg3 = (Servo) startReserved("Leg3");
 			leg4 = (Servo) startReserved("Leg4");
+			
+			xmpp = (XMPP) startReserved("XMPP");
+			
+			timer.scheduleAtFixedRate(new SendReport(this), 0, 10000);
 
 			
 			pan = (Servo) startReserved("Pan");
 			tilt = (Servo) startReserved("Tilt");
 
+			arduino.addListener(getName(), "publishPin");
+			
 			startPolling();
 			attachServos();
 			detachLegs(); // at the moment detach legs
@@ -130,6 +171,50 @@ public class Plantoid extends Service {
 		}
 	}
 
+	public void initTelemetryPayload()
+	{
+		p.put("soildMoistureCurrent", 0);
+		p.put("soildMoistureMin", 0);
+		p.put("soildMoistureMax", 0);
+		p.put("soildMoistureAvg", 0);
+
+		p.put("tempHumidityCurrent", 0);
+		p.put("tempHumidityMin", 0);
+		p.put("tempHumidityMax", 0);
+		p.put("tempHumidityAvg", 0);
+		
+		p.put("soildMoistureCurrent", 0);
+		p.put("soildMoistureMin", 0);
+		p.put("soildMoistureMax", 0);
+		p.put("soildMoistureAvg", 0);
+		
+		p.put("soildMoistureCurrent", 0);
+		p.put("soildMoistureMin", 0);
+		p.put("soildMoistureMax", 0);
+		p.put("soildMoistureAvg", 0);
+		
+		p.put("soildMoistureCurrent", 0);
+		p.put("soildMoistureMin", 0);
+		p.put("soildMoistureMax", 0);
+		p.put("soildMoistureAvg", 0);
+	}
+	
+	public void publishPin(Pin pin)
+	{
+		if (log.isDebugEnabled())
+		{
+			log.debug(String.format("pin %d value %d", pin.pin, pin.value));
+		}
+		/*
+		switch(pin.pin)
+		{
+		case soildMoisture:
+			//p.put("soildMoistureCurrent", value)
+			break;
+		}
+		*/
+	}
+	
 	/**
 	 * Connects the plantoid server's Arduino service to the appropriate serial port.
 	 * This is automatically called when the Plantoid service starts.
@@ -140,7 +225,7 @@ public class Plantoid extends Service {
 	 */
 	public boolean connect(String port) {
 		this.port = port;
-		arduino = (Arduino) startReserved("arduino");
+		arduino = (Arduino) startReserved("Arduino");
 		arduino.connect(port);
 		arduino.broadcastState();
 		return true;
