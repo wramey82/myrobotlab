@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
@@ -2047,6 +2048,13 @@ public class Runtime extends Service {
 		}
 		
 		return ret;
+	}
+
+	public static List<ServiceWrapper> getServices() {
+		// QUESTION - why isn't registry just a treemap ?
+		TreeMap<String, ServiceWrapper> sorted = new TreeMap<String, ServiceWrapper>(registry);
+		List<ServiceWrapper> list = new ArrayList<ServiceWrapper>(sorted.values());
+		return list;
 	}
 
 }

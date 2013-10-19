@@ -1,6 +1,10 @@
 package org.myrobotlab.service;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
@@ -10,15 +14,16 @@ import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.webgui.RESTProcessor;
 import org.slf4j.Logger;
 
 public class XMPP extends Service implements MessageListener {
@@ -28,7 +33,6 @@ public class XMPP extends Service implements MessageListener {
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
 
-	// XMPPConnection connection = new XMPPConnection("gmail.com");
 	String user;
 	String password;
 	String server;
@@ -38,6 +42,10 @@ public class XMPP extends Service implements MessageListener {
 	XMPPConnection connection;
 	ChatManager chatManager;
 	MessageListener messageListener;
+
+	HashMap<String, Chat> currentChats = new HashMap<String, Chat>();
+	HashSet<String> relays = new HashSet<String>();
+	HashSet<String> allowCommandsFrom = new HashSet<String>();
 
 	public XMPP(String n) {
 		super(n, XMPP.class.getCanonicalName());
@@ -90,6 +98,7 @@ public class XMPP extends Service implements MessageListener {
 			log.info(String.format("Initializing connection to server %s", server));
 
 			SASLAuthentication.supportSASLMechanism("PLAIN");
+			// WTF is a service name ?
 			ConnectionConfiguration config = new ConnectionConfiguration("talk.google.com", 5222, "gmail.com");
 			connection = new XMPPConnection(config);
 
@@ -141,12 +150,35 @@ public class XMPP extends Service implements MessageListener {
 
 	}
 
-	public void sendMessage(String message, String buddyJID) {
+	public void sendMyRobotLabJSONMessage(org.myrobotlab.framework.Message msg) {
+
+	}
+
+	public void sendMyRobotLabRESTMessage(org.myrobotlab.framework.Message msg) {
+
+	}
+
+	public org.myrobotlab.framework.Message processMyRobotLabRESTMessage(Message msg) {
+
+		return null;
+	}
+
+	public void sendMessage(String text, String buddyJID) {
 		try {
-			log.info(String.format("Sending mesage '%1$s' to user %2$s", message, buddyJID));
 			Chat chat = chatManager.createChat(buddyJID, messageListener);
-			chat.sendMessage(message);
+			chat.sendMessage(text);
+			/*
+			log.info(String.format("Sending mesage '%s' to user %s", text, buddyJID));
+			if (currentChats.containsKey(buddyJID)) {
+				currentChats.get(buddyJID).sendMessage(text);
+			} else {
+				Chat chat = chatManager.createChat(buddyJID, messageListener);
+				chat.sendMessage(text);
+				currentChats.put(buddyJID, chat);
+			}
+			*/
 		} catch (Exception e) {
+			//currentChats.remove(buddyJID);
 			Logging.logException(e);
 		}
 	}
@@ -157,22 +189,100 @@ public class XMPP extends Service implements MessageListener {
 		roster.createEntry(user, name, null);
 	}
 
-	@Override
-	public void processMessage(Chat chat, Message message) {
+	public Object processRESTChatMessage(Message msg) {
+		String body = msg.getBody();
+		log.debug(String.format("processRESTChatMessage [%s]", body));
+		if (body == null || body.length() < 1) {
+			log.info("invalid");
+			return null;
+		}
 
-		String from = message.getFrom();
-		String body = message.getBody();
-		log.info(String.format("Received message '%1$s' from %2$s", body, from));
-		invoke("publishMessage", message);
+		// TODO - allow to be in middle of message
+		int pos0 = body.indexOf('/');
+		if (pos0 != 0) {
+			log.info("command must start with /");
+			return null;
+		}
+
+		int pos1 = body.indexOf("\n");
+		if (pos1 == -1) {
+			pos1 = body.length();
+		}
+
+		String uri = "";
+		if (pos1 > 0) {
+			uri = body.substring(pos0, pos1);
+		}
+
+		uri = uri.trim();
+		
+		log.info(String.format("[%s]",uri));
+		Object o = RESTProcessor.invoke(uri);
+		
+		// FIXME - encoding is that input uri before call ?
+		// or config ?
+		// FIXME - echo
+		if (o != null){
+			sendMessage(o.toString(), "supertick@gmail.com");
+		} else {
+			sendMessage(null, "supertick@gmail.com");
+		}
+		return o;
 	}
 	
+	// FIXME - should be in 
+	public String listCommands()
+	{
+		return null;
+	}
+	
+	// FIXME - should be in Service
+	public String listMethods()
+	{
+		return null;
+	}
+	
+	public String listServices()
+	{
+		StringBuffer sb = new StringBuffer();
+		List<ServiceWrapper> services = Runtime.getServices();
+		for (int i = 0; i < services.size(); ++i)
+		{
+			ServiceWrapper sw = services.get(i);
+			sb.append(String.format("/%s\n", sw.name));
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public void processMessage(Chat chat, Message msg) {
+
+		Message.Type type =  msg.getType();
+		String from = msg.getFrom();
+		String body = msg.getBody();
+		log.info(String.format("Received %s message [%s] from [%s]", type, body, from));
+		if (body != null && body.length() > 0 && body.charAt(0) == '/') // FIXME && configuration && from on list
+		{
+			processRESTChatMessage(msg);
+		} else if (body != null && body.length() > 0 && body.charAt(0) != '/') {
+			sendMessage("sorry sir, I do not understand! I await your orders but,\n they must start with / for more information go to http://myrobotlab.org", "supertick@gmail.com");
+			sendMessage("*HAIL BEPSL!*", "supertick@gmail.com");
+			sendMessage(String.format("for a list of possible commands please type /%s/help", getName()), "supertick@gmail.com");
+			sendMessage(String.format("current roster of active units is as follows\n\n %s", listServices()), "supertick@gmail.com");
+			sendMessage(String.format("you may query any unit for help *HAIL BEPSL!*"), "supertick@gmail.com");
+			//sendMessage(String.format("<b>hello</b>"), "supertick@gmail.com");
+		}
+		
+		invoke("publishMessage", msg);
+	}
+
 	/**
 	 * publishing point for XMPP messages
+	 * 
 	 * @param message
 	 * @return
 	 */
-	public Message publishMessage(Message message)
-	{
+	public Message publishMessage(Message message) {
 		return message;
 	}
 
@@ -180,25 +290,39 @@ public class XMPP extends Service implements MessageListener {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		XMPP xmpp = new XMPP("xmpp");
-		xmpp.startService();
-		xmpp.connect("gmail.com");
-		xmpp.login("robot01@myrobotlab.org", "password");
-		
-		// gets all users it can send messages to
-		xmpp.getRoster();
+		try {
+			XMPP xmpp = new XMPP("xmpp");
+			xmpp.startService();
 
-		xmpp.setStatus(true, "online all the time");
+			/*
+			Message msg = new Message();
+			msg.setBody("/runtime/getUptime");
+			msg.setFrom("supertick@gmail.com");
+			xmpp.processRESTChatMessage(msg);
+			*/
 
-		// send a message
-		xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "supertick@gmail.com");
-		log.info("ere");
+			xmpp.connect("gmail.com");
+			xmpp.login("robot02@myrobotlab.org", "mrlRocks!");
 
-		// Runtime.createAndStart("gui", "GUIService");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
-		 */
+			// gets all users it can send messages to
+			xmpp.getRoster();
+
+			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
+
+			// send a message
+			xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
+			xmpp.sendMessage("/name/method/return", "supertick@gmail.com");
+			log.info("ere");
+
+			// Runtime.createAndStart("gui", "GUIService");
+			/*
+			 * GUIService gui = new GUIService("gui"); gui.startService();
+			 * gui.display();
+			 */
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 	}
 
 }

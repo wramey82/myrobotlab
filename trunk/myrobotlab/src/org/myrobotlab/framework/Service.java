@@ -737,15 +737,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					outbox.add(msg);
 				}
 			}
-			// } catch (InterruptedException e) {
 		} catch (Exception e) {
 			Logging.logException(e);
 			error(e.getMessage());
-			/*
-			 * isRunning = false; if (thisThread != null) {
-			 * log.warn(thisThread.getName()); }
-			 * log.warn("service INTERRUPTED ");
-			 */
 		}
 	}
 
