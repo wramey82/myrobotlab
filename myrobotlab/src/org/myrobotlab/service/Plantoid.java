@@ -9,6 +9,7 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.Pin;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 public class Plantoid extends Service {
@@ -47,20 +48,27 @@ public class Plantoid extends Service {
 	/**
 	 * default port of the Arduino mega
 	 */
+	@Element
 	public String port = "/dev/ttyACM0";
 	
 	/**
 	 * default pin of legs leg1 through leg4
 	 */
+	@Element
 	public int leg1Pin = 2;
+	@Element
 	public int leg2Pin = 3;
+	@Element
 	public int leg3Pin = 4;
+	@Element
 	public int leg4Pin = 5;
 	
 	/**
 	 * default pins for pan tilt kit
 	 */
+	@Element
 	public int panPin = 6;
+	@Element
 	public int tiltPin = 7;
 	
 	/**
@@ -150,6 +158,7 @@ public class Plantoid extends Service {
 		return "the plantoid service";
 	}
 
+	// FIXME FIXME FIXME -  Service.isValidForStart() !!!!
 	@Override
 	public void startService() {
 		super.startService();
@@ -164,6 +173,7 @@ public class Plantoid extends Service {
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
 			xmpp.addRelay("supertick@gmail.com");
+			//xmpp.addRelay("grasshopperrocket@gmail.com");
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");

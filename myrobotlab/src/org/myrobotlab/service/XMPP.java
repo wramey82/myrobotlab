@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -44,6 +45,8 @@ public class XMPP extends Service implements MessageListener {
 
 	HashSet<String> relays = new HashSet<String>();
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
+	HashMap<String,Chat> chats = new HashMap<String,Chat>();
+
 
 	public XMPP(String n) {
 		super(n, XMPP.class.getCanonicalName());
@@ -148,7 +151,12 @@ public class XMPP extends Service implements MessageListener {
 		log.info(String.format("%s disconnecting from %s:%d", getName(), host, port));
 		if (connection != null && connection.isConnected()) {
 			connection.disconnect();
+			connection = null;
 		}
+		
+		config = null;
+		chatManager = null;
+		chats.clear();
 	}
 
 	public boolean login(String username, String password) {
@@ -194,27 +202,40 @@ public class XMPP extends Service implements MessageListener {
 
 	/**
 	 * broadcast a chat message to all buddies in the relay
-	 * @param text - text to broadcast
+	 * 
+	 * @param text
+	 *            - text to broadcast
 	 */
-	public void broadcast(String text) {		
+	public void broadcast(String text) {
 		for (String buddy : relays) {
 			sendMessage(text, buddy);
 		}
 	}
-	
-	Chat chat;
-	public void sendMessage(String text, String buddyJID) {
+
+
+	synchronized public void sendMessage(String text, String buddyJID) {
 		try {
 
 			connect();
 			// FIXME FIXME FIXME !!! - if
 			// "just connected - ie just connected and this is the first chat of the connection then "create
 			// chat" otherwise use existing chat !"
-			if (chat == null)
-			chat = chatManager.createChat(buddyJID, this);
+			Chat chat = null;
+			if (chats.containsKey(buddyJID))
+			{
+				chat = chats.get(buddyJID);
+			} else {
+				chat = chatManager.createChat(buddyJID, this);
+				chats.put(buddyJID, chat);
+			}
+			
+			if (text == null)
+			{
+				text = "null"; // dangerous converson?
+			}
 			log.info(String.format("sending %s %s", buddyJID, text));
 			chat.sendMessage(text);
-			
+
 		} catch (Exception e) {
 			// currentChats.remove(buddyJID);
 			Logging.logException(e);
@@ -262,13 +283,13 @@ public class XMPP extends Service implements MessageListener {
 		// FIXME - encoding is that input uri before call ?
 		// or config ?
 		// FIXME - echo
-	
-			if (o != null) {
-				broadcast(o.toString());
-			} else {
-				broadcast(null);
-			}
-		
+
+		if (o != null) {
+			broadcast(o.toString());
+		} else {
+			broadcast(null);
+		}
+
 		return o;
 	}
 
@@ -339,13 +360,10 @@ public class XMPP extends Service implements MessageListener {
 	}
 
 	/*
-	public String getStatus()
-	{
-		StringBuffer sb = new StringBuffer();
-		sb.append(chatManager.get);
-	}
-	*/
-	
+	 * public String getStatus() { StringBuffer sb = new StringBuffer();
+	 * sb.append(chatManager.get); }
+	 */
+
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
@@ -363,6 +381,7 @@ public class XMPP extends Service implements MessageListener {
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
+			xmpp.sendMessage("hail bepsl", "supertick@gmail.com");
 			log.info("ere");
 
 		} catch (Exception e) {

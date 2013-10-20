@@ -1,5 +1,7 @@
 package org.myrobotlab.service;
 
+import java.util.Date;
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -26,6 +28,7 @@ public class InMoov extends Service {
 	transient public Python python;
 	transient public WebGUI webgui;
 	transient public Keyboard keyboard;
+	transient public XMPP xmpp;
 
 	// hands and arms
 	transient public InMoov head;
@@ -42,6 +45,7 @@ public class InMoov extends Service {
 		reserve("Python", "Python", "Python service");
 		reserve("WebGUI", "WebGUI", "WebGUI service");
 		reserve("Keyboard", "Keyboard", "Keyboard service");
+		reserve("XMPP", "XMPP", "XMPP service");
 
 		// head
 		reserve("Head", "InMoovHead", "the head");
@@ -105,6 +109,18 @@ public class InMoov extends Service {
 		info("starting webgui");
 		keyboard = (Keyboard) startReserved("WebGUI");
 		return true;
+	}
+	
+	public XMPP startXMPP(){
+		info("starting xmpp");
+		xmpp = (XMPP) startReserved("XMPP");
+		xmpp.connect("talk.google.com", 5222, "inmoov@myrobotlab.org", "mrlRocks!");
+		xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
+		xmpp.addRelay("supertick@gmail.com");
+
+		// send a message
+		xmpp.broadcast("InMoov reporting for duty *SIR* !");
+		return xmpp;
 	}
 
 	public void detachAll() {
