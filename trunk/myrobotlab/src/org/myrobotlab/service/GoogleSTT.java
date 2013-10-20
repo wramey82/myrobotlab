@@ -116,8 +116,6 @@ public class GoogleSTT extends Service implements SpeechRecognizer {
 		encoder = new FLAC_FileEncoder();
 	}
 
-
-
 	private AudioFormat getAudioFormat() {
 		return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
 	}

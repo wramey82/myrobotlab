@@ -86,6 +86,12 @@ public class TranscriptionThread extends Thread {
 	public String transcribe(String path) {
 		this.available = false;
 
+		if (path == null)
+		{
+			log.error("null file path");
+			return null;
+		}
+		
 		File file = new File(path);
 
 		lang = "en-US";
