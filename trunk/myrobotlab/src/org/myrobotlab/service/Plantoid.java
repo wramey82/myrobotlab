@@ -172,8 +172,10 @@ public class Plantoid extends Service {
 			// gets all users it can send messages to
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
-			xmpp.addRelay("supertick@gmail.com");
-			//xmpp.addRelay("grasshopperrocket@gmail.com");
+			xmpp.addXMPPListener("supertick@gmail.com");			
+			xmpp.addXMPPListener("grasshopperrocket@gmail.com");
+			//xmpp.addRelay("info@reuseum.com");
+			//xmpp.addRelay("grasshopperrocket@gmail.com");			
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");

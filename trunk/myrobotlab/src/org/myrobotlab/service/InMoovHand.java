@@ -52,7 +52,9 @@ public class InMoovHand extends Service {
 	@Override
 	public void startService() {
 		super.startService();
-		createPeers(); // is this needed??
+		// .isValidToStart() !!! < check all user data !!!
+		
+		//createPeers(); // is this needed??
 		startPeers();
 		attachServos();
 		rest();

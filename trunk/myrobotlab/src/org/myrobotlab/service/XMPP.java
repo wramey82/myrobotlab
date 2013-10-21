@@ -37,7 +37,7 @@ public class XMPP extends Service implements MessageListener {
 	String user;
 	String password;
 	String host;
-	Integer port;
+	int port = 5222;
 
 	ConnectionConfiguration config;
 	XMPPConnection connection;
@@ -70,13 +70,22 @@ public class XMPP extends Service implements MessageListener {
 
 			// Get the user's roster
 			Roster roster = connection.getRoster();
+			
 
 			// Print the number of contacts
 			log.info("Number of contacts: " + roster.getEntryCount());
 
+			
+			
 			// Enumerate all contacts in the user's roster
 			for (RosterEntry entry : roster.getEntries()) {
 				log.info("User: " + entry.getUser());
+				/*
+				if (!entry.getUser().equalsIgnoreCase("supertick@gmail.com"))
+				{
+					roster.removeEntry(entry);
+				}
+				*/
 				list.add(entry.getUser());
 			}
 		} catch (Exception e) {
@@ -320,6 +329,11 @@ public class XMPP extends Service implements MessageListener {
 		Message.Type type = msg.getType();
 		String from = msg.getFrom();
 		String body = msg.getBody();
+		if (type.equals(Message.Type.error))
+		{
+			log.error("{} processMessage returned error {}", from, body);
+			return;
+		}
 		log.info(String.format("Received %s message [%s] from [%s]", type, body, from));
 		if (body != null && body.length() > 0 && body.charAt(0) == '/') {
 			try {
@@ -341,7 +355,7 @@ public class XMPP extends Service implements MessageListener {
 		invoke("publishMessage", msg);
 	}
 
-	public boolean addRelay(String buddyJID) {
+	public boolean addXMPPListener(String buddyJID) {
 		return relays.add(buddyJID);
 	}
 
@@ -372,17 +386,23 @@ public class XMPP extends Service implements MessageListener {
 			XMPP xmpp = new XMPP("xmpp");
 			xmpp.startService();
 
-			xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
+			xmpp.connect("talk.google.com", 5222, "robot01@myrobotlab.org", "mrlRocks!");
 
 			// gets all users it can send messages to
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
-			xmpp.addRelay("supertick@gmail.com");
+			
+			// TODO - autoRespond
+			// TODO - auditCommand <-- to which protocol?
+			//xmpp.addRelay("grasshopperrocket@gmail.com");
+			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
+			
+			xmpp.addXMPPListener("supertick@gmail.com");
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
 			xmpp.sendMessage("hail bepsl", "supertick@gmail.com");
-			log.info("ere");
+			log.info("here");
 
 		} catch (Exception e) {
 			Logging.logException(e);

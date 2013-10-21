@@ -9,13 +9,17 @@ xmpp.addListener("python","publishMessage")
 
 # there is a big list of different xmpp/jabber servers out there
 # but we will connect to the big one - since that is where our robots account is
-xmpp.connect("gmail.com")
-xmpp.login("robot01@myrobotlab.org", "mrlRocks!")
+xmpp.connect("talk.google.com", 5222, "robot01@myrobotlab.org", "xxxxxxx")
 
 # gets list of all the robots friends
 print xmpp.getRoster()
 
+# set your online status
 xmpp.setStatus(True, "online all the time")
+
+# add buddies you want this robot to chat with
+xmpp.addXMPPListener("buddy01@gmail.com")
+xmpp.addXMPPListener("buddy02@gmail.com")
 
 # send a message
 xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "supertick@gmail.com")
