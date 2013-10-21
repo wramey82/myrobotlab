@@ -2037,9 +2037,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String error(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastWarn > 300) {
+		if (System.currentTimeMillis() - lastError > 300) {
 			invoke("publishStatus", "error", msg);
-			lastWarn = System.currentTimeMillis();
+			invoke("publishError", msg);
+			lastError = System.currentTimeMillis();
 		}
 
 		return lastErrorMsg;
@@ -2052,14 +2053,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public void warn(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastError > 300) {
+		if (System.currentTimeMillis() - lastWarn > 300) {
 			invoke("publishStatus", "warn", msg);
-			lastError = System.currentTimeMillis();
+			lastWarn = System.currentTimeMillis();
 		}
 	}
 
 	public Status publishStatus(String level, String msg) {
 		return new Status(getName(), level, null, msg);
+	}
+	
+	public String publishError(String msg){
+		return msg;
 	}
 
 	public HashSet<String> getMessageSet() {

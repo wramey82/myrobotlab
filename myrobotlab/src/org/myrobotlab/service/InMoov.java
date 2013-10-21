@@ -74,7 +74,7 @@ public class InMoov extends Service {
 
 	public boolean startSimpleServices() {
 		boolean success = true;
-		success &= startSpeech();
+			startEar();
 		// success &= startEye();
 		success &= startPython();
 		success &= startKeyboard();
@@ -83,14 +83,33 @@ public class InMoov extends Service {
 	}
 
 	// ------ simple services which do not require user input begin --------
-	public boolean startSpeech() {
+	public Sphinx startEar() {
 		info("starting ear and mouth");
 
 		ear = (Sphinx) startReserved("Ear");
 		mouth = (Speech) startReserved("Mouth");
 		ear.attach(mouth);
 
-		return true;
+		return ear;
+	}
+	
+	public Speech startMouth(){
+		mouth = (Speech) startReserved("Mouth");
+		
+		return mouth;
+	}
+	
+	public void routeErrors()
+	{
+		// register with runtime for any new services
+		// their errors are routed to mouth
+		Runtime r = Runtime.getInstance();
+		r.addListener(getName(), "registered");
+	}
+	
+	public void handleError(String msg)
+	{
+		
 	}
 
 	public boolean startPython() {
@@ -116,7 +135,7 @@ public class InMoov extends Service {
 		xmpp = (XMPP) startReserved("XMPP");
 		xmpp.connect("talk.google.com", 5222, "inmoov@myrobotlab.org", "mrlRocks!");
 		xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
-		xmpp.addRelay("supertick@gmail.com");
+		xmpp.addXMPPListener("supertick@gmail.com");
 
 		// send a message
 		xmpp.broadcast("InMoov reporting for duty *SIR* !");
@@ -577,7 +596,11 @@ public class InMoov extends Service {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		
+		i01.startXMPP();
+		
 		InMoovHand hand = i01.startRightHand("COM12");
+		
 		hand.close();
 		hand.moveTo(30, 30, 30, 30, 30);
 		hand.moveTo(40, 40, 40, 40, 40);
