@@ -48,6 +48,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -2081,6 +2082,38 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public Method[] getMethods() {
 		return this.getClass().getMethods();
+	}
+	
+	public Method[] getDeclaredMethods() {
+		return this.getClass().getDeclaredMethods();
+	}
+	
+	public String help()
+	{
+		return help("URL", "DECLARED");
+	}
+	
+	public String help(String format, String level)
+	{
+		StringBuffer sb = new StringBuffer();
+		Method[] methods = this.getClass().getDeclaredMethods();
+		//Arrays.sort(methods);
+		for (int i = 0; i < methods.length; ++i)
+		{
+			Method m = methods[i];
+			sb.append("/").append(getName()).append("/").append(m.getName());
+			Class<?>[] types = m.getParameterTypes();
+			if (types != null)
+			{
+				for (int j = 0; j < types.length; ++j){
+					Class<?> c= types[j];
+					sb.append("/").append(c.getSimpleName());
+				}
+			}
+		}
+		
+		sb.append("/n");
+		return sb.toString();
 	}
 	
 	public String setLogLevel(String level)

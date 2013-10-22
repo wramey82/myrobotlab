@@ -43,7 +43,14 @@ public class XMPP extends Service implements MessageListener {
 	XMPPConnection connection;
 	ChatManager chatManager;
 
-	HashSet<String> relays = new HashSet<String>();
+	HashSet<String> responseRelays = new HashSet<String>();
+	/**
+	 * auditors chat buddies who can see what commands are being processed
+	 * and by who through the XMPP service
+	 * TODO - audit full system ??? regardless of message origin?
+	 */
+	HashSet<String> auditors = new HashSet<String>();
+	
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
 	HashMap<String,Chat> chats = new HashMap<String,Chat>();
 
@@ -216,7 +223,7 @@ public class XMPP extends Service implements MessageListener {
 	 *            - text to broadcast
 	 */
 	public void broadcast(String text) {
-		for (String buddy : relays) {
+		for (String buddy : responseRelays) {
 			sendMessage(text, buddy);
 		}
 	}
@@ -262,6 +269,14 @@ public class XMPP extends Service implements MessageListener {
 	public Object processRESTChatMessage(Message msg) throws RESTException {
 		String body = msg.getBody();
 		log.info(String.format("processRESTChatMessage [%s]", body));
+		
+		if (auditors.size() > 0)
+		{
+			for (String auditor : auditors) {
+				sendMessage(String.format("%s %s", msg.getFrom(), msg.getBody()), auditor);
+			}
+		}
+		
 		if (body == null || body.length() < 1) {
 			log.info("invalid");
 			return null;
@@ -320,7 +335,7 @@ public class XMPP extends Service implements MessageListener {
 			sb.append(String.format("/%s\n", sw.name));
 		}
 		return sb.toString();
-	}
+	}	
 
 	// FIXME - clean
 	@Override
@@ -356,11 +371,11 @@ public class XMPP extends Service implements MessageListener {
 	}
 
 	public boolean addXMPPListener(String buddyJID) {
-		return relays.add(buddyJID);
+		return responseRelays.add(buddyJID);
 	}
 
 	public boolean removeRelay(String buddyJID) {
-		return relays.remove(buddyJID);
+		return responseRelays.remove(buddyJID);
 	}
 
 	/**
