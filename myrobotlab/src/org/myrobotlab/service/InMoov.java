@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import java.util.Date;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -95,11 +96,11 @@ public class InMoov extends Service {
 	
 	public Speech startMouth(){
 		mouth = (Speech) startReserved("Mouth");
-		
+		mouth.speak("starting mouth");
 		return mouth;
 	}
 	
-	public void routeErrors()
+	public void addRuntimeRoutes()
 	{
 		// register with runtime for any new services
 		// their errors are routed to mouth
@@ -107,9 +108,27 @@ public class InMoov extends Service {
 		r.addListener(getName(), "registered");
 	}
 	
+	/**
+	 * Service registration event. On newly registered service
+	 * the InMoov service will set up various routing.
+	 * 
+	 * Routing of errors back to the InMoov service. This will 
+	 * allow the mouth to announce errors
+	 * @param sw
+	 */
+	public void registered(ServiceWrapper sw)
+	{
+		// FIXME FIXME FIXME !!! - this right idea - but expanded methods have incorrect parameter placement !!
+		// addListener & suscribe the same !!!!
+		subscribe(sw.getName(), "publishError", "handleError");
+	}
+	
 	public void handleError(String msg)
 	{
-		
+		if (mouth != null)
+		{
+			mouth.speakBlocking(msg);
+		}
 	}
 
 	public boolean startPython() {
@@ -596,8 +615,10 @@ public class InMoov extends Service {
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		i01.addRuntimeRoutes();
+		i01.startMouth();
 		
-		i01.startXMPP();
+		//i01.startXMPP();
 		
 		InMoovHand hand = i01.startRightHand("COM12");
 		

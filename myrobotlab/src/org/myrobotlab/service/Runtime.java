@@ -1174,7 +1174,7 @@ public class Runtime extends Service {
 	/**
 	 * prints help to the console
 	 */
-	static void help() {
+	static void mainHelp() {
 		System.out.println(String.format("Runtime %s", FileIO.getResourceFile("version.txt")));
 		System.out.println("-h       			# help ");
 		System.out.println("-v        			# print version");
@@ -1234,7 +1234,7 @@ public class Runtime extends Service {
 		 * 
 		 * } else { System.out.println(getServiceSimpleNames()); } return; }
 		 */
-		help();
+		mainHelp();
 	}
 
 	/**
@@ -1315,7 +1315,7 @@ public class Runtime extends Service {
 		try {
 
 			if (cmdline.containsKey("-h") || cmdline.containsKey("--help")) {
-				help();
+				mainHelp();
 				return;
 			}
 
