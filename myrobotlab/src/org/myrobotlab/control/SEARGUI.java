@@ -206,16 +206,16 @@ public class SEARGUI extends ServiceGUI implements ActionListener {
 
     @Override
     public void attachGUI() {
-        subscribe("changeStatus", "getHashMap", boolean.class);   
+        subscribe("getHashMap", "changeStatus", boolean.class);   
     }
 
     @Override
     public void detachGUI() {
-        unsubscribe("changeStatus", "getHashMap", boolean.class);
+        unsubscribe("getHashMap", "changeStatus", boolean.class);
 
     }
 
-    public void changeStatus(boolean init) {
+    public void changeStatus() {
         log.info("OK, I tried to change the status...");
         status.setText("   SEAR has loaded, You can run User Code now.");
     }
