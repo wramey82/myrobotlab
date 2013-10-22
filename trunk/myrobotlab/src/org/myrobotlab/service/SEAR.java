@@ -14,9 +14,9 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-
-
+import org.myrobotlab.reflection.Instantiator;
 
 public class SEAR extends Service {
 
@@ -26,7 +26,8 @@ public class SEAR extends Service {
     public String openPath = "";
     public String savePath = "";
     ArrayList<String> fileList;
-    
+    HashMap< String, Object> serialDevices;
+
     public SEAR(String n) {
         super(n, SEAR.class.getCanonicalName());
     }
@@ -57,12 +58,9 @@ public class SEAR extends Service {
         gui.startService();
         gui.display();
 
-        //Start SEAR Simulator
-        // searSim.start();
-        //searSim.simpleInitApp();
-
-
     }
+    
+    
 //    @Override 
 //public void stopService()
 //{
@@ -75,8 +73,6 @@ public class SEAR extends Service {
 //*/
 //}
 
-    
-    
     public float getDistanceResult(String sensorNum) {
         return searSim.getDistanceResult(sensorNum);
     }
@@ -93,8 +89,19 @@ public class SEAR extends Service {
         searSim.stop();
     }
 
+    @Override
+    public void stopService() {
+        //unsubscribe from everything
+         for (String key : serialDevices.keySet()) {
+            log.info("Key = " + key);
+//        using this method unsubscribe(String publisherName, String outMethod, String inMethod)
+            unsubscribe(key, "publishBytes", "routeBytes");
+        }
+super.stopService();
+    }
+
     public void startSimulation() throws InterruptedException {
-        
+
         AppSettings simWindowSettings = new AppSettings(true);
         simWindowSettings.setTitle("Simulation Environment for Autonomous Robots");
         searSim.setSettings(simWindowSettings);
@@ -104,29 +111,90 @@ public class SEAR extends Service {
 
 
         searSim.startSimulation(this.getName());
-        
-        while(!searSim.initialized()){           
-        Thread.sleep(333); //wait 1/3 of a second and check  
+
+        while (!searSim.initialized()) {
+            Thread.sleep(333); //wait 1/3 of a second and check  
         }
-        getHashMap();
+        invoke("getHashMap");
     }
-    
-    HashMap serialDevices;
-    
-     public boolean getHashMap() {
+
+    public void getHashMap() {
         serialDevices = searSim.serialDeviceRegistry;
         log.info("You should be able to start your usercode now...");
-        return true;
-    }  
+
+        //Register the subscriptions
+        //iterating over keys only eg. "myLidar_LIDARsimulator_Serial_Service"
+        for (String key : serialDevices.keySet()) {
+            log.info("Key = " + key);
+//        using this method subscribe(String publisherName, String outMethod, String inMethod)
+            subscribe(key, "publishBytes", "routeBytes");
+        }
+    }//end getHashMap
+
+    public void routeBytes(int[] bytes) {
+        log.warn("SEARService is routing bytes to appropriate ");
+// here you'd look the at the hashmap and then do something like this:
+
+
+    }
+
+    @Override
+    public boolean preProcessHook(Message m) {
+        // FIXME - problem with collisions of this service's methods
+        // and dialog methods ?!?!?
+
+        // if the method name is == to a method in the SEARService
+        if (methodSet.contains(m.method)) {
+            // process the message like a regular service
+            return true;
+        }
+
+// otherwise send the message to the dialog with the senders name
+
+        /* 
+         * Find what service it should go to by finding out what kind of 
+         * service it is, then strip everything but the parent service's name
+         * for instance "myLidar_LIDARsimulator_Serial_Service" becomes "myLidar"
+         */
+
+        String instanceName;
+        if (m.sender.contains("_LIDARsimulator")) {
+            instanceName = m.sender.substring(0, m.sender.lastIndexOf("_LIDARsimulator_Serial_Service"));
+        } else if (m.sender.contains("_GPSsimulator")) // otherwise send the message to the dialog with the senders name
+        {
+            instanceName = m.sender.substring(0, m.sender.lastIndexOf("_GPSsimulator_Serial_Service"));
+        } else {
+            log.error("serialDevice instanceName not found");
+            return false;
+        }
+
+
+//        serialDevices is analagous to serviceGUIMap
+//        ServiceGUI sg = serviceGUIMap.get(m.sender);
+//        if (sg == null) {
+//            log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());
+//        } else {
+//            Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method, m.data);
+//        }
+
+         Instantiator.invokeMethod(instanceName, m.method, m.data);
+        
+        
+        return false;
+    }//end preProcessorHook
     
-//   public int[] sendMessage(String lidarName, String message) {
+    
+
+//       public int[] sendMessage(String lidarName, String message) {
 //        return searSim.toggleLidarView(lidarName);
-//    }
-    public void relayLidarData(){
+//    }    
+    
+    
+    public void relayLidarData() {
         System.out.println("inside relay LIDAR data");
     }
-    
-     public void loadProject(String filePath) {
+
+    public void loadProject(String filePath) {
         System.out.println("Open " + filePath);
 
         this.openPath = filePath;
@@ -134,13 +202,13 @@ public class SEAR extends Service {
 
         //Do what you need to open the project to this path
     }
-    
-    
-     /**
-     * Blindly saves all files associated with this particular SEARProject to the
-     * zip file location selected by the user.
-     * Reference: Zipping http://www.mkyong.com/java/how-to-compress-files-in-zip-format/
-     * Reference unZipping http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/
+
+    /**
+     * Blindly saves all files associated with this particular SEARProject to
+     * the zip file location selected by the user. Reference: Zipping
+     * http://www.mkyong.com/java/how-to-compress-files-in-zip-format/ Reference
+     * unZipping
+     * http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/
      *
      * @param filename
      */
@@ -161,8 +229,9 @@ public class SEAR extends Service {
     }
 
     /**
-     * Zip a SEAR project
-     * Reference; http://www.mkyong.com/java/how-to-compress-files-in-zip-format/
+     * Zip a SEAR project Reference;
+     * http://www.mkyong.com/java/how-to-compress-files-in-zip-format/
+     *
      * @param zipFile output ZIP file location
      */
     public void zipIt(String zipFile, String sourceFolder) {
@@ -216,8 +285,8 @@ public class SEAR extends Service {
     }
 
     /**
-     * Traverse a directory and get all files,
-     * and add the file into fileList
+     * Traverse a directory and get all files, and add the file into fileList
+     *
      * @param node file or directory
      */
     public void generateFileList(File node) {
@@ -244,6 +313,7 @@ public class SEAR extends Service {
 
     /**
      * Format the file path for zip
+     *
      * @param file file path
      * @return Formatted file path
      */
@@ -271,8 +341,9 @@ public class SEAR extends Service {
     }
 
     /**
-     * Unzip the SEAR project to the MyRobotLab temp folder
-     * Reference: http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/
+     * Unzip the SEAR project to the MyRobotLab temp folder Reference:
+     * http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/
+     *
      * @param zipFile input zip file
      * @param output zip file output folder
      */
@@ -341,9 +412,4 @@ public class SEAR extends Service {
         }
     }
 }//end SEAR.java class
-
-
-
-
-
 
