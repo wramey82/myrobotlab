@@ -45,6 +45,8 @@
 	${label} 	= "myrobotlab.${version}
 	
 	FIXME - make "update" work in IDE
+	publishBleedingEdge
+	publishRelease
 	
 -->
 
@@ -270,6 +272,8 @@
 		<!-- compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" includeantruntime="false">
 			<exclude name="org/myrobotlab/service/Android.java" />
+			<exclude name="org/myrobotlab/service/SEAR.java" />
+			<exclude name="org/myrobotlab/control/SEARGUI.java" />
 			<exclude name="org/myrobotlab/service/ArduinoBT.java" />
 			<classpath refid="myrobotlab.classpath" />
 		</javac>
@@ -320,7 +324,7 @@
 	<target name="scp.maahr" depends="dist" description="ssh updates to test systems - should be removed - and running system should be scheduled to check for updates">
 		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
 		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
-		<scp file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@maahr:/home/gperry/releases/myrobotlab-0013" />
+		<scp port="10022" file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@orbous.zipto.org:/opt/mrl/libraries/jar" />
 	</target>
 	
 	<target name="clean" description="clean up">
