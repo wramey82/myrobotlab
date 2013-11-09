@@ -1117,11 +1117,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				log.info(String.format("%s already connected", portName));
 				return true;
 			} else if (portName != null && !portName.equals(name)){
-				warn("requesting port change from %s to %s - disconnect first", portName, name);
+				warn("requesting port change from %s to %s - disconnecting", portName, name);
+				disconnect();
 			}
 		}
 		
 		try {
+			info("attempting to connect %s %d %d %d %d", name, rate, databits, stopbits, parity);
 			SerialDevice sd = SerialDeviceFactory.getSerialDevice(name, rate, databits, stopbits, parity);
 			if (sd != null) {
 				serialDevice = sd;

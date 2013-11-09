@@ -62,11 +62,9 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	Microphone microphone = null;
 	ConfigurationManager cm = null;
 	transient Recognizer recognizer = null;
-	Thread listener = null;
 	DialogManager dialogManager = null;
 	transient SpeechProcessor speechProcessor = null;
-	// deprecated not used
-	// HashMap<String, Message> commandMap = new HashMap<String, Message>();
+	
 	private boolean isListening = false;
 	private String lockPhrase = null;
 	
@@ -76,11 +74,26 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	
 	Command currentCommand = null;
 
-
+	/**
+	 * Commands must be created "before" startListening
+	 * startListening will create a grammar file from the data
+	 *
+	 */
+	public class Command {
+		public String name;
+		public String method;
+		public Object[] params;
+		Command(String name, String method, Object[] params)
+		{
+			this.name = name;
+			this.method = method;
+			this.params = params;
+		}
+	}
+	
 	public Sphinx(String n) {
 		super(n, Sphinx.class.getCanonicalName());
 	}
-
 
 	/**
 	 * The main output for this service. 
@@ -89,11 +102,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	 * @return the word
 	 */
 	public String recognized(String word) {
-		/*
-		if (commandMap.containsKey(word)) {
-			getOutbox().add(commandMap.get(word));
-		}
-		*/
 		return word;
 	}
 
@@ -349,7 +357,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		buildGrammar(newGrammar, confirmations);
 		buildGrammar(newGrammar, negations);
 		
-		
 		if (grammar != null) {
 			if (newGrammar.length() > 0) {
 				newGrammar.append("|");
@@ -425,7 +432,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 	// TODO - make "Speech" interface if desired
 	public boolean attach(Speech mouth) {
-
 		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", mouth.getName(), "isSpeaking", Boolean.class);
 		// TODO - make config drive whether confirmation is desired
@@ -490,19 +496,6 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	public String confirmed(String txt)
 	{
 		return txt;
-	}
-	
-	
-	public class Command {
-		public String name;
-		public String method;
-		public Object[] params;
-		Command(String name, String method, Object[] params)
-		{
-			this.name = name;
-			this.method = method;
-			this.params = params;
-		}
 	}
 	
 	// TODO - should this be in Service ?????

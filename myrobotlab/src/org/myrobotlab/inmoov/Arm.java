@@ -55,10 +55,10 @@ public class Arm {
 		arduino.servoAttach(omoplate.getName(), omoplatePin);
 
 		// servo limits
-		bicep.setPositionMax(90);
-		omoplate.setPositionMax(80);
-		omoplate.setPositionMin(10);
-		rotate.setPositionMin(40);
+		bicep.setMax(90);
+		omoplate.setMax(80);
+		omoplate.setMin(10);
+		rotate.setMin(40);
 
 		rest();
 

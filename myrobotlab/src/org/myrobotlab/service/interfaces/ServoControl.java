@@ -71,14 +71,14 @@ public interface ServoControl {
 	 * 
 	 * @param min
 	 */
-	public void setPositionMin(Integer min);
+	public void setMin(Integer min);
 
 	/**
 	 * afetly limit for the Servo
 	 * 
 	 * @param max
 	 */
-	public void setPositionMax(Integer max);
+	public void setMax(Integer max);
 
 	public String getControllerName();
 

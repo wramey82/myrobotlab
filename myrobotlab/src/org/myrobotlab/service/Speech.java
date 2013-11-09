@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -39,6 +40,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -83,8 +85,14 @@ public class Speech extends Service {
 
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Speech.class.getCanonicalName());
-	// en_us en_gb en_au
+	// en_us en_gb en_au en_sa en_nz
 	//String language = "en";
+	// By using google's ".co.uk" translate site's GET request, you can generate British English. 
+	// http://translate.google.co.uk/translate_tts?q=Your+soundcard+works+perfectly&tl=en
+	// routing
+	// http://translate.google.com.mx/translate_tts?tl=en&q=hello+this+is+google
+	// http://translate.google.com/translate_tts?tl=zh_CN&q=%E4%BD%A0%E5%A5%BD%E3%80%82%E6%82%A8%E4%B9%9F%E5%8F%AF%E4%BB%A5%E8%AE%B2%E4%B8%AD%E6%96%87%E3%80%82
+	
 	String language = "en_gb";
 	private String googleURI = "http://translate.google.com/translate_tts?tl=%s&q=";
 
@@ -299,6 +307,7 @@ public class Speech extends Service {
 		in(createMessage(getName(), "queueSetLanguage", l));
 	}
 
+	// FIXME - WTF ARE YOU DOING THIS ????
 	public void queueSetLanguage(String l) {
 		fileCacheInitialized = false;
 		language = l;
@@ -434,6 +443,34 @@ public class Speech extends Service {
 		return null;
 
 	}
+	
+	@Override
+	public String getDescription() {
+		return "speech synthesis service";
+	}
+	
+	public void speakErrors(boolean b)
+	{
+		// register for Runtime registered (new services)
+		
+		// get all current services
+		// register for their errors
+		List<ServiceWrapper> services = Runtime.getServices();
+		if (b) {
+			for (int i = 0; i < services.size(); ++i) {
+				ServiceWrapper sw = services.get(i);
+				subscribe(sw.getName(), "publishError", "speak");
+				// this.addListener(outMethod, namedInstance, inMethod);
+			}
+		} else {
+			for (int i = 0; i < services.size(); ++i)
+			{
+				ServiceWrapper sw = services.get(i);
+				unsubscribe(sw.getName(), "publishError", "speak");
+				//this.addListener(outMethod, namedInstance, inMethod);
+			}
+		}
+	}
 
 	/**
 	 * request confirmation of recognized text this typically comes from a
@@ -476,9 +513,6 @@ public class Speech extends Service {
 
 	}
 
-	@Override
-	public String getDescription() {
-		return "<html>text to speech module</html>";
-	}
 
+	// speak errors
 }

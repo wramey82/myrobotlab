@@ -422,10 +422,10 @@ public class Runtime extends Service {
 		}
 
 		if (se.serviceDirectory.containsKey(s.getName())) {
-			log.error(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
+			log.info(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
 			if (localInstance != null) {
 				localInstance.invoke("collision", s.getName());
-				Runtime.getInstance().error(String.format(" name collision with %s", s.getName()));
+				Runtime.getInstance().info(String.format(" name collision with %s", s.getName()));
 			}
 			return s;
 		}
@@ -858,7 +858,7 @@ public class Runtime extends Service {
 		while (seit.hasNext()) {
 			serviceName = seit.next();
 			sw = se.serviceDirectory.get(serviceName);
-			log.info(String.format("stopping service %1$s/%2$s", se.accessURL, serviceName));
+			log.info(String.format("stopping service %s/%s", se.accessURL, serviceName));
 
 			if (sw.service == null) {
 				log.warn("unknown type and/or remote service");
@@ -1423,7 +1423,7 @@ public class Runtime extends Service {
 		return s;
 	}
 
-
+	
 	/**
 	 * 
 	 * @param name
@@ -2056,5 +2056,6 @@ public class Runtime extends Service {
 		List<ServiceWrapper> list = new ArrayList<ServiceWrapper>(sorted.values());
 		return list;
 	}
+
 
 }

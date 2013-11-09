@@ -38,6 +38,7 @@ public class XMPP extends Service implements MessageListener {
 	String password;
 	String host;
 	int port = 5222;
+	String service = "gmail.com"; // defaulted :P
 
 	ConnectionConfiguration config;
 	XMPPConnection connection;
@@ -114,13 +115,17 @@ public class XMPP extends Service implements MessageListener {
 	}
 
 	public void connect(String host, int port, String user, String password) {
+		connect(host, port, user, password, service);
+	}
+
+	public void connect(String host, int port, String user, String password, String service) {
 		this.host = host;
 		this.port = port;
 		this.user = user;
 		this.password = password;
+		this.service = service;
 		connect();
 	}
-
 	/**
 	 * 
 	 */

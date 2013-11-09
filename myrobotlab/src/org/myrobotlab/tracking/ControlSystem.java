@@ -50,22 +50,22 @@ public class ControlSystem {
 	
 	public int getMinX()
 	{
-		return x.getPositionMin();
+		return x.getMin();
 	}
 
 	public int getMaxX()
 	{
-		return x.getPositionMax();
+		return x.getMax();
 	}
 
 	public int getMinY()
 	{
-		return y.getPositionMin();
+		return y.getMin();
 	}
 
 	public int getMaxY()
 	{
-		return y.getPositionMax();
+		return y.getMax();
 	}
 
 	

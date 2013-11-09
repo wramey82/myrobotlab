@@ -1,189 +1,142 @@
 package org.myrobotlab.service;
 
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-
 public class InMoovArm extends Service {
 
-	public final static Logger log = LoggerFactory.getLogger(InMoovArm.class);
 	private static final long serialVersionUID = 1L;
-		
+	public final static Logger log = LoggerFactory.getLogger(InMoovArm.class);
+
 	/**
 	 * peer services
 	 */
-	public Servo bicep;
-	public Servo rotate;
-	public Servo shoulder;
-	public Servo omoplate;
+	transient public Servo bicep;
+	transient public Servo rotate;
+	transient public Servo shoulder;
+	transient public Servo omoplate;
+	transient public Arduino arduino;
 	
-	public Arduino arduino;
-	
-	// user defined cached values begin
-	
-	// pins and defaults
-	public int bicepPin = 8;
-	public int rotatePin = 9;
-	public int shoulderPin = 10;
-	public int omoplatePin = 11;
-	
-	// servo limits
-	public int bicepMin = 0;
-	public int bicepMax = 90;
-	public int rotateMin = 40;
-	public int rotateMax = 180;
-	public int shoulderMin = 0;
-	public int shoulderMax = 180;
-	public int omoplateMin = 10;
-	public int omoplateMax = 80;
-	
-	// default rest position
-	public int bicepRest = 0;
-	public int rotateRest = 90;
-	public int shoulderRest = 30;
-	public int omoplateRest = 10;
-
-	// user defined cached values end
-
-	public InMoovArm(String n) {
-		super(n, InMoovArm.class.getCanonicalName());	
+	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
+	public static Peers getPeers(String name)
+	{
+		Peers peers = new Peers(name);
+		peers.put("bicep", "Servo", "Bicep servo");
+		peers.put("rotate", "Servo", "Rotate servo");
+		peers.put("shoulder", "Servo", "Shoulder servo");
+		peers.put("omoplate", "Servo", "Omoplate servo");
+		peers.put("arduino", "Arduino", "Arduino controller for this arm");
+		return peers;
 	}
 	
+	public InMoovArm(String n) {
+		super(n, InMoovArm.class.getCanonicalName());
+		//createReserves(n); // Ok this might work but IT CANNOT BE IN SERVICE FRAMEWORK !!!!!
+		bicep = (Servo) createPeer("bicep");
+		rotate = (Servo) createPeer("rotate");
+		shoulder = (Servo) createPeer("shoulder");
+		omoplate = (Servo) createPeer("omoplate");
+		arduino = (Arduino) createPeer("arduino");
+		
+		bicep.setPin(8);
+		rotate.setPin(9);
+		shoulder.setPin(10);
+		omoplate.setPin(11);
+		
+		bicep.setMinMax(0, 90);
+		rotate.setMinMax(40, 180);
+		shoulder.setMinMax(0, 180);
+		omoplate.setMinMax(10, 80);
+		
+		bicep.setRest(0);
+		rotate.setRest(90);
+		shoulder.setRest(30);
+		omoplate.setRest(10);
+	}
+
 	@Override
 	public void startService() {
 		super.startService();
-		startPeers();
-		setLimits();
-		attachServos();
-		rest();
-		broadcastState();
+		bicep.startService();
+		rotate.startService();
+		shoulder.startService();
+		omoplate.startService();
+		arduino.startService();
 	}
 
-	public void createPeers()
-	{
-		bicep = (Servo)createReserved("Bicep");
-		rotate = (Servo)createReserved("Rotate");
-		shoulder = (Servo)createReserved("Shoulder");
-		omoplate = (Servo)createReserved("Omoplate");
-		
-		arduino = (Arduino)createReserved("Arduino");
-	}
-	
-	public void startPeers()
-	{
-		bicep = (Servo)startReserved("Bicep");
-		rotate = (Servo)startReserved("Rotate");
-		shoulder = (Servo)startReserved("Shoulder");
-		omoplate = (Servo)startReserved("Omoplate");
-		
-		arduino = (Arduino)startReserved("Arduino");
-	}
-	
-	public boolean connect(String port)
-	{
-		arduino = (Arduino)startReserved("Arduino");
-		
-		if (arduino == null)
-		{
+	public boolean connect(String port) {
+		startService(); // NEEDED? I DONT THINK SO....
+
+		if (arduino == null) {
 			error("arduino is invalid");
-		}
-		return arduino.connect(port);
-	}
-	
-	/**
-	 * attach all the servos - this must be re-entrant
-	 * and accomplish the re-attachment when servos are detached
-	 * 
-	 * @return
-	 */
-	public boolean attachServos() 
-	{		
-		// IMPORTANT at this point the attachment REQUIRES - actual services
-		// and connectivity !!!
-		
-		if (arduino == null)
-		{
-			error("invalid arduino");
 			return false;
 		}
-		
-		if (!arduino.isConnected())
-		{
+
+		arduino.connect(port);
+
+		if (!arduino.isConnected()) {
 			error("arduino %s not connected", arduino.getName());
 			return false;
 		}
 
-		// this is done here
-		// so that this.setPins does not require actual creation of servos
-		// good / bad ??
-		bicep.setPin(bicepPin);
-		rotate.setPin(rotatePin);
-		shoulder.setPin(shoulderPin);
-		omoplate.setPin(omoplatePin);
-	
-		arduino.servoAttach(bicep);
-		arduino.servoAttach(rotate);
-		arduino.servoAttach(shoulder);
-		arduino.servoAttach(omoplate);
-		
+		attach();
+		rest();
+		broadcastState();
 		return true;
+	}
+
+	/**
+	 * attach all the servos - this must be re-entrant and accomplish the
+	 * re-attachment when servos are detached
+	 * 
+	 * @return
+	 */
+	public boolean attach() {
+		boolean result = true; 
+		result &= arduino.servoAttach(bicep);
+		result &= arduino.servoAttach(rotate);
+		result &= arduino.servoAttach(shoulder);
+		result &= arduino.servoAttach(omoplate);
+		return result;
 	}
 
 	@Override
 	public String getDescription() {
 		return "the InMoov Arm Service";
 	}
-	
+
 	public void rest() {
-		
-		setSpeed(1.0f,1.0f,1.0f,1.0f);
+
+		setSpeed(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// initial position
-		bicep.moveTo(bicepRest);
-		rotate.moveTo(rotateRest);
-		shoulder.moveTo(shoulderRest);
-		omoplate.moveTo(omoplateRest);
+		bicep.rest();
+		rotate.rest();
+		shoulder.rest();
+		omoplate.rest();
 	}
+
 	// ------------- added set pins
 	public void setpins(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
-		 bicepPin=bicep;
-		 rotatePin=rotate;
-		 shoulderPin=shoulder;
-		 omoplatePin=omoplate;
+
+		log.info(String.format("setPins %d %d %d %d %d %d", bicep, rotate, shoulder, omoplate));
+		//createPeers();
+		this.bicep.setPin(bicep);
+		this.rotate.setPin(rotate);
+		this.shoulder.setPin(shoulder);
+		this.omoplate.setPin(omoplate);
 	}
-	
-	public void setLimits(int bicepMin, int bicepMax, int rotateMin, int rotateMax, int shoulderMin, int shoulderMax, int omoplateMin, int omoplateMax)
-	{
-		this.bicepMin = bicepMin;
-		this.bicepMax = bicepMax;
-		this.rotateMin = rotateMin;
-		this.rotateMax = rotateMax;
-		this.shoulderMin = shoulderMin;
-		this.shoulderMax = shoulderMax;
-		this.omoplateMin = omoplateMin;
-		this.omoplateMax = omoplateMax;	
-	}
-	
-	public void setLimits()
-	{
+
+	public void setLimits(int bicepMin, int bicepMax, int rotateMin, int rotateMax, int shoulderMin, int shoulderMax, int omoplateMin, int omoplateMax) {
 		bicep.setMinMax(bicepMin, bicepMax);
 		rotate.setMinMax(rotateMin, rotateMax);
 		shoulder.setMinMax(shoulderMin, shoulderMax);
 		omoplate.setMinMax(omoplateMin, omoplateMax);
 	}
-	
-	public void setRestPos(int bicepRest, int rotateRest, int shoulderRest, int omoplateRest)
-	{
-		this.bicepRest = bicepRest;
-		this.rotateRest = rotateRest;
-		this.shoulderRest = shoulderRest;
-		this.omoplateRest = omoplateRest;
-	}
-	
-	
 
 	public void broadcastState() {
 		// notify the gui
@@ -226,7 +179,6 @@ public class InMoovArm extends Service {
 			omoplate.releaseService();
 			omoplate = null;
 		}
-
 	}
 
 	public void setSpeed(Float bicep, Float rotate, Float shoulder, Float omoplate) {
@@ -237,44 +189,40 @@ public class InMoovArm extends Service {
 	}
 
 	public String getScript() {
-		return String
-				.format("%s.moveArm(%d,%d,%d,%d)\n", getName(), bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
+		return String.format("%s.moveArm(%d,%d,%d,%d)\n", getName(), bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
 	}
 
 	public void moveTo(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
-		if (log.isDebugEnabled())
-		{
+		if (log.isDebugEnabled()) {
 			log.debug(String.format("%s moveTo %d %d %d %d %d", getName(), bicep, rotate, shoulder, omoplate));
 		}
 		this.bicep.moveTo(bicep);
 		this.rotate.moveTo(rotate);
 		this.shoulder.moveTo(shoulder);
 		this.omoplate.moveTo(omoplate);
-
 	}
-	
-	public boolean isValid()
-	{
-		bicep.moveTo(bicepRest + 2);
-		rotate.moveTo(rotateRest + 2);
-		shoulder.moveTo(shoulderRest + 2);
-		omoplate.moveTo(omoplateRest + 2);	
+
+	public boolean isValid() {
+		bicep.moveTo(bicep.getRest() + 2);
+		rotate.moveTo(rotate.getRest() + 2);
+		shoulder.moveTo(shoulder.getRest() + 2);
+		omoplate.moveTo(omoplate.getRest() + 2);
 		return true;
 	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
-
-		InMoovArm template = new InMoovArm("template");
-		template.startService();			
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 		
+		InMoovArm arm = (InMoovArm)Runtime.create("arm","InMoovArm");
+		arm.connect("COM9");
+		arm.startService();
+
 		Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
 	}
-
 
 }

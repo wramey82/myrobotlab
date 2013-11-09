@@ -244,6 +244,8 @@ public class WebGUI extends Service {
 		}
 	}
 
+	Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+	
 	// FIXME - take out of RESTProcessor - normalize
 	/**
 	 * Encodes MyRobotLab message into JSON so that it can be sent over websockets to listening clients
@@ -269,7 +271,7 @@ public class WebGUI extends Service {
 			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
 			// PRETTY PRINTING IS AWESOME ! MAKE CONFIGURABLE - PRETTY PRINT
 			// ONLY WORKS IN TEXTMODE .setPrettyPrinting()
-			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+			
 			// .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
 			// gson.setDateFormat(DateFormat.FULL);
 			/*
