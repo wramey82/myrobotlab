@@ -224,8 +224,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 					slider.setValue(servo.getPosition());
 					slider.addChangeListener(sliderListener);
 				}
-				posMin.setText(servo.getPositionMin().toString());
-				posMax.setText(servo.getPositionMax().toString());
+				posMin.setText(servo.getMin().toString());
+				posMax.setText(servo.getMax().toString());
 			}
 		});
 	}
@@ -250,7 +250,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 			if (controllerName != null && controllerName.length() > 0) {
 
 				@SuppressWarnings("unchecked")
-				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList", null);
+				ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList");
 				log.info("{}", pinList.size());
 
 				pinModel.removeAllElements();
@@ -278,8 +278,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		}
 
 		if (o == updateLimitsButton) {
-			myService.send(boundServiceName, "setPositionMin", Integer.parseInt(posMin.getText()));
-			myService.send(boundServiceName, "setPositionMax", Integer.parseInt(posMax.getText()));
+			myService.send(boundServiceName, "setMin", Integer.parseInt(posMin.getText()));
+			myService.send(boundServiceName, "setMax", Integer.parseInt(posMax.getText()));
 			return;
 		}
 

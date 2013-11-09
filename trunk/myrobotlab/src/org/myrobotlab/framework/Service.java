@@ -48,14 +48,15 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.Timer;
+import java.util.TreeMap;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
@@ -96,7 +97,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// host + ":" + servicePort + serviceClass + "/" +
 	// this.getClass().getCanonicalName() + "/" + name;
 
-	static public HashMap<String, ServiceReservation> reservations = new HashMap<String, ServiceReservation>();
+	static public final Index<ServiceReservation> dna = new Index<ServiceReservation>();
 
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
@@ -195,10 +196,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getName() {
 		return name;
 	}
-	
-	public String getPeerKey(String key)
-	{
-		return String.format("%s%s", getName(), key);
+
+	public String getPeerKey(String key) {
+		return Peers.getPeerKey(getName(), key);
 	}
 
 	/**
@@ -214,14 +214,29 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return true if re-binding took place
 	 */
 	static public boolean reserveRootAs(String key, String newName) {
-		if (!reservations.containsKey(key)) {
+		
+		ServiceReservation genome = dna.get(key);
+		if (genome == null)
+		{
+			// FIXME - this is a BAD KEY !!! into the ServiceReservation (I think :P) - another
+			// reason to get rid of it !!
+			dna.put(key, new ServiceReservation(key, newName, null, null));
+		} else {
+			genome.actualName = newName;
+		}
+		/*
+		IndexNode<ServiceReservation> node = dna.getNode(key);
+		if (node == null) {
 			log.error(String.format("reserveAs can not find %s to reserve name %s !!", key, newName));
 			return false;
 		}
-		reservations.get(key).actualName = newName;
+		//reservations.get(key).actualName = newName;
+		node.getValue().actualName = newName;
 		log.info("reserving %s now as %s", key, newName);
+		*/
 		return true;
 	}
+
 	/**
 	 * This method re-binds the key to another name. An example of where this
 	 * would be used is within Tracking there is an Servo service named "x",
@@ -234,34 +249,44 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            new name of bound peer service
 	 * @return true if re-binding took place
 	 */
+	/*
 	public boolean reserveAs(String key, String newName) {
 		String peerKey = getPeerKey(key);
 		return reserveRootAs(peerKey, newName);
 	}
-
+*/
 	/**
-	 * Reserves a name for a root level Service. 
-	 * allows modifications to the reservation map at the highest level
+	 * Reserves a name for a root level Service. allows modifications to the
+	 * reservation map at the highest level
 	 * 
 	 * @param key
 	 * @param simpleTypeName
 	 * @param comment
 	 */
 	static public void reserveRoot(String key, String simpleTypeName, String comment) {
+		// strip delimeter out if put in by key
+//		String actualName = key.replace(".", "");
 		reserveRoot(key, key, simpleTypeName, comment);
 	}
-	
+
 	static public void reserveRoot(String key, String actualName, String simpleTypeName, String comment) {
-		if (!reservations.containsKey(key)){
-			log.info("reserved %s", key);
+		log.info(String.format("reserved key %s -> %s %s %s", key, actualName, simpleTypeName, comment));
+		dna.put(key, new ServiceReservation(key, actualName, simpleTypeName, comment));
+		/*
+		log.info("LKDJFLKDJKLFJDKLSJLF");
+		IndexNode<ServiceReservation> node = reservations.getOrCreateNode(key);
+		if (node == null) {
+			// FIXME SHOULD NOT BE SIMPLE NAME - NEEDS TO BE COMPLETE !!!
+			
 			reservations.put(key, new ServiceReservation(key, actualName, simpleTypeName, comment));
 		} else {
-			ServiceReservation sr = reservations.get(key);
-			log.warn(String.format("%s already reserved - change actual name [%s] if needed", key, sr.actualName));
+			//ServiceReservation sr = reservations.get(key);
+			log.warn(String.format("%s already reserved - change actual name [%s] if needed", key, node.getValue().actualName));
 		}
+		*/
+		
 	}
 
-	
 	/**
 	 * Reserves a name for a Peer Service. This is important for services which
 	 * control other services. Internally composite services will use a key so
@@ -277,18 +302,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            composite
 	 */
 	public void reserve(String key, String simpleTypeName, String comment) {
-		// creating 
+		// creating
 		String peerKey = getPeerKey(key);
 		reserveRoot(peerKey, simpleTypeName, comment);
 	}
-	
+
 	public void reserve(String key, String actualName, String simpleTypeName, String comment) {
-		// creating 
+		// creating
 		String peerKey = getPeerKey(key);
 		reserveRoot(peerKey, actualName, simpleTypeName, comment);
 	}
-	
-	
 
 	/**
 	 * Create the reserved peer service if it has not already been created
@@ -300,15 +323,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	static public ServiceInterface createRootReserved(String key) {
 		log.info(String.format("createReserved %s ", key));
-		if (reservations.containsKey(key)) {
-			ServiceReservation r = reservations.get(key);
-			return Runtime.create(r.actualName, r.simpleTypeName);
+		IndexNode<ServiceReservation> node = dna.getNode(key);
+		if (node != null) {
+			ServiceReservation r = dna.get(key);
+			return Runtime.create(r.actualName, r.fullTypeName);
 		}
 
 		log.error(String.format("createRootReserved can not create %s", key));
 		return null;
 	}
-	
+
 	/**
 	 * Create the reserved peer service if it has not already been created
 	 * 
@@ -317,10 +341,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            composite
 	 * @return true if successfully created
 	 */
+	/** deprecated use createPeer
 	public ServiceInterface createReserved(String key) {
 		String peerKey = getPeerKey(key);
 		return createRootReserved(peerKey);
 	}
+	*/
 
 	/**
 	 * start reserved peer service by composite
@@ -329,6 +355,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            internal identifier
 	 * @return true if successfully started
 	 */
+	/** deprecated use startPeer
 	public ServiceInterface startReserved(String key) {
 		// String peerKey = getPeerKey(key);
 		ServiceInterface s = createReserved(key);
@@ -339,6 +366,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		error("could not start reserved %s%s", getName(), key);
 		return null;
 	}
+	*/
 
 	/**
 	 * Returns the current map of reservations. This can be used after a complex
@@ -347,20 +375,268 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * 
 	 * @return
 	 */
-	static public HashMap<String, ServiceReservation> getReservations() {
-		return reservations;
+	static public Index<ServiceReservation> getDNA() {
+		return dna;
 	}
+	
+	/**
+	 * This method will merge in the requested peer dna into the final global
+	 * dna - from which it will be accessable for create methods
+	 * @param myKey
+	 * @param className
+	 */
+	static public void mergePeerDNA(String myKey, String className) 
+	{
+		 buildDNA(dna, myKey, className, "merged dna");
+		 log.info("merged acutal dna \n{}", dna);
+		 
+		 /*
+		 if (peerDNA != null)
+		 {
+			ArrayList<ServiceReservation> dnaList = peerDNA.flatten();
+			for (int i = 0; i < dnaList.size(); ++i)
+			{
+				ServiceReservation peersr = dnaList.get(i);
+				
+				// ------------ merge begin ------------------
+				ServiceReservation sr = dna.get(name)
+				// ------------ merge end ------------------
+				
+			}
+		 }
+		*/
+	}
+	/**
+	 * this is called by the framework before a new Service is 
+	 * constructed and places the "default" reservations of the Service's
+	 * type into the global reservation index.
+	 * 
+	 * it "merges" in the default index, because if any user defined values
+	 * are found it preserves them.
+	 * 
+	 * it mergest a SINGLE LEVEL - only its immediate peers (non-recursive)
+	 * recursive call is not necessary, because as each service is created
+	 * they will create their peers
+	 * 
+	 * TODO - a more detailed merge could be useful, so that a user has the option
+	 * of only specifying the minimum changes to a ServiceRegistration
+	 *
+	 * @param myKey
+	 * @param serviceClass
+	 */
+	static public void mergePeerDNAx(String myKey, String className) 
+	{
+		String serviceClass = className;
+		if (!className.contains("."))
+		{
+			serviceClass = String.format("org.myrobotlab.service.%s", className);
+		}
+		log.info(String.format("createReserves (%s, %s)", myKey, serviceClass));
+		try {
+			Class<?> theClass = Class.forName(serviceClass);
+			Method method = theClass.getMethod("getPeers", String.class);
+			Peers peers = (Peers) method.invoke(null, new Object[] { myKey });
+			IndexNode<ServiceReservation> myNode = peers.getDNA().getNode(myKey);
+			// LOAD CLASS BY NAME - and do a getReservations on it !
+			HashMap<String, IndexNode<ServiceReservation>> peerRequests = myNode.getBranches();
+			for (Entry<String, IndexNode<ServiceReservation>> o : peerRequests.entrySet()) {
+				String peerKey = o.getKey();
+				IndexNode<ServiceReservation> p = o.getValue();
+				
+				String fullKey = Peers.getPeerKey(myKey, peerKey);
+				ServiceReservation peersr = p.getValue();
+				ServiceReservation globalSr = dna.get(fullKey);
+				
+				// TODO - 
+				if (globalSr == null){
+					reserveRoot(fullKey, peersr.fullTypeName, peersr.comment); // FIXME - if this method accepted an Index<?> then Peers could use it
+				} else {
+					log.info(String.format("*found** key %s -> %s %s %s", fullKey, globalSr.actualName, globalSr.fullTypeName, globalSr.comment));
+				}
+			}
+
+		} catch (Exception e) {
+			log.info(String.format("%s does not have a getPeers", serviceClass));
+		}
+	}
+	
+	// TODO !! recurse boolean
+	static public Peers getLocalPeers(String name, Class<?> clazz)
+	{
+		return getLocalPeers(name, clazz.getCanonicalName());
+	}
+	
+	static public Peers getLocalPeers(String name, String serviceClass)
+	{
+		String fullClassName;
+		if (!serviceClass.contains("."))
+		{
+			fullClassName = String.format("org.myrobotlab.service.%s", serviceClass);
+		} else {
+			fullClassName = serviceClass;
+		}
+		try {
+			Class<?> theClass = Class.forName(fullClassName);
+			Method method = theClass.getMethod("getPeers", String.class);
+			Peers peers = (Peers) method.invoke(null, new Object[] { name });
+			/*
+			HashMap<String, ServiceReservation> reservations = peers.peers;
+			// LOAD CLASS BY NAME - and do a getReservations on it !
+			for (Map.Entry<String, ServiceReservation> o : reservations.entrySet()) {
+				
+				reserveRoot(o.getKey(), o.getValue().simpleTypeName, o.getValue().comment);
+			}
+			*/
+			return peers;
+
+		} catch (Exception e) {
+			log.info(String.format("%s does not have a getPeers", fullClassName));
+		}
+		
+		return null;
+	}
+	
+	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass)
+	{
+		Index<ServiceReservation> myDNA = new Index<ServiceReservation>();
+		buildDNA(myDNA, myKey, serviceClass, null);
+		log.info("{}",myDNA.getRootNode().size());
+		return myDNA;
+	}
+	
+	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass, String comment)
+	{
+		Index<ServiceReservation> myDNA = new Index<ServiceReservation>();
+		buildDNA(myDNA, myKey, serviceClass, comment);
+		log.info("dna root node size {}",myDNA.getRootNode().size());
+		return myDNA;
+	}
+	
+	// FIXME - remove out of Peers, have Peers use this logic & pass in its index
+	static public void buildDNA(Index<ServiceReservation> myDNA, String myKey, String serviceClass, String comment)
+	{
+		String fullClassName;
+		if (!serviceClass.contains("."))
+		{
+			fullClassName = String.format("org.myrobotlab.service.%s", serviceClass);
+		} else {
+			fullClassName = serviceClass;
+		}
+		try {
+			// get the class
+			Class<?> theClass = Class.forName(fullClassName);
+			
+			Method method = theClass.getMethod("getPeers", String.class);
+			Peers peers = (Peers) method.invoke(null, new Object[] { myKey });
+			Index<ServiceReservation> peerDNA = peers.getDNA();
+			ArrayList<ServiceReservation> flattenedPeerDNA = peerDNA.flatten();
+			
+			log.info(String.format("processing %s.getPeers(%s) will process %d peers", serviceClass, myKey, flattenedPeerDNA.size()));
+
+			// Two loops are necessary - because recursion should not start until the entire level
+			// of peers has been entered into the tree - this will build the index level by level
+			// versus depth first - necessary because the "upper" levels need to process first
+			// to influence the lower levels
+
+			for (int x = 0; x < flattenedPeerDNA.size(); ++x) {
+				ServiceReservation peersr = flattenedPeerDNA.get(x);
+				
+				// FIXME  A BIT LAME - THE Index.crawlForData should be returning Set<Map.Entry<?>>
+				String peerKey = peersr.key; 
+				
+				String fullKey = String.format("%s.%s", myKey, peerKey);
+				ServiceReservation reservation = myDNA.get(fullKey);
+				
+				log.info(String.format("%d (%s) - [%s]", x, fullKey, peersr.actualName));
+				
+				if (reservation == null){
+					log.info(String.format("dna adding new key %s %s %s %s", fullKey, peersr.actualName, peersr.fullTypeName, comment));					
+					myDNA.put(fullKey, peersr);
+				} else {
+					log.info(String.format("dna collision - replacing null values !!! %s", fullKey));			
+					StringBuffer sb =  new StringBuffer();
+					if (reservation.actualName == null)
+					{
+						sb.append(String.format(" updating actualName to %s ", peersr.actualName));
+						reservation.actualName = peersr.actualName;
+					}
+					
+					if (reservation.fullTypeName == null)
+					{
+						// FIXME check for dot ?
+						sb.append(String.format(" updating peerType to %s ", peersr.fullTypeName));
+						reservation.fullTypeName = peersr.fullTypeName;
+					}
+					
+					if (reservation.comment == null)
+					{
+						sb.append(String.format(" updating comment to %s ", comment));
+						reservation.comment = peersr.comment;
+					}
+					
+					log.info(sb.toString());
+				}
+			}
+
+			// recursion loop
+			for (int x = 0; x < flattenedPeerDNA.size(); ++x) {
+				ServiceReservation peersr = flattenedPeerDNA.get(x);
+				buildDNA(myDNA, Peers.getPeerKey(myKey, peersr.key), peersr.fullTypeName, peersr.comment);
+			}
+		} catch (Exception e) {
+			log.info(String.format("%s does not have a getPeers", fullClassName));
+		}
+	}
+	// -------------------------------- new createPeer begin -----------------------------------
+	public synchronized ServiceInterface createPeer(String reservedKey, String defaultType) {
+		return Runtime.create(Peers.getPeerKey(getName(), reservedKey), defaultType);
+	}
+	
+	public synchronized ServiceInterface createPeer(String reservedKey) {
+		String fullkey = Peers.getPeerKey(getName(), reservedKey);
+		ServiceReservation sr = dna.get(fullkey);
+		if (sr == null)
+		{
+			error("can not create peer from reservedkey %s - no type definition !", fullkey);
+			return null;
+		}
+		return Runtime.create(fullkey, sr.fullTypeName);
+	}
+	
+	public ServiceInterface startPeer(String reservedKey, String defaultType)
+	{
+		ServiceInterface si = createPeer(reservedKey, defaultType);
+		if (si == null)
+		{
+			error("could not create service from key %s", reservedKey);
+		}
+		
+		si.startService();
+		return si;
+	}
+	
+	public ServiceInterface startPeer(String reservedKey)
+	{
+		ServiceInterface si = createPeer(reservedKey);
+		if (si == null)
+		{
+			error("could not create service from key %s", reservedKey);
+		}
+		
+		si.startService();
+		return si;
+	}
+	// -------------------------------- new createPeer end -----------------------------------
 
 	/**
 	 * 
-	 * @param instanceName
+	 * @param reservedKey
 	 * @param serviceClass
 	 * @param inHost
 	 */
-	public Service(String instanceName, String serviceClass, String inHost) {
+	public Service(String reservedKey, String serviceClass, String inHost) {
 
-		// load all string signatures of our methods
-		// FIXME - use Method - currently does not support parameters
+
 		if (methodSet == null) {
 			methodSet = getMessageSet();
 		}
@@ -371,6 +647,19 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Runtime.getInstance();
 		}
 
+		// see if incoming key is my "actual" name
+		ServiceReservation sr = dna.get(reservedKey);
+		if (sr != null)
+		{
+			log.info(String.format("found reservation exchanging reservedKey %s for actual name %s", reservedKey, sr.actualName));
+			name = sr.actualName;
+		} else {
+			name = reservedKey;
+		}
+		
+		// comment ?
+		mergePeerDNA(reservedKey, serviceClass);
+
 		if (inHost != null) {
 			try {
 				url = new URI(inHost);
@@ -380,7 +669,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 
 		host = getHostName(inHost);
-		name = instanceName;
+		
 		this.timer = new Timer(String.format("%s_timer", name));
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
@@ -685,7 +974,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			thisThread.start();
 			isRunning = true;
 		} else {
-			log.warn("startService request: service " + name + " is already running");
+			log.debug("startService request: service {} is already running", name);
 		}
 	}
 
@@ -2063,18 +2352,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public Status publishStatus(String level, String msg) {
 		return new Status(getName(), level, null, msg);
 	}
-	
-	public String publishError(String msg){
+
+	public String publishError(String msg) {
 		return msg;
 	}
 
 	public HashSet<String> getMessageSet() {
 		HashSet<String> ret = new HashSet<String>();
 		Method[] methods = getMethods();
-		log.info("%s loading %d non-routable methods", getName(), methods.length);
+		log.info(String.format("%s loading %d non-sub-routable methods", getName(), methods.length));
 		for (int i = 0; i < methods.length; ++i) {
 			ret.add(methods[i].getName());
-			log.debug("method {}.{} is not routable", getName(), methods[i].getName());
+			//log.debug("method {}.{} is not routable", getName(), methods[i].getName());
 		}
 
 		return ret;
@@ -2083,41 +2372,42 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public Method[] getMethods() {
 		return this.getClass().getMethods();
 	}
-	
+
 	public Method[] getDeclaredMethods() {
 		return this.getClass().getDeclaredMethods();
 	}
-	
-	public String help()
-	{
+
+	public String help() {
 		return help("URL", "DECLARED");
 	}
-	
-	public String help(String format, String level)
-	{
+
+	public String help(String format, String level) {
 		StringBuffer sb = new StringBuffer();
 		Method[] methods = this.getClass().getDeclaredMethods();
-		//Arrays.sort(methods);
-		for (int i = 0; i < methods.length; ++i)
-		{
+		TreeMap<String, Method> sorted = new TreeMap<String, Method>();
+
+		for (int i = 0; i < methods.length; ++i) {
 			Method m = methods[i];
+			sorted.put(m.getName(), m);
+		}
+		for (String key : sorted.keySet()) {
+			Method m = sorted.get(key);
 			sb.append("/").append(getName()).append("/").append(m.getName());
 			Class<?>[] types = m.getParameterTypes();
-			if (types != null)
-			{
-				for (int j = 0; j < types.length; ++j){
-					Class<?> c= types[j];
+			if (types != null) {
+				for (int j = 0; j < types.length; ++j) {
+					Class<?> c = types[j];
 					sb.append("/").append(c.getSimpleName());
 				}
 			}
+			sb.append("\n");
 		}
-		
-		sb.append("/n");
+
+		sb.append("\n");
 		return sb.toString();
 	}
-	
-	public String setLogLevel(String level)
-	{
+
+	public String setLogLevel(String level) {
 		Logging logging = LoggingFactory.getInstance();
 		logging.setLevel(level);
 		return level;

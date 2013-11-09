@@ -1,100 +1,117 @@
 package org.myrobotlab.service;
 
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-
 public class InMoovHand extends Service {
 
 	private static final long serialVersionUID = 1L;
-
 	public final static Logger log = LoggerFactory.getLogger(InMoovHand.class);
 	
+	/**
+	 * peer services
+	 */
 	transient public Servo thumb;
 	transient public Servo index;
 	transient public Servo majeure;
 	transient public Servo ringFinger;
 	transient public Servo pinky;
 	transient public Servo wrist;
-
 	transient public Arduino arduino;
 	
-	/**
-	 * hand pins - need the ability to cache defaults and allow
-	 * user to change all these values before starting
-	 */
-	int thumbPin = 2;
-	int indexPin = 3;
-	int majeurePin = 4;
-	int ringFingerPin = 5;
-	int pinkyPin = 6;
-	int wristPin = 7;
+	// needed ?? reflectively they are good interfaces and 
+	// do not need to define their interaction !!
+	// transient public Keyboard keyboard;
+	// transient public XMPP xmpp;
+	//transient public Speech speech;// FIXME speakErrors()
+	
+	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
+	public static Peers getPeers(String name)
+	{
+		Peers peers = new Peers(name);
+		peers.put("thumb", "Servo", "Thumb servo");
+		peers.put("index", "Servo", "Index servo");
+		peers.put("majeure", "Servo", "Majeure servo");
+		peers.put("ringFinger", "Servo", "RingFinger servo");
+		peers.put("pinky", "Servo", "Pinky servo");
+		peers.put("wrist", "Servo", "Wrist servo");
+		peers.put("arduino", "Arduino", "Arduino controller for this arm");
+		//peers.put("keyboard", "Keyboard", "Keyboard control");
+		//peers.put("xmpp", "XMPP", "XMPP control");
+		return peers;
+	}
 	
 	public InMoovHand(String n) {
 		super(n, InMoovHand.class.getCanonicalName());	
+		thumb = (Servo) createPeer("thumb");
+		index = (Servo) createPeer("index");
+		majeure = (Servo) createPeer("majeure");
+		ringFinger = (Servo) createPeer("ringFinger");
+		pinky = (Servo) createPeer("pinky");
+		wrist = (Servo) createPeer("wrist");
+		arduino = (Arduino) createPeer("arduino");
 		
-		// FIXME FIXME FIXME - force naming conventions - a "reserve" happens in the context of a service
-		// so this.getName()Peer !!! - must be non-static then
-		reserve("Thumb", "Servo", "thumb servo");
-		reserve("Index", "Servo", "index servo");
-		reserve("Majeure", "Servo", "majeure servo");
-		reserve("RingFinger", "Servo", "ringFinger servo");
-		reserve("Pinky", "Servo", "pinky servo");
-		reserve("Wrist", "Servo", "wrist servo");
+		thumb.setPin(2);
+		index.setPin(3);
+		majeure.setPin(4);
+		ringFinger.setPin(5);
+		pinky.setPin(6);
+		wrist.setPin(7);
 
-		// most likely shared with some other composite !!!
-		reserve("Arduino", "Arduino", "Arduino controller for this hand");
+		thumb.setRest(0);
+		index.setRest(0);
+		majeure.setRest(0);
+		ringFinger.setRest(0);
+		pinky.setRest(0);
+		wrist.setRest(90);
 	}
+	
+	// FIXME make 
+	// .isValidToStart() !!! < check all user data !!!
 	
 	@Override
 	public void startService() {
 		super.startService();
-		// .isValidToStart() !!! < check all user data !!!
-		
-		//createPeers(); // is this needed??
-		startPeers();
-		attachServos();
-		rest();
-		broadcastState();
+		thumb.startService();
+		index.startService();
+		majeure.startService();
+		ringFinger.startService();
+		pinky.startService();
+		wrist.startService();
+		arduino.startService();
 	}
 
-	public void createPeers()
-	{
-		thumb = (Servo)createReserved("Thumb");
-		index = (Servo)createReserved("Index");
-		majeure = (Servo)createReserved("Majeure");
-		ringFinger = (Servo)createReserved("RingFinger");
-		pinky = (Servo)createReserved("Pinky");
-		wrist = (Servo)createReserved("Wrist");
-		
-		arduino = (Arduino)createReserved("Arduino");
-	}
-	
-	public void startPeers()
-	{
-		thumb = (Servo)startReserved("Thumb");
-		index = (Servo)startReserved("Index");
-		majeure = (Servo)startReserved("Majeure");
-		ringFinger = (Servo)startReserved("RingFinger");
-		pinky = (Servo)startReserved("Pinky");
-		wrist = (Servo)startReserved("Wrist");
-		
-		arduino = (Arduino)startReserved("Arduino");
-	}
-	
-	
+	// FIXME FIXME - this method must be called
+	// user data needed
+	/**
+	 * connect - user data needed
+	 * @param port
+	 * @return
+	 */
 	public boolean connect(String port)
 	{
-		arduino = (Arduino)startReserved("Arduino");
-		
-		if (arduino == null)
-		{
+		startService();
+
+		if (arduino == null) {
 			error("arduino is invalid");
+			return false;
 		}
-		return arduino.connect(port);
+
+		arduino.connect(port);
+
+		if (!arduino.isConnected()) {
+			error("arduino %s not connected", arduino.getName());
+			return false;
+		}
+
+		attach();
+		rest();
+		broadcastState();
+		return true;
 	}
 	
 	/**
@@ -103,27 +120,8 @@ public class InMoovHand extends Service {
 	 * 
 	 * @return
 	 */
-	public boolean attachServos() 
+	public boolean attach() 
 	{		
-		if (arduino == null)
-		{
-			error("invalid arduino");
-			return false;
-		}
-		
-		if (!arduino.isConnected())
-		{
-			error("arduino %s not connected", arduino.getName());
-			return false;
-		}
-
-		thumb.setPin(thumbPin);
-		index.setPin(indexPin);
-		majeure.setPin(majeurePin);
-		ringFinger.setPin(ringFingerPin);
-		pinky.setPin(pinkyPin);
-		wrist.setPin(wristPin);	
-		
 		arduino.servoAttach(thumb);
 		arduino.servoAttach(index);
 		arduino.servoAttach(majeure);
@@ -140,6 +138,7 @@ public class InMoovHand extends Service {
 		return "used as a general template";
 	}
 	
+	// TODO - waving thread fun
 	public void moveTo(Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky) {
 		moveTo(thumb, index, majeure, ringFinger, pinky, null);
 	}
@@ -178,56 +177,23 @@ public class InMoovHand extends Service {
 		wrist.broadcastState();
 	}
 	
-
-
-	public void detachServos() {
-		if (thumb != null) {
-			thumb.detach();
-		}
-		if (index != null) {
-			index.detach();
-		}
-		if (majeure != null) {
-			majeure.detach();
-		}
-		if (ringFinger != null) {
-			ringFinger.detach();
-		}
-		if (pinky != null) {
-			pinky.detach();
-		}
-		if (wrist != null) {
-			wrist.detach();
-		}
+	public void detach() {
+		thumb.detach();
+		index.detach();
+		majeure.detach();
+		ringFinger.detach();
+		pinky.detach();
+		wrist.detach();
 	}
 
 	public void release() {
-		detachServos();
-
-		if (thumb != null) {
-			thumb.releaseService();
-			thumb = null;
-		}
-		if (index != null) {
-			index.releaseService();
-			index = null;
-		}
-		if (majeure != null) {
-			majeure.releaseService();
-			majeure = null;
-		}
-		if (ringFinger != null) {
-			ringFinger.releaseService();
-			ringFinger = null;
-		}
-		if (pinky != null) {
-			pinky.releaseService();
-			pinky = null;
-		}
-		if (wrist != null) {
-			wrist.releaseService();
-			wrist = null;
-		}
+		detach();
+		thumb.releaseService();
+		index.releaseService();
+		majeure.releaseService();
+		ringFinger.releaseService();
+		pinky.releaseService();
+		wrist.releaseService();
 	}
 
 	public void setSpeed(Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist) {
@@ -251,18 +217,18 @@ public class InMoovHand extends Service {
 	}
 
 	public String getScript() {
-		return String.format("%s.moveHand(%d,%d,%d,%d,%d,%d)\n", getName(), thumb.getPosition(), index.getPosition(), majeure.getPosition(),
+		return String.format("%s.moveTo(%d,%d,%d,%d,%d,%d)\n", Python.makeSafeName(getName()), thumb.getPosition(), index.getPosition(), majeure.getPosition(),
 				ringFinger.getPosition(), pinky.getPosition(), wrist.getPosition());
 	}
 	
 	public void setpins(int thumb, int index, int majeure, int ringFinger, int pinky, int wrist){
 		log.info(String.format("setPins %d %d %d %d %d %d", thumb, index, majeure, ringFinger, pinky, wrist));
-		thumbPin = thumb;
-		indexPin = index;
-		majeurePin = majeure;
-		ringFingerPin = ringFinger;
-		pinkyPin = pinky;
-		wristPin = wrist;
+		this.thumb.setPin(thumb);
+		this.index.setPin(index);
+		this.majeure.setPin(majeure);
+		this.ringFinger.setPin(ringFinger);
+		this.pinky.setPin(pinky);
+		this.wrist.setPin(wrist);
 	}
 	
 	// ----- initialization end --------
@@ -285,10 +251,11 @@ public class InMoovHand extends Service {
 	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		InMoovHand rightHand = new InMoovHand("r01");
-		rightHand.connect("COM4");
+		Runtime.createAndStart("gui", "GUIService");
+		rightHand.connect("COM12");
 		rightHand.startService();	
 		Runtime.createAndStart("webgui", "WebGUI");
 		//rightHand.connect("COM12"); TEST RECOVERY !!!

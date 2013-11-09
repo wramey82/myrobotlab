@@ -83,9 +83,6 @@ public class Cortex extends Service implements MemoryChangeListener {
 		tracking = (Tracking) Runtime.createAndStart(trackingName, "Tracking"); // FIXME - needs to pass in reference? dunno
 //		tracking.opencvName = "cameraTracking";
 		tracking.connect("COM12");
-		tracking.setRestPosition(90, 90);
-		tracking.attachServos(13,12); // FIXME !!! set pins MUST OCCUR BEFORE START SERVICE - either make it re-entrant
-		tracking.setCameraIndex(1);
 		tracking.startService();
 		tracking.trackPoint(); 
 		

@@ -59,7 +59,6 @@ import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.myrobotlab.opencv.OpenCVFilterGoodFeaturesToTrack;
-import org.myrobotlab.opencv.OpenCVFilterState;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;

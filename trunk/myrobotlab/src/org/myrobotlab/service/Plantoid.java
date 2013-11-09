@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.TimerTask;
 
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -13,15 +14,8 @@ import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 public class Plantoid extends Service {
-
-	// tracking ? pan tilt ?
-
 	private static final long serialVersionUID = 1L;
 
-	// peer services
-	/**
-	 * Leg servos and pan tilt kit
-	 */
 	transient public Servo leg1, leg2, leg3, leg4, pan, tilt;
 	transient public Arduino arduino;
 	// video0 = rgbpilot cam
@@ -45,32 +39,10 @@ public class Plantoid extends Service {
 	HashMap<String, Object> p = new HashMap<String, Object>();
 	
 	// system specific data
-	/**
-	 * default port of the Arduino mega
-	 */
 	@Element
 	public String port = "/dev/ttyACM0";
 	
-	/**
-	 * default pin of legs leg1 through leg4
-	 */
-	@Element
-	public int leg1Pin = 2;
-	@Element
-	public int leg2Pin = 3;
-	@Element
-	public int leg3Pin = 4;
-	@Element
-	public int leg4Pin = 5;
-	
-	/**
-	 * default pins for pan tilt kit
-	 */
-	@Element
-	public int panPin = 6;
-	@Element
-	public int tiltPin = 7;
-	
+
 	/**
 	 * analog read pins
 	 */
@@ -98,6 +70,27 @@ public class Plantoid extends Service {
 		}
 		
 	}
+	
+	public static Peers getPeers(String name)
+	{
+		Peers peers = new Peers(name);
+		//peers.put("ear", "Sphinx", "InMoov speech recognition service");
+		//peers.put("mouth", "Speech", "InMoov speech service");
+		//peers.put("python", "Python", "Python service");
+		//peers.put("webgui", "WebGUI", "WebGUI service");
+		//peers.put("keyboard", "Keyboard", "Keyboard service");
+		peers.put("xmpp", "XMPP", "xmpp service");
+		peers.put("arduino", "Arduino", "our Arduino");
+		peers.put("leg1", "Servo", "leg1");
+		peers.put("leg2", "Servo", "leg2");
+		peers.put("leg3", "Servo", "leg3");
+		peers.put("leg4", "Servo", "leg4");
+		peers.put("pan",  "Servo", "pan");
+		peers.put("tilt", "Servo", "tilt");
+		peers.put("camera", "OpenCV", "pilot camera");
+		
+		return peers;
+	}
 
 	/**
 	 * Plantoid Service - this service controls all peer services.  It is a OrbousMundus Genus and
@@ -110,46 +103,31 @@ public class Plantoid extends Service {
 	public Plantoid(String n) {
 		super(n, Plantoid.class.getCanonicalName());
 
-		reserve("Arduino", "Arduino", "Plantoid has one arduino controlling all the servos and sensors");
-		reserve("Leg1", "Servo", "one of the driving servos");
-		reserve("Leg2", "Servo", "one of the driving servos");
-		reserve("Leg3", "Servo", "one of the driving servos");
-		reserve("Leg4", "Servo", "one of the driving servos");
-
-		reserve("Pan", "Servo", "pan servo");
-		reserve("Tilt", "Servo", "tilt servo");
+		xmpp = (XMPP) createPeer("xmpp");
+		arduino = (Arduino) createPeer("arduino");
+		leg1 = (Servo) createPeer("leg1");
+		leg2 = (Servo) createPeer("leg2");
+		leg3 = (Servo) createPeer("leg3");
+		leg4 = (Servo) createPeer("leg4");
+		pan = (Servo) createPeer("pan");
+		tilt = (Servo) createPeer("tilt");
+		camera = (OpenCV)createPeer("camera");
 		
-		reserve("Keyboard", "Keyboard", "for keyboard control");
-
-		reserve("Webgui", "WebGUI", "plantoid gui");
-
-		reserve("XMPP", "XMPP", "xmpp network");
-
-		// reserve("pilotcam","OpenCV", "One of the cameras");
-		// reserve("ircamera","OpenCV", "One of the cameras");
+		leg1.setPin(2);
+		leg2.setPin(3);
+		leg3.setPin(4);
+		leg4.setPin(5);
 		
-		// TODO - reserve future services
+		pan.setPin(6);
+		tilt.setPin(7);
 
 	}
 
 	public String sendReport()
-	{
-		//xmpp.connect("gmail.com");
-		//xmpp.connect("173.194.33.118");
-		//xmpp.login("orbous@myrobotlab.org", "mrlRocks!");
-		
-		// gets all users it can send messages to
-		//xmpp.getRoster();
-		
+	{	
 		StringBuffer sb = new StringBuffer();
 		sb.append(String.format("report from orbous on the Idahosian landing site, I am still alive after %s- all is well - *HAIL BEPSL* !", Runtime.getUptime()));
-
-		//xmpp.setStatus(true, String.format("The time is %s - HAIL BEPSL !", new Date()));
-
-		// send a message
-		// xmpp.sendMessage("/name/method/params", "supertick@gmail.com");
 		xmpp.broadcast(sb.toString());
-		
 		return sb.toString();
 	}
 	 
@@ -164,37 +142,42 @@ public class Plantoid extends Service {
 		super.startService();
 
 		try {
-			webgui = (WebGUI) startReserved("Webgui");
-			xmpp = (XMPP) startReserved("XMPP");
+			
+			xmpp.startService();
+			arduino.startService();
+			leg1.startService();
+			leg2.startService();
+			leg3.startService();
+			leg4.startService();
+			pan.startService();
+			tilt.startService();
 			
 			xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
+			
+			camera.startService();
 
 			// gets all users it can send messages to
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
 			xmpp.addXMPPListener("supertick@gmail.com");			
-			xmpp.addXMPPListener("grasshopperrocket@gmail.com");
+			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
 			//xmpp.addRelay("info@reuseum.com");
 			//xmpp.addRelay("grasshopperrocket@gmail.com");			
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
 
-			arduino = (Arduino) startReserved("Arduino");
 			arduino.connect(port);
-
-			leg1 = (Servo) startReserved("Leg1");
-			leg2 = (Servo) startReserved("Leg2");
-			leg3 = (Servo) startReserved("Leg3");
-			leg4 = (Servo) startReserved("Leg4");
-
-			pan = (Servo) startReserved("Pan");
-			tilt = (Servo) startReserved("Tilt");
-			
 			// the BEPSL report
-			timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
+			//timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
 			
-
+			arduino.servoAttach(leg1);
+			arduino.servoAttach(leg2);
+			arduino.servoAttach(leg3);
+			arduino.servoAttach(leg4);
+			arduino.servoAttach(pan);
+			arduino.servoAttach(tilt);
+			
 			arduino.addListener(getName(), "publishPin");
 			
 //			startPolling();
@@ -246,9 +229,9 @@ public class Plantoid extends Service {
 	
 	public void publishPin(Pin pin)
 	{
-		if (log.isDebugEnabled())
+		//if (log.isDebugEnabled())
 		{
-			log.debug(String.format("pin %d value %d", pin.pin, pin.value));
+			log.info(String.format("pin %d value %d", pin.pin, pin.value));
 		}
 		/*
 		switch(pin.pin)
@@ -270,12 +253,14 @@ public class Plantoid extends Service {
 	 */
 	public boolean connect(String port) {
 		this.port = port;
-		arduino = (Arduino) startReserved("Arduino");
-		arduino.connect(port);
-		arduino.broadcastState();
-		return true;
+		return connect();
 	}
 	
+	public boolean connect() {
+		arduino.connect(port);
+		arduino.broadcastState();
+		return arduino.isConnected();
+	}
 	/**
 	 * This begins polling of the various analog senesors of the 
 	 * Plantoid server.  It is automatically started when the Plantoid
@@ -405,8 +390,8 @@ public class Plantoid extends Service {
 	 * attaches only the pan tilt
 	 */
 	public void attachPanTilt() {
-		arduino.servoAttach(pan.getName(), panPin);
-		arduino.servoAttach(tilt.getName(), tiltPin);
+		pan.attach();
+		tilt.attach();
 	}	
 	
 	/**
@@ -421,10 +406,10 @@ public class Plantoid extends Service {
 	 * attaches the legs only
 	 */
 	public void attachLegs() {
-		arduino.servoAttach(leg1.getName(), leg1Pin);
-		arduino.servoAttach(leg2.getName(), leg2Pin);
-		arduino.servoAttach(leg3.getName(), leg3Pin);
-		arduino.servoAttach(leg4.getName(), leg4Pin);
+		leg1.attach();
+		leg2.attach();
+		leg3.attach();
+		leg4.attach();
 	}
 	
 	/**
@@ -442,6 +427,10 @@ public class Plantoid extends Service {
 	 * shuts down the planoid server
 	 */
 	public void shutdown() {
+		if (xmpp != null)
+		{
+			xmpp.broadcast("MY LIFE FOR BEPSL !");
+		}
 		detachServos();
 		Runtime.releaseAll();
 	}

@@ -58,11 +58,11 @@ ypid.setSetpoint(0.5)
  
 # set safety limits - servos
 # will not go beyond these limits
-rotation.setPositionMin(50)
-rotation.setPositionMax(170)
+rotation.setMin(50)
+rotation.setMax(170)
  
-neck.setPositionMin(50)
-neck.setPositionMax(170)
+neck.setMin(50)
+neck.setMax(170)
  
 # here we are attaching to the
 # manually created peer services

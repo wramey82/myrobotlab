@@ -52,6 +52,7 @@ public class Servo extends Service implements ServoControl {
 	private int positionMin = 0;
 	@Element
 	private int positionMax = 180;
+	private int rest = 90;
 	
 	/**
 	 * the pin is a necessary part of servo - even though this is really controller's information
@@ -80,10 +81,14 @@ public class Servo extends Service implements ServoControl {
 		load();
 	}
 
+	public void releaseService() {
+		detach();
+		super.releaseService();
+	}
 	@Override
 	public boolean setController(ServoController controller) {
 		if (controller == null) {
-			log.error("setting null as controller");
+			error("setting null as controller");
 			return false;
 		}
 		this.controller = controller;
@@ -108,7 +113,7 @@ public class Servo extends Service implements ServoControl {
 			newPos = 180 - pos;
 		}
 		if (controller == null) {
-			log.error(String.format("%s's controller is not set", getName()));
+			error(String.format("%s's controller is not set", getName()));
 			return;
 		}
 		if (newPos >= positionMin && newPos <= positionMax) {
@@ -131,7 +136,7 @@ public class Servo extends Service implements ServoControl {
 			amount = pos * -1;
 		}
 		if (amount > 1 || amount < -1) {
-			log.error("%s.move %d out of range", getName(), amount);
+			error("%s.move %d out of range", getName(), amount);
 			return;
 		}
 
@@ -149,11 +154,11 @@ public class Servo extends Service implements ServoControl {
 	
 	public void setMinMax(Integer min, Integer max)
 	{
-		setPositionMin(min);
-		setPositionMax(max);
+		setMin(min);
+		setMax(max);
 	}
 
-	public void setPositionMin(Integer min) {
+	public void setMin(Integer min) {
 		if (inverted) {
 			this.positionMax = 180 - min;
 		} else {
@@ -161,7 +166,7 @@ public class Servo extends Service implements ServoControl {
 		}
 	}
 
-	public Integer getPositionMin() {
+	public Integer getMin() {
 		if (inverted) {
 			return 180 - this.positionMax;
 		} else {
@@ -170,7 +175,7 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	@Override
-	public void setPositionMax(Integer max) {
+	public void setMax(Integer max) {
 		if (inverted) {
 			this.positionMin = 180 - max;
 		} else {
@@ -178,7 +183,7 @@ public class Servo extends Service implements ServoControl {
 		}
 	}
 
-	public Integer getPositionMax() {
+	public Integer getMax() {
 		if (inverted) {
 			return 180 - this.positionMin;
 		} else {
@@ -328,6 +333,30 @@ public class Servo extends Service implements ServoControl {
 		return controllers;
 	}
 
+	@Override
+	public void stopServo() {
+		controller.servoStop(getName());
+	}
+
+	@Override
+	public void setPin(int pin) {
+		log.info(String.format("setting %s pin to %d", getName(), pin));
+		this.pin = pin;
+	}
+
+	public int setRest(int i) {
+		rest = i;
+		return rest;
+	}
+	
+	public int getRest() {
+		return rest;
+	}
+	
+	public void rest(){
+		moveTo(rest);
+	}
+
 	public static void main(String[] args) throws InterruptedException {
 
 		LoggingFactory.getInstance().configure();
@@ -368,16 +397,4 @@ public class Servo extends Service implements ServoControl {
 		 */
 
 	}
-
-	@Override
-	public void stopServo() {
-		controller.servoStop(getName());
-	}
-
-	@Override
-	public void setPin(int pin) {
-		log.info(String.format("setting %s pin to %d", getName(), pin));
-		this.pin = pin;
-	}
-
 }

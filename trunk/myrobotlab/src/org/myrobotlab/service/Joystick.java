@@ -104,6 +104,7 @@ public class Joystick extends Service {
 				// TODO - selectively publish ... publish Direction? Yes
 				/* For each component, get it's name, and it's current value */
 
+				// FIXME - switch statement (it's Java 7 !)
 				for (int i = 0; i < components.length; i++) {
 
 					/*
@@ -229,6 +230,8 @@ public class Joystick extends Service {
 						if (lastValues[i] != data) {
 							invoke("button13", pos);
 						}
+					} else {
+						error("unknown identifier %s", id.toString());
 					}
 
 					lastValues[i] = data;
