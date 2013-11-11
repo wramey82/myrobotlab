@@ -17,6 +17,7 @@ public class Plantoid extends Service {
 	private static final long serialVersionUID = 1L;
 
 	transient public Servo leg1, leg2, leg3, leg4, pan, tilt;
+	transient public Tracking tracking;
 	transient public Arduino arduino;
 	// video0 = rgbpilot cam
 	// video1 = pink plant static NIR - 
@@ -26,7 +27,7 @@ public class Plantoid extends Service {
 	/**
 	 * future services
 	 */
-	transient public OpenCV IRCamera, camera;
+	//transient public OpenCV IRCamera, camera;
 	transient public Keyboard keyboard;
 	transient public WebGUI webgui;
 	transient public JFugue jfugue;
@@ -74,6 +75,10 @@ public class Plantoid extends Service {
 	public static Peers getPeers(String name)
 	{
 		Peers peers = new Peers(name);
+		
+		peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
+		peers.suggestAs("tracking.y", "tilt", "Servo", "shared y");
+		peers.suggestAs("tracking.opencv", "tilt", "Servo", "shared y");
 		//peers.put("ear", "Sphinx", "InMoov speech recognition service");
 		//peers.put("mouth", "Speech", "InMoov speech service");
 		//peers.put("python", "Python", "Python service");
@@ -87,6 +92,7 @@ public class Plantoid extends Service {
 		peers.put("leg4", "Servo", "leg4");
 		peers.put("pan",  "Servo", "pan");
 		peers.put("tilt", "Servo", "tilt");
+		peers.put("tracking", "Tracking", "tracking service");
 		peers.put("camera", "OpenCV", "pilot camera");
 		
 		return peers;
@@ -111,7 +117,8 @@ public class Plantoid extends Service {
 		leg4 = (Servo) createPeer("leg4");
 		pan = (Servo) createPeer("pan");
 		tilt = (Servo) createPeer("tilt");
-		camera = (OpenCV)createPeer("camera");
+		//camera = (OpenCV)createPeer("camera");
+		tracking = (Tracking) createPeer("tracking");
 		
 		leg1.setPin(2);
 		leg2.setPin(3);
@@ -120,6 +127,14 @@ public class Plantoid extends Service {
 		
 		pan.setPin(6);
 		tilt.setPin(7);
+		
+		pan.setRest(90);
+		tilt.setRest(90);
+		
+		leg1.setRest(90);
+		leg2.setRest(90);
+		leg3.setRest(90);
+		leg4.setRest(90);
 
 	}
 
@@ -154,7 +169,7 @@ public class Plantoid extends Service {
 			
 			xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
 			
-			camera.startService();
+			tracking.startService();
 
 			// gets all users it can send messages to
 			xmpp.getRoster();
@@ -314,11 +329,10 @@ public class Plantoid extends Service {
 	 *         90 - up the Y axis
 	 */
 	public void moveY(Integer power){
-		int s = 90 - power;
 		leg2.moveTo(90);
-		leg3.moveTo(s);
+		leg3.moveTo(90 - power);
 		leg4.moveTo(90);
-		leg1.moveTo(s);
+		leg1.moveTo(90 + power);
 	}
 
 	/**
@@ -328,10 +342,9 @@ public class Plantoid extends Service {
 	 *         0 (stop)
 	 *         90 - up the X axis
 	 */	public void moveX(Integer power){
-		int s = 90 - power;
-		leg1.moveTo(s);
+		leg1.moveTo(90 - power);
 		leg2.moveTo(90);
-		leg3.moveTo(s);
+		leg3.moveTo(90 + power);
 		leg4.moveTo(90);
 	}
 	

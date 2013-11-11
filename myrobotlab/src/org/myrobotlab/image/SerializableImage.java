@@ -26,6 +26,7 @@
 package org.myrobotlab.image;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -105,4 +106,5 @@ public class SerializableImage implements Serializable {
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
+	
 }

@@ -83,7 +83,9 @@ public class Tracking extends Service {
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_STABILIZE = "state waiting for objects to stabilize";
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR = "state waiting for objects to disappear";
 	public static final String STATE_STABILIZED = "state stabilized";
+	
 	public static final String STATE_FACE_DETECT = "state face detect";
+	public static final String STATE_FACE_DETECT_LOST_TRACK = "state face detect lost track";
 
 	// memory constants
 	private String state = STATE_NEED_TO_INITIALIZE;
@@ -111,6 +113,11 @@ public class Tracking extends Service {
 	public double ySetpoint = 0.5;
 
 	// ----- INITIALIZATION DATA END -----
+	
+
+	int scanYStep = 2;
+	int scanXStep = 2;
+
 
 	public String LKOpticalTrackFilterName;
 	public String FaceDetectFilterName;
@@ -208,67 +215,6 @@ public class Tracking extends Service {
 	}
 
 	// -------------- System Specific Initialization End --------------
-
-	/**
-	 * call back of all video data video calls this whenever a frame is
-	 * processed
-	 * 
-	 * @param data
-	 * @return
-	 */
-	public OpenCVData setOpenCVData(OpenCVData data) {
-
-		switch (state) {
-
-		case STATE_IDLE:
-			setForegroundBackgroundFilter();
-			break;
-
-		case STATE_LK_TRACKING_POINT:
-			// extract tracking info
-			data.setFilterName(LKOpticalTrackFilterName);
-			Point2Df targetPoint = data.getFirstPoint();
-			if (targetPoint != null) {
-				updateTrackingPoint(targetPoint);
-			}
-			break;
-
-		case STATE_LEARNING_BACKGROUND:
-			waitInterval = 3000;
-			waitForObjects(data);
-			break;
-		case STATE_SEARCHING_FOREGROUND:
-			waitInterval = 3000;
-			waitForObjects(data);
-		case STATE_FACE_DETECT:
-			// check for bounding boxes
-			data.setFilterName(FaceDetectFilterName);
-			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
-
-			if (bb != null && bb.size() > 0) {
-				// found face
-				// find centroid of first bounding box
-				lastPoint.x = bb.get(0).x + bb.get(0).width / 2;
-				lastPoint.y = bb.get(0).y + bb.get(0).height / 2;
-				updateTrackingPoint(lastPoint);
-			} else {
-				// lost track
-			}
-
-			// if scanning stop scanning
-
-			// if bounding boxes & no current tracking points
-			// set set of tracking points in square - search for eyes?
-			// find average point ?
-			break;
-
-		default:
-			error("recieved opencv data but unknown state");
-			break;
-		}
-
-		return data;
-	}
 
 	public void rest() {
 		log.info("rest");
@@ -599,11 +545,23 @@ public class Tracking extends Service {
 		preFilters.clear();
 	}
 
-	int scanYStep = 2;
-	int scanXStep = 2;
-
 	public void scan() {
 
+	}
+	
+	public Servo getX()
+	{
+		return x;
+	}
+	
+	public Servo getY()
+	{
+		return y;
+	}
+	
+	public OpenCV getOpenCV()
+	{
+		return opencv;
 	}
 
 	public void setDefaultPreFilters() {
@@ -615,90 +573,149 @@ public class Tracking extends Service {
 		}
 	}
 
+
+	/**
+	 * call back of all video data video calls this whenever a frame is
+	 * processed
+	 * 
+	 * @param data
+	 * @return
+	 */
+	
+	int faceFoundFrameCount = 0;
+	int faceFoundFrameCountMin = 20;
+	int faceLostFrameCount = 0;
+	int faceLostFrameCountMin = 20;
+	
+	
+	public OpenCVData setOpenCVData(OpenCVData data) {
+
+		switch (state) {
+		
+		case STATE_FACE_DETECT:
+			// check for bounding boxes
+			data.setFilterName(FaceDetectFilterName);
+			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
+
+			if (bb != null && bb.size() > 0) {
+				
+				
+				
+				// found face
+				// find centroid 	of first bounding box
+				lastPoint.x = bb.get(0).x + bb.get(0).width / 2;
+				lastPoint.y = bb.get(0).y + bb.get(0).height / 2;
+				updateTrackingPoint(lastPoint);
+				
+				++faceFoundFrameCount;
+				
+				// dead zone and state shift
+				if (faceFoundFrameCount > faceFoundFrameCountMin)
+				{
+					// TODO # of frames for verification
+					invoke("foundFace", data);
+					//data.saveToDirectory("data");
+				}
+				
+			} else {
+				// lost track
+				
+				faceFoundFrameCount = 0;
+				int xpos = x.getPosition();
+				
+				if (xpos + scanXStep >= x.getMax() && scanXStep > 0 || xpos + scanXStep <= x.getMin() && scanXStep < 0)
+				{ 
+					scanXStep = scanXStep * -1;
+					int newY = (int) (y.getMin() + (Math.random() * (y.getMax() - y.getMin())));
+					y.moveTo(newY);
+				} 
+				
+				x.moveTo(xpos + scanXStep);
+				//state = STATE_FACE_DETECT_LOST_TRACK;
+			}
+
+			// if scanning stop scanning
+
+			// if bounding boxes & no current tracking points
+			// set set of tracking points in square - search for eyes?
+			// find average point ?
+			break;
+
+		case STATE_FACE_DETECT_LOST_TRACK:
+			int xpos = x.getPosition();
+			
+			if (xpos >= x.getMax() && scanXStep > 0)
+			{
+				scanXStep = scanXStep * -1;
+			} 
+			
+			if (xpos <= x.getMin() && scanXStep < 0)
+			{
+				scanXStep = scanXStep * -1;
+			} 
+			
+			x.moveTo(xpos + scanXStep);
+			
+			break;
+
+		case STATE_IDLE:
+			setForegroundBackgroundFilter();
+			break;
+
+		case STATE_LK_TRACKING_POINT:
+			// extract tracking info
+			data.setFilterName(LKOpticalTrackFilterName);
+			Point2Df targetPoint = data.getFirstPoint();
+			if (targetPoint != null) {
+				updateTrackingPoint(targetPoint);
+			}
+			break;
+
+		case STATE_LEARNING_BACKGROUND:
+			waitInterval = 3000;
+			waitForObjects(data);
+			break;
+			
+		case STATE_SEARCHING_FOREGROUND:
+			waitInterval = 3000;
+			waitForObjects(data);
+			break;
+			
+		default:
+			error("recieved opencv data but unknown state");
+			break;
+		}
+
+		return data;
+	}
+	
+	public OpenCVData foundFace(OpenCVData data) {
+		return data;
+	}
+
 	public static void main(String[] args) {
 
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
-		// Peers peers = Tracking.getPeers("tracker");
-
-		// create Runtime static interface?
-		// recursive merge versus 1 level ???
-
-		Peers peers = Service.getLocalPeers("tracker", "Tracking");
-		log.info("\n" + peers.show());
-		Service.mergePeerDNA("tracker", "Tracking");
-		Index<ServiceReservation> reservations = Service.getDNA();
-		IndexNode<ServiceReservation> node = reservations.getNode("tracker.opencv");
-		log.info("{}", node);
-		ServiceReservation opencvReservation = reservations.get("tracker.opencv");
-		log.info(reservations.getRootNode().toString());
-		log.info(opencvReservation.toString());
-
-		// Service.createReserves(name, serviceClass);
-		Service.reserveRoot("tracker.x", "myX", "Servo", "my servo");
-		Service.reserveRoot("tracker.y", "myY", "Servo", "my servo");
-		Service.reserveRoot("tracker.arduino", "arduino", "Arduino", "my servo");
-
-		// notice this works on just "new" Yay !
+		//Speech speech = new Speech("speech");
+		
+		// Y min max 79 - 127
+	
 		Tracking tracker = new Tracking("tracker");
-		tracker.x.setPin(7);
-		tracker.y.setPin(6);
-		tracker.opencv.setCameraIndex(1);
-		tracker.connect("COM12");
+		tracker.getY().setMinMax(79, 127);
+		tracker.getX().setPin(13);
+		tracker.getY().setPin(12);
+		tracker.getOpenCV().setCameraIndex(1);
+		//tracker.connect("COM12");
+		tracker.connect("COM4");
 		tracker.startService();
 		tracker.faceDetect();
-
-		/*
-		 * Index<ServiceReservation> registrations = Service.getReservations();
-		 * ServiceReservation opencvReservation =
-		 * registrations.get("tracker.OpenCV");
-		 * log.info(opencvReservation.toString()); ServiceReservation
-		 * trackerReservation = registrations.get("tracker");
-		 * 
-		 * tracker.x.setPin(7); tracker.y.setPin(6);
-		 * tracker.opencv.setCameraIndex(1); tracker.connect("COM12");
-		 * //tracker.setRestPosition(90, 90); // tracker.setServoLimits(0, 180,
-		 * 0, 180); tracker.startService(); tracker.faceDetect();
-		 */
-		/*
-		 * Python python = new Python("python"); python.startService();
-		 */
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
 		gui.display();
-
-		// tracker.faceDetect();
-
-		// tracker.startLKTracking();
-
-		// tracker.setCameraIndex(1);
-		// tracker.test();
-		/*
-		 * tracker.setRestPosition(90, 5); tracker.setSerialPort("COM12");
-		 * tracker.setServoPins(13, 12); tracker.setCameraIndex(1);
-		 */
-
-		/*
-		 * tracker.startLKTracking();
-		 * 
-		 * tracker.invoke("trackPoint", 100, 100); tracker.invoke("trackPoint",
-		 * 0.5f, 0.5f);
-		 * 
-		 * 
-		 * tracker.setIdle(); tracker.startVideoStream();
-		 * tracker.stopVideoStream(); tracker.startVideoStream();
-		 */
-
-		// tracker.learnBackGround();
-		// tracker.searchForeground();
-
-		log.info("here");
-
 		// tracker.getGoodFeatures();
-
-		// tracker.trackLKPoint();
 
 	}
 
