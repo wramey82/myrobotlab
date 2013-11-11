@@ -107,9 +107,6 @@ public class Joystick extends Service {
 				// FIXME - switch statement (it's Java 7 !)
 				for (int i = 0; i < components.length; i++) {
 
-					/*
-					 * if (i > 0) { buffer.append(", "); }
-					 */
 
 					Component component = components[i];
 					Identifier id = component.getIdentifier();
@@ -121,7 +118,7 @@ public class Joystick extends Service {
 					// TODO - invoke based on
 					// invoke(String.trim(component.getName()),
 					// mapMultiplier(getName()), mapOffset(getName()) - REFACTOR
-					// REFACTOR !!!
+					// REFACTOR !!! use switch statement
 					if (Identifier.Axis.Z.equals(id)) {
 						if (lastValues[i] != data) {
 							if (ZAxisTransform) {
@@ -231,7 +228,7 @@ public class Joystick extends Service {
 							invoke("button13", pos);
 						}
 					} else {
-						error("unknown identifier %s", id.toString());
+						log.debug("unknown identifier %s", id.toString());
 					}
 
 					lastValues[i] = data;
@@ -316,7 +313,7 @@ public class Joystick extends Service {
 	}
 
 	public void startPolling() {
-
+		log.info(String.format("startPolling - starting new polling thread %s_polling", getName()));
 		if (pollingThread != null) {
 			stopPolling();
 		}

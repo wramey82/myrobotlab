@@ -2,22 +2,27 @@ package org.myrobotlab.opencv;
 
 import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
 
-// FIXME remove all awt references so it wil run on Android
-//import java.awt.Rectangle;
-import org.myrobotlab.service.data.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
+
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.data.Point2Df;
+import org.myrobotlab.service.data.Rectangle;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -43,6 +48,9 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class OpenCVData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public final static Logger log = LoggerFactory.getLogger(OpenCVData.class);
+
 
 	// TODO GEOTAG - GPS-TIME OFFSET LAT LONG ALT DIRECTION LOCATION
 	// TODO - base keys for Ilpimages - serializable = .image keys
@@ -304,6 +312,49 @@ public class OpenCVData implements Serializable {
 		}
 		return ret;
 	}
+
+	public void saveToDirectory(String folderName) {
+		File f = new File(folderName);
+		f.mkdirs();
+		for (Map.Entry<String, Object> d : data.entrySet()) {
+			// Map.Entry<String,SerializableImage> pairs = o;
+			String key = d.getKey();
+			Object o = d.getValue();
+			log.error(String.format("saving %s of type %s", key, o.getClass().getSimpleName()));
+			try {
+			if (o.getClass() == SerializableImage.class)
+			{
+				SerializableImage img = (SerializableImage)o;
+				String imageFile = String.format("%s%s%d.%s.png", folderName, File.separator, timestamp, img.getSource());
+				ImageIO.write(img.getImage(), "png",new File(imageFile));
+			} else if (o.getClass() == ArrayList.class){
+				/*
+				ArrayList<?> list = (ArrayList<?>)o;
+				if (list.size() > 0)
+				{
+					if (Rectangle.class == list.get(0).getClass())
+					{
+						
+					}
+				}
+				*/
+				// FIXME - not exact
+				ArrayList<SerializableImage> dump = crop();
+				for (int i = 0; i < dump.size(); ++i)
+				{
+					SerializableImage img = dump.get(i);
+					String imageFile = String.format("%s%s%d.%s.%d.png", folderName, File.separator, timestamp, img.getSource(), i);
+					ImageIO.write(img.getImage(), "png",new File(imageFile));
+				}
+			}
+			} catch (Exception e) {
+				Logging.logException(e);
+			}
+		}
+		
+	}
+	
+	
 
 
 }

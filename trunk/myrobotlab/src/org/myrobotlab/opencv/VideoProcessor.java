@@ -31,7 +31,7 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class);
 
 	int frameIndex = 0;
 	public boolean capturing = false;
