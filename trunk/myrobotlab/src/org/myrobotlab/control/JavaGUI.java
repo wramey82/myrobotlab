@@ -137,9 +137,9 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 		}
 
 		public String getDisplayName() {
-			if (filename.startsWith("Python/examples/")) {
+			if (filename.startsWith("Java/examples/")) {
 
-				return filename.substring("Python/examples/".length());
+				return filename.substring("Java/examples/".length());
 
 			} else {
 				int begin = filename.lastIndexOf(File.separator);
@@ -155,7 +155,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 
 		private JScrollPane createEditorPane() {
 			// editor tweaks
-			editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+			editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 			editor.setCodeFoldingEnabled(true);
 			editor.setAntiAliasingEnabled(true);
 
