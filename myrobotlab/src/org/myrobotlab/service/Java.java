@@ -66,7 +66,7 @@ public class Java extends Service {
 	@Element
 	String msgHandlerScript = null;
 	@Element
-	private Script currentScript = new Script("untitled.py", "");
+	private Script currentScript = new Script("untitled.java", "");
 	boolean javaConsoleInitialized = false;
 	@Element
 	String initialServiceScript = "";
@@ -188,14 +188,14 @@ public class Java extends Service {
 	}
 
 	/**
-	 * runs the javaConsole.py script which creates a Java Console object and
+	 * runs the javaConsole.java script which creates a Java Console object and
 	 * redirect stdout & stderr to published data - these are hooked by the GUI
 	 */
 	public void attachPythonConsole() {
 		if (!javaConsoleInitialized) {
 			// String consoleScript =
-			// FileIO.getResourceFile("java/examples/javaConsole.py");
-			String consoleScript = getServiceResourceFile("examples/javaConsole.py");
+			// FileIO.getResourceFile("java/examples/javaConsole.java");
+			String consoleScript = getServiceResourceFile("examples/javaConsole.java");
 			exec(consoleScript, false);
 		}
 	}
@@ -449,7 +449,7 @@ public class Java extends Service {
 	 * ++untitledDocuments; filename = String.format("untitled.%d",
 	 * untitledDocuments);
 	 * 
-	 * } int end = filename.lastIndexOf(".py"); int begin =
+	 * } int end = filename.lastIndexOf(".java"); int begin =
 	 * filename.lastIndexOf(File.separator); if (begin > 0) { ++begin; } else {
 	 * begin = 0; } if (end < 0) { end = filename.length(); } return
 	 * filename.substring(begin, end); }
@@ -504,7 +504,7 @@ public class Java extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		// String f = "C:\\Program Files\\blah.1.py";
+		// String f = "C:\\Program Files\\blah.1.java";
 		// log.info(getName(f));
 
 		Runtime.createAndStart("java", "Java");
