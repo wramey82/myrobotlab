@@ -207,7 +207,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 		statusInfo = new JLabel("Status:");
 		top = myService.getFrame();
 
-		Script s = new Script(String.format("%s%suntitled.%d.py", Service.getCFGDir(), File.separator, untitledCount), "");
+		Script s = new Script(String.format("%s%suntitled.%d.java", Service.getCFGDir(), File.separator, untitledCount), "");
 		addNewEditorPanel(s);
 	}
 
@@ -235,7 +235,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 		JMenuItem m = (JMenuItem) o;
 		if (m.getText().equals("new")) {
 			++untitledCount;
-			Script s = new Script(String.format("%s%suntitled.%d.py", myService.getCFGDir(), File.separator, untitledCount), "");
+			Script s = new Script(String.format("%s%suntitled.%d.java", myService.getCFGDir(), File.separator, untitledCount), "");
 			addNewEditorPanel(s);
 		} else if (m.getText().equals("save")) {
 			saveFile();
@@ -368,42 +368,42 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 	 */
 	private void createExamplesMenu(JMenu examples) {
 		// FIXME - dynamically build based on resources
-		JMenu menu;
-		menu = new JMenu("Arduino");
-		menu.add(createMenuItem("arduinoInput.py", "examples"));
-		menu.add(createMenuItem("arduinoOutput.py", "examples"));
-		menu.add(createMenuItem("arduinoLoopback.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Python");
-		menu.add(createMenuItem("createAService.py", "examples"));
-		menu.add(createMenuItem("basicPython.py", "examples"));
-		menu.add(createMenuItem("panTilt.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Services");
-		menu.add(createMenuItem("createAService.py", "examples"));
-
-		menu = new JMenu("Input");
-		menu.add(createMenuItem("inputTest.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Speech");
-		menu.add(createMenuItem("sayThings.py", "examples"));
-		menu.add(createMenuItem("talkBack.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Robots");
-		menu.add(createMenuItem("houston.py", "examples"));
-		menu.add(createMenuItem("inMoovHandRobot.py", "examples"));
-		menu.add(createMenuItem("inMoovTalkMovement.py", "examples"));
-		examples.add(menu);
-
-		menu = new JMenu("Vision");
-		menu.add(createMenuItem("faceTracking.py", "examples"));
-		menu.add(createMenuItem("colorTracking.py", "examples"));
-		menu.add(createMenuItem("lkOpticalTrack.py", "examples"));
-		examples.add(menu);
+//		JMenu menu;
+//		menu = new JMenu("Arduino");
+//		menu.add(createMenuItem("arduinoInput.java", "examples"));
+//		menu.add(createMenuItem("arduinoOutput.java", "examples"));
+//		menu.add(createMenuItem("arduinoLoopback.java", "examples"));
+//		examples.add(menu);
+//
+//		menu = new JMenu("Python");
+//		menu.add(createMenuItem("createAService.java", "examples"));
+//		menu.add(createMenuItem("basicPython.java", "examples"));
+//		menu.add(createMenuItem("panTilt.java", "examples"));
+//		examples.add(menu);
+//
+//		menu = new JMenu("Services");
+//		menu.add(createMenuItem("createAService.java", "examples"));
+//
+//		menu = new JMenu("Input");
+//		menu.add(createMenuItem("inputTest.java", "examples"));
+//		examples.add(menu);
+//
+//		menu = new JMenu("Speech");
+//		menu.add(createMenuItem("sayThings.java", "examples"));
+//		menu.add(createMenuItem("talkBack.java", "examples"));
+//		examples.add(menu);
+//
+//		menu = new JMenu("Robots");
+//		menu.add(createMenuItem("houston.java", "examples"));
+//		menu.add(createMenuItem("inMoovHandRobot.java", "examples"));
+//		menu.add(createMenuItem("inMoovTalkMovement.java", "examples"));
+//		examples.add(menu);
+//
+//		menu = new JMenu("Vision");
+//		menu.add(createMenuItem("faceTracking.java", "examples"));
+//		menu.add(createMenuItem("colorTracking.java", "examples"));
+//		menu.add(createMenuItem("lkOpticalTrack.java", "examples"));
+//		examples.add(menu);
 	}
 
 	/**
@@ -568,7 +568,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 	 */
 	private void openFile() {
 		// TODO does this need to be closed?
-		String newfile = FileUtil.open(top, "*.py");
+		String newfile = FileUtil.open(top, "*.java");
 		if (newfile != null) {
 			// editor.setText(newfile);
 			String filename = FileUtil.getLastFileOpened();
