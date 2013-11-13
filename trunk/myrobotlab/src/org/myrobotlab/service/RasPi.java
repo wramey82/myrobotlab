@@ -37,7 +37,7 @@ public class RasPi extends Service {
 	GpioPinDigitalOutput gpio03;
 
 	private boolean initialized = false;
-	
+
 	public static class Device {
 		public I2CBus bus;
 		public I2CDevice device;
@@ -45,7 +45,7 @@ public class RasPi extends Service {
 	}
 
 	public HashMap<String, Device> devices = new HashMap<String, Device>();
-	
+
 	public RasPi(String n) {
 		super(n, RasPi.class.getCanonicalName());
 		gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
@@ -137,8 +137,6 @@ public class RasPi extends Service {
 		gpio.shutdown();
 	}
 
-
-
 	// private GpioStateMonitor monitor = null;
 
 	public void predatorBomb(int value) {
@@ -181,127 +179,47 @@ public class RasPi extends Service {
 
 	byte[] bytes = new byte[16];
 
-	public void SevenSegment(byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6, byte d7) {
+	public void test(byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6, byte d7, byte d8, byte d9, byte d10, byte d11, byte d12, byte d13, byte d14, byte d15) {
 		try {
+			log.info("--------test begin -------------");
 
-			/*
-			log.info("--------SevenSegment begin-------------");
-			final GpioController gpio = GpioFactory.getInstance();
+			int busAddress = 1;
+			int deviceAddress = 0x70;
+			log.info(String.format("test %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15));
+			I2CDevice device = getDevice(busAddress, deviceAddress);
+			device.write(0x00, new byte[] { d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15 }, 0, 16);
 
-			log.info("I2CFactory bus 0");
-			bus = I2CFactory.getInstance(I2CBus.BUS_0);
-			log.info("getDevice 70");
-			device = bus.getDevice(0x70);
-
-			byte[] buffer = new byte[] { d0, d1, d2, d3, d4, d5, d6, d7 };
-			// byte[] buffer = my_int_to_bb_be(value);
-			// byte[] buffer = new byte[]{(byte)address, (byte)value};
-
-			// log.info(String.format("writing %d %s", address,
-			// bytesToHex(buffer)));
-
-			for (int i = 0; i < buffer.length; ++i) {
-				bytes[i] = (byte) (buffer[i] & 0xFF);
-				bytes[i + 1] = (byte) ((buffer[i] >> 8) & 0xFF);
-			}
-
-			log.info(String.format("buffer  %s", bytesToHex(buffer)));
-			log.info(String.format("writing %s", bytesToHex(bytes)));
-
-			device.write(buffer, 0, buffer.length);
-			// device.write(address, (byte)value);
-			// device.write(0x00, buffer, 0, 32);
-			// device.write((byte) address);
-			// device.write((byte) value);
-
-			log.info("finished");
-			*/
-			/*
-			 * log.info(String.format("AdafruitLEDBackpack %d %d", I2CBus.BUS_0,
-			 * 0x70 ));
-			 * 
-			 * final AdafruitLEDBackpack gpioProvider = new
-			 * AdafruitLEDBackpack(I2CBus.BUS_0, 0x70);
-			 * 
-			 * //log.info("provisionDigitalOutputPin");
-			 * //gpio.provisionDigitalOutputPin(gpioProvider,
-			 * MCP23017Pin.GPIO_B0, "MyOutput-B0", PinState.LOW); gpioProvider.
-			 * 
-			 * log.info("provisionDigitalOutputPin");
-			 * 
-			 * // provision gpio output pins and make sure they are all LOW at
-			 * startup GpioPinDigitalOutput myOutputs[] = {
-			 * gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_04,
-			 * PinState.LOW), gpio.provisionDigitalOutputPin(gpioProvider,
-			 * PCF8574Pin.GPIO_05, PinState.LOW),
-			 * gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_06,
-			 * PinState.LOW) };
-			 * 
-			 * 
-			 * gpio.setState(true, arg1); // on program shutdown, set the pins
-			 * back to their default state: HIGH //
-			 * gpio.setShutdownOptions(true, PinState.HIGH, myOutputs);
-			 * 
-			 * // keep program running for 20 seconds
-			 * log.info("--------begin setState begin-------------");
-			 * 
-			 * for (int count = 0; count < 10; count++) {
-			 * log.info("setState myOutputs true"); gpio.setState(true,
-			 * myOutputs);
-			 * 
-			 * 
-			 * Thread.sleep(1000); log.info("setState myOutputs false");
-			 * gpio.setState(false, myOutputs); Thread.sleep(1000); }
-			 */
-			/*
-			 * 
-			 * self.i2c = Adafruit_I2C(address) self.address = address
-			 * self.debug = debug
-			 * 
-			 * # Turn the oscillator on
-			 * self.i2c.write8(self.__HT16K33_REGISTER_SYSTEM_SETUP | 0x01,
-			 * 0x00)
-			 * 
-			 * # Turn blink off self.setBlinkRate(self.__HT16K33_BLINKRATE_OFF)
-			 * 
-			 * # Set maximum brightness self.setBrightness(15)
-			 * 
-			 * # Clear the screen self.clear()
-			 */
-
-			log.info("--------SevenSegment end-------------");
+			log.info("--------test end-------------");
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 	}
 
-	public I2CDevice getDevice(int busAddress, int deviceAddress)
-	{
+	public I2CDevice getDevice(int busAddress, int deviceAddress) {
 		try {
-		String key = String.format("%d.%d", busAddress, deviceAddress);
-		if (!devices.containsKey(key)){
-			I2CBus bus = I2CFactory.getInstance(busAddress);
-			log.info("getDevice 70");
-			I2CDevice device = bus.getDevice(deviceAddress);
-			
-			Device d = new Device();
-			d.bus = bus;
-			d.device = device;
-			d.type = "display";
-			
-			devices.put(key, d);
-			return d.device;
-			
-		} else {
-			return devices.get(key).device;
-		}
-		} catch(Exception e) {
+			String key = String.format("%d.%d", busAddress, deviceAddress);
+			if (!devices.containsKey(key)) {
+				I2CBus bus = I2CFactory.getInstance(busAddress);
+				log.info("getDevice 70");
+				I2CDevice device = bus.getDevice(deviceAddress);
+
+				Device d = new Device();
+				d.bus = bus;
+				d.device = device;
+				d.type = "display";
+
+				devices.put(key, d);
+				return d.device;
+
+			} else {
+				return devices.get(key).device;
+			}
+		} catch (Exception e) {
 			Logging.logException(e);
 		}
-		
+
 		return null;
 	}
-	
 
 	public void displayClear(int busAddress, int deviceAddress) {
 		try {
@@ -468,6 +386,75 @@ public class RasPi extends Service {
 		}
 
 		return i;
+	}
+
+	public boolean init7SegmentDisplay(int busAddress, int deviceAddress) {
+		try {
+			I2CDevice device = getDevice(busAddress, deviceAddress);
+			if (device == null) {
+				return false;
+			}
+
+			device.write(0x21, (byte) 0x00);
+			device.write(0x81, (byte) 0x00);
+			device.write(0xEF, (byte) 0x00);
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+
+		} catch (Exception e) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public void startTester() {
+		int busAddress = 1;
+		
+		init7SegmentDisplay(busAddress, 0x70);
+		init7SegmentDisplay(busAddress, 0x71);
+		init7SegmentDisplay(busAddress, 0x72);
+		init7SegmentDisplay(busAddress, 0x73);
+		init7SegmentDisplay(busAddress, 0x74);
+		init7SegmentDisplay(busAddress, 0x75);
+		
+		tester = new Tester();
+		tester.start();
+		
+	}
+	
+	
+	public void stopTester() {
+		tester.interrupt();
+		tester.running = false;
+		tester = null;
+	}
+	
+	Tester tester = null;
+	
+	public class Tester extends Thread
+	{
+		public boolean running = true; 
+		public int busAddress = 1;
+		public void run() {
+			while (running) 
+			{
+				//for (int j = 0; j < repeat; ++j) {
+					for (int deviceAddress = 0; deviceAddress < 6; ++deviceAddress) {
+						for (int i = 0; i < 17; ++i) {
+							displayDigit(busAddress, 0x70 + deviceAddress, i);
+							try {
+								Thread.sleep(30);
+							} catch (InterruptedException e) {
+								running = false;
+							}
+						}
+						
+						displayDigit(busAddress, 0x70 + deviceAddress, (int)(Math.random()*16));
+					}
+				//}
+			}
+		}
+	
 	}
 
 	public static void main(String[] args) {
