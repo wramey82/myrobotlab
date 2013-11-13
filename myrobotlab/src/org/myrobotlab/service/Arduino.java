@@ -1297,7 +1297,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				serialDevice.open();
 				serialDevice.addEventListener(this);
 				serialDevice.notifyOnDataAvailable(true);
-				sleep(1000);
+				sleep(2000);
 
 				// TODO boolean config - supress getting version
 				// String version = getVersion();

@@ -494,27 +494,6 @@ public class Tracking extends Service {
 		}
 	}
 
-	public void faceDetect() {
-		// opencv.addFilter("Gray"); needed ?
-		opencv.clearFilters();
-
-		log.info("starting faceDetect");
-
-		for (int i = 0; i < preFilters.size(); ++i) {
-			opencv.addFilter(preFilters.get(i));
-		}
-
-		// TODO single string static
-		opencv.addFilter(FILTER_FACE_DETECT);
-		opencv.setDisplayFilter(FILTER_FACE_DETECT);
-
-		opencv.capture();
-		opencv.publishOpenCVData(true);
-
-		// wrong state
-		setState(STATE_FACE_DETECT);
-
-	}
 
 	public void clearFilters() {
 		opencv.clearFilters();
@@ -541,7 +520,7 @@ public class Tracking extends Service {
 		preFilters.add(filter);
 	}
 
-	public void clearPreFilters(OpenCVFilter filter) {
+	public void clearPreFilters() {
 		preFilters.clear();
 	}
 
@@ -561,6 +540,7 @@ public class Tracking extends Service {
 	
 	public OpenCV getOpenCV()
 	{
+		
 		return opencv;
 	}
 
@@ -586,7 +566,7 @@ public class Tracking extends Service {
 	int faceFoundFrameCountMin = 20;
 	int faceLostFrameCount = 0;
 	int faceLostFrameCountMin = 20;
-	
+	boolean scan = false;
 	
 	public OpenCVData setOpenCVData(OpenCVData data) {
 
@@ -621,6 +601,8 @@ public class Tracking extends Service {
 				// lost track
 				
 				faceFoundFrameCount = 0;
+				
+				if (scan) {
 				int xpos = x.getPosition();
 				
 				if (xpos + scanXStep >= x.getMax() && scanXStep > 0 || xpos + scanXStep <= x.getMin() && scanXStep < 0)
@@ -631,6 +613,7 @@ public class Tracking extends Service {
 				} 
 				
 				x.moveTo(xpos + scanXStep);
+				}
 				//state = STATE_FACE_DETECT_LOST_TRACK;
 			}
 
@@ -641,6 +624,7 @@ public class Tracking extends Service {
 			// find average point ?
 			break;
 
+		// FIXME - remove not used
 		case STATE_FACE_DETECT_LOST_TRACK:
 			int xpos = x.getPosition();
 			
@@ -692,6 +676,39 @@ public class Tracking extends Service {
 	public OpenCVData foundFace(OpenCVData data) {
 		return data;
 	}
+	
+
+	public void faceDetect() {
+		// opencv.addFilter("Gray"); needed ?
+		opencv.clearFilters();
+
+		log.info("starting faceDetect");
+
+		for (int i = 0; i < preFilters.size(); ++i) {
+			opencv.addFilter(preFilters.get(i));
+		}
+
+		// TODO single string static
+		opencv.addFilter(FILTER_FACE_DETECT);
+		opencv.setDisplayFilter(FILTER_FACE_DETECT);
+
+		opencv.capture();
+		opencv.publishOpenCVData(true);
+
+		// wrong state
+		setState(STATE_FACE_DETECT);
+
+	}
+	
+	public void findFace()
+	{
+		scan = true;
+	}
+	
+	public void stopScan()
+	{
+		scan = false;
+	}
 
 	public static void main(String[] args) {
 
@@ -707,8 +724,8 @@ public class Tracking extends Service {
 		tracker.getX().setPin(13);
 		tracker.getY().setPin(12);
 		tracker.getOpenCV().setCameraIndex(1);
-		//tracker.connect("COM12");
-		tracker.connect("COM4");
+		tracker.connect("COM12");
+		//tracker.connect("COM4");
 		tracker.startService();
 		tracker.faceDetect();
 
