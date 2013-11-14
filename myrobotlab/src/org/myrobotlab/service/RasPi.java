@@ -1,8 +1,6 @@
 package org.myrobotlab.service;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Service;
@@ -14,6 +12,7 @@ import org.slf4j.Logger;
 
 import com.pi4j.gpio.extension.mcp.MCP23017GpioProvider;
 import com.pi4j.gpio.extension.mcp.MCP23017Pin;
+import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -33,18 +32,23 @@ public class RasPi extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(RasPi.class.getCanonicalName());
 	transient public final GpioController gpio = GpioFactory.getInstance();
+
+	// the 2 pins for I2C on the raspberry
 	GpioPinDigitalOutput gpio01;
 	GpioPinDigitalOutput gpio03;
 
-	private boolean initialized = false;
+	HashMap<String, Device> devices = new HashMap<String, Device>();
+	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
+
+	boolean initialized = false;
+
+	Tester tester = null;
 
 	public static class Device {
 		public I2CBus bus;
 		public I2CDevice device;
 		public String type;
 	}
-
-	public HashMap<String, Device> devices = new HashMap<String, Device>();
 
 	public RasPi(String n) {
 		super(n, RasPi.class.getCanonicalName());
@@ -64,6 +68,8 @@ public class RasPi extends Service {
 		}
 		gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
 		gpio03 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03);
+
+		initTranslation();
 
 		// provision gpio pin #02 as an input pin with its internal pull down
 		// resistor enabled
@@ -146,50 +152,16 @@ public class RasPi extends Service {
 		}
 	}
 
-	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-	public static String bytesToHex(byte[] bytes) {
-		char[] hexChars = new char[bytes.length * 2];
-		int v;
-		for (int j = 0; j < bytes.length; j++) {
-			v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-		}
-		return new String(hexChars);
-	}
-
-	public static byte[] my_int_to_bb_le(int myInteger) {
-		return ByteBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN).putInt(myInteger).array();
-	}
-
-	public static int my_bb_to_int_le(byte[] byteBarray) {
-		return ByteBuffer.wrap(byteBarray).order(ByteOrder.LITTLE_ENDIAN).getInt();
-	}
-
-	public static byte[] my_int_to_bb_be(int myInteger) {
-		return ByteBuffer.allocate(32).order(ByteOrder.BIG_ENDIAN).putInt(myInteger).array();
-	}
-
-	public static int my_bb_to_int_be(byte[] byteBarray) {
-		return ByteBuffer.wrap(byteBarray).order(ByteOrder.BIG_ENDIAN).getInt();
-	}
-
-	// byte[] buffer = new byte[]{5, 1, 2, 3, 123, 115, 6, 114 };
-
-	byte[] bytes = new byte[16];
-
-	public void test(byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6, byte d7, byte d8, byte d9, byte d10, byte d11, byte d12, byte d13, byte d14, byte d15) {
+	public void writeRaw(int busAddress, int deviceAddress, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6, byte d7, byte d8, byte d9, byte d10, byte d11, byte d12,
+			byte d13, byte d14, byte d15) {
 		try {
-			log.info("--------test begin -------------");
+			log.info("--------writeRaw begin -------------");
 
-			int busAddress = 1;
-			int deviceAddress = 0x70;
-			log.info(String.format("test %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15));
+			log.info(String.format("test %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15));
 			I2CDevice device = getDevice(busAddress, deviceAddress);
 			device.write(0x00, new byte[] { d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15 }, 0, 16);
 
-			log.info("--------test end-------------");
+			log.info("--------writeRaw end-------------");
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -221,6 +193,18 @@ public class RasPi extends Service {
 		return null;
 	}
 
+	public I2CDevice createDevice(String type, int busAddress, int deviceAddress) {
+		I2CDevice device = null;
+		try {
+			PCF8574GpioProvider pcf = new PCF8574GpioProvider(busAddress, deviceAddress);
+			device = (I2CDevice) pcf;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return device;
+	}
+
 	public void displayClear(int busAddress, int deviceAddress) {
 		try {
 			I2CDevice device = getDevice(busAddress, deviceAddress);
@@ -234,158 +218,113 @@ public class RasPi extends Service {
 
 	}
 
+	public static void initTranslation() {
+
+		translation.put("", (byte) 0);
+		translation.put(" ", (byte) 0);
+
+		translation.put(":", (byte) 3);
+		// translation.put("of", (byte)0)
+
+		translation.put("a", (byte) 119);
+		translation.put("b", (byte) 124);
+		translation.put("c", (byte) 57);
+		translation.put("d", (byte) 94);
+		translation.put("e", (byte) 121);
+		translation.put("f", (byte) 113);
+		translation.put("g", (byte) 111);
+		translation.put("h", (byte) 118);
+		translation.put("i", (byte) 48);
+		translation.put("J", (byte) 30);
+		translation.put("k", (byte) 118);
+		translation.put("l", (byte) 56);
+		translation.put("m", (byte) 21);
+		translation.put("n", (byte) 84);
+		translation.put("o", (byte) 63);
+		translation.put("P", (byte) 115);
+		translation.put("q", (byte) 103);
+		translation.put("r", (byte) 80);
+		translation.put("s", (byte) 109);
+		translation.put("t", (byte) 120);
+		translation.put("u", (byte) 62);
+		translation.put("v", (byte) 98);
+		translation.put("x", (byte) 118);
+		translation.put("y", (byte) 110);
+		translation.put("z", (byte) 91);
+
+		translation.put("-", (byte) 64);
+		// translation.put("dot", (byte)???);
+
+		translation.put("0", (byte) 63);
+		translation.put("1", (byte) 6);
+		translation.put("2", (byte) 91);
+		translation.put("3", (byte) 79);
+		translation.put("4", (byte) 102);
+		translation.put("5", (byte) 109);
+		translation.put("6", (byte) 125);
+		translation.put("7", (byte) 7);
+		translation.put("8", (byte) 127);
+		translation.put("9", (byte) 111);
+	}
+
+	public static byte translate(char c) {
+		byte b = 0;
+		String s = String.valueOf(c).toLowerCase();
+		if (translation.containsKey(s)) {
+			b = translation.get(s);
+		}
+		return b;
+	}
+
 	public int displayDigit(int busAddress, int deviceAddress, int i) {
+
+		String data = String.format("%d", i);
+		;
+		displayString(busAddress, deviceAddress, data);
+
+		return i;
+	}
+
+	public String displayString(int busAddress, int deviceAddress, String data) {
+
+		initTranslation();
+		// d1 d2 : d3 d4
+		byte[] display = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		if (data == null || data == "") {
+			writeDisplay(busAddress, deviceAddress, display);
+			return data;
+		}
+
+		if (data.length() < 4) {
+			data = String.format("%4s", data);
+		}
+
+		display[0] = translate(data.charAt(0));
+		display[2] = translate(data.charAt(1));
+		display[6] = translate(data.charAt(2));
+		display[8] = translate(data.charAt(3));
+
+		writeDisplay(busAddress, deviceAddress, display);
+
+		return data;
+	}
+
+	public byte[] writeDisplay(int busAddress, int deviceAddress, byte[] data) {
+		I2CDevice device = getDevice(busAddress, deviceAddress);
+
+		if (device == null) {
+			log.error(String.format("bad device bus %d device %d", busAddress, deviceAddress));
+			return data;
+		}
+
 		try {
-			I2CDevice device = getDevice(busAddress, deviceAddress);
-
-			switch (i) {
-
-			case 0:
-				log.info("------------0 --------------------");
-				device.write(0x00, new byte[] { 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				break;
-
-			case 1:
-				log.info("------------1 --------------------");
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------1 --------------------");
-				break;
-
-			case 2:
-				log.info("------------2 --------------------");
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------2 --------------------");
-				break;
-
-			case 3:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------3 --------------------");
-				break;
-
-			case 4:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------4 --------------------");
-				break;
-
-			case 5:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------5 --------------------");
-				break;
-
-			case 6:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 125, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------6 --------------------");
-				break;
-
-			case 7:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 125, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 125, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 125, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 7, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------7 --------------------");
-				break;
-
-			case 8:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 7, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 7, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 7, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 127, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------8 --------------------");
-				break;
-
-			case 9:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 127, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 127, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 127, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 111, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------9 --------------------");
-				break;
-
-			case 10:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 111, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 63, 0, 111, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 111, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------10 --------------------");
-				break;
-
-			case 11:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 63, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------11 --------------------");
-				break;
-
-			case 12:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------12 --------------------");
-				break;
-
-			case 13:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 91, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------13 --------------------");
-				break;
-
-			case 14:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 79, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------14 --------------------");
-				break;
-
-			case 15:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 102, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------15 --------------------");
-				break;
-
-			case 16:
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 109, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				device.write(0x00, new byte[] { 63, 0, 63, 0, 0, 0, 6, 0, 125, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
-				log.info("------------16 --------------------");
-				break;
-
-			}
-			;
-
+			device.write(0x00, data, 0, 16);
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 
-		return i;
+		return data;
 	}
 
 	public boolean init7SegmentDisplay(int busAddress, int deviceAddress) {
@@ -409,57 +348,66 @@ public class RasPi extends Service {
 
 	public void startTester() {
 		int busAddress = 1;
-		
+
 		init7SegmentDisplay(busAddress, 0x70);
 		init7SegmentDisplay(busAddress, 0x71);
 		init7SegmentDisplay(busAddress, 0x72);
 		init7SegmentDisplay(busAddress, 0x73);
 		init7SegmentDisplay(busAddress, 0x74);
 		init7SegmentDisplay(busAddress, 0x75);
-		
+
 		tester = new Tester();
 		tester.start();
-		
+
 	}
-	
-	
+
 	public void stopTester() {
 		tester.interrupt();
 		tester.running = false;
 		tester = null;
 	}
-	
-	Tester tester = null;
-	
-	public class Tester extends Thread
-	{
-		public boolean running = true; 
+
+	public class Tester extends Thread {
+		public boolean running = true;
 		public int busAddress = 1;
+
 		public void run() {
-			while (running) 
-			{
-				//for (int j = 0; j < repeat; ++j) {
-					for (int deviceAddress = 0; deviceAddress < 6; ++deviceAddress) {
-						for (int i = 0; i < 17; ++i) {
-							displayDigit(busAddress, 0x70 + deviceAddress, i);
-							try {
-								Thread.sleep(30);
-							} catch (InterruptedException e) {
-								running = false;
-							}
+			while (running) {
+				// for (int j = 0; j < repeat; ++j) {
+				for (int deviceAddress = 0; deviceAddress < 6; ++deviceAddress) {
+					for (int i = 0; i < 100; ++i) {
+						displayDigit(busAddress, 0x70 + deviceAddress, i);
+						try {
+							Thread.sleep(30);
+						} catch (InterruptedException e) {
+							running = false;
 						}
-						
-						displayDigit(busAddress, 0x70 + deviceAddress, (int)(Math.random()*16));
 					}
-				//}
+
+					displayDigit(busAddress, 0x70 + deviceAddress, (int) (Math.random() * 9999));
+				}
+				// }
 			}
 		}
-	
+
 	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+
+		/*
+		 * RasPi.displayString(1, 70, "1");
+		 * 
+		 * RasPi.displayString(1, 70, "abcd");
+		 * 
+		 * RasPi.displayString(1, 70, "1234");
+		 * 
+		 * 
+		 * //RasPi raspi = new RasPi("raspi");
+		 */
+
+		// raspi.writeDisplay(busAddress, deviceAddress, data)
 
 		int i = 0;
 
