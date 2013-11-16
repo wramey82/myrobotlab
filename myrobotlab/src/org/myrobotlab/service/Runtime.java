@@ -2056,6 +2056,12 @@ public class Runtime extends Service {
 		List<ServiceWrapper> list = new ArrayList<ServiceWrapper>(sorted.values());
 		return list;
 	}
-
+	
+	/*
+	public static String getLogFile() {
+		Logging.
+		FileIO.fileToString(file);
+	}
+	*/
 
 }

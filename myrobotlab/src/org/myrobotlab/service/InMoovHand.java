@@ -215,7 +215,76 @@ public class InMoovHand extends Service {
 		wrist.moveTo(92);	
 		return true;
 	}
+	
+	public void victory()
+	{
+		moveTo(150,0,0,180,180,90);
+	}
+	
+	public void devilHorns()
+	{
+		moveTo(150,0,180,180,0,90);
+	}
 
+	public void hangTen()
+	{
+		moveTo(0,180,180,180,0,90);
+	}
+	
+	public void bird()
+	{
+		moveTo(150,180,0,180,180,90);
+	}
+	
+	public void thumbsUp()
+	{
+		moveTo(0,180,180,180,180,90);
+	}
+	
+	public void ok()
+	{
+		moveTo(150,180,0,0,0,90);
+	}
+	
+	public void one()
+	{
+		moveTo(150,0,180,180,180,90);
+	}
+	
+	public void two()
+	{
+		victory();
+	}
+
+	public void three()
+	{
+		moveTo(150,0,0,0,180,90);
+	}
+
+	public void four()
+	{
+		moveTo(150,0,0,0,0,90);
+	}
+
+	public void five()
+	{
+		open();
+	}
+	
+	public void count(){
+		one();
+		sleep(1);
+		two();
+		sleep(1);
+		three();
+		sleep(1);
+		four();
+		sleep(1);
+		five();
+	}
+
+
+	
 	public String getScript() {
 		return String.format("%s.moveTo(%d,%d,%d,%d,%d,%d)\n", Python.makeSafeName(getName()), thumb.getPosition(), index.getPosition(), majeure.getPosition(),
 				ringFinger.getPosition(), pinky.getPosition(), wrist.getPosition());
