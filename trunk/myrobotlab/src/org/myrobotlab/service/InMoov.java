@@ -143,6 +143,7 @@ public class InMoov extends Service {
 		return mouth;
 	}
 
+	// FIXME - voice control for all levels (ie just a hand or head !!!!)
 	public Sphinx startEar() {
 		info("starting ear");
 

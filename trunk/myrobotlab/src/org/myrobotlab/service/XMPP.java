@@ -103,33 +103,33 @@ public class XMPP extends Service implements MessageListener {
 		return list;
 	}
 
-	public void connect(String host) {
+	public boolean connect(String host) {
 		this.host = host;
-		connect(host, port);
+		return connect(host, port);
 	}
 
-	public void connect(String host, int port) {
+	public boolean connect(String host, int port) {
 		this.host = host;
 		this.port = port;
-		connect(host, port, user, password);
+		return connect(host, port, user, password);
 	}
 
-	public void connect(String host, int port, String user, String password) {
-		connect(host, port, user, password, service);
+	public boolean connect(String host, int port, String user, String password) {
+		return connect(host, port, user, password, service);
 	}
 
-	public void connect(String host, int port, String user, String password, String service) {
+	public boolean connect(String host, int port, String user, String password, String service) {
 		this.host = host;
 		this.port = port;
 		this.user = user;
 		this.password = password;
 		this.service = service;
-		connect();
+		return connect();
 	}
 	/**
 	 * 
 	 */
-	public void connect() {
+	public boolean connect() {
 
 		try {
 
@@ -161,11 +161,14 @@ public class XMPP extends Service implements MessageListener {
 					disconnect();
 				}
 			}
+			
+			return connection.isConnected();
 
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 
+		return false;
 	}
 
 	public void disconnect() {

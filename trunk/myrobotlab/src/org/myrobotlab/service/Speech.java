@@ -219,12 +219,13 @@ public class Speech extends Service {
 	}
 
 	// front-end functions
-	public void speak(String toSpeak) {
+	public boolean speak(String toSpeak) {
 		if (frontendType == FrontendType.NORMAL) {
-			speakNormal(toSpeak);
+			return speakNormal(toSpeak);
 		} else if (frontendType == FrontendType.QUEUED) {
 			// speakQueued
 		}
+		return false;
 	}
 
 	public boolean speakNormal(String toSpeak) {

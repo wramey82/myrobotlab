@@ -171,6 +171,7 @@ public class RasPi extends Service {
 		try {
 			String key = String.format("%d.%d", busAddress, deviceAddress);
 			if (!devices.containsKey(key)) {
+				// FIXME -- remove put in createDevice
 				I2CBus bus = I2CFactory.getInstance(busAddress);
 				log.info("getDevice 70");
 				I2CDevice device = bus.getDevice(deviceAddress);
@@ -192,17 +193,60 @@ public class RasPi extends Service {
 
 		return null;
 	}
+	
+	/*
+	public int PCF8574SetValue(int busAddress, int deviceAddress, int pin, double value) {
+		
+		PCF8574GpioProvider pcf = (PCF8574GpioProvider) getDevice(busAddress, deviceAddress);
+		pcf.
+		pcf.setValue(pin, value);
+		
+	}
+	*/
 
-	public I2CDevice createDevice(String type, int busAddress, int deviceAddress) {
-		I2CDevice device = null;
+	// FIXME - make backpack work as real I2C device
+	public I2CDevice createDevice(int busAddress, int deviceAddress, String type) {
+
 		try {
-			PCF8574GpioProvider pcf = new PCF8574GpioProvider(busAddress, deviceAddress);
-			device = (I2CDevice) pcf;
+
+			String key = String.format("%d.%d", busAddress, deviceAddress);
+
+			I2CBus bus = I2CFactory.getInstance(busAddress);
+			log.info("getDevice 70");
+
+			// PCF8574GpioProvider pcf = new PCF8574GpioProvider(busAddress,
+			// deviceAddress);
+			// I2CDevice device = bus.getDevice(deviceAddress);
+			
+			//PCF8574GpioProvider p = new PCF8574GpioProvider(busAddress, deviceAddress);
+			//p.setValue(pin, value)
+
+			Device d = new Device();
+			d.bus = bus;
+			d.device = (I2CDevice) new PCF8574GpioProvider(busAddress, deviceAddress);
+			d.type = "PCF857(4GpioProvider"; // full type name
+
+			devices.put(key, d);
+			return d.device;
+
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 
-		return device;
+		return null;
+	}
+
+	// FIXME LOW LEVEL ANY I2C READ OR WRITE !!!
+	public byte I2CWrite(int busAddress, int deviceAddress, byte value) {
+		I2CDevice device = getDevice(busAddress, deviceAddress);
+
+		try {
+			device.write(value);
+			return value;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return -1;
 	}
 
 	public void displayClear(int busAddress, int deviceAddress) {
