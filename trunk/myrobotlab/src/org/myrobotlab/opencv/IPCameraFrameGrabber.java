@@ -28,7 +28,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	 * http://192.168.0.59:60/videostream.cgi?user=admin&pwd=password android ip
 	 * cam http://192.168.0.57:8080/videofeed
 	 */
-	public final static Logger log = LoggerFactory.getLogger(IPCameraFrameGrabber.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(IPCameraFrameGrabber.class);
 
 	private URL url;
 	private URLConnection connection;
@@ -69,8 +69,6 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 
 	@Override
 	public void stop() {
-
-		// connection.
 		try {
 			input.close();
 			input = null;
@@ -130,15 +128,14 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		// Yay! - server was nice and sent content length
 		int c0 = subheader.indexOf("Content-Length: ");
 		int c1 = subheader.indexOf('\r', c0);
-		
-		if (c0 < 0)
-		{
+
+		if (c0 < 0) {
 			log.info("no content length returning null");
 			return null;
 		} else {
 			log.info("found content length");
 		}
-		
+
 		c0 += 16;
 		contentLength = Integer.parseInt(subheader.substring(c0, c1).trim());
 		log.debug("Content-Length: " + contentLength);
@@ -160,12 +157,12 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		}
 
 		baos.flush();
-		
+
 		input.read();// \r
 		input.read();// \n
 		input.read();// \r
 		input.read();// \n
-		
+
 		// log.info("wrote " + baos.size() + "," + total);
 		BufferedImage bi = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
 		return bi;
