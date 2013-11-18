@@ -137,6 +137,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 						}
 						case PUBLISH_INT: {
 							buffer[recievedByteCount - 1] = newByte;
+							/*
 							if (recievedByteCount % BYTE_SIZE_LONG == 0) {
 								long value = 0;
 								for (int i = 0; i < BYTE_SIZE_LONG; i++) {
@@ -146,6 +147,11 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 								invoke("publishInt", value);
 								recievedByteCount = 0;
 							}
+							*/
+							
+							int newInt = (newByte & 0xFF);
+							invoke("publishInt", newInt);
+							
 							break;
 						}
 
