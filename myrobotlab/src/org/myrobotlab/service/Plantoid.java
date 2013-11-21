@@ -78,12 +78,13 @@ public class Plantoid extends Service {
 		
 		peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
 		peers.suggestAs("tracking.y", "tilt", "Servo", "shared y");
-		peers.suggestAs("tracking.opencv", "tilt", "Servo", "shared y");
+		peers.suggestAs("tracking.opencv", "opencv", "Servo", "shared y");
 		//peers.put("ear", "Sphinx", "InMoov speech recognition service");
 		//peers.put("mouth", "Speech", "InMoov speech service");
 		//peers.put("python", "Python", "Python service");
 		//peers.put("webgui", "WebGUI", "WebGUI service");
 		//peers.put("keyboard", "Keyboard", "Keyboard service");
+		peers.put("webgui", "WebGUI", "WebGUI service");
 		peers.put("xmpp", "XMPP", "xmpp service");
 		peers.put("arduino", "Arduino", "our Arduino");
 		peers.put("leg1", "Servo", "leg1");
@@ -110,6 +111,7 @@ public class Plantoid extends Service {
 		super(n, Plantoid.class.getCanonicalName());
 
 		xmpp = (XMPP) createPeer("xmpp");
+		webgui = (WebGUI) createPeer("webgui");
 		arduino = (Arduino) createPeer("arduino");
 		leg1 = (Servo) createPeer("leg1");
 		leg2 = (Servo) createPeer("leg2");
@@ -169,19 +171,27 @@ public class Plantoid extends Service {
 			
 			xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
 			
-			tracking.startService();
-
 			// gets all users it can send messages to
-			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
+			
+			/*
 			xmpp.addXMPPListener("supertick@gmail.com");			
 			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
+			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
+			*/
+			// FIXME - add all roster to listeners method
+			xmpp.addRelay("incubator incubator");
+			xmpp.addRelay("David Ultis");
+			xmpp.addRelay("Greg Perry");
 			//xmpp.addRelay("info@reuseum.com");
 			//xmpp.addRelay("grasshopperrocket@gmail.com");			
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
 
+			if (tracking != null){
+				tracking.startService();
+			}
 			arduino.connect(port);
 			// the BEPSL report
 			//timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);

@@ -143,6 +143,7 @@ public class InMoov extends Service {
 		return mouth;
 	}
 
+	// TODO TODO TODO - context & status report - "current context is right hand"
 	// FIXME - voice control for all levels (ie just a hand or head !!!!)
 	public Sphinx startEar() {
 		info("starting ear");
@@ -153,6 +154,9 @@ public class InMoov extends Service {
 		}
 
 		ear.addCommand("rest", getName(), "rest");
+
+		// depricated ????
+		// double context - current contest "right hand"
 		ear.addCommand("open hand", getName(), "handOpen", "right");
 		ear.addCommand("close hand", getName(), "handClose", "right");
 		ear.addCommand("capture gesture", getName(), "captureGesture");
@@ -183,7 +187,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovHand startHand(String side, String port) {
-		InMoovHand hand = (InMoovHand) createPeer(String.format("%Hand", side));
+		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
 		// connect will start if not already started
 		if (!hand.arduino.isConnected()) {
 			hand.connect(port);
@@ -347,6 +351,11 @@ public class InMoov extends Service {
 		 // log.info(Runtime.buildDNA("i01.head", "InMoovHead").toString());
 		 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		
+		i01.startRightHand("COM4");
+		
+		Runtime.createAndStart("gui", "GUIService");
+		
 		i01.addRoutes();
 		i01.startMouth();
 		InMoovHead head = i01.startHead("COM12");

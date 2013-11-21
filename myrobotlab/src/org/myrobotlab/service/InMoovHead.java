@@ -296,14 +296,10 @@ public class InMoovHead extends Service {
 		
 		Runtime.createAndStart("gui", "GUIService");
 	
-		// Gson gson = new
-		// GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().create();
 		//head.createReserved("HeadTracking");
 		//head.startReserved("HeadTracking");
 
 		// head.startService();
-		// log.warn(gson.toJson(Service.getReservations()));
-
 		
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
