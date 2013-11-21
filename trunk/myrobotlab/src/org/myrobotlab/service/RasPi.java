@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import com.pi4j.gpio.extension.mcp.MCP23017GpioProvider;
 import com.pi4j.gpio.extension.mcp.MCP23017Pin;
 import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
+import com.pi4j.gpio.extension.pcf.PCF8574Pin;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -193,16 +194,37 @@ public class RasPi extends Service {
 
 		return null;
 	}
-	
+
 	/*
-	public int PCF8574SetValue(int busAddress, int deviceAddress, int pin, double value) {
+	 * public int PCF8574SetValue(int busAddress, int deviceAddress, int pin,
+	 * double value) {
+	 * 
+	 * PCF8574GpioProvider pcf = (PCF8574GpioProvider) getDevice(busAddress,
+	 * deviceAddress); pcf. pcf.setValue(pin, value);
+	 * 
+	 * }
+	 */
+
+	public String listDevices(int busAddress) {
+		StringBuffer sb = new StringBuffer();
+		try {
+			/* From its name we can easily deduce that it provides a communication link between ICs (integrated circuits). I2C is multimaster and can support a maximum of 112 devices on the bus. The specification declares that 128 devices can be connected to the I2C bus, but it also defines 16 reserved addresses. */
+			I2CBus bus = I2CFactory.getInstance(busAddress);
+			
+			for (int i = 0; i < 128; ++i) {
+				I2CDevice device = bus.getDevice(i);
+				if (device != null) 
+				{
+					sb.append(i);
+					sb.append(" ");
+				}
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 		
-		PCF8574GpioProvider pcf = (PCF8574GpioProvider) getDevice(busAddress, deviceAddress);
-		pcf.
-		pcf.setValue(pin, value);
-		
+		return sb.toString();
 	}
-	*/
 
 	// FIXME - make backpack work as real I2C device
 	public I2CDevice createDevice(int busAddress, int deviceAddress, String type) {
@@ -212,19 +234,20 @@ public class RasPi extends Service {
 			String key = String.format("%d.%d", busAddress, deviceAddress);
 
 			I2CBus bus = I2CFactory.getInstance(busAddress);
-			log.info("getDevice 70");
 
 			// PCF8574GpioProvider pcf = new PCF8574GpioProvider(busAddress,
 			// deviceAddress);
 			// I2CDevice device = bus.getDevice(deviceAddress);
-			
-			//PCF8574GpioProvider p = new PCF8574GpioProvider(busAddress, deviceAddress);
-			//p.setValue(pin, value)
+
+			// PCF8574GpioProvider p = new PCF8574GpioProvider(busAddress,
+			// deviceAddress);
+			// p.setValue(pin, value)
 
 			Device d = new Device();
 			d.bus = bus;
 			d.device = (I2CDevice) new PCF8574GpioProvider(busAddress, deviceAddress);
-			d.type = "PCF857(4GpioProvider"; // full type name
+			d.type = d.device.getClass().getCanonicalName();// "PCF8574GpioProvider";
+															// // full type name
 
 			devices.put(key, d);
 			return d.device;
@@ -235,10 +258,72 @@ public class RasPi extends Service {
 
 		return null;
 	}
+	
+	boolean initPCF = false;
+	
+    public static void testPCF8574(int busAddress, int deviceAddress)  {
+    	try {
+        
+        System.out.println("<--Pi4J--> PCF8574 GPIO Example ... started.");
+        
+        // create gpio controller
+        GpioController gpio = GpioFactory.getInstance();
+        
+        // create custom MCP23017 GPIO provider
+        //PCF8574GpioProvider gpioProvider = new PCF8574GpioProvider(I2CBus.BUS_1, PCF8574GpioProvider.PCF8574A_0x3F);
+        PCF8574GpioProvider gpioProvider = new PCF8574GpioProvider(busAddress, deviceAddress);
+        
+        // provision gpio input pins from MCP23017
+        GpioPinDigitalInput myInputs[] = {
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_00),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_01),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02)
+            };
+        
+        // create and register gpio pin listener
+        gpio.addListener(new GpioPinListenerDigital() {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                // display pin state on console
+                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = "
+                        + event.getState());
+            }
+        }, myInputs);
+        
+        // provision gpio output pins and make sure they are all LOW at startup
+        GpioPinDigitalOutput myOutputs[] = { 
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_04, PinState.LOW),
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_05, PinState.LOW),
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_06, PinState.LOW)
+          };
+
+        // on program shutdown, set the pins back to their default state: HIGH 
+        //gpio.setShutdownOptions(true, PinState.HIGH, myOutputs);
+        
+        // keep program running for 20 seconds
+        for (int count = 0; count < 10; count++) {
+            gpio.setState(true, myOutputs);
+            Thread.sleep(1000);
+            gpio.setState(false, myOutputs);
+            Thread.sleep(1000);
+        }
+        
+        // stop all GPIO activity/threads by shutting down the GPIO controller
+        // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
+       // gpio.shutdown();
+    	} catch(Exception e) {
+    		Logging.logException(e);
+    	}
+    }
 
 	// FIXME LOW LEVEL ANY I2C READ OR WRITE !!!
 	public byte I2CWrite(int busAddress, int deviceAddress, byte value) {
 		I2CDevice device = getDevice(busAddress, deviceAddress);
+		
+		if (device == null){
+			error("bus %d device %d not valid", busAddress, deviceAddress);
+			return -1;
+		}
 
 		try {
 			device.write(value);

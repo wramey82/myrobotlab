@@ -228,7 +228,7 @@ public class Joystick extends Service {
 							invoke("button13", pos);
 						}
 					} else {
-						log.debug("unknown identifier %s", id.toString());
+						log.debug(String.format("unknown identifier %s", id.toString()));
 					}
 
 					lastValues[i] = data;

@@ -39,11 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.myrobotlab.framework.Index;
-import org.myrobotlab.framework.IndexNode;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceReservation;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -169,6 +166,10 @@ public class Tracking extends Service {
 		ypid.setSetpoint(0.5); // set center
 
 	}
+	
+	public String getState() {
+		return state;
+	}
 
 	// DATA WHICH MUST BE SET BEFORE ATTACH METHODS !!!! - names must be set of
 	// course !
@@ -245,8 +246,13 @@ public class Tracking extends Service {
 
 		setState(STATE_LK_TRACKING_POINT);
 	}
-
-	public void stopLKTracking() {
+	
+	public boolean isIdle()
+	{
+		return STATE_IDLE.equals(state);
+	}
+	
+	public void stopTracking() {
 		opencv.clearFilters();
 		setState(STATE_IDLE);
 	}
@@ -643,7 +649,7 @@ public class Tracking extends Service {
 			break;
 
 		case STATE_IDLE:
-			setForegroundBackgroundFilter();
+			// setForegroundBackgroundFilter(); FIXME - setFGBGFilters for different detection
 			break;
 
 		case STATE_LK_TRACKING_POINT:
@@ -698,6 +704,21 @@ public class Tracking extends Service {
 		// wrong state
 		setState(STATE_FACE_DETECT);
 
+	}
+	
+	public Arduino getArduino()
+	{
+		return arduino;
+	}
+	
+	public PID getXPID()
+	{
+		return xpid;
+	}
+	
+	public PID getYPID()
+	{
+		return ypid;
 	}
 	
 	public void findFace()

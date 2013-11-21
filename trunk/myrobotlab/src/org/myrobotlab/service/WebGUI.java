@@ -1,10 +1,10 @@
 package org.myrobotlab.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
 import org.myrobotlab.fileLib.Zip;
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -17,9 +17,6 @@ import org.myrobotlab.webgui.WSServer;
 import org.myrobotlab.webgui.WebServer;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class WebGUI extends Service {
 
@@ -243,8 +240,6 @@ public class WebGUI extends Service {
 			Logging.logException(e);
 		}
 	}
-
-	Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	
 	// FIXME - take out of RESTProcessor - normalize
 	/**
@@ -256,9 +251,6 @@ public class WebGUI extends Service {
 	 */
 	public String toJson(Message msg) {
 		try {
-			// ByteArrayOutputStream out = null;
-			// Gson gson = new Gson(); // FIXME - threadsafe? singleton?
-			// Gson gson = new
 			// GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
 
 			/*
@@ -271,7 +263,6 @@ public class WebGUI extends Service {
 			// http://google-gson.googlecode.com/svn/tags/1.2.3/docs/javadocs/com/google/gson/GsonBuilder.html#setDateFormat(int)
 			// PRETTY PRINTING IS AWESOME ! MAKE CONFIGURABLE - PRETTY PRINT
 			// ONLY WORKS IN TEXTMODE .setPrettyPrinting()
-			
 			// .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
 			// gson.setDateFormat(DateFormat.FULL);
 			/*
@@ -281,10 +272,9 @@ public class WebGUI extends Service {
 			 * singleton? gson.toJson(msg, Message.class, writer);
 			 */
 			// writer.setIndent("  "); // TODO config driven - very cool !
-
 			// writer.beginArray();
 
-			String ret = gson.toJson(msg, Message.class);
+			String ret = Encoder.gson.toJson(msg, Message.class);
 			// log.info(ret);
 			// for (Message message : messages) {
 			// gson.toJson(message, Message.class, writer);
@@ -330,7 +320,9 @@ public class WebGUI extends Service {
 		// clock.startClock();
 		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
 		//webgui.useLocalResources(true);
-		Runtime.createAndStart("rack-1-arduino-1", "Arduino");
+		
+		Runtime.createAndStart("servoX", "Servo");
+		//Runtime.createAndStart("rack-1-arduino-1", "Arduino");
 		
 		// Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
 		/*

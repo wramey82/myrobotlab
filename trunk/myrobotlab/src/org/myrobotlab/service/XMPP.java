@@ -1,6 +1,5 @@
 package org.myrobotlab.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.myrobotlab.framework.Encoder;
+import org.myrobotlab.framework.Index;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
@@ -33,7 +34,7 @@ public class XMPP extends Service implements MessageListener {
 
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
-
+	
 	String user;
 	String password;
 	String host;
@@ -44,17 +45,19 @@ public class XMPP extends Service implements MessageListener {
 	XMPPConnection connection;
 	ChatManager chatManager;
 
-	HashSet<String> responseRelays = new HashSet<String>();
+	Roster roster = null;
+	
+	HashMap<String, RosterEntry> idToEntry = new HashMap<String, RosterEntry>();
+
 	/**
 	 * auditors chat buddies who can see what commands are being processed
 	 * and by who through the XMPP service
 	 * TODO - audit full system ??? regardless of message origin?
 	 */
 	HashSet<String> auditors = new HashSet<String>();
-	
+	HashSet<String> responseRelays = new HashSet<String>();	
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
 	HashMap<String,Chat> chats = new HashMap<String,Chat>();
-
 
 	public XMPP(String n) {
 		super(n, XMPP.class.getCanonicalName());
@@ -70,39 +73,35 @@ public class XMPP extends Service implements MessageListener {
 	public String getDescription() {
 		return "xmpp service to access the jabber network";
 	}
-
-	public ArrayList<String> getRoster() {
-		ArrayList<String> list = new ArrayList<String>();
-		try {
-			connect();
-
-			// Get the user's roster
-			Roster roster = connection.getRoster();
-			
-
-			// Print the number of contacts
-			log.info("Number of contacts: " + roster.getEntryCount());
-
-			
-			
-			// Enumerate all contacts in the user's roster
-			for (RosterEntry entry : roster.getEntries()) {
-				log.info("User: " + entry.getUser());
-				/*
-				if (!entry.getUser().equalsIgnoreCase("supertick@gmail.com"))
-				{
-					roster.removeEntry(entry);
-				}
-				*/
-				list.add(entry.getUser());
-			}
-		} catch (Exception e) {
-			Logging.logException(e);
+		
+	public Roster getRoster()
+	{
+		roster = connection.getRoster();
+		for (RosterEntry entry : roster.getEntries()) {
+			log.info(String.format("User: %s %s ", entry.getName(), entry.getUser()));
+			idToEntry.put(entry.getName(), entry);
 		}
-
-		return list;
+		return roster;
 	}
-
+	
+	
+	RosterEntry getEntry(String userOrBuddyId)
+	{
+		RosterEntry entry = null;
+		entry = roster.getEntry(userOrBuddyId);
+		if (entry != null) {
+			return entry;
+		}
+		
+		if (idToEntry.containsKey(userOrBuddyId))
+		{
+			return idToEntry.get(userOrBuddyId);
+		}
+		
+		return null;
+		
+	}
+	
 	public boolean connect(String host) {
 		this.host = host;
 		return connect(host, port);
@@ -155,11 +154,15 @@ public class XMPP extends Service implements MessageListener {
 				connection.connect();
 				log.info(String.format("%s connected %s", getName(), connection.isConnected()));
 				chatManager = connection.getChatManager();
+				
 
 				log.info(String.format("%s is connected - logging in", getName()));
 				if (!login(user, password)) {
 					disconnect();
 				}
+				
+				getRoster();
+				
 			}
 			
 			return connection.isConnected();
@@ -188,6 +191,7 @@ public class XMPP extends Service implements MessageListener {
 		if (connection != null && connection.isConnected()) {
 			try {
 				connection.login(username, password);
+				//getRoster();
 			} catch (Exception e) {
 				Logging.logException(e);
 				return false;
@@ -211,6 +215,7 @@ public class XMPP extends Service implements MessageListener {
 		}
 	}
 
+	// TODO implement lower level messaging
 	public void sendMyRobotLabJSONMessage(org.myrobotlab.framework.Message msg) {
 
 	}
@@ -237,10 +242,19 @@ public class XMPP extends Service implements MessageListener {
 	}
 
 
-	synchronized public void sendMessage(String text, String buddyJID) {
+	synchronized public void sendMessage(String text, String id) {
 		try {
-
+			
 			connect();
+
+			RosterEntry entry = getEntry(id);
+			if (entry == null){
+				error("could not send message to %s - entry does not exist", id);
+				return;
+			}
+			
+			String buddyJID = entry.getUser();
+			
 			// FIXME FIXME FIXME !!! - if
 			// "just connected - ie just connected and this is the first chat of the connection then "create
 			// chat" otherwise use existing chat !"
@@ -257,7 +271,7 @@ public class XMPP extends Service implements MessageListener {
 			{
 				text = "null"; // dangerous converson?
 			}
-			log.info(String.format("sending %s %s", buddyJID, text));
+			log.info(String.format("sending %s (%s) %s", entry.getName(), buddyJID, text));
 			chat.sendMessage(text);
 
 		} catch (Exception e) {
@@ -291,6 +305,7 @@ public class XMPP extends Service implements MessageListener {
 		}
 
 		// TODO - allow to be in middle of message
+		// pre-processing begin --------
 		int pos0 = body.indexOf('/');
 		if (pos0 != 0) {
 			log.info("command must start with /");
@@ -310,14 +325,21 @@ public class XMPP extends Service implements MessageListener {
 		uri = uri.trim();
 
 		log.info(String.format("[%s]", uri));
+		
+		// pre-processing end --------
+
+		
 		Object o = RESTProcessor.invoke(uri);
 
 		// FIXME - encoding is that input uri before call ?
 		// or config ?
 		// FIXME - echo
+		// FIXME - choose type of encoding based on input ? part of the URI init call ?
+		// e.g. /api/gson/runtime/getLocalIPAdddresses [/api/gson/ .. is assumed (non-explicit) and pre-pended
 
 		if (o != null) {
-			broadcast(o.toString());
+			broadcast(Encoder.gson.toJson(o, o.getClass()));
+			//broadcast(o.toString());
 		} else {
 			broadcast(null);
 		}
@@ -325,16 +347,7 @@ public class XMPP extends Service implements MessageListener {
 		return o;
 	}
 
-	// FIXME - should be in
-	public String listCommands() {
-		return null;
-	}
-
-	// FIXME - should be in Service
-	public String listMethods() {
-		return null;
-	}
-
+	// FIXME - should be in runtime
 	public String listServices() {
 		StringBuffer sb = new StringBuffer();
 		List<ServiceWrapper> services = Runtime.getServices();
@@ -346,6 +359,7 @@ public class XMPP extends Service implements MessageListener {
 	}	
 
 	// FIXME - clean
+	// FIXME - get clear about different levels of authorization - Security/Framework to handle at message/method level
 	@Override
 	public void processMessage(Chat chat, Message msg) {
 
@@ -358,6 +372,11 @@ public class XMPP extends Service implements MessageListener {
 			return;
 		}
 		log.info(String.format("Received %s message [%s] from [%s]", type, body, from));
+		
+		// BinaryToken ???
+		// Security.Authorization (buddyId -> Level ???)
+		// Basic buddyId
+		
 		if (body != null && body.length() > 0 && body.charAt(0) == '/') {
 			try {
 				processRESTChatMessage(msg);
@@ -375,15 +394,51 @@ public class XMPP extends Service implements MessageListener {
 			// "supertick@gmail.com");
 		}
 
-		invoke("publishMessage", msg);
+		invoke("publishMessage", chat, msg);
+	}
+	
+	public boolean addAuditor(String id) {
+		RosterEntry entry = getEntry(id);
+		if (entry == null){
+			error("can not add auditor %s", id);
+			return false;
+		}
+		String buddyJID = entry.getUser();
+		auditors.add(buddyJID);
+		return true;
+	}
+	
+	public boolean removeAuditor(String id) {
+		RosterEntry entry = getEntry(id);
+		if (entry == null){
+			error("can not remove auditor %s", id);
+			return false;
+		}
+		String buddyJID = entry.getUser();
+		auditors.remove(buddyJID);
+		return true;
+	}
+	
+	public boolean addRelay(String id) {
+		RosterEntry entry = getEntry(id);
+		if (entry == null){
+			error("can not add relay %s", id);
+			return false;
+		}
+		String buddyJID = entry.getUser();
+		responseRelays.add(buddyJID);		
+		return true;
 	}
 
-	public boolean addXMPPListener(String buddyJID) {
-		return responseRelays.add(buddyJID);
-	}
-
-	public boolean removeRelay(String buddyJID) {
-		return responseRelays.remove(buddyJID);
+	public boolean removeRelay(String id) {
+		RosterEntry entry = getEntry(id);
+		if (entry == null){
+			error("can not remove relay %s", id);
+			return false;
+		}
+		String buddyJID = entry.getUser();
+		responseRelays.remove(buddyJID);
+		return true;
 	}
 
 	/**
@@ -409,18 +464,45 @@ public class XMPP extends Service implements MessageListener {
 			XMPP xmpp = new XMPP("xmpp");
 			xmpp.startService();
 
-			xmpp.connect("talk.google.com", 5222, "robot01@myrobotlab.org", "mrlRocks!");
+			//xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
+			xmpp.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
+			//xmpp.getUserList();
+			
+			/*
+			 * incubator
+				Number of contacts: 2
+				User: Orbous Mundus 34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com 
+				User: Greg Perry 23d3ufvoz10m30jfv4adl5daav@public.talk.google.com 
+			 */
+			
+			//Roster roster = xmpp.getRoster();
+			xmpp.sendMessage("hello from incubator by user", "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
+			xmpp.sendMessage("hello from incubator by name", "Greg Perry");
+			xmpp.addRelay("Greg Perry");
+			xmpp.sendMessage("message from the REAL INCUBATOR !!!", "Orbous Mundus");
+			xmpp.sendMessage("/runtime/getUptime", "Orbous Mundus");
+			xmpp.sendMessage("/runtime/getUptime", "Orbous Mundus");
+			//xmpp.sendMessage("/runtime/getUptime", "34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com");
+			
+			//RosterEntry user = roster.getEntry("34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com");
+			//xmpp.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
 
 			// gets all users it can send messages to
 			xmpp.getRoster();
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
+			xmpp.sendMessage("hello", "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
+			
 			
 			// TODO - autoRespond
 			// TODO - auditCommand <-- to which protocol?
 			//xmpp.addRelay("grasshopperrocket@gmail.com");
-			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
+			// orbous -> grasshopperrocket 389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com
+			// FIXME addMsgListener - default gson encoded return message only
+			xmpp.addRelay("23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
 			
-			xmpp.addXMPPListener("supertick@gmail.com");
+			// incubator -> supertick (23d3ufvoz10m30jfv4adl5daav@public.talk.google.com)
+			
+			xmpp.addRelay("supertick@gmail.com");
 
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
