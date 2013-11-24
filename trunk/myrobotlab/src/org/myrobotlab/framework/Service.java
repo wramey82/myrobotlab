@@ -121,7 +121,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public URI url = null;
 
-	public transient final Timer timer;
+	// public transient final Timer timer; - FIXME re-implement but only start if there is a Task !!
 
 	transient protected CommunicationInterface cm = null;
 	/**
@@ -600,7 +600,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			error("can not create peer from reservedkey %s - no type definition !", fullkey);
 			return null;
 		}
-		return Runtime.create(fullkey, sr.fullTypeName);
+		return Runtime.create(sr.actualName, sr.fullTypeName);
 	}
 	
 	public ServiceInterface startPeer(String reservedKey, String defaultType)
@@ -670,7 +670,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		host = getHostName(inHost);
 		
-		this.timer = new Timer(String.format("%s_timer", name));
+		// this.timer = new Timer(String.format("%s_timer", name)); FIXME - re-implement but only create if there is a task!!
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
@@ -940,10 +940,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * Stops the service. Stops threads.
 	 */
 	public void stopService() {
+		/* FIXME - re-implement but only start if there is a task
 		if (timer != null) {
 			timer.cancel();
 			timer.purge();
 		}
+		*/
 
 		isRunning = false;
 		// stopping the phone
