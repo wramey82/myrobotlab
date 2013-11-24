@@ -51,8 +51,6 @@ public class InMoovHead extends Service {
 		peers.put("y", "Servo", "Head tilt servo");
 		peers.put("headArduino", "Arduino", "Arduino controller for this arm");
 		
-		
-		
 		// TODO better be whole dam tree ! - have to recurse based on Type !!!!
 		/*
 		peers.suggestAs("mouthControl.arduino", "headArduino", "Arduino", "shared head Arduino");

@@ -120,7 +120,7 @@ public class Runtime extends Service {
 		// isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		// only runtime can auto-update
-		runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+		// FIXME - re-implement but only start if there is a Task - runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 	}
 
 	public static String getVersion() {
@@ -143,8 +143,10 @@ public class Runtime extends Service {
 
 	public static void stopAutoUpdate() {
 		Runtime runtime = Runtime.getInstance();
+		/* FIXME - re-implement but only start if there is a task
 		runtime.timer.cancel();
 		runtime.timer.purge();
+		*/
 	}
 
 	// TODO deprecate - this can be handled more generally in a
@@ -167,14 +169,14 @@ public class Runtime extends Service {
 			} else {
 				runtime.info(String.format("updating with %s", newVersion));
 				// Custom button text
-				runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+// FIXM re-implement but only start if you have a task runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 				Runtime.getBleedingEdgeMyRobotLabJar();
 				Runtime.restart("moveUpdate");
 
 			}
 
 			log.info("re-setting timer begin");
-			runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+// FIXME - re-implement but only start if there is a task runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
 			log.info("re-setting timer end");
 		}
 	}
@@ -301,10 +303,12 @@ public class Runtime extends Service {
 	 */
 	@Override
 	public void stopService() {
+		/* FIXME - re-implement but only start if you have a task
 		if (timer != null) {
 			timer.cancel(); // stop all scheduled jobs
 			timer.purge();
 		}
+		*/
 		super.stopService();
 		localInstance = null;
 	}
@@ -1511,7 +1515,7 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	static public synchronized ServiceInterface createService(String name, String fullTypeName) {
-		log.debug("Runtime.createService");
+		log.info(String.format("Runtime.createService %s", name));
 		if (name == null || name.length() == 0 || fullTypeName == null || fullTypeName.length() == 0) {
 			log.error(String.format("%1$s not a type or %2$s not defined ", fullTypeName, name));
 			return null;
