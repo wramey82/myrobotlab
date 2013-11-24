@@ -42,7 +42,6 @@ public class Plantoid extends Service {
 	// system specific data
 	@Element
 	public String port = "/dev/ttyACM0";
-	
 
 	/**
 	 * analog read pins
@@ -72,13 +71,68 @@ public class Plantoid extends Service {
 		
 	}
 	
+	public class Scanner extends Thread
+	{
+		int start = 0;
+		int end = 180;
+		int delay = 400;
+		boolean isScanning = false;
+		int pos = start;
+		int increment = 1;
+		Servo servo;
+		
+		public Scanner(Servo servo, int start, int end, int delay)
+		{
+			this.servo = servo;
+			this.start = start;
+			this.end = end;
+			this.delay = delay;
+			this.pos = start;
+		}
+		
+		public void run() {
+			isScanning = true;
+			while(isScanning) {
+				servo.moveTo(pos);
+				pos = pos + increment;
+				Service.sleep(delay);
+				if (pos >= end || pos <= start){
+					increment = increment * -1;
+				}
+			}
+			
+			
+		}
+		
+	}
+	
+	public Scanner scanner = null;
+	
+	public void startScanning() {
+		startScanning(pan);
+	}
+	
+	public void startScanning(Servo servo) {
+		scanner = new Scanner(servo, 10, 160, 300);
+		scanner.start();
+	}
+	
+	public void stopScanning() {
+		if (scanner != null)
+		{
+			scanner.isScanning = false;
+			scanner.interrupt();
+			scanner = null;
+		}
+	}
+	
 	public static Peers getPeers(String name)
 	{
 		Peers peers = new Peers(name);
 		
 		peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
 		peers.suggestAs("tracking.y", "tilt", "Servo", "shared y");
-		peers.suggestAs("tracking.opencv", "opencv", "Servo", "shared y");
+		peers.suggestAs("tracking.opencv", "opencv", "OpenCV", "shared opencv");
 		//peers.put("ear", "Sphinx", "InMoov speech recognition service");
 		//peers.put("mouth", "Speech", "InMoov speech service");
 		//peers.put("python", "Python", "Python service");

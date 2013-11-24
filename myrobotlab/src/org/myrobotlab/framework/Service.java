@@ -1804,7 +1804,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return createMessage(name, method, d);
 	}
 
-	// master TODO - Probably simplyfy to take array of object
+	// FIXME All parameter constructor
+	// TODO - Probably simplyfy to take array of object
 	/**
 	 * 
 	 * @param name
@@ -1813,14 +1814,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return
 	 */
 	public Message createMessage(String name, String method, Object[] data) {
-		Message msg = new Message(); // TODO- optimization - have a contructor
-										// for all parameters
-
-		Date d = new Date();
-
-		if (name != null) {
-			msg.name = name; // destination instance name
-		}
+		Message msg = new Message(); 
+		msg.name = name; // destination instance name
 		msg.sender = this.getName();
 		msg.data = data;
 		msg.method = method;
