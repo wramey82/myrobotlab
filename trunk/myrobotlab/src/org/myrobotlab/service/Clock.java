@@ -141,6 +141,15 @@ public class Clock extends Service {
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.ERROR);
+		
+		int i = 2;
+		Runtime.main(new String[]{"-runtimeName", String.format("r%d", i)});
+		XMPP xmpp1 = (XMPP)Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
+		Runtime.createAndStart(String.format("clock%d", i), "Clock");
+		Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+		xmpp1.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
+		xmpp1.sendMessage("clock 2", "incubator incubator");
+		if (true) {return;}
 
 		HashSet<String> test = new HashSet<String>();
 		test.add("tcp");
@@ -148,7 +157,6 @@ public class Clock extends Service {
 		
 		//Runtime.spawnRemoteMRL("mrl1");
 		
-		int i = 1;
 		
 		Runtime.createAndStart(String.format("client%d", i), "Runtime");
 		Runtime.createAndStart(String.format("clock%d", i), "Clock");
@@ -172,6 +180,8 @@ public class Clock extends Service {
 		Runtime.createAndStart(String.format("rasGUI%d", i), "GUIService");
 		clock.connect(null, null, "127.0.0.1", 6767);
 		*/
+		
+		
 
 	}
 

@@ -351,6 +351,14 @@ public class InMoov extends Service {
 		 // log.info(Runtime.buildDNA("i01.head", "InMoovHead").toString());
 		 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		InMoovHead head = i01.startHead("COM4");
+		Tracking eyes = i01.getEyesTracking();
+		Tracking neck = i01.getHeadTracking();
+		
+		eyes.faceDetect();
+		
+		GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
+		
 		
 		i01.startRightHand("COM4");
 		
@@ -358,7 +366,7 @@ public class InMoov extends Service {
 		
 		i01.addRoutes();
 		i01.startMouth();
-		InMoovHead head = i01.startHead("COM12");
+		
 		head.x.moveTo(96);
 		head.x.moveTo(150);
 		head.x.moveTo(88);
@@ -380,7 +388,7 @@ public class InMoov extends Service {
 
 		// get("eyesTracking");
 
-		GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
+		
 
 		InMoovHand hand = i01.startRightHand("COM12");
 		hand.close();

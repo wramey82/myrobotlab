@@ -492,7 +492,7 @@ public class Speech extends Service {
 		Speech speech = new Speech("speech");
 		speech.startService();
 		speech.setGenderMale();
-		// speech.setBackendType(BACKEND_TYPE_FREETTS);
+		speech.setBackendType(BACKEND_TYPE_FREETTS);
 		// speech.setBackendType(BACKEND_TYPE_GOOGLE);
 		// speech.setLanguage("fr");
 		speech.speakBlocking("this should work");

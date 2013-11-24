@@ -17,7 +17,6 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.myrobotlab.framework.Encoder;
-import org.myrobotlab.framework.Index;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
@@ -35,6 +34,7 @@ public class XMPP extends Service implements MessageListener {
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
 	
+	//
 	String user;
 	String password;
 	String host;
@@ -73,34 +73,6 @@ public class XMPP extends Service implements MessageListener {
 	public String getDescription() {
 		return "xmpp service to access the jabber network";
 	}
-		
-	public Roster getRoster()
-	{
-		roster = connection.getRoster();
-		for (RosterEntry entry : roster.getEntries()) {
-			log.info(String.format("User: %s %s ", entry.getName(), entry.getUser()));
-			idToEntry.put(entry.getName(), entry);
-		}
-		return roster;
-	}
-	
-	
-	RosterEntry getEntry(String userOrBuddyId)
-	{
-		RosterEntry entry = null;
-		entry = roster.getEntry(userOrBuddyId);
-		if (entry != null) {
-			return entry;
-		}
-		
-		if (idToEntry.containsKey(userOrBuddyId))
-		{
-			return idToEntry.get(userOrBuddyId);
-		}
-		
-		return null;
-		
-	}
 	
 	public boolean connect(String host) {
 		this.host = host;
@@ -125,9 +97,7 @@ public class XMPP extends Service implements MessageListener {
 		this.service = service;
 		return connect();
 	}
-	/**
-	 * 
-	 */
+
 	public boolean connect() {
 
 		try {
@@ -215,6 +185,34 @@ public class XMPP extends Service implements MessageListener {
 		}
 	}
 
+	public Roster getRoster()
+	{
+		roster = connection.getRoster();
+		for (RosterEntry entry : roster.getEntries()) {
+			log.info(String.format("User: %s %s ", entry.getName(), entry.getUser()));
+			idToEntry.put(entry.getName(), entry);
+		}
+		return roster;
+	}
+	
+	
+	RosterEntry getEntry(String userOrBuddyId)
+	{
+		RosterEntry entry = null;
+		entry = roster.getEntry(userOrBuddyId);
+		if (entry != null) {
+			return entry;
+		}
+		
+		if (idToEntry.containsKey(userOrBuddyId))
+		{
+			return idToEntry.get(userOrBuddyId);
+		}
+		
+		return null;
+		
+	}
+	
 	// TODO implement lower level messaging
 	public void sendMyRobotLabJSONMessage(org.myrobotlab.framework.Message msg) {
 
@@ -366,18 +364,21 @@ public class XMPP extends Service implements MessageListener {
 		Message.Type type = msg.getType();
 		String from = msg.getFrom();
 		String body = msg.getBody();
-		if (type.equals(Message.Type.error))
+		if (type.equals(Message.Type.error) || body == null || body.length() == 0)
 		{
 			log.error("{} processMessage returned error {}", from, body);
 			return;
 		}
-		log.info(String.format("Received %s message [%s] from [%s]", type, body, from));
+		
+		log.debug(String.format("Received %s message [%s] from [%s]", type, body, from));
 		
 		// BinaryToken ???
 		// Security.Authorization (buddyId -> Level ???)
 		// Basic buddyId
 		
-		if (body != null && body.length() > 0 && body.charAt(0) == '/') {
+		
+		if (body.charAt(0) == '/') {
+			// chat command - from  chat client
 			try {
 				processRESTChatMessage(msg);
 			} catch (Exception e) {
@@ -394,6 +395,8 @@ public class XMPP extends Service implements MessageListener {
 			// "supertick@gmail.com");
 		}
 
+		// FIXME - decide if its a publishing point
+		// or do we directly invoke and expect a response type
 		invoke("publishMessage", chat, msg);
 	}
 	
@@ -447,8 +450,9 @@ public class XMPP extends Service implements MessageListener {
 	 * @param message
 	 * @return
 	 */
-	public Message publishMessage(Message message) {
-		return message;
+	public Message publishMessage(Chat chat, Message msg) {
+		log.info(String.format("%s sent msg %s", msg.getFrom(), msg.getBody()));
+		return msg;
 	}
 
 	/*
@@ -461,6 +465,16 @@ public class XMPP extends Service implements MessageListener {
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		try {
+			
+			int i = 1;
+			Runtime.main(new String[]{"-runtimeName", String.format("r%d", i)});
+			XMPP xmpp1 = (XMPP)Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
+			Runtime.createAndStart(String.format("clock%d", i), "Clock");
+			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+			xmpp1.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
+			xmpp1.sendMessage("xmpp 2", "robot02 02");
+			if (true) {return;}
+			
 			XMPP xmpp = new XMPP("xmpp");
 			xmpp.startService();
 

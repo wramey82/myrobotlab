@@ -27,7 +27,7 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
-public class RasPi extends Service {
+public class RasPi extends Service implements GpioPinListenerDigital {
 
 	private static final long serialVersionUID = 1L;
 
@@ -232,7 +232,6 @@ public class RasPi extends Service {
 		try {
 
 			String key = String.format("%d.%d", busAddress, deviceAddress);
-
 			I2CBus bus = I2CFactory.getInstance(busAddress);
 
 			// PCF8574GpioProvider pcf = new PCF8574GpioProvider(busAddress,
@@ -242,15 +241,19 @@ public class RasPi extends Service {
 			// PCF8574GpioProvider p = new PCF8574GpioProvider(busAddress,
 			// deviceAddress);
 			// p.setValue(pin, value)
-
-			Device d = new Device();
-			d.bus = bus;
-			d.device = (I2CDevice) new PCF8574GpioProvider(busAddress, deviceAddress);
-			d.type = d.device.getClass().getCanonicalName();// "PCF8574GpioProvider";
-															// // full type name
-
-			devices.put(key, d);
-			return d.device;
+			
+			if ("com.pi4j.gpio.extension.pcf.PCF8574GpioProvider".equals(type)){
+				Device d = new Device();
+				d.bus = bus;
+				d.device = (I2CDevice) new PCF8574GpioProvider(busAddress, deviceAddress);
+				d.type = d.device.getClass().getCanonicalName();// "PCF8574GpioProvider";
+																// // full type name
+				devices.put(key, d);
+				return d.device;
+			} else {
+				log.error("could not create device %s", type);
+				return null;
+			}
 
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -261,10 +264,35 @@ public class RasPi extends Service {
 	
 	boolean initPCF = false;
 	
-    public static void testPCF8574(int busAddress, int deviceAddress)  {
+	/*
+	public boolean setPCF8574AsInput(Integer busAddress, Integer deviceAddress)
+	{
+		PCF8574GpioProvider gpioProvider = (PCF8574GpioProvider)getDevice(busAddress, deviceAddress);
+		if (gpioProvider == null)
+		{
+			gpioProvider = (PCF8574GpioProvider)createDevice(busAddress, deviceAddress, "com.pi4j.gpio.extension.pcf.PCF8574GpioProvider");
+		}
+		
+        GpioPinDigitalInput myInputs[] = {
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_00),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_01),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_03),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_04),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_05),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_06),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_07)
+            };
+		
+	}
+	*/
+	
+    public static void testPCF8574(Integer busAddress, Integer deviceAddress)  {
     	try {
         
-        System.out.println("<--Pi4J--> PCF8574 GPIO Example ... started.");
+        //System.out.println("<--Pi4J--> PCF8574 GPIO Example ... started.");
+    		
+    	log.info(String.format("PCF8574 - begin - bus %d address %d", busAddress, deviceAddress));
         
         // create gpio controller
         GpioController gpio = GpioFactory.getInstance();
@@ -277,7 +305,12 @@ public class RasPi extends Service {
         GpioPinDigitalInput myInputs[] = {
                 gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_00),
                 gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_01),
-                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02)
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_03),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_04),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_05),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_06),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_07)
             };
         
         // create and register gpio pin listener
@@ -290,6 +323,7 @@ public class RasPi extends Service {
             }
         }, myInputs);
         
+        /*
         // provision gpio output pins and make sure they are all LOW at startup
         GpioPinDigitalOutput myOutputs[] = { 
             gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_04, PinState.LOW),
@@ -311,6 +345,9 @@ public class RasPi extends Service {
         // stop all GPIO activity/threads by shutting down the GPIO controller
         // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
        // gpio.shutdown();
+        */
+    	log.info(String.format("PCF8574 - end - bus %d address %d", busAddress, deviceAddress));
+
     	} catch(Exception e) {
     		Logging.logException(e);
     	}
@@ -520,6 +557,13 @@ public class RasPi extends Service {
 		}
 
 	}
+	
+
+	@Override
+	public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
@@ -547,5 +591,6 @@ public class RasPi extends Service {
 		// Runtime.createAndStart(String.format("rasClock%d",i), "Clock");
 		Runtime.createAndStart(String.format("rasRemote%d", i), "RemoteAdapter");
 	}
+
 
 }

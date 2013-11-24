@@ -257,8 +257,10 @@ public class Python extends Service {
 
 			initScript.append(String.format("from org.myrobotlab.service import %s\n", sw.getSimpleName()));
 
+			String serviceScript = String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", getSafeReferenceName(serviceName), serviceName);
+
 			// get a handle on running service
-			initScript.append(String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", getSafeReferenceName(serviceName), serviceName));
+			initScript.append(serviceScript);
 		}
 
 		initialServiceScript = initScript.toString();
@@ -286,7 +288,7 @@ public class Python extends Service {
 			registerScript = String.format("from org.myrobotlab.service import %s\n", s.getSimpleName());
 		}
 
-		registerScript += String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", getSafeReferenceName(s.getName()), getSafeReferenceName(s.getName()));
+		registerScript += String.format("%s = Runtime.getServiceWrapper(\"%s\").service\n", getSafeReferenceName(s.getName()), s.getName());
 		exec(registerScript, false);
 	}
 
