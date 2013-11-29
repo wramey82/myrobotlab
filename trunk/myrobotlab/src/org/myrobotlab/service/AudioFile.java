@@ -26,8 +26,11 @@
 package org.myrobotlab.service;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,6 +49,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -58,17 +62,21 @@ public class AudioFile extends Service {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(AudioFile.class.getCanonicalName());
 	transient AePlayWave wavPlayer = new AePlayWave();
-	// FIXME - http://alvinalexander.com/java/java-audio-example-java-au-play-sound - so much more simple
+	// FIXME -
+	// http://alvinalexander.com/java/java-audio-example-java-au-play-sound - so
+	// much more simple
 	// http://stackoverflow.com/questions/198679/convert-audio-stream-to-wav-byte-array-in-java-without-temp-file
 	// REMOVE AePlayWave !!!
-	
-	//public transient HashMap<String, AdvancedPlayerThread> players = new HashMap<String, AdvancedPlayerThread>();
+
+	// public transient HashMap<String, AdvancedPlayerThread> players = new
+	// HashMap<String, AdvancedPlayerThread>();
 	public transient List<AdvancedPlayerThread> players = Collections.synchronizedList(new ArrayList<AdvancedPlayerThread>());
 
 	public AudioFile(String n) {
 		super(n, AudioFile.class.getCanonicalName());
 	}
 
+	// FIXME - bad assumptions
 	public void play(String name) {
 		playFile("audioFile/" + name + ".mp3", false);
 	}
@@ -92,53 +100,46 @@ public class AudioFile extends Service {
 	public void playResource(String filename, Boolean isBlocking) {
 		playFile(filename, isBlocking, true);
 	}
-	
-	public class AdvancedPlayerThread extends Thread
-	{
+
+	public class AdvancedPlayerThread extends Thread {
 		AdvancedPlayer player = null;
-		
-		public AdvancedPlayerThread(String filename, BufferedInputStream bis)
-		{
+
+		public AdvancedPlayerThread(String filename, BufferedInputStream bis) {
 			super(filename);
 			try {
 				this.player = new AdvancedPlayer(bis);
-			} catch(Exception e)
-			{
+			} catch (Exception e) {
 				Logging.logException(e);
 			}
 		}
-		
+
 		public void run() {
 			try {
 				invoke("started");
 				player.play();
 				invoke("stopped");
 			} catch (Exception e) {
-			 	Logging.logException(e);
+				Logging.logException(e);
 			}
 		}
 	}
 
 	public void playFile(String filename, Boolean isBlocking, Boolean isResource) {
-		//final AdvancedPlayer player;
-
-		// TODO - cache file - for quick playing again - delete cache after set
-		// time
 		try {
-			
+
 			InputStream is;
 			if (isResource) {
 				is = AudioFile.class.getResourceAsStream(filename);
 			} else {
 				is = new FileInputStream(filename);
 			}
-			
+
 			if (!isBlocking) {
 				BufferedInputStream bis = new BufferedInputStream(is);
 				AdvancedPlayerThread player = new AdvancedPlayerThread(filename, bis);
-				//players.put(filename, player);
+				// players.put(filename, player);
 				players.add(player);
-				player.start();		
+				player.start();
 			} else {
 				invoke("started");
 				AdvancedPlayer player = new AdvancedPlayer(is);
@@ -286,20 +287,117 @@ public class AudioFile extends Service {
 	public String getDescription() {
 		return "Plays back audio file. Can block or multi-thread play";
 	}
-	
-	
-	public void silence()
-	{
+
+	public void silence() {
 		Iterator<AdvancedPlayerThread> iter = players.iterator();
 		while (iter.hasNext()) {
 			try {
-			AdvancedPlayerThread player = iter.next();
-			player.player.close();
-			player.interrupt();
-			} catch(Exception e) {
+				AdvancedPlayerThread player = iter.next();
+				player.player.close();
+				player.interrupt();
+			} catch (Exception e) {
 				Logging.logException(e);
 			}
 			iter.remove();
+		}
+	}
+
+	public void convert(String filename) {
+		try {
+			File soundFile = new File(filename);
+			FileInputStream fileStream = null;
+			if (!soundFile.exists()) {
+				System.err.println("Wave file not found: " + filename);
+				return;
+			}
+
+			AudioInputStream audioInputStream = null;
+
+			audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+			fileStream = new FileInputStream(soundFile);
+
+			AudioFormat format = audioInputStream.getFormat();
+
+			byte[] bytes = convert(FileIO.getBytes(fileStream), format);
+
+			FileOutputStream fileOuputStream = new FileOutputStream("out.wav");
+			fileOuputStream.write(bytes);
+			fileOuputStream.close();
+
+		} catch (Exception e) {
+			Logging.logException(e);
+			return;
+		}
+
+	}
+
+	// http://stackoverflow.com/questions/14085199/mp3-to-wav-conversion-in-java
+	// TODO - great method .. although why pass in the audio format ???
+	public static byte[] convert(byte[] sourceBytes, AudioFormat audioFormat) {
+		if (sourceBytes == null || sourceBytes.length == 0 || audioFormat == null) {
+			throw new IllegalArgumentException("Illegal Argument passed to this method");
+		}
+
+		ByteArrayInputStream bais = null;
+		ByteArrayOutputStream baos = null;
+		AudioInputStream sourceAIS = null;
+		AudioInputStream convert1AIS = null;
+		AudioInputStream convert2AIS = null;
+
+		try {
+			bais = new ByteArrayInputStream(sourceBytes);
+			sourceAIS = AudioSystem.getAudioInputStream(bais);
+			AudioFormat sourceFormat = sourceAIS.getFormat();
+			AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(),
+					sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+			convert1AIS = AudioSystem.getAudioInputStream(convertFormat, sourceAIS);
+			convert2AIS = AudioSystem.getAudioInputStream(audioFormat, convert1AIS);
+
+			baos = new ByteArrayOutputStream();
+
+			byte[] buffer = new byte[8192];
+			while (true) {
+				int readCount = convert2AIS.read(buffer, 0, buffer.length);
+				if (readCount == -1) {
+					break;
+				}
+				baos.write(buffer, 0, readCount);
+			}
+			return baos.toByteArray();
+		} catch (Exception e) {
+			Logging.logException(e);
+			return null;
+		} finally {
+			if (baos != null) {
+				try {
+					baos.close();
+				} catch (Exception e) {
+				}
+			}
+			if (convert2AIS != null) {
+				try {
+					convert2AIS.close();
+				} catch (Exception e) {
+				}
+			}
+			if (convert1AIS != null) {
+				try {
+					convert1AIS.close();
+				} catch (Exception e) {
+				}
+			}
+			if (sourceAIS != null) {
+				try {
+					sourceAIS.close();
+				} catch (Exception e) {
+				}
+			}
+			if (bais != null) {
+				try {
+					bais.close();
+				} catch (Exception e) {
+				}
+			}
 		}
 	}
 
@@ -307,29 +405,31 @@ public class AudioFile extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		Joystick joystick = (Joystick)Runtime.createAndStart("joy", "Joystick");
-		Python python = (Python)Runtime.createAndStart("python", "Python");
+		AudioFile af = (AudioFile) Runtime.createAndStart("audio", "AudioFile");
+		af.convert("C:\\tools\\Tarsos-master\\test.wav");
+
+		Joystick joystick = (Joystick) Runtime.createAndStart("joy", "Joystick");
+		Python python = (Python) Runtime.createAndStart("python", "Python");
 		AudioFile player = new AudioFile("player");
 		player.startService();
-		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
-	
+		GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
+
 		joystick.setController(2);
 		joystick.broadcastState();
-		
-		python.subscribe(joystick.getName(), "button1", "input");
-		
-//		BasicController control = (BasicController) player;
 
-		
+		python.subscribe(joystick.getName(), "button1", "input");
+
+		// BasicController control = (BasicController) player;
+
 		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
 		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
 		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\thump.mp3");
 		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\start.mp3");
 		player.playFile("C:\\Users\\grperry\\Downloads\\soapBox\\radio.chatter.4.mp3");
-		
+
 		player.silence();
-		
-		//player.playResource("Clock/tick.mp3");
+
+		// player.playResource("Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
@@ -337,9 +437,9 @@ public class AudioFile extends Service {
 		player.playResource("/resource/Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
 		player.playResource("/resource/Clock/tick.mp3");
-		//player.playBlockingWavFile("I am ready.wav");
+		// player.playBlockingWavFile("I am ready.wav");
 		// player.play("hello my name is audery");
-		//player.playWAV("hello my name is momo");
+		// player.playWAV("hello my name is momo");
 	}
 
 }

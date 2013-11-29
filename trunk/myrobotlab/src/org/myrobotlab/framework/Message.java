@@ -178,8 +178,8 @@ public class Message implements Serializable {
 	public Message() {
 		timeStamp = System.currentTimeMillis();
 		msgID = timeStamp; // currently just a timestamp - but it can be more unique if needed
-		name = new String();
-		sender = new String();
+		name = new String(); // FIXME - allow NULL !
+		sender = new String(); // FIXME - allow NULL !
 		sendingMethod = new String();
 		historyList = new ArrayList<RoutingEntry>();
 		method = new String();

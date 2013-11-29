@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.myrobotlab.framework.Encoder;
+import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -140,15 +142,37 @@ public class Clock extends Service {
 
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.ERROR);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+		
+		
+		/*
+		Runtime.createAndStart("xmpp","XMPP");
+		Clock clock = (Clock)Runtime.createAndStart("clock","Clock");
+		Python python = (Python)Runtime.createAndStart("python","Python");
+		Runtime.createAndStart("gui","GUIService");
+		
+		clock.createExportMsg();
+		
+		Message msg = python.createMessage("runtime", "registerServices", Runtime.getLocalServicesForExport());
+		String emsg = Encoder.encode(msg);
+		
+		*/
 		
 		int i = 2;
 		Runtime.main(new String[]{"-runtimeName", String.format("r%d", i)});
 		XMPP xmpp1 = (XMPP)Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
-		Runtime.createAndStart(String.format("clock%d", i), "Clock");
+		Clock clock = (Clock)Runtime.createAndStart(String.format("clock%d", i), "Clock");
+		Runtime.createAndStart(String.format("python%d", i), "Python");
 		Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+		
 		xmpp1.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
-		xmpp1.sendMessage("clock 2", "incubator incubator");
+
+		Message msg = xmpp1.createMessage("runtime", "registerServices", Runtime.getLocalServicesForExport());
+		String registerMsg = Encoder.msgToGson(msg);
+		String base64 = Encoder.msgToBase64(msg);
+		xmpp1.sendMessage(base64, "incubator incubator");
+
+		//---------------------------THE END--------------------------------------------
 		if (true) {return;}
 
 		HashSet<String> test = new HashSet<String>();

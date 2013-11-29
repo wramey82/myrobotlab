@@ -74,7 +74,7 @@ public class IPCamera extends Service {
 					log.debug("grabbed");
 					if (bi != null) {
 						log.debug("publishDisplay");
-						invoke("publishDisplay", new Object[] { host, bi });
+						invoke("publishDisplay", new Object[] { getName(), bi });
 					}
 				}
 			} catch (Exception e) {
