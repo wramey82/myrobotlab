@@ -27,6 +27,7 @@ package org.myrobotlab.fileLib;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -234,8 +235,7 @@ public class FileIO {
 		URL url = File.class.getResource("/resource");
 
 		// FIXME - DALVIK issue !
-		if (url == null)
-		{
+		if (url == null) {
 			return null; // FIXME DALVIK issue
 		} else {
 			return url.toString();
@@ -249,9 +249,8 @@ public class FileIO {
 
 	static public boolean inJar() {
 		String location = getResouceLocation();
-		if (location != null)
-		{
-		return getResouceLocation().startsWith("jar:");
+		if (location != null) {
+			return getResouceLocation().startsWith("jar:");
 		} else {
 			return false;
 		}
@@ -304,7 +303,7 @@ public class FileIO {
 	public static void main(String[] args) throws ZipException, IOException {
 
 		LoggingFactory.getInstance().configure();
-		//LoggingFactory.getInstance().setLevel(Level.INFO);
+		// LoggingFactory.getInstance().setLevel(Level.INFO);
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		ArrayList<String> files = listInternalContents("resource/images");
@@ -318,6 +317,28 @@ public class FileIO {
 		}
 
 		log.info("done");
+
+	}
+
+	public static byte[] getBytes(InputStream is) {
+
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		try {
+
+			int nRead;
+			byte[] data = new byte[16384];
+
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
+			}
+
+			buffer.flush();
+		} catch (Exception e) {
+			Logging.logException(e);
+			return null;
+		}
+
+		return buffer.toByteArray();
 
 	}
 

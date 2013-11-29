@@ -127,21 +127,7 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 					try {
 						o = in.readObject();
 						msg = (Message) o;
-						
-						/*
-						if (data.authenticated) && needsAuthentication
-						{
-							// check authentication
-						}
-						*/
-						//chase network bugs 
-						// log.error(String.format("%s rx %s.%s <-tcp- %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-						/* NOT WORTH CATCHING STREAM WONT RECOVER
-					} catch (ClassCastException e) {
-						myService.setError("ClassCastException");
-					} catch (EOFException e) {
-						myService.setError("EOFException");
-						*/
+
 					} catch (Exception e) {
 						if (e.getClass() == NotSerializableException.class || e.getClass() == WriteAbortedException.class)
 						{

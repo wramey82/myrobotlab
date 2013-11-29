@@ -101,7 +101,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
-	protected String host = null; // TODO - should be final??? helpful in
+	//protected String host = null; // TODO - should be final??? helpful in
 									// testing??? TODO - put in
 									// RuntimeEnvironment???
 	@Element
@@ -668,15 +668,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 		}
 
-		host = getHostName(inHost);
+		//host = getHostName(inHost);
 		
 		// this.timer = new Timer(String.format("%s_timer", name)); FIXME - re-implement but only create if there is a task!!
 		this.serviceClass = serviceClass;
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
-		hostcfg = new ConfigurationManager(host);
-		cfg = new ConfigurationManager(host, name);
+		hostcfg = new ConfigurationManager("host");
+		cfg = new ConfigurationManager("host", name);
 
 		// global defaults begin - multiple services will re-set defaults
 		loadGlobalMachineDefaults(); // TODO - put in RuntimeEnvironments
@@ -689,17 +689,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			initialize();
 		}
 
-		// over-ride service level with service file
-		cfg.load(String.format("%1$s.%2$s.properties", host, name));
-
 		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);
 
 		TSFormatter.setCalendar(cal);
-
-		// FIXME - deprecate - remove !
-		// registerServices();
-
+		
 		Runtime.register(this, url);
 	}
 
@@ -899,7 +893,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public void loadGlobalMachineDefaults() {
 		// create root configuration
-		ConfigurationManager hostCFG = new ConfigurationManager(host);
+		ConfigurationManager hostCFG = new ConfigurationManager("host");
 		// add global config
 		hostCFG.set("servicePort", 3389);
 		// hostCFG.set("Communicator",
@@ -1861,17 +1855,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * 
 	 * @return
 	 */
-	public String getHost() {
-		return host;
-	}
-
-	/**
-	 * 
-	 * @param host
-	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
 
 	/**
 	 * 
@@ -2028,50 +2011,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return target;
 	}
 
-	// TODO - DEPRICATE !!!!
-	/**
-	 * 
-	 */
-	/*
-	 * public synchronized void registerServices() {
-	 * log.debug(String.format("%1$s registerServices", name));
-	 * 
-	 * Class<?> c; try { c = Class.forName(serviceClass);
-	 * 
-	 * HashMap<String, Object> hideMethods = cfg.getMap("hideMethods");
-	 * 
-	 * // try to get method which has the correct parameter types //
-	 * http://java.sun.com/developer/technicalArticles/ALT/Reflection/ Method[]
-	 * methods = c.getDeclaredMethods(); // register this service
-	 * hostcfg.setServiceEntry(host, name, serviceClass, 0, new Date(), this,
-	 * getDescription());
-	 * 
-	 * Method m; Class<?>[] paramTypes; Class<?> returnType; for (int i = 0; i <
-	 * methods.length; ++i) { m = methods[i]; paramTypes =
-	 * m.getParameterTypes(); returnType = m.getReturnType();
-	 * 
-	 * if (!hideMethods.containsKey(m.getName())) { // service level
-	 * hostcfg.setMethod(host, name, m.getName(), returnType, paramTypes); } }
-	 * 
-	 * Class<?>[] interfaces = c.getInterfaces(); Class<?> interfc; for (int i =
-	 * 0; i < interfaces.length; ++i) { interfc = interfaces[i];
-	 * 
-	 * log.info(String.format("adding interface %1$s",
-	 * interfc.getCanonicalName()));
-	 * 
-	 * hostcfg.setInterface(host, name, interfc.getClass().getCanonicalName());
-	 * }
-	 * 
-	 * Type[] intfs = c.getGenericInterfaces(); Type t; for (int j = 0; j <
-	 * intfs.length; ++j) { t = intfs[j]; hostcfg.setInterface(host, name,
-	 * t.toString().substring(t.toString().indexOf(" ") + 1)); } } catch
-	 * (ClassNotFoundException e) { logException(e); } catch (SecurityException
-	 * e) { logException(e); } catch (IllegalArgumentException e) {
-	 * logException(e); } }
-	 */
 	/**
 	 * Outbound connect - initial request to connect and register services with
 	 * a remote system
+	 * 
+	 * remoteHost port would be key to foriegn system - key into config which NATs
+	 * 
 	 */
 	public void connect(String login, String password, String remoteHost, int port) {
 		try {

@@ -145,6 +145,7 @@ public class Graphics extends Service {
 	public Random rand = new Random();
 	int plotTextStart = 10;
 
+	/*
 	public void plot(Message msg) {
 		if (msg.data == null)
 
@@ -183,6 +184,8 @@ public class Graphics extends Service {
 		plotXValueMap.put(msg.getName(), ++x % cfg.getInt("width"));
 	}
 
+*/
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
