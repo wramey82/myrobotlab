@@ -31,10 +31,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.ConfigurationManager;
+import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -78,7 +76,6 @@ public final class FilterColorGrouping {
 
 	public final static Logger log = LoggerFactory.getLogger(FilterColorGrouping.class.getCanonicalName());
 
-	ConfigurationManager cfg;
 	Rectangle target = null;
 	PointReference[][] grid = null;
 	ArrayList<Group> groupList = null;
@@ -110,24 +107,6 @@ public final class FilterColorGrouping {
 	}
 
 	public void loadDefaultConfiguration() {
-
-		cfg.set("target.x", 0);
-		cfg.set("target.y", 0);
-		cfg.set("target.width", 320);
-		cfg.set("target.height", 240);
-		// cfg.set("target.color", "40");
-		cfg.set("step.x", 1);
-		cfg.set("step.y", 1);
-
-		cfg.set("groupDelta", 25);
-
-		target = new Rectangle(cfg.getInt("target.x"), cfg.getInt("target.x"), cfg.getInt("target.width"), cfg.getInt("target.height"));
-		stepx = cfg.getInt("step.x");
-		stepy = cfg.getInt("step.y");
-		groupDelta = cfg.getInt("groupDelta");
-		xTotal = target.width / stepx;
-		yTotal = target.height / stepy;
-		grid = new PointReference[xTotal][yTotal];
 
 		// initialization
 		for (int x = 0; x < xTotal; ++x) {

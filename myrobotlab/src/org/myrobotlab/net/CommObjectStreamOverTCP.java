@@ -61,7 +61,7 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
-public class CommObjectStreamOverTCP extends Communicator implements Serializable {
+public class CommObjectStreamOverTCP implements Communicator, Serializable {
 
 	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
@@ -350,19 +350,6 @@ public class CommObjectStreamOverTCP extends Communicator implements Serializabl
 				e.printStackTrace();
 			}
 		}
-	}
-
-	@Override
-	public void startHeartbeat() {
-		if (!heartbeatRunning) {
-
-		}
-	}
-
-	@Override
-	public void stopHeartbeat() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

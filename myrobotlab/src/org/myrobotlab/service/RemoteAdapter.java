@@ -129,9 +129,9 @@ public class RemoteAdapter extends Service {
 
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
-					Communicator comm = (Communicator) cm.getComm();
-					URI url = new URI("tcp://" + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
+					URI uri = new URI(String.format("mrl:%stcp://%s:%d", getName(), clientSocket.getInetAddress().getHostAddress(),clientSocket.getPort()));
 					myService.info(String.format("new connection %s", url.toString()));
+					Communicator comm = (Communicator) cm.getComm(uri);
 					comm.addClient(url, clientSocket);
 					//broadcastState(); don't broadcast unless requested to
 				}
@@ -172,7 +172,7 @@ public class RemoteAdapter extends Service {
 
 				log.info(getName() + " UDPListener listening on " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 
-				Communicator comm = (Communicator) cm.getComm();
+				Communicator comm = (Communicator) cm.getComm(new URI(String.format("mrl:%s/udp://%s:%d", getName(),socket.getLocalAddress(),socket.getLocalPort())));
 
 				byte[] b = new byte[65535];
 				ByteArrayInputStream b_in = new ByteArrayInputStream(b);

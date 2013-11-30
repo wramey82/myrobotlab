@@ -26,24 +26,39 @@
 package org.myrobotlab.service.interfaces;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.net.CommData;
 
-public abstract class Communicator {
+public interface Communicator {
 
-	public abstract void send(final URI url, final Message msg); 
+	public void send(final URI uri, final Message msg); 
 
-	public abstract void stopService();
+	// FIXME - remove - not needed now that all Communictors are Services ?
+	public void stopService();
 
-	public abstract void addClient(URI url, Object commData);
+	/**
+	 * adds remote client data - the uri key will be used for
+	 * messages which need to be sent to the remote client
+	 * the commData is all the data necessary to communicate to that client
+	 * there might be enough info in just the uri - but depending on the
+	 * protocol - more info might be needed
+	 * 
+	 * @param uri
+	 * @param commData
+	 */
+	public void addClient(URI uri, Object commData);
+	
+	// TODO
+	// public remoteClient(uri);
 
-	public abstract void startHeartbeat();
+	/* TODO - make these work
+	public void startHeartbeat();
 
-	public abstract void stopHeartbeat();
+	public void stopHeartbeat();
+	*/
 
-	public abstract HashMap<URI, CommData> getClients();
+	public HashMap<URI, CommData> getClients();
 	
 }

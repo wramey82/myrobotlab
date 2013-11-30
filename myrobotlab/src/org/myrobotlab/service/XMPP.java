@@ -25,18 +25,19 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.net.CommData;
+import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.webgui.RESTProcessor;
 import org.myrobotlab.webgui.RESTProcessor.RESTException;
 import org.slf4j.Logger;
 
-public class XMPP extends Service implements MessageListener {
+public class XMPP extends Service implements Communicator, MessageListener {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
 
-	//
 	String user;
 	String password;
 	String host;
@@ -235,11 +236,11 @@ public class XMPP extends Service implements MessageListener {
 			sendMessage(text, buddy);
 		}
 	}
-	
-	// FIXME - create Resistrar interface sendMRLMessage(Message msg, URI/String key)
-	public void sendMRLMessage(org.myrobotlab.framework.Message msg, String id)
-	{
-		//Base64.enc
+
+	// FIXME - create Resistrar interface sendMRLMessage(Message msg, URI/String
+	// key)
+	public void sendMRLMessage(org.myrobotlab.framework.Message msg, String id) {
+		// Base64.enc
 	}
 
 	// FIXME synchronized not needed?
@@ -249,12 +250,13 @@ public class XMPP extends Service implements MessageListener {
 			connect();
 
 			RosterEntry entry = getEntry(id);
+			String buddyJID;
 			if (entry == null) {
-				error("could not send message to %s - entry does not exist", id);
-				return;
+				// error("could not get entry for id - using %s", id);
+				buddyJID = id;
+			} else {
+				buddyJID = entry.getUser();
 			}
-
-			String buddyJID = entry.getUser();
 
 			// FIXME FIXME FIXME !!! - if
 			// "just connected - ie just connected and this is the first chat of the connection then "create
@@ -270,7 +272,12 @@ public class XMPP extends Service implements MessageListener {
 			if (text == null) {
 				text = "null"; // dangerous converson?
 			}
-			log.info(String.format("sending %s (%s) %s", entry.getName(), buddyJID, text));
+
+			// log.info(String.format("sending %s (%s) %s", entry.getName(),
+			// buddyJID, text));
+			if (log.isDebugEnabled()) {
+				log.info(String.format("sending %s %s", buddyJID, (text.length() > 32) ? String.format("%s...", text.substring(0, 32)) : text));
+			}
 			chat.sendMessage(text);
 
 		} catch (Exception e) {
@@ -367,31 +374,48 @@ public class XMPP extends Service implements MessageListener {
 		String from = msg.getFrom();
 		String body = msg.getBody();
 		if (type.equals(Message.Type.error) || body == null || body.length() == 0) {
-			log.error("{} processMessage returned error {}", from, body);
+			// log.error("{} processMessage returned error {}", from, body);
+			// TODO error count ?
 			return;
 		}
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Received %s message [%s] from [%s]", type, body, from));
 		}
-		
-		
-		if (body.startsWith(Encoder.SCHEME_BASE64))
-		{
+
+		if (body.startsWith(Encoder.SCHEME_BASE64)) {
 			org.myrobotlab.framework.Message inboundMsg = Encoder.base64ToMsg(body);
 			// must add key for registration ???
-			if (inboundMsg.method.equals("registerServices")){
-				ServiceEnvironment se = (ServiceEnvironment)inboundMsg.data[0];
-				String mrlURI = String.format("mrl:%s/xmpp://%s", getName(), from);
-				try { // HMMM a vote for String vs URI here - since we need to catch syntax !!!
-				se.accessURL =  new URI(mrlURI);
-				} catch(Exception e) {
+			if (inboundMsg.method.equals("registerServices")) {
+				ServiceEnvironment se = (ServiceEnvironment) inboundMsg.data[0];
+				// FIXME !!! - very important format needs to be in Encoder
+				String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
+				try { // HMMM a vote for String vs URI here - since we need to
+						// catch syntax !!!
+					se.accessURL = new URI(mrlURI);
+				} catch (Exception e) {
 					Logging.logException(e);
 				}
+
+				// FIXME FIXME FIXME ??? WTF not right
+				Runtime.getInstance().registerServices(inboundMsg);
+			} else if (inboundMsg.method.equals("register")) {
+
+				ServiceWrapper sw = (ServiceWrapper) inboundMsg.data[0];
+
+				String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
+				try { // HMMM a vote for String vs URI here - since we need to
+						// catch syntax !!!
+					sw.host = new URI(mrlURI); // serviceEn
+				} catch (Exception e) {
+					Logging.logException(e);
+				}
+
+				Runtime.getInstance().register(sw);
+
+			} else {
+				getOutbox().add(inboundMsg);
 			}
-			// ??? WTF not right
-			Runtime.getInstance().registerServices(inboundMsg);
-			getOutbox().add(inboundMsg);
 			return;
 		}
 
@@ -403,7 +427,7 @@ public class XMPP extends Service implements MessageListener {
 				// gson encoded MRL Message !
 				org.myrobotlab.framework.Message remoteMsg = Encoder.gsonToMsg(body);
 				Runtime.getInstance().registerServices(remoteMsg);
-				//getOutbox().add(remoteMsg);
+				// getOutbox().add(remoteMsg);
 			} catch (Exception e) {
 				Logging.logException(e);
 			}
@@ -494,7 +518,7 @@ public class XMPP extends Service implements MessageListener {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		try {
 
@@ -565,11 +589,42 @@ public class XMPP extends Service implements MessageListener {
 			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
 			xmpp.sendMessage("hail bepsl", "supertick@gmail.com");
-			log.info("here");
 
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
+	}
+
+	/**
+	 * sending remotely - need uri key data to send to client
+	 */
+	@Override
+	public void send(URI uri, org.myrobotlab.framework.Message msg) {
+		// decompose uri or use as key (mmm specified encoding???)
+		String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
+																			// root
+		log.info(remoteURI);
+		// e.g.
+		// /xmpp://1y1h4m8lax3ex3fsercrczk3e5@public.talk.google.com/Smack114B7D06
+		// String buddyID = remoteURI.substring(4 + getName().length());
+		// send message
+		String base64 = Encoder.msgToBase64(msg);
+		sendMessage(base64, remoteURI);
+	}
+
+	// out of band data of client - no known endpoint of service !!!!
+	// Message with "null" name !
+	// cache connection data - buddy name
+	@Override
+	public void addClient(URI uri, Object commData) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public HashMap<URI, CommData> getClients() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

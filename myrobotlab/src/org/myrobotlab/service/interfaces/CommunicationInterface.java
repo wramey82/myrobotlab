@@ -8,10 +8,17 @@ public interface CommunicationInterface {
 
 	public void send(final Message msg);
 
-	public void send(final URI url, final Message msg);
+	public void send(final URI uri, final Message msg);
 
 	public void setComm(final Communicator comm);
 
-	public Communicator getComm();
+	/**
+	 * gets the appropriate local service based communicator to relay 
+	 * the message remotely
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	public Communicator getComm(final URI uri);
 
 }

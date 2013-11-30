@@ -1974,7 +1974,6 @@ public class Runtime extends Service {
 	 * @param port
 	 * @param msg
 	 * 
-	 *            FIXME - put into Runtime to normalize and simplify
 	 */
 	public void registerServices(Message msg) {
 		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceEnvironment)) {
@@ -1985,6 +1984,7 @@ public class Runtime extends Service {
 			ServiceEnvironment mrlInstance = (ServiceEnvironment) msg.data[0];
 
 			if (!Runtime.register(mrlInstance)) {
+				// if nothing new return with echo
 				return;
 			}
 			// if successfully registered with "new" Services - echo a
