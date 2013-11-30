@@ -31,6 +31,7 @@ import java.net.URI;
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.framework.Service;
@@ -63,8 +64,14 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 
 	}
 
-	public void send(final URI remoteURL, final Message msg) {
-		getComm().send(remoteURL, msg);
+	/**
+	 * getComm(uri) gets the local service responsible for sending the message remotely
+	 * .send(uri, msg) uri is a key into that service's data to send the message where it
+	 * needs to go
+	 * 
+	 */
+	public void send(final URI uri, final Message msg) {
+		getComm(uri).send(uri, msg);
 	}
 
 	public void send(final Message msg) {
@@ -81,8 +88,9 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 			sw.get().in(m);
 		} else {
 			// FIXME - test for loglevel & use the Swedish Formatter
+			
 			log.info(msg.sender + "." + msg.sendingMethod + "->" + sw.host + "/" + msg.name + "." + msg.method + "(" + msg.getParameterSignature() + ")");
-			getComm().send(sw.host, msg);
+			getComm(sw.host).send(sw.host, msg);
 		}
 	}
 
@@ -90,7 +98,15 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 		this.comm = comm;
 	}
 
-	public Communicator getComm() {
+	public Communicator getComm(URI uri) {
+		if (uri.getScheme().equals(Encoder.SCHEME_MRL))
+		{
+			//log.info("here");
+			//log.info(String.format("mrl: scheme - getting communicator %s", uri.getHost()));
+			ServiceWrapper sw = Runtime.getServiceWrapper(uri.getHost());
+			Communicator c = (Communicator)sw.service;
+			return c;
+		}
 		return comm;
 	}
 

@@ -54,7 +54,6 @@ public class InteractiveTableModel extends AbstractTableModel {
 
 	public InteractiveTableModel(String[] columnNames, Vector dataVector) {
 		this.columnNames = columnNames;
-		// dataVector = new Vector();
 		this.dataVector = dataVector;
 	}
 

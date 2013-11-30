@@ -90,7 +90,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 			if (startClock.getText().compareTo("start clock") == 0) {
 				
 				myService.send(boundServiceName, "setInterval", Integer.parseInt(interval.getText()));
-				myService.send(boundServiceName, "setData", data.getText());
+				//myService.send(boundServiceName, "setData", data.getText());
 				myService.send(boundServiceName, "startClock");
 
 			} else {

@@ -39,7 +39,6 @@
 
 package org.myrobotlab.net;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -62,7 +61,7 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
-public class CommObjectStreamOverDynamicProtocol extends Communicator implements Serializable {
+public class CommObjectStreamOverDynamicProtocol implements Communicator, Serializable {
 
 	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverDynamicProtocol.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
@@ -373,18 +372,6 @@ public class CommObjectStreamOverDynamicProtocol extends Communicator implements
 		}
 	}
 
-	@Override
-	public void startHeartbeat() {
-		if (!heartbeatRunning) {
-
-		}
-	}
-
-	@Override
-	public void stopHeartbeat() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public HashMap<URI, CommData> getClients() {

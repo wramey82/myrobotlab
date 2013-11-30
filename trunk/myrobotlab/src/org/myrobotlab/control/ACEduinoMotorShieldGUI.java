@@ -39,13 +39,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
-import org.myrobotlab.framework.ConfigurationManager;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.ACEduinoMotorShield;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
@@ -230,23 +228,9 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 		}
 	}
 
+	
 	public Vector<String> getAllServoControllers() {
-		Vector<String> v = new Vector<String>();
-		v.addElement(""); // the "no interface" selection
-		ConfigurationManager cm = myService.getHostCFG();
-		Vector<String> sm = cm.getServiceVector();
-		for (int i = 0; i < sm.size(); ++i) {
-			Vector<String> intfcs = cm.getInterfaces(sm.get(i));
-			if (intfcs == null)
-				continue;
-			for (int j = 0; j < intfcs.size(); ++j) {
-				if (intfcs.get(j).compareTo("org.myrobotlab.service.interfaces.ServoController") == 0) {
-					v.addElement(sm.get(i));
-				}
-			}
-
-		}
-		return v;
+		return Runtime.getServicesFromInterface("org.myrobotlab.service.interfaces.ServoController");
 	}
 
 	public void getState(ACEduinoMotorShield servo) {

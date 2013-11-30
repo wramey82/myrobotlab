@@ -102,7 +102,7 @@ public class FrogLeg extends Service {
 		gp.createGP();
 		sensors.startService();
 
-		mouth.getCFG().set("isATT", true);
+	//	mouth.getCFG().set("isATT", true);
 		sensors.addTrigger(arduino.getName(), "200", 200, 200, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
 		sensors.addTrigger(arduino.getName(), "300", 300, 300, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);
 		sensors.addTrigger(arduino.getName(), "400", 400, 400, Trigger.BOUNDRY, Trigger.STATE_LOW, IR_PIN);

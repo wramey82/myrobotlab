@@ -1,6 +1,8 @@
 package org.myrobotlab.framework;
 
-public class Status {
+import java.io.Serializable;
+
+public class Status implements Serializable {
 	
 	public final static String DEBUG = "DEBUG";
 	public final static String INFO = "INFO";

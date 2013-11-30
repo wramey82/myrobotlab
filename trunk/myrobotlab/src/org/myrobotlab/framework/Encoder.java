@@ -31,8 +31,8 @@ public class Encoder {
 
 	public final static Logger log = LoggerFactory.getLogger(Encoder.class);
 
-	public final static String SCHEME_MRL = "mrl:";
-	public final static String SCHEME_BASE64 = "base64:";
+	public final static String SCHEME_MRL = "mrl";
+	public final static String SCHEME_BASE64 = "base64";
 
 	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 
@@ -124,8 +124,8 @@ public class Encoder {
 	
 	public static final Message base64ToMsg(String base64) {
 		String data = base64;
-		if (base64.startsWith(SCHEME_BASE64)){
-			data = base64.substring(SCHEME_BASE64.length());
+		if (base64.startsWith(String.format("%s://",SCHEME_BASE64))){
+			data = base64.substring(SCHEME_BASE64.length()+3);
 		}
 		final ByteArrayInputStream dataStream = new ByteArrayInputStream(Base64.decodeBase64(data));
 		try {
@@ -145,9 +145,10 @@ public class Encoder {
 			objectStream.writeObject(msg);
 			objectStream.close();
 			dataStream.close();
-			String base64 = String.format("%s%s",SCHEME_BASE64, new String(Base64.encodeBase64(dataStream.toByteArray())));
+			String base64 = String.format("%s://%s",SCHEME_BASE64, new String(Base64.encodeBase64(dataStream.toByteArray())));
 			return base64;
 		} catch (Exception e) {
+			log.error(String.format("couldnt seralize %s", msg));
 			Logging.logException(e);
 			return null;
 		}
@@ -164,6 +165,10 @@ public class Encoder {
 			log.info(url.substring(5));
 			url = "mrl://remote/tcp://blah.com";
 			URI uri = new URI(url);
+			
+			log.info(uri.getHost());
+			log.info(uri.getScheme());
+			log.info(uri.getPath());
 
 			Message msg = decodeURI(uri);
 

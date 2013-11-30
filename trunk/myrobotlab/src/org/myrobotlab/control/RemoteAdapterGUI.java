@@ -73,6 +73,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	public void updateNodeList(RemoteAdapter remote) {
 		if (remote != null)
 		{
+			/*
 			// FIXME - handle this better !!!
 			CommunicationInterface cf = remote.getComm();
 			
@@ -92,6 +93,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 			
 			numClients.setText(String.format("%d",clients.size()));
 			}
+			*/
 
 		}
 	}

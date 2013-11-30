@@ -49,7 +49,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
-public class CommObjectStreamOverUDP extends Communicator implements Serializable {
+public class CommObjectStreamOverUDP implements Communicator, Serializable {
 
 	public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
 	private static final long serialVersionUID = 1L;
@@ -225,19 +225,6 @@ public class CommObjectStreamOverUDP extends Communicator implements Serializabl
 		clientList = new HashMap<URI, UDPThread>();
 		isRunning = false;
 	}
-
-	@Override
-	public void startHeartbeat() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopHeartbeat() {
-		// TODO Auto-generated method stub
-
-	}
-
 
 	@Override
 	public HashMap<URI, CommData> getClients() {

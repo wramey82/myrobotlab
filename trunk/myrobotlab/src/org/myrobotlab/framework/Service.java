@@ -55,7 +55,6 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
-import java.util.Timer;
 import java.util.TreeMap;
 
 import org.myrobotlab.fileLib.FileIO;
@@ -66,7 +65,6 @@ import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
-import org.myrobotlab.service.data.NameValuePair;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
@@ -124,11 +122,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// public transient final Timer timer; - FIXME re-implement but only start if there is a Task !!
 
 	transient protected CommunicationInterface cm = null;
-	/**
-	 * @deprecated
-	 */
-	transient protected ConfigurationManager cfg = null;
-	transient protected ConfigurationManager hostcfg = null;
+
+	//transient protected ConfigurationManager cfg = null;
+	//transient protected ConfigurationManager hostcfg = null;
 
 	// relay directives
 	static public final String PROCESS = "PROCESS";
@@ -675,14 +671,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
-		hostcfg = new ConfigurationManager("host");
-		cfg = new ConfigurationManager("host", name);
-
-		// global defaults begin - multiple services will re-set defaults
-		loadGlobalMachineDefaults(); // TODO - put in RuntimeEnvironments
-
-		// service instance defaults
-		loadServiceDefaultConfiguration();
+		outboxMsgHandling = RELAY;
+		anonymousMsgRequest = PROCESS;
 
 		// over-ride process level with host file
 		if (!hostInitialized) {
@@ -845,79 +835,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return false;
 	}
 
-	/*
-	 * setCFG a Service level accessor for remote messages to change
-	 * configuration of foreign services.
-	 */
-	/**
-	 * @deprecated
-	 */
-	public ConfigurationManager getCFG() {
-		return cfg;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public ConfigurationManager getHostCFG() {
-		return hostcfg;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public String getCFG(String name) {
-		return cfg.get(name);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public void setCFG(NameValuePair mvp) {
-		cfg.set(mvp.name.toString(), mvp.value.toString());
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public void setCFG(String name, String value) {
-		cfg.set(name, value);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public void setCFG(String name, Integer value) {
-		cfg.set(name, value);
-	}
-
-	public void loadGlobalMachineDefaults() {
-		// create root configuration
-		ConfigurationManager hostCFG = new ConfigurationManager("host");
-		// add global config
-		hostCFG.set("servicePort", 3389);
-		// hostCFG.set("Communicator",
-		// "org.myrobotlab.net.CommObjectStreamOverTCPUDP");
-		hostCFG.set("Serializer", "org.myrobotlab.net.SerializerObject");
-	}
-
-	public void loadServiceDefaultConfiguration() {
-		cfg.set("outboxMsgHandling", RELAY);
-		cfg.set("anonymousMsgRequest", PROCESS);
-
-		cfg.set("hideMethods/main", "");
-		cfg.set("hideMethods/loadDefaultConfiguration", "");
-		cfg.set("hideMethods/getDescription", "");
-		cfg.set("hideMethods/run", "");
-		cfg.set("hideMethods/access$0", ""); // TODO - Lame inner class slop -
-												// this should be fixed at the
-												// source
-
-		outboxMsgHandling = cfg.get("outboxMsgHandling");
-		anonymousMsgRequest = cfg.get("anonymousMsgRequest");
-	}
-
-	/**
+	
+		/**
 	 * sleep without the throw
 	 * 
 	 * @param millis
@@ -942,8 +861,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		*/
 
 		isRunning = false;
-		// stopping the phone
-		getComm().getComm().stopService();
 		outbox.stop();
 		if (thisThread != null) {
 			thisThread.interrupt();

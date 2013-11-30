@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 public class MethodEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(ConfigurationManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(MethodEntry.class);
 
 	public String name;
 	public Class<?> returnType;

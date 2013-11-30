@@ -116,6 +116,7 @@ public class PhotoReelWidget extends ServiceGUI {
 			cb = new JComboBox();
 		}
 
+		/*
 		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
 		Map<String, ServiceEntry> sortedMap = null;
 		sortedMap = new TreeMap<String, ServiceEntry>(services);
@@ -132,7 +133,7 @@ public class PhotoReelWidget extends ServiceGUI {
 			// namesAndClasses[i] = serviceName + " - " + shortClassName;
 			++i;
 		}
-
+*/
 		return cb;
 	}
 

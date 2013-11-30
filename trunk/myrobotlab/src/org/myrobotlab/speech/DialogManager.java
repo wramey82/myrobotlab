@@ -88,7 +88,9 @@ public class DialogManager implements Configurable {
 	private String name;
 
 	public void generateGrammarFiles(Service myService) {
+		/*
 		HashMap<String, ServiceEntry> services = myService.getHostCFG().getServiceMap();
+		org.myrobotlab.service.Runtime.getlo
 		Iterator<String> it = services.keySet().iterator();
 
 		// this.getClass().getClassLoader().getResource(grammarLocation)
@@ -160,6 +162,7 @@ public class DialogManager implements Configurable {
 			// ".gram");
 			e.printStackTrace();
 		}
+		*/
 	}
 
 	/*
