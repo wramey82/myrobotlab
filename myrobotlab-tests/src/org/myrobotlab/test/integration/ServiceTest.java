@@ -29,13 +29,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.myrobotlab.framework.ConfigurationManager;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Python;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
@@ -305,8 +303,6 @@ public class ServiceTest {
 		log.warn("testremoveListener begin-------------");
 
 		// create services
-		ConfigurationManager cfg = new ConfigurationManager();
-		cfg.clear();
 		TestThrower thrower01 = new TestThrower("thrower01");
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 
@@ -458,19 +454,13 @@ public class ServiceTest {
 	public final void doubleHandedRemoteThrow() throws InterruptedException {
 		log.warn("doubleHandedRemoteThrow begin-------------");
 
-		// clear globals
-		ConfigurationManager catchercfg = new ConfigurationManager(Service
-				.getHostName(null));
-		ConfigurationManager throwercfg = new ConfigurationManager("localhost");
-		catchercfg.clear();
-
 		// create services
 		// create the test thrower01 on a different host
-		TestThrower thrower01 = new TestThrower("thrower01", "localhost");
+		TestThrower thrower01 = new TestThrower("thrower01");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 		GUIService gui01 = new GUIService("gui01");
-		remote01.setCFG("servicePort", "6565");
+		//remote01.setCFG("servicePort", "6565");
 
 		// manually setting an entry for the catcher01 in thrower01's config
 		ServiceEntry se = new ServiceEntry();
@@ -479,9 +469,6 @@ public class ServiceTest {
 		se.name = "catcher01";
 		se.serviceClass = TestCatcher.class.getCanonicalName();
 		se.servicePort = 6565;
-
-		throwercfg.setServiceEntry(se);
-		throwercfg.save("cfg.txt");
 
 		// start services
 		remote01.startService();
