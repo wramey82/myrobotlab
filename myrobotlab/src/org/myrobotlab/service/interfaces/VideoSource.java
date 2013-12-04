@@ -11,14 +11,10 @@ public abstract class VideoSource extends Service{
 
 	private static final long serialVersionUID = 1L;
 
-	public VideoSource(String name) {
-		super(name, VideoSink.class.getCanonicalName());
+	public VideoSource(String n) {
+		super(n);
 	}
 		
-	public VideoSource(String name, String canonicalName) {
-		super(name, canonicalName);
-	}
-
 	public boolean attach(VideoSink vs)
 	{
 		vs.subscribe("publishDisplay", getName(), "publishDisplay", SerializableImage.class);

@@ -61,7 +61,7 @@ public class Roomba extends Service implements SerialDeviceService {
 	int stopBits = 1;
 
 	public Roomba(String n) {
-		super(n, Roomba.class.getCanonicalName());
+		super(n);
 		roombacomm = new RoombaCommSerialDevice();
 	}
 

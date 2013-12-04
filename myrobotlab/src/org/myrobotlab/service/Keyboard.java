@@ -30,7 +30,7 @@ public class Keyboard extends Service {
 	}
 
 	public Keyboard(String n) {
-		super(n, Keyboard.class.getCanonicalName());
+		super(n);
 	}
 
 	public String keyCommand(String cmd) {

@@ -23,7 +23,7 @@ public class CleverBot extends Service {
 	boolean continueToTalkToSelf = true;
 
 	public CleverBot(String n) {
-		super(n, CleverBot.class.getCanonicalName());
+		super(n);
 		init();
 	}
 

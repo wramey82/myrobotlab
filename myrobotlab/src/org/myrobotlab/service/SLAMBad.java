@@ -104,7 +104,7 @@ public class SLAMBad extends Service {
 	}
 
 	public SLAMBad(String n) {
-		super(n, SLAMBad.class.getCanonicalName());
+		super(n);
 	}
 
 	public void startService() {

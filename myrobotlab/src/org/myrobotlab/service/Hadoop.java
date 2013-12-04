@@ -17,7 +17,7 @@ public class Hadoop extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Hadoop.class.getCanonicalName());
 	
 	public Hadoop(String n) {
-		super(n, Hadoop.class.getCanonicalName());	
+		super(n);	
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class GeneticProgramming extends Service {
 	GP gp1 = null;
 
 	public GeneticProgramming(String n) {
-		super(n, GeneticProgramming.class.getCanonicalName());
+		super(n);
 	}
 
 

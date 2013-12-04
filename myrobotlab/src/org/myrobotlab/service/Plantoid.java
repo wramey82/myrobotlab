@@ -162,7 +162,7 @@ public class Plantoid extends Service {
 	 * @param n
 	 */
 	public Plantoid(String n) {
-		super(n, Plantoid.class.getCanonicalName());
+		super(n);
 
 		xmpp = (XMPP) createPeer("xmpp");
 		webgui = (WebGUI) createPeer("webgui");

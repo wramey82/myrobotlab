@@ -53,7 +53,7 @@ public class Rose extends Service {
 	//ArrayList<Polygon> shapesISee = null;
 
 	public Rose(String n) {
-		super(n, Rose.class.getCanonicalName());
+		super(n);
 	}
 
 	public void startServices() {

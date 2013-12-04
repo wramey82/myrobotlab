@@ -43,7 +43,7 @@ public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 	}
 
 	public void init() {
-		mySimbad = (SLAMBad) Runtime.getServiceWrapper(boundServiceName).service;
+		mySimbad = (SLAMBad) Runtime.getService(boundServiceName);
 	}
 
 	// FIXME - is get/set state interact with Runtime registry ???

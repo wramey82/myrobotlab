@@ -33,13 +33,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 public class RecorderPlayer extends Service {
 
@@ -55,10 +53,8 @@ public class RecorderPlayer extends Service {
 	String format = FORMAT_MIN;
 
 	public RecorderPlayer(String n) {
-		super(n, RecorderPlayer.class.getCanonicalName());
+		super(n);
 	}
-
-
 
 	public void play() {
 		long deltaMsgTime = 0;
@@ -121,7 +117,7 @@ public class RecorderPlayer extends Service {
 						// out.write(params[j].toString());
 						d += "|" + params[j].toString();
 					}
-					out.write(msgs.get(i).timeStamp + "|" + msgs.get(i).getParameterSignature() + d + "\n");
+					out.write(msgs.get(i).timeStamp + "|" + Encoder.getParameterSignature(msgs.get(i).data) + d + "\n");
 				}
 				out.close();
 				outfile.close();

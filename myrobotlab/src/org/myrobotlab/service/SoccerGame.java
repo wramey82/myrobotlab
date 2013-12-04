@@ -44,7 +44,7 @@ public class SoccerGame extends Service {
 	}
 
 	public SoccerGame(String n) {
-		super(n, SoccerGame.class.getCanonicalName());
+		super(n);
 		for (int i = 0; i < maxPlayers; ++i) {
 			Player p = new Player();
 			p.arduino = new Arduino("p" + i);

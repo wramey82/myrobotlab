@@ -260,7 +260,7 @@ public class Joystick extends Service {
 	}
 
 	public Joystick(String n) {
-		super(n, Joystick.class.getCanonicalName());
+		super(n);
 
 		log.info(String.format("%s getting controllers", n));
 		controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();

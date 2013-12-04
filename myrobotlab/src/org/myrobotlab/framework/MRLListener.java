@@ -73,14 +73,7 @@ public final class MRLListener implements Serializable {
 	 * Default format was xml is now JSON TODO - make toStringStyler like spring
 	 */
 	public String toString() {
-		StringBuffer ret = new StringBuffer();
-		ret.append("{");
-		ret.append("\"outMethod\":" + "\"" + outMethod + "\"");
-		ret.append("\"name\":" + "\"" + name + "\"");
-		ret.append("\"inMethod\":" + "\"" + inMethod + "\"");
-		ret.append("\"paramType\":" + "\"" + paramTypes + "\"");
-		ret.append("}");
-		return ret.toString();
+		return String.format("%s -will activate-> %s.%s", outMethod, name, inMethod);
 	}
 
 }

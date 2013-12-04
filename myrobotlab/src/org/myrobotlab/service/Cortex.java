@@ -49,7 +49,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 	private Memory memory = new Memory();
 
 	public Cortex(String n) {
-		super(n, Cortex.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

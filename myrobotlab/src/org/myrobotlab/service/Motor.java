@@ -113,8 +113,8 @@ public class Motor extends Service implements MotorControl {
 	 * 
 	 * @param name
 	 */
-	public Motor(String name) {
-		super(name, Motor.class.getCanonicalName());
+	public Motor(String n) {
+		super(n);
 	}
 
 

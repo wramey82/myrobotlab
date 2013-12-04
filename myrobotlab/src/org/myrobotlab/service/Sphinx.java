@@ -92,7 +92,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	}
 	
 	public Sphinx(String n) {
-		super(n, Sphinx.class.getCanonicalName());
+		super(n);
 	}
 
 	/**

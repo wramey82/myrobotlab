@@ -83,7 +83,7 @@ public class PickToLight extends Service {
 	}
 
 	public PickToLight(String n) {
-		super(n, PickToLight.class.getCanonicalName());
+		super(n);
 		// FIXME - do this with reservations !!!
 		arduinoToPort.put(String.format("%s-arduino-1", getName()), "/dev/ttyACM0");
 		loadDefaultMap();

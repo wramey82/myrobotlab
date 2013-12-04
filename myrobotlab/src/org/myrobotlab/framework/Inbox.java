@@ -75,9 +75,9 @@ public class Inbox implements Serializable {
 		 */
 
 		Message msg = null;
-		// too chatty log.debug("inbox getMsg just before synchronized");
-		synchronized (msgBox) {
 
+		synchronized (msgBox) {
+			
 			while (msg == null) { // while no messages && no messages that are
 									// blocking
 				if (msgBox.size() == 0) {
@@ -114,10 +114,6 @@ public class Inbox implements Serializable {
 			}
 			msgBox.notifyAll();
 		}
-
-		// chase network bugs
-		// log.error(String.format("%s.inbox.getMsg() %s.%s() from %s.%s", name,
-		// msg.name, msg.method, msg.sender, msg.sendingMethod));
 		return msg;
 	}
 
@@ -137,29 +133,18 @@ public class Inbox implements Serializable {
 	}
 
 	public void add(Message msg) {
-		// FIXME - implement as HashSet<>
-		// chase network bugs
-		// log.error(String.format("%s.inbox.add(msg) %s.%s <-- %s.%s", name,
-		// msg.name, msg.method, msg.sender, msg.sendingMethod));
-
-		if ((msg.historyList.size() > 0) && (duplicateMsg(msg.historyList))) {
-			log.error("*dumping duplicate message msgid " + name + "." + msg.method + " " + msg.msgID);
-			log.error("history list {}", msg.historyList);
+		if ((msg.historyList.contains(name))) {
+			log.error(String.format("* %s dumping duplicate message %s.%s msgid - %d %s", name, msg.name, msg.method, msg.msgID, msg.historyList));
 			return;
 		}
 
-		RoutingEntry re = new RoutingEntry(); // TODO - constructor which takes
-												// all fields
-		re.name = name;
-		msg.historyList.add(re);
+		msg.historyList.add(name);
 
 		synchronized (msgBox) {
 			while (blocking && msgBox.size() == maxQueue) // queue "full"
 			{
 				try {
-					// log.warn("inbox enque msg WAITING since inbox " +
-					// maxQueue + " is full" + name);
-					msgBox.wait(); // Limit the size
+					msgBox.wait();
 				} catch (InterruptedException ex) {
 					log.debug("inbox enque msg INTERRUPTED " + name);
 				}

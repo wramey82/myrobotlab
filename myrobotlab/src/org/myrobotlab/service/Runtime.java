@@ -12,7 +12,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,6 +28,7 @@ import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
@@ -36,12 +36,13 @@ import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
-import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.HTTPRequest;
+import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class Runtime extends Service {
 
 	// ---- rte members begin ----------------------------
 	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
-	static private HashMap<String, ServiceWrapper> registry = new HashMap<String, ServiceWrapper>();
+	static private HashMap<String, ServiceInterface> registry = new HashMap<String, ServiceInterface>();
 
 	/**
 	 * map to hide methods we are not interested in
@@ -188,7 +189,7 @@ public class Runtime extends Service {
 	 * @param n
 	 */
 	public Runtime(String n) {
-		super(n, Runtime.class.getCanonicalName());
+		super(n);
 
 		synchronized (instanceLockObject) {
 			localInstance = this;
@@ -402,22 +403,15 @@ public class Runtime extends Service {
 	}
 
 	// ---------- Java Runtime wrapper functions end --------
-
-	// public static synchronized boolean register(URI url, Service s)
-	// TODO more aptly named registerLocal(Service s) ?
-	// FIXME - getState publish setState need to reconcile with
-	// these definitions
 	/**
-	 * ONLY CALLED BY registerServices2 ... would be a bug if called from
-	 * foreign service - (no platform! - unless ServiceEnvironment already
-	 * exists)
 	 * 
+	 * FIXME - need Platform information (reference from within service ???
 	 * 
 	 * @param url
 	 * @param s
 	 * @return
 	 */
-	public final static synchronized Service register(Service s, URI url) {
+	public final static synchronized ServiceInterface register(ServiceInterface s, URI url) {
 		ServiceEnvironment se = null;
 		if (!hosts.containsKey(url)) {
 			se = new ServiceEnvironment(url);
@@ -430,15 +424,43 @@ public class Runtime extends Service {
 			log.info(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
 			if (localInstance != null) {
 				localInstance.invoke("collision", s.getName());
+				localInstance.error("collision registering %s", s.getName());
 				Runtime.getInstance().info(String.format(" name collision with %s", s.getName()));
 			}
 			return s;
 		}
-		ServiceWrapper sw = new ServiceWrapper(s, se.accessURL);
-		se.serviceDirectory.put(s.getName(), sw);
-		registry.put(s.getName(), sw);
+		
+		// REMOTE BROADCAST to all foreign environments
+		// FIXME - Security determines what to export
+		// for each gateway
+		
+		/*
+		Vector<String> remoteGateways = getServicesFromInterface(Communicator.class.getCanonicalName());
+		for (int ri = 0; ri < remoteGateways.size(); ++ri){
+			String n = remoteGateways.get(ri);
+			//Communicator gateway = (Communicator)registry.get(n);
+			ServiceInterface gateway = registry.get(n);
+			
+			// for each JVM this gateway is is attached too
+			for (Map.Entry<URI, ServiceEnvironment> o : hosts.entrySet()) {
+				// Map.Entry<String,SerializableImage> pairs = o;
+				URI uri = o.getKey();
+				if (uri != null && gateway.getName().equals(uri.getHost())){
+					log.info(String.format("gateway %s sending registration of %s remote to %s", gateway.getName(), s.getName(), uri));
+					Runtime rt = Runtime.getInstance();
+					// FIXME - Security determines what to export
+					Message msg = rt.createMessage("", "register", s);
+					((Communicator)gateway).sendRemote(uri, msg);
+				}
+			}
+		}
+		*/
+		
+		//ServiceInterface sw = new ServiceInterface(s, se.accessURL);
+		se.serviceDirectory.put(s.getName(), s);
+		registry.put(s.getName(), s); //  FIXME FIXME FIXME FIXME  !!!!!! pre-pend URI if not NULL !!! 
 		if (localInstance != null) {
-			localInstance.invoke("registered", sw);
+			localInstance.invoke("registered", s);
 		}
 
 		return s;
@@ -459,8 +481,8 @@ public class Runtime extends Service {
 	/*
 	 * deprecated - use Proxy service public static synchronized void
 	 * register(String name) { MessageListenerService mls = new
-	 * MessageListenerService(name); ServiceWrapper sw = new
-	 * ServiceWrapper(mls);
+	 * MessageListenerService(name); ServiceInterface sw = new
+	 * ServiceInterface(mls);
 	 * 
 	 * // FIXME // can't this be static // seems a kudge here...
 	 * Runtime.getInstance().register(sw); }
@@ -472,22 +494,22 @@ public class Runtime extends Service {
 	 * 
 	 * @param sw
 	 */
-	public synchronized void register(ServiceWrapper sw) {
-		log.debug(String.format("register(ServiceWrapper %s)", sw.name));
+	public synchronized void register(ServiceInterface sw) {
+		log.debug(String.format("register(ServiceInterface %s)", sw.getName()));
 
-		if (registry.containsKey(sw.name)) {
-			log.warn("{} already defined - will not re-register", sw.name);
+		if (registry.containsKey(sw.getName())) {
+			log.warn("{} already defined - will not re-register", sw.getName());
 			return;
 		}
 
-		ServiceEnvironment se = hosts.get(sw.getAccessURL());
+		ServiceEnvironment se = hosts.get(sw.getHost());
 		if (se == null) {
-			error(String.format("no service environment for %s", sw.getAccessURL()));
+			error(String.format("no service environment for %s", sw.getHost()));
 			return;
 		}
 
-		if (se.serviceDirectory.containsKey(sw.name)) {
-			log.info("{} already registered", sw.name);
+		if (se.serviceDirectory.containsKey(sw.getName())) {
+			log.info("{} already registered", sw.getName());
 			return;
 		}
 		// FIXME - does the refrence of this service wrapper need to point back
@@ -495,8 +517,8 @@ public class Runtime extends Service {
 		// service environment its referencing?
 		// sw.host = se; - can't do this because its final
 
-		se.serviceDirectory.put(sw.name, sw);
-		registry.put(sw.name, sw);
+		se.serviceDirectory.put(sw.getName(), sw);
+		registry.put(sw.getName(), sw);
 		if (localInstance != null) {
 			localInstance.invoke("registered", sw);
 		}
@@ -515,6 +537,7 @@ public class Runtime extends Service {
 	 */
 	public static synchronized boolean register(ServiceEnvironment s) {
 		URI uri = s.accessURL;
+		
 		if (!hosts.containsKey(uri)) {
 			log.info(String.format("adding new ServiceEnvironment {}", uri));
 		} else {
@@ -533,18 +556,17 @@ public class Runtime extends Service {
 		while (it.hasNext()) {
 			serviceName = it.next();
 			log.info(String.format("adding %s to registry", serviceName));
-			registry.put(serviceName, s.serviceDirectory.get(serviceName));
+			ServiceInterface si = s.serviceDirectory.get(serviceName);
+			// IMPORTANT - s.accessURL == service.host !! NORMALIZE !!!
+			si.setHost(uri);
+			
+			registry.put(serviceName, si);
 			localInstance.invoke("registered", s.serviceDirectory.get(serviceName));
 
-			ServiceWrapper sw = getServiceWrapper(serviceName);
-			// recently added to support new registry data model
-			// and break cyclic reference
-			if (uri != null) {
-				sw.host = uri;
-			}
-			if ("org.myrobotlab.service.Runtime".equals(sw.getServiceType())) {
+			// if I find a runtime - subscribe this Runtime to remote Runtime
+			if ("org.myrobotlab.service.Runtime".equals(s.getClass().getCanonicalName())) {
 				log.info(String.format("found runtime %s", serviceName));
-				localInstance.subscribe("registered", serviceName, "register", ServiceWrapper.class);
+				localInstance.subscribe("registered", serviceName, "register", ServiceInterface.class);
 			}
 
 		}
@@ -695,6 +717,8 @@ public class Runtime extends Service {
 	 * be extended to Service.getName()
 	 * 
 	 * @return
+	 * 
+	 * TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER
 	 */
 	public static ServiceEnvironment getLocalServicesForExport() {
 		if (!hosts.containsKey(null)) {
@@ -709,54 +733,28 @@ public class Runtime extends Service {
 
 		Iterator<String> it = local.serviceDirectory.keySet().iterator();
 		String name;
-		ServiceWrapper sw;
-		ServiceWrapper sw2;
-		ServiceInterface si;
+		ServiceInterface sw;
 		while (it.hasNext()) {
-			si = null;
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
-			if (sw.get().allowExport()) {
-				log.info(String.format("exporting service: %s of type %s", name, sw.getServiceType()));
-				// create new structure - otherwise it won't be correctly
-				// filtered
-				si = sw.get();
+			if (sw.allowExport()) {
+				//log.info(String.format("exporting service: %s of type %s", name, sw.getServiceType()));
+				export.serviceDirectory.put(name, sw);  // FIXME  !! make note when XMPP or Remote Adapter pull it - they have to reset this !!
 			} else {
 				log.info(String.format("%s will not be exported", name));
 				continue;
 			}
-			sw2 = new ServiceWrapper(name, si, export.accessURL);
-			export.serviceDirectory.put(name, sw2);
-			// TODO - add exclusive list & name vs type exclusions
 		}
 
 		return export;
 	}
 
 	public static boolean isLocal(String serviceName) {
-		ServiceWrapper sw = getServiceWrapper(serviceName);
-		if (sw == null) {
-			log.error(String.format("%s not defined - can't determine if its local"));
-			return false;
-		}
-
+		ServiceInterface sw = getService(serviceName);
 		return sw.isLocal();
 	}
 
-	/**
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public static ServiceWrapper getServiceWrapper(String name) {
 
-		if (!registry.containsKey(name)) {
-			log.debug(String.format("service %1$s does not exist", name));
-			return null;
-		}
-
-		return registry.get(name);
-	}
 
 	/**
 	 * releases a service - stops the service, its threads,
@@ -768,24 +766,11 @@ public class Runtime extends Service {
 	public static boolean release(String name) /* release local Service */
 	{
 		log.warn("releasing service {}", name);
-		ServiceWrapper sw = getServiceWrapper(name);
-		if (sw == null || !sw.isValid()) {
-			log.error("no service wrapper for " + name);
-			return false;
-		}
-		URI url = sw.getAccessURL();
-		if (url == null) {
-			sw.get().stopService();// if its a local Service shut it
-									// down
-		}
-		ServiceEnvironment se = hosts.get(url);
-		localInstance.invoke("released", se.serviceDirectory.get(name));
+		ServiceInterface sw = getService(name);
+		sw.stopService();
 		registry.remove(name);
+		ServiceEnvironment se = hosts.get(sw.getHost());
 		se.serviceDirectory.remove(name);
-		if (se.serviceDirectory.size() == 0) {
-			log.info("service directory empty - removing host");
-			hosts.remove(se); // TODO - invoke message
-		}
 		log.warn("released{}", name);
 		return true;
 	}
@@ -808,7 +793,7 @@ public class Runtime extends Service {
 		String runtimeName = null;
 		ServiceInterface service;
 		for (int i = 0; i < services.length; ++i) {
-			service = registry.get(services[i]).get();
+			service = registry.get(services[i]);
 			if (service != null && "Runtime".equals(service.getSimpleName())) {
 				runtimeName = service.getName();
 				log.info(String.format("delaying release of Runtime %1$s", runtimeName));
@@ -852,7 +837,7 @@ public class Runtime extends Service {
 		}
 		Iterator<String> seit = se.serviceDirectory.keySet().iterator();
 		String serviceName;
-		ServiceWrapper sw;
+		ServiceInterface sw;
 		while (seit.hasNext()) {
 			serviceName = seit.next();
 			sw = se.serviceDirectory.get(serviceName);
@@ -865,11 +850,11 @@ public class Runtime extends Service {
 			sw = se.serviceDirectory.get(serviceName);
 			log.info(String.format("stopping service %s/%s", se.accessURL, serviceName));
 
-			if (sw.service == null) {
+			if (sw == null) {
 				log.warn("unknown type and/or remote service");
 				continue;
 			}
-			sw.service.stopService();
+			sw.stopService();
 		}
 
 		log.info("clearing hosts environments");
@@ -883,7 +868,7 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 */
-	public static HashMap<String, ServiceWrapper> getRegistry() {
+	public static HashMap<String, ServiceInterface> getRegistry() {
 		return registry;// FIXME should return copy
 	}
 
@@ -919,9 +904,9 @@ public class Runtime extends Service {
 		}
 
 		HashMap<String, MethodEntry> ret = new HashMap<String, MethodEntry>();
-		ServiceWrapper sw = registry.get(serviceName);
+		ServiceInterface sw = registry.get(serviceName);
 
-		Class<?> c = sw.service.getClass();
+		Class<?> c = sw.getClass();
 		Method[] methods = c.getDeclaredMethods();
 
 		Method m;
@@ -996,7 +981,7 @@ public class Runtime extends Service {
 			in = new ObjectInputStream(fis);
 			// instance = (RuntimeEnvironment)in.readObject();
 			hosts = (HashMap<URI, ServiceEnvironment>) in.readObject();
-			registry = (HashMap<String, ServiceWrapper>) in.readObject();
+			registry = (HashMap<String, ServiceInterface>) in.readObject();
 			hideMethods = (HashSet<String>) in.readObject();
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -1023,11 +1008,11 @@ public class Runtime extends Service {
 		ServiceEnvironment se = getLocalServices();
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
 		String serviceName;
-		ServiceWrapper sw;
+		ServiceInterface sw;
 		while (it.hasNext()) {
 			serviceName = it.next();
 			sw = se.serviceDirectory.get(serviceName);
-			sw.service.startService();
+			sw.startService();
 			/*
 			 * if (sw.service.getClass().getSuperclass().equals(GUI.class)) {
 			 * gui = (GUI)sw.service; hasGUI = true; }
@@ -1045,9 +1030,13 @@ public class Runtime extends Service {
 	 * @return
 	 */
 	public static String dumpNotifyEntries() {
-		Iterator<String> it = registry.keySet().iterator();
+		ServiceEnvironment se = getLocalServices();
+		
+		Map<String, ServiceInterface> sorted = new TreeMap<String, ServiceInterface>(se.serviceDirectory);
+
+		Iterator<String> it = sorted.keySet().iterator();
 		String serviceName;
-		ServiceWrapper sw;
+		ServiceInterface sw;
 		String n;
 		ArrayList<MRLListener> nes;
 		MRLListener listener;
@@ -1055,8 +1044,8 @@ public class Runtime extends Service {
 		StringBuffer sb = new StringBuffer().append("<NotifyEntries>");
 		while (it.hasNext()) {
 			serviceName = it.next();
-			sw = registry.get(serviceName);
-			sb.append("<service name=\"").append(sw.getName()).append("\" serviceEnironment=\"").append(sw.getAccessURL()).append("\">");
+			sw = sorted.get(serviceName);
+			sb.append("<service name=\"").append(sw.getName()).append("\" serviceEnironment=\"").append(sw.getHost()).append("\">");
 			ArrayList<String> nlks = sw.getNotifyListKeySet();
 			if (nlks != null) {
 				Iterator<String> nit = nlks.iterator();
@@ -1091,20 +1080,20 @@ public class Runtime extends Service {
 
 		Iterator<String> it = registry.keySet().iterator();
 		String serviceName;
-		ServiceWrapper sw;
+		ServiceInterface sw;
 		Class<?> c;
 		Class<?>[] interfaces;
 		Class<?> m;
 		while (it.hasNext()) {
 			serviceName = it.next();
 			sw = registry.get(serviceName);
-			c = sw.service.getClass();
+			c = sw.getClass();
 			interfaces = c.getInterfaces();
 			for (int i = 0; i < interfaces.length; ++i) {
 				m = interfaces[i];
 
 				if (m.getCanonicalName().equals(interfaceName)) {
-					ret.add(sw.service.getName());
+					ret.add(sw.getName());
 				}
 			}
 		}
@@ -1145,7 +1134,7 @@ public class Runtime extends Service {
 	 *            - the name of the Service which was successfully registered
 	 * @return
 	 */
-	public ServiceWrapper registered(ServiceWrapper sw) {
+	public ServiceInterface registered(ServiceInterface sw) {
 		return sw;
 	}
 
@@ -1156,7 +1145,7 @@ public class Runtime extends Service {
 	 *            - the name of the Service which was successfully released
 	 * @return
 	 */
-	public ServiceWrapper released(ServiceWrapper sw) {
+	public ServiceInterface released(ServiceInterface sw) {
 		return sw;
 	}
 
@@ -1522,10 +1511,10 @@ public class Runtime extends Service {
 			return null;
 		}
 
-		ServiceWrapper sw = Runtime.getServiceWrapper(name);
+		ServiceInterface sw = Runtime.getService(name);
 		if (sw != null) {
 			log.debug(String.format("service %1$s already exists", name));
-			return sw.service;
+			return sw;
 		}
 
 		try {
@@ -1570,45 +1559,44 @@ public class Runtime extends Service {
 	public static String dump() {
 		StringBuffer sb = new StringBuffer().append("\nhosts:\n");
 
-		Iterator<URI> hkeys = hosts.keySet().iterator();
+		Map<URI, ServiceEnvironment> sorted = hosts;// new TreeMap<URI, ServiceEnvironment>(hosts); - tree map doesnt allow null
+		
+		Iterator<URI> hkeys = sorted.keySet().iterator();
 		URI url;
 		ServiceEnvironment se;
 		Iterator<String> it2;
 		String serviceName;
-		ServiceWrapper sw;
+		ServiceInterface sw;
 		while (hkeys.hasNext()) {
 			url = hkeys.next();
 			se = hosts.get(url);
 			sb.append("\t").append(url);
+			
+			// good check :)
 			if ((se.accessURL != url) && (!url.equals(se.accessURL))) {
 				sb.append(" key not equal to data ").append(se.accessURL);
 			}
 			sb.append("\n");
 
 			// Service Environment
-			it2 = se.serviceDirectory.keySet().iterator();
+			Map<String, ServiceInterface> sorted2 = new TreeMap<String, ServiceInterface>(se.serviceDirectory);
+			it2 = sorted2.keySet().iterator();
 			while (it2.hasNext()) {
 				serviceName = it2.next();
-				sw = se.serviceDirectory.get(serviceName);
+				sw = sorted2.get(serviceName);
 				sb.append("\t\t").append(serviceName);
-				if ((sw.name != sw.name) && (!serviceName.equals(sw.name))) {
-					sb.append(" key not equal to data ").append(sw.name);
-				}
-
-				if ((sw.host != url) && (!sw.host.equals(url))) {
-					sb.append(" service wrapper host accessURL ").append(sw.host).append(" not equal to ").append(url);
-				}
 				sb.append("\n");
 			}
 		}
 
 		sb.append("\nregistry:");
 
-		Iterator<String> rkeys = registry.keySet().iterator();
+		Map<String, ServiceInterface> sorted3 = new TreeMap<String, ServiceInterface>(registry);
+		Iterator<String> rkeys = sorted3.keySet().iterator();
 		while (rkeys.hasNext()) {
 			serviceName = rkeys.next();
-			sw = registry.get(serviceName);
-			sb.append("\n").append(serviceName).append(" ").append(sw.host);
+			sw = sorted3.get(serviceName);
+			sb.append("\n").append(serviceName).append(" ").append(sw.getHost());
 		}
 
 		return sb.toString();
@@ -1801,14 +1789,20 @@ public class Runtime extends Service {
 		System.exit(0);
 
 	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static ServiceInterface getService(String name) {
 
-	static public ServiceInterface getService(String name) {
-		ServiceWrapper sw = getServiceWrapper(name);
-		if (sw == null) {
-			log.error(String.format("getService %s not found", name));
+		if (!registry.containsKey(name)) {
+			log.debug(String.format("service %s does not exist", name));
 			return null;
 		}
-		return sw.get();
+
+		return registry.get(name);
 	}
 
 	/**
@@ -1823,8 +1817,8 @@ public class Runtime extends Service {
 		String serviceName;
 		while (it.hasNext()) {
 			serviceName = it.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-			ret &= sw.service.save();
+			ServiceInterface sw = se.serviceDirectory.get(serviceName);
+			ret &= sw.save();
 		}
 
 		return ret;
@@ -1842,8 +1836,8 @@ public class Runtime extends Service {
 		String serviceName;
 		while (it.hasNext()) {
 			serviceName = it.next();
-			ServiceWrapper sw = se.serviceDirectory.get(serviceName);
-			ret &= sw.service.load();
+			ServiceInterface sw = se.serviceDirectory.get(serviceName);
+			ret &= sw.load();
 		}
 
 		return ret;
@@ -1974,7 +1968,11 @@ public class Runtime extends Service {
 	 * @param port
 	 * @param msg
 	 * 
+	 * currently this is a message from the remote system wrapped in a message
+	 * from a local network communicator service
+	 * 
 	 */
+	/*
 	public void registerServices(Message msg) {
 		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceEnvironment)) {
 			log.error("inbound registerServices not valid");
@@ -1997,6 +1995,7 @@ public class Runtime extends Service {
 			logException(e);
 		}
 	}
+	*/
 
 	/**
 	 * unique id's are need for sendBlocking - to uniquely identify the message
@@ -2055,10 +2054,10 @@ public class Runtime extends Service {
 		return ret;
 	}
 
-	public static List<ServiceWrapper> getServices() {
+	public static List<ServiceInterface> getServices() {
 		// QUESTION - why isn't registry just a treemap ?
-		TreeMap<String, ServiceWrapper> sorted = new TreeMap<String, ServiceWrapper>(registry);
-		List<ServiceWrapper> list = new ArrayList<ServiceWrapper>(sorted.values());
+		TreeMap<String, ServiceInterface> sorted = new TreeMap<String, ServiceInterface>(registry);
+		List<ServiceInterface> list = new ArrayList<ServiceInterface>(sorted.values());
 		return list;
 	}
 	

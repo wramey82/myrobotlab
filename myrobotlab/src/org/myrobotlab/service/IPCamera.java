@@ -60,7 +60,7 @@ public class IPCamera extends Service {
 	public final static int FOSCAM_ALARM_MAIL_ENABLED = 1;
 
 	public IPCamera(String n) {
-		super(n, IPCamera.class.getCanonicalName());
+		super(n);
 	}
 
 	public class VideoProcess implements Runnable {

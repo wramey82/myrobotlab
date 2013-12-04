@@ -55,7 +55,7 @@ public class Drupal extends Service {
 	 */
 
 	public Drupal(String n) {
-		super(n, Drupal.class.getCanonicalName());
+		super(n);
 		cleverbotServiceName = String.format("%s_cleverbot", getName());
 		cleverbot = new CleverBot(cleverbotServiceName);
 		timeoutWords.add("timeout");

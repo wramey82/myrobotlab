@@ -26,7 +26,7 @@ public class TopCodes extends Service {
 	Scanner scanner = new Scanner();
 	
 	public TopCodes(String n) {
-		super(n, TopCodes.class.getCanonicalName());	
+		super(n);	
 	}
 
 	@Override

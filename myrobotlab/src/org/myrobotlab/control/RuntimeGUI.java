@@ -65,14 +65,15 @@ import javax.swing.table.TableColumn;
 import org.myrobotlab.control.widget.ProgressDialog;
 import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.framework.Dependency;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceInfo;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 public class RuntimeGUI extends ServiceGUI implements ActionListener {
@@ -130,7 +131,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	public RuntimeGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 		
-		myRuntime = (Runtime) Runtime.getServiceWrapper(boundServiceName).service;
+		myRuntime = (Runtime) Runtime.getService(boundServiceName);
 	}
 
 	public void init() {
@@ -325,17 +326,17 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	}
 
 	public void getCurrentServices() {
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
 
-		Map<String, ServiceWrapper> sortedMap = null;
-		sortedMap = new TreeMap<String, ServiceWrapper>(services);
+		Map<String, ServiceInterface> sortedMap = null;
+		sortedMap = new TreeMap<String, ServiceInterface>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper sw = services.get(serviceName);
-			String shortClassName = sw.service.getSimpleName();
-			if (sw.host != null) {
+			ServiceInterface sw = services.get(serviceName);
+			String shortClassName = sw.getSimpleName();
+			if (sw.getHost() != null) {
 				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, true);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
@@ -350,28 +351,28 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		}
 	}
 
-	public ServiceWrapper registered(ServiceWrapper sw) {
+	public ServiceInterface registered(Service sw) {
 		String typeName;
-		if (sw.service == null) {
+		if (sw == null) {
 			typeName = "unknown";
 		} else {
-			typeName = sw.service.getSimpleName();
+			typeName = sw.getSimpleName();
 		}
-		ServiceEntry newServiceEntry = new ServiceEntry(sw.name, typeName, (sw.host != null));
+		ServiceEntry newServiceEntry = new ServiceEntry(sw.getName(), typeName, (sw.getHost() != null));
 		currentServicesModel.addElement(newServiceEntry);
-		nameToServiceEntry.put(sw.name, newServiceEntry);
-		myService.addTab(sw.name);
+		nameToServiceEntry.put(sw.getName(), newServiceEntry);
+		myService.addTab(sw.getName());
 		return sw;
 	}
 
-	public ServiceWrapper released(ServiceWrapper sw) {
+	public ServiceInterface released(ServiceInterface sw) {
 		// FIXME - bug if index is moved before call back is processed
 
-		myService.removeTab(sw.name);// FIXME will bust when service == null
-		if (nameToServiceEntry.containsKey(sw.name)) {
-			currentServicesModel.removeElement(nameToServiceEntry.get(sw.name));
+		myService.removeTab(sw.getName());// FIXME will bust when service == null
+		if (nameToServiceEntry.containsKey(sw.getName())) {
+			currentServicesModel.removeElement(nameToServiceEntry.get(sw.getName()));
 		} else {
-			log.error(sw.name + " released event - but could not find in currentServiceModel");
+			log.error(sw.getName() + " released event - but could not find in currentServiceModel");
 		}
 		// myService.loadTabPanels();
 		return sw;
@@ -385,8 +386,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		subscribe("resolveEnd", "resolveEnd");
 		subscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
 
-		subscribe("registered", "registered", ServiceWrapper.class);
-		subscribe("released", "released", ServiceWrapper.class);
+		subscribe("registered", "registered", ServiceInterface.class);
+		subscribe("released", "released", ServiceInterface.class);
 		subscribe("failedDependency", "failedDependency", String.class);
 		subscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 
@@ -407,8 +408,8 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		unsubscribe("resolveEnd", "resolveEnd");
 		unsubscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
 
-		unsubscribe("registered", "registered", ServiceWrapper.class);
-		unsubscribe("released", "released", ServiceWrapper.class);
+		unsubscribe("registered", "registered", ServiceInterface.class);
+		unsubscribe("released", "released", ServiceInterface.class);
 		unsubscribe("failedDependency", "failedDependency", String.class);
 		unsubscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 

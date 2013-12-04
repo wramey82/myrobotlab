@@ -134,7 +134,7 @@ public class TweedleBot extends Service {
 	}
 
 	public TweedleBot(String n, String serviceDomain) {
-		super(n, TweedleBot.class.getCanonicalName(), serviceDomain);
+		super(n);
 
 		neck = new Servo(getName() + "Neck");
 		right = new Servo(getName() + "Right");

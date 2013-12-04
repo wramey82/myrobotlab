@@ -25,15 +25,12 @@
 
 package org.myrobotlab.service;
 
+import org.myrobotlab.chess.HMove;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
-
-import org.myrobotlab.chess.HMove;
-import org.myrobotlab.control.ChessGameGUI;
-import org.myrobotlab.framework.Service;
 
 public class ChessGame extends Service {
 
@@ -41,7 +38,7 @@ public class ChessGame extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public ChessGame(String n) {
-		super(n, ChessGame.class.getCanonicalName());
+		super(n);
 	}
 
 	public HMove makeHMove(HMove m) {

@@ -128,8 +128,7 @@ public class OpenCV extends VideoSource {
 	public ArrayList<SerializableImage> negative = new ArrayList<SerializableImage>();
 
 	public OpenCV(String n) {
-		super(n, OpenCV.class.getCanonicalName());
-		
+		super(n);
 		load(); // FIXME - go into service frame work .. after construction .. somewhere ...
 		videoProcessor.setOpencv(this);
 	}

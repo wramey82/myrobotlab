@@ -15,7 +15,7 @@ public class Mapper extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Mapper.class.getCanonicalName());
 
 	public Mapper(String n) {
-		super(n, Mapper.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

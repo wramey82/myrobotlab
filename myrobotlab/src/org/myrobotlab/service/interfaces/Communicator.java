@@ -33,7 +33,7 @@ import org.myrobotlab.net.CommData;
 
 public interface Communicator {
 
-	public void send(final URI uri, final Message msg); 
+	public void sendRemote(final URI uri, final Message msg); 
 
 	// FIXME - remove - not needed now that all Communictors are Services ?
 	public void stopService();

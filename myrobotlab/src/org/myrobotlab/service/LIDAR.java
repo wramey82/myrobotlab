@@ -41,7 +41,7 @@ public class LIDAR extends Service {
     String info; //used for outputting log.info messages
 
     public LIDAR(String n) {
-        super(n, LIDAR.class.getCanonicalName());
+		super(n);
         reserve(String.format("%s_serial", n), "Serial", "serial port for LIDAR");
     }
 

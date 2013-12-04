@@ -62,7 +62,7 @@ public class InMoovHead extends Service {
 	}
 	
 	public InMoovHead(String n) {
-		super(n, InMoovHead.class.getCanonicalName());
+		super(n);
 		opencv = (OpenCV)createPeer("opencv");
 		headTracking = (Tracking)createPeer("headTracking");
 		eyesTracking = (Tracking)createPeer("eyesTracking");

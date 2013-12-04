@@ -15,7 +15,7 @@ public class Skype extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Skype.class.getCanonicalName());
 
 	public Skype(String n) {
-		super(n, Skype.class.getCanonicalName());
+		super(n);
 	}
 	
 	@Override

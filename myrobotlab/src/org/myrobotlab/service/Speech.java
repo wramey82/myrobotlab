@@ -40,11 +40,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 import com.sun.speech.freetts.Voice;
@@ -127,7 +127,7 @@ public class Speech extends Service {
 	final public static HashMap<String, String> googleLanguageMap = new HashMap<String, String>();
 
 	public Speech(String n) {
-		super(n, Speech.class.getCanonicalName());
+		super(n);
 		log.info("Using voice: " + voiceName);
 
 		googleLanguageMap.put("english", "en");
@@ -456,17 +456,17 @@ public class Speech extends Service {
 		
 		// get all current services
 		// register for their errors
-		List<ServiceWrapper> services = Runtime.getServices();
+		List<ServiceInterface> services = Runtime.getServices();
 		if (b) {
 			for (int i = 0; i < services.size(); ++i) {
-				ServiceWrapper sw = services.get(i);
+				ServiceInterface sw = services.get(i);
 				subscribe(sw.getName(), "publishError", "speak");
 				// this.addListener(outMethod, namedInstance, inMethod);
 			}
 		} else {
 			for (int i = 0; i < services.size(); ++i)
 			{
-				ServiceWrapper sw = services.get(i);
+				ServiceInterface sw = services.get(i);
 				unsubscribe(sw.getName(), "publishError", "speak");
 				//this.addListener(outMethod, namedInstance, inMethod);
 			}

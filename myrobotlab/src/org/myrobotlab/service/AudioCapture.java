@@ -64,9 +64,8 @@ public class AudioCapture extends Service {
 	SourceDataLine sourceDataLine;
 
 	public AudioCapture(String n) {
-		super(n, AudioCapture.class.getCanonicalName());
+		super(n);
 	}
-
 
 
 	// This method creates and returns an

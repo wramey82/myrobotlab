@@ -85,7 +85,7 @@ public class FSMTest extends Service {
 	// resolveObject - 2 objects - ask incrementally - send mail
 
 	public FSMTest(String n) {
-		super(n, FSMTest.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

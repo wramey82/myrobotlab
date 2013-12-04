@@ -35,7 +35,7 @@ public class Mail extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Mail.class.getCanonicalName());
 
 	public Mail(String n) {
-		super(n, Mail.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

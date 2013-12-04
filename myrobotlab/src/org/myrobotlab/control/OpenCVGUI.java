@@ -284,7 +284,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		// build filters end ------------------
 
 		// TODO - bury in framework?
-		myOpenCV = (OpenCV) Runtime.getServiceWrapper(boundServiceName).service;
+		myOpenCV = (OpenCV) Runtime.getService(boundServiceName);
 
 		// TODO - remove action listener?
 		grabberTypeSelect.setSelectedItem("OpenCV");

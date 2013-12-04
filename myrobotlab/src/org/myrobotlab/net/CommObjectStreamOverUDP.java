@@ -180,7 +180,7 @@ public class CommObjectStreamOverUDP implements Communicator, Serializable {
 	}
 
 	@Override
-	public void send(final URI url, final Message msg) {
+	public void sendRemote(final URI url, final Message msg) {
 
 		UDPThread phone = null;
 

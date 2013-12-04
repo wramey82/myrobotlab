@@ -56,7 +56,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	public transient final static Logger log = LoggerFactory.getLogger(Adafruit16CServoDriver.class.getCanonicalName());
 
 	public Adafruit16CServoDriver(String n) {
-		super(n, Adafruit16CServoDriver.class.getCanonicalName());
+		super(n);
 	}
 
 	public void startService() {

@@ -15,7 +15,7 @@ public class Red5 extends Service {
 	public final static Logger log = LoggerFactory.getLogger(Red5.class.getCanonicalName());
 
 	public Red5(String n) {
-		super(n, Red5.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

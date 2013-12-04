@@ -15,7 +15,7 @@ public class PickToLightServer extends Service {
 	public final static Logger log = LoggerFactory.getLogger(PickToLightServer.class.getCanonicalName());
 	
 	public PickToLightServer(String n) {
-		super(n, PickToLightServer.class.getCanonicalName());	
+		super(n);
 	}
 
 	@Override

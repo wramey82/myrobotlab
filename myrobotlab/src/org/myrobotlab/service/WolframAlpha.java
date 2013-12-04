@@ -26,7 +26,7 @@ public class WolframAlpha extends Service {
 			.getCanonicalName());
 
 	public WolframAlpha(String n) {
-		super(n, WolframAlpha.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

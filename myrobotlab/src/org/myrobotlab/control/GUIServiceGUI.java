@@ -49,7 +49,6 @@ import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -84,7 +83,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	public JLabel period0 = new JLabel(" ");
 	public JLabel period1 = new JLabel(" ");
 	public JLabel arrow0 = new JLabel(" ");
-	// public JLabel arrow1 = new JLabel(" ");
+	// public JLabel arrow1 = new JLabel(" ");o
 	// addListener structure end -------------
 
 	ButtonListener buttonListener = new ButtonListener();
@@ -178,8 +177,8 @@ public class GUIServiceGUI extends ServiceGUI {
 				}
 				rebuildGraph();
 			} else if (b == dumpButton) {
-				FileIO.stringToFile("serviceRegistry.txt", Runtime.dump());
-				FileIO.stringToFile("notifyEntries.xml", Runtime.dumpNotifyEntries());
+				FileIO.stringToFile(String.format("serviceRegistry.%s.txt", Runtime.getInstance().getName()), Runtime.dump());
+				FileIO.stringToFile(String.format("notifyEntries.%s.xml", Runtime.getInstance().getName()), Runtime.dumpNotifyEntries());
 			}
 		}
 	}
@@ -438,10 +437,10 @@ public class GUIServiceGUI extends ServiceGUI {
 	public void buildLocalServiceGraph() {
 
 		log.info("buildLocalServiceGraph-begin");
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
 		log.info("GUIServiceGUI service count " + Runtime.getRegistry().size());
 
-		TreeMap<String, ServiceWrapper> sortedMap = new TreeMap<String, ServiceWrapper>(services);
+		TreeMap<String, ServiceInterface> sortedMap = new TreeMap<String, ServiceInterface>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 
 		int x = 20;
@@ -452,32 +451,27 @@ public class GUIServiceGUI extends ServiceGUI {
 
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper sw = services.get(serviceName);
+			ServiceInterface sw = services.get(serviceName);
 			String displayName;
 			String toolTip;
 			String canonicalName;
 
-			if (sw.get() == null) {
-				canonicalName = "unknown";
-				displayName = serviceName + "\n" + "unknown";
-				toolTip = "";
-			} else {
-				canonicalName = sw.get().getSimpleName();
+			
+				canonicalName = sw.getSimpleName();
 				displayName = serviceName + "\n\n\n\n\n.";// +
 				// sw.get().getSimpleName();
 				toolTip = sw.getDescription();
-			}
-
+			
 			String blockColor = null;
 
-			if (sw.host == null) {
+			if (sw.getHost() == null) {
 				blockColor = mxUtils.getHexColorString(Style.background);
 			} else {
 				blockColor = mxUtils.getHexColorString(Style.remoteBackground);
 			}
 
 			if (showAccessURLs) {
-				displayName = sw.host + "\n" + displayName;
+				displayName = sw.getHost() + "\n" + displayName;
 			}
 
 			mxCell v1 = (mxCell) graph.insertVertex(parent, null, new GUIServiceGraphVertex(serviceName, canonicalName, displayName, toolTip, GUIServiceGraphVertex.Type.SERVICE),
@@ -540,7 +534,7 @@ public class GUIServiceGUI extends ServiceGUI {
 		while (it.hasNext()) {
 			String serviceName = it.next();
 
-			ServiceInterface s = Runtime.getServiceWrapper(serviceName).get();
+			ServiceInterface s = Runtime.getService(serviceName);
 			if (s != null) {
 				Iterator<String> ri = s.getNotifyListKeySet().iterator();
 				while (ri.hasNext()) {
@@ -590,12 +584,6 @@ public class GUIServiceGUI extends ServiceGUI {
 			}
 		}
 
-		/*
-		 * if (listener.paramType != null) { methodString +=
-		 * listener.paramType.substring(listener.paramType .lastIndexOf(".") +
-		 * 1); }
-		 */
-
 		methodString += ")";
 
 		return methodString;
@@ -604,34 +592,11 @@ public class GUIServiceGUI extends ServiceGUI {
 	// FIXME - should it hook to the Runtime ???
 	@Override
 	public void attachGUI() {
-		// subscribe("registerServices", "loadTabPanels");//(String
-		// hostAddress, int port, Message msg)
-		// subscribe("registered", "loadTabPanels");//(String
-		// hostAddress, int port, Message msg)
 	}
 
 	@Override
 	public void detachGUI() {
-		// unsubscribe("registerServices", "loadTabPanels");
-		// unsubscribe("registered", "loadTabPanels");
 	}
 
-	/*
-	 * @Override public void mouseDragged(MouseEvent e) { // TODO Auto-generated
-	 * method stub log.info(e.getX() + "," + e.getY()); }
-	 * 
-	 * @Override public void mouseMoved(MouseEvent arg0) { // TODO
-	 * Auto-generated method stub
-	 * 
-	 * }
-	 */
-	/*
-	 * @Override public void keyTyped(KeyEvent e) { log.error("here"); }
-	 * 
-	 * @Override public void keyReleased(KeyEvent e) { log.error("here"); }
-	 * 
-	 * @Override public void keyPressed(KeyEvent e) { log.error("here"); }
-	 */
-	// about begin
 
 }

@@ -51,7 +51,7 @@ public class SensorMonitor extends Service {
 	public HashMap<String, Pin> lastValue = new HashMap<String, Pin>();
 
 	public SensorMonitor(String n) {
-		super(n, SensorMonitor.class.getCanonicalName());
+		super(n);
 	}
 
 

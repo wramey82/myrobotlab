@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -20,6 +19,7 @@ import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.StepperControl;
 import org.myrobotlab.service.interfaces.StepperController;
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	public transient final static Logger log = LoggerFactory.getLogger(AdafruitMotorShield.class.getCanonicalName());
 
 	public AdafruitMotorShield(String n) {
-		super(n, AdafruitMotorShield.class.getCanonicalName());
+		super(n);
 		arduinoName = String.format("%s_%s", n, "arduino");
 	}
 
@@ -379,7 +379,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		// a bit weird indirection - but this would support
 		// adafruit to be attached to motors defined outside of
 		// initialization
-		MotorControl mc = (MotorControl) Runtime.getServiceWrapper(name).get();
+		MotorControl mc = (MotorControl) Runtime.getService(name);
 		Float pwr = mc.getPowerLevel();
 		int pwm = (int) (pwr * 255);
 		int motorPortNumber = deviceNameToNumber.get(name);
@@ -402,13 +402,13 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	@Override
 	public boolean motorAttach(String motorName, Object... motorData) {
-		ServiceWrapper sw = Runtime.getServiceWrapper(motorName);
+		ServiceInterface sw = Runtime.getService(motorName);
 		if (!sw.isLocal()) {
 			log.error("motor needs to be in same instance of mrl as controller");
 			return false;
 		}
 
-		Motor m = (Motor) sw.get();
+		Motor m = (Motor) sw;
 		m.setController(this);
 		m.broadcastState();
 		return true;

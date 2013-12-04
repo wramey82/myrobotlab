@@ -2,10 +2,10 @@ package org.myrobotlab.service;
 
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 public class InMoov extends Service {
@@ -65,7 +65,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoov(String n) {
-		super(n, InMoov.class.getCanonicalName());
+		super(n);
 	}
 
 	public void addRoutes() {
@@ -86,7 +86,7 @@ public class InMoov extends Service {
 	 * 
 	 * @param sw
 	 */
-	public void registered(ServiceWrapper sw) {
+	public void registered(ServiceInterface sw) {
 		// FIXME FIXME FIXME !!! - this right idea - but expanded methods have
 		// incorrect parameter placement !!
 		// addListener & suscribe the same !!!!

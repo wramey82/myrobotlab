@@ -1,7 +1,6 @@
 package org.myrobotlab.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,13 +9,12 @@ import java.util.Iterator;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
-import org.myrobotlab.java.DynaComp;
 import org.myrobotlab.java.Reflector;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
@@ -128,12 +126,12 @@ public class Java extends Service {
 	 * 
 	 * @param instanceName
 	 */
-	public Java(String instanceName) {
-		super(instanceName, Java.class.getCanonicalName());
+	public Java(String n) {
+		super(n);
 
 		// get all currently registered services and add appropriate java
 		// handles
-		HashMap<String, ServiceWrapper> svcs = Runtime.getRegistry();
+		HashMap<String, ServiceInterface> svcs = Runtime.getRegistry();
 		StringBuffer initScript = new StringBuffer();
 		// initScript.append("from time import sleep\n");
 		initScript.append("import org.myrobotlab.service.*;\n");
@@ -144,7 +142,7 @@ public class Java extends Service {
 		Iterator<String> it = svcs.keySet().iterator();
 		while (it.hasNext()) {
 			String serviceName = it.next();
-			ServiceWrapper sw = svcs.get(serviceName);
+			ServiceInterface sw = svcs.get(serviceName);
 
 			initScript.append(String.format(
 					"import org.myrobotlab.service.%s;\n", sw.getSimpleName()));
@@ -152,7 +150,7 @@ public class Java extends Service {
 			// get a handle on running service
 			initScript
 					.append(String
-							.format("%s =(%s) org.myrobotlab.service.Runtime.getServiceWrapper(\"%s\").service;\n",
+							.format("%s =(%s) org.myrobotlab.service.Runtime.getService(\"%s\").service;\n",
 									serviceName, sw.getSimpleName(),
 									serviceName));
 		}
@@ -164,11 +162,11 @@ public class Java extends Service {
 		// register for addition of new services
 
 		subscribe("registered", Runtime.getInstance().getName(), "registered",
-				ServiceWrapper.class);
+				ServiceInterface.class);
 		reflector = new Reflector(this);
 	}
 
-	public void registered(ServiceWrapper s) {
+	public void registered(ServiceInterface s) {
 
 		String registerScript = "";
 
@@ -182,7 +180,7 @@ public class Java extends Service {
 		}
 
 		registerScript += String
-				.format("%s = (%s)org.myrobotlab.service.Runtime.getServiceWrapper(\"%s\").service;\n",
+				.format("%s = (%s)org.myrobotlab.service.Runtime.getService(\"%s\").service;\n",
 						s.getName(), s.getSimpleName(), s.getName());
 		exec(registerScript, false);
 	}

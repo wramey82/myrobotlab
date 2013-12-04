@@ -41,10 +41,10 @@ import javax.swing.JRadioButtonMenuItem;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 
 public class EditorArduino extends Editor implements ActionListener {
 
@@ -70,8 +70,8 @@ public class EditorArduino extends Editor implements ActionListener {
 
 	public EditorArduino(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
-		ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);
-		myArduino = (Arduino) sw.get();
+		ServiceInterface sw = Runtime.getService(boundServiceName);
+		myArduino = (Arduino) sw;
 		examplesMenu.add(createExamplesMenu());
 	}
 

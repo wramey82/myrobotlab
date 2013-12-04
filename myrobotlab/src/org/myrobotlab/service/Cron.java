@@ -43,7 +43,7 @@ public class Cron extends Service {
 	}
 	
 	public Cron(String n) {
-		super(n, Cron.class.getCanonicalName());	
+		super(n);
 		scheduler.start();
 	}
 

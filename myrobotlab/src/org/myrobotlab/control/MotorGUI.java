@@ -43,7 +43,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.control.widget.ImageButton;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Motor;
@@ -51,6 +50,7 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.MotorController;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 
 public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListener {
 
@@ -221,15 +221,15 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 
 			if (newController != null && newController.length() > 0) {
 				// myService.send(boundServiceName, "setPort", newPort);
-				ServiceWrapper sw = Runtime.getServiceWrapper(newController);
-				controller = (MotorController) Runtime.getServiceWrapper(newController).service;
+				ServiceInterface sw = Runtime.getService(newController);
+				controller = (MotorController) Runtime.getService(newController);
 
-				String type = sw.getServiceType();
+				String type = sw.getSimpleName();
 
 				// build gui for appropriate motor controller type -
 				// the gui needs to be able to do a Motor.attach(name, data)
 				// with appropriate data
-				String attachGUIName = String.format("org.myrobotlab.control.Motor_%sGUI", type.substring(type.lastIndexOf(".") + 1));
+				String attachGUIName = String.format("org.myrobotlab.control.Motor_%sGUI", type);
 
 				controllerPanel.remove(controllerTypePanel);
 				controllerTypePanel = Instantiator.getNewInstance(attachGUIName, new Object[] { myService, boundServiceName, newController });

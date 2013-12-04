@@ -62,7 +62,7 @@ public class FaceTracking extends Service {
 	String state = null;
 
 	public FaceTracking(String n) {
-		super(n, FaceTracking.class.getCanonicalName());
+		super(n);
 
 		speech.startService();
 		tilt.startService();

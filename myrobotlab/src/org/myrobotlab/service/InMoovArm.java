@@ -34,7 +34,7 @@ public class InMoovArm extends Service {
 	}
 	
 	public InMoovArm(String n) {
-		super(n, InMoovArm.class.getCanonicalName());
+		super(n);
 		//createReserves(n); // Ok this might work but IT CANNOT BE IN SERVICE FRAMEWORK !!!!!
 		bicep = (Servo) createPeer("bicep");
 		rotate = (Servo) createPeer("rotate");

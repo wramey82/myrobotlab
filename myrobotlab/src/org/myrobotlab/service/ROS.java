@@ -15,7 +15,7 @@ public class ROS extends Service {
 	public final static Logger log = LoggerFactory.getLogger(ROS.class.getCanonicalName());
 
 	public ROS(String n) {
-		super(n, ROS.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

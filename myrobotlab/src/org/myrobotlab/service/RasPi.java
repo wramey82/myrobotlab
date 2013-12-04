@@ -52,7 +52,7 @@ public class RasPi extends Service implements GpioPinListenerDigital {
 	}
 
 	public RasPi(String n) {
-		super(n, RasPi.class.getCanonicalName());
+		super(n);
 		gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
 		gpio03 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03);
 		// gpio01.

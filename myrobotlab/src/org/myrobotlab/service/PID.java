@@ -87,7 +87,7 @@ public class PID extends Service {
 	private long sampleCount = 0;
 
 	public PID(String n) {
-		super(n, PID.class.getCanonicalName());
+		super(n);
 	}
 
 	/*

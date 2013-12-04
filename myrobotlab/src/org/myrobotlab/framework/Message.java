@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.Logging;
@@ -81,7 +82,8 @@ public class Message implements Serializable {
 	 * Turns out ArrayList is quicker than HashSet on small sets
 	 * http://www.javacodegeeks.com/2010/08/java-best-practices-vector-arraylist.html
 	 */
-	public ArrayList<RoutingEntry> historyList;
+	//public ArrayList<RoutingEntry> historyList;
+	public HashSet<String> historyList;
 	public HashMap<String,String> security;
 	/*
 	@Override
@@ -181,7 +183,7 @@ public class Message implements Serializable {
 		name = new String(); // FIXME - allow NULL !
 		sender = new String(); // FIXME - allow NULL !
 		sendingMethod = new String();
-		historyList = new ArrayList<RoutingEntry>();
+		historyList = new HashSet<String>();
 		method = new String();
 	}
 
@@ -199,14 +201,16 @@ public class Message implements Serializable {
 		// FIXED - not valid making a copy of a message
 		// to send and copying there history list
 		//historyList = other.historyList; 
-		historyList = new ArrayList<RoutingEntry>();
+		historyList = new HashSet<String>();
 		status = other.status;
 		msgType = other.msgType;
 		method = other.method;
 		// you know the dangers of reference copy
 		data = other.data; 
 	}
-
+	
+	// FIXME - put in Encoder
+/*
 	final public String getParameterSignature() {
 		return getParameterSignature(data);
 	}
@@ -241,15 +245,16 @@ public class Message implements Serializable {
 		return ret.toString();
 
 	}
-
+*/
 	final public void setData(Object... params) {
 		this.data = params;
 	}
 
-	/*
-	 * Default format was xml is now JSON TODO - make toStringStyler like spring
-	 */
+	// TODO - reduce to sender.sendingMethod --> name.method(paramter types)
 	public String toString() {
+		
+		return String.format("msg %s.%s --> %s.%s(%s) - %d", sender, sendingMethod, name, method, Encoder.getParameterSignature(data), msgID);
+		/*
 		StringBuffer ret = new StringBuffer();
 		// ret.append("{<Message");
 		ret.append("{");
@@ -263,12 +268,13 @@ public class Message implements Serializable {
 		ret.append("\"status\":" + "\"" + status + "\"");
 		ret.append("\"msgType\":" + "\"" + msgType + "\"");
 		ret.append("\"method\":" + "\"" + method + "\"");
-		ret.append("\"dataClass\":" + "\"" + getParameterSignature() + "\"");
+		ret.append("\"dataClass\":" + "\"" + Encoder.getParameterSignature(this.data) + "\"");
 		ret.append("\"data\":" + "\"" + data + "\"");
 
 		// ret.append("</Message>");
 		ret.append("}");
 		return ret.toString();
+		*/
 	}
 
 	public Object[] getData() {

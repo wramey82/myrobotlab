@@ -44,7 +44,7 @@ public class JFugue extends Service {
 	// TODO - look at JavaSoundDemo - they have a synth & mixer there
 	
 	public JFugue(String n) {
-		super(n, JFugue.class.getCanonicalName());
+		super(n);
 	}
 
 	public void play(String s) {

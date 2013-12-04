@@ -55,14 +55,8 @@ public class PlayerStage extends Service {
 	public final static Logger log = LoggerFactory.getLogger(PlayerStage.class.getCanonicalName());
 
 	public PlayerStage(String n) {
-		this(n, null);
+		super(n);
 	}
-
-	public PlayerStage(String n, String serviceDomain) {
-		super(n, PlayerStage.class.getCanonicalName(), serviceDomain);
-	}
-
-
 
 	// define minimum/maximum allowed values for the SONAR sensors
 	static float SONAR_MIN_VALUE = 0.2f;

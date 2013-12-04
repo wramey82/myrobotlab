@@ -261,7 +261,7 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 		display.add(buttonsPanel, BorderLayout.PAGE_END);
 
 		display.add(center, BorderLayout.CENTER);
-		myJoystick = (Joystick) Runtime.getServiceWrapper(boundServiceName).service;
+		myJoystick = (Joystick) Runtime.getService(boundServiceName);
 	}
 
 	public JPanel getTranformPanel(String title, JTextField multiplier, JTextField offset, JLabel output) {

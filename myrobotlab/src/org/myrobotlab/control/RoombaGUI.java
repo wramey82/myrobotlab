@@ -50,14 +50,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.service.Roomba;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public class RoombaGUI extends ServiceGUI implements ListSelectionListener, ActionListener, ChangeListener, KeyListener {
 
@@ -82,7 +81,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 
 	public RoombaGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		roombacomm = (Roomba) Runtime.getServiceWrapper(boundServiceName).service;
+		roombacomm = (Roomba) Runtime.getService(boundServiceName);
 	}
 
 	public void getState(Roomba roomba) {

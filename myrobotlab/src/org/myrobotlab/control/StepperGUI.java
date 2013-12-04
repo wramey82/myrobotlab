@@ -43,13 +43,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.control.widget.ImageButton;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Stepper;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.Stepper;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.StepperController;
 
 public class StepperGUI extends ServiceGUI implements ActionListener, ChangeListener {
@@ -221,15 +221,15 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 
 			if (newController != null && newController.length() > 0) {
 				// myService.send(boundServiceName, "setPort", newPort);
-				ServiceWrapper sw = Runtime.getServiceWrapper(newController);
-				controller = (StepperController) Runtime.getServiceWrapper(newController).service;
+				ServiceInterface sw = Runtime.getService(newController);
+				controller = (StepperController) Runtime.getService(newController);
 
-				String type = sw.getServiceType();
+				String type = sw.getSimpleName();
 
 				// build gui for appropriate stepper controller type -
 				// the gui needs to be able to do a Stepper.attach(name, data)
 				// with appropriate data
-				String attachGUIName = String.format("org.myrobotlab.control.Stepper_%sGUI", type.substring(type.lastIndexOf(".") + 1));
+				String attachGUIName = String.format("org.myrobotlab.control.Stepper_%sGUI", type);
 
 				controllerPanel.remove(controllerTypePanel);
 				controllerTypePanel = Instantiator.getNewInstance(attachGUIName, new Object[] { myService, boundServiceName, newController });

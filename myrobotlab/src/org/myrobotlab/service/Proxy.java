@@ -28,7 +28,7 @@ public class Proxy extends Service {
 	// TODO - override getName & getType depending on OS/JVM
 
 	public Proxy(String n) {
-		super(n, Proxy.class.getCanonicalName());
+		super(n);
 	}
 
 	public void setTargetService(String mimicName) {

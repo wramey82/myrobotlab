@@ -198,7 +198,7 @@ public class PointCloud extends Service {
 	}
 
 	public PointCloud(String n) {
-		super(n, PointCloud.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

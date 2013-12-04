@@ -45,14 +45,8 @@ public class Log extends Service {
 	 */
 
 	public Log(String n) {
-		this(n, null);
+		super(n);
 	}
-
-	public Log(String n, String serviceDomain) {
-		super(n, Log.class.getCanonicalName(), serviceDomain);
-	}
-
-
 
 	public Message log(Message m) {
 		log.info("log message from " + m.sender + "." + m.data); // TODO -

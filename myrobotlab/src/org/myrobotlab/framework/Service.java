@@ -65,6 +65,7 @@ import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.IPAndPort;
+import org.myrobotlab.service.interfaces.AuthorizationProvider;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
@@ -75,37 +76,36 @@ import org.slf4j.Logger;
 /**
  * 
  * Service is the base of the MyRobotLab Service Oriented Architecture. All
- * meaningful Services derive from this class. There is a _TemplateService.java
- * in the org.myrobotlab.service package. This can be used as a very fast
- * template for creating new Services. Each Service begins with two threads One
- * is for the "Outbox" this delivers messages out of the Service. The other is
- * the "run" thread which processes all incoming messages.
+ * meaningful Services derive from the Service class. There is a
+ * _TemplateService.java in the org.myrobotlab.service package. This can be used
+ * as a very fast template for creating new Services. Each Service begins with
+ * two threads One is for the "OutBox" this delivers messages out of the
+ * Service. The other is the "InBox" thread which processes all incoming
+ * messages.
  * 
  * @author GroG
- * 
- *         Dependencies: apache Log4J - logging simpleframework - basic
- *         configuration
  * 
  */
 public abstract class Service implements Runnable, Serializable, ServiceInterface {
 
-	// TODO - UNDERSTAND THAT host:port IS THE KEY !! - IT IS A COMBONATIONAL
-	// KEY :0 WORKS IN PROCESS OUT OF
-	// PROCESS ip:port WORKS !
-	// host + ":" + servicePort + serviceClass + "/" +
-	// this.getClass().getCanonicalName() + "/" + name;
-
+	/**
+	 * a radix-tree of data -"DNA" Description of Neighboring Automata ;)
+	 */
 	static public final Index<ServiceReservation> dna = new Index<ServiceReservation>();
 
 	private static final long serialVersionUID = 1L;
 	transient public final static Logger log = LoggerFactory.getLogger(Service.class);
-	//protected String host = null; // TODO - should be final??? helpful in
-									// testing??? TODO - put in
-									// RuntimeEnvironment???
+
+	/**
+	 * key into Runtime's hosts of ServiceEnvironments mrlscheme://[gateway
+	 * name]/scheme://key for gateway mrl://gateway/xmpp://incubator incubator
+	 * if host == null the service is local
+	 */
+	private URI host = null; // TODO - access directly
+
 	@Element
-	private final String name;
+	private final String name; // TODO - access directly
 	private String lastRecordingFilename;
-	public final String serviceClass; // TODO - remove
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
 
@@ -117,28 +117,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	@Element
 	protected boolean allowDisplay = true;
 
-	public URI url = null;
-
-	// public transient final Timer timer; - FIXME re-implement but only start if there is a Task !!
-
 	transient protected CommunicationInterface cm = null;
 
-	//transient protected ConfigurationManager cfg = null;
-	//transient protected ConfigurationManager hostcfg = null;
-
-	// relay directives
 	static public final String PROCESS = "PROCESS";
 	static public final String RELAY = "RELAY";
 	static public final String IGNORE = "IGNORE";
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
 
-	public String anonymousMsgRequest = PROCESS;
 	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
 
-	// using a HashMap means no duplicates
 	protected Set<String> methodSet;
 
 	transient private Serializer serializer = new Persister();
@@ -161,6 +151,18 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	abstract public String getDescription();
 
+	public URI getHost() {
+		return host;
+	}
+
+	public void setHost(URI uri) {
+		host = uri;
+	}
+
+	public boolean isLocal() {
+		return host == null;
+	}
+
 	/**
 	 * framework interface for Services which can display themselves most will
 	 * not implement this method. keeps the framework display type agnostic
@@ -177,16 +179,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public boolean hasDisplay() {
 		return false;
-	}
-
-	/**
-	 * local service constructor - initializes with null host env
-	 * 
-	 * @param instanceName
-	 * @param serviceClass
-	 */
-	public Service(String instanceName, String serviceClass) {
-		this(instanceName, serviceClass, null);
 	}
 
 	public String getName() {
@@ -210,26 +202,24 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return true if re-binding took place
 	 */
 	static public boolean reserveRootAs(String key, String newName) {
-		
+
 		ServiceReservation genome = dna.get(key);
-		if (genome == null)
-		{
-			// FIXME - this is a BAD KEY !!! into the ServiceReservation (I think :P) - another
+		if (genome == null) {
+			// FIXME - this is a BAD KEY !!! into the ServiceReservation (I
+			// think :P) - another
 			// reason to get rid of it !!
 			dna.put(key, new ServiceReservation(key, newName, null, null));
 		} else {
 			genome.actualName = newName;
 		}
 		/*
-		IndexNode<ServiceReservation> node = dna.getNode(key);
-		if (node == null) {
-			log.error(String.format("reserveAs can not find %s to reserve name %s !!", key, newName));
-			return false;
-		}
-		//reservations.get(key).actualName = newName;
-		node.getValue().actualName = newName;
-		log.info("reserving %s now as %s", key, newName);
-		*/
+		 * IndexNode<ServiceReservation> node = dna.getNode(key); if (node ==
+		 * null) {
+		 * log.error(String.format("reserveAs can not find %s to reserve name %s !!"
+		 * , key, newName)); return false; } //reservations.get(key).actualName
+		 * = newName; node.getValue().actualName = newName;
+		 * log.info("reserving %s now as %s", key, newName);
+		 */
 		return true;
 	}
 
@@ -246,11 +236,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return true if re-binding took place
 	 */
 	/*
-	public boolean reserveAs(String key, String newName) {
-		String peerKey = getPeerKey(key);
-		return reserveRootAs(peerKey, newName);
-	}
-*/
+	 * public boolean reserveAs(String key, String newName) { String peerKey =
+	 * getPeerKey(key); return reserveRootAs(peerKey, newName); }
+	 */
 	/**
 	 * Reserves a name for a root level Service. allows modifications to the
 	 * reservation map at the highest level
@@ -261,7 +249,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	static public void reserveRoot(String key, String simpleTypeName, String comment) {
 		// strip delimeter out if put in by key
-//		String actualName = key.replace(".", "");
+		// String actualName = key.replace(".", "");
 		reserveRoot(key, key, simpleTypeName, comment);
 	}
 
@@ -269,18 +257,17 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("reserved key %s -> %s %s %s", key, actualName, simpleTypeName, comment));
 		dna.put(key, new ServiceReservation(key, actualName, simpleTypeName, comment));
 		/*
-		log.info("LKDJFLKDJKLFJDKLSJLF");
-		IndexNode<ServiceReservation> node = reservations.getOrCreateNode(key);
-		if (node == null) {
-			// FIXME SHOULD NOT BE SIMPLE NAME - NEEDS TO BE COMPLETE !!!
-			
-			reservations.put(key, new ServiceReservation(key, actualName, simpleTypeName, comment));
-		} else {
-			//ServiceReservation sr = reservations.get(key);
-			log.warn(String.format("%s already reserved - change actual name [%s] if needed", key, node.getValue().actualName));
-		}
-		*/
-		
+		 * log.info("LKDJFLKDJKLFJDKLSJLF"); IndexNode<ServiceReservation> node
+		 * = reservations.getOrCreateNode(key); if (node == null) { // FIXME
+		 * SHOULD NOT BE SIMPLE NAME - NEEDS TO BE COMPLETE !!!
+		 * 
+		 * reservations.put(key, new ServiceReservation(key, actualName,
+		 * simpleTypeName, comment)); } else { //ServiceReservation sr =
+		 * reservations.get(key); log.warn(String.format(
+		 * "%s already reserved - change actual name [%s] if needed", key,
+		 * node.getValue().actualName)); }
+		 */
+
 	}
 
 	/**
@@ -337,12 +324,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            composite
 	 * @return true if successfully created
 	 */
-	/** deprecated use createPeer
-	public ServiceInterface createReserved(String key) {
-		String peerKey = getPeerKey(key);
-		return createRootReserved(peerKey);
-	}
-	*/
+	/**
+	 * deprecated use createPeer public ServiceInterface createReserved(String
+	 * key) { String peerKey = getPeerKey(key); return
+	 * createRootReserved(peerKey); }
+	 */
 
 	/**
 	 * start reserved peer service by composite
@@ -351,18 +337,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 *            internal identifier
 	 * @return true if successfully started
 	 */
-	/** deprecated use startPeer
-	public ServiceInterface startReserved(String key) {
-		// String peerKey = getPeerKey(key);
-		ServiceInterface s = createReserved(key);
-		if (s != null) {
-			s.startService();
-			return s;
-		}
-		error("could not start reserved %s%s", getName(), key);
-		return null;
-	}
-	*/
+	/**
+	 * deprecated use startPeer public ServiceInterface startReserved(String
+	 * key) { // String peerKey = getPeerKey(key); ServiceInterface s =
+	 * createReserved(key); if (s != null) { s.startService(); return s; }
+	 * error("could not start reserved %s%s", getName(), key); return null; }
+	 */
 
 	/**
 	 * Returns the current map of reservations. This can be used after a complex
@@ -374,57 +354,51 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	static public Index<ServiceReservation> getDNA() {
 		return dna;
 	}
-	
+
 	/**
 	 * This method will merge in the requested peer dna into the final global
 	 * dna - from which it will be accessable for create methods
+	 * 
 	 * @param myKey
 	 * @param className
 	 */
-	static public void mergePeerDNA(String myKey, String className) 
-	{
-		 buildDNA(dna, myKey, className, "merged dna");
-		 log.info("merged acutal dna \n{}", dna);
-		 
-		 /*
-		 if (peerDNA != null)
-		 {
-			ArrayList<ServiceReservation> dnaList = peerDNA.flatten();
-			for (int i = 0; i < dnaList.size(); ++i)
-			{
-				ServiceReservation peersr = dnaList.get(i);
-				
-				// ------------ merge begin ------------------
-				ServiceReservation sr = dna.get(name)
-				// ------------ merge end ------------------
-				
-			}
-		 }
-		*/
+	static public void mergePeerDNA(String myKey, String className) {
+		buildDNA(dna, myKey, className, "merged dna");
+		log.info("merged acutal dna \n{}", dna);
+
+		/*
+		 * if (peerDNA != null) { ArrayList<ServiceReservation> dnaList =
+		 * peerDNA.flatten(); for (int i = 0; i < dnaList.size(); ++i) {
+		 * ServiceReservation peersr = dnaList.get(i);
+		 * 
+		 * // ------------ merge begin ------------------ ServiceReservation sr
+		 * = dna.get(name) // ------------ merge end ------------------
+		 * 
+		 * } }
+		 */
 	}
+
 	/**
-	 * this is called by the framework before a new Service is 
-	 * constructed and places the "default" reservations of the Service's
-	 * type into the global reservation index.
+	 * this is called by the framework before a new Service is constructed and
+	 * places the "default" reservations of the Service's type into the global
+	 * reservation index.
 	 * 
-	 * it "merges" in the default index, because if any user defined values
-	 * are found it preserves them.
+	 * it "merges" in the default index, because if any user defined values are
+	 * found it preserves them.
 	 * 
 	 * it mergest a SINGLE LEVEL - only its immediate peers (non-recursive)
-	 * recursive call is not necessary, because as each service is created
-	 * they will create their peers
+	 * recursive call is not necessary, because as each service is created they
+	 * will create their peers
 	 * 
-	 * TODO - a more detailed merge could be useful, so that a user has the option
-	 * of only specifying the minimum changes to a ServiceRegistration
-	 *
+	 * TODO - a more detailed merge could be useful, so that a user has the
+	 * option of only specifying the minimum changes to a ServiceRegistration
+	 * 
 	 * @param myKey
 	 * @param serviceClass
 	 */
-	static public void mergePeerDNAx(String myKey, String className) 
-	{
+	static public void mergePeerDNAx(String myKey, String className) {
 		String serviceClass = className;
-		if (!className.contains("."))
-		{
+		if (!className.contains(".")) {
 			serviceClass = String.format("org.myrobotlab.service.%s", className);
 		}
 		log.info(String.format("createReserves (%s, %s)", myKey, serviceClass));
@@ -438,14 +412,26 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			for (Entry<String, IndexNode<ServiceReservation>> o : peerRequests.entrySet()) {
 				String peerKey = o.getKey();
 				IndexNode<ServiceReservation> p = o.getValue();
-				
+
 				String fullKey = Peers.getPeerKey(myKey, peerKey);
 				ServiceReservation peersr = p.getValue();
 				ServiceReservation globalSr = dna.get(fullKey);
-				
-				// TODO - 
-				if (globalSr == null){
-					reserveRoot(fullKey, peersr.fullTypeName, peersr.comment); // FIXME - if this method accepted an Index<?> then Peers could use it
+
+				// TODO -
+				if (globalSr == null) {
+					reserveRoot(fullKey, peersr.fullTypeName, peersr.comment); // FIXME
+																				// -
+																				// if
+																				// this
+																				// method
+																				// accepted
+																				// an
+																				// Index<?>
+																				// then
+																				// Peers
+																				// could
+																				// use
+																				// it
 				} else {
 					log.info(String.format("*found** key %s -> %s %s %s", fullKey, globalSr.actualName, globalSr.fullTypeName, globalSr.comment));
 				}
@@ -455,18 +441,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			log.info(String.format("%s does not have a getPeers", serviceClass));
 		}
 	}
-	
+
 	// TODO !! recurse boolean
-	static public Peers getLocalPeers(String name, Class<?> clazz)
-	{
+	static public Peers getLocalPeers(String name, Class<?> clazz) {
 		return getLocalPeers(name, clazz.getCanonicalName());
 	}
-	
-	static public Peers getLocalPeers(String name, String serviceClass)
-	{
+
+	static public Peers getLocalPeers(String name, String serviceClass) {
 		String fullClassName;
-		if (!serviceClass.contains("."))
-		{
+		if (!serviceClass.contains(".")) {
 			fullClassName = String.format("org.myrobotlab.service.%s", serviceClass);
 		} else {
 			fullClassName = serviceClass;
@@ -476,44 +459,42 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Method method = theClass.getMethod("getPeers", String.class);
 			Peers peers = (Peers) method.invoke(null, new Object[] { name });
 			/*
-			HashMap<String, ServiceReservation> reservations = peers.peers;
-			// LOAD CLASS BY NAME - and do a getReservations on it !
-			for (Map.Entry<String, ServiceReservation> o : reservations.entrySet()) {
-				
-				reserveRoot(o.getKey(), o.getValue().simpleTypeName, o.getValue().comment);
-			}
-			*/
+			 * HashMap<String, ServiceReservation> reservations = peers.peers;
+			 * // LOAD CLASS BY NAME - and do a getReservations on it ! for
+			 * (Map.Entry<String, ServiceReservation> o :
+			 * reservations.entrySet()) {
+			 * 
+			 * reserveRoot(o.getKey(), o.getValue().simpleTypeName,
+			 * o.getValue().comment); }
+			 */
 			return peers;
 
 		} catch (Exception e) {
 			log.info(String.format("%s does not have a getPeers", fullClassName));
 		}
-		
+
 		return null;
 	}
-	
-	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass)
-	{
+
+	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass) {
 		Index<ServiceReservation> myDNA = new Index<ServiceReservation>();
 		buildDNA(myDNA, myKey, serviceClass, null);
-		log.info("{}",myDNA.getRootNode().size());
+		log.info("{}", myDNA.getRootNode().size());
 		return myDNA;
 	}
-	
-	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass, String comment)
-	{
+
+	static public Index<ServiceReservation> buildDNA(String myKey, String serviceClass, String comment) {
 		Index<ServiceReservation> myDNA = new Index<ServiceReservation>();
 		buildDNA(myDNA, myKey, serviceClass, comment);
-		log.info("dna root node size {}",myDNA.getRootNode().size());
+		log.info("dna root node size {}", myDNA.getRootNode().size());
 		return myDNA;
 	}
-	
-	// FIXME - remove out of Peers, have Peers use this logic & pass in its index
-	static public void buildDNA(Index<ServiceReservation> myDNA, String myKey, String serviceClass, String comment)
-	{
+
+	// FIXME - remove out of Peers, have Peers use this logic & pass in its
+	// index
+	static public void buildDNA(Index<ServiceReservation> myDNA, String myKey, String serviceClass, String comment) {
 		String fullClassName;
-		if (!serviceClass.contains("."))
-		{
+		if (!serviceClass.contains(".")) {
 			fullClassName = String.format("org.myrobotlab.service.%s", serviceClass);
 		} else {
 			fullClassName = serviceClass;
@@ -521,55 +502,56 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			// get the class
 			Class<?> theClass = Class.forName(fullClassName);
-			
+
 			Method method = theClass.getMethod("getPeers", String.class);
 			Peers peers = (Peers) method.invoke(null, new Object[] { myKey });
 			Index<ServiceReservation> peerDNA = peers.getDNA();
 			ArrayList<ServiceReservation> flattenedPeerDNA = peerDNA.flatten();
-			
+
 			log.info(String.format("processing %s.getPeers(%s) will process %d peers", serviceClass, myKey, flattenedPeerDNA.size()));
 
-			// Two loops are necessary - because recursion should not start until the entire level
-			// of peers has been entered into the tree - this will build the index level by level
-			// versus depth first - necessary because the "upper" levels need to process first
+			// Two loops are necessary - because recursion should not start
+			// until the entire level
+			// of peers has been entered into the tree - this will build the
+			// index level by level
+			// versus depth first - necessary because the "upper" levels need to
+			// process first
 			// to influence the lower levels
 
 			for (int x = 0; x < flattenedPeerDNA.size(); ++x) {
 				ServiceReservation peersr = flattenedPeerDNA.get(x);
-				
-				// FIXME  A BIT LAME - THE Index.crawlForData should be returning Set<Map.Entry<?>>
-				String peerKey = peersr.key; 
-				
+
+				// FIXME A BIT LAME - THE Index.crawlForData should be returning
+				// Set<Map.Entry<?>>
+				String peerKey = peersr.key;
+
 				String fullKey = String.format("%s.%s", myKey, peerKey);
 				ServiceReservation reservation = myDNA.get(fullKey);
-				
+
 				log.info(String.format("%d (%s) - [%s]", x, fullKey, peersr.actualName));
-				
-				if (reservation == null){
-					log.info(String.format("dna adding new key %s %s %s %s", fullKey, peersr.actualName, peersr.fullTypeName, comment));					
+
+				if (reservation == null) {
+					log.info(String.format("dna adding new key %s %s %s %s", fullKey, peersr.actualName, peersr.fullTypeName, comment));
 					myDNA.put(fullKey, peersr);
 				} else {
-					log.info(String.format("dna collision - replacing null values !!! %s", fullKey));			
-					StringBuffer sb =  new StringBuffer();
-					if (reservation.actualName == null)
-					{
+					log.info(String.format("dna collision - replacing null values !!! %s", fullKey));
+					StringBuffer sb = new StringBuffer();
+					if (reservation.actualName == null) {
 						sb.append(String.format(" updating actualName to %s ", peersr.actualName));
 						reservation.actualName = peersr.actualName;
 					}
-					
-					if (reservation.fullTypeName == null)
-					{
+
+					if (reservation.fullTypeName == null) {
 						// FIXME check for dot ?
 						sb.append(String.format(" updating peerType to %s ", peersr.fullTypeName));
 						reservation.fullTypeName = peersr.fullTypeName;
 					}
-					
-					if (reservation.comment == null)
-					{
+
+					if (reservation.comment == null) {
 						sb.append(String.format(" updating comment to %s ", comment));
 						reservation.comment = peersr.comment;
 					}
-					
+
 					log.info(sb.toString());
 				}
 			}
@@ -583,46 +565,45 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			log.info(String.format("%s does not have a getPeers", fullClassName));
 		}
 	}
-	// -------------------------------- new createPeer begin -----------------------------------
+
+	// -------------------------------- new createPeer begin
+	// -----------------------------------
 	public synchronized ServiceInterface createPeer(String reservedKey, String defaultType) {
 		return Runtime.create(Peers.getPeerKey(getName(), reservedKey), defaultType);
 	}
-	
+
 	public synchronized ServiceInterface createPeer(String reservedKey) {
 		String fullkey = Peers.getPeerKey(getName(), reservedKey);
 		ServiceReservation sr = dna.get(fullkey);
-		if (sr == null)
-		{
+		if (sr == null) {
 			error("can not create peer from reservedkey %s - no type definition !", fullkey);
 			return null;
 		}
 		return Runtime.create(sr.actualName, sr.fullTypeName);
 	}
-	
-	public ServiceInterface startPeer(String reservedKey, String defaultType)
-	{
+
+	public ServiceInterface startPeer(String reservedKey, String defaultType) {
 		ServiceInterface si = createPeer(reservedKey, defaultType);
-		if (si == null)
-		{
+		if (si == null) {
 			error("could not create service from key %s", reservedKey);
 		}
-		
+
 		si.startService();
 		return si;
 	}
-	
-	public ServiceInterface startPeer(String reservedKey)
-	{
+
+	public ServiceInterface startPeer(String reservedKey) {
 		ServiceInterface si = createPeer(reservedKey);
-		if (si == null)
-		{
+		if (si == null) {
 			error("could not create service from key %s", reservedKey);
 		}
-		
+
 		si.startService();
 		return si;
 	}
-	// -------------------------------- new createPeer end -----------------------------------
+
+	// -------------------------------- new createPeer end
+	// -----------------------------------
 
 	/**
 	 * 
@@ -630,8 +611,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @param serviceClass
 	 * @param inHost
 	 */
-	public Service(String reservedKey, String serviceClass, String inHost) {
+	public Service(String reservedKey) {
 
+		String serviceClass = this.getClass().getCanonicalName();
 
 		if (methodSet == null) {
 			methodSet = getMessageSet();
@@ -645,46 +627,32 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		// see if incoming key is my "actual" name
 		ServiceReservation sr = dna.get(reservedKey);
-		if (sr != null)
-		{
+		if (sr != null) {
 			log.info(String.format("found reservation exchanging reservedKey %s for actual name %s", reservedKey, sr.actualName));
 			name = sr.actualName;
 		} else {
 			name = reservedKey;
 		}
-		
+
 		// comment ?
 		mergePeerDNA(reservedKey, serviceClass);
 
-		if (inHost != null) {
-			try {
-				url = new URI(inHost);
-			} catch (Exception e) {
-				log.error(String.format("%1$s not a valid URI", inHost));
-			}
-		}
-
-		//host = getHostName(inHost);
-		
-		// this.timer = new Timer(String.format("%s_timer", name)); FIXME - re-implement but only create if there is a task!!
-		this.serviceClass = serviceClass;
+		// this.timer = new Timer(String.format("%s_timer", name)); FIXME -
+		// re-implement but only create if there is a task!!
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
 		outboxMsgHandling = RELAY;
-		anonymousMsgRequest = PROCESS;
 
-		// over-ride process level with host file
 		if (!hostInitialized) {
 			initialize();
 		}
 
-		// now that cfg is ready make a communication manager
 		cm = new CommunicationManager(this);
 
 		TSFormatter.setCalendar(cal);
-		
-		Runtime.register(this, url);
+
+		Runtime.register(this, null);
 	}
 
 	public static synchronized void initialize() {
@@ -835,8 +803,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return false;
 	}
 
-	
-		/**
+	/**
 	 * sleep without the throw
 	 * 
 	 * @param millis
@@ -853,12 +820,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * Stops the service. Stops threads.
 	 */
 	public void stopService() {
-		/* FIXME - re-implement but only start if there is a task
-		if (timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
-		*/
+		/*
+		 * FIXME - re-implement but only start if there is a task if (timer !=
+		 * null) { timer.cancel(); timer.purge(); }
+		 */
 
 		isRunning = false;
 		outbox.stop();
@@ -875,7 +840,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// note - if stopService is overwritten with extra
 		// threads - releaseService will need to be overwritten too
 		stopService();
-		Runtime.unregister(url, name);
+		Runtime.unregister(null, name);
 	}
 
 	public void startService() {
@@ -1176,7 +1141,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	/**
-	 * this is called from video widget subscribe
+	 * adds a MRL message listener
 	 * 
 	 * @param listener
 	 */
@@ -1281,131 +1246,132 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
-	// TODO - refactor / remove
+	// final static
+	// boolean ??? how to handle messages with no security header ???
+	// BASE - EXCLUSION OR INCLUSION
+	// Should these be in Security Service ?? - no have to be static within
+	// Services !!
+	// HashMap <String,String> allowExportByName = new HashMap
+	// <String,String>();
+	// HashMap <String,String> allowExportByType = new HashMap
+	// <String,String>();
+
+	/*
+	 * private static final HashMap <String,String> serviceNameRules = new
+	 * HashMap <String,String>(); private static final HashMap <String,String>
+	 * methodRules = new HashMap <String,String>();
+	 */
+
+	// ok not exactly "chains" because it isn't sequential layers like a
+	// firewall
+	// its all at the same level - so changing it to "accessRules"
+	//private static final HashMap<String, String> accessRules = new HashMap<String, String>();
+
+	// support or not to support - that is the question ???
+	// private static final HashMap <String,Class> serviceTypeRules = new
+	// HashMap <String,Class>();
+
+	protected static AuthorizationProvider security = null;
+
+	public static boolean setSecurityProvider(AuthorizationProvider provider) {
+		if (security != null) {
+			log.error("security provider is already set - it can not be unset .. THAT IS THE LAW !!!");
+			return false;
+		}
+
+		security = provider;
+		return true;
+	}
+
+	// TODO Clock example - roles
+	// no - security (internal) Role - default access - ALLOW
+	// WebGUI - public - no security header - default access DISALLOW +
+	// exception
+	// WebGUI (remote in genera) - user / group ALLOW
+
+	/*
+	private boolean hasAccess(Message msg) {
+		// turn into single key ???
+		// type.name.method
+
+		// check this type <-- not sure i want to support this
+
+		// check this name & method
+		// if any access limitations exist which might be applicable
+		if (accessRules.containsKey(msg.name) || accessRules.containsKey(String.format("%s.%s", msg.name, msg.method))) {
+			// restricted service - check for authorization
+			// Security service only provides authorization ?
+			if (security == null) {
+				return false;
+			} else {
+				return security.isAuthorized(msg);
+			}
+
+		}
+
+		// invoke - SecurityException - log error
+		return false;
+	}
+	*/
+	
 	/**
+	 * This is where all messages are routed to and processed
 	 * 
 	 * @param msg
 	 * @return
 	 */
-	public Object invoke(Message msg) {
+	final public Object invoke(Message msg) {
 		Object retobj = null;
 
-		log.debug(String.format("--invoking %1$s.%3$s(%4$s) %2$s--", name, msg.msgID, msg.method, msg.getParameterSignature()));
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("--invoking %s.%s(%s) %s --", name, msg.method, Encoder.getParameterSignature(msg.data)));
+		}
 
-		retobj = invoke(msg.method, msg.data);
+		// SECURITY -
+		// 0. allowing export - whether or not we'll allow services to be
+		// exported - based on Type or Name
+		// 1. we have firewall like rules where we can add inclusion and
+		// exclusion rules - based on Type or Name - Service Level - Method
+		// Level
+		// 2. authentication & authorization
+		// 3. transport mechanism (needs implementation on each type of remote
+		// Communicator e.g. XMPP RemoteAdapter WebGUI etc...)
 
+		// check for access
+		// if access FAILS ! - check for authenticated access
+		// not needed "centrally" - instead will impement in Communicators 
+		// which hand foriegn connections
+		// if (security == null || security.isAuthorized(msg)) {
+
+			retobj = invokeOn(this, msg.method, msg.data);
+		//}
+
+		// retobject will be returned as another
+		// message
 		return retobj;
 	}
 
-	/*
-	 * invoke function to be used inside the service to "invoke" other functions
-	 * which are expected to send an outbound message
-	 * 
-	 * the overload is to facilitate calls with a single parameter object this
-	 * is important for maintaining the simplicity of connecting inputs and
-	 * outputs - unless you support blocking until data has arrived on all
-	 * parameters
-	 */
-	public Object invoke(String method) {
-		return invoke(method, (Object[]) null);
+	final public Object invoke(String method) {
+		return invokeOn(this, method, (Object[]) null);
+	}
+
+	final public Object invoke(String method, Object... params) {
+		return invokeOn(this, method, params);
 	}
 
 	/**
-	 * 
-	 * @param method
-	 * @param param
-	 * @return
-	 */
-	/*
-	 * public Object invoke(String method, Object param) { if (param != null) {
-	 * Object[] params = new Object[1]; params[0] = param; return invoke(this,
-	 * method, params); } else { return invoke(this, method, null); } }
-	 */
-
-	/**
-	 * convenience reflection methods 2 parameters
-	 * 
-	 * @param method
-	 * @param param1
-	 * @param param2
-	 * @return
-	 */
-	/*
-	 * public Object invoke(String method, Object param1, Object param2) {
-	 * Object[] params = new Object[2]; params[0] = param1; params[1] = param2;
-	 * 
-	 * return invoke(method, params); }
-	 */
-
-	/**
-	 * convenience reflection methods 3 parameters
-	 * 
-	 * @param method
-	 * @param param1
-	 * @param param2
-	 * @param param3
-	 * @return
-	 */
-	/*
-	 * public Object invoke(String method, Object param1, Object param2, Object
-	 * param3) { Object[] params = new Object[3]; params[0] = param1; params[1]
-	 * = param2; params[2] = param3;
-	 * 
-	 * return invoke(method, params); }
-	 */
-
-	/**
-	 * convenience reflection methods 4 parameters
-	 * 
-	 * @param method
-	 * @param param1
-	 * @param param2
-	 * @param param3
-	 * @param param4
-	 * @return
-	 */
-	/*
-	 * public Object invoke(String method, Object param1, Object param2, Object
-	 * param3, Object param4) { Object[] params = new Object[3]; params[0] =
-	 * param1; params[1] = param2; params[2] = param3; params[3] = param4;
-	 * 
-	 * return invoke(method, params); }
-	 */
-	/**
-	 * invoke in the context of a Service
-	 * 
-	 * @param method
-	 * @param params
-	 * @return
-	 */
-	/*
-	 * public Object invoke(String method, Object... params) { // log invoking
-	 * call
-	 * 
-	 * if (log.isDebugEnabled()) { StringBuilder paramTypeString = new
-	 * StringBuilder(); if (params != null) { for (int i = 0; i < params.length;
-	 * ++i) { if (params[i] == null) { paramTypeString.append("null"); } else {
-	 * paramTypeString.append(params[i].getClass().getCanonicalName()); } if
-	 * (params.length != i + 1) { paramTypeString.append(","); } } } else {
-	 * paramTypeString.append("null"); } } Object retobj = invoke(this, method,
-	 * params); return retobj; }
-	 */
-
-	/**
-	 * general static base invoke
+	 * the core working invoke method
 	 * 
 	 * @param object
 	 * @param method
 	 * @param params
-	 * @return
+	 * @return return object
 	 */
-	final public Object invoke(String method, Object... params) {
+	final public Object invokeOn(Object obj, String method, Object... params) {
+
 		Object retobj = null;
 		Class<?> c;
-		c = this.getClass();
-
-		// c = Class.forName(classname); // TODO - test if cached references
-		// are faster than lookup
+		c = obj.getClass();
 
 		Class<?>[] paramTypes = null;
 		if (params != null) {
@@ -1426,12 +1392,15 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			// on parameter types - the thing is we may have a typed signature
 			// which will allow execution - but
 			// if so we need to search
+
+			// SECURITY - ??? can't be implemented here - need a full message
 			meth = c.getMethod(method, paramTypes); // getDeclaredMethod zod !!!
-			retobj = meth.invoke(this, params);
+			retobj = meth.invoke(obj, params);
 
 			// put return object onEvent
 			out(method, retobj);
 		} catch (NoSuchMethodException e) {
+			// TODO - build method cache map from errors
 			log.warn(String.format("%s.%s NoSuchMethodException - attempting upcasting", c.getSimpleName(), MethodEntry.getPrettySignature(method, paramTypes, null)));
 
 			// TODO - optimize with a paramter TypeConverter & Map
@@ -1452,7 +1421,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 				try {
 					log.debug("found appropriate method");
-					retobj = m.invoke(this, params);
+					retobj = m.invoke(obj, params);
 
 					// put return object onEvent
 					out(method, retobj);
@@ -1463,7 +1432,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 
-			log.error(String.format("did not find method - %s(%s)", method, Message.getParameterSignature(params)));
+			log.error(String.format("did not find method - %s(%s)", method, Encoder.getParameterSignature(params)));
 		} catch (InvocationTargetException e) {
 			Throwable target = e.getTargetException();
 			error(String.format("%s %s", target.getClass().getSimpleName(), target.getMessage()));
@@ -1727,7 +1696,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return
 	 */
 	public Message createMessage(String name, String method, Object[] data) {
-		Message msg = new Message(); 
+		Message msg = new Message();
 		msg.name = name; // destination instance name
 		msg.sender = this.getName();
 		msg.data = data;
@@ -1932,7 +1901,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * Outbound connect - initial request to connect and register services with
 	 * a remote system
 	 * 
-	 * remoteHost port would be key to foriegn system - key into config which NATs
+	 * remoteHost port would be key to foriegn system - key into config which
+	 * NATs
 	 * 
 	 */
 	public void connect(String login, String password, String remoteHost, int port) {
@@ -2087,7 +2057,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	/*
 	 * public Service updateState(String serviceName) {
-	 * sendBlocking(serviceName, "broadcastState", null); ServiceWrapper sw =
+	 * sendBlocking(serviceName, "broadcastState", null); ServiceInterface sw =
 	 * Runtime.getService(serviceName); if (sw == null) {
 	 * log.error(String.format("service wrapper came back null for %s",
 	 * serviceName)); return null; }
@@ -2222,9 +2192,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("%s loading %d non-sub-routable methods", getName(), methods.length));
 		for (int i = 0; i < methods.length; ++i) {
 			ret.add(methods[i].getName());
-			//log.debug("method {}.{} is not routable", getName(), methods[i].getName());
 		}
-
 		return ret;
 	}
 

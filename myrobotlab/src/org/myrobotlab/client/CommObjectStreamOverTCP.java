@@ -32,7 +32,7 @@ import java.net.Socket;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 // http://zerioh.tripod.com/ressources/sockets.html
 class CommObjectStreamOverTCP extends Thread implements Communicator {
 	
@@ -126,8 +126,11 @@ class CommObjectStreamOverTCP extends Thread implements Communicator {
 			//sdu.serviceEnvironment = new ServiceEnvironment(sdu.remoteURL);
 			// pushing bogus Service with name into SDU
 			ServiceEnvironment local = new ServiceEnvironment(null);
-			ServiceWrapper sw = new ServiceWrapper(getName(), null, local.accessURL);
+			// FIXME - make Proxy
+			/*
+			ServiceInterface sw = new ServiceInterface(getName(), null, local.accessURL);
 			local.serviceDirectory.put(getName(), sw);
+			*/
 
 			send(null, "registerServices", "register", new Object[]{local});
 

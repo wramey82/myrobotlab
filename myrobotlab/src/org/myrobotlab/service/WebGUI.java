@@ -70,7 +70,7 @@ public class WebGUI extends Service {
 	public HashMap<String, String> clients = new HashMap<String, String>();
 
 	public WebGUI(String n) {
-		super(n, WebGUI.class.getCanonicalName());
+		super(n);
 		load();
 	}
 

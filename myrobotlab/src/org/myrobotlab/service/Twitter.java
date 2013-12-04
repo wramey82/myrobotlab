@@ -35,7 +35,7 @@ public class Twitter extends Service {
 	twitter4j.Twitter twitter = null;
 
 	public Twitter(String n) {
-		super(n, Twitter.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public class MagaBot extends Service {
 	public final static Logger log = LoggerFactory.getLogger(MagaBot.class.getCanonicalName());
 
 	public MagaBot(String n) {
-		super(n, MagaBot.class.getCanonicalName());
+		super(n);
 	}
 
 	SerialDevice serialDevice = null;

@@ -148,7 +148,7 @@ public class WiiDAR extends Service {
 	}
 
 	public WiiDAR(String n) {
-		super(n, WiiDAR.class.getCanonicalName());
+		super(n);
 	}
 
 
@@ -482,6 +482,7 @@ public class WiiDAR extends Service {
 
 		WiiDAR wiidar = new WiiDAR("wiidar");
 		wiidar.startService();
+		Runtime.createAndStart("gui", "GUIService");
 		// wiidar.startRobot();
 
 	}

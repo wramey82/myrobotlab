@@ -69,8 +69,8 @@ public class Stepper extends Service implements StepperControl {
 	
 	private StepperController controller = null; // board name
 	
-	public Stepper(String name) {
-		super(name, Stepper.class.getCanonicalName());
+	public Stepper(String n) {
+		super(n);
 	}
 
 	@Override

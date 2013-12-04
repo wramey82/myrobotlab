@@ -28,18 +28,14 @@ package org.myrobotlab.service;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 
 public class Graphics extends Service {
 
@@ -52,16 +48,16 @@ public class Graphics extends Service {
 	public String guiServiceName = null;
 
 	public Graphics(String n) {
-		super(n, Graphics.class.getCanonicalName());
+		super(n);
 	}
 
 	// in order for a graphics service to work it needs to be associated with a
 	// GUIService
 	// this is how to associate it
 	public boolean attach(String guiServiceName) {
-		ServiceWrapper sw = Runtime.getServiceWrapper(guiServiceName);
-		if (!sw.getServiceType().equals("org.myrobotlab.service.GUIService")) {
-			log.warn(String.format("attaching type of %s instead of GUIService instance %s", sw.getServiceType(), guiServiceName));
+		ServiceInterface sw = Runtime.getService(guiServiceName);
+		if (sw.getClass() != GUIService.class) {
+			log.warn(String.format("attaching type of %s instead of GUIService instance %s", sw.getSimpleName(), guiServiceName));
 		}
 		this.guiServiceName = guiServiceName;
 		return true;

@@ -148,7 +148,7 @@ public class ChumbyBot extends Service {
 	}
 
 	public ChumbyBot(String n) {
-		super(n, ChumbyBot.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

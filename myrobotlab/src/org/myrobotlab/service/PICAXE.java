@@ -99,7 +99,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 	}
 
 	public PICAXE(String n) {
-		super(n, PICAXE.class.getCanonicalName());
+		super(n);
 	}
 
 

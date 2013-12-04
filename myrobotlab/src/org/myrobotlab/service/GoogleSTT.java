@@ -112,7 +112,7 @@ public class GoogleSTT extends Service implements SpeechRecognizer {
 	private int bufferSize = 512; // TODO - experiment with sampling size
 
 	public GoogleSTT(String n) {
-		super(n, GoogleSTT.class.getCanonicalName());
+		super(n);
 		encoder = new FLAC_FileEncoder();
 	}
 
