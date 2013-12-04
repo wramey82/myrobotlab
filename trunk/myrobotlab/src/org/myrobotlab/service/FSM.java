@@ -55,7 +55,7 @@ public class FSM extends Service {
 	}
 
 	public FSM(String n) {
-		super(n, FSM.class.getCanonicalName());
+		super(n);
 	}
 
 	public String inState(String newState) {

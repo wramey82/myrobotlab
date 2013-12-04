@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -38,16 +37,16 @@ public class REST {
 		while (uriIt.hasNext()) {
 			Map.Entry<URI, ServiceEnvironment> pairs = uriIt.next();
 			//serviceContent.append(String.format("%s", pairs.getKey()));
-			Iterator<Map.Entry<String, ServiceWrapper>> serviceIt = pairs.getValue().serviceDirectory.entrySet().iterator();
+			Iterator<Map.Entry<String, ServiceInterface>> serviceIt = pairs.getValue().serviceDirectory.entrySet().iterator();
 			while (serviceIt.hasNext()) {
-				Map.Entry<String, ServiceWrapper> servicePair = serviceIt.next();
+				Map.Entry<String, ServiceInterface> servicePair = serviceIt.next();
 				String serviceName = servicePair.getKey();
 				
 				log.debug(String.format("building method signatures for %s", serviceName));
 				
 				//serviceContent.append(String.format("<tr><td></td><td>%s</td><td></td></tr>", servicePair.getKey()));
 				//System.out.println(pairs.getKey() + " = " + pairs.getValue());
-				ServiceInterface si = servicePair.getValue().get();
+				ServiceInterface si = servicePair.getValue();
 				String serviceType = si.getClass().getSimpleName();
 				Method[] methods = si.getClass().getDeclaredMethods();// .getMethods(); FIXME - configurable MORE methods return
 				TreeMap<String, Method> ms = new TreeMap<String, Method>();

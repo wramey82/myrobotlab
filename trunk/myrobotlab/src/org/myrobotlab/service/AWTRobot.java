@@ -136,7 +136,7 @@ public class AWTRobot extends Service {
 	}
 
 	public AWTRobot(String n) {
-		super(n, AWTRobot.class.getCanonicalName());
+		super(n);
 		videoSources=new VideoSources();
 		try {
 			robot = new Robot();

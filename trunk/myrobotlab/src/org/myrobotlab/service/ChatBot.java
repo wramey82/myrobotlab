@@ -26,7 +26,7 @@ public class ChatBot extends Service {
 	public final static Logger log = LoggerFactory.getLogger(ChatBot.class.getCanonicalName());
 
 	public ChatBot(String n) {
-		super(n, ChatBot.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

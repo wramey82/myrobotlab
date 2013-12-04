@@ -45,7 +45,7 @@ public class GestureRecognition extends Service {
 	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
 
 	public GestureRecognition(String n) {
-		super(n, GestureRecognition.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override

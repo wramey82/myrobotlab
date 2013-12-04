@@ -13,8 +13,8 @@ package org.myrobotlab.java;
  *
  */
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.util.Vector;
 
 public class ObservableStream extends ByteArrayOutputStream 
 {

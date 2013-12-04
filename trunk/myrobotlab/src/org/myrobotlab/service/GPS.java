@@ -40,7 +40,7 @@ public class GPS extends Service {
     public static final int PUBLISH_STRING = 4;
 
     public GPS(String n) {
-        super(n, GPS.class.getCanonicalName());
+		super(n);
         reserve(String.format("%s_serial", n), "Serial", "serial port for GPS");
     }
 

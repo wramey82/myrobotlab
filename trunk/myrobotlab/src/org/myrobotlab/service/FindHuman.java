@@ -45,7 +45,7 @@ public class FindHuman extends Service {
 	private boolean speakOn = false;
 
 	public FindHuman(String n) {
-		super(n, FindHuman.class.getCanonicalName());
+		super(n);
 
 		// create services ==============================================
 		Runtime.createAndStart("runtime", "Runtime");

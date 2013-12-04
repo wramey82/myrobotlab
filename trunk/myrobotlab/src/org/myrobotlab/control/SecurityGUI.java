@@ -23,50 +23,53 @@
  * 
  * */
 
-package org.myrobotlab.service;
+package org.myrobotlab.control;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.security.Security;
+
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.GUI;
 import org.slf4j.Logger;
 
-import org.myrobotlab.framework.Service;
+public class SecurityGUI extends ServiceGUI implements ActionListener {
 
-public class Arm extends Service {
+	static final long serialVersionUID = 1L;
+	public final static Logger log = LoggerFactory.getLogger(SecurityGUI.class.getCanonicalName());
 
-	public transient final static Logger log = LoggerFactory.getLogger(Arm.class.getCanonicalName());
-
-	private static final long serialVersionUID = 1L;
-	public transient final static int IR_PIN = 1;
-
-	Servo shoulder = new Servo("shoulder");
-	Servo elbow = new Servo("elbow");
-	Servo wrist = new Servo("wrist");
-	Servo hand = new Servo("hand");
-
-	int armLength = 0;
-	int formArmLength = 0;
-
-	public Arm(String n) {
-		super(n);
+	public SecurityGUI(final String boundServiceName, final GUI myService) {
+		super(boundServiceName, myService);
 	}
 
-	public void startRobot() {
+	public void init() {
 	}
 
-	// TODO - do in Service
-	public static void main(String[] args) {
+	public void getState(org.myrobotlab.service.Security security) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		Arm arm = new Arm("arm");
-		arm.startService();
-		arm.startRobot();
-
+			}
+		});
 	}
 
 	@Override
-	public String getDescription() {
+	public void attachGUI() {
+		subscribe("publishState", "getState", Security.class);
+		myService.send(boundServiceName, "publishState");
+	}
+
+	@Override
+	public void detachGUI() {
+		unsubscribe("publishState", "getState", Security.class);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		return null;
+
 	}
 
 }

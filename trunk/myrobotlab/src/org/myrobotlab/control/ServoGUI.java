@@ -98,7 +98,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myServo = (Servo) Runtime.getServiceWrapper(boundServiceName).service;
+		myServo = (Servo) Runtime.getService(boundServiceName);
 	}
 
 	public void init() {

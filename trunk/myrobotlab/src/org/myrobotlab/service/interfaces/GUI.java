@@ -18,12 +18,8 @@ public abstract class GUI extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public GUI(String instanceName, String serviceClass) {
-		this(instanceName, serviceClass, null);
-	}
-
-	public GUI(String instanceName, String serviceClass, String inHost) {
-		super(instanceName, serviceClass, inHost);
+	public GUI(String n) {
+		super(n);
 	}
 
 	public abstract JTabbedPane loadTabPanels();

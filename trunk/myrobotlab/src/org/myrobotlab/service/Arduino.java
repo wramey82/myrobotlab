@@ -55,7 +55,6 @@ import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -258,7 +257,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public ArrayList<String> portNames = new ArrayList<String>();
 
 	public Arduino(String n) {
-		super(n, Arduino.class.getCanonicalName());
+		super(n);
 		load();
 
 		// target arduino
@@ -552,14 +551,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				sd.servoIndex = i;
 				sendMsg(SERVO_ATTACH, sd.servoIndex, pin);
 				servos.put(servoName, sd);
-				ServiceWrapper sw = Runtime.getServiceWrapper(servoName);
-				if (sw == null || sw.service == null) {
+				ServiceInterface sw = Runtime.getService(servoName);
+				if (sw == null || sw == null) {
 					error(String.format("%s does not exist in registry", servoName));
 					return false;
 				}
 
 				try {
-					ServoControl sc = (ServoControl) sw.service;
+					ServoControl sc = (ServoControl) sw;
 					sd.servo = sc;
 					sc.setController(this);
 					sc.setPin(pin);
@@ -1364,12 +1363,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	@Override
 	public boolean motorAttach(String motorName, Object... motorData) {
-		ServiceWrapper sw = Runtime.getServiceWrapper(motorName);
+		ServiceInterface sw = Runtime.getService(motorName);
 		if (!sw.isLocal()) {
 			log.error("motor is not in the same MRL instance as the motor controller");
 			return false;
 		}
-		ServiceInterface service = sw.service;
+		ServiceInterface service = sw;
 		MotorControl motor = (MotorControl) service; // BE-AWARE - local
 														// optimization ! Will
 														// not work on remote
@@ -1467,12 +1466,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	public Boolean attach(String serviceName, Object... data) {
 		log.info(String.format("attaching %s", serviceName));
-		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
+		ServiceInterface sw = Runtime.getService(serviceName);
 		if (sw == null) {
 			log.error(String.format("could not attach % - not found in registry", serviceName));
 			return false;
 		}
-		if (sw.get() instanceof Servo) // Servo or ServoControl ???
+		if (sw instanceof Servo) // Servo or ServoControl ???
 		{
 			if (data.length != 1) {
 				log.error("can not attach a Servo without a pin number");
@@ -1485,7 +1484,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return servoAttach(serviceName, (Integer) (data[0]));
 		}
 
-		if (sw.get() instanceof Motor) // Servo or ServoControl ???
+		if (sw instanceof Motor) // Servo or ServoControl ???
 		{
 			if (data.length != 2) {
 				log.error("can not attach a Motor without a PWMPin & directionPin ");
@@ -1498,7 +1497,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return motorAttach(serviceName, data);
 		}
 
-		if (sw.get() instanceof ArduinoShield) // Servo or ServoControl ???
+		if (sw instanceof ArduinoShield) // Servo or ServoControl ???
 		{
 
 			if (!sw.isLocal()) {
@@ -1506,7 +1505,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				return false;
 			}
 
-			return ((ArduinoShield) sw.get()).attach(this);
+			return ((ArduinoShield) sw).attach(this);
 		}
 
 		log.error("don't know how to attach");

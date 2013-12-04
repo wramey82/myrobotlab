@@ -84,7 +84,7 @@ public class Wii extends Service implements WiimoteListener, SerialPortEventList
 	}
 
 	public Wii(String n) {
-		super(n, Wii.class.getCanonicalName());
+		super(n);
 	}
 
 

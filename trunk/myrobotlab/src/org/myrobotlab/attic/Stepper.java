@@ -67,8 +67,8 @@ public class Stepper extends Service {
 	boolean locked = false; // for locking the motor in a stopped position
 	String controllerName = null; // board name
 
-	public Stepper(String name) {
-		super(name, Stepper.class.getCanonicalName());
+	public Stepper(String n) {
+		super(n);
 	}
 
 	public void attach(String controllerName, int PWRPin, int DIRPin) {

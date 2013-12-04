@@ -80,14 +80,12 @@ import org.myrobotlab.control.widget.ConnectDialog;
 import org.myrobotlab.control.widget.Console;
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -169,7 +167,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * hashmap "quick lookup" of panels
 	 */
 	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();
-	transient Map<String, ServiceWrapper> sortedMap = null;
+	transient Map<String, ServiceInterface> sortedMap = null;
 
 	transient GridBagConstraints gc = null;
 
@@ -178,7 +176,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	transient JLabel status = new JLabel("status");
 
 	public GUIService(String n) {
-		super(n, GUIService.class.getCanonicalName());
+		super(n);
 		load();// <-- HA was looking all over for it
 	}
 
@@ -205,7 +203,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (sg == null) {
 			log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());
 		} else {
-			Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method, m.data);
+			// FIXME - NORMALIZE - Instantiator or Service - not both !!!
+			//Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method, m.data);
+			invokeOn(serviceGUIMap.get(m.sender), m.method, m.data);
 		}
 
 		return false;
@@ -247,10 +247,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			serviceGUIMap.put("welcome", welcome);
 		}
 
-		HashMap<String, ServiceWrapper> services = Runtime.getRegistry();
+		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
 		log.info("buildTabPanels service count " + Runtime.getRegistry().size());
 
-		sortedMap = new TreeMap<String, ServiceWrapper>(services);
+		sortedMap = new TreeMap<String, ServiceInterface>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 		synchronized (sortedMap) { // FIXED YAY !!!!
 			while (it.hasNext()) {
@@ -265,7 +265,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	// TODO - get index based on name
 	public void addTab(String serviceName) {
 		// ================= begin addTab(name) =============================
-		ServiceWrapper sw = Runtime.getServiceWrapper(serviceName);
+		ServiceInterface sw = Runtime.getService(serviceName);
 
 		if (sw == null) {
 			log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
@@ -276,18 +276,18 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// Service Types
 		// FIXME - Solution ??? - send SW with "suggested type ???" Android
 		// --becomes--> AndroidController :)
-		if (sw.get() == null) {
+		if (sw == null) {
 			log.error(String.format("%1$s does not have a valid Service - not exported ???", serviceName));
 			return;
 		}
 
 		// get service type class name TODO
-		String serviceClassName = sw.get().getClass().getCanonicalName();
+		String serviceClassName = sw.getClass().getCanonicalName();
 		String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
 		guiClass = "org.myrobotlab.control" + guiClass + "GUI";
 
-		if (serviceGUIMap.containsKey(sw.name)) {
-			log.debug(String.format("not creating %1$s gui - it already exists", sw.name));
+		if (serviceGUIMap.containsKey(sw.getName())) {
+			log.debug(String.format("not creating %1$s gui - it already exists", sw.getName()));
 			return;
 		}
 
@@ -406,9 +406,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 */
 
 	// public ComponentResizer resizer = new ComponentResizer();
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw) {
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceInterface sw) {
 		ServiceGUI gui = null;
-		ServiceInterface se = sw.get();
+		ServiceInterface se = sw;
 		if (serviceName.equals("python")) {
 			log.info("here");
 		}
@@ -437,7 +437,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			// Color hsv = new
 			// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
 			// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
-			Color hsv = getColorFromURI(sw.getAccessURL());
+			Color hsv = getColorFromURI(sw.getHost());
 			int index = tabs.indexOfTab(serviceName);
 			tabs.setBackgroundAt(index, hsv);
 			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));

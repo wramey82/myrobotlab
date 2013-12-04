@@ -54,7 +54,7 @@ public class Scheduler extends Service {
 	String group = "group1";
 
 	public Scheduler(String n) {
-		super(n, Scheduler.class.getCanonicalName());
+		super(n);
 	}
 
 	public void scheduleSimpleJob(String jobName, String triggerName, String cronString) {

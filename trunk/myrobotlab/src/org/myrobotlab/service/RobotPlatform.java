@@ -156,14 +156,8 @@ public class RobotPlatform extends Service {
 	public final static Logger log = LoggerFactory.getLogger(RobotPlatform.class.getCanonicalName());
 
 	public RobotPlatform(String n) {
-		this(n, null);
+		super(n);
 	}
-
-	public RobotPlatform(String n, String serviceDomain) {
-		super(n, RobotPlatform.class.getCanonicalName(), serviceDomain);
-	}
-
-
 
 	public void attach(Motor left, Motor right) {
 		this.left = left;

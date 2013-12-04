@@ -1,11 +1,16 @@
 package org.myrobotlab.service.interfaces;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 
 public interface ServiceInterface {
+	public URI getHost();
+	
+	public void setHost(URI uri);
+	
 	public String getName();
 
 	public void in(Message msg);
@@ -42,4 +47,5 @@ public interface ServiceInterface {
 
 	public Object invoke(String method, Object...params);
 	
+	public boolean isLocal();
 }

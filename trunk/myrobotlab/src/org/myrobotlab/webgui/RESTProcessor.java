@@ -201,7 +201,7 @@ public class RESTProcessor implements HTTPProcessor {
 			keys[i] = decodePercent(keys[i], true);
 		}
 		
-		// FIXME - /api
+		// FIXME - /api/returnEncodingType/parameterEncoding/service/method/param0/param1....
 
 		if ("/services".equals(uri)) {
 			// get runtime list

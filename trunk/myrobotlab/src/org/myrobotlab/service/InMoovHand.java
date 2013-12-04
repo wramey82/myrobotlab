@@ -46,7 +46,7 @@ public class InMoovHand extends Service {
 	}
 	
 	public InMoovHand(String n) {
-		super(n, InMoovHand.class.getCanonicalName());	
+		super(n);	
 		thumb = (Servo) createPeer("thumb");
 		index = (Servo) createPeer("index");
 		majeure = (Servo) createPeer("majeure");

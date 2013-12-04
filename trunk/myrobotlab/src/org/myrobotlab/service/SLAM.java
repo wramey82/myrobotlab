@@ -46,7 +46,7 @@ public class SLAM extends Service {
 	public final static Logger log = LoggerFactory.getLogger(SLAM.class.getCanonicalName());
 
 	public SLAM(String n) {
-		super(n, SLAM.class.getCanonicalName());
+		super(n);
 	}
 
 

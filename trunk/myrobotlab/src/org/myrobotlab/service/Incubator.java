@@ -41,7 +41,7 @@ public class Incubator extends Service {
 	
 	
 	public Incubator(String n) {
-		super(n, Incubator.class.getCanonicalName());	
+		super(n);	
 		
 		xmpp = (XMPP) createPeer("xmpp");
 		webgui = (WebGUI) createPeer("webgui");

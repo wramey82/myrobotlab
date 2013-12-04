@@ -1,7 +1,6 @@
 package org.myrobotlab.control;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -24,12 +23,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.control.widget.UndockedPanel;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 /**
@@ -261,7 +260,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		// parent.getSelectedComponent()
 		if (boundServiceName.equals(getText())) {
 			// Service Frame
-			ServiceWrapper sw = Runtime.getServiceWrapper(getText());
+			ServiceInterface sw = Runtime.getService(getText());
 			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName());
 
@@ -282,7 +281,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 			}
 		} else {
 			// Sub Tabbed sub pane
-			ServiceWrapper sw = Runtime.getServiceWrapper(boundServiceName);
+			ServiceInterface sw = Runtime.getService(boundServiceName);
 			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName() + "#" + getText());
 

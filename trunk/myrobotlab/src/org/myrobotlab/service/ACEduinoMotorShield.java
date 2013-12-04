@@ -1,13 +1,11 @@
 package org.myrobotlab.service;
 
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
 
 /**
  * @author GroG
@@ -32,7 +30,7 @@ public class ACEduinoMotorShield extends Service {
 	Arduino arduino;
 
 	public ACEduinoMotorShield(String n) {
-		super(n, ACEduinoMotorShield.class.getCanonicalName());
+		super(n);
 	}
 
 	@Override
@@ -73,20 +71,20 @@ public class ACEduinoMotorShield extends Service {
 	}
 
 	public boolean attach(String controllerName) {
-		ServiceWrapper sw = Runtime.getServiceWrapper(controllerName);
+		ServiceInterface sw = Runtime.getService(controllerName);
 		if (sw == null)
 		{
 			log.error("can not find {}", controllerName);
 			return false;
 		}
 		
-		if (sw.service.getClass() != Arduino.class)
+		if (sw.getClass() != Arduino.class)
 		{
 			log.error("{} must be an Arduino", controllerName);
 			return false;
 		}
 		
-		return attach((Arduino) sw.service);
+		return attach((Arduino) sw);
 	}
 
 	public static void main(String[] args) {

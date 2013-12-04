@@ -101,7 +101,7 @@ public class Outbox implements Runnable, Serializable {
 					while (msgBox.size() == 0) {
 						// log.debug("outbox run WAITING ");
 						msgBox.wait(); // must own the lock
-					}	
+					}
 				} catch (InterruptedException ex) {
 					log.debug("outbox run INTERRUPTED ");
 					// msgBox.notifyAll();
@@ -109,34 +109,33 @@ public class Outbox implements Runnable, Serializable {
 					continue;
 				}
 				msg = msgBox.removeLast();
-				//chase network bugs 
-				//log.error(String.format("%s.outbox.run(msg) %s.%s -- %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-				// log.debug(String.format("removed from msgBox size now %d", msgBox.size()));
+				// chase network bugs
+				// log.error(String.format("%s.outbox.run(msg) %s.%s -- %s.%s ",
+				// myService.getName(), msg.sender, msg.sendingMethod, msg.name,
+				// msg.method));
+				// log.debug(String.format("removed from msgBox size now %d",
+				// msgBox.size()));
 				msgBox.notifyAll();
 			}
 
-			// TODO - refer to ticket #80
-			// all of this needs to be controlled by Service paramters
-			// TODO - clean up - (name || hostname && serviceport) &&
-			// outboxMsgHandling == RELAY
-			if (msg.getName().length() > 0 && myService.outboxMsgHandling.compareTo(Service.RELAY) == 0 || "S".equals(msg.msgType)) {
+			// RELAY OTHER SERVICE'S MSGS
+			// if the msg name is not my name - then
+			// relay it
+			// WARNING - broadcast apparently means name == ""
+			if (msg.name.length() > 0 && !myService.getName().equals(msg.name) && myService.outboxMsgHandling.equals(Service.RELAY)) {
 				log.debug("{} configured to RELAY ", msg.getName());
 				comm.send(msg);
-
+				// recently added -
+				// if I'm relaying I'm not broadcasting...(i think)
+				continue;
 			}
 
+			// BROADCASTS name=="" WILL DROP DOWN and be processed here
 			if (notifyList.size() != 0) {
-
-				// key is now sendingMethod.destName.methodName - parameterType
-				// are
-				// left out until invoke time
-				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod); // Get
-																					// the
-																					// value
-																					// for
-				// the sourceMethod
+				// get the value for the source method
+				ArrayList<MRLListener> subList = notifyList.get(msg.sendingMethod);
 				if (subList == null) {
-					log.debug("no static route for " + msg.sender + "." + msg.sendingMethod);
+					log.debug(String.format("no static route for %s.%s ", msg.sender, msg.sendingMethod));
 					// This will cause issues in broadcasts
 					continue;
 				}
@@ -145,22 +144,17 @@ public class Outbox implements Runnable, Serializable {
 					MRLListener listener = subList.get(i);
 					msg.name = listener.name;
 					msg.method = listener.inMethod;
-					if (i != 0) // TODO - this is crap refactor
-					{
-						// TODO - optimization do NOT make copy of message on
-						// sending end -
-						// ONLY make copy from recieving end - this will work
-						// with and without Serialization
-						msg = new Message(msg);
-					}
-					
-					//chase network bugs 
-					//log.error(String.format("%s.outbox.com.send(msg) %s.%s --> %s.%s ", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
-
 					comm.send(msg);
+
+					// must make new for internal queues
+					// otherwise you'll change the name on
+					// existing enqueued messages
+					msg = new Message(msg);
 				}
 			} else {
-				log.debug(msg.getName() + "/" + msg.method + "#" + msg.getParameterSignature() + " notifyList is empty");
+				if (log.isDebugEnabled()) {
+					log.debug(String.format("%s/%s(%s)",msg.getName(), msg.method, Encoder.getParameterSignature(msg.data) + " notifyList is empty"));
+				}
 				continue;
 			}
 
@@ -170,8 +164,10 @@ public class Outbox implements Runnable, Serializable {
 	// TODO - config to put message in block mode - with no buffer overrun
 	// TODO - config to drop message without buffer overrun e.g. like UDP
 	public void add(Message msg) {
-		//chase network bugs 
-		//log.error(String.format("%s.outbox.add(msg) %s.%s --> %s.%s", myService.getName(), msg.sender, msg.sendingMethod, msg.name, msg.method));
+		// chase network bugs
+		// log.error(String.format("%s.outbox.add(msg) %s.%s --> %s.%s",
+		// myService.getName(), msg.sender, msg.sendingMethod, msg.name,
+		// msg.method));
 		synchronized (msgBox) {
 			while (blocking && msgBox.size() == maxQueue)
 				// queue "full"
@@ -186,12 +182,12 @@ public class Outbox implements Runnable, Serializable {
 			// process them
 			if (msgBox.size() > maxQueue) {
 				bufferOverrun = true;
-				log.warn(" outbox BUFFER OVERRUN size " + msgBox.size());
+				log.warn(String.format("%s outbox BUFFER OVERRUN size %d", myService.getName(), msgBox.size()));
 			}
 			msgBox.addFirst(msg);
 
 			if (log.isDebugEnabled()) {
-				log.debug(String.format("msg [%s.%s (%s)]", msg.name, msg.method, msg.getParameterSignature()));
+				log.debug(String.format("msg [%s]", msg.toString()));
 			}
 			msgBox.notifyAll(); // must own the lock
 		}

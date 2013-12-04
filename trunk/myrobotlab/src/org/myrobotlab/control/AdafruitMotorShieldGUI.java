@@ -32,7 +32,6 @@ package org.myrobotlab.control;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -40,14 +39,13 @@ import javax.swing.JLayeredPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.image.Util;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.AdafruitMotorShield;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.GUI;
+import org.slf4j.Logger;
 
 public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -59,7 +57,7 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 
 	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
-		myAdafruitMotorShield = (AdafruitMotorShield) Runtime.getServiceWrapper(boundServiceName).service;
+		myAdafruitMotorShield = (AdafruitMotorShield) Runtime.getService(boundServiceName);
 	}
 
 	class ButtonListener implements ActionListener {

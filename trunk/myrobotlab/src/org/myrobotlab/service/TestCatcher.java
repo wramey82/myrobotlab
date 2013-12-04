@@ -54,11 +54,7 @@ public class TestCatcher extends Service {
 	
 	
 	public TestCatcher(String n) {
-		super(n, TestCatcher.class.getCanonicalName());
-	}
-
-	public TestCatcher(String n, String hostname) {
-		super(n, TestCatcher.class.getCanonicalName(), hostname);
+		super(n);
 	}
 
 	public void catchNothing() {

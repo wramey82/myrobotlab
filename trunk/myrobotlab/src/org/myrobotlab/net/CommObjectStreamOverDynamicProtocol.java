@@ -54,11 +54,11 @@ import java.util.Map;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 public class CommObjectStreamOverDynamicProtocol implements Communicator, Serializable {
@@ -160,26 +160,11 @@ public class CommObjectStreamOverDynamicProtocol implements Communicator, Serial
 					} else {
 						// FIXME - normalize to single method - check for data
 						// type too ? !!!
-						if (msg.method.equals("registerServices")) {
-							
-							// construct the acces uri
-							StringBuffer sb = new StringBuffer().append("tcp://").append(socket.getInetAddress().getHostAddress()).append(":").append(socket.getPort());
-
+						if (msg.method.equals("register")) {
 							try {
-								URI uri = new URI(sb.toString());
-								// affix accessURL to the ServiceEnvironment
-								ServiceEnvironment se = (ServiceEnvironment)msg.data[0];
-								se.accessURL = uri;
-								Runtime.getInstance().registerServices(msg);
-							} catch (Exception e) {
-								Logging.logException(e);
-							}
-							continue;
-						} else if (msg.method.equals("register")) {
-							try {
-								ServiceWrapper sw = (ServiceWrapper) msg.data[0];
-								if (sw.host == null) {
-									sw.host = new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort()));
+								ServiceInterface sw = (ServiceInterface) msg.data[0];
+								if (sw.getHost() == null) {
+									sw.setHost(new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort())));
 								}
 								Runtime.getInstance().register(sw);
 							} catch (Exception e) {
@@ -287,7 +272,7 @@ public class CommObjectStreamOverDynamicProtocol implements Communicator, Serial
 
 	// send tcp
 	@Override
-	public void send(final URI url, final Message msg) {
+	public void sendRemote(final URI url, final Message msg) {
 
 		TCPThread phone = null;
 		if (clientList.containsKey(url)) {

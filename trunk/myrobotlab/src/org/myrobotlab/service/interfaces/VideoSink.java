@@ -7,8 +7,8 @@ public abstract class VideoSink extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public VideoSink(String name) {
-		super(name, VideoSink.class.getCanonicalName());
+	public VideoSink(String n) {
+		super(n);
 	}
 
 	public boolean attachVideoSource(String videoSource){

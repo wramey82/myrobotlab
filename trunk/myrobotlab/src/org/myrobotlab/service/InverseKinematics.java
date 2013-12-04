@@ -16,7 +16,7 @@ public class InverseKinematics extends Service {
 	public final static Logger log = LoggerFactory.getLogger(InverseKinematics.class.getCanonicalName());
 	
 	public InverseKinematics(String n) {
-		super(n, InverseKinematics.class.getCanonicalName());	
+		super(n);	
 	}
 
 	@Override

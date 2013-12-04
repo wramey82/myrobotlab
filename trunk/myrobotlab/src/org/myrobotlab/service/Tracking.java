@@ -135,7 +135,7 @@ public class Tracking extends Service {
 	// e.g if I come to the party does the reservations get updated or do I
 	// crash the party ??
 	public Tracking(String n) {
-		super(n, Tracking.class.getCanonicalName());
+		super(n);
 		// createPeer("X","Servo") <-- create peer of default type
 		x = (Servo) createPeer("x");
 		y = (Servo) createPeer("y");

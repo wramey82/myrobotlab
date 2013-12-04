@@ -42,7 +42,7 @@ public class Houston extends Service {
 	Tracking tracking;
 	
 	public Houston(String n) {
-		super(n, Houston.class.getCanonicalName());
+		super(n);
 	}
 
 	public void initialize(String boardType, String comPort) {

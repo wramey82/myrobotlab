@@ -1,9 +1,9 @@
 package org.myrobotlab.service;
 
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jivesoftware.smack.Chat;
@@ -20,13 +20,13 @@ import org.jivesoftware.smack.packet.Presence.Type;
 import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.CommData;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.webgui.RESTProcessor;
 import org.myrobotlab.webgui.RESTProcessor.RESTException;
 import org.slf4j.Logger;
@@ -37,6 +37,10 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
+	
+	// not sure how to initialize requirements .. probably a register Security event
+	// thread safe ???
+	HashMap<String,String> xmppSecurity = new HashMap<String,String>();
 
 	String user;
 	String password;
@@ -63,7 +67,9 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	transient HashMap<String, Chat> chats = new HashMap<String, Chat>();
 
 	public XMPP(String n) {
-		super(n, XMPP.class.getCanonicalName());
+		super(n);
+		
+		//localSecurity.put("user", value)
 	}
 
 	@Override
@@ -198,13 +204,21 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 	RosterEntry getEntry(String userOrBuddyId) {
 		RosterEntry entry = null;
-		entry = roster.getEntry(userOrBuddyId);
+		String id = null;
+		int pos = userOrBuddyId.indexOf("/");
+		if (pos > 0){
+			id = userOrBuddyId.substring(0, pos);
+		} else {
+			id = userOrBuddyId;
+		}
+		
+		entry = roster.getEntry(id);
 		if (entry != null) {
 			return entry;
 		}
 
-		if (idToEntry.containsKey(userOrBuddyId)) {
-			return idToEntry.get(userOrBuddyId);
+		if (idToEntry.containsKey(id)) {
+			return idToEntry.get(id);
 		}
 
 		return null;
@@ -356,15 +370,27 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	// FIXME - should be in runtime
 	public String listServices() {
 		StringBuffer sb = new StringBuffer();
-		List<ServiceWrapper> services = Runtime.getServices();
+		List<ServiceInterface> services = Runtime.getServices();
 		for (int i = 0; i < services.size(); ++i) {
-			ServiceWrapper sw = services.get(i);
-			sb.append(String.format("/%s\n", sw.name));
+			ServiceInterface sw = services.get(i);
+			sb.append(String.format("/%s\n", sw.getName()));
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 *  processMessage is the XMPP / Smack API override which handles incoming
+	 *  chat messages - XMPP comes with well defined and extendable capabilities,
+	 *  however, Google Talk does not support much more than text messages with
+	 *  started open xmpp .. sad :(
+	 *  
+	 *  So we'd like to send binary mrl messages - since google doesn't support any
+	 *  binary extentions .. we will base64 encode our messages and send them as
+	 *  regular chats ;)
+	 *  
+	 */
+	
 
-	// FIXME - Registrar interface
 	// FIXME - get clear about different levels of authorization -
 	// Security/Framework to handle at message/method level
 	@Override
@@ -382,57 +408,93 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Received %s message [%s] from [%s]", type, body, from));
 		}
+		
+		// Security HERE !
+		// check each message here ??? versus CommunicationManager 
+		// someone wants to do a instance.method call 
+		// isAuthorized(id, name, method)
+		// "internally" Message can be broken up into id = security header, msg.name, msg.method
+		// "externally" there is an incoming id (which could map to an internal id?), msg.name, msg.method
+		
+
 
 		if (body.startsWith(Encoder.SCHEME_BASE64)) {
 			org.myrobotlab.framework.Message inboundMsg = Encoder.base64ToMsg(body);
-			// must add key for registration ???
-			if (inboundMsg.method.equals("registerServices")) {
-				ServiceEnvironment se = (ServiceEnvironment) inboundMsg.data[0];
-				// FIXME !!! - very important format needs to be in Encoder
-				String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
-				try { // HMMM a vote for String vs URI here - since we need to
-						// catch syntax !!!
-					se.accessURL = new URI(mrlURI);
+
+			log.info(String.format("********* remote inbound message from %s -to-> %s.%s *********", inboundMsg.sender, inboundMsg.name, inboundMsg.method));
+			
+			// broadcast - then msg gets sent to restricted service issue !
+			// xmpp has its own security - how to integrate this with central security ??
+			xmppSecurity.put("user", getEntry(from).getName());
+			if (security != null && !security.isAuthorized(xmppSecurity, inboundMsg.name, inboundMsg.method)) {
+				log.error("Security does not allow processing of %s message", inboundMsg);
+				return;
+			}
+
+
+			// must add key for registration ??? - foreign system has no
+			// idea what my runtime's name is - I will wrap it in a my
+			// own message and send it
+			if (inboundMsg.method.equals("register")) {
+				try {
+
+					// IMPORTANT - (should be in Encoder) - create the key for foreign service environment
+					String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
+					URI uri = new URI(mrlURI);
+					
+					// check if the URI is already defined - if not - we will
+					// send back the services which we want to export - Security will filter appropriately 
+					// deprecate - getLocalServicesForExport
+					ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
+					if (foreignProcess == null){
+						// not defined we will send export
+						// TODO - Security filters - default export (include exclude) - mapset of name
+						ServiceEnvironment localProcess = Runtime.getServiceEnvironment(null);
+						
+						Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
+						String name;
+						ServiceInterface si;
+						while (it.hasNext()) {
+							name = it.next();
+							si = localProcess.serviceDirectory.get(name);
+							/* FIXME - implement in security
+							if (sw.allowExport()) {
+							}
+							*/
+							
+							org.myrobotlab.framework.Message sendService = createMessage("", "register", si);
+							String base64 = Encoder.msgToBase64(sendService);
+							//sendMessage(base64, "incubator incubator");
+							// echoed back whenc'd it came
+							sendMessage(base64, from);
+						}
+						
+					}
+					
+					ServiceInterface si = (ServiceInterface) inboundMsg.data[0];
+					// HMMM a vote for String vs URI here - since we need to
+					// catch syntax !!!
+					si.setHost(uri);
+
+					// if security ... msg within msg
+					// getOutbox().add(createMessage(Runtime.getInstance().getName(),
+					// "register", inboundMsg));
+					Runtime.register(si, uri);// <-- not an INVOKE !!!
+														// -
+					// no security ! :P
 				} catch (Exception e) {
 					Logging.logException(e);
 				}
-
-				// FIXME FIXME FIXME ??? WTF not right
-				Runtime.getInstance().registerServices(inboundMsg);
-			} else if (inboundMsg.method.equals("register")) {
-
-				ServiceWrapper sw = (ServiceWrapper) inboundMsg.data[0];
-
-				String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
-				try { // HMMM a vote for String vs URI here - since we need to
-						// catch syntax !!!
-					sw.host = new URI(mrlURI); // serviceEn
-				} catch (Exception e) {
-					Logging.logException(e);
-				}
-
-				Runtime.getInstance().register(sw);
-
 			} else {
+				// just route it
 				getOutbox().add(inboundMsg);
 			}
+
 			return;
 		}
 
-		// BinaryToken ???
-		// Security.Authorization (buddyId -> Level ???)
-		// Basic buddyId
-		if (body.startsWith("{")) {
-			try {
-				// gson encoded MRL Message !
-				org.myrobotlab.framework.Message remoteMsg = Encoder.gsonToMsg(body);
-				Runtime.getInstance().registerServices(remoteMsg);
-				// getOutbox().add(remoteMsg);
-			} catch (Exception e) {
-				Logging.logException(e);
-			}
-		}
 
+		// chat client interface
 		if (body.charAt(0) == '/') {
 			// chat command - from chat client
 			try {
@@ -442,7 +504,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 				Logging.logException(e);
 			}
 		} else if (body != null && body.length() > 0 && body.charAt(0) != '/') {
-			broadcast("sorry sir, I do not understand! I await your orders but,\n they must start with / for more information go to http://myrobotlab.org");
+			broadcast("sorry sir, I do not understand! I await your orders but,\n they must start with / for more information go to http://myrobotlab.org/service/XMPP");
 			broadcast("*HAIL BEPSL!*");
 			broadcast(String.format("for a list of possible commands please type /%s/help", getName()));
 			broadcast(String.format("current roster of active units is as follows\n\n %s", listServices()));
@@ -453,7 +515,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 		// FIXME - decide if its a publishing point
 		// or do we directly invoke and expect a response type
-		invoke("publishMessage", chat, msg);
+		// invoke("publishMessage", chat, msg);
 	}
 
 	public boolean addAuditor(String id) {
@@ -511,103 +573,17 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		return msg;
 	}
 
-	/*
-	 * public String getStatus() { StringBuffer sb = new StringBuffer();
-	 * sb.append(chatManager.get); }
-	 */
-
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-
-		try {
-
-			int i = 1;
-			// Runtime.main(new String[]{"-runtimeName", String.format("r%d",
-			// i)});
-			XMPP xmpp1 = (XMPP) Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
-			Runtime.createAndStart(String.format("clock%d", i), "Clock");
-			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-			xmpp1.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
-			xmpp1.sendMessage("hello from incubator by name " + System.currentTimeMillis(), "Greg Perry");
-			xmpp1.sendMessage("xmpp 2", "robot02 02");
-			if (true) {
-				return;
-			}
-
-			// ---------------------------THE
-			// END--------------------------------------------
-
-			XMPP xmpp = new XMPP("xmpp");
-			xmpp.startService();
-
-			// xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org",
-			// "mrlRocks!");
-			xmpp.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
-			xmpp.sendMessage("hello from incubator xmpp name", "Greg Perry");
-
-			// xmpp.getUserList();
-
-			/*
-			 * incubator Number of contacts: 2 User: Orbous Mundus
-			 * 34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com User: Greg
-			 * Perry 23d3ufvoz10m30jfv4adl5daav@public.talk.google.com
-			 */
-
-			// Roster roster = xmpp.getRoster();
-			xmpp.sendMessage("hello from incubator by user", "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
-			xmpp.addRelay("Greg Perry");
-			xmpp.sendMessage("message from the REAL INCUBATOR !!!", "Orbous Mundus");
-			xmpp.sendMessage("/runtime/getUptime", "Orbous Mundus");
-			xmpp.sendMessage("/runtime/getUptime", "Orbous Mundus");
-			// xmpp.sendMessage("/runtime/getUptime",
-			// "34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com");
-
-			// RosterEntry user =
-			// roster.getEntry("34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com");
-			// xmpp.connect("talk.google.com", 5222, "robot02@myrobotlab.org",
-			// "mrlRocks!");
-
-			// gets all users it can send messages to
-			xmpp.getRoster();
-			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
-			xmpp.sendMessage("hello", "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
-
-			// TODO - autoRespond
-			// TODO - auditCommand <-- to which protocol?
-			// xmpp.addRelay("grasshopperrocket@gmail.com");
-			// orbous -> grasshopperrocket
-			// 389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com
-			// FIXME addMsgListener - default gson encoded return message only
-			xmpp.addRelay("23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
-
-			// incubator -> supertick
-			// (23d3ufvoz10m30jfv4adl5daav@public.talk.google.com)
-
-			xmpp.addRelay("supertick@gmail.com");
-
-			// send a message
-			xmpp.broadcast("reporting for duty *SIR* !");
-			xmpp.sendMessage("hail bepsl", "supertick@gmail.com");
-
-		} catch (Exception e) {
-			Logging.logException(e);
-		}
-	}
-
 	/**
-	 * sending remotely - need uri key data to send to client
+	 * sending remotely - need uri key data to send to client adds to history
+	 * list as a hop - to "hopefully" prevent infinite routing problems
 	 */
 	@Override
-	public void send(URI uri, org.myrobotlab.framework.Message msg) {
+	public void sendRemote(URI uri, org.myrobotlab.framework.Message msg) {
 		// decompose uri or use as key (mmm specified encoding???)
+		// FIXME - Encoder should do this !!!
 		String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
-																			// root
-		log.info(remoteURI);
-		// e.g.
-		// /xmpp://1y1h4m8lax3ex3fsercrczk3e5@public.talk.google.com/Smack114B7D06
-		// String buddyID = remoteURI.substring(4 + getName().length());
-		// send message
+		// log.info(remoteURI);
+		msg.historyList.add(getName());
 		String base64 = Encoder.msgToBase64(msg);
 		sendMessage(base64, remoteURI);
 	}
@@ -625,6 +601,78 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	public HashMap<URI, CommData> getClients() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public static void main(String[] args) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		try {
+
+			int i = 1;
+			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
+			XMPP xmpp1 = (XMPP) Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
+			Runtime.createAndStart(String.format("clock%d", i), "Clock");
+			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+			xmpp1.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
+			// xmpp1.sendMessage("hello from incubator by name " +
+			// System.currentTimeMillis(), "Greg Perry");
+			xmpp1.sendMessage("xmpp 2", "robot02 02");
+			if (true) {
+				return;
+			}
+
+			// END--------------------------------------------
+
+			/*
+			 * XMPP xmpp = new XMPP("xmpp"); xmpp.startService();
+			 * 
+			 * // xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org",
+			 * // "mrlRocks!"); xmpp.connect("talk.google.com", 5222,
+			 * "incubator@myrobotlab.org", "hatchMe!");
+			 * xmpp.sendMessage("hello from incubator xmpp name", "Greg Perry");
+			 * 
+			 * // xmpp.getUserList(); // Roster roster = xmpp.getRoster();
+			 * xmpp.sendMessage("hello from incubator by user",
+			 * "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
+			 * xmpp.addRelay("Greg Perry");
+			 * xmpp.sendMessage("message from the REAL INCUBATOR !!!",
+			 * "Orbous Mundus"); xmpp.sendMessage("/runtime/getUptime",
+			 * "Orbous Mundus"); xmpp.sendMessage("/runtime/getUptime",
+			 * "Orbous Mundus"); // xmpp.sendMessage("/runtime/getUptime", //
+			 * "34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com");
+			 * 
+			 * // RosterEntry user = //
+			 * roster.getEntry("34duqo9xzvxh20rm34ihnf2cln@public.talk.google.com"
+			 * ); // xmpp.connect("talk.google.com", 5222,
+			 * "robot02@myrobotlab.org", // "mrlRocks!");
+			 * 
+			 * // gets all users it can send messages to xmpp.getRoster();
+			 * xmpp.setStatus(true, String.format("online all the time - %s",
+			 * new Date())); xmpp.sendMessage("hello",
+			 * "23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
+			 * 
+			 * // TODO - autoRespond // TODO - auditCommand <-- to which
+			 * protocol? // xmpp.addRelay("grasshopperrocket@gmail.com"); //
+			 * orbous -> grasshopperrocket //
+			 * 389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com // FIXME
+			 * addMsgListener - default gson encoded return message only
+			 * xmpp.addRelay
+			 * ("23d3ufvoz10m30jfv4adl5daav@public.talk.google.com");
+			 * 
+			 * // incubator -> supertick //
+			 * (23d3ufvoz10m30jfv4adl5daav@public.talk.google.com)
+			 * 
+			 * xmpp.addRelay("supertick@gmail.com");
+			 * 
+			 * // send a message xmpp.broadcast("reporting for duty *SIR* !");
+			 * xmpp.sendMessage("hail bepsl", "supertick@gmail.com");
+			 */
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
 	}
 
 }

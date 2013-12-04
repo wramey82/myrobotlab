@@ -40,8 +40,8 @@ public class StepperMotor extends Service {
 
 	// private StepperMotorConfig config;
 
-	public StepperMotor(String name) {
-		super(name, StepperMotor.class.getCanonicalName());
+	public StepperMotor(String n) {
+		super(n);
 		// config.getName() = name; TODO WHY HURT YOURSELF?
 	}
 

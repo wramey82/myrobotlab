@@ -58,7 +58,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public int BYTE_SIZE_INT = 2;
 
 	public Serial(String n) {
-		super(n, Serial.class.getCanonicalName());
+		super(n);
 	}
 
 	public void capacity(int size) {

@@ -28,22 +28,21 @@ package org.myrobotlab.net;
 import java.io.Serializable;
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceWrapper;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.slf4j.Logger;
 
 public class CommunicationManager implements Serializable, CommunicationInterface {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(CommunicationManager.class.toString());
+	public final static Logger log = LoggerFactory.getLogger(CommunicationManager.class);
 	Service myService = null;
 	Outbox outbox = null;
 
@@ -71,26 +70,24 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 	 * 
 	 */
 	public void send(final URI uri, final Message msg) {
-		getComm(uri).send(uri, msg);
+		getComm(uri).sendRemote(uri, msg);
 	}
 
 	public void send(final Message msg) {
 
-		ServiceWrapper sw = Runtime.getServiceWrapper(msg.getName());
+		ServiceInterface sw = Runtime.getService(msg.getName());
 		if (sw == null) {
-			log.error(String.format("Runtime.getServiceWrapper could not return %s.%s for sender %s ", msg.name, msg.method, msg.sender));
+			myService.error("Runtime.getService could not return %s.%s for sender %s ", msg.name, msg.method, msg.sender);
 			return;
 		}
-		if (sw.host == null || sw.host.equals(myService.url)) {
-			log.debug("sending local");
-			Message m = new Message(msg); // TODO UNECESSARY ???? Probably - BUT
-											// TOO SCARED TO REMOVE !!
-			sw.get().in(m);
+		
+		URI host = sw.getHost();
+		if (host == null) {
+			log.info(String.format("local %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
+			sw.in(msg);
 		} else {
-			// FIXME - test for loglevel & use the Swedish Formatter
-			
-			log.info(msg.sender + "." + msg.sendingMethod + "->" + sw.host + "/" + msg.name + "." + msg.method + "(" + msg.getParameterSignature() + ")");
-			getComm(sw.host).send(sw.host, msg);
+			log.info(String.format("remote %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
+			getComm(host).sendRemote(host, msg);
 		}
 	}
 
@@ -101,12 +98,12 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 	public Communicator getComm(URI uri) {
 		if (uri.getScheme().equals(Encoder.SCHEME_MRL))
 		{
-			//log.info("here");
-			//log.info(String.format("mrl: scheme - getting communicator %s", uri.getHost()));
-			ServiceWrapper sw = Runtime.getServiceWrapper(uri.getHost());
-			Communicator c = (Communicator)sw.service;
+			ServiceInterface sw = Runtime.getService(uri.getHost());
+			Communicator c = (Communicator)sw;
 			return c;
 		}
+		// FIXME remove - keeping only for deprecated RemoteAdapter	
+		// should be ERROR if can not return with URI !!! - return null
 		return comm;
 	}
 

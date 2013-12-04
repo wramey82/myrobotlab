@@ -2,10 +2,10 @@ package org.myrobotlab.service;
 
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.dynamicGUI.Desktop;
-import org.myrobotlab.framework.ServiceWrapper;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 
@@ -43,7 +43,7 @@ public class GUIDynamic extends GUIService {
 	}
 	
 	@Override
-	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceWrapper sw) {
+	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceInterface sw) {
 		ServiceGUI sg=super.createTabbedPanel(serviceName, guiClass, sw);
 			desktop.facelift(sg.getDisplay());
 		return sg;

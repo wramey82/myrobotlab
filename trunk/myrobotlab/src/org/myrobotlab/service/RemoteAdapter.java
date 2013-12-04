@@ -73,15 +73,8 @@ public class RemoteAdapter extends Service {
 	transient TCPListener tcpListener = null;
 	transient UDPListener udpListener = null;
 
-	// FIXME - all port & ip data needs to be only in the threads
-	public String serverIP = "0.0.0.0";
-
 	public RemoteAdapter(String n) {
-		super(n, RemoteAdapter.class.getCanonicalName());
-	}
-
-	public RemoteAdapter(String n, String hostname) {
-		super(n, RemoteAdapter.class.getCanonicalName(), hostname);
+		super(n);
 	}
 
 	@Override
@@ -130,9 +123,9 @@ public class RemoteAdapter extends Service {
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
 					URI uri = new URI(String.format("mrl:%stcp://%s:%d", getName(), clientSocket.getInetAddress().getHostAddress(),clientSocket.getPort()));
-					myService.info(String.format("new connection %s", url.toString()));
+					//myService.info(String.format("new connection %s", url.toString()));
 					Communicator comm = (Communicator) cm.getComm(uri);
-					comm.addClient(url, clientSocket);
+					comm.addClient(uri, clientSocket);
 					//broadcastState(); don't broadcast unless requested to
 				}
 

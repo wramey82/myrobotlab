@@ -43,7 +43,7 @@ public class ComediDriver extends Service {
 	public ComediDriverConfig config;
 
 	public ComediDriver(String n) {
-		super(n, ComediDriver.class.getCanonicalName());
+		super(n);
 		System.loadLibrary("IOPort");
 	}
 

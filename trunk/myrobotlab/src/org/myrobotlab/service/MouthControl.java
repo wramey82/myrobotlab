@@ -33,7 +33,7 @@ public class MouthControl extends Service {
 	}
 
 	public MouthControl(String n) {
-		super(n, MouthControl.class.getCanonicalName());
+		super(n);
 		jaw = (Servo) createPeer("jaw");
 		arduino = (Arduino) createPeer("arduino");
 		mouth = (Speech) createPeer("mouth");

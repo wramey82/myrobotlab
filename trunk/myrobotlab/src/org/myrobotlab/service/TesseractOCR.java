@@ -25,7 +25,7 @@ public class TesseractOCR extends Service {
 			.getCanonicalName());
 
 	public TesseractOCR(String n) {
-		super(n, TesseractOCR.class.getCanonicalName());
+		super(n);
 		File file = new File(".");
 		String filed = file.getAbsolutePath();
 		POSIX e = new Environment.POSIX();

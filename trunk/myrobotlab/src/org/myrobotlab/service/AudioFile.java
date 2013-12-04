@@ -73,7 +73,7 @@ public class AudioFile extends Service {
 	public transient List<AdvancedPlayerThread> players = Collections.synchronizedList(new ArrayList<AdvancedPlayerThread>());
 
 	public AudioFile(String n) {
-		super(n, AudioFile.class.getCanonicalName());
+		super(n);
 	}
 
 	// FIXME - bad assumptions

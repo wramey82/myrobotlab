@@ -50,14 +50,8 @@ public class TestThrower extends Service {
 
 	// TODO bury this in Service??
 	public TestThrower(String n) {
-		this(n, null);
+		super(n);
 	}
-
-	public TestThrower(String n, String serviceDomain) {
-		super(n, TestThrower.class.getCanonicalName(), serviceDomain);
-	}
-
-
 
 	public Integer catchInteger(Integer count) {
 		log.info("***THROWER CATCH*** catchInteger " + count);

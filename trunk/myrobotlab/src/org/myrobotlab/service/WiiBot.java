@@ -52,7 +52,7 @@ public class WiiBot extends Service {
 	GUIService gui = new GUIService("gui");
 
 	public WiiBot(String n) {
-		super(n, WiiBot.class.getCanonicalName());
+		super(n);
 	}
 
 

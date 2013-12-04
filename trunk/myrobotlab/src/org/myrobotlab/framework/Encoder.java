@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.util.HashMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.myrobotlab.logging.Level;
@@ -153,6 +154,38 @@ public class Encoder {
 			return null;
 		}
 	}
+	
+	static final public String getParameterSignature(Object[] data) {
+		if (data == null) {
+			return "null";
+		}
+
+		StringBuffer ret = new StringBuffer();
+		for (int i = 0; i < data.length; ++i) {
+			if (data[i] != null) {
+				Class<?> c = data[i].getClass(); // not all data types are safe
+													// toString() e.g.
+													// SerializableImage
+				if (c == String.class || c == Integer.class || c == Boolean.class || c == Float.class || c == MRLListener.class) {
+					ret.append(data[i].toString());
+				} else {
+					String type = data[i].getClass().getCanonicalName();
+					String shortTypeName = type.substring(type.lastIndexOf(".") + 1);
+					ret.append(shortTypeName);
+				}
+
+				if (data.length != i + 1) {
+					ret.append(",");
+				}
+			} else {
+				ret.append("null");
+			}
+
+		}
+		return ret.toString();
+
+	}
+
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
@@ -160,6 +193,14 @@ public class Encoder {
 
 		try {
 			
+			String user = null;
+			String group = null;
+			
+			HashMap<String,String> userGroup = new HashMap<String,String>();
+			userGroup.put(String.format("%s", group), "ALLOW");
+			userGroup.put(String.format("%s.%s", user, group), "ALLOW");
+			
+			String x = userGroup.get("null.null");
 
 			String url = "http://gperry:blahblah@localhost:7777/api/string/gson/runtime/getUptime";
 			log.info(url.substring(5));

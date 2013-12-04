@@ -59,7 +59,7 @@ public class HTTPClient extends Service {
 	transient private DefaultHttpClient client = new DefaultHttpClient();
 
 	public HTTPClient(String n) {
-		super(n, HTTPClient.class.getCanonicalName());
+		super(n);
 	}
 
 	public static String parse(String in, String beginTag, String endTag) {

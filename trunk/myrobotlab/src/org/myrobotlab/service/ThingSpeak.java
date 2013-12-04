@@ -48,7 +48,7 @@ public class ThingSpeak extends Service {
 	}
 
 	public ThingSpeak(String n) {
-		super(n, ThingSpeak.class.getCanonicalName());
+		super(n);
 		load();
 	}
 

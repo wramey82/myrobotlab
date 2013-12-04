@@ -43,8 +43,8 @@ public class ParallelPort extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public ParallelPort(String name) {
-		super(name, ParallelPort.class.getCanonicalName());
+	public ParallelPort(String n) {
+		super(n);
 	}
 
 	// CONSTANTS

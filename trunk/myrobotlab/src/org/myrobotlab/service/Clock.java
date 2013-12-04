@@ -27,7 +27,6 @@ package org.myrobotlab.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.myrobotlab.framework.Encoder;
@@ -50,7 +49,7 @@ public class Clock extends Service {
 
 	public transient ClockThread myClock = null;
 
-	// FIXME 
+	// FIXME
 	ArrayList<ClockEvent> events = new ArrayList<ClockEvent>();
 
 	public class ClockThread implements Runnable {
@@ -64,7 +63,7 @@ public class Clock extends Service {
 		public void run() {
 			try {
 				while (isClockRunning == true) {
-					Date now = new Date();	
+					Date now = new Date();
 					Iterator<ClockEvent> i = events.iterator();
 					while (i.hasNext()) {
 						ClockEvent event = i.next();
@@ -84,9 +83,9 @@ public class Clock extends Service {
 			}
 		}
 	}
-	
+
 	public Clock(String n) {
-		super(n, Clock.class.getCanonicalName());
+		super(n);
 	}
 
 	public void startClock() {
@@ -95,12 +94,12 @@ public class Clock extends Service {
 			myClock = new ClockThread();
 		}
 		// have requestors broadcast state !
-		//broadcastState();
+		// broadcastState();
 		// broadcastState();
 	}
 
 	public void stopClock() {
-			
+
 		if (myClock != null) {
 			log.info("stopping " + getName() + " myClock");
 			isClockRunning = false;
@@ -108,22 +107,20 @@ public class Clock extends Service {
 			myClock.thread = null;
 			myClock = null;
 			// have requestors broadcast state !
-			//broadcastState();
+			// broadcastState();
 		}
-		
-		isClockRunning = false;		
+
+		isClockRunning = false;
 	}
 
-	
-	public Date pulse(Date time)
-	{
+	public Date pulse(Date time) {
 		return time;
 	}
 
 	public void setInterval(Integer milliseconds) {
 		interval = milliseconds;
 	}
-	
+
 	@Override
 	public void stopService() {
 		stopClock();
@@ -143,69 +140,37 @@ public class Clock extends Service {
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
-		
-		/*
-		Runtime.createAndStart("xmpp","XMPP");
-		Clock clock = (Clock)Runtime.createAndStart("clock","Clock");
-		Python python = (Python)Runtime.createAndStart("python","Python");
-		Runtime.createAndStart("gui","GUIService");
-		
-		clock.createExportMsg();
-		
-		Message msg = python.createMessage("runtime", "registerServices", Runtime.getLocalServicesForExport());
-		String emsg = Encoder.encode(msg);
-		
-		*/
-		
+
+		// --------- 2 ---------------------------
+
 		int i = 2;
-		Runtime.main(new String[]{"-runtimeName", String.format("r%d", i)});
-		XMPP xmpp1 = (XMPP)Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
-		Clock clock = (Clock)Runtime.createAndStart(String.format("clock%d", i), "Clock");
-		Runtime.createAndStart(String.format("python%d", i), "Python");
+
+		Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
+		// Security security = (Security)Runtime.createAndStart("security",
+		// "Security");
+		XMPP xmpp1 = (XMPP) Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
+		Clock clock = (Clock) Runtime.createAndStart(String.format("clock%d", i), "Clock");
+		// Runtime.createAndStart(String.format("python%d", i), "Python");
 		Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-		
+
 		xmpp1.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
 
-		Message msg = xmpp1.createMessage("runtime", "registerServices", Runtime.getLocalServicesForExport());
-		String registerMsg = Encoder.msgToGson(msg);
+		Message msg = null;
+	
+		/*
+		msg = xmpp1.createMessage("runtime", "registerServices", Runtime.getLocalServicesForExport());
 		String base64 = Encoder.msgToBase64(msg);
 		xmpp1.sendMessage(base64, "incubator incubator");
-
-		//---------------------------THE END--------------------------------------------
-		if (true) {return;}
-
-		HashSet<String> test = new HashSet<String>();
-		test.add("tcp");
-		test.add("udp");
-		
-		//Runtime.spawnRemoteMRL("mrl1");
-		
-		
-		Runtime.createAndStart(String.format("client%d", i), "Runtime");
-		Runtime.createAndStart(String.format("clock%d", i), "Clock");
-		Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-		/*
-		
-		Runtime.createAndStart("clock1", "Clock");
-		Runtime.createAndStart("gui", "GUIService");
-		
-		
-		int i = 5;
-		
-		Runtime runtime = new Runtime(String.format("ras%d", i));
-		runtime.startService();
-		//Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
-		
-
-		Clock clock = new Clock(String.format("c%d", i));
-		clock.startService();
-		
-		Runtime.createAndStart(String.format("rasGUI%d", i), "GUIService");
-		clock.connect(null, null, "127.0.0.1", 6767);
 		*/
+
+		// create broadcast message ??? createBroadcastMessage  TODO !!!
+		msg = xmpp1.createMessage("", "register", clock);
+		String base64 = Encoder.msgToBase64(msg);
+		xmpp1.sendMessage(base64, "incubator incubator");
 		
+		// send my clock over
 		
+		// xmpp1.sendMessage(base64, "incubator incubator");
 
 	}
 

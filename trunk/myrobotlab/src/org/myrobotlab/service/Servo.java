@@ -77,7 +77,7 @@ public class Servo extends Service implements ServoControl {
 	transient Thread sweeper = null;
 
 	public Servo(String n) {
-		super(n, Servo.class.getCanonicalName());
+		super(n);
 		load();
 	}
 
