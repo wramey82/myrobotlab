@@ -211,6 +211,7 @@
             <string>cc.arduino</string>
             <string>org.openni</string>
             <string>javazoom.jl.player</string>
+            <string>org.jivesoftware.smack</string>
 		</list>
       </dependsOn>
    </serviceType>
@@ -512,6 +513,16 @@
             <string>org.simpleframework.xml</string>
             <string>org.quartz</string>
             <string>org.slf4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.Security" workingLevel="3">
+      <dependsOn>
+         <description>Provides security for MRL
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
          </list>
       </dependsOn>
    </serviceType>
