@@ -11,8 +11,9 @@ arduino = runtime.createAndStart("arduino","Arduino")
 thing = runtime.createAndStart("thing","ThingSpeak")
  
 arduino.setBoard(boardType) # atmega168 | mega2560 | etc
-arduino.setSerialDevice(comPort,57600,8,1,0)
-sleep(1) # give it a second for the serial device to get ready
+if not arduino.isConnected():
+  arduino.setSerialDevice(comPort)
+
  
 thing.setWriteKey("AO4DMKQZY4RLWNNU")
 thing.subscribe("publishPin", arduino.getName(), "update", Pin().getClass())
