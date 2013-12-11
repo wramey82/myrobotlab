@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="com.googlecode.javacv" module="javacv" status="release" revision="0.6">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="javacv" type="jar"/>
+        <artifact name="javacpp" type="jar"/>
+        <artifact name="javacv-linux-arm" type="jar" conf="armv6.32.linux"/>
+        <artifact name="javacv-android-arm" type="jar" conf="arm.32.linux"/>
+        <artifact name="javacv-windows-x86" type="jar" conf="x86.32.windows"/>
+        <artifact name="javacv-windows-x86_64" type="jar" conf="x86.64.windows"/>
+        <artifact name="javacv-linux-x86" type="jar" conf="x86.32.linux"/>
+        <artifact name="javacv-linux-x86_64" type="jar" conf="x86.64.linux"/>
+    </publications>
+</ivy-module>
