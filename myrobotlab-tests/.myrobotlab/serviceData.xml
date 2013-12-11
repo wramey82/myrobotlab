@@ -1,0 +1,894 @@
+<serviceData>
+   <serviceType string="org.myrobotlab.service.ACEduinoMotorShield" workingLevel="3">
+      <dependsOn>
+      	 <description>ACEduino Motor Shield for Arduino
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>ph.com.alexan.aceduino</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Adafruit16CServoDriver" workingLevel="4">
+      <dependsOn>
+      	 <description>Adafruit Motor Shield for Arduino
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>com.adafruit.servodriver</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+     <serviceType string="org.myrobotlab.service.AdafruitMotorShield" workingLevel="4">
+      <dependsOn>
+      	 <description>Adafruit Motor Shield for Arduino
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>com.adafruit.motorshield</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Arduino" workingLevel="4">
+      <dependsOn>
+      	 <description>The Arduino service is used to communicate and control the very popular Arduino micro-controller.
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.AudioCapture" workingLevel="3">
+      <dependsOn>
+	 <description>captures audio for playback
+	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.AudioFile" workingLevel="4">
+      <dependsOn>
+	 <description>plays audio mp3 files
+	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>javazoom.jl.player</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.AWTRobot"  workingLevel="1">
+      <dependsOn>
+        <description>allows screen capture, and control of mouse and keyboard
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.ChessGame" workingLevel="4">
+      <dependsOn>
+	 <description>chess game engine
+	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.op.chess</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Clock" workingLevel="3">
+      <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Cortex" workingLevel="3">
+      <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Cron" workingLevel="2">
+      <dependsOn>
+      	 <description>general clock and event producer
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>it.sauronsoftware.cron4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.GUIService" workingLevel="5">
+      <dependsOn>
+      	 <description>a graphical user interface for MyRobotLab
+      	 </description>      
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.mxgraph.jgraph</string>
+            <string>org.fife.rsyntaxtextarea</string>
+            <string>org.fife.autocomplete</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.GoogleSTT" workingLevel="2">
+      <dependsOn>
+  	 <description>voice recognition with Google
+	 </description>      
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>javaFlacEncoder.FLAC_FileEncoder</string>
+            <string>org.tritonus.share.sampled.floatsamplebuffer</string>
+            <string>com.google.gson</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Graphics" workingLevel="2">
+      <dependsOn>
+  	 <description>service for general purpose graphics - might use SensorMonitor instead
+	 </description>      
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Houston" workingLevel="1">
+      <dependsOn>
+  	 <description>control service for Houston robot project
+	 </description>       
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>com.sun.java3d</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.HTTPClient" workingLevel="4">
+      <dependsOn>
+  	 <description>service to retrieve internet content
+	 </description>       
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.apache.commons.httpclient</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.InMoov" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.InMoovArm" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.InMoovHand" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.InMoovHead" workingLevel="3">
+      <dependsOn>
+      <description>service to control the InMoov robot
+      </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+		</list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.InverseKinematics" workingLevel="2">
+      <dependsOn>
+      	 <description>Service to calculate InverseKinematics of a 2 joints robot arm, on a rotating base
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.IPCamera" workingLevel="4">
+      <dependsOn>
+         <description>service to control and retrieve a video feed from a ip camera.  Foscam cameras currently supported.
+      	 </description>        
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.googlecode.javacv</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Java" workingLevel="3">
+      <dependsOn>
+         <description>Java IDE - created by Raver1975 !  WooHoo !
+      	 </description>        
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.drjava.java</string>
+            <string>com.strobel.decompiler</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.JFugue" workingLevel="3">
+      <dependsOn>
+         <description>music and tone generation service.
+      	 </description>        
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.jfugue.music</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Joystick" workingLevel="4">
+      <dependsOn>
+         <description>general joystick service. Works with gamepads.
+      	 </description>  
+          <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>net.java.games.jinput</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.LeapMotion" workingLevel="4">
+      <dependsOn>
+         <description>This service will use the hand tracking capabilities of the Leap Motion device.
+      	 </description>  
+          <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Python" workingLevel="4">
+      <dependsOn>
+         <description>scripting engine and IDE. All services are controllable through Python.
+      	 </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.python.core</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Keyboard" workingLevel="3">
+      <dependsOn>
+         <description>a service which allows capture and transmission of keyboard events (keystrokes)
+      	 </description>       
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Log" workingLevel="3">
+      <dependsOn>
+        <description>a service capable of logging framework messages
+      	 </description>  
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Motor" workingLevel="4">
+      <dependsOn>
+        <description>A general purpose Motor service.
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.MouthControl" workingLevel="4">
+      <dependsOn>
+         <description>allows control of a mouth based on text said
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.OpenCV" workingLevel="4">
+      <dependsOn>
+        <description>The OpenCV Service is a library of vision functions
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+      <serviceType string="org.myrobotlab.service.Plantoid" workingLevel="3">
+      <dependsOn>
+        <description>Plantoid robotics
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>javax.speech.recognition</string>
+            <string>com.googlecode.javacv</string>
+            <string>net.sourceforge.opencv</string>
+            <string>com.sun.jna</string>
+            <string>edu.cmu.sphinx</string>
+            <string>gnu.io.rxtx</string>
+            <string>cc.arduino</string>
+            <string>org.openni</string>
+            <string>javazoom.jl.player</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.PointCloud" workingLevel="3">
+      <dependsOn>
+        <description>Uses OpenNI to generated a 3D pointcloud, will be useful in SLAM
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.openni</string>
+            <string>com.sun.java3d</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.ParallelPort" workingLevel="3">
+      <dependsOn>
+        <description>general parallel port control service
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.PID"  workingLevel="4">
+      <dependsOn>
+        <description>service used to control other systems with PID
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Propeller" workingLevel="0">
+      <dependsOn>
+        <description>service for the Propeller micro-controller
+        </description>
+         <list>
+            <string>gnu.io.rxtx</string>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.RemoteAdapter" workingLevel="4">
+      <dependsOn>
+        <description>allows connectivity to multiple instances of MyRobotLab.  Allows peer to peer service sharing
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.RasPi" workingLevel="1">
+      <dependsOn>
+        <description>a service to allow access to the Raspberry Pi's GPIO and I2C offered in Pi4J
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.pi4j.pi4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Roomba" workingLevel="4">
+      <dependsOn>
+         <description>allows MyRobotLabL to connect and control a Roomba
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Scheduler" workingLevel="2">
+      <dependsOn>
+         <description>scheduling service
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.quartz</string>
+            <string>org.slf4j</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.SensorMonitor" workingLevel="3">
+      <dependsOn>
+         <description>allows the graphical monitoring of sensor data, similar to the Arduino Oscope
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Serial" workingLevel="3">
+      <dependsOn>
+      	 <description>Serial service: send and recieve serial data into and out of MRL
+      	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>gnu.io.rxtx</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Servo" workingLevel="4">
+      <dependsOn>
+         <description>allows speed and position control of a Servo
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.SLAMBad" workingLevel="3">
+      <dependsOn>
+         <description>3D Simulator based on Simbad
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>javax.vecmath</string>
+			<string>com.sun.java3d</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Speech" workingLevel="4">
+      <dependsOn>
+         <description>FreeTTS and Google text to speech service
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.sun.speech.freetts</string>
+            <string>org.apache.commons.httpclient</string>
+	        <string>javazoom.jl.player</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Sphinx" workingLevel="3">
+      <dependsOn>
+         <description>Sphinx speech recognition
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>javax.speech.recognition</string>
+            <string>edu.cmu.sphinx</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.TesseractOCR" workingLevel="2">
+      <dependsOn>
+         <description>OCR for robots !
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>net.sourceforge.tess4j</string>
+            <string>com.sun.jna</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.ThingSpeak" workingLevel="2">
+      <dependsOn>
+         <description>Interface to ThingSpeak for data logging and charting
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.TopCodes" workingLevel="4">
+      <dependsOn>
+         <description>Tangible Object Placement Codes
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>edu.northwestern.topcodes</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Tracking" workingLevel="1">
+      <dependsOn>
+         <description>Vision tracking service - In Dev Now....
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Twitter" workingLevel="3">
+      <dependsOn>
+         <description>Twitter service - it allows to publish and read tweets 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.twitter4j.twitter</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+     <serviceType string="org.myrobotlab.service.VideoStreamer" workingLevel="1">
+      <dependsOn>
+         <description>Video stream - no dependencies - pure Java
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.WebGUI" workingLevel="3">
+      <dependsOn>
+         <description>The new GUI for MRL 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.google.gson</string>
+            <string>org.java_websocket.websocket</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Wii" workingLevel="4">
+      <dependsOn>
+         <description>service for the Wii controller - allows input 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>wiiuse.wiimote</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.WolframAlpha" workingLevel="4">
+      <dependsOn>
+         <description>service for the WolframAlpha - ask questions get answers - allows string input 
+         </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.apache.commons.httpclient</string>
+            <string>com.wolfram.alpha</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.XMPP" workingLevel="2">
+      <dependsOn>
+         <description>client xmpp service - will allow a duplex communication without the need of port-forwarding 
+         </description>
+         <list>
+            <string>org.jivesoftware.smack</string>
+         </list>
+      </dependsOn>
+   </serviceType>
+   <categories string="org.myrobotlab.service.Arduino">
+      <category>
+         <include>microcontroller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AudioCapture">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AudioFile">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.AWTRobot">
+      <category>
+         <include>controller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Clock">
+      <category>
+         <include>timers</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.ChumbyBot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.FSM">
+      <category>
+         <include>intelligence</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GUIService">
+      <category>
+         <include>programming</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GeneticProgramming">
+      <category>
+         <include>intelligence</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.GoogleSTT">
+      <category>
+         <include>speech recognition</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Houston">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.HTTPClient">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.InMoov">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.InverseKinematics">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.IPCamera">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.JFugue">
+      <category>
+         <include>audio</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.WebServer">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Joystick">
+      <category>
+         <include>controller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Python">
+      <category>
+         <include>programming</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Magabot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Motor">
+      <category>
+         <include>actuators</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.OpenCV">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.PointCloud">
+      <category>
+         <include>vision</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.PlayerStage">
+      <category>
+         <include>simulator</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Propellor">
+      <category>
+         <include>microcontroller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.RemoteAdapter">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.RobotPlatform">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Roomba">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Scheduler">
+      <category>
+         <include>timers</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.SensorMonitor">
+      <category>
+         <include>sensors</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Serial">
+      <category>
+         <include>communication</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Servo">
+      <category>
+         <include>actuators</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.SLAMBad">
+      <category>
+         <include>simulator</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Speech">
+      <category>
+         <include>speech synthesis</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Sphinx">
+      <category>
+         <include>speech recognition</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.TweedleBot">
+      <category>
+         <include>robots</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Twitter">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.WebServer">
+      <category>
+         <include>network</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.Wii">
+      <category>
+         <include>controller</include>
+      </category>
+   </categories>
+   <categories string="org.myrobotlab.service.WolframAlpha">
+      <category>
+         <include>intelligence</include>
+      </category>
+   </categories>
+</serviceData>
