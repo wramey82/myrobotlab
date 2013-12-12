@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="be.hogent.tarsos" module="tarsos" status="release" revision="1.7">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="TarsosDSP-1.7" type="jar"/>
+    </publications>
+</ivy-module>
