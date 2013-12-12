@@ -146,13 +146,6 @@ public class RasPi extends Service implements GpioPinListenerDigital {
 
 	// private GpioStateMonitor monitor = null;
 
-	public void predatorBomb(int value) {
-		for (int i = 0; i < value; ++i) {
-			sleep(70);
-			// SevenSegment(0, i);
-		}
-	}
-
 	public void writeRaw(int busAddress, int deviceAddress, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6, byte d7, byte d8, byte d9, byte d10, byte d11, byte d12,
 			byte d13, byte d14, byte d15) {
 		try {
@@ -174,7 +167,7 @@ public class RasPi extends Service implements GpioPinListenerDigital {
 			if (!devices.containsKey(key)) {
 				// FIXME -- remove put in createDevice
 				I2CBus bus = I2CFactory.getInstance(busAddress);
-				log.info("getDevice 70");
+				log.info(String.format("getDevice %d", deviceAddress));
 				I2CDevice device = bus.getDevice(deviceAddress);
 
 				Device d = new Device();
@@ -334,7 +327,7 @@ public class RasPi extends Service implements GpioPinListenerDigital {
         // on program shutdown, set the pins back to their default state: HIGH 
         //gpio.setShutdownOptions(true, PinState.HIGH, myOutputs);
         
-        // keep program running for 20 seconds
+        // keep program running for 20 seconds	
         for (int count = 0; count < 10; count++) {
             gpio.setState(true, myOutputs);
             Thread.sleep(1000);
@@ -445,7 +438,6 @@ public class RasPi extends Service implements GpioPinListenerDigital {
 	public int displayDigit(int busAddress, int deviceAddress, int i) {
 
 		String data = String.format("%d", i);
-		;
 		displayString(busAddress, deviceAddress, data);
 
 		return i;

@@ -18,11 +18,6 @@ public class _TemplateService extends Service {
 	}
 	
 	@Override
-	public void startService() {
-		super.startService();
-	}
-	
-	@Override
 	public String getDescription() {
 		return "used as a general template";
 	}

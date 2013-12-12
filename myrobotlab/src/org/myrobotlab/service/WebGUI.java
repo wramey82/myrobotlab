@@ -43,7 +43,7 @@ public class WebGUI extends Service {
 	// fallback
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(WebGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(WebGUI.class);
 
 	@Element
 	public Integer httpPort = 7777;
@@ -318,7 +318,8 @@ public class WebGUI extends Service {
 		// Runtime.createAndStart("arduino", "Arduino");
 		// Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		// clock.startClock();
-		WebGUI webgui = (WebGUI) Runtime.createAndStart("webgui", "WebGUI");
+		//Runtime.createAndStart("security", "Security");
+		Runtime.createAndStart("webgui", "WebGUI");
 		//webgui.useLocalResources(true);
 		
 		Runtime.createAndStart("servoX", "Servo");
@@ -331,7 +332,7 @@ public class WebGUI extends Service {
 		 * "Servo"); arduino.connect("COM9");
 		 * arduino.servoAttach(servo.getName(), 7);
 		 */
-		Runtime.createAndStart("python", "Python");
+		// Runtime.createAndStart("python", "Python");
 		// webgui.addUser("gperry", "password");
 		// Runtime.createAndStart("arduino", "Arduino");
 
