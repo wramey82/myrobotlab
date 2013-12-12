@@ -113,8 +113,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	transient Inbox inbox = null;
 
 	@Element
-	protected boolean allowExport = true;
-	@Element
 	protected boolean allowDisplay = true;
 
 	transient protected CommunicationInterface cm = null;
@@ -1246,32 +1244,13 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		}
 	}
 
-	// final static
-	// boolean ??? how to handle messages with no security header ???
-	// BASE - EXCLUSION OR INCLUSION
-	// Should these be in Security Service ?? - no have to be static within
-	// Services !!
-	// HashMap <String,String> allowExportByName = new HashMap
-	// <String,String>();
-	// HashMap <String,String> allowExportByType = new HashMap
-	// <String,String>();
-
-	/*
-	 * private static final HashMap <String,String> serviceNameRules = new
-	 * HashMap <String,String>(); private static final HashMap <String,String>
-	 * methodRules = new HashMap <String,String>();
-	 */
-
-	// ok not exactly "chains" because it isn't sequential layers like a
-	// firewall
-	// its all at the same level - so changing it to "accessRules"
-	//private static final HashMap<String, String> accessRules = new HashMap<String, String>();
-
-	// support or not to support - that is the question ???
-	// private static final HashMap <String,Class> serviceTypeRules = new
-	// HashMap <String,Class>();
-
+	// FIXME SecurityProvider
 	protected static AuthorizationProvider security = null;
+	
+	@Override
+	public boolean requiresSecurity(){
+		return security != null;
+	}
 
 	public static boolean setSecurityProvider(AuthorizationProvider provider) {
 		if (security != null) {
@@ -1324,7 +1303,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Object retobj = null;
 
 		if (log.isDebugEnabled()) {
-			log.debug(String.format("--invoking %s.%s(%s) %s --", name, msg.method, Encoder.getParameterSignature(msg.data)));
+			log.debug(String.format("--invoking %s.%s(%s) %s --", name, msg.method, Encoder.getParameterSignature(msg.data), msg.timeStamp));
 		}
 
 		// SECURITY -
@@ -2073,14 +2052,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void stopHeartbeat() {
-	}
-
-	public boolean allowExport() {
-		return allowExport;
-	}
-
-	public void allowExport(Boolean b) {
-		allowExport = b;
 	}
 
 	public boolean allowDisplay() {
