@@ -740,7 +740,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		VideoProcessor vp = myOpenCV.videoProcessor;
+		//VideoProcessor vp = myOpenCV.videoProcessor; FIXME !!! YOU CANT USE VP - its transient !!!
 		if (o == addFilterButton) {
 			addFilter();
 		} else if (o == removeFilterButton) {
@@ -750,11 +750,13 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 			currentFilterListModel.removeElement(name);
 		} else if (o == kinectImageOrDepth) {
 			String mode = (String) kinectImageOrDepth.getSelectedItem();
+			/*
 			if ("depth".equals(mode)) {
 				vp.format = "depth";
 			} else {
 				vp.format = "image";
 			} // FIXME - broadcastState ???
+			*/ 
 		} else if (o == recordButton) {
 			if (recordButton.getText().equals("record")) {
 				// start recording
