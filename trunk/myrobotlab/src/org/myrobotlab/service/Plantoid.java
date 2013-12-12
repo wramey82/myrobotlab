@@ -106,6 +106,8 @@ public class Plantoid extends Service {
 		
 	}
 	
+	// FIXME make part of ServoControl
+	
 	public Scanner scanner = null;
 	
 	public void startScanning() {
@@ -115,6 +117,28 @@ public class Plantoid extends Service {
 	public void startScanning(Servo servo) {
 		scanner = new Scanner(servo, 10, 160, 300);
 		scanner.start();
+	}
+	
+	public void startScanning(String name, int begin, int end, int delay) {
+		Servo servo = (Servo)Runtime.getService(name);
+		if (scanner != null){
+			stopScanning();
+		}
+		scanner = new Scanner(servo, 10, 160, 300);
+		scanner.start();
+	}
+	
+	// FIXME FIXME FIXME
+	// setScannerDelay(int delay) - can not be found (must upcast) - so null is found ???
+	public int setScannerDelay(Integer delay)
+	{
+		if (scanner != null)
+		{
+			scanner.delay = delay;
+			return delay;
+		}
+		
+		return -1;
 	}
 	
 	public void stopScanning() {

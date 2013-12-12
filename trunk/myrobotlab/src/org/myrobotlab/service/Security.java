@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -15,6 +16,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.interfaces.AuthorizationProvider;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 // http://blog.palominolabs.com/2011/10/18/java-2-way-tlsssl-client-certificates-and-pkcs12-vs-jks-keystores/
@@ -25,11 +27,10 @@ public class Security extends Service implements AuthorizationProvider {
 
 	private static final long serialVersionUID = 1L;
 	
-	// FIXME - defaultExport = ALLOW (true)
-	// FIXME - ExportMap ??
-	
 	// TODO - concept (similar in Drupal) - anonymous, authenticated, admin .. default groups ?
-
+	transient private static final HashMap <String,Boolean> allowExportByName = new HashMap <String,Boolean>();
+	transient private static final HashMap <String,Boolean> allowExportByType = new HashMap <String,Boolean>();
+	
 	public final static Logger log = LoggerFactory.getLogger(Security.class);
 	
 	// below is authorization 
@@ -40,7 +41,11 @@ public class Security extends Service implements AuthorizationProvider {
 	// many to 1 mapping - currently does not support many to many Yay !
 	// transient private static final HashMap <String,String> userToGroup = new HashMap <String,String>();
 
-	transient private boolean defaultAccess = true;
+	//transient private boolean defaultAccess = true;
+	
+	transient private boolean defaultAllowExport = true;
+
+	private String defaultNewGroupId = "anonymous";
 	
 	public static class User
 	{
@@ -48,7 +53,6 @@ public class Security extends Service implements AuthorizationProvider {
 		public String userId;
 		public String password; // encrypt
 		public String groupId; // support only 1 group now Yay !
-
 	}
 	
 	public static class Group
@@ -69,13 +73,24 @@ public class Security extends Service implements AuthorizationProvider {
 		
 		g = new Group();
 		g.groupId = "authenticated";
-		g.defaultAccess = false;
+		g.defaultAccess = true;
 		groups.put("authenticated", g);
 	}
 	
 	public Security(String n) {
 		super(n);
 		createDefaultGroups();
+		
+		allowExportByType.put("XMPP", false);
+		allowExportByType.put("RemoteAdapter", false);
+		allowExportByType.put("WebGUI", false);
+
+		allowExportByType.put("Java", false);
+		allowExportByType.put("Python", false);
+		
+		allowExportByType.put("Security", false);
+		allowExportByType.put("Runtime", false);
+
 		setSecurityProvider(this);
 	}
 
@@ -97,6 +112,60 @@ public class Security extends Service implements AuthorizationProvider {
 	}
 	*/
 	
+	public boolean setDefaultNewGroupId(String userId, String groupId)
+	{
+		if (!users.containsKey(userId))
+		{
+			log.error(String.format("user %s does not exist can not change groupId", userId));
+			return false;
+		}
+		
+		
+		if (!groups.containsKey(groupId))
+		{
+			log.error(String.format("group %s does not exist can not change groupId", groupId));
+			return false;
+		}
+		
+		users.get(userId).groupId = groupId;
+		
+		return false;
+		
+	}
+	
+	
+	@Override
+	public boolean allowExport(String serviceName) {
+		
+		if (allowExportByName.containsKey(serviceName)){
+			return allowExportByName.get(serviceName);
+		}
+		
+		ServiceInterface si = Runtime.getService(serviceName);
+
+		if (si == null)
+		{
+			error("%s could not be found for export", serviceName);
+			return false;
+		}
+		
+		String fullType = si.getClass().getCanonicalName();
+		if (allowExportByType.containsKey(fullType)){
+			return allowExportByType.get(fullType);
+		}
+		return defaultAllowExport;
+	}
+	
+	public Boolean allowExportByName(String name, Boolean access)
+	{
+		return allowExportByName.put(name, access);
+	}
+	
+	public Boolean allowExportByType(String type, Boolean access)
+	{
+		return allowExportByType.put(Encoder.type(type), access);
+	}
+
 
 	@Override
 	public boolean isAuthorized(Message msg) {
@@ -107,11 +176,13 @@ public class Security extends Service implements AuthorizationProvider {
 	@Override
 	public boolean isAuthorized(HashMap<String, String> security, String serviceName, String method) {
 
+		/* check not needed
 		if (security == null)
 		{
 			// internal messaging
 			return defaultAccess;
 		}
+		*/
 		
 		// TODO - super cache Radix Tree ??? super key --  uri user:password@mrl://someService/someMethod - not found | ALLOWED || DENIED
 		
@@ -201,6 +272,74 @@ public class Security extends Service implements AuthorizationProvider {
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
+	}
+	
+	// default group permissions - for new user/group
+	// anonymous
+	// authenticated
+
+	public boolean setGroup(String userId, String groupId){
+		if (!users.containsKey(userId)){
+			log.error(String.format("user %s does not exist", userId));
+			return false;
+		}
+		if (!groups.containsKey(groupId)){
+			log.error(String.format("group %s does not exist", groupId));
+			return false;
+		}
+		
+		User u = users.get(userId);
+		u.groupId = groupId;
+		return true;
+	}
+	
+	public boolean addUser(String user) {
+		return addUser(user, null, null);
+	}
+
+	
+	public boolean addUser(String userId, String password, String groupId) {
+	
+		if (users.containsKey(userId))
+		{
+			log.warn(String.format("user %s already exists", userId));
+			return false;
+		}
+		User u = new User();
+		u.userId = userId;
+		u.password = password;
+		if (groupId == null)
+		{
+			u.groupId = defaultNewGroupId;
+		} else {
+			u.groupId = groupId;
+		}
+		if (!groups.containsKey(u.groupId)){
+			log.error(String.format("could not add user %s groupId %s does not exist", userId, groupId));
+			return false;
+		}
+		users.put(userId, u);
+		return true;
+	}
+	
+	public boolean addGroup(String groupId){
+		return addGroup(groupId, false);
+	}
+	
+	public boolean addGroup(String groupId, boolean defaultAccess)
+	{
+		Group g = new Group();
+		g.groupId = groupId;
+		g.defaultAccess = defaultAccess;
+		
+		if (groups.containsKey(groupId))
+		{
+			log.warn(String.format("group %s already exists", groupId));
+			return false;
+		}
+		
+		groups.put(groupId, g);
+		return true;
 	}
 
 	

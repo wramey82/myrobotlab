@@ -11,4 +11,6 @@ public interface AuthorizationProvider {
 	// from remote not all inbound
 	boolean isAuthorized(HashMap<String,String> security, String serviceName, String method);
 
+	boolean allowExport(String serviceName);
+
 }

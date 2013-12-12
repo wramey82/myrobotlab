@@ -5,78 +5,99 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.i2c.AdafruitLEDBackpack;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
-public class PickToLight extends Service {
+import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
+import com.pi4j.gpio.extension.pcf.PCF8574Pin;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPin;
+import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+
+public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(PickToLight.class.getCanonicalName());
+	transient public final GpioController gpio = GpioFactory.getInstance();
 
-	// FIXME - this could be eliminated with Runtime.getServicesOfType("Arduino")
-	// public HashMap<String, Arduino> arduinos = new HashMap<String, Arduino>();
-	public HashMap<String, String> arduinoToPort = new HashMap<String, String>();
+	// the 2 pins for I2C on the raspberry
+	GpioPinDigitalOutput gpio01;
+	GpioPinDigitalOutput gpio03;
 
-	// device type identifiers
-	public final static String LED_01 = "LED_01";
-	public final static String SWITCH_01 = "SWITCH_01";
 	
+	public final static Logger log = LoggerFactory.getLogger(PickToLight.class);
+	//      item#   bin
+	HashMap<String, Bin> bins = new HashMap<String, Bin>();
 	public Worker worker;
+
+	String messageGoodPick = "YES";
 	
 	// global device identifier
 	int id = 1;
 
-	public class Device {
-		public int id;
-		public String arduino;
-		public Integer pin;
-		public String type;
-		public String bin;
+	public class Bin {
+		public String itemNum;
+		public AdafruitLEDBackpack display;
 
-		public Device(String arduino, Integer pin, String type, String bin) {
-			this.arduino = arduino;
-			this.pin = pin;
-			this.type = type;
-			this.bin = bin;
+		// public PFBLAHBLAH
+		// public HashMap<String,Device> devices = new HashMap<String,Device>();
+
+		public String display(String str) {
+			return display.display(str);
+		}
+
+		public Bin(String itemNum) {
+			this.itemNum = itemNum;
+		}
+
+		public boolean addDisplay(int bus, int address) {
+			try {
+
+				display = new AdafruitLEDBackpack(bus, address);
+				return true;
+			} catch (Exception e) {
+				Logging.logException(e);
+				return false;
+			}
 		}
 	}
 
-	HashMap<Integer, Device> devices = new HashMap<Integer, Device>();
-	//       bin#            type   id
-	HashMap<String, HashMap<String,Device>> binMap = new HashMap<String, HashMap<String,Device>>();
-	
-	
 	public class Worker extends Thread {
 		public boolean isWorking = false;
-		
+
 		public int delay;
-		public int increment;
-		
-		public Worker(int delay, int increment)
-		{
+		public String msg = "helo";
+
+		public Worker(int delay, String msg) {
+			this.msg = msg;
 			this.delay = delay;
-			this.increment = increment;	
 		}
-		
-		public void run(){
-			try{
-			isWorking = true;
-			Map<String, HashMap<String, Device>> sorted = new TreeMap<String, HashMap<String, Device>>(binMap);
-			while (isWorking)
-			{
-				for (Map.Entry<String, HashMap<String, Device>> o : sorted.entrySet()) {
-					//sb.append(o.getKey());
-					setDevice(o.getKey(), LED_01, 1);
-					sleep(delay);
-					setDevice(o.getKey(), LED_01, 0);
-					sleep(delay);
-				} 
-				
-			}
-			} catch(Exception e){
+
+		public void run() {
+			try {
+				isWorking = true;
+				TreeMap<String, Bin> sorted = new TreeMap<String, Bin>(bins);
+				while (isWorking) {
+					for (Map.Entry<String, Bin> o : sorted.entrySet()) {
+						//o.getValue().display(msg);
+						int pickCount = (int) (1 + Math.random()*26);
+						o.getValue().display(pickCount+"");
+						sleep(delay);
+						//o.getValue().display("    ");
+						//sleep(delay);
+					}
+
+				}
+			} catch (Exception e) {
 				isWorking = false;
 			}
 		}
@@ -84,21 +105,24 @@ public class PickToLight extends Service {
 
 	public PickToLight(String n) {
 		super(n);
+		
+		gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
+		gpio03 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03);
+		
 		// FIXME - do this with reservations !!!
-		arduinoToPort.put(String.format("%s-arduino-1", getName()), "/dev/ttyACM0");
+		// arduinoToPort.put(String.format("%s-arduino-1", getName()),
+		// "/dev/ttyACM0");
 		loadDefaultMap();
 	}
-	
-	public void cycle(int delay)
-	{
+
+	public void cycle(int delay, String msg) {
 		cycleStop();
-		worker = new Worker(delay, 0);
+		worker = new Worker(delay, msg);
 		worker.start();
 	}
-	
-	public void cycleStop()
-	{
-		if (worker != null){
+
+	public void cycleStop() {
+		if (worker != null) {
 			worker.isWorking = false;
 			worker.interrupt();
 			worker = null;
@@ -110,217 +134,76 @@ public class PickToLight extends Service {
 		return "Pick to light system";
 	}
 
-	public String addSwitch(String arduino, String bin, Integer pin) {
-		return addDevice(arduino, bin, pin, SWITCH_01);
-	}
-
-	public String addLED(String arduino, String bin, Integer pin) {
-		return addDevice(arduino, bin, pin, LED_01);
-	}
-
-	public String addDevice(String arduino, String bin, Integer pin, String type) {
-		info("addDevice %s %s %d %s", arduino, bin, pin, type);
-		if (pin == null) {
-			return error("can not add switch with null pin");
-		}
-
-		if (!SWITCH_01.equals(type) && !LED_01.equals(type)) {
-			error(String.format("cant add device %s invalid type", type));
-		}
-
-		Device device = new Device(arduino, pin, type, bin);
-
-		devices.put(id, device);
-		
-		HashMap<String,Device> typeDevice = null;
-		if (binMap.containsKey(bin))
-		{
-			typeDevice = binMap.get(bin);
-		} else {
-			typeDevice = new HashMap<String,Device>();
-			binMap.put(bin, typeDevice);
-		}
-
-		typeDevice.put(type, device);
-		
-		if (!arduinoToPort.containsKey(arduino))
-		{
-			error("arduino %s specified but not found int arduinoToPort", arduino);
-		}
-		
-		return String.format("added device bin %s pin %d type %s", bin, pin, type);
-	}
-
 	public boolean kitToLight(String xmlKit) {
 		return true;
 	}
 
-	public void startService() {
-		super.startService();
-		for (Map.Entry<String, String> o : arduinoToPort.entrySet()) {
-			Arduino arduino = (Arduino)Runtime.createAndStart(o.getKey(), "Arduino");
-			arduino.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
-			arduino.connect(o.getValue());
-		} 
-	}
-	
-	/*
-	public boolean connect()
-	{
-		return connect("arduino.1", "/dev/ttyACM0");
-	}
-	*/
-	
-	public boolean connect(String arduinoName, String portName)
-	{
-		Arduino arduino = (Arduino)Runtime.createAndStart(arduinoName, "Arduino");
-		arduino.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
-		arduino.connect(portName);
-		return arduino.isConnected();
-	}
-
-	public void reconnect(String arduino, String port) {
-		Arduino a = (Arduino)Runtime.getService(arduino);
-		a.connect(port);
-	}
-	
-
 	public void loadDefaultMap() {
 
-		addDevice(String.format("%s-arduino-1", getName()), "17", 8, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "17", 9, LED_01);
-
-		addDevice(String.format("%s-arduino-1", getName()), "18", 7, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "18", 6, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "23", 5, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "23", 4, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "24", 3, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "24", 2, SWITCH_01);
-
-		addDevice(String.format("%s-arduino-1", getName()), "22", 14, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "22", 15, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "21", 16, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "21", 17, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "20", 18, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "20", 19, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "19", 20, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "19", 21, SWITCH_01);
-
-		addDevice(String.format("%s-arduino-1", getName()), "02", 22, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "02", 23, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "03", 24, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "03", 25, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "04", 26, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "04", 27, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "05", 28, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "05", 29, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "06", 30, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "06", 31, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "07", 32, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "07", 33, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "08", 34, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "08", 35, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "09", 36, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "09", 37, LED_01);
-
-		addDevice(String.format("%s-arduino-1", getName()), "10", 38, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "10", 39, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "11", 40, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "11", 41, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "12", 42, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "12", 43, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "13", 44, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "13", 45, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "14", 46, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "14", 47, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "15", 48, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "15", 49, LED_01);
-		addDevice(String.format("%s-arduino-1", getName()), "16", 50, SWITCH_01);
-		addDevice(String.format("%s-arduino-1", getName()), "16", 51, LED_01);
-
+		// remember its HEX !!!
+		addBin("01", 1, 0x70);
+		addBin("02", 1, 0x72);
+		addBin("03", 1, 0x73);
+		addBin("04", 1, 0x75);
+		createPCF8574(1, 0x20);
 	}
 
-	// bin CALLS
+	public boolean addBin(String itemNum, int bus, int address) {
+		log.info(String.format("adding bin %s %d %d", itemNum, bus, address));
+		Bin bin = new Bin(itemNum);
+		bin.addDisplay(bus, address);
+		bins.put(itemNum, bin);
+		return true;
+	}
+
+	// bin calls
+	// binList calls
 	// setAllbinesLEDs (on off)
 	// setbinesOn(String list)
 	// setbinesOff(String list)
 	// getbinesSwitchState()
+	// displayString(binlist, str)
 	// ZOD
-	
-	public String setLEDsOn()
-	{
-		return setLEDsOn(null);
-	}
-	
-	public String setLEDsOn(String binList) {
-		log.info("setBinLEDsOn request");
-		return setDevice(binList, LED_01, 1);
-	}
-	
-	public String setLEDsOff()
-	{
-		return setLEDsOff(null);
-	}
-	
-	public String setLEDsOff(String binList) {
-		log.info("setBinLEDsOff request");
-		return setDevice(binList, LED_01, 0);
-	}
-	
-	/**
-	 * @return sorted bin list in a string with space delimitation 
-	 */
-	public String getBinList()
-	{
-		StringBuffer sb = new StringBuffer();
-		Map<String, HashMap<String, Device>> treeMap = new TreeMap<String, HashMap<String, Device>>(binMap);
-		
-		for (Map.Entry<String, HashMap<String, Device>> o : treeMap.entrySet()) {
-			sb.append(" ");
-			sb.append(o.getKey());
-		} 
-		
-		return sb.toString();
-	}
-	
-	public String setDevice(String binList, String type, Integer value)
-	{
-		info("setDevice request %s, %s, %d", binList, type, value);
-		if (binList == null)
-		{
-			binList = getBinList();
-		}
-		String[] bins = binList.split(" ");
-		for (int i = 0; i < bins.length; ++i) {
-			
-			String bin  = bins[i].trim();
 
-			if (bin.length() > 0 && binMap.containsKey(bin)) {
-				HashMap<String, Device> deviceMap = binMap.get(bin);
-				if (!deviceMap.containsKey(type))
-				{
-					error("bin %s type %s does not exits", bin, type);
-					continue;
-				}
-				
-				Device device = deviceMap.get(type);
-				//Arduino arduino = getArduino(arduinoName);
-				// FIXME WRONG WRONG WRONG - no non-dynamic reference to arduino
-				Arduino arduino = (Arduino)Runtime.getService(device.arduino);
-				if (arduino == null)
-				{
-					error("can not get arduino %s", device.arduino);
+	public String display(String binList, String value) {
+		if (binList == null) {
+			log.error("bin list is null");
+			return "bin list is null";
+		}
+		String[] list = binList.split(" ");
+		for (int i = 0; i < list.length; ++i) {
+			try {
+				String key = list[i].trim();
+				if (bins.containsKey(key)){
+					bins.get(key).display(value);
 				} else {
-					info("setDevice request bin %s type %s pin %d value %d", bin, type, device.pin, value);
-					arduino.digitalWrite(device.pin, value);
+					log.error(String.format("display could not find bin %s", key));
 				}
-			} else {
-				error(String.format("could not find bin %s", bin));
+			} catch (Exception e) {
+				Logging.logException(e);
 			}
+		}
+		
+		return binList;
 
+	}
+
+	/**
+	 * @return sorted bin list in a string with space delimited  
+	 */
+	public String getBinList() {
+		StringBuffer sb = new StringBuffer();
+		Map<String, Bin> treeMap = new TreeMap<String, Bin>(bins);
+
+		boolean append = false;
+		
+		for (Map.Entry<String, Bin> o : treeMap.entrySet()) {
+			sb.append((append?" ":""));
+			sb.append(o.getKey());
+			append = true;
 		}
 
-		return String.format("%s.digitalWrite(%s)", String.format("%s-arduino-1", getName()), binList);
+		return sb.toString();
 	}
 
 	// LOWER LEVEL PIN CALLS
@@ -330,22 +213,14 @@ public class PickToLight extends Service {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		PickToLight pickToLight = new PickToLight("pickToLight");
-		pickToLight.arduinoToPort.clear();
-		//pickToLight.arduinoToPort.put(String.format("%s-arduino-1", getName()), "COM4");
 		pickToLight.startService();
+		String binList = pickToLight.getBinList();
+		pickToLight.display(binList, "helo");
 		
-		/*
-		Arduino arduino.1 = (Arduino) Runtime.createAndStart("arduino.1", "Arduino");
-		arduino.1.setBoard(Arduino.BOARD_TYPE_ATMEGA2560);
-		arduino.1.connect("COM4");
-		*/
-		pickToLight.setLEDsOff();
-		
-		pickToLight.setLEDsOff("3");
-		
-		log.info(pickToLight.setLEDsOn("1 3 5 6 7 "));
-
-		// log.info(pickToLight.turnLEDsOn("arduino.1", "2 3 4 10"));
+		pickToLight.display("01", "1234");
+		pickToLight.display(" 01 02 03 ", "1234  1");
+		pickToLight.display("01 03", " 1234");
+		pickToLight.display(binList, "1234 ");
 
 		Runtime.createAndStart("web", "WebGUI");
 
@@ -355,5 +230,100 @@ public class PickToLight extends Service {
 		 * gui.display();
 		 */
 	}
+
+    @Override
+    public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+        // display pin state on console
+    	
+        System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " [" +  event.getPin().getName() + "]" + " = "
+                + event.getState());
+        GpioPin pin = event.getPin();
+        
+        if (pin.getName().equals("GPIO 0")) {
+        	bins.get("01").display.blinkOff("ok");
+        } else if (pin.getName().equals("GPIO 1")) {
+        	bins.get("02").display.blinkOff("ok");
+        } else if (pin.getName().equals("GPIO 2")) {
+        	bins.get("03").display.blinkOff("ok");
+        } else if (pin.getName().equals("GPIO 3")) {
+        	bins.get("04").display.blinkOff("ok");
+        }
+//        if (pin.getName().equals(anObject))
+    }
+    
+    
+    public PCF8574GpioProvider createPCF8574(Integer bus, Integer address)  {
+    	try {
+        
+        //System.out.println("<--Pi4J--> PCF8574 GPIO Example ... started.");
+    		
+    	log.info(String.format("PCF8574 - begin - bus %d address %d", bus, address));
+        
+        // create gpio controller
+        GpioController gpio = GpioFactory.getInstance();
+        
+        // create custom MCP23017 GPIO provider
+        //PCF8574GpioProvider gpioProvider = new PCF8574GpioProvider(I2CBus.BUS_1, PCF8574GpioProvider.PCF8574A_0x3F);
+        PCF8574GpioProvider gpioProvider = new PCF8574GpioProvider(bus, address);
+        
+        // provision gpio input pins from MCP23017
+        GpioPinDigitalInput myInputs[] = {
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_00),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_01),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_03),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_04),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_05),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_06),
+                gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_07)
+            };
+        
+        // create and register gpio pin listener
+        gpio.addListener(this, myInputs);
+        /*
+        gpio.addListener(new GpioPinListenerDigital() {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                // display pin state on console
+                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = "
+                        + event.getState());
+            }
+        }, myInputs);
+        */
+        
+        /*
+        // provision gpio output pins and make sure they are all LOW at startup
+        GpioPinDigitalOutput myOutputs[] = { 
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_04, PinState.LOW),
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_05, PinState.LOW),
+            gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_06, PinState.LOW)
+          };
+
+        // on program shutdown, set the pins back to their default state: HIGH 
+        //gpio.setShutdownOptions(true, PinState.HIGH, myOutputs);
+        
+        // keep program running for 20 seconds	
+        for (int count = 0; count < 10; count++) {
+            gpio.setState(true, myOutputs);
+            Thread.sleep(1000);
+            gpio.setState(false, myOutputs);
+            Thread.sleep(1000);
+        }
+        
+        // stop all GPIO activity/threads by shutting down the GPIO controller
+        // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
+       // gpio.shutdown();
+        */
+    	log.info(String.format("PCF8574 - end - bus %d address %d", bus, address));
+
+    	return gpioProvider;
+    	
+    	} catch(Exception e) {
+    		Logging.logException(e);
+    	}
+    	
+    	return null;
+    }
+
 
 }

@@ -1,9 +1,11 @@
 package org.myrobotlab.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
@@ -12,6 +14,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -28,7 +31,6 @@ import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
@@ -36,7 +38,6 @@ import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.framework.ServiceInfo;
-import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -434,7 +435,6 @@ public class Runtime extends Service {
 		// FIXME - Security determines what to export
 		// for each gateway
 		
-		/*
 		Vector<String> remoteGateways = getServicesFromInterface(Communicator.class.getCanonicalName());
 		for (int ri = 0; ri < remoteGateways.size(); ++ri){
 			String n = remoteGateways.get(ri);
@@ -445,7 +445,9 @@ public class Runtime extends Service {
 			for (Map.Entry<URI, ServiceEnvironment> o : hosts.entrySet()) {
 				// Map.Entry<String,SerializableImage> pairs = o;
 				URI uri = o.getKey();
-				if (uri != null && gateway.getName().equals(uri.getHost())){
+				// if its a foreign JVM & the gateway responsible for the remote connection and 
+				// the foreign JVM is not the host which this service originated from - send it....
+				if (uri != null && gateway.getName().equals(uri.getHost()) && !uri.equals(s.getHost())){
 					log.info(String.format("gateway %s sending registration of %s remote to %s", gateway.getName(), s.getName(), uri));
 					Runtime rt = Runtime.getInstance();
 					// FIXME - Security determines what to export
@@ -454,7 +456,8 @@ public class Runtime extends Service {
 				}
 			}
 		}
-		*/
+		
+		
 		
 		//ServiceInterface sw = new ServiceInterface(s, se.accessURL);
 		se.serviceDirectory.put(s.getName(), s);
@@ -718,7 +721,7 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 * 
-	 * TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER
+	 * TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER - is already in XMPP
 	 */
 	public static ServiceEnvironment getLocalServicesForExport() {
 		if (!hosts.containsKey(null)) {
@@ -737,7 +740,7 @@ public class Runtime extends Service {
 		while (it.hasNext()) {
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
-			if (sw.allowExport()) {
+			if (security != null && security.allowExport(name)) {
 				//log.info(String.format("exporting service: %s of type %s", name, sw.getServiceType()));
 				export.serviceDirectory.put(name, sw);  // FIXME  !! make note when XMPP or Remote Adapter pull it - they have to reset this !!
 			} else {
@@ -2067,5 +2070,24 @@ public class Runtime extends Service {
 		FileIO.fileToString(file);
 	}
 	*/
+	
+	public static String getIp() throws Exception {
+	        URL whatismyip = new URL("http://checkip.amazonaws.com");
+	        BufferedReader in = null;
+	        try {
+	            in = new BufferedReader(new InputStreamReader(
+	                    whatismyip.openStream()));
+	            String ip = in.readLine();
+	            return ip;
+	        } finally {
+	            if (in != null) {
+	                try {
+	                    in.close();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	    }
 
 }

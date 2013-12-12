@@ -8,7 +8,7 @@ import org.myrobotlab.framework.Message;
 
 public interface ServiceInterface {
 	public URI getHost();
-	
+		
 	public void setHost(URI uri);
 	
 	public String getName();
@@ -31,8 +31,6 @@ public interface ServiceInterface {
 
 	public boolean hasDisplay();
 	
-	public boolean allowExport();
-
 	public void display();
 	
 	public boolean save();
@@ -47,5 +45,7 @@ public interface ServiceInterface {
 
 	public Object invoke(String method, Object...params);
 	
+	public boolean requiresSecurity();
+
 	public boolean isLocal();
 }

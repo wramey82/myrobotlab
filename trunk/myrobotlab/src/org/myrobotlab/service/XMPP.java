@@ -456,6 +456,11 @@ public class XMPP extends Service implements Communicator, MessageListener {
 						ServiceInterface si;
 						while (it.hasNext()) {
 							name = it.next();
+							if (security != null && !security.allowExport(name)) {
+								log.info(String.format("security prevent export of %s", name));
+								continue;
+							}
+
 							si = localProcess.serviceDirectory.get(name);
 							/* FIXME - implement in security
 							if (sw.allowExport()) {

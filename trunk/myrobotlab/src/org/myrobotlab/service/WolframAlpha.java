@@ -2,7 +2,6 @@ package org.myrobotlab.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -32,16 +31,6 @@ public class WolframAlpha extends Service {
 	@Override
 	public String getDescription() {
 		return "Wolfram Alpha Service";
-	}
-
-	@Override
-	public void stopService() {
-		super.stopService();
-	}
-
-	@Override
-	public void releaseService() {
-		super.releaseService();
 	}
 
 	public void setAppID(String id) {
