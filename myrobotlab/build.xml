@@ -242,7 +242,7 @@
 		</loadfile>
 		<delete file="${temp.file}" />
 		<echo message="rev ${rev}" />
-		<!--  property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />  -->
+		property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />
 		
 		<property name="version" value="temp" />
 		
