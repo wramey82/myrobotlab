@@ -50,7 +50,7 @@
 	
 -->
 
-<project name="myrobotlab" default="publishBleedingEdge" basedir=".">
+<project name="myrobotlab" default="publishRelease" basedir=".">
 	<description>http://myrobotlab.org myrobotlab build file</description>
 	
 	<!-- 
@@ -242,7 +242,10 @@
 		</loadfile>
 		<delete file="${temp.file}" />
 		<echo message="rev ${rev}" />
-		<property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />
+		<!--  property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />  -->
+		
+		<property name="version" value="temp" />
+		
 		<property name="label" value="myrobotlab.${version}" />
 		<echo message="version ${version}" />
 		<echo message="label ${label}" />
