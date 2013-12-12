@@ -701,7 +701,9 @@ public class HTTPRequest {
 		log.info(String.format("read %d bytes", data.length));
 
 		try {
-			in.close();
+			if (in != null) {
+				in.close();
+			}
 		} catch (IOException e) {
 			// don't care
 		}

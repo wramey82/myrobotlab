@@ -38,8 +38,6 @@ public class ResourceProcessor implements HTTPProcessor {
 
 	private boolean authorized = false;
 
-	private boolean requiresSecurity = false;
-
 	public ResourceProcessor(WebGUI webgui) {
 		this.webgui = webgui;
 		scan();
@@ -79,7 +77,11 @@ public class ResourceProcessor implements HTTPProcessor {
 	// FIXME - normalize further
 	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing, Socket socket, boolean isCustomFile) {
 
-		if (requiresSecurity && !authorized) {
+		String username;
+		String password;
+
+		//
+		if (webgui.requiresSecurity()) {// && !authorized) {
 			try {
 				if (header.containsKey("authorization")) {
 					String up = header.getProperty("authorization");
@@ -89,8 +91,8 @@ public class ResourceProcessor implements HTTPProcessor {
 					}
 					// FIXME - depends on commons !!!!
 					String usernameAndPassword = new String(Base64.decode(up)); // SHWEET CURRENTLY USING WEBSOCKETS VERSION !!! :P
-					String username = usernameAndPassword.substring(0, usernameAndPassword.lastIndexOf(":"));
-					String password = usernameAndPassword.substring(usernameAndPassword.lastIndexOf(":") + 1);
+					username = usernameAndPassword.substring(0, usernameAndPassword.lastIndexOf(":"));
+					password = usernameAndPassword.substring(usernameAndPassword.lastIndexOf(":") + 1);
 					String token = BasicSecurity.authenticate(username, password);
 
 					if (token != null) {

@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
+// FIXME - normalize - make only ResourceProcessor (its twin) - move all this to Encoder !!!
 public class RESTProcessor implements HTTPProcessor {
 
 	public final static Logger log = LoggerFactory.getLogger(RESTProcessor.class.getCanonicalName());
@@ -35,7 +36,6 @@ public class RESTProcessor implements HTTPProcessor {
 		}
 
 		private static final long serialVersionUID = 1L;
-		
 	}
 
 	@Override
