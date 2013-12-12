@@ -28,40 +28,19 @@
 package org.myrobotlab.i2c;
 
 import java.io.IOException;
+import java.util.HashMap;
 
-import com.pi4j.gpio.extension.pcf.PCF8574Pin;
-import com.pi4j.io.gpio.GpioProvider;
-import com.pi4j.io.gpio.GpioProviderBase;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinMode;
-import com.pi4j.io.gpio.PinPullResistance;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.event.PinListener;
-import com.pi4j.io.i2c.I2CBus;
-import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.i2c.I2CFactory;
+import org.myrobotlab.framework.Service;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
+import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.util.BitSet;
-
-import com.pi4j.io.gpio.GpioProvider;
-import com.pi4j.io.gpio.GpioProviderBase;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinMode;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.event.PinDigitalStateChangeEvent;
-import com.pi4j.io.gpio.event.PinListener;
-import com.pi4j.io.gpio.exception.InvalidPinException;
-import com.pi4j.io.gpio.exception.InvalidPinModeException;
-import com.pi4j.io.gpio.exception.UnsupportedPinModeException;
-import com.pi4j.io.i2c.I2CBus;
-import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
 /**
  * <p>
- * This GPIO provider implements the PCF8574 I2C GPIO expansion board as native Pi4J GPIO pins.
- * More information about the board can be found here: *
+ * This GPIO provider implements the PCF8574 I2C GPIO expansion board as native
+ * Pi4J GPIO pins. More information about the board can be found here: *
  * http://www.ti.com/lit/ds/symlink/pcf8574.pdf
  * </p>
  * 
@@ -73,228 +52,264 @@ import com.pi4j.io.i2c.I2CFactory;
  * @author Robert Savage
  * 
  */
-public class AdafruitLEDBackpack extends GpioProviderBase implements GpioProvider {
+public class AdafruitLEDBackpack implements I2CDevice {
 
-    public static final String NAME = "com.pi4j.gpio.extension.ti.PCF8574GpioProvider";
-    //public static final String NAME = AdafruitLEDBackpack.class.getCanonicalName();
-    public static final String DESCRIPTION = "AdafruitLEDBackpack GPIO Provider";
+	public final static Logger log = LoggerFactory.getLogger(AdafruitLEDBackpack.class);
 
-    public static final int AdafruitLEDBackpack_0x70 = 0x20; // 000
-    
-    //these addresses belong to PCF8574(P)
-    public static final int PCF8574_0x20 = 0x20; // 000
-    public static final int PCF8574_0x21 = 0x21; // 001
-    public static final int PCF8574_0x22 = 0x22; // 010
-    public static final int PCF8574_0x23 = 0x23; // 011
-    public static final int PCF8574_0x24 = 0x24; // 100
-    public static final int PCF8574_0x25 = 0x25; // 101
-    public static final int PCF8574_0x26 = 0x26; // 110
-    public static final int PCF8574_0x27 = 0x27; // 111
-    //these addresses belong to PCF8574A(P)
-    public static final int PCF8574A_0x38 = 0x38; // 000
-    public static final int PCF8574A_0x39 = 0x39; // 001
-    public static final int PCF8574A_0x3A = 0x3A; // 010
-    public static final int PCF8574A_0x3B = 0x3B; // 011
-    public static final int PCF8574A_0x3C = 0x3C; // 100
-    public static final int PCF8574A_0x3D = 0x3D; // 101
-    public static final int PCF8574A_0x3E = 0x3E; // 110
-    public static final int PCF8574A_0x3F = 0x3F; // 111
-    
-    public static final int PCF8574_MAX_IO_PINS = 8;
+	// public static final String NAME =
+	// AdafruitLEDBackpack.class.getCanonicalName();
+	public static final String DESCRIPTION = "AdafruitLEDBackpack GPIO Provider";
 
-    private I2CBus bus;
-    private I2CDevice device;
-    private GpioStateMonitor monitor = null;
-    private BitSet currentStates = new BitSet(PCF8574_MAX_IO_PINS);
+	public static final int AdafruitLEDBackpack_0x70 = 0x20; // 000
 
-    public AdafruitLEDBackpack(int busNumber, int address) throws IOException {
+	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
 
-        // create I2C communications bus instance
-        bus = I2CFactory.getInstance(busNumber);
+	private static boolean translationInitialized = false;
 
-        // create I2C device instance
-        device = bus.getDevice(address);
+	// TODO abtract out Pi4J
+	private com.pi4j.io.i2c.I2CBus i2cbus;
+	private com.pi4j.io.i2c.I2CDevice device;
 
-        // set all default pin cache states to match documented chip power up states
-        for (Pin pin : PCF8574Pin.ALL) {
-            getPinCache(pin).setState(PinState.HIGH);
-            currentStates.set(pin.getAddress(), true);
-        }
-        
-        // start monitoring thread            
-        monitor = new AdafruitLEDBackpack.GpioStateMonitor(device);
-        monitor.start();
-    }
+	String lastValue = null;
 
+	public AdafruitLEDBackpack(int bus, int address) throws IOException {
 
-    @Override
-    public String getName() {
-        return NAME;
-    }
+		log.info(String.format("AdafruitLEDBackpack on %d %d", bus, address));
 
-    @Override
-    public void export(Pin pin, PinMode mode) {
-        // make sure to set the pin mode
-        super.export(pin, mode);
-        setMode(pin, mode);
-    }
+		// create I2C communications bus instance
+		i2cbus = I2CFactory.getInstance(bus);
 
-    @Override
-    public void unexport(Pin pin) {
-        super.unexport(pin);
-        setMode(pin, PinMode.DIGITAL_OUTPUT);
-    }
+		// create I2C device instance
+		device = i2cbus.getDevice(address);
 
-    @Override
-    public void setMode(Pin pin, PinMode mode) {
-        // validate
-        if (!pin.getSupportedPinModes().contains(mode)) {
-            throw new InvalidPinModeException(pin, "Invalid pin mode [" + mode.getName()
-                    + "]; pin [" + pin.getName() + "] does not support this mode.");
-        }
-        // validate
-        if (!pin.getSupportedPinModes().contains(mode)) {
-            throw new UnsupportedPinModeException(pin, mode);
-        }
-        // cache mode
-        getPinCache(pin).setMode(mode);
-    }
+		init7SegmentDisplay();
+		initTranslation();
 
+	}
 
-    @Override
-    public PinMode getMode(Pin pin) {
-        return super.getMode(pin);
-    }
+	// ---------------------- refactored RasPi --------------------------------
 
-    @Override
-    public void setState(Pin pin, PinState state) {
-        // validate
-        if (hasPin(pin) == false) {
-            throw new InvalidPinException(pin);
-        }
-        
-        // only permit invocation on pins set to DIGITAL_OUTPUT modes
-        if (getPinCache(pin).getMode() != PinMode.DIGITAL_OUTPUT) {
-            throw new InvalidPinModeException(pin, "Invalid pin mode on pin [" + pin.getName()
-                    + "]; cannot setState() when pin mode is ["
-                    + getPinCache(pin).getMode().getName() + "]");
-        }
-        
-        try {
-            // set state value for pin bit 
-            currentStates.set(pin.getAddress(), state.isHigh());
-            
-            // update state value
-            device.write(currentStates.toByteArray()[0]);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+	public static void initTranslation() {
 
-        // cache pin state
-        getPinCache(pin).setState(state);
-    }
+		if (translationInitialized) {
+			return;
+		}
+		translation.put("", (byte) 0);
+		translation.put(" ", (byte) 0);
 
-    @Override
-    public PinState getState(Pin pin) {
-        return super.getState(pin);
-    }
+		translation.put(":", (byte) 3);
+		// translation.put("of", (byte)0)
 
-    @Override
-    public void shutdown() {
-        
-        // prevent reentrant invocation
-        if(isShutdown())
-            return;
-        
-        // perform shutdown login in base
-        super.shutdown();
-        
-        try {
-            // if a monitor is running, then shut it down now
-            if (monitor != null) {
-                // shutdown monitoring thread
-                monitor.shutdown();
-                monitor = null;
-            }
+		translation.put("a", (byte) 119);
+		translation.put("b", (byte) 124);
+		translation.put("c", (byte) 57);
+		translation.put("d", (byte) 94);
+		translation.put("e", (byte) 121);
+		translation.put("f", (byte) 113);
+		translation.put("g", (byte) 111);
+		translation.put("h", (byte) 118);
+		translation.put("i", (byte) 48);
+		translation.put("J", (byte) 30);
+		translation.put("k", (byte) 118);
+		translation.put("l", (byte) 56);
+		translation.put("m", (byte) 21);
+		translation.put("n", (byte) 84);
+		translation.put("o", (byte) 63);
+		translation.put("P", (byte) 115);
+		translation.put("q", (byte) 103);
+		translation.put("r", (byte) 80);
+		translation.put("s", (byte) 109);
+		translation.put("t", (byte) 120);
+		translation.put("u", (byte) 62);
+		translation.put("v", (byte) 98);
+		translation.put("x", (byte) 118);
+		translation.put("y", (byte) 110);
+		translation.put("z", (byte) 91);
 
-            // close the I2C bus communication
-            bus.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }   
+		translation.put("-", (byte) 64);
+		// translation.put("dot", (byte)???);
 
-    
-    /**
-     * This class/thread is used to to actively monitor for GPIO interrupts
-     * 
-     * @author Robert Savage
-     * 
-     */
-    private class GpioStateMonitor extends Thread {
-        
-        private I2CDevice device;
-        private boolean shuttingDown = false;
+		translation.put("0", (byte) 63);
+		translation.put("1", (byte) 6);
+		translation.put("2", (byte) 91);
+		translation.put("3", (byte) 79);
+		translation.put("4", (byte) 102);
+		translation.put("5", (byte) 109);
+		translation.put("6", (byte) 125);
+		translation.put("7", (byte) 7);
+		translation.put("8", (byte) 127);
+		translation.put("9", (byte) 111);
 
-        public GpioStateMonitor(I2CDevice device) {
-            this.device = device;
-        }
+		translationInitialized = true;
+	}
 
-        public void shutdown() {
-            shuttingDown = true;
-        }
+	public static byte translate(char c) {
+		byte b = 0;
+		String s = String.valueOf(c).toLowerCase();
+		if (translation.containsKey(s)) {
+			b = translation.get(s);
+		}
+		return b;
+	}
 
-        public void run() {
-            while (!shuttingDown) {
-                try {
-                    // read device pins state
-                    byte[] buffer = new byte[1];
-                    device.read(buffer, 0, 1);
-                    BitSet pinStates = BitSet.valueOf(buffer);
-                    
-                    // determine if there is a pin state difference
-                    for (int index = 0; index < pinStates.size(); index++) {
-                        if (pinStates.get(index) != currentStates.get(index)) {
-                            Pin pin = PCF8574Pin.ALL[index];
-                            PinState newState = (pinStates.get(index)) ? PinState.HIGH : PinState.LOW;
+	public int displayDigit(int i) {
 
-                            // cache state
-                            getPinCache(pin).setState(newState);
-                            currentStates.set(index, pinStates.get(index));
-                            
-                            // only dispatch events for input pins
-                            if (getMode(pin) == PinMode.DIGITAL_INPUT) {
-                                // change detected for INPUT PIN
-                                // System.out.println("<<< CHANGE >>> " + pin.getName() + " : " + state);
-                                dispatchPinChangeEvent(pin.getAddress(), newState);
-                            }
-                        }
-                    }
+		String data = String.format("%d", i);
+		display(data);
 
-                    // ... lets take a short breather ...
-                    Thread.currentThread();
-                    Thread.sleep(50);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
+		return i;
+	}
 
-        private void dispatchPinChangeEvent(int pinAddress, PinState state) {
-            // iterate over the pin listeners map
-            for (Pin pin : listeners.keySet()) {
-                // System.out.println("<<< DISPATCH >>> " + pin.getName() + " : " +
-                // state.getName());
+	public String display(String data) {
+		log.info(String.format("displayString %s", data));
+		lastValue = data;
+		if (translationInitialized) {
+			initTranslation();
+		}
+		// d1 d2 : d3 d4
+		byte[] display = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-                // dispatch this event to the listener
-                // if a matching pin address is found
-                if (pin.getAddress() == pinAddress) {
-                    // dispatch this event to all listener handlers
-                    for (PinListener listener : listeners.get(pin)) {
-                        listener.handlePinEvent(new PinDigitalStateChangeEvent(this, pin, state));
-                    }
-                }
-            }
-        }
-    }
+		if (data == null || data == "") {
+			writeDisplay(display);
+			return data;
+		}
+
+		if (data.length() < 4) {
+			data = String.format("%4s", data);
+		}
+
+		display[0] = translate(data.charAt(0));
+		display[2] = translate(data.charAt(1));
+		display[6] = translate(data.charAt(2));
+		display[8] = translate(data.charAt(3));
+
+		writeDisplay(display);
+
+		return data;
+	}
+	
+	public class BlinkThread extends Thread
+	{
+		public int number = 5;
+		public int delay = 100;
+		public String value = "";
+		public boolean leaveOn = true;
+				
+		public void run() {
+			int count = 0;
+			while(count < 5){
+				display(value);
+				Service.sleep(delay);
+				display("   ");
+				Service.sleep(delay);
+				++count;
+			}
+			
+			if (leaveOn){
+				display(value);
+			}
+		}
+	}
+	
+	public void blinkOn(String value)
+	{
+		BlinkThread b = new BlinkThread();
+		b.value = value;
+		b.start();
+	}
+
+	public void blinkOff(String value)
+	{
+		BlinkThread b = new BlinkThread();
+		b.value = value;
+		b.leaveOn = false;
+		b.start();
+	}
+	
+	public byte[] writeDisplay(byte[] data) {
+		if (device == null) {
+			log.error("device is null");
+			return data;
+		}
+
+		try {
+			device.write(0x00, data, 0, 16);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return data;
+	}
+
+	public boolean init7SegmentDisplay() {
+		try {
+			if (device == null) {
+				log.error("device is null");
+				return false;
+			}
+
+			device.write(0x21, (byte) 0x00);
+			device.write(0x81, (byte) 0x00);
+			device.write(0xEF, (byte) 0x00);
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return true;
+	}
+
+	public void displayClear() {
+		try {
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+			device.write(0x00, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 16);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+	}
+
+	@Override
+	public void write(byte b) throws IOException {
+		device.write(b);
+	}
+
+	@Override
+	public void write(byte[] buffer, int offset, int size) throws IOException {
+		device.write(buffer, offset, size);
+	}
+
+	@Override
+	public void write(int address, byte b) throws IOException {
+		device.write(address, b);
+	}
+
+	@Override
+	public void write(int address, byte[] buffer, int offset, int size) throws IOException {
+		device.write(address, buffer, offset, size);
+	}
+
+	@Override
+	public int read() throws IOException {
+		return device.read();
+	}
+
+	@Override
+	public int read(byte[] buffer, int offset, int size) throws IOException {
+		return device.read(buffer, offset, size);
+	}
+
+	@Override
+	public int read(int address) throws IOException {
+		return device.read(address);
+	}
+
+	@Override
+	public int read(int address, byte[] buffer, int offset, int size) throws IOException {
+		return device.read(address, buffer, offset, size);
+	}
+
 }
