@@ -1,6 +1,10 @@
 package org.myrobotlab.net;
 
+import java.net.URI;
+
 public class CommData {
+	
+	public URI uri;
 	
 	public int rx = 0;
 	public int tx = 0;
