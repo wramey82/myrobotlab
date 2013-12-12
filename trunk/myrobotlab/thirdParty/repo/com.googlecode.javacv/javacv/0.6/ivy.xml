@@ -12,6 +12,7 @@
         <artifact name="javacv-android-arm" type="jar" conf="arm.32.linux"/>
         <artifact name="javacv-windows-x86" type="jar" conf="x86.32.windows"/>
         <artifact name="javacv-windows-x86_64" type="jar" conf="x86.64.windows"/>
+        <artifact name="javacv-macosx-x86_64" type="jar" conf="x86.64.mac"/>
         <artifact name="javacv-linux-x86" type="jar" conf="x86.32.linux"/>
         <artifact name="javacv-linux-x86_64" type="jar" conf="x86.64.linux"/>
     </publications>
