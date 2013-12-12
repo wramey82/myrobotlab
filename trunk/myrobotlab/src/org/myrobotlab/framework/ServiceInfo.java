@@ -99,10 +99,6 @@ public class ServiceInfo implements Serializable {
 
 		List<Dependency> deps = new ArrayList<Dependency>();
 
-		if (fullServiceType.equals("org.myrobotlab.service.Arduino")) {
-			log.info("here");
-		}
-
 		if (fromRepo == null) {
 			return deps;
 		}

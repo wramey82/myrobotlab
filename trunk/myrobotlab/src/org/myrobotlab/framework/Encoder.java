@@ -224,4 +224,12 @@ public class Encoder {
 
 	}
 
+	public static String type(String type) {
+		int pos0 = type.indexOf(".");
+		if (pos0 > 0){
+			return type;
+		}
+		return String.format("org.myrobotlab.service.%s",type);
+	}
+
 }
