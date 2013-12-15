@@ -2,30 +2,34 @@ package org.myrobotlab.webgui;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.util.Collection;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.myrobotlab.framework.Encoder;
+import org.myrobotlab.framework.Inbox;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.WebGUI;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
-
 public class WSServer extends WebSocketServer {
 
 	public final static Logger log = LoggerFactory.getLogger(WSServer.class.getCanonicalName());
 
 	private Outbox outbox;
+	private Inbox inbox;
 	private WebGUI webgui;
 	
 	public WSServer( WebGUI webgui, int port) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
 		this.webgui = webgui;
 		this.outbox = webgui.getOutbox();
+		this.inbox = webgui.getInbox();
 	}
 
 	public WSServer( InetSocketAddress address ) {
@@ -57,12 +61,16 @@ public class WSServer extends WebSocketServer {
 		//System.out.println( conn.getLocalSocketAddress() + ": " + message );
 		//System.out.println("[" + message + "]" );
 		log.info("webgui <---to--- client {}", message);
-		Gson gson = new Gson();	
+		//Gson gson = new Gson();	
 		//Gson gson = new GsonBuilder().setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").create();
-		Message msg = gson.fromJson(message, Message.class);
+//		Message msg = gson.fromJson(message, Message.class);
+		
+		Message msg = Encoder.gson.fromJson(message, Message.class);
+		
 		//log.info("{}",msg);
-		log.info("parsed message");
-		outbox.add(msg);
+		//log.info("parsed message");
+		//outbox.add(msg);
+		inbox.add(msg);
 	}
 
 	@Override
@@ -87,7 +95,7 @@ public class WSServer extends WebSocketServer {
 	// the overhead of a try???
 	public void sendToAll( String text ) {
 		Collection<WebSocket> con = connections();
-		log.debug("webgui ---to---> client ");
+		log.info("webgui ---to---> client ");
 		synchronized ( con ) {
 			for( WebSocket c : con ) {
 				c.send( text );
@@ -95,8 +103,26 @@ public class WSServer extends WebSocketServer {
 		}
 	}
 
+	@Override
+	public void onRawOpen(WebSocket conn, ByteBuffer d) {
+		String s = new String(d.array());
+		String sub = s.substring(0, d.limit());
+		
+		log.info(String.format("onRawOpen %s", sub));
+		String response =
+			"HTTP/1.0 200 OK\r\n"
+						+ "Content-Type: text/html; charset=utf-8\r\n"
+						+ "\r\n"
+						+ "<html>\r\n"
+						+ "hello java_websocket !\r\n"
+						+ "</html>\r\n"
+						+ "\r\n";
+		conn.send(response);
+		conn.close();
+	}
+
 	/*
-	public static void main( String[] args ) throws InterruptedException , IOException {
+	public static void main( String[] args ) throws InterruptedException , IOExcep tion {
 		WebSocketImpl.DEBUG = true;
 		int port = 8887; // 843 flash policy port
 		try {
