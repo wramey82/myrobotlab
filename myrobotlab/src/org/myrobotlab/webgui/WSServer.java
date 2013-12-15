@@ -3,7 +3,6 @@ package org.myrobotlab.webgui;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 import java.util.Collection;
 
 import org.java_websocket.WebSocket;
@@ -12,7 +11,6 @@ import org.java_websocket.server.WebSocketServer;
 import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Inbox;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.Outbox;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.WebGUI;
 import org.slf4j.Logger;
@@ -21,14 +19,12 @@ public class WSServer extends WebSocketServer {
 
 	public final static Logger log = LoggerFactory.getLogger(WSServer.class.getCanonicalName());
 
-	private Outbox outbox;
 	private Inbox inbox;
 	private WebGUI webgui;
 	
 	public WSServer( WebGUI webgui, int port) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
 		this.webgui = webgui;
-		this.outbox = webgui.getOutbox();
 		this.inbox = webgui.getInbox();
 	}
 
@@ -36,8 +32,6 @@ public class WSServer extends WebSocketServer {
 		super( address );
 	}
 	
-	// FIXME - SEND MESSAGES TO ALL NOTIFYING OF CONNECTIONS !!!
-
 	@Override
 	public void onOpen( WebSocket conn, ClientHandshake handshake ) {
 		String clientkey = String.format("%s:%d", conn.getRemoteSocketAddress().getAddress().getHostAddress(), conn.getRemoteSocketAddress().getPort());
