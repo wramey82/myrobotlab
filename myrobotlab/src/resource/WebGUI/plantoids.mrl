@@ -72,10 +72,6 @@ A10 = air quality
 		this.detail = detail;
 	}
 
-	function getSimpleClassName(inName) {
-		return inName.substring(inName.lastIndexOf(".") + 1);
-	}
-
 	function getRegistry(data) {
 		// refresh global registry
 		registry = data[0];
