@@ -64,11 +64,6 @@
 		this.detail = detail;
 	}
 
-	function getSimpleClassName(inName)
-	{
-		return inName.substring(inName.lastIndexOf(".")+1);
-	}
-
 	function getRegistry(data) {
 		// refresh global registry
 		registry = data[0];
@@ -83,9 +78,8 @@
 		}
 
 		var serviceName = nameArray[index];
-		var serviceWrapper = registry[serviceName];
-		var service = serviceWrapper.service;
-		var className = getSimpleClassName(serviceWrapper.service.serviceClass);
+		var service = registry[serviceName];
+		var className = service.simpleName;
 
 
 		// if this is a new class - we will load it

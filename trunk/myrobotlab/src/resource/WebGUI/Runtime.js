@@ -11,15 +11,6 @@ RuntimeGUI.prototype.constructor = RuntimeGUI;
 
 // --- callbacks begin ---
 RuntimeGUI.prototype.getState = function(data) {
-	n = this.name;
-	$("#"+n+"-display").html(data);
-	if (data[0].isRuntimeRunning) {
-		$("#"+n+"-startRuntime").button("option", "label", "stop clock");
-	} else {
-		$("#"+n+"-startRuntime").button("option", "label", "start clock");
-	}
-
-	$("#"+n+"-interval").val(data[0].interval);
 };
 //--- callbacks end ---
 
