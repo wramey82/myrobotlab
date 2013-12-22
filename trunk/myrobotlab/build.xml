@@ -64,6 +64,9 @@
 	<property name="src" 				location="src" />
 	<property name="build.root.dir" 	location="build" />
 	<property name="dist.root.dir" 		location="${build.root.dir}/dist" />
+
+	<property name="scp.userid" 	value="pi" />
+	<property name="scp.password" 		value="raspberry" />
 	
 	<property name="resource.root" 		location="./thirdParty/build/resource/root" />
 	<property name="junit.jar" 			location="../myrobotlab-tests/thirdParty/lib" />
@@ -179,7 +182,7 @@
         <pathelement location="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-stream-3.0.3.jar"/>
         <pathelement location="thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
         <pathelement location="thirdParty/repo/edu.northwestern.topcodes/topcodes/1.0/topcodes.jar"/>
-        <pathelement location="thirdParty/repo/org.java_websocket.websocket/websocket/1.0/java_websocket.jar"/>
+        <pathelement location="thirdParty/repo/org.java_websocket.websocket/websocket/1.1/java_websocket.jar"/>
         <pathelement location="thirdParty/repo/org.simpleframework.xml/xml/2.7/simple-xml-2.7.jar"/>
   		<pathelement location="thirdParty/repo/org.jivesoftware.smack/smack/3.3.0/smack.jar"/>
 	</path>
@@ -229,11 +232,12 @@
     		    
 		<tstamp />
 		<!-- Create the time stamp -->
+		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
+		character for a windows file system -->
+		<!-- 
 		<exec executable="svnversion" outputproperty="repository.revision" />
 		<echo message="repository revision is ${repository.revision}" />
 		<tempfile property="temp.file"/>
-		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
-		character for a windows file system -->
 		<echo message="${repository.revision}" file="${temp.file}" />
 		<loadfile srcfile="${temp.file}" property="rev">
 			<filterchain>
@@ -243,7 +247,7 @@
 		<delete file="${temp.file}" />
 		<echo message="rev ${rev}" />
 		<property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />
-		
+		 -->
 		<property name="version" value="temp" />
 		
 		<property name="label" value="myrobotlab.${version}" />
@@ -324,9 +328,11 @@
 	</target>
 
 	<!-- scp updates begin -->
-	<target name="scp.maahr" depends="dist" description="ssh updates to test systems - should be removed - and running system should be scheduled to check for updates">
-		<input message="Please enter maahr userid:" addproperty="maahr.scp.userid" />
-		<input message="Please enter maahr password:" addproperty="maahr.scp.password" />
+	<target name="scp" depends="dist" description="ssh updates to test systems - should be removed - and running system should be scheduled to check for updates">
+	    <!--  
+		<input message="Please enter maahr userid:" addproperty="scp.userid" />
+		<input message="Please enter maahr password:" addproperty="scp.password" />
+		-->
 		<scp port="10022" file="${dist}/libraries/jar/myrobotlab.jar" todir="${maahr.scp.userid}:${maahr.scp.password}@orbous.zipto.org:/opt/mrl/libraries/jar" />
 	</target>
 	
