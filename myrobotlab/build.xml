@@ -234,7 +234,8 @@
 		<!-- Create the time stamp -->
 		<!-- a lot of work just to remove a possible semi-colon - which is an illegal
 		character for a windows file system -->
-		<!-- 
+		
+		<!-- non temp version -->
 		<exec executable="svnversion" outputproperty="repository.revision" />
 		<echo message="repository revision is ${repository.revision}" />
 		<tempfile property="temp.file"/>
@@ -247,8 +248,9 @@
 		<delete file="${temp.file}" />
 		<echo message="rev ${rev}" />
 		<property name="version" value="${rev}.${DSTAMP}.${TSTAMP}" />
-		 -->
-		<property name="version" value="temp" />
+		 
+		 <!-- temp version -->
+		<!-- <property name="version" value="temp" /> -->
 		
 		<property name="label" value="myrobotlab.${version}" />
 		<echo message="version ${version}" />
