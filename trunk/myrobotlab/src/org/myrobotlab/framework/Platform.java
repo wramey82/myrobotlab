@@ -112,5 +112,10 @@ public class Platform implements Serializable {
 			return ":";
 		}
 	}
+	
+	public String toString()
+	{
+		return String.format("%s.%d.%s", arch, bitness, os);
+	}
 
 }

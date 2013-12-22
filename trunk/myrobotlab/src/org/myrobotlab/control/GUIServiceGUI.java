@@ -177,8 +177,7 @@ public class GUIServiceGUI extends ServiceGUI {
 				}
 				rebuildGraph();
 			} else if (b == dumpButton) {
-				FileIO.stringToFile(String.format("serviceRegistry.%s.txt", Runtime.getInstance().getName()), Runtime.dump());
-				FileIO.stringToFile(String.format("notifyEntries.%s.xml", Runtime.getInstance().getName()), Runtime.dumpNotifyEntries());
+				Runtime.dumpToFile();
 			}
 		}
 	}

@@ -1,14 +1,13 @@
 package org.myrobotlab.service.interfaces;
 
-import java.net.Socket;
 import java.util.HashSet;
-import java.util.Properties;
+import java.util.Map;
 
-import org.myrobotlab.net.NanoHTTPD.Response;
+import org.myrobotlab.net.http.Response;
 
 public interface HTTPProcessor {
 
-	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket);
+	public Response serve(String uri, String method, Map<String,String> header, Map<String,String> parms);
 	
 	public HashSet<String> getURIs();
 }

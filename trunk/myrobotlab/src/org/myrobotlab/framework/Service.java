@@ -105,6 +105,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	@Element
 	private final String name; // TODO - access directly
+	private String simpleName; // used in gson encoding for getSimpleName()
+	private String serviceClass;
 	private String lastRecordingFilename;
 	private boolean isRunning = false;
 	protected transient Thread thisThread = null;
@@ -117,13 +119,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	transient protected CommunicationInterface cm = null;
 
-	static public final String PROCESS = "PROCESS";
-	static public final String RELAY = "RELAY";
-	static public final String IGNORE = "IGNORE";
-	static public final String BROADCAST = "BROADCAST";
-	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
-
-	public String outboxMsgHandling = RELAY;
 	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
 	private static boolean hostInitialized = false;
 
@@ -362,7 +357,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	static public void mergePeerDNA(String myKey, String className) {
 		buildDNA(dna, myKey, className, "merged dna");
-		log.info("merged acutal dna \n{}", dna);
+		log.info("merged dna \n{}", dna);
 
 		/*
 		 * if (peerDNA != null) { ArrayList<ServiceReservation> dnaList =
@@ -611,7 +606,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public Service(String reservedKey) {
 
-		String serviceClass = this.getClass().getCanonicalName();
+		serviceClass = this.getClass().getCanonicalName();
+		simpleName = this.getClass().getSimpleName();
 
 		if (methodSet == null) {
 			methodSet = getMessageSet();
@@ -639,8 +635,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// re-implement but only create if there is a task!!
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
-
-		outboxMsgHandling = RELAY;
 
 		if (!hostInitialized) {
 			initialize();
@@ -1941,11 +1935,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	@Override
 	public String getSimpleName() {
-		/*
-		 * String serviceClassName = this.getClass().getCanonicalName(); return
-		 * serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
-		 */
-		return this.getClass().getSimpleName();
+		return simpleName;
 	}
 
 	public String getTypeName() {
