@@ -47,6 +47,13 @@ import org.myrobotlab.service.interfaces.CommunicationInterface;
 public class Outbox implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Outbox.class.getCanonicalName());
+	
+	static public final String RELAY = "RELAY";
+	static public final String IGNORE = "IGNORE";
+	static public final String BROADCAST = "BROADCAST";
+	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
+	
+	private String outboxMsgHandling = RELAY;
 
 	Service myService = null;
 	LinkedList<Message> msgBox = new LinkedList<Message>();
@@ -122,7 +129,7 @@ public class Outbox implements Runnable, Serializable {
 			// if the msg name is not my name - then
 			// relay it
 			// WARNING - broadcast apparently means name == ""
-			if (msg.name.length() > 0 && !myService.getName().equals(msg.name) && myService.outboxMsgHandling.equals(Service.RELAY)) {
+			if (msg.name.length() > 0 && !myService.getName().equals(msg.name)) { //&& myService.outboxMsgHandling.equals(RELAY)) {
 				log.debug("{} configured to RELAY ", msg.getName());
 				comm.send(msg);
 				// recently added -

@@ -7,23 +7,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.java_websocket.util.Base64;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.fileLib.FindFile;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.net.NanoHTTPD;
+import org.myrobotlab.net.http.Response;
 import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
-import org.myrobotlab.net.NanoHTTPD;
-import org.myrobotlab.net.NanoHTTPD.Response;
 import org.slf4j.Logger;
 
 public class ResourceProcessor implements HTTPProcessor {
@@ -36,7 +35,6 @@ public class ResourceProcessor implements HTTPProcessor {
 
 	private WebGUI webgui;
 
-	private boolean authorized = false;
 
 	public ResourceProcessor(WebGUI webgui) {
 		this.webgui = webgui;
@@ -59,8 +57,8 @@ public class ResourceProcessor implements HTTPProcessor {
 	}
 
 	@Override
-	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
-		return serveFile(uri, header, new File(webgui.root), true, socket, scannedDirectories.contains(uri));
+	public Response serve(String uri, String method, Map<String, String> header, Map<String, String> parms) {
+		return serveFile(uri, header, new File(webgui.root), true, scannedDirectories.contains(uri));
 	}
 
 	// FIXME - deprecate
@@ -75,7 +73,7 @@ public class ResourceProcessor implements HTTPProcessor {
 	 * ignores all headers and HTTP parameters.
 	 */
 	// FIXME - normalize further
-	public Response serveFile(String uri, Properties header, File homeDir, boolean allowDirectoryListing, Socket socket, boolean isCustomFile) {
+	public Response serveFile(String uri, Map<String,String> header, File homeDir, boolean allowDirectoryListing, boolean isCustomFile) {
 
 		String username;
 		String password;
@@ -84,19 +82,25 @@ public class ResourceProcessor implements HTTPProcessor {
 		if (webgui.requiresSecurity()) {// && !authorized) {
 			try {
 				if (header.containsKey("authorization")) {
-					String up = header.getProperty("authorization");
+					String up = header.get("authorization");
 					int pos = up.indexOf("Basic ");
 					if (pos != -1) {
 						up = up.substring(pos + 6);
 					}
 					// FIXME - depends on commons !!!!
-					String usernameAndPassword = new String(Base64.decode(up)); // SHWEET CURRENTLY USING WEBSOCKETS VERSION !!! :P
+					String usernameAndPassword = new String(Base64.decode(up)); // SHWEET
+																				// CURRENTLY
+																				// USING
+																				// WEBSOCKETS
+																				// VERSION
+																				// !!!
+																				// :P
 					username = usernameAndPassword.substring(0, usernameAndPassword.lastIndexOf(":"));
 					password = usernameAndPassword.substring(usernameAndPassword.lastIndexOf(":") + 1);
 					String token = BasicSecurity.authenticate(username, password);
 
 					if (token != null) {
-						authorized = true;
+						//authorized = true;
 					} else {
 						throw new Exception(String.format("no token for user %s", username));
 					}
@@ -107,8 +111,8 @@ public class ResourceProcessor implements HTTPProcessor {
 
 			} catch (Exception e) {
 				Logging.logException(e);
-				Response r = new Response();
-				r.status = NanoHTTPD.HTTP_NOT_AUTHORIZED;
+				Response r = new Response(e.getMessage());
+				r.setStatus(Response.Status.FORBIDDEN);
 				r.addHeader("WWW-Authenticate", "Basic realm=\"MyRobotLab\"");
 				return r;
 			}
@@ -122,21 +126,22 @@ public class ResourceProcessor implements HTTPProcessor {
 
 		// Prohibit getting out of current directory
 		if (uri.startsWith("..") || uri.endsWith("..") || uri.indexOf("../") >= 0) {
-			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
+			return new Response(Response.Status.FORBIDDEN, WSServer.MIME_PLAINTEXT, "FORBIDDEN: Won't serve ../ for security reasons.");
 		}
 
 		File f;
 		if (!isCustomFile) {
 			// ---- begin resource ----------------
-			// TODO ? hard coded /resource - are they going to pull up WebGUI.class how useful is that ??
-			String resoucePath = String.format("/resource%s", uri); 
+			// TODO ? hard coded /resource - are they going to pull up
+			// WebGUI.class how useful is that ??
+			String resoucePath = String.format("/resource%s", uri);
 			InputStream fis = null;
-			if (resoucePath.endsWith("/"))
-			{
+			if (resoucePath.endsWith("/")) {
 				// ends with a slash .. might be a directory - try index.html
 				String documentIndex = String.format("%sindex.html", resoucePath);
 				fis = FileIO.class.getResourceAsStream(documentIndex);
-				if (fis == null){ // couldn't find document index try directory listing, if allowed
+				if (fis == null) { // couldn't find document index try directory
+									// listing, if allowed
 					fis = FileIO.class.getResourceAsStream(resoucePath);
 				} else {
 					uri = documentIndex;
@@ -144,9 +149,9 @@ public class ResourceProcessor implements HTTPProcessor {
 			} else {
 				fis = FileIO.class.getResourceAsStream(resoucePath);
 			}
-			
+
 			if (fis == null)
-				return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
+				return new Response(Response.Status.NOT_FOUND, WSServer.MIME_PLAINTEXT, "Error 404, file not found.");
 
 			try {
 				// Get MIME type from file name extension, if possible
@@ -157,7 +162,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				}
 				if (mime == null) {
 					// mime = NanoHTTPD.MIME_DEFAULT_BINARY;
-					mime = NanoHTTPD.MIME_PLAINTEXT;
+					mime = WSServer.MIME_PLAINTEXT;
 				}
 
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -174,7 +179,7 @@ public class ResourceProcessor implements HTTPProcessor {
 
 				byte[] content = null;
 
-				//if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
+				// if ("/resource/WebGUI/myrobotlab.html".equals(uri)) {
 				if (uri.endsWith(".mrl")) {
 					content = filter(new String(buffer.toByteArray()), header);
 					mime = NanoHTTPD.MIME_HTML;
@@ -182,19 +187,19 @@ public class ResourceProcessor implements HTTPProcessor {
 					content = buffer.toByteArray();
 				}
 
-				Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
+				Response r = new Response(Response.Status.OK, mime, new ByteArrayInputStream(content));
 
 				r.addHeader("Content-length", "" + content.length);
 				return r;
-			} catch (IOException ioe) {
-				return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
+			} catch (IOException ioe) { 
+				return new Response(Response.Status.FORBIDDEN, WSServer.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
 			}
 			// ---- end resource -------------------
 		} else {
 			// ---- begin file -----------------------
 			f = new File(homeDir, uri);
 			if (!f.exists())
-				return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
+				return new Response(Response.Status.NOT_FOUND, WSServer.MIME_PLAINTEXT, "Error 404, file not found.");
 
 			// List the directory, if necessary
 			if (f.isDirectory()) {
@@ -202,7 +207,7 @@ public class ResourceProcessor implements HTTPProcessor {
 				// directory, send a redirect.
 				if (!uri.endsWith("/")) {
 					uri += "/";
-					Response r = new Response(NanoHTTPD.HTTP_REDIRECT, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
+					Response r = new Response(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
 					r.addHeader("Location", uri);
 					return r;
 				}
@@ -252,9 +257,9 @@ public class ResourceProcessor implements HTTPProcessor {
 						if (dir)
 							msg += "</b>";
 					}
-					return new Response(NanoHTTPD.HTTP_OK, NanoHTTPD.MIME_HTML, msg);
+					return new Response(Response.Status.OK, NanoHTTPD.MIME_HTML, msg);
 				} else {
-					return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: No directory listing.");
+					return new Response(Response.Status.FORBIDDEN, WSServer.MIME_PLAINTEXT, "FORBIDDEN: No directory listing.");
 				}
 			}
 
@@ -270,12 +275,12 @@ public class ResourceProcessor implements HTTPProcessor {
 				mime = (String) NanoHTTPD.theMimeTypes.get(uri.substring(dot + 1).toLowerCase());
 			}
 			if (mime == null) {
-				mime = NanoHTTPD.MIME_PLAINTEXT;
+				mime = WSServer.MIME_PLAINTEXT;
 			}
 
 			// Support (simple) skipping:
 			long startFrom = 0;
-			String range = header.getProperty("Range");
+			String range = header.get("Range");
 			if (range != null) {
 				if (range.startsWith("bytes=")) {
 					range = range.substring("bytes=".length());
@@ -293,7 +298,7 @@ public class ResourceProcessor implements HTTPProcessor {
 			if (!isCustomFile) {
 				fis = FileIO.class.getResourceAsStream(uri);
 				if (fis == null) {
-					return new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
+					return new Response(Response.Status.NOT_FOUND, WSServer.MIME_PLAINTEXT, "Error 404, file not found.");
 				}
 
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -319,7 +324,7 @@ public class ResourceProcessor implements HTTPProcessor {
 					content = buffer.toByteArray();
 				}
 
-				Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
+				Response r = new Response(Response.Status.OK, mime, new ByteArrayInputStream(content));
 
 				r.addHeader("Content-length", "" + content.length);
 				return r;
@@ -342,15 +347,15 @@ public class ResourceProcessor implements HTTPProcessor {
 				// FIXME - this is not normalized - because the code around it
 				// is
 				// not normalized
-				
+
 				if (uri.endsWith(".mrl")) {
 					content = filter(new String(buffer.toByteArray()), header);
 					mime = NanoHTTPD.MIME_HTML;
 				} else {
 					content = buffer.toByteArray();
 				}
-				
-				Response r = new Response(NanoHTTPD.HTTP_OK, mime, new ByteArrayInputStream(content));
+
+				Response r = new Response(Response.Status.OK, mime, new ByteArrayInputStream(content));
 				r.addHeader("Content-length", "" + content.length);
 				// r.addHeader("Content-length", "" + (f.length() - startFrom));
 				// r.addHeader("Content-range", "" + startFrom + "-" +
@@ -359,12 +364,12 @@ public class ResourceProcessor implements HTTPProcessor {
 			}
 
 		} catch (IOException ioe) {
-			return new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
+			return new Response(Response.Status.FORBIDDEN, WSServer.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
 		}
 	}
 
-	public byte[] filter(String filter, Properties header) {
-		String inHost = header.getProperty("host");
+	public byte[] filter(String filter, Map<String,String> header) {
+		String inHost = header.get("host");
 		String hostIP;
 		int pos0 = inHost.lastIndexOf(":");
 		if (pos0 > 0) {
@@ -376,18 +381,17 @@ public class ResourceProcessor implements HTTPProcessor {
 		// log.info("from client @ {}", socket.getRemoteSocketAddress());
 		log.info("<%=getHostAddress%> --> {}", hostIP);
 		filter = filter.replace("<%=getHostAddress%>", hostIP);
-		log.info("<%=wsPort%> --> {}", webgui.wsPort);
-		filter = filter.replace("<%=wsPort%>", webgui.wsPort.toString());
+		log.info("<%=wsPort%> --> {}", webgui.port);
+		filter = filter.replace("<%=wsPort%>", webgui.port.toString());
 		log.info("<%=runtimeName%> --> {}", Runtime.getInstance().getName());
 		filter = filter.replace("<%=runtimeName%>", Runtime.getInstance().getName());
 		log.info("<%=webguiName%> --> {}", webgui.getName());
 		filter = filter.replace("<%=webguiName%>", webgui.getName());
-		log.info("<%=httpPort%> --> {}", webgui.httpPort.toString());
-		filter = filter.replace("<%=httpPort%>", webgui.httpPort.toString());
+		log.info("<%=httpPort%> --> {}", webgui.port.toString());
+		filter = filter.replace("<%=httpPort%>", webgui.port.toString());
 		// filter.replace(, newChar);
-		
-		if (webgui.useLocalResources())
-		{
+
+		if (webgui.useLocalResources()) {
 			filter = filter.replace("<%=mrl.script.location%>", "");
 		} else {
 			filter = filter.replace("<%=mrl.script.location%>", "http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/src/resource/WebGUI/");

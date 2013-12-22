@@ -181,7 +181,7 @@ public class InMoov extends Service {
 		return rightHand;
 	}
 
-	public InMoovHand startleftHand(String port) {
+	public InMoovHand startLeftHand(String port) {
 		leftHand = startHand(left, port);
 		return leftHand;
 	}

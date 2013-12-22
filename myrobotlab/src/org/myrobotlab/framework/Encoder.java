@@ -157,7 +157,8 @@ public class Encoder {
 	
 	static final public String getParameterSignature(Object[] data) {
 		if (data == null) {
-			return "null";
+			//return "null";
+			return "";
 		}
 
 		StringBuffer ret = new StringBuffer();

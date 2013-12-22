@@ -3,15 +3,15 @@ package org.myrobotlab.webgui;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Properties;
+import java.util.Map;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.net.NanoHTTPD.Response;
+import org.myrobotlab.net.http.Response;
+import org.myrobotlab.net.http.Response.Status;
 import org.myrobotlab.service.interfaces.HTTPProcessor;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Serializer;
@@ -29,7 +29,7 @@ public class RESTProcessor implements HTTPProcessor {
 	private HashSet<String> uris = new HashSet<String>();
 
 	transient private Serializer serializer = new Persister();
-	
+
 	static public class RESTException extends Exception {
 		public RESTException(String format) {
 			super(format);
@@ -39,7 +39,7 @@ public class RESTProcessor implements HTTPProcessor {
 	}
 
 	@Override
-	public Response serve(String uri, String method, Properties header, Properties parms, Socket socket) {
+	public Response serve(String uri, String method, Map<String,String> header, Map<String,String> parms) {
 
 		String returnFormat = "gson";
 
@@ -62,7 +62,7 @@ public class RESTProcessor implements HTTPProcessor {
 			REST rest = new REST();
 			String services = rest.getServices();
 
-			Response response = new Response("200 OK", "text/html", services);
+			Response response = new Response(Status.OK, "text/html", services);
 			return response;
 
 		} else if (keys.length > 3) {
@@ -83,8 +83,9 @@ public class RESTProcessor implements HTTPProcessor {
 				}
 
 				// FIXME FIXME FIXME !!!!
-				// this is an input format decision !!! .. it "SHOULD" be determined based on inbound uri format
-				
+				// this is an input format decision !!! .. it "SHOULD" be
+				// determined based on inbound uri format
+
 				TypeConverter.getInstance();
 				typedParameters = TypeConverter.getTypedParams(si.getClass(), fn, stringParams);
 			}
@@ -129,19 +130,23 @@ public class RESTProcessor implements HTTPProcessor {
 					xml = String.format("<%sResponse />", fn);
 				}
 
-				Response response = new Response("200 OK", "text/xml", xml);
+				Response response = new Response(Status.OK, "text/xml", xml);
 				return response;
 
 			} else if ("gson".equals(returnFormat)) {
 				ByteArrayOutputStream out = null;
-				
-				// FIXME - a "response" of some sort is important - even if the returned object is null
-				// the signal which you get from a event can be significant - the quetion arrises
-				// gson is to encode the returned data - but if there is no data - it still
+
+				// FIXME - a "response" of some sort is important - even if the
+				// returned object is null
+				// the signal which you get from a event can be significant -
+				// the quetion arrises
+				// gson is to encode the returned data - but if there is no data
+				// - it still
 				// should return ... "blank" ?
-				
-				String encodedResponse = "null"; // Hah .. dorky yet appropriate?
-				
+
+				String encodedResponse = "null"; // Hah .. dorky yet
+													// appropriate?
+
 				try {
 
 					if (returnObject != null) {
@@ -157,16 +162,16 @@ public class RESTProcessor implements HTTPProcessor {
 						// }
 						writer.endArray();
 						writer.close();
-						
+
 						encodedResponse = new String(out.toByteArray());
-						
+
 					}
 				} catch (Exception e) {
 					Logging.logException(e);
 				}
-				
-				Response response = new Response("200 OK", "text/text", encodedResponse);
-				
+
+				Response response = new Response(Status.OK, "text/text", encodedResponse);
+
 				return response;
 			}
 
@@ -176,17 +181,16 @@ public class RESTProcessor implements HTTPProcessor {
 			// Response response = new Response("200 OK", "text/xml",
 			// (returnObject == null)?String.format("<%sResponse></%sResponse>",
 			// method, method):returnObject.toString());
-			Response response = new Response("200 OK", "text/xml", (returnObject == null) ? String.format("<%sResponse></%sResponse>", method, method) : xml);
+			Response response = new Response(Status.OK, "text/xml", (returnObject == null) ? String.format("<%sResponse></%sResponse>", method, method) : xml);
 			return response;
 		}
 		return null;
 	}
-	
-	// TODO - encode 
+
+	// TODO - encode
 	// FIXME - needs to be in .net or .framework
-	public static Object invoke(String uri) throws RESTException
-	{
-		//String returnFormat = "gson";
+	public static Object invoke(String uri) throws RESTException {
+		// String returnFormat = "gson";
 
 		// TODO top level is return format /html /text /soap /xml /gson /json a
 		// default could exist - start with SOAP response
@@ -200,8 +204,9 @@ public class RESTProcessor implements HTTPProcessor {
 		for (int i = 0; i < keys.length; ++i) {
 			keys[i] = decodePercent(keys[i], true);
 		}
-		
-		// FIXME - /api/returnEncodingType/parameterEncoding/service/method/param0/param1....
+
+		// FIXME -
+		// /api/returnEncodingType/parameterEncoding/service/method/param0/param1....
 
 		if ("/services".equals(uri)) {
 			// get runtime list
@@ -209,10 +214,10 @@ public class RESTProcessor implements HTTPProcessor {
 			REST rest = new REST();
 			String services = rest.getServices();
 
-			Response response = new Response("200 OK", "text/html", services);
+			Response response = new Response(Status.OK, "text/html", services);
 			return response;
 
-		} else if (keys.length > 2) { // FIXME 3-1 ???  how to answer
+		} else if (keys.length > 2) { // FIXME 3-1 ??? how to answer
 			// get a specific service instance - execute method --with
 			// parameters--
 			String serviceName = keys[1]; // FIXME how to handle
@@ -230,8 +235,9 @@ public class RESTProcessor implements HTTPProcessor {
 				}
 
 				// FIXME FIXME FIXME !!!!
-				// this is an input format decision !!! .. it "SHOULD" be determined based on inbound uri format
-				
+				// this is an input format decision !!! .. it "SHOULD" be
+				// determined based on inbound uri format
+
 				TypeConverter.getInstance();
 				typedParameters = TypeConverter.getTypedParams(si.getClass(), fn, stringParams);
 			}
@@ -245,8 +251,6 @@ public class RESTProcessor implements HTTPProcessor {
 			throw new RESTException(String.format("invalid uri %s", uri));
 		}
 	}
-	
-
 
 	@Override
 	public HashSet<String> getURIs() {

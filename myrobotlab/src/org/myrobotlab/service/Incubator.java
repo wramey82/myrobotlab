@@ -45,8 +45,7 @@ public class Incubator extends Service {
 		
 		xmpp = (XMPP) createPeer("xmpp");
 		webgui = (WebGUI) createPeer("webgui");
-		webgui.httpPort = 4321;
-		webgui.wsPort = 5432;
+		webgui.port = 4321;
 		
 		subscribe(xmpp.getName(), "publishMessage");
 

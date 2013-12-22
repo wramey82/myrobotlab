@@ -693,6 +693,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// force an digital read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
 	public void digitalReadPollingStart(Integer pin) {
+		sendMsg(PINMODE, pin, INPUT);
 		sendMsg(DIGITAL_READ_POLLING_START, pin, 0); // last param is not
 		// used in read
 	}
@@ -705,6 +706,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	// force an analog read - data will be published in a call-back
 	// TODO - make a serialSendBlocking
 	public void analogReadPollingStart(Integer pin) {
+		sendMsg(PINMODE, pin, INPUT);
 		sendMsg(ANALOG_READ_POLLING_START, pin, 0); // last param is not used
 	}
 

@@ -1,6 +1,5 @@
 package org.myrobotlab.service;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.myrobotlab.fileLib.Zip;
@@ -14,7 +13,6 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.security.BasicSecurity;
 import org.myrobotlab.webgui.WSServer;
-import org.myrobotlab.webgui.WebServer;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
@@ -39,16 +37,17 @@ public class WebGUI extends Service {
 	// http://mrl:7777/api/<resource>/<json>/<method>/<params>  !!! inbound is resource request - return format is json !!!
 	// default is /<rest>/<gson>/<method>/<params>
 
+	// dropped - NanoHTTPD in favor of websockets with user call-back
+	// http://nanohttpd.com/
+	
 	// FIXME !!! SINGLE WebServer/Socket server - capable of long polling
 	// fallback
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(WebGUI.class);
-
+	
 	@Element
-	public Integer httpPort = 7777;
-	@Element
-	public Integer wsPort = 7778;
+	public Integer port = 7778;
 	@Element
 	boolean autoStartBrowser = true;
 	@Element
@@ -60,7 +59,6 @@ public class WebGUI extends Service {
 	
 	public int messages = 0;
 
-	transient WebServer ws;
 	transient WSServer wss;
 
 	public void autoStartBrowser(boolean autoStartBrowser) {
@@ -71,11 +69,14 @@ public class WebGUI extends Service {
 
 	public WebGUI(String n) {
 		super(n);
+		// first message web browser client is getRegistry
+		// so we want it routed back here to deliver to client
+		subscribe(Runtime.getInstance().getIntanceName(), "getRegistry");
 		load();
 	}
 
 	public Integer getPort() {
-		return httpPort;
+		return port;
 	}
 
 	/**
@@ -97,43 +98,9 @@ public class WebGUI extends Service {
 		return useLocalResources;
 	}
 
-	/**
-	 * starts the web server - the other server is the web socket server
-	 * 
-	 * @param port
-	 *            - port to start the webserver on default is 7777
-	 * @return true if the webserver successfully started
-	 */
-	public boolean startWebServer(Integer port) {
-		// CRITICAL !!! - pushes the registry up - but why here - should be
-		// startService() ?
-		subscribe(Runtime.getInstance().getIntanceName(), "getRegistry");
-		try {
-			/*
-			 * if (port.equals(httpPort) && ws != null) {
-			 * warn("web server already running on port %d", port); return true;
-			 * }
-			 */
 
-			this.httpPort = port;
-			if (ws != null) {
-				ws.stop();
-			}
-
-			ws = new WebServer(this, port);
-			ws.start();
-
-			return true;
-
-		} catch (IOException e) {
-			error(e.getMessage());
-		}
-		return false;
-	}
 
 	/**
-	 * the "other" server (WebSocket Server) - FIXME - they should be unified
-	 * 
 	 * @param port
 	 *            - port to start server on default is 7778
 	 * @return - true if successfully started
@@ -141,13 +108,7 @@ public class WebGUI extends Service {
 	public boolean startWebSocketServer(Integer port) {
 		try {
 
-			/*
-			 * if (port.equals(wsPort) && wss != null) {
-			 * warn("web socket server already running on port %d", port);
-			 * return true; }
-			 */
-
-			this.wsPort = port;
+			this.port = port;
 
 			if (wss != null) {
 				wss.stop();
@@ -164,18 +125,16 @@ public class WebGUI extends Service {
 	}
 
 	/**
-	 * starts web server and web socket server, auto launches browser if
+	 * starts and web socket server, auto launches browser if
 	 * autoStartBrowser=true
 	 * 
 	 * @return true if both servers started
 	 */
 	public boolean start() {
 
-		boolean result = true;
-		result &= startWebServer(httpPort);
-		result &= startWebSocketServer(wsPort);
+		boolean result = startWebSocketServer(port);
 		if (autoStartBrowser) {
-			BareBonesBrowserLaunch.openURL(String.format(startURL, httpPort));
+			BareBonesBrowserLaunch.openURL(String.format(startURL, port));
 		}
 		if (!result) {
 			warn("could not start properly");
@@ -197,9 +156,6 @@ public class WebGUI extends Service {
 	public void stopService() {
 		try {
 			super.stopService();
-			if (ws != null) {
-				ws.stop();
-			}
 			if (wss != null) {
 				wss.stop();
 			}
@@ -312,17 +268,21 @@ public class WebGUI extends Service {
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
 		// Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		// clock.startClock();
 		//Runtime.createAndStart("security", "Security");
-		Runtime.createAndStart("webgui", "WebGUI");
+		WebGUI webgui = new WebGUI("webgui");
+		webgui.useLocalResources(true);
+		webgui.autoStartBrowser(false);
+		webgui.startService();
+		//Runtime.createAndStart("webgui", "WebGUI");
 		//webgui.useLocalResources(true);
 		
-		Runtime.createAndStart("servoX", "Servo");
+		//Runtime.createAndStart("servoX", "Servo");
 		//Runtime.createAndStart("rack-1-arduino-1", "Arduino");
 		
 		// Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");

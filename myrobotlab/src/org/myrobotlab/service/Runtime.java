@@ -1025,6 +1025,12 @@ public class Runtime extends Service {
 		 * if (hasGUI) { gui.display(); }
 		 */
 	}
+	
+	public static void dumpToFile()
+	{
+		FileIO.stringToFile(String.format("serviceRegistry.%s.txt", Runtime.getInstance().getName()), Runtime.dump());
+		FileIO.stringToFile(String.format("notifyEntries.%s.xml", Runtime.getInstance().getName()), Runtime.dumpNotifyEntries());
+	}
 
 	/**
 	 * a method which returns a xml representation of all the listeners and

@@ -63,6 +63,8 @@ public class AdafruitLEDBackpack implements I2CDevice {
 	public static final int AdafruitLEDBackpack_0x70 = 0x20; // 000
 
 	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
+	
+	CycleThread ct = null;
 
 	private static boolean translationInitialized = false;
 
@@ -224,6 +226,50 @@ public class AdafruitLEDBackpack implements I2CDevice {
 		b.value = value;
 		b.leaveOn = false;
 		b.start();
+	}
+	
+	public class CycleThread extends Thread
+	{
+		public boolean isRunning = false;
+		int delay = 300;
+		String msg;
+		
+		public CycleThread(String msg, int delay)
+		{
+			this.msg = "    " + msg;
+			this.delay = delay;
+		}
+		
+		public void run(){
+			isRunning = true;
+			try {
+			while(isRunning){
+				for(int i = 0; i < msg.length()-3; ++i)
+				{
+					display(msg.substring(i, i+4));
+					sleep(delay);
+				}
+			}
+			} catch (InterruptedException e){
+				isRunning = false;
+			}
+		}
+	}
+	
+	
+	public void cycleOn(String msg, int delay){
+		if (ct != null)
+		{
+			cycleOff();
+		}
+		ct = new CycleThread(msg, delay);
+		ct.start();
+	}
+	
+	public void cycleOff(){
+		if (ct != null){
+			ct.isRunning = false;
+		}
 	}
 	
 	public byte[] writeDisplay(byte[] data) {
