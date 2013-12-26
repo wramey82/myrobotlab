@@ -83,10 +83,10 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 		
 		URI host = sw.getHost();
 		if (host == null) {
-			log.info(String.format("local %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
+			//log.info(String.format("local %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
 			sw.in(msg);
 		} else {
-			log.info(String.format("remote %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
+			//log.info(String.format("remote %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
 			getComm(host).sendRemote(host, msg);
 		}
 	}
