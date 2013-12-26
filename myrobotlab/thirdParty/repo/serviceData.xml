@@ -71,6 +71,16 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.BeagleBoardBlack" workingLevel="1">
+      <dependsOn>
+	 <description>service beagle board black to interface with GPIO
+	 </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.AWTRobot"  workingLevel="1">
       <dependsOn>
         <description>allows screen capture, and control of mouse and keyboard
