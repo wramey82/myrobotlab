@@ -232,7 +232,7 @@ public class Tracking extends Service {
 	public void startLKTracking() {
 		log.info("startLKTracking");
 
-		opencv.clearFilters();
+		opencv.removeFilters();
 
 		for (int i = 0; i < preFilters.size(); ++i) {
 			opencv.addFilter(preFilters.get(i));
@@ -253,7 +253,7 @@ public class Tracking extends Service {
 	}
 	
 	public void stopTracking() {
-		opencv.clearFilters();
+		opencv.removeFilters();
 		setState(STATE_IDLE);
 	}
 
@@ -278,7 +278,7 @@ public class Tracking extends Service {
 	public void reset() {
 		// TODO - reset pid values
 		// clear filters
-		opencv.clearFilters();
+		opencv.removeFilters();
 		// reset position
 		rest();
 	}
@@ -291,7 +291,7 @@ public class Tracking extends Service {
 	}
 
 	public void setForegroundBackgroundFilter() {
-		opencv.clearFilters();
+		opencv.removeFilters();
 		for (int i = 0; i < preFilters.size(); ++i) {
 			opencv.addFilter(preFilters.get(i));
 		}
@@ -501,8 +501,8 @@ public class Tracking extends Service {
 	}
 
 
-	public void clearFilters() {
-		opencv.clearFilters();
+	public void removeFilters() {
+		opencv.removeFilters();
 	}
 
 	public void test() {
@@ -514,7 +514,7 @@ public class Tracking extends Service {
 			setForegroundBackgroundFilter();
 			learnBackground();
 			searchForeground();
-			clearFilters();
+			removeFilters();
 		}
 	}
 
@@ -686,7 +686,7 @@ public class Tracking extends Service {
 
 	public void faceDetect() {
 		// opencv.addFilter("Gray"); needed ?
-		opencv.clearFilters();
+		opencv.removeFilters();
 
 		log.info("starting faceDetect");
 

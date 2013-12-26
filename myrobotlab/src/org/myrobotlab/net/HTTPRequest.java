@@ -79,11 +79,11 @@ public class HTTPRequest {
 	}
 
 	protected void write(String s) throws IOException {
-		Logging.logTime("t1", "write-connect");
+		Logging.logTime("write-connect");
 		connect();
-		Logging.logTime("t1", "write-post connect");
+		Logging.logTime("write-post connect");
 		os.write(s.getBytes());
-		Logging.logTime("t1", "post write s.getBytes");
+		Logging.logTime("post write s.getBytes");
 	}
 
 	protected void newline() throws IOException {
@@ -254,7 +254,7 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public void setParameter(String name, String filename, InputStream is) throws IOException {
-		Logging.logTime("t1", "setParameter begin (after new fileinput)");
+		Logging.logTime("setParameter begin (after new fileinput)");
 		boundary();
 		writeName(name);
 		write("; filename=\"");
@@ -262,12 +262,12 @@ public class HTTPRequest {
 		write('"');
 		newline();
 		write("Content-Type: ");
-		Logging.logTime("t1", "pre guessContentTypeFromName");
+		Logging.logTime("pre guessContentTypeFromName");
 		String type = URLConnection.guessContentTypeFromName(filename);
 		if (type == null)
 			type = "application/octet-stream";
 		writeln(type);
-		Logging.logTime("t1", "post guessContentTypeFromName");
+		Logging.logTime("post guessContentTypeFromName");
 		newline();
 		pipe(is, os);
 		newline();
@@ -283,9 +283,9 @@ public class HTTPRequest {
 	 * @throws IOException
 	 */
 	public void setParameter(String name, File file) throws IOException {
-		Logging.logTime("t1", "pre set file");
+		Logging.logTime("pre set file");
 		setParameter(name, file.getPath(), new FileInputStream(file));
-		Logging.logTime("t1", "post set file");
+		Logging.logTime("post set file");
 	}
 
 	/**

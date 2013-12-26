@@ -16,6 +16,9 @@ import org.myrobotlab.webgui.WSServer;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class WebGUI extends Service {
 
 	// import javax.xml.transform.Transformer;
@@ -28,26 +31,31 @@ public class WebGUI extends Service {
 	// Jenkins did it right -
 	// https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API
 	// http://server/jenkins/crumbIssuer/api/xml (or /api/json) !
-	// HA !!  realize that there are 2 encodings !!!  inbound and return
+	// HA !! realize that there are 2 encodings !!! inbound and return
 	// VERY SIMPLE BUT IT MUST BE CONSISTENT !!!
-	// http://mrl:7777/api/<inbound format>/<outbound format>/<method>/<parameters>/
-	// http://mrl:7777/api/<rest>/<xml>/<method>/<params>  !!! inbound is rest - return format is xml !!!
-	// http://mrl:7777/api/<soap>/<xml>/<method>/<params>  !!! inbound is soap - return format is xml !!!
-	// http://mrl:7777/api/<soap>/<soap>/<method>/<params>  !!! inbound is soap - return format is soap !!!
-	// http://mrl:7777/api/<resource>/<json>/<method>/<params>  !!! inbound is resource request - return format is json !!!
+	// http://mrl:7777/api/<inbound format>/<outbound
+	// format>/<method>/<parameters>/
+	// http://mrl:7777/api/<rest>/<xml>/<method>/<params> !!! inbound is rest -
+	// return format is xml !!!
+	// http://mrl:7777/api/<soap>/<xml>/<method>/<params> !!! inbound is soap -
+	// return format is xml !!!
+	// http://mrl:7777/api/<soap>/<soap>/<method>/<params> !!! inbound is soap -
+	// return format is soap !!!
+	// http://mrl:7777/api/<resource>/<json>/<method>/<params> !!! inbound is
+	// resource request - return format is json !!!
 	// default is /<rest>/<gson>/<method>/<params>
 
 	// dropped - NanoHTTPD in favor of websockets with user call-back
 	// http://nanohttpd.com/
-	
+
 	// FIXME !!! SINGLE WebServer/Socket server - capable of long polling
 	// fallback
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(WebGUI.class);
-	
+
 	@Element
-	public Integer port = 7778;
+	public Integer port = 7777;
 	@Element
 	boolean autoStartBrowser = true;
 	@Element
@@ -56,7 +64,7 @@ public class WebGUI extends Service {
 	public String startURL = "http://127.0.0.1:%d/index.html";
 	@Element
 	public String root = "resource";
-	
+
 	public int messages = 0;
 
 	transient WSServer wss;
@@ -97,8 +105,6 @@ public class WebGUI extends Service {
 	public boolean useLocalResources() {
 		return useLocalResources;
 	}
-
-
 
 	/**
 	 * @param port
@@ -196,14 +202,15 @@ public class WebGUI extends Service {
 			Logging.logException(e);
 		}
 	}
-	
+
 	// FIXME - take out of RESTProcessor - normalize
 	/**
-	 * Encodes MyRobotLab message into JSON so that it can be sent over websockets to listening clients
+	 * Encodes MyRobotLab message into JSON so that it can be sent over
+	 * websockets to listening clients
+	 * 
 	 * @param msg
-	 * message to be encoded
-	 * @return
-	 * message encoded as JSON (gson) string
+	 *            message to be encoded
+	 * @return message encoded as JSON (gson) string
 	 */
 	public String toJson(Message msg) {
 		try {
@@ -246,9 +253,11 @@ public class WebGUI extends Service {
 	}
 
 	/**
-	 * sends JSON encoded MyRobotLab Message to all clients currently connected through web sockets
+	 * sends JSON encoded MyRobotLab Message to all clients currently connected
+	 * through web sockets
+	 * 
 	 * @param msg
-	 * message to broadcast
+	 *            message to broadcast
 	 */
 	public void sendToAll(Message msg) {
 		++messages;
@@ -270,21 +279,33 @@ public class WebGUI extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
+		try {
+			//String uri = "http\\://192.168.1.12:8080/?action=stream";
+			String uri = "\"http://192.168.1.12:8080/?action=stream\"";
+			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+
+			Object o = gson.fromJson(uri, String.class);
+
+			log.info("{}", o);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
 		// REST rest = new REST();
 		// Runtime.createAndStart("arduino", "Arduino");
 		// Clock clock = (Clock)Runtime.createAndStart("clock", "Clock");
 		// clock.startClock();
-		//Runtime.createAndStart("security", "Security");
+		// Runtime.createAndStart("security", "Security");
 		WebGUI webgui = new WebGUI("webgui");
 		webgui.useLocalResources(true);
 		webgui.autoStartBrowser(false);
 		webgui.startService();
-		//Runtime.createAndStart("webgui", "WebGUI");
-		//webgui.useLocalResources(true);
-		
-		//Runtime.createAndStart("servoX", "Servo");
-		//Runtime.createAndStart("rack-1-arduino-1", "Arduino");
-		
+		// Runtime.createAndStart("webgui", "WebGUI");
+		// webgui.useLocalResources(true);
+
+		// Runtime.createAndStart("servoX", "Servo");
+		// Runtime.createAndStart("rack-1-arduino-1", "Arduino");
+
 		// Serial arduino = (Serial)Runtime.createAndStart("serial", "Serial");
 		/*
 		 * Arduino ardurino = (Arduino)Runtime.createAndStart("arduino",

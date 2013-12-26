@@ -98,22 +98,22 @@ public class TranscriptionThread extends Thread {
 		String response = "";
 		HTTPRequest rs;
 		try {
-			Logging.logTime("t1", "pre new client");
+			Logging.logTime("pre new client");
 			// TODO - add Android headers
 			rs = new HTTPRequest("https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&pfilter=2&lang=" + lang + "&maxresults=6");
-			Logging.logTime("t1", "post new client");
+			Logging.logTime("post new client");
 			rs.setRequestProperty("Content-Type", "audio/x-flac; rate=8000"); // TODO
 																				// -
 																				// from
 																				// targetLineData
 																				// ?
 			rs.setParameter("file", file);// <-- woosh 6 seconds?
-			Logging.logTime("t1", "post file in param");
+			Logging.logTime("post file in param");
 
 			InputStream stream = rs.post();
-			Logging.logTime("t1", "post client.post");
+			Logging.logTime("post client.post");
 			response = convertStreamToString(stream);
-			Logging.logTime("t1", "convert response");
+			Logging.logTime("convert response");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

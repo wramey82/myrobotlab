@@ -331,8 +331,9 @@ public class OpenCV extends VideoSource {
 		return f;
 	}
 
-	public void clearFilters() {
-		videoProcessor.clearFilters();
+	// FIXME - rename removeFilters
+	public void removeFilters() {
+		videoProcessor.removeFilters();
 		broadcastState();
 	}
 
@@ -434,8 +435,8 @@ public class OpenCV extends VideoSource {
 		videoProcessor.recordOutput(b);
 	}
 
-	public String recordSingleFrame(Boolean b) {
-		return videoProcessor.recordSingleFrame(b);
+	public String recordSingleFrame() {
+		return videoProcessor.recordSingleFrame();
 	}
 
 	// filter dynamic data exchange end ------------------

@@ -109,9 +109,16 @@ public class TypeConverter {
 						
 						for (int j = 0; j < types.length; ++j) {
 							Class<?> pType = types[j];
+							String param = stringParams[j];
 
 							log.info(String.format("attempting conversion into %s from inbound data %s", pType.getSimpleName(), stringParams[j]));
-							newGSONTypedParamters[j] = gson.fromJson(stringParams[j], pType);
+							if (pType == String.class){
+								// escape quotes
+								param = param.replaceAll("\"", "\\\"");
+								// add quotes
+								param = String.format("\"%s\"", param);
+							}
+							newGSONTypedParamters[j] = gson.fromJson(param, pType);
 
 						} 
 
