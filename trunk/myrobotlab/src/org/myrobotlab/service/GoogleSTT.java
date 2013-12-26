@@ -270,15 +270,15 @@ public class GoogleSTT extends Service implements SpeechRecognizer {
 		// only interrupt if available
 		// transcription.interrupt();
 
-		Logging.logTime("t1", "start");
-		Logging.logTime("t1", "pre new transcription " + path);
+		Logging.logTime("start");
+		Logging.logTime("pre new transcription " + path);
 		TranscriptionThread transcription = new TranscriptionThread(this, this.getName() + "_transcriber", language);
 		transcription.debug = true;
-		Logging.logTime("t1", "pre new thread start");
+		Logging.logTime("pre new thread start");
 		transcription.start();
-		Logging.logTime("t1", "pre transcription");
+		Logging.logTime("pre transcription");
 		transcription.startTranscription(path);
-		Logging.logTime("t1", "post transcription");
+		Logging.logTime("post transcription");
 
 		// threads.add(transcription);
 	}

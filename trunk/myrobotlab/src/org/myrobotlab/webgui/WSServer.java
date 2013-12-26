@@ -244,7 +244,7 @@ public class WSServer extends WebSocketServer {
 			decodeParms(uri.substring(qmi + 1), parms);
 			uri = decodePercent(uri.substring(0, qmi));
 		} else {
-			uri = decodePercent(uri);
+			//uri = decodePercent(uri);
 		}
 
 		// If there's another token, it's protocol version,

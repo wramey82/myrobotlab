@@ -35,13 +35,8 @@ public class Encoder {
 	public final static String SCHEME_MRL = "mrl";
 	public final static String SCHEME_BASE64 = "base64";
 
-	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-
-	/*
-	 * public Message decodePath(String pathInfo) {
-	 * 
-	 * }
-	 */
+	// disableHtmlEscaping to prevent encoding or "=" - 
+	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").disableHtmlEscaping().create();
 	public final static String API_REST_PREFIX = "/api";
 
 	public static Message decodeURI(URI uri) {

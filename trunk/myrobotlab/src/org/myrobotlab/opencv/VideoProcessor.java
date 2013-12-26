@@ -76,7 +76,7 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	private ArrayList<OpenCVFilter> filters = new ArrayList<OpenCVFilter>();
 
-	SimpleDateFormat sdf = new SimpleDateFormat();
+	transient SimpleDateFormat sdf = new SimpleDateFormat();
 	private boolean isRecordingOutput = false;
 	private boolean recordSingleFrame = false;
 
@@ -204,9 +204,14 @@ public class VideoProcessor implements Runnable, Serializable {
 			try {
 
 				++frameIndex;
-				// Logging.logTime("start");
+				Logging.logTime("start");
 
+				Logging.logTime("pre-grab");
 				frame = grabber.grab();
+				Logging.logTime("post-grab");
+				
+				//log.info(String.format("frame %d", frameIndex));
+				
 				if (minDelay  > 0)
 				{
 					Service.sleep(minDelay);
@@ -229,6 +234,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				// SerializableImage(frame.getBufferedImage(), INPUT_KEY));
 				// Logging.logTime("read");
 
+				Logging.logTime("pre-filter");
 				synchronized (filters) {
 					Iterator<OpenCVFilter> itr = filters.iterator();
 					sources.put(boundServiceName, INPUT_KEY, frame);
@@ -248,8 +254,11 @@ public class VideoProcessor implements Runnable, Serializable {
 
 						// pre process for image size & channel changes
 						image = filter.preProcess(frameIndex, image, data);
+						Logging.logTime(String.format("preProcess-filter %s", filter.name));
 						image = filter.process(image, data);
+						Logging.logTime(String.format("process-filter %s", filter.name));
 						image = filter.prostProcess(image, data);
+						Logging.logTime(String.format("prostProcess-filter %s", filter.name));
 
 						// process the image - push into source as new output
 						// other pipelines will pull it off the from the sources
@@ -273,19 +282,23 @@ public class VideoProcessor implements Runnable, Serializable {
 						// of the filter to produce the appropriate display
 						// TODO - make it possible for displayFilter == null which will make "no" display
 						if (filter.name.equals(displayFilter) || INPUT_KEY.equals(displayFilter) || filter.publishDisplay) {
+							Logging.logTime("pre-display copy");
 							BufferedImage display = null;
 							if (INPUT_KEY.equals(displayFilter)) {
 								display = frame.getBufferedImage();
 							} else {
 								display = filter.display(image, data);
 							}
+							Logging.logTime("post-display copy");
 							 
 							// FIXME - change to serializable image
 							opencv.invoke("publishDisplay", displayFilter, display);
 						}
 					} // capturing && itr.hasNext()
+					Logging.logTime("filters done");
 				} // synchronized (filters)
-
+				Logging.logTime("sync done");
+				
 				// publish accumulated data
 				if (publishOpenCVData) {
 					opencv.invoke("publishOpenCVData", data);
@@ -293,6 +306,7 @@ public class VideoProcessor implements Runnable, Serializable {
 
 				// no filters - no filters selected
 				if (filters.size() == 0) {
+					Logging.logTime("publish 0 filter display ");
 					opencv.invoke("publishDisplay", displayFilter, frame.getBufferedImage());
 				}
 
@@ -306,6 +320,7 @@ public class VideoProcessor implements Runnable, Serializable {
 				stop();
 			}
 
+			Logging.logTime("finished pass");
 		} // while capturing
 
 		try {
@@ -381,7 +396,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		return filter;
 	}
 
-	public void clearFilters() {
+	public void removeFilters() {
 		synchronized (filters) {
 			filters.clear();
 		}
@@ -495,8 +510,8 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	public String recordSingleFrame(Boolean b) {
-		recordSingleFrame = b;
+	public String recordSingleFrame() {
+		recordSingleFrame = true;
 		// blocking until filename is set
 		// waiting for return of frame
 

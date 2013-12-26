@@ -143,6 +143,10 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * Short description of the service
 	 */
 	abstract public String getDescription();
+	
+	static public void logTimeEnable(Boolean b) {
+		Logging.logTimeEnable(b);
+	}
 
 	public URI getHost() {
 		return host;

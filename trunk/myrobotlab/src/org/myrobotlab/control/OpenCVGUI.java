@@ -768,7 +768,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				recordButton.setText("record");
 			}
 		} else if (o == recordFrameButton) {
-			myService.send(boundServiceName, "recordSingleFrame", true);
+			myService.send(boundServiceName, "recordSingleFrame");
 		}
 	}
 

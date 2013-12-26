@@ -73,6 +73,12 @@ public class RESTProcessor implements HTTPProcessor {
 			Object[] typedParameters = null;
 
 			ServiceInterface si = org.myrobotlab.service.Runtime.getService(serviceName);
+			if (si == null)
+			{
+				log.error(String.format("%s service not found", serviceName));
+				Response response = new Response(Status.OK, "text/plain", String.format("%s service not found", serviceName));
+				return response;
+			}
 
 			// get parms
 			if (keys.length > 4) {
