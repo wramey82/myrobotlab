@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
@@ -108,6 +109,7 @@ public abstract class OpenCVFilter implements Serializable {
 		data.setFilterName(String.format("%s.%s", vp.boundServiceName, this.name));
 		this.frameIndex = frameIndex;
 		
+		Logging.logTime(String.format("preProcess begin %s", data.filtername));
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
 			width = frame.width();
@@ -115,6 +117,7 @@ public abstract class OpenCVFilter implements Serializable {
 			height = frame.height();
 			imageSize = cvGetSize(frame);
 			imageChanged(frame);
+			Logging.logTime(String.format("image Changed !!! %s", data.filtername));
 		}
 		return frame;
 	}
@@ -156,7 +159,7 @@ public abstract class OpenCVFilter implements Serializable {
 	{
 	}
 
-	public IplImage prostProcess(IplImage image, OpenCVData data) {
+	public IplImage postProcess(IplImage image, OpenCVData data) {
 		data.setWidth(image.width());
 		data.setHeight(image.height());
 		return image;

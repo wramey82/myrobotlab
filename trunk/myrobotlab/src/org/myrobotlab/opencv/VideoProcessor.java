@@ -98,6 +98,8 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	private int minDelay = 0;
 
+	public boolean publishDisplay = true;
+
 
 	public VideoProcessor() {
 		// parameterless constructor for simple xml
@@ -234,15 +236,19 @@ public class VideoProcessor implements Runnable, Serializable {
 				// SerializableImage(frame.getBufferedImage(), INPUT_KEY));
 				// Logging.logTime("read");
 
-				Logging.logTime("pre-filter");
+				Logging.logTime("pre-synchronized-filter");
 				synchronized (filters) {
+					Logging.logTime("post-synchronized-filter");
 					Iterator<OpenCVFilter> itr = filters.iterator();
 					sources.put(boundServiceName, INPUT_KEY, frame);
+//					data.putAsBufferedImage(boundServiceName, INPUT_KEY, frame);
 					data.put(boundServiceName, INPUT_KEY, frame);
 					while (capturing && itr.hasNext()) {
 
 						OpenCVFilter filter = itr.next();
+						Logging.logTime(String.format("pre set-filter %s", filter.name));
 						data.setFilter(filter);
+						Logging.logTime(String.format("set-filter %s", filter.name));
 
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
@@ -251,14 +257,15 @@ public class VideoProcessor implements Runnable, Serializable {
 							Service.sleep(300);
 							continue;
 						}
-
+						Logging.logTime(String.format("get-filter %s", filter.name));
+						
 						// pre process for image size & channel changes
 						image = filter.preProcess(frameIndex, image, data);
 						Logging.logTime(String.format("preProcess-filter %s", filter.name));
 						image = filter.process(image, data);
 						Logging.logTime(String.format("process-filter %s", filter.name));
-						image = filter.prostProcess(image, data);
-						Logging.logTime(String.format("prostProcess-filter %s", filter.name));
+						image = filter.postProcess(image, data);
+						Logging.logTime(String.format("postProcess-filter %s", filter.name));
 
 						// process the image - push into source as new output
 						// other pipelines will pull it off the from the sources
@@ -269,25 +276,31 @@ public class VideoProcessor implements Runnable, Serializable {
 						if (filter.publishImage || !itr.hasNext()) {
 							// left to the individual filter to determine if the object is "a copy" or just
 							// a reference - don't clone - cvcopy seems the "safest"
-							data.put(boundServiceName, filter.name, image);
+//FIXME 
+//FIXME - conversion FROM OpenCVData lpllmage !!!! data.putAsBufferedImage(boundServiceName, filter.name, image);
 						}
 
 						// if selected || use has chosen to publish multiple
 						if (isRecordingOutput || recordSingleFrame) {
 							recordImage(filter, image, data);
 						}
+						
 
 						// "display" is typically for human consumption
 						// a separate "display" method is in all filters - its left up to the discretion
 						// of the filter to produce the appropriate display
 						// TODO - make it possible for displayFilter == null which will make "no" display
-						if (filter.name.equals(displayFilter) || INPUT_KEY.equals(displayFilter) || filter.publishDisplay) {
+						if (publishDisplay  && (filter.name.equals(displayFilter) || INPUT_KEY.equals(displayFilter) || filter.publishDisplay)) {
 							Logging.logTime("pre-display copy");
 							BufferedImage display = null;
 							if (INPUT_KEY.equals(displayFilter)) {
+								Logging.logTime("pre-getBufferedImage");
 								display = frame.getBufferedImage();
+								Logging.logTime("post-getBufferedImage");
 							} else {
+								Logging.logTime("pre-filter.display");
 								display = filter.display(image, data);
+								Logging.logTime("post-filter.display");
 							}
 							Logging.logTime("post-display copy");
 							 

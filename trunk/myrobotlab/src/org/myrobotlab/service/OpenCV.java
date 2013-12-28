@@ -59,6 +59,8 @@ import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.myrobotlab.opencv.OpenCVFilterGoodFeaturesToTrack;
+import org.myrobotlab.opencv.OpenCVFilterGray;
+import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;
@@ -139,6 +141,12 @@ public class OpenCV extends VideoSource {
 			videoProcessor.stop();
 		}
 		super.stopService();
+	}
+	
+	public final boolean publishDisplay(Boolean b)
+	{
+		videoProcessor.publishDisplay = b;
+		return b;
 	}
 
 	public final SerializableImage publishDisplay(String source, BufferedImage img)
@@ -608,8 +616,11 @@ public class OpenCV extends VideoSource {
 //		opencv.setMinDelay(1000);
 		OpenCVFilterGoodFeaturesToTrack gf = new OpenCVFilterGoodFeaturesToTrack();
 		opencv.addFilter(gf);
-		//opencv.addFilter(new OpenCVFilterPyramidDown());
-		//opencv.addFilter(new OpenCVFilterGray());
+		
+		//Runtime.createAndStart("python", "Python");
+		Service.logTimeEnable(true);
+		opencv.addFilter(new OpenCVFilterPyramidDown());
+		opencv.addFilter(new OpenCVFilterGray());
 		//OpenCVFilterFlip flip = new OpenCVFilterFlip();
 		//flip.flipCode = 0; // horizontal
 		//opencv.addFilter(flip);

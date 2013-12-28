@@ -166,9 +166,14 @@ public class OpenCVData implements Serializable {
 	 * @param key
 	 * @param image
 	 */
-	public void put(String name, String key, IplImage image) {
+	public void putAsBufferedImage(String name, String key, IplImage image) {
 		this.name = name;
 		data.put(String.format("%s.%s", name, key), new SerializableImage(image.getBufferedImage(), filtername));
+	}
+	
+	public void put(String name, String key, IplImage image) {
+		this.name = name;
+		data.put(String.format("%s.%s", name, key), image);
 	}
 
 	public boolean containsKey(String key) {

@@ -35,6 +35,8 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	private InputStream input;
 	private Map<String, List<String>> headerfields;
 	private String boundryKey;
+	private IplImage template = null;
+	private int width, height;
 
 	public IPCameraFrameGrabber(String urlstr) {
 		try {
@@ -86,7 +88,15 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	@Override
 	public IplImage grab() {
 		try {
-			return IplImage.createFrom(grabBufferedImage());
+			if (template == null)
+			{
+				// create the template for future frames
+				Logging.logTime("creating template");
+				template = IplImage.createFrom(grabBufferedImage());
+				Logging.logTime("created template");
+			}
+			Logging.logTime("pre - IplImage.create");
+			return IplImage.create(template.width(), template.height(), template.depth(), template.nChannels());
 		} catch (Exception e) {
 			Logging.logException(e);
 		} catch (IOException e) {
@@ -96,6 +106,12 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	}
 
 	public BufferedImage grabBufferedImage() throws Exception, IOException {
+		BufferedImage bi = ImageIO.read(new ByteArrayInputStream(readImage()));
+		return bi;
+	}
+	
+	byte[] readImage() throws Exception, IOException {
+		
 		byte[] buffer = new byte[4096];// MTU or JPG Frame Size?
 		int n = -1;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -163,9 +179,7 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 		input.read();// \r
 		input.read();// \n
 
-		// log.info("wrote " + baos.size() + "," + total);
-		BufferedImage bi = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
-		return bi;
+		return baos.toByteArray();
 	}
 
 	@Override
