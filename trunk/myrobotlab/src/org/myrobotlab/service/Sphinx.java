@@ -71,6 +71,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	HashMap<String, Command> commands = null;
 	HashMap<String, Command> confirmations = null;
 	HashMap<String, Command> negations = null;
+	HashMap<String, Command> bypass = null;
 	
 	Command currentCommand = null;
 
@@ -292,10 +293,16 @@ public class Sphinx extends Service implements SpeechRecognizer {
 									invoke("negated", "sorry");
 								} else if (commands.containsKey(resultText) && (confirmations != null || negations != null))
 								{
-									// setting new potential command - using either confirmations or negations
-									Command cmd = commands.get(resultText);
-									currentCommand = cmd;
-									invoke("requestConfirmation", resultText);									
+									if (bypass != null && bypass.containsKey(resultText))
+									{
+										// we have confirmation and/or negations - but we also have a bypass
+										send(currentCommand.name, currentCommand.method, currentCommand.params);
+									} else {
+										// setting new potential command - using either confirmations or negations
+										Command cmd = commands.get(resultText);
+										currentCommand = cmd;
+										invoke("requestConfirmation", resultText);		
+									}
 								} else if (commands.containsKey(resultText)) {
 									// no confirmations or negations are being used - just send command
 									Command cmd = commands.get(resultText);
@@ -356,6 +363,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		buildGrammar(newGrammar, commands);
 		buildGrammar(newGrammar, confirmations);
 		buildGrammar(newGrammar, negations);
+		buildGrammar(newGrammar, bypass);
 		
 		if (grammar != null) {
 			if (newGrammar.length() > 0) {
@@ -457,6 +465,20 @@ public class Sphinx extends Service implements SpeechRecognizer {
 	{
 		// TODO - reflect on a public heard method - if doesn't exist error ?
 		addListener("recognized", s.getName(), "heard", String.class);
+	}
+	
+	public void addBypass(String...txt)
+	{
+		if (bypass == null)
+		{
+			bypass = new HashMap<String,Command>();
+		}
+		Command bypassCommand = new Command(this.getName(), "bypass", null);
+		
+		for (int i = 0; i < txt.length; ++i)
+		{
+			bypass.put(txt[i], bypassCommand);
+		}
 	}
 	
 	public void addComfirmations(String...txt)
