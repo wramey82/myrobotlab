@@ -330,11 +330,7 @@ public class Tracking extends Service {
 		// countour == background ??
 		// set state to learn background
 		if (!STATE_LEARNING_BACKGROUND.equals(state) && numberOfNewObjects == 1) {
-			SerializableImage img = data.getImage();
-			if (img == null) {
-				log.error("here");
-				return;
-			}
+			SerializableImage img = new SerializableImage(data.getBufferedImage(), data.getFilterName());
 			double width = img.getWidth();
 			double height = img.getHeight();
 

@@ -56,10 +56,6 @@ public class OpenCVFilterAdaptiveThreshold extends OpenCVFilter {
 		super(name);
 	}
 
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
 
 	/*
 	 * Threshold Applies fixed-level threshold to array elements

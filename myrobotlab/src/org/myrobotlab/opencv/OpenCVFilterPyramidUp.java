@@ -56,12 +56,6 @@ public class OpenCVFilterPyramidUp extends OpenCVFilter {
 		super(name);
 	}
 
-
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return dst.getBufferedImage(); 
-	}
-
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 

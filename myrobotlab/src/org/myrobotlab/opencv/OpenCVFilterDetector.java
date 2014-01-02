@@ -74,13 +74,6 @@ public class OpenCVFilterDetector extends OpenCVFilter {
 		this.threshold = threshold;
 		this.shadowDetection = shadowDetection;
 	}
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return foreground.getBufferedImage();
-	}
-
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {

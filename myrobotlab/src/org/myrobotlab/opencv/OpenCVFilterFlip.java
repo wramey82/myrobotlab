@@ -53,11 +53,6 @@ public class OpenCVFilterFlip extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return flipped.getBufferedImage();
-	}
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		cvFlip(image, flipped, flipCode);

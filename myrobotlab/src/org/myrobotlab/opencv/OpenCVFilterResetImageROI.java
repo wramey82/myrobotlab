@@ -46,11 +46,6 @@ public class OpenCVFilterResetImageROI extends OpenCVFilter {
 		super(name);
 	}
 
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
-
 	IplImage src = null;
 	IplImage dst = null;
 

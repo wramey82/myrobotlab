@@ -53,12 +53,6 @@ public class OpenCVFilterAddAlpha extends OpenCVFilter {
 		super(name);
 	}
 
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return image.getBufferedImage(); // TODO - ran out of memory here
-	}
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
@@ -68,7 +62,7 @@ public class OpenCVFilterAddAlpha extends OpenCVFilter {
 		// http://www.neuroforge.co.uk/index.php/masking-colour-images
 		if (sourceName != null) {
 			// INFO - This filter has 2 keys !!!
-			IplImage src = sources.get(vp.boundServiceName, sourceName);
+			IplImage src = vp.sources.get(vp.boundServiceName, sourceName);
 			if (src != null) {
 				if (dst == null) {
 					dst = src.clone();

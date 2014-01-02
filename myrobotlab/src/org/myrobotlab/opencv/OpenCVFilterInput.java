@@ -48,11 +48,6 @@ public class OpenCVFilterInput extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 		return image;
 	}

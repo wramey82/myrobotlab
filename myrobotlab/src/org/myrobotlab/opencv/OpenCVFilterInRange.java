@@ -102,12 +102,6 @@ public class OpenCVFilterInRange extends OpenCVFilter {
 		super(name);
 	}
 
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return ret.getBufferedImage(); // TODO - ran out of memory here
-	}
-
 	public void samplePoint(Integer x, Integer y) {
 
 		frameBuffer = hsv.getBufferedImage();

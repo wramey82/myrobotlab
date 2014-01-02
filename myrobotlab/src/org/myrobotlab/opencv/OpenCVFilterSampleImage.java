@@ -76,17 +76,6 @@ public class OpenCVFilterSampleImage extends OpenCVFilter {
 		super(name);
 	}
 	
-
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		BufferedImage bi = image.getBufferedImage();
-		/*
-		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);
-		 * graphics.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-		 */
-		return bi;
-	}
-
 	public void loadImage(String path) {
 		try {
 			URL url = new URL(path);

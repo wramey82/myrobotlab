@@ -71,27 +71,6 @@ public class OpenCVFilterKinectInterleave extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-		/*
-		 * frameBuffer = dst.getBufferedImage(); // TODO - ran out of memory
-		 * here ++frameCounter; if (x != 0 && clickCounter % 2 == 0) { if (g ==
-		 * null) { g = frameBuffer.getGraphics(); }
-		 * 
-		 * if (frameCounter % 10 == 0) { lastHexValueOfPoint =
-		 * Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff); }
-		 * g.setColor(Color.green); frameBuffer.getRGB(x, y);
-		 * g.drawString(lastHexValueOfPoint, x, y); }
-		 * 
-		 * return frameBuffer;
-		 */
-	}
-
-
-	// CvScalar min = cvScalar(cfg.getFloat("hueMin"), 0.0, 0.0, 0.0);
-	// CvScalar max = cvScalar(cfg.getFloat("hueMax"), 1000.0, 0.0, 0.0);
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image.nChannels() == 3) // rgb

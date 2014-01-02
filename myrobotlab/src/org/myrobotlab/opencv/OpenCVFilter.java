@@ -33,7 +33,6 @@ import java.util.ArrayList;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
@@ -54,7 +53,6 @@ public abstract class OpenCVFilter implements Serializable {
 	public boolean publishDisplay = false;
 	public boolean publishData = true;
 	public boolean publishImage = false;
-	//public boolean publishIplImage = false;
 	
 	int width;
 	int height;
@@ -65,9 +63,7 @@ public abstract class OpenCVFilter implements Serializable {
 
 	public String sourceKey;
 
-	transient VideoSources sources = new VideoSources();
-
-	VideoProcessor vp;
+	transient protected VideoProcessor vp;
 	
 	public OpenCVFilter()
 	{
@@ -87,17 +83,18 @@ public abstract class OpenCVFilter implements Serializable {
 	}
 
 	public abstract IplImage process(IplImage image, OpenCVData data);
-	public abstract BufferedImage display(IplImage image, OpenCVData data);
+	public IplImage display(IplImage image, OpenCVData data) {
+		return image;
+	}
 	public abstract void imageChanged(IplImage image);
 
+	public void setVideoProcessor(VideoProcessor vp){
+		this.vp = vp;
+	}
+	
 	public VideoProcessor getVideoProcessor()
 	{
 		return vp;
-	}
-	
-	public VideoSources getSources()
-	{
-		return sources;
 	}
 	
 	public OpenCVFilter setState(OpenCVFilter other)
@@ -109,7 +106,7 @@ public abstract class OpenCVFilter implements Serializable {
 		data.setFilterName(String.format("%s.%s", vp.boundServiceName, this.name));
 		this.frameIndex = frameIndex;
 		
-		Logging.logTime(String.format("preProcess begin %s", data.filtername));
+		//Logging.logTime(String.format("preProcess begin %s", data.filtername));
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
 			width = frame.width();
@@ -117,7 +114,7 @@ public abstract class OpenCVFilter implements Serializable {
 			height = frame.height();
 			imageSize = cvGetSize(frame);
 			imageChanged(frame);
-			Logging.logTime(String.format("image Changed !!! %s", data.filtername));
+			//Logging.logTime(String.format("image Changed !!! %s", data.filtername));
 		}
 		return frame;
 	}

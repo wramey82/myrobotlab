@@ -47,8 +47,10 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
 import static com.googlecode.javacv.cpp.opencv_core.cvLoad;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_DO_CANNY_PRUNING;
 import static com.googlecode.javacv.cpp.opencv_objdetect.CV_HAAR_FIND_BIGGEST_OBJECT;
 import static com.googlecode.javacv.cpp.opencv_objdetect.cvHaarDetectObjects;
@@ -110,29 +112,30 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		super(name);
 	}
 
+	int intX, intY;
+	
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
+	public IplImage display(IplImage image, OpenCVData data) {
 
 		if (data != null) {
 			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
 			if (bb != null) {
-				BufferedImage bi = image.getBufferedImage();
-				Graphics2D g2d = bi.createGraphics();
-				g2d.setColor(Color.RED);
 				for (int i = 0; i < bb.size(); ++i) {
 					Rectangle rect = bb.get(i);
+					intX = (int)rect.x;
+					intY = (int)rect.y;
 					if (useFloatValues) {
-						g2d.drawRect((int) (rect.x * width), (int) (rect.y * height), (int) (rect.width * width), (int) (rect.height * height));
+						cvDrawRect(image, cvPoint(intX * width, intY * height), cvPoint(intX + (int)(rect.width * width), intY + (int)(rect.height * height)), null, 1, 1, 0);
 					} else {
-						g2d.drawRect((int) rect.x, (int) rect.y, (int) rect.width, (int) rect.height);
+						cvDrawRect(image, cvPoint(intX, intY), cvPoint(intX + (int)(rect.width), intY + (int)(rect.height)), null, 1, 1, 0);
 					}
 				}
 
-				return bi;
+				return image;
 			}
 		}
 
-		return image.getBufferedImage();
+		return image;
 	}
 
 	@Override

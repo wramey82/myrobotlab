@@ -54,11 +54,6 @@ public class OpenCVFilterGray extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		if (image.nChannels() == 3) {

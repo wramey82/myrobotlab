@@ -29,8 +29,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 
-import java.awt.image.BufferedImage;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -53,15 +51,10 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return dst.getBufferedImage();
-	}
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		// INFO - This filter has 2 keys !!!
-		IplImage mask = sources.get(vp.boundServiceName, String.format("%s_MASK", name));
+		IplImage mask = vp.sources.get(vp.boundServiceName, String.format("%s_MASK", name));
 		
 		maskName = "kd";
 		if (mask != null) {

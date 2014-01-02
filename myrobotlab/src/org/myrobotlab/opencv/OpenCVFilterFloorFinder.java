@@ -65,14 +65,6 @@ public class OpenCVFilterFloorFinder extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		// CvScalar avg = cxcore.cvAvg(image, null);
-		// cv.cvFloodFill(image, startPoint, fillColor,
-		// lo_diff, up_diff, null, 4, null);
-		return image.getBufferedImage();
-	}
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 		// if (startPoint == null)
 		{

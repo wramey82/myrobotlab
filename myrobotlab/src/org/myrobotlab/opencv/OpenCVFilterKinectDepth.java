@@ -83,16 +83,10 @@ public class OpenCVFilterKinectDepth extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
-
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		// INFO - This filter has 2 sources !!!
-		IplImage kinectDepth = sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
+		IplImage kinectDepth = vp.sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
 
 		// allowing publish & fork
 		if (dst == null || dst.width() != image.width() || dst.nChannels() != image.nChannels()) {
